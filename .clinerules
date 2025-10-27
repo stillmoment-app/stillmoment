@@ -1,0 +1,52 @@
+# MediTimer - Claude AI Rules
+# This file is automatically read by Claude Code
+
+## 🎯 PRIMARY DIRECTIVE
+
+**READ CLAUDE.md FIRST** - This is the primary development guide for this repository.
+
+This file provides quick essential reminders. For comprehensive guidance, always refer to:
+- **CLAUDE.md** - Primary development guide (START HERE)
+- **.claude.md** - Detailed code standards (840 lines)
+
+## ⚡ Quick Essentials
+
+### File Management
+✅ **Auto-sync enabled** for all folders (MediTimer/, MediTimerTests/, MediTimerUITests/)
+→ New Swift files appear automatically in Xcode. No manual adding needed!
+
+### Commands
+```bash
+make help      # Show all commands
+make format    # Format code
+make lint      # Lint code
+⌘U             # Run tests in Xcode
+make coverage  # Generate coverage report
+```
+
+### Absolute Rules (Enforced by CI)
+❌ **NEVER**: Force unwraps (`!`), `print()` statements, preconditions
+✅ **ALWAYS**: OSLog, [weak self], accessibility labels, ≥80% coverage
+
+### Workflow
+1. Read CLAUDE.md for detailed guidance
+2. Follow Clean Architecture (Domain → Application → Infrastructure → Presentation)
+3. Write tests concurrently (TDD)
+4. Files auto-sync to Xcode
+5. Run: `make format && make lint && ⌘U`
+6. Verify coverage: `make coverage`
+
+## 📚 Documentation Hierarchy
+
+When in doubt, check in this order:
+1. **CLAUDE.md** - Primary guide (280 lines, comprehensive)
+2. **.claude.md** - Detailed standards (840 lines, reference)
+3. **This file** - Quick reminders (auto-read)
+
+**For everything else**: See CLAUDE.md
+
+---
+
+**Version**: 3.0 (Minimal - 2025-10-26)
+**Primary Reference**: CLAUDE.md
+**Auto-read**: Yes (by Claude Code)

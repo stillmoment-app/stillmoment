@@ -1,0 +1,39 @@
+# Pre-commit hooks configuration for MediTimer
+# See https://pre-commit.com for more information
+
+repos:
+  # Swift formatting
+  - repo: https://github.com/nicklockwood/SwiftFormat
+    rev: 0.54.3
+    hooks:
+      - id: swiftformat
+        args: [--swiftversion, "5.9"]
+
+  # Swift linting
+  - repo: https://github.com/realm/SwiftLint
+    rev: 0.55.1
+    hooks:
+      - id: swiftlint
+        args: [--strict]
+
+  # General file cleanup
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Prevent committing secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json

@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+
+jobs:
+  lint:
+    name: SwiftLint & SwiftFormat
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install SwiftLint
+      run: brew install swiftlint
+
+    - name: Run SwiftLint
+      run: swiftlint lint --strict
+
+    - name: Install SwiftFormat
+      run: brew install swiftformat
+
+    - name: Check SwiftFormat
+      run: swiftformat --lint .
+
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+    - name: Show Xcode version
+      run: xcodebuild -version
+
+    - name: Build app
+      run: |
+        xcodebuild clean build \
+          -project MediTimer.xcodeproj \
+          -scheme MediTimer \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+
+    - name: Run Unit Tests
+      run: |
+        xcodebuild test \
+          -project MediTimer.xcodeproj \
+          -scheme MediTimer \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -enableCodeCoverage YES \
+          -resultBundlePath TestResults.xcresult \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+
+    - name: Generate Code Coverage
+      run: |
+        xcrun xccov view --report --json TestResults.xcresult > coverage.json
+        xcrun xccov view --report TestResults.xcresult > coverage.txt
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: |
+          coverage.json
+          coverage.txt
+          TestResults.xcresult
+
+    - name: Check Coverage Threshold
+      run: |
+        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "MediTimer.app" | awk '{print $4}' | sed 's/%//')
+        echo "Code Coverage: $COVERAGE%"
+        if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
+          echo "❌ Code coverage is below 80% threshold"
+          exit 1
+        else
+          echo "✅ Code coverage meets 80% threshold"
+        fi
+
+  ui-tests:
+    name: UI Tests
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+    - name: Run UI Tests
+      run: |
+        xcodebuild test \
+          -project MediTimer.xcodeproj \
+          -scheme MediTimer \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -only-testing:MediTimerUITests \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+
+    - name: Upload UI Test Results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ui-test-results
+        path: ~/Library/Logs/DiagnosticReports/
+
+  analyze:
+    name: Static Analysis
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+    - name: Run Xcode Analyze
+      run: |
+        xcodebuild analyze \
+          -project MediTimer.xcodeproj \
+          -scheme MediTimer \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO

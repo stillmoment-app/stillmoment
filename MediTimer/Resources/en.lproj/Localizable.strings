@@ -1,0 +1,139 @@
+/*
+  Localizable.strings (English)
+  MediTimer
+*/
+
+// MARK: - Main Screen
+
+"welcome.title" = "Lovely to see you";
+"duration.question" = "How much time do you want to gift yourself?";
+"duration.footer" = "You deserve this pause";
+"duration.minutes" = "%d min";
+
+// MARK: - Buttons
+
+"button.start" = "Start";
+"button.pause" = "Brief pause";
+"button.resume" = "Resume";
+"button.reset" = "Start over";
+"button.settings" = "Settings";
+"button.done" = "Done";
+
+// MARK: - State Messages
+
+"state.ready" = "Ready when you are";
+"state.paused" = "Take your time";
+"state.completed" = "Beautiful practice";
+
+// MARK: - Countdown Affirmations
+
+"affirmation.countdown.1" = "Settle in...";
+"affirmation.countdown.2" = "Take a deep breath...";
+"affirmation.countdown.3" = "Prepare gently...";
+"affirmation.countdown.4" = "Time for you soon...";
+
+// MARK: - Running Affirmations
+
+"affirmation.running.1" = "Breathe softly";
+"affirmation.running.2" = "All is welcome";
+"affirmation.running.3" = "You're here, that's enough";
+"affirmation.running.4" = "Kindness begins here";
+"affirmation.running.5" = "";
+
+// MARK: - Helper Text
+
+"timer.lockscreen.hint" = "The screen may rest 💫";
+
+// MARK: - Settings
+
+"settings.title" = "Settings";
+"settings.backgroundAudio.title" = "Background Audio";
+"settings.backgroundAudio.silent" = "Silent";
+"settings.backgroundAudio.whiteNoise" = "White Noise";
+"settings.backgroundAudio.footer.silent" = "Keeps the app gently active in the background. Almost silent, just present.";
+"settings.backgroundAudio.footer.whiteNoise" = "Soft ambient sound to help you settle into your practice.";
+
+"settings.intervalGongs.title" = "Interval Gongs";
+"settings.intervalGongs.description" = "Play a gong sound at regular intervals during meditation";
+"settings.intervalGongs.interval" = "Interval";
+"settings.intervalGongs.footer" = "A gentle bell every %d minutes invites you to check in with yourself.";
+
+"settings.soundSettings.title" = "Sound Settings";
+
+"settings.interval.3min" = "3 minutes";
+"settings.interval.5min" = "5 minutes";
+"settings.interval.10min" = "10 minutes";
+
+// MARK: - Accessibility
+
+"accessibility.settings" = "Settings";
+"accessibility.settings.hint" = "Open settings to configure interval gongs";
+"accessibility.startMeditation" = "Start meditation";
+"accessibility.startMeditation.hint" = "Starts the meditation timer with the selected duration";
+"accessibility.pauseMeditation" = "Pause meditation";
+"accessibility.pauseMeditation.hint" = "Pauses the running meditation timer";
+"accessibility.resumeMeditation" = "Resume meditation";
+"accessibility.resumeMeditation.hint" = "Resumes the paused meditation timer";
+"accessibility.resetTimer" = "Reset timer";
+"accessibility.resetTimer.hint" = "Resets the timer to its initial state";
+"accessibility.durationPicker" = "Meditation duration picker";
+"accessibility.durationPicker.hint" = "Select the duration for your meditation session in minutes";
+"accessibility.countdown" = "Countdown: %d seconds";
+"accessibility.remainingTime" = "Remaining time: %@";
+"accessibility.timerState.idle" = "Timer is ready to start";
+"accessibility.timerState.countdown" = "Countdown in progress. Get ready to meditate.";
+"accessibility.timerState.running" = "Timer is running. Currently meditating.";
+"accessibility.timerState.paused" = "Timer is paused";
+"accessibility.timerState.completed" = "Meditation session completed";
+"accessibility.backgroundAudioMode" = "Background audio mode";
+"accessibility.backgroundAudioMode.hint" = "Choose audio to play during meditation";
+"accessibility.intervalGongs" = "Interval Gongs";
+"accessibility.intervalGongs.hint" = "Enable or disable interval gongs during meditation";
+"accessibility.intervalDuration" = "Interval duration";
+"accessibility.intervalDuration.hint" = "Select how often the interval gong should play";
+"accessibility.done" = "Done";
+"accessibility.done.hint" = "Save settings and close";
+
+// MARK: - Time Units
+
+"time.minutes" = "%d minutes";
+"time.minute" = "%d minute";
+"time.seconds" = "%d seconds";
+"time.second" = "%d second";
+"time.remaining" = "remaining";
+"time.zeroRemaining" = "Zero seconds remaining";
+
+// MARK: - Guided Meditations
+
+"guided_meditations.title" = "Guided Meditations";
+"guided_meditations.button" = "Guided Meditations";
+"guided_meditations.add" = "Add meditation";
+"guided_meditations.import" = "Import meditation";
+"guided_meditations.edit" = "Edit";
+
+"guided_meditations.empty.title" = "No meditations yet";
+"guided_meditations.empty.message" = "Add your first guided meditation by importing an MP3 file from the Files app.";
+
+"guided_meditations.edit.title" = "Edit meditation";
+"guided_meditations.edit.teacher" = "Teacher/Guide";
+"guided_meditations.edit.teacherPlaceholder" = "Teacher's name";
+"guided_meditations.edit.name" = "Name";
+"guided_meditations.edit.namePlaceholder" = "Meditation name";
+"guided_meditations.edit.original" = "Original: %@";
+"guided_meditations.edit.file" = "File";
+"guided_meditations.edit.duration" = "Duration";
+"guided_meditations.edit.fileInfo" = "File Information";
+"guided_meditations.edit.reset" = "Reset to original";
+
+"guided_meditations.player.teacher" = "Teacher";
+"guided_meditations.player.title" = "Meditation title";
+"guided_meditations.player.progress" = "Progress";
+"guided_meditations.player.currentTime" = "Current time";
+"guided_meditations.player.remainingTime" = "Remaining time";
+"guided_meditations.player.play" = "Play";
+"guided_meditations.player.pause" = "Pause";
+"guided_meditations.player.stop" = "Stop";
+"guided_meditations.player.skipForward" = "Skip forward 15 seconds";
+"guided_meditations.player.skipBackward" = "Skip backward 15 seconds";
+
+"accessibility.guidedMeditations.hint" = "Open guided meditations library";

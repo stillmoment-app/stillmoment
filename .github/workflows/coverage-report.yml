@@ -1,0 +1,79 @@
+name: Coverage Report
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  coverage:
+    name: Generate Coverage Report
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+
+    - name: Run Tests with Coverage
+      run: |
+        xcodebuild test \
+          -project MediTimer.xcodeproj \
+          -scheme MediTimer \
+          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -enableCodeCoverage YES \
+          -resultBundlePath TestResults.xcresult \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+
+    - name: Extract Coverage Metrics
+      id: coverage
+      run: |
+        # Get overall coverage
+        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "MediTimer.app" | awk '{print $4}')
+        echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+
+        # Generate detailed report
+        xcrun xccov view --report TestResults.xcresult > coverage-report.txt
+
+        # Create markdown summary
+        cat << EOF > coverage-summary.md
+        ## 📊 Code Coverage Report
+
+        **Overall Coverage: $COVERAGE**
+
+        ### Details:
+        \`\`\`
+        $(xcrun xccov view --report TestResults.xcresult)
+        \`\`\`
+
+        ### Coverage by File:
+        \`\`\`
+        $(xcrun xccov view --report --files-for-target MediTimer.app TestResults.xcresult)
+        \`\`\`
+        EOF
+
+    - name: Comment PR with Coverage
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const fs = require('fs');
+          const coverage = fs.readFileSync('coverage-summary.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: coverage
+          });
+
+    - name: Upload Coverage Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-results
+        path: |
+          coverage-report.txt
+          coverage-summary.md
+          TestResults.xcresult

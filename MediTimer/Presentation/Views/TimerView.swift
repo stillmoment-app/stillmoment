@@ -1,0 +1,310 @@
+//
+//  TimerView.swift
+//  MediTimer
+//
+//  Presentation Layer - Main Timer View
+//
+
+import SwiftUI
+
+/// Main view for the meditation timer
+struct TimerView: View {
+    // MARK: Lifecycle
+
+    init(viewModel: TimerViewModel? = nil) {
+        if let viewModel {
+            _viewModel = StateObject(wrappedValue: viewModel)
+        } else {
+            _viewModel = StateObject(wrappedValue: TimerViewModel())
+        }
+    }
+
+    // MARK: Internal
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 40) {
+                Spacer()
+
+                // Title
+                Text("welcome.title", bundle: .main)
+                    .font(.system(size: 28, weight: .light, design: .rounded))
+                    .foregroundColor(.warmBlack)
+
+                Spacer()
+
+                // Timer Display or Picker
+                if self.viewModel.timerState == .idle {
+                    self.minutePicker
+                } else {
+                    self.timerDisplay
+                }
+
+                Spacer()
+
+                // Control Buttons
+                self.controlButtons
+
+                Spacer()
+
+                // Error Message
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+            }
+            .padding()
+            .background(
+                Color.warmGradient
+                    .ignoresSafeArea()
+            )
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        self.showGuidedMeditations = true
+                    } label: {
+                        Image(systemName: "music.note.list")
+                            .foregroundColor(.warmGray)
+                    }
+                    .accessibilityLabel("guided_meditations.button")
+                    .accessibilityHint("accessibility.guidedMeditations.hint")
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { self.showSettings = true }) {
+                        Image(systemName: "ellipsis")
+                            .foregroundColor(.warmGray)
+                            .rotationEffect(.degrees(90))
+                    }
+                    .accessibilityLabel("accessibility.settings")
+                    .accessibilityHint("accessibility.settings.hint")
+                }
+            }
+            .sheet(isPresented: self.$showSettings) {
+                SettingsView(settings: self.$viewModel.settings) {
+                    self.showSettings = false
+                    self.viewModel.saveSettings()
+                }
+            }
+            .sheet(isPresented: self.$showGuidedMeditations) {
+                GuidedMeditationsListView()
+            }
+        }
+    }
+
+    // MARK: Private
+
+    @StateObject private var viewModel: TimerViewModel
+    @State private var showSettings = false
+    @State private var showGuidedMeditations = false
+
+    private var stateText: String {
+        switch self.viewModel.timerState {
+        case .idle:
+            NSLocalizedString("state.ready", comment: "")
+        case .countdown:
+            self.viewModel.currentCountdownAffirmation
+        case .running:
+            self.viewModel.currentRunningAffirmation
+        case .paused:
+            NSLocalizedString("state.paused", comment: "")
+        case .completed:
+            NSLocalizedString("state.completed", comment: "")
+        }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    private var accessibilityTimeValue: String {
+        let minutes = self.viewModel.remainingSeconds / 60
+        let seconds = self.viewModel.remainingSeconds % 60
+
+        var components: [String] = []
+
+        if minutes > 0 {
+            components.append("\(minutes) \(minutes == 1 ? "minute" : "minutes")")
+        }
+
+        if seconds > 0 {
+            components.append("\(seconds) \(seconds == 1 ? "second" : "seconds")")
+        }
+
+        if components.isEmpty {
+            return "Zero seconds remaining"
+        }
+
+        return components.joined(separator: " and ") + " remaining"
+    }
+
+    private var accessibilityStateLabel: String {
+        switch self.viewModel.timerState {
+        case .idle:
+            NSLocalizedString("accessibility.timerState.idle", comment: "")
+        case .countdown:
+            NSLocalizedString("accessibility.timerState.countdown", comment: "")
+        case .running:
+            NSLocalizedString("accessibility.timerState.running", comment: "")
+        case .paused:
+            NSLocalizedString("accessibility.timerState.paused", comment: "")
+        case .completed:
+            NSLocalizedString("accessibility.timerState.completed", comment: "")
+        }
+    }
+
+    // MARK: - View Components
+
+    private var minutePicker: some View {
+        VStack(spacing: 20) {
+            Text("🤲")
+                .font(.system(size: 48))
+                .padding(.bottom, 8)
+
+            Text("duration.question", bundle: .main)
+                .font(.system(size: 20, weight: .light, design: .rounded))
+                .foregroundColor(.warmBlack)
+
+            Picker("Minutes", selection: self.$viewModel.selectedMinutes) {
+                ForEach(1...60, id: \.self) { minute in
+                    Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
+                        .tag(minute)
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(height: 150)
+            .accessibilityLabel("accessibility.durationPicker")
+            .accessibilityHint("accessibility.durationPicker.hint")
+
+            Text("duration.footer", bundle: .main)
+                .font(.system(size: 15, weight: .light, design: .rounded))
+                .foregroundColor(.warmGray)
+                .italic()
+                .padding(.top, 16)
+        }
+    }
+
+    private var timerDisplay: some View {
+        VStack(spacing: 20) {
+            // Circular Progress (or Countdown Display)
+            ZStack {
+                if self.viewModel.isCountdown {
+                    // Countdown Display
+                    Circle()
+                        .stroke(Color.ringBackground, lineWidth: 8)
+                        .frame(width: 250, height: 250)
+
+                    Text(self.viewModel.formattedTime)
+                        .font(.system(size: 100, weight: .ultraLight, design: .rounded))
+                        .foregroundColor(.warmBlack)
+                        .monospacedDigit()
+                        .accessibilityLabel("Countdown: \(self.viewModel.countdownSeconds) seconds")
+                } else {
+                    // Regular Timer Display
+                    Circle()
+                        .stroke(Color.ringBackground, lineWidth: 8)
+                        .frame(width: 250, height: 250)
+
+                    Circle()
+                        .trim(from: 0, to: self.viewModel.progress)
+                        .stroke(
+                            Color.terracotta,
+                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                        )
+                        .frame(width: 250, height: 250)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.linear(duration: 0.5), value: self.viewModel.progress)
+                        .shadow(color: Color.terracotta.opacity(0.3), radius: 8, x: 0, y: 0)
+
+                    // Time Display
+                    Text(self.viewModel.formattedTime)
+                        .font(.system(size: 60, weight: .thin, design: .rounded))
+                        .foregroundColor(.warmBlack)
+                        .monospacedDigit()
+                        .accessibilityLabel("Remaining time: \(self.viewModel.formattedTime)")
+                        .accessibilityValue(self.accessibilityTimeValue)
+                }
+            }
+
+            // State Indicator
+            Text(self.stateText)
+                .font(.system(size: 16, weight: .regular, design: .rounded))
+                .foregroundColor(.warmGray)
+                .accessibilityLabel(self.accessibilityStateLabel)
+
+            // Gentle reminder for running state
+            if self.viewModel.timerState == .running {
+                Text("timer.lockscreen.hint", bundle: .main)
+                    .font(.system(size: 13, weight: .light, design: .rounded))
+                    .foregroundColor(.warmGray.opacity(0.7))
+                    .padding(.top, 40)
+            }
+        }
+    }
+
+    private var controlButtons: some View {
+        HStack(spacing: 30) {
+            // Start/Resume/Pause Button
+            if self.viewModel.canStart {
+                Button(action: self.viewModel.startTimer) {
+                    Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
+                }
+                .warmPrimaryButton()
+                .accessibilityLabel("accessibility.startMeditation")
+                .accessibilityHint("accessibility.startMeditation.hint")
+            } else if self.viewModel.canPause {
+                Button(action: self.viewModel.pauseTimer) {
+                    Label(NSLocalizedString("button.pause", comment: ""), systemImage: "pause.circle")
+                }
+                .warmSecondaryButton()
+                .accessibilityLabel("accessibility.pauseMeditation")
+                .accessibilityHint("accessibility.pauseMeditation.hint")
+            } else if self.viewModel.canResume {
+                Button(action: self.viewModel.resumeTimer) {
+                    Label(NSLocalizedString("button.resume", comment: ""), systemImage: "play.fill")
+                }
+                .warmPrimaryButton()
+                .accessibilityLabel("accessibility.resumeMeditation")
+                .accessibilityHint("accessibility.resumeMeditation.hint")
+            }
+
+            // Reset Button
+            if self.viewModel.canReset {
+                Button(action: self.viewModel.resetTimer) {
+                    Label(NSLocalizedString("button.reset", comment: ""), systemImage: "arrow.counterclockwise")
+                }
+                .warmSecondaryButton()
+                .accessibilityLabel("accessibility.resetTimer")
+                .accessibilityHint("accessibility.resetTimer.hint")
+            }
+        }
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Idle") {
+    TimerView()
+}
+
+#Preview("Countdown") {
+    let viewModel = TimerViewModel.preview(state: .countdown)
+    TimerView(viewModel: viewModel)
+}
+
+#Preview("Running") {
+    let viewModel = TimerViewModel.preview(state: .running)
+    TimerView(viewModel: viewModel)
+}
+
+#Preview("Paused") {
+    let viewModel = TimerViewModel.preview(state: .paused)
+    TimerView(viewModel: viewModel)
+}
+
+#Preview("Completed") {
+    let viewModel = TimerViewModel.preview(state: .completed)
+    TimerView(viewModel: viewModel)
+}
