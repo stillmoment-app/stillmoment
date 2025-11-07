@@ -34,27 +34,28 @@ final class AudioService: AudioServiceProtocol {
     func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
 
-        // Only configure if not already active to avoid conflicts
-        // Check if our category is already set
-        if audioSession.category == .playback {
-            Logger.audio.debug("Audio session already configured, skipping")
-            return
+        // Only set category if not already set
+        if audioSession.category != .playback {
+            Logger.audio.info("Setting audio session category to playback")
+            do {
+                try audioSession.setCategory(
+                    .playback,
+                    mode: .default,
+                    options: []
+                )
+            } catch {
+                Logger.audio.error("Failed to set audio session category", error: error)
+                throw AudioServiceError.sessionConfigurationFailed
+            }
         }
 
-        Logger.audio.info("Configuring audio session for background-capable playback")
-
+        // Always activate the session (might be deactivated from previous usage)
+        // This is safe to call multiple times
         do {
-            // Configure for background playback
-            // No .mixWithOthers - this is primary audio for meditation
-            try audioSession.setCategory(
-                .playback,
-                mode: .default,
-                options: []
-            )
             try audioSession.setActive(true)
-            Logger.audio.info("Audio session configured successfully for background mode")
+            Logger.audio.debug("Audio session activated for playback")
         } catch {
-            Logger.audio.error("Failed to configure audio session", error: error)
+            Logger.audio.error("Failed to activate audio session", error: error)
             throw AudioServiceError.sessionConfigurationFailed
         }
     }

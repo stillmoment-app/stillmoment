@@ -127,14 +127,17 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
 
-        // Only configure if not already active to avoid conflicts
-        if audioSession.category == .playback {
-            return
+        // Only set category if not already set
+        if audioSession.category != .playback {
+            do {
+                try audioSession.setCategory(.playback, mode: .default)
+            } catch {
+                throw AudioPlayerError.audioSessionFailed
+            }
         }
 
+        // Always activate the session (might be deactivated from previous usage)
         do {
-            // Configure for playback with background audio support
-            try audioSession.setCategory(.playback, mode: .default)
             try audioSession.setActive(true)
         } catch {
             throw AudioPlayerError.audioSessionFailed
