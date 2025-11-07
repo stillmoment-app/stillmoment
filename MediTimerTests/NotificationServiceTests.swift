@@ -5,8 +5,8 @@
 //  Unit Tests - NotificationService
 //
 
-import XCTest
 import UserNotifications
+import XCTest
 @testable import MediTimer
 
 final class NotificationServiceTests: XCTestCase {
@@ -14,13 +14,13 @@ final class NotificationServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = NotificationService()
+        self.sut = NotificationService()
     }
 
     override func tearDown() {
         // Clean up any pending notifications
-        sut.cancelAllNotifications()
-        sut = nil
+        self.sut.cancelAllNotifications()
+        self.sut = nil
         super.tearDown()
     }
 
@@ -46,7 +46,7 @@ final class NotificationServiceTests: XCTestCase {
             .denied,
             .authorized,
             .provisional,
-            .ephemeral
+            .ephemeral,
         ]
         XCTAssertTrue(validStatuses.contains(status))
     }
@@ -58,7 +58,7 @@ final class NotificationServiceTests: XCTestCase {
         let timeInterval: TimeInterval = 60.0 // 1 minute
 
         // When
-        XCTAssertNoThrow(try sut.scheduleTimerCompletionNotification(timeInterval: timeInterval))
+        XCTAssertNoThrow(try self.sut.scheduleTimerCompletionNotification(timeInterval: timeInterval))
 
         // Then - Notification should be scheduled
         // We verify by checking pending notifications
@@ -87,10 +87,10 @@ final class NotificationServiceTests: XCTestCase {
 
     func testScheduleMultipleNotifications() throws {
         // Given - Schedule first notification
-        try sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
 
         // When - Schedule second notification (should replace first)
-        try sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
 
         // Then - Should only have one notification
         let expectation = expectation(description: "Check pending notifications")
@@ -110,7 +110,7 @@ final class NotificationServiceTests: XCTestCase {
 
     func testScheduleNotificationWithZeroInterval() throws {
         // When - Schedule with zero interval (immediate)
-        try sut.scheduleTimerCompletionNotification(timeInterval: 0.1)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 0.1)
 
         // Then - Should not throw
         let expectation = expectation(description: "Check pending notifications")
@@ -125,7 +125,7 @@ final class NotificationServiceTests: XCTestCase {
 
     func testScheduleNotificationWithLargeInterval() throws {
         // When - Schedule with large interval (e.g., 1 hour)
-        try sut.scheduleTimerCompletionNotification(timeInterval: 3600.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 3600.0)
 
         // Then - Should not throw
         let expectation = expectation(description: "Check pending notifications")
@@ -147,10 +147,10 @@ final class NotificationServiceTests: XCTestCase {
 
     func testCancelAllNotifications() throws {
         // Given - Schedule some notifications
-        try sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
 
         // When
-        sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
 
         // Then - Should have no pending notifications
         let expectation = expectation(description: "Check notifications cancelled")
@@ -165,7 +165,7 @@ final class NotificationServiceTests: XCTestCase {
 
     func testCancelNotificationsWhenNonePending() {
         // When - Cancel when no notifications exist
-        sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
 
         // Then - Should not crash
         let expectation = expectation(description: "Check no notifications")
@@ -180,12 +180,12 @@ final class NotificationServiceTests: XCTestCase {
 
     func testMultipleCancellations() throws {
         // Given
-        try sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
 
         // When - Cancel multiple times
-        sut.cancelAllNotifications()
-        sut.cancelAllNotifications()
-        sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
 
         // Then - Should not crash
         let expectation = expectation(description: "Check notifications cancelled")
@@ -202,7 +202,7 @@ final class NotificationServiceTests: XCTestCase {
 
     func testNotificationContent() throws {
         // Given
-        try sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
 
         // Then - Verify content
         let expectation = expectation(description: "Check notification content")
@@ -229,10 +229,10 @@ final class NotificationServiceTests: XCTestCase {
 
     func testFullNotificationFlow() async throws {
         // Given - Request authorization first
-        _ = try await sut.requestAuthorization()
+        _ = try await self.sut.requestAuthorization()
 
         // When - Schedule notification
-        try sut.scheduleTimerCompletionNotification(timeInterval: 300.0) // 5 minutes
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 300.0) // 5 minutes
 
         // Then - Verify scheduled
         let expectation = expectation(description: "Verify notification flow")
@@ -245,7 +245,7 @@ final class NotificationServiceTests: XCTestCase {
         wait(for: [expectation], timeout: 2.0)
 
         // When - Cancel
-        sut.cancelAllNotifications()
+        self.sut.cancelAllNotifications()
 
         // Then - Verify cancelled
         let cancelExpectation = self.expectation(description: "Verify cancellation")
@@ -260,11 +260,11 @@ final class NotificationServiceTests: XCTestCase {
 
     func testScheduleAfterCancellation() throws {
         // Given - Schedule and cancel
-        try sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
-        sut.cancelAllNotifications()
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        self.sut.cancelAllNotifications()
 
         // When - Schedule again
-        try sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
 
         // Then - Should have new notification
         let expectation = expectation(description: "Check new notification")

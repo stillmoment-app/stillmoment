@@ -9,7 +9,6 @@ import XCTest
 @testable import MediTimer
 
 final class MeditationTimerTests: XCTestCase {
-
     func testInitialization() throws {
         // Given
         let duration = 10

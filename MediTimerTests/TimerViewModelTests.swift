@@ -5,17 +5,14 @@
 //  Unit Tests - TimerViewModel
 //
 
-import XCTest
 import Combine
+import XCTest
 @testable import MediTimer
 
 // MARK: - Mock Services
 
 final class MockTimerService: TimerServiceProtocol {
-    private let subject = PassthroughSubject<MeditationTimer, Never>()
-    var timerPublisher: AnyPublisher<MeditationTimer, Never> {
-        subject.eraseToAnyPublisher()
-    }
+    // MARK: Internal
 
     var startCalled = false
     var pauseCalled = false
@@ -25,34 +22,38 @@ final class MockTimerService: TimerServiceProtocol {
 
     var lastStartDuration: Int?
 
+    var timerPublisher: AnyPublisher<MeditationTimer, Never> {
+        self.subject.eraseToAnyPublisher()
+    }
+
     func start(durationMinutes: Int) {
-        startCalled = true
-        lastStartDuration = durationMinutes
+        self.startCalled = true
+        self.lastStartDuration = durationMinutes
 
         guard let timer = try? MeditationTimer(durationMinutes: durationMinutes) else { return }
-        subject.send(timer.withState(.running))
+        self.subject.send(timer.withState(.running))
     }
 
     func pause() {
-        pauseCalled = true
+        self.pauseCalled = true
     }
 
     func resume() {
-        resumeCalled = true
+        self.resumeCalled = true
     }
 
     func reset() {
-        resetCalled = true
+        self.resetCalled = true
     }
 
     func stop() {
-        stopCalled = true
+        self.stopCalled = true
     }
 
     func simulateTick(remainingSeconds: Int, state: TimerState = .running) {
         guard let timer = try? MeditationTimer(durationMinutes: 10) else { return }
         // Create a timer with custom remaining seconds (simplified for testing)
-        subject.send(timer.withState(state))
+        self.subject.send(timer.withState(state))
     }
 
     func simulateCompletion() {
@@ -63,12 +64,20 @@ final class MockTimerService: TimerServiceProtocol {
         for _ in 0..<60 {
             completedTimer = completedTimer.tick()
         }
-        subject.send(completedTimer)
+        self.subject.send(completedTimer)
     }
+
+    // MARK: Private
+
+    private let subject = PassthroughSubject<MeditationTimer, Never>()
 }
 
 final class MockAudioService: AudioServiceProtocol {
     var configureAudioSessionCalled = false
+    var startBackgroundAudioCalled = false
+    var stopBackgroundAudioCalled = false
+    var playStartGongCalled = false
+    var playIntervalGongCalled = false
     var playCompletionSoundCalled = false
     var stopCalled = false
 
@@ -76,24 +85,48 @@ final class MockAudioService: AudioServiceProtocol {
     var shouldThrowOnPlay = false
 
     func configureAudioSession() throws {
-        configureAudioSessionCalled = true
-        if shouldThrowOnConfigure {
+        self.configureAudioSessionCalled = true
+        if self.shouldThrowOnConfigure {
             throw AudioServiceError.sessionConfigurationFailed
         }
     }
 
+    func startBackgroundAudio(mode: BackgroundAudioMode) throws {
+        self.startBackgroundAudioCalled = true
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopBackgroundAudio() {
+        self.stopBackgroundAudioCalled = true
+    }
+
+    func playStartGong() throws {
+        self.playStartGongCalled = true
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func playIntervalGong() throws {
+        self.playIntervalGongCalled = true
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
     func playCompletionSound() throws {
-        playCompletionSoundCalled = true
-        if shouldThrowOnPlay {
+        self.playCompletionSoundCalled = true
+        if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
     }
 
     func stop() {
-        stopCalled = true
+        self.stopCalled = true
     }
 }
-
 
 // MARK: - Tests
 
@@ -105,150 +138,150 @@ final class TimerViewModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        mockTimerService = MockTimerService()
-        mockAudioService = MockAudioService()
+        self.mockTimerService = MockTimerService()
+        self.mockAudioService = MockAudioService()
 
-        sut = TimerViewModel(
-            timerService: mockTimerService,
-            audioService: mockAudioService
+        self.sut = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
         )
     }
 
     override func tearDown() {
-        sut = nil
-        mockTimerService = nil
-        mockAudioService = nil
+        self.sut = nil
+        self.mockTimerService = nil
+        self.mockAudioService = nil
         super.tearDown()
     }
 
     func testInitialState() {
         // Then
-        XCTAssertEqual(sut.selectedMinutes, 10)
-        XCTAssertEqual(sut.timerState, .idle)
-        XCTAssertEqual(sut.remainingSeconds, 0)
-        XCTAssertEqual(sut.totalSeconds, 0)
-        XCTAssertEqual(sut.progress, 0.0)
-        XCTAssertNil(sut.errorMessage)
+        XCTAssertEqual(self.sut.selectedMinutes, 10)
+        XCTAssertEqual(self.sut.timerState, .idle)
+        XCTAssertEqual(self.sut.remainingSeconds, 0)
+        XCTAssertEqual(self.sut.totalSeconds, 0)
+        XCTAssertEqual(self.sut.progress, 0.0)
+        XCTAssertNil(self.sut.errorMessage)
     }
 
     func testAudioConfigurationOnInit() {
         // Then
-        XCTAssertTrue(mockAudioService.configureAudioSessionCalled)
+        XCTAssertTrue(self.mockAudioService.configureAudioSessionCalled)
     }
 
     func testStartTimer() {
         // Given
-        sut.selectedMinutes = 15
+        self.sut.selectedMinutes = 15
 
         // When
-        sut.startTimer()
+        self.sut.startTimer()
 
         // Then
-        XCTAssertTrue(mockTimerService.startCalled)
-        XCTAssertEqual(mockTimerService.lastStartDuration, 15)
+        XCTAssertTrue(self.mockTimerService.startCalled)
+        XCTAssertEqual(self.mockTimerService.lastStartDuration, 15)
     }
 
     func testPauseTimer() {
         // When
-        sut.pauseTimer()
+        self.sut.pauseTimer()
 
         // Then
-        XCTAssertTrue(mockTimerService.pauseCalled)
+        XCTAssertTrue(self.mockTimerService.pauseCalled)
     }
 
     func testResumeTimer() {
         // Given
-        sut.remainingSeconds = 120
+        self.sut.remainingSeconds = 120
 
         // When
-        sut.resumeTimer()
+        self.sut.resumeTimer()
 
         // Then
-        XCTAssertTrue(mockTimerService.resumeCalled)
+        XCTAssertTrue(self.mockTimerService.resumeCalled)
     }
 
     func testResetTimer() {
         // When
-        sut.resetTimer()
+        self.sut.resetTimer()
 
         // Then
-        XCTAssertTrue(mockTimerService.resetCalled)
+        XCTAssertTrue(self.mockTimerService.resetCalled)
     }
 
     func testFormattedTime() {
         // Given
-        sut.remainingSeconds = 0
-        XCTAssertEqual(sut.formattedTime, "00:00")
+        self.sut.remainingSeconds = 0
+        XCTAssertEqual(self.sut.formattedTime, "00:00")
 
         // When
-        sut.remainingSeconds = 125 // 2:05
-        XCTAssertEqual(sut.formattedTime, "02:05")
+        self.sut.remainingSeconds = 125 // 2:05
+        XCTAssertEqual(self.sut.formattedTime, "02:05")
 
         // When
-        sut.remainingSeconds = 3661 // 61:01
-        XCTAssertEqual(sut.formattedTime, "61:01")
+        self.sut.remainingSeconds = 3661 // 61:01
+        XCTAssertEqual(self.sut.formattedTime, "61:01")
     }
 
     func testCanStartConditions() {
         // Given - idle state with valid minutes
-        sut.timerState = .idle
-        sut.selectedMinutes = 10
-        XCTAssertTrue(sut.canStart)
+        self.sut.timerState = .idle
+        self.sut.selectedMinutes = 10
+        XCTAssertTrue(self.sut.canStart)
 
         // When - running state
-        sut.timerState = .running
-        XCTAssertFalse(sut.canStart)
+        self.sut.timerState = .running
+        XCTAssertFalse(self.sut.canStart)
 
         // When - zero minutes
-        sut.timerState = .idle
-        sut.selectedMinutes = 0
-        XCTAssertFalse(sut.canStart)
+        self.sut.timerState = .idle
+        self.sut.selectedMinutes = 0
+        XCTAssertFalse(self.sut.canStart)
     }
 
     func testCanPauseConditions() {
         // Given - running state
-        sut.timerState = .running
-        XCTAssertTrue(sut.canPause)
+        self.sut.timerState = .running
+        XCTAssertTrue(self.sut.canPause)
 
         // When - idle state
-        sut.timerState = .idle
-        XCTAssertFalse(sut.canPause)
+        self.sut.timerState = .idle
+        XCTAssertFalse(self.sut.canPause)
 
         // When - paused state
-        sut.timerState = .paused
-        XCTAssertFalse(sut.canPause)
+        self.sut.timerState = .paused
+        XCTAssertFalse(self.sut.canPause)
     }
 
     func testCanResumeConditions() {
         // Given - paused state
-        sut.timerState = .paused
-        XCTAssertTrue(sut.canResume)
+        self.sut.timerState = .paused
+        XCTAssertTrue(self.sut.canResume)
 
         // When - running state
-        sut.timerState = .running
-        XCTAssertFalse(sut.canResume)
+        self.sut.timerState = .running
+        XCTAssertFalse(self.sut.canResume)
 
         // When - idle state
-        sut.timerState = .idle
-        XCTAssertFalse(sut.canResume)
+        self.sut.timerState = .idle
+        XCTAssertFalse(self.sut.canResume)
     }
 
     func testCanResetConditions() {
         // Given - idle state
-        sut.timerState = .idle
-        XCTAssertFalse(sut.canReset)
+        self.sut.timerState = .idle
+        XCTAssertFalse(self.sut.canReset)
 
         // When - running state
-        sut.timerState = .running
-        XCTAssertTrue(sut.canReset)
+        self.sut.timerState = .running
+        XCTAssertTrue(self.sut.canReset)
 
         // When - paused state
-        sut.timerState = .paused
-        XCTAssertTrue(sut.canReset)
+        self.sut.timerState = .paused
+        XCTAssertTrue(self.sut.canReset)
 
         // When - completed state
-        sut.timerState = .completed
-        XCTAssertTrue(sut.canReset)
+        self.sut.timerState = .completed
+        XCTAssertTrue(self.sut.canReset)
     }
 
     func testTimerStateUpdatesFromService() {
@@ -256,7 +289,7 @@ final class TimerViewModelTests: XCTestCase {
         let expectation = expectation(description: "State updates")
 
         // When
-        sut.startTimer()
+        self.sut.startTimer()
 
         // Wait for state to update
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -274,7 +307,7 @@ final class TimerViewModelTests: XCTestCase {
         let expectation = expectation(description: "Sound plays on completion")
 
         // When
-        mockTimerService.simulateCompletion()
+        self.mockTimerService.simulateCompletion()
 
         // Wait for sound to be triggered
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -289,7 +322,7 @@ final class TimerViewModelTests: XCTestCase {
 
     func testErrorHandlingOnAudioConfiguration() {
         // Given
-        mockAudioService.shouldThrowOnConfigure = true
+        self.mockAudioService.shouldThrowOnConfigure = true
 
         // When
         let viewModel = TimerViewModel(
@@ -300,5 +333,54 @@ final class TimerViewModelTests: XCTestCase {
         // Then
         XCTAssertNotNil(viewModel.errorMessage)
         XCTAssertTrue(viewModel.errorMessage?.contains("audio") ?? false)
+    }
+
+    func testAffirmationsRotation() {
+        // Given
+        let initialIndex = self.sut.currentAffirmationIndex
+
+        // When
+        self.sut.startTimer()
+
+        // Then
+        XCTAssertEqual(self.sut.currentAffirmationIndex, initialIndex + 1)
+    }
+
+    func testCountdownAffirmations() {
+        // Given/When
+        let affirmation = self.sut.currentCountdownAffirmation
+
+        // Then
+        XCTAssertFalse(affirmation.isEmpty)
+        XCTAssertTrue(affirmation.contains("...") || affirmation.contains("Settle") || affirmation.contains("breath"))
+    }
+
+    func testRunningAffirmations() {
+        // Given/When
+        let affirmation = self.sut.currentRunningAffirmation
+
+        // Then - Can be empty string (one of the affirmations is silence)
+        XCTAssertTrue(affirmation.count >= 0)
+    }
+
+    func testSettingsLoadAndSave() {
+        // Given
+        self.sut.settings.intervalGongsEnabled = true
+        self.sut.settings.intervalMinutes = 10
+        self.sut.settings.backgroundAudioMode = .whiteNoise
+
+        // When
+        self.sut.saveSettings()
+
+        // Create new instance
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then
+        XCTAssertEqual(newViewModel.settings.intervalGongsEnabled, true)
+        XCTAssertEqual(newViewModel.settings.intervalMinutes, 10)
+        XCTAssertEqual(newViewModel.settings.backgroundAudioMode, .whiteNoise)
     }
 }

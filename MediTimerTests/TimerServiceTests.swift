@@ -5,8 +5,8 @@
 //  Unit Tests - TimerService
 //
 
-import XCTest
 import Combine
+import XCTest
 @testable import MediTimer
 
 final class TimerServiceTests: XCTestCase {
@@ -15,14 +15,14 @@ final class TimerServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = TimerService()
-        cancellables = Set<AnyCancellable>()
+        self.sut = TimerService()
+        self.cancellables = Set<AnyCancellable>()
     }
 
     override func tearDown() {
-        sut.stop()
-        cancellables = nil
-        sut = nil
+        self.sut.stop()
+        self.cancellables = nil
+        self.sut = nil
         super.tearDown()
     }
 
@@ -31,16 +31,16 @@ final class TimerServiceTests: XCTestCase {
         let expectation = expectation(description: "Timer starts")
         var receivedTimer: MeditationTimer?
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .first()
             .sink { timer in
                 receivedTimer = timer
                 expectation.fulfill()
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         // When
-        sut.start(durationMinutes: 5)
+        self.sut.start(durationMinutes: 5)
 
         // Then
         wait(for: [expectation], timeout: 1.0)
@@ -57,7 +57,7 @@ final class TimerServiceTests: XCTestCase {
 
         var timerStates: [TimerState] = []
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .sink { timer in
                 timerStates.append(timer.state)
 
@@ -67,13 +67,13 @@ final class TimerServiceTests: XCTestCase {
                     pauseExpectation.fulfill()
                 }
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         // When
-        sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1)
         wait(for: [startExpectation], timeout: 1.0)
 
-        sut.pause()
+        self.sut.pause()
 
         // Then
         wait(for: [pauseExpectation], timeout: 1.0)
@@ -89,28 +89,28 @@ final class TimerServiceTests: XCTestCase {
 
         var stateTransitions: [TimerState] = []
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .sink { timer in
                 stateTransitions.append(timer.state)
 
-                if timer.state == .running && stateTransitions.count == 1 {
+                if timer.state == .running, stateTransitions.count == 1 {
                     startExpectation.fulfill()
                 } else if timer.state == .paused {
                     pauseExpectation.fulfill()
-                } else if timer.state == .running && stateTransitions.count > 2 {
+                } else if timer.state == .running, stateTransitions.count > 2 {
                     resumeExpectation.fulfill()
                 }
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         // When
-        sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1)
         wait(for: [startExpectation], timeout: 1.0)
 
-        sut.pause()
+        self.sut.pause()
         wait(for: [pauseExpectation], timeout: 1.0)
 
-        sut.resume()
+        self.sut.resume()
 
         // Then
         wait(for: [resumeExpectation], timeout: 1.0)
@@ -126,23 +126,23 @@ final class TimerServiceTests: XCTestCase {
 
         var lastTimer: MeditationTimer?
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .sink { timer in
                 lastTimer = timer
 
                 if timer.state == .running {
                     startExpectation.fulfill()
-                } else if timer.state == .idle && timer.remainingSeconds == timer.totalSeconds {
+                } else if timer.state == .idle, timer.remainingSeconds == timer.totalSeconds {
                     resetExpectation.fulfill()
                 }
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         // When
-        sut.start(durationMinutes: 5)
+        self.sut.start(durationMinutes: 5)
         wait(for: [startExpectation], timeout: 1.0)
 
-        sut.reset()
+        self.sut.reset()
 
         // Then
         wait(for: [resetExpectation], timeout: 1.0)
@@ -157,16 +157,16 @@ final class TimerServiceTests: XCTestCase {
 
         var receivedTimers: [MeditationTimer] = []
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .prefix(3)
             .sink { timer in
                 receivedTimers.append(timer)
                 expectation.fulfill()
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         // When
-        sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1)
 
         // Then
         wait(for: [expectation], timeout: 3.0)
@@ -185,29 +185,29 @@ final class TimerServiceTests: XCTestCase {
         let expectation = expectation(description: "Timer starts")
         var receivedTimer: MeditationTimer?
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .sink { timer in
                 receivedTimer = timer
                 expectation.fulfill()
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
-        sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1)
         wait(for: [expectation], timeout: 1.0)
 
         // When
-        sut.stop()
+        self.sut.stop()
 
         // Then
         // Wait a bit to ensure no more updates
         let noUpdateExpectation = self.expectation(description: "No more updates")
         noUpdateExpectation.isInverted = true
 
-        sut.timerPublisher
+        self.sut.timerPublisher
             .sink { _ in
                 noUpdateExpectation.fulfill()
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
 
         wait(for: [noUpdateExpectation], timeout: 0.5)
     }

@@ -5,8 +5,8 @@
 //  Unit Tests - AudioService
 //
 
-import XCTest
 import AVFoundation
+import XCTest
 @testable import MediTimer
 
 final class AudioServiceTests: XCTestCase {
@@ -14,18 +14,18 @@ final class AudioServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        sut = AudioService()
+        self.sut = AudioService()
     }
 
     override func tearDown() {
-        sut.stop()
-        sut = nil
+        self.sut.stop()
+        self.sut = nil
         super.tearDown()
     }
 
     func testConfigureAudioSession() {
         // When
-        XCTAssertNoThrow(try sut.configureAudioSession())
+        XCTAssertNoThrow(try self.sut.configureAudioSession())
 
         // Then - Verify audio session is configured
         let audioSession = AVAudioSession.sharedInstance()
@@ -34,18 +34,18 @@ final class AudioServiceTests: XCTestCase {
 
     func testConfigureAudioSessionMultipleTimes() {
         // Given - Configure once
-        XCTAssertNoThrow(try sut.configureAudioSession())
+        XCTAssertNoThrow(try self.sut.configureAudioSession())
 
         // When - Configure again (should not throw)
-        XCTAssertNoThrow(try sut.configureAudioSession())
+        XCTAssertNoThrow(try self.sut.configureAudioSession())
     }
 
     func testPlayCompletionSound() {
         // Given - Configure audio session first
-        try? sut.configureAudioSession()
+        try? self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
 
         // Note: Actual playback testing requires more complex mocking
         // This test verifies that the method doesn't throw an error
@@ -54,24 +54,24 @@ final class AudioServiceTests: XCTestCase {
     func testPlayCompletionSoundWithoutConfiguration() {
         // When - Try to play without configuring
         // This should still work as AVAudioPlayer can work without explicit session config
-        XCTAssertNoThrow(try sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
     }
 
     func testStopAudio() {
         // Given - Configure and play
-        try? sut.configureAudioSession()
-        try? sut.playCompletionSound()
+        try? self.sut.configureAudioSession()
+        try? self.sut.playCompletionSound()
 
         // When
-        sut.stop()
+        self.sut.stop()
 
         // Then - Should not crash (player is stopped and nil)
-        XCTAssertNoThrow(sut.stop()) // Calling stop twice should be safe
+        XCTAssertNoThrow(self.sut.stop()) // Calling stop twice should be safe
     }
 
     func testLoadCustomSound() {
         // When - Load existing sound file
-        let url = sut.loadCustomSound(filename: "completion.mp3")
+        let url = self.sut.loadCustomSound(filename: "completion.mp3")
 
         // Then
         XCTAssertNotNil(url, "completion.mp3 should exist in bundle")
@@ -80,7 +80,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testLoadCustomSoundNonExistent() {
         // When - Try to load non-existent file
-        let url = sut.loadCustomSound(filename: "nonexistent.mp3")
+        let url = self.sut.loadCustomSound(filename: "nonexistent.mp3")
 
         // Then
         XCTAssertNil(url, "Non-existent file should return nil")
@@ -88,8 +88,8 @@ final class AudioServiceTests: XCTestCase {
 
     func testLoadCustomSoundWithFullExtension() {
         // When - Load with full filename
-        let url1 = sut.loadCustomSound(filename: "completion.mp3")
-        let url2 = sut.loadCustomSound(filename: "e-flat-tibetan-singing-bowl-struck-38746.mp3")
+        let url1 = self.sut.loadCustomSound(filename: "completion.mp3")
+        let url2 = self.sut.loadCustomSound(filename: "e-flat-tibetan-singing-bowl-struck-38746.mp3")
 
         // Then
         XCTAssertNotNil(url1)
@@ -98,30 +98,30 @@ final class AudioServiceTests: XCTestCase {
 
     func testMultiplePlaybackCalls() {
         // Given
-        try? sut.configureAudioSession()
+        try? self.sut.configureAudioSession()
 
         // When - Play multiple times rapidly
-        XCTAssertNoThrow(try sut.playCompletionSound())
-        XCTAssertNoThrow(try sut.playCompletionSound())
-        XCTAssertNoThrow(try sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
 
         // Then - Should not crash (each call replaces the previous player)
     }
 
     func testDeinitStopsPlayback() {
         // Given
-        try? sut.configureAudioSession()
-        try? sut.playCompletionSound()
+        try? self.sut.configureAudioSession()
+        try? self.sut.playCompletionSound()
 
         // When - Deallocate service
-        sut = nil
+        self.sut = nil
 
         // Then - Should not crash (deinit calls stop())
     }
 
     func testAudioSessionOptionsForBackgroundPlayback() throws {
         // Given
-        try sut.configureAudioSession()
+        try self.sut.configureAudioSession()
 
         // Then - Verify audio session allows background playback
         let audioSession = AVAudioSession.sharedInstance()
