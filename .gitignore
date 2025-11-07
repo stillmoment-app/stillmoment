@@ -103,3 +103,4 @@ iOSInjectionProject/
 *.tmp
 *.temp
 test-output.log
+.claude/settings.local.json
