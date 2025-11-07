@@ -22,68 +22,66 @@ struct TimerView: View {
     // MARK: Internal
 
     var body: some View {
-        NavigationView {
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    Spacer()
-                        .frame(height: 20)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(height: 20)
 
-                    // Title
-                    Text("welcome.title", bundle: .main)
-                        .font(.system(size: 28, weight: .light, design: .rounded))
-                        .foregroundColor(.warmBlack)
+                // Title
+                Text("welcome.title", bundle: .main)
+                    .font(.system(size: 28, weight: .light, design: .rounded))
+                    .foregroundColor(.warmBlack)
 
-                    Spacer()
-                        .frame(height: 40)
+                Spacer()
+                    .frame(height: 40)
 
-                    // Timer Display or Picker
-                    if self.viewModel.timerState == .idle {
-                        self.minutePicker
-                    } else {
-                        self.timerDisplay
-                    }
+                // Timer Display or Picker
+                if self.viewModel.timerState == .idle {
+                    self.minutePicker
+                } else {
+                    self.timerDisplay
+                }
 
-                    Spacer()
-                        .frame(minHeight: 40, maxHeight: .infinity)
+                Spacer()
+                    .frame(minHeight: 40, maxHeight: .infinity)
 
-                    // Control Buttons
-                    self.controlButtons
+                // Control Buttons
+                self.controlButtons
+                    .padding(.bottom, 16)
+
+                // Error Message
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                         .padding(.bottom, 16)
-
-                    // Error Message
-                    if let error = viewModel.errorMessage {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                            .padding(.bottom, 16)
-                    }
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .padding(.horizontal)
-                .background(
-                    Color.warmGradient
-                        .ignoresSafeArea()
-                )
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { self.showSettings = true }) {
-                        Image(systemName: "ellipsis")
-                            .foregroundColor(.warmGray)
-                            .rotationEffect(.degrees(90))
-                    }
-                    .accessibilityLabel("accessibility.settings")
-                    .accessibilityHint("accessibility.settings.hint")
                 }
             }
-            .sheet(isPresented: self.$showSettings) {
-                SettingsView(settings: self.$viewModel.settings) {
-                    self.showSettings = false
-                    self.viewModel.saveSettings()
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .padding(.horizontal)
+            .background(
+                Color.warmGradient
+                    .ignoresSafeArea()
+            )
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { self.showSettings = true }) {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(.warmGray)
+                        .rotationEffect(.degrees(90))
                 }
+                .accessibilityLabel("accessibility.settings")
+                .accessibilityHint("accessibility.settings.hint")
+            }
+        }
+        .sheet(isPresented: self.$showSettings) {
+            SettingsView(settings: self.$viewModel.settings) {
+                self.showSettings = false
+                self.viewModel.saveSettings()
             }
         }
     }

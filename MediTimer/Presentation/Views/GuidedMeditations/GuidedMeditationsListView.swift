@@ -20,68 +20,66 @@ struct GuidedMeditationsListView: View {
     // MARK: Internal
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                if self.viewModel.meditations.isEmpty {
-                    self.emptyStateView
-                } else {
-                    self.meditationsList
-                }
+        ZStack {
+            if self.viewModel.meditations.isEmpty {
+                self.emptyStateView
+            } else {
+                self.meditationsList
+            }
 
-                if self.viewModel.isLoading {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.2))
+            if self.viewModel.isLoading {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.2))
+            }
+        }
+        .navigationTitle("guided_meditations.title")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    self.viewModel.showDocumentPicker()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("guided_meditations.add")
+            }
+        }
+        .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
+            DocumentPicker { url in
+                Task {
+                    await self.viewModel.importMeditation(from: url)
                 }
             }
-            .navigationTitle("guided_meditations.title")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        self.viewModel.showDocumentPicker()
-                    } label: {
-                        Image(systemName: "plus")
+        }
+        .sheet(isPresented: self.$viewModel.showingEditSheet) {
+            if let meditation = viewModel.meditationToEdit {
+                GuidedMeditationEditSheet(
+                    meditation: meditation,
+                    onSave: { updated in
+                        self.viewModel.updateMeditation(updated)
+                        self.viewModel.showingEditSheet = false
+                    },
+                    onCancel: {
+                        self.viewModel.showingEditSheet = false
                     }
-                    .accessibilityLabel("guided_meditations.add")
-                }
+                )
             }
-            .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
-                DocumentPicker { url in
-                    Task {
-                        await self.viewModel.importMeditation(from: url)
-                    }
-                }
+        }
+        .sheet(item: self.$selectedMeditation) { meditation in
+            GuidedMeditationPlayerView(meditation: meditation)
+        }
+        .alert("Error", isPresented: .constant(self.viewModel.errorMessage != nil)) {
+            Button("OK") {
+                self.viewModel.errorMessage = nil
             }
-            .sheet(isPresented: self.$viewModel.showingEditSheet) {
-                if let meditation = viewModel.meditationToEdit {
-                    GuidedMeditationEditSheet(
-                        meditation: meditation,
-                        onSave: { updated in
-                            self.viewModel.updateMeditation(updated)
-                            self.viewModel.showingEditSheet = false
-                        },
-                        onCancel: {
-                            self.viewModel.showingEditSheet = false
-                        }
-                    )
-                }
+        } message: {
+            if let error = viewModel.errorMessage {
+                Text(error)
             }
-            .sheet(item: self.$selectedMeditation) { meditation in
-                GuidedMeditationPlayerView(meditation: meditation)
-            }
-            .alert("Error", isPresented: .constant(self.viewModel.errorMessage != nil)) {
-                Button("OK") {
-                    self.viewModel.errorMessage = nil
-                }
-            } message: {
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                }
-            }
-            .onAppear {
-                self.viewModel.loadMeditations()
-            }
+        }
+        .onAppear {
+            self.viewModel.loadMeditations()
         }
     }
 
