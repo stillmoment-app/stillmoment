@@ -19,6 +19,13 @@
 "button.settings" = "Einstellungen";
 "button.done" = "Fertig";
 
+// MARK: - Tab Bar
+
+"tab.timer" = "Timer";
+"tab.library" = "Bibliothek";
+"tab.timer.accessibility" = "Timer für Meditation";
+"tab.library.accessibility" = "Bibliothek geführter Meditationen";
+
 // MARK: - State Messages
 
 "state.ready" = "Ready when you are";

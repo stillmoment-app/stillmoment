@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-11-07 (Multi-Feature Architecture mit TabView)
+
+### Changed
+- **Navigation Architecture** - Equal feature status
+  - Replaced single-view app with TabView navigation
+  - Two tabs: Timer and Library (Bibliothek)
+  - Each tab has independent NavigationStack
+  - Removed toolbar button navigation from Timer view
+  - Tab labels localized in German and English
+  - Full accessibility support for tab navigation
+
+- **File Organization** - Feature-based structure
+  - Reorganized Presentation/Views into feature directories:
+    - `Views/Timer/` - Timer feature (TimerView, SettingsView)
+    - `Views/GuidedMeditations/` - Library feature (List, Player, Edit views)
+    - `Views/Shared/` - Shared UI components (ButtonStyles, Color+Theme)
+  - Maintains Clean Architecture layer separation
+  - Better scalability for adding 1-2 more features
+
+### Fixed
+- **TabBar Layout** - Button overlap on small devices
+  - Fixed control buttons overlapping with TabBar on iPhone 13 mini
+  - Replaced flexible Spacer layout with GeometryReader
+  - Background gradient respects Safe Area properly
+  - Minimum spacing (40pt) between buttons and TabBar
+  - Deterministic layout prevents UI issues on smaller screens
+
+### Technical
+- TabView with SF Symbol icons (timer, music.note.list)
+- NavigationStack (iOS 16+) for each feature tab
+- GeometryReader for responsive layout across device sizes
+- Tab labels use NSLocalizedString for i18n
+- Accessibility labels for VoiceOver support
+- Git history preserved for all moved files
+
+### Benefits
+- Timer and Library are now visually equal features
+- Clearer separation of concerns
+- Easier to add new features (just add new tabs)
+- Better user discoverability (no hidden toolbar buttons)
+- Standard iOS navigation pattern
+- Consistent layout across all iPhone models
+
 ## [0.4.0] - 2025-10-26 (Geführte Meditationen)
 
 ### Added

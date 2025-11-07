@@ -11,7 +11,25 @@ import SwiftUI
 struct MediTimerApp: App {
     var body: some Scene {
         WindowGroup {
-            TimerView()
+            TabView {
+                // Timer Feature Tab
+                NavigationStack {
+                    TimerView()
+                }
+                .tabItem {
+                    Label("tab.timer", systemImage: "timer")
+                }
+                .accessibilityLabel(Text("tab.timer.accessibility"))
+
+                // Guided Meditations Library Tab
+                NavigationStack {
+                    GuidedMeditationsListView()
+                }
+                .tabItem {
+                    Label("tab.library", systemImage: "music.note.list")
+                }
+                .accessibilityLabel(Text("tab.library.accessibility"))
+            }
         }
     }
 }

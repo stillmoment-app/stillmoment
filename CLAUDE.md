@@ -33,22 +33,37 @@ make help                          # Show all available commands
 
 ## Architecture
 
-**Clean Architecture Light + MVVM** with strict layer separation:
+**Clean Architecture Light + MVVM** with strict layer separation and feature-based organization:
 
 ```
 MediTimer/
 ├── Domain/              # Pure Swift, no dependencies
-│   ├── Models/          # TimerState, MeditationTimer, MeditationSettings, BackgroundAudioMode
+│   ├── Models/          # TimerState, MeditationTimer, MeditationSettings, GuidedMeditation
 │   └── Services/        # Protocol definitions only
 ├── Application/         # ViewModels (@MainActor, ObservableObject)
-│   └── ViewModels/      # TimerViewModel (with settings management)
-├── Presentation/        # SwiftUI Views (no business logic)
-│   └── Views/           # TimerView, SettingsView
+│   └── ViewModels/      # TimerViewModel, GuidedMeditationsListViewModel, GuidedMeditationPlayerViewModel
+├── Presentation/        # SwiftUI Views (no business logic), organized by feature
+│   └── Views/
+│       ├── Timer/           # Timer feature
+│       │   ├── TimerView.swift
+│       │   └── SettingsView.swift
+│       ├── GuidedMeditations/   # Guided Meditations feature
+│       │   ├── GuidedMeditationsListView.swift
+│       │   ├── GuidedMeditationPlayerView.swift
+│       │   └── GuidedMeditationEditSheet.swift
+│       └── Shared/          # Shared UI components
+│           ├── ButtonStyles.swift
+│           └── Color+Theme.swift
 ├── Infrastructure/      # Concrete implementations
-│   ├── Services/        # TimerService, AudioService, NotificationService
+│   ├── Services/        # TimerService, AudioService, GuidedMeditationService, AudioPlayerService
 │   └── Logging/         # OSLog extensions (Logger.timer, Logger.audio, etc.)
 └── Resources/           # Assets, sounds (completion.mp3, silence.m4a)
 ```
+
+**Navigation Pattern**: TabView with NavigationStack per feature
+- Tab 1: Timer (meditation timer with settings)
+- Tab 2: Library (guided meditations library with player)
+- Each tab maintains independent navigation state
 
 **Dependency Rules** (strictly enforced):
 - Domain: NO dependencies
@@ -273,7 +288,24 @@ struct MeditationSettings {
 
 ## Project Status & Roadmap
 
-**Current**: v0.2 - Enhanced Background Audio & Interval Gongs
+**Current**: v0.5 - Multi-Feature Architecture with TabView
+
+**Completed (v0.5)**:
+- ✅ Feature-based file organization (Views/Timer/, Views/GuidedMeditations/, Views/Shared/)
+- ✅ TabView navigation with two equal features (Timer + Library)
+- ✅ Independent NavigationStack per tab
+- ✅ Removed toolbar button navigation (replaced with tab navigation)
+- ✅ Tab localization (German + English)
+- ✅ Accessibility support for tab navigation
+- ✅ Architecture prepared for 1-2 additional features
+
+**Completed (v0.4)**:
+- ✅ Guided meditation library with MP3 import
+- ✅ Full-featured audio player with lock screen controls
+- ✅ Metadata extraction and user editing (teacher, name)
+- ✅ Grouped display by teacher
+- ✅ Security-scoped bookmarks for file access
+- ✅ Background audio playback for guided meditations
 
 **Completed (v0.2)**:
 - ✅ 15-second countdown before meditation starts
@@ -343,5 +375,5 @@ NSLocalizedString("button.start", comment: "")
 
 ---
 
-**Last Updated**: 2025-10-26
-**Version**: 2.2 (v0.3 - Warm Design + Internationalization)
+**Last Updated**: 2025-11-07
+**Version**: 2.3 (v0.5 - Multi-Feature Architecture with TabView)
