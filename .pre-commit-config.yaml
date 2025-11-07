@@ -4,21 +4,21 @@
 repos:
   # Swift formatting
   - repo: https://github.com/nicklockwood/SwiftFormat
-    rev: 0.54.3
+    rev: 0.58.5
     hooks:
       - id: swiftformat
         args: [--swiftversion, "5.9"]
 
   # Swift linting
   - repo: https://github.com/realm/SwiftLint
-    rev: 0.55.1
+    rev: 0.62.2
     hooks:
       - id: swiftlint
         args: [--strict]
 
   # General file cleanup
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -32,7 +32,7 @@ repos:
 
   # Prevent committing secrets
   - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']

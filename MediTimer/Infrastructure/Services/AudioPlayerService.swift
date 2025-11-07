@@ -175,7 +175,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         commandCenter.skipForwardCommand.isEnabled = true
         commandCenter.skipForwardCommand.preferredIntervals = [15]
         commandCenter.skipForwardCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else { return .commandFailed }
+            guard let self, let player = self.player else {
+                return .commandFailed
+            }
             let newTime = min(self.currentTime.value + 15, self.duration.value)
             try? self.seek(to: newTime)
             return .success
@@ -184,7 +186,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         commandCenter.skipBackwardCommand.isEnabled = true
         commandCenter.skipBackwardCommand.preferredIntervals = [15]
         commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else { return .commandFailed }
+            guard let self, let player = self.player else {
+                return .commandFailed
+            }
             let newTime = max(self.currentTime.value - 15, 0)
             try? self.seek(to: newTime)
             return .success
@@ -222,7 +226,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     // MARK: - Private Helpers
 
     private func setupTimeObserver() {
-        guard let player else { return }
+        guard let player else {
+            return
+        }
 
         // Update current time every 0.5 seconds
         let interval = CMTime(seconds: 0.5, preferredTimescale: 600)

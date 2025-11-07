@@ -113,10 +113,14 @@ final class TimerService: TimerServiceProtocol {
     }
 
     private func tick() {
-        guard let timer = currentTimer else { return }
+        guard let timer = currentTimer else {
+            return
+        }
 
         // Only tick if in countdown or running state
-        guard timer.state == .countdown || timer.state == .running else { return }
+        guard timer.state == .countdown || timer.state == .running else {
+            return
+        }
 
         let updatedTimer = timer.tick()
         self.currentTimer = updatedTimer
@@ -128,7 +132,7 @@ final class TimerService: TimerServiceProtocol {
         }
 
         // Log every 10 seconds to avoid log spam (only for running timer)
-        if updatedTimer.state == .running, updatedTimer.remainingSeconds % 10 == 0 {
+        if updatedTimer.state == .running, updatedTimer.remainingSeconds.isMultiple(of: 10) {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])
         }
 

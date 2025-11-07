@@ -27,7 +27,7 @@ enum PlaybackState: Equatable {
              (.paused, .paused),
              (.finished, .finished):
             true
-        case (.failed(let lhsError), .failed(let rhsError)):
+        case let (.failed(lhsError), .failed(rhsError)):
             lhsError.localizedDescription == rhsError.localizedDescription
         default:
             false
@@ -48,7 +48,7 @@ enum AudioPlayerError: Error, LocalizedError {
         switch self {
         case .fileNotAccessible:
             "Could not access audio file"
-        case .playbackFailed(let reason):
+        case let .playbackFailed(reason):
             "Playback failed: \(reason)"
         case .invalidAudioFormat:
             "Audio format not supported"

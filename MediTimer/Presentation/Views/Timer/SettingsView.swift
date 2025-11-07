@@ -124,9 +124,8 @@ struct SettingsView: View {
             intervalGongsEnabled: false,
             intervalMinutes: 5,
             backgroundAudioMode: .silent
-        )),
-        onDismiss: {}
-    )
+        ))
+    ) {}
 }
 
 #Preview("White Noise + Intervals") {
@@ -135,7 +134,6 @@ struct SettingsView: View {
             intervalGongsEnabled: true,
             intervalMinutes: 5,
             backgroundAudioMode: .whiteNoise
-        )),
-        onDismiss: {}
-    )
+        ))
+    ) {}
 }

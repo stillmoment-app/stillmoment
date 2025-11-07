@@ -69,7 +69,9 @@ struct TimerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { self.showSettings = true }) {
+                Button {
+                    self.showSettings = true
+                } label: {
                     Image(systemName: "ellipsis")
                         .foregroundColor(.warmGray)
                         .rotationEffect(.degrees(90))

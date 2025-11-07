@@ -1,8 +1,6 @@
 //
 //  TimerServiceTests.swift
-//  MediTimerTests
-//
-//  Unit Tests - TimerService
+//  MediTimer
 //
 
 import Combine
@@ -10,7 +8,9 @@ import XCTest
 @testable import MediTimer
 
 final class TimerServiceTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: TimerService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
 
     override func setUp() {

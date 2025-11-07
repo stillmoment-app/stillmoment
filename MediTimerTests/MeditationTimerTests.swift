@@ -1,8 +1,6 @@
 //
 //  MeditationTimerTests.swift
-//  MediTimerTests
-//
-//  Unit Tests - MeditationTimer Model
+//  MediTimer
 //
 
 import XCTest
@@ -28,7 +26,7 @@ final class MeditationTimerTests: XCTestCase {
     func testInitializationWithInvalidDuration() {
         // Given - Test zero minutes
         XCTAssertThrowsError(try MeditationTimer(durationMinutes: 0)) { error in
-            guard case MeditationTimerError.invalidDuration(let minutes) = error else {
+            guard case let MeditationTimerError.invalidDuration(minutes) = error else {
                 XCTFail("Expected MeditationTimerError.invalidDuration")
                 return
             }
@@ -45,7 +43,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // Given - Test over 60 minutes
         XCTAssertThrowsError(try MeditationTimer(durationMinutes: 61)) { error in
-            guard case MeditationTimerError.invalidDuration(let minutes) = error else {
+            guard case let MeditationTimerError.invalidDuration(minutes) = error else {
                 XCTFail("Expected MeditationTimerError.invalidDuration")
                 return
             }

@@ -186,7 +186,8 @@ struct GuidedMeditationPlayerView: View {
 
     // MARK: Private
 
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss)
+    private var dismiss
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 }
 

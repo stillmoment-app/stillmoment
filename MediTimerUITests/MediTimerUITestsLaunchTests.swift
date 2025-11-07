@@ -1,14 +1,12 @@
 //
 //  MediTimerUITestsLaunchTests.swift
-//  MediTimerUITests
-//
-//  Created by Helmut Zechmann on 26.10.25.
+//  MediTimer
 //
 
 import XCTest
 
 final class MediTimerUITestsLaunchTests: XCTestCase {
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+    override static var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }
 

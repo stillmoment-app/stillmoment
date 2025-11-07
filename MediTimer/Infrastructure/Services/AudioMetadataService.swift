@@ -14,6 +14,8 @@ import Foundation
 /// - ID3 tags (artist, title, album)
 /// - Duration
 final class AudioMetadataService: AudioMetadataServiceProtocol {
+    // MARK: Internal
+
     /// Extracts metadata from an audio file
     ///
     /// - Parameter url: URL to the audio file
@@ -25,19 +27,43 @@ final class AudioMetadataService: AudioMetadataServiceProtocol {
         }
 
         let asset = AVAsset(url: url)
+        let duration = try await extractDuration(from: asset)
+        let tags = await extractID3Tags(from: asset)
 
-        // Extract duration
-        let duration: TimeInterval
+        return AudioMetadata(
+            artist: tags.artist,
+            title: tags.title,
+            duration: duration,
+            album: tags.album
+        )
+    }
+
+    // MARK: Private
+
+    // MARK: - Private Types
+
+    /// Container for ID3 tag metadata
+    private struct ID3Tags {
+        let artist: String?
+        let title: String?
+        let album: String?
+    }
+
+    /// Extracts duration from an AVAsset
+    private func extractDuration(from asset: AVAsset) async throws -> TimeInterval {
         do {
-            duration = try await asset.load(.duration).seconds
+            let duration = try await asset.load(.duration).seconds
             guard duration.isFinite, duration > 0 else {
                 throw AudioMetadataError.durationNotAvailable
             }
+            return duration
         } catch {
             throw AudioMetadataError.durationNotAvailable
         }
+    }
 
-        // Extract ID3 tags
+    /// Extracts ID3 tags (artist, title, album) from an AVAsset
+    private func extractID3Tags(from asset: AVAsset) async -> ID3Tags {
         var artist: String?
         var title: String?
         var album: String?
@@ -67,11 +93,6 @@ final class AudioMetadataService: AudioMetadataServiceProtocol {
             // Metadata not available, continue with nil values
         }
 
-        return AudioMetadata(
-            artist: artist,
-            title: title,
-            duration: duration,
-            album: album
-        )
+        return ID3Tags(artist: artist, title: title, album: album)
     }
 }

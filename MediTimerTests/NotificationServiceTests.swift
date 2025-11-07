@@ -1,8 +1,6 @@
 //
 //  NotificationServiceTests.swift
-//  MediTimerTests
-//
-//  Unit Tests - NotificationService
+//  MediTimer
 //
 
 import UserNotifications
@@ -10,6 +8,7 @@ import XCTest
 @testable import MediTimer
 
 final class NotificationServiceTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: NotificationService!
 
     override func setUp() {
@@ -46,7 +45,7 @@ final class NotificationServiceTests: XCTestCase {
             .denied,
             .authorized,
             .provisional,
-            .ephemeral,
+            .ephemeral
         ]
         XCTAssertTrue(validStatuses.contains(status))
     }

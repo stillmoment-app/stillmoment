@@ -1,13 +1,12 @@
 //
 //  TimerFlowUITests.swift
-//  MediTimerUITests
-//
-//  UI Tests - Critical User Flows
+//  MediTimer
 //
 
 import XCTest
 
 final class TimerFlowUITests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var app: XCUIApplication!
 
     override func setUp() {
@@ -26,15 +25,13 @@ final class TimerFlowUITests: XCTestCase {
     func testAppLaunches() {
         // Then - App should show main elements
         // Note: Text is localized, so we check for general existence
-        // swiftlint:disable:next empty_count
-        XCTAssertTrue(self.app.staticTexts.count > 0)
+        XCTAssertFalse(self.app.staticTexts.isEmpty)
 
         // Emoji should be visible
         XCTAssertTrue(self.app.staticTexts["🤲"].exists)
 
         // Start button should exist
-        // swiftlint:disable:next empty_count
-        XCTAssertTrue(self.app.buttons.count > 0)
+        XCTAssertFalse(self.app.buttons.isEmpty)
     }
 
     func testSelectDurationAndStart() {
@@ -141,9 +138,13 @@ final class TimerFlowUITests: XCTestCase {
         XCTAssertNotEqual(initialTime, laterTime, "Timer should count down")
 
         // Verify format is correct (MM:SS)
-        let timeRegex = try! NSRegularExpression(pattern: "^[0-9]{2}:[0-9]{2}$")
-        let range = NSRange(location: 0, length: laterTime.utf16.count)
-        XCTAssertNotNil(timeRegex.firstMatch(in: laterTime, range: range))
+        do {
+            let timeRegex = try NSRegularExpression(pattern: "^[0-9]{2}:[0-9]{2}$")
+            let range = NSRange(location: 0, length: laterTime.utf16.count)
+            XCTAssertNotNil(timeRegex.firstMatch(in: laterTime, range: range))
+        } catch {
+            XCTFail("Failed to create regex: \(error)")
+        }
     }
 
     func testCircularProgressUpdates() {

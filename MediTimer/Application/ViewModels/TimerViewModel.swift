@@ -27,7 +27,8 @@ final class TimerViewModel: ObservableObject {
 
         self.loadSettings()
         self.setupBindings()
-        self.configureAudio()
+        // Don't configure audio on init - it will be configured on-demand when audio is needed
+        // This saves energy in idle state
     }
 
     // MARK: Internal
@@ -150,7 +151,7 @@ final class TimerViewModel: ObservableObject {
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue,
+            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue
         ])
     }
 
@@ -172,7 +173,7 @@ final class TimerViewModel: ObservableObject {
             NSLocalizedString("affirmation.running.2", comment: ""),
             NSLocalizedString("affirmation.running.3", comment: ""),
             NSLocalizedString("affirmation.running.4", comment: ""),
-            NSLocalizedString("affirmation.running.5", comment: ""),
+            NSLocalizedString("affirmation.running.5", comment: "")
         ]
     }
 
@@ -182,7 +183,7 @@ final class TimerViewModel: ObservableObject {
             NSLocalizedString("affirmation.countdown.1", comment: ""),
             NSLocalizedString("affirmation.countdown.2", comment: ""),
             NSLocalizedString("affirmation.countdown.3", comment: ""),
-            NSLocalizedString("affirmation.countdown.4", comment: ""),
+            NSLocalizedString("affirmation.countdown.4", comment: "")
         ]
     }
 
@@ -240,7 +241,7 @@ final class TimerViewModel: ObservableObject {
 
         Logger.viewModel.info("Playing interval gong", metadata: [
             "interval": self.settings.intervalMinutes,
-            "remaining": timer.remainingSeconds,
+            "remaining": timer.remainingSeconds
         ])
 
         self.playIntervalGong()
@@ -249,15 +250,6 @@ final class TimerViewModel: ObservableObject {
         if var updatedTimer = currentTimer {
             updatedTimer = updatedTimer.markIntervalGongPlayed()
             self.currentTimer = updatedTimer
-        }
-    }
-
-    private func configureAudio() {
-        do {
-            try self.audioService.configureAudioSession()
-        } catch {
-            Logger.viewModel.error("Audio configuration failed", error: error)
-            self.errorMessage = "Failed to configure audio: \(error.localizedDescription)"
         }
     }
 
@@ -316,7 +308,7 @@ final class TimerViewModel: ObservableObject {
         Logger.viewModel.info("Loaded settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue,
+            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue
         ])
     }
 }

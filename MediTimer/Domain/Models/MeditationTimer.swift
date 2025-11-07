@@ -15,7 +15,7 @@ enum MeditationTimerError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidDuration(let minutes):
+        case let .invalidDuration(minutes):
             "Invalid duration: \(minutes) minutes. Duration must be between 1 and 60 minutes."
         }
     }
@@ -78,7 +78,9 @@ struct MeditationTimer: Equatable {
 
     /// Returns progress as a value between 0.0 and 1.0
     var progress: Double {
-        guard self.totalSeconds > 0 else { return 0.0 }
+        guard self.totalSeconds > 0 else {
+            return 0.0
+        }
         return 1.0 - (Double(self.remainingSeconds) / Double(self.totalSeconds))
     }
 
@@ -151,8 +153,12 @@ struct MeditationTimer: Equatable {
     /// - Parameter intervalMinutes: Interval in minutes (e.g., 5 for every 5 minutes)
     /// - Returns: True if enough time has passed since last interval gong
     func shouldPlayIntervalGong(intervalMinutes: Int) -> Bool {
-        guard self.state == .running else { return false }
-        guard intervalMinutes > 0 else { return false }
+        guard self.state == .running else {
+            return false
+        }
+        guard intervalMinutes > 0 else {
+            return false
+        }
 
         let intervalSeconds = intervalMinutes * 60
 

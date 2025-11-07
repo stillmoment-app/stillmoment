@@ -1,8 +1,6 @@
 //
 //  AudioServiceTests.swift
-//  MediTimerTests
-//
-//  Unit Tests - AudioService
+//  MediTimer
 //
 
 import AVFoundation
@@ -10,6 +8,7 @@ import XCTest
 @testable import MediTimer
 
 final class AudioServiceTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
 
     override func setUp() {
@@ -75,7 +74,9 @@ final class AudioServiceTests: XCTestCase {
 
         // Then
         XCTAssertNotNil(url, "completion.mp3 should exist in bundle")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: url!.path))
+        if let url {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
+        }
     }
 
     func testLoadCustomSoundNonExistent() {

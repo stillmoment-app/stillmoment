@@ -31,7 +31,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.meditationService = meditationService
 
         self.setupBindings()
-        self.setupAudioSession()
+        // Don't configure audio on init - will be configured on-demand in play()
+        // This saves energy when player view is opened but not playing
         self.setupRemoteControls()
     }
 
@@ -58,7 +59,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Progress as a value between 0 and 1
     var progress: Double {
-        guard self.duration > 0 else { return 0 }
+        guard self.duration > 0 else {
+            return 0
+        }
         return self.currentTime / self.duration
     }
 
@@ -75,7 +78,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
         Logger.audioPlayer.info("Loading audio", metadata: [
             "meditation": self.meditation.effectiveName,
-            "teacher": self.meditation.effectiveTeacher,
+            "teacher": self.meditation.effectiveTeacher
         ])
 
         do {
@@ -193,16 +196,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playerService.duration
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$duration)
-    }
-
-    private func setupAudioSession() {
-        do {
-            try self.playerService.configureAudioSession()
-            Logger.audioPlayer.info("Audio session configured for background playback")
-        } catch {
-            Logger.audioPlayer.error("Failed to configure audio session", error: error)
-            self.errorMessage = "Failed to configure audio: \(error.localizedDescription)"
-        }
     }
 
     private func setupRemoteControls() {

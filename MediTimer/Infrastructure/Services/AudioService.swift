@@ -200,7 +200,7 @@ final class AudioService: AudioServiceProtocol {
         let backgroundPlaying = self.backgroundAudioPlayer?.isPlaying ?? false
         let gongPlaying = self.audioPlayer?.isPlaying ?? false
 
-        if !backgroundPlaying && !gongPlaying {
+        if !backgroundPlaying, !gongPlaying {
             self.deactivateAudioSession()
         }
     }

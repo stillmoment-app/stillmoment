@@ -40,9 +40,9 @@
 
 # Rules to enable
 --enable isEmpty
---enable sortedImports
+--enable sortImports
 --enable redundantSelf
---enable trailingCommas
+--disable trailingCommas
 --enable wrapEnumCases
 --enable wrapSwitchCases
 --enable sortDeclarations
@@ -90,7 +90,7 @@
 
 # Formatting style
 --ifdef no-indent
---patternlet inline
+--patternlet hoist
 --self insert
 --selfrequired
 --stripunusedargs closure-only

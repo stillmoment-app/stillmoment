@@ -19,7 +19,7 @@ enum GuidedMeditationError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .persistenceFailed(let reason):
+        case let .persistenceFailed(reason):
             "Failed to persist meditation library: \(reason)"
         case .bookmarkCreationFailed:
             "Failed to create security-scoped bookmark for file"
@@ -27,7 +27,7 @@ enum GuidedMeditationError: Error, LocalizedError {
             "Failed to resolve security-scoped bookmark"
         case .fileAccessDenied:
             "Access to file denied"
-        case .meditationNotFound(let id):
+        case let .meditationNotFound(id):
             "Meditation with ID \(id) not found"
         }
     }

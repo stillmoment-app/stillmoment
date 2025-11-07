@@ -87,7 +87,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
                 metadata: [
                     "artist": metadata.artist ?? "none",
                     "title": metadata.title ?? "none",
-                    "duration": metadata.duration,
+                    "duration": metadata.duration
                 ]
             )
 

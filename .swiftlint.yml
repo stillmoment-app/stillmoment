@@ -25,7 +25,6 @@ opt_in_rules:
   - empty_string
   - empty_xctest_method
   - explicit_init
-  - explicit_self
   - fallthrough
   - fatal_error_message
   - file_header
@@ -97,8 +96,6 @@ cyclomatic_complexity:
 nesting:
   type_level:
     warning: 2
-  statement_level:
-    warning: 5
 
 identifier_name:
   min_length:

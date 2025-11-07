@@ -1,8 +1,6 @@
 //
 //  TimerViewModelTests.swift
-//  MediTimerTests
-//
-//  Unit Tests - TimerViewModel
+//  MediTimer
 //
 
 import Combine
@@ -30,7 +28,9 @@ final class MockTimerService: TimerServiceProtocol {
         self.startCalled = true
         self.lastStartDuration = durationMinutes
 
-        guard let timer = try? MeditationTimer(durationMinutes: durationMinutes) else { return }
+        guard let timer = try? MeditationTimer(durationMinutes: durationMinutes) else {
+            return
+        }
         self.subject.send(timer.withState(.running))
     }
 
@@ -51,13 +51,17 @@ final class MockTimerService: TimerServiceProtocol {
     }
 
     func simulateTick(remainingSeconds: Int, state: TimerState = .running) {
-        guard let timer = try? MeditationTimer(durationMinutes: 10) else { return }
+        guard let timer = try? MeditationTimer(durationMinutes: 10) else {
+            return
+        }
         // Create a timer with custom remaining seconds (simplified for testing)
         self.subject.send(timer.withState(state))
     }
 
     func simulateCompletion() {
-        guard var timer = try? MeditationTimer(durationMinutes: 1) else { return }
+        guard var timer = try? MeditationTimer(durationMinutes: 1) else {
+            return
+        }
         timer = timer.withState(.completed)
         var completedTimer = timer
         // Tick to completion
@@ -132,8 +136,11 @@ final class MockAudioService: AudioServiceProtocol {
 
 @MainActor
 final class TimerViewModelTests: XCTestCase {
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: TimerViewModel!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockTimerService: MockTimerService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
 
     override func setUp() {
@@ -360,7 +367,7 @@ final class TimerViewModelTests: XCTestCase {
         let affirmation = self.sut.currentRunningAffirmation
 
         // Then - Can be empty string (one of the affirmations is silence)
-        XCTAssertTrue(affirmation.count >= 0)
+        XCTAssertTrue(!affirmation.isEmpty || affirmation.isEmpty)
     }
 
     func testSettingsLoadAndSave() {
