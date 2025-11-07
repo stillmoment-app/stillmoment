@@ -5,8 +5,8 @@
 //  Domain Service Protocol - Timer Management
 //
 
-import Foundation
 import Combine
+import Foundation
 
 /// Protocol defining timer service behavior
 protocol TimerServiceProtocol {

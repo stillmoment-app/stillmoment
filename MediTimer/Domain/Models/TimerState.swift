@@ -12,6 +12,9 @@ enum TimerState: Equatable {
     /// Timer is idle and ready to start
     case idle
 
+    /// Timer is in countdown phase (15 seconds before start)
+    case countdown
+
     /// Timer is actively counting down
     case running
 

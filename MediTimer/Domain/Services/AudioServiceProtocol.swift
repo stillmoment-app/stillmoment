@@ -9,10 +9,22 @@ import Foundation
 
 /// Protocol defining audio playback behavior
 protocol AudioServiceProtocol {
-    /// Configures the audio session for background playback
+    /// Configures the audio session for background-capable playback
     func configureAudioSession() throws
 
-    /// Plays the completion sound
+    /// Starts background audio to keep app active (silent or white noise)
+    func startBackgroundAudio(mode: BackgroundAudioMode) throws
+
+    /// Stops background audio
+    func stopBackgroundAudio()
+
+    /// Plays the start gong when countdown completes
+    func playStartGong() throws
+
+    /// Plays an interval gong during meditation
+    func playIntervalGong() throws
+
+    /// Plays the completion sound when timer finishes
     func playCompletionSound() throws
 
     /// Stops any currently playing sound
@@ -25,14 +37,16 @@ enum AudioServiceError: Error, LocalizedError {
     case soundFileNotFound
     case playbackFailed
 
+    // MARK: Internal
+
     var errorDescription: String? {
         switch self {
         case .sessionConfigurationFailed:
-            return "Failed to configure audio session"
+            "Failed to configure audio session"
         case .soundFileNotFound:
-            return "Sound file not found"
+            "Sound file not found"
         case .playbackFailed:
-            return "Failed to play sound"
+            "Failed to play sound"
         }
     }
 }

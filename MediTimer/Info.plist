@@ -6,5 +6,7 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>MediTimer needs permission to notify you when your meditation session is complete.</string>
 </dict>
 </plist>

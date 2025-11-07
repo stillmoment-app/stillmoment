@@ -5,20 +5,24 @@
 //  Infrastructure - Timer Service Implementation
 //
 
-import Foundation
 import Combine
+import Foundation
 import OSLog
 
 /// Concrete implementation of timer service using Combine
 final class TimerService: TimerServiceProtocol {
-    // MARK: - Properties
+    // MARK: Lifecycle
 
-    private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)
-    private var systemTimer: AnyCancellable?
-    private var currentTimer: MeditationTimer?
+    // MARK: - Deinit
+
+    deinit {
+        stop()
+    }
+
+    // MARK: Internal
 
     var timerPublisher: AnyPublisher<MeditationTimer, Never> {
-        timerSubject
+        self.timerSubject
             .compactMap { $0 }
             .eraseToAnyPublisher()
     }
@@ -26,15 +30,16 @@ final class TimerService: TimerServiceProtocol {
     // MARK: - Public Methods
 
     func start(durationMinutes: Int) {
-        Logger.timer.info("Starting timer", metadata: ["duration": durationMinutes])
-        stop() // Clean up any existing timer
+        Logger.timer.info("Starting timer with countdown", metadata: ["duration": durationMinutes])
+        self.stop() // Clean up any existing timer
 
         do {
             let newTimer = try MeditationTimer(durationMinutes: durationMinutes)
-            currentTimer = newTimer.withState(.running)
-            timerSubject.send(currentTimer)
-            startSystemTimer()
-            Logger.timer.info("Timer started successfully")
+            // Start in countdown state (15 seconds)
+            self.currentTimer = newTimer.startCountdown()
+            self.timerSubject.send(self.currentTimer)
+            self.startSystemTimer()
+            Logger.timer.info("Timer countdown started successfully")
         } catch {
             Logger.timer.error("Failed to start timer", error: error, metadata: ["duration": durationMinutes])
         }
@@ -47,9 +52,9 @@ final class TimerService: TimerServiceProtocol {
         }
 
         Logger.timer.debug("Pausing timer")
-        currentTimer = timer.withState(.paused)
-        timerSubject.send(currentTimer)
-        stopSystemTimer()
+        self.currentTimer = timer.withState(.paused)
+        self.timerSubject.send(self.currentTimer)
+        self.stopSystemTimer()
     }
 
     func resume() {
@@ -59,9 +64,9 @@ final class TimerService: TimerServiceProtocol {
         }
 
         Logger.timer.debug("Resuming timer")
-        currentTimer = timer.withState(.running)
-        timerSubject.send(currentTimer)
-        startSystemTimer()
+        self.currentTimer = timer.withState(.running)
+        self.timerSubject.send(self.currentTimer)
+        self.startSystemTimer()
     }
 
     func reset() {
@@ -71,25 +76,31 @@ final class TimerService: TimerServiceProtocol {
         }
 
         Logger.timer.debug("Resetting timer")
-        stopSystemTimer()
+        self.stopSystemTimer()
         let resetTimer = timer.reset()
-        currentTimer = resetTimer
-        timerSubject.send(currentTimer)
+        self.currentTimer = resetTimer
+        self.timerSubject.send(self.currentTimer)
     }
 
     func stop() {
         Logger.timer.debug("Stopping timer")
-        stopSystemTimer()
-        currentTimer = nil
-        timerSubject.send(nil)
+        self.stopSystemTimer()
+        self.currentTimer = nil
+        self.timerSubject.send(nil)
     }
+
+    // MARK: Private
+
+    private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)
+    private var systemTimer: AnyCancellable?
+    private var currentTimer: MeditationTimer?
 
     // MARK: - Private Methods
 
     private func startSystemTimer() {
-        stopSystemTimer() // Ensure no duplicate timers
+        self.stopSystemTimer() // Ensure no duplicate timers
 
-        systemTimer = Timer.publish(every: 1.0, on: .main, in: .common)
+        self.systemTimer = Timer.publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.tick()
@@ -97,32 +108,34 @@ final class TimerService: TimerServiceProtocol {
     }
 
     private func stopSystemTimer() {
-        systemTimer?.cancel()
-        systemTimer = nil
+        self.systemTimer?.cancel()
+        self.systemTimer = nil
     }
 
     private func tick() {
-        guard let timer = currentTimer, timer.state == .running else { return }
+        guard let timer = currentTimer else { return }
+
+        // Only tick if in countdown or running state
+        guard timer.state == .countdown || timer.state == .running else { return }
 
         let updatedTimer = timer.tick()
-        currentTimer = updatedTimer
-        timerSubject.send(updatedTimer)
+        self.currentTimer = updatedTimer
+        self.timerSubject.send(updatedTimer)
 
-        // Log every 10 seconds to avoid log spam
-        if updatedTimer.remainingSeconds % 10 == 0 {
+        // Log countdown transitions
+        if timer.state == .countdown, updatedTimer.state == .running {
+            Logger.timer.info("Countdown complete, starting meditation timer")
+        }
+
+        // Log every 10 seconds to avoid log spam (only for running timer)
+        if updatedTimer.state == .running, updatedTimer.remainingSeconds % 10 == 0 {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])
         }
 
         // Stop system timer when completed
         if updatedTimer.state == .completed {
             Logger.timer.info("Timer completed")
-            stopSystemTimer()
+            self.stopSystemTimer()
         }
-    }
-
-    // MARK: - Deinit
-
-    deinit {
-        stop()
     }
 }
