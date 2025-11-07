@@ -87,6 +87,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             throw AudioPlayerError.playbackFailed(reason: "No audio loaded")
         }
 
+        try self.configureAudioSession() // Ensure session is active
         player.play()
         self.state.send(.playing)
         self.updateNowPlayingPlaybackInfo()
@@ -125,6 +126,11 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
+
+        // Only configure if not already active to avoid conflicts
+        if audioSession.category == .playback {
+            return
+        }
 
         do {
             // Configure for playback with background audio support

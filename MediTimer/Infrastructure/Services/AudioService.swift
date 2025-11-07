@@ -32,8 +32,16 @@ final class AudioService: AudioServiceProtocol {
     // MARK: - Public Methods
 
     func configureAudioSession() throws {
-        Logger.audio.info("Configuring audio session for background-capable playback")
         let audioSession = AVAudioSession.sharedInstance()
+
+        // Only configure if not already active to avoid conflicts
+        // Check if our category is already set
+        if audioSession.category == .playback {
+            Logger.audio.debug("Audio session already configured, skipping")
+            return
+        }
+
+        Logger.audio.info("Configuring audio session for background-capable playback")
 
         do {
             // Configure for background playback
@@ -53,16 +61,20 @@ final class AudioService: AudioServiceProtocol {
 
     func playStartGong() throws {
         Logger.audio.info("Playing start gong")
+        try self.configureAudioSession() // Ensure session is active
         try self.playGong(soundName: "completion")
     }
 
     func playIntervalGong() throws {
         Logger.audio.info("Playing interval gong")
+        try self.configureAudioSession() // Ensure session is active
         try self.playGong(soundName: "completion")
     }
 
     func startBackgroundAudio(mode: BackgroundAudioMode) throws {
         Logger.audio.info("Starting background audio", metadata: ["mode": mode.rawValue])
+
+        try self.configureAudioSession() // Ensure session is active
 
         guard let soundURL = Bundle.main.url(forResource: "silence", withExtension: "m4a") else {
             Logger.audio.error("Background audio file not found")
@@ -101,6 +113,7 @@ final class AudioService: AudioServiceProtocol {
 
     func playCompletionSound() throws {
         Logger.audio.info("Playing completion sound")
+        try self.configureAudioSession() // Ensure session is active
         try self.playGong(soundName: "completion")
     }
 
