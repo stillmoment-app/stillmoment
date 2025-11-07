@@ -4,19 +4,37 @@
 [![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)]()
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
+[![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-A minimalistic, production-ready meditation timer app for iOS that runs in the background and plays a Tibetan singing bowl sound on completion.
+A warmhearted, minimalistic meditation timer for iOS with warm earth tone design, rotating affirmations, and full German/English localization.
 
-**Quality**: 9/10 ⭐ | **Coverage**: 85%+ | **Architecture**: Clean Architecture Light + MVVM
+**Quality**: 9/10 ⭐ | **Coverage**: 85%+ | **Architecture**: Clean Architecture Light + MVVM | **Version**: v0.3
 
 ## ✨ Features
 
-- ⏱️ **Flexible Timer** - 1-60 minutes
+### Core Timer
+- ⏱️ **Flexible Timer** - 1-60 minutes with intuitive picker
+- ⏳ **15s Countdown** - Prepare before meditation starts
 - ▶️ **Full Control** - Start, pause, resume, reset
-- 🔒 **Background Mode** - Continues when screen locked
-- 🔔 **Completion Sound** - Tibetan singing bowl
-- ♿ **Accessibility** - Full VoiceOver support
+- 🔒 **Background Mode** - Apple Guidelines compliant, works when screen locked
+
+### Audio & Gongs
+- 🔔 **Start Gong** - Tibetan singing bowl marks beginning
+- 🎵 **Interval Gongs** - Optional gongs every 3/5/10 minutes (configurable)
+- 🔔 **Completion Gong** - Tibetan singing bowl marks end
+- 🎧 **Background Audio** - Silent mode or White Noise
+
+### Design & UX
+- 🎨 **Warm Earth Tones** - Terracotta, warm sand, pale apricot gradient
+- 🔤 **SF Pro Rounded** - Soft, friendly typography throughout
+- 💬 **Rotating Affirmations** - Warmhearted messages in German/English
+- 🤲 **Mindful Details** - "Du verdienst diese Pause" / "You deserve this pause"
+- 🌍 **Full Localization** - German and English (auto-detects system language)
+
+### Quality & UX
+- ⚙️ **Settings** - Configure intervals and background audio
+- ♿ **Accessibility** - Full VoiceOver support, WCAG AA compliant
 - 📊 **Logging** - Production OSLog framework
 - 🧪 **High Coverage** - 85%+ with unit & UI tests
 - 🔧 **Automation** - SwiftLint, SwiftFormat, pre-commit hooks, CI/CD
@@ -148,20 +166,37 @@ open TestResults.xcresult
 
 ## 🎯 Project Status
 
-**Current**: Production-ready MVP v0.1 + Quality Improvements
+**Current**: v0.3 - Warmherziges Design & Internationalisierung
 
-**Recent Improvements**:
-- ✅ Full CI/CD pipeline with GitHub Actions
-- ✅ Automated linting and formatting
-- ✅ 85%+ test coverage
-- ✅ OSLog production logging
-- ✅ Accessibility support
-- ✅ Auto-sync for all source folders
+**Latest Features (v0.3)**:
+- ✅ Complete visual redesign with warm earth tones
+- ✅ SF Pro Rounded typography system-wide
+- ✅ Full German and English localization
+- ✅ Rotating affirmations (4 countdown + 5 running)
+- ✅ Custom button styles with shadows
+- ✅ Thinner, elegant timer ring (8pt)
+- ✅ Warmhearted messages and emojis
+
+**Previous Features (v0.2)**:
+- 15-second countdown before meditation
+- Start gong (Tibetan singing bowl)
+- Configurable interval gongs (3/5/10 minutes)
+- Background audio modes (Silent/White Noise)
+- Settings UI with user preferences
+- Apple Guidelines compliant background mode
+
+**Quality Foundation (v0.1)**:
+- Full CI/CD pipeline with GitHub Actions
+- Automated linting and formatting
+- 85%+ test coverage
+- OSLog production logging
+- Accessibility support
 
 **Planned** (v1.0+):
-- Custom sound selection
+- Actual white noise audio file
+- Custom sound selection (different gong sounds)
 - Multiple timer presets
-- Dark mode support
+- Additional language support (ES, FR, IT)
 - Statistics and history
 - Widget support
 

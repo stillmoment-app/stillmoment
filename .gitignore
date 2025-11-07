@@ -102,3 +102,4 @@ iOSInjectionProject/
 # Temporary files
 *.tmp
 *.temp
+test-output.log
