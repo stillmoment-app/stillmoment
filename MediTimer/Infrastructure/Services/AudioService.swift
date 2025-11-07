@@ -94,6 +94,9 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping background audio")
         self.backgroundAudioPlayer?.stop()
         self.backgroundAudioPlayer = nil
+
+        // Deactivate audio session to save energy when no audio is playing
+        self.deactivateAudioSessionIfIdle()
     }
 
     func playCompletionSound() throws {
@@ -106,6 +109,9 @@ final class AudioService: AudioServiceProtocol {
         self.audioPlayer?.stop()
         self.audioPlayer = nil
         self.stopBackgroundAudio()
+
+        // Deactivate audio session when stopping all audio
+        self.deactivateAudioSession()
     }
 
     // MARK: Private
@@ -171,6 +177,27 @@ final class AudioService: AudioServiceProtocol {
         } catch {
             Logger.audio.error("Failed to play gong", error: error, metadata: ["sound": soundName])
             throw AudioServiceError.playbackFailed
+        }
+    }
+
+    /// Deactivates audio session if no audio is currently playing
+    private func deactivateAudioSessionIfIdle() {
+        // Only deactivate if both players are nil or not playing
+        let backgroundPlaying = self.backgroundAudioPlayer?.isPlaying ?? false
+        let gongPlaying = self.audioPlayer?.isPlaying ?? false
+
+        if !backgroundPlaying && !gongPlaying {
+            self.deactivateAudioSession()
+        }
+    }
+
+    /// Deactivates the audio session to save energy
+    private func deactivateAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            Logger.audio.info("Audio session deactivated to save energy")
+        } catch {
+            Logger.audio.warning("Failed to deactivate audio session: \(error.localizedDescription)")
         }
     }
 }

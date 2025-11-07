@@ -104,6 +104,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.currentTime.send(0)
         self.state.send(.idle)
         self.updateNowPlayingPlaybackInfo()
+
+        // Deactivate audio session to save energy when player is stopped
+        self.deactivateAudioSession()
     }
 
     func seek(to time: TimeInterval) throws {
@@ -285,6 +288,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             }
         @unknown default:
             break
+        }
+    }
+
+    /// Deactivates the audio session to save energy
+    private func deactivateAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        } catch {
+            // Silently ignore - not critical
         }
     }
 }
