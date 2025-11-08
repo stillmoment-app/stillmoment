@@ -103,6 +103,8 @@ iOSInjectionProject/
 *.tmp
 *.temp
 test-output.log
+test-*.log
+test-*.txt
 .claude/settings.local.json
 TestResults.xcresult/
 coverage.json
