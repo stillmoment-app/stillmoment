@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Automated test execution script for MediTimer
+# Automated test execution script for Still Moment
 # Runs unit tests, generates coverage report, and checks thresholds
 #
 # Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--device "iPhone 16 Pro"]
@@ -10,7 +10,7 @@ set -e
 
 # Configuration
 PROJECT="StillMoment.xcodeproj"
-SCHEME="MediTimer"
+SCHEME="StillMoment"
 DEVICE="iPhone 16 Pro"
 COVERAGE_THRESHOLD=80
 SKIP_UI_TESTS=false
@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 echo "=================================================="
-echo "  MediTimer - Automated Test Suite"
+echo "  Still Moment - Automated Test Suite"
 echo "=================================================="
 echo "Device: $DEVICE"
 echo "Skip UI Tests: $SKIP_UI_TESTS"
