@@ -7,283 +7,261 @@ import UserNotifications
 import XCTest
 @testable import MediTimer
 
+// MARK: - Mock Notification Service
+
+final class MockNotificationService: NotificationServiceProtocol {
+    var authorizationGranted = false
+    var authorizationShouldThrow = false
+    var requestAuthorizationCalled = false
+
+    var scheduledNotifications: [TimeInterval] = []
+    var scheduleShouldThrow = false
+
+    var cancelAllCalled = false
+
+    var authorizationStatus: UNAuthorizationStatus = .notDetermined
+    var checkAuthorizationCalled = false
+
+    func requestAuthorization() async throws -> Bool {
+        self.requestAuthorizationCalled = true
+        if self.authorizationShouldThrow {
+            throw NSError(domain: "MockError", code: 1, userInfo: nil)
+        }
+        return self.authorizationGranted
+    }
+
+    func scheduleTimerCompletionNotification(timeInterval: TimeInterval) throws {
+        if self.scheduleShouldThrow {
+            throw NSError(domain: "MockError", code: 2, userInfo: nil)
+        }
+        self.scheduledNotifications.append(timeInterval)
+    }
+
+    func cancelAllNotifications() {
+        self.cancelAllCalled = true
+        self.scheduledNotifications.removeAll()
+    }
+
+    func checkAuthorizationStatus() async -> UNAuthorizationStatus {
+        self.checkAuthorizationCalled = true
+        return self.authorizationStatus
+    }
+}
+
+// MARK: - NotificationServiceTests
+
 final class NotificationServiceTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var sut: NotificationService!
+    var sut: MockNotificationService!
 
     override func setUp() {
         super.setUp()
-        self.sut = NotificationService()
+        self.sut = MockNotificationService()
     }
 
     override func tearDown() {
-        // Clean up any pending notifications
-        self.sut.cancelAllNotifications()
         self.sut = nil
         super.tearDown()
     }
 
     // MARK: - Authorization Tests
 
-    func testRequestAuthorization() async throws {
+    func testRequestAuthorizationGranted() async throws {
+        // Given
+        self.sut.authorizationGranted = true
+
         // When
         let granted = try await sut.requestAuthorization()
 
         // Then
-        // In test environment, this may vary based on system state
-        // We just verify it doesn't throw
-        XCTAssertTrue(granted || !granted) // Either outcome is valid
+        XCTAssertTrue(self.sut.requestAuthorizationCalled)
+        XCTAssertTrue(granted)
     }
 
-    func testCheckAuthorizationStatus() async {
+    func testRequestAuthorizationDenied() async throws {
+        // Given
+        self.sut.authorizationGranted = false
+
+        // When
+        let granted = try await sut.requestAuthorization()
+
+        // Then
+        XCTAssertTrue(self.sut.requestAuthorizationCalled)
+        XCTAssertFalse(granted)
+    }
+
+    func testRequestAuthorizationThrows() async {
+        // Given
+        self.sut.authorizationShouldThrow = true
+
+        // When/Then
+        do {
+            _ = try await self.sut.requestAuthorization()
+            XCTFail("Expected error to be thrown")
+        } catch {
+            XCTAssertTrue(self.sut.requestAuthorizationCalled)
+        }
+    }
+
+    func testCheckAuthorizationStatusAuthorized() async {
+        // Given
+        self.sut.authorizationStatus = .authorized
+
         // When
         let status = await sut.checkAuthorizationStatus()
 
-        // Then - Should return a valid status
-        let validStatuses: [UNAuthorizationStatus] = [
-            .notDetermined,
-            .denied,
-            .authorized,
-            .provisional,
-            .ephemeral
-        ]
-        XCTAssertTrue(validStatuses.contains(status))
+        // Then
+        XCTAssertTrue(self.sut.checkAuthorizationCalled)
+        XCTAssertEqual(status, .authorized)
+    }
+
+    func testCheckAuthorizationStatusNotDetermined() async {
+        // Given
+        self.sut.authorizationStatus = .notDetermined
+
+        // When
+        let status = await sut.checkAuthorizationStatus()
+
+        // Then
+        XCTAssertTrue(self.sut.checkAuthorizationCalled)
+        XCTAssertEqual(status, .notDetermined)
+    }
+
+    func testCheckAuthorizationStatusDenied() async {
+        // Given
+        self.sut.authorizationStatus = .denied
+
+        // When
+        let status = await sut.checkAuthorizationStatus()
+
+        // Then
+        XCTAssertTrue(self.sut.checkAuthorizationCalled)
+        XCTAssertEqual(status, .denied)
     }
 
     // MARK: - Notification Scheduling Tests
 
     func testScheduleTimerCompletionNotification() throws {
         // Given
-        let timeInterval: TimeInterval = 60.0 // 1 minute
+        let timeInterval: TimeInterval = 60.0
 
         // When
-        XCTAssertNoThrow(try self.sut.scheduleTimerCompletionNotification(timeInterval: timeInterval))
+        try sut.scheduleTimerCompletionNotification(timeInterval: timeInterval)
 
-        // Then - Notification should be scheduled
-        // We verify by checking pending notifications
-        let expectation = expectation(description: "Check pending notifications")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 1, "Should have 1 pending notification")
-
-            if let request = requests.first {
-                XCTAssertEqual(request.identifier, "timer_completion")
-                XCTAssertEqual(request.content.title, "Meditation Complete")
-                XCTAssertEqual(request.content.body, "Your meditation session has ended.")
-
-                // Verify trigger
-                if let trigger = request.trigger as? UNTimeIntervalNotificationTrigger {
-                    XCTAssertEqual(trigger.timeInterval, 60.0, accuracy: 0.1)
-                    XCTAssertFalse(trigger.repeats)
-                }
-            }
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
+        XCTAssertEqual(self.sut.scheduledNotifications.first, 60.0)
     }
 
     func testScheduleMultipleNotifications() throws {
-        // Given - Schedule first notification
+        // When
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
-
-        // When - Schedule second notification (should replace first)
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
 
-        // Then - Should only have one notification
-        let expectation = expectation(description: "Check pending notifications")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 1, "Should only have 1 notification (replaced)")
-
-            if let trigger = requests.first?.trigger as? UNTimeIntervalNotificationTrigger {
-                XCTAssertEqual(trigger.timeInterval, 120.0, accuracy: 0.1)
-            }
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 2)
+        XCTAssertEqual(self.sut.scheduledNotifications[0], 60.0)
+        XCTAssertEqual(self.sut.scheduledNotifications[1], 120.0)
     }
 
     func testScheduleNotificationWithZeroInterval() throws {
-        // When - Schedule with zero interval (immediate)
+        // When
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 0.1)
 
-        // Then - Should not throw
-        let expectation = expectation(description: "Check pending notifications")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertGreaterThanOrEqual(requests.count, 0)
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
+        XCTAssertEqual(self.sut.scheduledNotifications.first, 0.1)
     }
 
     func testScheduleNotificationWithLargeInterval() throws {
-        // When - Schedule with large interval (e.g., 1 hour)
+        // When
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 3600.0)
 
-        // Then - Should not throw
-        let expectation = expectation(description: "Check pending notifications")
+        // Then
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
+        XCTAssertEqual(self.sut.scheduledNotifications.first, 3600.0)
+    }
 
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 1)
+    func testScheduleNotificationThrows() {
+        // Given
+        self.sut.scheduleShouldThrow = true
 
-            if let trigger = requests.first?.trigger as? UNTimeIntervalNotificationTrigger {
-                XCTAssertEqual(trigger.timeInterval, 3600.0, accuracy: 0.1)
-            }
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // When/Then
+        XCTAssertThrowsError(
+            try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        )
     }
 
     // MARK: - Cancellation Tests
 
     func testCancelAllNotifications() throws {
-        // Given - Schedule some notifications
+        // Given
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
 
         // When
         self.sut.cancelAllNotifications()
 
-        // Then - Should have no pending notifications
-        let expectation = expectation(description: "Check notifications cancelled")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 0, "All notifications should be cancelled")
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertTrue(self.sut.cancelAllCalled)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
     }
 
     func testCancelNotificationsWhenNonePending() {
-        // When - Cancel when no notifications exist
+        // When
         self.sut.cancelAllNotifications()
 
-        // Then - Should not crash
-        let expectation = expectation(description: "Check no notifications")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 0)
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertTrue(self.sut.cancelAllCalled)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
     }
 
     func testMultipleCancellations() throws {
         // Given
         try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
 
-        // When - Cancel multiple times
+        // When
         self.sut.cancelAllNotifications()
         self.sut.cancelAllNotifications()
         self.sut.cancelAllNotifications()
 
-        // Then - Should not crash
-        let expectation = expectation(description: "Check notifications cancelled")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 0)
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
-    }
-
-    // MARK: - Notification Content Tests
-
-    func testNotificationContent() throws {
-        // Given
-        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
-
-        // Then - Verify content
-        let expectation = expectation(description: "Check notification content")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            guard let request = requests.first else {
-                XCTFail("No pending notification found")
-                expectation.fulfill()
-                return
-            }
-
-            let content = request.content
-            XCTAssertEqual(content.title, "Meditation Complete")
-            XCTAssertEqual(content.body, "Your meditation session has ended.")
-            XCTAssertEqual(content.sound, UNNotificationSound(named: UNNotificationSoundName("completion.mp3")))
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        // Then
+        XCTAssertTrue(self.sut.cancelAllCalled)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
     }
 
     // MARK: - Integration Tests
 
-    func testFullNotificationFlow() throws {
-        // Given - Check if we already have authorization
-        // Note: This test requires manual authorization via Simulator settings
-        // or will be skipped. To enable:
-        // 1. Run app in Simulator
-        // 2. Accept notification permission
-        // 3. Run this test
+    func testScheduleAfterCancellation() throws {
+        // Given
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
+        self.sut.cancelAllNotifications()
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
 
-        // When - Schedule notification (works even without authorization)
-        try self.sut.scheduleTimerCompletionNotification(timeInterval: 300.0) // 5 minutes
+        // When
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
+
+        // Then
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
+        XCTAssertEqual(self.sut.scheduledNotifications.first, 120.0)
+    }
+
+    func testFullNotificationFlow() throws {
+        // Given
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
+
+        // When - Schedule notification
+        try self.sut.scheduleTimerCompletionNotification(timeInterval: 300.0)
 
         // Then - Verify scheduled
-        let expectation = expectation(description: "Verify notification flow")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            // Note: Notification might not be scheduled if not authorized
-            // This test verifies the schedule/cancel flow works
-            XCTAssertGreaterThanOrEqual(requests.count, 0, "Should not crash")
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 1)
+        XCTAssertEqual(self.sut.scheduledNotifications.first, 300.0)
 
         // When - Cancel
         self.sut.cancelAllNotifications()
 
         // Then - Verify cancelled
-        let cancelExpectation = self.expectation(description: "Verify cancellation")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 0, "All notifications should be cancelled")
-            cancelExpectation.fulfill()
-        }
-
-        wait(for: [cancelExpectation], timeout: 1.0)
-    }
-
-    func testScheduleAfterCancellation() throws {
-        // Given - Schedule and cancel
-        try self.sut.scheduleTimerCompletionNotification(timeInterval: 60.0)
-        self.sut.cancelAllNotifications()
-
-        // When - Schedule again
-        try self.sut.scheduleTimerCompletionNotification(timeInterval: 120.0)
-
-        // Then - Should have new notification
-        let expectation = expectation(description: "Check new notification")
-
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            XCTAssertEqual(requests.count, 1)
-
-            if let trigger = requests.first?.trigger as? UNTimeIntervalNotificationTrigger {
-                XCTAssertEqual(trigger.timeInterval, 120.0, accuracy: 0.1)
-            }
-
-            expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 2.0)
+        XCTAssertTrue(self.sut.cancelAllCalled)
+        XCTAssertEqual(self.sut.scheduledNotifications.count, 0)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 /// Protocol defining notification service behavior
 protocol NotificationServiceProtocol {
@@ -18,4 +19,7 @@ protocol NotificationServiceProtocol {
 
     /// Cancels all pending notifications
     func cancelAllNotifications()
+
+    /// Checks current notification authorization status
+    func checkAuthorizationStatus() async -> UNAuthorizationStatus
 }
