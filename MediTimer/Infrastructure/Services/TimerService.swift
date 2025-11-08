@@ -30,16 +30,27 @@ final class TimerService: TimerServiceProtocol {
     // MARK: - Public Methods
 
     func start(durationMinutes: Int) {
-        Logger.timer.info("Starting timer with countdown", metadata: ["duration": durationMinutes])
+        Logger.timer.info("Starting timer", metadata: ["duration": durationMinutes])
         self.stop() // Clean up any existing timer
 
         do {
             let newTimer = try MeditationTimer(durationMinutes: durationMinutes)
-            // Start in countdown state (15 seconds)
-            self.currentTimer = newTimer.startCountdown()
+
+            // Check if running in UI test mode
+            let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITesting")
+
+            if isUITesting {
+                // Skip countdown for faster, more reliable tests
+                self.currentTimer = newTimer.withState(.running)
+                Logger.timer.info("Timer started directly (UI Testing mode)")
+            } else {
+                // Start in countdown state (15 seconds) for normal use
+                self.currentTimer = newTimer.startCountdown()
+                Logger.timer.info("Timer countdown started")
+            }
+
             self.timerSubject.send(self.currentTimer)
             self.startSystemTimer()
-            Logger.timer.info("Timer countdown started successfully")
         } catch {
             Logger.timer.error("Failed to start timer", error: error, metadata: ["duration": durationMinutes])
         }

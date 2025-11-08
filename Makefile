@@ -1,4 +1,4 @@
-.PHONY: help sync format lint test test-unit test-single test-failures coverage test-report setup
+.PHONY: help sync format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup
 
 help: ## Show this help message
 	@echo "MediTimer - Available Commands"
@@ -23,6 +23,9 @@ test: ## Run all tests (unit + UI) with coverage report
 test-unit: ## Run unit tests only (faster, skip UI tests)
 	@./scripts/run-tests.sh --skip-ui-tests
 
+test-ui: ## Run UI tests only
+	@./scripts/run-tests.sh --only-ui-tests
+
 test-single: ## Run single test (usage: make test-single TEST=TestClass/testMethod)
 	@./scripts/run-single-test.sh $(TEST)
 
@@ -34,6 +37,19 @@ coverage: ## Run all tests with coverage report (alias for 'make test')
 
 test-report: ## Display coverage report from last test run
 	@./scripts/test-report.sh
+
+simulator-reset: ## Reset iOS Simulator (reduces Spotlight/WidgetRenderer crashes)
+	@echo "🔄 Resetting iOS Simulator..."
+	@echo "   This helps reduce Spotlight/WidgetRenderer crashes during UI tests"
+	@xcrun simctl shutdown all 2>/dev/null || true
+	@xcrun simctl erase all 2>/dev/null || true
+	@echo "   ✅ Simulator reset complete"
+
+test-clean: ## Reset simulator and run all tests (unit + UI)
+	@./scripts/run-tests.sh --reset-simulator
+
+test-clean-unit: ## Reset simulator and run unit tests only
+	@./scripts/run-tests.sh --reset-simulator --skip-ui-tests
 
 setup: ## Setup development environment (one-time setup)
 	@echo "🚀 Setting up development environment..."

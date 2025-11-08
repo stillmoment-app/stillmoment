@@ -26,7 +26,12 @@
       "Bash(make test-failures:*)",
       "Bash(make test-single:*)",
       "Bash(git log:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(make simulator-reset:*)",
+      "Bash(make test-ui:*)",
+      "Bash(make lint:*)",
+      "Bash(make test:*)",
+      "Bash(make format:*)"
     ],
     "deny": [],
     "ask": []

@@ -157,6 +157,7 @@ struct TimerView: View {
             Text("duration.question", bundle: .main)
                 .font(.system(size: 20, weight: .light, design: .rounded))
                 .foregroundColor(.warmBlack)
+                .accessibilityIdentifier("timer.duration.question")
 
             Picker("Minutes", selection: self.$viewModel.selectedMinutes) {
                 ForEach(1...60, id: \.self) { minute in
@@ -166,6 +167,7 @@ struct TimerView: View {
             }
             .pickerStyle(.wheel)
             .frame(height: 150)
+            .accessibilityIdentifier("timer.picker.minutes")
             .accessibilityLabel("accessibility.durationPicker")
             .accessibilityHint("accessibility.durationPicker.hint")
 
@@ -191,6 +193,7 @@ struct TimerView: View {
                         .font(.system(size: 100, weight: .ultraLight, design: .rounded))
                         .foregroundColor(.warmBlack)
                         .monospacedDigit()
+                        .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel("Countdown: \(self.viewModel.countdownSeconds) seconds")
                 } else {
                     // Regular Timer Display
@@ -214,6 +217,7 @@ struct TimerView: View {
                         .font(.system(size: 60, weight: .thin, design: .rounded))
                         .foregroundColor(.warmBlack)
                         .monospacedDigit()
+                        .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel("Remaining time: \(self.viewModel.formattedTime)")
                         .accessibilityValue(self.accessibilityTimeValue)
                 }
@@ -223,6 +227,7 @@ struct TimerView: View {
             Text(self.stateText)
                 .font(.system(size: 16, weight: .regular, design: .rounded))
                 .foregroundColor(.warmGray)
+                .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
 
             // Gentle reminder for running state
@@ -243,6 +248,7 @@ struct TimerView: View {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
                 }
                 .warmPrimaryButton()
+                .accessibilityIdentifier("timer.button.start")
                 .accessibilityLabel("accessibility.startMeditation")
                 .accessibilityHint("accessibility.startMeditation.hint")
             } else if self.viewModel.canPause {
@@ -250,6 +256,7 @@ struct TimerView: View {
                     Label(NSLocalizedString("button.pause", comment: ""), systemImage: "pause.circle")
                 }
                 .warmSecondaryButton()
+                .accessibilityIdentifier("timer.button.pause")
                 .accessibilityLabel("accessibility.pauseMeditation")
                 .accessibilityHint("accessibility.pauseMeditation.hint")
             } else if self.viewModel.canResume {
@@ -257,6 +264,7 @@ struct TimerView: View {
                     Label(NSLocalizedString("button.resume", comment: ""), systemImage: "play.fill")
                 }
                 .warmPrimaryButton()
+                .accessibilityIdentifier("timer.button.resume")
                 .accessibilityLabel("accessibility.resumeMeditation")
                 .accessibilityHint("accessibility.resumeMeditation.hint")
             }
@@ -267,6 +275,7 @@ struct TimerView: View {
                     Label(NSLocalizedString("button.reset", comment: ""), systemImage: "arrow.counterclockwise")
                 }
                 .warmSecondaryButton()
+                .accessibilityIdentifier("timer.button.reset")
                 .accessibilityLabel("accessibility.resetTimer")
                 .accessibilityHint("accessibility.resetTimer.hint")
             }

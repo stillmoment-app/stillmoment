@@ -30,6 +30,11 @@ make test-failures                 # List all failing tests from last run
 make test-single TEST=Class/method # Run single test (TDD debug workflow)
 make test-report                   # Display coverage from last test run
 
+# Simulator Management (reduces Spotlight/WidgetRenderer crashes)
+make simulator-reset               # Reset iOS Simulator only
+make test-clean                    # Reset simulator + run all tests
+make test-clean-unit               # Reset simulator + run unit tests only
+
 # Utilities
 make help                          # Show all available commands
 ```
@@ -166,7 +171,26 @@ make test
 - 📊 Coverage report auto-generated in `coverage.txt` and `TestResults.xcresult`
 
 **Troubleshooting:**
-- **Simulator crashes**: Normal during UI tests, doesn't affect results
+
+**Simulator Crashes (Normal)**
+- **Symptoms**: Crash reports for Spotlight, WidgetRenderer, or other system processes
+- **Cause**: iOS Simulator instability under load, XPC timeout issues (`LIBXPC 4 XPC_EXIT_REASON_SIGTERM_TIMEOUT`)
+- **Impact**: Does NOT affect test results - these are macOS service crashes, not your app
+- **When it happens**: During UI tests, especially longer test runs
+- **How to identify**: Check crash report process name - if it's not "MediTimer", it's a simulator issue
+- **Solution**: Ignore these crashes, or reset simulator if they become excessive:
+  ```bash
+  # Recommended: Use Make commands
+  make simulator-reset    # Reset all simulators
+  make test-clean         # Reset + run all tests
+  make test-clean-unit    # Reset + run unit tests only
+
+  # Advanced: Direct xcrun commands
+  xcrun simctl shutdown all
+  xcrun simctl erase all
+  ```
+
+**Other Issues**
 - **Tests fail to build**: Check mock classes conform to updated protocols
 - **Coverage low**: Focus on Domain (≥95%), Application (≥90%), Infrastructure (≥85%)
 - **UI tests timeout**: Use `make test-unit` to skip UI tests
@@ -932,6 +956,11 @@ make test-failures                 # List failing tests
 make test-single TEST=Class/test   # Debug single test
 make test                          # Run all tests with coverage
 make test-report                   # Display coverage report
+
+# Simulator Management (if crashes become excessive)
+make simulator-reset               # Reset simulator
+make test-clean                    # Reset + run all tests
+make test-clean-unit               # Reset + run unit tests
 
 # Quality
 make format && make lint           # Pre-commit checks
