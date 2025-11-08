@@ -13,7 +13,7 @@ if [ ! -d "$RESULT_BUNDLE" ]; then
 fi
 
 echo "===================================================="
-echo "  MediTimer - Failing Tests Report"
+echo "  Still Moment - Failing Tests Report"
 echo "===================================================="
 echo ""
 

@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CABCE91F2EAE3C430059FC11 /* Exceptions for "MediTimer" folder in "MediTimer" target */ = {
+		CABCE91F2EAE3C430059FC11 /* Exceptions for "Still Moment" folder in "Still Moment" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -43,17 +43,17 @@
 		CABCE91E2EAE3C430059FC11 /* StillMoment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				CABCE91F2EAE3C430059FC11 /* Exceptions for "MediTimer" folder in "MediTimer" target */,
+				CABCE91F2EAE3C430059FC11 /* Exceptions for "Still Moment" folder in "Still Moment" target */,
 			);
 			path = StillMoment;
 			sourceTree = "<group>";
 		};
-		CABCE92C2EAE3C440059FC11 /* MediTimerTests */ = {
+		CABCE92C2EAE3C440059FC11 /* StillMomentTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = StillMomentTests;
 			sourceTree = "<group>";
 		};
-		CABCE9362EAE3C440059FC11 /* MediTimerUITests */ = {
+		CABCE9362EAE3C440059FC11 /* StillMomentUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = StillMomentUITests;
 			sourceTree = "<group>";
@@ -89,8 +89,8 @@
 			isa = PBXGroup;
 			children = (
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
-				CABCE92C2EAE3C440059FC11 /* MediTimerTests */,
-				CABCE9362EAE3C440059FC11 /* MediTimerUITests */,
+				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
+				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
 				CABCE91D2EAE3C430059FC11 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -128,7 +128,7 @@
 			productReference = CABCE91C2EAE3C430059FC11 /* StillMoment.app */;
 			productType = "com.apple.product-type.application";
 		};
-		CABCE9282EAE3C440059FC11 /* MediTimerTests */ = {
+		CABCE9282EAE3C440059FC11 /* StillMomentTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CABCE9402EAE3C440059FC11 /* Build configuration list for PBXNativeTarget "StillMomentTests" */;
 			buildPhases = (
@@ -142,14 +142,14 @@
 				CABCE92B2EAE3C440059FC11 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				CABCE92C2EAE3C440059FC11 /* MediTimerTests */,
+				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
 			);
 			name = StillMomentTests;
 			productName = StillMomentTests;
 			productReference = CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		CABCE9322EAE3C440059FC11 /* MediTimerUITests */ = {
+		CABCE9322EAE3C440059FC11 /* StillMomentUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CABCE9432EAE3C440059FC11 /* Build configuration list for PBXNativeTarget "StillMomentUITests" */;
 			buildPhases = (
@@ -163,7 +163,7 @@
 				CABCE9352EAE3C440059FC11 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				CABCE9362EAE3C440059FC11 /* MediTimerUITests */,
+				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
 			);
 			name = StillMomentUITests;
 			productName = StillMomentUITests;
@@ -193,7 +193,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CABCE9172EAE3C430059FC11 /* Build configuration list for PBXProject "MediTimer" */;
+			buildConfigurationList = CABCE9172EAE3C430059FC11 /* Build configuration list for PBXProject "Still Moment" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -209,8 +209,8 @@
 			projectRoot = "";
 			targets = (
 				CABCE91B2EAE3C430059FC11 /* StillMoment */,
-				CABCE9282EAE3C440059FC11 /* MediTimerTests */,
-				CABCE9322EAE3C440059FC11 /* MediTimerUITests */,
+				CABCE9282EAE3C440059FC11 /* StillMomentTests */,
+				CABCE9322EAE3C440059FC11 /* StillMomentUITests */,
 			);
 		};
 /* End PBXProject section */

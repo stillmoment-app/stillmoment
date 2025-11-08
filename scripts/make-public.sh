@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to add public modifiers to package files
 
-DOMAIN_DIR="/Users/helmut/devel/meditimer/Packages/MediTimerDomain/Sources/MediTimerDomain"
+DOMAIN_DIR="/Users/helmut/devel/stillmoment/Packages/StillMomentDomain/Sources/StillMomentDomain"
 
 # Make all types public in Domain
 sed -i '' 's/^enum TimerState/public enum TimerState/g' "$DOMAIN_DIR/TimerState.swift"

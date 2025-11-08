@@ -171,7 +171,7 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     // MARK: Private
 
     /// Serial queue for thread-safe access to shared state
-    private let queue = DispatchQueue(label: "com.meditimer.audio.coordinator", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "com.stillmoment.audio.coordinator", qos: .userInitiated)
 
     /// Thread-safe publisher for active audio source
     private let _activeSource = CurrentValueSubject<AudioSource?, Never>(nil)

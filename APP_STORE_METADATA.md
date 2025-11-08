@@ -83,7 +83,7 @@ No ads, no social features, no analytics, no distractions. Just you and your med
 🔐 Privacy Focused
 Still Moment works completely offline. Your meditation data never leaves your device. No accounts, no tracking, no data collection.
 
-WHY MEDITIMER?
+WHY STILL MOMENT?
 
 Unlike other meditation apps loaded with subscriptions, social features, and endless content libraries, Still Moment focuses on what matters: timing your meditation with thoughtful features that enhance rather than distract from your practice.
 
@@ -135,7 +135,7 @@ Keine Werbung, keine sozialen Features, keine Analyse, keine Ablenkungen. Nur du
 🔐 Datenschutz-fokussiert
 Still Moment funktioniert komplett offline. Deine Meditationsdaten verlassen niemals dein Gerät. Keine Konten, kein Tracking, keine Datensammlung.
 
-WARUM MEDITIMER?
+WARUM STILL MOMENT?
 
 Im Gegensatz zu anderen Meditations-Apps, die mit Abonnements, sozialen Features und endlosen Inhaltsbibliotheken überladen sind, macht Still Moment eine Sache außergewöhnlich gut: Es timert deine Meditation. Kein Schnickschnack, keine Upsells, nur ein einfaches, elegantes Werkzeug für deine Praxis.
 

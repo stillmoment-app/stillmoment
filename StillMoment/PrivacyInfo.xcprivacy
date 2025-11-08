@@ -9,7 +9,7 @@
     <!-- Collected Data Types: What types of data does your app collect? -->
     <key>NSPrivacyCollectedDataTypes</key>
     <array>
-        <!-- MediTimer does not collect any user data -->
+        <!-- Still Moment does not collect any user data -->
     </array>
 
     <!-- Accessed API Types: Which Required Reason APIs does your app use? -->

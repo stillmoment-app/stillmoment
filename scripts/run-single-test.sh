@@ -18,11 +18,11 @@ fi
 
 TEST_TARGET="$1"
 PROJECT="StillMoment.xcodeproj"
-SCHEME="MediTimer"
+SCHEME="Still Moment"
 DEVICE="iPhone 16 Pro"
 
 echo "===================================================="
-echo "  MediTimer - Single Test Execution"
+echo "  Still Moment - Single Test Execution"
 echo "===================================================="
 echo "Test: $TEST_TARGET"
 echo "Device: $DEVICE"

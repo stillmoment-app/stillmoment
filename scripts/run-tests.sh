@@ -148,7 +148,7 @@ if [ -f coverage.txt ]; then
     head -30 coverage.txt
 
     # Extract overall coverage
-    COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "MediTimer.app" | awk '{print $4}' | sed 's/%//' || echo "0")
+    COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "Still Moment.app" | awk '{print $4}' | sed 's/%//' || echo "0")
 
     echo ""
     echo "-------------------"
@@ -188,6 +188,6 @@ echo ""
 echo "⚠️  Note about crash reports:"
 echo "   If you see crash reports for Spotlight, WidgetRenderer, or other"
 echo "   system processes, these are NORMAL simulator issues and do NOT"
-echo "   affect test results. Only MediTimer crashes indicate real problems."
+echo "   affect test results. Only Still Moment crashes indicate real problems."
 echo "   Use --reset-simulator to reduce frequency of these crashes."
 echo ""

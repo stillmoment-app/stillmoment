@@ -1,15 +1,15 @@
-# Privacy Policy for MediTimer
+# Privacy Policy for Still Moment
 
 **Last Updated**: November 8, 2024
 **Effective Date**: November 8, 2024
 
 ## Overview
 
-MediTimer is a meditation timer application for iOS that is committed to protecting your privacy. This privacy policy explains our data practices.
+Still Moment is a meditation timer application for iOS that is committed to protecting your privacy. This privacy policy explains our data practices.
 
 ## Data Collection
 
-**MediTimer does not collect, store, or transmit any personal data.**
+**Still Moment does not collect, store, or transmit any personal data.**
 
 The app operates entirely on your device and does not:
 - Collect personal information
@@ -21,7 +21,7 @@ The app operates entirely on your device and does not:
 
 ## Permissions
 
-MediTimer requests the following permissions to function:
+Still Moment requests the following permissions to function:
 
 ### Notifications
 - **Purpose**: To notify you when your meditation session is complete
@@ -57,7 +57,7 @@ This data:
 
 ## Third-Party Services
 
-MediTimer does not integrate with or use any third-party services, including:
+Still Moment does not integrate with or use any third-party services, including:
 - No analytics platforms
 - No advertising networks
 - No social media integrations
@@ -65,7 +65,7 @@ MediTimer does not integrate with or use any third-party services, including:
 
 ## Audio Assets
 
-The completion sound (Tibetan singing bowl) used in MediTimer is:
+The completion sound (Tibetan singing bowl) used in Still Moment is:
 - Licensed under Pixabay License (royalty-free)
 - Source: https://pixabay.com/sound-effects/e-flat-tibetan-singing-bowl-struck-38746/
 - Played locally on your device only
@@ -73,7 +73,7 @@ The completion sound (Tibetan singing bowl) used in MediTimer is:
 
 ## Children's Privacy
 
-MediTimer does not knowingly collect any information from children. The app is suitable for all ages and operates entirely offline.
+Still Moment does not knowingly collect any information from children. The app is suitable for all ages and operates entirely offline.
 
 ## Changes to This Policy
 
@@ -93,7 +93,7 @@ Since we don't collect any personal data, there is no data to:
 If you have any questions or concerns about this privacy policy, please contact:
 
 **Email**: [YOUR_EMAIL_HERE]
-**GitHub**: https://github.com/[YOUR_USERNAME]/meditimer
+**GitHub**: https://github.com/[YOUR_USERNAME]/stillmoment
 
 ## Compliance
 
@@ -105,7 +105,7 @@ This app complies with:
 
 ## Summary
 
-**TL;DR**: MediTimer is a simple, privacy-focused meditation timer that:
+**TL;DR**: Still Moment is a simple, privacy-focused meditation timer that:
 - ✅ Works completely offline
 - ✅ Stores all data locally on your device
 - ✅ Never collects, transmits, or shares any personal information
@@ -114,4 +114,4 @@ This app complies with:
 
 ---
 
-**MediTimer** - Your meditation, your data, your device.
+**Still Moment** - Your meditation, your data, your device.

@@ -25,7 +25,7 @@ fi
 BUNDLE_TIME=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$RESULT_BUNDLE")
 
 echo "=================================================="
-echo "  MediTimer - Test Results Report"
+echo "  Still Moment - Test Results Report"
 echo "=================================================="
 echo "Generated: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "Test Run: $BUNDLE_TIME"
@@ -49,7 +49,7 @@ echo "-------------------"
 if xcrun xccov view --report "$RESULT_BUNDLE" >/dev/null 2>&1; then
     # Overall coverage
     COVERAGE=$(xcrun xccov view --report "$RESULT_BUNDLE" 2>/dev/null | \
-        grep "MediTimer.app" | awk '{print $4}' | sed 's/%//' || echo "0")
+        grep "Still Moment.app" | awk '{print $4}' | sed 's/%//' || echo "0")
 
     echo "Overall Coverage: ${COVERAGE}%"
     echo ""

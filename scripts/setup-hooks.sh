@@ -6,7 +6,7 @@
 
 set -e
 
-echo "🚀 Setting up MediTimer development environment..."
+echo "🚀 Setting up Still Moment development environment..."
 
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null; then

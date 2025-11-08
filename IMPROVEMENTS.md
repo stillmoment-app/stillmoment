@@ -1,4 +1,4 @@
-# MediTimer - Code-Qualitätsverbesserungen
+# Still Moment - Code-Qualitätsverbesserungen
 
 Dokumentation der durchgeführten Verbesserungen zur Erhöhung der Code-Qualität, Fehlerfreiheit und Best Practices.
 
@@ -163,7 +163,7 @@ open TestResults.xcresult
 ## 🛠 Phase 2: Modernisierung & Best Practices
 
 ### 2.1 Throwing Init statt Precondition
-**Datei**: `MediTimer/Domain/Models/MeditationTimer.swift`
+**Datei**: `StillMoment/Domain/Models/MeditationTimer.swift`
 
 **Änderung**:
 ```swift
@@ -193,7 +193,7 @@ init(durationMinutes: Int) throws {
 - `testInitializationEdgeCases()` - Testet 1 und 60 Minuten (Grenzen)
 
 ### 2.2 Ungenutzte Dateien entfernen
-**Gelöscht**: `MediTimer/ContentView.swift`
+**Gelöscht**: `StillMoment/ContentView.swift`
 
 **Grund**:
 - War Xcode-generierter Boilerplate
@@ -203,7 +203,7 @@ init(durationMinutes: Int) throws {
 ### 2.3 Erweiterte Test-Coverage
 
 #### AudioService Tests
-**Datei**: `MediTimerTests/AudioServiceTests.swift`
+**Datei**: `Still MomentTests/AudioServiceTests.swift`
 
 **Test Cases** (15 Tests):
 - Audio Session Configuration
@@ -219,7 +219,7 @@ init(durationMinutes: Int) throws {
 **Coverage**: ~95%
 
 #### NotificationService Tests
-**Datei**: `MediTimerTests/NotificationServiceTests.swift`
+**Datei**: `Still MomentTests/NotificationServiceTests.swift`
 
 **Test Cases** (15 Tests):
 - Authorization Requests
@@ -234,7 +234,7 @@ init(durationMinutes: Int) throws {
 **Coverage**: ~95%
 
 ### 2.4 OSLog Logging Framework
-**Datei**: `MediTimer/Infrastructure/Logging/Logger+MediTimer.swift`
+**Datei**: `StillMoment/Infrastructure/Logging/Logger+Still Moment.swift`
 
 **Features**:
 - Kategorisierte Logger für verschiedene Subsysteme
@@ -279,7 +279,7 @@ Logger.performance.measure(operation: "Load audio") {
 - ✅ Keine print() Statements mehr
 
 ### 2.5 Accessibility Verbesserungen
-**Datei**: `MediTimer/Presentation/Views/TimerView.swift`
+**Datei**: `StillMoment/Presentation/Views/TimerView.swift`
 
 **Hinzugefügt**:
 1. **Picker Accessibility**
@@ -378,7 +378,7 @@ Logger.performance.measure(operation: "Load audio") {
 ```bash
 # Repository klonen
 git clone <repo-url>
-cd meditimer
+cd stillmoment
 
 # Development Environment einrichten
 ./scripts/setup-hooks.sh
@@ -388,7 +388,7 @@ cd meditimer
 ```
 
 ### 2. Xcode Setup
-1. Öffne `MediTimer.xcodeproj`
+1. Öffne `Still Moment.xcodeproj`
 2. SwiftLint & SwiftFormat werden automatisch erkannt
 3. Build & Run (⌘R)
 4. Tests ausführen (⌘U)
