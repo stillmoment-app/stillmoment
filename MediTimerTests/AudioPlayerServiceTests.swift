@@ -11,14 +11,23 @@ import XCTest
 
 // MARK: - Mock Audio Session Coordinator
 
-@MainActor
 final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
-    var activeSource = CurrentValueSubject<AudioSource?, Never>(nil)
+    var activeSource: CurrentValueSubject<AudioSource?, Never> {
+        _activeSource
+    }
+
+    let _activeSource = CurrentValueSubject<AudioSource?, Never>(nil) // Internal for testing
     var requestedSources: [AudioSource] = []
     var releasedSources: [AudioSource] = []
     var activationCount = 0
     var deactivationCount = 0
     var shouldFailActivation = false
+
+    private var conflictHandlers: [AudioSource: () -> Void] = [:]
+
+    func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
+        conflictHandlers[source] = handler
+    }
 
     func requestAudioSession(for source: AudioSource) throws -> Bool {
         self.requestedSources.append(source)
@@ -27,14 +36,19 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             throw AudioSessionCoordinatorError.sessionActivationFailed
         }
 
-        self.activeSource.send(source)
+        // If another source is active, call its conflict handler
+        if let currentSource = _activeSource.value, currentSource != source {
+            conflictHandlers[currentSource]?()
+        }
+
+        _activeSource.send(source)
         return true
     }
 
     func releaseAudioSession(for source: AudioSource) {
         self.releasedSources.append(source)
-        if self.activeSource.value == source {
-            self.activeSource.send(nil)
+        if _activeSource.value == source {
+            _activeSource.send(nil)
         }
     }
 
@@ -345,7 +359,7 @@ final class AudioPlayerServiceTests: XCTestCase {
     // MARK: - Coordinator Observer Tests
 
     @MainActor
-    func testCoordinatorObserverPausesOnConflict() async {
+    func testCoordinatorCallbackPausesOnConflict() async throws {
         // Given - Load and play
         guard let url = self.createTestAudioURL() else {
             XCTFail("Test audio file not found")
@@ -356,25 +370,15 @@ final class AudioPlayerServiceTests: XCTestCase {
         try? self.sut.play()
         XCTAssertEqual(self.sut.state.value, .playing)
 
-        // Wait for coordinator observer to be fully set up
-        // The subscription is created in an async Task in setupCoordinatorObserver()
-        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        // When - Another source requests audio session (callback is called synchronously)
+        _ = try? self.mockCoordinator.requestAudioSession(for: .timer)
 
-        // When - Another source becomes active
-        self.mockCoordinator.activeSource.send(.timer)
-
-        // Then - Should pause after receiving coordinator update
-        // Note: Combine sink may need a run loop cycle to process
-        let expectation = self.expectation(description: "Player paused")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            XCTAssertEqual(
-                self.sut.state.value,
-                .paused,
-                "Player should pause when another audio source becomes active"
-            )
-            expectation.fulfill()
-        }
-        await fulfillment(of: [expectation], timeout: 2.0)
+        // Then - Player should be paused immediately (synchronous callback, no waiting needed)
+        XCTAssertEqual(
+            self.sut.state.value,
+            .paused,
+            "Player should pause when another audio source becomes active"
+        )
     }
 
     // MARK: Private

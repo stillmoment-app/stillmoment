@@ -45,14 +45,15 @@ final class TimerServiceTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 1.0)
         XCTAssertNotNil(receivedTimer)
-        XCTAssertEqual(receivedTimer?.state, .running)
+        XCTAssertEqual(receivedTimer?.state, .countdown)
         XCTAssertEqual(receivedTimer?.durationMinutes, 5)
         XCTAssertEqual(receivedTimer?.remainingSeconds, 300)
     }
 
     func testPauseTimer() {
         // Given
-        let startExpectation = expectation(description: "Timer starts")
+        let startExpectation = expectation(description: "Timer starts in countdown")
+        let runningExpectation = expectation(description: "Timer transitions to running")
         let pauseExpectation = expectation(description: "Timer pauses")
 
         var timerStates: [TimerState] = []
@@ -61,8 +62,10 @@ final class TimerServiceTests: XCTestCase {
             .sink { timer in
                 timerStates.append(timer.state)
 
-                if timer.state == .running {
+                if timer.state == .countdown, timerStates.count == 1 {
                     startExpectation.fulfill()
+                } else if timer.state == .running {
+                    runningExpectation.fulfill()
                 } else if timer.state == .paused {
                     pauseExpectation.fulfill()
                 }
@@ -72,32 +75,39 @@ final class TimerServiceTests: XCTestCase {
         // When
         self.sut.start(durationMinutes: 1)
         wait(for: [startExpectation], timeout: 1.0)
+        wait(for: [runningExpectation], timeout: 16.0) // Wait for countdown to finish
 
         self.sut.pause()
 
         // Then
         wait(for: [pauseExpectation], timeout: 1.0)
+        XCTAssertTrue(timerStates.contains(.countdown))
         XCTAssertTrue(timerStates.contains(.running))
         XCTAssertTrue(timerStates.contains(.paused))
     }
 
     func testResumeTimer() {
         // Given
-        let startExpectation = expectation(description: "Timer starts")
+        let countdownExpectation = expectation(description: "Timer starts countdown")
+        let runningExpectation = expectation(description: "Timer transitions to running")
         let pauseExpectation = expectation(description: "Timer pauses")
         let resumeExpectation = expectation(description: "Timer resumes")
 
         var stateTransitions: [TimerState] = []
+        var runningFulfilled = false
 
         self.sut.timerPublisher
             .sink { timer in
                 stateTransitions.append(timer.state)
 
-                if timer.state == .running, stateTransitions.count == 1 {
-                    startExpectation.fulfill()
+                if timer.state == .countdown, stateTransitions.count == 1 {
+                    countdownExpectation.fulfill()
+                } else if timer.state == .running, !runningFulfilled {
+                    runningFulfilled = true
+                    runningExpectation.fulfill()
                 } else if timer.state == .paused {
                     pauseExpectation.fulfill()
-                } else if timer.state == .running, stateTransitions.count > 2 {
+                } else if timer.state == .running, stateTransitions.contains(.paused) {
                     resumeExpectation.fulfill()
                 }
             }
@@ -105,7 +115,8 @@ final class TimerServiceTests: XCTestCase {
 
         // When
         self.sut.start(durationMinutes: 1)
-        wait(for: [startExpectation], timeout: 1.0)
+        wait(for: [countdownExpectation], timeout: 1.0)
+        wait(for: [runningExpectation], timeout: 16.0) // Wait for countdown to finish
 
         self.sut.pause()
         wait(for: [pauseExpectation], timeout: 1.0)
@@ -114,7 +125,8 @@ final class TimerServiceTests: XCTestCase {
 
         // Then
         wait(for: [resumeExpectation], timeout: 1.0)
-        XCTAssertEqual(stateTransitions.first, .running)
+        XCTAssertEqual(stateTransitions.first, .countdown)
+        XCTAssertTrue(stateTransitions.contains(.running))
         XCTAssertTrue(stateTransitions.contains(.paused))
         XCTAssertEqual(stateTransitions.last, .running)
     }
@@ -125,12 +137,14 @@ final class TimerServiceTests: XCTestCase {
         let resetExpectation = expectation(description: "Timer resets")
 
         var lastTimer: MeditationTimer?
+        var startFulfilled = false
 
         self.sut.timerPublisher
             .sink { timer in
                 lastTimer = timer
 
-                if timer.state == .running {
+                if timer.state == .countdown, !startFulfilled {
+                    startFulfilled = true
                     startExpectation.fulfill()
                 } else if timer.state == .idle, timer.remainingSeconds == timer.totalSeconds {
                     resetExpectation.fulfill()
@@ -172,11 +186,13 @@ final class TimerServiceTests: XCTestCase {
         wait(for: [expectation], timeout: 3.0)
 
         XCTAssertGreaterThanOrEqual(receivedTimers.count, 2)
+        XCTAssertEqual(receivedTimers[0].state, .countdown)
         XCTAssertEqual(receivedTimers[0].remainingSeconds, 60)
 
-        // Verify time is decreasing
+        // Verify countdown is progressing (countdownSeconds decreases)
         if receivedTimers.count >= 2 {
-            XCTAssertLessThan(receivedTimers[1].remainingSeconds, receivedTimers[0].remainingSeconds)
+            XCTAssertEqual(receivedTimers[1].state, .countdown)
+            XCTAssertLessThan(receivedTimers[1].countdownSeconds, receivedTimers[0].countdownSeconds)
         }
     }
 

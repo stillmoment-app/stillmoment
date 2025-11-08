@@ -147,7 +147,7 @@ final class AudioServiceTests: XCTestCase {
 // MARK: - Integration Tests
 
 extension AudioServiceTests {
-    func testFullAudioFlow() {
+    func testFullAudioFlow() async {
         // Given - Fresh service
         let service = AudioService()
 
@@ -160,7 +160,7 @@ extension AudioServiceTests {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 0.5)
+        await fulfillment(of: [expectation], timeout: 0.5)
 
         // Then
         service.stop()

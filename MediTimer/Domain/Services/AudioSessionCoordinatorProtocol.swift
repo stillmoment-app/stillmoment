@@ -21,6 +21,11 @@ enum AudioSource: String, Equatable {
 ///
 /// Usage:
 /// ```swift
+/// // Register callback for when another source takes over
+/// coordinator.registerConflictHandler(for: .timer) {
+///     // Stop audio playback
+/// }
+///
 /// // Request audio session before playing
 /// try coordinator.requestAudioSession(for: .timer)
 ///
@@ -31,9 +36,19 @@ protocol AudioSessionCoordinatorProtocol: AnyObject {
     /// Currently active audio source (nil if none)
     var activeSource: CurrentValueSubject<AudioSource?, Never> { get }
 
+    /// Registers a conflict handler for the given audio source
+    ///
+    /// The handler will be called synchronously when another source requests the audio session.
+    /// This allows the current source to cleanly stop its audio playback.
+    ///
+    /// - Parameters:
+    ///   - source: The audio source registering the handler
+    ///   - handler: Closure called when another source becomes active
+    func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void)
+
     /// Requests exclusive use of the audio session
     ///
-    /// If another source is currently active, it will be notified to stop.
+    /// If another source is currently active, its conflict handler will be called synchronously.
     ///
     /// - Parameter source: The audio source requesting the session
     /// - Returns: True if session was granted, false if request was denied

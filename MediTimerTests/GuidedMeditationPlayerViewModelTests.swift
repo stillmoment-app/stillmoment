@@ -236,12 +236,25 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testTogglePlayPauseFromPaused() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "State updates to playing")
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .playing {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
+        self.mockPlayerService.state.send(.paused)
         self.sut.playbackState = .paused
 
         // When
         self.sut.togglePlayPause()
 
         // Then
+        await fulfillment(of: [expectation], timeout: 1.0)
         XCTAssertTrue(self.mockPlayerService.playCalled)
         XCTAssertEqual(self.sut.playbackState, .playing)
     }
@@ -249,12 +262,29 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testTogglePlayPauseFromPlaying() async {
         // Given
         await self.sut.loadAudio()
+
+        let playingExpectation = self.expectation(description: "State updates to playing")
+        let pausedExpectation = self.expectation(description: "State updates to paused")
+
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .playing {
+                    playingExpectation.fulfill()
+                } else if state == .paused {
+                    pausedExpectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         try? self.mockPlayerService.play()
+        await fulfillment(of: [playingExpectation], timeout: 1.0)
 
         // When
         self.sut.togglePlayPause()
 
         // Then
+        await fulfillment(of: [pausedExpectation], timeout: 1.0)
         XCTAssertTrue(self.mockPlayerService.pauseCalled)
         XCTAssertEqual(self.sut.playbackState, .paused)
     }
@@ -262,7 +292,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testTogglePlayPauseFromFinished() async {
         // Given
         await self.sut.loadAudio()
+
+        let finishedExpectation = self.expectation(description: "State updates to finished")
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .finished {
+                    finishedExpectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.state.send(.finished)
+        await fulfillment(of: [finishedExpectation], timeout: 1.0)
 
         // When
         self.sut.togglePlayPause()
@@ -296,7 +338,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testSkipForward() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 10.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(10.0)
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         self.sut.skipForward(by: 15)
@@ -308,7 +362,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testSkipForwardNearEnd() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 595.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(595.0)
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         self.sut.skipForward(by: 15)
@@ -321,7 +387,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testSkipBackward() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 30.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(30.0)
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         self.sut.skipBackward(by: 15)
@@ -333,7 +411,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testSkipBackwardNearStart() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 5.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(5.0)
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         self.sut.skipBackward(by: 15)
@@ -348,7 +438,21 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testFormattedCurrentTime() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst() // Skip initial 0
+            .sink { time in
+                if time == 125.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(125.0) // 2:05
+
+        // Wait for binding to propagate
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         let formatted = self.sut.formattedCurrentTime
@@ -360,7 +464,20 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testFormattedCurrentTimeWithHours() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 3665.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(3665.0) // 1:01:05
+
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         let formatted = self.sut.formattedCurrentTime
@@ -372,7 +489,20 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testFormattedRemainingTime() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 100.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(100.0)
+
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         let formatted = self.sut.formattedRemainingTime
@@ -385,7 +515,20 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     func testProgress() async {
         // Given
         await self.sut.loadAudio()
+
+        let expectation = self.expectation(description: "Current time updates")
+        self.sut.$currentTime
+            .dropFirst()
+            .sink { time in
+                if time == 300.0 {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.currentTime.send(300.0) // Halfway
+
+        await fulfillment(of: [expectation], timeout: 1.0)
 
         // When
         let progress = self.sut.progress
@@ -413,7 +556,19 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         XCTAssertFalse(self.sut.isPlaying)
 
         // When - Playing
+        let expectation = self.expectation(description: "State updates to playing")
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .playing {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
         self.mockPlayerService.state.send(.playing)
+        await fulfillment(of: [expectation], timeout: 1.0)
+
         XCTAssertTrue(self.sut.isPlaying)
     }
 

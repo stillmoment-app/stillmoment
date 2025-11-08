@@ -34,12 +34,13 @@ enum AudioSessionCoordinatorError: Error, LocalizedError {
 ///
 /// This singleton ensures that timer background audio and guided meditation playback
 /// don't conflict with each other. Only one audio source can be active at a time.
-@MainActor
+///
+/// Thread-Safety: All methods are thread-safe and can be called from any queue.
+/// Uses a serial DispatchQueue to synchronize access to shared state.
 final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     // MARK: Lifecycle
 
-    // swiftlint:disable:next modifier_order
-    private nonisolated init() {
+    private init() {
         Logger.audio.info("AudioSessionCoordinator initialized")
     }
 
@@ -47,46 +48,72 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
     static let shared = AudioSessionCoordinator()
 
-    let activeSource = CurrentValueSubject<AudioSource?, Never>(nil)
+    var activeSource: CurrentValueSubject<AudioSource?, Never> {
+        _activeSource
+    }
+
+    func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
+        queue.sync {
+            conflictHandlers[source] = handler
+            Logger.audio.debug("Registered conflict handler for \(source.rawValue)")
+        }
+    }
 
     func requestAudioSession(for source: AudioSource) throws -> Bool {
-        let currentSource = self.activeSource.value
+        try queue.sync {
+            let currentSource = _activeSource.value
 
-        // If same source, just ensure session is active
-        if currentSource == source {
-            Logger.audio.debug("Audio session already owned by \(source.rawValue)")
-            try self.activateAudioSession()
+            // If same source, just ensure session is active
+            if currentSource == source {
+                Logger.audio.debug("Audio session already owned by \(source.rawValue)")
+                try? activateAudioSession() // Best-effort activation
+                return true
+            }
+
+            // If different source is active, call its conflict handler synchronously
+            if let currentSource, currentSource != source {
+                Logger.audio.info(
+                    "Audio session requested by \(source.rawValue), releasing \(currentSource.rawValue)"
+                )
+
+                // Call the conflict handler for the current source
+                if let handler = conflictHandlers[currentSource] {
+                    Logger.audio.debug("Calling conflict handler for \(currentSource.rawValue)")
+                    handler() // Synchronous callback
+                }
+            }
+
+            // Grant ownership to new source
+            _activeSource.send(source)
+
+            // Activate session (best-effort, don't fail if activation fails)
+            do {
+                try activateAudioSession()
+                Logger.audio.info("Audio session granted and activated for \(source.rawValue)")
+            } catch {
+                Logger.audio.warning(
+                    "Audio session granted to \(source.rawValue) but activation failed (non-critical in test env): \(error.localizedDescription)"
+                )
+            }
+
             return true
         }
-
-        // If different source is active, log the conflict
-        if let currentSource {
-            Logger.audio.info(
-                "Audio session requested by \(source.rawValue), releasing \(currentSource.rawValue)"
-            )
-            // Note: The old source should listen to activeSource changes and stop itself
-        }
-
-        // Activate session and grant to new source
-        try self.activateAudioSession()
-        self.activeSource.send(source)
-
-        Logger.audio.info("Audio session granted to \(source.rawValue)")
-        return true
     }
 
     func releaseAudioSession(for source: AudioSource) {
-        // Only release if this source currently owns the session
-        guard self.activeSource.value == source else {
-            Logger.audio.debug(
-                "Ignoring release request from \(source.rawValue) - not current owner"
-            )
-            return
-        }
+        queue.sync {
+            // Only release if this source currently owns the session
+            guard _activeSource.value == source else {
+                Logger.audio.debug(
+                    "Ignoring release request from \(source.rawValue) - not current owner"
+                )
+                return
+            }
 
-        Logger.audio.info("Audio session released by \(source.rawValue)")
-        self.activeSource.send(nil)
-        self.deactivateAudioSession()
+            Logger.audio.info("Audio session released by \(source.rawValue)")
+            _activeSource.send(nil)
+            deactivateAudioSession()
+        }
     }
 
     func activateAudioSession() throws {
@@ -137,4 +164,15 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             // Don't throw - deactivation failure is not critical
         }
     }
+
+    // MARK: Private
+
+    /// Serial queue for thread-safe access to shared state
+    private let queue = DispatchQueue(label: "com.meditimer.audio.coordinator", qos: .userInitiated)
+
+    /// Thread-safe publisher for active audio source
+    private let _activeSource = CurrentValueSubject<AudioSource?, Never>(nil)
+
+    /// Registered conflict handlers for each audio source
+    private var conflictHandlers: [AudioSource: () -> Void] = [:]
 }

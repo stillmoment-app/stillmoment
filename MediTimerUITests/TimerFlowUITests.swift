@@ -25,13 +25,13 @@ final class TimerFlowUITests: XCTestCase {
     func testAppLaunches() {
         // Then - App should show main elements
         // Note: Text is localized, so we check for general existence
-        XCTAssertTrue(!self.app.staticTexts.isEmpty)
+        XCTAssertGreaterThan(self.app.staticTexts.count, 0)
 
         // Emoji should be visible
         XCTAssertTrue(self.app.staticTexts["🤲"].exists)
 
         // Start button should exist
-        XCTAssertTrue(!self.app.buttons.isEmpty)
+        XCTAssertGreaterThan(self.app.buttons.count, 0)
     }
 
     func testSelectDurationAndStart() {

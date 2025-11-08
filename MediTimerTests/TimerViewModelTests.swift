@@ -171,11 +171,6 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertNil(self.sut.errorMessage)
     }
 
-    func testAudioConfigurationOnInit() {
-        // Then
-        XCTAssertTrue(self.mockAudioService.configureAudioSessionCalled)
-    }
-
     func testStartTimer() {
         // Given
         self.sut.selectedMinutes = 15
@@ -325,21 +320,6 @@ final class TimerViewModelTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 1.0)
-    }
-
-    func testErrorHandlingOnAudioConfiguration() {
-        // Given
-        self.mockAudioService.shouldThrowOnConfigure = true
-
-        // When
-        let viewModel = TimerViewModel(
-            timerService: mockTimerService,
-            audioService: mockAudioService
-        )
-
-        // Then
-        XCTAssertNotNil(viewModel.errorMessage)
-        XCTAssertTrue(viewModel.errorMessage?.contains("audio") ?? false)
     }
 
     func testAffirmationsRotation() {

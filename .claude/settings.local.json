@@ -21,7 +21,12 @@
       "Bash(make test-unit:*)",
       "Bash(python3:*)",
       "Bash(open:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(make test-report:*)",
+      "Bash(make test-failures:*)",
+      "Bash(make test-single:*)",
+      "Bash(git log:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

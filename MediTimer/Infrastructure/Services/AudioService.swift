@@ -19,7 +19,7 @@ final class AudioService: AudioServiceProtocol {
     init(coordinator: AudioSessionCoordinatorProtocol) {
         self.coordinator = coordinator
         self.setupAudioInterruptionHandling()
-        self.setupCoordinatorObserver()
+        self.registerConflictHandler()
     }
 
     convenience init() {
@@ -40,9 +40,7 @@ final class AudioService: AudioServiceProtocol {
 
     func configureAudioSession() throws {
         // Request audio session through coordinator
-        Task { @MainActor in
-            _ = try self.coordinator.requestAudioSession(for: .timer)
-        }
+        _ = try coordinator.requestAudioSession(for: .timer)
     }
 
     func playStartGong() throws {
@@ -110,9 +108,7 @@ final class AudioService: AudioServiceProtocol {
         self.stopBackgroundAudio()
 
         // Release audio session when stopping all audio
-        Task { @MainActor in
-            self.coordinator.releaseAudioSession(for: .timer)
-        }
+        coordinator.releaseAudioSession(for: .timer)
     }
 
     // MARK: Private
@@ -190,31 +186,22 @@ final class AudioService: AudioServiceProtocol {
         let gongPlaying = self.audioPlayer?.isPlaying ?? false
 
         if !backgroundPlaying, !gongPlaying {
-            Task { @MainActor in
-                self.coordinator.releaseAudioSession(for: .timer)
-            }
+            coordinator.releaseAudioSession(for: .timer)
         }
     }
 
-    /// Sets up observer to stop audio when another source becomes active
-    private func setupCoordinatorObserver() {
-        Task { @MainActor in
-            self.coordinator.activeSource
-                .sink { [weak self] activeSource in
-                    guard let self else {
-                        return
-                    }
+    /// Registers conflict handler to stop audio when another source becomes active
+    private func registerConflictHandler() {
+        coordinator.registerConflictHandler(for: .timer) { [weak self] in
+            guard let self else {
+                return
+            }
 
-                    // If another source becomes active, stop our audio
-                    if let activeSource, activeSource != .timer {
-                        Logger.audio.info("Timer audio stopping - \(activeSource.rawValue) became active")
-                        self.audioPlayer?.stop()
-                        self.backgroundAudioPlayer?.stop()
-                        self.audioPlayer = nil
-                        self.backgroundAudioPlayer = nil
-                    }
-                }
-                .store(in: &self.cancellables)
+            Logger.audio.info("Timer audio stopping - another source became active")
+            self.audioPlayer?.stop()
+            self.backgroundAudioPlayer?.stop()
+            self.audioPlayer = nil
+            self.backgroundAudioPlayer = nil
         }
     }
 }

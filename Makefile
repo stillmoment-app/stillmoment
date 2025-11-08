@@ -1,4 +1,4 @@
-.PHONY: help sync format lint test test-unit coverage test-report setup
+.PHONY: help sync format lint test test-unit test-single test-failures coverage test-report setup
 
 help: ## Show this help message
 	@echo "MediTimer - Available Commands"
@@ -22,6 +22,12 @@ test: ## Run all tests (unit + UI) with coverage report
 
 test-unit: ## Run unit tests only (faster, skip UI tests)
 	@./scripts/run-tests.sh --skip-ui-tests
+
+test-single: ## Run single test (usage: make test-single TEST=TestClass/testMethod)
+	@./scripts/run-single-test.sh $(TEST)
+
+test-failures: ## List all failing tests from last test run
+	@./scripts/list-test-failures.sh
 
 coverage: ## Run all tests with coverage report (alias for 'make test')
 	@./scripts/run-tests.sh

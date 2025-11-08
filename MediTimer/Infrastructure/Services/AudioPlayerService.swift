@@ -26,7 +26,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.coordinator = coordinator
         super.init()
         self.setupNotifications()
-        self.setupCoordinatorObserver()
+        self.registerConflictHandler()
     }
 
     override convenience init() {
@@ -95,9 +95,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
 
         // Request audio session through coordinator
-        Task { @MainActor in
-            _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
-        }
+        _ = try coordinator.requestAudioSession(for: .guidedMeditation)
 
         player.play()
         self.state.send(.playing)
@@ -118,9 +116,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.updateNowPlayingPlaybackInfo()
 
         // Release audio session when player is stopped
-        Task { @MainActor in
-            self.coordinator.releaseAudioSession(for: .guidedMeditation)
-        }
+        coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     func seek(to time: TimeInterval) throws {
@@ -139,9 +135,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func configureAudioSession() throws {
         // Request audio session through coordinator
-        Task { @MainActor in
-            _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
-        }
+        _ = try coordinator.requestAudioSession(for: .guidedMeditation)
     }
 
     func setupRemoteCommandCenter() {
@@ -216,9 +210,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
 
         // Release audio session
-        Task { @MainActor in
-            self.coordinator.releaseAudioSession(for: .guidedMeditation)
-        }
+        coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     // MARK: Private
@@ -277,9 +269,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.updateNowPlayingPlaybackInfo()
 
         // Release audio session when playback finishes
-        Task { @MainActor in
-            self.coordinator.releaseAudioSession(for: .guidedMeditation)
-        }
+        coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     private func setupNotifications() {
@@ -317,22 +307,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
     }
 
-    /// Sets up observer to stop playback when another source becomes active
-    private func setupCoordinatorObserver() {
-        Task { @MainActor in
-            self.coordinator.activeSource
-                .sink { [weak self] activeSource in
-                    guard let self else {
-                        return
-                    }
+    /// Registers conflict handler to stop playback when another source becomes active
+    private func registerConflictHandler() {
+        coordinator.registerConflictHandler(for: .guidedMeditation) { [weak self] in
+            guard let self else {
+                return
+            }
 
-                    // If another source becomes active, stop our playback
-                    if let activeSource, activeSource != .guidedMeditation {
-                        Logger.audio.info("Guided meditation stopping - \(activeSource.rawValue) became active")
-                        self.pause()
-                    }
-                }
-                .store(in: &self.cancellables)
+            Logger.audio.info("Guided meditation stopping - another source became active")
+            self.pause()
         }
     }
 }
