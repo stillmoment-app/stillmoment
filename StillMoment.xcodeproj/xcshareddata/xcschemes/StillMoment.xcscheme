@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CABCE91B2EAE3C430059FC11"  <!-- pragma: allowlist secret -->
+               BlueprintIdentifier = "CABCE91B2EAE3C430059FC11"
                BuildableName = "StillMoment.app"
                BlueprintName = "StillMoment"
                ReferencedContainer = "container:StillMoment.xcodeproj">
@@ -28,14 +28,15 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldAutocreateTestPlan = "NO">
       <Testables>
          <TestableReference
             skipped = "NO"
-            parallelizable = "YES">
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CABCE9282EAE3C440059FC11"  <!-- pragma: allowlist secret -->
+               BlueprintIdentifier = "CABCE9282EAE3C440059FC11"
                BuildableName = "StillMomentTests.xctest"
                BlueprintName = "StillMomentTests"
                ReferencedContainer = "container:StillMoment.xcodeproj">
@@ -43,10 +44,11 @@
          </TestableReference>
          <TestableReference
             skipped = "NO"
-            parallelizable = "YES">
+            parallelizable = "YES"
+            testExecutionOrdering = "random">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CABCE9322EAE3C440059FC11"  <!-- pragma: allowlist secret -->
+               BlueprintIdentifier = "CABCE9322EAE3C440059FC11"
                BuildableName = "StillMomentUITests.xctest"
                BlueprintName = "StillMomentUITests"
                ReferencedContainer = "container:StillMoment.xcodeproj">
@@ -69,9 +71,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CABCE91B2EAE3C430059FC11"
-            BuildableName = "MediTimer.app"
-            BlueprintName = "MediTimer"
-            ReferencedContainer = "container:MediTimer.xcodeproj">
+            BuildableName = "StillMoment.app"
+            BlueprintName = "StillMoment"
+            ReferencedContainer = "container:StillMoment.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -86,9 +88,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CABCE91B2EAE3C430059FC11"
-            BuildableName = "MediTimer.app"
-            BlueprintName = "MediTimer"
-            ReferencedContainer = "container:MediTimer.xcodeproj">
+            BuildableName = "StillMoment.app"
+            BlueprintName = "StillMoment"
+            ReferencedContainer = "container:StillMoment.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,13 +1,9 @@
-.PHONY: help sync format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup
+.PHONY: help format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
 	@echo "==============================="
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
-
-sync: ## Sync new Swift files with Xcode project
-	@echo "🔄 Syncing files with Xcode..."
-	@./scripts/sync-xcode-files.sh
 
 format: ## Format code with SwiftFormat
 	@echo "🎨 Formatting code..."

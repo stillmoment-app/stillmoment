@@ -1,44 +1,10 @@
 # Scripts Documentation
 
-This directory contains automation scripts for the MediTimer project.
+This directory contains automation scripts for the Still Moment project.
 
-## File Synchronization
+## File Management
 
-### `sync-xcode-files.sh`
-**Purpose**: Automatically adds new Swift files to the Xcode project.
-
-**Usage**:
-```bash
-./scripts/sync-xcode-files.sh
-```
-
-**When to use**:
-- After creating new `.swift` files in `MediTimer/`, `MediTimerTests/`, or `MediTimerUITests/`
-- After pulling changes that include new files
-- When Xcode doesn't recognize newly added files
-
-**What it does**:
-1. Scans for new Swift files not yet in the Xcode project
-2. Calls `auto-add-files.rb` to add them to appropriate targets
-3. Updates `project.pbxproj` automatically
-
-### `auto-add-files.rb`
-**Purpose**: Ruby script that modifies the Xcode project file using the xcodeproj gem.
-
-**Usage**:
-```bash
-ruby scripts/auto-add-files.rb
-```
-
-**Requirements**:
-- Ruby (pre-installed on macOS)
-- xcodeproj gem: `gem install xcodeproj`
-
-**What it does**:
-- Recursively scans source directories
-- Adds `.swift` files to appropriate targets (MediTimer, MediTimerTests, MediTimerUITests)
-- Creates group structure matching the file system
-- Skips files that already exist in the project
+**Note**: Xcode 15+ auto-sync is enabled for all source directories. New Swift files are automatically detected by Xcode - no manual scripts required!
 
 ## Development Environment
 
@@ -89,25 +55,10 @@ ruby scripts/auto-add-files.rb
 
 **Output**: Terminal-based coverage report with timestamp and threshold check
 
-## Git Hooks
-
-### `.git/hooks/post-checkout`
-**Purpose**: Automatically syncs files after git checkout/pull.
-
-**Trigger**: Runs automatically after:
-- `git checkout <branch>`
-- `git pull`
-- `git merge`
-
-**What it does**:
-- Calls `sync-xcode-files.sh`
-- Ensures Xcode project stays in sync with file system
-
 ## Utilities (Legacy)
 
 These scripts are kept for reference but may not be actively used:
 
-- `add_files_to_xcode.rb` - Original file addition script (basis for `auto-add-files.rb`)
 - `disable_file_sync.rb` - Disables file synchronization
 - `enable_background_audio.rb` - Configures background audio capability
 - `fix_duplicate_files.rb` - Removes duplicate file references
@@ -116,53 +67,34 @@ These scripts are kept for reference but may not be actively used:
 
 ## Troubleshooting
 
-### "xcodeproj gem not installed"
-```bash
-gem install xcodeproj
-```
-
 ### "Permission denied"
 ```bash
 chmod +x scripts/*.sh
 ```
 
-### New files still not showing in Xcode
-1. Run `./scripts/sync-xcode-files.sh`
+### New files not showing in Xcode
+With auto-sync enabled, files should appear automatically. If not:
+1. Verify folder is a folder reference (blue in Xcode, not yellow)
 2. Close and reopen Xcode
 3. Clean build folder (⌘+Shift+K)
 4. Rebuild (⌘+B)
 
-### Script reports files added but Xcode doesn't show them
-- The script modifies `project.pbxproj`
-- Xcode must reload the project file
-- Close and reopen Xcode to see changes
+See CLAUDE.md "File Management" section for details.
 
 ## Best Practices
 
-1. **Always sync after adding files**:
-   ```bash
-   # Create new file
-   touch MediTimer/Domain/Models/NewModel.swift
-
-   # Sync with Xcode
-   ./scripts/sync-xcode-files.sh
-   ```
+1. **File Management**:
+   - Create files normally - auto-sync handles Xcode integration
+   - No manual scripts needed for file addition
 
 2. **Verify files are added**:
    - Check Xcode Project Navigator
-   - Verify file appears in correct group
-   - Check file is in correct target (MediTimer, Tests, etc.)
-
-3. **Commit project.pbxproj changes**:
-   - After running sync script, `project.pbxproj` will be modified
-   - Commit these changes with your new files
+   - Verify file appears in correct folder
+   - Check file is in correct target (Still Moment, Tests, etc.)
 
 ## Integration with CI/CD
 
 The CI pipeline automatically verifies:
-- All Swift files are in the Xcode project
 - Build succeeds
 - Tests pass
-- Coverage meets threshold
-
-If the pipeline fails due to missing files, run `sync-xcode-files.sh` locally and commit the changes.
+- Coverage meets threshold ≥80%
