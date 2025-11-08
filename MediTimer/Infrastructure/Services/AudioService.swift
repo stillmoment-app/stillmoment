@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 import OSLog
 
@@ -15,14 +16,20 @@ final class AudioService: AudioServiceProtocol {
 
     // MARK: - Initialization
 
-    init() {
+    init(coordinator: AudioSessionCoordinatorProtocol) {
+        self.coordinator = coordinator
         self.setupAudioInterruptionHandling()
+        self.setupCoordinatorObserver()
+    }
+
+    convenience init() {
+        self.init(coordinator: AudioSessionCoordinator.shared)
     }
 
     // MARK: - Deinit
 
     deinit {
-        NotificationCenter.default.removeObserver(self)
+        self.cancellables.removeAll()
         self.stopBackgroundAudio()
         stop()
     }
@@ -32,31 +39,9 @@ final class AudioService: AudioServiceProtocol {
     // MARK: - Public Methods
 
     func configureAudioSession() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-
-        // Only set category if not already set
-        if audioSession.category != .playback {
-            Logger.audio.info("Setting audio session category to playback")
-            do {
-                try audioSession.setCategory(
-                    .playback,
-                    mode: .default,
-                    options: []
-                )
-            } catch {
-                Logger.audio.error("Failed to set audio session category", error: error)
-                throw AudioServiceError.sessionConfigurationFailed
-            }
-        }
-
-        // Always activate the session (might be deactivated from previous usage)
-        // This is safe to call multiple times
-        do {
-            try audioSession.setActive(true)
-            Logger.audio.debug("Audio session activated for playback")
-        } catch {
-            Logger.audio.error("Failed to activate audio session", error: error)
-            throw AudioServiceError.sessionConfigurationFailed
+        // Request audio session through coordinator
+        Task { @MainActor in
+            _ = try self.coordinator.requestAudioSession(for: .timer)
         }
     }
 
@@ -124,29 +109,33 @@ final class AudioService: AudioServiceProtocol {
         self.audioPlayer = nil
         self.stopBackgroundAudio()
 
-        // Deactivate audio session when stopping all audio
-        self.deactivateAudioSession()
+        // Release audio session when stopping all audio
+        Task { @MainActor in
+            self.coordinator.releaseAudioSession(for: .timer)
+        }
     }
 
     // MARK: Private
 
+    private let coordinator: AudioSessionCoordinatorProtocol
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Private Methods
 
     private func setupAudioInterruptionHandling() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(self.handleAudioInterruption),
-            name: AVAudioSession.interruptionNotification,
-            object: AVAudioSession.sharedInstance()
-        )
+        // Handle audio session interruptions (e.g., phone call) using Combine
+        NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
+            .sink { [weak self] notification in
+                self?.handleAudioInterruption(notification)
+            }
+            .store(in: &self.cancellables)
+
         Logger.audio.debug("Audio interruption handling configured")
     }
 
-    @objc
-    private func handleAudioInterruption(notification: Notification) {
+    private func handleAudioInterruption(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
               let type = AVAudioSession.InterruptionType(rawValue: typeValue)
@@ -201,17 +190,31 @@ final class AudioService: AudioServiceProtocol {
         let gongPlaying = self.audioPlayer?.isPlaying ?? false
 
         if !backgroundPlaying, !gongPlaying {
-            self.deactivateAudioSession()
+            Task { @MainActor in
+                self.coordinator.releaseAudioSession(for: .timer)
+            }
         }
     }
 
-    /// Deactivates the audio session to save energy
-    private func deactivateAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-            Logger.audio.info("Audio session deactivated to save energy")
-        } catch {
-            Logger.audio.warning("Failed to deactivate audio session: \(error.localizedDescription)")
+    /// Sets up observer to stop audio when another source becomes active
+    private func setupCoordinatorObserver() {
+        Task { @MainActor in
+            self.coordinator.activeSource
+                .sink { [weak self] activeSource in
+                    guard let self else {
+                        return
+                    }
+
+                    // If another source becomes active, stop our audio
+                    if let activeSource, activeSource != .timer {
+                        Logger.audio.info("Timer audio stopping - \(activeSource.rawValue) became active")
+                        self.audioPlayer?.stop()
+                        self.backgroundAudioPlayer?.stop()
+                        self.audioPlayer = nil
+                        self.backgroundAudioPlayer = nil
+                    }
+                }
+                .store(in: &self.cancellables)
         }
     }
 }

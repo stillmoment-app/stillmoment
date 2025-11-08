@@ -104,3 +104,6 @@ iOSInjectionProject/
 *.temp
 test-output.log
 .claude/settings.local.json
+TestResults.xcresult/
+coverage.json
+coverage.txt

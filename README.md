@@ -86,10 +86,12 @@ open MediTimer.xcodeproj
 ### Essential Commands
 
 ```bash
-make help      # Show all available commands
-make format    # Format code (required before commit)
-make lint      # Lint code (strict mode)
-make coverage  # Generate coverage report (≥80% required)
+make help        # Show all available commands
+make format      # Format code (required before commit)
+make lint        # Lint code (strict mode)
+make test        # Run all tests with coverage
+make test-unit   # Run unit tests only (faster)
+make test-report # Display last coverage report
 ```
 
 ### File Management
@@ -127,11 +129,17 @@ GitHub Actions pipeline runs on every push/PR:
 ## 🧪 Testing
 
 ```bash
-# Run all tests
-⌘U in Xcode
+# Quick test (unit tests only, ~30-60 seconds)
+make test-unit
 
-# Generate coverage report
-make coverage
+# Full test suite (unit + UI, ~2-5 minutes)
+make test
+
+# Display last coverage report
+make test-report
+
+# Or run in Xcode
+⌘U
 
 # View detailed results
 open TestResults.xcresult

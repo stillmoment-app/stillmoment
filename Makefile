@@ -1,4 +1,4 @@
-.PHONY: help sync format lint test coverage setup
+.PHONY: help sync format lint test test-unit coverage test-report setup
 
 help: ## Show this help message
 	@echo "MediTimer - Available Commands"
@@ -17,13 +17,17 @@ lint: ## Lint code with SwiftLint (strict mode)
 	@echo "🔍 Linting code..."
 	@swiftlint lint --strict
 
-test: ## Run all tests in Xcode (requires Xcode to be open)
-	@echo "🧪 Run tests with ⌘U in Xcode"
-	@echo "   Or use: xcodebuild test -project MediTimer.xcodeproj -scheme MediTimer -destination 'platform=iOS Simulator,name=iPhone 15 Pro'"
+test: ## Run all tests (unit + UI) with coverage report
+	@./scripts/run-tests.sh
 
-coverage: ## Generate code coverage report
-	@echo "📊 Generating coverage report..."
-	@./scripts/generate-coverage-report.sh
+test-unit: ## Run unit tests only (faster, skip UI tests)
+	@./scripts/run-tests.sh --skip-ui-tests
+
+coverage: ## Run all tests with coverage report (alias for 'make test')
+	@./scripts/run-tests.sh
+
+test-report: ## Display coverage report from last test run
+	@./scripts/test-report.sh
 
 setup: ## Setup development environment (one-time setup)
 	@echo "🚀 Setting up development environment..."

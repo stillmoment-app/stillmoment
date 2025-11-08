@@ -174,9 +174,15 @@ struct MeditationTimer: Equatable {
     }
 
     /// Returns a reset timer with original duration
+    ///
+    /// Uses the private initializer since durationMinutes is already validated
     func reset() -> MeditationTimer {
-        // Safe to use try! here as durationMinutes is already validated
-        // swiftlint:disable:next force_try
-        try! MeditationTimer(durationMinutes: self.durationMinutes)
+        MeditationTimer(
+            durationMinutes: self.durationMinutes,
+            remainingSeconds: self.durationMinutes * 60,
+            state: .idle,
+            countdownSeconds: 0,
+            lastIntervalGongAt: nil
+        )
     }
 }

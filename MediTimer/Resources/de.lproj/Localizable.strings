@@ -28,9 +28,9 @@
 
 // MARK: - State Messages
 
-"state.ready" = "Ready when you are";
-"state.paused" = "Take your time";
-"state.completed" = "Beautiful practice";
+"state.ready" = "Bereit, wenn du es bist";
+"state.paused" = "Nimm dir Zeit";
+"state.completed" = "Wunderschöne Praxis";
 
 // MARK: - Countdown Affirmations
 

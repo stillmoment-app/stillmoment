@@ -24,8 +24,10 @@ make lint                          # Lint code (strict, must pass)
 make check                         # Run both format + lint
 
 # Testing
-# In Xcode: ⌘U (run all tests)
-make coverage                      # Generate coverage report (≥80% required)
+make test                          # Run all tests (unit + UI) with coverage
+make test-unit                     # Run unit tests only (faster, skip UI tests)
+make coverage                      # Alias for 'make test' (all tests + coverage)
+make test-report                   # Display coverage from last test run
 
 # Utilities
 make help                          # Show all available commands
@@ -39,7 +41,7 @@ make help                          # Show all available commands
 MediTimer/
 ├── Domain/              # Pure Swift, no dependencies
 │   ├── Models/          # TimerState, MeditationTimer, MeditationSettings, GuidedMeditation
-│   └── Services/        # Protocol definitions only
+│   └── Services/        # Protocol definitions (AudioSessionCoordinatorProtocol, AudioServiceProtocol, etc.)
 ├── Application/         # ViewModels (@MainActor, ObservableObject)
 │   └── ViewModels/      # TimerViewModel, GuidedMeditationsListViewModel, GuidedMeditationPlayerViewModel
 ├── Presentation/        # SwiftUI Views (no business logic), organized by feature
@@ -55,7 +57,7 @@ MediTimer/
 │           ├── ButtonStyles.swift
 │           └── Color+Theme.swift
 ├── Infrastructure/      # Concrete implementations
-│   ├── Services/        # TimerService, AudioService, GuidedMeditationService, AudioPlayerService
+│   ├── Services/        # AudioSessionCoordinator, TimerService, AudioService, AudioPlayerService, GuidedMeditationService
 │   └── Logging/         # OSLog extensions (Logger.timer, Logger.audio, etc.)
 └── Resources/           # Assets, sounds (completion.mp3, silence.m4a)
 ```
@@ -74,6 +76,7 @@ MediTimer/
 **Key Patterns**:
 - Protocol-based design (all services defined in Domain, implemented in Infrastructure)
 - Dependency injection via initializers
+- Singleton coordinator for audio session management (prevents playback conflicts)
 - Thread safety: `@MainActor` for ViewModels, `.receive(on: DispatchQueue.main)` for publishers
 - Memory safety: `[weak self]` in closures
 
@@ -133,6 +136,65 @@ func testFeature() {
 - State transitions
 
 Use protocol-based mocks for isolated unit testing.
+
+### Automated Test Execution (Claude Code)
+
+**IMPORTANT for Claude Code**: When working on code changes, **ALWAYS run tests** before completing work:
+
+```bash
+# Quick test (unit tests only, ~30-60 seconds)
+make test-unit
+
+# Full test suite (unit + UI, ~2-5 minutes)
+make test
+
+# Manual execution (if needed)
+./scripts/run-tests.sh --skip-ui-tests
+./scripts/run-tests.sh --device "iPhone 16 Pro"
+```
+
+**When to run tests:**
+1. **Before completing any feature** - Verify changes don't break existing functionality
+2. **After fixing bugs** - Ensure the fix works and no regressions
+3. **When adding new code** - Verify new tests pass
+4. **Before updating coverage reports** - Get accurate coverage data
+
+**Expected behavior:**
+- ✅ Unit tests should pass consistently
+- ⚠️ UI tests may be flaky in simulator (Spotlight/WidgetRenderer crashes are normal)
+- ⚠️ Coverage below 80% indicates missing tests
+- 📊 Coverage report auto-generated in `coverage.txt` and `TestResults.xcresult`
+
+**Troubleshooting:**
+- **Simulator crashes**: Normal during UI tests, doesn't affect results
+- **Tests fail to build**: Check mock classes conform to updated protocols
+- **Coverage low**: Focus on Domain (≥95%), Application (≥90%), Infrastructure (≥85%)
+- **UI tests timeout**: Use `make test-unit` to skip UI tests
+
+### Single Source of Truth for Test Results
+
+**CRITICAL**: To avoid inconsistent test reports, Claude Code must **ALWAYS** use this workflow:
+
+```bash
+# Step 1: Run fresh tests
+make test-unit                    # Run unit tests (or 'make test' for all)
+
+# Step 2: Get reliable report (SINGLE SOURCE OF TRUTH)
+make test-report                  # Display report from TestResults.xcresult
+```
+
+**Why this matters:**
+- ❌ **DON'T** read old `coverage.txt` files (may be outdated)
+- ❌ **DON'T** parse `xcodebuild` output directly (parallel execution causes inconsistencies)
+- ❌ **DON'T** mix results from different test runs
+- ✅ **DO** use `make test-report` - it reads from ONE source: `TestResults.xcresult`
+- ✅ **DO** run fresh tests before analyzing results
+
+**Test Report shows:**
+- When tests were executed (timestamp)
+- Current coverage percentage
+- Files needing coverage improvement
+- Whether threshold (≥80%) is met
 
 ## File Management
 
@@ -254,6 +316,50 @@ The app legitimizes background audio through **continuous audible content**:
 - Background audio starts when countdown completes (countdown→running transition)
 - Background audio stops when timer completes or is reset
 
+### Audio Session Coordination
+
+**Problem**: Timer and Guided Meditation features can run simultaneously in TabView, potentially causing audio conflicts.
+
+**Solution**: `AudioSessionCoordinator` singleton manages exclusive audio session access between features.
+
+**Architecture**:
+```swift
+// Protocol in Domain/Services/
+AudioSessionCoordinatorProtocol {
+    var activeSource: CurrentValueSubject<AudioSource?, Never> { get }
+    func requestAudioSession(for source: AudioSource) throws -> Bool
+    func releaseAudioSession(for source: AudioSource)
+}
+
+// Implementation in Infrastructure/Services/
+AudioSessionCoordinator.shared (singleton)
+```
+
+**How It Works**:
+1. Services request audio session before playback:
+   ```swift
+   try coordinator.requestAudioSession(for: .timer)  // or .guidedMeditation
+   ```
+2. Coordinator grants exclusive access and notifies other services
+3. Other services observe `activeSource` changes and pause their audio
+4. Services release session when done:
+   ```swift
+   coordinator.releaseAudioSession(for: .timer)
+   ```
+
+**Integration**:
+- `AudioService` (timer) uses `.timer` source
+- `AudioPlayerService` (guided meditations) uses `.guidedMeditation` source
+- Both services have Combine subscriptions that pause when another source becomes active
+- Coordinator centralizes audio session activation/deactivation for energy efficiency
+
+**Benefits**:
+- ✅ No simultaneous playback conflicts
+- ✅ Clean UX: one audio source at a time
+- ✅ Automatic coordination between tabs
+- ✅ Centralized audio session management
+- ✅ Energy efficient (deactivates when idle)
+
 ### Settings Management
 
 **MeditationSettings Model** (Domain layer, persisted via UserDefaults):
@@ -343,8 +449,10 @@ struct MeditationSettings {
 ```bash
 make help                          # Show all commands
 make setup                         # One-time environment setup
+make test-unit                     # Run unit tests (fast)
+make test                          # Run all tests with coverage
+make test-report                   # Display last test coverage report
 make format && make lint          # Pre-commit checks
-make coverage                      # Generate coverage report
 open MediTimer.xcodeproj          # Open project
 ```
 
@@ -375,5 +483,5 @@ NSLocalizedString("button.start", comment: "")
 
 ---
 
-**Last Updated**: 2025-11-07
-**Version**: 2.3 (v0.5 - Multi-Feature Architecture with TabView)
+**Last Updated**: 2025-11-08
+**Version**: 2.5 (v0.5 - Test Execution Consolidation)

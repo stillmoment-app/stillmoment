@@ -60,12 +60,14 @@ ruby scripts/auto-add-files.rb
 
 ## Testing & Quality
 
-### `generate-coverage-report.sh`
+### `run-tests.sh`
 **Purpose**: Runs tests and generates code coverage report.
 
 **Usage**:
 ```bash
-./scripts/generate-coverage-report.sh
+./scripts/run-tests.sh                          # Run all tests (unit + UI)
+./scripts/run-tests.sh --skip-ui-tests          # Run unit tests only
+./scripts/run-tests.sh --device "iPhone 16 Pro" # Use specific device
 ```
 
 **Output**:
@@ -76,6 +78,16 @@ ruby scripts/auto-add-files.rb
 **Checks**:
 - Fails if coverage < 80%
 - Enforced in CI/CD pipeline
+
+### `test-report.sh`
+**Purpose**: Display coverage report from last test run (without re-running tests).
+
+**Usage**:
+```bash
+./scripts/test-report.sh
+```
+
+**Output**: Terminal-based coverage report with timestamp and threshold check
 
 ## Git Hooks
 

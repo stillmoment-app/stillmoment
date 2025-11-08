@@ -1,7 +1,7 @@
 # Privacy Policy for MediTimer
 
-**Last Updated**: October 26, 2025
-**Effective Date**: October 26, 2025
+**Last Updated**: November 8, 2024
+**Effective Date**: November 8, 2024
 
 ## Overview
 
@@ -33,17 +33,27 @@ MediTimer requests the following permissions to function:
 - **Usage**: Allows the timer to continue running when your screen is locked
 - **Data**: No audio data is transmitted or stored externally
 
+### File Access
+- **Purpose**: To import and play your personal guided meditation audio files
+- **Usage**: You can optionally import MP3 files from your device using the iOS file picker
+- **Files Accessed**: Only files you explicitly select through the system file picker
+- **Security**: We use security-scoped bookmarks to maintain access to your selected files across app launches
+- **Data**: Audio files remain on your device and under your control. We never upload, copy, or transmit your files
+
 ## Data Storage
 
-All app data (timer duration preferences and state) is stored locally on your device using:
-- iOS UserDefaults (device-only storage)
+All app data is stored locally on your device using:
+- **Timer Settings**: Duration preferences, interval gong settings, and background audio mode stored in iOS UserDefaults
+- **Guided Meditation Library**: References (security-scoped bookmarks) to audio files you import, stored in iOS UserDefaults
 - No cloud synchronization
 - No external backups
+- No file duplication (we only store references to your original files)
 
 This data:
 - Never leaves your device
 - Is not accessible to us or any third parties
 - Is deleted if you delete the app
+- Audio files you import remain in their original location on your device
 
 ## Third-Party Services
 

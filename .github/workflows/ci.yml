@@ -31,7 +31,7 @@ jobs:
       run: swiftformat --lint .
 
   build-and-test:
-    name: Build & Test
+    name: Build & Test (All)
     runs-on: macos-14
 
     steps:
@@ -49,16 +49,16 @@ jobs:
         xcodebuild clean build \
           -project MediTimer.xcodeproj \
           -scheme MediTimer \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
 
-    - name: Run Unit Tests
+    - name: Run All Tests (Unit + UI)
       run: |
         xcodebuild test \
           -project MediTimer.xcodeproj \
           -scheme MediTimer \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \
           CODE_SIGN_IDENTITY="" \
@@ -105,7 +105,7 @@ jobs:
         xcodebuild test \
           -project MediTimer.xcodeproj \
           -scheme MediTimer \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           -only-testing:MediTimerUITests \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
@@ -133,6 +133,6 @@ jobs:
         xcodebuild analyze \
           -project MediTimer.xcodeproj \
           -scheme MediTimer \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO

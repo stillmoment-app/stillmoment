@@ -8,6 +8,7 @@
 import AVFoundation
 import Combine
 import MediaPlayer
+import OSLog
 
 /// Concrete implementation of AudioPlayerServiceProtocol
 ///
@@ -21,9 +22,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     // MARK: - Initialization
 
-    override init() {
+    init(coordinator: AudioSessionCoordinatorProtocol) {
+        self.coordinator = coordinator
         super.init()
         self.setupNotifications()
+        self.setupCoordinatorObserver()
+    }
+
+    override convenience init() {
+        self.init(coordinator: AudioSessionCoordinator.shared)
     }
 
     // MARK: Internal
@@ -87,7 +94,11 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             throw AudioPlayerError.playbackFailed(reason: "No audio loaded")
         }
 
-        try self.configureAudioSession() // Ensure session is active
+        // Request audio session through coordinator
+        Task { @MainActor in
+            _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
+        }
+
         player.play()
         self.state.send(.playing)
         self.updateNowPlayingPlaybackInfo()
@@ -106,8 +117,10 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.state.send(.idle)
         self.updateNowPlayingPlaybackInfo()
 
-        // Deactivate audio session to save energy when player is stopped
-        self.deactivateAudioSession()
+        // Release audio session when player is stopped
+        Task { @MainActor in
+            self.coordinator.releaseAudioSession(for: .guidedMeditation)
+        }
     }
 
     func seek(to time: TimeInterval) throws {
@@ -125,22 +138,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     }
 
     func configureAudioSession() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-
-        // Only set category if not already set
-        if audioSession.category != .playback {
-            do {
-                try audioSession.setCategory(.playback, mode: .default)
-            } catch {
-                throw AudioPlayerError.audioSessionFailed
-            }
-        }
-
-        // Always activate the session (might be deactivated from previous usage)
-        do {
-            try audioSession.setActive(true)
-        } catch {
-            throw AudioPlayerError.audioSessionFailed
+        // Request audio session through coordinator
+        Task { @MainActor in
+            _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
         }
     }
 
@@ -214,10 +214,16 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
         // Clear now playing info
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+
+        // Release audio session
+        Task { @MainActor in
+            self.coordinator.releaseAudioSession(for: .guidedMeditation)
+        }
     }
 
     // MARK: Private
 
+    private let coordinator: AudioSessionCoordinatorProtocol
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var currentMeditation: GuidedMeditation?
@@ -269,6 +275,11 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.state.send(.finished)
         self.currentTime.send(self.duration.value)
         self.updateNowPlayingPlaybackInfo()
+
+        // Release audio session when playback finishes
+        Task { @MainActor in
+            self.coordinator.releaseAudioSession(for: .guidedMeditation)
+        }
     }
 
     private func setupNotifications() {
@@ -306,12 +317,22 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
     }
 
-    /// Deactivates the audio session to save energy
-    private func deactivateAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        } catch {
-            // Silently ignore - not critical
+    /// Sets up observer to stop playback when another source becomes active
+    private func setupCoordinatorObserver() {
+        Task { @MainActor in
+            self.coordinator.activeSource
+                .sink { [weak self] activeSource in
+                    guard let self else {
+                        return
+                    }
+
+                    // If another source becomes active, stop our playback
+                    if let activeSource, activeSource != .guidedMeditation {
+                        Logger.audio.info("Guided meditation stopping - \(activeSource.rawValue) became active")
+                        self.pause()
+                    }
+                }
+                .store(in: &self.cancellables)
         }
     }
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Tracking: Does your app track users for advertising or analytics? -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <!-- Collected Data Types: What types of data does your app collect? -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array>
+        <!-- MediTimer does not collect any user data -->
+    </array>
+
+    <!-- Accessed API Types: Which Required Reason APIs does your app use? -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <!-- UserDefaults API -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <!-- CA92.1: Accessing user defaults to read and write information
+                     that is only accessible to the app itself -->
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- Tracking Domains: Third-party domains used for tracking -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array>
+        <!-- No third-party tracking domains -->
+    </array>
+</dict>
+</plist>

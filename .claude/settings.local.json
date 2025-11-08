@@ -3,7 +3,25 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(xcodebuild:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(make check:*)",
+      "Bash(make coverage:*)",
+      "Bash(swiftlint lint:*)",
+      "Bash(tee:*)",
+      "Bash(if [ -d TestResults.xcresult ])",
+      "Bash(then xcrun xccov view --report TestResults.xcresult)",
+      "Bash(else echo \"No test results found. Running tests...\")",
+      "Bash(fi)",
+      "Bash(xcrun simctl:*)",
+      "Bash(xcrun xcresulttool:*)",
+      "Bash(xcrun xccov view:*)",
+      "Bash(./scripts/run-tests.sh:*)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/test-report.sh:*)",
+      "Bash(make test-unit:*)",
+      "Bash(python3:*)",
+      "Bash(open:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
