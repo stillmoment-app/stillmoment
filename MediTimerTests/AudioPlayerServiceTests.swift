@@ -12,10 +12,9 @@ import XCTest
 // MARK: - Mock Audio Session Coordinator
 
 final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
-    var activeSource: CurrentValueSubject<AudioSource?, Never> {
-        _activeSource
-    }
+    // MARK: Internal
 
+    // swiftlint:disable:next identifier_name
     let _activeSource = CurrentValueSubject<AudioSource?, Never>(nil) // Internal for testing
     var requestedSources: [AudioSource] = []
     var releasedSources: [AudioSource] = []
@@ -23,10 +22,12 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     var deactivationCount = 0
     var shouldFailActivation = false
 
-    private var conflictHandlers: [AudioSource: () -> Void] = [:]
+    var activeSource: CurrentValueSubject<AudioSource?, Never> {
+        self._activeSource
+    }
 
     func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
-        conflictHandlers[source] = handler
+        self.conflictHandlers[source] = handler
     }
 
     func requestAudioSession(for source: AudioSource) throws -> Bool {
@@ -38,17 +39,17 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
         // If another source is active, call its conflict handler
         if let currentSource = _activeSource.value, currentSource != source {
-            conflictHandlers[currentSource]?()
+            self.conflictHandlers[currentSource]?()
         }
 
-        _activeSource.send(source)
+        self._activeSource.send(source)
         return true
     }
 
     func releaseAudioSession(for source: AudioSource) {
         self.releasedSources.append(source)
-        if _activeSource.value == source {
-            _activeSource.send(nil)
+        if self._activeSource.value == source {
+            self._activeSource.send(nil)
         }
     }
 
@@ -62,6 +63,10 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     func deactivateAudioSession() {
         self.deactivationCount += 1
     }
+
+    // MARK: Private
+
+    private var conflictHandlers: [AudioSource: () -> Void] = [:]
 }
 
 // MARK: - AudioPlayerServiceTests

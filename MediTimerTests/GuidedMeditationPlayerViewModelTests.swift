@@ -2,6 +2,7 @@
 //  GuidedMeditationPlayerViewModelTests.swift
 //  MediTimer
 //
+// swiftlint:disable file_length type_body_length
 
 import Combine
 import XCTest
@@ -661,3 +662,5 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         )
     }
 }
+
+// swiftlint:enable file_length type_body_length

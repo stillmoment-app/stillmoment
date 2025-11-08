@@ -40,7 +40,7 @@ final class AudioService: AudioServiceProtocol {
 
     func configureAudioSession() throws {
         // Request audio session through coordinator
-        _ = try coordinator.requestAudioSession(for: .timer)
+        _ = try self.coordinator.requestAudioSession(for: .timer)
     }
 
     func playStartGong() throws {
@@ -108,7 +108,7 @@ final class AudioService: AudioServiceProtocol {
         self.stopBackgroundAudio()
 
         // Release audio session when stopping all audio
-        coordinator.releaseAudioSession(for: .timer)
+        self.coordinator.releaseAudioSession(for: .timer)
     }
 
     // MARK: Private
@@ -186,13 +186,13 @@ final class AudioService: AudioServiceProtocol {
         let gongPlaying = self.audioPlayer?.isPlaying ?? false
 
         if !backgroundPlaying, !gongPlaying {
-            coordinator.releaseAudioSession(for: .timer)
+            self.coordinator.releaseAudioSession(for: .timer)
         }
     }
 
     /// Registers conflict handler to stop audio when another source becomes active
     private func registerConflictHandler() {
-        coordinator.registerConflictHandler(for: .timer) { [weak self] in
+        self.coordinator.registerConflictHandler(for: .timer) { [weak self] in
             guard let self else {
                 return
             }

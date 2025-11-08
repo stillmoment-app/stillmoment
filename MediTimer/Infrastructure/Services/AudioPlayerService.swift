@@ -95,7 +95,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
 
         // Request audio session through coordinator
-        _ = try coordinator.requestAudioSession(for: .guidedMeditation)
+        _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
 
         player.play()
         self.state.send(.playing)
@@ -116,7 +116,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.updateNowPlayingPlaybackInfo()
 
         // Release audio session when player is stopped
-        coordinator.releaseAudioSession(for: .guidedMeditation)
+        self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     func seek(to time: TimeInterval) throws {
@@ -135,7 +135,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func configureAudioSession() throws {
         // Request audio session through coordinator
-        _ = try coordinator.requestAudioSession(for: .guidedMeditation)
+        _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
     }
 
     func setupRemoteCommandCenter() {
@@ -210,7 +210,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
 
         // Release audio session
-        coordinator.releaseAudioSession(for: .guidedMeditation)
+        self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     // MARK: Private
@@ -269,7 +269,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.updateNowPlayingPlaybackInfo()
 
         // Release audio session when playback finishes
-        coordinator.releaseAudioSession(for: .guidedMeditation)
+        self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     private func setupNotifications() {
@@ -309,7 +309,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     /// Registers conflict handler to stop playback when another source becomes active
     private func registerConflictHandler() {
-        coordinator.registerConflictHandler(for: .guidedMeditation) { [weak self] in
+        self.coordinator.registerConflictHandler(for: .guidedMeditation) { [weak self] in
             guard let self else {
                 return
             }

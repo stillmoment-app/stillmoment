@@ -142,6 +142,7 @@ final class AudioSessionCoordinatorTests: XCTestCase {
     }
 
     // MARK: - CurrentValueSubject Value Tests
+
     //
     // Note: We test the VALUE of activeSource, not the publishing mechanism.
     // Services subscribe to activeSource and read its value, so that's what matters.

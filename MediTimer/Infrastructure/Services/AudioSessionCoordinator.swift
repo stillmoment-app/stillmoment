@@ -49,24 +49,24 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     static let shared = AudioSessionCoordinator()
 
     var activeSource: CurrentValueSubject<AudioSource?, Never> {
-        _activeSource
+        self._activeSource
     }
 
     func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
-        queue.sync {
-            conflictHandlers[source] = handler
+        self.queue.sync {
+            self.conflictHandlers[source] = handler
             Logger.audio.debug("Registered conflict handler for \(source.rawValue)")
         }
     }
 
     func requestAudioSession(for source: AudioSource) throws -> Bool {
-        try queue.sync {
-            let currentSource = _activeSource.value
+        try self.queue.sync {
+            let currentSource = self._activeSource.value
 
             // If same source, just ensure session is active
             if currentSource == source {
                 Logger.audio.debug("Audio session already owned by \(source.rawValue)")
-                try? activateAudioSession() // Best-effort activation
+                try? self.activateAudioSession() // Best-effort activation
                 return true
             }
 
@@ -84,15 +84,18 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             }
 
             // Grant ownership to new source
-            _activeSource.send(source)
+            self._activeSource.send(source)
 
             // Activate session (best-effort, don't fail if activation fails)
             do {
-                try activateAudioSession()
+                try self.activateAudioSession()
                 Logger.audio.info("Audio session granted and activated for \(source.rawValue)")
             } catch {
                 Logger.audio.warning(
-                    "Audio session granted to \(source.rawValue) but activation failed (non-critical in test env): \(error.localizedDescription)"
+                    """
+                    Audio session granted to \(source.rawValue) but activation failed \
+                    (non-critical in test env): \(error.localizedDescription)
+                    """
                 )
             }
 
@@ -101,9 +104,9 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     }
 
     func releaseAudioSession(for source: AudioSource) {
-        queue.sync {
+        self.queue.sync {
             // Only release if this source currently owns the session
-            guard _activeSource.value == source else {
+            guard self._activeSource.value == source else {
                 Logger.audio.debug(
                     "Ignoring release request from \(source.rawValue) - not current owner"
                 )
@@ -111,8 +114,8 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             }
 
             Logger.audio.info("Audio session released by \(source.rawValue)")
-            _activeSource.send(nil)
-            deactivateAudioSession()
+            self._activeSource.send(nil)
+            self.deactivateAudioSession()
         }
     }
 
