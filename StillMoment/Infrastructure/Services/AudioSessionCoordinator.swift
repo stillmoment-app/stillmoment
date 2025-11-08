@@ -66,7 +66,8 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             // If same source, just ensure session is active
             if currentSource == source {
                 Logger.audio.debug("Audio session already owned by \(source.rawValue)")
-                try? self.activateAudioSession() // Best-effort activation
+                // CRITICAL FIX: Actually activate session, don't silently fail
+                try self.activateAudioSession()
                 return true
             }
 
@@ -86,20 +87,30 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
             // Grant ownership to new source
             self._activeSource.send(source)
 
-            // Activate session (best-effort, don't fail if activation fails)
-            do {
-                try self.activateAudioSession()
-                Logger.audio.info("Audio session granted and activated for \(source.rawValue)")
-            } catch {
-                Logger.audio.warning(
-                    """
-                    Audio session granted to \(source.rawValue) but activation failed \
-                    (non-critical in test env): \(error.localizedDescription)
-                    """
-                )
+            // CRITICAL FIX: Properly activate session with retry
+            var lastError: Error?
+            for attempt in 1...3 {
+                do {
+                    try self.activateAudioSession()
+                    Logger.audio.info("Audio session activated for \(source.rawValue) (attempt \(attempt))")
+                    return true
+                } catch {
+                    lastError = error
+                    Logger.audio
+                        .warning(
+                            "Audio session activation failed (attempt \(attempt)/3): \(error.localizedDescription)"
+                        )
+
+                    // Brief delay before retry (only if not last attempt)
+                    if attempt < 3 {
+                        Thread.sleep(forTimeInterval: 0.1)
+                    }
+                }
             }
 
-            return true
+            // All retries failed - throw the error
+            Logger.audio.error("Audio session activation failed after 3 attempts for \(source.rawValue)")
+            throw lastError ?? AudioSessionCoordinatorError.sessionActivationFailed
         }
     }
 

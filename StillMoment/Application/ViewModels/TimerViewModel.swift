@@ -116,11 +116,28 @@ final class TimerViewModel: ObservableObject {
             return
         }
         Logger.viewModel.info("Starting timer from UI", metadata: ["minutes": self.selectedMinutes])
+
+        // CRITICAL FIX: Configure audio session EARLY (before countdown starts)
+        // This gives iOS time to activate the session, especially important for locked screen
+        do {
+            try self.audioService.configureAudioSession()
+            Logger.viewModel.info("Audio session configured for timer")
+        } catch {
+            Logger.viewModel.error("Failed to configure audio session", error: error)
+            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
+            // Continue anyway - will retry when audio actually plays
+        }
+
         // Rotate affirmation for next session
         self.currentAffirmationIndex = (self.currentAffirmationIndex + 1) % max(
             self.runningAffirmations.count,
             self.countdownAffirmations.count
         )
+
+        // CRITICAL FIX: Start background audio IMMEDIATELY to keep app alive during countdown
+        // iOS suspends apps that don't actively play audio, even with active audio session
+        self.startBackgroundAudio()
+
         self.timerService.start(durationMinutes: self.selectedMinutes)
     }
 
@@ -212,19 +229,20 @@ final class TimerViewModel: ObservableObject {
     }
 
     private func handleStateTransition(from oldState: TimerState, to newState: TimerState, timer: MeditationTimer) {
-        // Countdown → Running: Play start gong and start background audio
+        // Countdown → Running: Play start gong (background audio already running from timer start)
         if oldState == .countdown, newState == .running {
-            Logger.viewModel.info("Countdown complete, playing start gong and starting background audio")
+            Logger.viewModel.info("Countdown complete, playing start gong")
             self.playStartGong()
-            self.startBackgroundAudio()
+            // Note: Background audio was started immediately in startTimer() to prevent iOS suspension
             return
         }
 
-        // Running → Completed: Play completion sound and stop background audio
+        // Running → Completed: Play completion sound BEFORE stopping background audio
+        // CRITICAL: Play gong first while audio session is still active, then stop background audio
         if newState == .completed {
             Logger.viewModel.info("Timer completed, playing completion sound")
-            self.audioService.stopBackgroundAudio()
             self.playCompletionSound()
+            self.audioService.stopBackgroundAudio()
             return
         }
 

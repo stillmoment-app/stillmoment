@@ -10,6 +10,12 @@ import XCTest
 // MARK: - Mock Services
 
 final class MockTimerService: TimerServiceProtocol {
+    // MARK: Lifecycle
+
+    init(countdownDuration: Int = 15) {
+        self.countdownDuration = countdownDuration
+    }
+
     // MARK: Internal
 
     var startCalled = false
@@ -28,7 +34,10 @@ final class MockTimerService: TimerServiceProtocol {
         self.startCalled = true
         self.lastStartDuration = durationMinutes
 
-        guard let timer = try? MeditationTimer(durationMinutes: durationMinutes) else {
+        guard let timer = try? MeditationTimer(
+            durationMinutes: durationMinutes,
+            countdownDuration: self.countdownDuration
+        ) else {
             return
         }
         self.subject.send(timer.withState(.running))
@@ -51,7 +60,10 @@ final class MockTimerService: TimerServiceProtocol {
     }
 
     func simulateTick(remainingSeconds: Int, state: TimerState = .running) {
-        guard let timer = try? MeditationTimer(durationMinutes: 10) else {
+        guard let timer = try? MeditationTimer(
+            durationMinutes: 10,
+            countdownDuration: self.countdownDuration
+        ) else {
             return
         }
         // Create a timer with custom remaining seconds (simplified for testing)
@@ -59,7 +71,10 @@ final class MockTimerService: TimerServiceProtocol {
     }
 
     func simulateCompletion() {
-        guard var timer = try? MeditationTimer(durationMinutes: 1) else {
+        guard var timer = try? MeditationTimer(
+            durationMinutes: 1,
+            countdownDuration: self.countdownDuration
+        ) else {
             return
         }
         timer = timer.withState(.completed)
@@ -74,6 +89,7 @@ final class MockTimerService: TimerServiceProtocol {
     // MARK: Private
 
     private let subject = PassthroughSubject<MeditationTimer, Never>()
+    private let countdownDuration: Int
 }
 
 final class MockAudioService: AudioServiceProtocol {
@@ -88,8 +104,12 @@ final class MockAudioService: AudioServiceProtocol {
     var shouldThrowOnConfigure = false
     var shouldThrowOnPlay = false
 
+    // Track order of audio calls (for critical regression tests)
+    var audioCallOrder: [String] = []
+
     func configureAudioSession() throws {
         self.configureAudioSessionCalled = true
+        self.audioCallOrder.append("configureAudioSession")
         if self.shouldThrowOnConfigure {
             throw AudioServiceError.sessionConfigurationFailed
         }
@@ -97,6 +117,7 @@ final class MockAudioService: AudioServiceProtocol {
 
     func startBackgroundAudio(mode: BackgroundAudioMode) throws {
         self.startBackgroundAudioCalled = true
+        self.audioCallOrder.append("startBackgroundAudio")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
@@ -104,10 +125,12 @@ final class MockAudioService: AudioServiceProtocol {
 
     func stopBackgroundAudio() {
         self.stopBackgroundAudioCalled = true
+        self.audioCallOrder.append("stopBackgroundAudio")
     }
 
     func playStartGong() throws {
         self.playStartGongCalled = true
+        self.audioCallOrder.append("playStartGong")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
@@ -115,6 +138,7 @@ final class MockAudioService: AudioServiceProtocol {
 
     func playIntervalGong() throws {
         self.playIntervalGongCalled = true
+        self.audioCallOrder.append("playIntervalGong")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
@@ -122,6 +146,7 @@ final class MockAudioService: AudioServiceProtocol {
 
     func playCompletionSound() throws {
         self.playCompletionSoundCalled = true
+        self.audioCallOrder.append("playCompletionSound")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
@@ -129,6 +154,7 @@ final class MockAudioService: AudioServiceProtocol {
 
     func stop() {
         self.stopCalled = true
+        self.audioCallOrder.append("stop")
     }
 }
 
@@ -145,7 +171,8 @@ final class TimerViewModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.mockTimerService = MockTimerService()
+        // Use 0 countdown duration for fast tests
+        self.mockTimerService = MockTimerService(countdownDuration: 0)
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -369,5 +396,87 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(newViewModel.settings.intervalGongsEnabled, true)
         XCTAssertEqual(newViewModel.settings.intervalMinutes, 10)
         XCTAssertEqual(newViewModel.settings.backgroundAudioMode, .whiteNoise)
+    }
+
+    // MARK: - Critical Regression Tests (Lock Screen Countdown Fix)
+
+    func testBackgroundAudioStartsImmediatelyOnTimerStart() {
+        // CRITICAL: This test prevents the countdown-freeze bug on locked screen
+        // Background audio MUST start IMMEDIATELY when timer starts, not after countdown
+        // Without this, iOS suspends the app during countdown when screen is locked
+
+        // Given
+        self.sut.selectedMinutes = 1
+
+        // When
+        self.sut.startTimer()
+
+        // Then - Verify background audio was called
+        XCTAssertTrue(
+            self.mockAudioService.startBackgroundAudioCalled,
+            "Background audio must start immediately to keep app alive during countdown"
+        )
+
+        // Critical: Verify audio session was configured before background audio starts
+        let configureIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "configureAudioSession")
+        let startBackgroundIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "startBackgroundAudio")
+
+        XCTAssertNotNil(configureIndex, "Audio session must be configured")
+        XCTAssertNotNil(startBackgroundIndex, "Background audio must be started")
+
+        if let configIdx = configureIndex, let startIdx = startBackgroundIndex {
+            XCTAssertLessThan(
+                configIdx,
+                startIdx,
+                "Audio session must be configured BEFORE background audio starts"
+            )
+        }
+    }
+
+    func testCompletionGongPlaysBeforeBackgroundAudioStops() {
+        // CRITICAL: This test prevents the completion-gong-silence bug
+        // Completion gong MUST play BEFORE background audio stops
+        // Otherwise audio session gets deactivated and gong can't play (especially on locked screen)
+
+        // Given
+        let expectation = expectation(description: "Completion sequence")
+
+        // When - Simulate timer completion
+        self.mockTimerService.simulateCompletion()
+
+        // Wait for completion handlers to execute
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Then - Verify both were called
+            XCTAssertTrue(
+                self.mockAudioService.playCompletionSoundCalled,
+                "Completion gong must play"
+            )
+            XCTAssertTrue(
+                self.mockAudioService.stopBackgroundAudioCalled,
+                "Background audio must stop"
+            )
+
+            // Critical: Verify completion gong played BEFORE background audio stopped
+            let gongIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "playCompletionSound")
+            let stopIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "stopBackgroundAudio")
+
+            XCTAssertNotNil(gongIndex, "Completion gong must be played")
+            XCTAssertNotNil(stopIndex, "Background audio must be stopped")
+
+            if let gong = gongIndex, let stop = stopIndex {
+                XCTAssertLessThan(
+                    gong,
+                    stop,
+                    """
+                    CRITICAL: Completion gong must play BEFORE background audio stops.
+                    If background audio stops first, audio session deactivates and gong can't play.
+                    """
+                )
+            }
+
+            expectation.fulfill()
+        }
+
+        wait(for: [expectation], timeout: 1.0)
     }
 }

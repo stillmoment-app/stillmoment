@@ -26,9 +26,11 @@ struct MeditationTimer: Equatable {
     // MARK: Lifecycle
 
     /// Initializes a new meditation timer
-    /// - Parameter durationMinutes: Duration in minutes (1-60)
+    /// - Parameters:
+    ///   - durationMinutes: Duration in minutes (1-60)
+    ///   - countdownDuration: Duration of countdown in seconds (default: 15). Use 0 to skip countdown.
     /// - Throws: `MeditationTimerError.invalidDuration` if duration is not between 1 and 60 minutes
-    init(durationMinutes: Int) throws {
+    init(durationMinutes: Int, countdownDuration: Int = 15) throws {
         guard (1...60).contains(durationMinutes) else {
             throw MeditationTimerError.invalidDuration(durationMinutes)
         }
@@ -36,6 +38,7 @@ struct MeditationTimer: Equatable {
         self.remainingSeconds = durationMinutes * 60
         self.state = .idle
         self.countdownSeconds = 0
+        self.countdownDuration = countdownDuration
         self.lastIntervalGongAt = nil
     }
 
@@ -45,12 +48,14 @@ struct MeditationTimer: Equatable {
         remainingSeconds: Int,
         state: TimerState,
         countdownSeconds: Int = 0,
+        countdownDuration: Int,
         lastIntervalGongAt: Int? = nil
     ) {
         self.durationMinutes = durationMinutes
         self.remainingSeconds = remainingSeconds
         self.state = state
         self.countdownSeconds = countdownSeconds
+        self.countdownDuration = countdownDuration
         self.lastIntervalGongAt = lastIntervalGongAt
     }
 
@@ -65,8 +70,11 @@ struct MeditationTimer: Equatable {
     /// Current state of the timer
     let state: TimerState
 
-    /// Countdown seconds (15→0 before timer starts)
+    /// Countdown seconds (countdownDuration→0 before timer starts)
     let countdownSeconds: Int
+
+    /// Duration of countdown in seconds (configured at initialization)
+    let countdownDuration: Int
 
     /// Remaining seconds when last interval gong was played
     let lastIntervalGongAt: Int?
@@ -100,6 +108,7 @@ struct MeditationTimer: Equatable {
                 remainingSeconds: self.remainingSeconds,
                 state: newState,
                 countdownSeconds: newCountdown,
+                countdownDuration: self.countdownDuration,
                 lastIntervalGongAt: self.lastIntervalGongAt
             )
         }
@@ -112,6 +121,7 @@ struct MeditationTimer: Equatable {
             remainingSeconds: newRemaining,
             state: newState,
             countdownSeconds: self.countdownSeconds,
+            countdownDuration: self.countdownDuration,
             lastIntervalGongAt: self.lastIntervalGongAt
         )
     }
@@ -123,17 +133,19 @@ struct MeditationTimer: Equatable {
             remainingSeconds: self.remainingSeconds,
             state: newState,
             countdownSeconds: self.countdownSeconds,
+            countdownDuration: self.countdownDuration,
             lastIntervalGongAt: self.lastIntervalGongAt
         )
     }
 
-    /// Returns a copy ready for countdown (15 seconds)
+    /// Returns a copy ready for countdown (uses configured countdownDuration)
     func startCountdown() -> MeditationTimer {
         MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.remainingSeconds,
             state: .countdown,
-            countdownSeconds: 15,
+            countdownSeconds: self.countdownDuration,
+            countdownDuration: self.countdownDuration,
             lastIntervalGongAt: nil
         )
     }
@@ -145,6 +157,7 @@ struct MeditationTimer: Equatable {
             remainingSeconds: self.remainingSeconds,
             state: self.state,
             countdownSeconds: self.countdownSeconds,
+            countdownDuration: self.countdownDuration,
             lastIntervalGongAt: self.remainingSeconds
         )
     }
@@ -182,6 +195,7 @@ struct MeditationTimer: Equatable {
             remainingSeconds: self.durationMinutes * 60,
             state: .idle,
             countdownSeconds: 0,
+            countdownDuration: self.countdownDuration,
             lastIntervalGongAt: nil
         )
     }

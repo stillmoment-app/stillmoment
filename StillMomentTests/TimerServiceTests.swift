@@ -15,7 +15,8 @@ final class TimerServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = TimerService()
+        // Use 0 countdown duration for fast tests
+        self.sut = TimerService(countdownDuration: 0)
         self.cancellables = Set<AnyCancellable>()
     }
 

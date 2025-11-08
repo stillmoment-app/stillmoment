@@ -49,13 +49,13 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
         // Create new player
         let playerItem = AVPlayerItem(url: url)
-        player = AVPlayer(playerItem: playerItem)
+        self.player = AVPlayer(playerItem: playerItem)
 
         // Store meditation for lock screen display
         self.currentMeditation = meditation
 
         // Wait for player to be ready
-        guard let player else {
+        guard self.player != nil else {
             throw AudioPlayerError.playbackFailed(reason: "Failed to create player")
         }
 
@@ -169,7 +169,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         commandCenter.skipForwardCommand.isEnabled = true
         commandCenter.skipForwardCommand.preferredIntervals = [15]
         commandCenter.skipForwardCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else {
+            guard let self, self.player != nil else {
                 return .commandFailed
             }
             let newTime = min(self.currentTime.value + 15, self.duration.value)
@@ -180,7 +180,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         commandCenter.skipBackwardCommand.isEnabled = true
         commandCenter.skipBackwardCommand.preferredIntervals = [15]
         commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else {
+            guard let self, self.player != nil else {
                 return .commandFailed
             }
             let newTime = max(self.currentTime.value - 15, 0)

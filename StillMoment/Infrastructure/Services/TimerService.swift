@@ -13,6 +13,12 @@ import OSLog
 final class TimerService: TimerServiceProtocol {
     // MARK: Lifecycle
 
+    /// Initialize timer service with optional countdown duration
+    /// - Parameter countdownDuration: Duration of countdown in seconds (default: 15). Use 0 to skip countdown.
+    init(countdownDuration: Int = 15) {
+        self.countdownDuration = countdownDuration
+    }
+
     // MARK: - Deinit
 
     deinit {
@@ -34,19 +40,19 @@ final class TimerService: TimerServiceProtocol {
         self.stop() // Clean up any existing timer
 
         do {
-            let newTimer = try MeditationTimer(durationMinutes: durationMinutes)
+            let newTimer = try MeditationTimer(
+                durationMinutes: durationMinutes,
+                countdownDuration: self.countdownDuration
+            )
 
-            // Check if running in UI test mode
-            let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITesting")
-
-            if isUITesting {
-                // Skip countdown for faster, more reliable tests
-                self.currentTimer = newTimer.withState(.running)
-                Logger.timer.info("Timer started directly (UI Testing mode)")
-            } else {
-                // Start in countdown state (15 seconds) for normal use
+            if self.countdownDuration > 0 {
+                // Start with countdown
                 self.currentTimer = newTimer.startCountdown()
                 Logger.timer.info("Timer countdown started")
+            } else {
+                // Skip countdown (typically for tests)
+                self.currentTimer = newTimer.withState(.running)
+                Logger.timer.info("Timer started directly (no countdown)")
             }
 
             self.timerSubject.send(self.currentTimer)
@@ -105,6 +111,7 @@ final class TimerService: TimerServiceProtocol {
     private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)
     private var systemTimer: AnyCancellable?
     private var currentTimer: MeditationTimer?
+    private let countdownDuration: Int
 
     // MARK: - Private Methods
 
