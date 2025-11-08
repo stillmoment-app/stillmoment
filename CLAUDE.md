@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MediTimer is a warmhearted meditation timer iOS app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode. Built with SwiftUI and SF Pro Rounded typography.
+Still Moment is a warmhearted meditation timer iOS app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode. Built with SwiftUI and SF Pro Rounded typography.
 
 **Target**: iOS 17+, Swift 5.9+, German & English
 **Quality**: 9/10 ⭐ | **Coverage**: TBD (v0.4 pending tests) | **Status**: v0.4 - Guided Meditations
@@ -15,7 +15,7 @@ MediTimer is a warmhearted meditation timer iOS app with warm earth tone design 
 
 ```bash
 # Development
-open MediTimer.xcodeproj          # Open in Xcode
+open Still Moment.xcodeproj          # Open in Xcode
 make setup                         # One-time setup (installs tools & hooks)
 
 # Code Quality
@@ -44,7 +44,7 @@ make help                          # Show all available commands
 **Clean Architecture Light + MVVM** with strict layer separation and feature-based organization:
 
 ```
-MediTimer/
+Still Moment/
 ├── Domain/              # Pure Swift, no dependencies
 │   ├── Models/          # TimerState, MeditationTimer, MeditationSettings, GuidedMeditation
 │   └── Services/        # Protocol definitions (AudioSessionCoordinatorProtocol, AudioServiceProtocol, etc.)
@@ -106,7 +106,7 @@ MediTimer/
 ### Logging
 
 ```swift
-// Available loggers (defined in Infrastructure/Logging/Logger+MediTimer.swift)
+// Available loggers (defined in Infrastructure/Logging/Logger+Still Moment.swift)
 Logger.timer.info("Starting", metadata: ["duration": 10])
 Logger.audio.error("Failed", error: error)
 Logger.performance.measure(operation: "Load") { try load() }
@@ -177,7 +177,7 @@ make test
 - **Cause**: iOS Simulator instability under load, XPC timeout issues (`LIBXPC 4 XPC_EXIT_REASON_SIGTERM_TIMEOUT`)
 - **Impact**: Does NOT affect test results - these are macOS service crashes, not your app
 - **When it happens**: During UI tests, especially longer test runs
-- **How to identify**: Check crash report process name - if it's not "MediTimer", it's a simulator issue
+- **How to identify**: Check crash report process name - if it's not "Still Moment", it's a simulator issue
 - **Solution**: Ignore these crashes, or reset simulator if they become excessive:
   ```bash
   # Recommended: Use Make commands
@@ -475,7 +475,7 @@ Coverage: Critical user paths only
 #### UI Test Example
 
 ```swift
-// MediTimerUITests/TimerFlowUITests.swift
+// Still MomentUITests/TimerFlowUITests.swift
 
 func testCompleteTimerFlow() {
     // Given - App launches
@@ -547,7 +547,7 @@ make test-unit          # Fast inner loop (30-60s)
 make test               # Includes UI tests (2-5min)
 
 # Run specific UI test (advanced)
-xcodebuild test -only-testing:MediTimerUITests/TimerFlowUITests
+xcodebuild test -only-testing:Still MomentUITests/TimerFlowUITests
 ```
 
 **UI test flakiness:** Simulator issues (Spotlight crashes) are normal. Re-run if needed.
@@ -589,21 +589,21 @@ make test-unit          # ← Run tests before EVERY commit
 **With TDD:**
 ```bash
 # 1. Write tests for countdown behavior
-vim MediTimerTests/MeditationTimerTests.swift
+vim Still MomentTests/MeditationTimerTests.swift
 # Add: testStartCountdown(), testCountdownToRunning()
 
 # 2. Run tests (RED)
 make test-unit  # ❌ Tests fail (feature doesn't exist)
 
 # 3. Implement countdown (GREEN)
-vim MediTimer/Domain/Models/MeditationTimer.swift
+vim Still Moment/Domain/Models/MeditationTimer.swift
 # Add: func startCountdown(), update tick() logic
 
 # 4. Run tests (GREEN)
 make test-unit  # ✅ All tests pass
 
 # 5. Update existing tests
-vim MediTimerTests/TimerServiceTests.swift
+vim Still MomentTests/TimerServiceTests.swift
 # Update: testStartTimer() expects .countdown not .running
 
 # 6. Run tests (GREEN)
@@ -694,17 +694,17 @@ Before starting ANY feature:
 ## File Management
 
 ### Current Status (Xcode 15+ Auto-Sync)
-- ✅ **MediTimerTests/** - Auto-sync enabled
-- ✅ **MediTimerUITests/** - Auto-sync enabled
-- ✅ **MediTimer/** - Auto-sync enabled (as of now)
+- ✅ **Still MomentTests/** - Auto-sync enabled
+- ✅ **Still MomentUITests/** - Auto-sync enabled
+- ✅ **Still Moment/** - Auto-sync enabled (as of now)
 
 **New Swift files are automatically detected by Xcode.** No manual adding or scripts required!
 
 ### How It Works
-The MediTimer folder uses "folder references" (blue in Xcode, not yellow groups). Files added to the filesystem automatically appear in Xcode.
+The Still Moment folder uses "folder references" (blue in Xcode, not yellow groups). Files added to the filesystem automatically appear in Xcode.
 
 ### If Auto-Sync Stops Working
-1. Verify MediTimer folder is blue (folder reference), not yellow (group)
+1. Verify Still Moment folder is blue (folder reference), not yellow (group)
 2. If yellow: Delete from Xcode → Re-add as "Create folder references"
 3. See GETTING_STARTED.md for detailed steps
 
@@ -964,7 +964,7 @@ make test-clean-unit               # Reset + run unit tests
 
 # Quality
 make format && make lint           # Pre-commit checks
-open MediTimer.xcodeproj           # Open project
+open Still Moment.xcodeproj           # Open project
 ```
 
 **For detailed standards**: See `.claude.md` (840 lines)
@@ -977,8 +977,8 @@ open MediTimer.xcodeproj           # Open project
 **Auto-Detection**: Uses iOS system language setting
 
 **Localization Files**:
-- `MediTimer/Resources/de.lproj/Localizable.strings`
-- `MediTimer/Resources/en.lproj/Localizable.strings`
+- `Still Moment/Resources/de.lproj/Localizable.strings`
+- `Still Moment/Resources/en.lproj/Localizable.strings`
 
 **Usage**:
 ```swift

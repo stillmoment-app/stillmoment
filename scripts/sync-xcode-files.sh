@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Automatically syncs Swift files with Xcode project
-# Scans MediTimer/ directory and adds any new files
+# Scans StillMoment/ directory and adds any new files
 #
 
 set -e
@@ -14,7 +14,7 @@ fi
 
 # Check if there are new Swift files
 NEW_FILES=$(find MediTimer -name "*.swift" -type f | while read file; do
-    if ! grep -q "$file" MediTimer.xcodeproj/project.pbxproj 2>/dev/null; then
+    if ! grep -q "$file" StillMoment.xcodeproj/project.pbxproj 2>/dev/null; then
         echo "$file"
     fi
 done)

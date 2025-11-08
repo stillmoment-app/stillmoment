@@ -9,7 +9,7 @@
 set -e
 
 # Configuration
-PROJECT="MediTimer.xcodeproj"
+PROJECT="StillMoment.xcodeproj"
 SCHEME="MediTimer"
 DEVICE="iPhone 16 Pro"
 COVERAGE_THRESHOLD=80
@@ -98,7 +98,7 @@ if [ "$SKIP_UI_TESTS" = true ]; then
         -destination "platform=iOS Simulator,name=$DEVICE" \
         -enableCodeCoverage YES \
         -resultBundlePath TestResults.xcresult \
-        -only-testing:MediTimerTests \
+        -only-testing:StillMomentTests \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
 elif [ "$ONLY_UI_TESTS" = true ]; then
@@ -109,7 +109,7 @@ elif [ "$ONLY_UI_TESTS" = true ]; then
         -destination "platform=iOS Simulator,name=$DEVICE" \
         -enableCodeCoverage YES \
         -resultBundlePath TestResults.xcresult \
-        -only-testing:MediTimerUITests \
+        -only-testing:StillMomentUITests \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO

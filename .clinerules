@@ -1,4 +1,4 @@
-# MediTimer - Claude AI Rules
+# Still Moment - Claude AI Rules
 # This file is automatically read by Claude Code
 
 ## 🎯 PRIMARY DIRECTIVE
@@ -12,7 +12,7 @@ This file provides quick essential reminders. For comprehensive guidance, always
 ## ⚡ Quick Essentials
 
 ### File Management
-✅ **Auto-sync enabled** for all folders (MediTimer/, MediTimerTests/, MediTimerUITests/)
+✅ **Auto-sync enabled** for all folders (Still Moment/, Still MomentTests/, Still MomentUITests/)
 → New Swift files appear automatically in Xcode. No manual adding needed!
 
 ### Commands

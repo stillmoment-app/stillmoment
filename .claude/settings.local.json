@@ -31,7 +31,9 @@
       "Bash(make test-ui:*)",
       "Bash(make lint:*)",
       "Bash(make test:*)",
-      "Bash(make format:*)"
+      "Bash(make format:*)",
+      "Bash(git mv:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

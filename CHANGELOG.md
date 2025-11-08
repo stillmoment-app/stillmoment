@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to MediTimer will be documented in this file.
+All notable changes to Still Moment will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -120,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New color theme files (Color+Theme.swift, ButtonStyles.swift)
 
 ### Changed
-- **Welcome Message** - Changed from "MediTimer" to warmhearted greeting
+- **Welcome Message** - Changed from "Still Moment" to warmhearted greeting
   - German: "Schön, dass du da bist"
   - English: "Lovely to see you"
 - **Setup Screen**
@@ -392,7 +392,7 @@ First working version with core meditation timer features.
 
 ## Links
 
-- [Repository](https://github.com/your-username/meditimer)
-- [Issues](https://github.com/your-username/meditimer/issues)
+- [Repository](https://github.com/your-username/stillmoment)
+- [Issues](https://github.com/your-username/stillmoment/issues)
 - [Development Guide](DEVELOPMENT.md)
 - [Improvements Documentation](IMPROVEMENTS.md)

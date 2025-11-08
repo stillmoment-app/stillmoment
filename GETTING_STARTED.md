@@ -1,4 +1,4 @@
-# Getting Started - MediTimer App
+# Getting Started - Still Moment App
 
 Diese Anleitung führt dich Schritt-für-Schritt durch die finale Einrichtung der App.
 
@@ -21,7 +21,7 @@ Diese Anleitung führt dich Schritt-für-Schritt durch die finale Einrichtung de
 - [ ] iOS App mit SwiftUI
 - [ ] Tests aktiviert
 - [ ] iOS 17.0 Minimum
-- [ ] Projekt in `/Users/helmut/devel/meditimer/` erstellt
+- [ ] Projekt in `/Users/helmut/devel/stillmoment/` erstellt
 
 ### 2. Dateien zu Xcode hinzufügen
 - [ ] Siehe `XCODE_FILE_SETUP.md`
@@ -98,7 +98,7 @@ Die App wurde nach folgenden Standards entwickelt:
 ## 📁 Projekt-Struktur
 
 ```
-meditimer/
+stillmoment/
 ├── README.md                          # Projekt-Übersicht
 ├── DEVELOPMENT.md                     # Entwicklungsplan
 ├── GETTING_STARTED.md                 # Diese Datei
@@ -107,7 +107,7 @@ meditimer/
 ├── INFO_PLIST_CONFIG.md              # Background-Konfiguration
 ├── .gitignore                         # Git Ignore
 │
-├── MediTimer/                         # Haupt-App
+├── Still Moment/                         # Haupt-App
 │   ├── Domain/                        # Business Logic
 │   │   ├── Models/
 │   │   │   ├── TimerState.swift
@@ -130,15 +130,15 @@ meditimer/
 │   │       ├── AudioService.swift
 │   │       └── NotificationService.swift
 │   │
-│   ├── MediTimerApp.swift            # App Entry Point
+│   ├── Still MomentApp.swift            # App Entry Point
 │   └── Assets.xcassets/               # Assets
 │
-├── MediTimerTests/                    # Unit Tests
+├── Still MomentTests/                    # Unit Tests
 │   ├── MeditationTimerTests.swift
 │   ├── TimerServiceTests.swift
 │   └── TimerViewModelTests.swift
 │
-└── MediTimerUITests/                  # UI Tests
+└── Still MomentUITests/                  # UI Tests
     └── TimerFlowUITests.swift
 ```
 
@@ -178,7 +178,7 @@ Wenn die Basis-App funktioniert, können folgende Features hinzugefügt werden:
 
 ### Keine Notifications
 - Permission wurde erteilt?
-- Einstellungen → MediTimer → Notifications → An
+- Einstellungen → Still Moment → Notifications → An
 
 ## 📞 Support
 

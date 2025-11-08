@@ -1,6 +1,6 @@
-# Claude AI Instructions for MediTimer
+# Claude AI Instructions for Still Moment
 
-This file provides instructions for Claude AI when working on the MediTimer project.
+This file provides instructions for Claude AI when working on the Still Moment project.
 
 ## Primary Reference Document
 
@@ -94,7 +94,7 @@ final class MyService: MyServiceProtocol {
     }
 }
 
-// 4. Write tests in MediTimerTests/
+// 4. Write tests in Still MomentTests/
 final class MyServiceTests: XCTestCase {
     var sut: MyService!
     // Tests here

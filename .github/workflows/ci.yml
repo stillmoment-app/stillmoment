@@ -47,8 +47,8 @@ jobs:
     - name: Build app
       run: |
         xcodebuild clean build \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
@@ -56,8 +56,8 @@ jobs:
     - name: Run All Tests (Unit + UI)
       run: |
         xcodebuild test \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \
@@ -80,7 +80,7 @@ jobs:
 
     - name: Check Coverage Threshold
       run: |
-        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "MediTimer.app" | awk '{print $4}' | sed 's/%//')
+        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "StillMoment.app" | awk '{print $4}' | sed 's/%//')
         echo "Code Coverage: $COVERAGE%"
         if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
           echo "❌ Code coverage is below 80% threshold"
@@ -103,10 +103,10 @@ jobs:
     - name: Run UI Tests
       run: |
         xcodebuild test \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
-          -only-testing:MediTimerUITests \
+          -only-testing:StillMomentUITests \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO
 
@@ -131,8 +131,8 @@ jobs:
     - name: Run Xcode Analyze
       run: |
         xcodebuild analyze \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO

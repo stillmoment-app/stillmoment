@@ -83,7 +83,7 @@ Begin every review with a complete project scan:
 - Check native UI element usage (prefer system components)
 - Confirm Dark Mode support for iOS 13+ (if applicable)
 - Review spacing, typography, and visual hierarchy
-- Verify proper use of colors from design system (consider project-specific design like MediTimer's warm earth tones)
+- Verify proper use of colors from design system (consider project-specific design like Still Moment's warm earth tones)
 
 **Assets:**
 - Confirm all required app icon sizes in Assets.xcassets

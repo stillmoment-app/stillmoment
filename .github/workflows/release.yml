@@ -30,8 +30,8 @@ jobs:
     - name: Run all tests
       run: |
         xcodebuild test \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           -enableCodeCoverage YES \
           CODE_SIGN_IDENTITY="" \
@@ -40,9 +40,9 @@ jobs:
     - name: Build Archive
       run: |
         xcodebuild archive \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
-          -archivePath MediTimer.xcarchive \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
+          -archivePath StillMoment.xcarchive \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           -destination 'generic/platform=iOS'
@@ -52,7 +52,7 @@ jobs:
       run: |
         VERSION=${GITHUB_REF#refs/tags/v}
         cat << EOF > release-notes.md
-        # MediTimer v$VERSION
+        # Still Moment v$VERSION
 
         ## What's New
 

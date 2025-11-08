@@ -19,8 +19,8 @@ jobs:
     - name: Run Tests with Coverage
       run: |
         xcodebuild test \
-          -project MediTimer.xcodeproj \
-          -scheme MediTimer \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \
@@ -31,7 +31,7 @@ jobs:
       id: coverage
       run: |
         # Get overall coverage
-        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "MediTimer.app" | awk '{print $4}')
+        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "StillMoment.app" | awk '{print $4}')
         echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
 
         # Generate detailed report
@@ -50,7 +50,7 @@ jobs:
 
         ### Coverage by File:
         \`\`\`
-        $(xcrun xccov view --report --files-for-target MediTimer.app TestResults.xcresult)
+        $(xcrun xccov view --report --files-for-target StillMoment.app TestResults.xcresult)
         \`\`\`
         EOF
 

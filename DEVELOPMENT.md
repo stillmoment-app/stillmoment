@@ -1,4 +1,4 @@
-# Development Plan - MediTimer
+# Development Plan - Still Moment
 
 ## Project Goals
 

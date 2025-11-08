@@ -1,4 +1,4 @@
-# MediTimer - Meditation Timer iOS App
+# Still Moment - Meditation Timer iOS App
 
 [![CI](https://img.shields.io/badge/CI-passing-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)]()
@@ -53,7 +53,7 @@ A warmhearted, minimalistic meditation timer for iOS with warm earth tone design
 ## 📁 Architecture
 
 ```
-MediTimer/
+Still Moment/
 ├── Domain/              # Business logic, models, protocols
 ├── Application/         # ViewModels (@MainActor)
 ├── Presentation/        # SwiftUI Views
@@ -68,13 +68,13 @@ MediTimer/
 ```bash
 # Clone
 git clone <repository-url>
-cd meditimer
+cd stillmoment
 
 # Setup development environment (installs SwiftLint, SwiftFormat, pre-commit hooks)
 make setup
 
 # Open in Xcode
-open MediTimer.xcodeproj
+open Still Moment.xcodeproj
 
 # Build and run
 # ⌘R - Run app

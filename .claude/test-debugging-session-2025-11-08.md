@@ -240,11 +240,11 @@ Added comprehensive section on:
 
 ## Files Modified
 
-- `MediTimerTests/AudioPlayerServiceTests.swift` - Fixed 4 deadlock tests
-- `MediTimerTests/AudioServiceTests.swift` - Fixed 3 flaky tests + 1 exception handling
-- `MediTimerTests/GuidedMeditationsListViewModelTests.swift` - Fixed mock protocols
-- `MediTimerTests/GuidedMeditationPlayerViewModelTests.swift` - Fixed mock protocols
-- `MediTimerUITests/TimerFlowUITests.swift` - Fixed deprecated API usage
+- `Still MomentTests/AudioPlayerServiceTests.swift` - Fixed 4 deadlock tests
+- `Still MomentTests/AudioServiceTests.swift` - Fixed 3 flaky tests + 1 exception handling
+- `Still MomentTests/GuidedMeditationsListViewModelTests.swift` - Fixed mock protocols
+- `Still MomentTests/GuidedMeditationPlayerViewModelTests.swift` - Fixed mock protocols
+- `Still MomentUITests/TimerFlowUITests.swift` - Fixed deprecated API usage
 - `scripts/run-tests.sh` - New automated test script
 - `scripts/test-report.sh` - New test report generator
 - `Makefile` - Added `test` and `test-unit` targets

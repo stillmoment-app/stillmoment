@@ -17,7 +17,7 @@ if [ -z "$1" ]; then
 fi
 
 TEST_TARGET="$1"
-PROJECT="MediTimer.xcodeproj"
+PROJECT="StillMoment.xcodeproj"
 SCHEME="MediTimer"
 DEVICE="iPhone 16 Pro"
 
@@ -30,9 +30,9 @@ echo ""
 
 # Determine if it's a full test suite or single test
 if [[ "$TEST_TARGET" == *"/"* ]]; then
-    TEST_SPECIFIER="MediTimerTests/$TEST_TARGET"
+    TEST_SPECIFIER="StillMomentTests/$TEST_TARGET"
 else
-    TEST_SPECIFIER="MediTimerTests/$TEST_TARGET"
+    TEST_SPECIFIER="StillMomentTests/$TEST_TARGET"
 fi
 
 echo "🧪 Running test..."
