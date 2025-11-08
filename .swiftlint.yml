@@ -1,4 +1,4 @@
-# SwiftLint Configuration for MediTimer
+# SwiftLint Configuration for Still Moment
 # See https://realm.github.io/SwiftLint/rule-directory.html for all rules
 
 # Paths to exclude from linting
@@ -129,7 +129,7 @@ file_header:
   required_pattern: |
                     \/\/
                     \/\/  .*?\.swift
-                    \/\/  MediTimer
+                    \/\/  Still Moment
                     \/\/
 
 # Custom reporter (use 'xcode' for Xcode integration)
