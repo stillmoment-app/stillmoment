@@ -49,7 +49,7 @@ echo "-------------------"
 if xcrun xccov view --report "$RESULT_BUNDLE" >/dev/null 2>&1; then
     # Overall coverage
     COVERAGE=$(xcrun xccov view --report "$RESULT_BUNDLE" 2>/dev/null | \
-        grep "Still Moment.app" | awk '{print $4}' | sed 's/%//' || echo "0")
+        grep "StillMoment.app" | awk '{print $2}' | sed 's/%//' || echo "0")
 
     echo "Overall Coverage: ${COVERAGE}%"
     echo ""
@@ -60,17 +60,23 @@ if xcrun xccov view --report "$RESULT_BUNDLE" >/dev/null 2>&1; then
     echo ""
     echo "-------------------"
 
-    # Threshold check
-    THRESHOLD=80
-    if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
-        echo "⚠️  Coverage is below ${THRESHOLD}% threshold (current: ${COVERAGE}%)"
+    # Coverage guidance (informational, not enforced)
+    GUIDELINE=80
+    echo "Guideline: ${GUIDELINE}%+ (indicator, not goal)"
+    echo ""
+    if (( $(echo "$COVERAGE < $GUIDELINE" | bc -l 2>/dev/null || echo "1") )); then
+        echo "📊 Coverage below ${GUIDELINE}% guideline"
         echo ""
-        echo "💡 Focus areas for improvement:"
-        echo "   - Domain layer: Should be ≥95%"
-        echo "   - Application layer: Should be ≥90%"
-        echo "   - Infrastructure layer: Should be ≥85%"
+        echo "💡 Check critical code coverage:"
+        echo "   - MeditationTimer: Core business logic"
+        echo "   - AudioSessionCoordinator: Resource management"
+        echo "   - TimerViewModel: User interactions"
+        echo "   - GuidedMeditationPlayerViewModel: Playback logic"
+        echo ""
+        echo "   See CRITICAL_CODE.md for testing priorities"
     else
-        echo "✅ Coverage meets ${THRESHOLD}% threshold"
+        echo "✅ Coverage at ${COVERAGE}% (tracking well)"
+        echo "   Focus: Test quality > coverage percentage"
     fi
 else
     echo "⚠️  Could not generate coverage report"

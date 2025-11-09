@@ -1,7 +1,7 @@
 # Still Moment - Meditation Timer iOS App
 
 [![CI](https://img.shields.io/badge/CI-passing-brightgreen)]()
-[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)]()
+[![Coverage](https://img.shields.io/badge/coverage-tracked-blue)]()
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
 [![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()
@@ -9,7 +9,7 @@
 
 A warmhearted, minimalistic meditation timer for iOS with warm earth tone design, rotating affirmations, and full German/English localization.
 
-**Quality**: 9/10 ⭐ | **Coverage**: 85%+ | **Architecture**: Clean Architecture Light + MVVM | **Version**: v0.3
+**Quality**: 9/10 ⭐ | **Coverage**: Tracked | **Architecture**: Clean Architecture Light + MVVM | **Version**: v0.5.0
 
 **Organization**: [stillmoment-app](https://github.com/stillmoment-app) | **Maintainer**: [Helmut Zechmann](https://github.com/HelmutZechmann)
 
@@ -176,18 +176,28 @@ open TestResults.xcresult
 
 ## 🎯 Project Status
 
-**Current**: v0.3 - Warmherziges Design & Internationalisierung
+**Current**: v0.5.0 - Multi-Feature Architecture with TabView
 
-**Latest Features (v0.3)**:
+**Latest Features (v0.5)**:
+- ✅ Feature-based file organization (Timer + Guided Meditations)
+- ✅ TabView navigation with independent NavigationStacks
+- ✅ Tab localization (German + English)
+- ✅ Accessibility support for tab navigation
+
+**Guided Meditations (v0.4)**:
+- ✅ MP3 import library with metadata extraction
+- ✅ Full-featured audio player with lock screen controls
+- ✅ Teacher/name editing and grouped display
+- ✅ Security-scoped bookmarks for file access
+- ✅ Background audio playback
+
+**Warmhearted Design (v0.3)**:
 - ✅ Complete visual redesign with warm earth tones
 - ✅ SF Pro Rounded typography system-wide
 - ✅ Full German and English localization
 - ✅ Rotating affirmations (4 countdown + 5 running)
-- ✅ Custom button styles with shadows
-- ✅ Thinner, elegant timer ring (8pt)
-- ✅ Warmhearted messages and emojis
 
-**Previous Features (v0.2)**:
+**Audio Features (v0.2)**:
 - 15-second countdown before meditation
 - Start gong (Tibetan singing bowl)
 - Configurable interval gongs (3/5/10 minutes)

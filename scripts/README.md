@@ -55,15 +55,6 @@ This directory contains automation scripts for the Still Moment project.
 
 **Output**: Terminal-based coverage report with timestamp and threshold check
 
-## Utilities (Legacy)
-
-These scripts are kept for reference but may not be actively used:
-
-- `disable_file_sync.rb` - Disables file synchronization
-- `enable_background_audio.rb` - Configures background audio capability
-- `fix_duplicate_files.rb` - Removes duplicate file references
-- `fix_file_paths.rb` - Fixes incorrect file paths in project
-
 ## Troubleshooting
 
 ### "Permission denied"

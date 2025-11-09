@@ -92,8 +92,8 @@ Since we don't collect any personal data, there is no data to:
 
 If you have any questions or concerns about this privacy policy, please contact:
 
-**Email**: [YOUR_EMAIL_HERE]
-**GitHub**: https://github.com/[YOUR_USERNAME]/stillmoment
+**Email**: stillMoment@posteo.de
+**GitHub**: https://github.com/stillmoment-app/still-moment
 
 ## Compliance
 

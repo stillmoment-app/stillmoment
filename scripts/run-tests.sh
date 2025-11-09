@@ -148,23 +148,25 @@ if [ -f coverage.txt ]; then
     head -30 coverage.txt
 
     # Extract overall coverage
-    COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "Still Moment.app" | awk '{print $4}' | sed 's/%//' || echo "0")
+    COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "StillMoment.app" | awk '{print $2}' | sed 's/%//' || echo "0")
 
     echo ""
     echo "-------------------"
     echo "Overall Coverage: ${COVERAGE}%"
-    echo "Required Threshold: ${COVERAGE_THRESHOLD}%"
+    echo "Guideline: ${COVERAGE_THRESHOLD}%+ (indicator, not goal)"
 
-    # Check threshold
+    # Coverage guidance (informational, not enforced)
     if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
-        echo "⚠️  Coverage is below ${COVERAGE_THRESHOLD}% threshold"
+        echo "📊 Coverage below ${COVERAGE_THRESHOLD}%"
         echo ""
-        echo "💡 To improve coverage:"
-        echo "   1. Add tests for uncovered code"
-        echo "   2. Review coverage.txt for details"
+        echo "💡 Consider:"
+        echo "   1. Are critical paths tested? (MeditationTimer, AudioCoordinator, ViewModels)"
+        echo "   2. Review coverage.txt for gaps in important code"
         echo "   3. Open TestResults.xcresult in Xcode for visual report"
+        echo "   4. Focus on quality, not quantity - see CRITICAL_CODE.md"
     else
-        echo "✅ Coverage meets ${COVERAGE_THRESHOLD}% threshold"
+        echo "✅ Coverage at ${COVERAGE}% (tracking well)"
+        echo "   Remember: Test quality > coverage percentage"
     fi
 else
     echo "⚠️  Could not generate coverage report"

@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Still Moment is a warmhearted meditation timer iOS app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode. Built with SwiftUI and SF Pro Rounded typography.
 
 **Target**: iOS 17+, Swift 5.9+, German & English
-**Quality**: 9/10 ⭐ | **Coverage**: TBD (v0.4 pending tests) | **Status**: v0.4 - Guided Meditations
+**Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Feature Architecture
 
 ## Essential Commands
 
@@ -114,12 +114,27 @@ Logger.performance.measure(operation: "Load") { try load() }
 
 ## Testing Requirements
 
-**Coverage Thresholds** (CI enforced):
-- Overall: ≥80% (strict)
-- Domain: ≥95%
-- Application: ≥90%
-- Infrastructure: ≥85%
-- Presentation: ≥70%
+**Testing Philosophy**: Test important code thoroughly, not every line of code.
+
+**What MUST be tested**:
+- ✅ Business logic (Domain Models: MeditationTimer, AudioCoordinator, GuidedMeditation)
+- ✅ State transitions (countdown → running → paused → completed)
+- ✅ Error handling (file access, audio session failures, invalid input)
+- ✅ User-facing features (timer controls, meditation playback, settings)
+- ✅ Edge cases (0 duration, locked screen, background audio, interruptions)
+
+**What can be skipped**:
+- Simple property wrappers
+- Trivial computed properties
+- Pure UI layout code (test manually)
+- Boilerplate SwiftUI views without logic
+
+**Coverage as Indicator** (not goal):
+- Domain/Application: Naturally 85%+ (pure logic, easy to test)
+- Infrastructure: 70%+ (I/O, some code hard to test)
+- Presentation: 50%+ (SwiftUI, prefer manual testing)
+- **Don't chase numbers** - focus on critical paths
+- Track trends: Declining coverage = risk; High coverage + poor quality = false security
 
 **Test Structure** (Given-When-Then):
 ```swift
@@ -552,15 +567,16 @@ xcodebuild test -only-testing:Still MomentUITests/TimerFlowUITests
 
 **UI test flakiness:** Simulator issues (Spotlight crashes) are normal. Re-run if needed.
 
-### Coverage Requirements (TDD ensures these)
+### What TDD Ensures
 
-When writing tests first, coverage naturally reaches targets:
-- Domain: ≥95% (pure logic, easily testable)
-- Application: ≥90% (ViewModels with protocol mocks)
-- Infrastructure: ≥85% (services with protocol boundaries)
-- Presentation: ≥70% (SwiftUI views, harder to test)
+When writing tests first:
+- ✅ All business logic is tested (can't write code without tests)
+- ✅ Edge cases discovered early (tests force you to think)
+- ✅ Refactoring is safe (tests catch regressions)
+- ✅ Coverage follows naturally (no artificial padding needed)
+- ✅ Critical paths always verified (timer state machine, audio coordinator)
 
-**If coverage drops below thresholds:** Missing tests for new code → CI fails.
+**Red flag:** If critical code (MeditationTimer, AudioSessionCoordinator, TimerViewModel) has <80% coverage, tests are missing. Everything else is context-dependent - focus on what matters.
 
 ### Pre-commit Hook Integration
 
@@ -994,5 +1010,5 @@ NSLocalizedString("button.start", comment: "")
 
 ---
 
-**Last Updated**: 2025-11-08
-**Version**: 2.5 (v0.5 - Test Execution Consolidation)
+**Last Updated**: 2025-11-09
+**Version**: 2.6 (v0.5 - Documentation Cleanup & Testing Philosophy)

@@ -17,7 +17,7 @@ Build a minimal viable meditation timer app with focus on:
 - [ ] Set up folder structure
 - [ ] Add .gitignore
 
-### 🚧 Phase 1: Core Domain Layer
+### ✅ Phase 1: Core Domain Layer (Completed v0.1.0)
 **Goal**: Implement timer business logic without UI dependencies
 
 #### Tasks
@@ -33,7 +33,7 @@ Build a minimal viable meditation timer app with focus on:
 - Timer publishes state changes
 - All edge cases tested (0 minutes, max duration, etc.)
 
-### 🔜 Phase 2: Audio Integration
+### ✅ Phase 2: Audio Integration (Completed v0.1.0 / v0.2.0)
 **Goal**: Play sound when timer completes
 
 #### Tasks
@@ -48,7 +48,7 @@ Build a minimal viable meditation timer app with focus on:
 - Works in background/locked screen
 - Audio session properly configured
 
-### 🔜 Phase 3: Presentation Layer (ViewModel)
+### ✅ Phase 3: Presentation Layer (Completed v0.1.0)
 **Goal**: Bridge domain logic to UI
 
 #### Tasks
@@ -63,7 +63,7 @@ Build a minimal viable meditation timer app with focus on:
 - All user interactions work correctly
 - Fully unit tested with mocks
 
-### 🔜 Phase 4: UI Implementation
+### ✅ Phase 4: UI Implementation (Completed v0.1.0 / v0.3.0)
 **Goal**: Build clean, minimal SwiftUI interface
 
 #### Tasks
@@ -80,7 +80,7 @@ Build a minimal viable meditation timer app with focus on:
 - Previews show all timer states
 - Works on iPhone 13 mini screen size
 
-### 🔜 Phase 5: Background Execution
+### ✅ Phase 5: Background Execution (Completed v0.1.0 / v0.2.0)
 **Goal**: Keep timer running when app is backgrounded
 
 #### Tasks
@@ -96,7 +96,7 @@ Build a minimal viable meditation timer app with focus on:
 - Sound plays even when backgrounded
 - Properly tested on real device
 
-### 🔜 Phase 6: UI Tests
+### ✅ Phase 6: UI Tests (Completed v0.1.0)
 **Goal**: Automate critical user flows
 
 #### Tasks
@@ -110,7 +110,7 @@ Build a minimal viable meditation timer app with focus on:
 - Tests are reliable and fast
 - CI-ready (if needed later)
 
-### 🔜 Phase 7: Polish & Documentation
+### ✅ Phase 7: Polish & Documentation (Completed v0.1.0 / v0.3.0)
 **Goal**: Production-ready MVP
 
 #### Tasks
@@ -192,10 +192,10 @@ Build a minimal viable meditation timer app with focus on:
 
 ## Current Status
 
-**Last Updated**: 2025-11-07
+**Last Updated**: 2025-11-09
 **Current Version**: v0.5.0 - Multi-Feature Architecture with TabView
-**Completed**: All MVP phases (0-6) + Guided Meditations + Multi-Feature Architecture
-**Next Steps**: Additional features (Statistics, Dark Mode, Widgets)
+**Completed**: All MVP phases (0-7) + Guided Meditations + Multi-Feature Architecture
+**Next Steps**: v1.0 features (Custom sounds, Presets, Actual white noise audio)
 
 ## Future Enhancements (Post-MVP)
 

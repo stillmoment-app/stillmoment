@@ -153,31 +153,30 @@ meditation,timer,mindfulness,zen,breathing,yoga,calm,peace,focus,relax,wellness,
 
 ### Support URL (required)
 ```
-https://github.com/[YOUR_USERNAME]/stillmoment
+https://github.com/stillmoment-app/still-moment
 ```
 or create a simple website/contact page
 
 ### Marketing URL (optional)
 ```
-https://github.com/[YOUR_USERNAME]/stillmoment
+https://github.com/stillmoment-app/still-moment
 ```
 
 ### Privacy Policy URL (required)
 ```
-https://raw.githubusercontent.com/[YOUR_USERNAME]/stillmoment/main/PRIVACY_POLICY.md
+https://raw.githubusercontent.com/stillmoment-app/still-moment/main/PRIVACY_POLICY.md
 ```
 or host on GitHub Pages:
 ```
-https://[YOUR_USERNAME].github.io/stillmoment/privacy
+https://stillmoment-app.github.io/still-moment/privacy
 ```
 
 ## App Review Information
 
 ### Contact Information
-- **First Name**: [YOUR_FIRST_NAME]
-- **Last Name**: [YOUR_LAST_NAME]
-- **Phone Number**: [YOUR_PHONE_NUMBER]
-- **Email**: [YOUR_EMAIL]
+- **First Name**: Helmut
+- **Last Name**: Zechmann
+- **Email**: stillMoment@posteo.de
 
 ### Sign-in Information
 ```
@@ -210,7 +209,7 @@ Still Moment operates entirely offline. No data collection, no analytics, no tra
 
 Please test VoiceOver support - all interactive elements have appropriate accessibility labels.
 
-If you have any questions, please contact: [YOUR_EMAIL]
+If you have any questions, please contact: stillMoment@posteo.de
 ```
 
 ## Screenshots Required
@@ -353,7 +352,7 @@ Thank you for choosing Still Moment for your mindfulness journey.
 
 ---
 
-Questions or feedback? Contact: [YOUR_EMAIL]
+Questions or feedback? Contact: stillMoment@posteo.de
 ```
 
 ## Privacy Nutrition Label
