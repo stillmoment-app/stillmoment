@@ -5,7 +5,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
 [![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/stillmoment-app/still-moment/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE)
 
 A warmhearted, minimalistic meditation timer for iOS with warm earth tone design, rotating affirmations, and full German/English localization.
 
@@ -68,8 +68,8 @@ Clean Architecture Light + MVVM with strict layer separation:
 
 ```bash
 # Clone
-git clone https://github.com/stillmoment-app/still-moment.git
-cd still-moment
+git clone https://github.com/stillmoment-app/stillmoment.git
+cd stillmoment
 
 # Setup development environment (installs SwiftLint, SwiftFormat, pre-commit hooks)
 make setup
@@ -170,7 +170,6 @@ open TestResults.xcresult
 | **CLAUDE.md** | Development guide for Claude Code (primary reference) |
 | **DEVELOPMENT.md** | Development phases and roadmap |
 | **CHANGELOG.md** | Version history |
-| **GETTING_STARTED.md** | Detailed setup instructions |
 | **.claude.md** | Detailed code standards (840 lines) |
 
 ## 🎯 Project Status

@@ -153,22 +153,22 @@ meditation,timer,mindfulness,zen,breathing,yoga,calm,peace,focus,relax,wellness,
 
 ### Support URL (required)
 ```
-https://github.com/stillmoment-app/still-moment
+https://github.com/stillmoment-app/stillmoment
 ```
 or create a simple website/contact page
 
 ### Marketing URL (optional)
 ```
-https://github.com/stillmoment-app/still-moment
+https://github.com/stillmoment-app/stillmoment
 ```
 
 ### Privacy Policy URL (required)
 ```
-https://raw.githubusercontent.com/stillmoment-app/still-moment/main/PRIVACY_POLICY.md
+https://raw.githubusercontent.com/stillmoment-app/stillmoment/main/PRIVACY_POLICY.md
 ```
 or host on GitHub Pages:
 ```
-https://stillmoment-app.github.io/still-moment/privacy
+https://stillmoment-app.github.io/stillmoment/privacy
 ```
 
 ## App Review Information

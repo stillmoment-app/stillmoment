@@ -14,8 +14,8 @@ Thank you for your interest in contributing to Still Moment! This document provi
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/stillmoment-app/still-moment.git
-   cd still-moment
+   git clone https://github.com/stillmoment-app/stillmoment.git
+   cd stillmoment
    ```
 
 2. **Install development tools:**
@@ -174,8 +174,8 @@ Before starting work on significant features or refactors, create an issue to di
 
 ```bash
 # Fork the repo on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/still-moment.git
-cd still-moment
+git clone https://github.com/YOUR_USERNAME/stillmoment.git
+cd stillmoment
 
 # Create feature branch
 git checkout -b feature/your-feature-name

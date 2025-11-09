@@ -392,7 +392,7 @@ First working version with core meditation timer features.
 
 ## Links
 
-- [Repository](https://github.com/your-username/stillmoment)
-- [Issues](https://github.com/your-username/stillmoment/issues)
+- [Repository](https://github.com/stillmoment-app/stillmoment)
+- [Issues](https://github.com/stillmoment-app/stillmoment/issues)
 - [Development Guide](DEVELOPMENT.md)
 - [Improvements Documentation](IMPROVEMENTS.md)
