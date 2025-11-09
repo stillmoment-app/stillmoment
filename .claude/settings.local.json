@@ -34,7 +34,12 @@
       "Bash(make format:*)",
       "Bash(git mv:*)",
       "Bash(find:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git -C /Users/helmut/devel/stillmoment branch:*)",
+      "Bash(git -C /Users/helmut/devel/stillmoment log --all --full-history --source '--pretty=format:%H %s' -- *.env *.p12 *.mobileprovision *secret* *password* *credential*)",
+      "Bash(cat:*)",
+      "Bash(git -C /Users/helmut/devel/stillmoment remote:*)",
+      "Bash(git -C /Users/helmut/devel/stillmoment rev-parse:*)"
     ],
     "deny": [],
     "ask": []
