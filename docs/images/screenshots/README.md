@@ -23,14 +23,14 @@ Die Website erwartet folgende Screenshots in **beiden Sprachen** (Deutsch und En
 ### 1. Simulator vorbereiten
 
 ```bash
-# iPhone 16 Pro Simulator öffnen
+# iPhone 16 Plus Simulator öffnen
 open -a Simulator
 
 # App bauen und im Simulator starten
 xcodebuild -project StillMoment.xcodeproj \
   -scheme StillMoment \
   -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' \
+  -destination 'platform=iOS Simulator,name=iPhone 16 Plus,OS=18.4' \
   build
 
 # App im Simulator installieren (Output-Pfad aus Build-Logs verwenden)
@@ -111,7 +111,7 @@ mv "Simulator Screenshot 2.png" timer-running-en.png
 ## Screenshot-Spezifikationen
 
 - **Format**: PNG
-- **Gerät**: iPhone 16 Pro (oder ähnlich)
+- **Gerät**: iPhone 16 Plus (oder ähnlich)
 - **Orientation**: Portrait
 - **Auflösung**: Native Simulator-Auflösung (wird automatisch skaliert)
 - **Dateigröße**: Optimieren für Web (<500KB pro Bild empfohlen)

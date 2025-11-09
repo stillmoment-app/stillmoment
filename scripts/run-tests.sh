@@ -3,7 +3,7 @@
 # Automated test execution script for Still Moment
 # Runs unit tests, generates coverage report, and checks thresholds
 #
-# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--device "iPhone 16 Pro"]
+# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--device "iPhone 16 Plus"]
 #
 
 set -e
@@ -11,7 +11,7 @@ set -e
 # Configuration
 PROJECT="StillMoment.xcodeproj"
 SCHEME="StillMoment"
-DEVICE="iPhone 16 Pro"
+DEVICE="iPhone 16 Plus"
 COVERAGE_THRESHOLD=80
 SKIP_UI_TESTS=false
 ONLY_UI_TESTS=false
@@ -37,12 +37,12 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "Usage: $0 [--skip-ui-tests|--only-ui-tests] [--device \"iPhone 16 Pro\"] [--reset-simulator]"
+            echo "Usage: $0 [--skip-ui-tests|--only-ui-tests] [--device \"iPhone 16 Plus\"] [--reset-simulator]"
             echo ""
             echo "Options:"
             echo "  --skip-ui-tests      Skip UI tests (faster, unit tests only)"
             echo "  --only-ui-tests      Run UI tests only (skip unit tests)"
-            echo "  --device NAME        Simulator device name (default: iPhone 16 Pro)"
+            echo "  --device NAME        Simulator device name (default: iPhone 16 Plus)"
             echo "  --reset-simulator    Reset simulator before running tests (reduces crashes)"
             echo "  --help               Show this help message"
             echo ""

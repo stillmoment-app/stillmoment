@@ -664,7 +664,7 @@ make screenshots
 
 **Configuration**:
 - **Languages**: German (de-DE), English (en-US)
-- **Device**: iPhone 16 Pro (iOS 18.4+)
+- **Device**: iPhone 16 Plus (iOS 18.4+)
 - **Output**: `docs/images/screenshots/` (website deployment)
 - **Tests**: `StillMomentUITests/ScreenshotTests.swift`
 

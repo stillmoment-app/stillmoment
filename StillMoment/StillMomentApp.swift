@@ -9,6 +9,18 @@ import SwiftUI
 
 @main
 struct StillMomentApp: App {
+    // MARK: Lifecycle
+
+    init() {
+        // Configure tab bar appearance with warm colors
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(Color.warmSand)
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     // MARK: Internal
 
     var body: some Scene {
@@ -34,6 +46,7 @@ struct StillMomentApp: App {
                 .accessibilityIdentifier("tab.library")
                 .accessibilityLabel(Text("tab.library.accessibility"))
             }
+            .tint(.terracotta)
         }
     }
 

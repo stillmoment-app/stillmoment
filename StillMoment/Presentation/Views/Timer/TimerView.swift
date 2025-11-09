@@ -53,7 +53,7 @@ struct TimerView: View {
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.red)
+                        .foregroundColor(.warmError)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 16)
@@ -75,6 +75,7 @@ struct TimerView: View {
                     Image(systemName: "ellipsis")
                         .foregroundColor(.warmGray)
                         .rotationEffect(.degrees(90))
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .accessibilityIdentifier("timer.button.settings")
                 .accessibilityLabel("accessibility.settings")

@@ -15,7 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Config
-DEVICE="iPhone 16 Pro"
+DEVICE="iPhone 16 Plus"
 OUTPUT_DIR="docs/images/screenshots"
 BUNDLE_ID="com.stillmoment.StillMoment"
 
@@ -54,6 +54,40 @@ if [[ "$SIMULATOR_STATE" != "Booted" ]]; then
 fi
 echo -e "${GREEN}✓ Simulator ready${NC}"
 echo ""
+
+# Build and install app
+echo -e "${BLUE}🔨 Building and installing app...${NC}"
+xcodebuild \
+    -project StillMoment.xcodeproj \
+    -scheme StillMoment \
+    -destination "id=${SIMULATOR_ID}" \
+    -derivedDataPath build \
+    build 2>&1 | grep -E '(error|warning|Build succeeded)' || true
+
+if [ ${PIPESTATUS[0]} -ne 0 ]; then
+    echo -e "${RED}❌ Build failed. Please fix build errors and try again.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ App installed${NC}"
+echo ""
+
+# Function to launch app with error handling
+launch_app() {
+    xcrun simctl terminate "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
+    sleep 1
+
+    if xcrun simctl launch "$SIMULATOR_ID" "$BUNDLE_ID" &> /dev/null; then
+        sleep 3
+        return 0
+    else
+        echo -e "${RED}❌ Failed to launch app. Check that:${NC}"
+        echo -e "${RED}   1. The app is installed on the simulator${NC}"
+        echo -e "${RED}   2. The bundle ID is correct: ${BUNDLE_ID}${NC}"
+        echo -e "${RED}   3. The simulator is booted${NC}"
+        exit 1
+    fi
+}
 
 # Function to prompt and take screenshot
 prompt_and_capture() {
@@ -131,10 +165,7 @@ for lang in "${LANGUAGES[@]}"; do
 
     # Terminate and relaunch app
     echo -e "${BLUE}Relaunching app with new language...${NC}"
-    xcrun simctl terminate "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
-    sleep 1
-    xcrun simctl launch "$SIMULATOR_ID" "$BUNDLE_ID" &> /dev/null
-    sleep 3
+    launch_app
     echo -e "${GREEN}✓ App launched${NC}"
     echo ""
 
@@ -161,10 +192,7 @@ for lang in "${LANGUAGES[@]}"; do
 
     # Reset for settings screenshot
     echo -e "${BLUE}Resetting app for Settings screenshot...${NC}"
-    xcrun simctl terminate "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
-    sleep 1
-    xcrun simctl launch "$SIMULATOR_ID" "$BUNDLE_ID" &> /dev/null
-    sleep 3
+    launch_app
     echo ""
 
     # Screenshot 4: Settings View
@@ -176,10 +204,7 @@ for lang in "${LANGUAGES[@]}"; do
 
     # Reset for library screenshots
     echo -e "${BLUE}Resetting app for Library screenshots...${NC}"
-    xcrun simctl terminate "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
-    sleep 1
-    xcrun simctl launch "$SIMULATOR_ID" "$BUNDLE_ID" &> /dev/null
-    sleep 3
+    launch_app
     echo ""
 
     # Screenshot 5: Library List

@@ -18,8 +18,8 @@ fi
 
 TEST_TARGET="$1"
 PROJECT="StillMoment.xcodeproj"
-SCHEME="Still Moment"
-DEVICE="iPhone 16 Pro"
+SCHEME="StillMoment"
+DEVICE="iPhone 16 Plus"
 
 echo "===================================================="
 echo "  Still Moment - Single Test Execution"

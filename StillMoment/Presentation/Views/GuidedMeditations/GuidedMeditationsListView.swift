@@ -21,6 +21,10 @@ struct GuidedMeditationsListView: View {
 
     var body: some View {
         ZStack {
+            // Warm gradient background (consistent with Timer tab)
+            Color.warmGradient
+                .ignoresSafeArea()
+
             if self.viewModel.meditations.isEmpty {
                 self.emptyStateView
             } else {
@@ -35,13 +39,16 @@ struct GuidedMeditationsListView: View {
             }
         }
         .navigationTitle("guided_meditations.title")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     self.viewModel.showDocumentPicker()
                 } label: {
                     Image(systemName: "plus")
+                        .frame(minWidth: 44, minHeight: 44)
                 }
+                .foregroundColor(.warmGray)
                 .accessibilityLabel("guided_meditations.add")
             }
         }
@@ -93,15 +100,16 @@ struct GuidedMeditationsListView: View {
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "music.note.list")
-                .font(.system(size: 60))
+                .font(.system(size: 60, design: .rounded))
                 .foregroundColor(Color.terracotta)
 
             Text("guided_meditations.empty.title")
-                .font(.title2.weight(.medium))
+                .font(.system(.title2, design: .rounded, weight: .medium))
+                .foregroundColor(.warmBlack)
 
             Text("guided_meditations.empty.message")
-                .font(.body)
-                .foregroundColor(.secondary)
+                .font(.system(.body, design: .rounded))
+                .foregroundColor(.warmGray)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -109,12 +117,8 @@ struct GuidedMeditationsListView: View {
                 self.viewModel.showDocumentPicker()
             } label: {
                 Label("guided_meditations.import", systemImage: "plus.circle.fill")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.terracotta)
-                    .cornerRadius(12)
             }
+            .warmPrimaryButton()
         }
         .padding()
     }
@@ -133,11 +137,12 @@ struct GuidedMeditationsListView: View {
                     }
                 } header: {
                     Text(section.teacher)
-                        .font(.headline)
+                        .font(.system(.headline, design: .rounded))
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
     }
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
@@ -147,11 +152,11 @@ struct GuidedMeditationsListView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
-                        .font(.body.weight(.medium))
+                        .font(.system(.body, design: .rounded, weight: .medium))
                         .foregroundColor(.primary)
 
                     Text(meditation.formattedDuration)
-                        .font(.subheadline)
+                        .font(.system(.subheadline, design: .rounded))
                         .foregroundColor(.secondary)
                 }
 
@@ -162,6 +167,7 @@ struct GuidedMeditationsListView: View {
                 } label: {
                     Image(systemName: "pencil")
                         .foregroundColor(Color.terracotta)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("guided_meditations.edit")

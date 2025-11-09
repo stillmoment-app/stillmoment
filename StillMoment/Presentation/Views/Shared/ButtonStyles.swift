@@ -7,6 +7,16 @@
 
 import SwiftUI
 
+// MARK: - Design System Constants
+
+extension CGFloat {
+    /// Corner radius for primary buttons (pill-shaped)
+    static let buttonCornerRadiusPrimary: CGFloat = 28
+
+    /// Corner radius for secondary buttons and inline actions
+    static let buttonCornerRadiusSecondary: CGFloat = 20
+}
+
 /// Namespace for button styles
 enum ButtonStyles {}
 
@@ -20,7 +30,7 @@ extension ButtonStyles {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
-                    RoundedRectangle(cornerRadius: 28)
+                    RoundedRectangle(cornerRadius: .buttonCornerRadiusPrimary)
                         .fill(Color.terracotta)
                         .shadow(
                             color: Color.terracotta.opacity(0.3),
@@ -43,7 +53,7 @@ extension ButtonStyles {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: .buttonCornerRadiusSecondary)
                         .fill(Color.warmSand.opacity(0.5))
                 )
                 .scaleEffect(configuration.isPressed ? 0.96 : 1.0)

@@ -28,13 +28,9 @@ struct GuidedMeditationPlayerView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
-                LinearGradient(
-                    colors: [Color.warmSand, Color.terracotta.opacity(0.3)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
+                // Warm gradient background (consistent with Timer tab)
+                Color.warmGradient
+                    .ignoresSafeArea()
 
                 VStack(spacing: 30) {
                     Spacer()
@@ -42,13 +38,13 @@ struct GuidedMeditationPlayerView: View {
                     // Meditation info
                     VStack(spacing: 12) {
                         Text(self.viewModel.meditation.effectiveTeacher)
-                            .font(.title3.weight(.medium))
+                            .font(.system(.title3, design: .rounded, weight: .medium))
                             .foregroundColor(Color.terracotta)
                             .accessibilityLabel("guided_meditations.player.teacher")
                             .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
 
                         Text(self.viewModel.meditation.effectiveName)
-                            .font(.title.weight(.semibold))
+                            .font(.system(.title, design: .rounded, weight: .semibold))
                             .multilineTextAlignment(.center)
                             .accessibilityLabel("guided_meditations.player.title")
                             .accessibilityValue(self.viewModel.meditation.effectiveName)
@@ -74,7 +70,7 @@ struct GuidedMeditationPlayerView: View {
                         // Time labels
                         HStack {
                             Text(self.viewModel.formattedCurrentTime)
-                                .font(.caption.monospacedDigit())
+                                .font(.system(.caption, design: .rounded).monospacedDigit())
                                 .foregroundColor(.secondary)
                                 .accessibilityLabel("guided_meditations.player.currentTime")
                                 .accessibilityValue(self.viewModel.formattedCurrentTime)
@@ -82,7 +78,7 @@ struct GuidedMeditationPlayerView: View {
                             Spacer()
 
                             Text(self.viewModel.formattedRemainingTime)
-                                .font(.caption.monospacedDigit())
+                                .font(.system(.caption, design: .rounded).monospacedDigit())
                                 .foregroundColor(.secondary)
                                 .accessibilityLabel("guided_meditations.player.remainingTime")
                                 .accessibilityValue(self.viewModel.formattedRemainingTime)
@@ -97,7 +93,7 @@ struct GuidedMeditationPlayerView: View {
                             self.viewModel.skipBackward()
                         } label: {
                             Image(systemName: "gobackward.15")
-                                .font(.system(size: 32))
+                                .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.terracotta)
                         }
                         .accessibilityLabel("guided_meditations.player.skipBackward")
@@ -107,7 +103,7 @@ struct GuidedMeditationPlayerView: View {
                             self.viewModel.togglePlayPause()
                         } label: {
                             Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 64))
+                                .font(.system(size: 64, design: .rounded))
                                 .foregroundColor(Color.terracotta)
                         }
                         .accessibilityLabel(
@@ -121,7 +117,7 @@ struct GuidedMeditationPlayerView: View {
                             self.viewModel.skipForward()
                         } label: {
                             Image(systemName: "goforward.15")
-                                .font(.system(size: 32))
+                                .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.terracotta)
                         }
                         .accessibilityLabel("guided_meditations.player.skipForward")
@@ -133,13 +129,9 @@ struct GuidedMeditationPlayerView: View {
                         self.viewModel.stop()
                     } label: {
                         Text("guided_meditations.player.stop")
-                            .font(.headline)
-                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.terracotta.opacity(0.8))
-                            .cornerRadius(12)
                     }
+                    .warmPrimaryButton()
                     .padding(.horizontal)
                     .accessibilityLabel("guided_meditations.player.stop")
 
@@ -162,6 +154,7 @@ struct GuidedMeditationPlayerView: View {
                         self.viewModel.cleanup()
                         self.dismiss()
                     }
+                    .foregroundColor(.warmGray)
                 }
             }
             .alert("Error", isPresented: .constant(self.viewModel.errorMessage != nil)) {

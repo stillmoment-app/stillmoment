@@ -21,7 +21,7 @@ jobs:
         xcodebuild test \
           -project StillMoment.xcodeproj \
           -scheme StillMoment \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 16 Plus,OS=17.0' \
           -enableCodeCoverage YES \
           -resultBundlePath TestResults.xcresult \
           CODE_SIGN_IDENTITY="" \

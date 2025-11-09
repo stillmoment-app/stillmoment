@@ -31,9 +31,9 @@ This directory contains automation scripts for the Still Moment project.
 
 **Usage**:
 ```bash
-./scripts/run-tests.sh                          # Run all tests (unit + UI)
-./scripts/run-tests.sh --skip-ui-tests          # Run unit tests only
-./scripts/run-tests.sh --device "iPhone 16 Pro" # Use specific device
+./scripts/run-tests.sh                           # Run all tests (unit + UI)
+./scripts/run-tests.sh --skip-ui-tests           # Run unit tests only
+./scripts/run-tests.sh --device "iPhone 16 Plus" # Use specific device
 ```
 
 **Output**:

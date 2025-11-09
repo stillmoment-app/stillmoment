@@ -41,15 +41,14 @@ struct GuidedMeditationEditSheet: View {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("guided_meditations.edit.teacher")
-                            .font(.subheadline.weight(.medium))
+                            .font(.system(.subheadline, design: .rounded, weight: .medium))
 
                         TextField("guided_meditations.edit.teacherPlaceholder", text: self.$customTeacher)
-                            .textFieldStyle(.roundedBorder)
                             .accessibilityLabel("guided_meditations.edit.teacher")
 
                         if self.meditation.teacher != self.customTeacher {
                             Text("guided_meditations.edit.original: \(self.meditation.teacher)")
-                                .font(.caption)
+                                .font(.system(.caption, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -58,15 +57,14 @@ struct GuidedMeditationEditSheet: View {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("guided_meditations.edit.name")
-                            .font(.subheadline.weight(.medium))
+                            .font(.system(.subheadline, design: .rounded, weight: .medium))
 
                         TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
-                            .textFieldStyle(.roundedBorder)
                             .accessibilityLabel("guided_meditations.edit.name")
 
                         if self.meditation.name != self.customName {
                             Text("guided_meditations.edit.original: \(self.meditation.name)")
-                                .font(.caption)
+                                .font(.system(.caption, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -76,19 +74,19 @@ struct GuidedMeditationEditSheet: View {
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
                             Text("guided_meditations.edit.file")
-                                .font(.subheadline.weight(.medium))
+                                .font(.system(.subheadline, design: .rounded, weight: .medium))
                             Spacer()
                             Text(self.meditation.fileName)
-                                .font(.caption)
+                                .font(.system(.caption, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
 
                         HStack {
                             Text("guided_meditations.edit.duration")
-                                .font(.subheadline.weight(.medium))
+                                .font(.system(.subheadline, design: .rounded, weight: .medium))
                             Spacer()
                             Text(self.meditation.formattedDuration)
-                                .font(.caption)
+                                .font(.system(.caption, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
                     }

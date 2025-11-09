@@ -36,6 +36,11 @@ extension Color {
     /// Secondary text color - warm gray
     static let warmGray = Color(hex: "#8B7D6B")
 
+    // MARK: - Semantic Colors
+
+    /// Error/warning color - warm red tone that fits earth palette
+    static let warmError = Color(hex: "#C74B3B")
+
     // MARK: - UI Elements
 
     /// Timer ring background
