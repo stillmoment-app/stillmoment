@@ -54,14 +54,13 @@ A warmhearted, minimalistic meditation timer for iOS with warm earth tone design
 
 ## 📁 Architecture
 
-```
-Still Moment/
-├── Domain/              # Business logic, models, protocols
-├── Application/         # ViewModels (@MainActor)
-├── Presentation/        # SwiftUI Views
-├── Infrastructure/      # Services, logging (OSLog)
-└── Resources/           # Assets, sounds
-```
+Clean Architecture Light + MVVM with strict layer separation:
+- **Domain**: Pure business logic (MeditationTimer, protocols)
+- **Application**: ViewModels with @MainActor
+- **Presentation**: SwiftUI Views (feature-based organization)
+- **Infrastructure**: Service implementations (audio, notifications)
+
+**See [CLAUDE.md](CLAUDE.md)** for detailed architecture documentation.
 
 **Dependency Rules**: Domain has no dependencies. Application depends only on Domain. Presentation uses Domain + Application. Infrastructure implements Domain protocols.
 

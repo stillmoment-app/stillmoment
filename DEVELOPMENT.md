@@ -121,74 +121,12 @@ Build a minimal viable meditation timer app with focus on:
 - [ ] Memory leak checks
 - [ ] Final device testing
 
-## Architecture Decisions
+## Architecture & Standards
 
-### Why Clean Architecture Light?
-- Small app doesn't need full DDD
-- Still maintains clear separation of concerns
-- Easy to test each layer independently
-- Room to grow if app becomes complex
-
-### Why MVVM?
-- Natural fit for SwiftUI
-- Clear data flow: Model → ViewModel → View
-- ViewModels are easily unit testable
-- Industry standard for iOS
-
-### Layer Responsibilities
-
-**Domain Layer** (Business Logic)
-- Pure Swift, no UIKit/SwiftUI
-- Timer calculations and state management
-- Protocol definitions
-- 100% unit test coverage goal
-
-**Application Layer** (ViewModels)
-- Coordinates between domain and presentation
-- Handles user intent
-- Transforms domain data for UI
-- High test coverage (>90%)
-
-**Presentation Layer** (Views)
-- SwiftUI views only
-- No business logic
-- Delegates all actions to ViewModel
-- Tested via Previews + UI tests
-
-**Infrastructure Layer** (Implementations)
-- AVFoundation audio playback
-- UserNotifications
-- Any future persistence
-- Tested via protocol mocks
-
-## Testing Strategy
-
-### Unit Tests
-- All domain logic (TimerService)
-- All ViewModels
-- Edge cases and error handling
-- Target: >90% coverage for logic layers
-
-### UI Tests
-- Critical user flows only
-- Start/pause/reset/completion
-- Keep tests fast and reliable
-
-### Manual Testing Checklist
-- [ ] Background execution (locked screen)
-- [ ] Sound playback when timer ends
-- [ ] App lifecycle (background/foreground)
-- [ ] Rotation handling
-- [ ] Interruptions (phone calls, notifications)
-
-## Code Quality Checklist
-
-- [ ] No force unwraps (!)
-- [ ] All errors explicitly handled
-- [ ] All public APIs documented
-- [ ] SwiftUI previews for all views
-- [ ] Protocol-based dependencies
-- [ ] No retain cycles (weak/unowned where needed)
+For complete documentation see:
+- **[CLAUDE.md](CLAUDE.md)**: Architecture details, testing philosophy, workflows
+- **[.claude.md](.claude.md)**: Code quality standards (840 lines)
+- **[CRITICAL_CODE.md](CRITICAL_CODE.md)**: Testing priorities checklist
 
 ## Current Status
 

@@ -33,7 +33,8 @@
       "Bash(make test:*)",
       "Bash(make format:*)",
       "Bash(git mv:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

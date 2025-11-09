@@ -722,7 +722,7 @@ The Still Moment folder uses "folder references" (blue in Xcode, not yellow grou
 ### If Auto-Sync Stops Working
 1. Verify Still Moment folder is blue (folder reference), not yellow (group)
 2. If yellow: Delete from Xcode → Re-add as "Create folder references"
-3. See GETTING_STARTED.md for detailed steps
+3. Clean build folder (⌘+Shift+K) and rebuild (⌘+B)
 
 ## Automation & Quality Gates
 
@@ -905,8 +905,8 @@ struct MeditationSettings {
 | **README.md** | Project overview, public-facing | ✅ Yes |
 | **DEVELOPMENT.md** | Development phases and roadmap | ✅ Yes |
 | **CHANGELOG.md** | Version history | ✅ Yes |
-| **GETTING_STARTED.md** | Setup guide | No (reference) |
-| **IMPROVEMENTS.md** | Improvement documentation | No (reference) |
+| **CONTRIBUTING.md** | Contributor guide | ✅ Yes |
+| **CRITICAL_CODE.md** | Testing priorities checklist | ✅ Yes |
 
 ## Project Status & Roadmap
 
@@ -984,7 +984,7 @@ open Still Moment.xcodeproj           # Open project
 ```
 
 **For detailed standards**: See `.claude.md` (840 lines)
-**For setup help**: See `GETTING_STARTED.md`
+**For contributing**: See `CONTRIBUTING.md`
 **For roadmap**: See `DEVELOPMENT.md`
 
 ## Internationalization

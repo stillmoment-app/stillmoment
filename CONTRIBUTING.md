@@ -156,28 +156,10 @@ func testFeature() {
 
 ## 🏗️ Architecture
 
-**Clean Architecture Light + MVVM** with strict layer separation:
+**Clean Architecture Light + MVVM** - Four layers with strict dependency rules:
+- Domain → Application → Presentation → Infrastructure
 
-```
-Still Moment/
-├── Domain/              # Pure Swift, no dependencies
-│   ├── Models/          # Business entities
-│   └── Services/        # Protocol definitions
-├── Application/         # ViewModels (@MainActor)
-├── Presentation/        # SwiftUI Views (feature-based)
-│   ├── Timer/
-│   ├── GuidedMeditations/
-│   └── Shared/
-└── Infrastructure/      # Concrete implementations
-```
-
-**Dependency Rules** (strictly enforced):
-- Domain: NO dependencies
-- Application: Only Domain
-- Presentation: Domain + Application
-- Infrastructure: Implements Domain protocols
-
-See `CLAUDE.md` "Architecture" section for details.
+**See [CLAUDE.md "Architecture"](CLAUDE.md#architecture)** for complete details including folder structure, dependency rules, and patterns.
 
 ## 🔄 Contribution Workflow
 
