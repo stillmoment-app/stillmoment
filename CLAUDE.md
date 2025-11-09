@@ -11,11 +11,33 @@ Still Moment is a warmhearted meditation timer iOS app with warm earth tone desi
 **Target**: iOS 17+, Swift 5.9+, German & English
 **Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Feature Architecture
 
+## Naming Convention (CRITICAL)
+
+**IMPORTANT**: Do NOT confuse the display name with technical identifiers!
+
+- **Display Name**: "Still Moment" (with space) - User-facing name in App Store, UI
+- **Project File**: `StillMoment.xcodeproj` (NO space) - Xcode project file
+- **Scheme**: `StillMoment` (NO space) - Build scheme for xcodebuild
+- **Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
+- **Bundle ID**: `com.helmutgoetz.StillMoment` (NO space)
+- **Folder**: `StillMoment/` (NO space) - Source code directory
+
+**When writing commands, ALWAYS use `StillMoment` (no space)**:
+```bash
+# ✅ CORRECT
+open StillMoment.xcodeproj
+xcodebuild -scheme StillMoment -project StillMoment.xcodeproj
+
+# ❌ WRONG
+open "Still Moment.xcodeproj"
+xcodebuild -scheme "Still Moment"
+```
+
 ## Essential Commands
 
 ```bash
 # Development
-open Still Moment.xcodeproj          # Open in Xcode
+open StillMoment.xcodeproj         # Open in Xcode
 make setup                         # One-time setup (installs tools & hooks)
 
 # Code Quality
@@ -570,7 +592,7 @@ make test-clean-unit               # Reset + run unit tests
 
 # Quality
 make format && make lint           # Pre-commit checks
-open Still Moment.xcodeproj           # Open project
+open StillMoment.xcodeproj         # Open project
 ```
 
 **For detailed standards**: See `.claude.md` (840 lines)

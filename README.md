@@ -76,7 +76,7 @@ cd stillmoment
 make setup
 
 # Open in Xcode
-open Still Moment.xcodeproj
+open StillMoment.xcodeproj
 
 # Build and run
 # ⌘R - Run app

@@ -191,8 +191,8 @@ jobs:
     - name: Run Xcode Static Analysis
       run: |
         xcodebuild analyze \
-          -project "Still Moment.xcodeproj" \
-          -scheme "Still Moment" \
+          -project StillMoment.xcodeproj \
+          -scheme StillMoment \
           -destination "platform=iOS Simulator,name=${{ env.DEVICE }},OS=${{ env.IOS_VERSION }}" \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \

@@ -29,8 +29,8 @@ Thank you for your interest in contributing to Still Moment! This document provi
    - detect-secrets (prevents committing secrets)
 
 3. **Configure code signing:**
-   - Open `Still Moment.xcodeproj` in Xcode
-   - Select the "Still Moment" target
+   - Open `StillMoment.xcodeproj` in Xcode
+   - Select the "StillMoment" target
    - Go to "Signing & Capabilities" tab
    - Select your Apple Developer Team
    - **Important:** Change the Bundle Identifier to your own (e.g., `com.yourname.StillMoment`)
