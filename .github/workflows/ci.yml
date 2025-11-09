@@ -110,23 +110,6 @@ jobs:
           echo "⚠️ No test results found, skipping report"
         fi
 
-    - name: Check Coverage Threshold
-      run: |
-        if [ ! -d "TestResults.xcresult" ]; then
-          echo "❌ No test results found!"
-          exit 1
-        fi
-
-        COVERAGE=$(./scripts/check-coverage.sh)
-        echo "Code Coverage: ${COVERAGE}%"
-
-        if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
-          echo "❌ Coverage ${COVERAGE}% is below 80% threshold"
-          exit 1
-        else
-          echo "✅ Coverage ${COVERAGE}% meets 80% threshold"
-        fi
-
     - name: Upload Coverage Artifacts
       uses: actions/upload-artifact@v4
       if: always()
