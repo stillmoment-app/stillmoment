@@ -11,6 +11,21 @@ Still Moment is a warmhearted meditation timer iOS app with warm earth tone desi
 **Target**: iOS 17+, Swift 5.9+, German & English
 **Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Feature Architecture
 
+## Documentation Organization (CRITICAL)
+
+**IMPORTANT**: Know the difference between project documentation and GitHub Pages!
+
+- **`dev-docs/`** - Development documentation (architecture, guides, technical docs)
+  - Examples: SCREENSHOTS.md, TDD_GUIDE.md, technical architecture docs
+  - ✅ **ALWAYS create new .md files here** (not in `docs/`)
+- **`docs/`** - GitHub Pages website (public-facing marketing site)
+  - Contains: index.html, styles.css, images/screenshots/ for website
+  - ❌ **DO NOT add .md files here** - this is for the website only
+- **Root level** - Project meta files
+  - Examples: README.md, CLAUDE.md, CHANGELOG.md, CONTRIBUTING.md
+
+**Rule**: When creating new documentation, ALWAYS use `dev-docs/`, not `docs/`!
+
 ## Naming Convention (CRITICAL)
 
 **IMPORTANT**: Do NOT confuse the display name with technical identifiers!
@@ -19,7 +34,7 @@ Still Moment is a warmhearted meditation timer iOS app with warm earth tone desi
 - **Project File**: `StillMoment.xcodeproj` (NO space) - Xcode project file
 - **Scheme**: `StillMoment` (NO space) - Build scheme for xcodebuild
 - **Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
-- **Bundle ID**: `com.helmutgoetz.StillMoment` (NO space)
+- **Bundle ID**: `com.stillmoment.StillMoment` (NO space)
 - **Folder**: `StillMoment/` (NO space) - Source code directory
 
 **When writing commands, ALWAYS use `StillMoment` (no space)**:
@@ -56,6 +71,9 @@ make test-report                   # Display coverage from last test run
 make simulator-reset               # Reset iOS Simulator only
 make test-clean                    # Reset simulator + run all tests
 make test-clean-unit               # Reset simulator + run unit tests only
+
+# Screenshots
+make screenshots                   # Generate localized screenshots (DE + EN)
 
 # Utilities
 make help                          # Show all available commands
@@ -519,6 +537,7 @@ struct MeditationSettings {
 | **CHANGELOG.md** | Version history | ✅ Yes |
 | **CONTRIBUTING.md** | Contributor guide | ✅ Yes |
 | **CRITICAL_CODE.md** | Testing priorities checklist | ✅ Yes |
+| **dev-docs/SCREENSHOTS.md** | Screenshot automation guide | ✅ Yes |
 
 ## Project Status & Roadmap
 
@@ -593,11 +612,18 @@ make test-clean-unit               # Reset + run unit tests
 # Quality
 make format && make lint           # Pre-commit checks
 open StillMoment.xcodeproj         # Open project
+
+# Screenshots
+make screenshot-validate           # Pre-flight check (5 sec, run first!)
+make screenshot-single TEST=...    # Single test iteration (15-20 sec)
+make screenshot-dryrun             # Validate elements (10 sec)
+make screenshots                   # Generate all screenshots (5-10 min)
 ```
 
 **For detailed standards**: See `.claude.md` (840 lines)
 **For contributing**: See `CONTRIBUTING.md`
 **For roadmap**: See `DEVELOPMENT.md`
+**For screenshots**: See `dev-docs/SCREENSHOTS.md`
 
 ## Internationalization
 
@@ -620,7 +646,60 @@ NSLocalizedString("button.start", comment: "")
 **Typography**: SF Pro Rounded system-wide
 **Accessibility**: WCAG AA compliant (4.5:1+ contrast)
 
+## Screenshot Automation
+
+**Tool**: Fastlane Snapshot (industry standard for iOS screenshot automation)
+
+**Fast Feedback Workflow** (NEW!):
+```bash
+# 1. Validate setup (5 seconds)
+make screenshot-validate
+
+# 2. Test single screenshot during development (15-20 seconds)
+make screenshot-single TEST=testScreenshot01_TimerIdle
+
+# 3. Full suite when ready (5-10 minutes)
+make screenshots
+```
+
+**Configuration**:
+- **Languages**: German (de-DE), English (en-US)
+- **Device**: iPhone 16 Pro (iOS 18.4+)
+- **Output**: `docs/images/screenshots/` (website deployment)
+- **Tests**: `StillMomentUITests/ScreenshotTests.swift`
+
+**What's Generated**:
+- `timer-ready-{de|en}.png` - Timer idle state with picker
+- `timer-running-{de|en}.png` - Active meditation timer
+- `timer-paused-{de|en}.png` - Paused timer state
+- `settings-view-{de|en}.png` - Settings sheet
+- `library-list-{de|en}.png` - Guided meditations library
+- `player-view-{de|en}.png` - Audio player
+
+**Architecture**:
+1. **Gemfile** - Ruby dependencies (Fastlane 2.228.0)
+2. **fastlane/Snapfile** - Device/language config
+3. **fastlane/Fastfile** - Automation lanes (screenshots, reset_simulators)
+4. **StillMomentUITests/ScreenshotTests.swift** - UI tests with `snapshot()` calls
+5. **scripts/process-screenshots.sh** - Post-processing (rename & copy to website)
+
+**Adding New Screenshots**:
+1. Add test method in `ScreenshotTests.swift` with `snapshot("name")`
+2. Update mapping in `scripts/process-screenshots.sh`
+3. Run `make screenshots`
+
+**Benefits**:
+- ✅ Fully automated (one command)
+- ✅ Consistent screenshots every time
+- ✅ Multi-language support
+- ✅ CI/CD ready
+- ✅ Uses existing accessibility identifiers
+
+**Ruby Setup**: Uses Bundler with vendor/bundle (no sudo required, no rbenv needed)
+
+**Detailed Guide**: See `dev-docs/SCREENSHOTS.md`
+
 ---
 
 **Last Updated**: 2025-11-09
-**Version**: 2.6 (v0.5 - Documentation Cleanup & Testing Philosophy)
+**Version**: 2.7 (v0.5 - Screenshot Automation)

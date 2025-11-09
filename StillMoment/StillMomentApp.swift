@@ -21,6 +21,7 @@ struct StillMomentApp: App {
                 .tabItem {
                     Label("tab.timer", systemImage: "timer")
                 }
+                .accessibilityIdentifier("tab.timer")
                 .accessibilityLabel(Text("tab.timer.accessibility"))
 
                 // Guided Meditations Library Tab
@@ -30,6 +31,7 @@ struct StillMomentApp: App {
                 .tabItem {
                     Label("tab.library", systemImage: "music.note.list")
                 }
+                .accessibilityIdentifier("tab.library")
                 .accessibilityLabel(Text("tab.library.accessibility"))
             }
         }

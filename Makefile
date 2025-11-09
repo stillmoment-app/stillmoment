@@ -1,4 +1,4 @@
-.PHONY: help format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup
+.PHONY: help format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup screenshots
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -56,3 +56,6 @@ check: format lint ## Run format and lint checks
 
 commit-check: format lint ## Pre-commit checks (format + lint)
 	@echo "✅ Ready to commit!"
+
+screenshots: ## INTERACTIVE: Generate all screenshots with guided prompts
+	@./scripts/take-screenshots-interactive.sh

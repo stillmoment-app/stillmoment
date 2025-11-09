@@ -457,6 +457,16 @@
                 </div>
             </div>
 
+            <!-- Timer - Running -->
+            <div class="phone-mockup">
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <img src="images/screenshots/timer-running.png" alt="Timer Running">
+                    </div>
+                </div>
+            </div>
+
             <!-- Timer - Main View -->
             <div class="phone-mockup">
                 <div class="phone-frame">
@@ -473,16 +483,6 @@
                     <div class="phone-notch"></div>
                     <div class="phone-screen">
                         <img src="images/screenshots/library-list.png" alt="Meditation Library">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/settings-view.png" alt="Settings">
                     </div>
                 </div>
             </div>
@@ -622,6 +622,35 @@
                 document.documentElement.lang = 'de';
                 document.title = 'Still Moment - Eine warmherzige Meditations-App';
             }
+
+            // Update screenshots for selected language
+            updateScreenshots(lang);
+        }
+
+        function updateScreenshots(lang) {
+            // Update all screenshot images based on language
+            document.querySelectorAll('.phone-screen img').forEach(img => {
+                const src = img.getAttribute('src');
+
+                // Extract base screenshot name (e.g., "timer-main" from "images/screenshots/timer-main.png")
+                const match = src.match(/images\/screenshots\/([^.]+)\.png/);
+                if (match) {
+                    const baseName = match[1];
+                    // Remove any existing language suffix
+                    const cleanName = baseName.replace(/-de$/, '');
+
+                    // Build new path with language suffix (or without for English)
+                    let newSrc;
+                    if (lang === 'de') {
+                        newSrc = `images/screenshots/${cleanName}-de.png`;
+                    } else {
+                        newSrc = `images/screenshots/${cleanName}.png`;
+                    }
+
+                    // Update image source
+                    img.setAttribute('src', newSrc);
+                }
+            });
         }
 
         // Load saved language preference on page load

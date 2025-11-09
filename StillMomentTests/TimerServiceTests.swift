@@ -192,11 +192,9 @@ final class TimerServiceTests: XCTestCase {
     func testStopTimer() {
         // Given
         let expectation = expectation(description: "Timer starts")
-        var receivedTimer: MeditationTimer?
 
         self.sut.timerPublisher
-            .sink { timer in
-                receivedTimer = timer
+            .sink { _ in
                 expectation.fulfill()
             }
             .store(in: &self.cancellables)

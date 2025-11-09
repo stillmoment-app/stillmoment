@@ -39,7 +39,9 @@
       "Bash(git -C /Users/helmut/devel/stillmoment log --all --full-history --source '--pretty=format:%H %s' -- *.env *.p12 *.mobileprovision *secret* *password* *credential*)",
       "Bash(cat:*)",
       "Bash(git -C /Users/helmut/devel/stillmoment remote:*)",
-      "Bash(git -C /Users/helmut/devel/stillmoment rev-parse:*)"
+      "Bash(git -C /Users/helmut/devel/stillmoment rev-parse:*)",
+      "Bash(make screenshot-validate:*)",
+      "Bash(make help:*)"
     ],
     "deny": [],
     "ask": []

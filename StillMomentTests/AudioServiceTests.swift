@@ -132,7 +132,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testErrorHandlingForMissingFile() {
         // Given - Create a new AudioService instance
-        let service = AudioService()
+        _ = AudioService()
 
         // When - Try to play with missing file (this would fail if Bundle.main.url returns nil)
         // The actual implementation throws AudioServiceError.soundFileNotFound

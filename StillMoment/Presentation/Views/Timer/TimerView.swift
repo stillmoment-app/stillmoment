@@ -76,6 +76,7 @@ struct TimerView: View {
                         .foregroundColor(.warmGray)
                         .rotationEffect(.degrees(90))
                 }
+                .accessibilityIdentifier("timer.button.settings")
                 .accessibilityLabel("accessibility.settings")
                 .accessibilityHint("accessibility.settings.hint")
             }

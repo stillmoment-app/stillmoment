@@ -98,6 +98,7 @@ struct SettingsView: View {
                         self.onDismiss()
                     }
                     .tint(.terracotta)
+                    .accessibilityIdentifier("button.done")
                     .accessibilityLabel("accessibility.done")
                     .accessibilityHint("accessibility.done.hint")
                 }
