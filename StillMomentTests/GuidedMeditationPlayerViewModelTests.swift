@@ -2,134 +2,10 @@
 //  GuidedMeditationPlayerViewModelTests.swift
 //  Still Moment
 //
-// swiftlint:disable file_length type_body_length
 
 import Combine
 import XCTest
 @testable import StillMoment
-
-// MARK: - Mock Audio Player Service
-
-final class MockAudioPlayerService: AudioPlayerServiceProtocol {
-    var state = CurrentValueSubject<PlaybackState, Never>(.idle)
-    var currentTime = CurrentValueSubject<TimeInterval, Never>(0)
-    var duration = CurrentValueSubject<TimeInterval, Never>(0)
-
-    var loadedMeditation: GuidedMeditation?
-    var loadedURL: URL?
-    var loadShouldThrow = false
-    var playCalled = false
-    var pauseCalled = false
-    var stopCalled = false
-    var seekTime: TimeInterval?
-    var cleanupCalled = false
-    var setupRemoteCommandCenterCalled = false
-
-    func load(url: URL, meditation: GuidedMeditation) async throws {
-        if self.loadShouldThrow {
-            throw AudioPlayerError.playbackFailed(reason: "Mock error")
-        }
-        self.loadedURL = url
-        self.loadedMeditation = meditation
-        self.state.send(.paused)
-        self.duration.send(600) // 10 minutes
-    }
-
-    func play() throws {
-        self.playCalled = true
-        self.state.send(.playing)
-    }
-
-    func pause() {
-        self.pauseCalled = true
-        self.state.send(.paused)
-    }
-
-    func stop() {
-        self.stopCalled = true
-        self.state.send(.idle)
-        self.currentTime.send(0)
-    }
-
-    func seek(to time: TimeInterval) throws {
-        self.seekTime = time
-        self.currentTime.send(time)
-    }
-
-    func configureAudioSession() throws {
-        // Mock implementation
-    }
-
-    func setupRemoteCommandCenter() {
-        self.setupRemoteCommandCenterCalled = true
-    }
-
-    func cleanup() {
-        self.cleanupCalled = true
-        self.state.send(.idle)
-        self.currentTime.send(0)
-        self.duration.send(0)
-    }
-}
-
-// MARK: - Mock Guided Meditation Service
-
-final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
-    var meditations: [GuidedMeditation] = []
-    var resolvedURL: URL?
-    var startAccessingCalled = false
-    var stopAccessingCalled = false
-    var resolveShouldThrow = false
-    var startAccessingShouldFail = false
-
-    func loadMeditations() throws -> [GuidedMeditation] {
-        self.meditations
-    }
-
-    func saveMeditations(_ meditations: [GuidedMeditation]) throws {
-        self.meditations = meditations
-    }
-
-    func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
-        let meditation = GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: url.lastPathComponent,
-            duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown",
-            name: metadata.title ?? "Untitled"
-        )
-        self.meditations.append(meditation)
-        return meditation
-    }
-
-    func updateMeditation(_ meditation: GuidedMeditation) throws {
-        if let index = self.meditations.firstIndex(where: { $0.id == meditation.id }) {
-            self.meditations[index] = meditation
-        }
-    }
-
-    func deleteMeditation(id: UUID) throws {
-        self.meditations.removeAll { $0.id == id }
-    }
-
-    func resolveBookmark(_ bookmark: Data) throws -> URL {
-        if self.resolveShouldThrow {
-            throw GuidedMeditationError.bookmarkResolutionFailed
-        }
-        let url = URL(fileURLWithPath: "/tmp/test.mp3")
-        self.resolvedURL = url
-        return url
-    }
-
-    func startAccessingSecurityScopedResource(_ url: URL) -> Bool {
-        self.startAccessingCalled = true
-        return !self.startAccessingShouldFail
-    }
-
-    func stopAccessingSecurityScopedResource(_ url: URL) {
-        self.stopAccessingCalled = true
-    }
-}
 
 // MARK: - GuidedMeditationPlayerViewModelTests
 
@@ -549,6 +425,25 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         XCTAssertEqual(progress, 0)
     }
 
+    // MARK: Private
+
+    // MARK: - Helper Methods
+
+    private func createTestMeditation() -> GuidedMeditation {
+        GuidedMeditation(
+            fileBookmark: Data(),
+            fileName: "test.mp3",
+            duration: 600,
+            teacher: "Test Teacher",
+            name: "Test Meditation"
+        )
+    }
+}
+
+// MARK: - State, Cleanup & Bindings Tests
+
+@MainActor
+extension GuidedMeditationPlayerViewModelTests {
     func testIsPlaying() async {
         // Given
         await self.sut.loadAudio()
@@ -573,8 +468,6 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         XCTAssertTrue(self.sut.isPlaying)
     }
 
-    // MARK: - Cleanup Tests
-
     func testCleanup() {
         // When
         self.sut.cleanup()
@@ -582,8 +475,6 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         // Then
         XCTAssertTrue(self.mockPlayerService.cleanupCalled)
     }
-
-    // MARK: - Bindings Tests
 
     func testStateBinding() async {
         // Given
@@ -647,20 +538,4 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 1.0)
         XCTAssertEqual(receivedDuration, 1200.0)
     }
-
-    // MARK: Private
-
-    // MARK: - Helper Methods
-
-    private func createTestMeditation() -> GuidedMeditation {
-        GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Test Teacher",
-            name: "Test Meditation"
-        )
-    }
 }
-
-// swiftlint:enable file_length type_body_length

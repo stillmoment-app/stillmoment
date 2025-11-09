@@ -14,17 +14,12 @@ import XCTest
 final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
     // MARK: Internal
 
-    // swiftlint:disable:next identifier_name
-    let _activeSource = CurrentValueSubject<AudioSource?, Never>(nil) // Internal for testing
+    let activeSource = CurrentValueSubject<AudioSource?, Never>(nil)
     var requestedSources: [AudioSource] = []
     var releasedSources: [AudioSource] = []
     var activationCount = 0
     var deactivationCount = 0
     var shouldFailActivation = false
-
-    var activeSource: CurrentValueSubject<AudioSource?, Never> {
-        self._activeSource
-    }
 
     func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
         self.conflictHandlers[source] = handler
@@ -38,18 +33,18 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
         }
 
         // If another source is active, call its conflict handler
-        if let currentSource = _activeSource.value, currentSource != source {
+        if let currentSource = activeSource.value, currentSource != source {
             self.conflictHandlers[currentSource]?()
         }
 
-        self._activeSource.send(source)
+        self.activeSource.send(source)
         return true
     }
 
     func releaseAudioSession(for source: AudioSource) {
         self.releasedSources.append(source)
-        if self._activeSource.value == source {
-            self._activeSource.send(nil)
+        if self.activeSource.value == source {
+            self.activeSource.send(nil)
         }
     }
 

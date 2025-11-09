@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		CABCE91F2EAE3C430059FC11 /* Exceptions for "Still Moment" folder in "Still Moment" target */ = {
+		CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -43,7 +43,7 @@
 		CABCE91E2EAE3C430059FC11 /* StillMoment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				CABCE91F2EAE3C430059FC11 /* Exceptions for "Still Moment" folder in "Still Moment" target */,
+				CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */,
 			);
 			path = StillMoment;
 			sourceTree = "<group>";
@@ -193,7 +193,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CABCE9172EAE3C430059FC11 /* Build configuration list for PBXProject "Still Moment" */;
+			buildConfigurationList = CABCE9172EAE3C430059FC11 /* Build configuration list for PBXProject "StillMoment" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
