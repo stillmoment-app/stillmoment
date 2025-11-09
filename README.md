@@ -34,8 +34,9 @@ A warmhearted, minimalistic meditation timer for iOS with warm earth tone design
 - 🤲 **Mindful Details** - "Du verdienst diese Pause" / "You deserve this pause"
 - 🌍 **Full Localization** - German and English (auto-detects system language)
 
-### Quality & UX
+### Quality & Privacy
 - ⚙️ **Settings** - Configure intervals and background audio
+- 🔐 **Privacy First** - Zero data collection, 100% offline, no tracking
 - ♿ **Accessibility** - Full VoiceOver support, WCAG AA compliant
 - 📊 **Logging** - Production OSLog framework
 - 🧪 **High Coverage** - 85%+ with unit & UI tests
@@ -171,6 +172,7 @@ open TestResults.xcresult
 | **DEVELOPMENT.md** | Development phases and roadmap |
 | **CHANGELOG.md** | Version history |
 | **.claude.md** | Detailed code standards (840 lines) |
+| **[Privacy Policy](https://stillmoment-app.github.io/stillmoment/privacy)** | Privacy policy for App Store (bilingual: EN/DE) |
 
 ## 🎯 Project Status
 

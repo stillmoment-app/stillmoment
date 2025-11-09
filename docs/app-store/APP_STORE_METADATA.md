@@ -164,11 +164,16 @@ https://github.com/stillmoment-app/stillmoment
 
 ### Privacy Policy URL (required)
 ```
-https://raw.githubusercontent.com/stillmoment-app/stillmoment/main/PRIVACY_POLICY.md
-```
-or host on GitHub Pages:
-```
 https://stillmoment-app.github.io/stillmoment/privacy
+```
+
+**Note**: GitHub Pages website is available at:
+- **Privacy Policy**: https://stillmoment-app.github.io/stillmoment/privacy (bilingual: English/German)
+- **Home Page**: https://stillmoment-app.github.io/stillmoment/
+
+Alternative (if GitHub Pages is not yet activated):
+```
+https://raw.githubusercontent.com/stillmoment-app/stillmoment/main/PRIVACY_POLICY.md
 ```
 
 ## App Review Information

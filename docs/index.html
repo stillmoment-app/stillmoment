@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Still Moment - Meditation Timer</title>
+    <meta name="description" content="Still Moment is a privacy-focused meditation timer for iOS with guided meditation library and background audio support.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D4C0 100%);
+            color: #5A4A42;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 8px 32px rgba(90, 74, 66, 0.15);
+            text-align: center;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #D4876F 0%, #C47861 100%);
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            box-shadow: 0 4px 16px rgba(212, 135, 111, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #D4876F;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #8A7A72;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #6A5A52;
+            margin-bottom: 32px;
+            line-height: 1.8;
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #D4876F 0%, #C47861 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(212, 135, 111, 0.3);
+        }
+
+        a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(212, 135, 111, 0.4);
+        }
+
+        a.secondary {
+            background: white;
+            color: #D4876F;
+            border: 2px solid #D4876F;
+            box-shadow: none;
+        }
+
+        a.secondary:hover {
+            background: #FFF8F3;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(90, 74, 66, 0.1);
+            font-size: 0.875rem;
+            color: #9A8A82;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+                font-size: 52px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🧘</div>
+        <h1>Still Moment</h1>
+        <p class="tagline">Warmhearted Meditation Timer for iOS</p>
+
+        <p>
+            A privacy-focused meditation timer with guided meditation library,
+            rotating affirmations, and background audio support. Built with care
+            for your meditation practice and your privacy.
+        </p>
+
+        <div class="links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="https://github.com/stillmoment-app/stillmoment" class="secondary">View on GitHub</a>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Still Moment · Contact: stillMoment@posteo.de</p>
+        </div>
+    </div>
+</body>
+</html>
