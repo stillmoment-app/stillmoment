@@ -109,3 +109,19 @@ test-*.txt
 TestResults.xcresult/
 coverage.json
 coverage.txt
+
+# iOS Code Signing & Provisioning
+*.mobileprovision
+*.p12
+*.cer
+*.certSigningRequest
+*.xcuserstate
+
+# Secrets & Configuration
+.env
+.env.*
+!.env.example
+secrets.json
+*_secret.*
+*_private.*
+Config/Local.xcconfig

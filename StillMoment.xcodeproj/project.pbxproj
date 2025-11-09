@@ -404,7 +404,7 @@
 				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S3558HJ3P5;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StillMoment/Info.plist;
@@ -436,7 +436,7 @@
 				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S3558HJ3P5;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StillMoment/Info.plist;

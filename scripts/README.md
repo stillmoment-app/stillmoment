@@ -63,7 +63,6 @@ These scripts are kept for reference but may not be actively used:
 - `enable_background_audio.rb` - Configures background audio capability
 - `fix_duplicate_files.rb` - Removes duplicate file references
 - `fix_file_paths.rb` - Fixes incorrect file paths in project
-- `make-public.sh` - Adds public modifiers (was for SPM experiment)
 
 ## Troubleshooting
 

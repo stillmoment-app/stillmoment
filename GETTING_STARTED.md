@@ -21,7 +21,7 @@ Diese Anleitung führt dich Schritt-für-Schritt durch die finale Einrichtung de
 - [ ] iOS App mit SwiftUI
 - [ ] Tests aktiviert
 - [ ] iOS 17.0 Minimum
-- [ ] Projekt in `/Users/helmut/devel/stillmoment/` erstellt
+- [ ] Projekt in gewünschtem Verzeichnis erstellt (z.B. `~/stillmoment/`)
 
 ### 2. Dateien zu Xcode hinzufügen
 - [ ] Siehe `XCODE_FILE_SETUP.md`

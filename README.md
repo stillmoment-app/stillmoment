@@ -5,11 +5,13 @@
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
 [![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()
-[![License](https://img.shields.io/badge/license-Private-red.svg)]()
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/stillmoment-app/still-moment/blob/main/LICENSE)
 
 A warmhearted, minimalistic meditation timer for iOS with warm earth tone design, rotating affirmations, and full German/English localization.
 
 **Quality**: 9/10 ⭐ | **Coverage**: 85%+ | **Architecture**: Clean Architecture Light + MVVM | **Version**: v0.3
+
+**Organization**: [stillmoment-app](https://github.com/stillmoment-app) | **Maintainer**: [Helmut Zechmann](https://github.com/HelmutZechmann)
 
 ## ✨ Features
 
@@ -67,8 +69,8 @@ Still Moment/
 
 ```bash
 # Clone
-git clone <repository-url>
-cd stillmoment
+git clone https://github.com/stillmoment-app/still-moment.git
+cd still-moment
 
 # Setup development environment (installs SwiftLint, SwiftFormat, pre-commit hooks)
 make setup
@@ -212,16 +214,32 @@ See DEVELOPMENT.md for detailed roadmap.
 
 ## 🤝 Contributing
 
-1. Run `make setup` to set up environment
-2. Follow code standards in `.claude.md`
-3. Write tests for new features (maintain ≥80% coverage)
-4. Ensure all tests pass (`⌘U`)
-5. Pre-commit hooks will verify code quality
-6. CI will automatically verify changes
+We welcome contributions! Please see **[CONTRIBUTING.md](CONTRIBUTING.md)** for detailed guidelines.
+
+### Quick Start for Contributors
+
+1. **Fork and clone** the repository
+2. **Run `make setup`** to install development tools
+3. **Configure code signing** in Xcode:
+   - Select your Apple Developer Team
+   - **Important:** Change Bundle Identifier to your own (e.g., `com.yourname.StillMoment`)
+   - The original `com.stillmoment.StillMoment` is reserved for the official app
+4. **Follow TDD workflow**: Write tests first, then implement
+5. **Maintain coverage**: ≥80% overall (layer-specific thresholds in CONTRIBUTING.md)
+6. **Run quality checks**: `make format && make lint && make test-unit`
+7. **Submit Pull Request**: All CI checks must pass
+
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for:
+- Detailed setup instructions
+- Code standards and architecture guidelines
+- Testing requirements and TDD workflow
+- Pull request process and review criteria
 
 ## 📄 License
 
-Private project - All rights reserved
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+
+Copyright 2025 Helmut Zechmann
 
 ---
 
