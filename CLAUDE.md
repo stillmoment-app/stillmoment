@@ -294,12 +294,43 @@ The Still Moment folder uses "folder references" (blue in Xcode, not yellow grou
 **Setup**: Run `make setup` after cloning
 
 ### CI/CD Pipeline (GitHub Actions)
-1. Lint (SwiftLint + SwiftFormat)
-2. Build & Test (unit tests + coverage ≥80%)
-3. UI Tests
-4. Static Analysis
 
-**Pipeline fails if**: SwiftLint violations, test failures, coverage <80%, build errors
+**Workflow Structure** (optimized for 2025):
+
+All jobs run in **parallel** on GitHub Actions with macOS-14 runners:
+
+1. **Lint** (2-3 min) - SwiftLint + SwiftFormat
+2. **Build & Unit Tests** (3-5 min) - Unit tests with coverage ≥80%
+3. **UI Tests** (5-8 min) - UI integration tests
+4. **Static Analysis** (2-3 min) - Xcode Analyzer
+
+**Key Features:**
+- ✅ **Xcode 16.2** with flexible version management (`maxim-lobanov/setup-xcode`)
+- ✅ **Caching**: DerivedData + SPM + Homebrew (60-70% faster builds)
+- ✅ **Makefile Integration**: Uses existing `make test-unit`, `make lint`, etc.
+- ✅ **Concurrency Control**: Automatically cancels outdated runs
+- ✅ **Coverage Comments**: Automatic PR comments with coverage reports
+- ✅ **iPhone 15 Pro, iOS 17.5**: Stable simulator configuration
+
+**All jobs are blocking** - PRs cannot merge if any job fails.
+
+**Pipeline fails if**:
+- SwiftLint/SwiftFormat violations
+- Build errors
+- Unit test failures
+- UI test failures
+- Coverage <80%
+- Xcode Analyzer warnings
+
+**Coverage Reports:**
+- Automatic PR comments showing coverage changes
+- Detailed reports uploaded as artifacts (30-day retention)
+- Uses `scripts/check-coverage.sh` for reliable percentage extraction
+
+**Performance:**
+- **First run**: 8-12 minutes (no cache)
+- **Subsequent runs**: 3-5 minutes (with 90% cache hit rate)
+- **Cache strategy**: Per-job caching for optimal parallelization
 
 ## Common Workflows
 

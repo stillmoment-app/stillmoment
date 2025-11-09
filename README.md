@@ -1,7 +1,7 @@
 # Still Moment - Meditation Timer iOS App
 
-[![CI](https://img.shields.io/badge/CI-passing-brightgreen)]()
-[![Coverage](https://img.shields.io/badge/coverage-tracked-blue)]()
+[![CI](https://github.com/stillmoment-app/stillmoment/actions/workflows/ci.yml/badge.svg)](https://github.com/stillmoment-app/stillmoment/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-%E2%89%A580%25-brightgreen)]()
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
 [![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
 [![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()

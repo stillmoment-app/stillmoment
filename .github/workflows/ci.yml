@@ -1,93 +1,150 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Cancel outdated runs when new commits are pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_16.0.app/Contents/Developer
+  XCODE_VERSION: '16.2'
+  IOS_VERSION: '17.5'
+  DEVICE: 'iPhone 15 Pro'
 
 jobs:
   lint:
-    name: SwiftLint & SwiftFormat
+    name: Code Quality (SwiftLint + SwiftFormat)
     runs-on: macos-14
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
+
+    - name: Cache Homebrew
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/Library/Caches/Homebrew
+          /usr/local/Cellar/swiftlint
+          /usr/local/Cellar/swiftformat
+        key: ${{ runner.os }}-brew-${{ hashFiles('.github/workflows/ci.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-brew-
 
     - name: Install SwiftLint
-      run: brew install swiftlint
-
-    - name: Run SwiftLint
-      run: swiftlint lint --strict
+      run: |
+        if ! command -v swiftlint &> /dev/null; then
+          brew install swiftlint
+        fi
+        swiftlint version
 
     - name: Install SwiftFormat
-      run: brew install swiftformat
+      run: |
+        if ! command -v swiftformat &> /dev/null; then
+          brew install swiftformat
+        fi
+        swiftformat --version
 
-    - name: Check SwiftFormat
-      run: swiftformat --lint .
+    - name: Run SwiftFormat Check
+      run: make format || swiftformat --lint .
+
+    - name: Run SwiftLint
+      run: make lint
 
   build-and-test:
-    name: Build & Test (All)
+    name: Build & Unit Tests
     runs-on: macos-14
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Select Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Show Xcode version
+    - name: Show Xcode Version
       run: xcodebuild -version
 
-    - name: Build app
-      run: |
-        xcodebuild clean build \
-          -project StillMoment.xcodeproj \
-          -scheme StillMoment \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
-
-    - name: Run All Tests (Unit + UI)
-      run: |
-        xcodebuild test \
-          -project StillMoment.xcodeproj \
-          -scheme StillMoment \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
-          -enableCodeCoverage YES \
-          -resultBundlePath TestResults.xcresult \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
-
-    - name: Generate Code Coverage
-      run: |
-        xcrun xccov view --report --json TestResults.xcresult > coverage.json
-        xcrun xccov view --report TestResults.xcresult > coverage.txt
-
-    - name: Upload Coverage Report
-      uses: actions/upload-artifact@v4
+    - name: Cache DerivedData
+      uses: actions/cache@v4
       with:
-        name: coverage-report
         path: |
-          coverage.json
-          coverage.txt
-          TestResults.xcresult
+          ~/Library/Developer/Xcode/DerivedData
+          ~/Library/Developer/Xcode/DerivedData/ModuleCache.noindex
+        key: ${{ runner.os }}-derived-${{ hashFiles('**/*.swift', '**/*.m', '**/*.h') }}
+        restore-keys: |
+          ${{ runner.os }}-derived-
+
+    - name: Cache SPM Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          .build
+          ~/Library/Caches/org.swift.swiftpm
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+
+    - name: Run Unit Tests with Coverage
+      run: make test-unit
+
+    - name: Generate Coverage Report
+      if: always()
+      run: |
+        if [ -d "TestResults.xcresult" ]; then
+          make test-report
+        else
+          echo "⚠️ No test results found, skipping report"
+        fi
 
     - name: Check Coverage Threshold
       run: |
-        COVERAGE=$(xcrun xccov view --report TestResults.xcresult | grep "StillMoment.app" | awk '{print $4}' | sed 's/%//')
-        echo "Code Coverage: $COVERAGE%"
+        if [ ! -d "TestResults.xcresult" ]; then
+          echo "❌ No test results found!"
+          exit 1
+        fi
+
+        COVERAGE=$(./scripts/check-coverage.sh)
+        echo "Code Coverage: ${COVERAGE}%"
+
         if (( $(echo "$COVERAGE < 80.0" | bc -l) )); then
-          echo "❌ Code coverage is below 80% threshold"
+          echo "❌ Coverage ${COVERAGE}% is below 80% threshold"
           exit 1
         else
-          echo "✅ Code coverage meets 80% threshold"
+          echo "✅ Coverage ${COVERAGE}% meets 80% threshold"
         fi
+
+    - name: Upload Coverage Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: |
+          coverage.txt
+          TestResults.xcresult
+        retention-days: 30
+
+    - name: Upload Coverage for Comment
+      uses: actions/upload-artifact@v4
+      if: github.event_name == 'pull_request'
+      with:
+        name: coverage-data
+        path: |
+          TestResults.xcresult
+        retention-days: 7
 
   ui-tests:
     name: UI Tests
@@ -97,42 +154,81 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Select Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
+
+    - name: Cache DerivedData
+      uses: actions/cache@v4
+      with:
+        path: ~/Library/Developer/Xcode/DerivedData
+        key: ${{ runner.os }}-derived-ui-${{ hashFiles('**/*.swift') }}
+        restore-keys: |
+          ${{ runner.os }}-derived-ui-
+          ${{ runner.os }}-derived-
+
+    - name: Reset Simulator
+      run: make simulator-reset
 
     - name: Run UI Tests
-      run: |
-        xcodebuild test \
-          -project StillMoment.xcodeproj \
-          -scheme StillMoment \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
-          -only-testing:StillMomentUITests \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
+      run: make test-ui
 
     - name: Upload UI Test Results
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: ui-test-results
-        path: ~/Library/Logs/DiagnosticReports/
+        name: ui-test-failures
+        path: |
+          ~/Library/Logs/DiagnosticReports/
+          TestResults.xcresult
+        retention-days: 7
 
-  analyze:
-    name: Static Analysis
+  static-analysis:
+    name: Static Analysis (Xcode Analyzer)
     runs-on: macos-14
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Select Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Run Xcode Analyze
+    - name: Cache DerivedData
+      uses: actions/cache@v4
+      with:
+        path: ~/Library/Developer/Xcode/DerivedData
+        key: ${{ runner.os }}-analyze-${{ hashFiles('**/*.swift', '**/*.m', '**/*.h') }}
+        restore-keys: |
+          ${{ runner.os }}-analyze-
+
+    - name: Run Xcode Static Analysis
       run: |
         xcodebuild analyze \
-          -project StillMoment.xcodeproj \
-          -scheme StillMoment \
-          -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=17.0' \
+          -project "Still Moment.xcodeproj" \
+          -scheme "Still Moment" \
+          -destination "platform=iOS Simulator,name=${{ env.DEVICE }},OS=${{ env.IOS_VERSION }}" \
           CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | tee analyze-output.log
+
+        # Check for analyzer warnings
+        if grep -q "warning:" analyze-output.log; then
+          echo "❌ Static analysis found warnings:"
+          grep "warning:" analyze-output.log
+          exit 1
+        else
+          echo "✅ No static analysis warnings found"
+        fi
+
+    - name: Upload Analysis Results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: static-analysis-results
+        path: analyze-output.log
+        retention-days: 7
