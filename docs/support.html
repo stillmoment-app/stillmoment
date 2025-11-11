@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Still Moment Support - Get help with the meditation timer app, report issues, and contact the developer.">
+    <meta name="keywords" content="meditation app support, help, contact, FAQ">
+    <meta name="author" content="Helmut Zechmann">
+
+    <title>Support - Still Moment</title>
+
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+
+    <style>
+        /* CSS Variables for App Colors */
+        :root {
+            --warm-cream: #FFF8F0;
+            --warm-sand: #F5E6D3;
+            --pale-apricot: #FFD4B8;
+            --terracotta: #D4876F;
+            --clay: #C97D60;
+            --dusty-rose: #E8B4A0;
+            --warm-black: #3D3228;
+            --warm-gray: #8B7D6B;
+            --ring-bg: #E8DDD0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--warm-black);
+            background: linear-gradient(180deg, var(--warm-cream) 0%, var(--warm-sand) 50%, var(--pale-apricot) 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 248, 240, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(61, 50, 40, 0.1);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--warm-black);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--warm-sand);
+            border-radius: 20px;
+            padding: 0.25rem;
+        }
+
+        .language-switcher button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--warm-gray);
+            transition: all 0.3s ease;
+        }
+
+        .language-switcher button.active {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .language-switcher button:hover:not(.active) {
+            background: rgba(212, 135, 111, 0.2);
+        }
+
+        /* Main Content */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--warm-black);
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--warm-gray);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .contact-summary {
+            background: linear-gradient(135deg, var(--terracotta), var(--clay));
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .contact-summary h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-summary a {
+            color: white;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+
+        .contact-summary a:hover {
+            opacity: 0.9;
+        }
+
+        .support-section {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(61, 50, 40, 0.1);
+        }
+
+        .support-section h2 {
+            font-size: 1.8rem;
+            color: var(--warm-black);
+            margin-bottom: 1rem;
+        }
+
+        .support-section h3 {
+            font-size: 1.3rem;
+            color: var(--warm-black);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .support-section p {
+            color: var(--warm-gray);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .support-section ul {
+            margin-left: 2rem;
+            color: var(--warm-gray);
+            line-height: 1.8;
+        }
+
+        .support-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .support-section strong {
+            color: var(--warm-black);
+        }
+
+        .support-section a {
+            color: var(--terracotta);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .support-section a:hover {
+            text-decoration: underline;
+        }
+
+        .highlight-box {
+            background: var(--warm-sand);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--terracotta);
+            margin: 1.5rem 0;
+        }
+
+        .faq-item {
+            margin-bottom: 2rem;
+        }
+
+        .faq-item h3 {
+            color: var(--terracotta);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(61, 50, 40, 0.05);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-content p {
+            color: var(--warm-gray);
+            margin-bottom: 1rem;
+        }
+
+        .footer-content a {
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .contact-summary h2 {
+                font-size: 1.5rem;
+            }
+
+            .support-section h2 {
+                font-size: 1.5rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Hidden class for language switching */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html" class="logo">
+            <img src="images/app-icon.png" alt="Still Moment Logo">
+            <span>Still Moment</span>
+        </a>
+        <div class="language-switcher">
+            <button id="lang-en" class="active" onclick="switchLanguage('en')">EN</button>
+            <button id="lang-de" onclick="switchLanguage('de')">DE</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Title -->
+        <h1 class="lang-en">Support & Help</h1>
+        <h1 class="lang-de hidden">Support & Hilfe</h1>
+
+        <p class="subtitle lang-en">We're here to help with your meditation practice</p>
+        <p class="subtitle lang-de hidden">Wir helfen dir gerne bei deiner Meditationspraxis</p>
+
+        <!-- Contact Summary -->
+        <div class="contact-summary">
+            <h2 class="lang-en">📧 Get in Touch</h2>
+            <h2 class="lang-de hidden">📧 Kontakt aufnehmen</h2>
+            <p class="lang-en">For support, questions, or feedback: <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+            <p class="lang-de hidden">Für Support, Fragen oder Feedback: <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+        </div>
+
+        <!-- FAQ -->
+        <div class="support-section">
+            <h2 class="lang-en">Frequently Asked Questions</h2>
+            <h2 class="lang-de hidden">Häufig gestellte Fragen</h2>
+
+            <div class="faq-item">
+                <h3 class="lang-en">How do I start a meditation timer?</h3>
+                <h3 class="lang-de hidden">Wie starte ich einen Meditations-Timer?</h3>
+                <p class="lang-en">Open the app, select your desired duration using the picker (1-60 minutes), and tap the Start button. A 15-second countdown will begin before your meditation starts.</p>
+                <p class="lang-de hidden">Öffne die App, wähle die gewünschte Dauer mit dem Picker (1-60 Minuten) und tippe auf Start. Ein 15-Sekunden-Countdown beginnt, bevor deine Meditation startet.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">Can I use the timer with my screen locked?</h3>
+                <h3 class="lang-de hidden">Kann ich den Timer mit gesperrtem Bildschirm nutzen?</h3>
+                <p class="lang-en">Yes! Still Moment is designed for meditation with locked screens. The timer continues running in the background, and you'll hear the completion gong when your session ends.</p>
+                <p class="lang-de hidden">Ja! Still Moment ist für Meditation mit gesperrtem Bildschirm konzipiert. Der Timer läuft im Hintergrund weiter und du hörst den Abschluss-Gong, wenn deine Sitzung endet.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">What are interval gongs?</h3>
+                <h3 class="lang-de hidden">Was sind Intervall-Gongs?</h3>
+                <p class="lang-en">Interval gongs are optional audio cues that sound at regular intervals (3, 5, or 10 minutes) during your meditation. Enable them in Settings (gear icon) if you want gentle reminders during longer sessions.</p>
+                <p class="lang-de hidden">Intervall-Gongs sind optionale Audio-Signale, die in regelmäßigen Abständen (3, 5 oder 10 Minuten) während deiner Meditation ertönen. Aktiviere sie in den Einstellungen (Zahnrad-Symbol), wenn du sanfte Erinnerungen bei längeren Sitzungen möchtest.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">What's the difference between Silent and White Noise background audio?</h3>
+                <h3 class="lang-de hidden">Was ist der Unterschied zwischen Lautlos und Weißem Rauschen?</h3>
+                <p class="lang-en">
+                    <strong>Silent mode:</strong> Plays very quiet background audio (1% volume) - almost imperceptible but keeps the app active in the background.<br>
+                    <strong>White Noise mode:</strong> Plays audible white noise (15% volume) that can help focus and mask environmental sounds.<br>
+                    Both modes include audible start, interval, and completion gongs.
+                </p>
+                <p class="lang-de hidden">
+                    <strong>Lautlos-Modus:</strong> Spielt sehr leises Hintergrund-Audio (1% Lautstärke) - fast nicht wahrnehmbar, hält die App aber im Hintergrund aktiv.<br>
+                    <strong>Weißes Rauschen:</strong> Spielt hörbares weißes Rauschen (15% Lautstärke), das beim Fokussieren hilft und Umgebungsgeräusche überdeckt.<br>
+                    Beide Modi beinhalten hörbare Start-, Intervall- und Abschluss-Gongs.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">How do I import guided meditation MP3s?</h3>
+                <h3 class="lang-de hidden">Wie importiere ich geführte Meditations-MP3s?</h3>
+                <p class="lang-en">
+                    1. Go to the Library tab<br>
+                    2. Tap the "+" button<br>
+                    3. Select MP3 files from your device (iCloud Drive, Files app, etc.)<br>
+                    4. The app will automatically extract teacher names and titles<br>
+                    5. You can edit metadata by tapping the pencil icon
+                </p>
+                <p class="lang-de hidden">
+                    1. Gehe zum Bibliothek-Tab<br>
+                    2. Tippe auf den "+"-Button<br>
+                    3. Wähle MP3-Dateien von deinem Gerät (iCloud Drive, Dateien-App, etc.)<br>
+                    4. Die App extrahiert automatisch Lehrer-Namen und Titel<br>
+                    5. Du kannst Metadaten bearbeiten, indem du auf das Stift-Symbol tippst
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">Does the app collect my meditation data?</h3>
+                <h3 class="lang-de hidden">Sammelt die App meine Meditationsdaten?</h3>
+                <p class="lang-en">No! Still Moment collects zero data. Everything is stored locally on your device. No internet required, no tracking, no analytics. See our <a href="privacy.html">Privacy Policy</a> for details.</p>
+                <p class="lang-de hidden">Nein! Still Moment sammelt keine Daten. Alles wird lokal auf deinem Gerät gespeichert. Kein Internet erforderlich, kein Tracking, keine Analytik. Details in unserer <a href="privacy.html">Datenschutzerklärung</a>.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">The timer stopped when my phone screen turned off. What happened?</h3>
+                <h3 class="lang-de hidden">Der Timer hat gestoppt, als sich mein Bildschirm ausgeschaltet hat. Was ist passiert?</h3>
+                <p class="lang-en">This can happen if Low Power Mode is enabled or if background audio isn't working properly. Make sure:
+                    <ul>
+                        <li>Low Power Mode is disabled (Settings → Battery)</li>
+                        <li>Still Moment has permission for notifications</li>
+                        <li>Your device volume isn't muted</li>
+                    </ul>
+                    If issues persist, try restarting the app.
+                </p>
+                <p class="lang-de hidden">Das kann passieren, wenn der Stromsparmodus aktiviert ist oder Hintergrund-Audio nicht richtig funktioniert. Stelle sicher:
+                    <ul>
+                        <li>Stromsparmodus ist deaktiviert (Einstellungen → Batterie)</li>
+                        <li>Still Moment hat Berechtigung für Benachrichtigungen</li>
+                        <li>Deine Geräte-Lautstärke ist nicht stumm</li>
+                    </ul>
+                    Wenn Probleme bestehen bleiben, starte die App neu.
+                </p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="lang-en">How do I enable VoiceOver support?</h3>
+                <h3 class="lang-de hidden">Wie aktiviere ich VoiceOver-Unterstützung?</h3>
+                <p class="lang-en">Still Moment is fully accessible with VoiceOver. Enable VoiceOver in Settings → Accessibility → VoiceOver. All buttons and controls have clear labels in German and English.</p>
+                <p class="lang-de hidden">Still Moment ist vollständig mit VoiceOver zugänglich. Aktiviere VoiceOver in Einstellungen → Bedienungshilfen → VoiceOver. Alle Buttons und Steuerelemente haben klare Beschriftungen auf Deutsch und Englisch.</p>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="support-section">
+            <h2 class="lang-en">Troubleshooting</h2>
+            <h2 class="lang-de hidden">Fehlerbehebung</h2>
+
+            <h3 class="lang-en">App crashes or freezes</h3>
+            <h3 class="lang-de hidden">App stürzt ab oder friert ein</h3>
+            <p class="lang-en">Try these steps:</p>
+            <p class="lang-de hidden">Versuche diese Schritte:</p>
+            <ol class="lang-en">
+                <li>Force quit the app (swipe up from home screen)</li>
+                <li>Restart your iPhone</li>
+                <li>Make sure you're running the latest version of iOS</li>
+                <li>Reinstall the app (your settings are stored locally and will be lost)</li>
+            </ol>
+            <ol class="lang-de hidden">
+                <li>Erzwinge das Beenden der App (von unten nach oben wischen)</li>
+                <li>Starte dein iPhone neu</li>
+                <li>Stelle sicher, dass du die neueste iOS-Version nutzt</li>
+                <li>Installiere die App neu (deine Einstellungen sind lokal gespeichert und gehen verloren)</li>
+            </ol>
+
+            <h3 class="lang-en">Guided meditation audio won't play</h3>
+            <h3 class="lang-de hidden">Geführte Meditations-Audio wird nicht abgespielt</h3>
+            <p class="lang-en">Check these points:</p>
+            <p class="lang-de hidden">Überprüfe diese Punkte:</p>
+            <ul class="lang-en">
+                <li>Make sure the original MP3 file is still in the same location</li>
+                <li>If the file was in iCloud, ensure iCloud Drive is synced</li>
+                <li>Verify the audio file isn't corrupted by playing it in another app</li>
+                <li>Try re-importing the meditation</li>
+            </ul>
+            <ul class="lang-de hidden">
+                <li>Stelle sicher, dass die Original-MP3-Datei noch am gleichen Ort ist</li>
+                <li>Wenn die Datei in iCloud war, stelle sicher, dass iCloud Drive synchronisiert ist</li>
+                <li>Überprüfe, ob die Audio-Datei nicht beschädigt ist, indem du sie in einer anderen App abspielst</li>
+                <li>Versuche, die Meditation neu zu importieren</li>
+            </ul>
+
+            <h3 class="lang-en">Sound quality issues</h3>
+            <h3 class="lang-de hidden">Probleme mit der Tonqualität</h3>
+            <p class="lang-en">Make sure your device volume is at an appropriate level. The Silent mode background audio is intentionally very quiet (1% volume), while White Noise mode is more audible (15% volume). Adjust in Settings.</p>
+            <p class="lang-de hidden">Stelle sicher, dass die Lautstärke deines Geräts auf einem angemessenen Niveau ist. Das Hintergrund-Audio im Lautlos-Modus ist absichtlich sehr leise (1% Lautstärke), während der Weißes-Rauschen-Modus hörbarer ist (15% Lautstärke). Anpassung in Einstellungen.</p>
+        </div>
+
+        <!-- Report Issues -->
+        <div class="support-section">
+            <h2 class="lang-en">Report Issues</h2>
+            <h2 class="lang-de hidden">Probleme melden</h2>
+
+            <p class="lang-en">Found a bug or have a feature request? We'd love to hear from you!</p>
+            <p class="lang-de hidden">Bug gefunden oder Feature-Wunsch? Wir freuen uns von dir zu hören!</p>
+
+            <div class="highlight-box">
+                <p class="lang-en"><strong>Email:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+                <p class="lang-de hidden"><strong>E-Mail:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+                <p class="lang-en"><strong>GitHub Issues:</strong> <a href="https://github.com/stillmoment-app/stillmoment/issues" target="_blank">github.com/stillmoment-app/stillmoment/issues</a></p>
+                <p class="lang-de hidden"><strong>GitHub Issues:</strong> <a href="https://github.com/stillmoment-app/stillmoment/issues" target="_blank">github.com/stillmoment-app/stillmoment/issues</a></p>
+            </div>
+
+            <p class="lang-en">When reporting an issue, please include:</p>
+            <p class="lang-de hidden">Bitte gib beim Melden eines Problems folgendes an:</p>
+            <ul class="lang-en">
+                <li>Your iOS version</li>
+                <li>iPhone model</li>
+                <li>App version (from Settings → About)</li>
+                <li>Steps to reproduce the issue</li>
+                <li>What you expected to happen</li>
+            </ul>
+            <ul class="lang-de hidden">
+                <li>Deine iOS-Version</li>
+                <li>iPhone-Modell</li>
+                <li>App-Version (aus Einstellungen → Über)</li>
+                <li>Schritte zum Reproduzieren des Problems</li>
+                <li>Was du erwartet hast, dass passiert</li>
+            </ul>
+        </div>
+
+        <!-- Contributing -->
+        <div class="support-section">
+            <h2 class="lang-en">Open Source</h2>
+            <h2 class="lang-de hidden">Open Source</h2>
+
+            <p class="lang-en">Still Moment is open source! You can:</p>
+            <p class="lang-de hidden">Still Moment ist Open Source! Du kannst:</p>
+            <ul class="lang-en">
+                <li>View the source code on <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a></li>
+                <li>Contribute improvements or translations</li>
+                <li>Report issues or request features</li>
+                <li>Learn how the app works</li>
+            </ul>
+            <ul class="lang-de hidden">
+                <li>Den Quellcode auf <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a> ansehen</li>
+                <li>Verbesserungen oder Übersetzungen beitragen</li>
+                <li>Probleme melden oder Features vorschlagen</li>
+                <li>Lernen, wie die App funktioniert</li>
+            </ul>
+
+            <p class="lang-en">See our <a href="https://github.com/stillmoment-app/stillmoment/blob/main/CONTRIBUTING.md" target="_blank">Contributing Guide</a> to get started.</p>
+            <p class="lang-de hidden">Siehe unseren <a href="https://github.com/stillmoment-app/stillmoment/blob/main/CONTRIBUTING.md" target="_blank">Beitragsguide</a> zum Einstieg.</p>
+        </div>
+
+        <!-- Feedback -->
+        <div class="support-section">
+            <h2 class="lang-en">Feedback & Feature Requests</h2>
+            <h2 class="lang-de hidden">Feedback & Feature-Wünsche</h2>
+
+            <p class="lang-en">We'd love to hear your thoughts on how to improve Still Moment. Whether it's a new feature idea, design feedback, or just general thoughts, please reach out:</p>
+            <p class="lang-de hidden">Wir freuen uns über deine Gedanken, wie wir Still Moment verbessern können. Ob es eine neue Feature-Idee, Design-Feedback oder allgemeine Gedanken sind, kontaktiere uns:</p>
+
+            <div class="highlight-box">
+                <p><strong>Email:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+            </div>
+
+            <p class="lang-en">Your input helps shape the future of Still Moment!</p>
+            <p class="lang-de hidden">Dein Input hilft, die Zukunft von Still Moment zu gestalten!</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p class="lang-en">&copy; 2025 Still Moment. Open source project licensed under MIT.</p>
+            <p class="lang-de hidden">&copy; 2025 Still Moment. Open-Source-Projekt unter MIT-Lizenz.</p>
+            <p><a href="index.html" class="lang-en">Back to Home</a> | <a href="privacy.html" class="lang-en">Privacy Policy</a></p>
+            <p><a href="index.html" class="lang-de hidden">Zurück zur Startseite</a> | <a href="privacy.html" class="lang-de hidden">Datenschutzerklärung</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Language switching functionality
+        function switchLanguage(lang) {
+            // Save preference
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Update active button
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('lang-' + lang).classList.add('active');
+
+            // Show/hide content
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+                document.documentElement.lang = 'en';
+                document.title = 'Support - Still Moment';
+            } else {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+                document.documentElement.lang = 'de';
+                document.title = 'Support - Still Moment';
+            }
+        }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+            switchLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>

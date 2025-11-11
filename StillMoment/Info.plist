@@ -8,5 +8,9 @@
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Still Moment needs permission to notify you when your meditation session is complete.</string>
+	<key>NSPrivacyPolicyURL</key>
+	<string>https://stillmoment-app.github.io/stillmoment/privacy.html</string>
+	<key>NSHumanReadableContactURL</key>
+	<string>https://stillmoment-app.github.io/stillmoment/support.html</string>
 </dict>
 </plist>
