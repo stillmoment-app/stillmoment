@@ -33,8 +33,9 @@ final class GuidedMeditationServiceTests: XCTestCase {
 
     override func tearDown() {
         // Clean up test data
-        if let suiteName = testUserDefaults.dictionaryRepresentation().keys.first {
-            self.testUserDefaults.removePersistentDomain(forName: suiteName)
+        if let userDefaults = testUserDefaults,
+           let suiteName = userDefaults.dictionaryRepresentation().keys.first {
+            userDefaults.removePersistentDomain(forName: suiteName)
         }
         self.testUserDefaults = nil
         self.sut = nil

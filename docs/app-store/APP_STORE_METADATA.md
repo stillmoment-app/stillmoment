@@ -56,8 +56,8 @@ Gentle Tibetan singing bowl sounds mark the beginning and end of your session. S
 Choose to receive gentle gong reminders every 3, 5, or 10 minutes during your meditation. Perfect for checking your posture or refocusing your mind.
 
 🎧 Background Audio Modes
-• Silent Mode: Keeps the app active in the background without audible sound
-• White Noise Mode: Optional gentle background sound to help you focus
+• Silent Mode: Minimal ambient soundscape for focused meditation
+• Forest Ambience: Natural forest sounds to enhance your practice
 
 ⏱️ Flexible Timer
 Set your meditation duration from 1 to 60 minutes with our easy-to-use picker. Perfect for quick breathing exercises or extended meditation sessions.
@@ -72,7 +72,7 @@ Start, pause, resume, or reset your timer at any time. Complete flexibility for 
 Configure your meditation experience:
 • Enable or disable interval gongs
 • Choose interval duration (3/5/10 minutes)
-• Select background audio mode (Silent/White Noise)
+• Select background audio mode (Silent/Forest Ambience)
 
 ♿ Accessibility First
 Full VoiceOver support ensures Still Moment is accessible to everyone. Every element is carefully designed for natural voice navigation.
@@ -323,8 +323,8 @@ NEW FEATURES
 • Completion Gong: Peaceful end to your session
 
 🎧 Background Audio Modes
-• Silent Mode: Keeps app active without audible sound
-• White Noise Mode: Optional focus aid during meditation
+• Silent Mode: Minimal ambient soundscape for focused meditation
+• Forest Ambience: Natural forest sounds to enhance your practice
 • Choose what works best for your practice
 
 ⚙️ Settings & Customization

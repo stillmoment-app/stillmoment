@@ -64,11 +64,11 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
                 filename: "silence.m4a",
                 name: BackgroundSound.LocalizedString(en: "Silent", de: "Still"),
                 description: BackgroundSound.LocalizedString(
-                    en: "Almost silent (keeps app active)",
-                    de: "Fast still (hält App aktiv)"
+                    en: "Minimal ambient soundscape for focused meditation",
+                    de: "Minimale Klanglandschaft für fokussierte Meditation"
                 ),
                 iconName: "speaker.wave.1",
-                volume: 0.01
+                volume: 0.15
             )
         ]
     }

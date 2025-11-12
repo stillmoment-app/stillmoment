@@ -43,7 +43,8 @@
       "Bash(make screenshot-validate:*)",
       "Bash(make help:*)",
       "Bash(plutil:*)",
-      "Bash(swiftformat:*)"
+      "Bash(swiftformat:*)",
+      "WebFetch(domain:stillmoment-app.github.io)"
     ],
     "deny": [],
     "ask": []

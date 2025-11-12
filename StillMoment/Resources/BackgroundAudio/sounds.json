@@ -8,11 +8,11 @@
         "de": "Still"
       },
       "description": {
-        "en": "Almost silent (keeps app active)",
-        "de": "Fast still (hält App aktiv)"
+        "en": "Minimal ambient soundscape for focused meditation",
+        "de": "Minimale Klanglandschaft für fokussierte Meditation"
       },
       "iconName": "speaker.wave.1",
-      "volume": 0.01
+      "volume": 0.15
     },
     {
       "id": "forest",

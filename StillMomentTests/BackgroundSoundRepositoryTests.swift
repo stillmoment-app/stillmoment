@@ -145,7 +145,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         }
     }
 
-    func testLoadSounds_SilentSound_HasLowVolume() throws {
+    func testLoadSounds_SilentSound_HasConsistentVolume() throws {
         // Given
         guard let sut = self.sut else {
             XCTFail("SUT not initialized")
@@ -160,9 +160,9 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         XCTAssertNotNil(silent, "Should contain silent sound")
         XCTAssertEqual(
             Double(silent?.volume ?? 0),
-            0.01,
+            0.15,
             accuracy: 0.001,
-            "Silent sound should have very low volume (0.01)"
+            "Silent sound should have consistent volume (0.15) with other sounds"
         )
     }
 
