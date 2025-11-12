@@ -114,6 +114,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.currentTime.send(0)
         self.state.send(.idle)
         self.clearNowPlayingInfo()
+        self.disableRemoteCommandCenter()
         self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
@@ -207,6 +208,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         // Clear now playing info
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
 
+        // Disable remote command center to prevent ghost lock screen UI
+        self.disableRemoteCommandCenter()
+
         // Release audio session
         self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
@@ -218,6 +222,24 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     private var timeObserverToken: Any?
     private var currentMeditation: GuidedMeditation?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Disables all remote command center controls
+    private func disableRemoteCommandCenter() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.isEnabled = false
+        commandCenter.pauseCommand.isEnabled = false
+        commandCenter.changePlaybackPositionCommand.isEnabled = false
+        commandCenter.skipForwardCommand.isEnabled = false
+        commandCenter.skipBackwardCommand.isEnabled = false
+
+        // Remove all targets to clean up properly
+        commandCenter.playCommand.removeTarget(nil)
+        commandCenter.pauseCommand.removeTarget(nil)
+        commandCenter.changePlaybackPositionCommand.removeTarget(nil)
+        commandCenter.skipForwardCommand.removeTarget(nil)
+        commandCenter.skipBackwardCommand.removeTarget(nil)
+    }
 
     // MARK: - Private Helpers
 
@@ -314,6 +336,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     private func stopForAudioSessionConflict() {
         self.pause()
         self.clearNowPlayingInfo()
+        self.disableRemoteCommandCenter()
     }
 
     /// Registers conflict handler to stop playback when another source becomes active

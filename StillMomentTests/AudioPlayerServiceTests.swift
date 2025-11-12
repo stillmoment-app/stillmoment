@@ -317,6 +317,87 @@ final class AudioPlayerServiceTests: XCTestCase {
         XCTAssertTrue(commandCenter.skipBackwardCommand.isEnabled)
     }
 
+    @MainActor
+    func testStopDisablesRemoteCommandCenter() async {
+        // Given - Load, play, and setup remote commands
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        self.sut.setupRemoteCommandCenter()
+        try? self.sut.play()
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+        XCTAssertTrue(commandCenter.playCommand.isEnabled, "Commands should be enabled after setup")
+
+        // When
+        self.sut.stop()
+
+        // Then - Remote commands should be disabled
+        XCTAssertFalse(
+            commandCenter.playCommand.isEnabled,
+            "Play command should be disabled after stop"
+        )
+        XCTAssertFalse(
+            commandCenter.pauseCommand.isEnabled,
+            "Pause command should be disabled after stop"
+        )
+        XCTAssertFalse(
+            commandCenter.changePlaybackPositionCommand.isEnabled,
+            "Position command should be disabled after stop"
+        )
+        XCTAssertFalse(
+            commandCenter.skipForwardCommand.isEnabled,
+            "Skip forward should be disabled after stop"
+        )
+        XCTAssertFalse(
+            commandCenter.skipBackwardCommand.isEnabled,
+            "Skip backward should be disabled after stop"
+        )
+    }
+
+    @MainActor
+    func testCleanupDisablesRemoteCommandCenter() async {
+        // Given - Load and setup remote commands
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        self.sut.setupRemoteCommandCenter()
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+        XCTAssertTrue(commandCenter.playCommand.isEnabled, "Commands should be enabled after setup")
+
+        // When
+        self.sut.cleanup()
+
+        // Then - Remote commands should be disabled
+        XCTAssertFalse(
+            commandCenter.playCommand.isEnabled,
+            "Play command should be disabled after cleanup"
+        )
+        XCTAssertFalse(
+            commandCenter.pauseCommand.isEnabled,
+            "Pause command should be disabled after cleanup"
+        )
+        XCTAssertFalse(
+            commandCenter.changePlaybackPositionCommand.isEnabled,
+            "Position command should be disabled after cleanup"
+        )
+        XCTAssertFalse(
+            commandCenter.skipForwardCommand.isEnabled,
+            "Skip forward should be disabled after cleanup"
+        )
+        XCTAssertFalse(
+            commandCenter.skipBackwardCommand.isEnabled,
+            "Skip backward should be disabled after cleanup"
+        )
+    }
+
     // MARK: - Cleanup Tests
 
     func testCleanup() {

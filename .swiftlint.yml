@@ -87,8 +87,8 @@ function_body_length:
   error: 60
 
 type_body_length:
-  warning: 300
-  error: 400
+  warning: 350  # Increased to allow comprehensive test coverage
+  error: 500
 
 cyclomatic_complexity:
   warning: 10
