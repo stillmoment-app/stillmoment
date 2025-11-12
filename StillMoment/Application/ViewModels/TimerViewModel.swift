@@ -26,6 +26,8 @@ final class TimerViewModel: ObservableObject {
         self.notificationService = notificationService
 
         self.loadSettings()
+        // Load selected duration from settings
+        self.selectedMinutes = self.settings.durationMinutes
         self.setupBindings()
         // Don't configure audio on init - it will be configured on-demand when audio is needed
         // This saves energy in idle state
@@ -138,6 +140,10 @@ final class TimerViewModel: ObservableObject {
         // iOS suspends apps that don't actively play audio, even with active audio session
         self.startBackgroundAudio()
 
+        // Save duration when timer starts (user has committed to this duration)
+        self.settings.durationMinutes = self.selectedMinutes
+        self.saveSettings()
+
         self.timerService.start(durationMinutes: self.selectedMinutes)
     }
 
@@ -165,10 +171,12 @@ final class TimerViewModel: ObservableObject {
         defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
         defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
         defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundSoundId": self.settings.backgroundSoundId
+            "backgroundSoundId": self.settings.backgroundSoundId,
+            "durationMinutes": self.settings.durationMinutes
         ])
     }
 
@@ -328,16 +336,27 @@ final class TimerViewModel: ObservableObject {
             }
         }
 
+        // Load duration with default of 10 if key doesn't exist
+        let durationMinutes: Int = if defaults.object(forKey: MeditationSettings.Keys.durationMinutes) != nil {
+            // Key exists, use stored value (will be validated by MeditationSettings.init)
+            defaults.integer(forKey: MeditationSettings.Keys.durationMinutes)
+        } else {
+            // Key doesn't exist (first launch), use default
+            10
+        }
+
         self.settings = MeditationSettings(
             intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
             intervalMinutes: defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes) == 0
                 ? 5 : defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes),
-            backgroundSoundId: backgroundSoundId ?? "silent"
+            backgroundSoundId: backgroundSoundId ?? "silent",
+            durationMinutes: durationMinutes
         )
         Logger.viewModel.info("Loaded settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundSoundId": self.settings.backgroundSoundId
+            "backgroundSoundId": self.settings.backgroundSoundId,
+            "durationMinutes": self.settings.durationMinutes
         ])
     }
 }

@@ -20,10 +20,6 @@ final class StillMomentUITests: XCTestCase {
     func testExample() throws {
         // UI tests must launch the application that they test.
         let app = XCUIApplication()
-
-        // Increase launch timeout for CI environments
-        app.launchTimeout = 60
-
         app.launch()
 
         // Wait for app to be ready
@@ -38,7 +34,6 @@ final class StillMomentUITests: XCTestCase {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             let app = XCUIApplication()
-            app.launchTimeout = 60
             app.launch()
         }
     }

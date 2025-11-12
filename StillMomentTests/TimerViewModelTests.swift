@@ -2,6 +2,7 @@
 //  TimerViewModelTests.swift
 //  Still Moment
 //
+// swiftlint:disable file_length type_body_length
 
 import Combine
 import XCTest
@@ -182,6 +183,14 @@ final class TimerViewModelTests: XCTestCase {
     }
 
     override func tearDown() {
+        // Clean up UserDefaults to prevent test pollution
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.durationMinutes)
+        defaults.removeObject(forKey: MeditationSettings.Keys.intervalGongsEnabled)
+        defaults.removeObject(forKey: MeditationSettings.Keys.intervalMinutes)
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.removeObject(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
+
         self.sut = nil
         self.mockTimerService = nil
         self.mockAudioService = nil
@@ -382,6 +391,7 @@ final class TimerViewModelTests: XCTestCase {
         self.sut.settings.intervalGongsEnabled = true
         self.sut.settings.intervalMinutes = 10
         self.sut.settings.backgroundSoundId = "forest"
+        self.sut.settings.durationMinutes = 25
 
         // When
         self.sut.saveSettings()
@@ -396,6 +406,125 @@ final class TimerViewModelTests: XCTestCase {
         XCTAssertEqual(newViewModel.settings.intervalGongsEnabled, true)
         XCTAssertEqual(newViewModel.settings.intervalMinutes, 10)
         XCTAssertEqual(newViewModel.settings.backgroundSoundId, "forest")
+        XCTAssertEqual(newViewModel.settings.durationMinutes, 25)
+    }
+
+    func testDurationPersistsWhenTimerStarts() {
+        // Given
+        self.sut.selectedMinutes = 25
+
+        // When
+        self.sut.startTimer()
+
+        // Create new instance to verify persistence
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then
+        XCTAssertEqual(newViewModel.selectedMinutes, 25, "Duration should be persisted when timer starts")
+    }
+
+    func testDurationRestoresOnInit() {
+        // Given - Save duration via settings
+        self.sut.settings.durationMinutes = 30
+        self.sut.saveSettings()
+
+        // When - Create new instance (simulates app restart)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Duration should be restored
+        XCTAssertEqual(newViewModel.selectedMinutes, 30, "Duration should restore from UserDefaults on init")
+    }
+
+    func testDurationValidation() {
+        // Given - Duration below minimum
+        self.sut.settings.durationMinutes = 0
+        self.sut.saveSettings()
+
+        // When - Create new instance
+        var newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should clamp to minimum (1)
+        XCTAssertEqual(newViewModel.selectedMinutes, 1, "Duration should clamp to minimum of 1 minute")
+
+        // Given - Duration above maximum
+        self.sut.settings.durationMinutes = 100
+        self.sut.saveSettings()
+
+        // When - Create new instance
+        newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should clamp to maximum (60)
+        XCTAssertEqual(newViewModel.selectedMinutes, 60, "Duration should clamp to maximum of 60 minutes")
+
+        // Given - Valid duration
+        self.sut.settings.durationMinutes = 35
+        self.sut.saveSettings()
+
+        // When - Create new instance
+        newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use exact value
+        XCTAssertEqual(newViewModel.selectedMinutes, 35, "Valid duration should be preserved")
+    }
+
+    func testPickerChangesDoNotPersistUntilStart() {
+        // Given - Initial duration is 10
+        XCTAssertEqual(self.sut.selectedMinutes, 10)
+
+        // When - Change picker value without starting timer
+        self.sut.selectedMinutes = 20
+
+        // Create new instance (simulates app restart)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should still have default (10), not the changed value (20)
+        XCTAssertEqual(newViewModel.selectedMinutes, 10, "Picker changes should not persist until timer starts")
+
+        // When - Now start timer with changed value
+        self.sut.selectedMinutes = 20
+        self.sut.startTimer()
+
+        // Create another instance
+        let anotherViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should now have the started duration (20)
+        XCTAssertEqual(anotherViewModel.selectedMinutes, 20, "Duration should persist after starting timer")
+    }
+
+    func testDefaultDurationIsUsedOnFirstLaunch() {
+        // Given - Clear any saved duration
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.durationMinutes)
+
+        // When - Create new instance (simulates first launch)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use default of 10 minutes
+        XCTAssertEqual(newViewModel.selectedMinutes, 10, "Should use default duration of 10 minutes on first launch")
     }
 
     func testSettingsLoadWithInvalidSoundId_FallsBackToDefault() {
@@ -553,3 +682,5 @@ final class TimerViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 }
+
+// swiftlint:enable file_length type_body_length

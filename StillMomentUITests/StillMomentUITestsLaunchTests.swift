@@ -17,10 +17,6 @@ final class StillMomentUITestsLaunchTests: XCTestCase {
     @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
-
-        // Increase launch timeout for CI environments
-        app.launchTimeout = 60
-
         app.launch()
 
         // Wait for app to be ready

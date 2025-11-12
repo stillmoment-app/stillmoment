@@ -19,9 +19,6 @@ final class TimerFlowUITests: XCTestCase {
             "-CountdownDuration", "0" // Skip countdown for faster, more reliable tests
         ]
 
-        // Increase launch timeout for CI environments (default is 30s, increase to 60s)
-        self.app.launchTimeout = 60
-
         self.app.launch()
 
         // Force portrait orientation

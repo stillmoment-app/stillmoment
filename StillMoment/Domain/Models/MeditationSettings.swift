@@ -16,11 +16,13 @@ struct MeditationSettings: Codable, Equatable {
     init(
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
-        backgroundSoundId: String = "silent"
+        backgroundSoundId: String = "silent",
+        durationMinutes: Int = 10
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
         self.backgroundSoundId = backgroundSoundId
+        self.durationMinutes = Self.validateDuration(durationMinutes)
     }
 
     // MARK: Internal
@@ -31,6 +33,7 @@ struct MeditationSettings: Codable, Equatable {
         static let intervalGongsEnabled = "intervalGongsEnabled"
         static let intervalMinutes = "intervalMinutes"
         static let backgroundSoundId = "backgroundSoundId"
+        static let durationMinutes = "durationMinutes"
         // Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -43,6 +46,9 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Background sound ID (references BackgroundSound.id)
     var backgroundSoundId: String
+
+    /// Duration of meditation in minutes (1-60)
+    var durationMinutes: Int
 
     // MARK: - Validation
 
@@ -57,6 +63,11 @@ struct MeditationSettings: Codable, Equatable {
             10
         }
     }
+
+    /// Validates and clamps duration to valid range (1-60 minutes)
+    static func validateDuration(_ minutes: Int) -> Int {
+        min(max(minutes, 1), 60)
+    }
 }
 
 // MARK: - Default Settings
@@ -66,7 +77,8 @@ extension MeditationSettings {
     static let `default` = MeditationSettings(
         intervalGongsEnabled: false,
         intervalMinutes: 5,
-        backgroundSoundId: "silent"
+        backgroundSoundId: "silent",
+        durationMinutes: 10
     )
 }
 
