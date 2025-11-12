@@ -393,7 +393,7 @@ docs/images/screenshots/
 - Emphasize privacy ("No data collection")
 - End with "Download now"
 
-**Device:** iPhone 15 Pro Max (6.7")
+**Device:** iPhone 16 Plus (6.7")
 
 ---
 

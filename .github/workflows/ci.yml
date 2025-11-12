@@ -107,35 +107,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-spm-
 
-    - name: Run Unit Tests with Coverage
+    - name: Run Unit Tests
       run: make test-unit
 
-    - name: Generate Coverage Report
-      if: always()
-      run: |
-        if [ -d "TestResults.xcresult" ]; then
-          make test-report
-        else
-          echo "⚠️ No test results found, skipping report"
-        fi
-
-    - name: Upload Coverage Artifacts
+    - name: Upload Test Results
       uses: actions/upload-artifact@v4
-      if: always()
+      if: failure()
       with:
-        name: coverage-report
-        path: |
-          coverage.txt
-          TestResults.xcresult
-        retention-days: 30
-
-    - name: Upload Coverage for Comment
-      uses: actions/upload-artifact@v4
-      if: github.event_name == 'pull_request'
-      with:
-        name: coverage-data
-        path: |
-          TestResults.xcresult
+        name: unit-test-failures
+        path: TestResults.xcresult
         retention-days: 7
 
   ui-tests:

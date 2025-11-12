@@ -237,7 +237,7 @@ You need screenshots for the following display sizes (minimum 2 screenshots per 
 5. **Completion** - Timer completed state with "Reset" button
 
 ### Screenshot Tips:
-- Use iPhone 15 Pro Max simulator (6.7" display)
+- Use iPhone 16 Plus simulator (6.7" display)
 - Capture: ⌘ + S in Simulator
 - Keep UI clean - no status bar clutter
 - Add subtle text overlays explaining features (optional)

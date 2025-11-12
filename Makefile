@@ -16,10 +16,10 @@ lint: ## Lint code with SwiftLint (strict mode)
 test: ## Run all tests (unit + UI) with coverage report
 	@./scripts/run-tests.sh
 
-test-unit: ## Run unit tests only (faster, skip UI tests)
+test-unit: ## Run unit tests only (faster, NO COVERAGE - use 'make test' for coverage)
 	@./scripts/run-tests.sh --skip-ui-tests
 
-test-ui: ## Run UI tests only
+test-ui: ## Run UI tests only (NO COVERAGE - use 'make test' for coverage)
 	@./scripts/run-tests.sh --only-ui-tests
 
 test-single: ## Run single test (usage: make test-single TEST=TestClass/testMethod)
@@ -27,9 +27,6 @@ test-single: ## Run single test (usage: make test-single TEST=TestClass/testMeth
 
 test-failures: ## List all failing tests from last test run
 	@./scripts/list-test-failures.sh
-
-coverage: ## Run all tests with coverage report (alias for 'make test')
-	@./scripts/run-tests.sh
 
 test-report: ## Display coverage report from last test run
 	@./scripts/test-report.sh

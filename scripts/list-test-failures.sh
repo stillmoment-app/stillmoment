@@ -4,17 +4,29 @@
 # Usage: ./scripts/list-test-failures.sh
 #
 
-RESULT_BUNDLE="TestResults.xcresult"
+set -e
+
+# Load shared configuration and helpers
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/test-config.sh"
+source "$SCRIPT_DIR/test-helpers.sh"
 
 if [ ! -d "$RESULT_BUNDLE" ]; then
     echo "❌ No test results found. Run tests first:"
-    echo "   make test-unit"
+    echo "   make test-unit    # Unit tests only"
+    echo "   make test-ui      # UI tests only"
+    echo "   make test         # All tests"
     exit 1
 fi
+
+# Detect what type of tests were run
+TEST_RUN_TYPE=$(get_test_run_type "$RESULT_BUNDLE")
+TEST_RUN_TYPE_DISPLAY=$(format_test_run_type "$TEST_RUN_TYPE")
 
 echo "===================================================="
 echo "  Still Moment - Failing Tests Report"
 echo "===================================================="
+echo "Test Type: $TEST_RUN_TYPE_DISPLAY"
 echo ""
 
 # Get test summary
@@ -50,5 +62,9 @@ echo "$SUMMARY" | grep -A 3 '"failureText"' | \
 echo ""
 echo "===================================================="
 echo "💡 To debug a specific test:"
+echo "   # Unit test example:"
 echo "   make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher"
+echo ""
+echo "   # UI test example:"
+echo "   make test-single TEST=ScreenshotTests/testScreenshot01_TimerIdle"
 echo "===================================================="

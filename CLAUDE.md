@@ -203,27 +203,32 @@ Use protocol-based mocks for isolated unit testing.
 **IMPORTANT for Claude Code**: When working on code changes, **ALWAYS run tests** before completing work:
 
 ```bash
-# Quick test (unit tests only, ~30-60 seconds)
+# Quick test (unit tests only, ~30-60 seconds, NO coverage)
 make test-unit
 
-# Full test suite (unit + UI, ~2-5 minutes)
+# Full test suite (unit + UI + coverage, ~2-5 minutes)
 make test
 
 # Advanced: Custom device for testing
-./scripts/run-tests.sh --device "iPhone 16 Pro Max"
+./scripts/run-tests.sh --device "iPhone 16 Plus"
 ```
+
+**Coverage reporting:**
+- Coverage is **ONLY available with `make test`** (all tests)
+- `make test-unit` does NOT generate coverage (incomplete data)
+- CI runs tests for pass/fail only - coverage checked locally
 
 **When to run tests:**
 1. **Before completing any feature** - Verify changes don't break existing functionality
 2. **After fixing bugs** - Ensure the fix works and no regressions
 3. **When adding new code** - Verify new tests pass
-4. **Before updating coverage reports** - Get accurate coverage data
+4. **Before checking coverage** - Run `make test` (not `make test-unit`)
 
 **Expected behavior:**
 - ✅ Unit tests should pass consistently
 - ⚠️ UI tests may be flaky in simulator (Spotlight/WidgetRenderer crashes are normal)
-- ⚠️ Coverage below 80% indicates missing tests
-- 📊 Coverage report auto-generated in `coverage.txt` and `TestResults.xcresult`
+- 📊 **Coverage only available with `make test` (all tests)** - not with `make test-unit`
+- ⚠️ Coverage below 80% indicates missing tests (check `coverage.txt` and `TestResults.xcresult`)
 
 **Troubleshooting:**
 
@@ -341,7 +346,6 @@ All jobs run in **parallel** on GitHub Actions with macOS-26 runners:
 - ✅ **Caching**: DerivedData + SPM + Homebrew (60-70% faster builds)
 - ✅ **Makefile Integration**: Uses existing `make test-unit`, `make lint`, etc.
 - ✅ **Concurrency Control**: Automatically cancels outdated runs
-- ✅ **Coverage Comments**: Automatic PR comments with coverage reports
 - ✅ **iPhone 16 Plus, iOS 18.4**: Stable simulator configuration (unified for local + CI)
 
 **All jobs are blocking** - PRs cannot merge if any job fails.
@@ -351,13 +355,12 @@ All jobs run in **parallel** on GitHub Actions with macOS-26 runners:
 - Build errors
 - Unit test failures
 - UI test failures
-- Coverage <80%
 - Xcode Analyzer warnings
 
-**Coverage Reports:**
-- Automatic PR comments showing coverage changes
-- Detailed reports uploaded as artifacts (30-day retention)
-- Uses `scripts/check-coverage.sh` for reliable percentage extraction
+**Coverage Tracking:**
+- CI runs tests for pass/fail only (no coverage data)
+- Coverage is checked locally with `make test` (all tests required for accurate data)
+- Target guideline: ≥80% (indicator, not enforced)
 
 **Performance:**
 - **First run**: 8-12 minutes (no cache)

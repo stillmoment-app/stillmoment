@@ -3,20 +3,22 @@
 # Automated test execution script for Still Moment
 # Runs unit tests, generates coverage report, and checks thresholds
 #
-# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--device "iPhone 16 Plus"]
+# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--only-ui-tests] [--device "iPhone 16 Plus"] [--reset-simulator]
 #
 
 set -e
 
-# Configuration
-PROJECT="StillMoment.xcodeproj"
-SCHEME="StillMoment"
-DEVICE="iPhone 16 Plus"
-DEVICE_ID=""  # Auto-detect device ID (empty = enable auto-detection)
-COVERAGE_THRESHOLD=80
+# Load shared configuration and helpers
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/test-config.sh"
+source "$SCRIPT_DIR/test-helpers.sh"
+
+# Runtime flags
 SKIP_UI_TESTS=false
 ONLY_UI_TESTS=false
 RESET_SIMULATOR=false
+DEVICE="$TEST_DEVICE"  # Default from config
+DEVICE_ID=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -43,7 +45,7 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --skip-ui-tests      Skip UI tests (faster, unit tests only)"
             echo "  --only-ui-tests      Run UI tests only (skip unit tests)"
-            echo "  --device NAME        Simulator device name (default: iPhone 16 Plus)"
+            echo "  --device NAME        Simulator device name (default: $TEST_DEVICE)"
             echo "  --reset-simulator    Reset simulator before running tests (reduces crashes)"
             echo "  --help               Show this help message"
             echo ""
@@ -53,6 +55,9 @@ while [[ $# -gt 0 ]]; do
             echo "  $0 --only-ui-tests                    # UI tests only"
             echo "  $0 --reset-simulator                  # Reset + run all tests"
             echo "  $0 --skip-ui-tests --reset-simulator  # Reset + unit tests only"
+            echo ""
+            echo "Note: Coverage is only accurate when running ALL tests."
+            echo "      Partial test runs show incomplete coverage data."
             exit 0
             ;;
         *)
@@ -73,73 +78,64 @@ echo ""
 
 # Reset simulator if requested
 if [ "$RESET_SIMULATOR" = true ]; then
-    echo "🔄 Resetting simulator..."
-    echo "   This helps reduce Spotlight/WidgetRenderer crashes"
-
-    # Shutdown all simulators
-    xcrun simctl shutdown all 2>/dev/null || true
-
-    # Erase all simulators
-    echo "   Erasing simulator data..."
-    xcrun simctl erase all 2>/dev/null || true
-
-    echo "   ✅ Simulator reset complete"
-    echo ""
+    reset_simulator
 fi
 
-# Auto-detect device ID if not specified
-if [ -z "$DEVICE_ID" ]; then
-    echo "🔍 Auto-detecting device ID for '$DEVICE'..."
-    DEVICE_ID=$(xcrun simctl list devices available | grep "$DEVICE" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+# Auto-detect device ID
+DEVICE_ID=$(auto_detect_device "$DEVICE") || exit 1
 
-    if [ -z "$DEVICE_ID" ]; then
-        echo "❌ Error: Could not find device '$DEVICE'"
-        echo "Available devices:"
-        xcrun simctl list devices | grep "iPhone" | grep -v "unavailable"
-        exit 1
-    fi
-    echo "   Found device ID: $DEVICE_ID"
-    echo ""
-fi
-
-# Build destination string using device ID (most reliable after Xcode upgrades)
+# Build destination string
 DESTINATION="id=$DEVICE_ID"
 
 # Clean previous results
 echo "🧹 Cleaning previous test results..."
-rm -rf TestResults.xcresult coverage.json coverage.txt
+rm -rf "$RESULT_BUNDLE" coverage.json coverage.txt
+
+# Determine test mode and coverage flag
+# Coverage ONLY enabled for ALL tests (complete data)
+ENABLE_COVERAGE="NO"
+COVERAGE_NOTE=""
 
 if [ "$SKIP_UI_TESTS" = true ]; then
     echo "🧪 Running unit tests only..."
+    COVERAGE_NOTE="ℹ️  Coverage DISABLED - unit tests only (run 'make test' for coverage)"
+
     xcodebuild test \
-        -project "$PROJECT" \
-        -scheme "$SCHEME" \
+        -project "$TEST_PROJECT" \
+        -scheme "$TEST_SCHEME" \
         -destination "$DESTINATION" \
-        -enableCodeCoverage YES \
-        -resultBundlePath TestResults.xcresult \
-        -only-testing:StillMomentTests \
+        -enableCodeCoverage "$ENABLE_COVERAGE" \
+        -resultBundlePath "$RESULT_BUNDLE" \
+        -only-testing:"$UNIT_TEST_TARGET" \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
+
 elif [ "$ONLY_UI_TESTS" = true ]; then
     echo "🧪 Running UI tests only..."
+    COVERAGE_NOTE="ℹ️  Coverage DISABLED - UI tests only (run 'make test' for coverage)"
+
     xcodebuild test \
-        -project "$PROJECT" \
-        -scheme "$SCHEME" \
+        -project "$TEST_PROJECT" \
+        -scheme "$TEST_SCHEME" \
         -destination "$DESTINATION" \
-        -enableCodeCoverage YES \
-        -resultBundlePath TestResults.xcresult \
-        -only-testing:StillMomentUITests \
+        -enableCodeCoverage "$ENABLE_COVERAGE" \
+        -resultBundlePath "$RESULT_BUNDLE" \
+        -only-testing:"$UI_TEST_TARGET" \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
+
 else
     echo "🧪 Running all tests (unit + UI)..."
+    ENABLE_COVERAGE="YES"
+    COVERAGE_NOTE="✅ Coverage ENABLED - all tests (complete data)"
+
     xcodebuild test \
-        -project "$PROJECT" \
-        -scheme "$SCHEME" \
+        -project "$TEST_PROJECT" \
+        -scheme "$TEST_SCHEME" \
         -destination "$DESTINATION" \
-        -enableCodeCoverage YES \
-        -resultBundlePath TestResults.xcresult \
+        -enableCodeCoverage "$ENABLE_COVERAGE" \
+        -resultBundlePath "$RESULT_BUNDLE" \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
@@ -153,42 +149,52 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ""
-echo "📊 Generating coverage report..."
+echo "$COVERAGE_NOTE"
 
-# Generate coverage reports
-xcrun xccov view --report --json TestResults.xcresult > coverage.json 2>/dev/null || true
-xcrun xccov view --report TestResults.xcresult > coverage.txt 2>/dev/null || true
-
-# Display coverage summary
-if [ -f coverage.txt ]; then
+# Generate coverage reports only if enabled
+if [ "$ENABLE_COVERAGE" = "YES" ]; then
     echo ""
-    echo "📈 Coverage Summary:"
-    echo "-------------------"
-    head -30 coverage.txt
+    echo "📊 Generating coverage report..."
 
-    # Extract overall coverage
-    COVERAGE=$(xcrun xccov view --report TestResults.xcresult 2>/dev/null | grep "StillMoment.app" | awk '{print $2}' | sed 's/%//' || echo "0")
+    # Generate coverage reports
+    xcrun xccov view --report --json "$RESULT_BUNDLE" > coverage.json 2>/dev/null || true
+    xcrun xccov view --report "$RESULT_BUNDLE" > coverage.txt 2>/dev/null || true
 
-    echo ""
-    echo "-------------------"
-    echo "Overall Coverage: ${COVERAGE}%"
-    echo "Guideline: ${COVERAGE_THRESHOLD}%+ (indicator, not goal)"
-
-    # Coverage guidance (informational, not enforced)
-    if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
-        echo "📊 Coverage below ${COVERAGE_THRESHOLD}%"
+    # Display coverage summary
+    if [ -f coverage.txt ]; then
         echo ""
-        echo "💡 Consider:"
-        echo "   1. Are critical paths tested? (MeditationTimer, AudioCoordinator, ViewModels)"
-        echo "   2. Review coverage.txt for gaps in important code"
-        echo "   3. Open TestResults.xcresult in Xcode for visual report"
-        echo "   4. Focus on quality, not quantity - see CRITICAL_CODE.md"
+        echo "📈 Coverage Summary:"
+        echo "-------------------"
+        head -30 coverage.txt
+
+        # Extract overall coverage
+        COVERAGE=$(get_coverage_percentage "$RESULT_BUNDLE")
+
+        echo ""
+        echo "-------------------"
+        echo "Overall Coverage: ${COVERAGE}%"
+        echo "Guideline: ${COVERAGE_THRESHOLD}%+ (indicator, not goal)"
+
+        # Coverage guidance (informational, not enforced)
+        if float_less_than "$COVERAGE" "$COVERAGE_THRESHOLD"; then
+            echo "📊 Coverage below ${COVERAGE_THRESHOLD}%"
+            echo ""
+            echo "💡 Consider:"
+            echo "   1. Are critical paths tested? (MeditationTimer, AudioCoordinator, ViewModels)"
+            echo "   2. Review coverage.txt for gaps in important code"
+            echo "   3. Open $RESULT_BUNDLE in Xcode for visual report"
+            echo "   4. Focus on quality, not quantity - see CRITICAL_CODE.md"
+        else
+            echo "✅ Coverage at ${COVERAGE}% (tracking well)"
+            echo "   Remember: Test quality > coverage percentage"
+        fi
     else
-        echo "✅ Coverage at ${COVERAGE}% (tracking well)"
-        echo "   Remember: Test quality > coverage percentage"
+        echo "⚠️  Could not generate coverage report"
     fi
 else
-    echo "⚠️  Could not generate coverage report"
+    echo ""
+    echo "ℹ️  Coverage report skipped (partial test run)"
+    echo "   Run 'make test' for complete coverage data"
 fi
 
 echo ""
@@ -197,13 +203,22 @@ echo "✅ Test execution completed successfully!"
 echo "=================================================="
 echo ""
 echo "📁 Generated files:"
-echo "   - TestResults.xcresult (Xcode result bundle)"
-echo "   - coverage.txt (Text coverage report)"
-echo "   - coverage.json (JSON coverage report)"
+echo "   - $RESULT_BUNDLE (Xcode result bundle)"
+
+if [ "$ENABLE_COVERAGE" = "YES" ]; then
+    echo "   - coverage.txt (Text coverage report)"
+    echo "   - coverage.json (JSON coverage report)"
+fi
+
 echo ""
 echo "💡 Next steps:"
-echo "   - Open result bundle: open TestResults.xcresult"
-echo "   - View coverage: cat coverage.txt"
+echo "   - Open result bundle: open $RESULT_BUNDLE"
+
+if [ "$ENABLE_COVERAGE" = "YES" ]; then
+    echo "   - View coverage: cat coverage.txt"
+    echo "   - Test report: make test-report"
+fi
+
 echo "   - Run with options: $0 --help"
 echo ""
 echo "⚠️  Note about crash reports:"

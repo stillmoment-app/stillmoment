@@ -186,7 +186,7 @@ make test-failures      # List all failing tests from last run
 make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
 
 # Advanced: Direct script invocation (for special options)
-./scripts/run-tests.sh --device "iPhone 15 Pro Max"
+./scripts/run-tests.sh --device "iPhone 16 Plus"
 ./scripts/run-tests.sh --help
 ```
 
@@ -194,6 +194,35 @@ make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
 ```bash
 make test-report        # Shows coverage and pass/fail summary
 ```
+
+### Coverage Reporting
+
+**Coverage is ONLY available with complete test runs:**
+
+```bash
+# ✅ Coverage available
+make test           # ALL tests (unit + UI) → Coverage data generated
+make test-report    # Display coverage from complete run
+
+# ❌ NO coverage (incomplete data)
+make test-unit      # Unit tests only → Coverage DISABLED (faster, partial data)
+make test-ui        # UI tests only → Coverage DISABLED (faster, partial data)
+```
+
+**Why this matters:**
+- Coverage needs ALL tests to be accurate
+- Partial runs show misleading/incomplete coverage data
+- `test-unit` and `test-ui` are optimized for speed (no coverage overhead)
+- CI runs tests for pass/fail only (no coverage processing)
+
+**Workflow:**
+1. **TDD inner loop**: Use `make test-unit` (fast, no coverage)
+2. **Before commit**: Use `make test` (complete validation + coverage)
+3. **Check coverage**: Use `make test-report` (reads from last `make test` run)
+
+**If you see "Coverage UNAVAILABLE" in test-report:**
+- You ran `make test-unit` or `make test-ui` last
+- Solution: Run `make test` first, then `make test-report`
 
 ## UI Tests vs. Unit Tests in TDD
 
