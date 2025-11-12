@@ -22,12 +22,6 @@ extension Color {
     /// Main accent color - terracotta (buttons, progress ring)
     static let terracotta = Color(hex: "#D4876F")
 
-    /// Hover/Active states - clay
-    static let clay = Color(hex: "#C97D60")
-
-    /// Soft highlights - dusty rose
-    static let dustyRose = Color(hex: "#E8B4A0")
-
     // MARK: - Text Colors
 
     /// Primary text color - warm black
