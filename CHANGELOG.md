@@ -177,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New `playIntervalGong()` method in AudioService
   - `shouldPlayIntervalGong()` logic in MeditationTimer
 - **Background Audio Modes** - Apple Guidelines compliant
-  - **Silent Mode**: Volume 0.01 (1% of system volume) - keeps app active, barely audible
+  - **Silent Mode**: Volume 0.15 (15% of system volume) - keeps app active, clearly audible
   - **White Noise Mode**: Volume 0.15 (15% of system volume) - audible focus aid
   - Continuous loop during meditation legitimizes background mode
   - New `BackgroundAudioMode` enum in Domain
@@ -214,7 +214,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Background mode now Apple Guidelines compliant
-  - Replaced silent audio trick (volume 0.0) with very quiet audio (volume 0.01)
   - Added legitimate audible content (start/interval/completion gongs)
   - Continuous background audio legitimizes background mode
 

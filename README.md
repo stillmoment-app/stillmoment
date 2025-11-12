@@ -75,6 +75,11 @@ cd stillmoment
 # Setup development environment (installs SwiftLint, SwiftFormat, pre-commit hooks)
 make setup
 
+# Configure code signing (first-time only)
+cp Config/Local.xcconfig.example Config/Local.xcconfig
+# Edit Config/Local.xcconfig and replace YOUR_TEAM_ID with your Apple Developer Team ID
+# Find your Team ID at: https://developer.apple.com/account
+
 # Open in Xcode
 open StillMoment.xcodeproj
 

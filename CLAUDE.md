@@ -446,17 +446,12 @@ The app legitimizes background audio through **continuous audible content**:
 2. **Start Gong** → Tibetan singing bowl marks beginning (played at countdown→running transition)
 3. **Background Audio** → Continuous loop during meditation (legitimizes background mode)
    - Flexible sound repository with JSON configuration (`sounds.json`)
-   - **Silent Mode** (id: "silent", `silence.m4a`): Volume 0.01 - almost inaudible but keeps app active
+   - **Silent Mode** (id: "silent", `silence.m4a`): Volume 0.15 - quiet but clearly audible
    - **Forest Ambience** (id: "forest", `forest-ambience.mp3`): Volume 0.15 - natural forest sounds
    - Extensible: Add new sounds via `sounds.json` + audio files in `BackgroundAudio/`
 4. **Interval Gongs** → Optional gongs at 3/5/10 minute intervals (user configurable)
 5. **Completion Gong** → Tibetan singing bowl marks end (`completion.mp3`)
 
-**Why This Is Apple-Compliant:**
-- ❌ Silent audio trick (volume 0.0) = **REJECTED** by Apple
-- ✅ Very quiet audio (volume 0.01) = **ACCEPTABLE** (technically audible)
-- ✅ Start + Interval + Completion gongs = **CLEARLY AUDIBLE** content
-- ✅ Background sounds (forest, etc.) = **LEGITIMATE** meditation aid
 
 **Configuration:**
 - Background mode enabled in Info.plist (UIBackgroundModes: audio)
