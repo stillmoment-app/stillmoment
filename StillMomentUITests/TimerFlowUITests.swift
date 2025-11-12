@@ -154,14 +154,11 @@ final class TimerFlowUITests: XCTestCase {
         // Given - Start timer
         self.app.buttons["timer.button.start"].tap()
 
-        // Wait for timer to start
-        sleep(1)
-
         // Then - Progress indicator should be visible
         // Note: Testing circular progress in UI tests is limited
         // We mainly verify the timer display exists and updates
         let timerDisplay = self.app.staticTexts["timer.display.time"]
-        XCTAssertTrue(timerDisplay.exists)
+        XCTAssertTrue(timerDisplay.waitForExistence(timeout: 2.0), "Timer display should appear after starting")
     }
 
     func testNavigationBetweenStates() {
