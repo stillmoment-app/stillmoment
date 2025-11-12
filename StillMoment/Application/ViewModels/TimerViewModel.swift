@@ -164,11 +164,11 @@ final class TimerViewModel: ObservableObject {
         let defaults = UserDefaults.standard
         defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
         defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
-        defaults.set(self.settings.backgroundAudioMode.rawValue, forKey: MeditationSettings.Keys.backgroundAudioMode)
+        defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue
+            "backgroundSoundId": self.settings.backgroundSoundId
         ])
     }
 
@@ -300,7 +300,7 @@ final class TimerViewModel: ObservableObject {
 
     private func startBackgroundAudio() {
         do {
-            try self.audioService.startBackgroundAudio(mode: self.settings.backgroundAudioMode)
+            try self.audioService.startBackgroundAudio(soundId: self.settings.backgroundSoundId)
         } catch {
             Logger.viewModel.error("Failed to start background audio", error: error)
             self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
@@ -312,21 +312,32 @@ final class TimerViewModel: ObservableObject {
     private func loadSettings() {
         let defaults = UserDefaults.standard
 
-        // Load background audio mode
-        let backgroundAudioModeString = defaults.string(forKey: MeditationSettings.Keys.backgroundAudioMode)
-        let backgroundAudioMode = backgroundAudioModeString
-            .flatMap { BackgroundAudioMode(rawValue: $0) } ?? .silent
+        // Try to load new backgroundSoundId first
+        var backgroundSoundId = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
+
+        // Migration: If backgroundSoundId doesn't exist, try to migrate from legacy backgroundAudioMode
+        if backgroundSoundId == nil || backgroundSoundId?.isEmpty == true {
+            if let legacyMode = defaults.string(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode) {
+                backgroundSoundId = MeditationSettings.migrateLegacyMode(legacyMode)
+                // Save migrated value
+                defaults.set(backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
+                Logger.viewModel.info("Migrated legacy settings", metadata: [
+                    "legacyMode": legacyMode,
+                    "newSoundId": backgroundSoundId ?? "unknown"
+                ])
+            }
+        }
 
         self.settings = MeditationSettings(
             intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
             intervalMinutes: defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes) == 0
                 ? 5 : defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes),
-            backgroundAudioMode: backgroundAudioMode
+            backgroundSoundId: backgroundSoundId ?? "silent"
         )
         Logger.viewModel.info("Loaded settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
-            "backgroundAudioMode": self.settings.backgroundAudioMode.rawValue
+            "backgroundSoundId": self.settings.backgroundSoundId
         ])
     }
 }

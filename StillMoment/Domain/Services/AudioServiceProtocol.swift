@@ -12,8 +12,9 @@ protocol AudioServiceProtocol {
     /// Configures the audio session for background-capable playback
     func configureAudioSession() throws
 
-    /// Starts background audio to keep app active (silent or white noise)
-    func startBackgroundAudio(mode: BackgroundAudioMode) throws
+    /// Starts background audio to keep app active
+    /// - Parameter soundId: ID of the background sound to play (references BackgroundSound.id)
+    func startBackgroundAudio(soundId: String) throws
 
     /// Stops background audio
     func stopBackgroundAudio()

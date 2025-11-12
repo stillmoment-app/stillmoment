@@ -16,8 +16,12 @@ final class AudioService: AudioServiceProtocol {
 
     // MARK: - Initialization
 
-    init(coordinator: AudioSessionCoordinatorProtocol) {
+    init(
+        coordinator: AudioSessionCoordinatorProtocol,
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+    ) {
         self.coordinator = coordinator
+        self.soundRepository = soundRepository
         self.setupAudioInterruptionHandling()
         self.registerConflictHandler()
     }
@@ -55,31 +59,42 @@ final class AudioService: AudioServiceProtocol {
         try self.playGong(soundName: "completion")
     }
 
-    func startBackgroundAudio(mode: BackgroundAudioMode) throws {
-        Logger.audio.info("Starting background audio", metadata: ["mode": mode.rawValue])
+    func startBackgroundAudio(soundId: String) throws {
+        Logger.audio.info("Starting background audio", metadata: ["soundId": soundId])
 
         try self.configureAudioSession() // Ensure session is active
 
-        guard let soundURL = Bundle.main.url(forResource: "silence", withExtension: "m4a") else {
-            Logger.audio.error("Background audio file not found")
+        // Get sound from repository
+        guard let sound = self.soundRepository.getSound(byId: soundId) else {
+            Logger.audio.error("Background sound not found", metadata: ["soundId": soundId])
+            throw AudioServiceError.soundFileNotFound
+        }
+
+        // Get file URL from bundle
+        let filenameComponents = sound.filename.components(separatedBy: ".")
+        let name = filenameComponents.first ?? sound.filename
+        let ext = filenameComponents.count > 1 ? filenameComponents.last : nil
+
+        guard let soundURL = Bundle.main.url(
+            forResource: name,
+            withExtension: ext,
+            subdirectory: "BackgroundAudio"
+        ) else {
+            Logger.audio.error("Background audio file not found in bundle", metadata: ["filename": sound.filename])
             throw AudioServiceError.soundFileNotFound
         }
 
         do {
             self.backgroundAudioPlayer = try AVAudioPlayer(contentsOf: soundURL)
             self.backgroundAudioPlayer?.numberOfLoops = -1 // Loop indefinitely
-
-            // Set volume based on mode
-            switch mode {
-            case .silent:
-                self.backgroundAudioPlayer?.volume = 0.01 // Almost silent, but audible to iOS
-            case .whiteNoise:
-                self.backgroundAudioPlayer?.volume = 0.15 // Audible white noise
-            }
+            self.backgroundAudioPlayer?.volume = sound.volume // Use sound-specific volume
 
             self.backgroundAudioPlayer?.prepareToPlay()
             self.backgroundAudioPlayer?.play()
-            Logger.audio.info("Background audio started successfully")
+            Logger.audio.info(
+                "Background audio started successfully",
+                metadata: ["sound": sound.name.localized, "volume": "\(sound.volume)"]
+            )
         } catch {
             Logger.audio.error("Failed to start background audio", error: error)
             throw AudioServiceError.playbackFailed
@@ -114,6 +129,7 @@ final class AudioService: AudioServiceProtocol {
     // MARK: Private
 
     private let coordinator: AudioSessionCoordinatorProtocol
+    private let soundRepository: BackgroundSoundRepositoryProtocol
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
     private var cancellables = Set<AnyCancellable>()

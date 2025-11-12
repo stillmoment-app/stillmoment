@@ -86,7 +86,7 @@
 --enable void
 --enable wrapArguments
 --enable wrapAttributes
---enable wrapMultilineStatementBraces
+--disable wrapMultilineStatementBraces
 
 # Formatting style
 --ifdef no-indent

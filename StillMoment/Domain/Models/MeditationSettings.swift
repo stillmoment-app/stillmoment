@@ -7,15 +7,6 @@
 
 import Foundation
 
-/// Background audio mode during meditation
-enum BackgroundAudioMode: String, Codable, CaseIterable {
-    /// Very quiet audio (almost silent) - keeps app active
-    case silent = "Silent"
-
-    /// Audible white noise
-    case whiteNoise = "White Noise"
-}
-
 /// Settings for meditation sessions
 struct MeditationSettings: Codable, Equatable {
     // MARK: Lifecycle
@@ -25,11 +16,11 @@ struct MeditationSettings: Codable, Equatable {
     init(
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
-        backgroundAudioMode: BackgroundAudioMode = .silent
+        backgroundSoundId: String = "silent"
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
-        self.backgroundAudioMode = backgroundAudioMode
+        self.backgroundSoundId = backgroundSoundId
     }
 
     // MARK: Internal
@@ -39,7 +30,9 @@ struct MeditationSettings: Codable, Equatable {
     enum Keys {
         static let intervalGongsEnabled = "intervalGongsEnabled"
         static let intervalMinutes = "intervalMinutes"
-        static let backgroundAudioMode = "backgroundAudioMode"
+        static let backgroundSoundId = "backgroundSoundId"
+        // Legacy key for migration
+        static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
 
     /// Whether interval gongs are enabled during meditation
@@ -48,8 +41,8 @@ struct MeditationSettings: Codable, Equatable {
     /// Interval in minutes between gongs (3, 5, or 10)
     var intervalMinutes: Int
 
-    /// Background audio mode during meditation
-    var backgroundAudioMode: BackgroundAudioMode
+    /// Background sound ID (references BackgroundSound.id)
+    var backgroundSoundId: String
 
     // MARK: - Validation
 
@@ -73,6 +66,24 @@ extension MeditationSettings {
     static let `default` = MeditationSettings(
         intervalGongsEnabled: false,
         intervalMinutes: 5,
-        backgroundAudioMode: .silent
+        backgroundSoundId: "silent"
     )
+}
+
+// MARK: - Legacy Migration
+
+extension MeditationSettings {
+    /// Migrates legacy BackgroundAudioMode enum to sound ID
+    /// - Parameter mode: Legacy enum value
+    /// - Returns: Corresponding sound ID
+    static func migrateLegacyMode(_ mode: String) -> String {
+        switch mode {
+        case "Silent":
+            "silent"
+        case "White Noise":
+            "silent" // WhiteNoise removed, fallback to silent
+        default:
+            "silent"
+        }
+    }
 }

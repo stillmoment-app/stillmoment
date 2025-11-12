@@ -142,6 +142,83 @@ final class AudioServiceTests: XCTestCase {
         let url = Bundle.main.url(forResource: "completion", withExtension: "mp3")
         XCTAssertNotNil(url, "completion.mp3 must be included in test bundle")
     }
+
+    func testStartBackgroundAudio_WithInvalidSoundId_ThrowsError() {
+        // Given
+        let invalidSoundId = "nonexistent"
+
+        // When / Then
+        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: invalidSoundId)) { error in
+            // Verify the correct error type is thrown
+            guard let audioError = error as? AudioServiceError else {
+                XCTFail("Expected AudioServiceError but got \(type(of: error))")
+                return
+            }
+
+            if case .soundFileNotFound = audioError {
+                // Success - correct error type
+            } else {
+                XCTFail("Expected soundFileNotFound error but got \(audioError)")
+            }
+        }
+    }
+
+    func testStartBackgroundAudio_WithValidSoundId_Succeeds() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When - Start with valid sound ID
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent"))
+
+        // Then - Clean up
+        self.sut.stop()
+    }
+
+    func testStartBackgroundAudio_WithMissingSoundId_ThrowsError() {
+        // Given - Sound ID that exists in repository but file is missing
+        // This test ensures the bundle lookup also fails gracefully
+        let missingSoundId = "whitenoise" // This was removed
+
+        // When / Then
+        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: missingSoundId)) { error in
+            // Should throw soundFileNotFound error
+            XCTAssertTrue(error is AudioServiceError, "Should throw AudioServiceError")
+        }
+    }
+
+    func testAllBackgroundSoundFiles_AreIncludedInBundle() {
+        // Given - Load all sounds from repository
+        let repository = BackgroundSoundRepository()
+        let sounds = repository.availableSounds
+
+        // Then - Verify each sound file exists in bundle
+        for sound in sounds {
+            let components = sound.filename.components(separatedBy: ".")
+            let name = components.first ?? sound.filename
+            let ext = components.count > 1 ? components.last : nil
+
+            let url = Bundle.main.url(
+                forResource: name,
+                withExtension: ext,
+                subdirectory: "BackgroundAudio"
+            )
+
+            XCTAssertNotNil(
+                url,
+                "Background sound file '\(sound.filename)' (id: '\(sound.id)') must be included in bundle"
+            )
+
+            if let url {
+                XCTAssertTrue(
+                    FileManager.default.fileExists(atPath: url.path),
+                    "Background sound file '\(sound.filename)' must exist at path: \(url.path)"
+                )
+            }
+        }
+
+        // Verify we have at least the default sounds
+        XCTAssertTrue(sounds.count >= 2, "Should have at least 'silent' and 'forest' sounds")
+    }
 }
 
 // MARK: - Integration Tests

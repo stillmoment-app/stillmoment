@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CABCE92A2EAE3C440059FC11 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CA08C6262EC4729200D7C911 /* BackgroundAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BackgroundAudio; path = StillMoment/Resources/BackgroundAudio; sourceTree = "<group>"; };
 		CABCE91C2EAE3C430059FC11 /* StillMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StillMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +93,7 @@
 		CABCE9132EAE3C430059FC11 = {
 			isa = PBXGroup;
 			children = (
+				CA08C6262EC4729200D7C911 /* BackgroundAudio */,
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
 				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
@@ -220,6 +226,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

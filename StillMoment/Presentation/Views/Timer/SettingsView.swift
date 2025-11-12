@@ -11,9 +11,15 @@ import SwiftUI
 struct SettingsView: View {
     // MARK: Lifecycle
 
-    init(settings: Binding<MeditationSettings>, onDismiss: @escaping () -> Void) {
+    init(
+        settings: Binding<MeditationSettings>,
+        onDismiss: @escaping () -> Void,
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+    ) {
         _settings = settings
         self.onDismiss = onDismiss
+        self.soundRepository = soundRepository
+        self.availableSounds = soundRepository.availableSounds
     }
 
     // MARK: Internal
@@ -29,33 +35,42 @@ struct SettingsView: View {
                     Section {
                         Picker(
                             NSLocalizedString("settings.backgroundAudio.title", comment: ""),
-                            selection: self.$settings.backgroundAudioMode
+                            selection: self.$settings.backgroundSoundId
                         ) {
-                            ForEach(BackgroundAudioMode.allCases, id: \.self) { mode in
-                                Text(
-                                    mode == .silent ? NSLocalizedString(
-                                        "settings.backgroundAudio.silent",
-                                        comment: ""
-                                    ) :
-                                        NSLocalizedString(
-                                            "settings.backgroundAudio.whiteNoise",
-                                            comment: ""
-                                        )
-                                ).tag(mode)
+                            ForEach(self.availableSounds) { sound in
+                                Label {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(sound.name.localized)
+                                            .font(.system(size: 17, weight: .regular, design: .rounded))
+                                        Text(sound.description.localized)
+                                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                                            .foregroundColor(.warmGray)
+                                    }
+                                } icon: {
+                                    Image(systemName: sound.iconName)
+                                        .foregroundColor(.terracotta)
+                                }
+                                .tag(sound.id)
+                                .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
+                                .accessibilityHint(
+                                    NSLocalizedString(
+                                        "settings.backgroundAudio.hint",
+                                        value: "Select background sound for meditation",
+                                        comment: "Accessibility hint for sound selection"
+                                    )
+                                )
                             }
                         }
                         .pickerStyle(.menu)
-                        .accessibilityLabel("accessibility.backgroundAudioMode")
-                        .accessibilityHint("accessibility.backgroundAudioMode.hint")
+                        .accessibilityLabel(
+                            NSLocalizedString("settings.backgroundAudio.title", comment: "")
+                        )
                     } header: {
                         Text("settings.backgroundAudio.title", bundle: .main)
                     } footer: {
-                        switch self.settings.backgroundAudioMode {
-                        case .silent:
-                            Text("settings.backgroundAudio.footer.silent", bundle: .main)
-                                .font(.system(size: 13, weight: .regular, design: .rounded))
-                        case .whiteNoise:
-                            Text("settings.backgroundAudio.footer.whiteNoise", bundle: .main)
+                        if let currentSound = self.availableSounds
+                            .first(where: { $0.id == self.settings.backgroundSoundId }) {
+                            Text(currentSound.description.localized)
                                 .font(.system(size: 13, weight: .regular, design: .rounded))
                         }
                     }
@@ -121,6 +136,8 @@ struct SettingsView: View {
     @Binding private var settings: MeditationSettings
 
     private let onDismiss: () -> Void
+    private let soundRepository: BackgroundSoundRepositoryProtocol
+    private let availableSounds: [BackgroundSound]
 }
 
 // MARK: - Previews
@@ -130,17 +147,17 @@ struct SettingsView: View {
         settings: .constant(MeditationSettings(
             intervalGongsEnabled: false,
             intervalMinutes: 5,
-            backgroundAudioMode: .silent
+            backgroundSoundId: "silent"
         ))
     ) {}
 }
 
-#Preview("White Noise + Intervals") {
+#Preview("Forest + Intervals") {
     SettingsView(
         settings: .constant(MeditationSettings(
             intervalGongsEnabled: true,
             intervalMinutes: 5,
-            backgroundAudioMode: .whiteNoise
+            backgroundSoundId: "forest"
         ))
     ) {}
 }

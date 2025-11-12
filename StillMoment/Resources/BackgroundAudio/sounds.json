@@ -1,0 +1,32 @@
+{
+  "sounds": [
+    {
+      "id": "silent",
+      "filename": "silence.m4a",
+      "name": {
+        "en": "Silent",
+        "de": "Still"
+      },
+      "description": {
+        "en": "Almost silent (keeps app active)",
+        "de": "Fast still (hält App aktiv)"
+      },
+      "iconName": "speaker.wave.1",
+      "volume": 0.01
+    },
+    {
+      "id": "forest",
+      "filename": "forest-ambience.mp3",
+      "name": {
+        "en": "Forest Ambience",
+        "de": "Waldatmosphäre"
+      },
+      "description": {
+        "en": "Natural forest sounds",
+        "de": "Natürliche Waldgeräusche"
+      },
+      "iconName": "leaf.fill",
+      "volume": 0.15
+    }
+  ]
+}

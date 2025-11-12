@@ -115,7 +115,7 @@ final class MockAudioService: AudioServiceProtocol {
         }
     }
 
-    func startBackgroundAudio(mode: BackgroundAudioMode) throws {
+    func startBackgroundAudio(soundId: String) throws {
         self.startBackgroundAudioCalled = true
         self.audioCallOrder.append("startBackgroundAudio")
         if self.shouldThrowOnPlay {
@@ -381,7 +381,7 @@ final class TimerViewModelTests: XCTestCase {
         // Given
         self.sut.settings.intervalGongsEnabled = true
         self.sut.settings.intervalMinutes = 10
-        self.sut.settings.backgroundAudioMode = .whiteNoise
+        self.sut.settings.backgroundSoundId = "forest"
 
         // When
         self.sut.saveSettings()
@@ -395,7 +395,80 @@ final class TimerViewModelTests: XCTestCase {
         // Then
         XCTAssertEqual(newViewModel.settings.intervalGongsEnabled, true)
         XCTAssertEqual(newViewModel.settings.intervalMinutes, 10)
-        XCTAssertEqual(newViewModel.settings.backgroundAudioMode, .whiteNoise)
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "forest")
+    }
+
+    func testSettingsLoadWithInvalidSoundId_FallsBackToDefault() {
+        // Given - Save an invalid sound ID
+        let defaults = UserDefaults.standard
+        defaults.set("invalid_sound_id", forKey: MeditationSettings.Keys.backgroundSoundId)
+
+        // When - Create new ViewModel (loads settings)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should still use the invalid ID (AudioService will handle the error)
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "invalid_sound_id")
+
+        // When - Try to start timer with invalid sound ID
+        newViewModel.selectedMinutes = 1
+        newViewModel.startTimer()
+
+        // Then - AudioService should be called but will throw error
+        XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
+    }
+
+    func testSettingsLoadWithMissingBackgroundSoundId_UsesDefault() {
+        // Given - Remove backgroundSoundId from UserDefaults
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+
+        // When - Create new ViewModel (loads settings)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use default "silent"
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
+    }
+
+    func testSettingsLegacyMigration_SilentMode() {
+        // Given - Save legacy backgroundAudioMode setting
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.set("Silent", forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
+
+        // When - Create new ViewModel (triggers migration)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should migrate to "silent" sound ID
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
+
+        // Verify migration saved the new value
+        let savedValue = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
+        XCTAssertEqual(savedValue, "silent")
+    }
+
+    func testSettingsLegacyMigration_WhiteNoiseMode() {
+        // Given - Save legacy "White Noise" setting
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.set("White Noise", forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
+
+        // When - Create new ViewModel (triggers migration)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should migrate to "silent" (WhiteNoise was removed)
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
     }
 
     // MARK: - Critical Regression Tests (Lock Screen Countdown Fix)
