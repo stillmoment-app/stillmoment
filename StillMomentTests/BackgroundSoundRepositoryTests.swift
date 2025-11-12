@@ -266,4 +266,94 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
             )
         }
     }
+
+    // MARK: - Robustness Tests
+
+    func testAvailableSounds_MatchesLoadedSounds() throws {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let loaded = try sut.loadSounds()
+        let available = sut.availableSounds
+
+        // Then - availableSounds should return same sounds as loadSounds
+        XCTAssertEqual(loaded.count, available.count)
+        for sound in loaded {
+            XCTAssertTrue(
+                available.contains { $0.id == sound.id },
+                "Available sounds should contain \(sound.id)"
+            )
+        }
+    }
+
+    func testRepository_MultipleInstances_LoadSameData() throws {
+        // Given - Create two separate instances
+        let repo1 = BackgroundSoundRepository()
+        let repo2 = BackgroundSoundRepository()
+
+        // When
+        let sounds1 = try repo1.loadSounds()
+        let sounds2 = try repo2.loadSounds()
+
+        // Then - Both should load identical sounds
+        XCTAssertEqual(sounds1.count, sounds2.count)
+        XCTAssertEqual(Set(sounds1.map(\.id)), Set(sounds2.map(\.id)))
+    }
+
+    func testRepository_Initialization_DoesNotCrash() {
+        // Given/When - Initialize repository (already done in setUp)
+        // This test verifies that initialization succeeds even if there are issues
+        // (fallback mechanism should prevent crashes)
+
+        // Then
+        XCTAssertNotNil(self.sut, "Repository should initialize successfully")
+        XCTAssertFalse(
+            self.sut?.sounds.isEmpty ?? true,
+            "Repository should have at least one sound (from JSON or fallback)"
+        )
+    }
+
+    func testGetSound_CalledMultipleTimes_ReturnsConsistentResults() {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When - Get same sound multiple times
+        let sound1 = sut.getSound(byId: "silent")
+        let sound2 = sut.getSound(byId: "silent")
+        let sound3 = sut.getSound(byId: "silent")
+
+        // Then - All should be identical
+        XCTAssertNotNil(sound1)
+        XCTAssertEqual(sound1?.id, sound2?.id)
+        XCTAssertEqual(sound2?.id, sound3?.id)
+        XCTAssertEqual(sound1?.filename, sound2?.filename)
+    }
+
+    func testLoadSounds_ReturnsMinimumRequiredSounds() throws {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sounds = try sut.loadSounds()
+
+        // Then - Must have at least silent sound (critical for background audio)
+        XCTAssertGreaterThanOrEqual(
+            sounds.count,
+            1,
+            "Repository must provide at least 1 sound (silent mode for background audio)"
+        )
+
+        let hasSilent = sounds.contains { $0.id == "silent" }
+        XCTAssertTrue(hasSilent, "Repository must provide 'silent' sound for Apple compliance")
+    }
 }
