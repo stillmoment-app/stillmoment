@@ -18,10 +18,18 @@ final class TimerFlowUITests: XCTestCase {
             "-AppleLanguages", "(en)", // Force English for consistent testing
             "-CountdownDuration", "0" // Skip countdown for faster, more reliable tests
         ]
+
+        // Increase launch timeout for CI environments (default is 30s, increase to 60s)
+        self.app.launchTimeout = 60
+
         self.app.launch()
 
         // Force portrait orientation
         XCUIDevice.shared.orientation = .portrait
+
+        // Wait for app to be fully ready after launch
+        let appReady = self.app.wait(for: .runningForeground, timeout: 10)
+        XCTAssertTrue(appReady, "App should be running in foreground after launch")
     }
 
     override func tearDown() {

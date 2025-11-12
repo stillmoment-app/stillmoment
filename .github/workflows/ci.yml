@@ -172,7 +172,38 @@ jobs:
     - name: Reset Simulator
       run: make simulator-reset
 
+    - name: Warm up Simulator
+      run: |
+        # Boot simulator and let it settle
+        echo "🔧 Booting simulator..."
+        DEVICE_ID=$(xcrun simctl list devices available | grep "${{ env.DEVICE }}" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+
+        if [ -z "$DEVICE_ID" ]; then
+          echo "❌ Error: Could not find device matching '${{ env.DEVICE }}'"
+          exit 1
+        fi
+
+        echo "📱 Using device ID: $DEVICE_ID"
+        xcrun simctl boot "$DEVICE_ID" || true
+
+        # Wait for simulator to be fully booted
+        echo "⏳ Waiting for simulator to be ready..."
+        for i in {1..30}; do
+          if xcrun simctl list devices | grep "$DEVICE_ID" | grep -q "Booted"; then
+            echo "✅ Simulator is booted"
+            break
+          fi
+          sleep 1
+        done
+
+        # Give simulator extra time to settle
+        echo "⏳ Letting simulator settle (15 seconds)..."
+        sleep 15
+
+        echo "✅ Simulator warmup complete"
+
     - name: Run UI Tests
+      timeout-minutes: 20
       run: make test-ui
 
     - name: Upload UI Test Results
