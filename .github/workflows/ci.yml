@@ -13,14 +13,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XCODE_VERSION: '16.2'
-  IOS_VERSION: '17.5'
-  DEVICE: 'iPhone 15 Pro'
+  XCODE_VERSION: '26.0'
+  IOS_VERSION: '18.4'
+  DEVICE: 'iPhone 16 Plus'
 
 jobs:
   lint:
     name: Code Quality (SwiftLint + SwiftFormat)
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
     - name: Checkout code
@@ -64,7 +64,7 @@ jobs:
 
   build-and-test:
     name: Build & Unit Tests
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
     - name: Checkout code
@@ -131,7 +131,7 @@ jobs:
 
   ui-tests:
     name: UI Tests
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
     - name: Checkout code
@@ -169,7 +169,7 @@ jobs:
 
   static-analysis:
     name: Static Analysis (Xcode Analyzer)
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
     - name: Checkout code

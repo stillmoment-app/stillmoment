@@ -210,7 +210,7 @@ make test-unit
 make test
 
 # Advanced: Custom device for testing
-./scripts/run-tests.sh --device "iPhone 15 Pro Max"
+./scripts/run-tests.sh --device "iPhone 16 Pro Max"
 ```
 
 **When to run tests:**
@@ -337,7 +337,7 @@ The Still Moment folder uses "folder references" (blue in Xcode, not yellow grou
 
 **Workflow Structure** (optimized for 2025):
 
-All jobs run in **parallel** on GitHub Actions with macOS-14 runners:
+All jobs run in **parallel** on GitHub Actions with macOS-26 runners:
 
 1. **Lint** (2-3 min) - SwiftLint + SwiftFormat
 2. **Build & Unit Tests** (3-5 min) - Unit tests with coverage ≥80%
@@ -345,12 +345,12 @@ All jobs run in **parallel** on GitHub Actions with macOS-14 runners:
 4. **Static Analysis** (2-3 min) - Xcode Analyzer
 
 **Key Features:**
-- ✅ **Xcode 16.2** with flexible version management (`maxim-lobanov/setup-xcode`)
+- ✅ **Xcode 26.0** on macOS-26 runners (matches local development environment)
 - ✅ **Caching**: DerivedData + SPM + Homebrew (60-70% faster builds)
 - ✅ **Makefile Integration**: Uses existing `make test-unit`, `make lint`, etc.
 - ✅ **Concurrency Control**: Automatically cancels outdated runs
 - ✅ **Coverage Comments**: Automatic PR comments with coverage reports
-- ✅ **iPhone 15 Pro, iOS 17.5**: Stable simulator configuration
+- ✅ **iPhone 16 Plus, iOS 18.4**: Stable simulator configuration (unified for local + CI)
 
 **All jobs are blocking** - PRs cannot merge if any job fails.
 
