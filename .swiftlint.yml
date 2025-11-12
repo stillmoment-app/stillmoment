@@ -7,6 +7,7 @@ excluded:
   - .build
   - DerivedData
   - .swiftpm
+  - build
 
 # Enable opt-in rules for stricter quality
 opt_in_rules:
