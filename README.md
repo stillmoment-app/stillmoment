@@ -25,7 +25,7 @@ A warmhearted, minimalistic meditation timer for iOS with warm earth tone design
 - 🔔 **Start Gong** - Tibetan singing bowl marks beginning
 - 🎵 **Interval Gongs** - Optional gongs every 3/5/10 minutes (configurable)
 - 🔔 **Completion Gong** - Tibetan singing bowl marks end
-- 🎧 **Background Audio** - Silent mode or White Noise
+- 🎧 **Background Audio** - Silent Ambience or Forest Ambience
 
 ### Design & UX
 - 🎨 **Warm Earth Tones** - Terracotta, warm sand, pale apricot gradient
@@ -206,7 +206,7 @@ open TestResults.xcresult
 - 15-second countdown before meditation
 - Start gong (Tibetan singing bowl)
 - Configurable interval gongs (3/5/10 minutes)
-- Background audio modes (Silent/White Noise)
+- Background audio modes (Silent Ambience/Forest Ambience)
 - Settings UI with user preferences
 - Apple Guidelines compliant background mode
 
@@ -218,7 +218,7 @@ open TestResults.xcresult
 - Accessibility support
 
 **Planned** (v1.0+):
-- Actual white noise audio file
+- Additional ambient sound options (ocean waves, rain, etc.)
 - Custom sound selection (different gong sounds)
 - Multiple timer presets
 - Additional language support (ES, FR, IT)

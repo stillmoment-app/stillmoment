@@ -35,7 +35,7 @@ MEDITATION TIMER
 • Works perfectly with screen locked
 • Tibetan singing bowl sounds mark beginning and end
 • Optional interval gongs every 3, 5, or 10 minutes
-• Two background audio modes: Silent (1% volume) or White Noise (15% volume)
+• Two background audio modes: Silent Ambience or Forest Ambience (both at 15% volume)
 
 GUIDED MEDITATION LIBRARY
 • Import your own MP3 guided meditations from iCloud Drive or local storage
@@ -285,8 +285,8 @@ This meditation timer uses background audio to support meditation with locked sc
 
 1. Start gong (Tibetan singing bowl) - clearly audible
 2. Background audio loop during meditation:
-   - Silent mode: 1% volume (very quiet but not 0.0 - technically audible)
-   - White Noise mode: 15% volume (audible meditation aid)
+   - Silent Ambience: 15% volume (subtle ambient soundscape)
+   - Forest Ambience: 15% volume (natural forest sounds)
 3. Optional interval gongs every 3/5/10 minutes - clearly audible
 4. Completion gong - clearly audible
 

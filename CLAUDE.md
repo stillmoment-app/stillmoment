@@ -560,7 +560,7 @@ struct MeditationSettings {
 - ✅ 15-second countdown before meditation starts
 - ✅ Start gong (Tibetan singing bowl)
 - ✅ Configurable interval gongs (3/5/10 minutes, optional)
-- ✅ Background audio modes (Silent/White Noise)
+- ✅ Background audio modes (Silent Ambience/Forest Ambience)
 - ✅ Settings UI for user configuration
 - ✅ Apple Guidelines compliant background audio
 - ✅ UserDefaults persistence for settings
@@ -575,7 +575,7 @@ struct MeditationSettings {
 - Pre-commit hooks & automation
 
 **Planned** (see DEVELOPMENT.md):
-- v1.0: Actual white noise audio file, custom sounds, presets
+- v1.0: Additional ambient sounds, custom sounds, presets
 - v1.1+: Dark mode, statistics, history, widgets
 
 ## Critical Context

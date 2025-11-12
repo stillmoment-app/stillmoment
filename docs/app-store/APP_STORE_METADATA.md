@@ -7,9 +7,9 @@ This document contains all the metadata needed for submitting Still Moment to th
 ### Basic Details
 - **App Name**: Still Moment
 - **Subtitle**: Warmhearted Meditation Timer
-- **Bundle ID**: com.stillmoment.Still Moment
-- **Version**: 0.3
-- **Build Number**: 3
+- **Bundle ID**: com.stillmoment.StillMoment
+- **Version**: 1.0
+- **Build Number**: 1
 - **SKU**: stillmoment-ios-001
 - **Primary Language**: English (US)
 - **Additional Languages**: German (✅ Fully localized)
@@ -323,7 +323,7 @@ NEW FEATURES
 • Completion Gong: Peaceful end to your session
 
 🎧 Background Audio Modes
-• Silent Mode: Minimal ambient soundscape for focused meditation
+• Silent Ambience: Subtle soundscape for focused meditation
 • Forest Ambience: Natural forest sounds to enhance your practice
 • Choose what works best for your practice
 

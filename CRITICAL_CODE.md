@@ -122,7 +122,7 @@
 - [ ] **Timer + Background Audio**: Timer runs when screen locked
 - [ ] **Gongs + Background**: Interval gongs play when backgrounded
 - [ ] **Completion**: Completion gong plays even if app killed
-- [ ] **Audio Mode Switch**: Silent ↔ White Noise transitions
+- [ ] **Audio Mode Switch**: Silent Ambience ↔ Forest Ambience transitions
 
 **Testing Approach**: Manual testing on physical device preferred (hard to unit test)
 
