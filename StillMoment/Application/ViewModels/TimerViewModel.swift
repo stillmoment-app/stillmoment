@@ -18,12 +18,10 @@ final class TimerViewModel: ObservableObject {
 
     init(
         timerService: TimerServiceProtocol = TimerService(),
-        audioService: AudioServiceProtocol = AudioService(),
-        notificationService: NotificationServiceProtocol = NotificationService()
+        audioService: AudioServiceProtocol = AudioService()
     ) {
         self.timerService = timerService
         self.audioService = audioService
-        self.notificationService = notificationService
 
         self.loadSettings()
         // Load selected duration from settings
@@ -186,7 +184,6 @@ final class TimerViewModel: ObservableObject {
 
     private let timerService: TimerServiceProtocol
     private let audioService: AudioServiceProtocol
-    private let notificationService: NotificationServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
     private var currentTimer: MeditationTimer?
