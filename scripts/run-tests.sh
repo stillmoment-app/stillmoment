@@ -12,6 +12,7 @@ set -e
 PROJECT="StillMoment.xcodeproj"
 SCHEME="StillMoment"
 DEVICE="iPhone 16 Plus"
+DEVICE_ID="43068722-AE51-4F0D-9290-C4AA9CCB674A"  # Hardcoded after Xcode upgrade (auto-detect if empty)
 COVERAGE_THRESHOLD=80
 SKIP_UI_TESTS=false
 ONLY_UI_TESTS=false
@@ -86,6 +87,24 @@ if [ "$RESET_SIMULATOR" = true ]; then
     echo ""
 fi
 
+# Auto-detect device ID if not specified
+if [ -z "$DEVICE_ID" ]; then
+    echo "🔍 Auto-detecting device ID for '$DEVICE'..."
+    DEVICE_ID=$(xcrun simctl list devices available | grep "$DEVICE" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+
+    if [ -z "$DEVICE_ID" ]; then
+        echo "❌ Error: Could not find device '$DEVICE'"
+        echo "Available devices:"
+        xcrun simctl list devices | grep "iPhone" | grep -v "unavailable"
+        exit 1
+    fi
+    echo "   Found device ID: $DEVICE_ID"
+    echo ""
+fi
+
+# Build destination string using device ID (most reliable after Xcode upgrades)
+DESTINATION="id=$DEVICE_ID"
+
 # Clean previous results
 echo "🧹 Cleaning previous test results..."
 rm -rf TestResults.xcresult coverage.json coverage.txt
@@ -95,7 +114,7 @@ if [ "$SKIP_UI_TESTS" = true ]; then
     xcodebuild test \
         -project "$PROJECT" \
         -scheme "$SCHEME" \
-        -destination "platform=iOS Simulator,name=$DEVICE" \
+        -destination "$DESTINATION" \
         -enableCodeCoverage YES \
         -resultBundlePath TestResults.xcresult \
         -only-testing:StillMomentTests \
@@ -106,7 +125,7 @@ elif [ "$ONLY_UI_TESTS" = true ]; then
     xcodebuild test \
         -project "$PROJECT" \
         -scheme "$SCHEME" \
-        -destination "platform=iOS Simulator,name=$DEVICE" \
+        -destination "$DESTINATION" \
         -enableCodeCoverage YES \
         -resultBundlePath TestResults.xcresult \
         -only-testing:StillMomentUITests \
@@ -118,7 +137,7 @@ else
     xcodebuild test \
         -project "$PROJECT" \
         -scheme "$SCHEME" \
-        -destination "platform=iOS Simulator,name=$DEVICE" \
+        -destination "$DESTINATION" \
         -enableCodeCoverage YES \
         -resultBundlePath TestResults.xcresult \
         -parallel-testing-enabled NO \

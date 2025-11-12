@@ -28,6 +28,17 @@ echo "Test: $TEST_TARGET"
 echo "Device: $DEVICE"
 echo ""
 
+# Auto-detect device ID
+echo "🔍 Auto-detecting device ID..."
+DEVICE_ID=$(xcrun simctl list devices available | grep "$DEVICE" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+
+if [ -z "$DEVICE_ID" ]; then
+    echo "❌ Error: Could not find device '$DEVICE'"
+    exit 1
+fi
+echo "   Found device ID: $DEVICE_ID"
+echo ""
+
 # Determine if it's a full test suite or single test
 if [[ "$TEST_TARGET" == *"/"* ]]; then
     TEST_SPECIFIER="StillMomentTests/$TEST_TARGET"
@@ -40,7 +51,7 @@ echo "🧪 Running test..."
 xcodebuild test \
     -project "$PROJECT" \
     -scheme "$SCHEME" \
-    -destination "platform=iOS Simulator,name=$DEVICE" \
+    -destination "id=$DEVICE_ID" \
     -only-testing:"$TEST_SPECIFIER" \
     CODE_SIGN_IDENTITY="" \
     CODE_SIGNING_REQUIRED=NO \

@@ -41,7 +41,9 @@
       "Bash(git -C /Users/helmut/devel/stillmoment remote:*)",
       "Bash(git -C /Users/helmut/devel/stillmoment rev-parse:*)",
       "Bash(make screenshot-validate:*)",
-      "Bash(make help:*)"
+      "Bash(make help:*)",
+      "Bash(plutil:*)",
+      "Bash(swiftformat:*)"
     ],
     "deny": [],
     "ask": []
