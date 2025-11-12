@@ -12,7 +12,7 @@ set -e
 PROJECT="StillMoment.xcodeproj"
 SCHEME="StillMoment"
 DEVICE="iPhone 16 Plus"
-DEVICE_ID="43068722-AE51-4F0D-9290-C4AA9CCB674A"  # Hardcoded after Xcode upgrade (auto-detect if empty)
+DEVICE_ID=""  # Auto-detect device ID (empty = enable auto-detection)
 COVERAGE_THRESHOLD=80
 SKIP_UI_TESTS=false
 ONLY_UI_TESTS=false
