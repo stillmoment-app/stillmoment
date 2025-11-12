@@ -130,33 +130,11 @@ For complete documentation see:
 
 ## Current Status
 
-**Last Updated**: 2025-11-09
+**Last Updated**: 2024-11-09
 **Current Version**: v0.5.0 - Multi-Feature Architecture with TabView
 **Completed**: All MVP phases (0-7) + Guided Meditations + Multi-Feature Architecture
-**Next Steps**: v1.0 features (Custom sounds, Presets, Actual white noise audio)
 
-## Future Enhancements (Post-MVP)
-
-### V2 Features
-- Custom sound upload/selection
-- Multiple timer presets
-- Interval timers (meditation + break cycles)
-- Dark/light mode toggle
-- Haptic feedback
-
-### V3 Features
-- Statistics and history
-- Streak tracking
-- iCloud sync
-- Widget support
-- Apple Watch companion
-
-### Technical Improvements
-- SwiftLint integration
-- CI/CD pipeline
-- Localization (German, English)
-- Accessibility improvements
-- Performance monitoring
+**For detailed roadmap and planned features, see [CHANGELOG.md](CHANGELOG.md).**
 
 ## Notes
 

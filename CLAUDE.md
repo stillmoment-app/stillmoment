@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Still Moment is a warmhearted meditation timer iOS app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode. Built with SwiftUI and SF Pro Rounded typography.
 
-**Target**: iOS 17+, Swift 5.9+, German & English
+**Target**: iOS 17+, Swift 6.2+, German & English
 **Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Feature Architecture
 
 ## Documentation Organization (CRITICAL)
@@ -299,7 +299,7 @@ make test               # Full validation before commit
 - Understand failures before fixing
 - Unit tests (fast) drive development, UI tests (slow) validate integration
 
-**See [docs/TDD_GUIDE.md](docs/TDD_GUIDE.md)** for comprehensive TDD workflow including:
+**See [dev-docs/TDD_GUIDE.md](dev-docs/TDD_GUIDE.md)** for comprehensive TDD workflow including:
 - Step-by-step new feature workflow
 - Testing async code (Combine/async-await)
 - UI test best practices
@@ -308,19 +308,11 @@ make test               # Full validation before commit
 
 ## File Management
 
-### Current Status (Xcode 15+ Auto-Sync)
-- ✅ **Still MomentTests/** - Auto-sync enabled
-- ✅ **Still MomentUITests/** - Auto-sync enabled
-- ✅ **Still Moment/** - Auto-sync enabled (as of now)
+**Xcode 15+ Auto-Sync**: New Swift files are automatically detected. No manual action needed.
 
-**New Swift files are automatically detected by Xcode.** No manual adding or scripts required!
-
-### How It Works
-The Still Moment folder uses "folder references" (blue in Xcode, not yellow groups). Files added to the filesystem automatically appear in Xcode.
-
-### If Auto-Sync Stops Working
-1. Verify Still Moment folder is blue (folder reference), not yellow (group)
-2. If yellow: Delete from Xcode → Re-add as "Create folder references"
+**If Auto-Sync Stops Working:**
+1. Verify folder is blue (folder reference), not yellow (group)
+2. Delete from Xcode → Re-add as "Create folder references"
 3. Clean build folder (⌘+Shift+K) and rebuild (⌘+B)
 
 ## Automation & Quality Gates
@@ -597,37 +589,22 @@ struct MeditationSettings {
 
 ## Quick Reference
 
+**See "Essential Commands" section above for main workflow.**
+
+**Screenshot-specific commands:**
 ```bash
-make help                          # Show all commands
-make setup                         # One-time environment setup
-
-# Testing (TDD workflow)
-make test-unit                     # Run unit tests (fast, 30-60s)
-make test-failures                 # List failing tests
-make test-single TEST=Class/test   # Debug single test
-make test                          # Run all tests with coverage
-make test-report                   # Display coverage report
-
-# Simulator Management (if crashes become excessive)
-make simulator-reset               # Reset simulator
-make test-clean                    # Reset + run all tests
-make test-clean-unit               # Reset + run unit tests
-
-# Quality
-make format && make lint           # Pre-commit checks
-open StillMoment.xcodeproj         # Open project
-
-# Screenshots
 make screenshot-validate           # Pre-flight check (5 sec, run first!)
 make screenshot-single TEST=...    # Single test iteration (15-20 sec)
 make screenshot-dryrun             # Validate elements (10 sec)
 make screenshots                   # Generate all screenshots (5-10 min)
 ```
 
-**For detailed standards**: See `.claude.md` (840 lines)
-**For contributing**: See `CONTRIBUTING.md`
-**For roadmap**: See `DEVELOPMENT.md`
-**For screenshots**: See `dev-docs/SCREENSHOTS.md`
+**Additional documentation:**
+- `.claude.md` - Detailed code standards (840 lines)
+- `CONTRIBUTING.md` - Contributor guide
+- `CHANGELOG.md` - Version history and roadmap
+- `dev-docs/SCREENSHOTS.md` - Screenshot automation guide
+- `dev-docs/TDD_GUIDE.md` - Test-driven development workflow
 
 ## Internationalization
 

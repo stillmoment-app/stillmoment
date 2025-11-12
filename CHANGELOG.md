@@ -178,7 +178,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `shouldPlayIntervalGong()` logic in MeditationTimer
 - **Background Audio Modes** - Apple Guidelines compliant
   - **Silent Mode**: Volume 0.15 (15% of system volume) - keeps app active, clearly audible
-  - **White Noise Mode**: Volume 0.15 (15% of system volume) - audible focus aid
+  - **Forest Ambience Mode**: Volume 0.15 (15% of system volume) - audible focus aid
   - Continuous loop during meditation legitimizes background mode
   - New `BackgroundAudioMode` enum in Domain
 - **Settings UI** - Configure meditation preferences
@@ -196,7 +196,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **AudioService** - Enhanced with multiple audio streams
-  - Separate players for gongs and background audio
+  - Separate players for gongs and background audio (forest ambience)
   - Volume control based on background mode
   - No longer uses `.mixWithOthers` (primary audio)
 - **TimerService** - Now handles countdown state
@@ -357,7 +357,7 @@ First working version with core meditation timer features.
 ## Upcoming Features (Future Versions)
 
 ### v0.3.0 (Planned)
-- [ ] Actual white noise audio file (currently using silence.m4a for both modes)
+- [ ] Additional background audio options (nature sounds, ambient music, etc.)
 - [ ] Async/await migration from Combine
 - [ ] Observable macro for ViewModels (iOS 17+)
 - [ ] Fastlane integration for deployment
