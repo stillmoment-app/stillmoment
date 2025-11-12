@@ -88,12 +88,13 @@ final class AudioServiceTests: XCTestCase {
 
     func testLoadCustomSoundWithFullExtension() {
         // When - Load with full filename
-        let url1 = self.sut.loadCustomSound(filename: "completion.mp3")
-        let url2 = self.sut.loadCustomSound(filename: "e-flat-tibetan-singing-bowl-struck-38746.mp3")
+        let url = self.sut.loadCustomSound(filename: "completion.mp3")
 
         // Then
-        XCTAssertNotNil(url1)
-        XCTAssertNotNil(url2)
+        XCTAssertNotNil(url)
+        if let url {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
+        }
     }
 
     func testMultiplePlaybackCalls() {

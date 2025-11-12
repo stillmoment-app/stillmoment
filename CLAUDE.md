@@ -445,16 +445,18 @@ The app legitimizes background audio through **continuous audible content**:
 1. **15-Second Countdown** → Visual countdown before meditation starts
 2. **Start Gong** → Tibetan singing bowl marks beginning (played at countdown→running transition)
 3. **Background Audio** → Continuous loop during meditation (legitimizes background mode)
-   - **Silent Mode**: Volume 0.01 (1% of system volume) - almost inaudible but keeps app active
-   - **White Noise Mode**: Volume 0.15 (15% of system volume) - audible focus aid
+   - Flexible sound repository with JSON configuration (`sounds.json`)
+   - **Silent Mode** (id: "silent", `silence.m4a`): Volume 0.01 - almost inaudible but keeps app active
+   - **Forest Ambience** (id: "forest", `forest-ambience.mp3`): Volume 0.15 - natural forest sounds
+   - Extensible: Add new sounds via `sounds.json` + audio files in `BackgroundAudio/`
 4. **Interval Gongs** → Optional gongs at 3/5/10 minute intervals (user configurable)
-5. **Completion Gong** → Tibetan singing bowl marks end
+5. **Completion Gong** → Tibetan singing bowl marks end (`completion.mp3`)
 
 **Why This Is Apple-Compliant:**
 - ❌ Silent audio trick (volume 0.0) = **REJECTED** by Apple
 - ✅ Very quiet audio (volume 0.01) = **ACCEPTABLE** (technically audible)
 - ✅ Start + Interval + Completion gongs = **CLEARLY AUDIBLE** content
-- ✅ Optional white noise = **LEGITIMATE** meditation aid
+- ✅ Background sounds (forest, etc.) = **LEGITIMATE** meditation aid
 
 **Configuration:**
 - Background mode enabled in Info.plist (UIBackgroundModes: audio)
@@ -513,13 +515,20 @@ AudioSessionCoordinator.shared (singleton)
 struct MeditationSettings {
     var intervalGongsEnabled: Bool        // Default: false
     var intervalMinutes: Int              // 3, 5, or 10 (default: 5)
-    var backgroundAudioMode: BackgroundAudioMode  // .silent or .whiteNoise (default: .silent)
+    var backgroundSoundId: String         // Sound ID from sounds.json (default: "silent")
 }
 ```
+
+**Background Sound Architecture:**
+- `BackgroundSoundRepository` loads sounds from `BackgroundAudio/sounds.json`
+- Each sound has: id, filename, localized name/description, iconName, volume
+- User selects sound by ID, stored in UserDefaults
+- Legacy migration: Old `BackgroundAudioMode` enum → sound IDs ("Silent" → "silent")
 
 **Settings UI:**
 - Accessible via gear icon in TimerView
 - SettingsView with Form-based configuration
+- Dynamic Picker populated from `BackgroundSoundRepository`
 - Changes saved immediately to UserDefaults
 - Loaded on app launch
 
