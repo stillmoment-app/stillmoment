@@ -17,6 +17,15 @@ jobs:
     - name: Select Xcode version
       run: sudo xcode-select -s /Applications/Xcode_16.0.app/Contents/Developer
 
+    - name: Setup Local Configuration
+      run: |
+        # Create Local.xcconfig from template for CI
+        # CI doesn't need a real Team ID since we disable code signing
+        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        echo "✅ Created Local.xcconfig for CI build"
+
     - name: Install dependencies
       run: |
         brew install swiftlint swiftformat

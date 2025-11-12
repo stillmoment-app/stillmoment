@@ -78,6 +78,15 @@ jobs:
     - name: Show Xcode Version
       run: xcodebuild -version
 
+    - name: Setup Local Configuration
+      run: |
+        # Create Local.xcconfig from template for CI
+        # CI doesn't need a real Team ID since we disable code signing
+        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        echo "✅ Created Local.xcconfig for CI build"
+
     - name: Cache DerivedData
       uses: actions/cache@v4
       with:
@@ -142,6 +151,15 @@ jobs:
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
 
+    - name: Setup Local Configuration
+      run: |
+        # Create Local.xcconfig from template for CI
+        # CI doesn't need a real Team ID since we disable code signing
+        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        echo "✅ Created Local.xcconfig for CI build"
+
     - name: Cache DerivedData
       uses: actions/cache@v4
       with:
@@ -179,6 +197,15 @@ jobs:
       uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
+
+    - name: Setup Local Configuration
+      run: |
+        # Create Local.xcconfig from template for CI
+        # CI doesn't need a real Team ID since we disable code signing
+        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        echo "✅ Created Local.xcconfig for CI build"
 
     - name: Cache DerivedData
       uses: actions/cache@v4
