@@ -65,11 +65,11 @@ final class TimerFlowUITests: XCTestCase {
 
         // Pause button should appear
         let pauseButton = self.app.buttons["timer.button.pause"]
-        XCTAssertTrue(pauseButton.exists)
+        XCTAssertTrue(pauseButton.waitForExistence(timeout: 2.0))
 
         // Reset button should appear
         let resetButton = self.app.buttons["timer.button.reset"]
-        XCTAssertTrue(resetButton.exists)
+        XCTAssertTrue(resetButton.waitForExistence(timeout: 2.0))
     }
 
     func testPauseAndResumeTimer() {
@@ -90,7 +90,7 @@ final class TimerFlowUITests: XCTestCase {
 
         // State indicator should show paused (using identifier)
         let stateText = self.app.staticTexts["timer.state.text"]
-        XCTAssertTrue(stateText.exists)
+        XCTAssertTrue(stateText.waitForExistence(timeout: 2.0))
 
         // When - Tap resume
         resumeButton.tap()
@@ -99,7 +99,7 @@ final class TimerFlowUITests: XCTestCase {
         XCTAssertTrue(pauseButton.waitForExistence(timeout: 1.0))
 
         // State should show meditating (still using same identifier)
-        XCTAssertTrue(stateText.exists)
+        XCTAssertTrue(stateText.waitForExistence(timeout: 2.0))
     }
 
     func testResetTimer() {
@@ -119,7 +119,7 @@ final class TimerFlowUITests: XCTestCase {
         XCTAssertTrue(selectDurationLabel.waitForExistence(timeout: 1.0))
 
         // Start button should be visible again
-        XCTAssertTrue(startButton.exists)
+        XCTAssertTrue(startButton.waitForExistence(timeout: 2.0))
     }
 
     func testTimerCountdown() {
@@ -171,12 +171,12 @@ final class TimerFlowUITests: XCTestCase {
         // 2. Start -> Running
         self.app.buttons["timer.button.start"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.pause"].waitForExistence(timeout: 2.0))
-        XCTAssertTrue(self.app.staticTexts["timer.state.text"].exists)
+        XCTAssertTrue(self.app.staticTexts["timer.state.text"].waitForExistence(timeout: 2.0))
 
         // 3. Pause
         self.app.buttons["timer.button.pause"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.resume"].waitForExistence(timeout: 1.0))
-        XCTAssertTrue(self.app.staticTexts["timer.state.text"].exists)
+        XCTAssertTrue(self.app.staticTexts["timer.state.text"].waitForExistence(timeout: 2.0))
 
         // 4. Resume -> Running
         self.app.buttons["timer.button.resume"].tap()
@@ -185,6 +185,6 @@ final class TimerFlowUITests: XCTestCase {
         // 5. Reset -> Idle
         self.app.buttons["timer.button.reset"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.start"].waitForExistence(timeout: 1.0))
-        XCTAssertTrue(self.app.staticTexts["timer.duration.question"].exists)
+        XCTAssertTrue(self.app.staticTexts["timer.duration.question"].waitForExistence(timeout: 2.0))
     }
 }
