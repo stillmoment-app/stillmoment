@@ -4,6 +4,7 @@
 //
 
 import AVFoundation
+import Combine
 import XCTest
 @testable import StillMoment
 
@@ -223,6 +224,181 @@ final class AudioServiceTests: XCTestCase {
         // Verify we have at least the default sounds
         XCTAssertTrue(sounds.count >= 2, "Should have at least 'silent' and 'forest' sounds")
     }
+
+    func testPlayStartGong_WithConfiguration_Succeeds() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When
+        XCTAssertNoThrow(try self.sut.playStartGong())
+
+        // Then - Should play without error
+        // Clean up
+        self.sut.stop()
+    }
+
+    func testPlayStartGong_WithoutConfiguration_Succeeds() {
+        // When - Play without explicit configuration
+        XCTAssertNoThrow(try self.sut.playStartGong())
+
+        // Then - Should configure automatically and play
+        self.sut.stop()
+    }
+
+    func testPlayIntervalGong_Succeeds() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When
+        XCTAssertNoThrow(try self.sut.playIntervalGong())
+
+        // Then - Should play without error
+        self.sut.stop()
+    }
+
+    func testPlayIntervalGong_WithoutConfiguration_Succeeds() {
+        // When - Play without explicit configuration
+        XCTAssertNoThrow(try self.sut.playIntervalGong())
+
+        // Then - Should configure automatically and play
+        self.sut.stop()
+    }
+
+    func testStopBackgroundAudio_WhenPlaying_StopsPlayback() throws {
+        // Given - Start background audio
+        try self.sut.configureAudioSession()
+        try self.sut.startBackgroundAudio(soundId: "silent")
+
+        // When
+        self.sut.stopBackgroundAudio()
+
+        // Then - Should stop without error (verified by not crashing)
+        // Clean up
+        self.sut.stop()
+    }
+
+    func testStopBackgroundAudio_WhenNotPlaying_DoesNotCrash() {
+        // Given - No background audio playing
+
+        // When
+        self.sut.stopBackgroundAudio()
+
+        // Then - Should be safe (idempotent)
+        self.sut.stopBackgroundAudio() // Second call should also be safe
+    }
+
+    func testStop_ReleasesAudioSession() throws {
+        // Given - Configure and start audio
+        try self.sut.configureAudioSession()
+        try self.sut.startBackgroundAudio(soundId: "silent")
+
+        // When
+        self.sut.stop()
+
+        // Then - Should be able to reconfigure and play again
+        XCTAssertNoThrow(try self.sut.configureAudioSession())
+        XCTAssertNoThrow(try self.sut.playCompletionSound())
+
+        // Clean up
+        self.sut.stop()
+    }
+
+    func testStop_WhenCalledMultipleTimes_IsIdempotent() {
+        // Given
+        try? self.sut.configureAudioSession()
+        try? self.sut.playCompletionSound()
+
+        // When - Call stop multiple times
+        self.sut.stop()
+        self.sut.stop()
+        self.sut.stop()
+
+        // Then - Should not crash
+        XCTAssertNoThrow(self.sut.stop())
+    }
+
+    func testBackgroundAudio_ForestSound_PlaysWithCorrectVolume() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When - Start forest sound
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest"))
+
+        // Then - Should play without error
+        // Clean up
+        self.sut.stop()
+    }
+
+    func testBackgroundAudio_SwitchingSounds_Succeeds() throws {
+        // Given - Start with silent
+        try self.sut.configureAudioSession()
+        try self.sut.startBackgroundAudio(soundId: "silent")
+
+        // When - Switch to forest
+        self.sut.stopBackgroundAudio()
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest"))
+
+        // Then - Should switch without error
+        // Clean up
+        self.sut.stop()
+    }
+
+    func testAudioService_WithCustomCoordinator_UsesProvidedCoordinator() {
+        // Given - Create test coordinator
+        let testCoordinator = AudioSessionCoordinator.shared
+
+        // When - Create service with custom coordinator
+        let service = AudioService(coordinator: testCoordinator)
+
+        // Then - Should initialize successfully
+        XCTAssertNotNil(service)
+
+        // Clean up
+        service.stop()
+    }
+
+    func testStartBackgroundAudio_WithFilenameWithoutExtension_HandlesGracefully() {
+        // This tests the edge case where filename parsing might fail
+        // Given - Repository should have sounds with proper filenames
+
+        // When / Then - All sounds should have valid filenames
+        let repository = BackgroundSoundRepository()
+        let sounds = repository.availableSounds
+
+        for sound in sounds {
+            let components = sound.filename.components(separatedBy: ".")
+            XCTAssertGreaterThanOrEqual(
+                components.count,
+                2,
+                "Sound '\(sound.id)' should have filename with extension: '\(sound.filename)'"
+            )
+        }
+    }
+
+    func testMultipleGongPlays_DoNotInterfere() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When - Play multiple gongs rapidly
+        try self.sut.playStartGong()
+        try self.sut.playIntervalGong()
+        try self.sut.playCompletionSound()
+
+        // Then - Should complete without error (each replaces previous)
+        self.sut.stop()
+    }
+
+    func testBackgroundAudioAndGong_PlaySimultaneously() throws {
+        // Given - Start background audio
+        try self.sut.configureAudioSession()
+        try self.sut.startBackgroundAudio(soundId: "silent")
+
+        // When - Play gong while background audio is playing
+        XCTAssertNoThrow(try self.sut.playIntervalGong())
+
+        // Then - Both should play (different players)
+        self.sut.stop()
+    }
 }
 
 // MARK: - Integration Tests
@@ -249,5 +425,55 @@ extension AudioServiceTests {
         // Should be safe to repeat
         XCTAssertNoThrow(try service.configureAudioSession())
         XCTAssertNoThrow(try service.playCompletionSound())
+    }
+
+    func testFullMeditationFlow() async throws {
+        // Given - Fresh service
+        let service = AudioService()
+
+        // When - Simulate full meditation cycle
+        try service.configureAudioSession()
+        try service.playStartGong()
+
+        // Wait briefly
+        let startGongExpectation = expectation(description: "Start gong")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            startGongExpectation.fulfill()
+        }
+        await fulfillment(of: [startGongExpectation], timeout: 0.5)
+
+        // Start background audio
+        try service.startBackgroundAudio(soundId: "silent")
+
+        // Wait briefly
+        let backgroundAudioExpectation = expectation(description: "Background audio")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            backgroundAudioExpectation.fulfill()
+        }
+        await fulfillment(of: [backgroundAudioExpectation], timeout: 0.5)
+
+        // Play interval gong
+        try service.playIntervalGong()
+
+        // Wait briefly
+        let intervalGongExpectation = expectation(description: "Interval gong")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            intervalGongExpectation.fulfill()
+        }
+        await fulfillment(of: [intervalGongExpectation], timeout: 0.5)
+
+        // Stop background audio and play completion
+        service.stopBackgroundAudio()
+        try service.playCompletionSound()
+
+        // Wait briefly
+        let completionExpectation = expectation(description: "Completion")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            completionExpectation.fulfill()
+        }
+        await fulfillment(of: [completionExpectation], timeout: 0.5)
+
+        // Then - Clean stop
+        service.stop()
     }
 }

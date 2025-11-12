@@ -9,8 +9,6 @@ import XCTest
 @testable import StillMoment
 
 final class GuidedMeditationServiceTests: XCTestCase {
-    // MARK: Internal
-
     var sut: GuidedMeditationService?
     var testUserDefaults: UserDefaults?
 
@@ -363,11 +361,9 @@ final class GuidedMeditationServiceTests: XCTestCase {
         XCTAssertEqual(loaded[1].effectiveName, "Bravo")
     }
 
-    // MARK: Private
-
     // MARK: - Helper Methods
 
-    private func createTestMeditation(
+    func createTestMeditation(
         id: UUID = UUID(),
         teacher: String,
         name: String,

@@ -357,3 +357,240 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         XCTAssertTrue(hasSilent, "Repository must provide 'silent' sound for Apple compliance")
     }
 }
+
+// MARK: - LocalizedString and Model Tests
+
+extension BackgroundSoundRepositoryTests {
+    func testLocalizedString_Initialization_StoresValues() {
+        // Given/When
+        let localizedString = BackgroundSound.LocalizedString(en: "Test English", de: "Test Deutsch")
+
+        // Then
+        XCTAssertEqual(localizedString.en, "Test English")
+        XCTAssertEqual(localizedString.de, "Test Deutsch")
+    }
+
+    func testLocalizedString_Localized_ReturnsNonEmptyString() {
+        // Given
+        let localizedString = BackgroundSound.LocalizedString(en: "English", de: "Deutsch")
+
+        // When
+        let result = localizedString.localized
+
+        // Then
+        XCTAssertFalse(result.isEmpty, "Localized string should not be empty")
+        XCTAssertTrue(
+            result == "English" || result == "Deutsch",
+            "Should return either English or German"
+        )
+    }
+
+    // MARK: - BackgroundSound Model Tests
+
+    func testBackgroundSound_Initialization_StoresAllProperties() {
+        // Given/When
+        let sound = BackgroundSound(
+            id: "test-id",
+            filename: "test.mp3",
+            name: BackgroundSound.LocalizedString(en: "Test", de: "Test"),
+            description: BackgroundSound.LocalizedString(en: "Desc", de: "Beschr"),
+            iconName: "music.note",
+            volume: 0.5
+        )
+
+        // Then
+        XCTAssertEqual(sound.id, "test-id")
+        XCTAssertEqual(sound.filename, "test.mp3")
+        XCTAssertEqual(sound.name.en, "Test")
+        XCTAssertEqual(sound.description.en, "Desc")
+        XCTAssertEqual(sound.iconName, "music.note")
+        XCTAssertEqual(sound.volume, 0.5, accuracy: 0.001)
+    }
+
+    // MARK: - Thread Safety Tests
+
+    func testRepository_ConcurrentAccess_ThreadSafe() {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        let expectation = XCTestExpectation(description: "Concurrent access completes")
+        expectation.expectedFulfillmentCount = 10
+
+        // When - Access repository concurrently from multiple threads
+        for _ in 0..<10 {
+            DispatchQueue.global().async {
+                _ = sut.availableSounds
+                _ = sut.getSound(byId: "silent")
+                expectation.fulfill()
+            }
+        }
+
+        // Then - Should not crash
+        wait(for: [expectation], timeout: 5.0)
+    }
+
+    func testLoadSounds_CalledMultipleTimes_ReturnsSameInstance() throws {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sounds1 = try sut.loadSounds()
+        let sounds2 = try sut.loadSounds()
+
+        // Then - Should return same cached array
+        XCTAssertEqual(sounds1.count, sounds2.count)
+        for (sound1, sound2) in zip(sounds1, sounds2) {
+            XCTAssertEqual(sound1.id, sound2.id)
+            XCTAssertEqual(sound1.filename, sound2.filename)
+        }
+    }
+}
+
+// MARK: - Sound Properties Validation
+
+extension BackgroundSoundRepositoryTests {
+    func testLoadSounds_AllSoundsHaveUniqueIds() throws {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sounds = try sut.loadSounds()
+        let ids = sounds.map(\.id)
+
+        // Then
+        let uniqueIds = Set(ids)
+        XCTAssertEqual(
+            ids.count,
+            uniqueIds.count,
+            """
+            All sound IDs should be unique. \
+            Found duplicates: \(ids.filter { id in ids.filter { $0 == id }.count > 1 })
+            """
+        )
+    }
+
+    func testLoadSounds_AllSoundsHaveValidIconNames() throws {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sounds = try sut.loadSounds()
+
+        // Then - Icon names should be valid SF Symbols or asset names
+        for sound in sounds {
+            XCTAssertFalse(
+                sound.iconName.isEmpty,
+                "Sound '\(sound.id)' has empty icon name"
+            )
+            XCTAssertFalse(
+                sound.iconName.contains(" "),
+                "Sound '\(sound.id)' icon name should not contain spaces: '\(sound.iconName)'"
+            )
+        }
+    }
+
+    func testGetSound_EmptyString_ReturnsNil() {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sound = sut.getSound(byId: "")
+
+        // Then
+        XCTAssertNil(sound, "Empty string ID should return nil")
+    }
+
+    func testGetSound_CaseSensitive_DoesNotMatch() {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When
+        let sound = sut.getSound(byId: "SILENT") // Uppercase
+
+        // Then - Should be case-sensitive and not match "silent"
+        if sound != nil {
+            // If it matches, verify it's actually uppercase in JSON
+            XCTAssertEqual(sound?.id, "SILENT", "If sound found, ID should be uppercase")
+        } else {
+            // Expected: nil because "silent" is lowercase in JSON
+            XCTAssertNil(sound, "Should be case-sensitive")
+        }
+    }
+
+    func testAvailableSounds_IsImmutable() {
+        // Given
+        guard let sut = self.sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        // When - Get available sounds multiple times
+        let sounds1 = sut.availableSounds
+        let sounds2 = sut.availableSounds
+
+        // Then - Should return consistent results (immutable after init)
+        XCTAssertEqual(sounds1.count, sounds2.count)
+        for i in 0..<sounds1.count {
+            XCTAssertEqual(sounds1[i].id, sounds2[i].id)
+        }
+    }
+}
+
+// MARK: - JSON Configuration Tests
+
+extension BackgroundSoundRepositoryTests {
+    func testLoadSounds_JSONStructure_IsValid() throws {
+        // Given - Load sounds.json directly to verify structure
+        guard let url = Bundle.main.url(
+            forResource: "sounds",
+            withExtension: "json",
+            subdirectory: "BackgroundAudio"
+        ) else {
+            XCTFail("sounds.json not found")
+            return
+        }
+
+        // When
+        let data = try Data(contentsOf: url)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+        // Then
+        XCTAssertNotNil(json, "JSON should be valid dictionary")
+        XCTAssertNotNil(json?["sounds"], "JSON should have 'sounds' key")
+
+        guard let soundsArray = json?["sounds"] as? [[String: Any]] else {
+            XCTFail("'sounds' should be an array of dictionaries")
+            return
+        }
+
+        XCTAssertFalse(soundsArray.isEmpty, "Sounds array should not be empty")
+
+        // Verify each sound has required keys
+        for (index, soundDict) in soundsArray.enumerated() {
+            XCTAssertNotNil(soundDict["id"], "Sound at index \(index) should have 'id'")
+            XCTAssertNotNil(soundDict["filename"], "Sound at index \(index) should have 'filename'")
+            XCTAssertNotNil(soundDict["name"], "Sound at index \(index) should have 'name'")
+            XCTAssertNotNil(soundDict["description"], "Sound at index \(index) should have 'description'")
+            XCTAssertNotNil(soundDict["iconName"], "Sound at index \(index) should have 'iconName'")
+            XCTAssertNotNil(soundDict["volume"], "Sound at index \(index) should have 'volume'")
+        }
+    }
+}

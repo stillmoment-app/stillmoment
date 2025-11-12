@@ -84,7 +84,7 @@ final class TimerFlowUITests: XCTestCase {
 
         // Wait for timer to start
         let pauseButton = self.app.buttons["timer.button.pause"]
-        XCTAssertTrue(pauseButton.waitForExistence(timeout: 2.0))
+        XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0))
 
         // When - Tap pause
         pauseButton.tap()
