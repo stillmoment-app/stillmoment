@@ -113,9 +113,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.player?.seek(to: .zero)
         self.currentTime.send(0)
         self.state.send(.idle)
-        self.updateNowPlayingPlaybackInfo()
-
-        // Release audio session when player is stopped
+        self.clearNowPlayingInfo()
         self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
@@ -263,6 +261,11 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 
+    /// Clears Now Playing info from lock screen and control center
+    private func clearNowPlayingInfo() {
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+    }
+
     private func handlePlaybackFinished() {
         self.state.send(.finished)
         self.currentTime.send(self.duration.value)
@@ -307,6 +310,12 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
     }
 
+    /// Handles audio session conflict by pausing playback and clearing lock screen info
+    private func stopForAudioSessionConflict() {
+        self.pause()
+        self.clearNowPlayingInfo()
+    }
+
     /// Registers conflict handler to stop playback when another source becomes active
     private func registerConflictHandler() {
         self.coordinator.registerConflictHandler(for: .guidedMeditation) { [weak self] in
@@ -315,7 +324,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             }
 
             Logger.audio.info("Guided meditation stopping - another source became active")
-            self.pause()
+            self.stopForAudioSessionConflict()
         }
     }
 }

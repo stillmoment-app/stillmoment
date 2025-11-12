@@ -240,6 +240,30 @@ final class AudioPlayerServiceTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 1.0)
     }
 
+    @MainActor
+    func testStopClearsNowPlayingInfo() async {
+        // Given - Load and play
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        try? self.sut.play()
+
+        // Verify Now Playing info is set
+        XCTAssertNotNil(MPNowPlayingInfoCenter.default().nowPlayingInfo)
+
+        // When
+        self.sut.stop()
+
+        // Then - Now Playing info should be cleared
+        XCTAssertNil(
+            MPNowPlayingInfoCenter.default().nowPlayingInfo,
+            "Now Playing info should be cleared when meditation is stopped"
+        )
+    }
+
     // MARK: - Seek Tests
 
     func testSeekWithoutLoading() {
@@ -378,6 +402,32 @@ final class AudioPlayerServiceTests: XCTestCase {
             self.sut.state.value,
             .paused,
             "Player should pause when another audio source becomes active"
+        )
+    }
+
+    @MainActor
+    func testConflictHandlerClearsNowPlayingInfo() async throws {
+        // Given - Load and play
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        try? self.sut.play()
+        XCTAssertEqual(self.sut.state.value, .playing)
+
+        // Verify Now Playing info is set
+        XCTAssertNotNil(MPNowPlayingInfoCenter.default().nowPlayingInfo)
+
+        // When - Another source (timer) requests audio session
+        let granted = try? self.mockCoordinator.requestAudioSession(for: .timer)
+        XCTAssertTrue(granted == true, "Timer should successfully request audio session")
+
+        // Then - Now Playing info should be cleared
+        XCTAssertNil(
+            MPNowPlayingInfoCenter.default().nowPlayingInfo,
+            "Now Playing info should be cleared when another audio source takes over"
         )
     }
 
