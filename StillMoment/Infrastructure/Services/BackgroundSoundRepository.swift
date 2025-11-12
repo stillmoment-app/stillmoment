@@ -21,12 +21,13 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
             Logger.audio.info("Loaded \(self.sounds.count) background sounds from sounds.json")
         } catch {
             Logger.audio.error("CRITICAL: Failed to load background sounds from sounds.json", error: error)
-            #if DEBUG
-            assertionFailure("sounds.json must be present in bundle. Check Build Phases > Copy Bundle Resources.")
-            #endif
-            // Provide minimal fallback to prevent crash in production
-            self.sounds = Self.defaultFallbackSounds
-            Logger.audio.warning("Using fallback sounds due to loading failure")
+            // sounds.json is always part of the bundle - if it's missing, something is seriously wrong
+            fatalError("""
+                sounds.json must be present in bundle.
+                Check Build Phases > Copy Bundle Resources.
+                Error: \(error)
+                """
+            )
         }
     }
 
@@ -55,24 +56,6 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
 
     // MARK: - Private Methods
 
-    /// Default fallback sounds if sounds.json cannot be loaded
-    /// Used only in error scenarios to prevent app crashes
-    private static var defaultFallbackSounds: [BackgroundSound] {
-        [
-            BackgroundSound(
-                id: "silent",
-                filename: "silence.m4a",
-                name: BackgroundSound.LocalizedString(en: "Silent", de: "Still"),
-                description: BackgroundSound.LocalizedString(
-                    en: "Minimal ambient soundscape for focused meditation",
-                    de: "Minimale Klanglandschaft für fokussierte Meditation"
-                ),
-                iconName: "speaker.wave.1",
-                volume: 0.15
-            )
-        ]
-    }
-
     /// Loads sounds from sounds.json in the bundle
     ///
     /// Expected JSON format:
@@ -80,12 +63,12 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
     /// {
     ///   "sounds": [
     ///     {
-    ///       "id": "silent",
-    ///       "filename": "silence.m4a",
-    ///       "name": { "en": "Silent", "de": "Still" },
-    ///       "description": { "en": "...", "de": "..." },
-    ///       "iconName": "speaker.wave.1",
-    ///       "volume": 0.01
+    ///       "id": "example-sound",
+    ///       "filename": "example-sound.mp3",
+    ///       "name": { "en": "Example Sound", "de": "Beispiel-Sound" },
+    ///       "description": { "en": "Description", "de": "Beschreibung" },
+    ///       "iconName": "speaker.wave.2",
+    ///       "volume": 0.15
     ///     }
     ///   ]
     /// }

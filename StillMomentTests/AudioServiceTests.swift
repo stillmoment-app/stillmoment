@@ -7,6 +7,7 @@ import AVFoundation
 import XCTest
 @testable import StillMoment
 
+@MainActor
 final class AudioServiceTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
@@ -18,6 +19,8 @@ final class AudioServiceTests: XCTestCase {
 
     override func tearDown() {
         self.sut.stop()
+        // Release audio session to prevent conflicts with parallel tests
+        AudioSessionCoordinator.shared.releaseAudioSession(for: .timer)
         self.sut = nil
         super.tearDown()
     }
