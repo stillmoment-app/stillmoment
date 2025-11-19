@@ -31,9 +31,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.meditationService = meditationService
 
         self.setupBindings()
-        // Don't configure audio on init - will be configured on-demand in play()
-        // This saves energy when player view is opened but not playing
-        self.setupRemoteControls()
+        // Remote controls will be configured in play() after audio session is activated
+        // This ensures iOS properly registers lock screen controls
     }
 
     // MARK: Internal
@@ -196,11 +195,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playerService.duration
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$duration)
-    }
-
-    private func setupRemoteControls() {
-        self.playerService.setupRemoteCommandCenter()
-        Logger.audioPlayer.info("Remote command center configured")
     }
 
     private func formatTime(_ time: TimeInterval) -> String {

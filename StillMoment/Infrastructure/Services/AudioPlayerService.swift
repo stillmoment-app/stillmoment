@@ -22,8 +22,12 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     // MARK: - Initialization
 
-    init(coordinator: AudioSessionCoordinatorProtocol) {
+    init(
+        coordinator: AudioSessionCoordinatorProtocol,
+        nowPlayingProvider: NowPlayingInfoProvider = SystemNowPlayingInfoProvider()
+    ) {
         self.coordinator = coordinator
+        self.nowPlayingProvider = nowPlayingProvider
         super.init()
         self.setupNotifications()
         self.registerConflictHandler()
@@ -72,8 +76,12 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             // Setup time observer for progress tracking
             self.setupTimeObserver()
 
-            // Setup now playing info
-            self.setupNowPlayingInfo(for: meditation, duration: durationSeconds)
+            // iOS REQUIREMENT: Now Playing info MUST be set AFTER audio session is activated.
+            // Setting Now Playing info before session activation can cause:
+            // - Lock screen controls to not appear
+            // - Metadata to not display correctly
+            // - Inconsistent behavior across iOS versions
+            // Solution: Defer setup to play() method where session is guaranteed active.
 
             self.state.send(.paused)
         } catch {
@@ -94,8 +102,29 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             throw AudioPlayerError.playbackFailed(reason: "No audio loaded")
         }
 
-        // Request audio session through coordinator
+        // Request exclusive audio session from coordinator
+        // This activates the audio session before we configure lock screen controls
         _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
+
+        // iOS REQUIREMENT: Setup remote commands AFTER audio session is active
+        // One-time configuration: Use flag to prevent duplicate setup on subsequent play calls
+        // Rationale: Remote Command Center must be configured while session is active,
+        // but reconfiguring on every pause/resume is unnecessary and could cause issues
+        if !self.remoteCommandsConfigured {
+            self.setupRemoteCommandCenter()
+            self.remoteCommandsConfigured = true
+            Logger.audio.info("Remote command center configured (session active)")
+        }
+
+        // iOS REQUIREMENT: Setup Now Playing info AFTER audio session is active
+        // Setting Now Playing before session activation causes:
+        // - Lock screen controls may not appear
+        // - Metadata may not display correctly
+        // This is why we deferred setup from load() to play()
+        if let meditation = currentMeditation {
+            self.setupNowPlayingInfo(for: meditation, duration: self.duration.value)
+            Logger.audio.info("Now Playing info configured (session active)")
+        }
 
         player.play()
         self.state.send(.playing)
@@ -206,10 +235,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.duration.send(0)
 
         // Clear now playing info
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        self.nowPlayingProvider.nowPlayingInfo = nil
 
         // Disable remote command center to prevent ghost lock screen UI
         self.disableRemoteCommandCenter()
+
+        // Reset flag to allow remote commands to be configured on next playback session
+        // This is necessary because cleanup fully disables commands, and the next
+        // load() → play() cycle needs to reconfigure them from scratch
+        self.remoteCommandsConfigured = false
 
         // Release audio session
         self.coordinator.releaseAudioSession(for: .guidedMeditation)
@@ -218,10 +252,16 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     // MARK: Private
 
     private let coordinator: AudioSessionCoordinatorProtocol
+    private let nowPlayingProvider: NowPlayingInfoProvider
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var currentMeditation: GuidedMeditation?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Tracks whether Remote Command Center has been configured for current playback session.
+    /// Reset to false in cleanup() to allow reconfiguration after full cleanup.
+    /// Prevents duplicate configuration on pause/resume cycles within same session.
+    private var remoteCommandsConfigured = false
 
     /// Disables all remote command center controls
     private func disableRemoteCommandCenter() {
@@ -269,23 +309,23 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        self.nowPlayingProvider.nowPlayingInfo = nowPlayingInfo
     }
 
     private func updateNowPlayingPlaybackInfo() {
-        guard var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else {
+        guard var nowPlayingInfo = self.nowPlayingProvider.nowPlayingInfo else {
             return
         }
 
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.state.value == .playing ? 1.0 : 0.0
 
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        self.nowPlayingProvider.nowPlayingInfo = nowPlayingInfo
     }
 
     /// Clears Now Playing info from lock screen and control center
     private func clearNowPlayingInfo() {
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        self.nowPlayingProvider.nowPlayingInfo = nil
     }
 
     private func handlePlaybackFinished() {
@@ -337,6 +377,8 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.pause()
         self.clearNowPlayingInfo()
         self.disableRemoteCommandCenter()
+        // Release audio session to prevent energy waste and ensure clean ownership transfer
+        self.coordinator.releaseAudioSession(for: .guidedMeditation)
     }
 
     /// Registers conflict handler to stop playback when another source becomes active

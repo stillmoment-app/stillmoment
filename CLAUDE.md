@@ -502,8 +502,22 @@ AudioSessionCoordinator.shared (singleton)
 **Integration**:
 - `AudioService` (timer) uses `.timer` source
 - `AudioPlayerService` (guided meditations) uses `.guidedMeditation` source
-- Both services have Combine subscriptions that pause when another source becomes active
+- Both services handle conflicts when another source becomes active:
+  - `AudioService`: Combine subscription to `activeSource` pauses playback
+  - `AudioPlayerService`: Conflict handler callback pauses playback and releases session
 - Coordinator centralizes audio session activation/deactivation for energy efficiency
+
+**iOS Requirements (AudioPlayerService - Lock Screen Controls)**:
+- **Now Playing info** MUST be set AFTER audio session is active
+- **Remote Command Center** MUST be configured AFTER audio session is active
+- **One-time setup**: `remoteCommandsConfigured` flag prevents duplicate configuration on pause/resume
+- **Conflict handler** releases audio session to prevent energy waste and ensure clean ownership transfer
+- **Sequence**: `requestAudioSession()` → `setupRemoteCommandCenter()` → `setupNowPlayingInfo()` → `play()`
+- **Why**: iOS fails to display lock screen controls if configured before session activation
+- **Interruption Handling**: Audio interruptions (phone calls, alerts) are handled via `AVAudioSession.interruptionNotification`:
+  - `.began`: Playback pauses automatically
+  - `.ended` with `.shouldResume`: Playback resumes automatically if appropriate
+  - Interruptions during setup sequence are safe: iOS serializes audio events on main thread, ensuring atomic execution of the setup sequence
 
 **Benefits**:
 - ✅ No simultaneous playback conflicts
@@ -511,6 +525,8 @@ AudioSessionCoordinator.shared (singleton)
 - ✅ Automatic coordination between tabs
 - ✅ Centralized audio session management
 - ✅ Energy efficient (deactivates when idle)
+- ✅ Prevents ghost lock screen UI after conflicts
+- ✅ Proper lock screen controls for guided meditations
 
 ### Settings Management
 

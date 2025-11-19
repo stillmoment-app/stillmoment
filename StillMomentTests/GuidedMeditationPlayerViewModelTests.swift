@@ -54,7 +54,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.currentTime, 0)
         XCTAssertEqual(self.sut.duration, 0)
         XCTAssertNil(self.sut.errorMessage)
-        XCTAssertTrue(self.mockPlayerService.setupRemoteCommandCenterCalled)
+        // Remote commands are NOT configured on init anymore (moved to play())
+        XCTAssertFalse(self.mockPlayerService.setupRemoteCommandCenterCalled)
     }
 
     // MARK: - Load Audio Tests

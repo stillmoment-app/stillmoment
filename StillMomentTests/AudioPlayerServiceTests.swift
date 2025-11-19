@@ -9,63 +9,9 @@ import MediaPlayer
 import XCTest
 @testable import StillMoment
 
-// MARK: - Mock Audio Session Coordinator
-
-final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
-    // MARK: Internal
-
-    let activeSource = CurrentValueSubject<AudioSource?, Never>(nil)
-    var requestedSources: [AudioSource] = []
-    var releasedSources: [AudioSource] = []
-    var activationCount = 0
-    var deactivationCount = 0
-    var shouldFailActivation = false
-
-    func registerConflictHandler(for source: AudioSource, handler: @escaping () -> Void) {
-        self.conflictHandlers[source] = handler
-    }
-
-    func requestAudioSession(for source: AudioSource) throws -> Bool {
-        self.requestedSources.append(source)
-
-        if self.shouldFailActivation {
-            throw AudioSessionCoordinatorError.sessionActivationFailed
-        }
-
-        // If another source is active, call its conflict handler
-        if let currentSource = activeSource.value, currentSource != source {
-            self.conflictHandlers[currentSource]?()
-        }
-
-        self.activeSource.send(source)
-        return true
-    }
-
-    func releaseAudioSession(for source: AudioSource) {
-        self.releasedSources.append(source)
-        if self.activeSource.value == source {
-            self.activeSource.send(nil)
-        }
-    }
-
-    func activateAudioSession() throws {
-        self.activationCount += 1
-        if self.shouldFailActivation {
-            throw AudioSessionCoordinatorError.sessionActivationFailed
-        }
-    }
-
-    func deactivateAudioSession() {
-        self.deactivationCount += 1
-    }
-
-    // MARK: Private
-
-    private var conflictHandlers: [AudioSource: () -> Void] = [:]
-}
-
 // MARK: - AudioPlayerServiceTests
 
+// swiftlint:disable file_length type_body_length
 final class AudioPlayerServiceTests: XCTestCase {
     // MARK: Internal
 
@@ -74,13 +20,19 @@ final class AudioPlayerServiceTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockCoordinator: MockAudioSessionCoordinator!
     // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockNowPlayingProvider: MockNowPlayingInfoProvider!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
 
     @MainActor
     override func setUp() {
         super.setUp()
         self.mockCoordinator = MockAudioSessionCoordinator()
-        self.sut = AudioPlayerService(coordinator: self.mockCoordinator)
+        self.mockNowPlayingProvider = MockNowPlayingInfoProvider()
+        self.sut = AudioPlayerService(
+            coordinator: self.mockCoordinator,
+            nowPlayingProvider: self.mockNowPlayingProvider
+        )
         self.cancellables = Set<AnyCancellable>()
     }
 
@@ -89,6 +41,7 @@ final class AudioPlayerServiceTests: XCTestCase {
         self.cancellables.removeAll()
         self.cancellables = nil
         self.sut = nil
+        self.mockNowPlayingProvider = nil
         self.mockCoordinator = nil
         super.tearDown()
     }
@@ -252,14 +205,14 @@ final class AudioPlayerServiceTests: XCTestCase {
         try? self.sut.play()
 
         // Verify Now Playing info is set
-        XCTAssertNotNil(MPNowPlayingInfoCenter.default().nowPlayingInfo)
+        XCTAssertNotNil(self.mockNowPlayingProvider.nowPlayingInfo)
 
         // When
         self.sut.stop()
 
         // Then - Now Playing info should be cleared
         XCTAssertNil(
-            MPNowPlayingInfoCenter.default().nowPlayingInfo,
+            self.mockNowPlayingProvider.nowPlayingInfo,
             "Now Playing info should be cleared when meditation is stopped"
         )
     }
@@ -499,7 +452,7 @@ final class AudioPlayerServiceTests: XCTestCase {
         XCTAssertEqual(self.sut.state.value, .playing)
 
         // Verify Now Playing info is set
-        XCTAssertNotNil(MPNowPlayingInfoCenter.default().nowPlayingInfo)
+        XCTAssertNotNil(self.mockNowPlayingProvider.nowPlayingInfo)
 
         // When - Another source (timer) requests audio session
         let granted = try? self.mockCoordinator.requestAudioSession(for: .timer)
@@ -507,8 +460,200 @@ final class AudioPlayerServiceTests: XCTestCase {
 
         // Then - Now Playing info should be cleared
         XCTAssertNil(
-            MPNowPlayingInfoCenter.default().nowPlayingInfo,
+            self.mockNowPlayingProvider.nowPlayingInfo,
             "Now Playing info should be cleared when another audio source takes over"
+        )
+    }
+
+    @MainActor
+    func testConflictHandlerReleasesAudioSession() async throws {
+        // Given - Load and play
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        try? self.sut.play()
+
+        // Reset release tracking
+        self.mockCoordinator.releasedSources.removeAll()
+
+        // When - Another source requests session (triggers conflict handler)
+        _ = try? self.mockCoordinator.requestAudioSession(for: .timer)
+
+        // Then - Audio session should be released
+        XCTAssertTrue(
+            self.mockCoordinator.releasedSources.contains(.guidedMeditation),
+            "Conflict handler should release audio session when another source takes over"
+        )
+    }
+
+    @MainActor
+    func testPlaySetsNowPlayingInfoAfterSessionActivation() async {
+        // Given - Load meditation
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+
+        // Verify Now Playing info is NOT set after load
+        XCTAssertNil(
+            self.mockNowPlayingProvider.nowPlayingInfo,
+            "Now Playing info should NOT be set during load (session not active yet)"
+        )
+
+        // When - Play starts
+        try? self.sut.play()
+
+        // Then - Now Playing info should be set
+        let nowPlaying = self.mockNowPlayingProvider.nowPlayingInfo
+        XCTAssertNotNil(nowPlaying, "Now Playing info should be set during play (session is active)")
+        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyTitle] as? String, meditation.effectiveName)
+        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyArtist] as? String, meditation.effectiveTeacher)
+    }
+
+    @MainActor
+    func testPlayConfiguresRemoteCommandCenterOnce() async {
+        // Given - Load meditation
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+        XCTAssertFalse(
+            commandCenter.playCommand.isEnabled,
+            "Commands should NOT be enabled after load"
+        )
+
+        // When - Play for first time
+        try? self.sut.play()
+
+        // Then - Commands should be enabled
+        XCTAssertTrue(
+            commandCenter.playCommand.isEnabled,
+            "Commands should be enabled during first play"
+        )
+
+        // When - Pause and play again
+        self.sut.pause()
+        try? self.sut.play()
+
+        // Then - Commands should still be enabled (not reconfigured)
+        XCTAssertTrue(
+            commandCenter.playCommand.isEnabled,
+            "Commands should remain enabled on subsequent play calls"
+        )
+    }
+
+    @MainActor
+    func testRapidPlayCallsDoNotDuplicateSetup() async {
+        // Given - Load meditation
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        // When - Call play() multiple times rapidly
+        try? self.sut.play()
+        let firstSetupEnabled = commandCenter.playCommand.isEnabled
+
+        try? self.sut.play()
+        try? self.sut.play()
+
+        // Then - Commands should still be enabled (not broken by duplicate setup)
+        XCTAssertTrue(firstSetupEnabled, "Commands should be enabled after first play")
+        XCTAssertTrue(
+            commandCenter.playCommand.isEnabled,
+            "Commands should remain enabled after rapid play() calls"
+        )
+
+        // And - Now Playing info should be set (not cleared by duplicate setup)
+        XCTAssertNotNil(
+            self.mockNowPlayingProvider.nowPlayingInfo,
+            "Now Playing info should be set and not cleared by rapid play() calls"
+        )
+    }
+
+    @MainActor
+    func testPlayFailsWhenSessionActivationFails() async {
+        // Given - Load meditation and configure coordinator to fail
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+
+        self.mockCoordinator.shouldFailActivation = true
+
+        // When - Attempt to play
+        var thrownError: Error?
+        do {
+            try self.sut.play()
+            XCTFail("play() should throw when session activation fails")
+        } catch {
+            thrownError = error
+        }
+
+        // Then - Should throw AudioSessionCoordinatorError
+        XCTAssertNotNil(thrownError, "play() should throw an error")
+        XCTAssertTrue(
+            thrownError is AudioSessionCoordinatorError,
+            "Should throw AudioSessionCoordinatorError when session activation fails"
+        )
+
+        // And - Remote commands should NOT be configured
+        let commandCenter = MPRemoteCommandCenter.shared()
+        XCTAssertFalse(
+            commandCenter.playCommand.isEnabled,
+            "Remote commands should NOT be configured when session activation fails"
+        )
+
+        // And - Now Playing info should NOT be set
+        XCTAssertNil(
+            self.mockNowPlayingProvider.nowPlayingInfo,
+            "Now Playing info should NOT be set when session activation fails"
+        )
+    }
+
+    @MainActor
+    func testCleanupResetsRemoteCommandsConfiguredFlag() async {
+        // Given - Load and play
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+        try? self.sut.play()
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+        XCTAssertTrue(commandCenter.playCommand.isEnabled)
+
+        // When - Cleanup
+        self.sut.cleanup()
+
+        // Then - Commands should be disabled
+        XCTAssertFalse(commandCenter.playCommand.isEnabled)
+
+        // When - Load and play again (tests flag reset)
+        try? await self.sut.load(url: url, meditation: meditation)
+        try? self.sut.play()
+
+        // Then - Commands should be enabled again
+        XCTAssertTrue(
+            commandCenter.playCommand.isEnabled,
+            "Commands should be configured again after cleanup (flag was reset)"
         )
     }
 

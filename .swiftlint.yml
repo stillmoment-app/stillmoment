@@ -70,6 +70,7 @@ opt_in_rules:
 # Disabled rules (we want strict quality)
 disabled_rules:
   - todo # Allow TODOs during development
+  - blanket_disable_command # Allow disabling rules for comprehensive test files
 
 # Rule configurations
 line_length:

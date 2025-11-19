@@ -106,6 +106,13 @@ protocol AudioPlayerServiceProtocol {
     func configureAudioSession() throws
 
     /// Sets up remote command center for lock screen controls
+    ///
+    /// - Important: This method must be called AFTER the audio session is activated.
+    ///   iOS requires the audio session to be active before Remote Command Center
+    ///   configuration for lock screen controls to work correctly.
+    ///
+    /// - Note: In typical usage, this is called automatically by `play()` after
+    ///   requesting the audio session from the coordinator.
     func setupRemoteCommandCenter()
 
     /// Cleans up resources (call when done with player)
