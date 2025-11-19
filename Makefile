@@ -1,4 +1,4 @@
-.PHONY: help format lint test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup screenshots
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup screenshots
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -12,6 +12,12 @@ format: ## Format code with SwiftFormat
 lint: ## Lint code with SwiftLint (strict mode)
 	@echo "🔍 Linting code..."
 	@swiftlint lint --strict
+
+check-localization: ## Check for hardcoded UI strings in code (should be localized)
+	@./scripts/check-localization.sh
+
+validate-localization: ## Validate localization files for completeness and consistency
+	@./scripts/validate-localization.sh
 
 test: ## Run all tests (unit + UI) with coverage report
 	@./scripts/run-tests.sh
@@ -48,10 +54,10 @@ setup: ## Setup development environment (one-time setup)
 	@echo "🚀 Setting up development environment..."
 	@./scripts/setup-hooks.sh
 
-check: format lint ## Run format and lint checks
+check: format lint check-localization validate-localization ## Run format, lint, and localization checks
 	@echo "✅ All checks passed!"
 
-commit-check: format lint ## Pre-commit checks (format + lint)
+commit-check: format lint check-localization validate-localization ## Pre-commit checks (format + lint + localization)
 	@echo "✅ Ready to commit!"
 
 screenshots: ## INTERACTIVE: Generate all screenshots with guided prompts

@@ -119,18 +119,22 @@ struct TimerView: View {
         var components: [String] = []
 
         if minutes > 0 {
-            components.append("\(minutes) \(minutes == 1 ? "minute" : "minutes")")
+            let minutesKey = minutes == 1 ? "time.minute" : "time.minutes"
+            components.append(String(format: NSLocalizedString(minutesKey, comment: ""), minutes))
         }
 
         if seconds > 0 {
-            components.append("\(seconds) \(seconds == 1 ? "second" : "seconds")")
+            let secondsKey = seconds == 1 ? "time.second" : "time.seconds"
+            components.append(String(format: NSLocalizedString(secondsKey, comment: ""), seconds))
         }
 
         if components.isEmpty {
-            return "Zero seconds remaining"
+            return NSLocalizedString("time.zeroRemaining", comment: "")
         }
 
-        return components.joined(separator: " and ") + " remaining"
+        let andSeparator = NSLocalizedString("common.and", comment: "")
+        let remaining = NSLocalizedString("time.remaining", comment: "")
+        return components.joined(separator: " \(andSeparator) ") + " \(remaining)"
     }
 
     private var accessibilityStateLabel: String {
@@ -161,7 +165,10 @@ struct TimerView: View {
                 .foregroundColor(.warmBlack)
                 .accessibilityIdentifier("timer.duration.question")
 
-            Picker("Minutes", selection: self.$viewModel.selectedMinutes) {
+            Picker(
+                NSLocalizedString("accessibility.durationPicker.label", comment: ""),
+                selection: self.$viewModel.selectedMinutes
+            ) {
                 ForEach(1...60, id: \.self) { minute in
                     Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
                         .tag(minute)
@@ -196,7 +203,10 @@ struct TimerView: View {
                         .foregroundColor(.warmBlack)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
-                        .accessibilityLabel("Countdown: \(self.viewModel.countdownSeconds) seconds")
+                        .accessibilityLabel(String(
+                            format: NSLocalizedString("accessibility.countdown", comment: ""),
+                            self.viewModel.countdownSeconds
+                        ))
                 } else {
                     // Regular Timer Display
                     Circle()
@@ -220,7 +230,10 @@ struct TimerView: View {
                         .foregroundColor(.warmBlack)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
-                        .accessibilityLabel("Remaining time: \(self.viewModel.formattedTime)")
+                        .accessibilityLabel(String(
+                            format: NSLocalizedString("accessibility.remainingTime", comment: ""),
+                            self.viewModel.formattedTime
+                        ))
                         .accessibilityValue(self.accessibilityTimeValue)
                 }
             }

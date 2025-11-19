@@ -76,8 +76,11 @@ struct GuidedMeditationsListView: View {
         .sheet(item: self.$selectedMeditation) { meditation in
             GuidedMeditationPlayerView(meditation: meditation)
         }
-        .alert("Error", isPresented: .constant(self.viewModel.errorMessage != nil)) {
-            Button("OK") {
+        .alert(
+            NSLocalizedString("common.error", comment: ""),
+            isPresented: .constant(self.viewModel.errorMessage != nil)
+        ) {
+            Button(NSLocalizedString("common.ok", comment: "")) {
                 self.viewModel.errorMessage = nil
             }
         } message: {

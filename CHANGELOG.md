@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Localization Automation** - Quality gates for UI string management
+  - `scripts/check-localization.sh` - Scans code for hardcoded UI strings (CI-blocking)
+  - `scripts/validate-localization.sh` - Validates .strings file completeness using Apple's `plutil`
+  - Makefile targets: `make check-localization` and `make validate-localization`
+  - Both checks integrated into `make check` workflow and pre-commit hooks
+  - Detects common bugs: hardcoded strings, missing translations, placeholder mismatches
+  - Protection against string interpolation bug in SwiftUI Text()
+
+- **Localization Keys** - Common UI elements
+  - Added 7 new keys for common UI patterns:
+    - `common.error`, `common.ok`, `common.cancel` - Dialog buttons
+    - `common.save`, `common.close` - Action buttons
+    - `common.and` - Text joining in accessibility strings
+    - `accessibility.durationPicker.label` - Picker label
+  - All keys added to both German and English localization files
+  - Total: 109 localization keys fully synchronized (100% coverage)
+
+### Changed
+- **Localization Coverage** - All UI strings now localized
+  - `TimerView.swift` - Fixed accessibility time announcements (VoiceOver)
+  - `GuidedMeditationsListView.swift` - Localized error alert dialogs
+  - `GuidedMeditationPlayerView.swift` - Localized error alerts and close button
+  - `GuidedMeditationEditSheet.swift` - Localized Cancel/Save buttons
+  - Zero hardcoded UI strings remain in codebase
+
+### Fixed
+- **GuidedMeditationEditSheet** - String interpolation bug
+  - Fixed "Original:" label showing localization key instead of translation
+  - Bug: `Text("guided_meditations.edit.original: \(value)")` showed literal key
+  - Solution: Use `String(format: NSLocalizedString(...), value)` for interpolation
+  - Now properly displays "Original: {value}" in both German and English
+  - Automated check added to prevent this bug pattern in future
+
 ## [0.5.0] - 2025-11-07 (Multi-Feature Architecture mit TabView)
 
 ### Changed

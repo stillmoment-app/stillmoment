@@ -60,6 +60,11 @@ make format                        # Format code (required before commit)
 make lint                          # Lint code (strict, must pass)
 make check                         # Run both format + lint
 
+# Localization (i18n)
+make check-localization            # Find hardcoded UI strings in code
+make validate-localization         # Validate .strings file completeness
+make check                         # Includes localization checks
+
 # Testing
 make test                          # Run all tests (unit + UI) with coverage
 make test-unit                     # Run unit tests only (faster, skip UI tests)
@@ -380,15 +385,24 @@ All jobs run in **parallel** on GitHub Actions with macOS-26 runners:
 
 ### Before Every Commit
 ```bash
-make format              # Format code
-make lint                # Check quality
-make test-unit           # Run unit tests (fast)
-make test-report         # Verify coverage ≥80%
+make format                    # Format code
+make lint                      # Check quality
+make check-localization        # Find hardcoded UI strings
+make validate-localization     # Validate .strings files
+make test-unit                 # Run unit tests (fast)
+make test-report               # Verify coverage ≥80%
 ```
 
-**Alternative (slower, includes UI tests):**
+**Alternative (shortcut that runs all checks):**
 ```bash
-make test                # Full test suite (unit + UI)
+make check                     # Format + lint + localization checks
+make test-unit                 # Unit tests
+make test-report               # Coverage report
+```
+
+**Full validation (includes UI tests, slower):**
+```bash
+make test                      # Full test suite (unit + UI + coverage)
 ```
 
 Pre-commit hooks will block commits if quality gates fail.
@@ -615,14 +629,50 @@ make screenshots                   # Generate all screenshots (5-10 min)
 **Auto-Detection**: Uses iOS system language setting
 
 **Localization Files**:
-- `Still Moment/Resources/de.lproj/Localizable.strings`
-- `Still Moment/Resources/en.lproj/Localizable.strings`
+- `StillMoment/Resources/de.lproj/Localizable.strings`
+- `StillMoment/Resources/en.lproj/Localizable.strings`
 
 **Usage**:
 ```swift
 Text("welcome.title", bundle: .main)
 NSLocalizedString("button.start", comment: "")
+Text(String(format: NSLocalizedString("time.minutes", comment: ""), minutes))
 ```
+
+**Localization Workflow**:
+```bash
+# 1. Check for hardcoded strings (finds Text("Hardcoded String"))
+make check-localization
+
+# 2. Validate .strings files (completeness & consistency)
+make validate-localization
+
+# 3. Run both checks (included in `make check`)
+make check
+```
+
+**Key Categories** (109 total keys):
+- `common.*` - Common UI elements (error, ok, cancel, save, close, and)
+- `button.*` - Button labels (start, pause, resume, reset, settings, done)
+- `tab.*` - Tab bar labels and accessibility
+- `state.*` - Timer state messages
+- `settings.*` - Settings view strings
+- `time.*` - Time formatting (minutes, seconds, remaining)
+- `accessibility.*` - VoiceOver labels and hints (28 keys)
+- `guided_meditations.*` - Guided meditations feature (30 keys)
+
+**Guidelines**:
+- ✅ ALL user-facing text MUST be localized
+- ✅ Use `NSLocalizedString()` or `Text("key")` for all UI strings
+- ✅ Add keys to BOTH `de.lproj` and `en.lproj`
+- ✅ Use `String(format:)` for string interpolation
+- ❌ NO hardcoded UI strings (`Text("Hardcoded")`)
+- ❌ NO direct interpolation in keys (`Text("key: \(value)")`)
+
+**Automated Checks**:
+- `check-localization.sh` - Scans code for hardcoded strings (CI-blocking)
+- `validate-localization.sh` - Validates .strings files with `plutil` (CI-blocking)
+- Both integrated into `make check` and pre-commit hooks
 
 ## Design System (v0.3)
 

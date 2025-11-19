@@ -150,15 +150,18 @@ struct GuidedMeditationPlayerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button(NSLocalizedString("common.close", comment: "")) {
                         self.viewModel.cleanup()
                         self.dismiss()
                     }
                     .foregroundColor(.warmGray)
                 }
             }
-            .alert("Error", isPresented: .constant(self.viewModel.errorMessage != nil)) {
-                Button("OK") {
+            .alert(
+                NSLocalizedString("common.error", comment: ""),
+                isPresented: .constant(self.viewModel.errorMessage != nil)
+            ) {
+                Button(NSLocalizedString("common.ok", comment: "")) {
                     self.viewModel.errorMessage = nil
                 }
             } message: {

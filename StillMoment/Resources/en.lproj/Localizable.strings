@@ -19,6 +19,15 @@
 "button.settings" = "Settings";
 "button.done" = "Done";
 
+// MARK: - Common UI Elements
+
+"common.error" = "Error";
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.close" = "Close";
+"common.and" = "and";
+
 // MARK: - Tab Bar
 
 "tab.timer" = "Timer";
@@ -85,6 +94,7 @@
 "accessibility.resetTimer.hint" = "Resets the timer to its initial state";
 "accessibility.durationPicker" = "Meditation duration picker";
 "accessibility.durationPicker.hint" = "Select the duration for your meditation session in minutes";
+"accessibility.durationPicker.label" = "Minutes";
 "accessibility.countdown" = "Countdown: %d seconds";
 "accessibility.remainingTime" = "Remaining time: %@";
 "accessibility.timerState.idle" = "Timer is ready to start";

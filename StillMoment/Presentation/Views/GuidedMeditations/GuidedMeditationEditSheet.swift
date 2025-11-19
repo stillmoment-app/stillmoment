@@ -47,9 +47,12 @@ struct GuidedMeditationEditSheet: View {
                             .accessibilityLabel("guided_meditations.edit.teacher")
 
                         if self.meditation.teacher != self.customTeacher {
-                            Text("guided_meditations.edit.original: \(self.meditation.teacher)")
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.secondary)
+                            Text(String(
+                                format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
+                                self.meditation.teacher
+                            ))
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -63,9 +66,12 @@ struct GuidedMeditationEditSheet: View {
                             .accessibilityLabel("guided_meditations.edit.name")
 
                         if self.meditation.name != self.customName {
-                            Text("guided_meditations.edit.original: \(self.meditation.name)")
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.secondary)
+                            Text(String(
+                                format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
+                                self.meditation.name
+                            ))
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -107,13 +113,13 @@ struct GuidedMeditationEditSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(NSLocalizedString("common.cancel", comment: "")) {
                         self.onCancel()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(NSLocalizedString("common.save", comment: "")) {
                         self.saveChanges()
                     }
                     .disabled(!self.isValid)
