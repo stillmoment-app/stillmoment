@@ -1,4 +1,4 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures coverage test-report simulator-reset test-clean test-clean-unit setup screenshots
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean test-clean-unit setup check screenshots
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -56,9 +56,6 @@ setup: ## Setup development environment (one-time setup)
 
 check: format lint check-localization validate-localization ## Run format, lint, and localization checks
 	@echo "✅ All checks passed!"
-
-commit-check: format lint check-localization validate-localization ## Pre-commit checks (format + lint + localization)
-	@echo "✅ Ready to commit!"
 
 screenshots: ## INTERACTIVE: Generate all screenshots with guided prompts
 	@./scripts/take-screenshots-interactive.sh
