@@ -37,77 +37,88 @@ struct GuidedMeditationEditSheet: View {
 
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("guided_meditations.edit.teacher")
-                            .font(.system(.subheadline, design: .rounded, weight: .medium))
+            ZStack {
+                // Warm gradient background (consistent with other views)
+                Color.warmGradient
+                    .ignoresSafeArea()
 
-                        TextField("guided_meditations.edit.teacherPlaceholder", text: self.$customTeacher)
-                            .accessibilityLabel("guided_meditations.edit.teacher")
-
-                        if self.meditation.teacher != self.customTeacher {
-                            Text(String(
-                                format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
-                                self.meditation.teacher
-                            ))
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("guided_meditations.edit.name")
-                            .font(.system(.subheadline, design: .rounded, weight: .medium))
-
-                        TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
-                            .accessibilityLabel("guided_meditations.edit.name")
-
-                        if self.meditation.name != self.customName {
-                            Text(String(
-                                format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
-                                self.meditation.name
-                            ))
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Section {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("guided_meditations.edit.file")
+                Form {
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("guided_meditations.edit.teacher")
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                            Spacer()
-                            Text(self.meditation.fileName)
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.secondary)
-                        }
+                                .foregroundColor(.textPrimary)
 
-                        HStack {
-                            Text("guided_meditations.edit.duration")
+                            TextField("guided_meditations.edit.teacherPlaceholder", text: self.$customTeacher)
+                                .accessibilityLabel("guided_meditations.edit.teacher")
+
+                            if self.meditation.teacher != self.customTeacher {
+                                Text(String(
+                                    format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
+                                    self.meditation.teacher
+                                ))
+                                .font(.system(.caption, design: .rounded))
+                                .foregroundColor(.textSecondary)
+                            }
+                        }
+                    }
+
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("guided_meditations.edit.name")
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                            Spacer()
-                            Text(self.meditation.formattedDuration)
+                                .foregroundColor(.textPrimary)
+
+                            TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
+                                .accessibilityLabel("guided_meditations.edit.name")
+
+                            if self.meditation.name != self.customName {
+                                Text(String(
+                                    format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
+                                    self.meditation.name
+                                ))
                                 .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
+                            }
                         }
                     }
-                } header: {
-                    Text("guided_meditations.edit.fileInfo")
-                }
 
-                Section {
-                    Button(role: .destructive) {
-                        self.resetToOriginal()
-                    } label: {
-                        Text("guided_meditations.edit.reset")
+                    Section {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("guided_meditations.edit.file")
+                                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                                    .foregroundColor(.textPrimary)
+                                Spacer()
+                                Text(self.meditation.fileName)
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundColor(.textSecondary)
+                            }
+
+                            HStack {
+                                Text("guided_meditations.edit.duration")
+                                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                                    .foregroundColor(.textPrimary)
+                                Spacer()
+                                Text(self.meditation.formattedDuration)
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundColor(.textSecondary)
+                            }
+                        }
+                    } header: {
+                        Text("guided_meditations.edit.fileInfo")
                     }
-                    .disabled(!self.hasChanges)
+
+                    Section {
+                        Button(role: .destructive) {
+                            self.resetToOriginal()
+                        } label: {
+                            Text("guided_meditations.edit.reset")
+                        }
+                        .disabled(!self.hasChanges)
+                    }
                 }
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("guided_meditations.edit.title")
             .navigationBarTitleDisplayMode(.inline)
@@ -116,12 +127,14 @@ struct GuidedMeditationEditSheet: View {
                     Button(NSLocalizedString("common.cancel", comment: "")) {
                         self.onCancel()
                     }
+                    .foregroundColor(.textSecondary)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(NSLocalizedString("common.save", comment: "")) {
                         self.saveChanges()
                     }
+                    .tint(.interactive)
                     .disabled(!self.isValid)
                 }
             }

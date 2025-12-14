@@ -567,6 +567,8 @@ struct MeditationSettings {
 | **CONTRIBUTING.md** | Contributor guide | ✅ Yes |
 | **CRITICAL_CODE.md** | Testing priorities checklist | ✅ Yes |
 | **dev-docs/SCREENSHOTS.md** | Screenshot automation guide | ✅ Yes |
+| **dev-docs/COLOR_SYSTEM.md** | Color system & semantic roles | ✅ Yes |
+| **dev-docs/TDD_GUIDE.md** | Test-driven development workflow | ✅ Yes |
 
 ## Project Status & Roadmap
 
@@ -690,11 +692,49 @@ make check
 - `validate-localization.sh` - Validates .strings files with `plutil` (CI-blocking)
 - Both integrated into `make check` and pre-commit hooks
 
-## Design System (v0.3)
+## Design System (v0.4)
 
-**Colors**: Warm earth tones (Terracotta #D4876F, Warm Sand #F5E6D3)
 **Typography**: SF Pro Rounded system-wide
 **Accessibility**: WCAG AA compliant (4.5:1+ contrast)
+**Color Mode**: Light Mode only (enforced via `.preferredColorScheme(.light)`)
+
+### Color System (CRITICAL)
+
+**Full documentation**: See `dev-docs/COLOR_SYSTEM.md`
+
+**Rule**: NEVER use direct colors - always use semantic roles from `Color+Theme.swift`:
+
+```swift
+// ❌ WRONG - direct colors
+.foregroundColor(.warmBlack)
+.foregroundColor(.terracotta)
+
+// ✅ CORRECT - semantic roles
+.foregroundColor(.textPrimary)
+.foregroundColor(.interactive)
+```
+
+**Semantic Color Roles**:
+| Role | Usage |
+|------|-------|
+| `.textPrimary` | Main text, headings |
+| `.textSecondary` | Secondary text, hints, toolbar icons |
+| `.textOnInteractive` | Text on colored buttons |
+| `.interactive` | Buttons, icons, sliders, links |
+| `.progress` | Timer ring, progress indicators |
+| `.error` | Error messages |
+
+**View Structure** (all views must follow):
+```swift
+ZStack {
+    Color.warmGradient.ignoresSafeArea()  // Always first
+    Form { ... }.scrollContentBackground(.hidden)  // Hide system background
+}
+```
+
+**Toolbar Button Pattern**:
+- Cancel/Close buttons: `.foregroundColor(.textSecondary)`
+- Confirm buttons (Save/Done): `.tint(.interactive)`
 
 ## Screenshot Automation
 

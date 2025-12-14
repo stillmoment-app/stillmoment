@@ -30,7 +30,7 @@ struct TimerView: View {
                 // Title
                 Text("welcome.title", bundle: .main)
                     .font(.system(size: 28, weight: .light, design: .rounded))
-                    .foregroundColor(.warmBlack)
+                    .foregroundColor(.textPrimary)
                     .padding(.horizontal)
 
                 Spacer()
@@ -55,7 +55,7 @@ struct TimerView: View {
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.warmError)
+                        .foregroundColor(.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 16)
@@ -74,7 +74,7 @@ struct TimerView: View {
                     self.showSettings = true
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(.warmGray)
+                        .foregroundColor(.textSecondary)
                         .rotationEffect(.degrees(90))
                         .frame(minWidth: 44, minHeight: 44)
                 }
@@ -163,7 +163,7 @@ struct TimerView: View {
 
             Text("duration.question", bundle: .main)
                 .font(.system(size: 20, weight: .light, design: .rounded))
-                .foregroundColor(.warmBlack)
+                .foregroundColor(.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .padding(.horizontal)
@@ -186,7 +186,7 @@ struct TimerView: View {
 
             Text("duration.footer", bundle: .main)
                 .font(.system(size: 15, weight: .light, design: .rounded))
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .italic()
                 .padding(.horizontal)
                 .padding(.top, 16)
@@ -205,7 +205,7 @@ struct TimerView: View {
 
                     Text(self.viewModel.formattedTime)
                         .font(.system(size: 100, weight: .ultraLight, design: .rounded))
-                        .foregroundColor(.warmBlack)
+                        .foregroundColor(.textPrimary)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel(String(
@@ -221,18 +221,18 @@ struct TimerView: View {
                     Circle()
                         .trim(from: 0, to: self.viewModel.progress)
                         .stroke(
-                            Color.terracotta,
+                            Color.progress,
                             style: StrokeStyle(lineWidth: 8, lineCap: .round)
                         )
                         .frame(width: 250, height: 250)
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                        .shadow(color: Color.terracotta.opacity(0.3), radius: 8, x: 0, y: 0)
+                        .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
 
                     // Time Display
                     Text(self.viewModel.formattedTime)
                         .font(.system(size: 60, weight: .thin, design: .rounded))
-                        .foregroundColor(.warmBlack)
+                        .foregroundColor(.textPrimary)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel(String(
@@ -246,7 +246,7 @@ struct TimerView: View {
             // State Indicator
             Text(self.stateText)
                 .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
 
@@ -254,7 +254,7 @@ struct TimerView: View {
             if self.viewModel.timerState == .running {
                 Text("timer.lockscreen.hint", bundle: .main)
                     .font(.system(size: 13, weight: .light, design: .rounded))
-                    .foregroundColor(.warmGray.opacity(0.7))
+                    .foregroundColor(.textSecondary.opacity(.opacityTertiary))
                     .padding(.top, 40)
             }
         }

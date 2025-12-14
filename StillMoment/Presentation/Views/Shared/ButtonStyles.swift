@@ -26,14 +26,14 @@ extension ButtonStyles {
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(.textOnInteractive)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: .buttonCornerRadiusPrimary)
-                        .fill(Color.terracotta)
+                        .fill(Color.interactive)
                         .shadow(
-                            color: Color.terracotta.opacity(0.3),
+                            color: Color.interactive.opacity(.opacityShadow),
                             radius: 20,
                             x: 0,
                             y: 8
@@ -49,12 +49,12 @@ extension ButtonStyles {
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(.warmBlack)
+                .foregroundColor(.textPrimary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: .buttonCornerRadiusSecondary)
-                        .fill(Color.warmSand.opacity(0.5))
+                        .fill(Color.backgroundSecondary.opacity(.opacitySecondary))
                 )
                 .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

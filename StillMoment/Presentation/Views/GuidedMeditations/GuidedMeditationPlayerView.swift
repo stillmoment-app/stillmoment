@@ -39,7 +39,7 @@ struct GuidedMeditationPlayerView: View {
                     VStack(spacing: 12) {
                         Text(self.viewModel.meditation.effectiveTeacher)
                             .font(.system(.title3, design: .rounded, weight: .medium))
-                            .foregroundColor(Color.terracotta)
+                            .foregroundColor(Color.interactive)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .accessibilityLabel("guided_meditations.player.teacher")
@@ -67,7 +67,7 @@ struct GuidedMeditationPlayerView: View {
                             ),
                             in: 0...max(self.viewModel.duration, 1)
                         )
-                        .tint(Color.terracotta)
+                        .tint(Color.interactive)
                         .accessibilityLabel("guided_meditations.player.progress")
                         .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
 
@@ -75,7 +75,7 @@ struct GuidedMeditationPlayerView: View {
                         HStack {
                             Text(self.viewModel.formattedCurrentTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
                                 .accessibilityLabel("guided_meditations.player.currentTime")
                                 .accessibilityValue(self.viewModel.formattedCurrentTime)
 
@@ -83,7 +83,7 @@ struct GuidedMeditationPlayerView: View {
 
                             Text(self.viewModel.formattedRemainingTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
                                 .accessibilityLabel("guided_meditations.player.remainingTime")
                                 .accessibilityValue(self.viewModel.formattedRemainingTime)
                         }
@@ -98,7 +98,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: "gobackward.15")
                                 .font(.system(size: 32, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel("guided_meditations.player.skipBackward")
 
@@ -108,7 +108,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel(
                             self.viewModel.isPlaying ?
@@ -122,7 +122,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: "goforward.15")
                                 .font(.system(size: 32, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel("guided_meditations.player.skipForward")
                     }
@@ -148,7 +148,7 @@ struct GuidedMeditationPlayerView: View {
                     ProgressView()
                         .scaleEffect(1.5)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.2))
+                        .background(Color.textPrimary.opacity(.opacityOverlay))
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -158,7 +158,7 @@ struct GuidedMeditationPlayerView: View {
                         self.viewModel.cleanup()
                         self.dismiss()
                     }
-                    .foregroundColor(.warmGray)
+                    .foregroundColor(.textSecondary)
                 }
             }
             .alert(

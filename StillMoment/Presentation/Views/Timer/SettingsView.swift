@@ -44,11 +44,11 @@ struct SettingsView: View {
                                             .font(.system(size: 17, weight: .regular, design: .rounded))
                                         Text(sound.description.localized)
                                             .font(.system(size: 13, weight: .regular, design: .rounded))
-                                            .foregroundColor(.warmGray)
+                                            .foregroundColor(.textSecondary)
                                     }
                                 } icon: {
                                     Image(systemName: sound.iconName)
-                                        .foregroundColor(.terracotta)
+                                        .foregroundColor(.interactive)
                                 }
                                 .tag(sound.id)
                                 .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
@@ -82,7 +82,7 @@ struct SettingsView: View {
                                     .font(.system(size: 17, weight: .regular, design: .rounded))
                                 Text("settings.intervalGongs.description", bundle: .main)
                                     .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundColor(.warmGray)
+                                    .foregroundColor(.textSecondary)
                             }
                         }
                         .accessibilityLabel("accessibility.intervalGongs")
@@ -121,7 +121,7 @@ struct SettingsView: View {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onDismiss()
                         }
-                        .tint(.terracotta)
+                        .tint(.interactive)
                         .accessibilityIdentifier("button.done")
                         .accessibilityLabel("accessibility.done")
                         .accessibilityHint("accessibility.done.hint")
