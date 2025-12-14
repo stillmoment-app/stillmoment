@@ -40,12 +40,16 @@ struct GuidedMeditationPlayerView: View {
                         Text(self.viewModel.meditation.effectiveTeacher)
                             .font(.system(.title3, design: .rounded, weight: .medium))
                             .foregroundColor(Color.terracotta)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                             .accessibilityLabel("guided_meditations.player.teacher")
                             .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
 
                         Text(self.viewModel.meditation.effectiveName)
                             .font(.system(.title, design: .rounded, weight: .semibold))
                             .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.7)
                             .accessibilityLabel("guided_meditations.player.title")
                             .accessibilityValue(self.viewModel.meditation.effectiveName)
                     }
@@ -187,16 +191,41 @@ struct GuidedMeditationPlayerView: View {
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
-    GuidedMeditationPlayerView(
-        meditation: GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Jon Kabat-Zinn",
-            name: "Body Scan Meditation"
-        )
-    )
+private let previewMeditation = GuidedMeditation(
+    fileBookmark: Data(),
+    fileName: "test.mp3",
+    duration: 600,
+    teacher: "Jon Kabat-Zinn",
+    name: "Body Scan Meditation"
+)
+
+private let previewMeditationLongName = GuidedMeditation(
+    fileBookmark: Data(),
+    fileName: "test.mp3",
+    duration: 600,
+    teacher: "Dr. Kristin Neff & Dr. Christopher Germer",
+    name: "Loving Kindness Meditation for Self-Compassion and Inner Peace"
+)
+
+#Preview("Default") {
+    GuidedMeditationPlayerView(meditation: previewMeditation)
+}
+
+#Preview("Long Name") {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
 }

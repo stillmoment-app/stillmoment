@@ -228,8 +228,29 @@ extension UTType {
     static let mp3 = UTType(filenameExtension: "mp3") ?? .audio
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
-    GuidedMeditationsListView()
+#Preview("Empty State") {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
 }

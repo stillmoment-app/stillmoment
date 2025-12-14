@@ -158,17 +158,44 @@ struct GuidedMeditationEditSheet: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
+private let previewMeditation = GuidedMeditation(
+    fileBookmark: Data(),
+    fileName: "test.mp3",
+    duration: 600,
+    teacher: "Jon Kabat-Zinn",
+    name: "Body Scan Meditation"
+)
+
+#Preview("Default") {
     GuidedMeditationEditSheet(
-        meditation: GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Jon Kabat-Zinn",
-            name: "Body Scan Meditation"
-        ),
+        meditation: previewMeditation,
+        onSave: { _ in },
+        onCancel: {}
+    )
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    GuidedMeditationEditSheet(
+        meditation: previewMeditation,
+        onSave: { _ in },
+        onCancel: {}
+    )
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    GuidedMeditationEditSheet(
+        meditation: previewMeditation,
+        onSave: { _ in },
+        onCancel: {}
+    )
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    GuidedMeditationEditSheet(
+        meditation: previewMeditation,
         onSave: { _ in },
         onCancel: {}
     )

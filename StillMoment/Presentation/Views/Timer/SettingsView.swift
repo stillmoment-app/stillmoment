@@ -142,22 +142,35 @@ struct SettingsView: View {
 
 // MARK: - Previews
 
+private let defaultSettings = MeditationSettings(
+    intervalGongsEnabled: false,
+    intervalMinutes: 5,
+    backgroundSoundId: "silent"
+)
+
+private let forestSettings = MeditationSettings(
+    intervalGongsEnabled: true,
+    intervalMinutes: 5,
+    backgroundSoundId: "forest"
+)
+
 #Preview("Default Settings") {
-    SettingsView(
-        settings: .constant(MeditationSettings(
-            intervalGongsEnabled: false,
-            intervalMinutes: 5,
-            backgroundSoundId: "silent"
-        ))
-    ) {}
+    SettingsView(settings: .constant(defaultSettings)) {}
 }
 
 #Preview("Forest + Intervals") {
-    SettingsView(
-        settings: .constant(MeditationSettings(
-            intervalGongsEnabled: true,
-            intervalMinutes: 5,
-            backgroundSoundId: "forest"
-        ))
-    ) {}
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    SettingsView(settings: .constant(forestSettings)) {}
 }
