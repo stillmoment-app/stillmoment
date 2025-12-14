@@ -17,10 +17,12 @@ struct GuidedMeditationEditSheet: View {
 
     init(
         meditation: GuidedMeditation,
+        availableTeachers: [String] = [],
         onSave: @escaping (GuidedMeditation) -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.meditation = meditation
+        self.availableTeachers = availableTeachers
         self.onSave = onSave
         self.onCancel = onCancel
 
@@ -32,6 +34,7 @@ struct GuidedMeditationEditSheet: View {
     // MARK: Internal
 
     let meditation: GuidedMeditation
+    let availableTeachers: [String]
     let onSave: (GuidedMeditation) -> Void
     let onCancel: () -> Void
 
@@ -49,8 +52,12 @@ struct GuidedMeditationEditSheet: View {
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundColor(.textPrimary)
 
-                            TextField("guided_meditations.edit.teacherPlaceholder", text: self.$customTeacher)
-                                .accessibilityLabel("guided_meditations.edit.teacher")
+                            AutocompleteTextField(
+                                text: self.$customTeacher,
+                                placeholder: "guided_meditations.edit.teacherPlaceholder",
+                                suggestions: self.availableTeachers,
+                                accessibilityLabel: "guided_meditations.edit.teacher"
+                            )
 
                             if self.meditation.teacher != self.customTeacher {
                                 Text(String(
@@ -184,6 +191,7 @@ private let previewMeditation = GuidedMeditation(
 #Preview("Default") {
     GuidedMeditationEditSheet(
         meditation: previewMeditation,
+        availableTeachers: ["Jon Kabat-Zinn", "Jack Kornfield", "Tara Brach", "Joseph Goldstein"],
         onSave: { _ in },
         onCancel: {}
     )

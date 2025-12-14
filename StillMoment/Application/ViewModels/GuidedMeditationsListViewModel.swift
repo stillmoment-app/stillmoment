@@ -41,6 +41,14 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var showingEditSheet = false
     @Published var meditationToEdit: GuidedMeditation?
 
+    /// Returns unique teacher names sorted alphabetically for autocomplete
+    ///
+    /// Uses `effectiveTeacher` to respect custom teacher overrides.
+    var uniqueTeachers: [String] {
+        let teachers = Set(meditations.map(\.effectiveTeacher))
+        return teachers.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+    }
+
     // MARK: - Public Methods
 
     /// Loads meditations from persistent storage
