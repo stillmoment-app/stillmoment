@@ -25,15 +25,16 @@ struct TimerView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(height: 20)
+                    .frame(minHeight: 20, maxHeight: geometry.size.height * 0.05)
 
                 // Title
                 Text("welcome.title", bundle: .main)
                     .font(.system(size: 28, weight: .light, design: .rounded))
                     .foregroundColor(.warmBlack)
+                    .padding(.horizontal)
 
                 Spacer()
-                    .frame(height: 40)
+                    .frame(minHeight: 24, maxHeight: geometry.size.height * 0.05)
 
                 // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
@@ -43,11 +44,12 @@ struct TimerView: View {
                 }
 
                 Spacer()
-                    .frame(minHeight: 40, maxHeight: .infinity)
+                    .frame(minHeight: 40, maxHeight: geometry.size.height * 0.1)
 
                 // Control Buttons
                 self.controlButtons
-                    .padding(.bottom, 16)
+                    .padding(.horizontal)
+                    .padding(.bottom, max(16, geometry.safeAreaInsets.bottom > 0 ? 8 : 16))
 
                 // Error Message
                 if let error = viewModel.errorMessage {
@@ -60,7 +62,6 @@ struct TimerView: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            .padding(.horizontal)
             .background(
                 Color.warmGradient
                     .ignoresSafeArea()
@@ -163,6 +164,9 @@ struct TimerView: View {
             Text("duration.question", bundle: .main)
                 .font(.system(size: 20, weight: .light, design: .rounded))
                 .foregroundColor(.warmBlack)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal)
                 .accessibilityIdentifier("timer.duration.question")
 
             Picker(
@@ -184,6 +188,7 @@ struct TimerView: View {
                 .font(.system(size: 15, weight: .light, design: .rounded))
                 .foregroundColor(.warmGray)
                 .italic()
+                .padding(.horizontal)
                 .padding(.top, 16)
         }
     }
@@ -300,26 +305,52 @@ struct TimerView: View {
 
 // MARK: - Previews
 
+// State Previews
 #Preview("Idle") {
-    TimerView()
+    NavigationStack {
+        TimerView()
+    }
 }
 
 #Preview("Countdown") {
-    let viewModel = TimerViewModel.preview(state: .countdown)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .countdown))
+    }
 }
 
 #Preview("Running") {
-    let viewModel = TimerViewModel.preview(state: .running)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .running))
+    }
 }
 
 #Preview("Paused") {
-    let viewModel = TimerViewModel.preview(state: .paused)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .paused))
+    }
 }
 
 #Preview("Completed") {
-    let viewModel = TimerViewModel.preview(state: .completed)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .completed))
+    }
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    NavigationStack {
+        TimerView()
+    }
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    NavigationStack {
+        TimerView()
+    }
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    NavigationStack {
+        TimerView()
+    }
 }
