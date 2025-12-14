@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Impressum - Still Moment Meditation App. Anbieterinformationen nach § 5 TMG.">
+    <meta name="keywords" content="Impressum, Legal Notice, Still Moment, Kontakt">
+    <meta name="author" content="Helmut Zechmann">
+
+    <title>Impressum - Still Moment</title>
+
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+
+    <style>
+        /* CSS Variables for App Colors */
+        :root {
+            --warm-cream: #FFF8F0;
+            --warm-sand: #F5E6D3;
+            --pale-apricot: #FFD4B8;
+            --terracotta: #D4876F;
+            --clay: #C97D60;
+            --dusty-rose: #E8B4A0;
+            --warm-black: #3D3228;
+            --warm-gray: #8B7D6B;
+            --ring-bg: #E8DDD0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--warm-black);
+            background: linear-gradient(180deg, var(--warm-cream) 0%, var(--warm-sand) 50%, var(--pale-apricot) 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 248, 240, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(61, 50, 40, 0.1);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--warm-black);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .language-switcher {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--warm-sand);
+            border-radius: 20px;
+            padding: 0.25rem;
+        }
+
+        .language-switcher button {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--warm-gray);
+            transition: all 0.3s ease;
+        }
+
+        .language-switcher button.active {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .language-switcher button:hover:not(.active) {
+            background: rgba(212, 135, 111, 0.2);
+        }
+
+        /* Main Content */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--warm-black);
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--warm-gray);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .impressum-section {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(61, 50, 40, 0.1);
+        }
+
+        .impressum-section h2 {
+            font-size: 1.8rem;
+            color: var(--warm-black);
+            margin-bottom: 1rem;
+        }
+
+        .impressum-section p {
+            color: var(--warm-gray);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .impressum-section strong {
+            color: var(--warm-black);
+        }
+
+        .impressum-section a {
+            color: var(--terracotta);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .impressum-section a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-box {
+            background: var(--warm-sand);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--terracotta);
+            margin: 1.5rem 0;
+        }
+
+        .contact-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(61, 50, 40, 0.05);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-content p {
+            color: var(--warm-gray);
+            margin-bottom: 1rem;
+        }
+
+        .footer-content a {
+            color: var(--terracotta);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .impressum-section h2 {
+                font-size: 1.5rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Hidden class for language switching */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <a href="index.html" class="logo">
+            <img src="images/app-icon.png" alt="Still Moment Logo">
+            <span>Still Moment</span>
+        </a>
+        <div class="language-switcher">
+            <button id="lang-en" onclick="switchLanguage('en')">EN</button>
+            <button id="lang-de" class="active" onclick="switchLanguage('de')">DE</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Title -->
+        <h1 class="lang-de">Impressum</h1>
+        <h1 class="lang-en hidden">Legal Notice</h1>
+
+        <p class="subtitle lang-de">Angaben gemäß § 5 TMG / § 5 DDG</p>
+        <p class="subtitle lang-en hidden">Information according to § 5 TMG / § 5 DDG (German Telemedia Act)</p>
+
+        <!-- Provider Information -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Anbieter</h2>
+            <h2 class="lang-en hidden">Provider</h2>
+
+            <div class="contact-box">
+                <p><strong>Helmut Zechmann</strong></p>
+                <p>Bekassinenstr. 66</p>
+                <p>28357 Bremen</p>
+                <p>Deutschland / Germany</p>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Kontakt</h2>
+            <h2 class="lang-en hidden">Contact</h2>
+
+            <div class="contact-box">
+                <p><strong>E-Mail:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+            </div>
+        </div>
+
+        <!-- Responsible for Content -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Verantwortlich für den Inhalt</h2>
+            <h2 class="lang-en hidden">Responsible for Content</h2>
+
+            <p class="lang-de">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:</p>
+            <p class="lang-en hidden">Responsible for content according to § 18 (2) MStV (German Interstate Media Treaty):</p>
+
+            <div class="contact-box">
+                <p><strong>Helmut Zechmann</strong></p>
+                <p>Bekassinenstr. 66</p>
+                <p>28357 Bremen</p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Haftungsausschluss</h2>
+            <h2 class="lang-en hidden">Disclaimer</h2>
+
+            <p class="lang-de"><strong>Haftung für Inhalte:</strong> Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
+            <p class="lang-en hidden"><strong>Liability for Content:</strong> The contents of our pages were created with the greatest care. However, we cannot guarantee the accuracy, completeness, and timeliness of the content.</p>
+
+            <p class="lang-de"><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+            <p class="lang-en hidden"><strong>Liability for Links:</strong> Our website contains links to external third-party websites, over whose content we have no influence. Therefore, we cannot accept any liability for this external content. The respective provider or operator of the linked pages is always responsible for the content of the linked pages.</p>
+        </div>
+
+        <!-- Copyright -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Urheberrecht</h2>
+            <h2 class="lang-en hidden">Copyright</h2>
+
+            <p class="lang-de">Still Moment ist ein Open-Source-Projekt, lizenziert unter der <a href="https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE" target="_blank">Apache License 2.0</a>. Der Quellcode ist öffentlich verfügbar auf <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a>.</p>
+            <p class="lang-en hidden">Still Moment is an open-source project, licensed under the <a href="https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE" target="_blank">Apache License 2.0</a>. The source code is publicly available on <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a>.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p class="lang-de">&copy; 2025 Still Moment. Open-Source-Projekt unter Apache-2.0-Lizenz.</p>
+            <p class="lang-en hidden">&copy; 2025 Still Moment. Open source project licensed under Apache 2.0.</p>
+            <p class="lang-de"><a href="index.html">Zurück zur Startseite</a> | <a href="privacy.html">Datenschutzerklärung</a> | <a href="support.html">Support</a></p>
+            <p class="lang-en hidden"><a href="index.html">Back to Home</a> | <a href="privacy.html">Privacy Policy</a> | <a href="support.html">Support</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Language switching functionality
+        function switchLanguage(lang) {
+            // Save preference
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Update active button
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('lang-' + lang).classList.add('active');
+
+            // Show/hide content
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+                document.documentElement.lang = 'en';
+                document.title = 'Legal Notice - Still Moment';
+            } else {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+                document.documentElement.lang = 'de';
+                document.title = 'Impressum - Still Moment';
+            }
+        }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'de';
+            switchLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
