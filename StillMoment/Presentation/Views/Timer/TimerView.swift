@@ -25,7 +25,7 @@ struct TimerView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(minHeight: 20, maxHeight: geometry.size.height * 0.05)
+                    .frame(height: max(20, geometry.size.height * 0.05))
 
                 // Title
                 Text("welcome.title", bundle: .main)
@@ -34,7 +34,7 @@ struct TimerView: View {
                     .padding(.horizontal)
 
                 Spacer()
-                    .frame(minHeight: 24, maxHeight: geometry.size.height * 0.05)
+                    .frame(height: max(24, geometry.size.height * 0.05))
 
                 // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
@@ -44,7 +44,7 @@ struct TimerView: View {
                 }
 
                 Spacer()
-                    .frame(minHeight: 40, maxHeight: geometry.size.height * 0.1)
+                    .frame(height: max(40, geometry.size.height * 0.1))
 
                 // Control Buttons
                 self.controlButtons
