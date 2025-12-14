@@ -15,7 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Config
-DEVICE="iPhone 16 Plus"
+DEVICE="iPhone 17"
 OUTPUT_DIR="docs/images/screenshots"
 BUNDLE_ID="com.stillmoment.StillMoment"
 

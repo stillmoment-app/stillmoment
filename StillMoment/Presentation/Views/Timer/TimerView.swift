@@ -25,15 +25,16 @@ struct TimerView: View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 Spacer()
-                    .frame(height: 20)
+                    .frame(minHeight: 20, maxHeight: geometry.size.height * 0.05)
 
                 // Title
                 Text("welcome.title", bundle: .main)
                     .font(.system(size: 28, weight: .light, design: .rounded))
-                    .foregroundColor(.warmBlack)
+                    .foregroundColor(.textPrimary)
+                    .padding(.horizontal)
 
                 Spacer()
-                    .frame(height: 40)
+                    .frame(minHeight: 24, maxHeight: geometry.size.height * 0.05)
 
                 // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
@@ -43,24 +44,24 @@ struct TimerView: View {
                 }
 
                 Spacer()
-                    .frame(minHeight: 40, maxHeight: .infinity)
+                    .frame(minHeight: 40, maxHeight: geometry.size.height * 0.1)
 
                 // Control Buttons
                 self.controlButtons
-                    .padding(.bottom, 16)
+                    .padding(.horizontal)
+                    .padding(.bottom, max(16, geometry.safeAreaInsets.bottom > 0 ? 8 : 16))
 
                 // Error Message
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.warmError)
+                        .foregroundColor(.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 16)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
-            .padding(.horizontal)
             .background(
                 Color.warmGradient
                     .ignoresSafeArea()
@@ -73,7 +74,7 @@ struct TimerView: View {
                     self.showSettings = true
                 } label: {
                     Image(systemName: "ellipsis")
-                        .foregroundColor(.warmGray)
+                        .foregroundColor(.textSecondary)
                         .rotationEffect(.degrees(90))
                         .frame(minWidth: 44, minHeight: 44)
                 }
@@ -162,7 +163,10 @@ struct TimerView: View {
 
             Text("duration.question", bundle: .main)
                 .font(.system(size: 20, weight: .light, design: .rounded))
-                .foregroundColor(.warmBlack)
+                .foregroundColor(.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal)
                 .accessibilityIdentifier("timer.duration.question")
 
             Picker(
@@ -182,8 +186,9 @@ struct TimerView: View {
 
             Text("duration.footer", bundle: .main)
                 .font(.system(size: 15, weight: .light, design: .rounded))
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .italic()
+                .padding(.horizontal)
                 .padding(.top, 16)
         }
     }
@@ -200,7 +205,7 @@ struct TimerView: View {
 
                     Text(self.viewModel.formattedTime)
                         .font(.system(size: 100, weight: .ultraLight, design: .rounded))
-                        .foregroundColor(.warmBlack)
+                        .foregroundColor(.textPrimary)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel(String(
@@ -216,18 +221,18 @@ struct TimerView: View {
                     Circle()
                         .trim(from: 0, to: self.viewModel.progress)
                         .stroke(
-                            Color.terracotta,
+                            Color.progress,
                             style: StrokeStyle(lineWidth: 8, lineCap: .round)
                         )
                         .frame(width: 250, height: 250)
                         .rotationEffect(.degrees(-90))
                         .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                        .shadow(color: Color.terracotta.opacity(0.3), radius: 8, x: 0, y: 0)
+                        .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
 
                     // Time Display
                     Text(self.viewModel.formattedTime)
                         .font(.system(size: 60, weight: .thin, design: .rounded))
-                        .foregroundColor(.warmBlack)
+                        .foregroundColor(.textPrimary)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel(String(
@@ -241,7 +246,7 @@ struct TimerView: View {
             // State Indicator
             Text(self.stateText)
                 .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
 
@@ -249,7 +254,7 @@ struct TimerView: View {
             if self.viewModel.timerState == .running {
                 Text("timer.lockscreen.hint", bundle: .main)
                     .font(.system(size: 13, weight: .light, design: .rounded))
-                    .foregroundColor(.warmGray.opacity(0.7))
+                    .foregroundColor(.textSecondary.opacity(.opacityTertiary))
                     .padding(.top, 40)
             }
         }
@@ -300,26 +305,52 @@ struct TimerView: View {
 
 // MARK: - Previews
 
+// State Previews
 #Preview("Idle") {
-    TimerView()
+    NavigationStack {
+        TimerView()
+    }
 }
 
 #Preview("Countdown") {
-    let viewModel = TimerViewModel.preview(state: .countdown)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .countdown))
+    }
 }
 
 #Preview("Running") {
-    let viewModel = TimerViewModel.preview(state: .running)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .running))
+    }
 }
 
 #Preview("Paused") {
-    let viewModel = TimerViewModel.preview(state: .paused)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .paused))
+    }
 }
 
 #Preview("Completed") {
-    let viewModel = TimerViewModel.preview(state: .completed)
-    TimerView(viewModel: viewModel)
+    NavigationStack {
+        TimerView(viewModel: TimerViewModel.preview(state: .completed))
+    }
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    NavigationStack {
+        TimerView()
+    }
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    NavigationStack {
+        TimerView()
+    }
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    NavigationStack {
+        TimerView()
+    }
 }

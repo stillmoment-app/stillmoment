@@ -35,7 +35,7 @@ struct GuidedMeditationsListView: View {
                 ProgressView()
                     .scaleEffect(1.5)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.2))
+                    .background(Color.textPrimary.opacity(.opacityOverlay))
             }
         }
         .navigationTitle("guided_meditations.title")
@@ -48,7 +48,7 @@ struct GuidedMeditationsListView: View {
                     Image(systemName: "plus")
                         .frame(minWidth: 44, minHeight: 44)
                 }
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .accessibilityLabel("guided_meditations.add")
             }
         }
@@ -104,15 +104,15 @@ struct GuidedMeditationsListView: View {
         VStack(spacing: 20) {
             Image(systemName: "music.note.list")
                 .font(.system(size: 60, design: .rounded))
-                .foregroundColor(Color.terracotta)
+                .foregroundColor(Color.interactive)
 
             Text("guided_meditations.empty.title")
                 .font(.system(.title2, design: .rounded, weight: .medium))
-                .foregroundColor(.warmBlack)
+                .foregroundColor(.textPrimary)
 
             Text("guided_meditations.empty.message")
                 .font(.system(.body, design: .rounded))
-                .foregroundColor(.warmGray)
+                .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -156,11 +156,11 @@ struct GuidedMeditationsListView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
                         .font(.system(.body, design: .rounded, weight: .medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.textPrimary)
 
                     Text(meditation.formattedDuration)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.textSecondary)
                 }
 
                 Spacer()
@@ -169,7 +169,7 @@ struct GuidedMeditationsListView: View {
                     self.viewModel.showEditSheet(for: meditation)
                 } label: {
                     Image(systemName: "pencil")
-                        .foregroundColor(Color.terracotta)
+                        .foregroundColor(Color.interactive)
                         .frame(minWidth: 44, minHeight: 44)
                 }
                 .buttonStyle(.plain)
@@ -228,8 +228,29 @@ extension UTType {
     static let mp3 = UTType(filenameExtension: "mp3") ?? .audio
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
-    GuidedMeditationsListView()
+#Preview("Empty State") {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    NavigationStack {
+        GuidedMeditationsListView()
+    }
 }

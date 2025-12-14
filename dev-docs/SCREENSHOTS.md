@@ -8,7 +8,7 @@ Screenshots are generated using an **interactive manual approach** with simulato
 
 - ✅ Guides you through capturing all app states
 - ✅ Supports **German (de)** and **English (en)**
-- ✅ Uses **iPhone 16 Plus** simulator
+- ✅ Uses **iPhone 17** simulator
 - ✅ Outputs directly to `docs/images/screenshots/` for website
 - ✅ Simple, reliable, no complex dependencies
 
@@ -22,7 +22,7 @@ make screenshots
 
 The interactive tool will:
 
-1. Launch iPhone 16 Plus simulator
+1. Launch iPhone 17 simulator
 2. Prompt you to select language (EN, DE, or both)
 3. Guide you through each app state with instructions
 4. Capture screenshots as you navigate
@@ -51,7 +51,7 @@ The script (`scripts/take-screenshots-interactive.sh`) uses direct simulator com
 
 1. **Find and boot simulator**
    ```bash
-   xcrun simctl boot "iPhone 16 Plus"
+   xcrun simctl boot "iPhone 17"
    ```
 
 2. **Set language**
@@ -166,7 +166,7 @@ The app auto-extracts metadata (teacher name, duration) from the file.
 
 Edit `scripts/take-screenshots-interactive.sh`:
 ```bash
-DEVICE="iPhone 16 Plus"  # Default device
+DEVICE="iPhone 17"  # Default device
 ```
 
 Available devices:
@@ -192,7 +192,7 @@ xcrun simctl shutdown all
 **Solution**:
 ```bash
 # Reset specific simulator
-xcrun simctl erase "iPhone 16 Plus"
+xcrun simctl erase "iPhone 17"
 
 # Or reset all
 make simulator-reset

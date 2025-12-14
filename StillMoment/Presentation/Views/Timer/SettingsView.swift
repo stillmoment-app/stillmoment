@@ -44,11 +44,11 @@ struct SettingsView: View {
                                             .font(.system(size: 17, weight: .regular, design: .rounded))
                                         Text(sound.description.localized)
                                             .font(.system(size: 13, weight: .regular, design: .rounded))
-                                            .foregroundColor(.warmGray)
+                                            .foregroundColor(.textSecondary)
                                     }
                                 } icon: {
                                     Image(systemName: sound.iconName)
-                                        .foregroundColor(.terracotta)
+                                        .foregroundColor(.interactive)
                                 }
                                 .tag(sound.id)
                                 .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
@@ -82,7 +82,7 @@ struct SettingsView: View {
                                     .font(.system(size: 17, weight: .regular, design: .rounded))
                                 Text("settings.intervalGongs.description", bundle: .main)
                                     .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundColor(.warmGray)
+                                    .foregroundColor(.textSecondary)
                             }
                         }
                         .accessibilityLabel("accessibility.intervalGongs")
@@ -121,7 +121,7 @@ struct SettingsView: View {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onDismiss()
                         }
-                        .tint(.terracotta)
+                        .tint(.interactive)
                         .accessibilityIdentifier("button.done")
                         .accessibilityLabel("accessibility.done")
                         .accessibilityHint("accessibility.done.hint")
@@ -142,22 +142,35 @@ struct SettingsView: View {
 
 // MARK: - Previews
 
+private let defaultSettings = MeditationSettings(
+    intervalGongsEnabled: false,
+    intervalMinutes: 5,
+    backgroundSoundId: "silent"
+)
+
+private let forestSettings = MeditationSettings(
+    intervalGongsEnabled: true,
+    intervalMinutes: 5,
+    backgroundSoundId: "forest"
+)
+
 #Preview("Default Settings") {
-    SettingsView(
-        settings: .constant(MeditationSettings(
-            intervalGongsEnabled: false,
-            intervalMinutes: 5,
-            backgroundSoundId: "silent"
-        ))
-    ) {}
+    SettingsView(settings: .constant(defaultSettings)) {}
 }
 
 #Preview("Forest + Intervals") {
-    SettingsView(
-        settings: .constant(MeditationSettings(
-            intervalGongsEnabled: true,
-            intervalMinutes: 5,
-            backgroundSoundId: "forest"
-        ))
-    ) {}
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    SettingsView(settings: .constant(forestSettings)) {}
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    SettingsView(settings: .constant(forestSettings)) {}
 }

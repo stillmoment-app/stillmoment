@@ -15,7 +15,7 @@ struct StillMomentApp: App {
         // Configure tab bar appearance with warm colors
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Color.warmSand)
+        appearance.backgroundColor = UIColor(Color.backgroundSecondary)
 
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
@@ -46,7 +46,8 @@ struct StillMomentApp: App {
                 .accessibilityIdentifier("tab.library")
                 .accessibilityLabel(Text("tab.library.accessibility"))
             }
-            .tint(.terracotta)
+            .tint(.interactive)
+            .preferredColorScheme(.light)
         }
     }
 

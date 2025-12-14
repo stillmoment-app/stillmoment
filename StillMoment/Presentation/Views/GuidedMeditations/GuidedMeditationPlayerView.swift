@@ -39,13 +39,17 @@ struct GuidedMeditationPlayerView: View {
                     VStack(spacing: 12) {
                         Text(self.viewModel.meditation.effectiveTeacher)
                             .font(.system(.title3, design: .rounded, weight: .medium))
-                            .foregroundColor(Color.terracotta)
+                            .foregroundColor(Color.interactive)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                             .accessibilityLabel("guided_meditations.player.teacher")
                             .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
 
                         Text(self.viewModel.meditation.effectiveName)
                             .font(.system(.title, design: .rounded, weight: .semibold))
                             .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.7)
                             .accessibilityLabel("guided_meditations.player.title")
                             .accessibilityValue(self.viewModel.meditation.effectiveName)
                     }
@@ -63,7 +67,7 @@ struct GuidedMeditationPlayerView: View {
                             ),
                             in: 0...max(self.viewModel.duration, 1)
                         )
-                        .tint(Color.terracotta)
+                        .tint(Color.interactive)
                         .accessibilityLabel("guided_meditations.player.progress")
                         .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
 
@@ -71,7 +75,7 @@ struct GuidedMeditationPlayerView: View {
                         HStack {
                             Text(self.viewModel.formattedCurrentTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
                                 .accessibilityLabel("guided_meditations.player.currentTime")
                                 .accessibilityValue(self.viewModel.formattedCurrentTime)
 
@@ -79,7 +83,7 @@ struct GuidedMeditationPlayerView: View {
 
                             Text(self.viewModel.formattedRemainingTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
                                 .accessibilityLabel("guided_meditations.player.remainingTime")
                                 .accessibilityValue(self.viewModel.formattedRemainingTime)
                         }
@@ -94,7 +98,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: "gobackward.15")
                                 .font(.system(size: 32, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel("guided_meditations.player.skipBackward")
 
@@ -104,7 +108,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel(
                             self.viewModel.isPlaying ?
@@ -118,7 +122,7 @@ struct GuidedMeditationPlayerView: View {
                         } label: {
                             Image(systemName: "goforward.15")
                                 .font(.system(size: 32, design: .rounded))
-                                .foregroundColor(Color.terracotta)
+                                .foregroundColor(Color.interactive)
                         }
                         .accessibilityLabel("guided_meditations.player.skipForward")
                     }
@@ -144,7 +148,7 @@ struct GuidedMeditationPlayerView: View {
                     ProgressView()
                         .scaleEffect(1.5)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.2))
+                        .background(Color.textPrimary.opacity(.opacityOverlay))
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -154,7 +158,7 @@ struct GuidedMeditationPlayerView: View {
                         self.viewModel.cleanup()
                         self.dismiss()
                     }
-                    .foregroundColor(.warmGray)
+                    .foregroundColor(.textSecondary)
                 }
             }
             .alert(
@@ -187,16 +191,41 @@ struct GuidedMeditationPlayerView: View {
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 }
 
-// MARK: - Preview
+// MARK: - Previews
 
-#Preview {
-    GuidedMeditationPlayerView(
-        meditation: GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Jon Kabat-Zinn",
-            name: "Body Scan Meditation"
-        )
-    )
+private let previewMeditation = GuidedMeditation(
+    fileBookmark: Data(),
+    fileName: "test.mp3",
+    duration: 600,
+    teacher: "Jon Kabat-Zinn",
+    name: "Body Scan Meditation"
+)
+
+private let previewMeditationLongName = GuidedMeditation(
+    fileBookmark: Data(),
+    fileName: "test.mp3",
+    duration: 600,
+    teacher: "Dr. Kristin Neff & Dr. Christopher Germer",
+    name: "Loving Kindness Meditation for Self-Compassion and Inner Peace"
+)
+
+#Preview("Default") {
+    GuidedMeditationPlayerView(meditation: previewMeditation)
+}
+
+#Preview("Long Name") {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+// Device Size Previews
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+}
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
 }

@@ -9,7 +9,7 @@
 # Project configuration
 export TEST_PROJECT="StillMoment.xcodeproj"
 export TEST_SCHEME="StillMoment"
-export TEST_DEVICE="iPhone 16 Plus"
+export TEST_DEVICE="iPhone 17"
 
 # Test targets
 export UNIT_TEST_TARGET="StillMomentTests"

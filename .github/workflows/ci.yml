@@ -14,8 +14,8 @@ concurrency:
 
 env:
   XCODE_VERSION: '26.0'
-  IOS_VERSION: '18.4'
-  DEVICE: 'iPhone 16 Plus'
+  IOS_VERSION: '19.0'
+  DEVICE: 'iPhone 17'
 
 jobs:
   lint:

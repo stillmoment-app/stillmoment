@@ -7,7 +7,7 @@
 #
 
 # Get device ID for a given device name
-# Usage: get_device_id "iPhone 16 Plus"
+# Usage: get_device_id "iPhone 17"
 # Returns: Device UUID or empty string if not found
 get_device_id() {
     local device_name="$1"
@@ -28,7 +28,7 @@ get_device_id() {
 }
 
 # Auto-detect and validate device ID
-# Usage: device_id=$(auto_detect_device "iPhone 16 Plus") || exit 1
+# Usage: device_id=$(auto_detect_device "iPhone 17") || exit 1
 # Returns: Device UUID or returns error code
 auto_detect_device() {
     local device_name="$1"

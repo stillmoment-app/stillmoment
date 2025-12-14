@@ -2,46 +2,72 @@
 //  Color+Theme.swift
 //  Still Moment
 //
-//  Presentation Layer - Theme Color Definitions
+//  Presentation Layer - Theme Color Definitions (Design Tokens)
+//
+//  Primary colors are defined in Assets.xcassets/Colors/ and automatically
+//  available via Xcode's generated asset symbols (e.g., Color.warmCream).
+//
+//  This file contains:
+//  - Semantic color roles (textPrimary, textSecondary, interactive, etc.)
+//  - Computed properties (warmGradient)
+//
+//  Usage:
+//  - Use semantic roles for consistent theming: .textPrimary instead of .warmBlack
+//  - This enables future theme switching and dark mode support
 //
 
 import SwiftUI
 
+// MARK: - Opacity Design Tokens
+
+extension Double {
+    /// Opacity for overlay backgrounds (loading states, modals)
+    static let opacityOverlay: Double = 0.2
+
+    /// Opacity for shadow effects
+    static let opacityShadow: Double = 0.3
+
+    /// Opacity for secondary/disabled UI elements
+    static let opacitySecondary: Double = 0.5
+
+    /// Opacity for tertiary/hint UI elements
+    static let opacityTertiary: Double = 0.7
+}
+
+// MARK: - Semantic Color Roles
+
 extension Color {
-    // MARK: - Primary Colors - Warm Earth Tones
-
-    /// Light warm background - cream tone
-    static let warmCream = Color(hex: "#FFF8F0")
-
-    /// Medium warm background - sand tone
-    static let warmSand = Color(hex: "#F5E6D3")
-
-    /// Darker warm background - pale apricot
-    static let paleApricot = Color(hex: "#FFD4B8")
-
-    /// Main accent color - terracotta (buttons, progress ring)
-    static let terracotta = Color(hex: "#D4876F")
-
     // MARK: - Text Colors
 
-    /// Primary text color - warm black
-    static let warmBlack = Color(hex: "#3D3228")
+    /// Primary text color for headings and important content
+    static var textPrimary: Color { .warmBlack }
 
-    /// Secondary text color - warm gray
-    static let warmGray = Color(hex: "#8B7D6B")
+    /// Secondary text color for descriptions and hints
+    static var textSecondary: Color { .warmGray }
 
-    // MARK: - Semantic Colors
+    /// Text color on interactive/colored backgrounds (e.g., primary buttons)
+    static var textOnInteractive: Color { .white }
 
-    /// Error/warning color - warm red tone that fits earth palette
-    static let warmError = Color(hex: "#C74B3B")
+    // MARK: - Interactive Colors
 
-    // MARK: - UI Elements
+    /// Color for interactive elements (buttons, icons, controls)
+    static var interactive: Color { .terracotta }
 
-    /// Timer ring background
-    static let ringBackground = Color(hex: "#E8DDD0")
+    /// Color for progress indicators (timer ring, sliders)
+    static var progress: Color { .terracotta }
 
-    /// Timer ring progress
-    static let ringProgress = Color(hex: "#D4876F")
+    // MARK: - Background Colors
+
+    /// Primary background color
+    static var backgroundPrimary: Color { .warmCream }
+
+    /// Secondary background color
+    static var backgroundSecondary: Color { .warmSand }
+
+    // MARK: - Feedback Colors
+
+    /// Color for error states and warnings
+    static var error: Color { .warmError }
 
     // MARK: - Gradients
 
@@ -49,37 +75,12 @@ extension Color {
     static var warmGradient: LinearGradient {
         LinearGradient(
             colors: [
-                Color.warmCream, // top
-                Color.warmSand, // middle
-                Color.paleApricot // bottom
+                .warmCream, // top
+                .warmSand, // middle
+                .paleApricot // bottom
             ],
             startPoint: .top,
             endPoint: .bottom
-        )
-    }
-}
-
-// MARK: - Hex Color Support
-
-extension Color {
-    /// Initialize a Color from a hex string (e.g., "#FFF8F0")
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let alpha, red, green, blue: UInt64
-        switch hex.count {
-        case 6: // RGB
-            (alpha, red, green, blue) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (alpha, red, green, blue) = (255, 0, 0, 0)
-        }
-        self.init(
-            .sRGB,
-            red: Double(red) / 255,
-            green: Double(green) / 255,
-            blue: Double(blue) / 255,
-            opacity: Double(alpha) / 255
         )
     }
 }

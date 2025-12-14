@@ -186,7 +186,7 @@ make test-failures      # List all failing tests from last run
 make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
 
 # Advanced: Direct script invocation (for special options)
-./scripts/run-tests.sh --device "iPhone 16 Plus"
+./scripts/run-tests.sh --device "iPhone 17"
 ./scripts/run-tests.sh --help
 ```
 
