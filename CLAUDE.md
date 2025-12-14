@@ -351,7 +351,7 @@ All jobs run in **parallel** on GitHub Actions with macOS-26 runners:
 - ✅ **Caching**: DerivedData + SPM + Homebrew (60-70% faster builds)
 - ✅ **Makefile Integration**: Uses existing `make test-unit`, `make lint`, etc.
 - ✅ **Concurrency Control**: Automatically cancels outdated runs
-- ✅ **iPhone 16 Plus, iOS 18.4**: Stable simulator configuration (unified for local + CI)
+- ✅ **iPhone 17, iOS 19.0**: CI simulator configuration (Xcode 26+)
 
 **All jobs are blocking** - PRs cannot merge if any job fails.
 
