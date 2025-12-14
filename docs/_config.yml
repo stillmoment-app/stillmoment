@@ -1,0 +1,7 @@
+# Jekyll configuration for Still Moment website
+title: Still Moment
+description: A warmhearted meditation app for iOS
+url: https://stillmoment.app
+
+# Build settings
+markdown: kramdown

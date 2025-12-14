@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,202 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Still Moment</title>
     <meta name="description" content="Privacy Policy for Still Moment meditation timer app. We collect zero personal data and respect your privacy completely.">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #F5E6D3;
-            color: #5A4A42;
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #D4876F 0%, #C47861 100%);
-            color: white;
-            padding: 32px 20px;
-            text-align: center;
-            border-radius: 16px 16px 0 0;
-            box-shadow: 0 2px 8px rgba(90, 74, 66, 0.1);
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .header .subtitle {
-            font-size: 0.95rem;
-            opacity: 0.95;
-        }
-
-        .language-toggle {
-            text-align: center;
-            padding: 16px 20px;
-            background: white;
-            border-bottom: 1px solid rgba(90, 74, 66, 0.1);
-        }
-
-        .language-toggle button {
-            padding: 8px 20px;
-            margin: 0 8px;
-            background: transparent;
-            border: 2px solid #D4876F;
-            border-radius: 8px;
-            color: #D4876F;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .language-toggle button.active {
-            background: #D4876F;
-            color: white;
-        }
-
-        .language-toggle button:hover {
-            transform: translateY(-1px);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 8px 32px rgba(90, 74, 66, 0.15);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .content {
-            padding: 32px 40px;
-        }
-
-        .content[data-lang]:not(.active) {
-            display: none;
-        }
-
-        .content.active {
-            display: block;
-        }
-
-        h2 {
-            color: #D4876F;
-            font-size: 1.5rem;
-            margin-top: 32px;
-            margin-bottom: 16px;
-            font-weight: 700;
-        }
-
-        h2:first-child {
-            margin-top: 0;
-        }
-
-        h3 {
-            color: #8A7A72;
-            font-size: 1.1rem;
-            margin-top: 24px;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        p, li {
-            margin-bottom: 12px;
-            color: #6A5A52;
-        }
-
-        ul {
-            margin-left: 24px;
-            margin-bottom: 16px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        strong {
-            color: #5A4A42;
-            font-weight: 600;
-        }
-
-        .highlight-box {
-            background: linear-gradient(135deg, #FFF8F3 0%, #FFF0E6 100%);
-            border-left: 4px solid #D4876F;
-            padding: 20px 24px;
-            margin: 24px 0;
-            border-radius: 8px;
-        }
-
-        .highlight-box p:last-child {
-            margin-bottom: 0;
-        }
-
-        .summary-list {
-            list-style: none;
-            margin-left: 0;
-        }
-
-        .summary-list li:before {
-            content: "✅ ";
-            margin-right: 8px;
-        }
-
-        .footer {
-            background: #F5E6D3;
-            padding: 24px 40px;
-            text-align: center;
-            color: #8A7A72;
-            font-size: 0.875rem;
-            border-radius: 0 0 16px 16px;
-        }
-
-        .footer a {
-            color: #D4876F;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 16px;
-            color: #D4876F;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                padding: 24px 20px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            h2 {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="container">
-        <div class="header">
+<body class="privacy-page">
+    <div class="privacy-container">
+        <div class="privacy-header">
             <h1>Privacy Policy</h1>
             <p class="subtitle">Last Updated: November 8, 2024</p>
         </div>
@@ -211,10 +23,10 @@
         </div>
 
         <!-- English Content -->
-        <div class="content active" data-lang="en">
+        <div class="privacy-content active" data-lang="en">
             <a href="index.html" class="back-link">← Back to Home</a>
 
-            <div class="highlight-box">
+            <div class="privacy-highlight-box">
                 <p><strong>TL;DR</strong>: Still Moment is a simple, privacy-focused meditation timer that works completely offline. We don't collect, transmit, or share any personal information. Your meditation, your data, your device.</p>
             </div>
 
@@ -327,7 +139,7 @@
             </ul>
 
             <h2>Summary</h2>
-            <div class="highlight-box">
+            <div class="privacy-highlight-box">
                 <p><strong>Still Moment is committed to your privacy:</strong></p>
                 <ul class="summary-list">
                     <li>Works completely offline</li>
@@ -340,10 +152,10 @@
         </div>
 
         <!-- German Content -->
-        <div class="content" data-lang="de">
+        <div class="privacy-content" data-lang="de">
             <a href="index.html" class="back-link">← Zurück zur Startseite</a>
 
-            <div class="highlight-box">
+            <div class="privacy-highlight-box">
                 <p><strong>Kurz gesagt</strong>: Still Moment ist ein einfacher, privatsphäre-fokussierter Meditationstimer, der vollständig offline funktioniert. Wir sammeln, übertragen oder teilen keine persönlichen Informationen. Deine Meditation, deine Daten, dein Gerät.</p>
             </div>
 
@@ -456,7 +268,7 @@
             </ul>
 
             <h2>Zusammenfassung</h2>
-            <div class="highlight-box">
+            <div class="privacy-highlight-box">
                 <p><strong>Still Moment ist deiner Privatsphäre verpflichtet:</strong></p>
                 <ul class="summary-list">
                     <li>Funktioniert vollständig offline</li>
@@ -468,18 +280,17 @@
             </div>
         </div>
 
-        <div class="footer">
-            <p>© 2025 Still Moment · <a href="index.html">Home</a> · <a href="support.html">Support</a> · <a href="impressum.html">Impressum</a> · Contact: <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a> · <a href="https://github.com/stillmoment-app/stillmoment" target="_blank" rel="noopener">GitHub</a></p>
-        </div>
     </div>
+
+    {% include footer.html %}
 
     <script>
         function switchLanguage(lang) {
             // Update content visibility
-            document.querySelectorAll('.content').forEach(content => {
+            document.querySelectorAll('.privacy-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.querySelector(`.content[data-lang="${lang}"]`).classList.add('active');
+            document.querySelector(`.privacy-content[data-lang="${lang}"]`).classList.add('active');
 
             // Update button state
             document.querySelectorAll('.language-toggle button').forEach(btn => {
