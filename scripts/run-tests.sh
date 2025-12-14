@@ -3,7 +3,7 @@
 # Automated test execution script for Still Moment
 # Runs unit tests, generates coverage report, and checks thresholds
 #
-# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--only-ui-tests] [--device "iPhone 16 Plus"] [--reset-simulator]
+# Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--only-ui-tests] [--device "iPhone 17"] [--reset-simulator]
 #
 
 set -e
@@ -40,7 +40,7 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --help)
-            echo "Usage: $0 [--skip-ui-tests|--only-ui-tests] [--device \"iPhone 16 Plus\"] [--reset-simulator]"
+            echo "Usage: $0 [--skip-ui-tests|--only-ui-tests] [--device \"iPhone 17\"] [--reset-simulator]"
             echo ""
             echo "Options:"
             echo "  --skip-ui-tests      Skip UI tests (faster, unit tests only)"

@@ -215,7 +215,7 @@ make test-unit
 make test
 
 # Advanced: Custom device for testing
-./scripts/run-tests.sh --device "iPhone 16 Plus"
+./scripts/run-tests.sh --device "iPhone 17"
 ```
 
 **Coverage reporting:**
@@ -754,7 +754,7 @@ make screenshots
 
 **Configuration**:
 - **Languages**: German (de-DE), English (en-US)
-- **Device**: iPhone 16 Plus (iOS 18.4+)
+- **Device**: iPhone 17 (iOS 19.0+)
 - **Output**: `docs/images/screenshots/` (website deployment)
 - **Tests**: `StillMomentUITests/ScreenshotTests.swift`
 
