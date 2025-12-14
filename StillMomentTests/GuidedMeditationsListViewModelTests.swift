@@ -432,6 +432,77 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(grouped[2].teacher, "zara")
     }
 
+    // MARK: - Unique Teachers Tests
+
+    func testUniqueTeachersEmpty() {
+        // Given - No meditations
+        self.sut.meditations = []
+
+        // When
+        let teachers = self.sut.uniqueTeachers
+
+        // Then
+        XCTAssertTrue(teachers.isEmpty)
+    }
+
+    func testUniqueTeachersReturnsDistinct() {
+        // Given - Multiple meditations with same teacher
+        let med1 = self.createTestMeditation(teacher: "Alice", name: "Med1")
+        let med2 = self.createTestMeditation(teacher: "Alice", name: "Med2")
+        let med3 = self.createTestMeditation(teacher: "Bob", name: "Med3")
+        self.sut.meditations = [med1, med2, med3]
+
+        // When
+        let teachers = self.sut.uniqueTeachers
+
+        // Then - Should return only distinct teachers
+        XCTAssertEqual(teachers.count, 2)
+        XCTAssertTrue(teachers.contains("Alice"))
+        XCTAssertTrue(teachers.contains("Bob"))
+    }
+
+    func testUniqueTeachersSortedAlphabetically() {
+        // Given - Teachers in non-alphabetical order
+        let med1 = self.createTestMeditation(teacher: "Zara", name: "Med1")
+        let med2 = self.createTestMeditation(teacher: "Alice", name: "Med2")
+        let med3 = self.createTestMeditation(teacher: "Bob", name: "Med3")
+        self.sut.meditations = [med1, med2, med3]
+
+        // When
+        let teachers = self.sut.uniqueTeachers
+
+        // Then - Should be sorted alphabetically
+        XCTAssertEqual(teachers, ["Alice", "Bob", "Zara"])
+    }
+
+    func testUniqueTeachersUsesEffectiveTeacher() {
+        // Given - Meditation with custom teacher override
+        var meditation = self.createTestMeditation(teacher: "Original", name: "Med1")
+        meditation.customTeacher = "Custom"
+        self.sut.meditations = [meditation]
+
+        // When
+        let teachers = self.sut.uniqueTeachers
+
+        // Then - Should use effective (custom) teacher
+        XCTAssertEqual(teachers, ["Custom"])
+        XCTAssertFalse(teachers.contains("Original"))
+    }
+
+    func testUniqueTeachersCaseInsensitiveSorting() {
+        // Given - Teachers with different cases
+        let med1 = self.createTestMeditation(teacher: "zara", name: "Med1")
+        let med2 = self.createTestMeditation(teacher: "Alice", name: "Med2")
+        let med3 = self.createTestMeditation(teacher: "BOB", name: "Med3")
+        self.sut.meditations = [med1, med2, med3]
+
+        // When
+        let teachers = self.sut.uniqueTeachers
+
+        // Then - Should be case-insensitive sorted
+        XCTAssertEqual(teachers, ["Alice", "BOB", "zara"])
+    }
+
     // MARK: - Loading State Tests
 
     func testLoadingStateDuringLoad() {

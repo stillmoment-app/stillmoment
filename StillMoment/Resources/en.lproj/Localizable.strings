@@ -154,3 +154,8 @@
 "guided_meditations.player.skipBackward" = "Skip backward 15 seconds";
 
 "accessibility.guidedMeditations.hint" = "Open guided meditations library";
+
+// MARK: - Autocomplete
+
+"autocomplete.suggestion" = "Select %@";
+"autocomplete.suggestion.hint" = "Double tap to use this suggestion";

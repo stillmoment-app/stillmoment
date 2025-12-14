@@ -63,6 +63,7 @@ struct GuidedMeditationsListView: View {
             if let meditation = viewModel.meditationToEdit {
                 GuidedMeditationEditSheet(
                     meditation: meditation,
+                    availableTeachers: self.viewModel.uniqueTeachers,
                     onSave: { updated in
                         self.viewModel.updateMeditation(updated)
                         self.viewModel.showingEditSheet = false
