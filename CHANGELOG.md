@@ -7,39 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- **Localization Automation** - Quality gates for UI string management
-  - `scripts/check-localization.sh` - Scans code for hardcoded UI strings (CI-blocking)
-  - `scripts/validate-localization.sh` - Validates .strings file completeness using Apple's `plutil`
-  - Makefile targets: `make check-localization` and `make validate-localization`
-  - Both checks integrated into `make check` workflow and pre-commit hooks
-  - Detects common bugs: hardcoded strings, missing translations, placeholder mismatches
-  - Protection against string interpolation bug in SwiftUI Text()
+<!-- Nächste Änderungen hier eintragen -->
 
-- **Localization Keys** - Common UI elements
-  - Added 7 new keys for common UI patterns:
-    - `common.error`, `common.ok`, `common.cancel` - Dialog buttons
-    - `common.save`, `common.close` - Action buttons
-    - `common.and` - Text joining in accessibility strings
-    - `accessibility.durationPicker.label` - Picker label
-  - All keys added to both German and English localization files
-  - Total: 109 localization keys fully synchronized (100% coverage)
+## [1.1.0] - 2025-12-14 (Verbesserungen & Bugfixes)
+
+### Added
+- **Teacher Name Autocomplete** - Schnellere Metadaten-Eingabe
+  - Autovervollständigung beim Bearbeiten von Lehrer-Namen
+  - Zeigt Vorschläge aus bestehenden Lehrern in der Bibliothek
+  - Maximale 5 Vorschläge, case-insensitiv
+  - Neue `AutocompleteTextField`-Komponente mit Unit Tests
+
+- **Localization Automation** - Qualitätskontrolle für UI-Strings
+  - `scripts/check-localization.sh` - Findet hardcodierte UI-Strings (CI-blocking)
+  - `scripts/validate-localization.sh` - Validiert .strings Dateien mit Apple's `plutil`
+  - Makefile-Targets: `make check-localization` und `make validate-localization`
+  - Schutz gegen String-Interpolation-Bug in SwiftUI Text()
+
+- **Localization Keys** - Neue UI-Elemente
+  - 7 neue Keys für häufige UI-Patterns (common.error, common.ok, etc.)
+  - Alle Keys in Deutsch und Englisch vorhanden
+  - Total: 111 Lokalisierungs-Keys (100% Coverage)
 
 ### Changed
-- **Localization Coverage** - All UI strings now localized
-  - `TimerView.swift` - Fixed accessibility time announcements (VoiceOver)
-  - `GuidedMeditationsListView.swift` - Localized error alert dialogs
-  - `GuidedMeditationPlayerView.swift` - Localized error alerts and close button
-  - `GuidedMeditationEditSheet.swift` - Localized Cancel/Save buttons
-  - Zero hardcoded UI strings remain in codebase
+- **Responsive Layout** - Bessere Darstellung auf allen Geräten
+  - GeometryReader für dynamische Spacer-Größen
+  - Optimiert für iPhone SE bis iPhone 15 Pro Max
+  - Deterministische Layout-Berechnung
+
+- **Semantic Color System** - Konsistentes Farbsystem
+  - Einheitliche Farbverwendung über alle Views
+  - `.textPrimary`, `.textSecondary`, `.interactive` Rollen
+  - Verbesserte Wartbarkeit des Designs
 
 ### Fixed
-- **GuidedMeditationEditSheet** - String interpolation bug
-  - Fixed "Original:" label showing localization key instead of translation
-  - Bug: `Text("guided_meditations.edit.original: \(value)")` showed literal key
-  - Solution: Use `String(format: NSLocalizedString(...), value)` for interpolation
-  - Now properly displays "Original: {value}" in both German and English
-  - Automated check added to prevent this bug pattern in future
+- **UI Layout** - TabBar-Überlappung behoben
+  - Buttons überlappen nicht mehr mit TabBar auf kleinen Geräten
+  - Minimum-Abstände garantiert (40pt zum TabBar)
+  - Getestet auf iPhone 13 mini
+
+- **GuidedMeditationEditSheet** - String-Interpolation-Bug
+  - "Original:"-Label zeigte Lokalisierungs-Key statt Übersetzung
+  - Korrigiert mit `String(format: NSLocalizedString(...), value)`
+
+- **Localization** - Vollständige Lokalisierung
+  - Alle UI-Strings in TimerView, GuidedMeditationsListView, etc. lokalisiert
+  - Accessibility-Labels für VoiceOver korrigiert
+  - Keine hardcodierten Strings mehr im Code
 
 ## [0.5.0] - 2025-11-07 (Multi-Feature Architecture mit TabView)
 
