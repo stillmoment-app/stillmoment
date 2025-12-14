@@ -122,7 +122,8 @@ header {
 /* Cards and Sections */
 .section-card,
 .support-section,
-.impressum-section {
+.impressum-section,
+.privacy-section {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(10px);
     padding: 2rem;
@@ -133,7 +134,8 @@ header {
 
 .section-card h2,
 .support-section h2,
-.impressum-section h2 {
+.impressum-section h2,
+.privacy-section h2 {
     font-size: 1.8rem;
     color: var(--warm-black);
     margin-bottom: 1rem;
@@ -141,7 +143,8 @@ header {
 
 .section-card h3,
 .support-section h3,
-.impressum-section h3 {
+.impressum-section h3,
+.privacy-section h3 {
     font-size: 1.3rem;
     color: var(--warm-black);
     margin-top: 1.5rem;
@@ -150,7 +153,8 @@ header {
 
 .section-card p,
 .support-section p,
-.impressum-section p {
+.impressum-section p,
+.privacy-section p {
     color: var(--warm-gray);
     margin-bottom: 1rem;
     line-height: 1.8;
@@ -158,7 +162,8 @@ header {
 
 .section-card ul,
 .support-section ul,
-.impressum-section ul {
+.impressum-section ul,
+.privacy-section ul {
     margin-left: 2rem;
     color: var(--warm-gray);
     line-height: 1.8;
@@ -166,19 +171,22 @@ header {
 
 .section-card ul li,
 .support-section ul li,
-.impressum-section ul li {
+.impressum-section ul li,
+.privacy-section ul li {
     margin-bottom: 0.5rem;
 }
 
 .section-card strong,
 .support-section strong,
-.impressum-section strong {
+.impressum-section strong,
+.privacy-section strong {
     color: var(--warm-black);
 }
 
 .section-card a,
 .support-section a,
-.impressum-section a {
+.impressum-section a,
+.privacy-section a {
     color: var(--terracotta);
     font-weight: 500;
     text-decoration: none;
@@ -186,7 +194,8 @@ header {
 
 .section-card a:hover,
 .support-section a:hover,
-.impressum-section a:hover {
+.impressum-section a:hover,
+.privacy-section a:hover {
     text-decoration: underline;
 }
 
@@ -533,187 +542,6 @@ footer {
     display: none !important;
 }
 
-/* Privacy Page Specific Styles */
-.privacy-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: white;
-    box-shadow: 0 8px 32px rgba(90, 74, 66, 0.15);
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.privacy-header {
-    background: linear-gradient(135deg, var(--terracotta) 0%, var(--clay) 100%);
-    color: white;
-    padding: 32px 20px;
-    text-align: center;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 2px 8px rgba(90, 74, 66, 0.1);
-}
-
-.privacy-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.privacy-header .subtitle {
-    font-size: 0.95rem;
-    opacity: 0.95;
-}
-
-.language-toggle {
-    text-align: center;
-    padding: 16px 20px;
-    background: white;
-    border-bottom: 1px solid rgba(90, 74, 66, 0.1);
-}
-
-.language-toggle button {
-    padding: 8px 20px;
-    margin: 0 8px;
-    background: transparent;
-    border: 2px solid var(--terracotta);
-    border-radius: 8px;
-    color: var(--terracotta);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-}
-
-.language-toggle button.active {
-    background: var(--terracotta);
-    color: white;
-}
-
-.language-toggle button:hover {
-    transform: translateY(-1px);
-}
-
-.privacy-content {
-    padding: 32px 40px;
-}
-
-.privacy-content[data-lang]:not(.active) {
-    display: none;
-}
-
-.privacy-content.active {
-    display: block;
-}
-
-.privacy-content h2 {
-    color: var(--terracotta);
-    font-size: 1.5rem;
-    margin-top: 32px;
-    margin-bottom: 16px;
-    font-weight: 700;
-}
-
-.privacy-content h2:first-of-type {
-    margin-top: 0;
-}
-
-.privacy-content h3 {
-    color: #8A7A72;
-    font-size: 1.1rem;
-    margin-top: 24px;
-    margin-bottom: 12px;
-    font-weight: 600;
-}
-
-.privacy-content p,
-.privacy-content li {
-    margin-bottom: 12px;
-    color: #6A5A52;
-}
-
-.privacy-content ul {
-    margin-left: 24px;
-    margin-bottom: 16px;
-}
-
-.privacy-content li {
-    margin-bottom: 8px;
-}
-
-.privacy-content strong {
-    color: #5A4A42;
-    font-weight: 600;
-}
-
-.privacy-content a {
-    color: var(--terracotta);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.privacy-content a:hover {
-    text-decoration: underline;
-}
-
-.privacy-highlight-box {
-    background: linear-gradient(135deg, #FFF8F3 0%, #FFF0E6 100%);
-    border-left: 4px solid var(--terracotta);
-    padding: 20px 24px;
-    margin: 24px 0;
-    border-radius: 8px;
-}
-
-.privacy-highlight-box p:last-child {
-    margin-bottom: 0;
-}
-
-.summary-list {
-    list-style: none;
-    margin-left: 0;
-}
-
-.summary-list li:before {
-    content: "✅ ";
-    margin-right: 8px;
-}
-
-.privacy-footer {
-    background: var(--warm-sand);
-    padding: 24px 40px;
-    text-align: center;
-    color: #8A7A72;
-    font-size: 0.875rem;
-    border-radius: 0 0 16px 16px;
-}
-
-.privacy-footer a {
-    color: var(--terracotta);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.privacy-footer a:hover {
-    text-decoration: underline;
-}
-
-.back-link {
-    display: inline-block;
-    margin-bottom: 16px;
-    color: var(--terracotta);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.back-link:hover {
-    text-decoration: underline;
-}
-
-/* Privacy page body override */
-body.privacy-page {
-    padding: 20px;
-    background: var(--warm-sand);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .hero h1,
@@ -744,20 +572,8 @@ body.privacy-page {
     .contact-summary h2,
     .section-card h2,
     .support-section h2,
-    .impressum-section h2 {
+    .impressum-section h2,
+    .privacy-section h2 {
         font-size: 1.5rem;
-    }
-
-    /* Privacy page responsive */
-    .privacy-content {
-        padding: 24px 20px;
-    }
-
-    .privacy-header h1 {
-        font-size: 1.5rem;
-    }
-
-    .privacy-content h2 {
-        font-size: 1.3rem;
     }
 }
