@@ -114,3 +114,10 @@ secrets.json
 *_secret.*
 *_private.*
 Config/Local.xcconfig
+
+# Jekyll (docs/ website)
+docs/_site/
+docs/vendor/
+docs/.bundle/
+docs/.jekyll-cache/
+docs/Gemfile.lock

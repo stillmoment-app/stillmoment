@@ -1,0 +1,126 @@
+---
+---
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Impressum - Still Moment Meditation App. Anbieterinformationen nach § 5 TMG.">
+    <meta name="keywords" content="Impressum, Legal Notice, Still Moment, Kontakt">
+    <meta name="author" content="Helmut Zechmann">
+
+    <title>Impressum - Still Moment</title>
+
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    {% include header.html %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Title -->
+        <h1 class="lang-de">Impressum</h1>
+        <h1 class="lang-en hidden">Legal Notice</h1>
+
+        <p class="subtitle lang-de">Angaben gemäß § 5 TMG / § 5 DDG</p>
+        <p class="subtitle lang-en hidden">Information according to § 5 TMG / § 5 DDG (German Telemedia Act)</p>
+
+        <!-- Provider Information -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Anbieter</h2>
+            <h2 class="lang-en hidden">Provider</h2>
+
+            <div class="contact-box">
+                <p><strong>Helmut Zechmann</strong></p>
+                <p>c/o neuland – Büro für Informatik GmbH</p>
+                <p>Konsul-Smidt-Str. 8g</p>
+                <p>D-28217 Bremen</p>
+                <p>Deutschland / Germany</p>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Kontakt</h2>
+            <h2 class="lang-en hidden">Contact</h2>
+
+            <div class="contact-box">
+                <p><strong>E-Mail:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+            </div>
+        </div>
+
+        <!-- Responsible for Content -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Verantwortlich für den Inhalt</h2>
+            <h2 class="lang-en hidden">Responsible for Content</h2>
+
+            <p class="lang-de">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:</p>
+            <p class="lang-en hidden">Responsible for content according to § 18 (2) MStV (German Interstate Media Treaty):</p>
+
+            <div class="contact-box">
+                <p><strong>Helmut Zechmann</strong></p>
+                <p>c/o neuland – Büro für Informatik GmbH</p>
+                <p>Konsul-Smidt-Str. 8g</p>
+                <p>D-28217 Bremen</p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Haftungsausschluss</h2>
+            <h2 class="lang-en hidden">Disclaimer</h2>
+
+            <p class="lang-de"><strong>Haftung für Inhalte:</strong> Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
+            <p class="lang-en hidden"><strong>Liability for Content:</strong> The contents of our pages were created with the greatest care. However, we cannot guarantee the accuracy, completeness, and timeliness of the content.</p>
+
+            <p class="lang-de"><strong>Haftung für Links:</strong> Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+            <p class="lang-en hidden"><strong>Liability for Links:</strong> Our website contains links to external third-party websites, over whose content we have no influence. Therefore, we cannot accept any liability for this external content. The respective provider or operator of the linked pages is always responsible for the content of the linked pages.</p>
+        </div>
+
+        <!-- Copyright -->
+        <div class="impressum-section">
+            <h2 class="lang-de">Urheberrecht</h2>
+            <h2 class="lang-en hidden">Copyright</h2>
+
+            <p class="lang-de">Still Moment ist ein Open-Source-Projekt, lizenziert unter der <a href="https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE" target="_blank">Apache License 2.0</a>. Der Quellcode ist öffentlich verfügbar auf <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a>.</p>
+            <p class="lang-en hidden">Still Moment is an open-source project, licensed under the <a href="https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE" target="_blank">Apache License 2.0</a>. The source code is publicly available on <a href="https://github.com/stillmoment-app/stillmoment" target="_blank">GitHub</a>.</p>
+        </div>
+    </div>
+
+    {% include footer.html %}
+
+    <script>
+        // Language switching functionality
+        function switchLanguage(lang) {
+            // Save preference
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Update active button
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('lang-' + lang).classList.add('active');
+
+            // Show/hide content
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+                document.documentElement.lang = 'en';
+                document.title = 'Legal Notice - Still Moment';
+            } else {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+                document.documentElement.lang = 'de';
+                document.title = 'Impressum - Still Moment';
+            }
+        }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'de';
+            switchLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>

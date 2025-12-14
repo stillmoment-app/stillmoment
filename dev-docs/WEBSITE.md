@@ -1,6 +1,6 @@
 # Still Moment Marketing Website
 
-Die Marketing-Website für die Still Moment iOS App, gebaut mit reinem HTML/CSS/JavaScript und optimiert für GitHub Pages.
+Die Marketing-Website für die Still Moment iOS App, gebaut mit Jekyll und optimiert für GitHub Pages.
 
 ## Features
 
@@ -13,7 +13,7 @@ Die Marketing-Website für die Still Moment iOS App, gebaut mit reinem HTML/CSS/
 
 🌍 **Bilingualer Support**:
 - Vollständiger Deutsch/Englisch Support
-- Sprachumschalter im Header
+- Sprachumschalter im Header (EN/DE)
 - localStorage speichert Sprachauswahl
 - Automatisches Laden der gespeicherten Sprache
 
@@ -24,161 +24,171 @@ Die Marketing-Website für die Still Moment iOS App, gebaut mit reinem HTML/CSS/
 - Smooth Animationen und Transitions
 - iPhone-Mockups mit Notch
 
-🔍 **SEO & Meta Tags**:
-- Open Graph (Facebook)
-- Twitter Cards
-- Vollständige Meta-Descriptions
-- Semantic HTML5
+🔧 **Technologie**:
+- Jekyll für Template-Includes (Header, Footer)
+- Gemeinsame CSS-Datei (`styles.css`)
+- Vanilla JavaScript (keine Dependencies)
+- GitHub Pages native Jekyll-Unterstützung
 
 ## Dateistruktur
 
 ```
 docs/
+├── _config.yml             # Jekyll-Konfiguration
+├── _includes/              # Wiederverwendbare Komponenten
+│   ├── header.html         # Header mit Logo + Sprachumschalter
+│   └── footer.html         # Footer mit 3-Spalten Layout
 ├── index.html              # Haupt-Website
 ├── privacy.html            # Datenschutzerklärung
-├── WEBSITE.md             # Diese Datei
+├── support.html            # Support & FAQ
+├── impressum.html          # Impressum (Legal Notice)
+├── styles.css              # Gemeinsame CSS-Styles
+├── Gemfile                 # Ruby Dependencies
 ├── images/
-│   ├── app-icon.png       # App Icon (1024x1024)
-│   └── screenshots/
-│       ├── README.md      # Screenshot-Anleitung
-│       ├── timer-ready-en.png    (noch zu erstellen)
-│       ├── timer-ready-de.png    (noch zu erstellen)
-│       ├── timer-running-en.png  (noch zu erstellen)
-│       ├── timer-running-de.png  (noch zu erstellen)
-│       ├── library-en.png        (noch zu erstellen)
-│       ├── library-de.png        (noch zu erstellen)
-│       ├── player-en.png         (noch zu erstellen)
-│       └── player-de.png         (noch zu erstellen)
+│   ├── app-icon.png        # App Icon (1024x1024)
+│   └── screenshots/        # App-Screenshots (DE + EN)
+└── _site/                  # Generierte Website (nicht committen)
 ```
 
-## Lokal testen
+## Lokal entwickeln
 
-### Option 1: Mit Python (einfachste Methode)
+### Voraussetzungen
+
+- **Ruby** (macOS: Homebrew Ruby empfohlen)
+- **Bundler** (wird mit Ruby installiert)
+
+### Erste Einrichtung
 
 ```bash
 cd docs
-python3 -m http.server 8000
+
+# Dependencies installieren (einmalig)
+/opt/homebrew/opt/ruby/bin/bundle install --path vendor/bundle
 ```
 
-Öffne dann http://localhost:8000 im Browser.
-
-### Option 2: Mit Node.js (http-server)
+### Website bauen und testen
 
 ```bash
-# Falls nicht installiert
-npm install -g http-server
-
 cd docs
-http-server -p 8000
+
+# Website bauen (ohne Server)
+/opt/homebrew/opt/ruby/bin/bundle exec jekyll build
+
+# ODER: Mit lokalem Server (empfohlen)
+/opt/homebrew/opt/ruby/bin/bundle exec jekyll serve --port 4000
 ```
 
-### Option 3: Direkt im Browser öffnen
+Öffne dann http://127.0.0.1:4000 im Browser.
+
+### Kurzform (nach Einrichtung)
 
 ```bash
-open docs/index.html
+cd docs
+bundle exec jekyll serve
 ```
 
-**Hinweis**: Einige Features (localStorage) funktionieren möglicherweise nicht korrekt bei `file://` URLs. Verwende einen lokalen Server für vollständige Funktionalität.
+### Server stoppen
 
-## Screenshots hinzufügen
+```bash
+pkill -f "jekyll serve"
+```
 
-Siehe [docs/images/screenshots/README.md](images/screenshots/README.md) für detaillierte Anleitung zum Erstellen der App-Screenshots.
+## Jekyll Includes
 
-**Quick Start**:
-1. Simulator starten
-2. Sprache auf Englisch setzen
-3. App öffnen und Screenshots machen (Cmd+S)
-4. Sprache auf Deutsch setzen
-5. Gleiche Screenshots wiederholen
-6. Screenshots nach `docs/images/screenshots/` kopieren
-7. Richtig benennen (siehe README)
+Die Website verwendet Jekyll-Includes für konsistente Komponenten:
+
+### Header (`_includes/header.html`)
+```html
+{% include header.html %}
+```
+- Logo mit Link zur Startseite
+- Sprachumschalter (EN/DE Buttons)
+
+### Footer (`_includes/footer.html`)
+```html
+{% include footer.html %}
+```
+- 3-Spalten Layout
+- Links: Still Moment Info, Navigation, Kontakt
+- Zweisprachig (DE/EN)
+
+### Neue Seite erstellen
+
+1. HTML-Datei mit Jekyll Front Matter erstellen:
+```html
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    ...
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    {% include header.html %}
+
+    <div class="content">
+        <!-- Seiteninhalt -->
+    </div>
+
+    {% include footer.html %}
+
+    <script>
+        // switchLanguage() Funktion hier
+    </script>
+</body>
+</html>
+```
+
+2. Die leeren `---` am Anfang sind wichtig - sie aktivieren Jekyll-Processing.
 
 ## GitHub Pages Deployment
 
-Die Website ist bereits für GitHub Pages konfiguriert.
+Die Website wird automatisch von GitHub Pages gebaut.
 
 ### Automatisches Deployment
 
 1. **Push zu GitHub**:
    ```bash
    git add docs/
-   git commit -m "feat: Add marketing website with bilingual support"
+   git commit -m "docs: Update website"
    git push origin main
    ```
 
 2. **GitHub Pages aktivieren** (nur beim ersten Mal):
-   - Gehe zu Repository Settings
-   - Navigiere zu "Pages" (linke Sidebar)
-   - Unter "Source": Wähle "Deploy from a branch"
-   - Unter "Branch": Wähle `main` und `/docs` folder
-   - Klicke "Save"
+   - Repository Settings → Pages
+   - Source: "Deploy from a branch"
+   - Branch: `main`, Folder: `/docs`
+   - Save
 
 3. **Website ist live**:
    - URL: https://stillmoment-app.github.io/stillmoment/
    - Deployment dauert 1-2 Minuten
 
-### Custom Domain (optional)
+### Was nicht committen
 
-Falls du eine eigene Domain verwenden möchtest:
+Die folgenden Dateien/Ordner sind lokal und sollten nicht committed werden:
 
-1. Erstelle `docs/CNAME` Datei:
-   ```bash
-   echo "stillmoment.app" > docs/CNAME
-   ```
+```gitignore
+docs/_site/           # Generierte Website
+docs/vendor/          # Ruby Dependencies
+docs/.jekyll-cache/   # Jekyll Cache
+docs/Gemfile.lock     # Lock-Datei (optional)
+```
 
-2. DNS-Einstellungen bei deinem Domain-Provider:
-   ```
-   A Record: 185.199.108.153
-   A Record: 185.199.109.153
-   A Record: 185.199.110.153
-   A Record: 185.199.111.153
+## Seiten
 
-   # Oder CNAME für Subdomain:
-   CNAME: stillmoment-app.github.io
-   ```
-
-3. In GitHub Settings → Pages → Custom domain: Deine Domain eingeben
-
-## Website-Komponenten
-
-### Header
-- Sticky Navigation
-- App Icon + Logo
-- Sprachumschalter (EN/DE)
-
-### Hero Section
-- App Icon (groß)
-- Titel + Tagline
-- "Coming Soon" CTA Button
-- Zweisprachiger Content
-
-### Screenshots Section
-- Horizontaler Carousel
-- 4 iPhone-Mockups mit Notch
-- Platzhalter-Text bis Screenshots vorhanden
-- Automatisches Ein-/Ausblenden bei vorhandenen Bildern
-
-### Features Section
-- 6 Feature-Cards in Grid-Layout
-- Emoji-Icons
-- Hover-Animationen
-- Responsive (3 Spalten → 2 → 1)
-
-### Privacy Banner
-- Gradient-Hintergrund (Terracotta)
-- Privacy-First Message
-- Prominente Platzierung
-
-### Footer
-- 3-Spalten Layout (responsive)
-- Links zu GitHub, Privacy, Contributing
-- Kontaktinformationen
-- Copyright-Hinweis
+| Seite | Pfad | Beschreibung |
+|-------|------|--------------|
+| Startseite | `index.html` | Hero, Features, Screenshots |
+| Privacy | `privacy.html` | Datenschutzerklärung |
+| Support | `support.html` | FAQ & Hilfe |
+| Impressum | `impressum.html` | Rechtliche Angaben |
 
 ## Farben & Design-System
 
 ```css
-/* App-Farben (aus StillMoment/Presentation/Views/Shared/Color+Theme.swift) */
+/* App-Farben */
 --warm-cream: #FFF8F0;      /* Hintergrund */
 --warm-sand: #F5E6D3;       /* Sekundärer Hintergrund */
 --pale-apricot: #FFD4B8;    /* Gradient-Ende */
@@ -187,74 +197,66 @@ Falls du eine eigene Domain verwenden möchtest:
 --dusty-rose: #E8B4A0;      /* Soft Highlights */
 --warm-black: #3D3228;      /* Text */
 --warm-gray: #8B7D6B;       /* Sekundärer Text */
---ring-bg: #E8DDD0;         /* UI-Elemente */
 ```
 
-## Browser-Kompatibilität
+## Sprachumschaltung
 
-Getestet und funktioniert in:
-- ✅ Chrome/Edge (Chromium)
-- ✅ Firefox
-- ✅ Safari (Desktop + iOS)
-- ✅ Mobile Browser (iOS Safari, Chrome Mobile)
+Jede Seite benötigt die `switchLanguage()` Funktion im Script-Block:
 
-**Verwendete Technologien**:
-- CSS Variables (alle modernen Browser)
-- CSS Grid (IE11+ mit Fallback)
-- localStorage API
-- Vanilla JavaScript (keine Dependencies)
+```javascript
+function switchLanguage(lang) {
+    localStorage.setItem('preferredLanguage', lang);
 
-## Performance-Optimierung
+    document.querySelectorAll('.language-switcher button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById('lang-' + lang).classList.add('active');
 
-### Aktuelle Optimierungen:
-- Inline CSS (keine externen Requests)
-- Minimal JavaScript
-- Optimierte Bilder (PNG, sollten <500KB sein)
-- CSS Transitions statt JavaScript-Animationen
+    if (lang === 'en') {
+        document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+        document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+        document.documentElement.lang = 'en';
+    } else {
+        document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+        document.documentElement.lang = 'de';
+    }
+}
 
-### Empfohlene weitere Optimierungen:
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+    switchLanguage(savedLang);
+});
+```
+
+## Troubleshooting
+
+### Jekyll nicht gefunden
 ```bash
-# Bilder komprimieren
-imageoptim docs/images/**/*.png
-
-# Oder mit pngquant
-pngquant --quality=65-80 docs/images/**/*.png
+# Homebrew Ruby verwenden
+/opt/homebrew/opt/ruby/bin/bundle exec jekyll serve
 ```
 
-## Zukünftige Erweiterungen
+### Port bereits belegt
+```bash
+# Anderen Port verwenden
+bundle exec jekyll serve --port 4001
 
-Ideen für v2.0:
-- [ ] Video-Demo der App
-- [ ] Testimonials/Reviews Section
-- [ ] Blog-Integration (App Updates)
-- [ ] Newsletter-Signup
-- [ ] App Store Badges (wenn App veröffentlicht)
-- [ ] Analytics (privacy-friendly, z.B. Plausible)
-- [ ] Dark Mode Toggle
-- [ ] Mehr Sprachen (z.B. Französisch, Spanisch)
+# Oder alten Prozess beenden
+pkill -f "jekyll serve"
+```
 
-## Wartung
-
-### Regelmäßige Updates:
-- **Screenshots**: Bei UI-Änderungen aktualisieren
-- **Features**: Bei neuen App-Features erweitern
-- **Version**: Copyright-Jahr aktualisieren
-- **Links**: Privacy Policy, Contributing Guide aktuell halten
-
-### Monitoring:
-- Prüfe GitHub Pages Status: https://github.com/stillmoment-app/stillmoment/deployments
-- Teste alle Links regelmäßig
-- Überprüfe Responsive Design auf verschiedenen Geräten
+### Includes werden nicht aufgelöst
+- Prüfe, ob `---` am Anfang der HTML-Datei steht
+- Prüfe, ob `_includes/` Ordner existiert
 
 ## Support & Fragen
 
-Bei Fragen oder Problemen:
 - **Issues**: https://github.com/stillmoment-app/stillmoment/issues
 - **Email**: stillMoment@posteo.de
-- **Maintainer**: @HelmutZechmann
 
 ---
 
-**Letztes Update**: 2025-11-09
-**Version**: 1.0
-**Status**: ✅ Produktionsbereit (Screenshots fehlen noch)
+**Letztes Update**: 2025-12-14
+**Version**: 2.0 (Jekyll)
+**Status**: ✅ Produktionsbereit

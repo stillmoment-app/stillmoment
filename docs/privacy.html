@@ -1,230 +1,58 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Still Moment</title>
     <meta name="description" content="Privacy Policy for Still Moment meditation timer app. We collect zero personal data and respect your privacy completely.">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <meta name="keywords" content="privacy policy, data protection, Still Moment, meditation app">
+    <meta name="author" content="Helmut Zechmann">
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #F5E6D3;
-            color: #5A4A42;
-            line-height: 1.6;
-            padding: 20px;
-        }
+    <title>Privacy Policy - Still Moment</title>
 
-        .header {
-            background: linear-gradient(135deg, #D4876F 0%, #C47861 100%);
-            color: white;
-            padding: 32px 20px;
-            text-align: center;
-            border-radius: 16px 16px 0 0;
-            box-shadow: 0 2px 8px rgba(90, 74, 66, 0.1);
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .header .subtitle {
-            font-size: 0.95rem;
-            opacity: 0.95;
-        }
-
-        .language-toggle {
-            text-align: center;
-            padding: 16px 20px;
-            background: white;
-            border-bottom: 1px solid rgba(90, 74, 66, 0.1);
-        }
-
-        .language-toggle button {
-            padding: 8px 20px;
-            margin: 0 8px;
-            background: transparent;
-            border: 2px solid #D4876F;
-            border-radius: 8px;
-            color: #D4876F;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .language-toggle button.active {
-            background: #D4876F;
-            color: white;
-        }
-
-        .language-toggle button:hover {
-            transform: translateY(-1px);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 8px 32px rgba(90, 74, 66, 0.15);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .content {
-            padding: 32px 40px;
-        }
-
-        .content[data-lang]:not(.active) {
-            display: none;
-        }
-
-        .content.active {
-            display: block;
-        }
-
-        h2 {
-            color: #D4876F;
-            font-size: 1.5rem;
-            margin-top: 32px;
-            margin-bottom: 16px;
-            font-weight: 700;
-        }
-
-        h2:first-child {
-            margin-top: 0;
-        }
-
-        h3 {
-            color: #8A7A72;
-            font-size: 1.1rem;
-            margin-top: 24px;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        p, li {
-            margin-bottom: 12px;
-            color: #6A5A52;
-        }
-
-        ul {
-            margin-left: 24px;
-            margin-bottom: 16px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        strong {
-            color: #5A4A42;
-            font-weight: 600;
-        }
-
-        .highlight-box {
-            background: linear-gradient(135deg, #FFF8F3 0%, #FFF0E6 100%);
-            border-left: 4px solid #D4876F;
-            padding: 20px 24px;
-            margin: 24px 0;
-            border-radius: 8px;
-        }
-
-        .highlight-box p:last-child {
-            margin-bottom: 0;
-        }
-
-        .summary-list {
-            list-style: none;
-            margin-left: 0;
-        }
-
-        .summary-list li:before {
-            content: "✅ ";
-            margin-right: 8px;
-        }
-
-        .footer {
-            background: #F5E6D3;
-            padding: 24px 40px;
-            text-align: center;
-            color: #8A7A72;
-            font-size: 0.875rem;
-            border-radius: 0 0 16px 16px;
-        }
-
-        .footer a {
-            color: #D4876F;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 16px;
-            color: #D4876F;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                padding: 24px 20px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            h2 {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Privacy Policy</h1>
-            <p class="subtitle">Last Updated: November 8, 2024</p>
+    {% include header.html %}
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Title -->
+        <h1 class="lang-en">Privacy Policy</h1>
+        <h1 class="lang-de hidden">Datenschutzerklärung</h1>
+
+        <p class="subtitle lang-en">Last Updated: November 8, 2024</p>
+        <p class="subtitle lang-de hidden">Zuletzt aktualisiert: 8. November 2024</p>
+
+        <!-- TL;DR Box -->
+        <div class="highlight-box">
+            <p class="lang-en"><strong>TL;DR</strong>: Still Moment is a simple, privacy-focused meditation timer that works completely offline. We don't collect, transmit, or share any personal information. Your meditation, your data, your device.</p>
+            <p class="lang-de hidden"><strong>Kurz gesagt</strong>: Still Moment ist ein einfacher, privatsphäre-fokussierter Meditationstimer, der vollständig offline funktioniert. Wir sammeln, übertragen oder teilen keine persönlichen Informationen. Deine Meditation, deine Daten, dein Gerät.</p>
         </div>
 
-        <div class="language-toggle">
-            <button class="active" onclick="switchLanguage('en')">English</button>
-            <button onclick="switchLanguage('de')">Deutsch</button>
+        <!-- Overview -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Overview</h2>
+            <h2 class="lang-de hidden">Übersicht</h2>
+
+            <p class="lang-en">Still Moment is a meditation timer application for iOS that is committed to protecting your privacy. This privacy policy explains our data practices.</p>
+            <p class="lang-de hidden">Still Moment ist eine Meditationstimer-App für iOS, die sich dem Schutz deiner Privatsphäre verpflichtet hat. Diese Datenschutzerklärung erklärt unsere Datenpraktiken.</p>
         </div>
 
-        <!-- English Content -->
-        <div class="content active" data-lang="en">
-            <a href="index.html" class="back-link">← Back to Home</a>
+        <!-- Data Collection -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Data Collection</h2>
+            <h2 class="lang-de hidden">Datenerfassung</h2>
 
-            <div class="highlight-box">
-                <p><strong>TL;DR</strong>: Still Moment is a simple, privacy-focused meditation timer that works completely offline. We don't collect, transmit, or share any personal information. Your meditation, your data, your device.</p>
-            </div>
+            <p class="lang-en"><strong>Still Moment does not collect, store, or transmit any personal data.</strong></p>
+            <p class="lang-de hidden"><strong>Still Moment sammelt, speichert oder überträgt keine persönlichen Daten.</strong></p>
 
-            <h2>Overview</h2>
-            <p>Still Moment is a meditation timer application for iOS that is committed to protecting your privacy. This privacy policy explains our data practices.</p>
+            <p class="lang-en">The app operates entirely on your device and does not:</p>
+            <p class="lang-de hidden">Die App funktioniert vollständig auf deinem Gerät und:</p>
 
-            <h2>Data Collection</h2>
-            <p><strong>Still Moment does not collect, store, or transmit any personal data.</strong></p>
-            <p>The app operates entirely on your device and does not:</p>
-            <ul>
+            <ul class="lang-en">
                 <li>Collect personal information</li>
                 <li>Track your usage</li>
                 <li>Send data to external servers</li>
@@ -232,128 +60,7 @@
                 <li>Store data in the cloud</li>
                 <li>Share information with third parties</li>
             </ul>
-
-            <h2>Permissions</h2>
-            <p>Still Moment requests the following permissions to function:</p>
-
-            <h3>Notifications</h3>
-            <ul>
-                <li><strong>Purpose</strong>: To notify you when your meditation session is complete</li>
-                <li><strong>Usage</strong>: Local notifications are scheduled on your device only</li>
-                <li><strong>Data</strong>: No notification data leaves your device</li>
-            </ul>
-
-            <h3>Background Audio</h3>
-            <ul>
-                <li><strong>Purpose</strong>: To play the completion sound even when the app is in the background</li>
-                <li><strong>Usage</strong>: Allows the timer to continue running when your screen is locked</li>
-                <li><strong>Data</strong>: No audio data is transmitted or stored externally</li>
-            </ul>
-
-            <h3>File Access</h3>
-            <ul>
-                <li><strong>Purpose</strong>: To import and play your personal guided meditation audio files</li>
-                <li><strong>Usage</strong>: You can optionally import MP3 files from your device using the iOS file picker</li>
-                <li><strong>Files Accessed</strong>: Only files you explicitly select through the system file picker</li>
-                <li><strong>Security</strong>: We use security-scoped bookmarks to maintain access to your selected files across app launches</li>
-                <li><strong>Data</strong>: Audio files remain on your device and under your control. We never upload, copy, or transmit your files</li>
-            </ul>
-
-            <h2>Data Storage</h2>
-            <p>All app data is stored locally on your device using:</p>
-            <ul>
-                <li><strong>Timer Settings</strong>: Duration preferences, interval gong settings, and background audio mode stored in iOS UserDefaults</li>
-                <li><strong>Guided Meditation Library</strong>: References (security-scoped bookmarks) to audio files you import, stored in iOS UserDefaults</li>
-                <li>No cloud synchronization</li>
-                <li>No external backups</li>
-                <li>No file duplication (we only store references to your original files)</li>
-            </ul>
-            <p>This data:</p>
-            <ul>
-                <li>Never leaves your device</li>
-                <li>Is not accessible to us or any third parties</li>
-                <li>Is deleted if you delete the app</li>
-                <li>Audio files you import remain in their original location on your device</li>
-            </ul>
-
-            <h2>Third-Party Services</h2>
-            <p>Still Moment does not integrate with or use any third-party services, including:</p>
-            <ul>
-                <li>No analytics platforms</li>
-                <li>No advertising networks</li>
-                <li>No social media integrations</li>
-                <li>No crash reporting services</li>
-            </ul>
-
-            <h2>Audio Assets</h2>
-            <p>The completion sound (Tibetan singing bowl) used in Still Moment is:</p>
-            <ul>
-                <li>Licensed under Pixabay License (royalty-free)</li>
-                <li>Source: <a href="https://pixabay.com/sound-effects/e-flat-tibetan-singing-bowl-struck-38746/" target="_blank" rel="noopener">Pixabay Sound Effects</a></li>
-                <li>Played locally on your device only</li>
-                <li>Not recorded, transmitted, or stored externally</li>
-            </ul>
-
-            <h2>Children's Privacy</h2>
-            <p>Still Moment does not knowingly collect any information from children. The app is suitable for all ages and operates entirely offline.</p>
-
-            <h2>Changes to This Policy</h2>
-            <p>We may update this privacy policy from time to time. Any changes will be reflected in the "Last Updated" date above. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
-
-            <h2>Your Rights</h2>
-            <p>Since we don't collect any personal data, there is no data to:</p>
-            <ul>
-                <li>Access</li>
-                <li>Correct</li>
-                <li>Delete</li>
-                <li>Export</li>
-                <li>Object to processing</li>
-            </ul>
-
-            <h2>Contact</h2>
-            <p>If you have any questions or concerns about this privacy policy, please contact:</p>
-            <ul>
-                <li><strong>Email</strong>: stillMoment@posteo.de</li>
-                <li><strong>GitHub</strong>: <a href="https://github.com/stillmoment-app/stillmoment" target="_blank" rel="noopener">github.com/stillmoment-app/stillmoment</a></li>
-            </ul>
-
-            <h2>Compliance</h2>
-            <p>This app complies with:</p>
-            <ul>
-                <li>Apple App Store Review Guidelines</li>
-                <li>iOS privacy best practices</li>
-                <li>General Data Protection Regulation (GDPR) principles</li>
-                <li>California Consumer Privacy Act (CCPA) principles</li>
-            </ul>
-
-            <h2>Summary</h2>
-            <div class="highlight-box">
-                <p><strong>Still Moment is committed to your privacy:</strong></p>
-                <ul class="summary-list">
-                    <li>Works completely offline</li>
-                    <li>Stores all data locally on your device</li>
-                    <li>Never collects, transmits, or shares any personal information</li>
-                    <li>Doesn't use analytics, ads, or tracking</li>
-                    <li>Respects your privacy completely</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- German Content -->
-        <div class="content" data-lang="de">
-            <a href="index.html" class="back-link">← Zurück zur Startseite</a>
-
-            <div class="highlight-box">
-                <p><strong>Kurz gesagt</strong>: Still Moment ist ein einfacher, privatsphäre-fokussierter Meditationstimer, der vollständig offline funktioniert. Wir sammeln, übertragen oder teilen keine persönlichen Informationen. Deine Meditation, deine Daten, dein Gerät.</p>
-            </div>
-
-            <h2>Übersicht</h2>
-            <p>Still Moment ist eine Meditationstimer-App für iOS, die sich dem Schutz deiner Privatsphäre verpflichtet hat. Diese Datenschutzerklärung erklärt unsere Datenpraktiken.</p>
-
-            <h2>Datenerfassung</h2>
-            <p><strong>Still Moment sammelt, speichert oder überträgt keine persönlichen Daten.</strong></p>
-            <p>Die App funktioniert vollständig auf deinem Gerät und:</p>
-            <ul>
+            <ul class="lang-de hidden">
                 <li>Sammelt keine persönlichen Informationen</li>
                 <li>Verfolgt deine Nutzung nicht</li>
                 <li>Sendet keine Daten an externe Server</li>
@@ -361,104 +68,237 @@
                 <li>Speichert keine Daten in der Cloud</li>
                 <li>Teilt keine Informationen mit Dritten</li>
             </ul>
+        </div>
 
-            <h2>Berechtigungen</h2>
-            <p>Still Moment fordert folgende Berechtigungen an:</p>
+        <!-- Permissions -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Permissions</h2>
+            <h2 class="lang-de hidden">Berechtigungen</h2>
 
-            <h3>Benachrichtigungen</h3>
-            <ul>
+            <p class="lang-en">Still Moment requests the following permissions to function:</p>
+            <p class="lang-de hidden">Still Moment fordert folgende Berechtigungen an:</p>
+
+            <h3 class="lang-en">Notifications</h3>
+            <h3 class="lang-de hidden">Benachrichtigungen</h3>
+            <ul class="lang-en">
+                <li><strong>Purpose</strong>: To notify you when your meditation session is complete</li>
+                <li><strong>Usage</strong>: Local notifications are scheduled on your device only</li>
+                <li><strong>Data</strong>: No notification data leaves your device</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li><strong>Zweck</strong>: Um dich zu benachrichtigen, wenn deine Meditationssitzung beendet ist</li>
                 <li><strong>Verwendung</strong>: Lokale Benachrichtigungen werden nur auf deinem Gerät geplant</li>
                 <li><strong>Daten</strong>: Keine Benachrichtigungsdaten verlassen dein Gerät</li>
             </ul>
 
-            <h3>Hintergrund-Audio</h3>
-            <ul>
+            <h3 class="lang-en">Background Audio</h3>
+            <h3 class="lang-de hidden">Hintergrund-Audio</h3>
+            <ul class="lang-en">
+                <li><strong>Purpose</strong>: To play the completion sound even when the app is in the background</li>
+                <li><strong>Usage</strong>: Allows the timer to continue running when your screen is locked</li>
+                <li><strong>Data</strong>: No audio data is transmitted or stored externally</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li><strong>Zweck</strong>: Um den Abschlusston abzuspielen, auch wenn die App im Hintergrund läuft</li>
                 <li><strong>Verwendung</strong>: Ermöglicht dem Timer weiterzulaufen, wenn dein Bildschirm gesperrt ist</li>
                 <li><strong>Daten</strong>: Keine Audiodaten werden übertragen oder extern gespeichert</li>
             </ul>
 
-            <h3>Dateizugriff</h3>
-            <ul>
+            <h3 class="lang-en">File Access</h3>
+            <h3 class="lang-de hidden">Dateizugriff</h3>
+            <ul class="lang-en">
+                <li><strong>Purpose</strong>: To import and play your personal guided meditation audio files</li>
+                <li><strong>Usage</strong>: You can optionally import MP3 files from your device using the iOS file picker</li>
+                <li><strong>Files Accessed</strong>: Only files you explicitly select through the system file picker</li>
+                <li><strong>Security</strong>: We use security-scoped bookmarks to maintain access to your selected files across app launches</li>
+                <li><strong>Data</strong>: Audio files remain on your device and under your control. We never upload, copy, or transmit your files</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li><strong>Zweck</strong>: Um deine persönlichen geführten Meditations-Audiodateien zu importieren und abzuspielen</li>
                 <li><strong>Verwendung</strong>: Du kannst optional MP3-Dateien von deinem Gerät mit der iOS-Dateiauswahl importieren</li>
                 <li><strong>Zugriff auf Dateien</strong>: Nur Dateien, die du explizit über die System-Dateiauswahl auswählst</li>
                 <li><strong>Sicherheit</strong>: Wir verwenden sicherheitsgeschützte Lesezeichen, um den Zugriff auf deine ausgewählten Dateien über App-Neustarts hinweg zu erhalten</li>
                 <li><strong>Daten</strong>: Audiodateien bleiben auf deinem Gerät unter deiner Kontrolle. Wir laden deine Dateien niemals hoch, kopieren oder übertragen sie</li>
             </ul>
+        </div>
 
-            <h2>Datenspeicherung</h2>
-            <p>Alle App-Daten werden lokal auf deinem Gerät gespeichert:</p>
-            <ul>
+        <!-- Data Storage -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Data Storage</h2>
+            <h2 class="lang-de hidden">Datenspeicherung</h2>
+
+            <p class="lang-en">All app data is stored locally on your device using:</p>
+            <p class="lang-de hidden">Alle App-Daten werden lokal auf deinem Gerät gespeichert:</p>
+
+            <ul class="lang-en">
+                <li><strong>Timer Settings</strong>: Duration preferences, interval gong settings, and background audio mode stored in iOS UserDefaults</li>
+                <li><strong>Guided Meditation Library</strong>: References (security-scoped bookmarks) to audio files you import, stored in iOS UserDefaults</li>
+                <li>No cloud synchronization</li>
+                <li>No external backups</li>
+                <li>No file duplication (we only store references to your original files)</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li><strong>Timer-Einstellungen</strong>: Dauerpräferenzen, Intervall-Gong-Einstellungen und Hintergrund-Audiomodus in iOS UserDefaults gespeichert</li>
                 <li><strong>Geführte Meditations-Bibliothek</strong>: Referenzen (sicherheitsgeschützte Lesezeichen) zu Audiodateien, die du importierst, in iOS UserDefaults gespeichert</li>
                 <li>Keine Cloud-Synchronisation</li>
                 <li>Keine externen Backups</li>
                 <li>Keine Dateiduplizierung (wir speichern nur Referenzen zu deinen Originaldateien)</li>
             </ul>
-            <p>Diese Daten:</p>
-            <ul>
+
+            <p class="lang-en">This data:</p>
+            <p class="lang-de hidden">Diese Daten:</p>
+
+            <ul class="lang-en">
+                <li>Never leaves your device</li>
+                <li>Is not accessible to us or any third parties</li>
+                <li>Is deleted if you delete the app</li>
+                <li>Audio files you import remain in their original location on your device</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li>Verlassen niemals dein Gerät</li>
                 <li>Sind für uns oder Dritte nicht zugänglich</li>
                 <li>Werden gelöscht, wenn du die App löschst</li>
                 <li>Audiodateien, die du importierst, bleiben an ihrem ursprünglichen Ort auf deinem Gerät</li>
             </ul>
+        </div>
 
-            <h2>Drittanbieterdienste</h2>
-            <p>Still Moment integriert oder verwendet keine Drittanbieterdienste, einschließlich:</p>
-            <ul>
+        <!-- Third-Party Services -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Third-Party Services</h2>
+            <h2 class="lang-de hidden">Drittanbieterdienste</h2>
+
+            <p class="lang-en">Still Moment does not integrate with or use any third-party services, including:</p>
+            <p class="lang-de hidden">Still Moment integriert oder verwendet keine Drittanbieterdienste, einschließlich:</p>
+
+            <ul class="lang-en">
+                <li>No analytics platforms</li>
+                <li>No advertising networks</li>
+                <li>No social media integrations</li>
+                <li>No crash reporting services</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li>Keine Analyseplattformen</li>
                 <li>Keine Werbenetzwerke</li>
                 <li>Keine Social-Media-Integrationen</li>
                 <li>Keine Absturzmelde-Dienste</li>
             </ul>
+        </div>
 
-            <h2>Audio-Ressourcen</h2>
-            <p>Der Abschlusston (Tibetanische Klangschale), der in Still Moment verwendet wird:</p>
-            <ul>
+        <!-- Audio Assets -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Audio Assets</h2>
+            <h2 class="lang-de hidden">Audio-Ressourcen</h2>
+
+            <p class="lang-en">The completion sound (Tibetan singing bowl) used in Still Moment is:</p>
+            <p class="lang-de hidden">Der Abschlusston (Tibetanische Klangschale), der in Still Moment verwendet wird:</p>
+
+            <ul class="lang-en">
+                <li>Licensed under Pixabay License (royalty-free)</li>
+                <li>Source: <a href="https://pixabay.com/sound-effects/e-flat-tibetan-singing-bowl-struck-38746/" target="_blank" rel="noopener">Pixabay Sound Effects</a></li>
+                <li>Played locally on your device only</li>
+                <li>Not recorded, transmitted, or stored externally</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li>Lizenziert unter Pixabay-Lizenz (lizenzfrei)</li>
                 <li>Quelle: <a href="https://pixabay.com/sound-effects/e-flat-tibetan-singing-bowl-struck-38746/" target="_blank" rel="noopener">Pixabay Soundeffekte</a></li>
                 <li>Wird nur lokal auf deinem Gerät abgespielt</li>
                 <li>Wird nicht aufgezeichnet, übertragen oder extern gespeichert</li>
             </ul>
+        </div>
 
-            <h2>Datenschutz für Kinder</h2>
-            <p>Still Moment sammelt wissentlich keine Informationen von Kindern. Die App ist für alle Altersgruppen geeignet und funktioniert vollständig offline.</p>
+        <!-- Children's Privacy -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Children's Privacy</h2>
+            <h2 class="lang-de hidden">Datenschutz für Kinder</h2>
 
-            <h2>Änderungen dieser Richtlinie</h2>
-            <p>Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Alle Änderungen werden im "Zuletzt aktualisiert"-Datum oben angezeigt. Die fortgesetzte Nutzung der App nach Änderungen stellt die Annahme der aktualisierten Richtlinie dar.</p>
+            <p class="lang-en">Still Moment does not knowingly collect any information from children. The app is suitable for all ages and operates entirely offline.</p>
+            <p class="lang-de hidden">Still Moment sammelt wissentlich keine Informationen von Kindern. Die App ist für alle Altersgruppen geeignet und funktioniert vollständig offline.</p>
+        </div>
 
-            <h2>Deine Rechte</h2>
-            <p>Da wir keine persönlichen Daten sammeln, gibt es keine Daten, die:</p>
-            <ul>
+        <!-- Changes to This Policy -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Changes to This Policy</h2>
+            <h2 class="lang-de hidden">Änderungen dieser Richtlinie</h2>
+
+            <p class="lang-en">We may update this privacy policy from time to time. Any changes will be reflected in the "Last Updated" date above. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+            <p class="lang-de hidden">Wir können diese Datenschutzerklärung von Zeit zu Zeit aktualisieren. Alle Änderungen werden im "Zuletzt aktualisiert"-Datum oben angezeigt. Die fortgesetzte Nutzung der App nach Änderungen stellt die Annahme der aktualisierten Richtlinie dar.</p>
+        </div>
+
+        <!-- Your Rights -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Your Rights</h2>
+            <h2 class="lang-de hidden">Deine Rechte</h2>
+
+            <p class="lang-en">Since we don't collect any personal data, there is no data to:</p>
+            <p class="lang-de hidden">Da wir keine persönlichen Daten sammeln, gibt es keine Daten, die:</p>
+
+            <ul class="lang-en">
+                <li>Access</li>
+                <li>Correct</li>
+                <li>Delete</li>
+                <li>Export</li>
+                <li>Object to processing</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li>Eingesehen werden können</li>
                 <li>Korrigiert werden können</li>
                 <li>Gelöscht werden können</li>
                 <li>Exportiert werden können</li>
                 <li>Deren Verarbeitung widersprochen werden kann</li>
             </ul>
+        </div>
 
-            <h2>Kontakt</h2>
-            <p>Wenn du Fragen oder Bedenken zu dieser Datenschutzerklärung hast, kontaktiere uns bitte:</p>
-            <ul>
-                <li><strong>E-Mail</strong>: stillMoment@posteo.de</li>
-                <li><strong>GitHub</strong>: <a href="https://github.com/stillmoment-app/stillmoment" target="_blank" rel="noopener">github.com/stillmoment-app/stillmoment</a></li>
-            </ul>
+        <!-- Contact -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Contact</h2>
+            <h2 class="lang-de hidden">Kontakt</h2>
 
+            <p class="lang-en">If you have any questions or concerns about this privacy policy, please contact:</p>
+            <p class="lang-de hidden">Wenn du Fragen oder Bedenken zu dieser Datenschutzerklärung hast, kontaktiere uns bitte:</p>
+
+            <div class="contact-box">
+                <p><strong>E-Mail:</strong> <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a></p>
+                <p><strong>GitHub:</strong> <a href="https://github.com/stillmoment-app/stillmoment" target="_blank" rel="noopener">github.com/stillmoment-app/stillmoment</a></p>
+            </div>
+        </div>
+
+        <!-- Compliance -->
+        <div class="privacy-section">
             <h2>Compliance</h2>
-            <p>Diese App entspricht:</p>
-            <ul>
+
+            <p class="lang-en">This app complies with:</p>
+            <p class="lang-de hidden">Diese App entspricht:</p>
+
+            <ul class="lang-en">
+                <li>Apple App Store Review Guidelines</li>
+                <li>iOS privacy best practices</li>
+                <li>General Data Protection Regulation (GDPR) principles</li>
+                <li>California Consumer Privacy Act (CCPA) principles</li>
+            </ul>
+            <ul class="lang-de hidden">
                 <li>Apple App Store Review Guidelines</li>
                 <li>iOS-Datenschutz-Best-Practices</li>
                 <li>Datenschutz-Grundverordnung (DSGVO) Prinzipien</li>
                 <li>California Consumer Privacy Act (CCPA) Prinzipien</li>
             </ul>
+        </div>
 
-            <h2>Zusammenfassung</h2>
+        <!-- Summary -->
+        <div class="privacy-section">
+            <h2 class="lang-en">Summary</h2>
+            <h2 class="lang-de hidden">Zusammenfassung</h2>
+
             <div class="highlight-box">
-                <p><strong>Still Moment ist deiner Privatsphäre verpflichtet:</strong></p>
-                <ul class="summary-list">
+                <p class="lang-en"><strong>Still Moment is committed to your privacy:</strong></p>
+                <p class="lang-de hidden"><strong>Still Moment ist deiner Privatsphäre verpflichtet:</strong></p>
+                <ul class="lang-en">
+                    <li>Works completely offline</li>
+                    <li>Stores all data locally on your device</li>
+                    <li>Never collects, transmits, or shares any personal information</li>
+                    <li>Doesn't use analytics, ads, or tracking</li>
+                    <li>Respects your privacy completely</li>
+                </ul>
+                <ul class="lang-de hidden">
                     <li>Funktioniert vollständig offline</li>
                     <li>Speichert alle Daten lokal auf deinem Gerät</li>
                     <li>Sammelt, überträgt oder teilt niemals persönliche Informationen</li>
@@ -467,29 +307,41 @@
                 </ul>
             </div>
         </div>
-
-        <div class="footer">
-            <p>© 2025 Still Moment · <a href="index.html">Home</a> · <a href="support.html">Support</a> · Contact: <a href="mailto:stillMoment@posteo.de">stillMoment@posteo.de</a> · <a href="https://github.com/stillmoment-app/stillmoment" target="_blank" rel="noopener">GitHub</a></p>
-        </div>
     </div>
 
-    <script>
-        function switchLanguage(lang) {
-            // Update content visibility
-            document.querySelectorAll('.content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelector(`.content[data-lang="${lang}"]`).classList.add('active');
+    {% include footer.html %}
 
-            // Update button state
-            document.querySelectorAll('.language-toggle button').forEach(btn => {
+    <script>
+        // Language switching functionality
+        function switchLanguage(lang) {
+            // Save preference
+            localStorage.setItem('preferredLanguage', lang);
+
+            // Update active button
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            document.getElementById('lang-' + lang).classList.add('active');
 
-            // Update HTML lang attribute for accessibility
-            document.documentElement.lang = lang;
+            // Show/hide content
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+                document.documentElement.lang = 'en';
+                document.title = 'Privacy Policy - Still Moment';
+            } else {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+                document.documentElement.lang = 'de';
+                document.title = 'Datenschutzerklärung - Still Moment';
+            }
         }
+
+        // Load saved language preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+            switchLanguage(savedLang);
+        });
     </script>
 </body>
 </html>
