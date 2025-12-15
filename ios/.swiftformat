@@ -46,7 +46,8 @@
 --enable wrapEnumCases
 --enable wrapSwitchCases
 --enable sortDeclarations
---enable organizeDeclarations
+# organizeDeclarations disabled - causes timeout in CI on large protocol files
+--disable organizeDeclarations
 --enable blankLinesBetweenScopes
 --enable consecutiveSpaces
 --enable duplicateImports

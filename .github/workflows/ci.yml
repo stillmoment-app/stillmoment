@@ -57,7 +57,7 @@ jobs:
         swiftformat --version
 
     - name: Run SwiftFormat Check
-      run: cd ios && make format || swiftformat --lint ios/
+      run: cd ios && make format
 
     - name: Run SwiftLint
       run: cd ios && make lint
