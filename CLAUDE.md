@@ -6,10 +6,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Still Moment is a warmhearted meditation timer iOS app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode. Built with SwiftUI and SF Pro Rounded typography.
+Still Moment is a warmhearted meditation timer app with warm earth tone design and full German/English localization. Features rotating affirmations, configurable interval gongs, guided meditation library with background audio playback, and Apple-compliant background mode.
 
-**Target**: iOS 17+, Swift 6.2+, German & English
-**Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Feature Architecture
+**Platforms**: iOS (SwiftUI) + Android (Jetpack Compose)
+**Quality**: 9/10 ⭐ | **Coverage**: Tracked (see Testing Philosophy) | **Status**: v0.5 - Multi-Platform Architecture
+
+## Monorepo Structure
+
+```
+stillmoment/
+├── ios/                    # iOS App (Swift/SwiftUI)
+│   ├── StillMoment/        # Source code + Resources (sounds, assets)
+│   ├── StillMomentTests/   # Unit tests
+│   ├── StillMomentUITests/ # UI tests
+│   ├── StillMoment.xcodeproj
+│   └── Makefile            # iOS-specific commands
+├── android/                # Android App (Kotlin/Compose)
+│   ├── app/                # Android app module + res/raw/ (sounds)
+│   └── build.gradle.kts
+├── docs/                   # GitHub Pages website
+├── dev-docs/               # Development documentation
+├── CLAUDE.md               # This file
+└── README.md
+```
+
+**Audio Assets**: Each platform maintains its own copy of audio files:
+- iOS: `ios/StillMoment/Resources/` (completion.mp3, BackgroundAudio/*.m4a, *.mp3)
+- Android: `android/app/src/main/res/raw/` (completion.mp3, forest_ambience.mp3, silence.m4a)
+
+**CRITICAL**: When working on iOS, always `cd ios` first. When working on Android, always `cd android` first.
 
 ## Documentation Organization (CRITICAL)
 
@@ -31,26 +56,19 @@ Still Moment is a warmhearted meditation timer iOS app with warm earth tone desi
 **IMPORTANT**: Do NOT confuse the display name with technical identifiers!
 
 - **Display Name**: "Still Moment" (with space) - User-facing name in App Store, UI
-- **Project File**: `StillMoment.xcodeproj` (NO space) - Xcode project file
-- **Scheme**: `StillMoment` (NO space) - Build scheme for xcodebuild
-- **Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
-- **Bundle ID**: `com.stillmoment.StillMoment` (NO space)
-- **Folder**: `StillMoment/` (NO space) - Source code directory
-
-**When writing commands, ALWAYS use `StillMoment` (no space)**:
-```bash
-# ✅ CORRECT
-open StillMoment.xcodeproj
-xcodebuild -scheme StillMoment -project StillMoment.xcodeproj
-
-# ❌ WRONG
-open "Still Moment.xcodeproj"
-xcodebuild -scheme "Still Moment"
-```
+- **iOS Project File**: `ios/StillMoment.xcodeproj` (NO space) - Xcode project file
+- **iOS Scheme**: `StillMoment` (NO space) - Build scheme for xcodebuild
+- **iOS Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
+- **iOS Bundle ID**: `com.stillmoment.StillMoment` (NO space)
+- **Android Package**: `com.stillmoment` - Android package name
 
 ## Essential Commands
 
+### iOS Commands (run from `ios/` directory)
+
 ```bash
+cd ios                             # ALWAYS cd into ios/ first!
+
 # Development
 open StillMoment.xcodeproj         # Open in Xcode
 make setup                         # One-time setup (installs tools & hooks)
@@ -63,7 +81,6 @@ make check                         # Run both format + lint
 # Localization (i18n)
 make check-localization            # Find hardcoded UI strings in code
 make validate-localization         # Validate .strings file completeness
-make check                         # Includes localization checks
 
 # Testing
 make test                          # Run all tests (unit + UI) with coverage
@@ -72,7 +89,7 @@ make test-failures                 # List all failing tests from last run
 make test-single TEST=Class/method # Run single test (TDD debug workflow)
 make test-report                   # Display coverage from last test run
 
-# Simulator Management (reduces Spotlight/WidgetRenderer crashes)
+# Simulator Management
 make simulator-reset               # Reset iOS Simulator only
 make test-clean                    # Reset simulator + run all tests
 make test-clean-unit               # Reset simulator + run unit tests only
@@ -84,33 +101,71 @@ make screenshots                   # Generate localized screenshots (DE + EN)
 make help                          # Show all available commands
 ```
 
+### Android Commands (run from `android/` directory)
+
+```bash
+cd android                         # ALWAYS cd into android/ first!
+
+# Development
+./gradlew build                    # Build the app
+./gradlew assembleDebug            # Build debug APK
+
+# Code Quality
+./gradlew lint                     # Android Lint
+./gradlew detekt                   # Kotlin static analysis
+
+# Testing
+./gradlew test                     # Run unit tests
+./gradlew connectedAndroidTest     # Run instrumented tests
+
+# Utilities
+./gradlew tasks                    # Show all available tasks
+```
+
 ## Architecture
 
-**Clean Architecture Light + MVVM** with strict layer separation and feature-based organization:
+**Clean Architecture Light + MVVM** on both platforms with strict layer separation.
+
+### iOS Architecture (`ios/StillMoment/`)
 
 ```
-Still Moment/
+StillMoment/
 ├── Domain/              # Pure Swift, no dependencies
 │   ├── Models/          # TimerState, MeditationTimer, MeditationSettings, GuidedMeditation
-│   └── Services/        # Protocol definitions (AudioSessionCoordinatorProtocol, AudioServiceProtocol, etc.)
+│   └── Services/        # Protocol definitions (AudioSessionCoordinatorProtocol, etc.)
 ├── Application/         # ViewModels (@MainActor, ObservableObject)
-│   └── ViewModels/      # TimerViewModel, GuidedMeditationsListViewModel, GuidedMeditationPlayerViewModel
-├── Presentation/        # SwiftUI Views (no business logic), organized by feature
+│   └── ViewModels/      # TimerViewModel, GuidedMeditationsListViewModel
+├── Presentation/        # SwiftUI Views (no business logic)
 │   └── Views/
 │       ├── Timer/           # Timer feature
-│       │   ├── TimerView.swift
-│       │   └── SettingsView.swift
 │       ├── GuidedMeditations/   # Guided Meditations feature
-│       │   ├── GuidedMeditationsListView.swift
-│       │   ├── GuidedMeditationPlayerView.swift
-│       │   └── GuidedMeditationEditSheet.swift
 │       └── Shared/          # Shared UI components
-│           ├── ButtonStyles.swift
-│           └── Color+Theme.swift
 ├── Infrastructure/      # Concrete implementations
-│   ├── Services/        # AudioSessionCoordinator, TimerService, AudioService, AudioPlayerService, GuidedMeditationService
-│   └── Logging/         # OSLog extensions (Logger.timer, Logger.audio, etc.)
-└── Resources/           # Assets, sounds (completion.mp3, silence.m4a)
+│   ├── Services/        # AudioSessionCoordinator, TimerService, etc.
+│   └── Logging/         # OSLog extensions
+└── Resources/           # Assets, sounds
+```
+
+### Android Architecture (`android/app/src/main/kotlin/com/stillmoment/`)
+
+```
+com.stillmoment/
+├── domain/              # Pure Kotlin, no Android dependencies
+│   ├── models/          # TimerState, MeditationTimer, MeditationSettings
+│   └── repositories/    # Repository interfaces
+├── presentation/        # UI Layer
+│   ├── viewmodel/       # ViewModels (Hilt-injected)
+│   ├── ui/              # Compose screens
+│   │   ├── timer/       # Timer feature
+│   │   ├── meditations/ # Guided Meditations feature
+│   │   └── theme/       # Color, Theme, Typography
+│   └── navigation/      # NavGraph
+├── data/                # Data layer
+│   ├── repositories/    # Repository implementations
+│   └── local/           # DataStore, persistence
+└── infrastructure/      # Platform services
+    ├── audio/           # AudioService, MediaSession
+    └── di/              # Hilt modules
 ```
 
 **Navigation Pattern**: TabView with NavigationStack per feature

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Warm Earth Tone Palette (matching iOS) -->
+    <color name="terracotta">#FFB8754A</color>
+    <color name="warm_black">#FF2D2926</color>
+    <color name="warm_sand">#FFF5E6D3</color>
+    <color name="pale_apricot">#FFFAE5D3</color>
+    <color name="warm_gray">#FF8B7355</color>
+    <color name="warm_cream">#FFFAF3E8</color>
+    <color name="ring_background">#FFE8D5C4</color>
+    <color name="warm_error">#FFD32F2F</color>
+</resources>

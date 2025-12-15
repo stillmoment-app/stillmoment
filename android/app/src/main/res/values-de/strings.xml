@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Still Moment</string>
+
+    <!-- Main Screen -->
+    <string name="welcome_title">Schön, dass du da bist</string>
+    <string name="duration_question">Wie viel Zeit möchtest du dir schenken?</string>
+    <string name="duration_footer">Du verdienst diese Pause</string>
+
+    <!-- Common -->
+    <string name="common_error">Fehler</string>
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Abbrechen</string>
+    <string name="common_save">Speichern</string>
+    <string name="common_close">Schließen</string>
+    <string name="common_and">und</string>
+
+    <!-- Buttons -->
+    <string name="button_start">Start</string>
+    <string name="button_pause">Kurze Pause</string>
+    <string name="button_resume">Weiter</string>
+    <string name="button_reset">Neu beginnen</string>
+    <string name="button_settings">Einstellungen</string>
+    <string name="button_done">Fertig</string>
+
+    <!-- Tabs -->
+    <string name="tab_timer">Timer</string>
+    <string name="tab_library">Bibliothek</string>
+
+    <!-- Timer States -->
+    <string name="state_ready">Bereit, wenn du es bist</string>
+    <string name="state_countdown">Gleich geht\'s los…</string>
+    <string name="state_running">In der Meditation…</string>
+    <string name="state_paused">Lass dir Zeit</string>
+    <string name="state_completed">Wunderbare Übung</string>
+
+    <!-- Timer -->
+    <string name="timer_lockscreen_hint">Der Bildschirm darf ruhen</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_background_sound">Hintergrundklang</string>
+    <string name="settings_interval_gongs">Intervall-Gongs</string>
+    <string name="settings_interval_gongs_description">Spiele einen sanften Gong in regelmäßigen Abständen</string>
+    <string name="settings_interval_minutes">Intervall</string>
+    <string name="settings_sound_settings">Klang-Einstellungen</string>
+
+    <!-- Background Sounds -->
+    <string name="sound_silent">Stille Atmosphäre</string>
+    <string name="sound_silent_description">Hält die App sanft aktiv. Fast lautlos, nur präsent.</string>
+    <string name="sound_forest">Waldatmosphäre</string>
+    <string name="sound_forest_description">Sanfte Naturklänge helfen dir, in die Übung zu finden.</string>
+
+    <!-- Time -->
+    <string name="time_minutes">%d Min</string>
+    <string name="time_minutes_plural">%d Minuten</string>
+    <string name="time_seconds">%d Sek</string>
+    <string name="time_remaining">%s verbleibend</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_timer_progress">Timer-Fortschritt</string>
+    <string name="accessibility_duration_picker">Meditationsdauer auswählen</string>
+    <string name="accessibility_start_button">Meditation starten</string>
+    <string name="accessibility_pause_button">Meditation pausieren</string>
+    <string name="accessibility_resume_button">Meditation fortsetzen</string>
+    <string name="accessibility_reset_button">Timer zurücksetzen</string>
+    <string name="accessibility_settings_button">Einstellungen öffnen</string>
+    <string name="accessibility_countdown_seconds">Noch %d Sekunden bis die Meditation beginnt</string>
+    <string name="accessibility_time_remaining">%1$d Minuten und %2$d Sekunden verbleibend</string>
+    <string name="accessibility_minute_picker">Dauer: %d Minuten</string>
+
+    <!-- Affirmations - Countdown -->
+    <string name="affirmation_countdown_1">Finde eine bequeme Position</string>
+    <string name="affirmation_countdown_2">Atme tief ein</string>
+    <string name="affirmation_countdown_3">Schließe sanft deine Augen</string>
+    <string name="affirmation_countdown_4">Lass alle Anspannung los</string>
+
+    <!-- Affirmations - Running -->
+    <string name="affirmation_running_1">Sei präsent in diesem Moment</string>
+    <string name="affirmation_running_2">Atme natürlich und tief</string>
+    <string name="affirmation_running_3">Beobachte deine Gedanken, lass sie ziehen</string>
+    <string name="affirmation_running_4">Spüre die Ruhe in dir</string>
+    <string name="affirmation_running_5">Du machst das wunderbar</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Meditations-Timer</string>
+    <string name="notification_channel_description">Zeigt an, wenn der Meditations-Timer aktiv ist</string>
+    <string name="notification_title">Meditation läuft</string>
+    <string name="notification_text">Deine Meditationssitzung ist aktiv</string>
+</resources>

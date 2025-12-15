@@ -57,10 +57,10 @@ jobs:
         swiftformat --version
 
     - name: Run SwiftFormat Check
-      run: make format || swiftformat --lint .
+      run: cd ios && make format || swiftformat --lint ios/
 
     - name: Run SwiftLint
-      run: make lint
+      run: cd ios && make lint
 
   build-and-test:
     name: Build & Unit Tests
@@ -82,9 +82,9 @@ jobs:
       run: |
         # Create Local.xcconfig from template for CI
         # CI doesn't need a real Team ID since we disable code signing
-        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
         # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
-        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' ios/Config/Local.xcconfig
         echo "✅ Created Local.xcconfig for CI build"
 
     - name: Cache DerivedData
@@ -93,7 +93,7 @@ jobs:
         path: |
           ~/Library/Developer/Xcode/DerivedData
           ~/Library/Developer/Xcode/DerivedData/ModuleCache.noindex
-        key: ${{ runner.os }}-derived-${{ hashFiles('**/*.swift', '**/*.m', '**/*.h') }}
+        key: ${{ runner.os }}-derived-${{ hashFiles('ios/**/*.swift', 'ios/**/*.m', 'ios/**/*.h') }}
         restore-keys: |
           ${{ runner.os }}-derived-
 
@@ -101,21 +101,21 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
-          .build
+          ios/.build
           ~/Library/Caches/org.swift.swiftpm
-        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-
 
     - name: Run Unit Tests
-      run: make test-unit
+      run: cd ios && make test-unit
 
     - name: Upload Test Results
       uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: unit-test-failures
-        path: TestResults.xcresult
+        path: ios/TestResults.xcresult
         retention-days: 7
 
   ui-tests:
@@ -135,22 +135,22 @@ jobs:
       run: |
         # Create Local.xcconfig from template for CI
         # CI doesn't need a real Team ID since we disable code signing
-        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
         # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
-        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' ios/Config/Local.xcconfig
         echo "✅ Created Local.xcconfig for CI build"
 
     - name: Cache DerivedData
       uses: actions/cache@v4
       with:
         path: ~/Library/Developer/Xcode/DerivedData
-        key: ${{ runner.os }}-derived-ui-${{ hashFiles('**/*.swift') }}
+        key: ${{ runner.os }}-derived-ui-${{ hashFiles('ios/**/*.swift') }}
         restore-keys: |
           ${{ runner.os }}-derived-ui-
           ${{ runner.os }}-derived-
 
     - name: Reset Simulator
-      run: make simulator-reset
+      run: cd ios && make simulator-reset
 
     - name: Warm up Simulator
       run: |
@@ -184,7 +184,7 @@ jobs:
 
     - name: Run UI Tests
       timeout-minutes: 20
-      run: make test-ui
+      run: cd ios && make test-ui
 
     - name: Upload UI Test Results
       if: failure()
@@ -193,7 +193,7 @@ jobs:
         name: ui-test-failures
         path: |
           ~/Library/Logs/DiagnosticReports/
-          TestResults.xcresult
+          ios/TestResults.xcresult
         retention-days: 7
 
   static-analysis:
@@ -213,23 +213,23 @@ jobs:
       run: |
         # Create Local.xcconfig from template for CI
         # CI doesn't need a real Team ID since we disable code signing
-        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
         # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
-        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' ios/Config/Local.xcconfig
         echo "✅ Created Local.xcconfig for CI build"
 
     - name: Cache DerivedData
       uses: actions/cache@v4
       with:
         path: ~/Library/Developer/Xcode/DerivedData
-        key: ${{ runner.os }}-analyze-${{ hashFiles('**/*.swift', '**/*.m', '**/*.h') }}
+        key: ${{ runner.os }}-analyze-${{ hashFiles('ios/**/*.swift', 'ios/**/*.m', 'ios/**/*.h') }}
         restore-keys: |
           ${{ runner.os }}-analyze-
 
     - name: Run Xcode Static Analysis
       run: |
         xcodebuild analyze \
-          -project StillMoment.xcodeproj \
+          -project ios/StillMoment.xcodeproj \
           -scheme StillMoment \
           -destination "platform=iOS Simulator,name=${{ env.DEVICE }},OS=${{ env.IOS_VERSION }}" \
           CODE_SIGN_IDENTITY="" \
@@ -252,4 +252,86 @@ jobs:
       with:
         name: static-analysis-results
         path: analyze-output.log
+        retention-days: 7
+
+  # ===================
+  # Android Jobs
+  # ===================
+
+  android-lint:
+    name: Android Code Quality (Lint)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+
+    - name: Run Android Lint
+      run: cd android && ./gradlew lint
+
+    - name: Upload Lint Results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-lint-results
+        path: android/app/build/reports/lint-results*.html
+        retention-days: 7
+
+  android-build-and-test:
+    name: Android Build & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x android/gradlew
+
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Build Debug APK
+      run: cd android && ./gradlew assembleDebug
+
+    - name: Run Unit Tests
+      run: cd android && ./gradlew test
+
+    - name: Upload Test Results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-test-results
+        path: android/app/build/reports/tests/
+        retention-days: 7
+
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-debug-apk
+        path: android/app/build/outputs/apk/debug/*.apk
         retention-days: 7

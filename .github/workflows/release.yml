@@ -21,9 +21,9 @@ jobs:
       run: |
         # Create Local.xcconfig from template for CI
         # CI doesn't need a real Team ID since we disable code signing
-        cp Config/Local.xcconfig.example Config/Local.xcconfig
+        cp ios/Config/Local.xcconfig.example ios/Config/Local.xcconfig
         # Replace placeholder with dummy value (CI uses CODE_SIGNING_REQUIRED=NO)
-        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' Config/Local.xcconfig
+        sed -i '' 's/YOUR_TEAM_ID/CI_BUILD/' ios/Config/Local.xcconfig
         echo "✅ Created Local.xcconfig for CI build"
 
     - name: Install dependencies
@@ -31,15 +31,15 @@ jobs:
         brew install swiftlint swiftformat
 
     - name: Lint check
-      run: swiftlint lint --strict
+      run: cd ios && swiftlint lint --strict
 
     - name: Format check
-      run: swiftformat --lint .
+      run: swiftformat --lint ios/
 
     - name: Run all tests
       run: |
         xcodebuild test \
-          -project StillMoment.xcodeproj \
+          -project ios/StillMoment.xcodeproj \
           -scheme StillMoment \
           -destination 'platform=iOS Simulator,name=iPhone 17,OS=19.0' \
           -enableCodeCoverage YES \
@@ -49,9 +49,9 @@ jobs:
     - name: Build Archive
       run: |
         xcodebuild archive \
-          -project StillMoment.xcodeproj \
+          -project ios/StillMoment.xcodeproj \
           -scheme StillMoment \
-          -archivePath StillMoment.xcarchive \
+          -archivePath ios/StillMoment.xcarchive \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
           -destination 'generic/platform=iOS'

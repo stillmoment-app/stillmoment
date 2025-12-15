@@ -113,7 +113,7 @@ coverage.txt
 secrets.json
 *_secret.*
 *_private.*
-Config/Local.xcconfig
+ios/Config/Local.xcconfig
 
 # Jekyll (docs/ website)
 docs/_site/
@@ -121,3 +121,25 @@ docs/vendor/
 docs/.bundle/
 docs/.jekyll-cache/
 docs/Gemfile.lock
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/*.iml
+android/.idea/
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
+android/app/release/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
