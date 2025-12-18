@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-<!-- Nächste Änderungen hier eintragen -->
+### Fixed (Android)
+- **Affirmationen i18n** - Deutsche Nutzer sehen nun deutsche Affirmationen
+  - Hardcoded englische Strings aus `TimerViewModel` entfernt
+  - Affirmationen werden via `getString(R.string.affirmation_*)` geladen
+  - Strings waren bereits in `strings.xml` und `strings-de.xml` definiert
 
 ## [1.1.0] - 2025-12-14 (Verbesserungen & Bugfixes)
 

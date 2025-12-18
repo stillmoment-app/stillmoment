@@ -3,6 +3,7 @@ package com.stillmoment.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerState
@@ -69,22 +70,6 @@ class TimerViewModel @Inject constructor(
     private var currentTimer: MeditationTimer? = null
     private var previousState: TimerState = TimerState.Idle
 
-    // Affirmations (localized strings would be injected in production)
-    private val countdownAffirmations = listOf(
-        "Find a comfortable position",
-        "Take a deep breath",
-        "Close your eyes gently",
-        "Let go of all tension"
-    )
-
-    private val runningAffirmations = listOf(
-        "Be present in this moment",
-        "Breathe naturally and deeply",
-        "Notice your thoughts, let them pass",
-        "Feel the calm within you",
-        "You are doing wonderfully"
-    )
-
     init {
         loadSettings()
     }
@@ -115,9 +100,8 @@ class TimerViewModel @Inject constructor(
         currentTimer = timer
         previousState = TimerState.Idle
 
-        // Rotate affirmation
-        val newIndex = (_uiState.value.currentAffirmationIndex + 1) %
-            maxOf(runningAffirmations.size, countdownAffirmations.size)
+        // Rotate affirmation (4 countdown, 5 running affirmations)
+        val newIndex = (_uiState.value.currentAffirmationIndex + 1) % AFFIRMATION_COUNT
 
         _uiState.update {
             it.copy(
@@ -189,13 +173,26 @@ class TimerViewModel @Inject constructor(
     // MARK: - Affirmation Getters
 
     fun getCurrentCountdownAffirmation(): String {
-        val index = _uiState.value.currentAffirmationIndex % countdownAffirmations.size
-        return countdownAffirmations[index]
+        val index = _uiState.value.currentAffirmationIndex % COUNTDOWN_AFFIRMATION_COUNT
+        val resourceId = when (index) {
+            0 -> R.string.affirmation_countdown_1
+            1 -> R.string.affirmation_countdown_2
+            2 -> R.string.affirmation_countdown_3
+            else -> R.string.affirmation_countdown_4
+        }
+        return getApplication<Application>().getString(resourceId)
     }
 
     fun getCurrentRunningAffirmation(): String {
-        val index = _uiState.value.currentAffirmationIndex % runningAffirmations.size
-        return runningAffirmations[index]
+        val index = _uiState.value.currentAffirmationIndex % RUNNING_AFFIRMATION_COUNT
+        val resourceId = when (index) {
+            0 -> R.string.affirmation_running_1
+            1 -> R.string.affirmation_running_2
+            2 -> R.string.affirmation_running_3
+            3 -> R.string.affirmation_running_4
+            else -> R.string.affirmation_running_5
+        }
+        return getApplication<Application>().getString(resourceId)
     }
 
     // MARK: - Private Methods
@@ -302,5 +299,8 @@ class TimerViewModel @Inject constructor(
 
     companion object {
         private const val DEFAULT_COUNTDOWN_DURATION = 15
+        private const val COUNTDOWN_AFFIRMATION_COUNT = 4
+        private const val RUNNING_AFFIRMATION_COUNT = 5
+        private const val AFFIRMATION_COUNT = 5 // max(COUNTDOWN, RUNNING)
     }
 }
