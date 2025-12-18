@@ -99,6 +99,9 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.ui)
 
+    // AndroidX Media Compat (for MediaSessionCompat)
+    implementation(libs.androidx.media)
+
     // Testing - JUnit 5
     testImplementation(libs.junit5.api)
     testRuntimeOnly(libs.junit5.engine)

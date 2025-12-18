@@ -35,6 +35,16 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- Foreground Service for guided meditation playback with MediaSession -->
+        <service
+            android:name=".infrastructure.audio.MeditationPlayerForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

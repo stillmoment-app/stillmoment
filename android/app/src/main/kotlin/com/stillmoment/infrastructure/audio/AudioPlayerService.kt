@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.PlaybackState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,12 +27,19 @@ import javax.inject.Singleton
  * - Progress tracking via StateFlow
  * - Audio focus handling
  * - Completion callbacks
+ * - MediaSession integration for lock screen controls
+ * - Foreground service with media notification
  *
- * Note: MediaSession and lock screen controls are added in android-010.
+ * Integrates with MediaSessionManager for:
+ * - Lock screen Now Playing info
+ * - Play/Pause controls from lock screen and notifications
+ * - Bluetooth/headphone button support (including wired headphones with inline remote)
  */
 @Singleton
 class AudioPlayerService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val mediaSessionManager: MediaSessionManager,
+    private val notificationManager: MeditationNotificationManager
 ) : AudioPlayerServiceProtocol {
 
     private var mediaPlayer: MediaPlayer? = null
@@ -38,18 +48,48 @@ class AudioPlayerService @Inject constructor(
     private val _playbackState = MutableStateFlow(PlaybackState())
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
+    /**
+     * The currently playing meditation, or null if nothing is playing.
+     */
+    var currentMeditation: GuidedMeditation? = null
+        private set
+
     private val handler = Handler(Looper.getMainLooper())
     private val progressUpdateRunnable = object : Runnable {
         override fun run() {
             updateProgress()
+            updateMediaSessionState()
             if (_playbackState.value.isPlaying) {
                 handler.postDelayed(this, PROGRESS_UPDATE_INTERVAL)
             }
         }
     }
 
+    /**
+     * Plays a guided meditation with full MediaSession integration.
+     *
+     * @param meditation The meditation to play
+     */
+    fun playMeditation(meditation: GuidedMeditation) {
+        currentMeditation = meditation
+
+        // Create MediaSession with callbacks
+        mediaSessionManager.createSession(object : MediaSessionManager.MediaSessionCallback {
+            override fun onPlay() = resume()
+            override fun onPause() = pause()
+            override fun onStop() = stop()
+            override fun onSeekTo(position: Long) = seekTo(position)
+        })
+
+        // Update metadata
+        mediaSessionManager.updateMetadata(meditation)
+
+        // Play the audio
+        play(Uri.parse(meditation.fileUri), meditation.duration)
+    }
+
     override fun play(uri: Uri, duration: Long) {
-        stop()
+        stopMediaPlayer()
 
         try {
             mediaPlayer = MediaPlayer().apply {
@@ -71,6 +111,8 @@ class AudioPlayerService @Inject constructor(
                         )
                     }
                     startProgressUpdates()
+                    updateMediaSessionState()
+                    startForegroundService()
                 }
                 setOnCompletionListener {
                     _playbackState.update {
@@ -80,6 +122,8 @@ class AudioPlayerService @Inject constructor(
                         )
                     }
                     stopProgressUpdates()
+                    updateMediaSessionState()
+                    stopForegroundService()
                     onCompletionCallback?.invoke()
                 }
                 setOnErrorListener { _, what, extra ->
@@ -90,6 +134,7 @@ class AudioPlayerService @Inject constructor(
                         )
                     }
                     stopProgressUpdates()
+                    stopForegroundService()
                     true
                 }
                 prepareAsync()
@@ -110,6 +155,8 @@ class AudioPlayerService @Inject constructor(
                 player.pause()
                 _playbackState.update { it.copy(isPlaying = false) }
                 stopProgressUpdates()
+                updateMediaSessionState()
+                updateNotification()
             }
         }
     }
@@ -120,6 +167,8 @@ class AudioPlayerService @Inject constructor(
                 player.start()
                 _playbackState.update { it.copy(isPlaying = true) }
                 startProgressUpdates()
+                updateMediaSessionState()
+                updateNotification()
             }
         }
     }
@@ -127,10 +176,24 @@ class AudioPlayerService @Inject constructor(
     override fun seekTo(position: Long) {
         mediaPlayer?.seekTo(position.toInt())
         _playbackState.update { it.copy(currentPosition = position) }
+        updateMediaSessionState()
     }
 
     override fun stop() {
+        stopMediaPlayer()
         stopProgressUpdates()
+        mediaSessionManager.release()
+        stopForegroundService()
+        currentMeditation = null
+        _playbackState.update {
+            PlaybackState()
+        }
+    }
+
+    /**
+     * Stops only the media player without affecting MediaSession or service.
+     */
+    private fun stopMediaPlayer() {
         mediaPlayer?.apply {
             try {
                 if (isPlaying) {
@@ -142,9 +205,6 @@ class AudioPlayerService @Inject constructor(
             }
         }
         mediaPlayer = null
-        _playbackState.update {
-            PlaybackState()
-        }
     }
 
     override fun setOnCompletionListener(callback: () -> Unit) {
@@ -172,6 +232,29 @@ class AudioPlayerService @Inject constructor(
                 // Player may be in invalid state
             }
         }
+    }
+
+    private fun updateMediaSessionState() {
+        val state = _playbackState.value
+        mediaSessionManager.updatePlaybackState(
+            isPlaying = state.isPlaying,
+            position = state.currentPosition,
+            duration = state.duration
+        )
+    }
+
+    private fun startForegroundService() {
+        val meditation = currentMeditation ?: return
+        val meditationJson = Json.encodeToString(meditation)
+        MeditationPlayerForegroundService.start(context, meditationJson)
+    }
+
+    private fun updateNotification() {
+        MeditationPlayerForegroundService.update(context)
+    }
+
+    private fun stopForegroundService() {
+        MeditationPlayerForegroundService.stop(context)
     }
 
     companion object {

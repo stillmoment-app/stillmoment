@@ -1,6 +1,6 @@
 # Ticket android-010: MediaSession Lock Screen Controls
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel (~2-3h)
 **Abhaengigkeiten**: android-008
@@ -19,16 +19,16 @@ MediaSession fuer Lock Screen Controls implementieren:
 
 ## Akzeptanzkriterien
 
-- [ ] MediaSession in AudioPlayerService integriert
-- [ ] Lock Screen zeigt Now Playing Info
-- [ ] Play/Pause Controls auf Lock Screen funktionieren
-- [ ] Notification mit Meditation-Info und Controls
-- [ ] Session wird bei Stop beendet
-- [ ] Bluetooth/Headphone Controls funktionieren
-- [ ] **Kabelgebundene Kopfhoerer: Play/Pause Toggle funktioniert** (ACTION_PLAY_PAUSE)
+- [x] MediaSession in AudioPlayerService integriert
+- [x] Lock Screen zeigt Now Playing Info
+- [x] Play/Pause Controls auf Lock Screen funktionieren
+- [x] Notification mit Meditation-Info und Controls
+- [x] Session wird bei Stop beendet
+- [x] Bluetooth/Headphone Controls funktionieren
+- [x] **Kabelgebundene Kopfhoerer: Play/Pause Toggle funktioniert** (ACTION_PLAY_PAUSE)
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag fuer MediaSession/Lock Screen
+- [x] CHANGELOG.md: Feature-Eintrag fuer MediaSession/Lock Screen
 
 ---
 

@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - App läuft jetzt auf Geräten mit iOS 16.0+
 
 ### Added (Android)
+- **MediaSession Lock Screen Controls** - Lock Screen und Notification Controls für Guided Meditations
+  - `MediaSessionManager` mit MediaSessionCompat für System-Integration
+  - `MeditationNotificationManager` für Media-Notifications mit Play/Pause Controls
+  - `MeditationPlayerForegroundService` für Background-Playback
+  - Now Playing Info auf Lock Screen (Titel, Artist)
+  - Play/Pause Controls in Notification und auf Lock Screen
+  - Bluetooth/Headphone Button Support (inkl. kabelgebundene Kopfhörer mit ACTION_PLAY_PAUSE)
+  - Feature-Parität mit iOS MediaSession
+
 - **Audio Player Screen UI** - Full-screen Player für Guided Meditations
   - `GuidedMeditationPlayerScreen` Composable mit Progress Ring
   - Play/Pause Button mit Icon-Toggle
