@@ -340,6 +340,52 @@ make test-report                  # Display report from TestResults.xcresult
 - Files needing coverage improvement
 - Whether threshold (≥80%) is met
 
+### Parallelisierung Best Practices
+
+**Die 3 Ebenen der Parallelisierung in Xcode:**
+
+| Ebene | Flag | Beschreibung |
+|-------|------|--------------|
+| Worker | `-parallel-testing-worker-count` | Mehrere Prozesse im selben Simulator |
+| Destinations | `-maximum-concurrent-test-simulator-destinations` | Mehrere Simulator-Instanzen |
+| Test Plans | `.xctestplan` | Pro-Bundle Konfiguration |
+
+**Empfohlene Konfiguration:**
+
+| Test-Art | Parallel | Worker | Destinations | Grund |
+|----------|----------|--------|--------------|-------|
+| Unit Tests | YES | 2 | 1 | Schnell, aber kontrolliert |
+| UI Tests | NO | - | 1 | Shared Simulator State |
+| Alle Tests | NO | - | 1 | Stabilität vor Geschwindigkeit |
+
+**Wann Parallelisierung sinnvoll ist:**
+- Pure Logic Tests (Parser, Berechnungen, Mapper)
+- ViewModel Tests mit Mocks
+- Tests ohne Shared State (UserDefaults, Keychain, Dateien)
+
+**Wann Parallelisierung kontraproduktiv ist:**
+- UI Tests (Simulator-State wird geteilt, Timing-Abhängigkeiten)
+- Tests mit Shared Resources (UserDefaults, Keychain, Dateisystem)
+- Tests mit echtem Netzwerk/Backend (Rate Limits, Server-State)
+- Performance Tests (CPU-Konkurrenz verfälscht Ergebnisse)
+
+**Flags in run-tests.sh:**
+```bash
+# Unit Tests: Parallel mit Leitplanken
+-parallel-testing-enabled YES
+-parallel-testing-worker-count 2
+-maximum-concurrent-test-simulator-destinations 1
+
+# UI Tests / Alle Tests: Seriell für Stabilität
+-parallel-testing-enabled NO
+```
+
+**Symptome falscher Parallelisierung:**
+- Mehrere Simulatoren starten gleichzeitig
+- "Testing started" ohne Fortschritt (Hänger)
+- Flaky Tests die lokal funktionieren, aber im CI fehlschlagen
+- Race Conditions in Tests mit Shared State
+
 ## Test-Driven Development (TDD)
 
 **MANDATORY for all new features.** TDD prevents test drift by writing tests before implementation.

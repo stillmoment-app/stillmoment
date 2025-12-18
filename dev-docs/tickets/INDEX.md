@@ -39,6 +39,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-006](ios/ios-006-swift-testing-parallel.md) | Swift Testing + Parallel Unit Testing | 5-QA | [ ] | - |
 | ios-007 | CI Test-Sharding | 5-QA | [ ] | ios-005 |
 | [ios-008](ios/ios-008-domain-spm-extraction.md) | Domain-Layer SPM-Extraktion | 2-Architektur | [ ] | - |
+| [ios-009](ios/ios-009-parallel-testing-stabilization.md) | Parallel Testing Stabilisierung | 1-Quick Fix | [x] | - |
+| [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
+| [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [ ] | ios-009 |
 
 ---
 
@@ -66,7 +69,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 ## Parallelisierbare Tickets
 
 ### iOS
-- ios-001, ios-006, ios-007, ios-008 (keine Abhaengigkeiten untereinander)
+- ios-001, ios-006, ios-007, ios-008, ios-009 (keine Abhaengigkeiten untereinander)
+- ios-010, ios-011 (nach ios-009)
 
 ### Android
 Nach android-006:
@@ -81,10 +85,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 7 | 3 | 4 |
+| iOS | 10 | 5 | 5 |
 | Android | 14 | 5 | 9 |
 | Shared | 1 | 0 | 1 |
-| **Total** | **22** | **8** | **14** |
+| **Total** | **25** | **10** | **15** |
 
 ---
 
