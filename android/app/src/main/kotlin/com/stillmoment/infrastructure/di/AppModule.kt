@@ -2,7 +2,9 @@ package com.stillmoment.infrastructure.di
 
 import android.content.Context
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.data.repositories.GuidedMeditationRepositoryImpl
 import com.stillmoment.data.repositories.TimerRepositoryImpl
+import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
@@ -49,6 +51,14 @@ object AppModule {
     fun provideTimerRepository(
         impl: TimerRepositoryImpl
     ): TimerRepository {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideGuidedMeditationRepository(
+        impl: GuidedMeditationRepositoryImpl
+    ): GuidedMeditationRepository {
         return impl
     }
 }

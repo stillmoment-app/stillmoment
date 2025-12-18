@@ -1,6 +1,6 @@
 # Ticket android-005: GuidedMeditation Repository
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
 **Abhaengigkeiten**: android-004
@@ -20,14 +20,14 @@ Repository und Service fuer Guided Meditations implementieren:
 
 ## Akzeptanzkriterien
 
-- [ ] `GuidedMeditationRepository` Interface in Domain Layer
-- [ ] `GuidedMeditationRepositoryImpl` in Data Layer
-- [ ] MP3-Import via SAF (Document Picker)
-- [ ] ID3-Tag Extraktion (Artist → Teacher, Title → Name)
-- [ ] Dauer-Extraktion via MediaMetadataRetriever
-- [ ] DataStore Persistierung
-- [ ] Unit Tests fuer Repository
-- [ ] Manuelle Pruefung: MP3 importieren und Metadaten werden angezeigt
+- [x] `GuidedMeditationRepository` Interface in Domain Layer
+- [x] `GuidedMeditationRepositoryImpl` in Data Layer
+- [x] MP3-Import via SAF (Document Picker)
+- [x] ID3-Tag Extraktion (Artist → Teacher, Title → Name)
+- [x] Dauer-Extraktion via MediaMetadataRetriever
+- [x] DataStore Persistierung
+- [x] Unit Tests fuer Repository
+- [ ] Manuelle Pruefung: MP3 importieren und Metadaten werden angezeigt (UI noch nicht implementiert)
 
 ---
 
