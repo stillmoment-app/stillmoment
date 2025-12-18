@@ -1,6 +1,6 @@
 # Ticket 004: GuidedMeditation Domain Models
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Priorität**: HOCH
 **Aufwand**: Klein (~1h)
 **Abhängigkeiten**: Keine
@@ -15,11 +15,11 @@ Domain Models für Guided Meditations erstellen, analog zu iOS. Diese Models rep
 
 ## Akzeptanzkriterien
 
-- [ ] `GuidedMeditation` data class in Domain Layer erstellt
-- [ ] Computed Properties: `effectiveTeacher`, `effectiveName`, `formattedDuration`
-- [ ] `GuidedMeditationGroup` data class für Gruppierung nach Lehrer
-- [ ] Unit Tests für Models vorhanden
-- [ ] Models sind Serializable (für DataStore)
+- [x] `GuidedMeditation` data class in Domain Layer erstellt
+- [x] Computed Properties: `effectiveTeacher`, `effectiveName`, `formattedDuration`
+- [x] `GuidedMeditationGroup` data class für Gruppierung nach Lehrer
+- [x] Unit Tests für Models vorhanden
+- [x] Models sind Serializable (für DataStore)
 
 ---
 

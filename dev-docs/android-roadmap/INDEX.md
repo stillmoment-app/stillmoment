@@ -18,7 +18,7 @@ Android-App auf Feature-Parity mit iOS v0.5 bringen.
 | [002](002-audio-session-coordinator.md) | Audio Session Coordinator | Architektur | [x] | - |
 | [003](003-timer-repository-impl.md) | TimerRepository Implementierung | Architektur | [x] | - |
 | [003-2](003-2-timer-viewmodel-repository.md) | TimerViewModel Repository Integration | Architektur | [x] | 003 |
-| [004](004-guided-meditation-models.md) | GuidedMeditation Domain Models | Feature | [ ] | - |
+| [004](004-guided-meditation-models.md) | GuidedMeditation Domain Models | Feature | [x] | - |
 | [005](005-guided-meditation-repository.md) | GuidedMeditation Repository | Feature | [ ] | 004 |
 | [006](006-guided-meditation-viewmodel.md) | GuidedMeditation ViewModel | Feature | [ ] | 005 |
 | [007](007-library-screen-ui.md) | Library Screen UI | Feature | [ ] | 006 |
