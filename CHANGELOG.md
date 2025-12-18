@@ -16,6 +16,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - App läuft jetzt auf Geräten mit iOS 16.0+
 
 ### Added (Android)
+- **Audio Player Screen UI** - Full-screen Player für Guided Meditations
+  - `GuidedMeditationPlayerScreen` Composable mit Progress Ring
+  - Play/Pause Button mit Icon-Toggle
+  - Seek Slider mit Position/Duration Anzeige
+  - Skip Forward/Backward (±10 Sekunden)
+  - Meditation-Info Header (Teacher, Name)
+  - Back Navigation
+  - Vollständige Accessibility Labels (DE + EN)
+
+- **TabView Navigation** - Bottom Navigation mit zwei Tabs
+  - Tab 1: Timer (Icon: Timer)
+  - Tab 2: Library (Icon: LibraryMusic)
+  - Separate Navigation pro Tab mit State-Erhaltung
+  - Bottom Bar wird im Player ausgeblendet
+  - Accessibility Labels für Tab-Navigation (DE + EN)
+  - Feature-Parität mit iOS TabView
+
 - **Audio Session Coordinator** - Exklusive Audio-Verwaltung zwischen Features
   - `AudioSource` Enum für Timer und Guided Meditation
   - `AudioSessionCoordinatorProtocol` Interface in Domain Layer

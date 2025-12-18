@@ -103,4 +103,22 @@
     <string name="accessibility_edit_meditation">Meditationsdetails bearbeiten</string>
     <string name="accessibility_delete_meditation">Meditation löschen</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
+
+    <!-- Player Screen -->
+    <string name="player_now_playing">Wird abgespielt</string>
+    <string name="player_remaining">verbleibend</string>
+
+    <!-- Player Accessibility -->
+    <string name="accessibility_player_progress">Wiedergabefortschritt: %d Prozent</string>
+    <string name="accessibility_seek_slider">Suchleiste</string>
+    <string name="accessibility_play_button">Meditation abspielen</string>
+    <string name="accessibility_pause_button_player">Meditation pausieren</string>
+    <string name="accessibility_skip_forward">10 Sekunden vorspulen</string>
+    <string name="accessibility_skip_backward">10 Sekunden zurückspulen</string>
+    <string name="accessibility_player_teacher">Lehrer</string>
+    <string name="accessibility_player_title">Meditationstitel</string>
+
+    <!-- Tab Accessibility -->
+    <string name="accessibility_tab_timer">Zum Timer navigieren</string>
+    <string name="accessibility_tab_library">Zur Bibliothek navigieren</string>
 </resources>

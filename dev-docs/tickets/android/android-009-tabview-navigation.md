@@ -1,6 +1,6 @@
 # Ticket android-009: TabView Navigation
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Klein (~1-2h)
 **Abhaengigkeiten**: android-007, android-008
@@ -20,17 +20,17 @@ Jeder Tab hat seinen eigenen Navigation Stack.
 
 ## Akzeptanzkriterien
 
-- [ ] `BottomNavigation` mit zwei Tabs
-- [ ] Tab 1: Timer (Icon: Timer)
-- [ ] Tab 2: Library (Icon: Library/Folder)
-- [ ] Separate Navigation pro Tab
-- [ ] Tab-State bleibt bei Wechsel erhalten
-- [ ] Accessibility Labels fuer Tabs
-- [ ] Lokalisierte Tab-Labels
+- [x] `BottomNavigation` mit zwei Tabs
+- [x] Tab 1: Timer (Icon: Timer)
+- [x] Tab 2: Library (Icon: Library/Folder)
+- [x] Separate Navigation pro Tab
+- [x] Tab-State bleibt bei Wechsel erhalten
+- [x] Accessibility Labels fuer Tabs
+- [x] Lokalisierte Tab-Labels
 
 ### Dokumentation
-- [ ] CLAUDE.md: Android-Sektion um "Navigation Pattern" erweitern
-- [ ] CHANGELOG.md: Eintrag fuer TabView Navigation
+- [x] CLAUDE.md: Android-Sektion um "Navigation Pattern" erweitern
+- [x] CHANGELOG.md: Eintrag fuer TabView Navigation
 
 ---
 

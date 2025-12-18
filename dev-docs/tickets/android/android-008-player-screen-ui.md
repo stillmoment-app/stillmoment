@@ -1,6 +1,6 @@
 # Ticket android-008: Audio Player Screen UI
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
 **Abhaengigkeiten**: android-006
@@ -20,14 +20,14 @@ Compose UI fuer den Guided Meditation Audio Player erstellen:
 
 ## Akzeptanzkriterien
 
-- [ ] `GuidedMeditationPlayerScreen` Composable
-- [ ] Play/Pause Button mit Icon-Toggle
-- [ ] Seek Slider mit Position/Duration Anzeige
-- [ ] Meditation-Info Header
-- [ ] Progress Ring (optional, wie Timer)
-- [ ] Back Navigation
-- [ ] AudioPlayerService Integration
-- [ ] Accessibility Labels
+- [x] `GuidedMeditationPlayerScreen` Composable
+- [x] Play/Pause Button mit Icon-Toggle
+- [x] Seek Slider mit Position/Duration Anzeige
+- [x] Meditation-Info Header
+- [x] Progress Ring (optional, wie Timer)
+- [x] Back Navigation
+- [x] AudioPlayerService Integration
+- [x] Accessibility Labels
 
 ---
 

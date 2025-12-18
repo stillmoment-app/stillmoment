@@ -103,4 +103,22 @@
     <string name="accessibility_edit_meditation">Edit meditation details</string>
     <string name="accessibility_delete_meditation">Delete meditation</string>
     <string name="accessibility_meditation_item">%1$s, duration %2$s</string>
+
+    <!-- Player Screen -->
+    <string name="player_now_playing">Now playing</string>
+    <string name="player_remaining">remaining</string>
+
+    <!-- Player Accessibility -->
+    <string name="accessibility_player_progress">Playback progress: %d percent</string>
+    <string name="accessibility_seek_slider">Seek slider</string>
+    <string name="accessibility_play_button">Play meditation</string>
+    <string name="accessibility_pause_button_player">Pause meditation</string>
+    <string name="accessibility_skip_forward">Skip forward 10 seconds</string>
+    <string name="accessibility_skip_backward">Skip backward 10 seconds</string>
+    <string name="accessibility_player_teacher">Teacher</string>
+    <string name="accessibility_player_title">Meditation title</string>
+
+    <!-- Tab Accessibility -->
+    <string name="accessibility_tab_timer">Navigate to timer</string>
+    <string name="accessibility_tab_library">Navigate to library</string>
 </resources>
