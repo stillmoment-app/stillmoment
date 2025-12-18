@@ -2,7 +2,11 @@ package com.stillmoment.infrastructure.di
 
 import android.content.Context
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.data.repositories.TimerRepositoryImpl
 import com.stillmoment.domain.repositories.SettingsRepository
+import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.infrastructure.audio.AudioSessionCoordinator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +34,21 @@ object AppModule {
         settingsDataStore: SettingsDataStore
     ): SettingsRepository {
         return settingsDataStore
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioSessionCoordinator(
+        coordinator: AudioSessionCoordinator
+    ): AudioSessionCoordinatorProtocol {
+        return coordinator
+    }
+
+    @Provides
+    @Singleton
+    fun provideTimerRepository(
+        impl: TimerRepositoryImpl
+    ): TimerRepository {
+        return impl
     }
 }

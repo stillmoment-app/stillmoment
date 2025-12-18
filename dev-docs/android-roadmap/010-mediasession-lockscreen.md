@@ -24,6 +24,10 @@ MediaSession für Lock Screen Controls implementieren:
 - [ ] Notification mit Meditation-Info und Controls
 - [ ] Session wird bei Stop beendet
 - [ ] Bluetooth/Headphone Controls funktionieren
+- [ ] **Kabelgebundene Kopfhörer: Play/Pause Toggle funktioniert** (ACTION_PLAY_PAUSE)
+
+### Dokumentation
+- [ ] CHANGELOG.md: Feature-Eintrag für MediaSession/Lock Screen
 
 ---
 
@@ -92,6 +96,7 @@ class MediaSessionManager @Inject constructor(
                 .setActions(
                     PlaybackStateCompat.ACTION_PLAY or
                     PlaybackStateCompat.ACTION_PAUSE or
+                    PlaybackStateCompat.ACTION_PLAY_PAUSE or  // WICHTIG: Für kabelgebundene Kopfhörer!
                     PlaybackStateCompat.ACTION_SEEK_TO or
                     PlaybackStateCompat.ACTION_STOP
                 )
@@ -224,7 +229,36 @@ cd android && ./gradlew assembleDebug
 # 4. Play/Pause auf Lock Screen testen
 # 5. Notification hat Controls
 # 6. Bluetooth-Kopfhörer: Play/Pause-Button funktioniert
+# 7. KABELGEBUNDENE KOPFHÖRER: Inline-Remote Button testen!
 ```
+
+---
+
+## Wichtig: Kabelgebundene Kopfhörer
+
+Kabelgebundene Kopfhörer (mit Inline-Remote) senden einen **Toggle-Event**, nicht separate Play/Pause-Events.
+
+**Lösung**: `ACTION_PLAY_PAUSE` MUSS in den PlaybackState Actions enthalten sein:
+
+```kotlin
+.setActions(
+    PlaybackStateCompat.ACTION_PLAY or
+    PlaybackStateCompat.ACTION_PAUSE or
+    PlaybackStateCompat.ACTION_PLAY_PAUSE or  // <-- KRITISCH!
+    ...
+)
+```
+
+Ohne `ACTION_PLAY_PAUSE` funktionieren:
+- ❌ Kabelgebundene Kopfhörer mit Inline-Remote
+- ❌ Einige ältere Bluetooth-Geräte
+- ❌ Manche CarPlay-Konfigurationen
+
+Mit `ACTION_PLAY_PAUSE` funktionieren:
+- ✅ Alle oben genannten
+- ✅ Lock Screen Controls
+- ✅ Notification Controls
+- ✅ Moderne Bluetooth-Kopfhörer
 
 ---
 
@@ -232,3 +266,4 @@ cd android && ./gradlew assembleDebug
 
 iOS verwendet `MPNowPlayingInfoCenter` und `MPRemoteCommandCenter`:
 - `ios/StillMoment/Infrastructure/Services/AudioPlayerService.swift`
+- iOS-Äquivalent: `togglePlayPauseCommand` (siehe iOS-Ticket 001)

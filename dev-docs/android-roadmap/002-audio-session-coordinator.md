@@ -1,6 +1,6 @@
 # Ticket 002: Audio Session Coordinator
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Priorität**: HOCH
 **Aufwand**: Mittel (~2-3h)
 **Abhängigkeiten**: Keine
@@ -15,17 +15,18 @@ iOS hat einen `AudioSessionCoordinator` Singleton, der exklusiven Audio-Zugriff 
 
 ## Akzeptanzkriterien
 
-- [ ] `AudioSource` enum in Domain Layer erstellt (Timer, GuidedMeditation)
-- [ ] `AudioSessionCoordinatorProtocol` Interface in Domain Layer erstellt
-- [ ] `AudioSessionCoordinator` Singleton in Infrastructure Layer implementiert
-- [ ] Conflict Handler Pattern implementiert (wie iOS)
-- [ ] `AudioService` (Timer) nutzt Coordinator
-- [ ] Unit Tests für Coordinator vorhanden
+- [x] `AudioSource` enum in Domain Layer erstellt (Timer, GuidedMeditation)
+- [x] `AudioSessionCoordinatorProtocol` Interface in Domain Layer erstellt
+- [x] `AudioSessionCoordinator` Singleton in Infrastructure Layer implementiert
+- [x] Conflict Handler Pattern implementiert (wie iOS)
+- [x] `AudioService` (Timer) nutzt Coordinator
+- [x] Unit Tests für Coordinator vorhanden
 - [ ] Manuelle Prüfung: Wenn Timer läuft und Guided Meditation startet, stoppt Timer-Audio
+  - (Wird getestet wenn Ticket 008 abgeschlossen ist)
 
 ### Dokumentation
-- [ ] CLAUDE.md: Android-Sektion um "Audio Session Coordination" erweitern
-- [ ] CHANGELOG.md: Eintrag für Audio Coordination Feature
+- [x] CLAUDE.md: Android-Sektion um "Audio Session Coordination" erweitern
+- [x] CHANGELOG.md: Eintrag für Audio Coordination Feature
 
 ---
 

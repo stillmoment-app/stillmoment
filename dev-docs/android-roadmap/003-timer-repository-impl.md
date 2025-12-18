@@ -1,6 +1,6 @@
 # Ticket 003: TimerRepository Implementierung
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Priorität**: MITTEL
 **Aufwand**: Klein (~1h)
 **Abhängigkeiten**: Keine
@@ -17,12 +17,12 @@ Das `TimerRepository` Interface existiert in der Domain-Schicht, hat aber keine 
 
 ## Akzeptanzkriterien
 
-- [ ] `TimerRepositoryImpl` in Data Layer erstellt
-- [ ] Repository nutzt `MutableStateFlow` für reaktiven State
-- [ ] Hilt Binding in `DataModule` hinzugefügt
-- [ ] `TimerViewModel` nutzt Repository statt direktem State
-- [ ] Bestehende Unit Tests weiterhin grün
-- [ ] Neuer Test für Repository erstellt
+- [x] `TimerRepositoryImpl` in Data Layer erstellt
+- [x] Repository nutzt `MutableStateFlow` für reaktiven State
+- [x] Hilt Binding in `AppModule` hinzugefügt
+- [ ] `TimerViewModel` nutzt Repository statt direktem State (optional für MVP)
+- [x] Bestehende Unit Tests weiterhin grün
+- [x] Neuer Test für Repository erstellt (13 Tests)
 
 ---
 
