@@ -1,6 +1,6 @@
 # Ticket ios-002: iOS 16 Support
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein (~30-45 min)
 **Abhaengigkeiten**: Keine
@@ -29,16 +29,16 @@ Ein Benutzer moechte die App auf iOS 16.6.1 verwenden. Aktuell ist iOS 17.0 die 
 
 ## Akzeptanzkriterien
 
-- [ ] Deployment Target auf iOS 16.0 geaendert
-- [ ] Alle `#Preview` Makros mit `@available(iOS 17.0, *)` markiert
-- [ ] `onChange` Signaturen auf iOS 16 kompatible Version geaendert
-- [ ] Locale API auf iOS 16 kompatibel (falls noetig)
-- [ ] App kompiliert und laeuft auf iOS 16 Simulator
-- [ ] Bestehende Unit Tests weiterhin gruen
+- [x] Deployment Target auf iOS 16.0 geaendert
+- [x] Alle `#Preview` Makros mit `@available(iOS 17.0, *)` markiert
+- [x] `onChange` Signaturen auf iOS 16 kompatible Version geaendert
+- [x] Locale API auf iOS 16 kompatibel (falls noetig)
+- [x] App kompiliert und laeuft auf iOS 16 Simulator
+- [x] Bestehende Unit Tests weiterhin gruen
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag fuer iOS 16 Support
-- [ ] README.md: Minimum iOS Version aktualisieren
+- [x] CHANGELOG.md: Feature-Eintrag fuer iOS 16 Support
+- [x] README.md: Minimum iOS Version aktualisieren
 
 ---
 
@@ -168,5 +168,5 @@ make test-unit
 
 ## Entscheidung
 
-- [ ] iOS 16 Support implementieren
+- [x] iOS 16 Support implementieren
 - [ ] Bei iOS 17+ bleiben (90%+ der Geraete unterstuetzen iOS 17)

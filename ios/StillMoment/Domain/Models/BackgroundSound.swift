@@ -36,7 +36,7 @@ struct BackgroundSound: Codable, Identifiable, Equatable {
 
         /// Returns localized string based on current locale
         var localized: String {
-            let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+            let languageCode = Locale.current.languageCode ?? "en"
             switch languageCode {
             case "de":
                 return self.de

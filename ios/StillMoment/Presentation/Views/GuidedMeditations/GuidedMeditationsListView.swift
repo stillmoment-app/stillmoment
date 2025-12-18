@@ -231,6 +231,7 @@ extension UTType {
 
 // MARK: - Previews
 
+@available(iOS 17.0, *)
 #Preview("Empty State") {
     NavigationStack {
         GuidedMeditationsListView()
@@ -238,18 +239,21 @@ extension UTType {
 }
 
 // Device Size Previews
+@available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
     NavigationStack {
         GuidedMeditationsListView()
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
     NavigationStack {
         GuidedMeditationsListView()
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
     NavigationStack {
         GuidedMeditationsListView()

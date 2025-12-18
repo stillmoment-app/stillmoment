@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **iOS 16 Support** - Erweiterte Geräte-Kompatibilität
+  - Deployment Target von iOS 17.0 auf iOS 16.0 gesenkt
+  - `onChange` Signaturen auf iOS 16 kompatibel angepasst
+  - Locale API auf iOS 16 kompatibel (`Locale.current.languageCode`)
+  - Alle `#Preview` Makros mit `@available(iOS 17.0, *)` markiert
+  - App läuft jetzt auf Geräten mit iOS 16.0+
+
 ### Added (Android)
 - **Audio Session Coordinator** - Exklusive Audio-Verwaltung zwischen Features
   - `AudioSource` Enum für Timer und Guided Meditation
@@ -382,7 +390,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SwiftUI Previews for all states
 
 ### Technical Stack
-- iOS 17+
+- iOS 16+
 - Swift 5.9+
 - SwiftUI
 - AVFoundation

@@ -3,7 +3,7 @@
 [![CI](https://github.com/stillmoment-app/stillmoment/actions/workflows/ci.yml/badge.svg)](https://github.com/stillmoment-app/stillmoment/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-%E2%89%A580%25-brightgreen)]()
 [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
-[![iOS](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://www.apple.com/ios/)
+[![iOS](https://img.shields.io/badge/iOS-16%2B-blue.svg)](https://www.apple.com/ios/)
 [![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-blue.svg)]()
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/stillmoment-app/stillmoment/blob/main/LICENSE)
 
@@ -44,7 +44,7 @@ A warmhearted, minimalistic meditation timer for iOS with warm earth tone design
 
 ## 🛠 Technical Stack
 
-- **Platform**: iOS 17+
+- **Platform**: iOS 16+
 - **Language**: Swift 5.9+
 - **UI**: SwiftUI
 - **Architecture**: Clean Architecture Light + MVVM

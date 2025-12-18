@@ -37,11 +37,11 @@ struct AutocompleteTextField: View {
             TextField(self.placeholder, text: self.$text)
                 .focused(self.$isFocused)
                 .accessibilityLabel(self.accessibilityLabel)
-                .onChange(of: self.text) { _, newValue in
+                .onChange(of: self.text) { newValue in
                     let filtered = Self.filterSuggestions(self.suggestions, for: newValue)
                     self.showSuggestions = !filtered.isEmpty
                 }
-                .onChange(of: self.isFocused) { _, focused in
+                .onChange(of: self.isFocused) { focused in
                     if !focused {
                         // Delay to allow tap on suggestion to register
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -131,6 +131,7 @@ struct AutocompleteTextField: View {
 
 // MARK: - Preview
 
+@available(iOS 17.0, *)
 #Preview("With Suggestions") {
     @Previewable @State var text = "Al"
 
@@ -146,6 +147,7 @@ struct AutocompleteTextField: View {
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("Empty") {
     @Previewable @State var text = ""
 

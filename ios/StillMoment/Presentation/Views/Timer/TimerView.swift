@@ -306,30 +306,35 @@ struct TimerView: View {
 // MARK: - Previews
 
 // State Previews
+@available(iOS 17.0, *)
 #Preview("Idle") {
     NavigationStack {
         TimerView()
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("Countdown") {
     NavigationStack {
         TimerView(viewModel: TimerViewModel.preview(state: .countdown))
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("Running") {
     NavigationStack {
         TimerView(viewModel: TimerViewModel.preview(state: .running))
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("Paused") {
     NavigationStack {
         TimerView(viewModel: TimerViewModel.preview(state: .paused))
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("Completed") {
     NavigationStack {
         TimerView(viewModel: TimerViewModel.preview(state: .completed))
@@ -337,18 +342,21 @@ struct TimerView: View {
 }
 
 // Device Size Previews
+@available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
     NavigationStack {
         TimerView()
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
     NavigationStack {
         TimerView()
     }
 }
 
+@available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
     NavigationStack {
         TimerView()
