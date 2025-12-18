@@ -7,14 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
-- **iOS 16 Support** - Erweiterte Geräte-Kompatibilität
-  - Deployment Target von iOS 17.0 auf iOS 16.0 gesenkt
-  - `onChange` Signaturen auf iOS 16 kompatibel angepasst
-  - Locale API auf iOS 16 kompatibel (`Locale.current.languageCode`)
-  - Alle `#Preview` Makros mit `@available(iOS 17.0, *)` markiert
-  - App läuft jetzt auf Geräten mit iOS 16.0+
-
 ### Added (Android)
 - **MediaSession Lock Screen Controls** - Lock Screen und Notification Controls für Guided Meditations
   - `MediaSessionManager` mit MediaSessionCompat für System-Integration
@@ -51,17 +43,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unit Tests für alle Coordinator-Funktionen
   - Feature-Parität mit iOS Audio-Koordination
 
-### Fixed (iOS)
-- **Kopfhörer Play/Pause** - Kabelgebundene Kopfhörer (EarPods) funktionieren jetzt
-  - `togglePlayPauseCommand` im Remote Command Center hinzugefügt
-  - Play/Pause über Mittelbutton am Kabel funktioniert bei Guided Meditations
-  - Betrifft auch ältere Bluetooth-Geräte und manche CarPlay-Konfigurationen
+### Changed (Android)
+- **Player UI vereinfacht** - Progress-Ring aus Guided Meditation Player entfernt
+  - Redundantes UI-Element entfernt (Ring zeigte gleiche Info wie Slider)
+  - Zeit-Labels zeigen nun Position und verbleibende Zeit (wie iOS)
+  - Layout konsistent mit iOS Player Design
 
 ### Fixed (Android)
 - **Affirmationen i18n** - Deutsche Nutzer sehen nun deutsche Affirmationen
   - Hardcoded englische Strings aus `TimerViewModel` entfernt
   - Affirmationen werden via `getString(R.string.affirmation_*)` geladen
   - Strings waren bereits in `strings.xml` und `strings-de.xml` definiert
+
+## [1.2.0] - 2025-12-18 (iOS 16 Support & Bugfixes)
+
+### Added
+- **iOS 16 Support** - Erweiterte Geräte-Kompatibilität
+  - Deployment Target von iOS 17.0 auf iOS 16.0 gesenkt
+  - App läuft jetzt auf Geräten mit iOS 16.0+
+  - Erreicht mehr Nutzer mit älteren iPhones (iPhone 8+)
+
+### Fixed
+- **Kopfhörer Play/Pause** - Kabelgebundene Kopfhörer (EarPods) funktionieren jetzt
+  - `togglePlayPauseCommand` im Remote Command Center hinzugefügt
+  - Play/Pause über Mittelbutton am Kabel funktioniert bei Guided Meditations
+  - Betrifft auch ältere Bluetooth-Geräte und manche CarPlay-Konfigurationen
 
 ## [1.1.0] - 2025-12-14 (Verbesserungen & Bugfixes)
 

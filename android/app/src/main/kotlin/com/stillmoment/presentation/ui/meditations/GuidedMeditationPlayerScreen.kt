@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.filled.Forward10
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -66,8 +64,7 @@ import com.stillmoment.presentation.viewmodel.PlayerUiState
  *
  * Features:
  * - Teacher and meditation name display
- * - Progress ring with time display
- * - Seek slider with position/duration labels
+ * - Seek slider with position/remaining time labels
  * - Play/Pause and skip controls
  * - Back navigation
  */
@@ -167,11 +164,7 @@ private fun GuidedMeditationPlayerScreenContent(
                     meditation = meditation
                 )
 
-                // Progress Ring
-                PlayerProgressRing(
-                    progress = uiState.progress,
-                    formattedTime = uiState.formattedRemaining
-                )
+                Spacer(modifier = Modifier.weight(1f))
 
                 // Controls
                 PlayerControls(
@@ -180,7 +173,7 @@ private fun GuidedMeditationPlayerScreenContent(
                     currentPosition = uiState.currentPosition,
                     duration = uiState.duration,
                     formattedPosition = uiState.formattedPosition,
-                    formattedDuration = uiState.formattedDuration,
+                    formattedRemaining = uiState.formattedRemaining,
                     onSeek = onSeek,
                     onSkipForward = onSkipForward,
                     onSkipBackward = onSkipBackward
@@ -251,70 +244,13 @@ private fun MeditationInfoHeader(
 }
 
 @Composable
-private fun PlayerProgressRing(
-    progress: Float,
-    formattedTime: String,
-    modifier: Modifier = Modifier
-) {
-    val progressDescription = stringResource(
-        R.string.accessibility_player_progress,
-        (progress * 100).toInt()
-    )
-
-    Box(
-        modifier = modifier.size(280.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        // Background ring
-        CircularProgressIndicator(
-            progress = { 1f },
-            modifier = Modifier.fillMaxSize(),
-            color = RingBackground,
-            strokeWidth = 12.dp,
-            strokeCap = StrokeCap.Round
-        )
-
-        // Progress ring
-        CircularProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxSize()
-                .semantics {
-                    contentDescription = progressDescription
-                },
-            color = Terracotta,
-            strokeWidth = 12.dp,
-            strokeCap = StrokeCap.Round
-        )
-
-        // Time display (remaining)
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = formattedTime,
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Light
-                ),
-                color = WarmBlack
-            )
-            Text(
-                text = stringResource(R.string.player_remaining),
-                style = MaterialTheme.typography.labelSmall,
-                color = WarmGray
-            )
-        }
-    }
-}
-
-@Composable
 private fun PlayerControls(
     isPlaying: Boolean,
     onPlayPause: () -> Unit,
     currentPosition: Long,
     duration: Long,
     formattedPosition: String,
-    formattedDuration: String,
+    formattedRemaining: String,
     onSeek: (Float) -> Unit,
     onSkipForward: () -> Unit,
     onSkipBackward: () -> Unit,
@@ -360,7 +296,7 @@ private fun PlayerControls(
             )
         )
 
-        // Time labels
+        // Time labels (position left, remaining right - like iOS)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -371,7 +307,7 @@ private fun PlayerControls(
                 color = WarmGray
             )
             Text(
-                text = formattedDuration,
+                text = "-$formattedRemaining",
                 style = MaterialTheme.typography.bodySmall,
                 color = WarmGray
             )
