@@ -168,22 +168,36 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func setupRemoteCommandCenter() {
         let commandCenter = MPRemoteCommandCenter.shared()
+        self.setupPlayPauseCommands(commandCenter)
+        self.setupSeekCommands(commandCenter)
+        self.setupSkipCommands(commandCenter)
+    }
 
-        // Play command
+    private func setupPlayPauseCommands(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [weak self] _ in
             try? self?.play()
             return .success
         }
 
-        // Pause command
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             self?.pause()
             return .success
         }
 
-        // Change playback position command
+        // Toggle command for wired headphones (EarPods) and some CarPlay configurations
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard let self else {
+                return .commandFailed
+            }
+            self.state.value == .playing ? self.pause() : (try? self.play())
+            return .success
+        }
+    }
+
+    private func setupSeekCommands(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.changePlaybackPositionCommand.isEnabled = true
         commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let event = event as? MPChangePlaybackPositionCommandEvent else {
@@ -192,8 +206,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             try? self?.seek(to: event.positionTime)
             return .success
         }
+    }
 
-        // Skip forward/backward (optional, 15 seconds)
+    private func setupSkipCommands(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.skipForwardCommand.isEnabled = true
         commandCenter.skipForwardCommand.preferredIntervals = [15]
         commandCenter.skipForwardCommand.addTarget { [weak self] _ in
@@ -269,6 +284,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
         commandCenter.playCommand.isEnabled = false
         commandCenter.pauseCommand.isEnabled = false
+        commandCenter.togglePlayPauseCommand.isEnabled = false
         commandCenter.changePlaybackPositionCommand.isEnabled = false
         commandCenter.skipForwardCommand.isEnabled = false
         commandCenter.skipBackwardCommand.isEnabled = false
@@ -276,6 +292,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         // Remove all targets to clean up properly
         commandCenter.playCommand.removeTarget(nil)
         commandCenter.pauseCommand.removeTarget(nil)
+        commandCenter.togglePlayPauseCommand.removeTarget(nil)
         commandCenter.changePlaybackPositionCommand.removeTarget(nil)
         commandCenter.skipForwardCommand.removeTarget(nil)
         commandCenter.skipBackwardCommand.removeTarget(nil)

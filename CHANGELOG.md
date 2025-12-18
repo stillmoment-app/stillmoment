@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unit Tests für alle Coordinator-Funktionen
   - Feature-Parität mit iOS Audio-Koordination
 
+### Fixed (iOS)
+- **Kopfhörer Play/Pause** - Kabelgebundene Kopfhörer (EarPods) funktionieren jetzt
+  - `togglePlayPauseCommand` im Remote Command Center hinzugefügt
+  - Play/Pause über Mittelbutton am Kabel funktioniert bei Guided Meditations
+  - Betrifft auch ältere Bluetooth-Geräte und manche CarPlay-Konfigurationen
+
 ### Fixed (Android)
 - **Affirmationen i18n** - Deutsche Nutzer sehen nun deutsche Affirmationen
   - Hardcoded englische Strings aus `TimerViewModel` entfernt

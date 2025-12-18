@@ -265,6 +265,7 @@ final class AudioPlayerServiceTests: XCTestCase {
         let commandCenter = MPRemoteCommandCenter.shared()
         XCTAssertTrue(commandCenter.playCommand.isEnabled)
         XCTAssertTrue(commandCenter.pauseCommand.isEnabled)
+        XCTAssertTrue(commandCenter.togglePlayPauseCommand.isEnabled)
         XCTAssertTrue(commandCenter.changePlaybackPositionCommand.isEnabled)
         XCTAssertTrue(commandCenter.skipForwardCommand.isEnabled)
         XCTAssertTrue(commandCenter.skipBackwardCommand.isEnabled)
@@ -296,6 +297,10 @@ final class AudioPlayerServiceTests: XCTestCase {
         XCTAssertFalse(
             commandCenter.pauseCommand.isEnabled,
             "Pause command should be disabled after stop"
+        )
+        XCTAssertFalse(
+            commandCenter.togglePlayPauseCommand.isEnabled,
+            "Toggle play/pause command should be disabled after stop"
         )
         XCTAssertFalse(
             commandCenter.changePlaybackPositionCommand.isEnabled,
@@ -336,6 +341,10 @@ final class AudioPlayerServiceTests: XCTestCase {
         XCTAssertFalse(
             commandCenter.pauseCommand.isEnabled,
             "Pause command should be disabled after cleanup"
+        )
+        XCTAssertFalse(
+            commandCenter.togglePlayPauseCommand.isEnabled,
+            "Toggle play/pause command should be disabled after cleanup"
         )
         XCTAssertFalse(
             commandCenter.changePlaybackPositionCommand.isEnabled,

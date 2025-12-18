@@ -32,7 +32,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [ios-001](ios/ios-001-headphone-playpause.md) | Play/Pause kabelgebundene Kopfhoerer | 1-Quick Fix | [ ] | - |
+| [ios-001](ios/ios-001-headphone-playpause.md) | Play/Pause kabelgebundene Kopfhoerer | 1-Quick Fix | [x] | - |
 | [ios-002](ios/ios-002-ios16-support.md) | iOS 16 Support | 3-Feature | [x] | - |
 | [ios-003](ios/ios-003-test-performance-analysis.md) | Test-Performance Analyse | 5-QA | [x] | - |
 | [ios-005](ios/ios-005-ui-test-optimization.md) | UI-Test Optimierung (~65s Einsparung) | 5-QA | [x] | - |
@@ -67,7 +67,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 ## Parallelisierbare Tickets
 
 ### iOS
-- ios-001, ios-008 (keine Abhaengigkeiten untereinander)
+- ios-008 (keine Abhaengigkeiten)
 
 ### Android
 Nach android-006:
@@ -82,10 +82,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 9 | 6 | 3 |
+| iOS | 9 | 7 | 2 |
 | Android | 14 | 5 | 9 |
 | Shared | 1 | 0 | 1 |
-| **Total** | **24** | **11** | **13** |
+| **Total** | **24** | **12** | **12** |
 
 ---
 

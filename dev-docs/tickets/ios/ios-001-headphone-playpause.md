@@ -1,6 +1,6 @@
 # Ticket ios-001: Play/Pause ueber kabelgebundene Kopfhoerer
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein (~15 min)
 **Abhaengigkeiten**: Keine
@@ -26,13 +26,13 @@ Bei Guided Meditations funktioniert Play/Pause ueber kabelgebundene Apple-Kopfho
 
 ## Akzeptanzkriterien
 
-- [ ] `togglePlayPauseCommand` im Remote Command Center konfiguriert
-- [ ] Play/Pause ueber EarPods-Mittelbutton funktioniert
-- [ ] Play/Pause ueber andere kabelgebundene Kopfhoerer funktioniert
-- [ ] Bestehende Lock Screen Controls weiterhin funktional
+- [x] `togglePlayPauseCommand` im Remote Command Center konfiguriert
+- [x] Play/Pause ueber EarPods-Mittelbutton funktioniert
+- [x] Play/Pause ueber andere kabelgebundene Kopfhoerer funktioniert
+- [x] Bestehende Lock Screen Controls weiterhin funktional
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Bug-Fix Eintrag
+- [x] CHANGELOG.md: Bug-Fix Eintrag
 
 ---
 
