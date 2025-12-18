@@ -28,6 +28,7 @@ Android-App auf Feature-Parity mit iOS v0.5 bringen.
 | [011](011-accessibility-audit.md) | Accessibility Audit | QA | [ ] | 009 |
 | [012](012-ui-tests.md) | UI Tests | QA | [ ] | 009 |
 | [013](013-integration-test.md) | Final Integration Test | QA | [ ] | Alle |
+| [014](014-ambient-sound-fade.md) | Ambient Sound Fade In/Out | Feature | [ ] | - |
 
 ---
 

@@ -583,6 +583,60 @@ AudioSessionCoordinator.shared (singleton)
 - ✅ Prevents ghost lock screen UI after conflicts
 - ✅ Proper lock screen controls for guided meditations
 
+### Android Audio Session Coordination
+
+**Problem**: Same as iOS - Timer and Guided Meditation features can conflict when both try to play audio.
+
+**Solution**: `AudioSessionCoordinator` singleton (Hilt @Singleton) manages exclusive audio session access.
+
+**Architecture**:
+```kotlin
+// Domain Layer - Interface
+interface AudioSessionCoordinatorProtocol {
+    val activeSource: StateFlow<AudioSource?>
+    fun registerConflictHandler(source: AudioSource, handler: () -> Unit)
+    fun requestAudioSession(source: AudioSource): Boolean
+    fun releaseAudioSession(source: AudioSource)
+}
+
+// Infrastructure Layer - Implementation
+@Singleton
+class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorProtocol
+```
+
+**Key Files**:
+- `domain/models/AudioSource.kt` - Enum (TIMER, GUIDED_MEDITATION)
+- `domain/services/AudioSessionCoordinatorProtocol.kt` - Interface
+- `infrastructure/audio/AudioSessionCoordinator.kt` - Implementation
+- `infrastructure/di/AppModule.kt` - DI binding
+
+**How It Works**:
+1. Services register conflict handlers at init:
+   ```kotlin
+   coordinator.registerConflictHandler(AudioSource.TIMER) {
+       stopBackgroundAudioInternal()
+   }
+   ```
+2. Services request session before playback:
+   ```kotlin
+   if (!coordinator.requestAudioSession(AudioSource.TIMER)) return
+   ```
+3. Coordinator invokes conflict handler of current source (if different)
+4. Services release session when done:
+   ```kotlin
+   coordinator.releaseAudioSession(AudioSource.TIMER)
+   ```
+
+**Integration**:
+- `AudioService` (timer) uses `AudioSource.TIMER`
+- Future `AudioPlayerService` (guided meditations) will use `AudioSource.GUIDED_MEDITATION`
+
+**Benefits**:
+- ✅ Feature parity with iOS audio coordination
+- ✅ Clean architecture (protocol in Domain, impl in Infrastructure)
+- ✅ Hilt DI for testability
+- ✅ StateFlow for reactive updates
+
 ### Settings Management
 
 **MeditationSettings Model** (Domain layer, persisted via UserDefaults):

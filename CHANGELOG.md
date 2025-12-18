@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Android)
+- **Audio Session Coordinator** - Exklusive Audio-Verwaltung zwischen Features
+  - `AudioSource` Enum für Timer und Guided Meditation
+  - `AudioSessionCoordinatorProtocol` Interface in Domain Layer
+  - `AudioSessionCoordinator` Singleton-Implementierung mit Hilt DI
+  - Conflict Handler Pattern für sauberen Audio-Wechsel zwischen Features
+  - `AudioService` integriert den Coordinator
+  - Unit Tests für alle Coordinator-Funktionen
+  - Feature-Parität mit iOS Audio-Koordination
+
 ### Fixed (Android)
 - **Affirmationen i18n** - Deutsche Nutzer sehen nun deutsche Affirmationen
   - Hardcoded englische Strings aus `TimerViewModel` entfernt
