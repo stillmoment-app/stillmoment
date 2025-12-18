@@ -76,6 +76,15 @@ class TimerRepositoryImpl @Inject constructor() : TimerRepository {
         return currentTimer
     }
 
+    /**
+     * Marks that an interval gong was played at the current time.
+     * Prevents duplicate gongs at the same interval.
+     */
+    fun markIntervalGongPlayed() {
+        currentTimer = currentTimer?.markIntervalGongPlayed()
+        _timer.value = currentTimer
+    }
+
     companion object {
         private const val DEFAULT_COUNTDOWN_DURATION = 15
     }

@@ -1,6 +1,6 @@
 # Ticket 003-2: TimerViewModel Repository Integration
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Priorität**: MITTEL
 **Aufwand**: Klein (~30min)
 **Abhängigkeiten**: 003
@@ -20,12 +20,12 @@ Dieses Ticket integriert das Repository ins ViewModel für:
 
 ## Akzeptanzkriterien
 
-- [ ] `TimerViewModel` erhält `TimerRepository` via Constructor Injection
-- [ ] State-Management (`currentTimer`, `_timer`) aus ViewModel entfernt
-- [ ] ViewModel delegiert an Repository: `start()`, `pause()`, `resume()`, `reset()`
-- [ ] Timer-Loop nutzt `repository.tick()` statt lokalem `currentTimer?.tick()`
-- [ ] `uiState` wird aus `repository.timerFlow` abgeleitet
-- [ ] Bestehende Unit Tests weiterhin grün
+- [x] `TimerViewModel` erhält `TimerRepository` via Constructor Injection
+- [x] State-Management (`currentTimer`, `_timer`) aus ViewModel entfernt
+- [x] ViewModel delegiert an Repository: `start()`, `pause()`, `resume()`, `reset()`
+- [x] Timer-Loop nutzt `repository.tick()` statt lokalem `currentTimer?.tick()`
+- [x] `uiState` wird aus `repository.timerFlow` abgeleitet
+- [x] Bestehende Unit Tests weiterhin grün
 - [ ] App funktioniert wie vorher (manueller Test)
 
 ---
