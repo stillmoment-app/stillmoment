@@ -57,7 +57,10 @@ stillmoment/
 
 - **Display Name**: "Still Moment" (with space) - User-facing name in App Store, UI
 - **iOS Project File**: `ios/StillMoment.xcodeproj` (NO space) - Xcode project file
-- **iOS Scheme**: `StillMoment` (NO space) - Build scheme for xcodebuild
+- **iOS Schemes**: (NO space)
+  - `StillMoment` - Main scheme for Run/Debug and all tests
+  - `StillMoment-UnitTests` - Unit tests only (parallel, fast)
+  - `StillMoment-UITests` - UI tests only (serial)
 - **iOS Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
 - **iOS Bundle ID**: `com.stillmoment.StillMoment` (NO space)
 - **Android Package**: `com.stillmoment` - Android package name

@@ -97,36 +97,40 @@ ENABLE_COVERAGE="NO"
 COVERAGE_NOTE=""
 
 if [ "$SKIP_UI_TESTS" = true ]; then
-    echo "🧪 Running unit tests only..."
+    echo "🧪 Running unit tests only (parallel)..."
+    echo "   Scheme: $UNIT_TEST_SCHEME"
     COVERAGE_NOTE="ℹ️  Coverage DISABLED - unit tests only (run 'make test' for coverage)"
 
     xcodebuild test \
         -project "$TEST_PROJECT" \
-        -scheme "$TEST_SCHEME" \
+        -scheme "$UNIT_TEST_SCHEME" \
         -destination "$DESTINATION" \
         -enableCodeCoverage "$ENABLE_COVERAGE" \
         -resultBundlePath "$RESULT_BUNDLE" \
-        -only-testing:"$UNIT_TEST_TARGET" \
+        -parallel-testing-enabled YES \
+        -parallel-testing-worker-count 2 \
+        -maximum-concurrent-test-simulator-destinations 1 \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
 
 elif [ "$ONLY_UI_TESTS" = true ]; then
     echo "🧪 Running UI tests only..."
+    echo "   Scheme: $UI_TEST_SCHEME"
     COVERAGE_NOTE="ℹ️  Coverage DISABLED - UI tests only (run 'make test' for coverage)"
 
     xcodebuild test \
         -project "$TEST_PROJECT" \
-        -scheme "$TEST_SCHEME" \
+        -scheme "$UI_TEST_SCHEME" \
         -destination "$DESTINATION" \
         -enableCodeCoverage "$ENABLE_COVERAGE" \
         -resultBundlePath "$RESULT_BUNDLE" \
-        -only-testing:"$UI_TEST_TARGET" \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO
 
 else
     echo "🧪 Running all tests (unit + UI)..."
+    echo "   Scheme: $TEST_SCHEME"
     ENABLE_COVERAGE="YES"
     COVERAGE_NOTE="✅ Coverage ENABLED - all tests (complete data)"
 

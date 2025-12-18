@@ -11,7 +11,11 @@ export TEST_PROJECT="StillMoment.xcodeproj"
 export TEST_SCHEME="StillMoment"
 export TEST_DEVICE="iPhone 17"
 
-# Test targets
+# Scheme configuration (separate schemes for different test types)
+export UNIT_TEST_SCHEME="StillMoment-UnitTests"
+export UI_TEST_SCHEME="StillMoment-UITests"
+
+# Test targets (for backwards compatibility)
 export UNIT_TEST_TARGET="StillMomentTests"
 export UI_TEST_TARGET="StillMomentUITests"
 
