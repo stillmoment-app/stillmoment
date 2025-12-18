@@ -1,6 +1,6 @@
 # Ticket android-006: GuidedMeditation ViewModel
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel (~2-3h)
 **Abhaengigkeiten**: android-005
@@ -18,13 +18,14 @@ ViewModels fuer die Guided Meditations Features erstellen:
 
 ## Akzeptanzkriterien
 
-- [ ] `GuidedMeditationsListViewModel` mit gruppierter Liste
-- [ ] `GuidedMeditationPlayerViewModel` mit Playback-State
-- [ ] Import-Funktion im ListViewModel
-- [ ] Delete-Funktion im ListViewModel
-- [ ] Edit-Funktion (Metadaten bearbeiten)
-- [ ] Play/Pause/Seek im PlayerViewModel
-- [ ] Unit Tests fuer beide ViewModels
+- [x] `GuidedMeditationsListViewModel` mit gruppierter Liste
+- [x] `GuidedMeditationPlayerViewModel` mit Playback-State
+- [x] Import-Funktion im ListViewModel
+- [x] Delete-Funktion im ListViewModel
+- [x] Edit-Funktion (Metadaten bearbeiten)
+- [x] Play/Pause/Seek im PlayerViewModel
+- [x] Unit Tests fuer beide ViewModels
+- [x] AudioPlayerServiceProtocol und AudioPlayerService implementiert
 
 ---
 
