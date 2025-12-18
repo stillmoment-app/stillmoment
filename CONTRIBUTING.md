@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Still Moment! This document provi
 ### Prerequisites
 
 - macOS 14+ (Sonoma or newer)
-- Xcode 16+ with iOS 17+ SDK
+- Xcode 16+ with iOS 16+ SDK
 - Homebrew (for development tools)
 
 ### Setup

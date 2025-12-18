@@ -94,7 +94,7 @@ Perfect for:
 • Mindfulness practitioners of all traditions
 
 Technical Excellence:
-• Built with Swift & SwiftUI for iOS 17+
+• Built with Swift & SwiftUI for iOS 16+
 • 85%+ test coverage ensures reliability
 • Production-grade logging for stability
 • Clean Architecture for performance
