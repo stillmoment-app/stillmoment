@@ -1,6 +1,6 @@
 # Ticket android-007: Library Screen UI
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
 **Abhaengigkeiten**: android-006
@@ -21,18 +21,19 @@ Compose UI fuer die Guided Meditations Library erstellen:
 
 ## Akzeptanzkriterien
 
-- [ ] `GuidedMeditationsListScreen` Composable
-- [ ] Gruppierte LazyColumn mit Lehrer-Headern
-- [ ] Import-FAB mit Document Picker Integration
-- [ ] Swipe-to-Delete fuer einzelne Meditationen
-- [ ] Edit Sheet (BottomSheet) fuer Metadaten
-- [ ] Empty State mit Import-Hinweis
-- [ ] Loading State waehrend Import
-- [ ] Error Snackbar bei Fehlern
-- [ ] Accessibility Labels
+- [x] `GuidedMeditationsListScreen` Composable
+- [x] Gruppierte LazyColumn mit Lehrer-Headern
+- [x] Import-FAB mit Document Picker Integration
+- [x] Swipe-to-Delete fuer einzelne Meditationen
+- [x] Edit Sheet (BottomSheet) fuer Metadaten
+- [x] Empty State mit Import-Hinweis
+- [x] Loading State waehrend Import
+- [x] Error Snackbar bei Fehlern
+- [x] Accessibility Labels
+- [x] Lokalisierte Strings (DE + EN)
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag fuer Guided Meditations Library
+- [ ] CHANGELOG.md: Feature-Eintrag fuer Guided Meditations Library (nach TabView Integration)
 
 ---
 

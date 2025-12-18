@@ -54,7 +54,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-004](android/android-004-guided-meditation-models.md) | GuidedMeditation Models | 3-Feature | [x] | - |
 | [android-005](android/android-005-guided-meditation-repository.md) | GuidedMeditation Repository | 3-Feature | [x] | android-004 |
 | [android-006](android/android-006-guided-meditation-viewmodel.md) | GuidedMeditation ViewModel | 3-Feature | [x] | android-005 |
-| [android-007](android/android-007-library-screen-ui.md) | Library Screen UI | 3-Feature | [ ] | android-006 |
+| [android-007](android/android-007-library-screen-ui.md) | Library Screen UI | 3-Feature | [x] | android-006 |
 | [android-008](android/android-008-player-screen-ui.md) | Audio Player Screen UI | 3-Feature | [ ] | android-006 |
 | [android-009](android/android-009-tabview-navigation.md) | TabView Navigation | 3-Feature | [ ] | android-007, android-008 |
 | [android-010](android/android-010-mediasession-lockscreen.md) | MediaSession Lock Screen | 4-Polish | [ ] | android-008 |
@@ -83,9 +83,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 9 | 7 | 2 |
-| Android | 14 | 7 | 7 |
+| Android | 14 | 8 | 6 |
 | Shared | 1 | 0 | 1 |
-| **Total** | **24** | **14** | **10** |
+| **Total** | **24** | **15** | **9** |
 
 ---
 

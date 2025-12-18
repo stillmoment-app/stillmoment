@@ -88,4 +88,19 @@
     <string name="notification_channel_description">Shows when meditation timer is active</string>
     <string name="notification_title">Meditation in progress</string>
     <string name="notification_text">Your meditation session is running</string>
+
+    <!-- Guided Meditations Library -->
+    <string name="library_empty_title">Your library is empty</string>
+    <string name="library_empty_description">Import meditation audio files to get started</string>
+    <string name="library_import_button">Import Meditation</string>
+    <string name="edit_meditation_title">Edit Meditation</string>
+    <string name="edit_teacher_label">Teacher</string>
+    <string name="edit_name_label">Name</string>
+    <string name="edit_duration_info">Duration: %s</string>
+
+    <!-- Guided Meditations Accessibility -->
+    <string name="accessibility_import_meditation">Import meditation audio file</string>
+    <string name="accessibility_edit_meditation">Edit meditation details</string>
+    <string name="accessibility_delete_meditation">Delete meditation</string>
+    <string name="accessibility_meditation_item">%1$s, duration %2$s</string>
 </resources>
