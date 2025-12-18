@@ -1,15 +1,16 @@
-# Ticket 004: GuidedMeditation Domain Models
+# Ticket android-004: GuidedMeditation Domain Models
 
 **Status**: [x] DONE
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Klein (~1h)
-**Abhängigkeiten**: Keine
+**Abhaengigkeiten**: Keine
+**Phase**: 3-Feature
 
 ---
 
 ## Beschreibung
 
-Domain Models für Guided Meditations erstellen, analog zu iOS. Diese Models repräsentieren importierte Audio-Dateien mit Metadaten (Lehrer, Name, Dauer).
+Domain Models fuer Guided Meditations erstellen, analog zu iOS. Diese Models repraesentieren importierte Audio-Dateien mit Metadaten (Lehrer, Name, Dauer).
 
 ---
 
@@ -17,9 +18,9 @@ Domain Models für Guided Meditations erstellen, analog zu iOS. Diese Models rep
 
 - [x] `GuidedMeditation` data class in Domain Layer erstellt
 - [x] Computed Properties: `effectiveTeacher`, `effectiveName`, `formattedDuration`
-- [x] `GuidedMeditationGroup` data class für Gruppierung nach Lehrer
-- [x] Unit Tests für Models vorhanden
-- [x] Models sind Serializable (für DataStore)
+- [x] `GuidedMeditationGroup` data class fuer Gruppierung nach Lehrer
+- [x] Unit Tests fuer Models vorhanden
+- [x] Models sind Serializable (fuer DataStore)
 
 ---
 
@@ -139,6 +140,6 @@ cd android && ./gradlew test --tests "*GuidedMeditation*"
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Domain/Models/GuidedMeditation.swift`

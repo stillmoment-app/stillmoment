@@ -1,19 +1,20 @@
-# Ticket 007: Library Screen UI
+# Ticket android-007: Library Screen UI
 
 **Status**: [ ] TODO
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
-**Abhängigkeiten**: 006
+**Abhaengigkeiten**: android-006
+**Phase**: 3-Feature
 
 ---
 
 ## Beschreibung
 
-Compose UI für die Guided Meditations Library erstellen:
+Compose UI fuer die Guided Meditations Library erstellen:
 - Gruppierte Liste nach Lehrer
 - Import-Button (FAB oder Toolbar)
 - Swipe-to-Delete
-- Edit Sheet für Metadaten
+- Edit Sheet fuer Metadaten
 - Empty State
 
 ---
@@ -23,15 +24,15 @@ Compose UI für die Guided Meditations Library erstellen:
 - [ ] `GuidedMeditationsListScreen` Composable
 - [ ] Gruppierte LazyColumn mit Lehrer-Headern
 - [ ] Import-FAB mit Document Picker Integration
-- [ ] Swipe-to-Delete für einzelne Meditationen
-- [ ] Edit Sheet (BottomSheet) für Metadaten
+- [ ] Swipe-to-Delete fuer einzelne Meditationen
+- [ ] Edit Sheet (BottomSheet) fuer Metadaten
 - [ ] Empty State mit Import-Hinweis
-- [ ] Loading State während Import
+- [ ] Loading State waehrend Import
 - [ ] Error Snackbar bei Fehlern
 - [ ] Accessibility Labels
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag für Guided Meditations Library
+- [ ] CHANGELOG.md: Feature-Eintrag fuer Guided Meditations Library
 
 ---
 
@@ -43,7 +44,7 @@ Compose UI für die Guided Meditations Library erstellen:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/MeditationEditSheet.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/EmptyLibraryState.kt`
 
-### Strings hinzufügen:
+### Strings hinzufuegen:
 - `android/app/src/main/res/values/strings.xml`
 - `android/app/src/main/res/values-de/strings.xml`
 
@@ -180,53 +181,6 @@ private fun MeditationsList(
 }
 ```
 
-### List Item:
-```kotlin
-@Composable
-fun MeditationListItem(
-    meditation: GuidedMeditation,
-    onClick: () -> Unit,
-    onEditClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = WarmCream)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = meditation.effectiveName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = WarmBlack
-                )
-                Text(
-                    text = meditation.formattedDuration,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = WarmGray
-                )
-            }
-
-            IconButton(onClick = onEditClick) {
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.accessibility_edit_meditation),
-                    tint = WarmGray
-                )
-            }
-        }
-    }
-}
-```
-
 ---
 
 ## Neue Strings
@@ -249,22 +203,22 @@ fun MeditationListItem(
 ## Testanweisungen
 
 ```bash
-# Build prüfen
+# Build pruefen
 cd android && ./gradlew assembleDebug
 
 # Manueller Test:
 # 1. App starten, zu Library-Tab wechseln
 # 2. Empty State sehen
-# 3. FAB drücken, MP3 importieren
+# 3. FAB druecken, MP3 importieren
 # 4. Meditation in Liste sehen
-# 5. Auf Meditation tippen → Player öffnet (Ticket 008)
+# 5. Auf Meditation tippen → Player oeffnet (Ticket android-008)
 # 6. Edit-Button testen
 # 7. Swipe-to-Delete testen
 ```
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationsListView.swift`
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationEditSheet.swift`

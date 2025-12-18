@@ -1,15 +1,16 @@
-# Ticket 011: Accessibility Audit
+# Ticket android-011: Accessibility Audit
 
 **Status**: [ ] TODO
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Klein (~1-2h)
-**Abhängigkeiten**: 009
+**Abhaengigkeiten**: android-009
+**Phase**: 5-QA
 
 ---
 
 ## Beschreibung
 
-Accessibility-Audit aller UI-Komponenten durchführen und fehlende Labels hinzufügen. Sicherstellen, dass die App mit TalkBack vollständig nutzbar ist.
+Accessibility-Audit aller UI-Komponenten durchfuehren und fehlende Labels hinzufuegen. Sicherstellen, dass die App mit TalkBack vollstaendig nutzbar ist.
 
 ---
 
@@ -17,24 +18,24 @@ Accessibility-Audit aller UI-Komponenten durchführen und fehlende Labels hinzuf
 
 - [ ] Alle interaktiven Elemente haben contentDescription
 - [ ] Custom Components haben semantics{} Block
-- [ ] Timer-Fortschritt ist als Text verfügbar
+- [ ] Timer-Fortschritt ist als Text verfuegbar
 - [ ] Slider haben valueRange beschrieben
 - [ ] TalkBack-Navigation funktioniert auf allen Screens
 - [ ] Focus-Reihenfolge ist logisch
-- [ ] Live-Regions für dynamische Updates
+- [ ] Live-Regions fuer dynamische Updates
 
 ---
 
 ## Betroffene Dateien
 
-### Zu prüfen und ggf. ändern:
+### Zu pruefen und ggf. aendern:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/TimerScreen.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/MinutePicker.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/SettingsSheet.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/GuidedMeditationsListScreen.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/GuidedMeditationPlayerScreen.kt`
 
-### Strings hinzufügen:
+### Strings hinzufuegen:
 - `android/app/src/main/res/values/strings.xml`
 - `android/app/src/main/res/values-de/strings.xml`
 
@@ -43,15 +44,15 @@ Accessibility-Audit aller UI-Komponenten durchführen und fehlende Labels hinzuf
 ## Checkliste
 
 ### Timer Screen
-- [ ] Duration Picker: `stateDescription` für ausgewählte Minuten
+- [ ] Duration Picker: `stateDescription` fuer ausgewaehlte Minuten
 - [ ] Start Button: `contentDescription`
 - [ ] Pause Button: `contentDescription`
 - [ ] Resume Button: `contentDescription`
 - [ ] Reset Button: `contentDescription`
 - [ ] Settings Button: `contentDescription`
-- [ ] Timer Progress Ring: `stateDescription` für verbleibende Zeit
-- [ ] Countdown-Zahl: Live Region für Updates
-- [ ] Affirmation Text: `liveRegion` für Änderungen
+- [ ] Timer Progress Ring: `stateDescription` fuer verbleibende Zeit
+- [ ] Countdown-Zahl: Live Region fuer Updates
+- [ ] Affirmation Text: `liveRegion` fuer Aenderungen
 
 ### Settings Sheet
 - [ ] Background Sound Picker: `stateDescription`
@@ -122,7 +123,7 @@ Slider(
 )
 ```
 
-### Beispiel: Live Region für Timer
+### Beispiel: Live Region fuer Timer
 ```kotlin
 Text(
     text = remainingTime,
@@ -160,11 +161,11 @@ Text(
 # - Library Screen: Liste, FAB, Items
 # - Player Screen: Controls, Slider
 
-# 3. Prüfen:
+# 3. Pruefen:
 # - Werden alle Elemente vorgelesen?
-# - Sind die Beschreibungen verständlich?
+# - Sind die Beschreibungen verstaendlich?
 # - Ist die Reihenfolge logisch?
-# - Werden Änderungen angekündigt?
+# - Werden Aenderungen angekuendigt?
 ```
 
 ---

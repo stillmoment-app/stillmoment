@@ -1,28 +1,29 @@
-# Ticket 003: TimerRepository Implementierung
+# Ticket android-003: TimerRepository Implementierung
 
 **Status**: [x] DONE
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Klein (~1h)
-**Abhängigkeiten**: Keine
+**Abhaengigkeiten**: Keine
+**Phase**: 2-Architektur
 
 ---
 
 ## Beschreibung
 
-Das `TimerRepository` Interface existiert in der Domain-Schicht, hat aber keine Implementierung in der Data-Schicht. Der Timer-State wird aktuell nur im ViewModel gehalten (In-Memory). Für Architektur-Konsistenz sollte eine Repository-Implementierung existieren.
+Das `TimerRepository` Interface existiert in der Domain-Schicht, hat aber keine Implementierung in der Data-Schicht. Der Timer-State wird aktuell nur im ViewModel gehalten (In-Memory). Fuer Architektur-Konsistenz sollte eine Repository-Implementierung existieren.
 
-**Hinweis**: Diese Implementierung ist optional für MVP, verbessert aber die Architektur-Konsistenz und ermöglicht zukünftige Features wie Timer-History.
+**Hinweis**: Diese Implementierung ist optional fuer MVP, verbessert aber die Architektur-Konsistenz und ermoeglicht zukuenftige Features wie Timer-History.
 
 ---
 
 ## Akzeptanzkriterien
 
 - [x] `TimerRepositoryImpl` in Data Layer erstellt
-- [x] Repository nutzt `MutableStateFlow` für reaktiven State
-- [x] Hilt Binding in `AppModule` hinzugefügt
-- [ ] `TimerViewModel` nutzt Repository statt direktem State (optional für MVP)
-- [x] Bestehende Unit Tests weiterhin grün
-- [x] Neuer Test für Repository erstellt (13 Tests)
+- [x] Repository nutzt `MutableStateFlow` fuer reaktiven State
+- [x] Hilt Binding in `AppModule` hinzugefuegt
+- [ ] `TimerViewModel` nutzt Repository statt direktem State (optional fuer MVP)
+- [x] Bestehende Unit Tests weiterhin gruen
+- [x] Neuer Test fuer Repository erstellt (13 Tests)
 
 ---
 
@@ -31,7 +32,7 @@ Das `TimerRepository` Interface existiert in der Domain-Schicht, hat aber keine 
 ### Neu zu erstellen:
 - `android/app/src/main/kotlin/com/stillmoment/data/repositories/TimerRepositoryImpl.kt`
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/di/DataModule.kt`
 - `android/app/src/main/kotlin/com/stillmoment/presentation/viewmodel/TimerViewModel.kt`
 
@@ -141,6 +142,6 @@ cd android && ./gradlew test
 
 ## Notizen
 
-- Diese Implementierung ist für MVP optional
-- Ermöglicht zukünftig: Timer-History, State-Persistence, Process Death Handling
+- Diese Implementierung ist fuer MVP optional
+- Ermoeglicht zukuenftig: Timer-History, State-Persistence, Process Death Handling
 - ViewModel wird vereinfacht, da State-Management ins Repository wandert

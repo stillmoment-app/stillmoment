@@ -1,9 +1,10 @@
-# Ticket 001: Affirmationen lokalisieren
+# Ticket android-001: Affirmationen lokalisieren
 
 **Status**: [x] DONE
-**Priorität**: KRITISCH
+**Prioritaet**: KRITISCH
 **Aufwand**: Klein (~30 min)
-**Abhängigkeiten**: Keine
+**Abhaengigkeiten**: Keine
+**Phase**: 1-Quick Fix
 
 ---
 
@@ -15,25 +16,25 @@ Die Countdown- und Running-Affirmationen sind im `TimerViewModel` hardcoded, obw
 
 ## Akzeptanzkriterien
 
-- [ ] Hardcoded Affirmationen aus `TimerViewModel` entfernt
-- [ ] Affirmationen werden via `context.getString(R.string.affirmation_*)` geladen
-- [ ] Deutsche Übersetzungen in `strings-de.xml` vorhanden und korrekt
-- [ ] Unit Tests für Affirmation-Rotation bestehen
-- [ ] Manuelle Prüfung: Deutsche Systemsprache zeigt deutsche Affirmationen
+- [x] Hardcoded Affirmationen aus `TimerViewModel` entfernt
+- [x] Affirmationen werden via `context.getString(R.string.affirmation_*)` geladen
+- [x] Deutsche Uebersetzungen in `strings-de.xml` vorhanden und korrekt
+- [x] Unit Tests fuer Affirmation-Rotation bestehen
+- [x] Manuelle Pruefung: Deutsche Systemsprache zeigt deutsche Affirmationen
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Bug-Fix Eintrag für i18n-Korrektur
+- [x] CHANGELOG.md: Bug-Fix Eintrag fuer i18n-Korrektur
 
 ---
 
 ## Betroffene Dateien
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/viewmodel/TimerViewModel.kt`
   - Zeilen 73-86: Hardcoded Listen entfernen
   - Methoden `getCurrentCountdownAffirmation()` und `getCurrentRunningAffirmation()` anpassen
 
-### Bereits vorhanden (nur prüfen):
+### Bereits vorhanden (nur pruefen):
 - `android/app/src/main/res/values/strings.xml` (Zeilen 73-84)
 - `android/app/src/main/res/values-de/strings.xml`
 
@@ -67,7 +68,7 @@ private fun getCountdownAffirmations(): Array<String> {
     return getApplication<Application>().resources.getStringArray(R.array.countdown_affirmations)
 }
 
-// Option B: Einzelne Strings laden (falls Array nicht gewünscht)
+// Option B: Einzelne Strings laden (falls Array nicht gewuenscht)
 private fun getCountdownAffirmation(index: Int): String {
     val resourceId = when (index % 4) {
         0 -> R.string.affirmation_countdown_1
@@ -79,7 +80,7 @@ private fun getCountdownAffirmation(index: Int): String {
 }
 ```
 
-### strings.xml erweitern (falls Array gewählt):
+### strings.xml erweitern (falls Array gewaehlt):
 ```xml
 <string-array name="countdown_affirmations">
     <item>@string/affirmation_countdown_1</item>
@@ -94,20 +95,20 @@ private fun getCountdownAffirmation(index: Int): String {
 ## Testanweisungen
 
 ```bash
-# Unit Tests ausführen
+# Unit Tests ausfuehren
 cd android && ./gradlew test
 
-# App auf Gerät/Emulator mit deutscher Sprache testen
+# App auf Geraet/Emulator mit deutscher Sprache testen
 # 1. Systemsprache auf Deutsch stellen
 # 2. App starten
 # 3. Timer starten
-# 4. Prüfen: Affirmationen sind auf Deutsch
+# 4. Pruefen: Affirmationen sind auf Deutsch
 ```
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
-iOS lädt Affirmationen aus `Localizable.strings`:
-- `ios/StillMoment/Resources/de.lproj/Localizable.strings`
-- `ios/StillMoment/Resources/en.lproj/Localizable.strings`
+- iOS laedt Affirmationen aus `Localizable.strings`:
+  - `ios/StillMoment/Resources/de.lproj/Localizable.strings`
+  - `ios/StillMoment/Resources/en.lproj/Localizable.strings`

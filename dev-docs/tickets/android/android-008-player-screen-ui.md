@@ -1,15 +1,16 @@
-# Ticket 008: Audio Player Screen UI
+# Ticket android-008: Audio Player Screen UI
 
 **Status**: [ ] TODO
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
-**Abhängigkeiten**: 006
+**Abhaengigkeiten**: android-006
+**Phase**: 3-Feature
 
 ---
 
 ## Beschreibung
 
-Compose UI für den Guided Meditation Audio Player erstellen:
+Compose UI fuer den Guided Meditation Audio Player erstellen:
 - Full-Screen Player mit Progress
 - Play/Pause Controls
 - Seek Slider
@@ -36,10 +37,10 @@ Compose UI für den Guided Meditation Audio Player erstellen:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/GuidedMeditationPlayerScreen.kt`
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AudioPlayerService.kt`
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/di/AudioModule.kt`
 
-### Strings hinzufügen:
+### Strings hinzufuegen:
 - `android/app/src/main/res/values/strings.xml`
 - `android/app/src/main/res/values-de/strings.xml`
 
@@ -222,13 +223,6 @@ private fun PlayerControls(
         }
     }
 }
-
-private fun formatTime(ms: Long): String {
-    val totalSeconds = ms / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return String.format("%d:%02d", minutes, seconds)
-}
 ```
 
 ### AudioPlayerService:
@@ -298,21 +292,21 @@ class AudioPlayerService @Inject constructor(
 ## Testanweisungen
 
 ```bash
-# Build prüfen
+# Build pruefen
 cd android && ./gradlew assembleDebug
 
 # Manueller Test:
-# 1. Meditation aus Library auswählen
-# 2. Player öffnet sich
+# 1. Meditation aus Library auswaehlen
+# 2. Player oeffnet sich
 # 3. Play-Button testen → Audio spielt
 # 4. Pause-Button testen → Audio pausiert
 # 5. Slider ziehen → Seek funktioniert
 # 6. Progress Ring aktualisiert sich
-# 7. Zurück-Navigation testen
+# 7. Zurueck-Navigation testen
 ```
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationPlayerView.swift`

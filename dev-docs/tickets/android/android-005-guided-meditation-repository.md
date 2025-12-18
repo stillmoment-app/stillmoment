@@ -1,15 +1,16 @@
-# Ticket 005: GuidedMeditation Repository
+# Ticket android-005: GuidedMeditation Repository
 
 **Status**: [ ] TODO
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Mittel (~3-4h)
-**Abhängigkeiten**: 004
+**Abhaengigkeiten**: android-004
+**Phase**: 3-Feature
 
 ---
 
 ## Beschreibung
 
-Repository und Service für Guided Meditations implementieren:
+Repository und Service fuer Guided Meditations implementieren:
 - Import von MP3-Dateien via Storage Access Framework (SAF)
 - Metadata-Extraktion (ID3 Tags)
 - Persistierung in DataStore
@@ -25,8 +26,8 @@ Repository und Service für Guided Meditations implementieren:
 - [ ] ID3-Tag Extraktion (Artist → Teacher, Title → Name)
 - [ ] Dauer-Extraktion via MediaMetadataRetriever
 - [ ] DataStore Persistierung
-- [ ] Unit Tests für Repository
-- [ ] Manuelle Prüfung: MP3 importieren und Metadaten werden angezeigt
+- [ ] Unit Tests fuer Repository
+- [ ] Manuelle Pruefung: MP3 importieren und Metadaten werden angezeigt
 
 ---
 
@@ -37,7 +38,7 @@ Repository und Service für Guided Meditations implementieren:
 - `android/app/src/main/kotlin/com/stillmoment/data/repositories/GuidedMeditationRepositoryImpl.kt`
 - `android/app/src/main/kotlin/com/stillmoment/data/local/GuidedMeditationDataStore.kt`
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/di/DataModule.kt`
 
 ### Tests:
@@ -193,14 +194,14 @@ cd android && ./gradlew test --tests "*GuidedMeditationRepository*"
 # Manueller Test:
 # 1. App starten
 # 2. MP3-Datei importieren (mit Document Picker)
-# 3. Prüfen: Metadaten werden korrekt extrahiert
+# 3. Pruefen: Metadaten werden korrekt extrahiert
 # 4. App neu starten
-# 5. Prüfen: Importierte Meditation ist noch vorhanden
+# 5. Pruefen: Importierte Meditation ist noch vorhanden
 ```
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Domain/Services/GuidedMeditationServiceProtocol.swift`
 - `ios/StillMoment/Infrastructure/Services/GuidedMeditationService.swift`

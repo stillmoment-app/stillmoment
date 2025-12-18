@@ -1,43 +1,44 @@
-# Ticket 003-2: TimerViewModel Repository Integration
+# Ticket android-003-2: TimerViewModel Repository Integration
 
 **Status**: [x] DONE
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Klein (~30min)
-**Abhängigkeiten**: 003
+**Abhaengigkeiten**: android-003
+**Phase**: 2-Architektur
 
 ---
 
 ## Beschreibung
 
-Das `TimerRepositoryImpl` existiert (Ticket 003), wird aber vom `TimerViewModel` noch nicht genutzt. Das ViewModel hält den Timer-State noch direkt in-memory mit `currentTimer` und eigenem `MutableStateFlow`.
+Das `TimerRepositoryImpl` existiert (Ticket android-003), wird aber vom `TimerViewModel` noch nicht genutzt. Das ViewModel haelt den Timer-State noch direkt in-memory mit `currentTimer` und eigenem `MutableStateFlow`.
 
-Dieses Ticket integriert das Repository ins ViewModel für:
-- Konsistente Architektur (Repository-Pattern durchgängig)
+Dieses Ticket integriert das Repository ins ViewModel fuer:
+- Konsistente Architektur (Repository-Pattern durchgaengig)
 - Vereinfachtes ViewModel (nur UI-Logik, kein State-Management)
-- Vorbereitung für Timer-History/State-Persistence
+- Vorbereitung fuer Timer-History/State-Persistence
 
 ---
 
 ## Akzeptanzkriterien
 
-- [x] `TimerViewModel` erhält `TimerRepository` via Constructor Injection
+- [x] `TimerViewModel` erhaelt `TimerRepository` via Constructor Injection
 - [x] State-Management (`currentTimer`, `_timer`) aus ViewModel entfernt
 - [x] ViewModel delegiert an Repository: `start()`, `pause()`, `resume()`, `reset()`
 - [x] Timer-Loop nutzt `repository.tick()` statt lokalem `currentTimer?.tick()`
 - [x] `uiState` wird aus `repository.timerFlow` abgeleitet
-- [x] Bestehende Unit Tests weiterhin grün
+- [x] Bestehende Unit Tests weiterhin gruen
 - [ ] App funktioniert wie vorher (manueller Test)
 
 ---
 
 ## Betroffene Dateien
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/viewmodel/TimerViewModel.kt`
 
 ### Tests anzupassen:
 - `android/app/src/test/kotlin/com/stillmoment/presentation/viewmodel/TimerViewModelTest.kt`
-  - Mock für `TimerRepository` hinzufügen
+  - Mock fuer `TimerRepository` hinzufuegen
 
 ---
 
@@ -69,7 +70,7 @@ class TimerViewModel @Inject constructor(
     application: Application,
     private val audioService: AudioService,
     private val settingsRepository: SettingsRepository,
-    private val timerRepository: TimerRepositoryImpl  // ← NEU (Impl für tick())
+    private val timerRepository: TimerRepositoryImpl  // ← NEU (Impl fuer tick())
 ) : AndroidViewModel(application) {
 
     // currentTimer entfernt - Repository ist Single Source of Truth
@@ -121,7 +122,7 @@ cd android && ./gradlew test
 
 # Manueller Test
 # 1. App starten
-# 2. Timer starten → Countdown läuft
+# 2. Timer starten → Countdown laeuft
 # 3. Pause/Resume funktioniert
 # 4. Reset funktioniert
 # 5. Background Audio funktioniert
@@ -132,5 +133,5 @@ cd android && ./gradlew test
 ## Notizen
 
 - `TimerRepositoryImpl` statt `TimerRepository` Interface injizieren, da `tick()` nicht im Interface ist
-- Alternative: `tick()` zum Interface hinzufügen (sauberer, aber mehr Änderungen)
+- Alternative: `tick()` zum Interface hinzufuegen (sauberer, aber mehr Aenderungen)
 - Audio-Logik (Gongs, State-Transitions) bleibt im ViewModel

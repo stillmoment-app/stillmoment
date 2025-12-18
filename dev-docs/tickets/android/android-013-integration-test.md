@@ -1,15 +1,16 @@
-# Ticket 013: Final Integration Test
+# Ticket android-013: Final Integration Test
 
 **Status**: [ ] TODO
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Klein (~1-2h)
-**Abhängigkeiten**: Alle vorherigen Tickets
+**Abhaengigkeiten**: Alle vorherigen Tickets
+**Phase**: 5-QA
 
 ---
 
 ## Beschreibung
 
-Abschließender Integrationstest aller Features um sicherzustellen, dass alles zusammen funktioniert. Manueller Test-Durchlauf mit Checkliste.
+Abschliessender Integrationstest aller Features um sicherzustellen, dass alles zusammen funktioniert. Manueller Test-Durchlauf mit Checkliste.
 
 ---
 
@@ -20,13 +21,13 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Performance ist akzeptabel
 - [ ] Keine Memory Leaks
 - [ ] Alle Sprachen funktionieren
-- [ ] App ist bereit für Beta/Release
+- [ ] App ist bereit fuer Beta/Release
 
 ### Dokumentation (Final Review)
 - [ ] README.md: Android Feature-Liste aktuell
-- [ ] CLAUDE.md: Android-Sektion vollständig und aktuell
-- [ ] CHANGELOG.md: Alle Änderungen dokumentiert
-- [ ] dev-docs/android-roadmap/INDEX.md: Alle Tickets auf [x] DONE
+- [ ] CLAUDE.md: Android-Sektion vollstaendig und aktuell
+- [ ] CHANGELOG.md: Alle Aenderungen dokumentiert
+- [ ] dev-docs/tickets/INDEX.md: Alle Tickets auf [x] DONE
 
 ---
 
@@ -38,7 +39,7 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Duration Picker zeigt 1-60 Minuten
 - [ ] Start-Button startet Countdown (15s)
 - [ ] Countdown-Animation und Affirmation angezeigt
-- [ ] Nach Countdown: Timer läuft
+- [ ] Nach Countdown: Timer laeuft
 - [ ] Progress Ring aktualisiert sich
 - [ ] Pause funktioniert
 - [ ] Resume funktioniert
@@ -46,16 +47,16 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Completion Gong wird gespielt
 
 #### 1.2 Settings
-- [ ] Settings Sheet öffnet sich
-- [ ] Background Sound wählbar (Silent/Forest)
+- [ ] Settings Sheet oeffnet sich
+- [ ] Background Sound waehlbar (Silent/Forest)
 - [ ] Interval Gongs aktivierbar
-- [ ] Interval (3/5/10 min) wählbar
+- [ ] Interval (3/5/10 min) waehlbar
 - [ ] Settings werden gespeichert
 - [ ] Settings persistieren nach App-Neustart
 
 #### 1.3 Background Audio
 - [ ] Background Audio startet nach Countdown
-- [ ] Audio läuft bei gesperrtem Bildschirm
+- [ ] Audio laeuft bei gesperrtem Bildschirm
 - [ ] Audio stoppt bei Reset
 - [ ] Interval Gongs werden gespielt
 
@@ -63,26 +64,26 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 
 #### 2.1 Library
 - [ ] Empty State wird angezeigt
-- [ ] Import FAB öffnet Document Picker
+- [ ] Import FAB oeffnet Document Picker
 - [ ] MP3 kann importiert werden
 - [ ] Metadaten werden extrahiert (Titel, Artist)
 - [ ] Meditation erscheint in Liste
 - [ ] Gruppierung nach Teacher funktioniert
-- [ ] Edit Sheet öffnet sich
-- [ ] Metadaten können bearbeitet werden
+- [ ] Edit Sheet oeffnet sich
+- [ ] Metadaten koennen bearbeitet werden
 - [ ] Swipe-to-Delete funktioniert
 - [ ] Importierte Meditationen persistieren
 
 #### 2.2 Player
-- [ ] Player öffnet sich bei Klick
+- [ ] Player oeffnet sich bei Klick
 - [ ] Meditation-Info wird angezeigt
 - [ ] Play startet Wiedergabe
 - [ ] Pause pausiert Wiedergabe
 - [ ] Seek Slider funktioniert
 - [ ] Progress wird aktualisiert
-- [ ] Zurück-Navigation funktioniert
+- [ ] Zurueck-Navigation funktioniert
 
-#### 2.3 Lock Screen (Ticket 010)
+#### 2.3 Lock Screen (Ticket android-010)
 - [ ] Now Playing Info auf Lock Screen
 - [ ] Play/Pause Controls funktionieren
 - [ ] Notification wird angezeigt
@@ -92,18 +93,18 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Bottom Navigation angezeigt
 - [ ] Timer Tab aktiv beim Start
 - [ ] Wechsel zu Library Tab
-- [ ] Wechsel zurück zu Timer Tab
+- [ ] Wechsel zurueck zu Timer Tab
 - [ ] State bleibt bei Tab-Wechsel erhalten
 - [ ] Player versteckt Bottom Navigation
-- [ ] Zurück von Player zeigt Bottom Navigation
+- [ ] Zurueck von Player zeigt Bottom Navigation
 
 ### 4. Audio Coordination
 
-- [ ] Timer Audio läuft
-- [ ] Wechsel zu Library → Timer Audio läuft weiter
+- [ ] Timer Audio laeuft
+- [ ] Wechsel zu Library → Timer Audio laeuft weiter
 - [ ] Start Guided Meditation → Timer Audio stoppt
 - [ ] Meditation Audio spielt
-- [ ] Zurück zu Timer → Timer kann neu gestartet werden
+- [ ] Zurueck zu Timer → Timer kann neu gestartet werden
 
 ### 5. Lokalisierung
 
@@ -121,22 +122,22 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 
 - [ ] TalkBack navigiert alle Screens
 - [ ] Alle Buttons werden vorgelesen
-- [ ] Progress wird angekündigt
+- [ ] Progress wird angekuendigt
 - [ ] Slider ist bedienbar
 
-### 7. Performance & Stabilität
+### 7. Performance & Stabilitaet
 
 - [ ] App startet in <2 Sekunden
 - [ ] Keine ANR (App Not Responding)
-- [ ] Keine Crashes während Tests
+- [ ] Keine Crashes waehrend Tests
 - [ ] Speicherverbrauch stabil (kein Leak)
 - [ ] Battery Drain akzeptabel
 
 ### 8. Edge Cases
 
-- [ ] App-Minimieren während Timer → Audio läuft
-- [ ] App-Kill während Timer → Sauberer Neustart
-- [ ] Rotation (falls unterstützt)
+- [ ] App-Minimieren waehrend Timer → Audio laeuft
+- [ ] App-Kill waehrend Timer → Sauberer Neustart
+- [ ] Rotation (falls unterstuetzt)
 - [ ] Eingehender Anruf → Audio pausiert
 - [ ] Nach Anruf → Audio resumiert (wenn konfiguriert)
 
@@ -145,7 +146,7 @@ Abschließender Integrationstest aller Features um sicherzustellen, dass alles z
 ## Performance-Metriken
 
 ```bash
-# Memory Usage prüfen
+# Memory Usage pruefen
 adb shell dumpsys meminfo com.stillmoment
 
 # Battery Stats
@@ -158,7 +159,7 @@ adb shell dumpsys batterystats com.stillmoment
 
 ## Bekannte Limitierungen
 
-Dokumentiere hier bekannte Einschränkungen oder offene Issues:
+Dokumentiere hier bekannte Einschraenkungen oder offene Issues:
 
 1. _____
 2. _____
@@ -170,12 +171,12 @@ Dokumentiere hier bekannte Einschränkungen oder offene Issues:
 
 Nach erfolgreichem Integration Test:
 
-- [ ] Version erhöhen in `build.gradle.kts`
+- [ ] Version erhoehen in `build.gradle.kts`
 - [ ] CHANGELOG.md aktualisieren
 - [ ] Release Build erstellen: `./gradlew assembleRelease`
 - [ ] APK signieren
 - [ ] Play Store Submission vorbereiten
-- [ ] Screenshots für Store erstellen
+- [ ] Screenshots fuer Store erstellen
 
 ---
 
@@ -187,4 +188,4 @@ Nach erfolgreichem Integration Test:
 
 ### Kommentare
 
-_Platz für Notizen während des Tests_
+_Platz fuer Notizen waehrend des Tests_

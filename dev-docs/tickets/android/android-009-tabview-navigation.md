@@ -1,9 +1,10 @@
-# Ticket 009: TabView Navigation
+# Ticket android-009: TabView Navigation
 
 **Status**: [ ] TODO
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Klein (~1-2h)
-**Abhängigkeiten**: 007, 008
+**Abhaengigkeiten**: android-007, android-008
+**Phase**: 3-Feature
 
 ---
 
@@ -24,18 +25,18 @@ Jeder Tab hat seinen eigenen Navigation Stack.
 - [ ] Tab 2: Library (Icon: Library/Folder)
 - [ ] Separate Navigation pro Tab
 - [ ] Tab-State bleibt bei Wechsel erhalten
-- [ ] Accessibility Labels für Tabs
+- [ ] Accessibility Labels fuer Tabs
 - [ ] Lokalisierte Tab-Labels
 
 ### Dokumentation
 - [ ] CLAUDE.md: Android-Sektion um "Navigation Pattern" erweitern
-- [ ] CHANGELOG.md: Eintrag für TabView Navigation
+- [ ] CHANGELOG.md: Eintrag fuer TabView Navigation
 
 ---
 
 ## Betroffene Dateien
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/presentation/navigation/NavGraph.kt`
 - `android/app/src/main/kotlin/com/stillmoment/MainActivity.kt`
 
@@ -204,20 +205,20 @@ fun MainScreen() {
 ## Testanweisungen
 
 ```bash
-# Build prüfen
+# Build pruefen
 cd android && ./gradlew assembleDebug
 
 # Manueller Test:
 # 1. App starten → Timer-Tab aktiv
 # 2. Auf Library-Tab tippen → Library anzeigen
-# 3. Zurück zu Timer → State ist erhalten
-# 4. In Library: Meditation öffnen → Player ohne Bottom Bar
-# 5. Zurück → Bottom Bar wieder sichtbar
+# 3. Zurueck zu Timer → State ist erhalten
+# 4. In Library: Meditation oeffnen → Player ohne Bottom Bar
+# 5. Zurueck → Bottom Bar wieder sichtbar
 # 6. Sprache wechseln → Tab-Labels sind lokalisiert
 ```
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Presentation/Views/Shared/MainTabView.swift`

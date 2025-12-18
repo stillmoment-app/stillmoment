@@ -1,9 +1,10 @@
-# Ticket 012: UI Tests
+# Ticket android-012: UI Tests
 
 **Status**: [ ] TODO
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Mittel (~3-4h)
-**Abhängigkeiten**: 009
+**Abhaengigkeiten**: android-009
+**Phase**: 5-QA
 
 ---
 
@@ -38,8 +39,8 @@ UI Tests mit Compose Testing Framework erstellen:
 - `android/app/src/androidTest/kotlin/com/stillmoment/presentation/ui/meditations/PlayerScreenTest.kt`
 - `android/app/src/androidTest/kotlin/com/stillmoment/presentation/navigation/NavigationTest.kt`
 
-### Zu ändern:
-- `android/app/build.gradle.kts` (Test-Dependencies hinzufügen)
+### Zu aendern:
+- `android/app/build.gradle.kts` (Test-Dependencies hinzufuegen)
 
 ---
 
@@ -85,10 +86,10 @@ class TimerScreenTest {
         composeRule.onNodeWithText("Start").performClick()
 
         composeRule.waitUntil(timeoutMillis = 2000) {
-            composeRule.onAllNodesWithText("Get ready…").fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithText("Get ready...").fetchSemanticsNodes().isNotEmpty()
         }
 
-        composeRule.onNodeWithText("Get ready…").assertIsDisplayed()
+        composeRule.onNodeWithText("Get ready...").assertIsDisplayed()
     }
 
     @Test
@@ -254,10 +255,10 @@ fun ComposeTestRule.onNodeWithTextIgnoreCase(text: String) =
 ## Testanweisungen
 
 ```bash
-# UI Tests lokal ausführen (Emulator muss laufen)
+# UI Tests lokal ausfuehren (Emulator muss laufen)
 cd android && ./gradlew connectedAndroidTest
 
-# Einzelnen Test ausführen
+# Einzelnen Test ausfuehren
 ./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.stillmoment.presentation.ui.timer.TimerScreenTest
 
 # Test Report

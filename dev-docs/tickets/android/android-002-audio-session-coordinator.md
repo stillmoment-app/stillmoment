@@ -1,15 +1,16 @@
-# Ticket 002: Audio Session Coordinator
+# Ticket android-002: Audio Session Coordinator
 
 **Status**: [x] DONE
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Mittel (~2-3h)
-**Abhängigkeiten**: Keine
+**Abhaengigkeiten**: Keine
+**Phase**: 2-Architektur
 
 ---
 
 ## Beschreibung
 
-iOS hat einen `AudioSessionCoordinator` Singleton, der exklusiven Audio-Zugriff zwischen Timer und Guided Meditations koordiniert. Android fehlt dieses Pattern, was zu Audio-Konflikten führen kann, wenn beide Features gleichzeitig Audio abspielen wollen.
+iOS hat einen `AudioSessionCoordinator` Singleton, der exklusiven Audio-Zugriff zwischen Timer und Guided Meditations koordiniert. Android fehlt dieses Pattern, was zu Audio-Konflikten fuehren kann, wenn beide Features gleichzeitig Audio abspielen wollen.
 
 ---
 
@@ -20,13 +21,13 @@ iOS hat einen `AudioSessionCoordinator` Singleton, der exklusiven Audio-Zugriff 
 - [x] `AudioSessionCoordinator` Singleton in Infrastructure Layer implementiert
 - [x] Conflict Handler Pattern implementiert (wie iOS)
 - [x] `AudioService` (Timer) nutzt Coordinator
-- [x] Unit Tests für Coordinator vorhanden
-- [ ] Manuelle Prüfung: Wenn Timer läuft und Guided Meditation startet, stoppt Timer-Audio
-  - (Wird getestet wenn Ticket 008 abgeschlossen ist)
+- [x] Unit Tests fuer Coordinator vorhanden
+- [ ] Manuelle Pruefung: Wenn Timer laeuft und Guided Meditation startet, stoppt Timer-Audio
+  - (Wird getestet wenn Ticket android-008 abgeschlossen ist)
 
 ### Dokumentation
 - [x] CLAUDE.md: Android-Sektion um "Audio Session Coordination" erweitern
-- [x] CHANGELOG.md: Eintrag für Audio Coordination Feature
+- [x] CHANGELOG.md: Eintrag fuer Audio Coordination Feature
 
 ---
 
@@ -37,7 +38,7 @@ iOS hat einen `AudioSessionCoordinator` Singleton, der exklusiven Audio-Zugriff 
 - `android/app/src/main/kotlin/com/stillmoment/domain/services/AudioSessionCoordinatorProtocol.kt`
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AudioSessionCoordinator.kt`
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AudioService.kt`
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/di/AudioModule.kt`
 
@@ -138,7 +139,7 @@ class AudioService @Inject constructor(
 # Unit Tests
 cd android && ./gradlew test --tests "*AudioSessionCoordinator*"
 
-# Manuelle Tests (nach Ticket 008):
+# Manuelle Tests (nach Ticket android-008):
 # 1. Timer starten mit Background Audio
 # 2. Zu Library wechseln
 # 3. Guided Meditation starten
@@ -147,7 +148,7 @@ cd android && ./gradlew test --tests "*AudioSessionCoordinator*"
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Domain/Services/AudioSessionCoordinatorProtocol.swift`
 - `ios/StillMoment/Infrastructure/Services/AudioSessionCoordinator.swift`

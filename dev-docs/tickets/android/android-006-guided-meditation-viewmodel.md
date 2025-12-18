@@ -1,17 +1,18 @@
-# Ticket 006: GuidedMeditation ViewModel
+# Ticket android-006: GuidedMeditation ViewModel
 
 **Status**: [ ] TODO
-**Priorität**: HOCH
+**Prioritaet**: HOCH
 **Aufwand**: Mittel (~2-3h)
-**Abhängigkeiten**: 005
+**Abhaengigkeiten**: android-005
+**Phase**: 3-Feature
 
 ---
 
 ## Beschreibung
 
-ViewModels für die Guided Meditations Features erstellen:
-- `GuidedMeditationsListViewModel` für Library-Übersicht
-- `GuidedMeditationPlayerViewModel` für Audio-Player
+ViewModels fuer die Guided Meditations Features erstellen:
+- `GuidedMeditationsListViewModel` fuer Library-Uebersicht
+- `GuidedMeditationPlayerViewModel` fuer Audio-Player
 
 ---
 
@@ -23,7 +24,7 @@ ViewModels für die Guided Meditations Features erstellen:
 - [ ] Delete-Funktion im ListViewModel
 - [ ] Edit-Funktion (Metadaten bearbeiten)
 - [ ] Play/Pause/Seek im PlayerViewModel
-- [ ] Unit Tests für beide ViewModels
+- [ ] Unit Tests fuer beide ViewModels
 
 ---
 
@@ -212,7 +213,7 @@ cd android && ./gradlew test --tests "*GuidedMeditations*ViewModel*"
 
 ---
 
-## iOS-Referenz
+## Referenzen
 
 - `ios/StillMoment/Application/ViewModels/GuidedMeditationsListViewModel.swift`
 - `ios/StillMoment/Application/ViewModels/GuidedMeditationPlayerViewModel.swift`

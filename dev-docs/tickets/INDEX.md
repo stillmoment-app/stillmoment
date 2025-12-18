@@ -1,0 +1,146 @@
+# Stillmoment Ticket-System
+
+Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
+
+## Status-Legende
+
+- `[ ]` TODO
+- `[~]` IN PROGRESS
+- `[x]` DONE
+
+## Phasen
+
+| Phase | Beschreibung |
+|-------|--------------|
+| 1-Quick Fix | Kritische Bugs, sofort beheben |
+| 2-Architektur | Strukturelle Grundlagen |
+| 3-Feature | Neue Funktionalitaet |
+| 4-Polish | UX-Verbesserungen, Feinschliff |
+| 5-QA | Tests und Qualitaetssicherung |
+
+---
+
+## Cross-Platform Tickets
+
+| Nr | Ticket | Phase | iOS | Android |
+|----|--------|-------|-----|---------|
+| [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [ ] | [ ] |
+
+---
+
+## iOS Tickets
+
+| Nr | Ticket | Phase | Status | Abhaengigkeit |
+|----|--------|-------|--------|---------------|
+| [ios-001](ios/ios-001-headphone-playpause.md) | Play/Pause kabelgebundene Kopfhoerer | 1-Quick Fix | [ ] | - |
+| [ios-002](ios/ios-002-ios16-support.md) | iOS 16 Support | 3-Feature | [ ] | - |
+
+---
+
+## Android Tickets
+
+| Nr | Ticket | Phase | Status | Abhaengigkeit |
+|----|--------|-------|--------|---------------|
+| [android-001](android/android-001-affirmations-i18n.md) | Affirmationen lokalisieren | 1-Quick Fix | [x] | - |
+| [android-002](android/android-002-audio-session-coordinator.md) | Audio Session Coordinator | 2-Architektur | [x] | - |
+| [android-003](android/android-003-timer-repository-impl.md) | TimerRepository Impl | 2-Architektur | [x] | - |
+| [android-003-2](android/android-003-2-timer-viewmodel-repository.md) | TimerVM Repository Integration | 2-Architektur | [x] | android-003 |
+| [android-004](android/android-004-guided-meditation-models.md) | GuidedMeditation Models | 3-Feature | [x] | - |
+| [android-005](android/android-005-guided-meditation-repository.md) | GuidedMeditation Repository | 3-Feature | [ ] | android-004 |
+| [android-006](android/android-006-guided-meditation-viewmodel.md) | GuidedMeditation ViewModel | 3-Feature | [ ] | android-005 |
+| [android-007](android/android-007-library-screen-ui.md) | Library Screen UI | 3-Feature | [ ] | android-006 |
+| [android-008](android/android-008-player-screen-ui.md) | Audio Player Screen UI | 3-Feature | [ ] | android-006 |
+| [android-009](android/android-009-tabview-navigation.md) | TabView Navigation | 3-Feature | [ ] | android-007, android-008 |
+| [android-010](android/android-010-mediasession-lockscreen.md) | MediaSession Lock Screen | 4-Polish | [ ] | android-008 |
+| [android-011](android/android-011-accessibility-audit.md) | Accessibility Audit | 5-QA | [ ] | android-009 |
+| [android-012](android/android-012-ui-tests.md) | UI Tests | 5-QA | [ ] | android-009 |
+| [android-013](android/android-013-integration-test.md) | Final Integration Test | 5-QA | [ ] | Alle |
+
+---
+
+## Parallelisierbare Tickets
+
+### iOS
+- ios-001, ios-002 (keine Abhaengigkeiten untereinander)
+
+### Android
+Nach android-006:
+- android-007 und android-008 parallel moeglich
+
+### Cross-Platform
+- shared-001 kann iOS und Android parallel bearbeiten
+
+---
+
+## Statistik
+
+| Plattform | Gesamt | Done | TODO |
+|-----------|--------|------|------|
+| iOS | 2 | 0 | 2 |
+| Android | 14 | 5 | 9 |
+| Shared | 1 | 0 | 1 |
+| **Total** | **17** | **5** | **12** |
+
+---
+
+## Workflow
+
+```bash
+# 1. Ticket lesen
+cat dev-docs/tickets/ios/ios-001-headphone-playpause.md
+cat dev-docs/tickets/android/android-005-guided-meditation-repository.md
+cat dev-docs/tickets/shared/shared-001-ambient-sound-fade.md
+
+# 2. Claude Code beauftragen
+"Setze Ticket ios-001 um gemaess der Spezifikation"
+"Setze den iOS-Subtask von shared-001 um"
+
+# 3. Tests ausfuehren
+cd ios && make test-unit
+cd android && ./gradlew test
+
+# 4. Status in INDEX.md aktualisieren
+```
+
+---
+
+## Branch-Konvention
+
+```bash
+# Platform-spezifisch
+git checkout -b feature/ios-001-headphone-playpause
+git checkout -b feature/android-005-guided-meditation-repository
+
+# Cross-Platform (separate Branches pro Plattform)
+git checkout -b feature/shared-001-ambient-fade-ios
+git checkout -b feature/shared-001-ambient-fade-android
+```
+
+## Commit-Konvention
+
+```bash
+feat(ios): #ios-001 Play/Pause fuer kabelgebundene Kopfhoerer
+fix(android): #android-001 Affirmationen lokalisieren
+feat(shared): #shared-001 Ambient Sound Fade (iOS)
+feat(shared): #shared-001 Ambient Sound Fade (Android)
+```
+
+---
+
+## Dokumentations-Regel
+
+Jedes Ticket muss bei Abschluss folgende Dokumentation aktualisieren:
+
+| Ticket-Typ | CHANGELOG.md | CLAUDE.md | README.md |
+|------------|--------------|-----------|-----------|
+| Bug Fix | Ja | Nein | Nein |
+| Feature | Ja | Bei Architektur | Bei Major |
+| Architektur | Ja | Ja | Nein |
+| QA | Nein | Nein | Nein |
+
+---
+
+## Templates
+
+- [TEMPLATE-platform.md](TEMPLATE-platform.md) - Vorlage fuer ios-/android-Tickets
+- [TEMPLATE-shared.md](TEMPLATE-shared.md) - Vorlage fuer shared-Tickets

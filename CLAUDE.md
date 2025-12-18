@@ -663,6 +663,54 @@ struct MeditationSettings {
 
 **Test on physical device** (iPhone 13 mini is target) with screen locked to verify background audio.
 
+## Ticket-System
+
+Unified Ticket-System für iOS und Android mit Cross-Platform Support.
+
+**Location**: `dev-docs/tickets/`
+
+**Structure**:
+```
+dev-docs/tickets/
+├── INDEX.md                    # Master-Index aller Tickets
+├── TEMPLATE-platform.md        # Vorlage für ios-/android-Tickets
+├── TEMPLATE-shared.md          # Vorlage für shared-Tickets
+├── shared/                     # Cross-Platform Tickets
+│   └── shared-001-*.md
+├── ios/                        # iOS-spezifische Tickets
+│   └── ios-001-*.md
+└── android/                    # Android-spezifische Tickets
+    └── android-001-*.md
+```
+
+**Naming Convention**:
+- `ios-NNN-beschreibung.md` - iOS-spezifische Tickets
+- `android-NNN-beschreibung.md` - Android-spezifische Tickets
+- `shared-NNN-beschreibung.md` - Cross-Platform Tickets mit iOS/Android Subtasks
+
+**Workflow**:
+```bash
+# 1. Ticket lesen
+cat dev-docs/tickets/ios/ios-001-headphone-playpause.md
+
+# 2. Claude Code beauftragen
+"Setze Ticket ios-001 um gemäß der Spezifikation"
+
+# 3. Status in INDEX.md aktualisieren
+```
+
+**Branch-Konvention**:
+```bash
+git checkout -b feature/ios-001-headphone-playpause
+git checkout -b feature/shared-001-ambient-fade-ios
+```
+
+**Commit-Konvention**:
+```bash
+feat(ios): #ios-001 Play/Pause für kabelgebundene Kopfhörer
+feat(shared): #shared-001 Ambient Sound Fade (iOS)
+```
+
 ## Important Files
 
 | File | Purpose | Keep Updated? |
@@ -675,6 +723,7 @@ struct MeditationSettings {
 | **CHANGELOG.md** | Version history | ✅ Yes |
 | **CONTRIBUTING.md** | Contributor guide | ✅ Yes |
 | **CRITICAL_CODE.md** | Testing priorities checklist | ✅ Yes |
+| **dev-docs/tickets/INDEX.md** | Unified ticket system | ✅ Yes |
 | **dev-docs/SCREENSHOTS.md** | Screenshot automation guide | ✅ Yes |
 | **dev-docs/COLOR_SYSTEM.md** | Color system & semantic roles | ✅ Yes |
 | **dev-docs/TDD_GUIDE.md** | Test-driven development workflow | ✅ Yes |
@@ -900,5 +949,5 @@ make screenshots
 
 ---
 
-**Last Updated**: 2025-11-09
-**Version**: 2.7 (v0.5 - Screenshot Automation)
+**Last Updated**: 2025-12-18
+**Version**: 2.8 (Unified Ticket-System)

@@ -1,15 +1,16 @@
-# Ticket 010: MediaSession Lock Screen Controls
+# Ticket android-010: MediaSession Lock Screen Controls
 
 **Status**: [ ] TODO
-**Priorität**: MITTEL
+**Prioritaet**: MITTEL
 **Aufwand**: Mittel (~2-3h)
-**Abhängigkeiten**: 008
+**Abhaengigkeiten**: android-008
+**Phase**: 4-Polish
 
 ---
 
 ## Beschreibung
 
-MediaSession für Lock Screen Controls implementieren:
+MediaSession fuer Lock Screen Controls implementieren:
 - Play/Pause vom Lock Screen
 - Now Playing Info (Titel, Artist)
 - Notification mit Controls
@@ -24,16 +25,16 @@ MediaSession für Lock Screen Controls implementieren:
 - [ ] Notification mit Meditation-Info und Controls
 - [ ] Session wird bei Stop beendet
 - [ ] Bluetooth/Headphone Controls funktionieren
-- [ ] **Kabelgebundene Kopfhörer: Play/Pause Toggle funktioniert** (ACTION_PLAY_PAUSE)
+- [ ] **Kabelgebundene Kopfhoerer: Play/Pause Toggle funktioniert** (ACTION_PLAY_PAUSE)
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag für MediaSession/Lock Screen
+- [ ] CHANGELOG.md: Feature-Eintrag fuer MediaSession/Lock Screen
 
 ---
 
 ## Betroffene Dateien
 
-### Zu ändern:
+### Zu aendern:
 - `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AudioPlayerService.kt`
 
 ### Neu zu erstellen:
@@ -96,7 +97,7 @@ class MediaSessionManager @Inject constructor(
                 .setActions(
                     PlaybackStateCompat.ACTION_PLAY or
                     PlaybackStateCompat.ACTION_PAUSE or
-                    PlaybackStateCompat.ACTION_PLAY_PAUSE or  // WICHTIG: Für kabelgebundene Kopfhörer!
+                    PlaybackStateCompat.ACTION_PLAY_PAUSE or  // WICHTIG: Fuer kabelgebundene Kopfhoerer!
                     PlaybackStateCompat.ACTION_SEEK_TO or
                     PlaybackStateCompat.ACTION_STOP
                 )
@@ -216,29 +217,11 @@ class AudioPlayerService @Inject constructor(
 
 ---
 
-## Testanweisungen
+## Wichtig: Kabelgebundene Kopfhoerer
 
-```bash
-# Build prüfen
-cd android && ./gradlew assembleDebug
+Kabelgebundene Kopfhoerer (mit Inline-Remote) senden einen **Toggle-Event**, nicht separate Play/Pause-Events.
 
-# Manueller Test:
-# 1. Meditation starten
-# 2. Bildschirm sperren
-# 3. Lock Screen zeigt Now Playing
-# 4. Play/Pause auf Lock Screen testen
-# 5. Notification hat Controls
-# 6. Bluetooth-Kopfhörer: Play/Pause-Button funktioniert
-# 7. KABELGEBUNDENE KOPFHÖRER: Inline-Remote Button testen!
-```
-
----
-
-## Wichtig: Kabelgebundene Kopfhörer
-
-Kabelgebundene Kopfhörer (mit Inline-Remote) senden einen **Toggle-Event**, nicht separate Play/Pause-Events.
-
-**Lösung**: `ACTION_PLAY_PAUSE` MUSS in den PlaybackState Actions enthalten sein:
+**Loesung**: `ACTION_PLAY_PAUSE` MUSS in den PlaybackState Actions enthalten sein:
 
 ```kotlin
 .setActions(
@@ -250,20 +233,38 @@ Kabelgebundene Kopfhörer (mit Inline-Remote) senden einen **Toggle-Event**, nic
 ```
 
 Ohne `ACTION_PLAY_PAUSE` funktionieren:
-- ❌ Kabelgebundene Kopfhörer mit Inline-Remote
-- ❌ Einige ältere Bluetooth-Geräte
-- ❌ Manche CarPlay-Konfigurationen
+- Kabelgebundene Kopfhoerer mit Inline-Remote
+- Einige aeltere Bluetooth-Geraete
+- Manche CarPlay-Konfigurationen
 
 Mit `ACTION_PLAY_PAUSE` funktionieren:
-- ✅ Alle oben genannten
-- ✅ Lock Screen Controls
-- ✅ Notification Controls
-- ✅ Moderne Bluetooth-Kopfhörer
+- Alle oben genannten
+- Lock Screen Controls
+- Notification Controls
+- Moderne Bluetooth-Kopfhoerer
 
 ---
 
-## iOS-Referenz
+## Testanweisungen
 
-iOS verwendet `MPNowPlayingInfoCenter` und `MPRemoteCommandCenter`:
-- `ios/StillMoment/Infrastructure/Services/AudioPlayerService.swift`
-- iOS-Äquivalent: `togglePlayPauseCommand` (siehe iOS-Ticket 001)
+```bash
+# Build pruefen
+cd android && ./gradlew assembleDebug
+
+# Manueller Test:
+# 1. Meditation starten
+# 2. Bildschirm sperren
+# 3. Lock Screen zeigt Now Playing
+# 4. Play/Pause auf Lock Screen testen
+# 5. Notification hat Controls
+# 6. Bluetooth-Kopfhoerer: Play/Pause-Button funktioniert
+# 7. KABELGEBUNDENE KOPFHOERER: Inline-Remote Button testen!
+```
+
+---
+
+## Referenzen
+
+- iOS verwendet `MPNowPlayingInfoCenter` und `MPRemoteCommandCenter`:
+  - `ios/StillMoment/Infrastructure/Services/AudioPlayerService.swift`
+- iOS-Aequivalent: `togglePlayPauseCommand` (siehe ios-001)
