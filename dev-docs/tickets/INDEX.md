@@ -26,6 +26,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 |----|--------|-------|-----|---------|
 | [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [ ] | [ ] |
 | [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [ ] | [ ] |
+| [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [ ] | [ ] |
+| [shared-004](shared/shared-004-section-header-info.md) | Section Header mit Count/Duration | 4-Polish | [ ] | [x] |
+| [shared-005](shared/shared-005-empty-state-icon-consistency.md) | Empty State Icon Konsistenz | 4-Polish | [ ] | [ ] |
 
 ---
 
@@ -43,6 +46,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
 | [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
 | [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
+| [ios-014](ios/ios-014-list-item-play-icon.md) | Play-Icon in Library List Items | 4-Polish | [ ] | - |
 
 ---
 
@@ -70,7 +74,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
 | [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [x] | - |
 | [android-019](android/android-019-player-loading-indicator.md) | Player Loading-Indikator | 4-Polish | [x] | - |
-| [android-020](android/android-020-player-skip-15s.md) | Player Skip 15s | 4-Polish | [ ] | - |
+| [android-020](android/android-020-player-skip-15s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [ ] | - |
+| [android-021](android/android-021-player-effective-name-bug.md) | Player effectiveName/Teacher Bug | 1-Quick Fix | [ ] | - |
+| [android-022](android/android-022-edit-sheet-feature-parity.md) | Edit Sheet Feature-Parity | 4-Polish | [ ] | - |
 
 ---
 
@@ -94,10 +100,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 11 | 8 | 3 |
-| Android | 21 | 17 | 4 |
-| Shared | 2 | 0 | 2 |
-| **Total** | **34** | **25** | **9** |
+| iOS | 12 | 8 | 4 |
+| Android | 23 | 17 | 6 |
+| Shared | 5 | 1 | 4 |
+| **Total** | **40** | **26** | **14** |
 
 ---
 
