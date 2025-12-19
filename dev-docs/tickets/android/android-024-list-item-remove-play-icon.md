@@ -1,6 +1,6 @@
 # Ticket android-024: Play-Icon aus List Items entfernen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -22,11 +22,11 @@ Bonus: Konsistenz mit iOS, das keine Play-Icons in der Liste zeigt.
 
 ## Akzeptanzkriterien
 
-- [ ] Play-Icon (`Icons.Default.PlayArrow`) aus `MeditationListItem` entfernt
-- [ ] Layout angepasst: [Name + Duration] [Edit-Button]
-- [ ] Card bleibt vollstaendig tappbar
-- [ ] Visuell cleaner als vorher
-- [ ] Accessibility: Item-Description bleibt vollstaendig
+- [x] Play-Icon (`Icons.Default.PlayArrow`) aus `MeditationListItem` entfernt
+- [x] Layout angepasst: [Name + Duration] [Edit-Button]
+- [x] Card bleibt vollstaendig tappbar
+- [x] Visuell cleaner als vorher
+- [x] Accessibility: Item-Description bleibt vollstaendig
 
 ---
 
