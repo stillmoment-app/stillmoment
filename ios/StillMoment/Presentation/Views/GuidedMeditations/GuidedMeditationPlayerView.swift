@@ -13,7 +13,7 @@ import SwiftUI
 /// - Teacher and meditation name display
 /// - Duration and remaining time
 /// - Progress slider with seek functionality
-/// - Play/Pause/Stop controls
+/// - Play/Pause controls
 /// - Skip forward/backward buttons
 /// - Background audio with lock screen controls
 struct GuidedMeditationPlayerView: View {
@@ -127,17 +127,6 @@ struct GuidedMeditationPlayerView: View {
                         .accessibilityLabel("guided_meditations.player.skipForward")
                     }
                     .padding(.vertical)
-
-                    // Stop button
-                    Button {
-                        self.viewModel.stop()
-                    } label: {
-                        Text("guided_meditations.player.stop")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .warmPrimaryButton()
-                    .padding(.horizontal)
-                    .accessibilityLabel("guided_meditations.player.stop")
 
                     Spacer()
                 }

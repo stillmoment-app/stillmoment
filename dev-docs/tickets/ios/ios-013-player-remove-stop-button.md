@@ -1,6 +1,6 @@
 # Ticket ios-013: Player Stop-Button entfernen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ Moderne Audio Player (Spotify, Apple Music, Headspace, Calm) haben keinen separa
 
 ## Akzeptanzkriterien
 
-- [ ] Stop-Button aus PlayerView entfernt
-- [ ] `stop()` Funktion im ViewModel bleibt erhalten (wird von `cleanup()` aufgerufen)
-- [ ] Layout bleibt visuell ausgewogen
-- [ ] UI Tests angepasst falls vorhanden
+- [x] Stop-Button aus PlayerView entfernt
+- [x] `stop()` Funktion im ViewModel bleibt erhalten (wird von `cleanup()` aufgerufen)
+- [x] Layout bleibt visuell ausgewogen
+- [x] UI Tests angepasst falls vorhanden (keine vorhanden)
 
 ---
 

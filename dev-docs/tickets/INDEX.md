@@ -42,7 +42,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
 | [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
-| [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [ ] | - |
+| [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
 
 ---
 
@@ -94,10 +94,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 11 | 7 | 4 |
+| iOS | 11 | 8 | 3 |
 | Android | 21 | 16 | 5 |
 | Shared | 2 | 0 | 2 |
-| **Total** | **34** | **23** | **11** |
+| **Total** | **34** | **24** | **10** |
 
 ---
 
