@@ -92,7 +92,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [x] | - |
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet State Extraktion + Tests | 5-QA | [x] | - |
 | [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [ ] | - |
-| [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [~] | - |
+| [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
 
 ---
 
@@ -117,9 +117,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 16 | 13 | 3 |
-| Android | 35 | 26 | 9 |
+| Android | 35 | 27 | 8 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **55** | **39** | **16** |
+| **Total** | **55** | **40** | **15** |
 
 ---
 

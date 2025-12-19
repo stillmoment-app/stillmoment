@@ -9,4 +9,7 @@
     <color name="warm_cream">#FFFAF3E8</color>
     <color name="ring_background">#FFE8D5C4</color>
     <color name="warm_error">#FFD32F2F</color>
+
+    <!-- App Icon Background (matches iOS gradient center) -->
+    <color name="icon_background">#FF5B7C8A</color>
 </resources>
