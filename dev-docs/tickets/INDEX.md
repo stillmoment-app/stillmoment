@@ -45,7 +45,6 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
 | [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
 | [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
-| [ios-014](ios/ios-014-list-item-play-icon.md) | Play-Icon in Library List Items | 4-Polish | [ ] | - |
 | [ios-015](ios/ios-015-player-skip-10s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 
 ---
@@ -78,6 +77,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-021](android/android-021-player-effective-name-bug.md) | Player effectiveName/Teacher Bug | 1-Quick Fix | [ ] | - |
 | [android-022](android/android-022-edit-sheet-feature-parity.md) | Edit Sheet Feature-Parity | 4-Polish | [ ] | - |
 | [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [ ] | - |
+| [android-024](android/android-024-list-item-remove-play-icon.md) | List Item Play-Icon entfernen | 4-Polish | [ ] | - |
 
 ---
 
@@ -101,10 +101,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 12 | 9 | 3 |
-| Android | 24 | 17 | 7 |
+| iOS | 11 | 9 | 2 |
+| Android | 25 | 19 | 6 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **40** | **26** | **14** |
+| **Total** | **40** | **28** | **12** |
 
 ---
 
