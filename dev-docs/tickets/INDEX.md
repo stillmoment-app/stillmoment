@@ -76,7 +76,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-020](android/android-020-player-skip-15s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [android-021](android/android-021-player-effective-name-bug.md) | Player effectiveName/Teacher Bug | 1-Quick Fix | [x] | - |
 | [android-022](android/android-022-edit-sheet-feature-parity.md) | Edit Sheet Feature-Parity | 4-Polish | [ ] | - |
-| [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [ ] | - |
+| [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [x] | - |
 | [android-024](android/android-024-list-item-remove-play-icon.md) | List Item Play-Icon entfernen | 4-Polish | [ ] | - |
 
 ---
@@ -102,9 +102,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 11 | 9 | 2 |
-| Android | 25 | 20 | 5 |
+| Android | 25 | 21 | 4 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **40** | **29** | **11** |
+| **Total** | **40** | **30** | **10** |
 
 ---
 

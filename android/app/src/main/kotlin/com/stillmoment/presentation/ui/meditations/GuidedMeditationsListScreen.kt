@@ -229,11 +229,7 @@ private fun MeditationsList(
         groups.forEach { group ->
             // Section Header
             item(key = "header_${group.teacher}") {
-                SectionHeader(
-                    teacher = group.teacher,
-                    count = group.count,
-                    totalDuration = group.formattedTotalDuration
-                )
+                SectionHeader(teacher = group.teacher)
             }
 
             // Meditations in group
@@ -255,12 +251,8 @@ private fun MeditationsList(
 @Composable
 private fun SectionHeader(
     teacher: String,
-    count: Int,
-    totalDuration: String,
     modifier: Modifier = Modifier
 ) {
-    val sectionDescription = stringResource(R.string.accessibility_section_header, teacher, count)
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -268,11 +260,11 @@ private fun SectionHeader(
             .padding(vertical = 12.dp, horizontal = 4.dp)
             .semantics {
                 heading()
-                contentDescription = sectionDescription
+                contentDescription = teacher
             }
     ) {
         Text(
-            text = "$teacher ($count • $totalDuration)",
+            text = teacher,
             style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.SemiBold
             ),

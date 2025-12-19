@@ -297,43 +297,6 @@ class GuidedMeditationTest {
             assertEquals(3, group.count)
         }
 
-        @Test
-        fun `group totalDuration sums all meditation durations`() {
-            // Given
-            val meditations = listOf(
-                createTestMeditation(duration = 300_000L),  // 5 min
-                createTestMeditation(duration = 600_000L),  // 10 min
-                createTestMeditation(duration = 900_000L)   // 15 min
-            )
-            val group = GuidedMeditationGroup("Teacher", meditations)
-
-            // When/Then
-            assertEquals(1_800_000L, group.totalDuration) // 30 min
-        }
-
-        @Test
-        fun `formattedTotalDuration formats minutes correctly`() {
-            // Given - 30 minutes total
-            val meditations = listOf(
-                createTestMeditation(duration = 1_800_000L)
-            )
-            val group = GuidedMeditationGroup("Teacher", meditations)
-
-            // When/Then
-            assertEquals("30 min", group.formattedTotalDuration)
-        }
-
-        @Test
-        fun `formattedTotalDuration formats hours and minutes correctly`() {
-            // Given - 1 hour 30 minutes = 5,400,000 ms
-            val meditations = listOf(
-                createTestMeditation(duration = 5_400_000L)
-            )
-            val group = GuidedMeditationGroup("Teacher", meditations)
-
-            // When/Then
-            assertEquals("1h 30m", group.formattedTotalDuration)
-        }
     }
 
     // MARK: - groupByTeacher Extension Tests

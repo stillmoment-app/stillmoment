@@ -127,7 +127,4 @@
     <string name="accessibility_interval_disabled">Interval gongs disabled</string>
     <string name="accessibility_sound_selected">%s selected</string>
     <string name="accessibility_interval_option">%d minutes interval</string>
-
-    <!-- Library Accessibility -->
-    <string name="accessibility_section_header">%1$s section, %2$d meditations</string>
 </resources>

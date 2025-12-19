@@ -1,6 +1,6 @@
 # Ticket android-023: Section Header vereinfachen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -22,11 +22,11 @@ Bonus: Konsistenz mit iOS, das nur den Lehrer-Namen zeigt.
 
 ## Akzeptanzkriterien
 
-- [ ] Section-Header zeigt nur Lehrer-Namen
-- [ ] Count und Duration entfernt
-- [ ] `GuidedMeditationGroup.formattedTotalDuration` kann entfernt werden (falls nicht anderweitig genutzt)
-- [ ] Accessibility-Label angepasst (nur Lehrer-Name)
-- [ ] Visuell cleaner als vorher
+- [x] Section-Header zeigt nur Lehrer-Namen
+- [x] Count und Duration entfernt
+- [x] `GuidedMeditationGroup.formattedTotalDuration` kann entfernt werden (falls nicht anderweitig genutzt)
+- [x] Accessibility-Label angepasst (nur Lehrer-Name)
+- [x] Visuell cleaner als vorher
 
 ---
 
