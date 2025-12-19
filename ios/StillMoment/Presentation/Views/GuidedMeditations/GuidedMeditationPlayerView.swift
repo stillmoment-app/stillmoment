@@ -96,7 +96,7 @@ struct GuidedMeditationPlayerView: View {
                         Button {
                             self.viewModel.skipBackward()
                         } label: {
-                            Image(systemName: "gobackward.15")
+                            Image(systemName: "gobackward.10")
                                 .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.interactive)
                         }
@@ -120,7 +120,7 @@ struct GuidedMeditationPlayerView: View {
                         Button {
                             self.viewModel.skipForward()
                         } label: {
-                            Image(systemName: "goforward.15")
+                            Image(systemName: "goforward.10")
                                 .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.interactive)
                         }

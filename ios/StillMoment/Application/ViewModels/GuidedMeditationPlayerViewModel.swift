@@ -150,7 +150,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Skips forward by a given number of seconds
     ///
     /// - Parameter seconds: Seconds to skip forward
-    func skipForward(by seconds: TimeInterval = 15) {
+    func skipForward(by seconds: TimeInterval = 10) {
         let newTime = min(currentTime + seconds, self.duration)
         self.seek(to: newTime)
     }
@@ -158,7 +158,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Skips backward by a given number of seconds
     ///
     /// - Parameter seconds: Seconds to skip backward
-    func skipBackward(by seconds: TimeInterval = 15) {
+    func skipBackward(by seconds: TimeInterval = 10) {
         let newTime = max(currentTime - seconds, 0)
         self.seek(to: newTime)
     }
