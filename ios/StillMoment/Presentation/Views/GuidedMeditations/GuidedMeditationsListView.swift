@@ -89,6 +89,29 @@ struct GuidedMeditationsListView: View {
                 Text(error)
             }
         }
+        .alert(
+            NSLocalizedString("guided_meditations.delete.title", comment: ""),
+            isPresented: .constant(self.meditationToDelete != nil)
+        ) {
+            Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {
+                self.meditationToDelete = nil
+            }
+            Button(NSLocalizedString("guided_meditations.delete.confirm", comment: ""), role: .destructive) {
+                if let meditation = meditationToDelete {
+                    self.viewModel.deleteMeditation(meditation)
+                }
+                self.meditationToDelete = nil
+            }
+        } message: {
+            if let meditation = meditationToDelete {
+                Text(
+                    String(
+                        format: NSLocalizedString("guided_meditations.delete.message", comment: ""),
+                        meditation.effectiveName
+                    )
+                )
+            }
+        }
         .onAppear {
             self.viewModel.loadMeditations()
         }
@@ -98,6 +121,7 @@ struct GuidedMeditationsListView: View {
 
     @StateObject private var viewModel = GuidedMeditationsListViewModel()
     @State private var selectedMeditation: GuidedMeditation?
+    @State private var meditationToDelete: GuidedMeditation?
 
     // MARK: - Subviews
 
@@ -135,8 +159,8 @@ struct GuidedMeditationsListView: View {
                         self.meditationRow(for: meditation)
                     }
                     .onDelete { indexSet in
-                        for index in indexSet {
-                            self.viewModel.deleteMeditation(section.meditations[index])
+                        if let index = indexSet.first {
+                            self.meditationToDelete = section.meditations[index]
                         }
                     }
                 } header: {

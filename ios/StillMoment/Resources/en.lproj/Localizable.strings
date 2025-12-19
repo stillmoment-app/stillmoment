@@ -134,6 +134,10 @@
 "guided_meditations.empty.title" = "No meditations yet";
 "guided_meditations.empty.message" = "Add your first guided meditation by importing an MP3 file from the Files app.";
 
+"guided_meditations.delete.title" = "Delete Meditation";
+"guided_meditations.delete.message" = "Are you sure you want to delete \"%@\"?";
+"guided_meditations.delete.confirm" = "Delete";
+
 "guided_meditations.edit.title" = "Edit meditation";
 "guided_meditations.edit.teacher" = "Teacher/Guide";
 "guided_meditations.edit.teacherPlaceholder" = "Teacher's name";

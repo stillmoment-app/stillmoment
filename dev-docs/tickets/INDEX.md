@@ -25,8 +25,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | Nr | Ticket | Phase | iOS | Android |
 |----|--------|-------|-----|---------|
 | [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [ ] | [ ] |
-| [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [ ] | [ ] |
-| [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [ ] | [ ] |
+| [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [x] | [x] |
+| [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
 | [shared-005](shared/shared-005-empty-state-icon-consistency.md) | Empty State Icon Konsistenz | 4-Polish | [ ] | [ ] |
 
 ---
@@ -84,7 +84,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [x] | - |
 | [android-024](android/android-024-list-item-remove-play-icon.md) | List Item Play-Icon entfernen | 4-Polish | [x] | - |
 | [android-025](android/android-025-timer-accessibility-improvements.md) | Timer Accessibility Verbesserungen | 4-Polish | [x] | - |
-| [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [ ] | - |
+| [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [x] | - |
 | [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [ ] | - |
 | [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
 | [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [x] | - |
@@ -119,9 +119,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 17 | 14 | 3 |
-| Android | 36 | 29 | 7 |
-| Shared | 4 | 0 | 4 |
-| **Total** | **57** | **43** | **14** |
+| Android | 36 | 30 | 6 |
+| Shared | 4 | 2 | 2 |
+| **Total** | **57** | **46** | **11** |
 
 ---
 

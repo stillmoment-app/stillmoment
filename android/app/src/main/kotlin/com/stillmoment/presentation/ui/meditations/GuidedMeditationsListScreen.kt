@@ -29,11 +29,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -96,6 +100,7 @@ internal fun GuidedMeditationsListScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
     val context = LocalContext.current
+    var meditationToDelete by remember { mutableStateOf<GuidedMeditation?>(null) }
 
     // Document picker launcher
     // IMPORTANT: Take persistable URI permission immediately in Activity context
@@ -188,7 +193,7 @@ internal fun GuidedMeditationsListScreenContent(
                         groups = uiState.groups,
                         onMeditationClick = onMeditationClick,
                         onEditClick = onEditClick,
-                        onDeleteMeditation = onDeleteMeditation
+                        onDeleteMeditation = { meditation -> meditationToDelete = meditation }
                     )
                 }
             }
@@ -201,6 +206,42 @@ internal fun GuidedMeditationsListScreenContent(
                 availableTeachers = uiState.availableTeachers,
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation
+            )
+        }
+
+        // Delete Confirmation Dialog
+        meditationToDelete?.let { meditation ->
+            AlertDialog(
+                onDismissRequest = { meditationToDelete = null },
+                title = {
+                    Text(text = stringResource(R.string.delete_confirmation_title))
+                },
+                text = {
+                    Text(
+                        text = stringResource(
+                            R.string.delete_confirmation_message,
+                            meditation.effectiveName
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onDeleteMeditation(meditation)
+                            meditationToDelete = null
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.common_delete),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { meditationToDelete = null }) {
+                        Text(text = stringResource(R.string.common_cancel))
+                    }
+                }
             )
         }
 
@@ -287,7 +328,8 @@ private fun SwipeToDeleteItem(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
                 onDelete()
-                true
+                // Return false to reset swipe - actual deletion happens after dialog confirmation
+                false
             } else {
                 false
             }

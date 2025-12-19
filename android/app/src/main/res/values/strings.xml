@@ -15,6 +15,7 @@
     <string name="common_save">Save</string>
     <string name="common_close">Close</string>
     <string name="common_and">and</string>
+    <string name="common_delete">Delete</string>
 
     <!-- Buttons -->
     <string name="button_start">Start</string>
@@ -93,6 +94,8 @@
     <string name="library_empty_title">Your library is empty</string>
     <string name="library_empty_description">Import meditation audio files to get started</string>
     <string name="library_import_button">Import Meditation</string>
+    <string name="delete_confirmation_title">Delete Meditation</string>
+    <string name="delete_confirmation_message">Are you sure you want to delete \"%1$s\"?</string>
     <string name="edit_meditation_title">Edit Meditation</string>
     <string name="edit_teacher_label">Teacher</string>
     <string name="edit_name_label">Name</string>

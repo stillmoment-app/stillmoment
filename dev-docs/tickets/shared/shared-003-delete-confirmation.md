@@ -1,6 +1,6 @@
 # Ticket shared-003: Delete Confirmation Dialog
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~15min | Android ~15min
 **Phase**: 4-Polish
@@ -21,20 +21,20 @@ Das versehentliche Loeschen einer Meditation ist eine destruktive Aktion ohne Un
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Swipe-to-Delete zeigt zunaechst nur die Delete-Aktion (roter Hintergrund)
-- [ ] Tap auf Delete-Icon/Button zeigt Bestaetigungsdialog
-- [ ] Dialog zeigt Meditation-Namen
-- [ ] Dialog hat "Abbrechen" und "Loeschen" Buttons
-- [ ] "Loeschen" Button ist destruktiv gekennzeichnet (rot)
-- [ ] Lokalisiert (DE + EN)
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [x] Swipe-to-Delete zeigt zunaechst nur die Delete-Aktion (roter Hintergrund)
+- [x] Tap auf Delete-Icon/Button zeigt Bestaetigungsdialog
+- [x] Dialog zeigt Meditation-Namen
+- [x] Dialog hat "Abbrechen" und "Loeschen" Buttons
+- [x] "Loeschen" Button ist destruktiv gekennzeichnet (rot)
+- [x] Lokalisiert (DE + EN)
+- [x] UX-Konsistenz zwischen iOS und Android
 
 ---
 

@@ -15,6 +15,7 @@
     <string name="common_save">Speichern</string>
     <string name="common_close">Schließen</string>
     <string name="common_and">und</string>
+    <string name="common_delete">Löschen</string>
 
     <!-- Buttons -->
     <string name="button_start">Start</string>
@@ -93,6 +94,8 @@
     <string name="library_empty_title">Deine Bibliothek ist leer</string>
     <string name="library_empty_description">Importiere Meditations-Audiodateien, um zu beginnen</string>
     <string name="library_import_button">Meditation importieren</string>
+    <string name="delete_confirmation_title">Meditation löschen</string>
+    <string name="delete_confirmation_message">Möchtest du \"%1$s\" wirklich löschen?</string>
     <string name="edit_meditation_title">Meditation bearbeiten</string>
     <string name="edit_teacher_label">Lehrer</string>
     <string name="edit_name_label">Name</string>
