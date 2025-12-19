@@ -718,24 +718,30 @@ Unified Ticket-System für iOS und Android mit Cross-Platform Support.
 
 **Location**: `dev-docs/tickets/`
 
+**Philosophie**: Tickets beschreiben das **WAS** und **WARUM**, nicht das WIE.
+
+| Gehört ins Ticket | Gehört NICHT ins Ticket |
+|-------------------|-------------------------|
+| Was soll gemacht werden? | Code-Implementierung |
+| Warum ist es wichtig? | Dateilisten (neu/ändern) |
+| Akzeptanzkriterien | Architektur-Diagramme |
+| Manueller Testfall | Test-Befehle |
+| Referenz auf existierenden Code | Zeilennummern |
+
+**Warum schlank?** Claude Code hat Zugriff auf CLAUDE.md, bestehenden Code, und kann selbst die beste Lösung finden.
+
 **Structure**:
 ```
 dev-docs/tickets/
-├── INDEX.md                    # Master-Index aller Tickets
+├── INDEX.md                    # Master-Index + Philosophie
 ├── TEMPLATE-platform.md        # Vorlage für ios-/android-Tickets
 ├── TEMPLATE-shared.md          # Vorlage für shared-Tickets
 ├── shared/                     # Cross-Platform Tickets
-│   └── shared-001-*.md
 ├── ios/                        # iOS-spezifische Tickets
-│   └── ios-001-*.md
 └── android/                    # Android-spezifische Tickets
-    └── android-001-*.md
 ```
 
-**Naming Convention**:
-- `ios-NNN-beschreibung.md` - iOS-spezifische Tickets
-- `android-NNN-beschreibung.md` - Android-spezifische Tickets
-- `shared-NNN-beschreibung.md` - Cross-Platform Tickets mit iOS/Android Subtasks
+**Naming**: `{platform}-NNN-beschreibung.md` (ios-, android-, shared-)
 
 **Workflow**:
 ```bash
@@ -743,22 +749,13 @@ dev-docs/tickets/
 cat dev-docs/tickets/ios/ios-001-headphone-playpause.md
 
 # 2. Claude Code beauftragen
-"Setze Ticket ios-001 um gemäß der Spezifikation"
+"Setze Ticket ios-001 um"
 
 # 3. Status in INDEX.md aktualisieren
 ```
 
-**Branch-Konvention**:
-```bash
-git checkout -b feature/ios-001-headphone-playpause
-git checkout -b feature/shared-001-ambient-fade-ios
-```
-
-**Commit-Konvention**:
-```bash
-feat(ios): #ios-001 Play/Pause für kabelgebundene Kopfhörer
-feat(shared): #shared-001 Ambient Sound Fade (iOS)
-```
+**Branch**: `feature/{platform}-NNN-beschreibung`
+**Commit**: `feat({platform}): #{platform}-NNN Kurzbeschreibung`
 
 ## Important Files
 

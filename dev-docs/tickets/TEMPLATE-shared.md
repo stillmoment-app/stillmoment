@@ -2,93 +2,81 @@
 
 **Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
 **Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
-**Aufwand**: iOS ~Xh + Android ~Xh
+**Aufwand**: iOS ~X | Android ~X
 **Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
 ---
 
-## Beschreibung
+## Was
 
-{Kurze Beschreibung des plattformuebergreifenden Features}
+{1-2 Saetze: Was soll gemacht werden?}
+
+## Warum
+
+{1-2 Saetze: Warum ist das wichtig? Welches Problem loest es?}
 
 ---
 
 ## Plattform-Status
 
-| Plattform | Status | Aufwand | Abhaengigkeit |
-|-----------|--------|---------|---------------|
-| iOS       | [ ]    | ~Xh     | -             |
-| Android   | [ ]    | ~Xh     | -             |
+| Plattform | Status | Abhaengigkeit |
+|-----------|--------|---------------|
+| iOS       | [ ]    | -             |
+| Android   | [ ]    | -             |
 
 ---
 
-## Gemeinsame Akzeptanzkriterien
+## Akzeptanzkriterien
 
-- [ ] Kriterium 1 (beide Plattformen)
-- [ ] Kriterium 2 (beide Plattformen)
+{Gemeinsame Kriterien fuer beide Plattformen}
 
-### Tests (PFLICHT)
-- [ ] iOS: Unit Tests geschrieben/aktualisiert
-- [ ] iOS: Bestehende Tests weiterhin gruen
-- [ ] Android: Unit Tests geschrieben/aktualisiert
-- [ ] Android: Bestehende Tests weiterhin gruen
-- [ ] Manuelle Tests auf beiden Plattformen
-
-### Dokumentation
-- [ ] CHANGELOG.md: Feature-Eintrag (beide Plattformen)
+- [ ] Kriterium 1
+- [ ] Kriterium 2
+- [ ] Unit Tests (beide Plattformen)
+- [ ] Lokalisiert (DE + EN) falls UI
+- [ ] UX-Konsistenz zwischen iOS und Android
 
 ---
 
-## iOS-Subtask
+## Manueller Test
 
-### Akzeptanzkriterien (iOS)
-- [ ] iOS-spezifisches Kriterium 1
-- [ ] iOS-spezifisches Kriterium 2
-
-### Betroffene Dateien (iOS)
-- `ios/StillMoment/...`
-
-### Technische Details (iOS)
-
-```swift
-// iOS-Code Beispiel
-```
-
-### Testanweisungen (iOS)
-
-```bash
-cd ios && make test-unit
-```
-
----
-
-## Android-Subtask
-
-### Akzeptanzkriterien (Android)
-- [ ] Android-spezifisches Kriterium 1
-- [ ] Android-spezifisches Kriterium 2
-
-### Betroffene Dateien (Android)
-- `android/app/src/main/kotlin/...`
-
-### Technische Details (Android)
-
-```kotlin
-// Android-Code Beispiel
-```
-
-### Testanweisungen (Android)
-
-```bash
-cd android && ./gradlew test
-```
+1. {Schritt 1}
+2. {Schritt 2}
+3. Erwartung: {Was soll passieren - identisch auf beiden Plattformen?}
 
 ---
 
 ## UX-Konsistenz
 
-{Anforderungen fuer konsistentes Verhalten auf beiden Plattformen}
+{Optional: Nur falls plattform-spezifische Unterschiede erlaubt/gewuenscht sind}
 
-| Aktion | iOS | Android |
-|--------|-----|---------|
-| ... | ... | ... |
+| Verhalten | iOS | Android |
+|-----------|-----|---------|
+| {Beispiel} | {iOS-Variante} | {Android-Variante} |
+
+---
+
+## Referenz
+
+- iOS: `ios/StillMoment/{path}/`
+- Android: `android/app/src/main/kotlin/com/stillmoment/{path}/`
+
+---
+
+## Hinweise
+
+{Optional: Plattform-spezifische Fallstricke, API-Unterschiede}
+
+---
+
+<!--
+WAS NICHT INS TICKET GEHOERT:
+- Kein Code (Claude Code schreibt den selbst)
+- Keine separaten iOS/Android Subtasks mit Code
+- Keine Dateilisten (Claude Code findet die Dateien)
+
+Claude Code arbeitet shared-Tickets so ab:
+1. Liest Ticket fuer Kontext
+2. Implementiert iOS (oder Android) komplett
+3. Portiert auf andere Plattform mit Referenz
+-->

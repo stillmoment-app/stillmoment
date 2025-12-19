@@ -153,3 +153,24 @@ Jedes Ticket muss bei Abschluss folgende Dokumentation aktualisieren:
 
 - [TEMPLATE-platform.md](TEMPLATE-platform.md) - Vorlage fuer ios-/android-Tickets
 - [TEMPLATE-shared.md](TEMPLATE-shared.md) - Vorlage fuer shared-Tickets
+
+---
+
+## Ticket-Philosophie
+
+**Tickets beschreiben das WAS und WARUM, nicht das WIE.**
+
+| Gehoert ins Ticket | Gehoert NICHT ins Ticket |
+|--------------------|--------------------------|
+| Was soll gemacht werden? | Code-Implementierung |
+| Warum ist es wichtig? | Dateilisten (neu/aendern) |
+| Akzeptanzkriterien | Architektur-Diagramme |
+| Manueller Testfall | Test-Befehle |
+| Referenz auf existierenden Code | Zeilennummern |
+| Nicht-offensichtliche Hinweise | Offensichtliche Patterns |
+
+**Warum?**
+- Claude Code hat Zugriff auf CLAUDE.md (Architektur, Commands, Patterns)
+- Claude Code kann bestehenden Code als Referenz lesen
+- Claude Code kann selbst bessere Loesungen finden
+- Weniger Pflege-Aufwand fuer Tickets

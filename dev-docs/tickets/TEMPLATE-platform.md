@@ -2,15 +2,19 @@
 
 **Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
 **Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
-**Aufwand**: Klein (~Xh) | Mittel (~Xh) | Gross (~Xh)
+**Aufwand**: Klein | Mittel | Gross
 **Abhaengigkeiten**: Keine | {platform}-{NNN}
 **Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
 ---
 
-## Beschreibung
+## Was
 
-{Kurze Beschreibung des Problems/Features}
+{1-2 Saetze: Was soll gemacht werden?}
+
+## Warum
+
+{1-2 Saetze: Warum ist das wichtig? Welches Problem loest es?}
 
 ---
 
@@ -19,62 +23,44 @@
 - [ ] Kriterium 1
 - [ ] Kriterium 2
 - [ ] Kriterium 3
-
-### Tests (PFLICHT)
 - [ ] Unit Tests geschrieben/aktualisiert
-- [ ] Bestehende Tests weiterhin gruen
-- [ ] Manuelle Tests durchgefuehrt
-
-### Dokumentation
-- [ ] CHANGELOG.md: {Art} Eintrag
-- [ ] CLAUDE.md: {Sektion} aktualisieren (falls Architektur)
+- [ ] Lokalisiert (DE + EN) falls UI
 
 ---
 
-## Betroffene Dateien
+## Manueller Test
 
-### Neu zu erstellen:
-- `{path/to/file.ext}`
-
-### Zu aendern:
-- `{path/to/file.ext}` (Zeile X-Y, Methode Z)
-
-### Tests:
-- `{path/to/test.ext}`
+1. {Schritt 1}
+2. {Schritt 2}
+3. Erwartung: {Was soll passieren?}
 
 ---
 
-## Technische Details
+## Referenz
 
-{Code-Beispiele, Architektur-Erklaerungen}
+{Optional: Verweis auf existierenden Code als Orientierung}
 
-```swift
-// iOS-Code Beispiel
-```
-
-```kotlin
-// Android-Code Beispiel
-```
+- iOS: `ios/StillMoment/{path}/`
+- Android: `android/app/src/main/kotlin/com/stillmoment/{path}/`
+- Doku: {Link falls relevant}
 
 ---
 
-## Testanweisungen
+## Hinweise
 
-```bash
-# Platform-spezifische Befehle
-cd ios && make test-unit
-# oder
-cd android && ./gradlew test
-```
-
-### Manueller Test:
-1. Schritt 1
-2. Schritt 2
-3. Erwartung: ...
+{Optional: Nur fuer nicht-offensichtliche Entscheidungen, bekannte Fallstricke, oder spezifische API-Namen die recherchiert wurden}
 
 ---
 
-## Referenzen
+<!--
+WAS NICHT INS TICKET GEHOERT:
+- Kein Code (Claude Code schreibt den selbst)
+- Keine Dateilisten (Claude Code findet die Dateien)
+- Keine Architektur-Diagramme (steht in CLAUDE.md)
+- Keine Test-Befehle (steht in CLAUDE.md)
 
-- {Link zu iOS/Android-Referenz falls vorhanden}
-- {Link zu Dokumentation}
+Claude Code hat Zugriff auf:
+- CLAUDE.md (Architektur, Commands, Patterns)
+- Bestehenden Code als Referenz
+- iOS-Implementierung fuer Android-Ports
+-->
