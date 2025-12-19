@@ -74,7 +74,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
 | [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [x] | - |
 | [android-019](android/android-019-player-loading-indicator.md) | Player Loading-Indikator | 4-Polish | [x] | - |
-| [android-020](android/android-020-player-skip-15s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [ ] | - |
+| [android-020](android/android-020-player-skip-15s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [android-021](android/android-021-player-effective-name-bug.md) | Player effectiveName/Teacher Bug | 1-Quick Fix | [ ] | - |
 | [android-022](android/android-022-edit-sheet-feature-parity.md) | Edit Sheet Feature-Parity | 4-Polish | [ ] | - |
 | [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [ ] | - |

@@ -1,6 +1,6 @@
 # Ticket android-020: Player Skip-Dauer auf 10 Sekunden vereinheitlichen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
