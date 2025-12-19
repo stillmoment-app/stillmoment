@@ -198,6 +198,7 @@ internal fun GuidedMeditationsListScreenContent(
         if (uiState.showEditSheet && uiState.selectedMeditation != null) {
             MeditationEditSheet(
                 meditation = uiState.selectedMeditation,
+                availableTeachers = uiState.availableTeachers,
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation
             )

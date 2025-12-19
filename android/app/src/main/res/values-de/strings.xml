@@ -128,4 +128,8 @@
     <string name="accessibility_interval_disabled">Intervall-Gongs deaktiviert</string>
     <string name="accessibility_sound_selected">%s ausgewählt</string>
     <string name="accessibility_interval_option">%d Minuten Intervall</string>
+
+    <!-- Autocomplete Accessibility -->
+    <string name="accessibility_autocomplete_suggestion">Vorschlag: %s</string>
+    <string name="accessibility_autocomplete_hint">Doppeltippen zum Auswählen</string>
 </resources>

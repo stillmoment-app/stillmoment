@@ -85,7 +85,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [ ] | - |
 | [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [ ] | - |
 | [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
-| [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [ ] | - |
+| [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [x] | - |
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [ ] | - |
 | [android-032](android/android-032-edit-sheet-accessibility-semantics.md) | Edit Sheet Accessibility Semantics | 4-Polish | [ ] | - |
 | [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [ ] | - |
@@ -115,9 +115,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 15 | 9 | 6 |
-| Android | 34 | 23 | 11 |
+| Android | 34 | 24 | 10 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **53** | **32** | **21** |
+| **Total** | **53** | **33** | **20** |
 
 ---
 

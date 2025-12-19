@@ -48,6 +48,10 @@ data class GuidedMeditationsListUiState(
     /** Whether the library is empty */
     val isEmpty: Boolean
         get() = groups.isEmpty() && !isLoading
+
+    /** List of unique teacher names for autocomplete */
+    val availableTeachers: List<String>
+        get() = groups.map { it.teacher }.distinct().sorted()
 }
 
 /**

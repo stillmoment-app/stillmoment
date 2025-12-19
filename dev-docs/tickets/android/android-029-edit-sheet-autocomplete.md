@@ -1,6 +1,6 @@
 # Ticket android-029: Edit Sheet Autocomplete fuer Teacher
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -20,11 +20,11 @@ iOS hat AutocompleteTextField, das existierende Teacher-Namen vorschlaegt. Das e
 
 ## Akzeptanzkriterien
 
-- [ ] Teacher-Feld zeigt Vorschlaege basierend auf existierenden Lehrern
-- [ ] Vorschlaege erscheinen beim Tippen (gefiltert)
-- [ ] Vorschlag antippbar zum Uebernehmen
-- [ ] Funktioniert auch ohne Vorschlaege (normales TextField)
-- [ ] Accessibility: Vorschlaege sind mit TalkBack navigierbar
+- [x] Teacher-Feld zeigt Vorschlaege basierend auf existierenden Lehrern
+- [x] Vorschlaege erscheinen beim Tippen (gefiltert)
+- [x] Vorschlag antippbar zum Uebernehmen
+- [x] Funktioniert auch ohne Vorschlaege (normales TextField)
+- [x] Accessibility: Vorschlaege sind mit TalkBack navigierbar
 
 ---
 

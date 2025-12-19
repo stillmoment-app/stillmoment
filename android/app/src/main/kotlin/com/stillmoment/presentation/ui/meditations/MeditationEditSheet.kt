@@ -31,15 +31,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
 /**
  * Bottom sheet for editing meditation metadata (teacher and name).
+ *
+ * @param meditation The meditation to edit
+ * @param availableTeachers List of existing teacher names for autocomplete
+ * @param onDismiss Callback when sheet is dismissed
+ * @param onSave Callback when changes are saved
+ * @param modifier Modifier for the component
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeditationEditSheet(
     meditation: GuidedMeditation,
+    availableTeachers: List<String> = emptyList(),
     onDismiss: () -> Unit,
     onSave: (GuidedMeditation) -> Unit,
     modifier: Modifier = Modifier
@@ -84,19 +92,14 @@ fun MeditationEditSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Teacher field
-            OutlinedTextField(
+            // Teacher field with autocomplete
+            AutocompleteTextField(
                 value = teacherText,
                 onValueChange = { teacherText = it },
+                suggestions = availableTeachers,
                 label = { Text(stringResource(R.string.edit_teacher_label)) },
                 placeholder = { Text(meditation.teacher) },
-                singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary
-                ),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next

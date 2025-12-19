@@ -244,6 +244,57 @@ class GuidedMeditationsListViewModelTest {
         }
     }
 
+    // MARK: - Available Teachers Tests
+
+    @Nested
+    inner class AvailableTeachersTests {
+
+        @Test
+        fun `availableTeachers returns empty list for empty groups`() {
+            val state = GuidedMeditationsListUiState(groups = emptyList())
+
+            assertTrue(state.availableTeachers.isEmpty())
+        }
+
+        @Test
+        fun `availableTeachers returns unique teacher names`() {
+            val groups = listOf(
+                createTestGroup("Tara Brach", 2),
+                createTestGroup("Jack Kornfield", 1),
+                createTestGroup("Sharon Salzberg", 3)
+            )
+            val state = GuidedMeditationsListUiState(groups = groups)
+
+            assertEquals(3, state.availableTeachers.size)
+            assertTrue(state.availableTeachers.contains("Tara Brach"))
+            assertTrue(state.availableTeachers.contains("Jack Kornfield"))
+            assertTrue(state.availableTeachers.contains("Sharon Salzberg"))
+        }
+
+        @Test
+        fun `availableTeachers is sorted alphabetically`() {
+            val groups = listOf(
+                createTestGroup("Zebra Teacher", 1),
+                createTestGroup("Alpha Teacher", 1),
+                createTestGroup("Middle Teacher", 1)
+            )
+            val state = GuidedMeditationsListUiState(groups = groups)
+
+            assertEquals("Alpha Teacher", state.availableTeachers[0])
+            assertEquals("Middle Teacher", state.availableTeachers[1])
+            assertEquals("Zebra Teacher", state.availableTeachers[2])
+        }
+
+        @Test
+        fun `availableTeachers handles single group`() {
+            val groups = listOf(createTestGroup("Single Teacher", 5))
+            val state = GuidedMeditationsListUiState(groups = groups)
+
+            assertEquals(1, state.availableTeachers.size)
+            assertEquals("Single Teacher", state.availableTeachers[0])
+        }
+    }
+
     // MARK: - Test Helpers
 
     private fun createTestMeditation(
