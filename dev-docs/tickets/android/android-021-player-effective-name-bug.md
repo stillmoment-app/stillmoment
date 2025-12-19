@@ -1,6 +1,6 @@
 # Ticket android-021: Player zeigt nicht effectiveName/effectiveTeacher
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: KRITISCH
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ Wenn ein User eine Meditation umbenennt oder den Lehrer aendert, erwartet er, da
 
 ## Akzeptanzkriterien
 
-- [ ] Player zeigt `meditation.effectiveTeacher` statt `meditation.teacher`
-- [ ] Player zeigt `meditation.effectiveName` statt `meditation.name`
-- [ ] Accessibility-Labels nutzen ebenfalls effectiveTeacher/effectiveName
-- [ ] Unit Tests fuer effectiveTeacher/effectiveName-Logik (falls nicht vorhanden)
+- [x] Player zeigt `meditation.effectiveTeacher` statt `meditation.teacher`
+- [x] Player zeigt `meditation.effectiveName` statt `meditation.name`
+- [x] Accessibility-Labels nutzen ebenfalls effectiveTeacher/effectiveName
+- [x] Unit Tests fuer effectiveTeacher/effectiveName-Logik (falls nicht vorhanden)
 
 ---
 

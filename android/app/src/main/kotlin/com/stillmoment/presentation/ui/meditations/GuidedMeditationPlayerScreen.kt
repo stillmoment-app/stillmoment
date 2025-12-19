@@ -223,14 +223,14 @@ private fun MeditationInfoHeader(
     ) {
         // Teacher
         Text(
-            text = meditation.teacher,
+            text = meditation.effectiveTeacher,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Medium
             ),
             color = Terracotta,
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics {
-                contentDescription = "$teacherLabel: ${meditation.teacher}"
+                contentDescription = "$teacherLabel: ${meditation.effectiveTeacher}"
             }
         )
 
@@ -238,7 +238,7 @@ private fun MeditationInfoHeader(
 
         // Meditation Name
         Text(
-            text = meditation.name,
+            text = meditation.effectiveName,
             style = MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.SemiBold
             ),
@@ -246,7 +246,7 @@ private fun MeditationInfoHeader(
             textAlign = TextAlign.Center,
             maxLines = 2,
             modifier = Modifier.semantics {
-                contentDescription = "$titleLabel: ${meditation.name}"
+                contentDescription = "$titleLabel: ${meditation.effectiveName}"
             }
         )
     }
