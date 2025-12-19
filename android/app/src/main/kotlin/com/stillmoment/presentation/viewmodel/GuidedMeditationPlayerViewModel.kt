@@ -240,9 +240,9 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
     /**
      * Skips forward by the specified amount.
      *
-     * @param seconds Seconds to skip (default 15)
+     * @param seconds Seconds to skip (default 10)
      */
-    fun skipForward(seconds: Int = 15) {
+    fun skipForward(seconds: Int = 10) {
         val newPosition = _uiState.value.currentPosition + (seconds * 1000L)
         seekTo(newPosition)
     }
@@ -250,9 +250,9 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
     /**
      * Skips backward by the specified amount.
      *
-     * @param seconds Seconds to skip (default 15)
+     * @param seconds Seconds to skip (default 10)
      */
-    fun skipBackward(seconds: Int = 15) {
+    fun skipBackward(seconds: Int = 10) {
         val newPosition = _uiState.value.currentPosition - (seconds * 1000L)
         seekTo(newPosition)
     }

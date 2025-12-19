@@ -1,4 +1,4 @@
-# Ticket android-020: Player Skip-Dauer auf 15 Sekunden
+# Ticket android-020: Player Skip-Dauer auf 10 Sekunden vereinheitlichen
 
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
@@ -10,20 +10,22 @@
 
 ## Was
 
-Skip Forward/Backward von 10 Sekunden auf 15 Sekunden aendern, inklusive passender Icons.
+Skip Forward/Backward Dauer von 15 Sekunden auf 10 Sekunden aendern, passend zu den Icons.
 
 ## Warum
 
-iOS nutzt bereits 15 Sekunden. 15s ist der Industriestandard (Apple Podcasts, Spotify). Fuer Meditation passend - man will oft einen ganzen Satz wiederholen. Konsistenz zwischen iOS und Android.
+- Material Icons hat keine 15s-Varianten (nur 5, 10, 30)
+- Aktuelle Icons zeigen "10", aber Funktion springt 15s - inkonsistent
+- iOS wird ebenfalls auf 10s geaendert (ios-014) fuer Cross-Platform Konsistenz
+- 10s ist ausreichend fuer Meditation (kurze Anweisung wiederholen)
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Skip Backward = 15 Sekunden (von 10s aendern)
-- [ ] Skip Forward = 15 Sekunden (von 10s aendern)
-- [ ] Icons auf `Replay15` / `Forward15` aendern (Material Icons)
-- [ ] Unit Tests angepasst falls Skip-Dauer getestet wird
+- [ ] Skip Backward = 10 Sekunden (von 15s aendern)
+- [ ] Skip Forward = 10 Sekunden (von 15s aendern)
+- [ ] Icons bleiben bei `Replay10` / `Forward10` (bereits korrekt)
 
 ---
 
@@ -31,22 +33,21 @@ iOS nutzt bereits 15 Sekunden. 15s ist der Industriestandard (Apple Podcasts, Sp
 
 1. Guided Meditation abspielen
 2. Skip Backward antippen
-3. Erwartung: Position springt 15 Sekunden zurueck
+3. Erwartung: Position springt 10 Sekunden zurueck
 4. Skip Forward antippen
-5. Erwartung: Position springt 15 Sekunden vorwaerts
+5. Erwartung: Position springt 10 Sekunden vorwaerts
 
 ---
 
 ## Referenz
 
-- iOS Skip-Implementation: `ios/StillMoment/Application/ViewModels/GuidedMeditationPlayerViewModel.swift` (skipForward/skipBackward mit 15.0)
-- Android Player Screen: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/GuidedMeditationPlayerScreen.kt`
 - Android ViewModel: `android/app/src/main/kotlin/com/stillmoment/presentation/viewmodel/GuidedMeditationPlayerViewModel.kt`
+- Android Player Screen: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/GuidedMeditationPlayerScreen.kt`
+- iOS Ticket: ios-015 (parallel)
 
 ---
 
 ## Hinweise
 
-- Aktuelle Icons: `Icons.Default.Replay10` / `Icons.Default.Forward10`
-- Neue Icons: `Icons.Default.Replay15` / `Icons.Default.Forward15` (verfuegbar ab Material Icons Extended)
-- Skip-Konstante im ViewModel aendern (aktuell 10L * 1000 fuer 10 Sekunden in Millisekunden)
+- Aktuelle Funktion: `skipForward(seconds: Int = 15)` - auf 10 aendern
+- Icons bereits korrekt: `Icons.Default.Replay10` / `Icons.Default.Forward10`
