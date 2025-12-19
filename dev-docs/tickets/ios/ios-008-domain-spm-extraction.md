@@ -1,10 +1,28 @@
 # Ticket ios-008: Domain-Layer SPM-Extraktion
 
-**Status**: [ ] TODO
+**Status**: [x] WONTFIX
 **Prioritaet**: NIEDRIG
 **Aufwand**: Gross
 **Abhaengigkeiten**: Keine
 **Phase**: 2-Architektur
+
+---
+
+## Entscheidung (2025-12-19)
+
+**WONTFIX** - Ticket wird nicht umgesetzt.
+
+**Begruendung:**
+1. **Problem bereits geloest**: ios-011 (separate Test-Schemes) hat den Haupt-Schmerzpunkt adressiert - `make test-unit` laeuft jetzt isoliert in ~30-60s
+2. **Aufwand vs. Nutzen**: GROSSER Aufwand (Package erstellen, CI anpassen, Imports aendern) fuer marginalen Gewinn (~30s weniger)
+3. **Kein Wiederverwendungs-Szenario**: Kein zweites Projekt geplant, das den Domain-Layer nutzen wuerde
+4. **Over-Engineering**: Fuer eine kleine, fokussierte Meditations-App ist SPM-Extraktion ueberdimensioniert
+5. **Komplexitaet**: Zusaetzliche Package-Verwaltung ohne klaren Business Value
+
+**Bei Bedarf reaktivieren**, falls:
+- Weitere Apps den Domain-Layer nutzen sollen
+- Test-Performance wieder zum Problem wird
+- Team-Skalierung modulare Architektur erfordert
 
 ---
 
