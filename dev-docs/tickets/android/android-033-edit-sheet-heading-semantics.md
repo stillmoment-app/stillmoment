@@ -1,6 +1,6 @@
 # Ticket android-033: Edit Sheet heading() fuer Titel
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,8 +20,8 @@ Screen Reader Nutzer koennen mit heading-Navigation schnell durch Sektionen spri
 
 ## Akzeptanzkriterien
 
-- [ ] Titel hat `Modifier.semantics { heading() }`
-- [ ] TalkBack kuendigt "Heading" an beim Titel
+- [x] Titel hat `Modifier.semantics { heading() }`
+- [ ] TalkBack kuendigt "Heading" an beim Titel (manuell testen)
 
 ---
 
