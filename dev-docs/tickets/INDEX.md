@@ -190,3 +190,45 @@ Jedes Ticket muss bei Abschluss folgende Dokumentation aktualisieren:
 - Claude Code kann bestehenden Code als Referenz lesen
 - Claude Code kann selbst bessere Loesungen finden
 - Weniger Pflege-Aufwand fuer Tickets
+
+---
+
+## Design-Richtlinien
+
+**Ziel:** Eine einfache, warmherzige Meditations-App, die dem User hilft und sich nicht in den Vordergrund draengt.
+
+### Grundprinzipien
+
+| Prinzip | Bedeutung |
+|---------|-----------|
+| **Einfach > Feature-reich** | Weniger ist mehr |
+| **Ruhe > Information** | Meditations-App, nicht Dashboard |
+| **Unaufdringlich** | Hilft, draengt sich nicht auf |
+| **Warmherzig** | Freundlich, nicht steril |
+
+### Entscheidungskriterien fuer Features
+
+**Vor jedem Ticket fragen:**
+1. Hilft das dem User bei der Meditation? (nicht nur "ist es nuetzlich?")
+2. Wuerde das Fehlen den User stoeren?
+3. Ist es die einfachste Loesung?
+
+**Red Flags (Ticket ueberdenken):**
+- "Android/iOS hat das auch" - Kein guter Grund allein
+- "Koennte nuetzlich sein" - Wahrscheinlich nicht noetig
+- "Mehr Information fuer den User" - Oft das Gegenteil von hilfreich
+- "Feature-Parity" - Nur wenn beide Plattformen davon profitieren
+
+### Plattform-Konsistenz
+
+| Situation | Empfehlung |
+|-----------|------------|
+| Feature sinnvoll fuer beide | Shared Ticket, identische UX |
+| Plattform-Pattern unterschiedlich | Separate Umsetzung, gleiches Ziel |
+| Feature nur auf einer Plattform sinnvoll | Nur dort umsetzen |
+| Feature auf einer Plattform ueberfluessig | Dort entfernen, nicht portieren |
+
+### Qualitaets-Pflicht
+
+- **Accessibility bleibt Pflicht** - Einfachheit ≠ weniger Accessibility
+- **Performance zaehlt** - Schnelle App = unaufdringliche App
