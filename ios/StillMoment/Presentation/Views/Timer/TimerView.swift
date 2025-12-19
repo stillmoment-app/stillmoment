@@ -157,8 +157,10 @@ struct TimerView: View {
 
     private var minutePicker: some View {
         VStack(spacing: 20) {
-            Text("🤲")
-                .font(.system(size: 48))
+            Image("HandsHeart")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
                 .padding(.bottom, 8)
 
             Text("duration.question", bundle: .main)

@@ -51,6 +51,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [x] | - |
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
+| [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
 
 ---
 
@@ -93,6 +94,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet State Extraktion + Tests | 5-QA | [x] | - |
 | [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
+| [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
 
 ---
 
@@ -116,10 +118,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 16 | 13 | 3 |
-| Android | 35 | 28 | 7 |
+| iOS | 17 | 13 | 4 |
+| Android | 36 | 28 | 8 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **55** | **41** | **14** |
+| **Total** | **57** | **41** | **16** |
 
 ---
 
