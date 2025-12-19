@@ -2,6 +2,7 @@ package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
@@ -218,11 +220,13 @@ private fun MinutePicker(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Emoji
-        Text(
-            text = "\uD83E\uDD32", // 🤲
-            fontSize = 48.sp,
-            modifier = Modifier.padding(bottom = 8.dp)
+        // Hands with Heart Image
+        Image(
+            painter = painterResource(id = R.drawable.hands_heart),
+            contentDescription = null,
+            modifier = Modifier
+                .size(150.dp)
+                .padding(bottom = 8.dp)
         )
 
         // Question
@@ -534,10 +538,12 @@ private fun TimerScreenCountdownPreview() {
     StillMomentTheme {
         TimerScreenContent(
             uiState = TimerUiState(
-                timerState = TimerState.Countdown,
-                countdownSeconds = 10,
-                remainingSeconds = 600,
-                totalSeconds = 600
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Countdown,
+                    countdownSeconds = 10,
+                    remainingSeconds = 600,
+                    totalSeconds = 600
+                )
             ),
             onMinutesChanged = {},
             onStartClick = {},
@@ -559,10 +565,12 @@ private fun TimerScreenRunningPreview() {
     StillMomentTheme {
         TimerScreenContent(
             uiState = TimerUiState(
-                timerState = TimerState.Running,
-                remainingSeconds = 300,
-                totalSeconds = 600,
-                progress = 0.5f
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Running,
+                    remainingSeconds = 300,
+                    totalSeconds = 600,
+                    progress = 0.5f
+                )
             ),
             onMinutesChanged = {},
             onStartClick = {},
