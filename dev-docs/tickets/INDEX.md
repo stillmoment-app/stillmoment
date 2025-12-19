@@ -39,7 +39,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-002](ios/ios-002-ios16-support.md) | iOS 16 Support | 3-Feature | [x] | - |
 | [ios-003](ios/ios-003-test-performance-analysis.md) | Test-Performance Analyse | 5-QA | [x] | - |
 | [ios-005](ios/ios-005-ui-test-optimization.md) | UI-Test Optimierung (~65s Einsparung) | 5-QA | [x] | - |
-| [ios-008](ios/ios-008-domain-spm-extraction.md) | Domain-Layer SPM-Extraktion | 2-Architektur | [ ] | - |
+| [ios-008](ios/ios-008-domain-spm-extraction.md) | Domain-Layer SPM-Extraktion | 2-Architektur | [x] WONTFIX | - |
 | [ios-009](ios/ios-009-parallel-testing-stabilization.md) | Parallel Testing Stabilisierung | 1-Quick Fix | [x] | - |
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
@@ -83,7 +83,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-021](android/android-021-player-effective-name-bug.md) | Player effectiveName/Teacher Bug | 1-Quick Fix | [x] | - |
 | [android-023](android/android-023-section-header-simplify.md) | Section Header vereinfachen | 4-Polish | [x] | - |
 | [android-024](android/android-024-list-item-remove-play-icon.md) | List Item Play-Icon entfernen | 4-Polish | [x] | - |
-| [android-025](android/android-025-timer-accessibility-improvements.md) | Timer Accessibility Verbesserungen | 4-Polish | [ ] | - |
+| [android-025](android/android-025-timer-accessibility-improvements.md) | Timer Accessibility Verbesserungen | 4-Polish | [x] | - |
 | [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [ ] | - |
 | [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [ ] | - |
 | [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
@@ -118,10 +118,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 17 | 13 | 4 |
-| Android | 36 | 28 | 8 |
+| iOS | 17 | 14 | 3 |
+| Android | 36 | 29 | 7 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **57** | **41** | **16** |
+| **Total** | **57** | **43** | **14** |
 
 ---
 
