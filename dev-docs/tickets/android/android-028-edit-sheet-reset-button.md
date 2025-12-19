@@ -1,6 +1,6 @@
 # Ticket android-028: Edit Sheet Reset-Button
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,11 +20,11 @@ iOS hat dieses Feature, Android nicht. User erwarten konsistentes Verhalten auf 
 
 ## Akzeptanzkriterien
 
-- [ ] Reset-Button unterhalb der Eingabefelder
-- [ ] Button ist disabled wenn keine Aenderungen vorliegen
-- [ ] Klick setzt Teacher und Name auf Original-Werte zurueck
-- [ ] Button hat destructive Styling (rot/warning)
-- [ ] Lokalisiert (DE + EN)
+- [x] Reset-Button unterhalb der Eingabefelder
+- [x] Button ist disabled wenn keine Aenderungen vorliegen
+- [x] Klick setzt Teacher und Name auf Original-Werte zurueck
+- [x] Button hat destructive Styling (rot/warning)
+- [x] Lokalisiert (DE + EN)
 
 ---
 

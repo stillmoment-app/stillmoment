@@ -97,6 +97,7 @@
     <string name="edit_teacher_label">Teacher</string>
     <string name="edit_name_label">Name</string>
     <string name="edit_duration_info">Duration: %s</string>
+    <string name="edit_reset_button">Reset to Original</string>
 
     <!-- Guided Meditations Accessibility -->
     <string name="accessibility_import_meditation">Import meditation audio file</string>

@@ -46,6 +46,10 @@ fun MeditationEditSheet(
 ) {
     val sheetState = rememberModalBottomSheetState()
 
+    // Original values for reset functionality
+    val originalTeacher = meditation.teacher
+    val originalName = meditation.name
+
     // Local state for editing
     var teacherText by remember(meditation) {
         mutableStateOf(meditation.customTeacher ?: meditation.teacher)
@@ -53,6 +57,9 @@ fun MeditationEditSheet(
     var nameText by remember(meditation) {
         mutableStateOf(meditation.customName ?: meditation.name)
     }
+
+    // Track if there are unsaved changes
+    val hasChanges = teacherText != originalTeacher || nameText != originalName
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -126,7 +133,29 @@ fun MeditationEditSheet(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Reset button
+            TextButton(
+                onClick = {
+                    teacherText = originalTeacher
+                    nameText = originalName
+                },
+                enabled = hasChanges,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(
+                    text = stringResource(R.string.edit_reset_button),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (hasChanges) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                    }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Buttons
             Button(
