@@ -58,15 +58,6 @@ struct GuidedMeditationEditSheet: View {
                                 suggestions: self.availableTeachers,
                                 accessibilityLabel: "guided_meditations.edit.teacher"
                             )
-
-                            if self.meditation.teacher != self.customTeacher {
-                                Text(String(
-                                    format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
-                                    self.meditation.teacher
-                                ))
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.textSecondary)
-                            }
                         }
                     }
 
@@ -78,15 +69,6 @@ struct GuidedMeditationEditSheet: View {
 
                             TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
                                 .accessibilityLabel("guided_meditations.edit.name")
-
-                            if self.meditation.name != self.customName {
-                                Text(String(
-                                    format: NSLocalizedString("guided_meditations.edit.original", comment: ""),
-                                    self.meditation.name
-                                ))
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundColor(.textSecondary)
-                            }
                         }
                     }
 

@@ -1,6 +1,6 @@
 # Ticket ios-019: Edit Sheet Original-Hinweis entfernen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine

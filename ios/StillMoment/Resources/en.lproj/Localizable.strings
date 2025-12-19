@@ -136,7 +136,6 @@
 "guided_meditations.edit.teacherPlaceholder" = "Teacher's name";
 "guided_meditations.edit.name" = "Name";
 "guided_meditations.edit.namePlaceholder" = "Meditation name";
-"guided_meditations.edit.original" = "Original: %@";
 "guided_meditations.edit.file" = "File";
 "guided_meditations.edit.duration" = "Duration";
 "guided_meditations.edit.fileInfo" = "File Information";
