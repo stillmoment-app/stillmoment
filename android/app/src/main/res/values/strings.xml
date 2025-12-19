@@ -105,7 +105,6 @@
     <string name="accessibility_meditation_item">%1$s, duration %2$s</string>
 
     <!-- Player Screen -->
-    <string name="player_now_playing">Now playing</string>
     <string name="player_remaining">remaining</string>
 
     <!-- Player Accessibility -->

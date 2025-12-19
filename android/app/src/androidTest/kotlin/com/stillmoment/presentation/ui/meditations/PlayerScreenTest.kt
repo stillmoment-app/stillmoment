@@ -76,12 +76,6 @@ class PlayerScreenTest {
     // MARK: - Player Header Tests
 
     @Test
-    fun playerScreen_showsNowPlayingLabel() {
-        renderPlayerScreen()
-        composeRule.onNodeWithText("Now playing", ignoreCase = true).assertIsDisplayed()
-    }
-
-    @Test
     fun playerScreen_showsTeacherName() {
         renderPlayerScreen()
         composeRule.onNodeWithText("Test Teacher").assertIsDisplayed()

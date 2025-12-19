@@ -68,7 +68,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-015](android/android-015-player-remove-progress-ring.md) | Player Progress-Ring entfernen | 4-Polish | [x] | android-008 |
 | [android-016](android/android-016-storage-documentation.md) | Storage-Unterschiede Dokumentation | 5-QA | [x] | android-014 |
 | [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
-| [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [ ] | - |
+| [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [x] | - |
 | [android-019](android/android-019-player-loading-indicator.md) | Player Loading-Indikator | 4-Polish | [ ] | - |
 | [android-020](android/android-020-player-skip-15s.md) | Player Skip 15s | 4-Polish | [ ] | - |
 
@@ -95,9 +95,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 11 | 8 | 3 |
-| Android | 21 | 16 | 5 |
+| Android | 21 | 17 | 4 |
 | Shared | 2 | 0 | 2 |
-| **Total** | **34** | **24** | **10** |
+| **Total** | **34** | **25** | **9** |
 
 ---
 

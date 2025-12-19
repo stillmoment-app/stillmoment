@@ -1,6 +1,6 @@
 # Ticket android-018: Player "Now Playing" und Minus-Praefix entfernen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ Meditation-Apps wie Headspace und Calm verzichten auf "Now Playing" - Teacher + 
 
 ## Akzeptanzkriterien
 
-- [ ] "Now Playing" Text entfernt
-- [ ] Verbleibende Zeit ohne Minus anzeigen (`4:37` statt `-4:37`)
-- [ ] Layout bleibt visuell ausgewogen
-- [ ] UI Tests angepasst falls vorhanden
+- [x] "Now Playing" Text entfernt
+- [x] Verbleibende Zeit ohne Minus anzeigen (`4:37` statt `-4:37`)
+- [x] Layout bleibt visuell ausgewogen
+- [x] UI Tests angepasst falls vorhanden
 
 ---
 

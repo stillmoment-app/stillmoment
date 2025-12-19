@@ -204,15 +204,6 @@ private fun MeditationInfoHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(top = 16.dp)
     ) {
-        // Now Playing label
-        Text(
-            text = stringResource(R.string.player_now_playing),
-            style = MaterialTheme.typography.labelMedium,
-            color = WarmGray
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Teacher
         Text(
             text = meditation.teacher,
@@ -311,7 +302,7 @@ private fun PlayerControls(
                 color = WarmGray
             )
             Text(
-                text = "-$formattedRemaining",
+                text = formattedRemaining,
                 style = MaterialTheme.typography.bodySmall,
                 color = WarmGray
             )
