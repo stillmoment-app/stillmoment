@@ -1,6 +1,6 @@
 # Ticket android-017: UI Test Interaktions-Verifikation
 
-**Status**: [ ] TODO
+**Status**: [x] WONTFIX
 **Prioritaet**: MITTEL
 **Aufwand**: Klein (~1h)
 **Abhaengigkeiten**: android-012

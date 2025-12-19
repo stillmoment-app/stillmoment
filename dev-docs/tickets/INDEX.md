@@ -76,7 +76,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-014](android/android-014-setdatasource-fix.md) | setDataSource Failed Fix | 1-Quick Fix | [x] | android-008 |
 | [android-015](android/android-015-player-remove-progress-ring.md) | Player Progress-Ring entfernen | 4-Polish | [x] | android-008 |
 | [android-016](android/android-016-storage-documentation.md) | Storage-Unterschiede Dokumentation | 5-QA | [x] | android-014 |
-| [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
+| [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [x] WONTFIX | android-012 |
 | [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [x] | - |
 | [android-019](android/android-019-player-loading-indicator.md) | Player Loading-Indikator | 4-Polish | [x] | - |
 | [android-020](android/android-020-player-skip-15s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
@@ -119,9 +119,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 17 | 14 | 3 |
-| Android | 36 | 30 | 6 |
+| Android | 36 | 31 | 5 |
 | Shared | 4 | 2 | 2 |
-| **Total** | **57** | **46** | **11** |
+| **Total** | **57** | **47** | **10** |
 
 ---
 
