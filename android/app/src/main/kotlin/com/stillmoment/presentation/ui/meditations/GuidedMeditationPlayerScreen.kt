@@ -105,7 +105,7 @@ fun GuidedMeditationPlayerScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GuidedMeditationPlayerScreenContent(
+internal fun GuidedMeditationPlayerScreenContent(
     meditation: GuidedMeditation,
     uiState: PlayerUiState,
     onBack: () -> Unit,

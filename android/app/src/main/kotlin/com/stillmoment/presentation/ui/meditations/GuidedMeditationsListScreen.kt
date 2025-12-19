@@ -82,7 +82,7 @@ fun GuidedMeditationsListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GuidedMeditationsListScreenContent(
+internal fun GuidedMeditationsListScreenContent(
     uiState: GuidedMeditationsListUiState,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onImportMeditation: (android.net.Uri) -> Unit,

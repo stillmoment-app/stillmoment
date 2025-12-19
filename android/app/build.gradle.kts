@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "0.5.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.stillmoment.HiltTestRunner"
     }
 
     buildTypes {
@@ -107,10 +107,15 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.junit5.params)
     testImplementation(libs.kotlinx.coroutines.test)
+
+    // Android Instrumented Tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.androidx.test.runner)
+    kspAndroidTest(libs.hilt.compiler)
 
     // Debug
     debugImplementation(libs.androidx.ui.tooling)

@@ -40,6 +40,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-009](ios/ios-009-parallel-testing-stabilization.md) | Parallel Testing Stabilisierung | 1-Quick Fix | [x] | - |
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
+| [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
 
 ---
 
@@ -59,11 +60,12 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-009](android/android-009-tabview-navigation.md) | TabView Navigation | 3-Feature | [x] | android-007, android-008 |
 | [android-010](android/android-010-mediasession-lockscreen.md) | MediaSession Lock Screen | 4-Polish | [x] | android-008 |
 | [android-011](android/android-011-accessibility-audit.md) | Accessibility Audit | 5-QA | [x] | android-009 |
-| [android-012](android/android-012-ui-tests.md) | UI Tests | 5-QA | [ ] | android-009 |
+| [android-012](android/android-012-ui-tests.md) | UI Tests (Component-Tests) | 5-QA | [~] | android-009 |
 | [android-013](android/android-013-integration-test.md) | Final Integration Test | 5-QA | [ ] | Alle |
 | [android-014](android/android-014-setdatasource-fix.md) | setDataSource Failed Fix | 1-Quick Fix | [x] | android-008 |
 | [android-015](android/android-015-player-remove-progress-ring.md) | Player Progress-Ring entfernen | 4-Polish | [x] | android-008 |
 | [android-016](android/android-016-storage-documentation.md) | Storage-Unterschiede Dokumentation | 5-QA | [ ] | android-014 |
+| [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
 
 ---
 
@@ -71,6 +73,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 
 ### iOS
 - ios-008 (keine Abhaengigkeiten)
+- ios-012 (keine Abhaengigkeiten)
 
 ### Android
 Nach android-006:
@@ -85,10 +88,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 9 | 7 | 2 |
-| Android | 17 | 14 | 3 |
+| iOS | 10 | 7 | 3 |
+| Android | 18 | 14 | 4 |
 | Shared | 1 | 0 | 1 |
-| **Total** | **27** | **21** | **6** |
+| **Total** | **29** | **21** | **8** |
 
 ---
 
