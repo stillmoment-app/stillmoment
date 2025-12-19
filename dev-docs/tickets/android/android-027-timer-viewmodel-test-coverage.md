@@ -1,6 +1,6 @@
 # Ticket android-027: Timer ViewModel Test-Coverage erhoehen
 
-**Status**: [ ] TODO
+**Status**: [x] WONTFIX (obsolet durch android-036)
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -19,6 +19,19 @@ View Quality Review zeigte signifikanten Unterschied in Test-Coverage:
 - Android: 1 Test-Datei mit 227 Zeilen
 
 Mehr Tests = weniger Regressionen, bessere Wartbarkeit.
+
+## Resolution (2025-12-19)
+
+Ticket obsolet durch android-036 (Timer Reducer Architecture). Die Reducer-Architektur
+hat zu umfangreichen Tests gefuehrt:
+
+- `TimerReducerTest.kt`: 646 LOC (Pure Reducer)
+- `MeditationTimerTest.kt`: 400 LOC (Domain Model)
+- `TimerViewModelTest.kt`: 284 LOC (Integration)
+- `TimerRepositoryImplTest.kt`: 203 LOC (Persistence)
+- **Total: 1533 LOC** (vorher 227 LOC)
+
+Android hat jetzt mehr Timer-Test-Code als iOS (763 LOC).
 
 ---
 

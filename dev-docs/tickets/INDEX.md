@@ -85,7 +85,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-024](android/android-024-list-item-remove-play-icon.md) | List Item Play-Icon entfernen | 4-Polish | [x] | - |
 | [android-025](android/android-025-timer-accessibility-improvements.md) | Timer Accessibility Verbesserungen | 4-Polish | [x] | - |
 | [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [x] | - |
-| [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [ ] | - |
+| [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [x] WONTFIX | obsolet durch android-036 |
 | [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
 | [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [x] | - |
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [x] | - |
