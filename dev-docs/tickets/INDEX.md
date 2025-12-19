@@ -42,6 +42,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
 | [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
+| [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [ ] | - |
 
 ---
 
@@ -67,6 +68,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-015](android/android-015-player-remove-progress-ring.md) | Player Progress-Ring entfernen | 4-Polish | [x] | android-008 |
 | [android-016](android/android-016-storage-documentation.md) | Storage-Unterschiede Dokumentation | 5-QA | [x] | android-014 |
 | [android-017](android/android-017-ui-test-interactions.md) | UI Test Interaktions-Verifikation | 5-QA | [ ] | android-012 |
+| [android-018](android/android-018-player-remove-nowplaying.md) | Player "Now Playing" + Minus entfernen | 4-Polish | [ ] | - |
+| [android-019](android/android-019-player-loading-indicator.md) | Player Loading-Indikator | 4-Polish | [ ] | - |
+| [android-020](android/android-020-player-skip-15s.md) | Player Skip 15s | 4-Polish | [ ] | - |
 
 ---
 
@@ -90,10 +94,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 10 | 7 | 3 |
-| Android | 18 | 16 | 2 |
+| iOS | 11 | 7 | 4 |
+| Android | 21 | 16 | 5 |
 | Shared | 2 | 0 | 2 |
-| **Total** | **30** | **23** | **7** |
+| **Total** | **34** | **23** | **11** |
 
 ---
 
