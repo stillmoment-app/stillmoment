@@ -1,6 +1,6 @@
 # Ticket android-019: Player Loading-Indikator hinzufuegen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
