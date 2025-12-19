@@ -1,6 +1,6 @@
 # Ticket android-016: Storage-Unterschiede Dokumentation
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein (~1h)
 **Abhaengigkeiten**: android-014
@@ -25,9 +25,9 @@ User muessen verstehen:
 
 ## Akzeptanzkriterien
 
-- [ ] Support-Seite (docs/support.html) mit "Platform Differences" Sektion
-- [ ] FAQ-Eintrag zu Import-Unterschieden (DE + EN)
-- [ ] CLAUDE.md Android-Architektur-Sektion aktualisiert
+- [x] Support-Seite (docs/support.html) mit "Platform Differences" Sektion
+- [x] FAQ-Eintrag zu Import-Unterschieden (DE + EN)
+- [x] CLAUDE.md Android-Architektur-Sektion aktualisiert
 - [ ] Optional: In-App Hinweis beim Import (Android)
 
 ---

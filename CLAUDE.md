@@ -686,6 +686,37 @@ class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorPro
 - ✅ Hilt DI for testability
 - ✅ StateFlow for reactive updates
 
+### Android File Storage Strategy
+
+**Problem**: Android SAF (Storage Access Framework) persistable permissions are unreliable,
+especially with Downloads folder and cloud providers (Google Drive, OneDrive, etc.).
+
+**Solution**: Copy imported files to app-internal storage during import.
+
+**Flow**:
+1. User selects file via OpenDocument picker
+2. `GuidedMeditationRepositoryImpl.importMeditation()` copies file to `filesDir/meditations/`
+3. Local `file://` URI is stored in DataStore (not original `content://` URI)
+4. On delete, local copy is also removed
+
+**Trade-offs**:
+| Aspect | iOS (Bookmarks) | Android (Copy) |
+|--------|-----------------|----------------|
+| Storage | No duplication | File copied |
+| Reliability | High | Very High |
+| Original file | Must stay accessible | Can be deleted |
+| Delete behavior | Reference only | File deleted |
+
+**Code locations**:
+- `GuidedMeditationRepositoryImpl.kt:copyFileToInternalStorage()`
+- `GuidedMeditationRepositoryImpl.kt:deleteMeditation()` (also deletes local file)
+- `AudioPlayerService.kt:play()` (handles both `file://` and `content://` URIs)
+
+**User-facing implications**:
+- Android: Original file can be safely deleted after import
+- Android: Deleting meditation frees up storage space
+- iOS: Original file must remain accessible for playback
+
 ### Settings Management
 
 **MeditationSettings Model** (Domain layer, persisted via UserDefaults):
