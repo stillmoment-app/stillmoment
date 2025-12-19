@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
 **Aufwand**: Klein (~1-2h)
-**Abhaengigkeiten**: Alle vorherigen Tickets
+**Abhaengigkeiten**: android-012, android-016, android-017
 **Phase**: 5-QA
 
 ---
@@ -73,6 +73,7 @@ Abschliessender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Metadaten koennen bearbeitet werden
 - [ ] Swipe-to-Delete funktioniert
 - [ ] Importierte Meditationen persistieren
+- [ ] Playback funktioniert nach App-Neustart (android-014)
 
 #### 2.2 Player
 - [ ] Player oeffnet sich bei Klick
@@ -80,7 +81,7 @@ Abschliessender Integrationstest aller Features um sicherzustellen, dass alles z
 - [ ] Play startet Wiedergabe
 - [ ] Pause pausiert Wiedergabe
 - [ ] Seek Slider funktioniert
-- [ ] Progress wird aktualisiert
+- [ ] Seek Slider Progress wird aktualisiert
 - [ ] Zurueck-Navigation funktioniert
 
 #### 2.3 Lock Screen (Ticket android-010)

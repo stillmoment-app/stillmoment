@@ -87,9 +87,26 @@ class LibraryScreenTest {
 
     @Test
     fun libraryScreen_showsImportFab() {
-        renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
+        // Use non-empty state to test FAB without the EmptyState import button
+        val groups = listOf(
+            com.stillmoment.domain.models.GuidedMeditationGroup(
+                teacher = "Test Teacher",
+                meditations = listOf(
+                    GuidedMeditation(
+                        id = "1",
+                        fileUri = "content://test",
+                        fileName = "test.mp3",
+                        duration = 600_000L,
+                        teacher = "Test Teacher",
+                        name = "Test Meditation"
+                    )
+                )
+            )
         )
+        renderLibraryScreen(
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups)
+        )
+        // With data shown, only the FAB has the import description
         composeRule.onNodeWithContentDescription("Import", substring = true, ignoreCase = true)
             .assertIsDisplayed()
     }

@@ -1,6 +1,6 @@
 # Ticket android-012: UI Tests (Component-Tests)
 
-**Status**: [x] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel (~2h)
 **Abhaengigkeiten**: android-009
@@ -28,13 +28,13 @@ stateless Content-Composables (`*ScreenContent`) statt Test-Doubles.
 ## Akzeptanzkriterien
 
 - [x] Hilt Test-Setup (HiltTestRunner, Dependencies)
-- [ ] TimerScreenContent Tests (echte Composable, nicht Test-Double)
-- [ ] PlayerScreenContent Tests (echte Composable)
-- [ ] LibraryScreenContent Tests (echte Composable)
-- [ ] NavigationTest für Tab-Wechsel
-- [ ] SettingsSheet Tests
-- [ ] Test-Doubles aus Test-Dateien entfernt
-- [ ] Tests laufen im CI
+- [x] TimerScreenContent Tests (echte Composable, nicht Test-Double)
+- [x] PlayerScreenContent Tests (echte Composable)
+- [x] LibraryScreenContent Tests (echte Composable)
+- [x] NavigationTest für Tab-Wechsel
+- [x] SettingsSheet Tests
+- [x] Test-Doubles aus Test-Dateien entfernt (keine vorhanden - alle Tests nutzen echte Composables)
+- [x] Tests laufen im CI (34 Tests erfolgreich)
 
 ---
 

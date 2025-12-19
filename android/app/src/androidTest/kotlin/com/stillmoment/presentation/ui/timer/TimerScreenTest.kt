@@ -128,7 +128,8 @@ class TimerScreenTest {
                 progress = 0.5f
             )
         )
-        composeRule.onNodeWithText("5:00").assertIsDisplayed()
+        // Format is "%02d:%02d" so 300 seconds = 05:00
+        composeRule.onNodeWithText("05:00").assertIsDisplayed()
     }
 
     @Test
