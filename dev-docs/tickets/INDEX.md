@@ -50,6 +50,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-017](ios/ios-017-edit-sheet-accessibility-hints.md) | Edit Sheet accessibilityHint | 4-Polish | [x] | - |
 | [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [x] | - |
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
+| [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 
 ---
 
@@ -90,6 +91,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [x] | - |
 | [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [x] | - |
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet State Extraktion + Tests | 5-QA | [x] | - |
+| [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [ ] | - |
+| [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [~] | - |
 
 ---
 
@@ -113,10 +116,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 15 | 12 | 3 |
-| Android | 33 | 26 | 7 |
+| iOS | 16 | 13 | 3 |
+| Android | 35 | 26 | 9 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **52** | **38** | **14** |
+| **Total** | **55** | **39** | **16** |
 
 ---
 

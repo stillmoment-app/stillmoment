@@ -69,7 +69,16 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertEqual(self.mockTimerService.lastStartDuration, 15)
     }
 
-    func testPauseTimer() {
+    func testPauseTimer_whenRunning_callsService() {
+        // Given - simulate running state via tick
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
         // When
         self.sut.pauseTimer()
 
@@ -77,9 +86,15 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertTrue(self.mockTimerService.pauseCalled)
     }
 
-    func testResumeTimer() {
-        // Given
-        self.sut.remainingSeconds = 120
+    func testResumeTimer_whenPaused_callsService() {
+        // Given - simulate paused state via tick
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .paused
+        ))
 
         // When
         self.sut.resumeTimer()
@@ -88,7 +103,16 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertTrue(self.mockTimerService.resumeCalled)
     }
 
-    func testResetTimer() {
+    func testResetTimer_whenRunning_callsService() {
+        // Given - simulate running state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
         // When
         self.sut.resetTimer()
 
@@ -96,83 +120,134 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertTrue(self.mockTimerService.resetCalled)
     }
 
-    // MARK: - Formatting
+    // MARK: - Formatting (tested via dispatch)
 
-    func testFormattedTime() {
-        // Given
-        self.sut.remainingSeconds = 0
-        XCTAssertEqual(self.sut.formattedTime, "00:00")
+    func testFormattedTime_duringCountdown_showsSeconds() {
+        // Given - countdown state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 600,
+            totalSeconds: 600,
+            countdownSeconds: 12,
+            progress: 0.0,
+            state: .countdown
+        ))
 
-        // When
-        self.sut.remainingSeconds = 125 // 2:05
+        // Then
+        XCTAssertEqual(self.sut.formattedTime, "12")
+    }
+
+    func testFormattedTime_duringRunning_showsMinutesSeconds() {
+        // Given - running state with 2:05 remaining
+        self.sut.dispatch(.tick(
+            remainingSeconds: 125,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
+        // Then
         XCTAssertEqual(self.sut.formattedTime, "02:05")
-
-        // When
-        self.sut.remainingSeconds = 3661 // 61:01
-        XCTAssertEqual(self.sut.formattedTime, "61:01")
     }
 
-    // MARK: - Control Conditions
+    // MARK: - Control Conditions (via dispatch)
 
-    func testCanStartConditions() {
-        // Given - idle state with valid minutes
-        self.sut.timerState = .idle
-        self.sut.selectedMinutes = 10
+    func testCanStart_whenIdleWithMinutes_returnsTrue() {
+        // Given - initial idle state with default 10 minutes
         XCTAssertTrue(self.sut.canStart)
-
-        // When - running state
-        self.sut.timerState = .running
-        XCTAssertFalse(self.sut.canStart)
-
-        // When - zero minutes
-        self.sut.timerState = .idle
-        self.sut.selectedMinutes = 0
-        XCTAssertFalse(self.sut.canStart)
     }
 
-    func testCanPauseConditions() {
+    func testCanStart_whenRunning_returnsFalse() {
         // Given - running state
-        self.sut.timerState = .running
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
+        // Then
+        XCTAssertFalse(self.sut.canStart)
+    }
+
+    func testCanPause_whenRunning_returnsTrue() {
+        // Given - running state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
+        // Then
         XCTAssertTrue(self.sut.canPause)
+    }
 
-        // When - idle state
-        self.sut.timerState = .idle
-        XCTAssertFalse(self.sut.canPause)
-
-        // When - paused state
-        self.sut.timerState = .paused
+    func testCanPause_whenIdle_returnsFalse() {
+        // Given - initial idle state
         XCTAssertFalse(self.sut.canPause)
     }
 
-    func testCanResumeConditions() {
+    func testCanResume_whenPaused_returnsTrue() {
         // Given - paused state
-        self.sut.timerState = .paused
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .paused
+        ))
+
+        // Then
         XCTAssertTrue(self.sut.canResume)
+    }
 
-        // When - running state
-        self.sut.timerState = .running
-        XCTAssertFalse(self.sut.canResume)
+    func testCanResume_whenRunning_returnsFalse() {
+        // Given - running state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
 
-        // When - idle state
-        self.sut.timerState = .idle
+        // Then
         XCTAssertFalse(self.sut.canResume)
     }
 
-    func testCanResetConditions() {
-        // Given - idle state
-        self.sut.timerState = .idle
+    func testCanReset_whenIdle_returnsFalse() {
+        // Given - initial idle state
         XCTAssertFalse(self.sut.canReset)
+    }
 
-        // When - running state
-        self.sut.timerState = .running
+    func testCanReset_whenRunning_returnsTrue() {
+        // Given - running state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 300,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 0.5,
+            state: .running
+        ))
+
+        // Then
         XCTAssertTrue(self.sut.canReset)
+    }
 
-        // When - paused state
-        self.sut.timerState = .paused
-        XCTAssertTrue(self.sut.canReset)
+    func testCanReset_whenCompleted_returnsTrue() {
+        // Given - completed state
+        self.sut.dispatch(.tick(
+            remainingSeconds: 0,
+            totalSeconds: 600,
+            countdownSeconds: 0,
+            progress: 1.0,
+            state: .completed
+        ))
 
-        // When - completed state
-        self.sut.timerState = .completed
+        // Then
         XCTAssertTrue(self.sut.canReset)
     }
 }

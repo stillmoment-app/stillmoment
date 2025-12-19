@@ -2,19 +2,23 @@
 //  TimerViewModel.swift
 //  Still Moment
 //
-//  Application Layer - Timer ViewModel
+//  Application Layer - Timer ViewModel with Reducer Pattern
 //
 
 import Combine
 import Foundation
 import OSLog
 
-/// ViewModel managing timer state and user interactions
+/// ViewModel managing timer state using unidirectional data flow
+///
+/// This ViewModel uses the Reducer pattern:
+/// 1. View dispatches actions
+/// 2. Reducer produces new state + effects
+/// 3. Effects are executed by the effect handler
+/// 4. State changes trigger view updates
 @MainActor
 final class TimerViewModel: ObservableObject {
     // MARK: Lifecycle
-
-    // MARK: - Initialization
 
     init(
         timerService: TimerServiceProtocol = TimerService(),
@@ -24,146 +28,117 @@ final class TimerViewModel: ObservableObject {
         self.audioService = audioService
 
         self.loadSettings()
-        // Load selected duration from settings
-        self.selectedMinutes = self.settings.durationMinutes
+        // Initialize display state with saved duration
+        self.displayState = TimerDisplayState.withDuration(minutes: self.settings.durationMinutes)
         self.setupBindings()
-        // Don't configure audio on init - it will be configured on-demand when audio is needed
-        // This saves energy in idle state
     }
 
     // MARK: Internal
 
-    // MARK: - Published Properties
+    // MARK: - Published State
 
-    /// Selected duration in minutes (1-60)
-    @Published var selectedMinutes: Int = 10
+    /// The complete display state managed by the reducer
+    @Published private(set) var displayState: TimerDisplayState = .initial
 
-    /// Current timer state
-    @Published var timerState: TimerState = .idle
-
-    /// Remaining time in seconds
-    @Published var remainingSeconds: Int = 0
-
-    /// Total duration in seconds
-    @Published var totalSeconds: Int = 0
-
-    /// Progress value (0.0 - 1.0)
-    @Published var progress: Double = 0.0
+    /// Meditation settings (interval gongs, background sound, etc.)
+    @Published var settings: MeditationSettings = .default
 
     /// Error message if any operation fails
     @Published var errorMessage: String?
 
-    /// Meditation settings (interval gongs, etc.)
-    @Published var settings: MeditationSettings = .default
+    // MARK: - Computed Properties (Forwarded from DisplayState)
 
-    /// Countdown seconds (0 if not in countdown)
-    @Published var countdownSeconds: Int = 0
+    /// Current timer state
+    var timerState: TimerState { self.displayState.timerState }
+
+    /// Selected duration in minutes
+    var selectedMinutes: Int {
+        get { self.displayState.selectedMinutes }
+        set { self.dispatch(.selectDuration(minutes: newValue)) }
+    }
+
+    /// Remaining time in seconds
+    var remainingSeconds: Int { self.displayState.remainingSeconds }
+
+    /// Total duration in seconds
+    var totalSeconds: Int { self.displayState.totalSeconds }
+
+    /// Progress value (0.0 - 1.0)
+    var progress: Double { self.displayState.progress }
+
+    /// Countdown seconds
+    var countdownSeconds: Int { self.displayState.countdownSeconds }
 
     /// Current affirmation index
-    @Published var currentAffirmationIndex: Int = 0
+    var currentAffirmationIndex: Int { self.displayState.currentAffirmationIndex }
 
     /// Whether currently in countdown phase
-    var isCountdown: Bool {
-        self.timerState == .countdown
-    }
+    var isCountdown: Bool { self.displayState.isCountdown }
+
+    /// Returns true if timer can be started
+    var canStart: Bool { self.displayState.canStart }
+
+    /// Returns true if timer can be paused
+    var canPause: Bool { self.displayState.canPause }
+
+    /// Returns true if timer can be resumed
+    var canResume: Bool { self.displayState.canResume }
+
+    /// Returns true if timer can be reset
+    var canReset: Bool { self.displayState.canReset }
+
+    /// Formatted time string
+    var formattedTime: String { self.displayState.formattedTime }
 
     /// Get current running affirmation
     var currentRunningAffirmation: String {
-        self.runningAffirmations[self.currentAffirmationIndex % self.runningAffirmations.count]
+        self.runningAffirmations[self.displayState.currentAffirmationIndex % self.runningAffirmations.count]
     }
 
     /// Get current countdown affirmation
     var currentCountdownAffirmation: String {
-        self.countdownAffirmations[self.currentAffirmationIndex % self.countdownAffirmations.count]
+        self.countdownAffirmations[self.displayState.currentAffirmationIndex % self.countdownAffirmations.count]
     }
 
-    /// Formatted time string (MM:SS or countdown seconds)
-    var formattedTime: String {
-        if self.isCountdown {
-            return "\(self.countdownSeconds)"
-        }
-        let minutes = self.remainingSeconds / 60
-        let seconds = self.remainingSeconds % 60
-        return String(format: "%02d:%02d", minutes, seconds)
+    // MARK: - Action Dispatch
+
+    /// Dispatches an action to the reducer and executes resulting effects
+    func dispatch(_ action: TimerAction) {
+        Logger.viewModel.debug("Dispatching action: \(String(describing: action))")
+
+        let (newState, effects) = TimerReducer.reduce(
+            state: self.displayState,
+            action: action,
+            settings: self.settings
+        )
+
+        self.displayState = newState
+        self.executeEffects(effects)
     }
 
-    /// Returns true if timer can be started
-    var canStart: Bool {
-        self.timerState == .idle && self.selectedMinutes > 0
-    }
-
-    /// Returns true if timer can be paused
-    var canPause: Bool {
-        self.timerState == .running
-    }
-
-    /// Returns true if timer can be resumed
-    var canResume: Bool {
-        self.timerState == .paused
-    }
-
-    /// Returns true if timer can be reset
-    var canReset: Bool {
-        self.timerState != .idle
-    }
-
-    // MARK: - Public Methods
+    // MARK: - Legacy Public Methods (For backward compatibility)
 
     /// Starts the timer with selected duration
     func startTimer() {
-        guard self.selectedMinutes > 0 else {
-            Logger.viewModel.warning("Attempted to start timer with 0 minutes")
-            return
-        }
-        Logger.viewModel.info("Starting timer from UI", metadata: ["minutes": self.selectedMinutes])
-
-        // CRITICAL FIX: Configure audio session EARLY (before countdown starts)
-        // This gives iOS time to activate the session, especially important for locked screen
-        do {
-            try self.audioService.configureAudioSession()
-            Logger.viewModel.info("Audio session configured for timer")
-        } catch {
-            Logger.viewModel.error("Failed to configure audio session", error: error)
-            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
-            // Continue anyway - will retry when audio actually plays
-        }
-
-        // Rotate affirmation for next session
-        self.currentAffirmationIndex = (self.currentAffirmationIndex + 1) % max(
-            self.runningAffirmations.count,
-            self.countdownAffirmations.count
-        )
-
-        // CRITICAL FIX: Start background audio IMMEDIATELY to keep app alive during countdown
-        // iOS suspends apps that don't actively play audio, even with active audio session
-        self.startBackgroundAudio()
-
-        // Save duration when timer starts (user has committed to this duration)
-        self.settings.durationMinutes = self.selectedMinutes
-        self.saveSettings()
-
-        self.timerService.start(durationMinutes: self.selectedMinutes)
+        self.dispatch(.startPressed)
     }
 
     /// Pauses the running timer
     func pauseTimer() {
-        Logger.viewModel.debug("Pausing timer from UI")
-        self.timerService.pause()
+        self.dispatch(.pausePressed)
     }
 
     /// Resumes the paused timer
     func resumeTimer() {
-        Logger.viewModel.debug("Resuming timer from UI")
-        self.timerService.resume()
+        self.dispatch(.resumePressed)
     }
 
     /// Resets the timer to initial state
     func resetTimer() {
-        Logger.viewModel.debug("Resetting timer from UI")
-        self.audioService.stopBackgroundAudio()
-        self.timerService.reset()
+        self.dispatch(.resetPressed)
     }
 
+    /// Saves settings to UserDefaults
     func saveSettings() {
         let defaults = UserDefaults.standard
         defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
@@ -180,15 +155,12 @@ final class TimerViewModel: ObservableObject {
 
     // MARK: Private
 
-    // MARK: - Private Properties
-
     private let timerService: TimerServiceProtocol
     private let audioService: AudioServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
-    private var currentTimer: MeditationTimer?
 
-    /// Affirmations for running state (rotated based on session)
+    /// Affirmations for running state
     private var runningAffirmations: [String] {
         [
             NSLocalizedString("affirmation.running.1", comment: ""),
@@ -199,7 +171,7 @@ final class TimerViewModel: ObservableObject {
         ]
     }
 
-    /// Affirmations for countdown state (rotated)
+    /// Affirmations for countdown state
     private var countdownAffirmations: [String] {
         [
             NSLocalizedString("affirmation.countdown.1", comment: ""),
@@ -209,74 +181,96 @@ final class TimerViewModel: ObservableObject {
         ]
     }
 
-    // MARK: - Private Methods
+    // MARK: - Effect Execution
 
-    private func setupBindings() {
-        self.timerService.timerPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] timer in
-                self?.updateFromTimer(timer)
-            }
-            .store(in: &self.cancellables)
+    private func executeEffects(_ effects: [TimerEffect]) {
+        for effect in effects {
+            self.executeEffect(effect)
+        }
     }
 
-    private func updateFromTimer(_ timer: MeditationTimer) {
-        self.currentTimer = timer
-        self.timerState = timer.state
-        self.remainingSeconds = timer.remainingSeconds
-        self.totalSeconds = timer.totalSeconds
-        self.progress = timer.progress
-        self.countdownSeconds = timer.countdownSeconds
+    private func executeEffect(_ effect: TimerEffect) {
+        Logger.viewModel.debug("Executing effect: \(String(describing: effect))")
 
-        // Detect state transitions
-        self.handleStateTransition(from: self.previousState, to: timer.state, timer: timer)
-        self.previousState = timer.state
-    }
-
-    private func handleStateTransition(from oldState: TimerState, to newState: TimerState, timer: MeditationTimer) {
-        // Countdown → Running: Play start gong (background audio already running from timer start)
-        if oldState == .countdown, newState == .running {
-            Logger.viewModel.info("Countdown complete, playing start gong")
-            self.playStartGong()
-            // Note: Background audio was started immediately in startTimer() to prevent iOS suspension
+        if self.executeAudioEffect(effect) {
             return
         }
+        if self.executeTimerEffect(effect) {
+            return
+        }
+        if self.executeSettingsEffect(effect) {
+            return
+        }
+    }
 
-        // Running → Completed: Play completion sound BEFORE stopping background audio
-        // CRITICAL: Play gong first while audio session is still active, then stop background audio
-        if newState == .completed {
-            Logger.viewModel.info("Timer completed, playing completion sound")
-            self.playCompletionSound()
+    private func executeAudioEffect(_ effect: TimerEffect) -> Bool {
+        switch effect {
+        case .configureAudioSession:
+            self.executeConfigureAudioSession()
+        case let .startBackgroundAudio(soundId):
+            self.executeStartBackgroundAudio(soundId: soundId)
+        case .stopBackgroundAudio:
             self.audioService.stopBackgroundAudio()
-            return
+        case .playStartGong:
+            self.executePlayStartGong()
+        case .playIntervalGong:
+            self.executePlayIntervalGong()
+        case .playCompletionSound:
+            self.executePlayCompletionSound()
+        default:
+            return false
         }
+        return true
+    }
 
-        // Check for interval gongs while running
-        if newState == .running, self.settings.intervalGongsEnabled {
-            self.checkAndPlayIntervalGong(timer: timer)
+    private func executeTimerEffect(_ effect: TimerEffect) -> Bool {
+        switch effect {
+        case let .startTimer(durationMinutes):
+            self.executeStartTimer(durationMinutes: durationMinutes)
+        case .pauseTimer:
+            self.timerService.pause()
+        case .resumeTimer:
+            self.timerService.resume()
+        case .resetTimer:
+            self.timerService.reset()
+        default:
+            return false
+        }
+        return true
+    }
+
+    private func executeSettingsEffect(_ effect: TimerEffect) -> Bool {
+        switch effect {
+        case let .saveSettings(settings):
+            self.executeSaveSettings(settings)
+        default:
+            return false
+        }
+        return true
+    }
+
+    // MARK: - Audio Effect Handlers
+
+    private func executeConfigureAudioSession() {
+        do {
+            try self.audioService.configureAudioSession()
+            Logger.viewModel.info("Audio session configured for timer")
+        } catch {
+            Logger.viewModel.error("Failed to configure audio session", error: error)
+            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
         }
     }
 
-    private func checkAndPlayIntervalGong(timer: MeditationTimer) {
-        guard timer.shouldPlayIntervalGong(intervalMinutes: self.settings.intervalMinutes) else {
-            return
-        }
-
-        Logger.viewModel.info("Playing interval gong", metadata: [
-            "interval": self.settings.intervalMinutes,
-            "remaining": timer.remainingSeconds
-        ])
-
-        self.playIntervalGong()
-
-        // Mark that we played the gong
-        if var updatedTimer = currentTimer {
-            updatedTimer = updatedTimer.markIntervalGongPlayed()
-            self.currentTimer = updatedTimer
+    private func executeStartBackgroundAudio(soundId: String) {
+        do {
+            try self.audioService.startBackgroundAudio(soundId: soundId)
+        } catch {
+            Logger.viewModel.error("Failed to start background audio", error: error)
+            self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
         }
     }
 
-    private func playStartGong() {
+    private func executePlayStartGong() {
         do {
             try self.audioService.playStartGong()
         } catch {
@@ -285,7 +279,7 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func playIntervalGong() {
+    private func executePlayIntervalGong() {
         do {
             try self.audioService.playIntervalGong()
         } catch {
@@ -294,7 +288,7 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func playCompletionSound() {
+    private func executePlayCompletionSound() {
         do {
             try self.audioService.playCompletionSound()
         } catch {
@@ -303,12 +297,72 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func startBackgroundAudio() {
-        do {
-            try self.audioService.startBackgroundAudio(soundId: self.settings.backgroundSoundId)
-        } catch {
-            Logger.viewModel.error("Failed to start background audio", error: error)
-            self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
+    // MARK: - Timer Effect Handlers
+
+    private func executeStartTimer(durationMinutes: Int) {
+        self.settings.durationMinutes = durationMinutes
+        self.timerService.start(durationMinutes: durationMinutes)
+    }
+
+    private func executeSaveSettings(_ settings: MeditationSettings) {
+        self.settings = settings
+        self.saveSettings()
+    }
+
+    // MARK: - Bindings
+
+    private func setupBindings() {
+        self.timerService.timerPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] timer in
+                self?.handleTimerUpdate(timer)
+            }
+            .store(in: &self.cancellables)
+    }
+
+    private func handleTimerUpdate(_ timer: MeditationTimer) {
+        // Dispatch tick action with timer values
+        self.dispatch(.tick(
+            remainingSeconds: timer.remainingSeconds,
+            totalSeconds: timer.totalSeconds,
+            countdownSeconds: timer.countdownSeconds,
+            progress: timer.progress,
+            state: timer.state
+        ))
+
+        // Detect state transitions for effects
+        self.handleStateTransition(from: self.previousState, to: timer.state, timer: timer)
+        self.previousState = timer.state
+    }
+
+    private func handleStateTransition(
+        from oldState: TimerState,
+        to newState: TimerState,
+        timer: MeditationTimer
+    ) {
+        // Countdown → Running: Dispatch countdownFinished
+        if oldState == .countdown, newState == .running {
+            Logger.viewModel.info("Countdown complete, dispatching countdownFinished")
+            self.dispatch(.countdownFinished)
+            return
+        }
+
+        // → Completed: Dispatch timerCompleted
+        if newState == .completed, oldState != .completed {
+            Logger.viewModel.info("Timer completed, dispatching timerCompleted")
+            self.dispatch(.timerCompleted)
+            return
+        }
+
+        // Check for interval gongs while running
+        if newState == .running, self.settings.intervalGongsEnabled {
+            if timer.shouldPlayIntervalGong(intervalMinutes: self.settings.intervalMinutes) {
+                Logger.viewModel.info("Interval gong triggered", metadata: [
+                    "interval": self.settings.intervalMinutes,
+                    "remaining": timer.remainingSeconds
+                ])
+                self.dispatch(.intervalGongTriggered)
+            }
         }
     }
 
@@ -317,14 +371,12 @@ final class TimerViewModel: ObservableObject {
     private func loadSettings() {
         let defaults = UserDefaults.standard
 
-        // Try to load new backgroundSoundId first
+        // Try to load backgroundSoundId, with legacy migration
         var backgroundSoundId = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
 
-        // Migration: If backgroundSoundId doesn't exist, try to migrate from legacy backgroundAudioMode
         if backgroundSoundId == nil || backgroundSoundId?.isEmpty == true {
             if let legacyMode = defaults.string(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode) {
                 backgroundSoundId = MeditationSettings.migrateLegacyMode(legacyMode)
-                // Save migrated value
                 defaults.set(backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
                 Logger.viewModel.info("Migrated legacy settings", metadata: [
                     "legacyMode": legacyMode,
@@ -333,12 +385,9 @@ final class TimerViewModel: ObservableObject {
             }
         }
 
-        // Load duration with default of 10 if key doesn't exist
         let durationMinutes: Int = if defaults.object(forKey: MeditationSettings.Keys.durationMinutes) != nil {
-            // Key exists, use stored value (will be validated by MeditationSettings.init)
             defaults.integer(forKey: MeditationSettings.Keys.durationMinutes)
         } else {
-            // Key doesn't exist (first launch), use default
             10
         }
 
@@ -364,27 +413,31 @@ extension TimerViewModel {
     /// Creates a view model with mocked services for previews
     static func preview(state: TimerState = .idle) -> TimerViewModel {
         let viewModel = TimerViewModel()
-        viewModel.timerState = state
+
+        // Directly modify displayState for preview
+        var newState = viewModel.displayState
+        newState.timerState = state
 
         switch state {
         case .idle:
-            viewModel.remainingSeconds = 0
-            viewModel.totalSeconds = 600
+            newState.remainingSeconds = 0
+            newState.totalSeconds = 600
         case .countdown:
-            viewModel.remainingSeconds = 600
-            viewModel.totalSeconds = 600
-            viewModel.countdownSeconds = 10
+            newState.remainingSeconds = 600
+            newState.totalSeconds = 600
+            newState.countdownSeconds = 10
         case .running,
              .paused:
-            viewModel.remainingSeconds = 300
-            viewModel.totalSeconds = 600
-            viewModel.progress = 0.5
+            newState.remainingSeconds = 300
+            newState.totalSeconds = 600
+            newState.progress = 0.5
         case .completed:
-            viewModel.remainingSeconds = 0
-            viewModel.totalSeconds = 600
-            viewModel.progress = 1.0
+            newState.remainingSeconds = 0
+            newState.totalSeconds = 600
+            newState.progress = 1.0
         }
 
+        viewModel.displayState = newState
         return viewModel
     }
 }
