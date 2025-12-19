@@ -1,6 +1,6 @@
 # Ticket android-026: Timer Preview Vollstaendigkeit
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -21,9 +21,9 @@ Android hat nur 3 (Idle, Countdown, Running). Vollstaendige Previews erleichtern
 
 ## Akzeptanzkriterien
 
-- [ ] Preview fuer Paused State vorhanden
-- [ ] Preview fuer Completed State vorhanden
-- [ ] Previews zeigen korrekten UI-Zustand
+- [x] Preview fuer Paused State vorhanden
+- [x] Preview fuer Completed State vorhanden
+- [x] Previews zeigen korrekten UI-Zustand
 
 ---
 

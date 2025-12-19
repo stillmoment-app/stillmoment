@@ -587,3 +587,57 @@ private fun TimerScreenRunningPreview() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun TimerScreenPausedPreview() {
+    StillMomentTheme {
+        TimerScreenContent(
+            uiState = TimerUiState(
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Paused,
+                    remainingSeconds = 300,
+                    totalSeconds = 600,
+                    progress = 0.5f
+                )
+            ),
+            onMinutesChanged = {},
+            onStartClick = {},
+            onPauseClick = {},
+            onResumeClick = {},
+            onResetClick = {},
+            onSettingsClick = {},
+            onSettingsDismiss = {},
+            onSettingsChanged = {},
+            getCurrentCountdownAffirmation = { "Take a deep breath" },
+            getCurrentRunningAffirmation = { "Be present in this moment" }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TimerScreenCompletedPreview() {
+    StillMomentTheme {
+        TimerScreenContent(
+            uiState = TimerUiState(
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Completed,
+                    remainingSeconds = 0,
+                    totalSeconds = 600,
+                    progress = 1.0f
+                )
+            ),
+            onMinutesChanged = {},
+            onStartClick = {},
+            onPauseClick = {},
+            onResumeClick = {},
+            onResetClick = {},
+            onSettingsClick = {},
+            onSettingsDismiss = {},
+            onSettingsChanged = {},
+            getCurrentCountdownAffirmation = { "Take a deep breath" },
+            getCurrentRunningAffirmation = { "Be present in this moment" }
+        )
+    }
+}
