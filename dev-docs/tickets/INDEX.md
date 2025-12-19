@@ -43,7 +43,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-009](ios/ios-009-parallel-testing-stabilization.md) | Parallel Testing Stabilisierung | 1-Quick Fix | [x] | - |
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
-| [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | - |
+| [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | ios-022 |
 | [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
 | [ios-015](ios/ios-015-player-skip-10s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [ios-016](ios/ios-016-edit-sheet-accessibility-identifiers.md) | Edit Sheet accessibilityIdentifier | 4-Polish | [x] | - |
@@ -52,6 +52,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
+| [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [ ] | - |
 
 ---
 
@@ -95,14 +96,15 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
 | [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
+| [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [ ] | - |
 
 ---
 
 ## Parallelisierbare Tickets
 
 ### iOS
-- ios-008 (keine Abhaengigkeiten)
 - ios-012 (keine Abhaengigkeiten)
+- ios-022 (keine Abhaengigkeiten, Vorbereitung fuer ios-012)
 
 ### Android
 Nach android-006:
@@ -118,10 +120,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 17 | 14 | 3 |
-| Android | 36 | 31 | 5 |
+| iOS | 18 | 14 | 4 |
+| Android | 37 | 31 | 6 |
 | Shared | 4 | 2 | 2 |
-| **Total** | **57** | **47** | **10** |
+| **Total** | **59** | **47** | **12** |
 
 ---
 
