@@ -89,7 +89,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [x] | - |
 | [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [x] | - |
 | [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [x] | - |
-| [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
+| [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet State Extraktion + Tests | 5-QA | [x] | - |
 
 ---
 

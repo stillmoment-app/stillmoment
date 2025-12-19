@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.EditSheetState
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -61,20 +62,10 @@ fun MeditationEditSheet(
 ) {
     val sheetState = rememberModalBottomSheetState()
 
-    // Original values for reset functionality
-    val originalTeacher = meditation.teacher
-    val originalName = meditation.name
-
-    // Local state for editing
-    var teacherText by remember(meditation) {
-        mutableStateOf(meditation.customTeacher ?: meditation.teacher)
+    // Use EditSheetState for testable state management
+    var editState by remember(meditation) {
+        mutableStateOf(EditSheetState.fromMeditation(meditation))
     }
-    var nameText by remember(meditation) {
-        mutableStateOf(meditation.customName ?: meditation.name)
-    }
-
-    // Track if there are unsaved changes
-    val hasChanges = teacherText != originalTeacher || nameText != originalName
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -84,27 +75,15 @@ fun MeditationEditSheet(
     ) {
         MeditationEditSheetContent(
             meditation = meditation,
-            teacherText = teacherText,
-            nameText = nameText,
-            hasChanges = hasChanges,
+            teacherText = editState.editedTeacher,
+            nameText = editState.editedName,
+            hasChanges = editState.hasChanges,
+            isValid = editState.isValid,
             availableTeachers = availableTeachers,
-            onTeacherChange = { teacherText = it },
-            onNameChange = { nameText = it },
-            onReset = {
-                teacherText = originalTeacher
-                nameText = originalName
-            },
-            onSave = {
-                val updated = meditation.copy(
-                    customTeacher = teacherText.takeIf {
-                        it.isNotBlank() && it != meditation.teacher
-                    },
-                    customName = nameText.takeIf {
-                        it.isNotBlank() && it != meditation.name
-                    }
-                )
-                onSave(updated)
-            },
+            onTeacherChange = { editState = editState.copy(editedTeacher = it) },
+            onNameChange = { editState = editState.copy(editedName = it) },
+            onReset = { editState = editState.reset() },
+            onSave = { onSave(editState.applyChanges()) },
             onCancel = onDismiss
         )
     }
@@ -120,6 +99,7 @@ private fun MeditationEditSheetContent(
     teacherText: String,
     nameText: String,
     hasChanges: Boolean,
+    isValid: Boolean,
     availableTeachers: List<String>,
     onTeacherChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
@@ -259,6 +239,7 @@ private fun MeditationEditSheetContent(
         // Save button
         Button(
             onClick = onSave,
+            enabled = isValid,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -306,6 +287,7 @@ private fun MeditationEditSheetDefaultPreview() {
             teacherText = meditation.teacher,
             nameText = meditation.name,
             hasChanges = false,
+            isValid = true,
             availableTeachers = listOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
             onTeacherChange = {},
             onNameChange = {},
@@ -333,6 +315,7 @@ private fun MeditationEditSheetWithChangesPreview() {
             teacherText = "Jack Kornfield",
             nameText = "Body Scan Meditation",
             hasChanges = true,
+            isValid = true,
             availableTeachers = listOf("Tara Brach", "Jack Kornfield"),
             onTeacherChange = {},
             onNameChange = {},
@@ -360,6 +343,7 @@ private fun MeditationEditSheetLongTextPreview() {
             teacherText = meditation.teacher,
             nameText = meditation.name,
             hasChanges = false,
+            isValid = true,
             availableTeachers = emptyList(),
             onTeacherChange = {},
             onNameChange = {},
