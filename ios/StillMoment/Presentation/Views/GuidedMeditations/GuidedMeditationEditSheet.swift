@@ -56,7 +56,8 @@ struct GuidedMeditationEditSheet: View {
                                 text: self.$customTeacher,
                                 placeholder: "guided_meditations.edit.teacherPlaceholder",
                                 suggestions: self.availableTeachers,
-                                accessibilityLabel: "guided_meditations.edit.teacher"
+                                accessibilityLabel: "guided_meditations.edit.teacher",
+                                accessibilityIdentifier: "editSheet.field.teacher"
                             )
                         }
                     }
@@ -69,6 +70,7 @@ struct GuidedMeditationEditSheet: View {
 
                             TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
                                 .accessibilityLabel("guided_meditations.edit.name")
+                                .accessibilityIdentifier("editSheet.field.name")
                         }
                     }
 
@@ -104,6 +106,7 @@ struct GuidedMeditationEditSheet: View {
                         } label: {
                             Text("guided_meditations.edit.reset")
                         }
+                        .accessibilityIdentifier("editSheet.button.reset")
                         .disabled(!self.hasChanges)
                     }
                 }
@@ -117,6 +120,7 @@ struct GuidedMeditationEditSheet: View {
                         self.onCancel()
                     }
                     .foregroundColor(.textSecondary)
+                    .accessibilityIdentifier("editSheet.button.cancel")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -124,6 +128,7 @@ struct GuidedMeditationEditSheet: View {
                         self.saveChanges()
                     }
                     .tint(.interactive)
+                    .accessibilityIdentifier("editSheet.button.save")
                     .disabled(!self.isValid)
                 }
             }

@@ -22,12 +22,14 @@ struct AutocompleteTextField: View {
         text: Binding<String>,
         placeholder: LocalizedStringKey,
         suggestions: [String],
-        accessibilityLabel: LocalizedStringKey
+        accessibilityLabel: LocalizedStringKey,
+        accessibilityIdentifier: String? = nil
     ) {
         self._text = text
         self.placeholder = placeholder
         self.suggestions = suggestions
         self.accessibilityLabel = accessibilityLabel
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     // MARK: Internal
@@ -37,6 +39,7 @@ struct AutocompleteTextField: View {
             TextField(self.placeholder, text: self.$text)
                 .focused(self.$isFocused)
                 .accessibilityLabel(self.accessibilityLabel)
+                .accessibilityIdentifier(self.accessibilityIdentifier ?? "")
                 .onChange(of: self.text) { newValue in
                     let filtered = Self.filterSuggestions(self.suggestions, for: newValue)
                     self.showSuggestions = !filtered.isEmpty
@@ -83,6 +86,7 @@ struct AutocompleteTextField: View {
     private let placeholder: LocalizedStringKey
     private let suggestions: [String]
     private let accessibilityLabel: LocalizedStringKey
+    private let accessibilityIdentifier: String?
 
     private var filteredSuggestions: [String] {
         Self.filterSuggestions(self.suggestions, for: self.text)

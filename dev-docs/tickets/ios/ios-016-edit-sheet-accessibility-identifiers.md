@@ -1,6 +1,6 @@
 # Ticket ios-016: Edit Sheet accessibilityIdentifier auf Buttons
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,11 +20,11 @@ UI-Tests benoetigen accessibilityIdentifier um Elemente zuverlaessig zu finden. 
 
 ## Akzeptanzkriterien
 
-- [ ] Cancel-Button: `.accessibilityIdentifier("editSheet.button.cancel")`
-- [ ] Save-Button: `.accessibilityIdentifier("editSheet.button.save")`
-- [ ] Reset-Button: `.accessibilityIdentifier("editSheet.button.reset")`
-- [ ] Teacher-TextField: `.accessibilityIdentifier("editSheet.field.teacher")`
-- [ ] Name-TextField: `.accessibilityIdentifier("editSheet.field.name")`
+- [x] Cancel-Button: `.accessibilityIdentifier("editSheet.button.cancel")`
+- [x] Save-Button: `.accessibilityIdentifier("editSheet.button.save")`
+- [x] Reset-Button: `.accessibilityIdentifier("editSheet.button.reset")`
+- [x] Teacher-TextField: `.accessibilityIdentifier("editSheet.field.teacher")`
+- [x] Name-TextField: `.accessibilityIdentifier("editSheet.field.name")`
 
 ---
 
