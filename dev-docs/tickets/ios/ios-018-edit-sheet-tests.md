@@ -1,6 +1,6 @@
 # Ticket ios-018: Edit Sheet Unit Tests
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -20,32 +20,34 @@ Aktuell keine Tests vorhanden. Die Edit-Logik (hasChanges, isValid, customTeache
 
 ## Akzeptanzkriterien
 
-- [ ] Test: hasChanges ist false bei unveraenderten Werten
-- [ ] Test: hasChanges ist true bei geaenderten Werten
-- [ ] Test: isValid ist false bei leerem Teacher oder Name
-- [ ] Test: isValid ist true bei ausgefuellten Feldern
-- [ ] Test: saveChanges setzt customTeacher/customName nur wenn geaendert
-- [ ] Test: resetToOriginal setzt Werte zurueck
+- [x] Test: hasChanges ist false bei unveraenderten Werten
+- [x] Test: hasChanges ist true bei geaenderten Werten
+- [x] Test: isValid ist false bei leerem Teacher oder Name
+- [x] Test: isValid ist true bei ausgefuellten Feldern
+- [x] Test: saveChanges setzt customTeacher/customName nur wenn geaendert
+- [x] Test: resetToOriginal setzt Werte zurueck
+
+---
+
+## Umsetzung
+
+**Ansatz:** Logik in testbare `EditSheetState` Struct extrahiert (Domain-Layer).
+
+**Neue Dateien:**
+- `StillMoment/Domain/Models/EditSheetState.swift` - Testbare Logik
+- `StillMomentTests/EditSheetStateTests.swift` - 19 Unit Tests
+
+**Refactored:**
+- `GuidedMeditationEditSheet.swift` - Verwendet jetzt `EditSheetState`
 
 ---
 
 ## Manueller Test
 
 1. `make test-unit` ausfuehren
-2. Erwartung: GuidedMeditationEditSheet Tests passen
-
----
-
-## Referenz
-
-- Pattern: `AutocompleteTextFieldTests.swift` fuer View-Komponenten-Tests
-
----
-
-## Hinweise
-
-SwiftUI Views sind schwer direkt zu testen. Fokus auf die Logik-Funktionen (hasChanges, isValid, saveChanges, resetToOriginal).
+2. Erwartung: EditSheetStateTests passen (19 Tests)
 
 ---
 
 <!-- Erstellt via View Quality Review -->
+<!-- Abgeschlossen: 2025-12-19 -->

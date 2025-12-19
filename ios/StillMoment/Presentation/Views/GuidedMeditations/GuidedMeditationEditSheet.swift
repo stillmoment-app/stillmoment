@@ -26,9 +26,8 @@ struct GuidedMeditationEditSheet: View {
         self.onSave = onSave
         self.onCancel = onCancel
 
-        // Initialize with current effective values
-        _customTeacher = State(initialValue: meditation.effectiveTeacher)
-        _customName = State(initialValue: meditation.effectiveName)
+        // Initialize edit state with meditation
+        _editState = State(initialValue: EditSheetState(meditation: meditation))
     }
 
     // MARK: Internal
@@ -53,7 +52,7 @@ struct GuidedMeditationEditSheet: View {
                                 .foregroundColor(.textPrimary)
 
                             AutocompleteTextField(
-                                text: self.$customTeacher,
+                                text: self.$editState.editedTeacher,
                                 placeholder: "guided_meditations.edit.teacherPlaceholder",
                                 suggestions: self.availableTeachers,
                                 accessibilityLabel: "guided_meditations.edit.teacher",
@@ -68,7 +67,7 @@ struct GuidedMeditationEditSheet: View {
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .foregroundColor(.textPrimary)
 
-                            TextField("guided_meditations.edit.namePlaceholder", text: self.$customName)
+                            TextField("guided_meditations.edit.namePlaceholder", text: self.$editState.editedName)
                                 .accessibilityLabel("guided_meditations.edit.name")
                                 .accessibilityIdentifier("editSheet.field.name")
                         }
@@ -102,13 +101,13 @@ struct GuidedMeditationEditSheet: View {
 
                     Section {
                         Button(role: .destructive) {
-                            self.resetToOriginal()
+                            self.editState.reset()
                         } label: {
                             Text("guided_meditations.edit.reset")
                         }
                         .accessibilityIdentifier("editSheet.button.reset")
                         .accessibilityHint("accessibility.editSheet.reset.hint")
-                        .disabled(!self.hasChanges)
+                        .disabled(!self.editState.hasChanges)
                     }
                 }
                 .scrollContentBackground(.hidden)
@@ -127,12 +126,12 @@ struct GuidedMeditationEditSheet: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(NSLocalizedString("common.save", comment: "")) {
-                        self.saveChanges()
+                        self.onSave(self.editState.applyChanges())
                     }
                     .tint(.interactive)
                     .accessibilityIdentifier("editSheet.button.save")
                     .accessibilityHint("accessibility.editSheet.save.hint")
-                    .disabled(!self.isValid)
+                    .disabled(!self.editState.isValid)
                 }
             }
         }
@@ -140,32 +139,7 @@ struct GuidedMeditationEditSheet: View {
 
     // MARK: Private
 
-    @State private var customTeacher: String
-    @State private var customName: String
-
-    private var hasChanges: Bool {
-        self.customTeacher != self.meditation.teacher || self.customName != self.meditation.name
-    }
-
-    private var isValid: Bool {
-        !self.customTeacher.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-            !self.customName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    private func saveChanges() {
-        var updated = self.meditation
-
-        // Only set custom values if they differ from original
-        updated.customTeacher = self.customTeacher != self.meditation.teacher ? self.customTeacher : nil
-        updated.customName = self.customName != self.meditation.name ? self.customName : nil
-
-        self.onSave(updated)
-    }
-
-    private func resetToOriginal() {
-        self.customTeacher = self.meditation.teacher
-        self.customName = self.meditation.name
-    }
+    @State private var editState: EditSheetState
 }
 
 // MARK: - Previews

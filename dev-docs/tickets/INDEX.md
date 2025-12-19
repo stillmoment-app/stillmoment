@@ -48,7 +48,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-015](ios/ios-015-player-skip-10s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [ios-016](ios/ios-016-edit-sheet-accessibility-identifiers.md) | Edit Sheet accessibilityIdentifier | 4-Polish | [x] | - |
 | [ios-017](ios/ios-017-edit-sheet-accessibility-hints.md) | Edit Sheet accessibilityHint | 4-Polish | [x] | - |
-| [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
+| [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [x] | - |
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 
 ---
