@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -258,11 +259,17 @@ private fun SectionHeader(
     totalDuration: String,
     modifier: Modifier = Modifier
 ) {
+    val sectionDescription = stringResource(R.string.accessibility_section_header, teacher, count)
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .background(WarmSand.copy(alpha = 0.95f))
             .padding(vertical = 12.dp, horizontal = 4.dp)
+            .semantics {
+                heading()
+                contentDescription = sectionDescription
+            }
     ) {
         Text(
             text = "$teacher ($count • $totalDuration)",

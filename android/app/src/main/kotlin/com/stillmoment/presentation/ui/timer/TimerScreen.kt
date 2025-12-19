@@ -41,7 +41,9 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -108,17 +110,11 @@ private fun TimerScreenContent(
             TopAppBar(
                 title = { },
                 actions = {
-                    IconButton(
-                        onClick = onSettingsClick,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Settings"
-                        }
-                    ) {
+                    IconButton(onClick = onSettingsClick) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = stringResource(R.string.accessibility_settings_button),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.rotate(0f)
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 },
@@ -297,6 +293,7 @@ private fun TimerDisplay(
                 .size(250.dp)
                 .semantics {
                     contentDescription = timerAccessibilityDescription
+                    liveRegion = LiveRegionMode.Polite
                 }
         ) {
             // Background ring

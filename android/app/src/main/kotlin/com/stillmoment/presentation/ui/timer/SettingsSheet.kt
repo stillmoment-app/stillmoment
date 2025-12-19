@@ -27,6 +27,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +52,8 @@ fun SettingsSheet(
     var intervalMinutes by remember { mutableIntStateOf(settings.intervalMinutes) }
     var backgroundSoundId by remember { mutableStateOf(settings.backgroundSoundId) }
 
+    val doneButtonDescription = stringResource(R.string.accessibility_done_button)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -66,17 +71,22 @@ fun SettingsSheet(
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
-            TextButton(onClick = {
-                onSettingsChanged(
-                    MeditationSettings.create(
-                        intervalGongsEnabled = intervalGongsEnabled,
-                        intervalMinutes = intervalMinutes,
-                        backgroundSoundId = backgroundSoundId,
-                        durationMinutes = settings.durationMinutes
+            TextButton(
+                onClick = {
+                    onSettingsChanged(
+                        MeditationSettings.create(
+                            intervalGongsEnabled = intervalGongsEnabled,
+                            intervalMinutes = intervalMinutes,
+                            backgroundSoundId = backgroundSoundId,
+                            durationMinutes = settings.durationMinutes
+                        )
                     )
-                )
-                onDismiss()
-            }) {
+                    onDismiss()
+                },
+                modifier = Modifier.semantics {
+                    contentDescription = doneButtonDescription
+                }
+            ) {
                 Text(
                     text = stringResource(R.string.button_done),
                     color = MaterialTheme.colorScheme.primary
@@ -148,13 +158,23 @@ fun SettingsSheet(
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
+
+            val switchStateDescription = if (intervalGongsEnabled) {
+                stringResource(R.string.accessibility_interval_enabled, intervalMinutes)
+            } else {
+                stringResource(R.string.accessibility_interval_disabled)
+            }
+
             Switch(
                 checked = intervalGongsEnabled,
                 onCheckedChange = { intervalGongsEnabled = it },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
                     checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+                modifier = Modifier.semantics {
+                    stateDescription = switchStateDescription
+                }
             )
         }
 
@@ -194,6 +214,12 @@ private fun BackgroundSoundOption(
     onSelect: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val soundSelectedDescription = if (isSelected) {
+        stringResource(R.string.accessibility_sound_selected, title)
+    } else {
+        title
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -202,6 +228,9 @@ private fun BackgroundSoundOption(
                 onClick = onSelect,
                 role = Role.RadioButton
             )
+            .semantics {
+                stateDescription = soundSelectedDescription
+            }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -235,6 +264,8 @@ private fun IntervalOption(
     onSelect: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val intervalDescription = stringResource(R.string.accessibility_interval_option, minutes)
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -243,6 +274,9 @@ private fun IntervalOption(
                 onClick = onSelect,
                 role = Role.RadioButton
             )
+            .semantics {
+                stateDescription = intervalDescription
+            }
             .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

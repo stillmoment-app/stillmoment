@@ -58,7 +58,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-008](android/android-008-player-screen-ui.md) | Audio Player Screen UI | 3-Feature | [x] | android-006 |
 | [android-009](android/android-009-tabview-navigation.md) | TabView Navigation | 3-Feature | [x] | android-007, android-008 |
 | [android-010](android/android-010-mediasession-lockscreen.md) | MediaSession Lock Screen | 4-Polish | [x] | android-008 |
-| [android-011](android/android-011-accessibility-audit.md) | Accessibility Audit | 5-QA | [ ] | android-009 |
+| [android-011](android/android-011-accessibility-audit.md) | Accessibility Audit | 5-QA | [x] | android-009 |
 | [android-012](android/android-012-ui-tests.md) | UI Tests | 5-QA | [ ] | android-009 |
 | [android-013](android/android-013-integration-test.md) | Final Integration Test | 5-QA | [ ] | Alle |
 | [android-014](android/android-014-setdatasource-fix.md) | setDataSource Failed Fix | 1-Quick Fix | [x] | android-008 |
@@ -86,9 +86,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 9 | 7 | 2 |
-| Android | 17 | 13 | 4 |
+| Android | 17 | 14 | 3 |
 | Shared | 1 | 0 | 1 |
-| **Total** | **27** | **20** | **7** |
+| **Total** | **27** | **21** | **6** |
 
 ---
 

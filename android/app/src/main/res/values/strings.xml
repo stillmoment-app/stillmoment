@@ -121,4 +121,14 @@
     <!-- Tab Accessibility -->
     <string name="accessibility_tab_timer">Navigate to timer</string>
     <string name="accessibility_tab_library">Navigate to library</string>
+
+    <!-- Settings Accessibility -->
+    <string name="accessibility_done_button">Save and close settings</string>
+    <string name="accessibility_interval_enabled">Interval gongs enabled, every %d minutes</string>
+    <string name="accessibility_interval_disabled">Interval gongs disabled</string>
+    <string name="accessibility_sound_selected">%s selected</string>
+    <string name="accessibility_interval_option">%d minutes interval</string>
+
+    <!-- Library Accessibility -->
+    <string name="accessibility_section_header">%1$s section, %2$d meditations</string>
 </resources>

@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -257,6 +258,8 @@ private fun PlayerControls(
     modifier: Modifier = Modifier
 ) {
     val seekSliderDescription = stringResource(R.string.accessibility_seek_slider)
+    val progressPercent = ((if (duration > 0) currentPosition.toFloat() / duration else 0f) * 100).toInt()
+    val sliderStateDescription = stringResource(R.string.accessibility_player_progress, progressPercent)
     val playDescription = stringResource(R.string.accessibility_play_button)
     val pauseDescription = stringResource(R.string.accessibility_pause_button_player)
     val skipBackwardDescription = stringResource(R.string.accessibility_skip_backward)
@@ -288,6 +291,7 @@ private fun PlayerControls(
                 .fillMaxWidth()
                 .semantics {
                     contentDescription = seekSliderDescription
+                    stateDescription = sliderStateDescription
                 },
             colors = SliderDefaults.colors(
                 thumbColor = Terracotta,
