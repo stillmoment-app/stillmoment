@@ -50,6 +50,8 @@ struct GuidedMeditationsListView: View {
                 }
                 .foregroundColor(.textSecondary)
                 .accessibilityLabel("guided_meditations.add")
+                .accessibilityHint("accessibility.library.add.hint")
+                .accessibilityIdentifier("library.button.add")
             }
         }
         .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
@@ -147,6 +149,8 @@ struct GuidedMeditationsListView: View {
                 Label("guided_meditations.import", systemImage: "plus.circle.fill")
             }
             .warmPrimaryButton()
+            .accessibilityHint("accessibility.library.import.hint")
+            .accessibilityIdentifier("library.button.import.emptyState")
         }
         .padding()
     }
@@ -199,10 +203,14 @@ struct GuidedMeditationsListView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("guided_meditations.edit")
+                .accessibilityHint("accessibility.library.edit.hint")
+                .accessibilityIdentifier("library.button.edit.\(meditation.id.uuidString)")
             }
             .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
+        .accessibilityHint("accessibility.library.row.hint")
+        .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
 }
 

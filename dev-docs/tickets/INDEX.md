@@ -52,7 +52,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
-| [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [ ] | - |
+| [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [x] | - |
 
 ---
 
@@ -120,10 +120,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 18 | 14 | 4 |
+| iOS | 18 | 15 | 3 |
 | Android | 37 | 31 | 6 |
 | Shared | 4 | 2 | 2 |
-| **Total** | **59** | **47** | **12** |
+| **Total** | **59** | **48** | **11** |
 
 ---
 

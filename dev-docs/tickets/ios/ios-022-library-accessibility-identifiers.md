@@ -1,6 +1,6 @@
 # Ticket ios-022: Library View accessibilityIdentifier und Hints
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Klein (~1h)
 **Abhaengigkeiten**: Keine
@@ -20,11 +20,11 @@ Aktuell fehlen accessibilityIdentifiers komplett, wodurch UI-Tests (Ticket ios-0
 
 ## Akzeptanzkriterien
 
-- [ ] Add-Button (Toolbar) hat accessibilityIdentifier + accessibilityHint
-- [ ] Meditation Rows haben accessibilityIdentifier (mit ID)
-- [ ] Edit-Button hat accessibilityIdentifier + accessibilityHint
-- [ ] Empty State Import-Button hat accessibilityIdentifier + accessibilityHint
-- [ ] Lokalisierte Hints in DE + EN
+- [x] Add-Button (Toolbar) hat accessibilityIdentifier + accessibilityHint
+- [x] Meditation Rows haben accessibilityIdentifier (mit ID)
+- [x] Edit-Button hat accessibilityIdentifier + accessibilityHint
+- [x] Empty State Import-Button hat accessibilityIdentifier + accessibilityHint
+- [x] Lokalisierte Hints in DE + EN
 
 ---
 

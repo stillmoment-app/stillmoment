@@ -161,6 +161,11 @@
 
 "accessibility.guidedMeditations.hint" = "Open guided meditations library";
 
+"accessibility.library.add.hint" = "Opens file picker to import a guided meditation";
+"accessibility.library.row.hint" = "Opens the meditation player";
+"accessibility.library.edit.hint" = "Opens edit form to change meditation details";
+"accessibility.library.import.hint" = "Opens file picker to import your first guided meditation";
+
 // MARK: - Autocomplete
 
 "autocomplete.suggestion" = "Select %@";
