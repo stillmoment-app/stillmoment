@@ -1,6 +1,6 @@
 # Ticket android-031: Edit Sheet File-Info Section
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ iOS zeigt eine separate Section mit Dateiname und Dauer. Android zeigt nur die D
 
 ## Akzeptanzkriterien
 
-- [ ] Dateiname wird angezeigt (read-only)
-- [ ] Dauer wird angezeigt (read-only)
-- [ ] Optisch als separate Info-Section erkennbar
-- [ ] Lokalisiert (DE + EN)
+- [x] Dateiname wird angezeigt (read-only)
+- [x] Dauer wird angezeigt (read-only)
+- [x] Optisch als separate Info-Section erkennbar
+- [x] Lokalisiert (DE + EN)
 
 ---
 

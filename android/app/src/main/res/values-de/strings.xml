@@ -96,7 +96,8 @@
     <string name="edit_meditation_title">Meditation bearbeiten</string>
     <string name="edit_teacher_label">Lehrer</string>
     <string name="edit_name_label">Name</string>
-    <string name="edit_duration_info">Dauer: %s</string>
+    <string name="edit_file_label">Datei</string>
+    <string name="edit_duration_label">Dauer</string>
     <string name="edit_reset_button">Zurücksetzen</string>
 
     <!-- Guided Meditations Accessibility -->
