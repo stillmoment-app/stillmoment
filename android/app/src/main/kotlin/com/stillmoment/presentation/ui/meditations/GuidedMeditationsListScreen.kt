@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.meditations
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -41,6 +42,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
@@ -92,12 +94,27 @@ private fun GuidedMeditationsListScreenContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
+    val context = LocalContext.current
 
     // Document picker launcher
+    // IMPORTANT: Take persistable URI permission immediately in Activity context
+    // before passing to ViewModel. This ensures the permission survives app restart.
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
-        uri?.let { onImportMeditation(it) }
+        uri?.let {
+            // Take persistable permission in Activity context (required for SAF)
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                // Permission might not be grantable, continue anyway
+                android.util.Log.w("GuidedMeditationsListScreen", "Could not take persistable permission", e)
+            }
+            onImportMeditation(it)
+        }
     }
 
     Scaffold(

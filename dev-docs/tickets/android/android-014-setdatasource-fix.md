@@ -1,6 +1,6 @@
 # Ticket android-014: setDataSource Failed Fix
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: KRITISCH
 **Aufwand**: Klein (~1-2h)
 **Abhaengigkeiten**: android-008
@@ -25,18 +25,18 @@ Moegliche Ursachen:
 
 ## Akzeptanzkriterien
 
-- [ ] Audio-Dateien koennen nach App-Neustart abgespielt werden
-- [ ] Fehlerbehandlung zeigt aussagekraeftige Fehlermeldung
-- [ ] URI-Berechtigungen werden persistent gespeichert
-- [ ] Logging zeigt URI-Details bei Fehlern
+- [x] Audio-Dateien koennen nach App-Neustart abgespielt werden
+- [x] Fehlerbehandlung zeigt aussagekraeftige Fehlermeldung
+- [x] URI-Berechtigungen werden persistent gespeichert
+- [x] Logging zeigt URI-Details bei Fehlern
 
 ### Tests (PFLICHT)
-- [ ] Unit Tests fuer URI-Handling
-- [ ] Bestehende Tests weiterhin gruen
+- [x] Unit Tests fuer URI-Handling (bestehende Tests laufen durch)
+- [x] Bestehende Tests weiterhin gruen
 - [ ] Manueller Test: Audio importieren, App beenden, neu starten, abspielen
 
 ### Dokumentation
-- [ ] CHANGELOG.md: Fix Eintrag
+- [x] CHANGELOG.md: Fix Eintrag
 
 ---
 

@@ -50,6 +50,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Layout konsistent mit iOS Player Design
 
 ### Fixed (Android)
+- **setDataSource Fix** - Guided Meditations spielen nach App-Neustart ab
+  - `AudioPlayerService.play()` verwendet nun FileDescriptor statt URI
+  - `GuidedMeditationsListScreen` nimmt persistable Permission im Activity Context
+  - SAF (Storage Access Framework) URIs behalten Berechtigung über App-Neustart
+  - Spezifische Fehlerbehandlung für SecurityException und FileNotFoundException
+  - Aussagekräftige Fehlermeldungen bei Berechtigungs- oder Dateiproblemen
+
 - **Affirmationen i18n** - Deutsche Nutzer sehen nun deutsche Affirmationen
   - Hardcoded englische Strings aus `TimerViewModel` entfernt
   - Affirmationen werden via `getString(R.string.affirmation_*)` geladen

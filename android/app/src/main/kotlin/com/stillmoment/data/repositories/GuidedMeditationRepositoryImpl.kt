@@ -1,15 +1,19 @@
 package com.stillmoment.data.repositories
 
 import android.content.Context
-import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,37 +41,60 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
     override val meditationsFlow: Flow<List<GuidedMeditation>> = dataStore.meditationsFlow
 
     override suspend fun importMeditation(uri: Uri): Result<GuidedMeditation> {
-        return try {
-            // 1. Take persistable URI permission for app restart survival
-            takePersistablePermission(uri)
+        return withContext(Dispatchers.IO) {
+            try {
+                // 1. Get file name from URI
+                val originalFileName = getFileName(uri)
+                Log.d(TAG, "Importing meditation: $originalFileName from $uri")
 
-            // 2. Get file name from URI
-            val fileName = getFileName(uri)
+                // 2. Extract metadata from audio file (while we still have access)
+                val metadata = extractMetadata(uri)
 
-            // 3. Extract metadata from audio file
-            val metadata = extractMetadata(uri)
+                // 3. Copy file to app-internal storage (ensures persistent access)
+                val localFile = copyFileToInternalStorage(uri, originalFileName)
+                val localUri = Uri.fromFile(localFile)
+                Log.d(TAG, "Copied to internal storage: ${localFile.absolutePath}")
 
-            // 4. Create meditation object
-            val meditation = GuidedMeditation(
-                fileUri = uri.toString(),
-                fileName = fileName,
-                duration = metadata.duration,
-                teacher = metadata.artist ?: DEFAULT_TEACHER,
-                name = metadata.title ?: fileNameWithoutExtension(fileName)
-            )
+                // 4. Create meditation object with local file URI
+                val meditation = GuidedMeditation(
+                    fileUri = localUri.toString(),
+                    fileName = originalFileName,
+                    duration = metadata.duration,
+                    teacher = metadata.artist ?: DEFAULT_TEACHER,
+                    name = metadata.title ?: fileNameWithoutExtension(originalFileName)
+                )
 
-            // 5. Persist to DataStore
-            dataStore.addMeditation(meditation)
+                // 5. Persist to DataStore
+                dataStore.addMeditation(meditation)
 
-            Result.success(meditation)
-        } catch (e: SecurityException) {
-            Result.failure(ImportException("Permission denied for file access", e))
-        } catch (e: Exception) {
-            Result.failure(ImportException("Failed to import meditation: ${e.message}", e))
+                Result.success(meditation)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Permission denied for file access", e)
+                Result.failure(ImportException("Permission denied for file access", e))
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to import meditation", e)
+                Result.failure(ImportException("Failed to import meditation: ${e.message}", e))
+            }
         }
     }
 
     override suspend fun deleteMeditation(id: String) {
+        // Delete local file if it exists
+        val meditation = dataStore.getMeditation(id)
+        meditation?.let {
+            try {
+                val uri = Uri.parse(it.fileUri)
+                if (uri.scheme == "file") {
+                    val file = File(uri.path ?: return@let)
+                    if (file.exists()) {
+                        file.delete()
+                        Log.d(TAG, "Deleted local file: ${file.absolutePath}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not delete local file for meditation $id", e)
+            }
+        }
         dataStore.deleteMeditation(id)
     }
 
@@ -80,19 +107,34 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Takes persistable URI permission so the file remains accessible after app restart.
-     * This is required by SAF for long-term file access.
+     * Copies a file from a SAF content URI to app-internal storage.
+     * This ensures the file remains accessible after app restart regardless of
+     * whether the original URI supports persistable permissions.
+     *
+     * @param sourceUri The content URI from the file picker
+     * @param originalFileName The original file name for extension detection
+     * @return The local File in app storage
      */
-    private fun takePersistablePermission(uri: Uri) {
-        try {
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-        } catch (e: SecurityException) {
-            // Permission might already be granted or not available
-            // Continue anyway as the file might still be accessible
+    private fun copyFileToInternalStorage(sourceUri: Uri, originalFileName: String): File {
+        // Create meditations directory if it doesn't exist
+        val meditationsDir = File(context.filesDir, MEDITATIONS_DIR)
+        if (!meditationsDir.exists()) {
+            meditationsDir.mkdirs()
         }
+
+        // Generate unique filename to avoid collisions
+        val extension = originalFileName.substringAfterLast(".", "mp3")
+        val uniqueFileName = "${UUID.randomUUID()}.$extension"
+        val destFile = File(meditationsDir, uniqueFileName)
+
+        // Copy the file
+        context.contentResolver.openInputStream(sourceUri)?.use { input ->
+            destFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        } ?: throw ImportException("Could not open source file")
+
+        return destFile
     }
 
     /**
@@ -153,7 +195,9 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "GuidedMeditationRepo"
         private const val DEFAULT_TEACHER = "Unknown"
+        private const val MEDITATIONS_DIR = "meditations"
     }
 }
 
