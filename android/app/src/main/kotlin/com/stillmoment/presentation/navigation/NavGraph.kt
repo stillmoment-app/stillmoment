@@ -17,8 +17,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,7 +38,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.stillmoment.R
+import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.GuidedMeditation
+import kotlinx.coroutines.launch
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.theme.Terracotta
@@ -73,11 +78,29 @@ data class TabItem(
 /**
  * Main navigation host for Still Moment.
  * Features TabView navigation with Timer and Library tabs.
+ * Remembers the last selected tab across app restarts.
  */
 @Composable
 fun StillMomentNavHost(
+    settingsDataStore: SettingsDataStore,
     navController: NavHostController = rememberNavController()
 ) {
+    val scope = rememberCoroutineScope()
+
+    // Load saved tab from DataStore
+    val savedTab by produceState(initialValue = Screen.Timer.route) {
+        value = settingsDataStore.getSelectedTab()
+    }
+
+    // Navigate to saved tab on first load (if not timer)
+    LaunchedEffect(savedTab) {
+        if (savedTab == Screen.Library.route) {
+            navController.navigate(Screen.Library.route) {
+                popUpTo(Screen.Timer.route) { inclusive = true }
+            }
+        }
+    }
+
     val tabs = remember {
         listOf(
             TabItem(
@@ -110,6 +133,10 @@ fun StillMomentNavHost(
                     tabs = tabs,
                     currentDestination = currentDestination,
                     onTabSelected = { screen ->
+                        // Save selected tab for next app launch
+                        scope.launch {
+                            settingsDataStore.setSelectedTab(screen.route)
+                        }
                         navController.navigate(screen.route) {
                             // Pop up to start destination to avoid building up a large stack
                             popUpTo(navController.graph.findStartDestination().id) {

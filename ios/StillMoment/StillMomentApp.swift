@@ -7,9 +7,19 @@
 
 import SwiftUI
 
+/// Tab identifiers for persistence
+enum AppTab: String, CaseIterable {
+    case timer
+    case library
+}
+
 @main
 struct StillMomentApp: App {
     // MARK: Lifecycle
+
+    /// Persisted tab selection - remembers last used tab across app launches
+    @AppStorage("selectedTab")
+    private var selectedTab: String = AppTab.timer.rawValue
 
     init() {
         // Configure tab bar appearance with warm colors
@@ -25,7 +35,7 @@ struct StillMomentApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TabView {
+            TabView(selection: self.$selectedTab) {
                 // Timer Feature Tab
                 NavigationStack {
                     TimerView(viewModel: self.createTimerViewModel())
@@ -33,6 +43,7 @@ struct StillMomentApp: App {
                 .tabItem {
                     Label("tab.timer", systemImage: "timer")
                 }
+                .tag(AppTab.timer.rawValue)
                 .accessibilityIdentifier("tab.timer")
                 .accessibilityLabel(Text("tab.timer.accessibility"))
 
@@ -43,6 +54,7 @@ struct StillMomentApp: App {
                 .tabItem {
                     Label("tab.library", systemImage: "music.note.list")
                 }
+                .tag(AppTab.library.rawValue)
                 .accessibilityIdentifier("tab.library")
                 .accessibilityLabel(Text("tab.library.accessibility"))
             }

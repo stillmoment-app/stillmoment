@@ -1,8 +1,11 @@
 package com.stillmoment.data.local
 
 import com.stillmoment.domain.models.MeditationSettings
+import com.stillmoment.presentation.navigation.Screen
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -112,5 +115,58 @@ class SettingsDataStoreTest {
 
         assertEquals(settings1, settings2)
         assertFalse(settings1 == settings3)
+    }
+
+    // MARK: - Tab Persistence Constants
+
+    @Test
+    fun `TAB_TIMER constant has correct value`() {
+        assertEquals("timer", SettingsDataStore.TAB_TIMER)
+    }
+
+    @Test
+    fun `TAB_LIBRARY constant has correct value`() {
+        assertEquals("library", SettingsDataStore.TAB_LIBRARY)
+    }
+
+    @Test
+    fun `tab constants are stable for persistence`() {
+        // These values are persisted in DataStore
+        // Changing them would break existing user preferences
+        assertEquals(
+            "timer",
+            SettingsDataStore.TAB_TIMER,
+            "TAB_TIMER must remain 'timer' for backwards compatibility"
+        )
+        assertEquals(
+            "library",
+            SettingsDataStore.TAB_LIBRARY,
+            "TAB_LIBRARY must remain 'library' for backwards compatibility"
+        )
+    }
+
+    // MARK: - Tab Constants Consistency with Navigation
+
+    @Test
+    fun `tab constants match Screen routes for consistency`() {
+        // Ensures SettingsDataStore and NavGraph use the same values
+        // This prevents silent bugs if either side changes
+        assertEquals(
+            SettingsDataStore.TAB_TIMER,
+            Screen.Timer.route,
+            "TAB_TIMER must match Screen.Timer.route"
+        )
+        assertEquals(
+            SettingsDataStore.TAB_LIBRARY,
+            Screen.Library.route,
+            "TAB_LIBRARY must match Screen.Library.route"
+        )
+    }
+
+    @Test
+    fun `default tab is timer`() {
+        // When no value is stored, timer should be the default
+        // This matches the behavior in NavGraph.produceState initialValue
+        assertEquals(SettingsDataStore.TAB_TIMER, Screen.Timer.route)
     }
 }

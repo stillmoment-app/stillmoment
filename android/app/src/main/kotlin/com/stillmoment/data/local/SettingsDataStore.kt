@@ -36,6 +36,12 @@ class SettingsDataStore @Inject constructor(
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
+        val SELECTED_TAB = stringPreferencesKey("selected_tab")
+    }
+
+    companion object {
+        const val TAB_TIMER = "timer"
+        const val TAB_LIBRARY = "library"
     }
 
     override val settingsFlow: Flow<MeditationSettings> = context.dataStore.data
@@ -107,6 +113,32 @@ class SettingsDataStore @Inject constructor(
     suspend fun clearSettings() {
         context.dataStore.edit { preferences ->
             preferences.clear()
+        }
+    }
+
+    /**
+     * Flow for the selected tab route.
+     * Emits the saved tab or timer as default.
+     */
+    val selectedTabFlow: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[Keys.SELECTED_TAB] ?: TAB_TIMER
+        }
+
+    /**
+     * Get the selected tab synchronously (blocking).
+     * Use only during app initialization.
+     */
+    suspend fun getSelectedTab(): String {
+        return selectedTabFlow.first()
+    }
+
+    /**
+     * Save the selected tab.
+     */
+    suspend fun setSelectedTab(tab: String) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.SELECTED_TAB] = tab
         }
     }
 }

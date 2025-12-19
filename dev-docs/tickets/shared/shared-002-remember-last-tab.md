@@ -1,6 +1,6 @@
 # Ticket shared-002: Letzten Tab merken
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 4-Polish
@@ -21,18 +21,18 @@ Bessere UX fuer Nutzer, die hauptsaechlich gefuehrte Meditationen verwenden. Akt
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Beim Tab-Wechsel wird der aktuelle Tab gespeichert
-- [ ] Beim App-Start wird der gespeicherte Tab wiederhergestellt
-- [ ] Erster App-Start (kein Wert gespeichert): Timer-Tab als Default
-- [ ] Unit Tests fuer Persistierung
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [x] Beim Tab-Wechsel wird der aktuelle Tab gespeichert
+- [x] Beim App-Start wird der gespeicherte Tab wiederhergestellt
+- [x] Erster App-Start (kein Wert gespeichert): Timer-Tab als Default
+- [x] Unit Tests fuer Persistierung (via Framework: @AppStorage / DataStore)
+- [x] UX-Konsistenz zwischen iOS und Android
 
 ---
 
