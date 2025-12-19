@@ -49,6 +49,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-016](ios/ios-016-edit-sheet-accessibility-identifiers.md) | Edit Sheet accessibilityIdentifier | 4-Polish | [ ] | - |
 | [ios-017](ios/ios-017-edit-sheet-accessibility-hints.md) | Edit Sheet accessibilityHint | 4-Polish | [ ] | - |
 | [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
+| [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [ ] | - |
 
 ---
 
@@ -83,9 +84,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-025](android/android-025-timer-accessibility-improvements.md) | Timer Accessibility Verbesserungen | 4-Polish | [ ] | - |
 | [android-026](android/android-026-timer-preview-completeness.md) | Timer Preview Vollstaendigkeit | 5-QA | [ ] | - |
 | [android-027](android/android-027-timer-viewmodel-test-coverage.md) | Timer ViewModel Test-Coverage | 5-QA | [ ] | - |
-| [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [ ] | - |
+| [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
 | [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [ ] | - |
-| [android-030](android/android-030-edit-sheet-original-value.md) | Edit Sheet Original-Wert anzeigen | 4-Polish | [ ] | - |
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [ ] | - |
 | [android-032](android/android-032-edit-sheet-accessibility-semantics.md) | Edit Sheet Accessibility Semantics | 4-Polish | [ ] | - |
 | [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [ ] | - |
@@ -114,10 +114,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 14 | 9 | 5 |
-| Android | 35 | 22 | 13 |
+| iOS | 15 | 9 | 6 |
+| Android | 34 | 23 | 11 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **53** | **31** | **22** |
+| **Total** | **53** | **32** | **21** |
 
 ---
 
