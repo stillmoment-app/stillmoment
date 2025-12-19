@@ -107,6 +107,7 @@ struct GuidedMeditationEditSheet: View {
                             Text("guided_meditations.edit.reset")
                         }
                         .accessibilityIdentifier("editSheet.button.reset")
+                        .accessibilityHint("accessibility.editSheet.reset.hint")
                         .disabled(!self.hasChanges)
                     }
                 }
@@ -121,6 +122,7 @@ struct GuidedMeditationEditSheet: View {
                     }
                     .foregroundColor(.textSecondary)
                     .accessibilityIdentifier("editSheet.button.cancel")
+                    .accessibilityHint("accessibility.editSheet.cancel.hint")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -129,6 +131,7 @@ struct GuidedMeditationEditSheet: View {
                     }
                     .tint(.interactive)
                     .accessibilityIdentifier("editSheet.button.save")
+                    .accessibilityHint("accessibility.editSheet.save.hint")
                     .disabled(!self.isValid)
                 }
             }

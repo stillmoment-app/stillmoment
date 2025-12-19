@@ -110,6 +110,9 @@
 "accessibility.intervalDuration.hint" = "Wähle aus, wie oft der Intervall-Gong gespielt werden soll";
 "accessibility.done" = "Fertig";
 "accessibility.done.hint" = "Einstellungen speichern und schließen";
+"accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
+"accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
+"accessibility.editSheet.reset.hint" = "Setzt Lehrer und Name auf die Originalwerte zurück";
 
 // MARK: - Time Units
 

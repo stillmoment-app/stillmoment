@@ -110,6 +110,9 @@
 "accessibility.intervalDuration.hint" = "Select how often the interval gong should play";
 "accessibility.done" = "Done";
 "accessibility.done.hint" = "Save settings and close";
+"accessibility.editSheet.cancel.hint" = "Closes the form without saving changes";
+"accessibility.editSheet.save.hint" = "Saves your changes and closes the form";
+"accessibility.editSheet.reset.hint" = "Resets teacher and name to their original values";
 
 // MARK: - Time Units
 

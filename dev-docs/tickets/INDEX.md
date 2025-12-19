@@ -47,7 +47,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
 | [ios-015](ios/ios-015-player-skip-10s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [ios-016](ios/ios-016-edit-sheet-accessibility-identifiers.md) | Edit Sheet accessibilityIdentifier | 4-Polish | [x] | - |
-| [ios-017](ios/ios-017-edit-sheet-accessibility-hints.md) | Edit Sheet accessibilityHint | 4-Polish | [ ] | - |
+| [ios-017](ios/ios-017-edit-sheet-accessibility-hints.md) | Edit Sheet accessibilityHint | 4-Polish | [x] | - |
 | [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 
@@ -87,8 +87,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-028](android/android-028-edit-sheet-reset-button.md) | Edit Sheet Reset-Button | 4-Polish | [x] | - |
 | [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [x] | - |
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [x] | - |
-| [android-032](android/android-032-edit-sheet-accessibility-semantics.md) | Edit Sheet Accessibility Semantics | 4-Polish | [ ] | - |
-| [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [ ] | - |
+| [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [x] | - |
 | [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [ ] | - |
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
 
@@ -114,10 +113,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 15 | 11 | 4 |
-| Android | 34 | 24 | 10 |
+| iOS | 15 | 12 | 3 |
+| Android | 33 | 25 | 8 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **53** | **35** | **18** |
+| **Total** | **52** | **37** | **15** |
 
 ---
 

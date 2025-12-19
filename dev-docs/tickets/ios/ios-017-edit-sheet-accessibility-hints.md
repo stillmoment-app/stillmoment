@@ -1,6 +1,6 @@
 # Ticket ios-017: Edit Sheet accessibilityHint hinzufuegen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ VoiceOver-Nutzer profitieren von Hints die erklaeren, was passiert wenn ein Butt
 
 ## Akzeptanzkriterien
 
-- [ ] Cancel-Button hat accessibilityHint
-- [ ] Save-Button hat accessibilityHint
-- [ ] Reset-Button hat accessibilityHint
-- [ ] Hints sind lokalisiert (DE + EN)
+- [x] Cancel-Button hat accessibilityHint
+- [x] Save-Button hat accessibilityHint
+- [x] Reset-Button hat accessibilityHint
+- [x] Hints sind lokalisiert (DE + EN)
 
 ---
 
