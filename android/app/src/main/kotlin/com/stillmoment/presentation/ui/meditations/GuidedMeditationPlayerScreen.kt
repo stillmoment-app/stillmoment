@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
 import androidx.compose.material.icons.filled.Forward10
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -179,6 +181,21 @@ internal fun GuidedMeditationPlayerScreenContent(
                     onSkipForward = onSkipForward,
                     onSkipBackward = onSkipBackward
                 )
+            }
+
+            // Loading overlay (shown during initial audio load)
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(WarmBlack.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = Terracotta,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
         }
 

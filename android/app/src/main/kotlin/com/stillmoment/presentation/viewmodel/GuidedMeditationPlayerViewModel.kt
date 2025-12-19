@@ -22,6 +22,9 @@ data class PlayerUiState(
     /** Currently loaded meditation */
     val meditation: GuidedMeditation? = null,
 
+    /** Whether audio is currently loading */
+    val isLoading: Boolean = false,
+
     /** Whether audio is playing */
     val isPlaying: Boolean = false,
 
@@ -98,7 +101,9 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
                         isPlaying = state.isPlaying,
                         currentPosition = state.currentPosition,
                         progress = state.progress,
-                        error = state.error
+                        error = state.error,
+                        // Clear loading state when playback starts or error occurs
+                        isLoading = if (state.isPlaying || state.error != null) false else it.isLoading
                     )
                 }
             }
@@ -161,6 +166,9 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
         audioPlayerService.setOnCompletionListener {
             onPlaybackCompleted()
         }
+
+        // Set loading state before starting playback
+        _uiState.update { it.copy(isLoading = true) }
 
         // Start playback
         val uri = Uri.parse(meditation.fileUri)
