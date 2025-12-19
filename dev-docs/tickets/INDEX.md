@@ -51,7 +51,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-018](ios/ios-018-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [x] | - |
 | [ios-019](ios/ios-019-edit-sheet-remove-original-hint.md) | Edit Sheet Original-Hinweis entfernen | 4-Polish | [x] | - |
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
-| [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
+| [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [x] | - |
 
 ---
@@ -95,7 +95,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet State Extraktion + Tests | 5-QA | [x] | - |
 | [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
-| [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [ ] | - |
+| [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [ ] | - |
 
 ---
@@ -120,10 +120,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 18 | 15 | 3 |
-| Android | 37 | 31 | 6 |
+| iOS | 18 | 16 | 2 |
+| Android | 37 | 32 | 5 |
 | Shared | 4 | 2 | 2 |
-| **Total** | **59** | **48** | **11** |
+| **Total** | **59** | **50** | **9** |
 
 ---
 

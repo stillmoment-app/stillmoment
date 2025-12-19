@@ -1,6 +1,6 @@
 # Ticket android-038: Haende-Herz-Bild statt Emoji
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
