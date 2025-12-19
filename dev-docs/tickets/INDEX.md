@@ -96,7 +96,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-036](android/android-036-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
 | [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
-| [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [ ] | - |
+| [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [x] | - |
 
 ---
 
@@ -121,9 +121,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 18 | 16 | 2 |
-| Android | 37 | 32 | 5 |
+| Android | 37 | 33 | 4 |
 | Shared | 4 | 2 | 2 |
-| **Total** | **59** | **50** | **9** |
+| **Total** | **59** | **51** | **8** |
 
 ---
 
