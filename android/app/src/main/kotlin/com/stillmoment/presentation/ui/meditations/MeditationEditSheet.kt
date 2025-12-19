@@ -82,192 +82,290 @@ fun MeditationEditSheet(
         containerColor = MaterialTheme.colorScheme.surface,
         modifier = modifier
     ) {
+        MeditationEditSheetContent(
+            meditation = meditation,
+            teacherText = teacherText,
+            nameText = nameText,
+            hasChanges = hasChanges,
+            availableTeachers = availableTeachers,
+            onTeacherChange = { teacherText = it },
+            onNameChange = { nameText = it },
+            onReset = {
+                teacherText = originalTeacher
+                nameText = originalName
+            },
+            onSave = {
+                val updated = meditation.copy(
+                    customTeacher = teacherText.takeIf {
+                        it.isNotBlank() && it != meditation.teacher
+                    },
+                    customName = nameText.takeIf {
+                        it.isNotBlank() && it != meditation.name
+                    }
+                )
+                onSave(updated)
+            },
+            onCancel = onDismiss
+        )
+    }
+}
+
+/**
+ * Content of the meditation edit sheet.
+ * Extracted for preview support (ModalBottomSheet cannot be previewed directly).
+ */
+@Composable
+private fun MeditationEditSheetContent(
+    meditation: GuidedMeditation,
+    teacherText: String,
+    nameText: String,
+    hasChanges: Boolean,
+    availableTeachers: List<String>,
+    onTeacherChange: (String) -> Unit,
+    onNameChange: (String) -> Unit,
+    onReset: () -> Unit,
+    onSave: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        // Title
+        Text(
+            text = stringResource(R.string.edit_meditation_title),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Medium
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.semantics { heading() }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Teacher field with autocomplete
+        AutocompleteTextField(
+            value = teacherText,
+            onValueChange = onTeacherChange,
+            suggestions = availableTeachers,
+            label = { Text(stringResource(R.string.edit_teacher_label)) },
+            placeholder = { Text(meditation.teacher) },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Name field
+        OutlinedTextField(
+            value = nameText,
+            onValueChange = onNameChange,
+            label = { Text(stringResource(R.string.edit_name_label)) },
+            placeholder = { Text(meditation.name) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLabelColor = MaterialTheme.colorScheme.primary
+            ),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Done
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // File info section (read-only)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
+                .padding(vertical = 8.dp)
         ) {
-            // Title
-            Text(
-                text = stringResource(R.string.edit_meditation_title),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.semantics { heading() }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Teacher field with autocomplete
-            AutocompleteTextField(
-                value = teacherText,
-                onValueChange = { teacherText = it },
-                suggestions = availableTeachers,
-                label = { Text(stringResource(R.string.edit_teacher_label)) },
-                placeholder = { Text(meditation.teacher) },
+            // File name row
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Next
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Name field
-            OutlinedTextField(
-                value = nameText,
-                onValueChange = { nameText = it },
-                label = { Text(stringResource(R.string.edit_name_label)) },
-                placeholder = { Text(meditation.name) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary
-                ),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Done
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // File info section (read-only)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                // File name row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.edit_file_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = meditation.fileName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Duration row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.edit_duration_label),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = meditation.formattedDuration,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Reset button
-            TextButton(
-                onClick = {
-                    teacherText = originalTeacher
-                    nameText = originalName
-                },
-                enabled = hasChanges,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.edit_reset_button),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (hasChanges) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                    }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Buttons
-            Button(
-                onClick = {
-                    val updated = meditation.copy(
-                        customTeacher = teacherText.takeIf {
-                            it.isNotBlank() && it != meditation.teacher
-                        },
-                        customName = nameText.takeIf {
-                            it.isNotBlank() && it != meditation.name
-                        }
-                    )
-                    onSave(updated)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.common_save),
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(
-                    text = stringResource(R.string.common_cancel),
-                    style = MaterialTheme.typography.labelLarge,
+                    text = stringResource(R.string.edit_file_label),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = meditation.fileName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Duration row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.edit_duration_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = meditation.formattedDuration,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Reset button
+        TextButton(
+            onClick = onReset,
+            enabled = hasChanges,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(
+                text = stringResource(R.string.edit_reset_button),
+                style = MaterialTheme.typography.labelLarge,
+                color = if (hasChanges) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Save button
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.common_save),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Cancel button
+        TextButton(
+            onClick = onCancel,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(
+                text = stringResource(R.string.common_cancel),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// MARK: - Previews
+
+@Preview(showBackground = true)
+@Composable
+private fun MeditationEditSheetDefaultPreview() {
+    val meditation = GuidedMeditation(
+        id = "1",
+        fileUri = "content://test",
+        fileName = "loving-kindness.mp3",
+        duration = 1_200_000L,
+        teacher = "Tara Brach",
+        name = "Loving Kindness"
+    )
+    StillMomentTheme {
+        MeditationEditSheetContent(
+            meditation = meditation,
+            teacherText = meditation.teacher,
+            nameText = meditation.name,
+            hasChanges = false,
+            availableTeachers = listOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
+            onTeacherChange = {},
+            onNameChange = {},
+            onReset = {},
+            onSave = {},
+            onCancel = {}
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun MeditationEditSheetPreview() {
+private fun MeditationEditSheetWithChangesPreview() {
+    val meditation = GuidedMeditation(
+        id = "2",
+        fileUri = "content://test",
+        fileName = "body-scan.mp3",
+        duration = 900_000L,
+        teacher = "Unknown Artist",
+        name = "Track 01"
+    )
     StillMomentTheme {
-        // Note: Preview won't show ModalBottomSheet properly
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-        ) {
-            Text(
-                text = "Edit Meditation",
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
+        MeditationEditSheetContent(
+            meditation = meditation,
+            teacherText = "Jack Kornfield",
+            nameText = "Body Scan Meditation",
+            hasChanges = true,
+            availableTeachers = listOf("Tara Brach", "Jack Kornfield"),
+            onTeacherChange = {},
+            onNameChange = {},
+            onReset = {},
+            onSave = {},
+            onCancel = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MeditationEditSheetLongTextPreview() {
+    val meditation = GuidedMeditation(
+        id = "3",
+        fileUri = "content://test",
+        fileName = "very-long-meditation-file-name-that-should-truncate.mp3",
+        duration = 3_600_000L,
+        teacher = "Joseph Goldstein",
+        name = "A Very Long Meditation Title That Tests Text Wrapping"
+    )
+    StillMomentTheme {
+        MeditationEditSheetContent(
+            meditation = meditation,
+            teacherText = meditation.teacher,
+            nameText = meditation.name,
+            hasChanges = false,
+            availableTeachers = emptyList(),
+            onTeacherChange = {},
+            onNameChange = {},
+            onReset = {},
+            onSave = {},
+            onCancel = {}
+        )
     }
 }

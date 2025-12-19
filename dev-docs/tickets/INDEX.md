@@ -88,7 +88,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-029](android/android-029-edit-sheet-autocomplete.md) | Edit Sheet Autocomplete Teacher | 4-Polish | [x] | - |
 | [android-031](android/android-031-edit-sheet-file-info.md) | Edit Sheet File-Info Section | 4-Polish | [x] | - |
 | [android-033](android/android-033-edit-sheet-heading-semantics.md) | Edit Sheet heading() Titel | 4-Polish | [x] | - |
-| [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [ ] | - |
+| [android-034](android/android-034-edit-sheet-previews.md) | Edit Sheet Previews | 5-QA | [x] | - |
 | [android-035](android/android-035-edit-sheet-tests.md) | Edit Sheet Unit Tests | 5-QA | [ ] | - |
 
 ---
@@ -114,9 +114,9 @@ Nach android-006:
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 15 | 12 | 3 |
-| Android | 33 | 25 | 8 |
+| Android | 33 | 26 | 7 |
 | Shared | 4 | 0 | 4 |
-| **Total** | **52** | **37** | **15** |
+| **Total** | **52** | **38** | **14** |
 
 ---
 

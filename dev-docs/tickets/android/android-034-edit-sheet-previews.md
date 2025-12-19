@@ -1,6 +1,6 @@
 # Ticket android-034: Edit Sheet vollstaendige Previews
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,9 +20,9 @@ Aktuelle Preview zeigt nur eine Column, nicht das echte ModalBottomSheet. iOS ha
 
 ## Akzeptanzkriterien
 
-- [ ] Preview zeigt den echten Sheet-Inhalt (nicht ModalBottomSheet wrapper)
-- [ ] Mehrere Previews: Default, mit Aenderungen, verschiedene Daten
-- [ ] Previews sind in Android Studio sichtbar und nuetzlich
+- [x] Preview zeigt den echten Sheet-Inhalt (nicht ModalBottomSheet wrapper)
+- [x] Mehrere Previews: Default, mit Aenderungen, verschiedene Daten
+- [x] Previews sind in Android Studio sichtbar und nuetzlich
 
 ---
 
