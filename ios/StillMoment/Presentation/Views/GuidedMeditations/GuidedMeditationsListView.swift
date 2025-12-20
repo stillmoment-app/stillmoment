@@ -129,10 +129,6 @@ struct GuidedMeditationsListView: View {
 
     private var emptyStateView: some View {
         VStack(spacing: 20) {
-            Image(systemName: "music.note.list")
-                .font(.system(size: 60, design: .rounded))
-                .foregroundColor(Color.interactive)
-
             Text("guided_meditations.empty.title")
                 .font(.system(.title2, design: .rounded, weight: .medium))
                 .foregroundColor(.textPrimary)

@@ -27,7 +27,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [x] | [x] |
 | [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [x] | [x] |
 | [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
-| [shared-005](shared/shared-005-empty-state-icon-consistency.md) | Empty State Icon Konsistenz | 4-Polish | [ ] | [ ] |
+| [shared-005](shared/shared-005-empty-state-simplify.md) | Empty State vereinfachen | 4-Polish | [x] | [x] |
 
 ---
 

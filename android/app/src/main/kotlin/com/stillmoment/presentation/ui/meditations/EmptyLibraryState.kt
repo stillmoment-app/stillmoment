@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
@@ -42,13 +41,6 @@ fun EmptyLibraryState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Meditation emoji
-        Text(
-            text = "\uD83E\uDDD8", // 🧘
-            fontSize = 64.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         // Title
         Text(
             text = stringResource(R.string.library_empty_title),
