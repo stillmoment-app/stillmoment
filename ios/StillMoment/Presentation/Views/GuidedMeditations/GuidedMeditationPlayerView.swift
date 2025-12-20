@@ -68,6 +68,7 @@ struct GuidedMeditationPlayerView: View {
                             in: 0...max(self.viewModel.duration, 1)
                         )
                         .tint(Color.interactive)
+                        .accessibilityIdentifier("player.slider.progress")
                         .accessibilityLabel("guided_meditations.player.progress")
                         .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
 
@@ -76,6 +77,7 @@ struct GuidedMeditationPlayerView: View {
                             Text(self.viewModel.formattedCurrentTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
                                 .foregroundColor(.textSecondary)
+                                .accessibilityIdentifier("player.text.currentTime")
                                 .accessibilityLabel("guided_meditations.player.currentTime")
                                 .accessibilityValue(self.viewModel.formattedCurrentTime)
 
@@ -84,6 +86,7 @@ struct GuidedMeditationPlayerView: View {
                             Text(self.viewModel.formattedRemainingTime)
                                 .font(.system(.caption, design: .rounded).monospacedDigit())
                                 .foregroundColor(.textSecondary)
+                                .accessibilityIdentifier("player.text.remainingTime")
                                 .accessibilityLabel("guided_meditations.player.remainingTime")
                                 .accessibilityValue(self.viewModel.formattedRemainingTime)
                         }
@@ -100,6 +103,7 @@ struct GuidedMeditationPlayerView: View {
                                 .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.interactive)
                         }
+                        .accessibilityIdentifier("player.button.skipBackward")
                         .accessibilityLabel("guided_meditations.player.skipBackward")
 
                         // Play/Pause
@@ -110,6 +114,7 @@ struct GuidedMeditationPlayerView: View {
                                 .font(.system(size: 64, design: .rounded))
                                 .foregroundColor(Color.interactive)
                         }
+                        .accessibilityIdentifier("player.button.playPause")
                         .accessibilityLabel(
                             self.viewModel.isPlaying ?
                                 "guided_meditations.player.pause" :
@@ -124,6 +129,7 @@ struct GuidedMeditationPlayerView: View {
                                 .font(.system(size: 32, design: .rounded))
                                 .foregroundColor(Color.interactive)
                         }
+                        .accessibilityIdentifier("player.button.skipForward")
                         .accessibilityLabel("guided_meditations.player.skipForward")
                     }
                     .padding(.vertical)
@@ -148,6 +154,7 @@ struct GuidedMeditationPlayerView: View {
                         self.dismiss()
                     }
                     .foregroundColor(.textSecondary)
+                    .accessibilityIdentifier("player.button.close")
                 }
             }
             .alert(
