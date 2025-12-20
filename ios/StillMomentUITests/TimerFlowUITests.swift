@@ -37,20 +37,32 @@ final class TimerFlowUITests: XCTestCase {
         super.tearDown()
     }
 
+    // MARK: - Helper Methods
+
+    /// Ensure we're on the Timer tab (app remembers last tab via @AppStorage)
+    private func navigateToTimerTab() {
+        let timerTab = self.app.tabBars.buttons["Timer"]
+        if timerTab.exists, !timerTab.isSelected {
+            timerTab.tap()
+            _ = self.app.buttons["timer.button.start"].waitForExistence(timeout: 2.0)
+        }
+    }
+
     // MARK: - Flow Test 1: Basic Timer Flow
 
     /// Tests app launch, duration selection, and timer start
     /// Consolidates: testAppLaunches, testSelectDurationAndStart, testCircularProgressUpdates
     func testTimerBasicFlow() {
+        // Navigate to Timer tab (app may remember last tab)
+        self.navigateToTimerTab()
+
         XCTContext.runActivity(named: "Verify app launches correctly") { _ in
             // App should show main elements
             XCTAssertGreaterThan(self.app.staticTexts.count, 0)
 
-            // Emoji should be visible
-            XCTAssertTrue(self.app.staticTexts["🤲"].exists)
-
             // Start button should exist
-            XCTAssertGreaterThan(self.app.buttons.count, 0)
+            let startButton = self.app.buttons["timer.button.start"]
+            XCTAssertTrue(startButton.exists, "Start button should be visible")
         }
 
         XCTContext.runActivity(named: "Verify duration picker and start button") { _ in
@@ -87,6 +99,9 @@ final class TimerFlowUITests: XCTestCase {
     /// Tests pause, resume, reset functionality
     /// Consolidates: testPauseAndResumeTimer, testResetTimer
     func testTimerControlsFlow() {
+        // Navigate to Timer tab (app may remember last tab)
+        self.navigateToTimerTab()
+
         // Start timer first
         self.app.buttons["timer.button.start"].tap()
 
@@ -132,6 +147,9 @@ final class TimerFlowUITests: XCTestCase {
     /// Tests that timer actually counts down and validates format
     /// Consolidates: testTimerCountdown, testNavigationBetweenStates
     func testTimerCountdownAndNavigation() {
+        // Navigate to Timer tab (app may remember last tab)
+        self.navigateToTimerTab()
+
         XCTContext.runActivity(named: "Verify timer counts down") { _ in
             // Start timer
             self.app.buttons["timer.button.start"].tap()

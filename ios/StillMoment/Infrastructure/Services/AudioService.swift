@@ -26,6 +26,11 @@ final class AudioService: AudioServiceProtocol {
         self.registerConflictHandler()
     }
 
+    // MARK: - Constants
+
+    /// Duration for fade in effect (3 seconds for smooth meditation experience)
+    private static let fadeInDuration: TimeInterval = 3.0
+
     convenience init() {
         self.init(coordinator: AudioSessionCoordinator.shared)
     }
@@ -87,13 +92,20 @@ final class AudioService: AudioServiceProtocol {
         do {
             self.backgroundAudioPlayer = try AVAudioPlayer(contentsOf: soundURL)
             self.backgroundAudioPlayer?.numberOfLoops = -1 // Loop indefinitely
-            self.backgroundAudioPlayer?.volume = sound.volume // Use sound-specific volume
+
+            // Store target volume for resume and start at 0 for fade in
+            self.targetVolume = sound.volume
+            self.backgroundAudioPlayer?.volume = 0
 
             self.backgroundAudioPlayer?.prepareToPlay()
             self.backgroundAudioPlayer?.play()
+
+            // Fade in to target volume
+            self.backgroundAudioPlayer?.setVolume(self.targetVolume, fadeDuration: Self.fadeInDuration)
+
             Logger.audio.info(
-                "Background audio started successfully",
-                metadata: ["sound": sound.name.localized, "volume": "\(sound.volume)"]
+                "Background audio started with fade in",
+                metadata: ["sound": sound.name.localized, "targetVolume": "\(sound.volume)"]
             )
         } catch {
             Logger.audio.error("Failed to start background audio", error: error)
@@ -102,12 +114,41 @@ final class AudioService: AudioServiceProtocol {
     }
 
     func stopBackgroundAudio() {
+        guard self.backgroundAudioPlayer != nil else {
+            return
+        }
+
         Logger.audio.debug("Stopping background audio")
         self.backgroundAudioPlayer?.stop()
         self.backgroundAudioPlayer = nil
-
-        // Deactivate audio session to save energy when no audio is playing
         self.deactivateAudioSessionIfIdle()
+    }
+
+    func pauseBackgroundAudio() {
+        guard let player = self.backgroundAudioPlayer, player.isPlaying else {
+            return
+        }
+
+        Logger.audio.debug("Pausing background audio")
+        player.pause()
+    }
+
+    func resumeBackgroundAudio() {
+        guard let player = self.backgroundAudioPlayer else {
+            return
+        }
+
+        Logger.audio.debug("Resuming background audio with fade in")
+
+        // If paused, start playing first
+        if !player.isPlaying {
+            player.volume = 0
+            player.play()
+        }
+
+        // Fade in to target volume
+        player.setVolume(self.targetVolume, fadeDuration: Self.fadeInDuration)
+        Logger.audio.info("Background audio resuming with fade in", metadata: ["targetVolume": "\(self.targetVolume)"])
     }
 
     func playCompletionSound() throws {
@@ -133,6 +174,9 @@ final class AudioService: AudioServiceProtocol {
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Target volume for background audio (stored for fade resume)
+    private var targetVolume: Float = 0.15
 
     // MARK: - Private Methods
 

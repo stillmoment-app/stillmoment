@@ -62,6 +62,7 @@ struct SettingsView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .accessibilityIdentifier("settings.picker.backgroundSound")
                         .accessibilityLabel(
                             NSLocalizedString("settings.backgroundAudio.title", comment: "")
                         )
@@ -85,6 +86,7 @@ struct SettingsView: View {
                                     .foregroundColor(.textSecondary)
                             }
                         }
+                        .accessibilityIdentifier("settings.toggle.intervalGongs")
                         .accessibilityLabel("accessibility.intervalGongs")
                         .accessibilityHint("accessibility.intervalGongs.hint")
 
@@ -98,6 +100,7 @@ struct SettingsView: View {
                                 Text("settings.interval.10min", bundle: .main).tag(10)
                             }
                             .pickerStyle(.menu)
+                            .accessibilityIdentifier("settings.picker.intervalMinutes")
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
                         }

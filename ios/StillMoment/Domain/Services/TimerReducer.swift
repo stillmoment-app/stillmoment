@@ -99,7 +99,7 @@ enum TimerReducer {
         guard state.timerState == .running else {
             return (state, [])
         }
-        return (state, [.pauseTimer])
+        return (state, [.pauseBackgroundAudio, .pauseTimer])
     }
 
     private static func reduceResumePressed(
@@ -108,7 +108,7 @@ enum TimerReducer {
         guard state.timerState == .paused else {
             return (state, [])
         }
-        return (state, [.resumeTimer])
+        return (state, [.resumeBackgroundAudio, .resumeTimer])
     }
 
     private static func reduceResetPressed(

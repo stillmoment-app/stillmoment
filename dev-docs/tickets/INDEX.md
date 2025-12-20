@@ -24,7 +24,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 
 | Nr | Ticket | Phase | iOS | Android |
 |----|--------|-------|-----|---------|
-| [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [ ] | [ ] |
+| [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [x] | [x] |
 | [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [x] | [x] |
 | [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
 | [shared-005](shared/shared-005-empty-state-icon-consistency.md) | Empty State Icon Konsistenz | 4-Polish | [ ] | [ ] |
@@ -43,7 +43,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-009](ios/ios-009-parallel-testing-stabilization.md) | Parallel Testing Stabilisierung | 1-Quick Fix | [x] | - |
 | [ios-010](ios/ios-010-parallel-testing-documentation.md) | Parallelisierung Best Practices Doku | 5-QA | [x] | ios-009 |
 | [ios-011](ios/ios-011-separate-test-schemes.md) | Separate Test-Schemes | 2-Architektur | [x] | ios-009 |
-| [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [ ] | ios-022 |
+| [ios-012](ios/ios-012-ui-tests-library-player.md) | UI Tests Library/Player | 5-QA | [x] | ios-022 |
 | [ios-013](ios/ios-013-player-remove-stop-button.md) | Player Stop-Button entfernen | 4-Polish | [x] | - |
 | [ios-015](ios/ios-015-player-skip-10s.md) | Player Skip 10s vereinheitlichen | 4-Polish | [x] | - |
 | [ios-016](ios/ios-016-edit-sheet-accessibility-identifiers.md) | Edit Sheet accessibilityIdentifier | 4-Polish | [x] | - |
@@ -103,16 +103,13 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 ## Parallelisierbare Tickets
 
 ### iOS
-- ios-012 (keine Abhaengigkeiten)
-- ios-022 (keine Abhaengigkeiten, Vorbereitung fuer ios-012)
+- (Alle iOS-Tickets abgeschlossen)
 
 ### Android
-Nach android-006:
-- android-007 und android-008 parallel moeglich
+- android-013 (Final Integration Test) als letzter offener Ticket
 
 ### Cross-Platform
-- shared-001 kann iOS und Android parallel bearbeiten
-- shared-002 kann iOS und Android parallel bearbeiten
+- shared-005 (Empty State Icon Konsistenz) noch offen
 
 ---
 
@@ -120,10 +117,10 @@ Nach android-006:
 
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
-| iOS | 18 | 16 | 2 |
-| Android | 37 | 33 | 4 |
-| Shared | 4 | 2 | 2 |
-| **Total** | **59** | **51** | **8** |
+| iOS | 18 | 18 | 0 |
+| Android | 37 | 34 | 3 |
+| Shared | 4 | 3 | 1 |
+| **Total** | **59** | **55** | **4** |
 
 ---
 

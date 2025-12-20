@@ -95,6 +95,8 @@ final class MockAudioService: AudioServiceProtocol {
     var configureAudioSessionCalled = false
     var startBackgroundAudioCalled = false
     var stopBackgroundAudioCalled = false
+    var pauseBackgroundAudioCalled = false
+    var resumeBackgroundAudioCalled = false
     var playStartGongCalled = false
     var playIntervalGongCalled = false
     var playCompletionSoundCalled = false
@@ -125,6 +127,16 @@ final class MockAudioService: AudioServiceProtocol {
     func stopBackgroundAudio() {
         self.stopBackgroundAudioCalled = true
         self.audioCallOrder.append("stopBackgroundAudio")
+    }
+
+    func pauseBackgroundAudio() {
+        self.pauseBackgroundAudioCalled = true
+        self.audioCallOrder.append("pauseBackgroundAudio")
+    }
+
+    func resumeBackgroundAudio() {
+        self.resumeBackgroundAudioCalled = true
+        self.audioCallOrder.append("resumeBackgroundAudio")
     }
 
     func playStartGong() throws {

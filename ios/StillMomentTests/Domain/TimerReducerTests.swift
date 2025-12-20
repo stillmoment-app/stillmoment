@@ -150,8 +150,8 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then
-        XCTAssertEqual(effects, [.pauseTimer])
+        // Then - pauseBackgroundAudio is also triggered to fade out ambient sound
+        XCTAssertEqual(effects, [.pauseBackgroundAudio, .pauseTimer])
     }
 
     func testPausePressed_fromNonRunning_producesNoEffect() {
@@ -184,8 +184,8 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then
-        XCTAssertEqual(effects, [.resumeTimer])
+        // Then - resumeBackgroundAudio is also triggered to fade in ambient sound
+        XCTAssertEqual(effects, [.resumeBackgroundAudio, .resumeTimer])
     }
 
     func testResumePressed_fromNonPaused_producesNoEffect() {

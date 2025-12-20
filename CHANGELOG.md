@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS & Android)
+- **Ambient Sound Fade In** - Sanftes Einblenden des Hintergrundtons
+  - Fade In beim Timer-Start (3 Sekunden)
+  - Fade In beim Resume nach Pause (3 Sekunden)
+  - Sofortiger Stop bei Pause, Reset und Timer-Ende (kein Fade Out)
+  - iOS: Native `AVAudioPlayer.setVolume(_:fadeDuration:)` API
+  - Android: `ValueAnimator` für smooth Volume-Animation
+  - Verbessert das Meditationserlebnis durch sanfte Übergänge
+
 ### Added (Android)
 - **MediaSession Lock Screen Controls** - Lock Screen und Notification Controls für Guided Meditations
   - `MediaSessionManager` mit MediaSessionCompat für System-Integration

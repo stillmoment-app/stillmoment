@@ -16,8 +16,14 @@ protocol AudioServiceProtocol {
     /// - Parameter soundId: ID of the background sound to play (references BackgroundSound.id)
     func startBackgroundAudio(soundId: String) throws
 
-    /// Stops background audio
+    /// Stops background audio (with fade out)
     func stopBackgroundAudio()
+
+    /// Pauses background audio with fade out (for "Brief Pause")
+    func pauseBackgroundAudio()
+
+    /// Resumes background audio with fade in (after "Brief Pause")
+    func resumeBackgroundAudio()
 
     /// Plays the start gong when countdown completes
     func playStartGong() throws

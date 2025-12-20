@@ -211,6 +211,10 @@ final class TimerViewModel: ObservableObject {
             self.executeStartBackgroundAudio(soundId: soundId)
         case .stopBackgroundAudio:
             self.audioService.stopBackgroundAudio()
+        case .pauseBackgroundAudio:
+            self.audioService.pauseBackgroundAudio()
+        case .resumeBackgroundAudio:
+            self.audioService.resumeBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
         case .playIntervalGong:

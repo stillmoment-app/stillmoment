@@ -20,8 +20,14 @@ enum TimerEffect: Equatable {
     /// Start background audio with the given sound ID
     case startBackgroundAudio(soundId: String)
 
-    /// Stop background audio playback
+    /// Stop background audio playback (with fade out)
     case stopBackgroundAudio
+
+    /// Pause background audio with fade out (for "Brief Pause")
+    case pauseBackgroundAudio
+
+    /// Resume background audio with fade in (after "Brief Pause")
+    case resumeBackgroundAudio
 
     // MARK: - Sound Effects
 
