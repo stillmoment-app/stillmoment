@@ -28,6 +28,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [x] | [x] |
 | [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
 | [shared-005](shared/shared-005-empty-state-simplify.md) | Empty State vereinfachen | 4-Polish | [x] | [x] |
+| [shared-006](shared/shared-006-timer-text-adjustments.md) | Timer-Texte anpassen | 4-Polish | [ ] | [ ] |
 
 ---
 
