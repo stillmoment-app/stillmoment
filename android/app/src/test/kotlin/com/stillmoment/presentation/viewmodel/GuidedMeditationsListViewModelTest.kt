@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 
 /**
  * Unit tests for GuidedMeditationsListViewModel.
@@ -245,7 +245,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `importMeditation success updates state`() = runTest {
             // Given
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = false
 
             // When
@@ -262,7 +262,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `importMeditation sets and clears loading state`() = runTest {
             // Given
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.emitMeditations(emptyList())
             advanceUntilIdle()
             assertFalse(viewModel.uiState.value.isLoading) // starts not loading
@@ -279,7 +279,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `importMeditation failure sets error`() = runTest {
             // Given
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = true
             fakeRepository.importErrorMessage = "File not found"
 
@@ -297,7 +297,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `importMeditation clears previous error`() = runTest {
             // Given - existing error
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = true
             viewModel.importMeditation(uri)
             advanceUntilIdle()
@@ -540,7 +540,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `clearError sets error to null`() = runTest {
             // Given - error exists
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = true
             viewModel.importMeditation(uri)
             advanceUntilIdle()
@@ -556,7 +556,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `error is cleared on successful operation`() = runTest {
             // Given - existing error
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = true
             viewModel.importMeditation(uri)
             advanceUntilIdle()
@@ -586,7 +586,7 @@ class GuidedMeditationsListViewModelTest {
             assertFalse(viewModel.uiState.value.isLoading)
 
             // When - import
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             viewModel.importMeditation(uri)
             advanceUntilIdle()
 
@@ -597,7 +597,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `loading state cleared after import success`() = runTest {
             // Given
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
 
             // When
             viewModel.importMeditation(uri)
@@ -610,7 +610,7 @@ class GuidedMeditationsListViewModelTest {
         @Test
         fun `loading state cleared after import failure`() = runTest {
             // Given
-            val uri = mock(Uri::class.java)
+            val uri = mock<Uri>()
             fakeRepository.importShouldFail = true
 
             // When

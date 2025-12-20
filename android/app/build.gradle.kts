@@ -107,6 +107,7 @@ dependencies {
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.junit5.params)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.kotlin)
 
     // Android Instrumented Tests
     androidTestImplementation(libs.androidx.junit)
