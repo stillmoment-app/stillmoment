@@ -102,6 +102,8 @@ make screenshots                   # Generate localized screenshots (DE + EN)
 
 # Utilities
 make help                          # Show all available commands
+
+# Release - see dev-docs/IOS_RELEASE_TEST_PLAN.md
 ```
 
 ### Android Commands (run from `android/` directory)
