@@ -1,6 +1,6 @@
 # Ticket shared-006: Timer-Texte anpassen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~15min | Android ~15min
 **Phase**: 4-Polish
@@ -24,18 +24,18 @@ Vereinfachung der UI und konsistentere Texte zwischen den Plattformen. Der Locks
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] `timer.lockscreen.hint` wird nicht mehr angezeigt (Code + Strings entfernt)
-- [ ] `state.completed` zeigt "danke dir" (DE) / "thank you" (EN)
-- [ ] `affirmation.running.5` zeigt "Du machst das wunderbar" (DE) / "You are doing wonderfully" (EN)
-- [ ] Lokalisiert (DE + EN)
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [x] `timer.lockscreen.hint` wird nicht mehr angezeigt (Code + Strings entfernt)
+- [x] `state.completed` zeigt "danke dir" (DE) / "thank you" (EN)
+- [x] `affirmation.running.5` zeigt "Du machst das wunderbar" (DE) / "You are doing wonderfully" (EN)
+- [x] Lokalisiert (DE + EN)
+- [x] UX-Konsistenz zwischen iOS und Android
 
 ---
 

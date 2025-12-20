@@ -39,7 +39,7 @@
 
 "state.ready" = "Bereit, wenn du es bist";
 "state.paused" = "Nimm dir Zeit";
-"state.completed" = "Wunderschöne Praxis";
+"state.completed" = "Danke dir";
 
 // MARK: - Countdown Affirmations
 
@@ -54,11 +54,7 @@
 "affirmation.running.2" = "Alles darf sein";
 "affirmation.running.3" = "Du bist hier, das reicht";
 "affirmation.running.4" = "Freundlichkeit beginnt hier";
-"affirmation.running.5" = "";
-
-// MARK: - Helper Text
-
-"timer.lockscreen.hint" = "Der Bildschirm darf ruhen 💫";
+"affirmation.running.5" = "Du machst das wunderbar";
 
 // MARK: - Settings
 

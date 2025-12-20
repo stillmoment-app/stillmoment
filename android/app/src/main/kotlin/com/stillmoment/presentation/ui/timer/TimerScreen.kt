@@ -356,17 +356,6 @@ private fun TimerDisplay(
             textAlign = TextAlign.Center
         )
 
-        // Lock screen hint for running state
-        if (uiState.timerState == TimerState.Running) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Text(
-                text = stringResource(R.string.timer_lockscreen_hint),
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontWeight = FontWeight.Light
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-            )
-        }
     }
 }
 

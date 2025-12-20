@@ -34,10 +34,7 @@
     <string name="state_countdown">Get ready…</string>
     <string name="state_running">Meditating…</string>
     <string name="state_paused">Take your time</string>
-    <string name="state_completed">Beautiful practice</string>
-
-    <!-- Timer -->
-    <string name="timer_lockscreen_hint">The screen may rest</string>
+    <string name="state_completed">Thank you</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

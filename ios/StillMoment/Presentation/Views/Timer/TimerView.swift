@@ -251,14 +251,6 @@ struct TimerView: View {
                 .foregroundColor(.textSecondary)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
-
-            // Gentle reminder for running state
-            if self.viewModel.timerState == .running {
-                Text("timer.lockscreen.hint", bundle: .main)
-                    .font(.system(size: 13, weight: .light, design: .rounded))
-                    .foregroundColor(.textSecondary.opacity(.opacityTertiary))
-                    .padding(.top, 40)
-            }
         }
     }
 
