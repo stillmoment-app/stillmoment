@@ -123,6 +123,8 @@ cd android                         # ALWAYS cd into android/ first!
 
 # Utilities
 ./gradlew tasks                    # Show all available tasks
+
+# Release - see dev-docs/ANDROID_RELEASE_TEST_PLAN.md
 ```
 
 ## Architecture

@@ -73,7 +73,6 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-010](android/android-010-mediasession-lockscreen.md) | MediaSession Lock Screen | 4-Polish | [x] | android-008 |
 | [android-011](android/android-011-accessibility-audit.md) | Accessibility Audit | 5-QA | [x] | android-009 |
 | [android-012](android/android-012-ui-tests.md) | UI Tests (Component-Tests) | 5-QA | [x] | android-009 |
-| [android-013](android/android-013-integration-test.md) | Final Integration Test | 5-QA | [ ] | Alle |
 | [android-014](android/android-014-setdatasource-fix.md) | setDataSource Failed Fix | 1-Quick Fix | [x] | android-008 |
 | [android-015](android/android-015-player-remove-progress-ring.md) | Player Progress-Ring entfernen | 4-Polish | [x] | android-008 |
 | [android-016](android/android-016-storage-documentation.md) | Storage-Unterschiede Dokumentation | 5-QA | [x] | android-014 |
@@ -106,7 +105,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 - (Alle iOS-Tickets abgeschlossen)
 
 ### Android
-- android-013 (Final Integration Test) als letzter offener Ticket
+- (Alle Android-Tickets abgeschlossen)
 
 ### Cross-Platform
 - shared-005 (Empty State Icon Konsistenz) noch offen
@@ -118,9 +117,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | Plattform | Gesamt | Done | TODO |
 |-----------|--------|------|------|
 | iOS | 18 | 18 | 0 |
-| Android | 37 | 34 | 3 |
+| Android | 36 | 36 | 0 |
 | Shared | 4 | 3 | 1 |
-| **Total** | **59** | **55** | **4** |
+| **Total** | **58** | **57** | **1** |
 
 ---
 
