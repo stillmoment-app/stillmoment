@@ -99,30 +99,6 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 
 ---
 
-## Parallelisierbare Tickets
-
-### iOS
-- (Alle iOS-Tickets abgeschlossen)
-
-### Android
-- (Alle Android-Tickets abgeschlossen)
-
-### Cross-Platform
-- shared-005 (Empty State Icon Konsistenz) noch offen
-
----
-
-## Statistik
-
-| Plattform | Gesamt | Done | TODO |
-|-----------|--------|------|------|
-| iOS | 18 | 18 | 0 |
-| Android | 36 | 36 | 0 |
-| Shared | 4 | 3 | 1 |
-| **Total** | **58** | **57** | **1** |
-
----
-
 ## Workflow
 
 ```bash
