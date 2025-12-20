@@ -53,6 +53,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [x] | - |
+| [ios-023](ios/ios-023-ui-tests-with-testdata.md) | UI Tests mit Testdaten (Library/Player) | 5-QA | [ ] | ios-012 |
 
 ---
 
