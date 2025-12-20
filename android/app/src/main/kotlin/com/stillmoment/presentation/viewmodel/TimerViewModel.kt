@@ -144,6 +144,12 @@ class TimerViewModel @Inject constructor(
                 }
                 startTimerLoop()
             }
+            is TimerEffect.PauseBackgroundAudio -> {
+                TimerForegroundService.pauseAudio(getApplication())
+            }
+            is TimerEffect.ResumeBackgroundAudio -> {
+                TimerForegroundService.resumeAudio(getApplication())
+            }
             is TimerEffect.ResetTimer -> {
                 timerJob?.cancel()
                 previousState = TimerState.Idle

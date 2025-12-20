@@ -90,7 +90,7 @@ object TimerReducer {
         if (state.timerState != TimerState.Running) {
             return state to emptyList()
         }
-        return state to listOf(TimerEffect.PauseTimer)
+        return state to listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer)
     }
 
     private fun reduceResumePressed(
@@ -99,7 +99,7 @@ object TimerReducer {
         if (state.timerState != TimerState.Paused) {
             return state to emptyList()
         }
-        return state to listOf(TimerEffect.ResumeTimer)
+        return state to listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer)
     }
 
     private fun reduceResetPressed(

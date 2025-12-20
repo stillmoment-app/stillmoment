@@ -1,9 +1,11 @@
 package com.stillmoment.infrastructure.audio
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
+import android.view.animation.LinearInterpolator
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
@@ -31,8 +33,17 @@ class AudioService @Inject constructor(
             stopBackgroundAudioInternal()
         }
     }
+
     private var gongPlayer: MediaPlayer? = null
     private var backgroundPlayer: MediaPlayer? = null
+    private var fadeAnimator: ValueAnimator? = null
+    private var targetVolume: Float = 0.15f
+
+    companion object {
+        private const val TAG = "AudioService"
+        /** Duration for fade in effect (3 seconds for smooth meditation experience) */
+        private const val FADE_IN_DURATION_MS = 3000L
+    }
 
     private val audioAttributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -71,7 +82,7 @@ class AudioService @Inject constructor(
     // MARK: - Background Audio
 
     /**
-     * Start background audio loop.
+     * Start background audio loop with fade in.
      * Requests exclusive audio session before starting playback.
      *
      * @param soundId The sound identifier ("silent" or "forest")
@@ -91,7 +102,7 @@ class AudioService @Inject constructor(
                 else -> R.raw.silence // Default to silence
             }
 
-            val volume = when (soundId) {
+            targetVolume = when (soundId) {
                 "forest" -> 0.15f
                 else -> 0.15f // Silent ambience at low volume
             }
@@ -99,10 +110,13 @@ class AudioService @Inject constructor(
             backgroundPlayer = MediaPlayer.create(context, resourceId).apply {
                 setAudioAttributes(audioAttributes)
                 isLooping = true
-                setVolume(volume, volume)
+                setVolume(0f, 0f) // Start at 0 for fade in
                 start()
             }
-            Log.d(TAG, "Started background audio: $soundId")
+
+            // Fade in to target volume
+            fadeToVolume(targetVolume)
+            Log.d(TAG, "Started background audio with fade in: $soundId")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start background audio: ${e.message}")
         }
@@ -112,8 +126,47 @@ class AudioService @Inject constructor(
      * Stop background audio and release the audio session.
      */
     fun stopBackgroundAudio() {
+        cancelFade()
         stopBackgroundAudioInternal()
         coordinator.releaseAudioSession(AudioSource.TIMER)
+    }
+
+    /**
+     * Pause background audio immediately (no fade).
+     * Used for "Brief Pause" during meditation.
+     */
+    fun pauseBackgroundAudio() {
+        cancelFade()
+        try {
+            backgroundPlayer?.let { player ->
+                if (player.isPlaying) {
+                    player.pause()
+                    Log.d(TAG, "Paused background audio")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to pause background audio: ${e.message}")
+        }
+    }
+
+    /**
+     * Resume background audio with fade in.
+     * Used after "Brief Pause" during meditation.
+     */
+    fun resumeBackgroundAudio() {
+        try {
+            backgroundPlayer?.let { player ->
+                if (!player.isPlaying) {
+                    player.setVolume(0f, 0f)
+                    player.start()
+                }
+                // Fade in to target volume
+                fadeToVolume(targetVolume)
+                Log.d(TAG, "Resuming background audio with fade in")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to resume background audio: ${e.message}")
+        }
     }
 
     /**
@@ -121,6 +174,7 @@ class AudioService @Inject constructor(
      * Used by the conflict handler to stop playback when another source takes over.
      */
     private fun stopBackgroundAudioInternal() {
+        cancelFade()
         try {
             backgroundPlayer?.apply {
                 if (isPlaying) {
@@ -133,6 +187,34 @@ class AudioService @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to stop background audio: ${e.message}")
         }
+    }
+
+    /**
+     * Animate volume from current level to target over FADE_IN_DURATION_MS.
+     */
+    private fun fadeToVolume(target: Float) {
+        cancelFade()
+        fadeAnimator = ValueAnimator.ofFloat(0f, target).apply {
+            duration = FADE_IN_DURATION_MS
+            interpolator = LinearInterpolator()
+            addUpdateListener { animator ->
+                val volume = animator.animatedValue as Float
+                try {
+                    backgroundPlayer?.setVolume(volume, volume)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to set volume during fade: ${e.message}")
+                }
+            }
+            start()
+        }
+    }
+
+    /**
+     * Cancel any running fade animation.
+     */
+    private fun cancelFade() {
+        fadeAnimator?.cancel()
+        fadeAnimator = null
     }
 
     /**
@@ -164,9 +246,5 @@ class AudioService @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Failed to release gong player: ${e.message}")
         }
-    }
-
-    companion object {
-        private const val TAG = "AudioService"
     }
 }

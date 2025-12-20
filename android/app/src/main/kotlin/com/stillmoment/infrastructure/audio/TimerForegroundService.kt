@@ -54,6 +54,12 @@ class TimerForegroundService : Service() {
             ACTION_PLAY_INTERVAL_GONG -> {
                 audioService.playIntervalGong()
             }
+            ACTION_PAUSE_AUDIO -> {
+                audioService.pauseBackgroundAudio()
+            }
+            ACTION_RESUME_AUDIO -> {
+                audioService.resumeBackgroundAudio()
+            }
             ACTION_STOP -> {
                 stopTimer()
             }
@@ -149,6 +155,8 @@ class TimerForegroundService : Service() {
         const val ACTION_STOP = "com.stillmoment.action.STOP"
         const val ACTION_PLAY_GONG = "com.stillmoment.action.PLAY_GONG"
         const val ACTION_PLAY_INTERVAL_GONG = "com.stillmoment.action.PLAY_INTERVAL_GONG"
+        const val ACTION_PAUSE_AUDIO = "com.stillmoment.action.PAUSE_AUDIO"
+        const val ACTION_RESUME_AUDIO = "com.stillmoment.action.RESUME_AUDIO"
         const val EXTRA_SOUND_ID = "sound_id"
 
         fun startService(context: Context, soundId: String) {
@@ -176,6 +184,20 @@ class TimerForegroundService : Service() {
         fun playIntervalGong(context: Context) {
             val intent = Intent(context, TimerForegroundService::class.java).apply {
                 action = ACTION_PLAY_INTERVAL_GONG
+            }
+            context.startService(intent)
+        }
+
+        fun pauseAudio(context: Context) {
+            val intent = Intent(context, TimerForegroundService::class.java).apply {
+                action = ACTION_PAUSE_AUDIO
+            }
+            context.startService(intent)
+        }
+
+        fun resumeAudio(context: Context) {
+            val intent = Intent(context, TimerForegroundService::class.java).apply {
+                action = ACTION_RESUME_AUDIO
             }
             context.startService(intent)
         }

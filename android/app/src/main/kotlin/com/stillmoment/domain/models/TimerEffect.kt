@@ -42,6 +42,14 @@ sealed class TimerEffect {
     /** Reset the timer */
     data object ResetTimer : TimerEffect()
 
+    // MARK: - Background Audio Effects
+
+    /** Pause background audio (immediate, no fade) */
+    data object PauseBackgroundAudio : TimerEffect()
+
+    /** Resume background audio with fade in */
+    data object ResumeBackgroundAudio : TimerEffect()
+
     // MARK: - Persistence Effects
 
     /** Save settings to DataStore */

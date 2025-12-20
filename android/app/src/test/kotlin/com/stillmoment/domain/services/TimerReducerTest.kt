@@ -166,7 +166,7 @@ class TimerReducerTest {
     inner class PausePressed {
 
         @Test
-        fun `emits PauseTimer effect when running`() {
+        fun `emits PauseBackgroundAudio and PauseTimer effects when running`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
@@ -179,7 +179,7 @@ class TimerReducerTest {
 
             // Then
             assertEquals(state, newState) // State unchanged - TimerRepository handles state change
-            assertEquals(listOf(TimerEffect.PauseTimer), effects)
+            assertEquals(listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer), effects)
         }
 
         @Test
@@ -223,7 +223,7 @@ class TimerReducerTest {
     inner class ResumePressed {
 
         @Test
-        fun `emits ResumeTimer effect when paused`() {
+        fun `emits ResumeBackgroundAudio and ResumeTimer effects when paused`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Paused)
 
@@ -236,7 +236,7 @@ class TimerReducerTest {
 
             // Then
             assertEquals(state, newState)
-            assertEquals(listOf(TimerEffect.ResumeTimer), effects)
+            assertEquals(listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer), effects)
         }
 
         @Test
@@ -614,7 +614,7 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `pause and resume cycle`() {
+        fun `pause and resume cycle with background audio effects`() {
             // Given
             var state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
             val settings = defaultSettings
@@ -626,7 +626,8 @@ class TimerReducerTest {
                 settings
             )
 
-            // Then
+            // Then - Both audio pause and timer pause effects
+            assertTrue(pauseEffects.contains(TimerEffect.PauseBackgroundAudio))
             assertTrue(pauseEffects.contains(TimerEffect.PauseTimer))
 
             // Simulate state change from repository
@@ -639,7 +640,8 @@ class TimerReducerTest {
                 settings
             )
 
-            // Then
+            // Then - Both audio resume and timer resume effects
+            assertTrue(resumeEffects.contains(TimerEffect.ResumeBackgroundAudio))
             assertTrue(resumeEffects.contains(TimerEffect.ResumeTimer))
         }
     }
