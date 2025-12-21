@@ -259,6 +259,39 @@ fun testTimerStart() {
 }
 ```
 
+### DI Best Practices & Learnings
+
+**Wo DI sinnvoll ist:**
+| Anwendungsfall | Grund |
+|----------------|-------|
+| Unit Tests | Mocks isolieren zu testende Logik |
+| ViewModel Tests | Services durch Test-Doubles ersetzen |
+| Integration Tests | Teilsysteme mit kontrollierten Dependencies testen |
+
+**Wo DI NICHT funktioniert:**
+| Anwendungsfall | Grund |
+|----------------|-------|
+| XCUITests | Separater Prozess, kein Code-Sharing möglich |
+| UI Tests mit Testdaten | Würde Mock-Code im App-Target erfordern (Anti-Pattern) |
+
+**Anti-Patterns (vermeiden!):**
+- ❌ Mock-Services im Haupt-App-Target (`Infrastructure/Testing/` etc.)
+- ❌ `-UITestMode` Launch Arguments die Mock-Setup triggern
+- ❌ Compile-time switches für Test-Code in der App
+
+**iOS Testing-Typen im Überblick:**
+
+| Test-Typ | Prozess | DI möglich? | Einsatz |
+|----------|---------|-------------|---------|
+| Unit Tests (XCTest) | Gleicher Prozess | ✅ Ja | Business-Logik, ViewModels |
+| View Tests (ViewInspector) | Gleicher Prozess | ✅ Ja | SwiftUI Views isoliert |
+| UI Tests (XCUITest) | Separater Prozess | ❌ Nein | Black-Box E2E Tests |
+
+**Empfohlene Strategie:**
+1. **Logik testen**: ViewModel-Tests mit Mock-Services (XCTest + DI)
+2. **UI verifizieren**: Manuelle Tests, Xcode Previews, wenige XCUITests
+3. **Keine Testdaten in der App**: Mocks nur im Test-Target
+
 ## Code Standards (Enforced by CI)
 
 ### Never Use ❌
