@@ -1,4 +1,4 @@
-.PHONY: help website website-setup
+.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all
 
 help: ## Show this help message
 	@echo "Still Moment - Project Commands"
@@ -30,3 +30,21 @@ website: ## Serve website locally (Jekyll)
 		exit 1; \
 	fi
 	@cd docs && bundle exec jekyll serve --open-url
+
+# =============================================================================
+# Screenshots
+# =============================================================================
+
+screenshots-ios: ## Generate iOS screenshots (Fastlane Snapshot)
+	@echo "📱 Generating iOS screenshots..."
+	@cd ios && make screenshots
+
+screenshots-android: ## Generate Android screenshots (Paparazzi)
+	@echo "🤖 Generating Android screenshots..."
+	@cd android && ./gradlew screenshots
+
+screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots (iOS + Android)
+	@echo ""
+	@echo "✅ All screenshots generated!"
+	@echo "   iOS:     docs/images/screenshots/"
+	@echo "   Android: docs/images/screenshots/android/"
