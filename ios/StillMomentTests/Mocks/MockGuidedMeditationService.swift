@@ -8,11 +8,6 @@ import Foundation
 
 final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     var meditations: [GuidedMeditation] = []
-    var resolvedURL: URL?
-    var startAccessingCalled = false
-    var stopAccessingCalled = false
-    var resolveShouldThrow = false
-    var startAccessingShouldFail = false
 
     // Error simulation flags for all operations
     var loadShouldThrow = false
@@ -20,6 +15,9 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     var addShouldThrow = false
     var updateShouldThrow = false
     var deleteShouldThrow = false
+
+    // Migration simulation
+    var mockNeedsMigration = false
 
     func loadMeditations() throws -> [GuidedMeditation] {
         if self.loadShouldThrow {
@@ -37,10 +35,12 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
 
     func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
         if self.addShouldThrow {
-            throw GuidedMeditationError.bookmarkCreationFailed
+            throw GuidedMeditationError.fileCopyFailed(reason: "Mock error")
         }
+        let meditationId = UUID()
         let meditation = GuidedMeditation(
-            fileBookmark: Data(),
+            id: meditationId,
+            localFilePath: "\(meditationId.uuidString).mp3",
             fileName: url.lastPathComponent,
             duration: metadata.duration,
             teacher: metadata.artist ?? "Unknown",
@@ -66,21 +66,11 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
         self.meditations.removeAll { $0.id == id }
     }
 
-    func resolveBookmark(_ bookmark: Data) throws -> URL {
-        if self.resolveShouldThrow {
-            throw GuidedMeditationError.bookmarkResolutionFailed
-        }
-        let url = URL(fileURLWithPath: "/tmp/test.mp3")
-        self.resolvedURL = url
-        return url
+    func getMeditationsDirectory() -> URL {
+        FileManager.default.temporaryDirectory.appendingPathComponent("Meditations")
     }
 
-    func startAccessingSecurityScopedResource(_ url: URL) -> Bool {
-        self.startAccessingCalled = true
-        return !self.startAccessingShouldFail
-    }
-
-    func stopAccessingSecurityScopedResource(_ url: URL) {
-        self.stopAccessingCalled = true
+    func needsMigration() -> Bool {
+        self.mockNeedsMigration
     }
 }

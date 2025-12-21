@@ -130,6 +130,9 @@
 "guided_meditations.empty.title" = "Noch keine Meditationen";
 "guided_meditations.empty.message" = "Füge deine erste geführte Meditation hinzu, indem du eine MP3-Datei aus der Dateien-App importierst.";
 
+"guided_meditations.migration.title" = "Bibliothek wird aktualisiert";
+"guided_meditations.migration.message" = "Deine Meditationen werden aktualisiert. Das kann einen Moment dauern.";
+
 "guided_meditations.delete.title" = "Meditation löschen";
 "guided_meditations.delete.message" = "Möchtest du \"%@\" wirklich löschen?";
 "guided_meditations.delete.confirm" = "Löschen";

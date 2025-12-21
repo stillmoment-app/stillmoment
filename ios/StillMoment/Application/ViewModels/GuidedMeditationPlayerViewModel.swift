@@ -23,12 +23,10 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     init(
         meditation: GuidedMeditation,
-        playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService()
+        playerService: AudioPlayerServiceProtocol = AudioPlayerService()
     ) {
         self.meditation = meditation
         self.playerService = playerService
-        self.meditationService = meditationService
 
         self.setupBindings()
         // Remote controls will be configured in play() after audio session is activated
@@ -80,29 +78,22 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             "teacher": self.meditation.effectiveTeacher
         ])
 
+        // Get local file URL
+        guard let fileURL = meditation.fileURL else {
+            Logger.audioPlayer.error("No file URL for meditation")
+            self.errorMessage = NSLocalizedString("error.audioFileNotFound", comment: "Audio file not found error")
+            return
+        }
+
+        // Verify file exists
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            Logger.audioPlayer.error("Audio file missing at path: \(fileURL.path)")
+            self.errorMessage = NSLocalizedString("error.audioFileMissing", comment: "Audio file missing error")
+            return
+        }
+
         do {
-            // Resolve bookmark to URL
-            let url = try meditationService.resolveBookmark(self.meditation.fileBookmark)
-
-            // Check if URL is in app bundle (no security-scoped access needed for bundle resources)
-            let isAppOwnedFile = url.path.hasPrefix(Bundle.main.bundlePath)
-
-            // Start accessing security-scoped resource (only for external files)
-            if !isAppOwnedFile {
-                guard self.meditationService.startAccessingSecurityScopedResource(url) else {
-                    throw GuidedMeditationError.fileAccessDenied
-                }
-            }
-
-            defer {
-                if !isAppOwnedFile {
-                    meditationService.stopAccessingSecurityScopedResource(url)
-                }
-            }
-
-            // Load audio
-            try await self.playerService.load(url: url, meditation: self.meditation)
-
+            try await self.playerService.load(url: fileURL, meditation: self.meditation)
             Logger.audioPlayer.info("Audio loaded successfully")
         } catch {
             Logger.audioPlayer.error("Failed to load audio", error: error)
@@ -182,7 +173,6 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let playerService: AudioPlayerServiceProtocol
-    private let meditationService: GuidedMeditationServiceProtocol
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Private Methods

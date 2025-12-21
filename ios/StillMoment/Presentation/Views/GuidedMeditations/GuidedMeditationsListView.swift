@@ -41,7 +41,9 @@ struct GuidedMeditationsListView: View {
                 self.meditationsList
             }
 
-            if self.viewModel.isLoading {
+            if self.viewModel.isMigrating {
+                self.migrationOverlay
+            } else if self.viewModel.isLoading {
                 ProgressView()
                     .scaleEffect(1.5)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -136,6 +138,28 @@ struct GuidedMeditationsListView: View {
     @State private var meditationToDelete: GuidedMeditation?
 
     // MARK: - Subviews
+
+    private var migrationOverlay: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            Text("guided_meditations.migration.title")
+                .font(.system(.headline, design: .rounded))
+                .foregroundColor(.textPrimary)
+            Text("guided_meditations.migration.message")
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundColor(.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.backgroundPrimary)
+                .shadow(radius: 8)
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.textPrimary.opacity(.opacityOverlay))
+    }
 
     private var emptyStateView: some View {
         VStack(spacing: 20) {

@@ -10,10 +10,10 @@ import Foundation
 /// Errors that can occur during guided meditation management
 enum GuidedMeditationError: Error, LocalizedError {
     case persistenceFailed(reason: String)
-    case bookmarkCreationFailed
-    case bookmarkResolutionFailed
-    case fileAccessDenied
+    case fileCopyFailed(reason: String)
+    case fileNotFound
     case meditationNotFound(id: UUID)
+    case migrationFailed(reason: String)
 
     // MARK: Internal
 
@@ -21,14 +21,14 @@ enum GuidedMeditationError: Error, LocalizedError {
         switch self {
         case let .persistenceFailed(reason):
             "Failed to persist meditation library: \(reason)"
-        case .bookmarkCreationFailed:
-            "Failed to create security-scoped bookmark for file"
-        case .bookmarkResolutionFailed:
-            "Failed to resolve security-scoped bookmark"
-        case .fileAccessDenied:
-            "Access to file denied"
+        case let .fileCopyFailed(reason):
+            "Failed to copy audio file: \(reason)"
+        case .fileNotFound:
+            "Audio file not found"
         case let .meditationNotFound(id):
             "Meditation with ID \(id) not found"
+        case let .migrationFailed(reason):
+            "Migration failed: \(reason)"
         }
     }
 }
@@ -37,10 +37,13 @@ enum GuidedMeditationError: Error, LocalizedError {
 ///
 /// This service handles CRUD operations for guided meditations, including:
 /// - Loading/saving from/to persistent storage (UserDefaults)
-/// - Creating security-scoped bookmarks for external files
-/// - Resolving bookmarks to access files
+/// - Copying audio files to the app's local storage
+/// - Migrating legacy bookmarks to local files
 protocol GuidedMeditationServiceProtocol {
     /// Loads all guided meditations from persistent storage
+    ///
+    /// On first launch after update, this will migrate any legacy bookmarks
+    /// to local file copies.
     ///
     /// - Returns: Array of guided meditations, sorted by teacher then name
     /// - Throws: GuidedMeditationError if loading fails
@@ -54,13 +57,13 @@ protocol GuidedMeditationServiceProtocol {
 
     /// Adds a new guided meditation from a file URL
     ///
-    /// Creates a security-scoped bookmark for the file and adds it to the library.
+    /// Copies the file to Application Support/Meditations/ and creates a meditation entry.
     ///
     /// - Parameters:
-    ///   - url: URL to the audio file
+    ///   - url: URL to the audio file (must have read access)
     ///   - metadata: Audio metadata (artist, title, duration)
     /// - Returns: The newly created GuidedMeditation
-    /// - Throws: GuidedMeditationError if bookmark creation fails
+    /// - Throws: GuidedMeditationError if file copy fails
     func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation
 
     /// Updates an existing guided meditation
@@ -69,32 +72,22 @@ protocol GuidedMeditationServiceProtocol {
     /// - Throws: GuidedMeditationError if update fails
     func updateMeditation(_ meditation: GuidedMeditation) throws
 
-    /// Deletes a guided meditation
+    /// Deletes a guided meditation and its local file
     ///
     /// - Parameter id: ID of meditation to delete
     /// - Throws: GuidedMeditationError if deletion fails
     func deleteMeditation(id: UUID) throws
 
-    /// Resolves a security-scoped bookmark to a file URL
+    /// Returns the directory where meditation files are stored
     ///
-    /// - Parameter bookmark: Security-scoped bookmark data
-    /// - Returns: URL to the file
-    /// - Throws: GuidedMeditationError if resolution fails
-    func resolveBookmark(_ bookmark: Data) throws -> URL
+    /// - Returns: URL to Application Support/Meditations/
+    func getMeditationsDirectory() -> URL
 
-    /// Starts accessing a security-scoped resource
+    /// Checks if migration from legacy bookmarks is needed
     ///
-    /// Must be called before accessing a file resolved from a bookmark.
-    /// Call `stopAccessingSecurityScopedResource` when done.
+    /// Returns true if there are meditations with bookmarks that haven't
+    /// been migrated to local files yet.
     ///
-    /// - Parameter url: URL returned from resolveBookmark
-    /// - Returns: True if access was granted
-    func startAccessingSecurityScopedResource(_ url: URL) -> Bool
-
-    /// Stops accessing a security-scoped resource
-    ///
-    /// Must be called after finishing with a file accessed via bookmark.
-    ///
-    /// - Parameter url: URL returned from resolveBookmark
-    func stopAccessingSecurityScopedResource(_ url: URL)
+    /// - Returns: True if migration is pending
+    func needsMigration() -> Bool
 }

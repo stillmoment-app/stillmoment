@@ -9,15 +9,49 @@ import Foundation
 
 /// Represents a guided meditation audio file with metadata
 ///
-/// This model stores references to external MP3 files via security-scoped bookmarks,
-/// allowing the app to access files in the user's file system (iCloud Drive, etc.)
-/// without copying them into the app sandbox.
+/// Audio files are stored locally in the app's Application Support/Meditations directory.
+/// Legacy installations may have security-scoped bookmarks which are migrated on first launch.
 ///
 /// Metadata can be customized by the user, overriding values read from ID3 tags.
 struct GuidedMeditation: Identifiable, Codable, Equatable {
     // MARK: Lifecycle
 
-    /// Initializes a new guided meditation
+    /// Initializes a new guided meditation with a local file path (preferred)
+    ///
+    /// - Parameters:
+    ///   - id: Unique identifier (defaults to new UUID)
+    ///   - localFilePath: Relative path within Application Support/Meditations/
+    ///   - fileName: Original file name
+    ///   - duration: Duration in seconds
+    ///   - teacher: Teacher/Artist name
+    ///   - name: Meditation name/title
+    ///   - customTeacher: Optional custom teacher name
+    ///   - customName: Optional custom meditation name
+    ///   - dateAdded: Date added (defaults to now)
+    init(
+        id: UUID = UUID(),
+        localFilePath: String,
+        fileName: String,
+        duration: TimeInterval,
+        teacher: String,
+        name: String,
+        customTeacher: String? = nil,
+        customName: String? = nil,
+        dateAdded: Date = Date()
+    ) {
+        self.id = id
+        self.localFilePath = localFilePath
+        self.fileBookmark = nil
+        self.fileName = fileName
+        self.duration = duration
+        self.teacher = teacher
+        self.name = name
+        self.customTeacher = customTeacher
+        self.customName = customName
+        self.dateAdded = dateAdded
+    }
+
+    /// Legacy initializer for security-scoped bookmarks (migration support)
     ///
     /// - Parameters:
     ///   - id: Unique identifier (defaults to new UUID)
@@ -41,6 +75,7 @@ struct GuidedMeditation: Identifiable, Codable, Equatable {
         dateAdded: Date = Date()
     ) {
         self.id = id
+        self.localFilePath = nil
         self.fileBookmark = fileBookmark
         self.fileName = fileName
         self.duration = duration
@@ -56,8 +91,11 @@ struct GuidedMeditation: Identifiable, Codable, Equatable {
     /// Unique identifier
     let id: UUID
 
-    /// Security-scoped bookmark data for accessing the file
-    let fileBookmark: Data
+    /// Relative path within Application Support/Meditations/ (new storage approach)
+    let localFilePath: String?
+
+    /// Security-scoped bookmark data for accessing the file (legacy, for migration)
+    let fileBookmark: Data?
 
     /// Original file name (for debugging/display purposes)
     let fileName: String
@@ -101,5 +139,44 @@ struct GuidedMeditation: Identifiable, Codable, Equatable {
         } else {
             return String(format: "%d:%02d", minutes, seconds)
         }
+    }
+
+    /// Returns the URL to the local audio file
+    ///
+    /// Uses localFilePath if available, otherwise returns nil.
+    /// Legacy bookmarks must be migrated before accessing.
+    var fileURL: URL? {
+        guard let localFilePath else {
+            return nil
+        }
+        guard
+            let appSupport = FileManager.default.urls(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask
+            ).first
+        else {
+            return nil
+        }
+        return appSupport.appendingPathComponent("Meditations").appendingPathComponent(localFilePath)
+    }
+
+    /// Returns true if this meditation needs migration from bookmark to local file
+    var needsMigration: Bool {
+        self.localFilePath == nil && self.fileBookmark != nil
+    }
+
+    /// Creates a copy with the local file path set (for migration)
+    func withLocalFilePath(_ path: String) -> GuidedMeditation {
+        GuidedMeditation(
+            id: self.id,
+            localFilePath: path,
+            fileName: self.fileName,
+            duration: self.duration,
+            teacher: self.teacher,
+            name: self.name,
+            customTeacher: self.customTeacher,
+            customName: self.customName,
+            dateAdded: self.dateAdded
+        )
     }
 }

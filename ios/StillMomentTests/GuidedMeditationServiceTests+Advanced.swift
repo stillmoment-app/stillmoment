@@ -2,73 +2,28 @@
 //  GuidedMeditationServiceTests+Advanced.swift
 //  Still Moment
 //
-//  Advanced tests for GuidedMeditationService (security-scoped resources, bookmarks, persistence)
-//  Note: File I/O and bookmark operations are tested with temporary files
+//  Advanced tests for GuidedMeditationService (file copy, local storage, persistence)
+//  Note: File I/O operations are tested with temporary files
 
 import XCTest
 @testable import StillMoment
 
-// MARK: - Security-Scoped Resource Tests
+// MARK: - Meditations Directory Tests
 
 extension GuidedMeditationServiceTests {
-    func testStartAccessingSecurityScopedResource_ReturnsResult() {
+    func testGetMeditationsDirectory_ReturnsValidPath() {
         // Given
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
-
-        // Create a temporary file URL for testing
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("test.mp3")
 
         // When
-        let result = sut.startAccessingSecurityScopedResource(tempURL)
+        let directory = sut.getMeditationsDirectory()
 
-        // Then - Should return a Bool (true or false depending on URL)
-        // On iOS simulator, this typically returns false for non-security-scoped URLs
-        XCTAssertNotNil(result)
-
-        // Clean up - safe to call even if not started
-        sut.stopAccessingSecurityScopedResource(tempURL)
-    }
-
-    func testStopAccessingSecurityScopedResource_DoesNotCrash() {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
-
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("test.mp3")
-
-        // When - Call stop without corresponding start (should be safe)
-        sut.stopAccessingSecurityScopedResource(tempURL)
-
-        // Then - Should not crash (test passes if we reach here)
-        XCTAssertTrue(true)
-    }
-
-    func testSecurityScopedResource_StartAndStop_Balanced() {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
-
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("test.mp3")
-
-        // When - Start and stop in balanced pairs
-        _ = sut.startAccessingSecurityScopedResource(tempURL)
-        sut.stopAccessingSecurityScopedResource(tempURL)
-
-        _ = sut.startAccessingSecurityScopedResource(tempURL)
-        sut.stopAccessingSecurityScopedResource(tempURL)
-
-        // Then - Should not crash
-        XCTAssertTrue(true)
+        // Then
+        XCTAssertTrue(directory.path.contains("Meditations"))
+        XCTAssertTrue(directory.path.contains("Application Support"))
     }
 }
 
@@ -86,6 +41,9 @@ extension GuidedMeditationServiceTests {
         let tempURL = createTemporaryAudioFile()
         defer {
             try? FileManager.default.removeItem(at: tempURL)
+            // Clean up copied file
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
         }
 
         let metadata = AudioMetadata(
@@ -102,7 +60,8 @@ extension GuidedMeditationServiceTests {
         XCTAssertEqual(meditation.teacher, "Test Teacher")
         XCTAssertEqual(meditation.duration, 600)
         XCTAssertEqual(meditation.fileName, tempURL.lastPathComponent)
-        XCTAssertFalse(meditation.fileBookmark.isEmpty)
+        XCTAssertNotNil(meditation.localFilePath)
+        XCTAssertNotNil(meditation.fileURL)
 
         // Verify it was saved
         let loaded = try sut.loadMeditations()
@@ -120,6 +79,8 @@ extension GuidedMeditationServiceTests {
         let tempURL = createTemporaryAudioFile(filename: "Awesome_Meditation.mp3")
         defer {
             try? FileManager.default.removeItem(at: tempURL)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
         }
 
         let metadata = AudioMetadata(
@@ -146,6 +107,8 @@ extension GuidedMeditationServiceTests {
         let tempURL = createTemporaryAudioFile()
         defer {
             try? FileManager.default.removeItem(at: tempURL)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
         }
 
         let metadata = AudioMetadata(
@@ -174,6 +137,8 @@ extension GuidedMeditationServiceTests {
         defer {
             try? FileManager.default.removeItem(at: url1)
             try? FileManager.default.removeItem(at: url2)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
         }
 
         let metadata1 = AudioMetadata(artist: "Teacher", title: "First", duration: 300)
@@ -189,72 +154,32 @@ extension GuidedMeditationServiceTests {
         XCTAssertTrue(loaded.contains { $0.id == med1.id })
         XCTAssertTrue(loaded.contains { $0.id == med2.id })
     }
-}
 
-// MARK: - Resolve Bookmark Tests
-
-extension GuidedMeditationServiceTests {
-    func testResolveBookmark_WithValidBookmark_ReturnsURL() throws {
+    func testAddMeditation_CopiesFileToMeditationsDirectory() throws {
         // Given
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
 
-        // Create a temporary file and bookmark
         let tempURL = createTemporaryAudioFile()
         defer {
             try? FileManager.default.removeItem(at: tempURL)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        let bookmarkData = try tempURL.bookmarkData(
-            options: [],
-            includingResourceValuesForKeys: nil,
-            relativeTo: nil
-        )
+        let metadata = AudioMetadata(artist: "Teacher", title: "Test", duration: 300)
 
         // When
-        let resolvedURL = try sut.resolveBookmark(bookmarkData)
+        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
 
-        // Then
-        XCTAssertEqual(resolvedURL.lastPathComponent, tempURL.lastPathComponent)
-    }
-
-    func testResolveBookmark_WithInvalidBookmark_ThrowsError() {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
+        // Then - File should exist at fileURL
+        guard let fileURL = meditation.fileURL else {
+            XCTFail("fileURL should not be nil")
             return
         }
-
-        // Create invalid bookmark data
-        let invalidBookmark = Data("invalid bookmark data".utf8)
-
-        // When/Then
-        XCTAssertThrowsError(try sut.resolveBookmark(invalidBookmark)) { error in
-            guard case GuidedMeditationError.bookmarkResolutionFailed = error else {
-                XCTFail("Expected bookmarkResolutionFailed error")
-                return
-            }
-        }
-    }
-
-    func testResolveBookmark_WithEmptyData_ThrowsError() {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
-
-        let emptyBookmark = Data()
-
-        // When/Then
-        XCTAssertThrowsError(try sut.resolveBookmark(emptyBookmark)) { error in
-            guard case GuidedMeditationError.bookmarkResolutionFailed = error else {
-                XCTFail("Expected bookmarkResolutionFailed error")
-                return
-            }
-        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
     }
 }
 

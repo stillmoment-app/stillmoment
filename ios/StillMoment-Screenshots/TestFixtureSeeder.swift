@@ -108,24 +108,46 @@ enum TestFixtureSeeder {
 
     /// Creates GuidedMeditation objects from fixtures
     ///
-    /// - Returns: Array of GuidedMeditation objects with bundle bookmarks
-    /// - Throws: If bundle resources cannot be found or bookmarks fail
+    /// Copies bundle resources to Application Support/Meditations/ and creates
+    /// meditation entries with local file paths.
+    ///
+    /// - Returns: Array of GuidedMeditation objects with local file paths
+    /// - Throws: If bundle resources cannot be found or copy fails
     private static func createMeditations() throws -> [GuidedMeditation] {
         var meditations: [GuidedMeditation] = []
+        let fileManager = FileManager.default
+
+        // Get meditations directory
+        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            Logger.infrastructure.error("Could not get Application Support directory")
+            return []
+        }
+        let meditationsDir = appSupport.appendingPathComponent("Meditations")
+
+        // Create directory if needed
+        if !fileManager.fileExists(atPath: meditationsDir.path) {
+            try fileManager.createDirectory(at: meditationsDir, withIntermediateDirectories: true)
+        }
 
         for fixture in self.fixtures {
-            guard let url = Bundle.main.url(forResource: fixture.resourceName, withExtension: "mp3") else {
+            guard let bundleURL = Bundle.main.url(forResource: fixture.resourceName, withExtension: "mp3") else {
                 Logger.infrastructure.warning("Test fixture not found in bundle: \(fixture.resourceName)")
                 continue
             }
 
-            // Create bookmark for bundle URL
-            // Note: Bundle URLs don't require security-scoped access,
-            // but we create a bookmark for consistency with the data model
-            let bookmark = try url.bookmarkData()
+            let meditationId = UUID()
+            let localFileName = "\(meditationId.uuidString).mp3"
+            let destinationURL = meditationsDir.appendingPathComponent(localFileName)
+
+            // Copy file from bundle to local storage
+            if fileManager.fileExists(atPath: destinationURL.path) {
+                try fileManager.removeItem(at: destinationURL)
+            }
+            try fileManager.copyItem(at: bundleURL, to: destinationURL)
 
             let meditation = GuidedMeditation(
-                fileBookmark: bookmark,
+                id: meditationId,
+                localFilePath: localFileName,
                 fileName: fixture.fileName,
                 duration: fixture.duration,
                 teacher: fixture.teacher,

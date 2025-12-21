@@ -36,19 +36,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-loving-kindness.mp3"; path = "test-loving-kindness.mp3"; sourceTree = "<group>"; };
-		3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestFixtureSeeder.swift; path = TestFixtureSeeder.swift; sourceTree = "<group>"; };
-		62893F35241ED15678CBAFEB /* test-present-moment.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-present-moment.mp3"; path = "test-present-moment.mp3"; sourceTree = "<group>"; };
-		937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-mindful-breathing.mp3"; path = "test-mindful-breathing.mp3"; sourceTree = "<group>"; };
+		1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-loving-kindness.mp3"; sourceTree = "<group>"; };
+		3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestFixtureSeeder.swift; sourceTree = "<group>"; };
+		62893F35241ED15678CBAFEB /* test-present-moment.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-present-moment.mp3"; sourceTree = "<group>"; };
+		937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-mindful-breathing.mp3"; sourceTree = "<group>"; };
 		A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "StillMoment-Screenshots.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA235990CCAEA51ACEAE1351 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-body-scan.mp3"; path = "test-body-scan.mp3"; sourceTree = "<group>"; };
+		AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-body-scan.mp3"; sourceTree = "<group>"; };
 		CA08C6262EC4729200D7C911 /* BackgroundAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BackgroundAudio; path = StillMoment/Resources/BackgroundAudio; sourceTree = "<group>"; };
-		CA08C6282EC4800000D7C911 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
+		CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
 		CABCE91C2EAE3C430059FC11 /* StillMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StillMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-evening-wind-down.mp3"; path = "test-evening-wind-down.mp3"; sourceTree = "<group>"; };
+		FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-evening-wind-down.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -80,15 +80,11 @@
 		};
 		CABCE92C2EAE3C440059FC11 /* StillMomentTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = StillMomentTests;
 			sourceTree = "<group>";
 		};
 		CABCE9362EAE3C440059FC11 /* StillMomentUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = StillMomentUITests;
 			sourceTree = "<group>";
 		};
@@ -133,7 +129,6 @@
 				B5F685D42A5B1A140B7DFE84 /* Resources */,
 				3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */,
 			);
-			name = "StillMoment-Screenshots";
 			path = "StillMoment-Screenshots";
 			sourceTree = "<group>";
 		};
@@ -146,7 +141,6 @@
 				FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */,
 				1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */,
 			);
-			name = TestFixtures;
 			path = TestFixtures;
 			sourceTree = "<group>";
 		};
@@ -163,14 +157,13 @@
 			children = (
 				8389E633265BE04500A17DF0 /* TestFixtures */,
 			);
-			name = Resources;
 			path = Resources;
 			sourceTree = "<group>";
 		};
 		CA7930B52EC4EBA40070D3BB /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				CA08C6282EC4800000D7C911 /* Local.xcconfig */,
+				CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -619,7 +612,7 @@
 		};
 		CABCE93E2EAE3C440059FC11 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -651,7 +644,7 @@
 		};
 		CABCE93F2EAE3C440059FC11 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

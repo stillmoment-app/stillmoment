@@ -36,6 +36,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     @Published var meditations: [GuidedMeditation] = []
     @Published var isLoading = false
+    @Published var isMigrating = false
     @Published var errorMessage: String?
     @Published var showingDocumentPicker = false
     @Published var showingEditSheet = false
@@ -52,7 +53,32 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     // MARK: - Public Methods
 
     /// Loads meditations from persistent storage
+    ///
+    /// If legacy bookmarks need migration, shows a migration overlay
+    /// while copying files to local storage.
     func loadMeditations() {
+        // Check if migration is needed before loading
+        if self.meditationService.needsMigration() {
+            self.isMigrating = true
+            Logger.guidedMeditation.info("Migration needed, starting async migration")
+
+            // Run migration in a task so the UI can update
+            Task {
+                // Small delay to ensure the overlay is visible
+                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+
+                await self.performLoad()
+                self.isMigrating = false
+            }
+        } else {
+            Task {
+                await self.performLoad()
+            }
+        }
+    }
+
+    /// Performs the actual load operation
+    private func performLoad() async {
         self.isLoading = true
         self.errorMessage = nil
 

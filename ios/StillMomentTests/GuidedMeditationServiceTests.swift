@@ -371,7 +371,23 @@ final class GuidedMeditationServiceTests: XCTestCase {
     ) -> GuidedMeditation {
         GuidedMeditation(
             id: id,
-            fileBookmark: Data(),
+            localFilePath: "\(id.uuidString).mp3",
+            fileName: "\(name).mp3",
+            duration: duration,
+            teacher: teacher,
+            name: name
+        )
+    }
+
+    func createLegacyMeditation(
+        id: UUID = UUID(),
+        teacher: String,
+        name: String,
+        duration: TimeInterval = 600
+    ) -> GuidedMeditation {
+        GuidedMeditation(
+            id: id,
+            fileBookmark: Data("fake-bookmark".utf8),
             fileName: "\(name).mp3",
             duration: duration,
             teacher: teacher,

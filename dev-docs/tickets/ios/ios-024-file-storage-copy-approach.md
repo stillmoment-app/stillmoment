@@ -1,6 +1,6 @@
 # Ticket ios-024: File Storage auf Kopie-Ansatz umstellen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -27,6 +27,8 @@ Importierte Meditations-Dateien in den App-Container kopieren statt Security-Sco
 - [ ] `GuidedMeditation.fileBookmark: Data` ersetzt durch `fileURL: URL` (oder String-Pfad)
 - [ ] Loeschen einer Meditation loescht auch die lokale Datei
 - [ ] Migration: Bestehende Bookmarks werden zu lokalen Dateien migriert
+- [ ] Einmal-Flag in UserDefaults (`guidedMeditationsMigratedToLocalFiles_v1`)
+- [ ] Nicht-auflösbare Bookmarks: Meditation wird entfernt (mit Logging)
 - [ ] Security-Scoped-Bookmark-Code entfernt (`resolveBookmark`, `startAccessingSecurityScopedResource`, etc.)
 - [ ] `isAppOwnedFile` Check in PlayerViewModel entfernt
 - [ ] TestFixtureSeeder nutzt echten Import-Pfad (kopieren statt Bookmark)
@@ -74,9 +76,18 @@ Importierte Meditations-Dateien in den App-Container kopieren statt Security-Sco
 
 ### Migration bestehender Daten
 
-- Beim ersten Start nach Update: Bookmarks aufloesen und Dateien kopieren
-- Falls Bookmark nicht mehr aufloesbar: Meditation entfernen (mit Hinweis?)
-- Migration nur einmal ausfuehren (Flag in UserDefaults)
+**Trigger:** `loadMeditations()` prueft Einmal-Flag beim App-Start
+
+**Ablauf:**
+1. Pruefe Flag `guidedMeditationsMigratedToLocalFiles_v1` in UserDefaults
+2. Falls nicht gesetzt und Bookmarks vorhanden → Migration starten
+3. Fuer jede Meditation mit Bookmark:
+   - Bookmark aufloesen → URL
+   - Security-Scoped Access aktivieren
+   - Datei nach `Application Support/Meditations/{uuid}.mp3` kopieren
+   - `localFilePath` setzen, `fileBookmark` auf nil
+4. Bei Fehler (Bookmark nicht aufloesbar): Meditation entfernen + Logging
+5. Flag setzen → Migration laeuft nur einmal
 
 ### Dateipfad-Struktur
 

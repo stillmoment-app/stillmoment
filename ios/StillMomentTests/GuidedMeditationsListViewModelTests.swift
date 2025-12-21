@@ -51,7 +51,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Load Meditations Tests
 
-    func testLoadMeditationsSuccess() {
+    func testLoadMeditationsSuccess() async {
         // Given
         let meditation1 = self.createTestMeditation(teacher: "A", name: "Med1")
         let meditation2 = self.createTestMeditation(teacher: "B", name: "Med2")
@@ -59,6 +59,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
         // When
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // Then
         XCTAssertEqual(self.sut.meditations.count, 2)
@@ -66,12 +67,13 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertFalse(self.sut.isLoading)
     }
 
-    func testLoadMeditationsEmpty() {
+    func testLoadMeditationsEmpty() async {
         // Given - No meditations
         self.mockMeditationService.meditations = []
 
         // When
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // Then
         XCTAssertTrue(self.sut.meditations.isEmpty)
@@ -79,12 +81,13 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertFalse(self.sut.isLoading)
     }
 
-    func testLoadMeditationsFailure() {
+    func testLoadMeditationsFailure() async {
         // Given
         self.mockMeditationService.loadShouldThrow = true
 
         // When
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // Then
         XCTAssertTrue(self.sut.meditations.isEmpty)
@@ -140,11 +143,12 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Delete Meditation Tests
 
-    func testDeleteMeditationSuccess() {
+    func testDeleteMeditationSuccess() async {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
         self.sut.loadMeditations()
+        await self.waitForLoad()
         XCTAssertEqual(self.sut.meditations.count, 1)
 
         // When
@@ -156,11 +160,12 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertNil(self.sut.errorMessage)
     }
 
-    func testDeleteMeditationFailure() {
+    func testDeleteMeditationFailure() async {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
         self.sut.loadMeditations()
+        await self.waitForLoad()
         self.mockMeditationService.deleteShouldThrow = true
 
         // When
@@ -172,12 +177,13 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.meditations.count, 1)
     }
 
-    func testDeleteNonExistentMeditation() {
+    func testDeleteNonExistentMeditation() async {
         // Given
         let existingMeditation = self.createTestMeditation(name: "Existing")
         let nonExistentMeditation = self.createTestMeditation(name: "NonExistent")
         self.mockMeditationService.meditations = [existingMeditation]
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // When
         self.sut.deleteMeditation(nonExistentMeditation)
@@ -190,11 +196,12 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Update Meditation Tests
 
-    func testUpdateMeditationSuccess() {
+    func testUpdateMeditationSuccess() async {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         var updatedMeditation = meditation
         updatedMeditation.customName = "Updated Name"
@@ -208,11 +215,12 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.meditations.count, 1)
     }
 
-    func testUpdateMeditationFailure() {
+    func testUpdateMeditationFailure() async {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
         self.sut.loadMeditations()
+        await self.waitForLoad()
         self.mockMeditationService.updateShouldThrow = true
 
         // When
@@ -417,14 +425,13 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Loading State Tests
 
-    func testLoadingStateDuringLoad() {
+    func testLoadingStateDuringLoad() async {
         // Given
         self.mockMeditationService.meditations = []
 
-        // When - Call loadMeditations
-        // Note: This is synchronous in the current implementation
-        self.sut.isLoading = true // Simulate loading start
+        // When - Call loadMeditations (now async via Task)
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // Then
         XCTAssertFalse(self.sut.isLoading) // Should be false after completion
@@ -432,15 +439,17 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Error Clearing Tests
 
-    func testErrorMessageClearedOnNextOperation() {
+    func testErrorMessageClearedOnNextOperation() async {
         // Given - Error from previous operation
         self.mockMeditationService.loadShouldThrow = true
         self.sut.loadMeditations()
+        await self.waitForLoad()
         XCTAssertNotNil(self.sut.errorMessage)
 
         // When - Perform successful operation
         self.mockMeditationService.loadShouldThrow = false
         self.sut.loadMeditations()
+        await self.waitForLoad()
 
         // Then - Error should be cleared
         XCTAssertNil(self.sut.errorMessage)
@@ -450,6 +459,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given - Error from previous operation
         self.mockMeditationService.loadShouldThrow = true
         self.sut.loadMeditations()
+        await self.waitForLoad()
         XCTAssertNotNil(self.sut.errorMessage)
 
         // When - Start import
@@ -467,11 +477,17 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     private func createTestMeditation(teacher: String = "Teacher", name: String = "Meditation") -> GuidedMeditation {
         GuidedMeditation(
-            fileBookmark: Data(),
+            localFilePath: "test.mp3",
             fileName: "test.mp3",
             duration: 600,
             teacher: teacher,
             name: name
         )
+    }
+
+    /// Waits for async operations triggered by loadMeditations()
+    private func waitForLoad() async {
+        // loadMeditations() uses Task internally, so we need to yield
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
     }
 }
