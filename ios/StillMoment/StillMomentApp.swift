@@ -29,6 +29,11 @@ struct StillMomentApp: App {
 
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+
+        // Seed test fixtures for screenshot automation (Screenshots target only)
+        #if SCREENSHOTS_BUILD
+        TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
+        #endif
     }
 
     // MARK: Internal

@@ -84,13 +84,20 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             // Resolve bookmark to URL
             let url = try meditationService.resolveBookmark(self.meditation.fileBookmark)
 
-            // Start accessing security-scoped resource
-            guard self.meditationService.startAccessingSecurityScopedResource(url) else {
-                throw GuidedMeditationError.fileAccessDenied
+            // Check if URL is in app bundle (no security-scoped access needed for bundle resources)
+            let isAppOwnedFile = url.path.hasPrefix(Bundle.main.bundlePath)
+
+            // Start accessing security-scoped resource (only for external files)
+            if !isAppOwnedFile {
+                guard self.meditationService.startAccessingSecurityScopedResource(url) else {
+                    throw GuidedMeditationError.fileAccessDenied
+                }
             }
 
             defer {
-                meditationService.stopAccessingSecurityScopedResource(url)
+                if !isAppOwnedFile {
+                    meditationService.stopAccessingSecurityScopedResource(url)
+                }
             }
 
             // Load audio

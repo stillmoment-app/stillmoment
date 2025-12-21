@@ -7,7 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02183C555291D03943B53A7F /* TestFixtureSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */; };
+		5AE90EAB7FE6F73BA138E1AE /* test-loving-kindness.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */; };
+		868E6658A0F3DC323D64B9FD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA235990CCAEA51ACEAE1351 /* Foundation.framework */; };
+		B0CC8D5F347C05127C946658 /* test-body-scan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */; };
+		B29CADCD6AF96B53C144F1E7 /* test-mindful-breathing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */; };
+		C06E1E9F13DC010CF84E2A49 /* test-present-moment.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 62893F35241ED15678CBAFEB /* test-present-moment.mp3 */; };
 		CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
+		E9DB9A418CDE4A04B3E351F0 /* test-evening-wind-down.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */; };
+		F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,11 +36,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-loving-kindness.mp3"; path = "test-loving-kindness.mp3"; sourceTree = "<group>"; };
+		3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestFixtureSeeder.swift; path = TestFixtureSeeder.swift; sourceTree = "<group>"; };
+		62893F35241ED15678CBAFEB /* test-present-moment.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-present-moment.mp3"; path = "test-present-moment.mp3"; sourceTree = "<group>"; };
+		937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-mindful-breathing.mp3"; path = "test-mindful-breathing.mp3"; sourceTree = "<group>"; };
+		A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "StillMoment-Screenshots.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA235990CCAEA51ACEAE1351 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-body-scan.mp3"; path = "test-body-scan.mp3"; sourceTree = "<group>"; };
 		CA08C6262EC4729200D7C911 /* BackgroundAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BackgroundAudio; path = StillMoment/Resources/BackgroundAudio; sourceTree = "<group>"; };
-		CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
+		CA08C6282EC4800000D7C911 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
 		CABCE91C2EAE3C430059FC11 /* StillMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StillMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; name = "test-evening-wind-down.mp3"; path = "test-evening-wind-down.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -43,6 +59,13 @@
 			);
 			target = CABCE91B2EAE3C430059FC11 /* StillMoment */;
 		};
+		SCREENSHOTS123456789ABCDEF /* Exceptions for "StillMoment" folder in "StillMoment-Screenshots" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6AA1CC164101D03A01B9960C /* StillMoment-Screenshots */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -50,23 +73,36 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */,
+				SCREENSHOTS123456789ABCDEF /* Exceptions for "StillMoment" folder in "StillMoment-Screenshots" target */,
 			);
 			path = StillMoment;
 			sourceTree = "<group>";
 		};
 		CABCE92C2EAE3C440059FC11 /* StillMomentTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = StillMomentTests;
 			sourceTree = "<group>";
 		};
 		CABCE9362EAE3C440059FC11 /* StillMomentUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = StillMomentUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		705F7955521EDA637CB76FE8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				868E6658A0F3DC323D64B9FD /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CABCE9192EAE3C430059FC11 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -91,10 +127,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2366955285DFDD9FE2612C25 /* StillMoment-Screenshots */ = {
+			isa = PBXGroup;
+			children = (
+				B5F685D42A5B1A140B7DFE84 /* Resources */,
+				3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */,
+			);
+			name = "StillMoment-Screenshots";
+			path = "StillMoment-Screenshots";
+			sourceTree = "<group>";
+		};
+		8389E633265BE04500A17DF0 /* TestFixtures */ = {
+			isa = PBXGroup;
+			children = (
+				937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */,
+				AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */,
+				62893F35241ED15678CBAFEB /* test-present-moment.mp3 */,
+				FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */,
+				1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */,
+			);
+			name = TestFixtures;
+			path = TestFixtures;
+			sourceTree = "<group>";
+		};
+		B200024EC8816B69DFD8CC74 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EAA6A846ED5E1298EA2F67A7 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B5F685D42A5B1A140B7DFE84 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8389E633265BE04500A17DF0 /* TestFixtures */,
+			);
+			name = Resources;
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		CA7930B52EC4EBA40070D3BB /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */,
+				CA08C6282EC4800000D7C911 /* Local.xcconfig */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -108,6 +184,8 @@
 				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
 				CABCE91D2EAE3C430059FC11 /* Products */,
 				CA7930B52EC4EBA40070D3BB /* Recovered References */,
+				B200024EC8816B69DFD8CC74 /* Frameworks */,
+				2366955285DFDD9FE2612C25 /* StillMoment-Screenshots */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,13 +195,42 @@
 				CABCE91C2EAE3C430059FC11 /* StillMoment.app */,
 				CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */,
 				CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */,
+				A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		EAA6A846ED5E1298EA2F67A7 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				AA235990CCAEA51ACEAE1351 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6AA1CC164101D03A01B9960C /* StillMoment-Screenshots */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D357050ECA94B441EED5D6F0 /* Build configuration list for PBXNativeTarget "StillMoment-Screenshots" */;
+			buildPhases = (
+				B41C4F41EF8658957BE22288 /* Sources */,
+				705F7955521EDA637CB76FE8 /* Frameworks */,
+				6C138CD7AE00CEBEF4A8ECDC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CABCE91E2EAE3C430059FC11 /* StillMoment */,
+			);
+			name = "StillMoment-Screenshots";
+			productName = "StillMoment-Screenshots";
+			productReference = A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */;
+			productType = "com.apple.product-type.application";
+		};
 		CABCE91B2EAE3C430059FC11 /* StillMoment */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CABCE93D2EAE3C440059FC11 /* Build configuration list for PBXNativeTarget "StillMoment" */;
@@ -227,11 +334,25 @@
 				CABCE91B2EAE3C430059FC11 /* StillMoment */,
 				CABCE9282EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9322EAE3C440059FC11 /* StillMomentUITests */,
+				6AA1CC164101D03A01B9960C /* StillMoment-Screenshots */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6C138CD7AE00CEBEF4A8ECDC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B29CADCD6AF96B53C144F1E7 /* test-mindful-breathing.mp3 in Resources */,
+				B0CC8D5F347C05127C946658 /* test-body-scan.mp3 in Resources */,
+				C06E1E9F13DC010CF84E2A49 /* test-present-moment.mp3 in Resources */,
+				E9DB9A418CDE4A04B3E351F0 /* test-evening-wind-down.mp3 in Resources */,
+				5AE90EAB7FE6F73BA138E1AE /* test-loving-kindness.mp3 in Resources */,
+				F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CABCE91A2EAE3C430059FC11 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -257,6 +378,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B41C4F41EF8658957BE22288 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02183C555291D03943B53A7F /* TestFixtureSeeder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CABCE9182EAE3C430059FC11 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -294,6 +423,77 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		7289E90DC212A12D0F6F833D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StillMoment/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Still Moment";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D SCREENSHOTS_BUILD";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stillmoment.StillMoment.screenshots;
+				PRODUCT_NAME = "StillMoment-Screenshots";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7B7FFE6B5BB30B3075B41BF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StillMoment/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Still Moment";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D SCREENSHOTS_BUILD";
+				PRODUCT_BUNDLE_IDENTIFIER = com.stillmoment.StillMoment.screenshots;
+				PRODUCT_NAME = "StillMoment-Screenshots";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		CABCE93B2EAE3C440059FC11 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -419,7 +619,7 @@
 		};
 		CABCE93E2EAE3C440059FC11 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -451,7 +651,7 @@
 		};
 		CABCE93F2EAE3C440059FC11 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -588,6 +788,15 @@
 			buildConfigurations = (
 				CABCE9442EAE3C440059FC11 /* Debug */,
 				CABCE9452EAE3C440059FC11 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D357050ECA94B441EED5D6F0 /* Build configuration list for PBXNativeTarget "StillMoment-Screenshots" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B7FFE6B5BB30B3075B41BF8 /* Release */,
+				7289E90DC212A12D0F6F833D /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

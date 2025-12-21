@@ -37,3 +37,15 @@ repos:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
         exclude: package.lock.json
+
+  # iOS Screenshots Target Synchronization
+  # Ensures StillMoment-Screenshots target has all source files from main target
+  - repo: local
+    hooks:
+      - id: sync-screenshots-target
+        name: Sync iOS Screenshots Target
+        entry: ruby ios/scripts/sync-screenshots-target.rb
+        language: ruby
+        files: ^ios/StillMoment/.*\.swift$
+        pass_filenames: false
+        additional_dependencies: ['xcodeproj']

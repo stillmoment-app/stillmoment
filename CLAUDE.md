@@ -17,6 +17,7 @@ Still Moment is a warmhearted meditation timer app with warm earth tone design a
 stillmoment/
 ├── ios/                    # iOS App (Swift/SwiftUI)
 │   ├── StillMoment/        # Source code + Resources (sounds, assets)
+│   ├── StillMoment-Screenshots/  # Screenshots target (test fixtures)
 │   ├── StillMomentTests/   # Unit tests
 │   ├── StillMomentUITests/ # UI tests
 │   ├── StillMoment.xcodeproj
@@ -61,7 +62,8 @@ stillmoment/
   - `StillMoment` - Main scheme for Run/Debug and all tests
   - `StillMoment-UnitTests` - Unit tests only (parallel, fast)
   - `StillMoment-UITests` - UI tests only (serial)
-- **iOS Targets**: `StillMoment`, `StillMomentTests`, `StillMomentUITests` (NO space)
+  - `StillMoment-Screenshots` - Screenshots target with test fixtures
+- **iOS Targets**: `StillMoment`, `StillMoment-Screenshots`, `StillMomentTests`, `StillMomentUITests` (NO space)
 - **iOS Bundle ID**: `com.stillmoment.StillMoment` (NO space)
 - **Android Package**: `com.stillmoment` - Android package name
 
@@ -1175,7 +1177,80 @@ make screenshots
 
 **Detailed Guide**: See `dev-docs/SCREENSHOTS.md`
 
+### Screenshots-Target (StillMoment-Screenshots)
+
+**Purpose**: Separate Xcode target with pre-populated test fixtures for screenshot automation.
+
+**Why a separate target?**
+- Test fixtures (5 meditations) are only in Screenshots build
+- Release build (`StillMoment`) has NO test data
+- No Launch Arguments or runtime checks needed
+- Impossible to accidentally ship test data
+
+**Structure**:
+```
+ios/
+├── StillMoment/                    # Main target (shared)
+├── StillMoment-Screenshots/        # Screenshots-only files
+│   ├── TestFixtureSeeder.swift     # Seeds library on first launch
+│   └── Resources/
+│       └── TestFixtures/           # 5 silent test MP3s
+│           ├── test-mindful-breathing.mp3
+│           ├── test-body-scan.mp3
+│           ├── test-loving-kindness.mp3
+│           ├── test-evening-wind-down.mp3
+│           └── test-present-moment.mp3
+└── StillMoment.xcodeproj
+```
+
+**Target Membership**:
+| Folder | StillMoment | StillMoment-Screenshots |
+|--------|-------------|-------------------------|
+| `StillMoment/` | ✅ | ✅ |
+| `StillMoment-Screenshots/` | ❌ | ✅ |
+
+**Automatic Synchronization** (CRITICAL):
+- New files in `StillMoment/` must be in BOTH targets
+- Pre-commit hook runs `ruby ios/scripts/sync-screenshots-target.rb`
+- Script syncs source, resources, and frameworks automatically
+- Hook only triggers for changes to `ios/StillMoment/**/*.swift`
+
+**Manual Sync** (if needed):
+```bash
+cd ios
+ruby scripts/sync-screenshots-target.rb
+```
+
+**Build Configuration**:
+- Swift flag: `-D SCREENSHOTS_BUILD` (only in Screenshots target)
+- Bundle ID: `com.stillmoment.StillMoment.screenshots`
+- Conditional compilation in `StillMomentApp.swift`:
+  ```swift
+  #if SCREENSHOTS_BUILD
+  TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
+  #endif
+  ```
+
+**Test Fixtures** (5 meditations, 3 teachers):
+| Teacher | Meditation | Duration |
+|---------|------------|----------|
+| Sarah Kornfield | Mindful Breathing | 7:33 |
+| Sarah Kornfield | Body Scan for Beginners | 15:42 |
+| Tara Goldstein | Loving Kindness | 12:17 |
+| Tara Goldstein | Evening Wind Down | 19:05 |
+| Jon Salzberg | Present Moment Awareness | 25:48 |
+
+**Creating the Target** (one-time setup):
+```bash
+cd ios
+ruby scripts/create-screenshots-target.rb
+```
+
+**Scripts**:
+- `ios/scripts/create-screenshots-target.rb` - Creates target (xcodeproj gem)
+- `ios/scripts/sync-screenshots-target.rb` - Syncs files between targets
+
 ---
 
-**Last Updated**: 2025-12-18
-**Version**: 2.8 (Unified Ticket-System)
+**Last Updated**: 2025-12-21
+**Version**: 2.9 (Screenshots-Target)
