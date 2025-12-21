@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
-**Abhaengigkeiten**: ios-012
+**Abhaengigkeiten**: shared-007, ios-012
 **Phase**: 5-QA
 
 ---
