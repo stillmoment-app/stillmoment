@@ -250,14 +250,62 @@ class TimerViewModel @Inject constructor(
     private val timerRepository: TimerRepository
 ) : ViewModel() { ... }
 
-// Test with fake/mock
-@Test
-fun testTimerStart() {
-    val fakeRepository = FakeTimerRepository()
-    val viewModel = TimerViewModel(fakeRepository)
-    // ...
+// AppModule binds interfaces to implementations
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+    @Provides @Singleton
+    fun provideTimerRepository(impl: TimerRepositoryImpl): TimerRepository = impl
 }
 ```
+
+**Android Testing-Strategie:**
+
+| Test-Typ | Verzeichnis | DI-Ansatz | Einsatz |
+|----------|-------------|-----------|---------|
+| Unit Tests | `src/test/` | Manuelle Konstruktion mit Fakes | ViewModels, Repositories |
+| Compose Tests | `src/androidTest/` | UiState direkt an Composables | UI-Komponenten |
+
+**Unit Tests** - Fakes direkt im Test-File:
+```kotlin
+// Test mit Fake Repository (src/test/)
+class GuidedMeditationsListViewModelTest {
+    private val fakeRepository = FakeGuidedMeditationRepository()
+    private val viewModel = GuidedMeditationsListViewModel(fakeRepository)
+
+    @Test
+    fun `import updates state`() = runTest {
+        viewModel.importMeditation(uri)
+        assertTrue(fakeRepository.importWasCalled)
+    }
+}
+
+// Fake im selben File definiert
+class FakeGuidedMeditationRepository : GuidedMeditationRepository { ... }
+```
+
+**Compose Tests** - UiState direkt übergeben:
+```kotlin
+// Composable mit UiState testen (src/androidTest/)
+@HiltAndroidTest
+class TimerScreenTest {
+    @Test
+    fun showsTimeDisplay_whenRunning() {
+        composeRule.setContent {
+            TimerScreenContent(
+                uiState = TimerUiState(timerState = TimerState.Running, ...),
+                onStartClick = {}, ...
+            )
+        }
+        composeRule.onNodeWithText("05:00").assertIsDisplayed()
+    }
+}
+```
+
+**Warum keine @TestInstallIn-Module?**
+- Unit Tests: Manuelle Konstruktion ist einfacher und schneller
+- Compose Tests: UiState direkt übergeben vermeidet ViewModel-Kopplung
+- Keine zusätzliche Annotation-Processing-Komplexität nötig
 
 ### DI Best Practices & Learnings
 
