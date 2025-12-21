@@ -136,43 +136,23 @@
             </div>
         </div>
 
-        <!-- Platform Differences -->
+        <!-- File Storage -->
         <div class="support-section">
-            <h2 class="lang-en">Platform Differences (iOS vs Android)</h2>
-            <h2 class="lang-de hidden">Plattform-Unterschiede (iOS vs Android)</h2>
+            <h2 class="lang-en">File Storage</h2>
+            <h2 class="lang-de hidden">Dateispeicherung</h2>
 
             <div class="faq-item">
-                <h3 class="lang-en">How does meditation import work differently?</h3>
-                <h3 class="lang-de hidden">Wie unterscheidet sich der Meditations-Import?</h3>
+                <h3 class="lang-en">How does meditation import work?</h3>
+                <h3 class="lang-de hidden">Wie funktioniert der Meditations-Import?</h3>
                 <p class="lang-en">
-                    <strong>iOS:</strong> References the original file location (iCloud Drive, Files app).
-                    The original file must remain accessible for playback to work.<br><br>
-                    <strong>Android:</strong> Copies the file to app storage during import.
-                    This uses more storage space but ensures reliable playback even after app restart.
+                    When you import a meditation, Still Moment copies the file to app storage.
+                    This uses more storage space but ensures reliable playback at all times.
                     You can safely delete the original file after importing.
                 </p>
                 <p class="lang-de hidden">
-                    <strong>iOS:</strong> Referenziert den Original-Speicherort (iCloud Drive, Dateien-App).
-                    Die Original-Datei muss fuer die Wiedergabe erreichbar bleiben.<br><br>
-                    <strong>Android:</strong> Kopiert die Datei beim Import in den App-Speicher.
-                    Das verbraucht mehr Speicherplatz, garantiert aber zuverlaessige Wiedergabe auch nach App-Neustart.
+                    Beim Import einer Meditation kopiert Still Moment die Datei in den App-Speicher.
+                    Das verbraucht mehr Speicherplatz, garantiert aber zuverlaessige Wiedergabe zu jeder Zeit.
                     Du kannst die Original-Datei nach dem Import sicher loeschen.
-                </p>
-            </div>
-
-            <div class="faq-item">
-                <h3 class="lang-en">Why does Android copy files instead of referencing them?</h3>
-                <h3 class="lang-de hidden">Warum kopiert Android Dateien statt sie zu referenzieren?</h3>
-                <p class="lang-en">
-                    Android's Storage Access Framework (SAF) doesn't reliably maintain file access
-                    permissions after app restart, especially for files from Downloads or cloud storage.
-                    Copying ensures your meditations always play, regardless of where the original file came from.
-                </p>
-                <p class="lang-de hidden">
-                    Androids Storage Access Framework (SAF) behaelt Dateizugriffs-Berechtigungen nach
-                    App-Neustart nicht zuverlaessig, besonders bei Dateien aus Downloads oder Cloud-Speicher.
-                    Das Kopieren stellt sicher, dass deine Meditationen immer abspielbar sind,
-                    unabhaengig davon, woher die Original-Datei stammt.
                 </p>
             </div>
 
@@ -180,12 +160,12 @@
                 <h3 class="lang-en">What happens to storage when I delete a meditation?</h3>
                 <h3 class="lang-de hidden">Was passiert mit dem Speicher, wenn ich eine Meditation loesche?</h3>
                 <p class="lang-en">
-                    <strong>iOS:</strong> Only the reference is removed. The original file remains untouched.<br><br>
-                    <strong>Android:</strong> The copied file in app storage is deleted, freeing up space.
+                    When you delete a meditation from Still Moment, the copied file in app storage is deleted, freeing up space.
+                    The original file you imported from remains untouched.
                 </p>
                 <p class="lang-de hidden">
-                    <strong>iOS:</strong> Nur die Referenz wird entfernt. Die Original-Datei bleibt unveraendert.<br><br>
-                    <strong>Android:</strong> Die kopierte Datei im App-Speicher wird geloescht und gibt Speicherplatz frei.
+                    Wenn du eine Meditation aus Still Moment loeschst, wird die kopierte Datei im App-Speicher geloescht und gibt Speicherplatz frei.
+                    Die Original-Datei, von der du importiert hast, bleibt unveraendert.
                 </p>
             </div>
         </div>
@@ -216,33 +196,17 @@
 
             <h3 class="lang-en">Guided meditation audio won't play</h3>
             <h3 class="lang-de hidden">Geführte Meditations-Audio wird nicht abgespielt</h3>
-            <p class="lang-en"><strong>iOS:</strong></p>
-            <p class="lang-de hidden"><strong>iOS:</strong></p>
-            <ul class="lang-en">
-                <li>Make sure the original MP3 file is still in the same location</li>
-                <li>If the file was in iCloud, ensure iCloud Drive is synced</li>
-                <li>Verify the audio file isn't corrupted by playing it in another app</li>
-                <li>Try re-importing the meditation</li>
-            </ul>
-            <ul class="lang-de hidden">
-                <li>Stelle sicher, dass die Original-MP3-Datei noch am gleichen Ort ist</li>
-                <li>Wenn die Datei in iCloud war, stelle sicher, dass iCloud Drive synchronisiert ist</li>
-                <li>Überprüfe, ob die Audio-Datei nicht beschädigt ist, indem du sie in einer anderen App abspielst</li>
-                <li>Versuche, die Meditation neu zu importieren</li>
-            </ul>
-            <p class="lang-en"><strong>Android:</strong></p>
-            <p class="lang-de hidden"><strong>Android:</strong></p>
             <ul class="lang-en">
                 <li>Verify the audio file wasn't corrupted during import by playing the original in another app</li>
-                <li>Clear app cache: Settings → Apps → Still Moment → Storage → Clear Cache</li>
                 <li>Try deleting and re-importing the meditation</li>
                 <li>Check available storage space on your device</li>
+                <li><strong>Android only:</strong> Clear app cache: Settings → Apps → Still Moment → Storage → Clear Cache</li>
             </ul>
             <ul class="lang-de hidden">
                 <li>Überprüfe, ob die Audio-Datei beim Import nicht beschädigt wurde, indem du das Original in einer anderen App abspielst</li>
-                <li>App-Cache leeren: Einstellungen → Apps → Still Moment → Speicher → Cache leeren</li>
                 <li>Versuche, die Meditation zu löschen und neu zu importieren</li>
                 <li>Prüfe den verfügbaren Speicherplatz auf deinem Gerät</li>
+                <li><strong>Nur Android:</strong> App-Cache leeren: Einstellungen → Apps → Still Moment → Speicher → Cache leeren</li>
             </ul>
 
             <h3 class="lang-en">Sound quality issues</h3>
