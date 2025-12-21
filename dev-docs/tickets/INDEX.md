@@ -100,6 +100,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [x] | - |
 | [android-040](android/android-040-timer-completion-bug.md) | Timer Completion Bug | 1-Quick Fix | [x] | - |
+| [android-041](android/android-041-remove-notification-permission.md) | Notification Permission entfernen | 4-Polish | [x] | - |
 
 ---
 
