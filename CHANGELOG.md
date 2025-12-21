@@ -7,15 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS & Android)
-- **Ambient Sound Fade In** - Sanftes Einblenden des Hintergrundtons
-  - Fade In beim Timer-Start (3 Sekunden)
-  - Fade In beim Resume nach Pause (3 Sekunden)
-  - Sofortiger Stop bei Pause, Reset und Timer-Ende (kein Fade Out)
-  - iOS: Native `AVAudioPlayer.setVolume(_:fadeDuration:)` API
-  - Android: `ValueAnimator` für smooth Volume-Animation
-  - Verbessert das Meditationserlebnis durch sanfte Übergänge
-
 ### Added (Android)
 - **MediaSession Lock Screen Controls** - Lock Screen und Notification Controls für Guided Meditations
   - `MediaSessionManager` mit MediaSessionCompat für System-Integration
@@ -70,6 +61,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Hardcoded englische Strings aus `TimerViewModel` entfernt
   - Affirmationen werden via `getString(R.string.affirmation_*)` geladen
   - Strings waren bereits in `strings.xml` und `strings-de.xml` definiert
+
+## [1.3.0] - 2025-12-21 (iOS Polish & UX Improvements)
+
+### Added (iOS)
+- **Ambient Sound Fade In** - Sanftes Einblenden des Hintergrundtons beim Timer-Start
+  - 3 Sekunden Fade In beim Start und Resume
+  - Sofortiger Stop bei Pause, Reset und Timer-Ende
+  - Native `AVAudioPlayer.setVolume(_:fadeDuration:)` API
+
+- **Remember Last Tab** - App merkt sich zuletzt verwendeten Tab
+  - Timer oder Library Tab wird gespeichert
+  - Beim nächsten Start automatisch wiederhergestellt
+
+- **Delete Confirmation Dialog** - Bestätigungsdialog vor dem Löschen
+  - Verhindert versehentliches Löschen von Meditationen
+  - Zeigt Meditation-Namen im Dialog
+  - Roter "Löschen"-Button für destruktive Aktion
+
+- **Play-Icon in Meditation List** - Visueller Hinweis auf Abspielen
+  - Dezentes Play-Icon links vom Titel
+  - Verbessert Affordance (macht klar, dass Zeile tappbar ist)
+
+- **Simplified Empty State** - Minimalistischer Library-Leerstand
+  - Icon/Emoji entfernt, nur Text + Import-Button
+
+- **Timer Text Adjustments** - Verbesserte Textinhalte
+  - Completion-Text: "danke dir" / "thank you" statt "fertig"
+  - Neue Affirmation: "Du machst das wunderbar" / "You are doing wonderfully"
+  - Lock Screen Hint entfernt
+
+- **Overflow Menu** - Modernere Listenaktionen
+  - ⋮ Menü statt Edit-Icon in Meditationsliste
+  - Menü enthält "Bearbeiten" und "Löschen"
+
+- **Hands-Heart Image** - Eigenes Bild im Timer Idle-State
+  - Ersetzt Emoji durch 150x150pt Bild
+  - Passt zum warmherzigen Design
+
+- **Automated Screenshots** - Automatische Screenshot-Generierung
+  - XCUITest-basiert mit Fastlane Snapshot
+  - Generiert App Store Screenshots (6.7" iPhone)
+  - Screenshots für DE + EN via `make screenshots`
+
+### Changed (iOS)
+- **Player Skip Duration** - 10 statt 15 Sekunden Skip
+  - Konsistent mit Android und anderen Meditations-Apps
+  - Icons: `gobackward.10` / `goforward.10`
+
+- **Player Stop Button Removed** - Modernere UI
+  - Stop-Button entfernt (Pause + Close reichen aus)
+  - Konsistent mit modernen Audio-Playern
+
+- **Timer Reducer Architecture** - Verbesserte Architektur
+  - Unidirectional Data Flow (UDF) Pattern
+  - State-Übergänge in Pure Function zentralisiert
+  - Side Effects von State-Logik getrennt
+  - Bessere Testbarkeit
+
+### Fixed (iOS)
+- **Edit Sheet Accessibility** - VoiceOver-Verbesserungen
+  - Accessibility Hints für alle Formularfelder
+  - "Original"-Hinweis entfernt wenn nicht relevant
+  - Verbesserte Navigation mit Screen Reader
+
+- **Library Accessibility** - Verbesserte Identifier
+  - accessibilityIdentifier und Hints für Library-Elemente
+  - Bessere VoiceOver-Unterstützung
 
 ## [1.2.0] - 2025-12-18 (iOS 16 Support & Bugfixes)
 
