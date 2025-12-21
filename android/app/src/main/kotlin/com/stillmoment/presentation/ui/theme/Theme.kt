@@ -52,8 +52,12 @@ fun StillMomentTheme(
 
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
+            // Safe cast for Paparazzi/preview compatibility
+            val activity = view.context as? Activity ?: return@SideEffect
+            val window = activity.window
+            @Suppress("DEPRECATION")
             window.statusBarColor = colorScheme.background.toArgb()
+            @Suppress("DEPRECATION")
             window.navigationBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = true
