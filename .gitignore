@@ -145,3 +145,12 @@ keystore.properties
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
+
+# Ruby/Fastlane (ios/)
+ios/vendor/
+ios/.bundle/
+ios/Gemfile.lock
+ios/fastlane/report.xml
+ios/fastlane/README.md
+ios/fastlane/screenshots/
+ios/fastlane/test_output/
