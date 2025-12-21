@@ -188,6 +188,10 @@ struct GuidedMeditationsListView: View {
             self.selectedMeditation = meditation
         } label: {
             HStack {
+                Image(systemName: "play.circle")
+                    .font(.system(size: 20))
+                    .foregroundColor(.textSecondary)
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
                         .font(.system(.body, design: .rounded, weight: .medium))

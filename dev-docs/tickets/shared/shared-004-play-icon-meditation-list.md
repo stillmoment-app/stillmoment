@@ -1,6 +1,6 @@
 # Ticket shared-004: Play-Icon in Meditationsliste
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~15min | Android ~15min
 **Phase**: 4-Polish
@@ -21,20 +21,20 @@ Aktuell fehlt jeder visuelle Hinweis, dass Meditationszeilen tappbar sind. Das e
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Play-Icon links vom Meditationstitel (iOS)
-- [ ] Play-Icon links vom Meditationstitel (Android)
-- [ ] Icon nutzt sekundaere Textfarbe (dezent, nicht dominant)
-- [ ] Icon-Groesse: 20pt/20dp
-- [ ] Accessibility: Icon ist dekorativ (contentDescription = null), Zeile hat bereits Hint
-- [ ] Screenshots aktualisiert (beide Plattformen)
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [x] Play-Icon links vom Meditationstitel (iOS)
+- [x] Play-Icon links vom Meditationstitel (Android)
+- [x] Icon nutzt sekundaere Textfarbe (dezent, nicht dominant)
+- [x] Icon-Groesse: 20pt/20dp
+- [x] Accessibility: Icon ist dekorativ (contentDescription = null), Zeile hat bereits Hint
+- [x] Screenshots aktualisiert (iOS)
+- [x] UX-Konsistenz zwischen iOS und Android
 
 ---
 

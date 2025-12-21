@@ -27,7 +27,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-001](shared/shared-001-ambient-sound-fade.md) | Ambient Sound Fade In/Out | 4-Polish | [x] | [x] |
 | [shared-002](shared/shared-002-remember-last-tab.md) | Letzten Tab merken | 4-Polish | [x] | [x] |
 | [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
-| [shared-004](shared/shared-004-play-icon-meditation-list.md) | Play-Icon in Meditationsliste | 4-Polish | [ ] | [ ] |
+| [shared-004](shared/shared-004-play-icon-meditation-list.md) | Play-Icon in Meditationsliste | 4-Polish | [x] | [x] |
 | [shared-005](shared/shared-005-empty-state-simplify.md) | Empty State vereinfachen | 4-Polish | [x] | [x] |
 | [shared-006](shared/shared-006-timer-text-adjustments.md) | Timer-Texte anpassen | 4-Polish | [x] | [x] |
 | [shared-007](shared/shared-007-dependency-injection.md) | Dependency Injection Architektur | 2-Architektur | [x] | [x] |
