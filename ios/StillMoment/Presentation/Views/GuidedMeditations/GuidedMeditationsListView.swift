@@ -17,6 +17,16 @@ import UniformTypeIdentifiers
 /// - Navigation to player
 /// - Edit metadata
 struct GuidedMeditationsListView: View {
+    // MARK: Lifecycle
+
+    init(viewModel: GuidedMeditationsListViewModel? = nil) {
+        if let viewModel {
+            _viewModel = StateObject(wrappedValue: viewModel)
+        } else {
+            _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel())
+        }
+    }
+
     // MARK: Internal
 
     var body: some View {
@@ -121,7 +131,7 @@ struct GuidedMeditationsListView: View {
 
     // MARK: Private
 
-    @StateObject private var viewModel = GuidedMeditationsListViewModel()
+    @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var selectedMeditation: GuidedMeditation?
     @State private var meditationToDelete: GuidedMeditation?
 

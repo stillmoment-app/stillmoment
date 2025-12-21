@@ -29,7 +29,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-003](shared/shared-003-delete-confirmation.md) | Delete Confirmation Dialog | 4-Polish | [x] | [x] |
 | [shared-005](shared/shared-005-empty-state-simplify.md) | Empty State vereinfachen | 4-Polish | [x] | [x] |
 | [shared-006](shared/shared-006-timer-text-adjustments.md) | Timer-Texte anpassen | 4-Polish | [x] | [x] |
-| [shared-007](shared/shared-007-dependency-injection.md) | Dependency Injection Architektur | 2-Architektur | [ ] | [ ] |
+| [shared-007](shared/shared-007-dependency-injection.md) | Dependency Injection Architektur | 2-Architektur | [x] | [ ] |
 
 ---
 
@@ -55,7 +55,6 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [x] | - |
-| [ios-023](ios/ios-023-ui-tests-with-testdata.md) | UI Tests mit Testdaten (Library/Player) | 5-QA | [ ] | shared-007, ios-012 |
 
 ---
 

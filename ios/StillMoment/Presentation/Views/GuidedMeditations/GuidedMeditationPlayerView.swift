@@ -23,6 +23,10 @@ struct GuidedMeditationPlayerView: View {
         _viewModel = StateObject(wrappedValue: GuidedMeditationPlayerViewModel(meditation: meditation))
     }
 
+    init(viewModel: GuidedMeditationPlayerViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     // MARK: Internal
 
     var body: some View {

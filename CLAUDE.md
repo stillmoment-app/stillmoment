@@ -193,6 +193,72 @@ com.stillmoment/
 - Thread safety: `@MainActor` for ViewModels, `.receive(on: DispatchQueue.main)` for publishers
 - Memory safety: `[weak self]` in closures
 
+### Dependency Injection (iOS)
+
+**Constructor Injection Pattern** - ViewModels and Views accept dependencies via initializers:
+
+```swift
+// ViewModel accepts Protocol-based services (Domain layer)
+class GuidedMeditationsListViewModel: ObservableObject {
+    init(
+        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
+        metadataService: AudioMetadataServiceProtocol = AudioMetadataService()
+    ) { ... }
+}
+
+// View accepts ViewModel (for testability)
+struct GuidedMeditationsListView: View {
+    init(viewModel: GuidedMeditationsListViewModel? = nil) {
+        if let viewModel {
+            _viewModel = StateObject(wrappedValue: viewModel)
+        } else {
+            _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel())
+        }
+    }
+}
+```
+
+**Testing with Mocks** - Unit tests inject Mock services (in Test target only):
+
+```swift
+// Test with Mock service
+func testLoadMeditations() {
+    let mockService = MockGuidedMeditationService()
+    mockService.meditations = [testMeditation]
+    let viewModel = GuidedMeditationsListViewModel(meditationService: mockService)
+
+    viewModel.loadMeditations()
+
+    XCTAssertEqual(viewModel.meditations.count, 1)
+}
+```
+
+**Rules**:
+- Mock classes live in `StillMomentTests/Mocks/` (Test target only)
+- NO mock code in main app target (anti-pattern)
+- UI Tests (XCUITest) are black-box tests - no DI possible
+- For time-dependent tests, use `MockTimerService.simulateCompletion()`
+
+### Dependency Injection (Android)
+
+Android uses **Hilt** for DI:
+
+```kotlin
+// ViewModel with Hilt injection
+@HiltViewModel
+class TimerViewModel @Inject constructor(
+    private val timerRepository: TimerRepository
+) : ViewModel() { ... }
+
+// Test with fake/mock
+@Test
+fun testTimerStart() {
+    val fakeRepository = FakeTimerRepository()
+    val viewModel = TimerViewModel(fakeRepository)
+    // ...
+}
+```
+
 ## Code Standards (Enforced by CI)
 
 ### Never Use ❌
