@@ -244,7 +244,6 @@ class TimerViewModel @Inject constructor(
 
                 // Tick via repository (Single Source of Truth)
                 val updatedTimer = timerRepository.tick() ?: break
-                if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Countdown) break
 
                 // Dispatch tick action to update display state
                 dispatch(
@@ -261,11 +260,14 @@ class TimerViewModel @Inject constructor(
                 handleStateTransition(previousState, updatedTimer.state)
                 previousState = updatedTimer.state
 
-                // Check for completion
+                // Check for completion FIRST (before loop exit check)
                 if (updatedTimer.isCompleted) {
                     onTimerCompleted()
                     break
                 }
+
+                // Only continue loop if running or countdown
+                if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Countdown) break
 
                 // Check for interval gong
                 checkIntervalGong(updatedTimer)

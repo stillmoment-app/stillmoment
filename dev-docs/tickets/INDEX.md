@@ -55,6 +55,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-020](ios/ios-020-timer-reducer-architecture.md) | Timer Reducer Architecture | 2-Architektur | [x] | - |
 | [ios-021](ios/ios-021-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [ios-022](ios/ios-022-library-accessibility-identifiers.md) | Library accessibilityIdentifier/Hint | 4-Polish | [x] | - |
+| [ios-023](ios/ios-023-screenshot-test-fixtures.md) | Screenshot Test-Fixtures | 2-Architektur | [ ] | - |
 
 ---
 
@@ -98,6 +99,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-037](android/android-037-unify-app-icon.md) | App-Icon an iOS angleichen | 4-Polish | [x] | - |
 | [android-038](android/android-038-hands-heart-image.md) | Haende-Herz-Bild statt Emoji | 4-Polish | [x] | - |
 | [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [x] | - |
+| [android-040](android/android-040-timer-completion-bug.md) | Timer Completion Bug | 1-Quick Fix | [x] | - |
 
 ---
 
