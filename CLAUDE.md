@@ -225,6 +225,7 @@ make test-report        # Single source of truth
 | Code Review | `/review-code` Skill |
 | View Quality | `/review-view` Skill |
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
+| **Architektur** | `dev-docs/ARCHITECTURE.md` |
 | Testing | `dev-docs/TDD_GUIDE.md` |
 | Audio | `dev-docs/AUDIO_ARCHITECTURE.md` |
 | Colors | `dev-docs/COLOR_SYSTEM.md` |
