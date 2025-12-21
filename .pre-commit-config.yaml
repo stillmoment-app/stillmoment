@@ -8,6 +8,7 @@ repos:
     hooks:
       - id: swiftformat
         args: [--swiftversion, "5.9"]
+        exclude: SnapshotHelper\.swift$
 
   # Swift linting
   - repo: https://github.com/realm/SwiftLint
@@ -15,6 +16,7 @@ repos:
     hooks:
       - id: swiftlint
         args: [--strict]
+        exclude: SnapshotHelper\.swift$
 
   # General file cleanup
   - repo: https://github.com/pre-commit/pre-commit-hooks

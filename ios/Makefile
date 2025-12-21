@@ -1,4 +1,4 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean test-clean-unit setup check screenshots
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean test-clean-unit setup check screenshots screenshots-visible screenshot-setup
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -57,5 +57,34 @@ setup: ## Setup development environment (one-time setup)
 check: format lint check-localization validate-localization ## Run format, lint, and localization checks
 	@echo "✅ All checks passed!"
 
-screenshots: ## INTERACTIVE: Generate all screenshots with guided prompts
-	@./scripts/take-screenshots-interactive.sh
+screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
+	@echo "💎 Setting up Ruby/Fastlane environment..."
+	@if ! command -v rbenv &> /dev/null; then \
+		echo "❌ rbenv not found. Install with: brew install rbenv"; \
+		exit 1; \
+	fi
+	@if ! rbenv versions | grep -q "$$(cat .ruby-version)"; then \
+		echo "📦 Installing Ruby $$(cat .ruby-version)..."; \
+		rbenv install $$(cat .ruby-version); \
+	fi
+	@echo "📦 Installing gems..."
+	@bundle install --path vendor/bundle
+	@echo "✅ Screenshot setup complete!"
+
+screenshots: ## Generate all screenshots automatically (Fastlane)
+	@echo "📸 Generating screenshots with Fastlane..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane screenshots
+	@echo "✅ Screenshots generated in docs/images/screenshots/"
+
+screenshots-visible: ## Generate screenshots with VISIBLE simulator (watch the automation)
+	@echo "📸 Generating screenshots with visible simulator..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@HEADLESS=false bundle exec fastlane screenshots
+	@echo "✅ Screenshots generated in docs/images/screenshots/"

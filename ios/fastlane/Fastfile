@@ -1,0 +1,34 @@
+# Fastfile - Fastlane Configuration
+# https://docs.fastlane.tools
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Generate localized screenshots for App Store and website"
+  lane :screenshots do
+    # Capture screenshots using Snapshot
+    capture_screenshots(
+      testplan: nil,
+      only_testing: ["StillMomentUITests/ScreenshotTests"]
+    )
+
+    # Post-process: copy and rename to docs/images/screenshots/
+    sh("cd .. && ./scripts/process-screenshots.sh")
+
+    UI.success("Screenshots generated successfully!")
+    UI.message("Output: ../docs/images/screenshots/")
+  end
+
+  desc "Validate screenshot setup (quick check)"
+  lane :screenshot_validate do
+    # Just build the scheme to verify everything compiles
+    build_app(
+      scheme: "StillMoment-Screenshots",
+      skip_archive: true,
+      skip_codesigning: true,
+      build_path: "./build",
+      derived_data_path: "./build/DerivedData"
+    )
+    UI.success("Screenshot setup validated!")
+  end
+end

@@ -1,0 +1,50 @@
+# Snapfile - Fastlane Snapshot Configuration
+# https://docs.fastlane.tools/actions/snapshot/
+
+# Device for App Store screenshots (6.7" - covers all iPhone sizes via Media Manager)
+devices([
+  "iPhone 15 Plus"
+])
+
+# Languages (German primary, English secondary)
+languages([
+  "de-DE",
+  "en-US"
+])
+
+# Use Screenshots target with test fixtures
+scheme("StillMoment-Screenshots")
+
+# Project file
+project("StillMoment.xcodeproj")
+
+# Output directory (processed later to docs/images/screenshots/)
+output_directory("./fastlane/screenshots")
+
+# Clear previous screenshots before new run
+clear_previous_screenshots(true)
+
+# iOS version
+ios_version("18.0")
+
+# Skip opening HTML summary
+skip_open_summary(true)
+
+# Test target containing ScreenshotTests
+test_target_name("StillMomentUITests")
+
+# Disable concurrent simulators for stability
+concurrent_simulators(false)
+
+# Override status bar (optional - cleaner screenshots)
+override_status_bar(true)
+
+# Launch arguments for tests
+launch_arguments([
+  "-CountdownDuration 0"  # Skip 15s countdown for faster screenshots
+])
+
+# Headless mode (default: true for CI/automation)
+# Set to false to watch the simulator while tests run
+# Can be overridden via: HEADLESS=false make screenshots
+headless(ENV["HEADLESS"] != "false")

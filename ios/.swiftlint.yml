@@ -8,6 +8,7 @@ excluded:
   - DerivedData
   - .swiftpm
   - build
+  - "**/SnapshotHelper.swift"  # Fastlane-generated file
 
 # Enable opt-in rules for stricter quality
 opt_in_rules:
