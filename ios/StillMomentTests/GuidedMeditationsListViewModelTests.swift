@@ -7,94 +7,6 @@ import Combine
 import XCTest
 @testable import StillMoment
 
-// MARK: - Mock Metadata Service
-
-final class MockAudioMetadataService: AudioMetadataServiceProtocol {
-    var extractedMetadata: AudioMetadata?
-    var extractShouldThrow = false
-
-    func extractMetadata(from url: URL) async throws -> AudioMetadata {
-        if self.extractShouldThrow {
-            throw AudioMetadataError.invalidAudioFile
-        }
-        let metadata = AudioMetadata(
-            artist: "Test Artist",
-            title: "Test Title",
-            duration: 600
-        )
-        self.extractedMetadata = metadata
-        return metadata
-    }
-}
-
-// MARK: - Mock Meditation Service (Extended)
-
-final class MockGuidedMeditationServiceExtended: GuidedMeditationServiceProtocol {
-    var meditations: [GuidedMeditation] = []
-    var loadShouldThrow = false
-    var addShouldThrow = false
-    var updateShouldThrow = false
-    var deleteShouldThrow = false
-
-    func loadMeditations() throws -> [GuidedMeditation] {
-        if self.loadShouldThrow {
-            throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
-        }
-        return self.meditations
-    }
-
-    func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
-        if self.addShouldThrow {
-            throw GuidedMeditationError.bookmarkCreationFailed
-        }
-
-        let meditation = GuidedMeditation(
-            fileBookmark: Data(),
-            fileName: url.lastPathComponent,
-            duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown",
-            name: metadata.title ?? "Untitled"
-        )
-        self.meditations.append(meditation)
-        return meditation
-    }
-
-    func updateMeditation(_ meditation: GuidedMeditation) throws {
-        if self.updateShouldThrow {
-            throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
-        }
-        if let index = self.meditations.firstIndex(where: { $0.id == meditation.id }) {
-            self.meditations[index] = meditation
-        }
-    }
-
-    func deleteMeditation(id: UUID) throws {
-        if self.deleteShouldThrow {
-            throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
-        }
-        self.meditations.removeAll { $0.id == id }
-    }
-
-    func saveMeditations(_ meditations: [GuidedMeditation]) throws {
-        if self.loadShouldThrow {
-            throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
-        }
-        self.meditations = meditations
-    }
-
-    func resolveBookmark(_ bookmark: Data) throws -> URL {
-        URL(fileURLWithPath: "/tmp/test.mp3")
-    }
-
-    func startAccessingSecurityScopedResource(_ url: URL) -> Bool {
-        true
-    }
-
-    func stopAccessingSecurityScopedResource(_ url: URL) {
-        // Mock implementation
-    }
-}
-
 // MARK: - GuidedMeditationsListViewModelTests
 
 @MainActor
@@ -104,13 +16,13 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: GuidedMeditationsListViewModel!
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockMeditationService: MockGuidedMeditationServiceExtended!
+    var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
 
     override func setUp() {
         super.setUp()
-        self.mockMeditationService = MockGuidedMeditationServiceExtended()
+        self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
         self.sut = GuidedMeditationsListViewModel(
             meditationService: self.mockMeditationService,
