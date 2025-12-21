@@ -138,6 +138,7 @@ android/app/release/
 *.aab
 *.jks
 *.keystore
+keystore.properties
 
 # Gradle
 .gradle/
