@@ -176,6 +176,7 @@ struct GuidedMeditationsListView: View {
                 } header: {
                     Text(section.teacher)
                         .font(.system(.headline, design: .rounded))
+                        .textCase(nil)
                 }
             }
         }
@@ -196,7 +197,6 @@ struct GuidedMeditationsListView: View {
                     Text(meditation.effectiveName)
                         .font(.system(.body, design: .rounded, weight: .medium))
                         .foregroundColor(.textPrimary)
-
                     Text(meditation.formattedDuration)
                         .font(.system(.subheadline, design: .rounded))
                         .foregroundColor(.textSecondary)
@@ -204,23 +204,35 @@ struct GuidedMeditationsListView: View {
 
                 Spacer()
 
-                Button {
-                    self.viewModel.showEditSheet(for: meditation)
-                } label: {
-                    Image(systemName: "pencil")
-                        .foregroundColor(Color.interactive)
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("guided_meditations.edit")
-                .accessibilityHint("accessibility.library.edit.hint")
-                .accessibilityIdentifier("library.button.edit.\(meditation.id.uuidString)")
+                self.overflowMenu(for: meditation)
             }
             .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
+    }
+
+    private func overflowMenu(for meditation: GuidedMeditation) -> some View {
+        Menu {
+            Button {
+                self.viewModel.showEditSheet(for: meditation)
+            } label: {
+                Label("guided_meditations.edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                self.meditationToDelete = meditation
+            } label: {
+                Label("guided_meditations.delete.confirm", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .foregroundColor(Color.interactive)
+                .frame(minWidth: 44, minHeight: 44)
+        }
+        .accessibilityLabel("accessibility.library.overflow")
+        .accessibilityHint("accessibility.library.overflow.hint")
+        .accessibilityIdentifier("library.button.overflow.\(meditation.id.uuidString)")
     }
 }
 

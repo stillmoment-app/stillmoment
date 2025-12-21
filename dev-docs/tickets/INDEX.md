@@ -31,6 +31,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-005](shared/shared-005-empty-state-simplify.md) | Empty State vereinfachen | 4-Polish | [x] | [x] |
 | [shared-006](shared/shared-006-timer-text-adjustments.md) | Timer-Texte anpassen | 4-Polish | [x] | [x] |
 | [shared-007](shared/shared-007-dependency-injection.md) | Dependency Injection Architektur | 2-Architektur | [x] | [x] |
+| [shared-008](shared/shared-008-overflow-menu-meditation-list.md) | Overflow-Menü statt Edit-Icon | 4-Polish | [x] | [x] |
 
 ---
 

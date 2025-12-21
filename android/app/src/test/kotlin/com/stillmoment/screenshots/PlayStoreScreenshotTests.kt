@@ -293,7 +293,8 @@ private fun LibraryScreenshotContent(
                         MeditationListItem(
                             meditation = meditation,
                             onClick = {},
-                            onEditClick = {}
+                            onEditClick = {},
+                            onDeleteClick = {}
                         )
                     }
                 }

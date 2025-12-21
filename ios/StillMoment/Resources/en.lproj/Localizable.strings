@@ -161,8 +161,15 @@
 "accessibility.library.row.hint" = "Opens the meditation player";
 "accessibility.library.edit.hint" = "Opens edit form to change meditation details";
 "accessibility.library.import.hint" = "Opens file picker to import your first guided meditation";
+"accessibility.library.overflow" = "More options";
+"accessibility.library.overflow.hint" = "Opens menu with edit and delete options";
 
 // MARK: - Autocomplete
 
 "autocomplete.suggestion" = "Select %@";
 "autocomplete.suggestion.hint" = "Double tap to use this suggestion";
+
+// MARK: - Errors
+
+"error.audioFileNotFound" = "Audio file not found";
+"error.audioFileMissing" = "Audio file is missing";

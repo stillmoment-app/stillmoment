@@ -161,8 +161,15 @@
 "accessibility.library.row.hint" = "Öffnet den Meditations-Player";
 "accessibility.library.edit.hint" = "Öffnet das Bearbeitungsformular für die Meditationsdetails";
 "accessibility.library.import.hint" = "Öffnet die Dateiauswahl zum Importieren deiner ersten geführten Meditation";
+"accessibility.library.overflow" = "Weitere Optionen";
+"accessibility.library.overflow.hint" = "Öffnet Menü mit Bearbeiten- und Löschen-Optionen";
 
 // MARK: - Autocomplete
 
 "autocomplete.suggestion" = "%@ auswählen";
 "autocomplete.suggestion.hint" = "Doppeltippen um diesen Vorschlag zu verwenden";
+
+// MARK: - Errors
+
+"error.audioFileNotFound" = "Audiodatei nicht gefunden";
+"error.audioFileMissing" = "Audiodatei fehlt";

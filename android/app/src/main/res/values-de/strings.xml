@@ -16,6 +16,7 @@
     <string name="common_close">Schließen</string>
     <string name="common_and">und</string>
     <string name="common_delete">Löschen</string>
+    <string name="common_edit">Bearbeiten</string>
 
     <!-- Buttons -->
     <string name="button_start">Start</string>
@@ -105,6 +106,7 @@
     <string name="accessibility_edit_meditation">Meditationsdetails bearbeiten</string>
     <string name="accessibility_delete_meditation">Meditation löschen</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
+    <string name="accessibility_overflow_menu">Weitere Optionen</string>
 
     <!-- Player Screen -->
     <string name="player_remaining">verbleibend</string>

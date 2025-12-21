@@ -370,7 +370,8 @@ private fun SwipeToDeleteItem(
         MeditationListItem(
             meditation = meditation,
             onClick = onClick,
-            onEditClick = onEditClick
+            onEditClick = onEditClick,
+            onDeleteClick = onDelete
         )
     }
 }
