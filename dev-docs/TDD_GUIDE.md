@@ -501,9 +501,61 @@ Before starting ANY feature:
 
 ---
 
+## Test Parallelization Best Practices
+
+### The 3 Levels of Parallelization in Xcode
+
+| Level | Flag | Description |
+|-------|------|-------------|
+| Worker | `-parallel-testing-worker-count` | Multiple processes in same simulator |
+| Destinations | `-maximum-concurrent-test-simulator-destinations` | Multiple simulator instances |
+| Test Plans | `.xctestplan` | Per-bundle configuration |
+
+### Recommended Configuration
+
+| Test Type | Parallel | Worker | Destinations | Reason |
+|-----------|----------|--------|--------------|--------|
+| Unit Tests | YES | 2 | 1 | Fast but controlled |
+| UI Tests | NO | - | 1 | Shared simulator state |
+| All Tests | NO | - | 1 | Stability over speed |
+
+### When Parallelization Makes Sense
+
+- Pure logic tests (parsers, calculations, mappers)
+- ViewModel tests with mocks
+- Tests without shared state (UserDefaults, Keychain, files)
+
+### When Parallelization is Counterproductive
+
+- UI Tests (simulator state is shared, timing dependencies)
+- Tests with shared resources (UserDefaults, Keychain, filesystem)
+- Tests with real network/backend (rate limits, server state)
+- Performance tests (CPU contention skews results)
+
+### Flags in run-tests.sh
+
+```bash
+# Unit Tests: Parallel with guardrails
+-parallel-testing-enabled YES
+-parallel-testing-worker-count 2
+-maximum-concurrent-test-simulator-destinations 1
+
+# UI Tests / All Tests: Serial for stability
+-parallel-testing-enabled NO
+```
+
+### Symptoms of Wrong Parallelization
+
+- Multiple simulators start simultaneously
+- "Testing started" without progress (hangs)
+- Flaky tests that work locally but fail in CI
+- Race conditions in tests with shared state
+
+---
+
 **See also:**
 - [CLAUDE.md](../CLAUDE.md): Testing Philosophy
 - [CRITICAL_CODE.md](../CRITICAL_CODE.md): What code MUST be tested
 - [.claude.md](../.claude.md): Test structure standards
 
-**Last Updated**: 2025-11-09
+**Last Updated**: 2025-12-21
