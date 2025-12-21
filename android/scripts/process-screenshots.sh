@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # process-screenshots.sh
-# Post-processes Paparazzi screenshots for Play Store and website deployment
+# Post-processes Paparazzi screenshots for Play Store
 #
-# Copies and renames screenshots from Paparazzi output to docs/images/screenshots/android/
+# Copies and renames screenshots from Paparazzi output to android/screenshots/
 
 set -eo pipefail
 
@@ -21,7 +21,7 @@ PROJECT_ROOT="$(dirname "$ANDROID_DIR")"
 
 # Paparazzi output directory
 PAPARAZZI_OUTPUT="$ANDROID_DIR/app/src/test/snapshots/images"
-OUTPUT_DIR="$PROJECT_ROOT/docs/images/screenshots/android"
+OUTPUT_DIR="$ANDROID_DIR/screenshots"
 
 echo -e "${BLUE}Processing Paparazzi screenshots...${NC}"
 

@@ -19,7 +19,7 @@ cd android
 ./gradlew screenshots
 ```
 
-Screenshots are saved to `docs/images/screenshots/android/`.
+Screenshots are saved to `android/screenshots/`.
 
 ## What Screenshots Are Generated
 
@@ -52,7 +52,7 @@ android/
 1. **Paparazzi** renders composables to PNG on JVM (no emulator)
 2. **Test fixtures** provide 5 pre-defined meditations
 3. **Locale config** switches between EN/DE for each screenshot
-4. **Post-processing** copies and optimizes images to `docs/images/screenshots/android/`
+4. **Post-processing** copies and optimizes images to `android/screenshots/`
 
 ## Commands
 
@@ -147,7 +147,7 @@ Our Pixel 6 Pro config produces optimal dimensions for Play Store.
 | Runtime | Simulator | JVM |
 | Speed | ~3-5 min | ~30s |
 | Command | `make screenshots` | `./gradlew screenshots` |
-| Output | `docs/images/screenshots/` | `docs/images/screenshots/android/` |
+| Output | `docs/images/screenshots/` | `android/screenshots/` |
 
 ---
 

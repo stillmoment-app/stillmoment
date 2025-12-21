@@ -47,4 +47,4 @@ screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots
 	@echo ""
 	@echo "✅ All screenshots generated!"
 	@echo "   iOS:     docs/images/screenshots/"
-	@echo "   Android: docs/images/screenshots/android/"
+	@echo "   Android: android/screenshots/"

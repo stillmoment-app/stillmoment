@@ -26,7 +26,7 @@ sollen Screenshots automatisch generiert werden koennen.
 
 - [x] 4 Screenshots pro Sprache generiert (8 total)
 - [x] Gradle Task `./gradlew screenshots` funktioniert
-- [x] Screenshots in docs/images/screenshots/android/ abgelegt
+- [x] Screenshots in android/screenshots/ abgelegt
 - [x] Namenskonvention wie iOS: timer-main.png, timer-main-de.png, etc.
 - [x] Dokumentation in dev-docs/ANDROID_SCREENSHOTS.md
 - [x] Test-Fixtures fuer konsistente Library-Inhalte
@@ -36,7 +36,7 @@ sollen Screenshots automatisch generiert werden koennen.
 ## Manueller Test
 
 1. `cd android && ./gradlew screenshots`
-2. Pruefe docs/images/screenshots/android/
+2. Pruefe android/screenshots/
 3. Erwartung: 8 Screenshots (4 EN + 4 DE) vorhanden
 
 ---
