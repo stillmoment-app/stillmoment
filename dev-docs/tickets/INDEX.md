@@ -33,6 +33,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-007](shared/shared-007-dependency-injection.md) | Dependency Injection Architektur | 2-Architektur | [x] | [x] |
 | [shared-008](shared/shared-008-overflow-menu-meditation-list.md) | Overflow-Menü statt Edit-Icon | 4-Polish | [x] | [x] |
 | [shared-009](shared/shared-009-website-android-ready.md) | Website für iOS + Android | 4-Polish | [x] | [x] |
+| [shared-010](shared/shared-010-silence-label-rename.md) | Stille-Option umbenennen | 4-Polish | [x] | [x] |
+| [shared-011](shared/shared-011-edit-sheet-remove-reset.md) | Edit Sheet Reset-Button entfernen | 4-Polish | [x] | [x] |
 
 ---
 

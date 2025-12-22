@@ -1,9 +1,9 @@
 # Snapfile - Fastlane Snapshot Configuration
 # https://docs.fastlane.tools/actions/snapshot/
 
-# Device for App Store screenshots (6.7" - covers all iPhone sizes via Media Manager)
+# Device for App Store screenshots (6.5" - 1284x2778px)
 devices([
-  "iPhone 15 Plus"
+  "iPhone 14 Plus"
 ])
 
 # Languages (German primary, English secondary)
