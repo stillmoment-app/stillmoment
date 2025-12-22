@@ -4,12 +4,12 @@
       "id": "silent",
       "filename": "silence.m4a",
       "name": {
-        "en": "Minimal Ambience",
-        "de": "Minimale Atmosphäre"
+        "en": "Silence",
+        "de": "Stille"
       },
       "description": {
-        "en": "Minimal ambient soundscape for focused meditation",
-        "de": "Minimale Klanglandschaft für fokussierte Meditation"
+        "en": "Meditate in silence.",
+        "de": "Meditiere in Stille."
       },
       "iconName": "speaker.wave.1",
       "volume": 0.15
