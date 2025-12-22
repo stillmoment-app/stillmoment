@@ -98,17 +98,6 @@ struct GuidedMeditationEditSheet: View {
                     } header: {
                         Text("guided_meditations.edit.fileInfo")
                     }
-
-                    Section {
-                        Button(role: .destructive) {
-                            self.editState.reset()
-                        } label: {
-                            Text("guided_meditations.edit.reset")
-                        }
-                        .accessibilityIdentifier("editSheet.button.reset")
-                        .accessibilityHint("accessibility.editSheet.reset.hint")
-                        .disabled(!self.editState.hasChanges)
-                    }
                 }
                 .scrollContentBackground(.hidden)
             }

@@ -73,10 +73,4 @@ struct EditSheetState {
 
         return updated
     }
-
-    /// Resets edited values to original meditation values
-    mutating func reset() {
-        self.editedTeacher = self.originalMeditation.teacher
-        self.editedName = self.originalMeditation.name
-    }
 }

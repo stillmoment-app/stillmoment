@@ -255,38 +255,4 @@ final class EditSheetStateTests: XCTestCase {
         XCTAssertEqual(updated.dateAdded, meditation.dateAdded)
         XCTAssertEqual(updated.fileBookmark, meditation.fileBookmark)
     }
-
-    // MARK: - reset Tests
-
-    func testResetRestoresOriginalValues() {
-        // Given
-        let meditation = self.makeTestMeditation(
-            teacher: "Original Teacher",
-            name: "Original Name"
-        )
-        var state = EditSheetState(meditation: meditation)
-        state.editedTeacher = "Changed Teacher"
-        state.editedName = "Changed Name"
-
-        // When
-        state.reset()
-
-        // Then
-        XCTAssertEqual(state.editedTeacher, "Original Teacher")
-        XCTAssertEqual(state.editedName, "Original Name")
-    }
-
-    func testResetClearsHasChanges() {
-        // Given
-        let meditation = self.makeTestMeditation()
-        var state = EditSheetState(meditation: meditation)
-        state.editedTeacher = "Changed"
-        XCTAssertTrue(state.hasChanges)
-
-        // When
-        state.reset()
-
-        // Then
-        XCTAssertFalse(state.hasChanges)
-    }
 }

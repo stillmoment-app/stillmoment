@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
  * - hasChanges detection
  * - isValid validation
  * - applyChanges logic
- * - reset functionality
  */
 class EditSheetStateTest {
 
@@ -346,71 +345,6 @@ class EditSheetStateTest {
             assertEquals(meditation.id, updated.id)
             assertEquals(meditation.fileUri, updated.fileUri)
             assertEquals(meditation.duration, updated.duration)
-        }
-    }
-
-    // MARK: - reset Tests
-
-    @Nested
-    inner class Reset {
-
-        @Test
-        fun `reset restores original teacher value`() {
-            // Given
-            val meditation = createTestMeditation(teacher = "Original")
-            val state = EditSheetState.fromMeditation(meditation)
-                .copy(editedTeacher = "Changed")
-
-            // When
-            val reset = state.reset()
-
-            // Then
-            assertEquals("Original", reset.editedTeacher)
-        }
-
-        @Test
-        fun `reset restores original name value`() {
-            // Given
-            val meditation = createTestMeditation(name = "Original")
-            val state = EditSheetState.fromMeditation(meditation)
-                .copy(editedName = "Changed")
-
-            // When
-            val reset = state.reset()
-
-            // Then
-            assertEquals("Original", reset.editedName)
-        }
-
-        @Test
-        fun `reset makes hasChanges false`() {
-            // Given
-            val meditation = createTestMeditation(
-                teacher = "Original Teacher",
-                name = "Original Name"
-            )
-            val state = EditSheetState.fromMeditation(meditation)
-                .copy(editedTeacher = "Changed", editedName = "Changed")
-
-            // When
-            val reset = state.reset()
-
-            // Then
-            assertFalse(reset.hasChanges)
-        }
-
-        @Test
-        fun `reset preserves original meditation reference`() {
-            // Given
-            val meditation = createTestMeditation()
-            val state = EditSheetState.fromMeditation(meditation)
-                .copy(editedTeacher = "Changed")
-
-            // When
-            val reset = state.reset()
-
-            // Then
-            assertSame(meditation, reset.originalMeditation)
         }
     }
 

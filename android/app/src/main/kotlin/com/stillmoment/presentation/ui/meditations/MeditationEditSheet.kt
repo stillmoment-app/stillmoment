@@ -77,12 +77,10 @@ fun MeditationEditSheet(
             meditation = meditation,
             teacherText = editState.editedTeacher,
             nameText = editState.editedName,
-            hasChanges = editState.hasChanges,
             isValid = editState.isValid,
             availableTeachers = availableTeachers,
             onTeacherChange = { editState = editState.copy(editedTeacher = it) },
             onNameChange = { editState = editState.copy(editedName = it) },
-            onReset = { editState = editState.reset() },
             onSave = { onSave(editState.applyChanges()) },
             onCancel = onDismiss
         )
@@ -98,12 +96,10 @@ private fun MeditationEditSheetContent(
     meditation: GuidedMeditation,
     teacherText: String,
     nameText: String,
-    hasChanges: Boolean,
     isValid: Boolean,
     availableTeachers: List<String>,
     onTeacherChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
-    onReset: () -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
@@ -215,25 +211,6 @@ private fun MeditationEditSheetContent(
             color = MaterialTheme.colorScheme.outlineVariant
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Reset button
-        TextButton(
-            onClick = onReset,
-            enabled = hasChanges,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = stringResource(R.string.edit_reset_button),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (hasChanges) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                }
-            )
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         // Save button
@@ -286,12 +263,10 @@ private fun MeditationEditSheetDefaultPreview() {
             meditation = meditation,
             teacherText = meditation.teacher,
             nameText = meditation.name,
-            hasChanges = false,
             isValid = true,
             availableTeachers = listOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
             onTeacherChange = {},
             onNameChange = {},
-            onReset = {},
             onSave = {},
             onCancel = {}
         )
@@ -314,12 +289,10 @@ private fun MeditationEditSheetWithChangesPreview() {
             meditation = meditation,
             teacherText = "Jack Kornfield",
             nameText = "Body Scan Meditation",
-            hasChanges = true,
             isValid = true,
             availableTeachers = listOf("Tara Brach", "Jack Kornfield"),
             onTeacherChange = {},
             onNameChange = {},
-            onReset = {},
             onSave = {},
             onCancel = {}
         )
@@ -342,12 +315,10 @@ private fun MeditationEditSheetLongTextPreview() {
             meditation = meditation,
             teacherText = meditation.teacher,
             nameText = meditation.name,
-            hasChanges = false,
             isValid = true,
             availableTeachers = emptyList(),
             onTeacherChange = {},
             onNameChange = {},
-            onReset = {},
             onSave = {},
             onCancel = {}
         )

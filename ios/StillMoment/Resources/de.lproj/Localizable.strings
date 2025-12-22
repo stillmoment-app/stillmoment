@@ -108,7 +108,6 @@
 "accessibility.done.hint" = "Einstellungen speichern und schließen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
-"accessibility.editSheet.reset.hint" = "Setzt Lehrer und Name auf die Originalwerte zurück";
 
 // MARK: - Time Units
 
@@ -145,7 +144,6 @@
 "guided_meditations.edit.file" = "Datei";
 "guided_meditations.edit.duration" = "Dauer";
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
-"guided_meditations.edit.reset" = "Auf Original zurücksetzen";
 
 "guided_meditations.player.teacher" = "Lehrer";
 "guided_meditations.player.title" = "Meditationstitel";

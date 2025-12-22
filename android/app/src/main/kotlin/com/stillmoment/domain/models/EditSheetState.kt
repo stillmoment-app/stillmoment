@@ -63,18 +63,6 @@ data class EditSheetState(
         )
     }
 
-    /**
-     * Creates a new state with values reset to original meditation values.
-     *
-     * @return New state with original teacher and name values
-     */
-    fun reset(): EditSheetState {
-        return copy(
-            editedTeacher = originalMeditation.teacher,
-            editedName = originalMeditation.name
-        )
-    }
-
     companion object {
         /**
          * Creates an EditSheetState from a meditation.

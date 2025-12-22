@@ -27,6 +27,7 @@ struct TimerView: View {
 
             VStack(spacing: 0) {
                 Spacer(minLength: 8)
+                    .frame(maxHeight: 40)
 
                 // Title
                 Text("welcome.title", bundle: .main)
@@ -35,6 +36,7 @@ struct TimerView: View {
                     .padding(.horizontal)
 
                 Spacer(minLength: 12)
+                    .frame(maxHeight: 30)
 
                 // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
@@ -43,12 +45,14 @@ struct TimerView: View {
                     self.timerDisplay(geometry: geometry)
                 }
 
-                Spacer(minLength: 16)
+                Spacer(minLength: 24)
+                    .frame(maxHeight: isCompactHeight ? 40 : 60)
 
                 // Control Buttons
                 self.controlButtons
                     .padding(.horizontal)
-                    .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 8 : 16)
+
+                Spacer(minLength: 16)
 
                 // Error Message
                 if let error = viewModel.errorMessage {
