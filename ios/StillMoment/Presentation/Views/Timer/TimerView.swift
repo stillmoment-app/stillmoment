@@ -23,33 +23,32 @@ struct TimerView: View {
 
     var body: some View {
         GeometryReader { geometry in
+            let isCompactHeight = geometry.size.height < 700
+
             VStack(spacing: 0) {
-                Spacer()
-                    .frame(height: max(20, geometry.size.height * 0.05))
+                Spacer(minLength: 8)
 
                 // Title
                 Text("welcome.title", bundle: .main)
-                    .font(.system(size: 28, weight: .light, design: .rounded))
+                    .font(.system(size: isCompactHeight ? 24 : 28, weight: .light, design: .rounded))
                     .foregroundColor(.textPrimary)
                     .padding(.horizontal)
 
-                Spacer()
-                    .frame(height: max(24, geometry.size.height * 0.05))
+                Spacer(minLength: 12)
 
                 // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
-                    self.minutePicker
+                    self.minutePicker(geometry: geometry)
                 } else {
-                    self.timerDisplay
+                    self.timerDisplay(geometry: geometry)
                 }
 
-                Spacer()
-                    .frame(height: max(40, geometry.size.height * 0.1))
+                Spacer(minLength: 16)
 
                 // Control Buttons
                 self.controlButtons
                     .padding(.horizontal)
-                    .padding(.bottom, max(16, geometry.safeAreaInsets.bottom > 0 ? 8 : 16))
+                    .padding(.bottom, geometry.safeAreaInsets.bottom > 0 ? 8 : 16)
 
                 // Error Message
                 if let error = viewModel.errorMessage {
@@ -58,7 +57,7 @@ struct TimerView: View {
                         .foregroundColor(.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 8)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -155,16 +154,21 @@ struct TimerView: View {
 
     // MARK: - View Components
 
-    private var minutePicker: some View {
-        VStack(spacing: 20) {
+    private func minutePicker(geometry: GeometryProxy) -> some View {
+        let isCompactHeight = geometry.size.height < 700
+        let imageSize: CGFloat = isCompactHeight ? 100 : 150
+        let pickerHeight: CGFloat = isCompactHeight ? 120 : 150
+        let spacing: CGFloat = isCompactHeight ? 12 : 20
+
+        return VStack(spacing: spacing) {
             Image("HandsHeart")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150, height: 150)
-                .padding(.bottom, 8)
+                .frame(width: imageSize, height: imageSize)
+                .padding(.bottom, isCompactHeight ? 4 : 8)
 
             Text("duration.question", bundle: .main)
-                .font(.system(size: 20, weight: .light, design: .rounded))
+                .font(.system(size: isCompactHeight ? 18 : 20, weight: .light, design: .rounded))
                 .foregroundColor(.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -181,76 +185,84 @@ struct TimerView: View {
                 }
             }
             .pickerStyle(.wheel)
-            .frame(height: 150)
+            .frame(height: pickerHeight)
             .accessibilityIdentifier("timer.picker.minutes")
             .accessibilityLabel("accessibility.durationPicker")
             .accessibilityHint("accessibility.durationPicker.hint")
 
             Text("duration.footer", bundle: .main)
-                .font(.system(size: 15, weight: .light, design: .rounded))
+                .font(.system(size: isCompactHeight ? 14 : 15, weight: .light, design: .rounded))
                 .foregroundColor(.textSecondary)
                 .italic()
                 .padding(.horizontal)
-                .padding(.top, 16)
+                .padding(.top, isCompactHeight ? 8 : 16)
         }
     }
 
-    private var timerDisplay: some View {
-        VStack(spacing: 20) {
-            // Circular Progress (or Countdown Display)
+    private func timerDisplay(geometry: GeometryProxy) -> some View {
+        let isCompactHeight = geometry.size.height < 700
+        let circleSize: CGFloat = isCompactHeight ? 200 : 250
+        let spacing: CGFloat = isCompactHeight ? 12 : 20
+
+        return VStack(spacing: spacing) {
             ZStack {
                 if self.viewModel.isCountdown {
-                    // Countdown Display
-                    Circle()
-                        .stroke(Color.ringBackground, lineWidth: 8)
-                        .frame(width: 250, height: 250)
-
-                    Text(self.viewModel.formattedTime)
-                        .font(.system(size: 100, weight: .ultraLight, design: .rounded))
-                        .foregroundColor(.textPrimary)
-                        .monospacedDigit()
-                        .accessibilityIdentifier("timer.display.time")
-                        .accessibilityLabel(String(
-                            format: NSLocalizedString("accessibility.countdown", comment: ""),
-                            self.viewModel.countdownSeconds
-                        ))
+                    self.countdownCircle(size: circleSize, isCompact: isCompactHeight)
                 } else {
-                    // Regular Timer Display
-                    Circle()
-                        .stroke(Color.ringBackground, lineWidth: 8)
-                        .frame(width: 250, height: 250)
-
-                    Circle()
-                        .trim(from: 0, to: self.viewModel.progress)
-                        .stroke(
-                            Color.progress,
-                            style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                        )
-                        .frame(width: 250, height: 250)
-                        .rotationEffect(.degrees(-90))
-                        .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                        .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
-
-                    // Time Display
-                    Text(self.viewModel.formattedTime)
-                        .font(.system(size: 60, weight: .thin, design: .rounded))
-                        .foregroundColor(.textPrimary)
-                        .monospacedDigit()
-                        .accessibilityIdentifier("timer.display.time")
-                        .accessibilityLabel(String(
-                            format: NSLocalizedString("accessibility.remainingTime", comment: ""),
-                            self.viewModel.formattedTime
-                        ))
-                        .accessibilityValue(self.accessibilityTimeValue)
+                    self.progressCircle(size: circleSize, isCompact: isCompactHeight)
                 }
             }
 
-            // State Indicator
             Text(self.stateText)
-                .font(.system(size: 16, weight: .regular, design: .rounded))
+                .font(.system(size: isCompactHeight ? 14 : 16, weight: .regular, design: .rounded))
                 .foregroundColor(.textSecondary)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
+        }
+    }
+
+    private func countdownCircle(size: CGFloat, isCompact: Bool) -> some View {
+        ZStack {
+            Circle()
+                .stroke(Color.ringBackground, lineWidth: 8)
+                .frame(width: size, height: size)
+
+            Text(self.viewModel.formattedTime)
+                .font(.system(size: isCompact ? 80 : 100, weight: .ultraLight, design: .rounded))
+                .foregroundColor(.textPrimary)
+                .monospacedDigit()
+                .accessibilityIdentifier("timer.display.time")
+                .accessibilityLabel(String(
+                    format: NSLocalizedString("accessibility.countdown", comment: ""),
+                    self.viewModel.countdownSeconds
+                ))
+        }
+    }
+
+    private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
+        ZStack {
+            Circle()
+                .stroke(Color.ringBackground, lineWidth: 8)
+                .frame(width: size, height: size)
+
+            Circle()
+                .trim(from: 0, to: self.viewModel.progress)
+                .stroke(Color.progress, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .frame(width: size, height: size)
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 0.5), value: self.viewModel.progress)
+                .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
+
+            Text(self.viewModel.formattedTime)
+                .font(.system(size: isCompact ? 48 : 60, weight: .thin, design: .rounded))
+                .foregroundColor(.textPrimary)
+                .monospacedDigit()
+                .accessibilityIdentifier("timer.display.time")
+                .accessibilityLabel(String(
+                    format: NSLocalizedString("accessibility.remainingTime", comment: ""),
+                    self.viewModel.formattedTime
+                ))
+                .accessibilityValue(self.accessibilityTimeValue)
         }
     }
 

@@ -61,6 +61,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-023](ios/ios-023-screenshot-test-fixtures.md) | Screenshot Test-Fixtures | 2-Architektur | [x] | - |
 | [ios-024](ios/ios-024-file-storage-copy-approach.md) | File Storage Kopie-Ansatz | 2-Architektur | [ ] | - |
 | [ios-025](ios/ios-025-automated-screenshots.md) | Vollautomatische Screenshots | 5-QA | [x] | ios-023 |
+| [ios-026](ios/ios-026-timer-responsive-layout.md) | Timer View Responsive Layout | 4-Polish | [x] | - |
 
 ---
 

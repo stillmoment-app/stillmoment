@@ -62,6 +62,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Affirmationen werden via `getString(R.string.affirmation_*)` geladen
   - Strings waren bereits in `strings.xml` und `strings-de.xml` definiert
 
+### Changed (iOS)
+- **Timer View Responsive Layout** - Bessere Anpassung an kleine Bildschirme
+  - Start-Button auf iPhone SE vollständig sichtbar
+  - Flexible `Spacer(minLength:)` statt fester Mindesthöhen
+  - Proportionale Größen für Bild, Picker und Timer-Kreis
+  - Keine visuellen Regressionen auf größeren Geräten
+
 ## [1.3.0] - 2025-12-21 (iOS Polish & UX Improvements)
 
 ### Added (iOS)
