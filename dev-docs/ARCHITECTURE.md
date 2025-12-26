@@ -209,6 +209,29 @@ Siehe: `dev-docs/COLOR_SYSTEM.md`
 
 ---
 
+## Versioning & Git Tags
+
+### Version Format
+
+Beide Plattformen nutzen Semantic Versioning: `MAJOR.MINOR.PATCH`
+
+### Git Tag Schema
+
+| Plattform | Format | Beispiel |
+|-----------|--------|----------|
+| iOS | `ios/X.Y.Z` | `ios/1.5.0` |
+| Android | `android/X.Y.Z` | `android/1.4.1` |
+
+**Historisch:** iOS-Releases vor Android-Einfuehrung nutzen `vX.Y.Z` (z.B. `v1.4.0`).
+
+### Release-Workflow
+
+1. Version in Build-Config erhoehen
+2. Commit: `chore(platform): bump version to X.Y.Z`
+3. Tag: `git tag -a ios/X.Y.Z -m "iOS version X.Y.Z"`
+
+---
+
 ## Documentation Map
 
 | Thema | Dokument |
@@ -225,4 +248,4 @@ Siehe: `dev-docs/COLOR_SYSTEM.md`
 
 ---
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2025-12-27
