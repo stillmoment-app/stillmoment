@@ -19,11 +19,12 @@ max_line_length = 120
 ktlint_standard_trailing-comma-on-call-site = disabled
 ktlint_standard_trailing-comma-on-declaration-site = disabled
 
-# Allow backtick function names in tests (JUnit 5 style: `should do X`())
-ktlint_standard_function-naming = disabled
-
 # Allow underscore prefix for backing properties (_state pattern in Flow/StateFlow)
 ktlint_standard_property-naming = disabled
+
+# Allow PascalCase function names (Compose convention: @Composable fun TimerScreen())
+# Also allows backtick names in tests (`should do X`())
+ktlint_standard_function-naming = disabled
 
 [*Test.kt]
 # Allow wildcard imports in tests (common for JUnit, assertions)

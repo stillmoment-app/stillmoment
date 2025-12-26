@@ -111,12 +111,13 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-039](android/android-039-library-viewmodel-tests.md) | Library ViewModel Tests | 5-QA | [x] | - |
 | [android-040](android/android-040-timer-completion-bug.md) | Timer Completion Bug | 1-Quick Fix | [x] | - |
 | [android-041](android/android-041-remove-notification-permission.md) | Notification Permission entfernen | 4-Polish | [x] | - |
-| [android-042](android/android-042-automated-screenshots.md) | Vollautomatische Screenshots | 5-QA | [ ] | - |
+| [android-042](android/android-042-automated-screenshots.md) | Vollautomatische Screenshots | 5-QA | [x] | - |
 | [android-043](android/android-043-settings-sheet-responsive.md) | SettingsSheet Scroll + Responsive | 4-Polish | [x] | - |
 | [android-044](android/android-044-timer-screen-responsive.md) | TimerScreen Responsive Layout | 4-Polish | [x] | - |
 | [android-045](android/android-045-player-screen-responsive.md) | PlayerScreen Responsive Layout | 4-Polish | [x] | - |
 | [android-046](android/android-046-gradient-ios-angleichen.md) | Gradient an iOS angleichen | 4-Polish | [x] | - |
 | [android-047](android/android-047-audio-services-testability.md) | Audio-Services Testbarkeit | 2-Architektur | [ ] | - |
+| [android-048](android/android-048-detekt-baseline-issues.md) | detekt Baseline Issues beheben | 5-QA | [ ] | - |
 
 ---
 

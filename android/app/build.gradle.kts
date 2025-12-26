@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.paparazzi)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
 }
 
 // Load keystore properties for signing
@@ -168,4 +169,12 @@ tasks.register("screenshots") {
     description = "Generate Play Store screenshots using Paparazzi"
     group = "screenshot"
     dependsOn("processScreenshots")
+}
+
+// detekt configuration
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    baseline = file("$rootDir/config/detekt/baseline.xml")
+    parallel = true
 }
