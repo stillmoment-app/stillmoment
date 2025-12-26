@@ -1,6 +1,6 @@
 # Ticket android-043: SettingsSheet Scroll + Responsive Layout
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -22,11 +22,11 @@ Aktuell hat das SettingsSheet keinen Scroll-Container. Bei kleinen Phones kann C
 
 ## Akzeptanzkriterien
 
-- [ ] Column in scrollbaren Container wrappen (verticalScroll)
-- [ ] Feste Spacer durch flexible Layouts ersetzen (isCompactHeight Pattern)
-- [ ] Window Insets (`navigationBarsPadding()`) hinzufuegen
-- [ ] @Preview fuer: Phone, Tablet
-- [ ] Content ist bei allen Optionen sichtbar (Background Sound + Interval aktiv)
+- [x] Column in scrollbaren Container wrappen (verticalScroll)
+- [x] Feste Spacer durch flexible Layouts ersetzen (isCompactHeight Pattern)
+- [x] Window Insets (`navigationBarsPadding()`) hinzufuegen
+- [x] @Preview fuer: Phone, Tablet
+- [x] Content ist bei allen Optionen sichtbar (Background Sound + Interval aktiv)
 
 ---
 

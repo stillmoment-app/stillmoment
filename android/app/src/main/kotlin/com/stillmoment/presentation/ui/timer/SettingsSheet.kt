@@ -1,14 +1,18 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -31,6 +35,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
@@ -53,155 +58,164 @@ fun SettingsSheet(
     var backgroundSoundId by remember { mutableStateOf(settings.backgroundSoundId) }
 
     val doneButtonDescription = stringResource(R.string.accessibility_done_button)
+    val scrollState = rememberScrollState()
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .padding(bottom = 32.dp)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val isCompactHeight = maxHeight < 500.dp
+        val sectionSpacing = if (isCompactHeight) 16.dp else 24.dp
+        val itemSpacing = if (isCompactHeight) 8.dp else 12.dp
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 16.dp)
+                .navigationBarsPadding()
         ) {
-            Text(
-                text = stringResource(R.string.settings_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-            TextButton(
-                onClick = {
-                    onSettingsChanged(
-                        MeditationSettings.create(
-                            intervalGongsEnabled = intervalGongsEnabled,
-                            intervalMinutes = intervalMinutes,
-                            backgroundSoundId = backgroundSoundId,
-                            durationMinutes = settings.durationMinutes
-                        )
-                    )
-                    onDismiss()
-                },
-                modifier = Modifier.semantics {
-                    contentDescription = doneButtonDescription
-                }
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.button_done),
-                    color = MaterialTheme.colorScheme.primary
+                    text = stringResource(R.string.settings_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Background Sound Section
-        Text(
-            text = stringResource(R.string.settings_background_sound),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Column(modifier = Modifier.selectableGroup()) {
-            BackgroundSoundOption(
-                id = "silent",
-                title = stringResource(R.string.sound_silent),
-                description = stringResource(R.string.sound_silent_description),
-                isSelected = backgroundSoundId == "silent",
-                onSelect = { backgroundSoundId = "silent" }
-            )
-
-            BackgroundSoundOption(
-                id = "forest",
-                title = stringResource(R.string.sound_forest),
-                description = stringResource(R.string.sound_forest_description),
-                isSelected = backgroundSoundId == "forest",
-                onSelect = { backgroundSoundId = "forest" }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Interval Gongs Section
-        Text(
-            text = stringResource(R.string.settings_sound_settings),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Interval Gongs Toggle
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.settings_interval_gongs),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.settings_interval_gongs_description),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-
-            val switchStateDescription = if (intervalGongsEnabled) {
-                stringResource(R.string.accessibility_interval_enabled, intervalMinutes)
-            } else {
-                stringResource(R.string.accessibility_interval_disabled)
-            }
-
-            Switch(
-                checked = intervalGongsEnabled,
-                onCheckedChange = { intervalGongsEnabled = it },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colorScheme.primary,
-                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                modifier = Modifier.semantics {
-                    stateDescription = switchStateDescription
-                }
-            )
-        }
-
-        // Interval Selection (shown when enabled)
-        if (intervalGongsEnabled) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = stringResource(R.string.settings_interval_minutes),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Column(modifier = Modifier.selectableGroup()) {
-                listOf(3, 5, 10).forEach { minutes ->
-                    IntervalOption(
-                        minutes = minutes,
-                        isSelected = intervalMinutes == minutes,
-                        onSelect = { intervalMinutes = minutes }
+                TextButton(
+                    onClick = {
+                        onSettingsChanged(
+                            MeditationSettings.create(
+                                intervalGongsEnabled = intervalGongsEnabled,
+                                intervalMinutes = intervalMinutes,
+                                backgroundSoundId = backgroundSoundId,
+                                durationMinutes = settings.durationMinutes
+                            )
+                        )
+                        onDismiss()
+                    },
+                    modifier = Modifier.semantics {
+                        contentDescription = doneButtonDescription
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.button_done),
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(sectionSpacing))
+
+            // Background Sound Section
+            Text(
+                text = stringResource(R.string.settings_background_sound),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(itemSpacing))
+
+            Column(modifier = Modifier.selectableGroup()) {
+                BackgroundSoundOption(
+                    id = "silent",
+                    title = stringResource(R.string.sound_silent),
+                    description = stringResource(R.string.sound_silent_description),
+                    isSelected = backgroundSoundId == "silent",
+                    onSelect = { backgroundSoundId = "silent" }
+                )
+
+                BackgroundSoundOption(
+                    id = "forest",
+                    title = stringResource(R.string.sound_forest),
+                    description = stringResource(R.string.sound_forest_description),
+                    isSelected = backgroundSoundId == "forest",
+                    onSelect = { backgroundSoundId = "forest" }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(sectionSpacing))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(sectionSpacing))
+
+            // Interval Gongs Section
+            Text(
+                text = stringResource(R.string.settings_sound_settings),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(itemSpacing))
+
+            // Interval Gongs Toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.settings_interval_gongs),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_interval_gongs_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+
+                val switchStateDescription = if (intervalGongsEnabled) {
+                    stringResource(R.string.accessibility_interval_enabled, intervalMinutes)
+                } else {
+                    stringResource(R.string.accessibility_interval_disabled)
+                }
+
+                Switch(
+                    checked = intervalGongsEnabled,
+                    onCheckedChange = { intervalGongsEnabled = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    modifier = Modifier.semantics {
+                        stateDescription = switchStateDescription
+                    }
+                )
+            }
+
+            // Interval Selection (shown when enabled)
+            if (intervalGongsEnabled) {
+                Spacer(modifier = Modifier.height(itemSpacing))
+
+                Text(
+                    text = stringResource(R.string.settings_interval_minutes),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column(modifier = Modifier.selectableGroup()) {
+                    listOf(3, 5, 10).forEach { minutes ->
+                        IntervalOption(
+                            minutes = minutes,
+                            isSelected = intervalMinutes == minutes,
+                            onSelect = { intervalMinutes = minutes }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(itemSpacing))
+        }
     }
 }
 
@@ -296,7 +310,8 @@ private fun IntervalOption(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Tablet", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun SettingsSheetPreview() {
     StillMomentTheme {
@@ -308,7 +323,8 @@ private fun SettingsSheetPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Phone - Intervals", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Tablet - Intervals", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun SettingsSheetWithIntervalsPreview() {
     StillMomentTheme {
