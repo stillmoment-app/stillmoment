@@ -1,7 +1,7 @@
 # Ticket ios-027: GuidedMeditationPlayerView Responsive Layout
 
 **Status**: [ ] TODO
-**Prioritaet**: HOCH
+**Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
 **Phase**: 4-Polish
@@ -10,11 +10,13 @@
 
 ## Was
 
-Die GuidedMeditationPlayerView soll sich besser an verschiedene Bildschirmgroessen anpassen - sowohl kurze Screens (iPhone SE Landscape) als auch lange Screens (iPhone 15 Pro Max).
+Die GuidedMeditationPlayerView soll sich besser an verschiedene Bildschirmgroessen anpassen - kleine Phones (iPhone SE) bis große Phones (iPhone 15 Pro Max).
 
 ## Warum
 
-Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei iPhone SE im Landscape werden Buttons gequetscht, bei langen Titeln wird Text abgeschnitten. Auf langen Screens entstehen unnoetig grosse Luecken.
+Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei langen Titeln wird Text abgeschnitten. Auf langen Screens entstehen unnoetig grosse Luecken.
+
+**Hinweis:** App ist Portrait-only (shared-012), daher keine Landscape-Unterstuetzung noetig.
 
 ---
 
@@ -22,8 +24,8 @@ Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei iPhone S
 
 - [ ] Responsive Button-Groessen (Dynamic Type oder GeometryReader)
 - [ ] Titel passt auf alle Bildschirmgroessen (flexibles lineLimit)
-- [ ] Spacing passt sich Bildschirmbreite an
-- [ ] SwiftUI Previews fuer: iPhone SE, iPhone SE Landscape, iPhone 15 Pro Max
+- [ ] Spacing passt sich Bildschirmhoehe an (isCompactHeight Pattern)
+- [ ] SwiftUI Previews fuer: iPhone SE, iPhone 15, iPhone 15 Pro Max
 - [ ] Controls bleiben gut erreichbar auf allen Bildschirmgroessen
 
 ---
@@ -31,7 +33,7 @@ Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei iPhone S
 ## Manueller Test
 
 1. Player mit langer Meditation oeffnen (langer Titel)
-2. iPhone SE im Landscape testen (Simulator)
+2. iPhone SE testen (Simulator)
 3. iPhone 15 Pro Max testen
 4. Erwartung: Titel lesbar, Buttons nicht gequetscht, keine riesigen Luecken
 
@@ -40,31 +42,36 @@ Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei iPhone S
 ## Referenz
 
 - iOS: `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationPlayerView.swift`
-- Vergleich: TimerView hat bereits responsive Layout (ios-026)
+- Vergleich: TimerView hat bereits responsive Layout mit `isCompactHeight` Pattern (ios-026)
 
 ---
 
 ## Hinweise
 
-**Preview-Strategie (ohne Simulator pruefen):**
+**Preview-Strategie:**
 ```swift
-#Preview("iPhone SE") {
-    GuidedMeditationPlayerView(...)
-        .previewDevice("iPhone SE (3rd generation)")
-}
-
-#Preview("iPhone SE Landscape", traits: .landscapeLeft) {
+#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
     GuidedMeditationPlayerView(...)
 }
 
-#Preview("iPhone 15 Pro Max") {
+#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
     GuidedMeditationPlayerView(...)
-        .previewDevice("iPhone 15 Pro Max")
 }
+
+#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    GuidedMeditationPlayerView(...)
+}
+```
+
+**Responsive Pattern (siehe TimerView):**
+```swift
+let isCompactHeight = geometry.size.height < 700
+let buttonSize: CGFloat = isCompactHeight ? 48 : 64
+let spacing: CGFloat = isCompactHeight ? 24 : 40
 ```
 
 Bekannte Problemstellen:
 - Zeilen 107, 118, 132: Buttons mit festen Groessen (32px, 64px)
 - Zeile 55: `lineLimit(2)` schneidet lange Titel ab
-- Zeile 101: `HStack(spacing: 40)` zu eng auf schmalen Screens
+- Zeile 101: `HStack(spacing: 40)` zu eng auf kleinen Screens
 - Zeile 56: `minimumScaleFactor(0.7)` macht Text zu klein

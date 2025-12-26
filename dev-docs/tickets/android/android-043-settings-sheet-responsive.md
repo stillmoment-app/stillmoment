@@ -1,7 +1,7 @@
 # Ticket android-043: SettingsSheet Scroll + Responsive Layout
 
 **Status**: [ ] TODO
-**Prioritaet**: KRITISCH
+**Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
 **Phase**: 4-Polish
@@ -10,27 +10,29 @@
 
 ## Was
 
-Das SettingsSheet soll bei Landscape oder kleinen Screens scrollbar sein und sich responsiv an verschiedene Bildschirmgroessen anpassen.
+Das SettingsSheet soll auf kleinen Screens scrollbar sein und sich responsiv an verschiedene Bildschirmgroessen anpassen.
 
 ## Warum
 
-Aktuell hat das SettingsSheet keinen Scroll-Container. Bei Landscape oder kleinen Phones wird Content abgeschnitten und ist nicht erreichbar. Zusaetzlich fehlen Window Insets, sodass die NavBar Content ueberdecken kann.
+Aktuell hat das SettingsSheet keinen Scroll-Container. Bei kleinen Phones kann Content abgeschnitten werden. Zusaetzlich fehlen Window Insets, sodass die NavBar Content ueberdecken kann.
+
+**Hinweis:** App ist Portrait-only (shared-012), daher keine Landscape-Unterstuetzung noetig.
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Column in scrollbaren Container wrappen
-- [ ] Feste Spacer durch flexible Layouts ersetzen
+- [ ] Column in scrollbaren Container wrappen (verticalScroll)
+- [ ] Feste Spacer durch flexible Layouts ersetzen (isCompactHeight Pattern)
 - [ ] Window Insets (`navigationBarsPadding()`) hinzufuegen
-- [ ] @Preview fuer: Phone, Landscape (640x360), Tablet
+- [ ] @Preview fuer: Phone, Tablet
 - [ ] Content ist bei allen Optionen sichtbar (Background Sound + Interval aktiv)
 
 ---
 
 ## Manueller Test
 
-1. App im Landscape-Modus oeffnen
+1. App auf kleinem Phone oeffnen (oder Emulator)
 2. Timer starten und Settings oeffnen
 3. Alle Optionen aktivieren (Background Sound + Interval)
 4. Erwartung: Alle Optionen sind erreichbar, Content scrollt bei Bedarf
@@ -40,18 +42,27 @@ Aktuell hat das SettingsSheet keinen Scroll-Container. Bei Landscape oder kleine
 ## Referenz
 
 - Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/SettingsSheet.kt`
+- Vergleich: TimerScreen/MinutePicker hat bereits `isCompactHeight` Pattern
 
 ---
 
 ## Hinweise
 
-**Preview-Strategie (ohne Emulator pruefen):**
+**Preview-Strategie:**
 ```kotlin
 @Preview(name = "Phone", device = Devices.PIXEL_4)
-@Preview(name = "Landscape", widthDp = 640, heightDp = 360)
 @Preview(name = "Tablet", device = Devices.PIXEL_TABLET)
 @Composable
 fun SettingsSheetPreview() { ... }
+```
+
+**Responsive Pattern (siehe TimerScreen):**
+```kotlin
+BoxWithConstraints {
+    val isCompactHeight = maxHeight < 700.dp
+    val spacing = if (isCompactHeight) 8.dp else 16.dp
+    // ...
+}
 ```
 
 Bekannte Problemstellen:
