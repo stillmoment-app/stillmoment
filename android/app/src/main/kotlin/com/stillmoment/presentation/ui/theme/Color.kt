@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Color
 val Terracotta = Color(0xFFB8754A)
 val WarmBlack = Color(0xFF2D2926)
 val WarmSand = Color(0xFFF5E6D3)
-val PaleApricot = Color(0xFFFAE5D3)
+val PaleApricot = Color(0xFFFFD4B8) // iOS: RGB(255, 212, 184)
 val WarmGray = Color(0xFF8B7355)
-val WarmCream = Color(0xFFFAF3E8)
+val WarmCream = Color(0xFFFFF8F0) // iOS: RGB(255, 248, 240)
 val RingBackground = Color(0xFFE8D5C4)
 val WarmError = Color(0xFFD32F2F)
 

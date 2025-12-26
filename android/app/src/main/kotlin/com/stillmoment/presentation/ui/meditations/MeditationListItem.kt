@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
@@ -68,7 +69,7 @@ fun MeditationListItem(
             .clickable(onClick = onClick)
             .semantics { contentDescription = itemDescription },
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.White
         ),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)

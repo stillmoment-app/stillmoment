@@ -75,7 +75,7 @@ fun StillMomentTheme(
 
 /**
  * Warm gradient background matching iOS design.
- * Vertical gradient from WarmSand to PaleApricot.
+ * Vertical gradient from WarmCream via WarmSand to PaleApricot.
  */
 @Composable
 fun WarmGradientBackground(
@@ -87,8 +87,9 @@ fun WarmGradientBackground(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        WarmSand,
-                        PaleApricot.copy(alpha = 0.5f)
+                        WarmCream,  // top
+                        WarmSand,   // middle
+                        PaleApricot // bottom
                     )
                 )
             )

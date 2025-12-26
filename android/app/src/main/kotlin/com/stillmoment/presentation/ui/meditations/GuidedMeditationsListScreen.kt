@@ -17,8 +17,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -26,8 +26,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
@@ -53,9 +51,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 
@@ -123,49 +121,40 @@ internal fun GuidedMeditationsListScreenContent(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.tab_library),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+    Box(modifier = modifier.fillMaxSize()) {
+        // Gradient behind everything
+        WarmGradientBackground()
+
+        Scaffold(
+            topBar = {
+                StillMomentTopAppBar(
+                    title = stringResource(R.string.tab_library),
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*"))
+                            },
+                            modifier = Modifier.semantics {
+                                contentDescription = importDescription
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*"))
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.semantics {
-                    contentDescription = importDescription
-                }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = Color.Transparent
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null
-                )
-            }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent,
-        modifier = modifier
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            WarmGradientBackground()
 
             when {
                 uiState.isLoading && uiState.groups.isEmpty() -> {
@@ -252,6 +241,7 @@ internal fun GuidedMeditationsListScreenContent(
                 onClearError()
             }
         }
+        }
     }
 }
 
@@ -298,7 +288,6 @@ private fun SectionHeader(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(WarmSand.copy(alpha = 0.95f))
             .padding(vertical = 12.dp, horizontal = 4.dp)
             .semantics {
                 heading()
