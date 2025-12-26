@@ -1,6 +1,6 @@
 # Ticket android-045: GuidedMeditationPlayerScreen Responsive Layout
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ Aktuell verwendet der PlayerScreen `Arrangement.SpaceBetween`, was auf Tablets r
 
 ## Akzeptanzkriterien
 
-- [ ] Flexible Spacer mit `weight()` oder `heightIn()` verwenden
-- [ ] Maximale Lueckengroesse auf langen Screens begrenzen
-- [ ] @Preview fuer: Phone, Landscape (640x360), Tablet
-- [ ] Controls bleiben gut erreichbar auf allen Bildschirmgroessen
+- [x] Flexible Spacer mit `weight()` oder `heightIn()` verwenden
+- [x] Maximale Lueckengroesse auf langen Screens begrenzen
+- [x] @Preview fuer: Phone, Landscape (640x360), Tablet
+- [x] Controls bleiben gut erreichbar auf allen Bildschirmgroessen
 
 ---
 

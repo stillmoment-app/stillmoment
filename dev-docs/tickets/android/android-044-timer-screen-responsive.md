@@ -20,8 +20,8 @@ Aktuell verwendet der TimerScreen feste Groessen (150dp Bild, 150dp WheelPicker,
 
 ## Akzeptanzkriterien
 
-- [ ] `heightIn(min, max)` statt fester Groessen verwenden
-- [ ] Maximale Lueckengroesse auf langen Screens begrenzen
+- [ ] Proportionale Verteilung mit gewichteten Spacern (wie iOS/PlayerScreen)
+- [ ] `heightIn(min, max)` fuer Elemente die skalieren sollen
 - [ ] @Preview fuer: Phone, Landscape (640x360), Tablet
 - [ ] Layout bleibt visuell ausgewogen auf allen Bildschirmgroessen
 
@@ -52,6 +52,18 @@ Aktuell verwendet der TimerScreen feste Groessen (150dp Bild, 150dp WheelPicker,
 @Composable
 fun TimerScreenPreview() { ... }
 ```
+
+**Best Practice (siehe PlayerScreen android-045):**
+```kotlin
+Column(...) {
+    Spacer(modifier = Modifier.weight(1f))  // Oben
+    Content1(...)
+    Spacer(modifier = Modifier.weight(1f))  // Mitte
+    Content2(...)
+    Spacer(modifier = Modifier.weight(1f))  // Unten
+}
+```
+Drei gleichgewichtete Spacer verteilen Content proportional - auf allen Bildschirmgroessen harmonisch.
 
 Bekannte Problemstellen:
 - Zeilen 226-232: Bild feste Groesse (150.dp)

@@ -113,7 +113,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-042](android/android-042-automated-screenshots.md) | Vollautomatische Screenshots | 5-QA | [ ] | - |
 | [android-043](android/android-043-settings-sheet-responsive.md) | SettingsSheet Scroll + Responsive | 4-Polish | [ ] | - |
 | [android-044](android/android-044-timer-screen-responsive.md) | TimerScreen Responsive Layout | 4-Polish | [ ] | - |
-| [android-045](android/android-045-player-screen-responsive.md) | PlayerScreen Responsive Layout | 4-Polish | [ ] | - |
+| [android-045](android/android-045-player-screen-responsive.md) | PlayerScreen Responsive Layout | 4-Polish | [x] | - |
 
 ---
 
