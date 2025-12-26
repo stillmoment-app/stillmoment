@@ -100,118 +100,131 @@ constructor(
         stopMediaPlayer()
 
         try {
-            mediaPlayer =
-                MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build()
-                    )
+            mediaPlayer = createMediaPlayer(uri, duration)
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "MediaPlayer in invalid state: $uri", e)
+            setPlaybackError("Player error: ${e.message}")
+        } catch (e: java.io.IOException) {
+            Log.e(TAG, "Failed to read audio file: $uri", e)
+            setPlaybackError("Could not read file: ${e.message}")
+        }
+    }
 
-                    // Handle different URI schemes
-                    when (uri.scheme) {
-                        "file" -> {
-                            // Local file - use path directly
-                            val path = uri.path
-                            if (path == null) {
-                                Log.e(TAG, "File path is null: $uri")
-                                _playbackState.update {
-                                    it.copy(isPlaying = false, error = "Invalid file path")
-                                }
-                                return
-                            }
-                            Log.d(TAG, "Playing local file: $path")
-                            setDataSource(path)
-                        }
-                        "content" -> {
-                            // Content URI - use FileDescriptor for reliable access
-                            val pfd =
-                                try {
-                                    context.contentResolver.openFileDescriptor(uri, "r")
-                                } catch (e: SecurityException) {
-                                    Log.e(TAG, "URI permission lost: $uri", e)
-                                    _playbackState.update {
-                                        it.copy(isPlaying = false, error = "Permission lost - please re-import file")
-                                    }
-                                    return
-                                } catch (e: FileNotFoundException) {
-                                    Log.e(TAG, "File not found: $uri", e)
-                                    _playbackState.update {
-                                        it.copy(isPlaying = false, error = "File was deleted or moved")
-                                    }
-                                    return
-                                }
+    /**
+     * Creates and configures a MediaPlayer for the given URI.
+     * Returns null if the data source could not be set.
+     */
+    private fun createMediaPlayer(uri: Uri, duration: Long): MediaPlayer? {
+        return MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
 
-                            if (pfd == null) {
-                                Log.e(TAG, "File descriptor is null: $uri")
-                                _playbackState.update {
-                                    it.copy(isPlaying = false, error = "File not accessible")
-                                }
-                                return
-                            }
+            if (!setDataSourceForUri(this, uri)) {
+                release()
+                return null
+            }
 
-                            Log.d(TAG, "Playing content URI via FileDescriptor: $uri")
-                            setDataSource(pfd.fileDescriptor)
-                            // Note: pfd will be closed when MediaPlayer is released
-                        }
-                        else -> {
-                            Log.e(TAG, "Unsupported URI scheme: ${uri.scheme}")
-                            _playbackState.update {
-                                it.copy(isPlaying = false, error = "Unsupported file type")
-                            }
-                            return
-                        }
-                    }
+            configureListeners(this, duration)
+            prepareAsync()
+        }
+    }
 
-                    setOnPreparedListener { mp ->
-                        mp.start()
-                        _playbackState.update {
-                            it.copy(
-                                isPlaying = true,
-                                currentPosition = 0L,
-                                duration = duration,
-                                error = null
-                            )
-                        }
-                        startProgressUpdates()
-                        updateMediaSessionState()
-                        startForegroundService()
-                    }
-                    setOnCompletionListener {
-                        _playbackState.update {
-                            it.copy(
-                                isPlaying = false,
-                                currentPosition = duration
-                            )
-                        }
-                        stopProgressUpdates()
-                        updateMediaSessionState()
-                        stopForegroundService()
-                        onCompletionCallback?.invoke()
-                    }
-                    setOnErrorListener { _, what, extra ->
-                        _playbackState.update {
-                            it.copy(
-                                isPlaying = false,
-                                error = "Playback error: $what, $extra"
-                            )
-                        }
-                        stopProgressUpdates()
-                        stopForegroundService()
-                        true
-                    }
-                    prepareAsync()
+    /**
+     * Sets the data source on the MediaPlayer based on URI scheme.
+     * Returns true on success, false on failure (error state already set).
+     */
+    private fun setDataSourceForUri(player: MediaPlayer, uri: Uri): Boolean {
+        return when (uri.scheme) {
+            "file" -> setFileDataSource(player, uri)
+            "content" -> setContentDataSource(player, uri)
+            else -> {
+                Log.e(TAG, "Unsupported URI scheme: ${uri.scheme}")
+                setPlaybackError("Unsupported file type")
+                false
+            }
+        }
+    }
+
+    private fun setFileDataSource(player: MediaPlayer, uri: Uri): Boolean {
+        val path = uri.path
+        if (path == null) {
+            Log.e(TAG, "File path is null: $uri")
+            setPlaybackError("Invalid file path")
+            return false
+        }
+        Log.d(TAG, "Playing local file: $path")
+        player.setDataSource(path)
+        return true
+    }
+
+    private fun setContentDataSource(player: MediaPlayer, uri: Uri): Boolean {
+        val pfd = openFileDescriptor(uri) ?: return false
+        Log.d(TAG, "Playing content URI via FileDescriptor: $uri")
+        player.setDataSource(pfd.fileDescriptor)
+        // Note: pfd will be closed when MediaPlayer is released
+        return true
+    }
+
+    private fun openFileDescriptor(uri: Uri): android.os.ParcelFileDescriptor? {
+        return try {
+            context.contentResolver.openFileDescriptor(uri, "r").also {
+                if (it == null) {
+                    Log.e(TAG, "File descriptor is null: $uri")
+                    setPlaybackError("File not accessible")
                 }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to play: $uri", e)
+            }
+        } catch (e: SecurityException) {
+            Log.e(TAG, "URI permission lost: $uri", e)
+            setPlaybackError("Permission lost - please re-import file")
+            null
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "File not found: $uri", e)
+            setPlaybackError("File was deleted or moved")
+            null
+        }
+    }
+
+    private fun configureListeners(player: MediaPlayer, duration: Long) {
+        player.setOnPreparedListener { mp ->
+            mp.start()
+            _playbackState.update {
+                it.copy(
+                    isPlaying = true,
+                    currentPosition = 0L,
+                    duration = duration,
+                    error = null
+                )
+            }
+            startProgressUpdates()
+            updateMediaSessionState()
+            startForegroundService()
+        }
+        player.setOnCompletionListener {
             _playbackState.update {
                 it.copy(
                     isPlaying = false,
-                    error = "Failed to play: ${e.message}"
+                    currentPosition = duration
                 )
             }
+            stopProgressUpdates()
+            updateMediaSessionState()
+            stopForegroundService()
+            onCompletionCallback?.invoke()
         }
+        player.setOnErrorListener { _, what, extra ->
+            setPlaybackError("Playback error: $what, $extra")
+            stopProgressUpdates()
+            stopForegroundService()
+            true
+        }
+    }
+
+    private fun setPlaybackError(message: String) {
+        _playbackState.update { it.copy(isPlaying = false, error = message) }
     }
 
     override fun pause() {
@@ -265,8 +278,8 @@ constructor(
                     stop()
                 }
                 release()
-            } catch (e: Exception) {
-                Log.w(TAG, "Error during media player cleanup (can be ignored)", e)
+            } catch (e: IllegalStateException) {
+                Log.w(TAG, "MediaPlayer cleanup in invalid state (can be ignored)", e)
             }
         }
         mediaPlayer = null
@@ -293,7 +306,7 @@ constructor(
                         it.copy(currentPosition = player.currentPosition.toLong())
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalStateException) {
                 Log.d(TAG, "Progress update skipped - player in invalid state", e)
             }
         }

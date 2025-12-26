@@ -10,6 +10,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -73,31 +74,44 @@ constructor(
             } catch (e: SecurityException) {
                 Log.e(TAG, "Permission denied for file access", e)
                 Result.failure(ImportException("Permission denied for file access", e))
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to import meditation", e)
-                Result.failure(ImportException("Failed to import meditation: ${e.message}", e))
+            } catch (e: IOException) {
+                Log.e(TAG, "Failed to read/copy meditation file", e)
+                Result.failure(ImportException("Failed to read file: ${e.message}", e))
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "Invalid file format or metadata", e)
+                Result.failure(ImportException("Invalid file: ${e.message}", e))
             }
         }
     }
 
     override suspend fun deleteMeditation(id: String) {
-        // Delete local file if it exists
         val meditation = dataStore.getMeditation(id)
-        meditation?.let {
-            try {
-                val uri = Uri.parse(it.fileUri)
-                if (uri.scheme == "file") {
-                    val file = File(uri.path ?: return@let)
-                    if (file.exists()) {
-                        file.delete()
-                        Log.d(TAG, "Deleted local file: ${file.absolutePath}")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not delete local file for meditation $id", e)
-            }
+        if (meditation != null) {
+            deleteLocalFile(meditation, id)
         }
         dataStore.deleteMeditation(id)
+    }
+
+    /**
+     * Deletes the local audio file for a meditation if it exists.
+     * Logs warnings on failure but does not throw.
+     */
+    private fun deleteLocalFile(meditation: GuidedMeditation, id: String) {
+        val uri = Uri.parse(meditation.fileUri)
+        if (uri.scheme != "file") return
+
+        val path = uri.path ?: return
+        val file = File(path)
+
+        try {
+            if (file.exists() && file.delete()) {
+                Log.d(TAG, "Deleted local file: ${file.absolutePath}")
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "Permission denied when deleting file for meditation $id", e)
+        } catch (e: IOException) {
+            Log.w(TAG, "IO error when deleting file for meditation $id", e)
+        }
     }
 
     override suspend fun updateMeditation(meditation: GuidedMeditation) {
@@ -180,8 +194,15 @@ constructor(
                     MediaMetadataRetriever.METADATA_KEY_TITLE
                 )?.takeIf { it.isNotBlank() }
             )
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to extract metadata from audio file", e)
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "Invalid data source for metadata extraction", e)
+            MediaMetadata(
+                duration = 0L,
+                artist = null,
+                title = null
+            )
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "MediaMetadataRetriever in invalid state", e)
             MediaMetadata(
                 duration = 0L,
                 artist = null,

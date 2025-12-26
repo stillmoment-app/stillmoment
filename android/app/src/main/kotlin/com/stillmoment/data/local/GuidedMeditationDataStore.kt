@@ -1,6 +1,7 @@
 package com.stillmoment.data.local
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -10,10 +11,10 @@ import com.stillmoment.domain.models.GuidedMeditation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
-import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -54,7 +55,7 @@ constructor(
                 val jsonString = preferences[Keys.MEDITATIONS] ?: "[]"
                 try {
                     json.decodeFromString<List<GuidedMeditation>>(jsonString)
-                } catch (e: Exception) {
+                } catch (e: SerializationException) {
                     Log.w(TAG, "Failed to parse meditations JSON, returning empty list", e)
                     emptyList()
                 }
@@ -126,7 +127,7 @@ constructor(
         val jsonString = preferences[Keys.MEDITATIONS] ?: "[]"
         return try {
             json.decodeFromString<List<GuidedMeditation>>(jsonString)
-        } catch (e: Exception) {
+        } catch (e: SerializationException) {
             Log.w(TAG, "Failed to parse meditations JSON, returning empty list", e)
             emptyList()
         }

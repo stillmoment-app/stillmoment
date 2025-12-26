@@ -38,13 +38,16 @@ constructor(
     private var gongPlayer: MediaPlayer? = null
     private var backgroundPlayer: MediaPlayer? = null
     private var fadeAnimator: ValueAnimator? = null
-    private var targetVolume: Float = 0.15f
+    private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
     companion object {
         private const val TAG = "AudioService"
 
         /** Duration for fade in effect (3 seconds for smooth meditation experience) */
         private const val FADE_IN_DURATION_MS = 3000L
+
+        /** Default volume for ambient/background sounds (0.0 to 1.0) */
+        private const val DEFAULT_AMBIENT_VOLUME = 0.15f
     }
 
     private val audioAttributes =
@@ -71,8 +74,8 @@ constructor(
                     start()
                 }
             Log.d(TAG, "Playing gong sound")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to play gong: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to play gong - invalid state: ${e.message}")
         }
     }
 
@@ -107,11 +110,7 @@ constructor(
                     else -> R.raw.silence // Default to silence
                 }
 
-            targetVolume =
-                when (soundId) {
-                    "forest" -> 0.15f
-                    else -> 0.15f // Silent ambience at low volume
-                }
+            targetVolume = DEFAULT_AMBIENT_VOLUME
 
             backgroundPlayer =
                 MediaPlayer.create(context, resourceId).apply {
@@ -124,8 +123,8 @@ constructor(
             // Fade in to target volume
             fadeToVolume(targetVolume)
             Log.d(TAG, "Started background audio with fade in: $soundId")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to start background audio: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to start background audio - invalid state: ${e.message}")
         }
     }
 
@@ -151,8 +150,8 @@ constructor(
                     Log.d(TAG, "Paused background audio")
                 }
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to pause background audio: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to pause background audio - invalid state: ${e.message}")
         }
     }
 
@@ -171,8 +170,8 @@ constructor(
                 fadeToVolume(targetVolume)
                 Log.d(TAG, "Resuming background audio with fade in")
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to resume background audio: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to resume background audio - invalid state: ${e.message}")
         }
     }
 
@@ -191,8 +190,8 @@ constructor(
             }
             backgroundPlayer = null
             Log.d(TAG, "Stopped background audio")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to stop background audio: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to stop background audio - invalid state: ${e.message}")
         }
     }
 
@@ -209,8 +208,8 @@ constructor(
                     val volume = animator.animatedValue as Float
                     try {
                         backgroundPlayer?.setVolume(volume, volume)
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to set volume during fade: ${e.message}")
+                    } catch (e: IllegalStateException) {
+                        Log.e(TAG, "Failed to set volume during fade - invalid state: ${e.message}")
                     }
                 }
                 start()
@@ -251,8 +250,8 @@ constructor(
                 release()
             }
             gongPlayer = null
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to release gong player: ${e.message}")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to release gong player - invalid state: ${e.message}")
         }
     }
 }

@@ -25,7 +25,15 @@ data class MeditationSettings(
         const val DEFAULT_DURATION_MINUTES = 10
 
         // Valid interval options
-        val VALID_INTERVALS = listOf(3, 5, 10)
+        private const val INTERVAL_SHORT = 3
+        private const val INTERVAL_MEDIUM = 5
+        private const val INTERVAL_LONG = 10
+
+        // Thresholds for interval validation
+        private const val INTERVAL_THRESHOLD_SHORT = 3
+        private const val INTERVAL_THRESHOLD_MEDIUM = 7
+
+        val VALID_INTERVALS = listOf(INTERVAL_SHORT, INTERVAL_MEDIUM, INTERVAL_LONG)
 
         /** Default settings with interval gongs disabled and silent background audio */
         val Default = MeditationSettings()
@@ -35,9 +43,9 @@ data class MeditationSettings(
          */
         fun validateInterval(minutes: Int): Int {
             return when {
-                minutes <= 3 -> 3
-                minutes <= 7 -> 5
-                else -> 10
+                minutes <= INTERVAL_THRESHOLD_SHORT -> INTERVAL_SHORT
+                minutes <= INTERVAL_THRESHOLD_MEDIUM -> INTERVAL_MEDIUM
+                else -> INTERVAL_LONG
             }
         }
 

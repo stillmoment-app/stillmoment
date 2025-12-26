@@ -2,7 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>LongMethod:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
+    <ID>ComposableParamOrder:AutocompleteTextField.kt$AutocompleteTextField</ID>
+    <ID>ComposableParamOrder:GuidedMeditationPlayerScreen.kt$GuidedMeditationPlayerScreen</ID>
+    <ID>ComposableParamOrder:GuidedMeditationsListScreen.kt$GuidedMeditationsListScreen</ID>
+    <ID>ComposableParamOrder:MeditationEditSheet.kt$MeditationEditSheet</ID>
+    <ID>ComposableParamOrder:TimerScreen.kt$TimerScreen</ID>
+    <ID>LambdaParameterInRestartableEffect:GuidedMeditationPlayerScreen.kt$onClearError</ID>
+    <ID>LambdaParameterInRestartableEffect:GuidedMeditationsListScreen.kt$onClearError</ID>
+    <ID>LambdaParameterInRestartableEffect:WheelPicker.kt$onValueChanged</ID>
     <ID>LongMethod:GuidedMeditationPlayerScreen.kt$@Composable private fun PlayerControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, currentPosition: Long, duration: Long, formattedPosition: String, formattedRemaining: String, onSeek: (Float) -&gt; Unit, onSkipForward: () -&gt; Unit, onSkipBackward: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:GuidedMeditationPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun GuidedMeditationPlayerScreenContent( meditation: GuidedMeditation, uiState: PlayerUiState, onBack: () -&gt; Unit, onPlayPause: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSkipForward: () -&gt; Unit, onSkipBackward: () -&gt; Unit, onClearError: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:GuidedMeditationsListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun GuidedMeditationsListScreenContent( uiState: GuidedMeditationsListUiState, onMeditationClick: (GuidedMeditation) -&gt; Unit, onImportClick: () -&gt; Unit, onEditClick: (GuidedMeditation) -&gt; Unit, onDeleteMeditation: (GuidedMeditation) -&gt; Unit, onDismissEditSheet: () -&gt; Unit, onSaveMeditation: (GuidedMeditation) -&gt; Unit, onClearError: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -19,19 +26,11 @@
     <ID>LongParameterList:GuidedMeditationsListScreen.kt$( uiState: GuidedMeditationsListUiState, onMeditationClick: (GuidedMeditation) -&gt; Unit, onImportClick: () -&gt; Unit, onEditClick: (GuidedMeditation) -&gt; Unit, onDeleteMeditation: (GuidedMeditation) -&gt; Unit, onDismissEditSheet: () -&gt; Unit, onSaveMeditation: (GuidedMeditation) -&gt; Unit, onClearError: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:MeditationEditSheet.kt$( meditation: GuidedMeditation, teacherText: String, nameText: String, isValid: Boolean, availableTeachers: List&lt;String&gt;, onTeacherChange: (String) -&gt; Unit, onNameChange: (String) -&gt; Unit, onSave: () -&gt; Unit, onCancel: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongParameterList:TimerScreen.kt$( uiState: TimerUiState, onMinutesChanged: (Int) -&gt; Unit, onStartClick: () -&gt; Unit, onPauseClick: () -&gt; Unit, onResumeClick: () -&gt; Unit, onResetClick: () -&gt; Unit, onSettingsClick: () -&gt; Unit, onSettingsDismiss: () -&gt; Unit, onSettingsChanged: (com.stillmoment.domain.models.MeditationSettings) -&gt; Unit, getCurrentCountdownAffirmation: () -&gt; String, getCurrentRunningAffirmation: () -&gt; String, modifier: Modifier = Modifier )</ID>
-    <ID>LoopWithTooManyJumpStatements:TimerViewModel.kt$TimerViewModel$while</ID>
-    <ID>MagicNumber:AudioService.kt$AudioService$0.15f</ID>
-    <ID>MagicNumber:MeditationSettings.kt$MeditationSettings.Companion$3</ID>
-    <ID>MagicNumber:MeditationSettings.kt$MeditationSettings.Companion$5</ID>
-    <ID>MagicNumber:MeditationSettings.kt$MeditationSettings.Companion$7</ID>
-    <ID>MagicNumber:TimerViewModel.kt$TimerViewModel$3</ID>
-    <ID>MagicNumber:TimerViewModel.kt$TimerViewModel$3000L</ID>
-    <ID>NestedBlockDepth:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
-    <ID>NestedBlockDepth:GuidedMeditationRepositoryImpl.kt$GuidedMeditationRepositoryImpl$override suspend fun deleteMeditation(id: String)</ID>
-    <ID>ReturnCount:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
-    <ID>TooGenericExceptionCaught:AudioPlayerService.kt$AudioPlayerService$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:AudioService.kt$AudioService$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:GuidedMeditationDataStore.kt$GuidedMeditationDataStore$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:GuidedMeditationRepositoryImpl.kt$GuidedMeditationRepositoryImpl$e: Exception</ID>
+    <ID>ModifierMissing:NavGraph.kt$StillMomentNavHost</ID>
+    <ID>ParameterNaming:NavGraph.kt$onTabSelected</ID>
+    <ID>ParameterNaming:SettingsSheet.kt$onSettingsChanged</ID>
+    <ID>ParameterNaming:TimerScreen.kt$onMinutesChanged</ID>
+    <ID>ParameterNaming:TimerScreen.kt$onSettingsChanged</ID>
+    <ID>ParameterNaming:WheelPicker.kt$onValueChanged</ID>
   </CurrentIssues>
 </SmellBaseline>

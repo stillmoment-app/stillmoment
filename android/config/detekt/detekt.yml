@@ -7,7 +7,7 @@ build:
 
 config:
   validation: true
-  warningsAsErrors: false
+  warningsAsErrors: true
 
 processors:
   active: true

@@ -178,3 +178,7 @@ detekt {
     baseline = file("$rootDir/config/detekt/baseline.xml")
     parallel = true
 }
+
+dependencies {
+    detektPlugins(libs.detekt.compose.rules)
+}

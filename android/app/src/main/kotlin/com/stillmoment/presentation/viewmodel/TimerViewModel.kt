@@ -210,27 +210,12 @@ constructor(
 
     fun getCurrentCountdownAffirmation(): String {
         val index = _uiState.value.currentAffirmationIndex % COUNTDOWN_AFFIRMATION_COUNT
-        val resourceId =
-            when (index) {
-                0 -> R.string.affirmation_countdown_1
-                1 -> R.string.affirmation_countdown_2
-                2 -> R.string.affirmation_countdown_3
-                else -> R.string.affirmation_countdown_4
-            }
-        return getApplication<Application>().getString(resourceId)
+        return getApplication<Application>().getString(COUNTDOWN_AFFIRMATIONS[index])
     }
 
     fun getCurrentRunningAffirmation(): String {
         val index = _uiState.value.currentAffirmationIndex % RUNNING_AFFIRMATION_COUNT
-        val resourceId =
-            when (index) {
-                0 -> R.string.affirmation_running_1
-                1 -> R.string.affirmation_running_2
-                2 -> R.string.affirmation_running_3
-                3 -> R.string.affirmation_running_4
-                else -> R.string.affirmation_running_5
-            }
-        return getApplication<Application>().getString(resourceId)
+        return getApplication<Application>().getString(RUNNING_AFFIRMATIONS[index])
     }
 
     // MARK: - Private Methods
@@ -239,40 +224,49 @@ constructor(
         timerJob?.cancel()
         timerJob =
             viewModelScope.launch {
-                while (true) {
+                var shouldContinue = true
+                while (shouldContinue) {
                     delay(1000L)
-
-                    // Tick via repository (Single Source of Truth)
-                    val updatedTimer = timerRepository.tick() ?: break
-
-                    // Dispatch tick action to update display state
-                    dispatch(
-                        TimerAction.Tick(
-                            remainingSeconds = updatedTimer.remainingSeconds,
-                            totalSeconds = updatedTimer.totalSeconds,
-                            countdownSeconds = updatedTimer.countdownSeconds,
-                            progress = updatedTimer.progress,
-                            state = updatedTimer.state
-                        )
-                    )
-
-                    // Handle state transitions
-                    handleStateTransition(previousState, updatedTimer.state)
-                    previousState = updatedTimer.state
-
-                    // Check for completion FIRST (before loop exit check)
-                    if (updatedTimer.isCompleted) {
-                        onTimerCompleted()
-                        break
-                    }
-
-                    // Only continue loop if running or countdown
-                    if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Countdown) break
-
-                    // Check for interval gong
-                    checkIntervalGong(updatedTimer)
+                    shouldContinue = processTimerTick()
                 }
             }
+    }
+
+    /**
+     * Processes a single timer tick. Returns true if loop should continue.
+     */
+    private fun processTimerTick(): Boolean {
+        val updatedTimer = timerRepository.tick() ?: return false
+
+        // Dispatch tick action to update display state
+        dispatch(
+            TimerAction.Tick(
+                remainingSeconds = updatedTimer.remainingSeconds,
+                totalSeconds = updatedTimer.totalSeconds,
+                countdownSeconds = updatedTimer.countdownSeconds,
+                progress = updatedTimer.progress,
+                state = updatedTimer.state
+            )
+        )
+
+        // Handle state transitions
+        handleStateTransition(previousState, updatedTimer.state)
+        previousState = updatedTimer.state
+
+        // Check for completion
+        if (updatedTimer.isCompleted) {
+            onTimerCompleted()
+            return false
+        }
+
+        // Only continue loop if running or countdown
+        if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Countdown) {
+            return false
+        }
+
+        // Check for interval gong
+        checkIntervalGong(updatedTimer)
+        return true
     }
 
     private fun handleStateTransition(oldState: TimerState, newState: TimerState) {
@@ -288,7 +282,7 @@ constructor(
 
         // Stop foreground service after a short delay to let gong play
         viewModelScope.launch {
-            delay(3000L)
+            delay(COMPLETION_SOUND_DELAY_MS)
             TimerForegroundService.stopService(getApplication())
         }
     }
@@ -339,5 +333,25 @@ constructor(
     companion object {
         private const val COUNTDOWN_AFFIRMATION_COUNT = 4
         private const val RUNNING_AFFIRMATION_COUNT = 5
+
+        /** Delay before stopping foreground service to allow completion sound to play */
+        private const val COMPLETION_SOUND_DELAY_MS = 3000L
+
+        /** Affirmation resource IDs for countdown phase */
+        private val COUNTDOWN_AFFIRMATIONS = intArrayOf(
+            R.string.affirmation_countdown_1,
+            R.string.affirmation_countdown_2,
+            R.string.affirmation_countdown_3,
+            R.string.affirmation_countdown_4
+        )
+
+        /** Affirmation resource IDs for running phase */
+        private val RUNNING_AFFIRMATIONS = intArrayOf(
+            R.string.affirmation_running_1,
+            R.string.affirmation_running_2,
+            R.string.affirmation_running_3,
+            R.string.affirmation_running_4,
+            R.string.affirmation_running_5
+        )
     }
 }

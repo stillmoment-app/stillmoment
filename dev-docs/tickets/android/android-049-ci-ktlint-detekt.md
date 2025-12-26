@@ -1,6 +1,6 @@
 # Ticket android-049: CI um ktlint/detekt erweitern
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: android-048
