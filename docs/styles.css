@@ -295,6 +295,31 @@ header {
     box-shadow: none;
 }
 
+/* Store Badges */
+.store-badge {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.store-badge img {
+    height: 54px;
+    width: auto;
+}
+
+.store-badge:hover {
+    transform: scale(1.05);
+}
+
+.store-badge-disabled {
+    opacity: 0.5;
+    cursor: default;
+    filter: grayscale(50%);
+}
+
+.store-badge-disabled:hover {
+    transform: none;
+}
+
 /* Beta Hint */
 .beta-hint {
     margin-top: 1.5rem;
