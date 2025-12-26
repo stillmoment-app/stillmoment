@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,9 +76,9 @@ import com.stillmoment.presentation.viewmodel.PlayerUiState
 @Composable
 fun GuidedMeditationPlayerScreen(
     meditation: GuidedMeditation,
-    viewModel: GuidedMeditationPlayerViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: GuidedMeditationPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -121,6 +122,9 @@ internal fun GuidedMeditationPlayerScreenContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val backDescription = stringResource(R.string.common_close)
+
+    // rememberUpdatedState to safely use lambda in LaunchedEffect
+    val currentOnClearError by rememberUpdatedState(onClearError)
 
     Box(modifier = modifier.fillMaxSize()) {
         // Gradient behind everything (full screen)
@@ -212,7 +216,7 @@ internal fun GuidedMeditationPlayerScreenContent(
             LaunchedEffect(uiState.error) {
                 uiState.error?.let { error ->
                     snackbarHostState.showSnackbar(error)
-                    onClearError()
+                    currentOnClearError()
                 }
             }
         }

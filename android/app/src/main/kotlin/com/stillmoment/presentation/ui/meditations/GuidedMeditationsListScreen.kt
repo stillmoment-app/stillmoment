@@ -35,6 +35,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,9 +65,9 @@ import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
  */
 @Composable
 fun GuidedMeditationsListScreen(
-    viewModel: GuidedMeditationsListViewModel = hiltViewModel(),
     onMeditationClick: (GuidedMeditation) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: GuidedMeditationsListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -124,6 +125,9 @@ internal fun GuidedMeditationsListScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
     var meditationToDelete by remember { mutableStateOf<GuidedMeditation?>(null) }
+
+    // rememberUpdatedState to safely use lambda in LaunchedEffect
+    val currentOnClearError by rememberUpdatedState(onClearError)
 
     Box(modifier = modifier.fillMaxSize()) {
         // Gradient behind everything
@@ -202,9 +206,9 @@ internal fun GuidedMeditationsListScreenContent(
         if (uiState.showEditSheet && uiState.selectedMeditation != null) {
             MeditationEditSheet(
                 meditation = uiState.selectedMeditation,
-                availableTeachers = uiState.availableTeachers,
                 onDismiss = onDismissEditSheet,
-                onSave = onSaveMeditation
+                onSave = onSaveMeditation,
+                availableTeachers = uiState.availableTeachers
             )
         }
 
@@ -249,7 +253,7 @@ internal fun GuidedMeditationsListScreenContent(
         LaunchedEffect(uiState.error) {
             uiState.error?.let { error ->
                 snackbarHostState.showSnackbar(error)
-                onClearError()
+                currentOnClearError()
             }
         }
     }

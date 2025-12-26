@@ -67,19 +67,19 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
+fun TimerScreen(modifier: Modifier = Modifier, viewModel: TimerViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
     TimerScreenContent(
         uiState = uiState,
-        onMinutesChanged = viewModel::setSelectedMinutes,
+        onMinutesChange = viewModel::setSelectedMinutes,
         onStartClick = viewModel::startTimer,
         onPauseClick = viewModel::pauseTimer,
         onResumeClick = viewModel::resumeTimer,
         onResetClick = viewModel::resetTimer,
         onSettingsClick = viewModel::showSettings,
         onSettingsDismiss = viewModel::hideSettings,
-        onSettingsChanged = viewModel::updateSettings,
+        onSettingsChange = viewModel::updateSettings,
         getCurrentCountdownAffirmation = viewModel::getCurrentCountdownAffirmation,
         getCurrentRunningAffirmation = viewModel::getCurrentRunningAffirmation,
         modifier = modifier
@@ -90,14 +90,14 @@ fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), modifier: Modifier 
 @Composable
 internal fun TimerScreenContent(
     uiState: TimerUiState,
-    onMinutesChanged: (Int) -> Unit,
+    onMinutesChange: (Int) -> Unit,
     onStartClick: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
     onResetClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onSettingsDismiss: () -> Unit,
-    onSettingsChanged: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
+    onSettingsChange: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
     getCurrentCountdownAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
@@ -161,7 +161,7 @@ internal fun TimerScreenContent(
                     if (uiState.timerState == TimerState.Idle) {
                         MinutePicker(
                             selectedMinutes = uiState.selectedMinutes,
-                            onMinutesChanged = onMinutesChanged
+                            onMinutesChange = onMinutesChange
                         )
                     } else {
                         TimerDisplay(
@@ -207,7 +207,7 @@ internal fun TimerScreenContent(
                 ) {
                     SettingsSheet(
                         settings = uiState.settings,
-                        onSettingsChanged = onSettingsChanged,
+                        onSettingsChange = onSettingsChange,
                         onDismiss = onSettingsDismiss
                     )
                 }
@@ -217,7 +217,7 @@ internal fun TimerScreenContent(
 }
 
 @Composable
-private fun MinutePicker(selectedMinutes: Int, onMinutesChanged: (Int) -> Unit, modifier: Modifier = Modifier) {
+private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     // Use screen height like iOS does with geometry.size.height
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isCompactHeight = configuration.screenHeightDp < 700
@@ -256,7 +256,7 @@ private fun MinutePicker(selectedMinutes: Int, onMinutesChanged: (Int) -> Unit, 
         // Wheel Picker
         WheelPicker(
             selectedValue = selectedMinutes,
-            onValueChanged = onMinutesChanged,
+            onValueChange = onMinutesChange,
             range = 1..60,
             visibleItems = visibleItems,
             modifier = Modifier.height(pickerHeight)
@@ -534,14 +534,14 @@ private fun TimerScreenIdlePreview() {
     StillMomentTheme {
         TimerScreenContent(
             uiState = TimerUiState(),
-            onMinutesChanged = {},
+            onMinutesChange = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onResetClick = {},
             onSettingsClick = {},
             onSettingsDismiss = {},
-            onSettingsChanged = {},
+            onSettingsChange = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
             getCurrentRunningAffirmation = { "Be present in this moment" }
         )
@@ -563,14 +563,14 @@ private fun TimerScreenCountdownPreview() {
                     totalSeconds = 600
                 )
             ),
-            onMinutesChanged = {},
+            onMinutesChange = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onResetClick = {},
             onSettingsClick = {},
             onSettingsDismiss = {},
-            onSettingsChanged = {},
+            onSettingsChange = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
             getCurrentRunningAffirmation = { "Be present in this moment" }
         )
@@ -594,14 +594,14 @@ private fun TimerScreenRunningPreview() {
                     progress = 0.5f
                 )
             ),
-            onMinutesChanged = {},
+            onMinutesChange = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onResetClick = {},
             onSettingsClick = {},
             onSettingsDismiss = {},
-            onSettingsChanged = {},
+            onSettingsChange = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
             getCurrentRunningAffirmation = { "Be present in this moment" }
         )
@@ -623,14 +623,14 @@ private fun TimerScreenPausedPreview() {
                     progress = 0.5f
                 )
             ),
-            onMinutesChanged = {},
+            onMinutesChange = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onResetClick = {},
             onSettingsClick = {},
             onSettingsDismiss = {},
-            onSettingsChanged = {},
+            onSettingsChange = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
             getCurrentRunningAffirmation = { "Be present in this moment" }
         )
@@ -652,14 +652,14 @@ private fun TimerScreenCompletedPreview() {
                     progress = 1.0f
                 )
             ),
-            onMinutesChanged = {},
+            onMinutesChange = {},
             onStartClick = {},
             onPauseClick = {},
             onResumeClick = {},
             onResetClick = {},
             onSettingsClick = {},
             onSettingsDismiss = {},
-            onSettingsChanged = {},
+            onSettingsChange = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
             getCurrentRunningAffirmation = { "Be present in this moment" }
         )

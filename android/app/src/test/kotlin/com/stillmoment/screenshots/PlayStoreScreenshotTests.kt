@@ -95,14 +95,14 @@ class PlayStoreScreenshotTests {
                         ),
                         settings = MeditationSettings.Default
                     ),
-                    onMinutesChanged = {},
+                    onMinutesChange = {},
                     onStartClick = {},
                     onPauseClick = {},
                     onResumeClick = {},
                     onResetClick = {},
                     onSettingsClick = {},
                     onSettingsDismiss = {},
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     getCurrentCountdownAffirmation = { "" },
                     getCurrentRunningAffirmation = { "" }
                 )
@@ -140,14 +140,14 @@ class PlayStoreScreenshotTests {
                         ),
                         settings = MeditationSettings.Default
                     ),
-                    onMinutesChanged = {},
+                    onMinutesChange = {},
                     onStartClick = {},
                     onPauseClick = {},
                     onResumeClick = {},
                     onResetClick = {},
                     onSettingsClick = {},
                     onSettingsDismiss = {},
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     getCurrentCountdownAffirmation = { "" },
                     getCurrentRunningAffirmation = { affirmation }
                 )

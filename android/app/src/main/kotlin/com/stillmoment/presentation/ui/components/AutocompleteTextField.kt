@@ -61,9 +61,9 @@ fun AutocompleteTextField(
     value: String,
     onValueChange: (String) -> Unit,
     suggestions: List<String>,
+    modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,

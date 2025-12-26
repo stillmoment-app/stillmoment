@@ -49,7 +49,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 @Composable
 fun SettingsSheet(
     settings: MeditationSettings,
-    onSettingsChanged: (MeditationSettings) -> Unit,
+    onSettingsChange: (MeditationSettings) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -87,7 +87,7 @@ fun SettingsSheet(
                 )
                 TextButton(
                     onClick = {
-                        onSettingsChanged(
+                        onSettingsChange(
                             MeditationSettings.create(
                                 intervalGongsEnabled = intervalGongsEnabled,
                                 intervalMinutes = intervalMinutes,
@@ -321,7 +321,7 @@ private fun SettingsSheetPreview() {
     StillMomentTheme {
         SettingsSheet(
             settings = MeditationSettings.Default,
-            onSettingsChanged = {},
+            onSettingsChange = {},
             onDismiss = {}
         )
     }
@@ -339,7 +339,7 @@ private fun SettingsSheetWithIntervalsPreview() {
                 intervalMinutes = 5,
                 backgroundSoundId = "forest"
             ),
-            onSettingsChanged = {},
+            onSettingsChange = {},
             onDismiss = {}
         )
     }

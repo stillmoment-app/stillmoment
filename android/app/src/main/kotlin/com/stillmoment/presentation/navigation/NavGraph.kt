@@ -85,6 +85,7 @@ data class TabItem(
 @Composable
 fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
     val scope = rememberCoroutineScope()
@@ -130,12 +131,13 @@ fun StillMomentNavHost(
     val showBottomBar = currentDestination?.route?.startsWith("player") != true
 
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             if (showBottomBar) {
                 StillMomentBottomBar(
                     tabs = tabs,
                     currentDestination = currentDestination,
-                    onTabSelected = { screen ->
+                    onTabSelect = { screen ->
                         // Save selected tab for next app launch
                         scope.launch {
                             settingsDataStore.setSelectedTab(screen.route)
@@ -207,7 +209,7 @@ fun StillMomentNavHost(
 private fun StillMomentBottomBar(
     tabs: List<TabItem>,
     currentDestination: androidx.navigation.NavDestination?,
-    onTabSelected: (Screen) -> Unit,
+    onTabSelect: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
@@ -221,7 +223,7 @@ private fun StillMomentBottomBar(
 
             NavigationBarItem(
                 selected = selected,
-                onClick = { onTabSelected(tab.screen) },
+                onClick = { onTabSelect(tab.screen) },
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,

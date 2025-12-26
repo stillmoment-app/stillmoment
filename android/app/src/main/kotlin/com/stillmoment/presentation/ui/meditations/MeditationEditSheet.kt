@@ -55,10 +55,10 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 @Composable
 fun MeditationEditSheet(
     meditation: GuidedMeditation,
-    availableTeachers: List<String> = emptyList(),
     onDismiss: () -> Unit,
     onSave: (GuidedMeditation) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    availableTeachers: List<String> = emptyList()
 ) {
     val sheetState = rememberModalBottomSheetState()
 

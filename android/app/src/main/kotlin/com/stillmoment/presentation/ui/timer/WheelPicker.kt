@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,13 +42,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun WheelPicker(
     selectedValue: Int,
-    onValueChanged: (Int) -> Unit,
+    onValueChange: (Int) -> Unit,
     range: IntRange,
     modifier: Modifier = Modifier,
     visibleItems: Int = 5
 ) {
     val items = range.toList()
     val itemHeight = 40.dp
+
+    // rememberUpdatedState to safely use lambda in LaunchedEffect
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
 
     val listState =
         rememberLazyListState(
@@ -81,7 +85,7 @@ fun WheelPicker(
             .collect { index ->
                 val newValue = items.getOrNull(index) ?: return@collect
                 if (newValue != selectedValue) {
-                    onValueChanged(newValue)
+                    currentOnValueChange(newValue)
                 }
             }
     }
@@ -163,7 +167,7 @@ private fun WheelPickerPreview() {
     StillMomentTheme {
         WheelPicker(
             selectedValue = 10,
-            onValueChanged = {},
+            onValueChange = {},
             range = 1..60,
             modifier = Modifier.height(200.dp)
         )

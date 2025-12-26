@@ -1,6 +1,6 @@
 # Ticket android-051: detekt-compose Rules Compliance
 
-**Status**: [ ] OPEN
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Mittel
 **Abhaengigkeiten**: android-050
