@@ -362,6 +362,7 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
 }
 #endif
 
+#if DEBUG
 @available(iOS 17.0, *)
 #Preview("Empty State") {
     NavigationStack {
@@ -421,3 +422,4 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
         )
     }
 }
+#endif
