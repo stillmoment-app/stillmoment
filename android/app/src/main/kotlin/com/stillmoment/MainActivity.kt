@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
             StillMomentTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     StillMomentNavHost(settingsDataStore = settingsDataStore)
                 }

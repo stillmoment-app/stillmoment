@@ -31,7 +31,7 @@ class GuidedMeditationTest {
                     fileName = fileName,
                     duration = duration,
                     teacher = teacher,
-                    name = name,
+                    name = name
                 )
 
             // Then
@@ -74,7 +74,7 @@ class GuidedMeditationTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Original Teacher",
-                    customTeacher = "Custom Teacher",
+                    customTeacher = "Custom Teacher"
                 )
 
             // When/Then
@@ -96,7 +96,7 @@ class GuidedMeditationTest {
             val meditation =
                 createTestMeditation(
                     name = "Original Name",
-                    customName = "Custom Name",
+                    customName = "Custom Name"
                 )
 
             // When/Then
@@ -219,7 +219,7 @@ class GuidedMeditationTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Test Teacher",
-                    name = "Test Meditation",
+                    name = "Test Meditation"
                 )
 
             // When
@@ -237,7 +237,7 @@ class GuidedMeditationTest {
                 createTestMeditation(
                     teacher = "Test Teacher",
                     name = "Test Meditation",
-                    customTeacher = "Custom Teacher",
+                    customTeacher = "Custom Teacher"
                 )
             val json = Json.encodeToString(original)
 
@@ -266,7 +266,7 @@ class GuidedMeditationTest {
                     name = "Name",
                     customTeacher = "Custom Teacher",
                     customName = "Custom Name",
-                    dateAdded = 1234567890L,
+                    dateAdded = 1234567890L
                 )
 
             // When
@@ -289,7 +289,7 @@ class GuidedMeditationTest {
                 listOf(
                     createTestMeditation(name = "Meditation 1"),
                     createTestMeditation(name = "Meditation 2"),
-                    createTestMeditation(name = "Meditation 3"),
+                    createTestMeditation(name = "Meditation 3")
                 )
             val group = GuidedMeditationGroup("Teacher", meditations)
 
@@ -309,7 +309,7 @@ class GuidedMeditationTest {
                 listOf(
                     createTestMeditation(teacher = "Teacher A", name = "Med 1"),
                     createTestMeditation(teacher = "Teacher B", name = "Med 2"),
-                    createTestMeditation(teacher = "Teacher A", name = "Med 3"),
+                    createTestMeditation(teacher = "Teacher A", name = "Med 3")
                 )
 
             // When
@@ -330,7 +330,7 @@ class GuidedMeditationTest {
                 listOf(
                     createTestMeditation(teacher = "Original", customTeacher = "Custom A"),
                     createTestMeditation(teacher = "Original", customTeacher = "Custom B"),
-                    createTestMeditation(teacher = "Original"),
+                    createTestMeditation(teacher = "Original")
                 )
 
             // When
@@ -350,7 +350,7 @@ class GuidedMeditationTest {
                 listOf(
                     createTestMeditation(teacher = "Zebra"),
                     createTestMeditation(teacher = "Alpha"),
-                    createTestMeditation(teacher = "Middle"),
+                    createTestMeditation(teacher = "Middle")
                 )
 
             // When
@@ -369,7 +369,7 @@ class GuidedMeditationTest {
                 listOf(
                     createTestMeditation(teacher = "Teacher", name = "Zebra"),
                     createTestMeditation(teacher = "Teacher", name = "Alpha"),
-                    createTestMeditation(teacher = "Teacher", name = "Middle"),
+                    createTestMeditation(teacher = "Teacher", name = "Middle")
                 )
 
             // When
@@ -406,7 +406,7 @@ class GuidedMeditationTest {
         name: String = "Test Meditation",
         customTeacher: String? = null,
         customName: String? = null,
-        dateAdded: Long = System.currentTimeMillis(),
+        dateAdded: Long = System.currentTimeMillis()
     ): GuidedMeditation =
         GuidedMeditation(
             id = id,
@@ -417,6 +417,6 @@ class GuidedMeditationTest {
             name = name,
             customTeacher = customTeacher,
             customName = customName,
-            dateAdded = dateAdded,
+            dateAdded = dateAdded
         )
 }

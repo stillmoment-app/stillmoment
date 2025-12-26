@@ -33,7 +33,8 @@ class PlayerScreenTest {
             id = "test-1",
             fileUri = "content://test/meditation.mp3",
             fileName = "meditation.mp3",
-            duration = 1_200_000L, // 20 minutes
+            // 20 minutes
+            duration = 1_200_000L,
             teacher = "Test Teacher",
             name = "Test Meditation",
         )
@@ -42,7 +43,8 @@ class PlayerScreenTest {
         PlayerUiState(
             meditation = testMeditation,
             duration = 1_200_000L,
-            currentPosition = 300_000L, // 5 minutes
+            // 5 minutes
+            currentPosition = 300_000L,
             progress = 0.25f,
             isPlaying = false,
         )
@@ -56,7 +58,7 @@ class PlayerScreenTest {
 
     private fun renderPlayerScreen(
         meditation: GuidedMeditation = testMeditation,
-        uiState: PlayerUiState = testUiState,
+        uiState: PlayerUiState = testUiState
     ) {
         composeRule.setContent {
             StillMomentTheme {
@@ -68,7 +70,7 @@ class PlayerScreenTest {
                     onSeek = {},
                     onSkipForward = {},
                     onSkipBackward = {},
-                    onClearError = {},
+                    onClearError = {}
                 )
             }
         }

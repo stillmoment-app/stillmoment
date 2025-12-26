@@ -44,7 +44,7 @@ fun WheelPicker(
     onValueChanged: (Int) -> Unit,
     range: IntRange,
     modifier: Modifier = Modifier,
-    visibleItems: Int = 5,
+    visibleItems: Int = 5
 ) {
     val items = range.toList()
     val itemHeight = 40.dp
@@ -54,7 +54,7 @@ fun WheelPicker(
             initialFirstVisibleItemIndex = (selectedValue - range.first).coerceIn(
                 0,
                 items.size - 1
-            ),
+            )
         )
 
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
@@ -107,7 +107,7 @@ fun WheelPicker(
                 stateDescription = stateDesc
                 role = Role.Button
             },
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         // Number of padding items needed to center the selected item
         val paddingItems = visibleItems / 2
@@ -117,7 +117,7 @@ fun WheelPicker(
             flingBehavior = flingBehavior,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.height(itemHeight * visibleItems),
+            modifier = Modifier.height(itemHeight * visibleItems)
         ) {
             // Padding items for centering (top)
             items(paddingItems) {
@@ -134,17 +134,17 @@ fun WheelPicker(
                         .height(itemHeight)
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = stringResource(R.string.time_minutes, value),
                         style =
                         MaterialTheme.typography.headlineMedium.copy(
                             fontSize = if (isSelected) 32.sp else 24.sp,
-                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Light,
+                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Light
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.alpha(alpha),
+                        modifier = Modifier.alpha(alpha)
                     )
                 }
             }
@@ -165,7 +165,7 @@ private fun WheelPickerPreview() {
             selectedValue = 10,
             onValueChanged = {},
             range = 1..60,
-            modifier = Modifier.height(200.dp),
+            modifier = Modifier.height(200.dp)
         )
     }
 }

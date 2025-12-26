@@ -25,7 +25,7 @@ class AudioService
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val coordinator: AudioSessionCoordinatorProtocol,
+    private val coordinator: AudioSessionCoordinatorProtocol
 ) {
     init {
         // Register conflict handler to stop background audio when another source takes over

@@ -23,7 +23,7 @@ data class TimerDisplayState(
     /** Current affirmation index (rotates between sessions) */
     val currentAffirmationIndex: Int = 0,
     /** Whether an interval gong was already played for current interval */
-    val intervalGongPlayedForCurrentInterval: Boolean = false,
+    val intervalGongPlayedForCurrentInterval: Boolean = false
 ) {
     // MARK: - Computed Properties (Pure, Testable)
 
@@ -69,7 +69,7 @@ data class TimerDisplayState(
          */
         fun withDuration(minutes: Int): TimerDisplayState {
             return Initial.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes),
+                selectedMinutes = MeditationSettings.validateDuration(minutes)
             )
         }
     }

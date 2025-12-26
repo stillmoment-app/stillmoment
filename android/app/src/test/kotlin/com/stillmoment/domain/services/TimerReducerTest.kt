@@ -34,7 +34,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.SelectDuration(20),
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -52,7 +52,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.SelectDuration(0),
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -69,7 +69,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.SelectDuration(100),
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -92,7 +92,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.StartPressed,
-                    settings,
+                    settings
                 )
 
             // Then
@@ -115,7 +115,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.StartPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -129,7 +129,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     selectedMinutes = 10,
-                    currentAffirmationIndex = 4,
+                    currentAffirmationIndex = 4
                 )
 
             // When
@@ -137,7 +137,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.StartPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -150,7 +150,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     selectedMinutes = 10,
-                    intervalGongPlayedForCurrentInterval = true,
+                    intervalGongPlayedForCurrentInterval = true
                 )
 
             // When
@@ -158,7 +158,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.StartPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -180,7 +180,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.PausePressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -198,7 +198,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.PausePressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -216,7 +216,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.PausePressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -239,7 +239,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResumePressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -260,7 +260,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResumePressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -283,7 +283,7 @@ class TimerReducerTest {
                     totalSeconds = 600,
                     countdownSeconds = 0,
                     progress = 0.5f,
-                    intervalGongPlayedForCurrentInterval = true,
+                    intervalGongPlayedForCurrentInterval = true
                 )
 
             // When
@@ -291,7 +291,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResetPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -316,7 +316,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResetPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -334,7 +334,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResetPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -352,7 +352,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResetPressed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -379,9 +379,9 @@ class TimerReducerTest {
                         totalSeconds = 600,
                         countdownSeconds = 10,
                         progress = 0.1f,
-                        state = TimerState.Countdown,
+                        state = TimerState.Countdown
                     ),
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -407,9 +407,9 @@ class TimerReducerTest {
                         totalSeconds = 600,
                         countdownSeconds = 0,
                         progress = 0.83f,
-                        state = TimerState.Running,
+                        state = TimerState.Running
                     ),
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -431,7 +431,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.CountdownFinished,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -450,7 +450,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     timerState = TimerState.Running,
-                    progress = 0.99f,
+                    progress = 0.99f
                 )
 
             // When
@@ -458,7 +458,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.TimerCompleted,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -479,7 +479,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = false,
+                    intervalGongPlayedForCurrentInterval = false
                 )
             val settings = defaultSettings.copy(intervalGongsEnabled = true)
 
@@ -488,7 +488,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.IntervalGongTriggered,
-                    settings,
+                    settings
                 )
 
             // Then
@@ -502,7 +502,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = false,
+                    intervalGongPlayedForCurrentInterval = false
                 )
             val settings = defaultSettings.copy(intervalGongsEnabled = false)
 
@@ -511,7 +511,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.IntervalGongTriggered,
-                    settings,
+                    settings
                 )
 
             // Then
@@ -525,7 +525,7 @@ class TimerReducerTest {
             val state =
                 TimerDisplayState.Initial.copy(
                     timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = true,
+                    intervalGongPlayedForCurrentInterval = true
                 )
             val settings = defaultSettings.copy(intervalGongsEnabled = true)
 
@@ -534,7 +534,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.IntervalGongTriggered,
-                    settings,
+                    settings
                 )
 
             // Then
@@ -552,7 +552,7 @@ class TimerReducerTest {
             // Given
             val state =
                 TimerDisplayState.Initial.copy(
-                    intervalGongPlayedForCurrentInterval = true,
+                    intervalGongPlayedForCurrentInterval = true
                 )
 
             // When
@@ -560,7 +560,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.IntervalGongPlayed,
-                    defaultSettings,
+                    defaultSettings
                 )
 
             // Then
@@ -584,7 +584,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.StartPressed,
-                    settings,
+                    settings
                 )
             state = startState
 
@@ -597,7 +597,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.Tick(60, 60, 10, 0f, TimerState.Countdown),
-                    settings,
+                    settings
                 )
             state = countdownState
             assertEquals(TimerState.Countdown, state.timerState)
@@ -607,7 +607,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.CountdownFinished,
-                    settings,
+                    settings
                 )
             state = runningState
 
@@ -620,7 +620,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.TimerCompleted,
-                    settings,
+                    settings
                 )
             state = completedState
 
@@ -633,7 +633,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResetPressed,
-                    settings,
+                    settings
                 )
 
             // Then
@@ -652,7 +652,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.PausePressed,
-                    settings,
+                    settings
                 )
 
             // Then - Both audio pause and timer pause effects
@@ -667,7 +667,7 @@ class TimerReducerTest {
                 TimerReducer.reduce(
                     state,
                     TimerAction.ResumePressed,
-                    settings,
+                    settings
                 )
 
             // Then - Both audio resume and timer resume effects

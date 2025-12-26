@@ -28,7 +28,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
  * Shows a friendly message and import button.
  */
 @Composable
-fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier,) {
+fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier) {
     val importDescription = stringResource(R.string.accessibility_import_meditation)
 
     Column(
@@ -37,17 +37,17 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier,)
             .fillMaxSize()
             .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         // Title
         Text(
             text = stringResource(R.string.library_empty_title),
             style =
             MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             ),
             color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -57,10 +57,10 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier,)
             text = stringResource(R.string.library_empty_description),
             style =
             MaterialTheme.typography.bodyMedium.copy(
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.Light
             ),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -71,16 +71,16 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier,)
             colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
             modifier =
             Modifier.semantics {
                 contentDescription = importDescription
-            },
+            }
         ) {
             Text(
                 text = stringResource(R.string.library_import_button),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }

@@ -74,7 +74,7 @@ data class TabItem(
     val labelResId: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val accessibilityResId: Int,
+    val accessibilityResId: Int
 )
 
 /**
@@ -85,7 +85,7 @@ data class TabItem(
 @Composable
 fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController = rememberNavController()
 ) {
     val scope = rememberCoroutineScope()
 
@@ -111,15 +111,15 @@ fun StillMomentNavHost(
                     labelResId = R.string.tab_timer,
                     selectedIcon = Icons.Filled.Timer,
                     unselectedIcon = Icons.Outlined.Timer,
-                    accessibilityResId = R.string.accessibility_tab_timer,
+                    accessibilityResId = R.string.accessibility_tab_timer
                 ),
                 TabItem(
                     screen = Screen.Library,
                     labelResId = R.string.tab_library,
                     selectedIcon = Icons.Filled.LibraryMusic,
                     unselectedIcon = Icons.Outlined.LibraryMusic,
-                    accessibilityResId = R.string.accessibility_tab_library,
-                ),
+                    accessibilityResId = R.string.accessibility_tab_library
+                )
             )
         }
 
@@ -150,21 +150,21 @@ fun StillMomentNavHost(
                             // Restore state when re-selecting a previously selected item
                             restoreState = true
                         }
-                    },
+                    }
                 )
             }
         },
-        containerColor = Color.Transparent,
+        containerColor = Color.Transparent
     ) { padding ->
         Box(
             modifier =
             Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Timer.route,
+                startDestination = Screen.Timer.route
             ) {
                 composable(Screen.Timer.route) {
                     TimerScreen()
@@ -174,7 +174,7 @@ fun StillMomentNavHost(
                     GuidedMeditationsListScreen(
                         onMeditationClick = { meditation ->
                             navController.navigate(Screen.Player.createRoute(meditation))
-                        },
+                        }
                     )
                 }
 
@@ -182,8 +182,8 @@ fun StillMomentNavHost(
                     route = Screen.Player.route,
                     arguments =
                     listOf(
-                        navArgument("meditationJson") { type = NavType.StringType },
-                    ),
+                        navArgument("meditationJson") { type = NavType.StringType }
+                    )
                 ) { backStackEntry ->
                     val meditationJson = backStackEntry.arguments?.getString("meditationJson")
                     val meditation =
@@ -194,7 +194,7 @@ fun StillMomentNavHost(
                     meditation?.let {
                         GuidedMeditationPlayerScreen(
                             meditation = it,
-                            onBack = { navController.popBackStack() },
+                            onBack = { navController.popBackStack() }
                         )
                     }
                 }
@@ -208,12 +208,12 @@ private fun StillMomentBottomBar(
     tabs: List<TabItem>,
     currentDestination: androidx.navigation.NavDestination?,
     onTabSelected: (Screen) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     NavigationBar(
         containerColor = WarmSand,
         contentColor = Terracotta,
-        modifier = modifier,
+        modifier = modifier
     ) {
         tabs.forEach { tab ->
             val selected = currentDestination?.hierarchy?.any { it.route == tab.screen.route } == true
@@ -225,13 +225,13 @@ private fun StillMomentBottomBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
-                        contentDescription = null,
+                        contentDescription = null
                     )
                 },
                 label = {
                     Text(
                         text = stringResource(tab.labelResId),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 },
                 colors =
@@ -240,12 +240,12 @@ private fun StillMomentBottomBar(
                     selectedTextColor = Terracotta,
                     unselectedIconColor = WarmGray,
                     unselectedTextColor = WarmGray,
-                    indicatorColor = Terracotta.copy(alpha = 0.1f),
+                    indicatorColor = Terracotta.copy(alpha = 0.1f)
                 ),
                 modifier =
                 Modifier.semantics {
                     contentDescription = accessibilityLabel
-                },
+                }
             )
         }
     }

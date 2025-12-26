@@ -27,7 +27,7 @@ object TimerReducer {
     fun reduce(
         state: TimerDisplayState,
         action: TimerAction,
-        settings: MeditationSettings,
+        settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         return when (action) {
             is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes)
@@ -47,11 +47,11 @@ object TimerReducer {
 
     private fun reduceSelectDuration(
         state: TimerDisplayState,
-        minutes: Int,
+        minutes: Int
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes),
+                selectedMinutes = MeditationSettings.validateDuration(minutes)
             )
         return newState to emptyList()
     }
@@ -60,7 +60,7 @@ object TimerReducer {
 
     private fun reduceStartPressed(
         state: TimerDisplayState,
-        settings: MeditationSettings,
+        settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.selectedMinutes <= 0) {
             return state to emptyList()
@@ -69,45 +69,39 @@ object TimerReducer {
         val newState =
             state.copy(
                 currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
-                intervalGongPlayedForCurrentInterval = false,
+                intervalGongPlayedForCurrentInterval = false
             )
 
         val updatedSettings =
             settings.copy(
-                durationMinutes = state.selectedMinutes,
+                durationMinutes = state.selectedMinutes
             )
 
         val effects =
             listOf(
                 TimerEffect.StartForegroundService(settings.backgroundSoundId),
                 TimerEffect.StartTimer(state.selectedMinutes),
-                TimerEffect.SaveSettings(updatedSettings),
+                TimerEffect.SaveSettings(updatedSettings)
             )
 
         return newState to effects
     }
 
-    private fun reducePausePressed(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reducePausePressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.timerState != TimerState.Running) {
             return state to emptyList()
         }
         return state to listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer)
     }
 
-    private fun reduceResumePressed(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceResumePressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.timerState != TimerState.Paused) {
             return state to emptyList()
         }
         return state to listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer)
     }
 
-    private fun reduceResetPressed(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceResetPressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.timerState == TimerState.Idle) {
             return state to emptyList()
         }
@@ -119,13 +113,13 @@ object TimerReducer {
                 totalSeconds = 0,
                 countdownSeconds = 0,
                 progress = 0f,
-                intervalGongPlayedForCurrentInterval = false,
+                intervalGongPlayedForCurrentInterval = false
             )
 
         val effects =
             listOf(
                 TimerEffect.StopForegroundService,
-                TimerEffect.ResetTimer,
+                TimerEffect.ResetTimer
             )
 
         return newState to effects
@@ -135,7 +129,7 @@ object TimerReducer {
 
     private fun reduceTick(
         state: TimerDisplayState,
-        action: TimerAction.Tick,
+        action: TimerAction.Tick
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
@@ -143,30 +137,26 @@ object TimerReducer {
                 totalSeconds = action.totalSeconds,
                 countdownSeconds = action.countdownSeconds,
                 progress = action.progress,
-                timerState = action.state,
+                timerState = action.state
             )
         return newState to emptyList()
     }
 
-    private fun reduceCountdownFinished(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceCountdownFinished(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(timerState = TimerState.Running)
         return newState to listOf(TimerEffect.PlayStartGong)
     }
 
-    private fun reduceTimerCompleted(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceTimerCompleted(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
                 timerState = TimerState.Completed,
-                progress = 1.0f,
+                progress = 1.0f
             )
         val effects =
             listOf(
                 TimerEffect.PlayCompletionSound,
-                TimerEffect.StopForegroundService,
+                TimerEffect.StopForegroundService
             )
         return newState to effects
     }
@@ -175,7 +165,7 @@ object TimerReducer {
 
     private fun reduceIntervalGongTriggered(
         state: TimerDisplayState,
-        settings: MeditationSettings,
+        settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         if (!settings.intervalGongsEnabled || state.intervalGongPlayedForCurrentInterval) {
             return state to emptyList()
@@ -184,9 +174,7 @@ object TimerReducer {
         return newState to listOf(TimerEffect.PlayIntervalGong)
     }
 
-    private fun reduceIntervalGongPlayed(
-        state: TimerDisplayState
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceIntervalGongPlayed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(intervalGongPlayedForCurrentInterval = false)
         return newState to emptyList()
     }

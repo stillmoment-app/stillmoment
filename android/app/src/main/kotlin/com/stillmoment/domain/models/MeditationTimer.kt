@@ -19,7 +19,7 @@ data class MeditationTimer(
     val state: TimerState,
     val countdownSeconds: Int = 0,
     val countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION,
-    val lastIntervalGongAt: Int? = null,
+    val lastIntervalGongAt: Int? = null
 ) {
     init {
         require(durationMinutes in 1..60) {
@@ -55,7 +55,7 @@ data class MeditationTimer(
             val newState = if (newCountdown <= 0) TimerState.Running else TimerState.Countdown
             return copy(
                 countdownSeconds = newCountdown,
-                state = newState,
+                state = newState
             )
         }
 
@@ -64,7 +64,7 @@ data class MeditationTimer(
         val newState = if (newRemaining <= 0) TimerState.Completed else state
         return copy(
             remainingSeconds = newRemaining,
-            state = newState,
+            state = newState
         )
     }
 
@@ -78,7 +78,7 @@ data class MeditationTimer(
         return copy(
             state = TimerState.Countdown,
             countdownSeconds = countdownDuration,
-            lastIntervalGongAt = null,
+            lastIntervalGongAt = null
         )
     }
 
@@ -117,7 +117,7 @@ data class MeditationTimer(
             remainingSeconds = durationMinutes * 60,
             state = TimerState.Idle,
             countdownSeconds = 0,
-            lastIntervalGongAt = null,
+            lastIntervalGongAt = null
         )
     }
 
@@ -134,17 +134,14 @@ data class MeditationTimer(
          * @return A new MeditationTimer instance
          * @throws IllegalArgumentException if duration is not between 1 and 60 minutes
          */
-        fun create(
-            durationMinutes: Int,
-            countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION,
-        ): MeditationTimer {
+        fun create(durationMinutes: Int, countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION): MeditationTimer {
             return MeditationTimer(
                 durationMinutes = durationMinutes,
                 remainingSeconds = durationMinutes * 60,
                 state = TimerState.Idle,
                 countdownSeconds = 0,
                 countdownDuration = countdownDuration,
-                lastIntervalGongAt = null,
+                lastIntervalGongAt = null
             )
         }
     }

@@ -38,7 +38,7 @@ data class TimerUiState(
     /** Error message to show */
     val errorMessage: String? = null,
     /** Whether settings sheet is visible */
-    val showSettings: Boolean = false,
+    val showSettings: Boolean = false
 ) {
     // Convenience accessors delegating to displayState
     val timerState: TimerState get() = displayState.timerState
@@ -71,7 +71,7 @@ constructor(
     application: Application,
     private val audioService: AudioService,
     private val settingsRepository: SettingsRepository,
-    private val timerRepository: TimerRepositoryImpl,
+    private val timerRepository: TimerRepositoryImpl
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -94,7 +94,7 @@ constructor(
             TimerReducer.reduce(
                 currentState.displayState,
                 action,
-                currentState.settings,
+                currentState.settings
             )
 
         // Update state
@@ -254,8 +254,8 @@ constructor(
                             totalSeconds = updatedTimer.totalSeconds,
                             countdownSeconds = updatedTimer.countdownSeconds,
                             progress = updatedTimer.progress,
-                            state = updatedTimer.state,
-                        ),
+                            state = updatedTimer.state
+                        )
                     )
 
                     // Handle state transitions
@@ -277,7 +277,7 @@ constructor(
             }
     }
 
-    private fun handleStateTransition(oldState: TimerState, newState: TimerState,) {
+    private fun handleStateTransition(oldState: TimerState, newState: TimerState) {
         // Countdown → Running: Dispatch countdown finished action
         if (oldState == TimerState.Countdown && newState == TimerState.Running) {
             dispatch(TimerAction.CountdownFinished)
@@ -319,7 +319,7 @@ constructor(
                         }
                     state.copy(
                         displayState = newDisplayState,
-                        settings = settings,
+                        settings = settings
                     )
                 }
             }

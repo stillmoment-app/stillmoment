@@ -93,7 +93,7 @@ class GuidedMeditationsListViewModelTest {
                 listOf(
                     createTestGroup("Teacher A", 3),
                     createTestGroup("Teacher B", 2),
-                    createTestGroup("Teacher C", 5),
+                    createTestGroup("Teacher C", 5)
                 )
             val state = GuidedMeditationsListUiState(groups = groups)
 
@@ -116,7 +116,7 @@ class GuidedMeditationsListViewModelTest {
             val state =
                 GuidedMeditationsListUiState(
                     groups = emptyList(),
-                    isLoading = false,
+                    isLoading = false
                 )
 
             assertTrue(state.isEmpty)
@@ -127,7 +127,7 @@ class GuidedMeditationsListViewModelTest {
             val state =
                 GuidedMeditationsListUiState(
                     groups = listOf(createTestGroup("Teacher", 1)),
-                    isLoading = false,
+                    isLoading = false
                 )
 
             assertFalse(state.isEmpty)
@@ -138,7 +138,7 @@ class GuidedMeditationsListViewModelTest {
             val state =
                 GuidedMeditationsListUiState(
                     groups = emptyList(),
-                    isLoading = true,
+                    isLoading = true
                 )
 
             assertFalse(state.isEmpty)
@@ -160,7 +160,7 @@ class GuidedMeditationsListViewModelTest {
                 listOf(
                     createTestGroup("Tara Brach", 2),
                     createTestGroup("Jack Kornfield", 1),
-                    createTestGroup("Sharon Salzberg", 3),
+                    createTestGroup("Sharon Salzberg", 3)
                 )
             val state = GuidedMeditationsListUiState(groups = groups)
 
@@ -176,7 +176,7 @@ class GuidedMeditationsListViewModelTest {
                 listOf(
                     createTestGroup("Zebra Teacher", 1),
                     createTestGroup("Alpha Teacher", 1),
-                    createTestGroup("Middle Teacher", 1),
+                    createTestGroup("Middle Teacher", 1)
                 )
             val state = GuidedMeditationsListUiState(groups = groups)
 
@@ -623,22 +623,22 @@ class GuidedMeditationsListViewModelTest {
         id: String = java.util.UUID.randomUUID().toString(),
         name: String = "Test Meditation",
         teacher: String = "Test Teacher",
-        duration: Long = 600_000L,
+        duration: Long = 600_000L
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = "content://test/uri",
         fileName = "test.mp3",
         duration = duration,
         teacher = teacher,
-        name = name,
+        name = name
     )
 
-    private fun createTestGroup(teacher: String, meditationCount: Int,): GuidedMeditationGroup {
+    private fun createTestGroup(teacher: String, meditationCount: Int): GuidedMeditationGroup {
         val meditations =
             (1..meditationCount).map { index ->
                 createTestMeditation(
                     name = "Meditation $index",
-                    teacher = teacher,
+                    teacher = teacher
                 )
             }
         return GuidedMeditationGroup(teacher = teacher, meditations = meditations)
@@ -689,7 +689,7 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
                     fileName = "imported.mp3",
                     duration = 600_000L,
                     teacher = "Imported Teacher",
-                    name = "Imported Meditation",
+                    name = "Imported Meditation"
                 )
             _meditations.value = _meditations.value + meditation
             Result.success(meditation)

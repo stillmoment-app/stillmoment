@@ -26,7 +26,7 @@ constructor() : AudioSessionCoordinatorProtocol {
 
     private val conflictHandlers = mutableMapOf<AudioSource, () -> Unit>()
 
-    override fun registerConflictHandler(source: AudioSource, handler: () -> Unit,) {
+    override fun registerConflictHandler(source: AudioSource, handler: () -> Unit) {
         conflictHandlers[source] = handler
     }
 

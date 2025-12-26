@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 
 // Extension property for DataStore - uses different name than settings
 private val Context.meditationsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "guided_meditations",
+    name = "guided_meditations"
 )
 
 /**
@@ -31,7 +31,7 @@ private val Context.meditationsDataStore: DataStore<Preferences> by preferencesD
 class GuidedMeditationDataStore
 @Inject
 constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context
 ) {
     private val json =
         Json {

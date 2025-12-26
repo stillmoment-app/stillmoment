@@ -30,7 +30,7 @@ data class GuidedMeditation(
     /** Custom meditation name set by user (overrides ID3 tag) */
     val customName: String? = null,
     /** Timestamp when the meditation was added to the library */
-    val dateAdded: Long = System.currentTimeMillis(),
+    val dateAdded: Long = System.currentTimeMillis()
 ) {
     /**
      * Returns the effective teacher name (custom if set, otherwise original)

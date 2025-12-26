@@ -104,7 +104,7 @@ class MeditationSettingsTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 backgroundSoundId = "forest",
-                durationMinutes = 20,
+                durationMinutes = 20
             )
 
         assertTrue(settings.intervalGongsEnabled)

@@ -41,7 +41,7 @@ private val StillMomentColorScheme =
         error = WarmError,
         onError = Color.White,
         outline = WarmGray,
-        outlineVariant = RingBackground,
+        outlineVariant = RingBackground
     )
 
 @Composable
@@ -68,7 +68,7 @@ fun StillMomentTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = colorScheme,
         typography = StillMomentTypography,
-        content = content,
+        content = content
     )
 }
 
@@ -87,11 +87,11 @@ fun WarmGradientBackground(modifier: Modifier = Modifier) {
                 Brush.verticalGradient(
                     colors =
                     listOf(
-                        WarmCream, // top
-                        WarmSand, // middle
-                        PaleApricot, // bottom
-                    ),
-                ),
-            ),
+                        WarmCream,
+                        WarmSand,
+                        PaleApricot,
+                    )
+                )
+            )
     )
 }

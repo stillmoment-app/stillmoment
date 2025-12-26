@@ -127,7 +127,7 @@ class GuidedMeditationRepositoryImplTest {
             val meditations =
                 listOf(
                     createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
-                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2"),
+                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2")
                 )
 
             // When
@@ -146,7 +146,7 @@ class GuidedMeditationRepositoryImplTest {
             val original =
                 listOf(
                     createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
-                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2"),
+                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2")
                 )
             val jsonString = json.encodeToString(original)
 
@@ -197,8 +197,8 @@ class GuidedMeditationRepositoryImplTest {
                         name = "Original Name",
                         customTeacher = "Custom Teacher",
                         customName = "Custom Name",
-                        dateAdded = 1234567890L,
-                    ),
+                        dateAdded = 1234567890L
+                    )
                 )
 
             // When
@@ -247,7 +247,7 @@ class GuidedMeditationRepositoryImplTest {
         name: String = "Test Meditation",
         customTeacher: String? = null,
         customName: String? = null,
-        dateAdded: Long = System.currentTimeMillis(),
+        dateAdded: Long = System.currentTimeMillis()
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = fileUri,
@@ -257,6 +257,6 @@ class GuidedMeditationRepositoryImplTest {
         name = name,
         customTeacher = customTeacher,
         customName = customName,
-        dateAdded = dateAdded,
+        dateAdded = dateAdded
     )
 }

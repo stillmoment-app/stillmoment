@@ -21,7 +21,7 @@ data class EditSheetState(
     /** Current edited teacher value */
     val editedTeacher: String,
     /** Current edited name value */
-    val editedName: String,
+    val editedName: String
 ) {
     /**
      * Whether changes have been made compared to original values.
@@ -61,7 +61,7 @@ data class EditSheetState(
             customName =
             editedName.takeIf {
                 it.isNotBlank() && it != originalMeditation.name
-            },
+            }
         )
     }
 
@@ -78,7 +78,7 @@ data class EditSheetState(
             return EditSheetState(
                 originalMeditation = meditation,
                 editedTeacher = meditation.effectiveTeacher,
-                editedName = meditation.effectiveName,
+                editedName = meditation.effectiveName
             )
         }
     }

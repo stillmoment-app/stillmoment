@@ -34,7 +34,7 @@ data class PlayerUiState(
     /** Error message if any */
     val error: String? = null,
     /** Whether playback has completed */
-    val isCompleted: Boolean = false,
+    val isCompleted: Boolean = false
 ) {
     /** Formatted current position (MM:SS or HH:MM:SS) */
     val formattedPosition: String
@@ -74,7 +74,7 @@ class GuidedMeditationPlayerViewModel
 @Inject
 constructor(
     private val audioPlayerService: AudioPlayerServiceProtocol,
-    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol,
+    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
@@ -97,7 +97,7 @@ constructor(
                         progress = state.progress,
                         error = state.error,
                         // Clear loading state when playback starts or error occurs
-                        isLoading = if (state.isPlaying || state.error != null) false else it.isLoading,
+                        isLoading = if (state.isPlaying || state.error != null) false else it.isLoading
                     )
                 }
             }
@@ -115,7 +115,7 @@ constructor(
                 it.copy(
                     isPlaying = false,
                     currentPosition = 0L,
-                    progress = 0f,
+                    progress = 0f
                 )
             }
         }
@@ -137,7 +137,7 @@ constructor(
                 progress = 0f,
                 isPlaying = false,
                 isCompleted = false,
-                error = null,
+                error = null
             )
         }
     }
@@ -216,7 +216,7 @@ constructor(
             it.copy(
                 currentPosition = clampedPosition,
                 progress = if (duration > 0) clampedPosition.toFloat() / duration else 0f,
-                isCompleted = false,
+                isCompleted = false
             )
         }
     }
@@ -268,7 +268,7 @@ constructor(
             it.copy(
                 isPlaying = false,
                 currentPosition = 0L,
-                progress = 0f,
+                progress = 0f
             )
         }
     }
@@ -281,7 +281,7 @@ constructor(
                 isPlaying = false,
                 isCompleted = true,
                 progress = 1f,
-                currentPosition = it.duration,
+                currentPosition = it.duration
             )
         }
     }

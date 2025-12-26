@@ -218,7 +218,7 @@ class MeditationTimerTest {
                     state = TimerState.Running,
                     remainingSeconds = 100,
                     countdownSeconds = 5,
-                    lastIntervalGongAt = 300,
+                    lastIntervalGongAt = 300
                 )
 
         // When
@@ -386,7 +386,7 @@ class MeditationTimerTest {
                 .copy(
                     state = TimerState.Running,
                     remainingSeconds = 300,
-                    lastIntervalGongAt = 300,
+                    lastIntervalGongAt = 300
                 )
 
         // When/Then: Should NOT play again at same remaining seconds
@@ -402,7 +402,7 @@ class MeditationTimerTest {
                 .copy(
                     state = TimerState.Running,
                     remainingSeconds = 1, // Almost done, but still running
-                    lastIntervalGongAt = 300,
+                    lastIntervalGongAt = 300
                 )
 
         // When/Then: Should NOT play (we're at 9:59 elapsed, already played at 5:00)

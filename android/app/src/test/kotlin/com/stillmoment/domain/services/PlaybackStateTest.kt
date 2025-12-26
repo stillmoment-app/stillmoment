@@ -32,7 +32,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 0L,
-                    duration = 0L,
+                    duration = 0L
                 )
 
             assertEquals(0f, state.progress)
@@ -43,7 +43,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 0L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals(0f, state.progress)
@@ -54,7 +54,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 300_000L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals(1f, state.progress)
@@ -65,7 +65,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 150_000L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals(0.5f, state.progress)
@@ -76,7 +76,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 75_000L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals(0.25f, state.progress)
@@ -87,7 +87,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 123_456L,
-                    duration = 500_000L,
+                    duration = 500_000L
                 )
 
             assertEquals(123_456f / 500_000f, state.progress, 0.0001f)
@@ -105,7 +105,7 @@ class PlaybackStateTest {
                     isPlaying = true,
                     currentPosition = 60_000L,
                     duration = 300_000L,
-                    error = null,
+                    error = null
                 )
 
             val updated = original.copy(currentPosition = 120_000L)
@@ -144,7 +144,7 @@ class PlaybackStateTest {
                 PlaybackState(
                     isPlaying = true,
                     currentPosition = 60_000L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
             val paused = playing.copy(isPlaying = false)
 
@@ -159,7 +159,7 @@ class PlaybackStateTest {
             val error =
                 playing.copy(
                     isPlaying = false,
-                    error = "Playback failed",
+                    error = "Playback failed"
                 )
 
             assertFalse(error.isPlaying)
@@ -176,7 +176,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 1L,
-                    duration = 1L,
+                    duration = 1L
                 )
 
             assertEquals(1f, state.progress)
@@ -187,7 +187,7 @@ class PlaybackStateTest {
             val state =
                 PlaybackState(
                     currentPosition = 36_000_000L, // 10 hours
-                    duration = 72_000_000L, // 20 hours
+                    duration = 72_000_000L // 20 hours
                 )
 
             assertEquals(0.5f, state.progress)

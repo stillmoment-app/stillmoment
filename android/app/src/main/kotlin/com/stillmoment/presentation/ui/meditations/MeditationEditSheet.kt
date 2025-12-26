@@ -58,7 +58,7 @@ fun MeditationEditSheet(
     availableTeachers: List<String> = emptyList(),
     onDismiss: () -> Unit,
     onSave: (GuidedMeditation) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -71,7 +71,7 @@ fun MeditationEditSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        modifier = modifier,
+        modifier = modifier
     ) {
         MeditationEditSheetContent(
             meditation = meditation,
@@ -82,7 +82,7 @@ fun MeditationEditSheet(
             onTeacherChange = { editState = editState.copy(editedTeacher = it) },
             onNameChange = { editState = editState.copy(editedName = it) },
             onSave = { onSave(editState.applyChanges()) },
-            onCancel = onDismiss,
+            onCancel = onDismiss
         )
     }
 }
@@ -102,24 +102,24 @@ private fun MeditationEditSheetContent(
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier =
         modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp)
-            .padding(bottom = 32.dp),
+            .padding(bottom = 32.dp)
     ) {
         // Title
         Text(
             text = stringResource(R.string.edit_meditation_title),
             style =
             MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             ),
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.semantics { heading() },
+            modifier = Modifier.semantics { heading() }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -135,8 +135,8 @@ private fun MeditationEditSheetContent(
             keyboardOptions =
             KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
-                imeAction = ImeAction.Next,
-            ),
+                imeAction = ImeAction.Next
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -153,13 +153,13 @@ private fun MeditationEditSheetContent(
             OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                focusedLabelColor = MaterialTheme.colorScheme.primary
             ),
             keyboardOptions =
             KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Done,
-            ),
+                imeAction = ImeAction.Done
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -169,17 +169,17 @@ private fun MeditationEditSheetContent(
             modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp)
         ) {
             // File name row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = stringResource(R.string.edit_file_label),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = meditation.fileName,
@@ -188,7 +188,7 @@ private fun MeditationEditSheetContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
             }
 
@@ -197,24 +197,24 @@ private fun MeditationEditSheetContent(
             // Duration row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = stringResource(R.string.edit_duration_label),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = meditation.formattedDuration,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
 
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
-            color = MaterialTheme.colorScheme.outlineVariant,
+            color = MaterialTheme.colorScheme.outlineVariant
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -227,12 +227,12 @@ private fun MeditationEditSheetContent(
             colors =
             ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text(
                 text = stringResource(R.string.common_save),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLarge
             )
         }
 
@@ -241,12 +241,12 @@ private fun MeditationEditSheetContent(
         // Cancel button
         TextButton(
             onClick = onCancel,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text(
                 text = stringResource(R.string.common_cancel),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -264,7 +264,7 @@ private fun MeditationEditSheetDefaultPreview() {
             fileName = "loving-kindness.mp3",
             duration = 1_200_000L,
             teacher = "Tara Brach",
-            name = "Loving Kindness",
+            name = "Loving Kindness"
         )
     StillMomentTheme {
         MeditationEditSheetContent(
@@ -276,7 +276,7 @@ private fun MeditationEditSheetDefaultPreview() {
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},
-            onCancel = {},
+            onCancel = {}
         )
     }
 }
@@ -291,7 +291,7 @@ private fun MeditationEditSheetWithChangesPreview() {
             fileName = "body-scan.mp3",
             duration = 900_000L,
             teacher = "Unknown Artist",
-            name = "Track 01",
+            name = "Track 01"
         )
     StillMomentTheme {
         MeditationEditSheetContent(
@@ -303,7 +303,7 @@ private fun MeditationEditSheetWithChangesPreview() {
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},
-            onCancel = {},
+            onCancel = {}
         )
     }
 }
@@ -318,7 +318,7 @@ private fun MeditationEditSheetLongTextPreview() {
             fileName = "very-long-meditation-file-name-that-should-truncate.mp3",
             duration = 3_600_000L,
             teacher = "Joseph Goldstein",
-            name = "A Very Long Meditation Title That Tests Text Wrapping",
+            name = "A Very Long Meditation Title That Tests Text Wrapping"
         )
     StillMomentTheme {
         MeditationEditSheetContent(
@@ -330,7 +330,7 @@ private fun MeditationEditSheetLongTextPreview() {
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},
-            onCancel = {},
+            onCancel = {}
         )
     }
 }

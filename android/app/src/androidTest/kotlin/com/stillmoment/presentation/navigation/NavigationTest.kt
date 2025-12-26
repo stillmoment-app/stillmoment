@@ -133,14 +133,14 @@ private fun TestNavigationHost() {
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Timer,
-                            contentDescription = null,
+                            contentDescription = null
                         )
                     },
                     label = { Text("Timer") },
                     modifier =
                     Modifier.semantics {
                         contentDescription = "Navigate to timer"
-                    },
+                    }
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
@@ -148,24 +148,24 @@ private fun TestNavigationHost() {
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.LibraryMusic,
-                            contentDescription = null,
+                            contentDescription = null
                         )
                     },
                     label = { Text("Library") },
                     modifier =
                     Modifier.semantics {
                         contentDescription = "Navigate to library"
-                    },
+                    }
                 )
             }
-        },
+        }
     ) { padding ->
         Box(
             modifier =
             Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             when (selectedTab) {
                 0 -> Text("Timer Content")

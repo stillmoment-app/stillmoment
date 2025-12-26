@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.map
 
 // Extension property for DataStore
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "settings",
+    name = "settings"
 )
 
 /**
@@ -30,7 +30,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 class SettingsDataStore
 @Inject
 constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context
 ) : SettingsRepository {
     private object Keys {
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
@@ -60,7 +60,7 @@ constructor(
                         ?: MeditationSettings.Default.backgroundSoundId,
                     durationMinutes =
                     preferences[Keys.DURATION_MINUTES]
-                        ?: MeditationSettings.Default.durationMinutes,
+                        ?: MeditationSettings.Default.durationMinutes
                 )
             }
 

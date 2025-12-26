@@ -103,7 +103,7 @@ class GuidedMeditationPlayerViewModelTest {
             val state =
                 PlayerUiState(
                     currentPosition = 60_000L, // 1 minute
-                    duration = 300_000L, // 5 minutes
+                    duration = 300_000L // 5 minutes
                 )
 
             assertEquals("4:00", state.formattedRemaining)
@@ -114,7 +114,7 @@ class GuidedMeditationPlayerViewModelTest {
             val state =
                 PlayerUiState(
                     currentPosition = 300_000L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals("0:00", state.formattedRemaining)
@@ -125,7 +125,7 @@ class GuidedMeditationPlayerViewModelTest {
             val state =
                 PlayerUiState(
                     currentPosition = 400_000L, // Over duration
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             // Should show 0:00, not negative
@@ -142,7 +142,7 @@ class GuidedMeditationPlayerViewModelTest {
             val state =
                 PlayerUiState(
                     currentPosition = 0L,
-                    duration = 300_000L,
+                    duration = 300_000L
                 )
 
             assertEquals(0f, state.progress)
@@ -154,7 +154,7 @@ class GuidedMeditationPlayerViewModelTest {
                 PlayerUiState(
                     currentPosition = 300_000L,
                     duration = 300_000L,
-                    progress = 1f,
+                    progress = 1f
                 )
 
             assertEquals(1f, state.progress)
@@ -166,7 +166,7 @@ class GuidedMeditationPlayerViewModelTest {
                 PlayerUiState(
                     currentPosition = 150_000L,
                     duration = 300_000L,
-                    progress = 0.5f,
+                    progress = 0.5f
                 )
 
             assertEquals(0.5f, state.progress)
@@ -186,7 +186,7 @@ class GuidedMeditationPlayerViewModelTest {
                     isPlaying = true,
                     currentPosition = 60_000L,
                     duration = 300_000L,
-                    progress = 0.2f,
+                    progress = 0.2f
                 )
 
             val updated = original.copy(currentPosition = 120_000L)
@@ -217,7 +217,7 @@ class GuidedMeditationPlayerViewModelTest {
             val meditation =
                 createTestMeditation(
                     name = "Test Meditation",
-                    duration = 600_000L,
+                    duration = 600_000L
                 )
 
             val state =
@@ -226,7 +226,7 @@ class GuidedMeditationPlayerViewModelTest {
                     duration = meditation.duration,
                     currentPosition = 0L,
                     progress = 0f,
-                    isPlaying = false,
+                    isPlaying = false
                 )
 
             assertNotNull(state.meditation)
@@ -247,7 +247,7 @@ class GuidedMeditationPlayerViewModelTest {
                     isPlaying = true,
                     currentPosition = 30_000L,
                     duration = 300_000L,
-                    progress = 0.1f,
+                    progress = 0.1f
                 )
 
             assertTrue(state.isPlaying)
@@ -261,7 +261,7 @@ class GuidedMeditationPlayerViewModelTest {
                     isPlaying = false,
                     currentPosition = 150_000L,
                     duration = 300_000L,
-                    progress = 0.5f,
+                    progress = 0.5f
                 )
 
             assertFalse(state.isPlaying)
@@ -276,7 +276,7 @@ class GuidedMeditationPlayerViewModelTest {
                     isCompleted = true,
                     currentPosition = 300_000L,
                     duration = 300_000L,
-                    progress = 1f,
+                    progress = 1f
                 )
 
             assertFalse(state.isPlaying)
@@ -316,7 +316,7 @@ class GuidedMeditationPlayerViewModelTest {
                 PlayerUiState(
                     currentPosition = 0L,
                     duration = 0L,
-                    progress = 0f,
+                    progress = 0f
                 )
 
             assertEquals("0:00", state.formattedDuration)
@@ -329,7 +329,7 @@ class GuidedMeditationPlayerViewModelTest {
             val state =
                 PlayerUiState(
                     currentPosition = 0L,
-                    duration = 36_000_000L, // 10 hours
+                    duration = 36_000_000L // 10 hours
                 )
 
             assertEquals("10:00:00", state.formattedDuration)
@@ -343,13 +343,13 @@ class GuidedMeditationPlayerViewModelTest {
         id: String = java.util.UUID.randomUUID().toString(),
         name: String = "Test Meditation",
         teacher: String = "Test Teacher",
-        duration: Long = 600_000L,
+        duration: Long = 600_000L
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = "content://test/uri",
         fileName = "test.mp3",
         duration = duration,
         teacher = teacher,
-        name = name,
+        name = name
     )
 }

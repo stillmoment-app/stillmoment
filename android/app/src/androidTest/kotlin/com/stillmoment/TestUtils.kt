@@ -15,9 +15,8 @@ import androidx.compose.ui.test.hasText
  * @param text The text to search for (case insensitive)
  * @return SemanticsNodeInteraction for the matching node
  */
-fun SemanticsNodeInteractionsProvider.onNodeWithTextIgnoreCase(
-    text: String
-): SemanticsNodeInteraction = onNode(hasText(text, ignoreCase = true))
+fun SemanticsNodeInteractionsProvider.onNodeWithTextIgnoreCase(text: String): SemanticsNodeInteraction =
+    onNode(hasText(text, ignoreCase = true))
 
 /**
  * Checks if a node with the given text exists.

@@ -15,37 +15,33 @@ trim_trailing_whitespace = true
 ktlint_code_style = android_studio
 max_line_length = 120
 
-# Disable trailing comma requirement (causes many issues)
+# Trailing commas: disabled (Kotlin style guide says optional, causes churn)
 ktlint_standard_trailing-comma-on-call-site = disabled
 ktlint_standard_trailing-comma-on-declaration-site = disabled
 
-# Allow backtick function names in tests (JUnit 5 style)
+# Allow backtick function names in tests (JUnit 5 style: `should do X`())
 ktlint_standard_function-naming = disabled
 
-# Allow inline comments in argument lists
+# Allow underscore prefix for backing properties (_state pattern in Flow/StateFlow)
+ktlint_standard_property-naming = disabled
+
+[*Test.kt]
+# Allow wildcard imports in tests (common for JUnit, assertions)
+ktlint_standard_no-wildcard-imports = disabled
+# Allow inline comments in test data (e.g., duration = 1_200_000L, // 20 min)
 ktlint_standard_discouraged-comment-location = disabled
 
-# Allow consecutive KDoc comments
-ktlint_standard_no-consecutive-comments = disabled
-
-# Disable strict indentation check (existing code uses mixed styles)
-ktlint_standard_indent = disabled
-
-# Disable multiline expression wrapping (existing code)
-ktlint_standard_multiline-expression-wrapping = disabled
-
-# Disable function signature formatting
-ktlint_standard_function-signature = disabled
-
-# Disable paren/parameter spacing
-ktlint_standard_paren-spacing = disabled
-ktlint_standard_parameter-list-spacing = disabled
-
-# Allow wildcard imports (common in tests)
+[*Tests.kt]
 ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_discouraged-comment-location = disabled
 
-# Allow underscore prefix for backing properties (_state pattern)
-ktlint_standard_property-naming = disabled
+[**/test/**/*.kt]
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_discouraged-comment-location = disabled
+
+[**/androidTest/**/*.kt]
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_discouraged-comment-location = disabled
 
 [*.md]
 trim_trailing_whitespace = false

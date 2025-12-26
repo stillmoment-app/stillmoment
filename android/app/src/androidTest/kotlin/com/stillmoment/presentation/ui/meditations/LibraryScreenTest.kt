@@ -50,7 +50,7 @@ class LibraryScreenTest {
                     onDeleteMeditation = {},
                     onDismissEditSheet = {},
                     onSaveMeditation = {},
-                    onClearError = {},
+                    onClearError = {}
                 )
             }
         }
@@ -61,7 +61,7 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsEmptyStateTitle_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
         )
         composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()
     }
@@ -69,7 +69,7 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsEmptyStateDescription_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
         )
         composeRule.onNodeWithText(
             "Import meditation audio files",
@@ -82,7 +82,7 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsEmptyStateImportButton_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
         )
         composeRule.onNodeWithText("Import Meditation", ignoreCase = true).assertIsDisplayed()
     }
@@ -104,13 +104,13 @@ class LibraryScreenTest {
                             fileName = "test.mp3",
                             duration = 600_000L,
                             teacher = "Test Teacher",
-                            name = "Test Meditation",
-                        ),
-                    ),
-                ),
+                            name = "Test Meditation"
+                        )
+                    )
+                )
             )
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups),
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups)
         )
         // With data shown, only the FAB has the import description
         composeRule.onNodeWithContentDescription("Import", substring = true, ignoreCase = true)

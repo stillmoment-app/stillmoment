@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 private data class MediaMetadata(
     val duration: Long,
     val artist: String?,
-    val title: String?,
+    val title: String?
 )
 
 /**
@@ -37,7 +37,7 @@ class GuidedMeditationRepositoryImpl
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val dataStore: GuidedMeditationDataStore,
+    private val dataStore: GuidedMeditationDataStore
 ) : GuidedMeditationRepository {
     override val meditationsFlow: Flow<List<GuidedMeditation>> = dataStore.meditationsFlow
 
@@ -63,7 +63,7 @@ constructor(
                         fileName = originalFileName,
                         duration = metadata.duration,
                         teacher = metadata.artist ?: DEFAULT_TEACHER,
-                        name = metadata.title ?: fileNameWithoutExtension(originalFileName),
+                        name = metadata.title ?: fileNameWithoutExtension(originalFileName)
                     )
 
                 // 5. Persist to DataStore
@@ -117,7 +117,7 @@ constructor(
      * @param originalFileName The original file name for extension detection
      * @return The local File in app storage
      */
-    private fun copyFileToInternalStorage(sourceUri: Uri, originalFileName: String,): File {
+    private fun copyFileToInternalStorage(sourceUri: Uri, originalFileName: String): File {
         // Create meditations directory if it doesn't exist
         val meditationsDir = File(context.filesDir, MEDITATIONS_DIR)
         if (!meditationsDir.exists()) {
@@ -169,23 +169,23 @@ constructor(
             MediaMetadata(
                 duration =
                 retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_DURATION,
+                    MediaMetadataRetriever.METADATA_KEY_DURATION
                 )?.toLongOrNull() ?: 0L,
                 artist =
                 retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                    MediaMetadataRetriever.METADATA_KEY_ARTIST
                 )?.takeIf { it.isNotBlank() },
                 title =
                 retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_TITLE,
-                )?.takeIf { it.isNotBlank() },
+                    MediaMetadataRetriever.METADATA_KEY_TITLE
+                )?.takeIf { it.isNotBlank() }
             )
         } catch (e: Exception) {
             // Return default metadata if extraction fails
             MediaMetadata(
                 duration = 0L,
                 artist = null,
-                title = null,
+                title = null
             )
         } finally {
             retriever.release()

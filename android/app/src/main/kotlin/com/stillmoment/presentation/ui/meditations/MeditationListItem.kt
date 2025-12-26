@@ -52,13 +52,13 @@ fun MeditationListItem(
     onClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val itemDescription =
         stringResource(
             R.string.accessibility_meditation_item,
             meditation.effectiveName,
-            meditation.formattedDuration,
+            meditation.formattedDuration
         )
     val overflowDescription = stringResource(R.string.accessibility_overflow_menu)
     var showMenu by remember { mutableStateOf(false) }
@@ -72,47 +72,47 @@ fun MeditationListItem(
             .semantics { contentDescription = itemDescription },
         colors =
         CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = Color.White
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Play icon (decorative)
             Icon(
                 imageVector = Icons.Default.PlayCircle,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(20.dp)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
             // Meditation info
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = meditation.effectiveName,
                     style =
                     MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Medium
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = meditation.formattedDuration,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -123,19 +123,19 @@ fun MeditationListItem(
                     modifier =
                     Modifier.semantics {
                         contentDescription = overflowDescription
-                    },
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(20.dp)
                     )
                 }
 
                 DropdownMenu(
                     expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
+                    onDismissRequest = { showMenu = false }
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.common_edit)) },
@@ -146,15 +146,15 @@ fun MeditationListItem(
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = null,
+                                contentDescription = null
                             )
-                        },
+                        }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(
                                 text = stringResource(R.string.common_delete),
-                                color = MaterialTheme.colorScheme.error,
+                                color = MaterialTheme.colorScheme.error
                             )
                         },
                         onClick = {
@@ -165,9 +165,9 @@ fun MeditationListItem(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
+                                tint = MaterialTheme.colorScheme.error
                             )
-                        },
+                        }
                     )
                 }
             }
@@ -184,13 +184,14 @@ private fun MeditationListItemPreview() {
             GuidedMeditation(
                 fileUri = "content://test",
                 fileName = "meditation.mp3",
-                duration = 1_200_000L, // 20 minutes
+                // 20 minutes
+                duration = 1_200_000L,
                 teacher = "Tara Brach",
                 name = "Loving Kindness Meditation",
             ),
             onClick = {},
             onEditClick = {},
-            onDeleteClick = {},
+            onDeleteClick = {}
         )
     }
 }

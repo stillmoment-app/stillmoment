@@ -25,7 +25,7 @@ import javax.inject.Singleton
 class MediaSessionManager
 @Inject
 constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context
 ) {
     private var _mediaSession: MediaSessionCompat? = null
 
@@ -76,7 +76,7 @@ constructor(
                         override fun onSeekTo(pos: Long) {
                             callback.onSeekTo(pos)
                         }
-                    },
+                    }
                 )
                 isActive = true
             }
@@ -95,7 +95,7 @@ constructor(
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.effectiveName)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.effectiveTeacher)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, meditation.duration)
-                .build(),
+                .build()
         )
     }
 
@@ -106,7 +106,7 @@ constructor(
      * @param position Current playback position in milliseconds
      * @param duration Total duration in milliseconds (unused but kept for API consistency)
      */
-    fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long,) {
+    fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long) {
         val state =
             if (isPlaying) {
                 PlaybackStateCompat.STATE_PLAYING
@@ -122,9 +122,9 @@ constructor(
                         PlaybackStateCompat.ACTION_PAUSE or
                         PlaybackStateCompat.ACTION_PLAY_PAUSE or // CRITICAL: For wired headphones!
                         PlaybackStateCompat.ACTION_SEEK_TO or
-                        PlaybackStateCompat.ACTION_STOP,
+                        PlaybackStateCompat.ACTION_STOP
                 )
-                .build(),
+                .build()
         )
     }
 

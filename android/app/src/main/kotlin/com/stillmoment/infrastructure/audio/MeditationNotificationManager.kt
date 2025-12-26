@@ -31,7 +31,7 @@ import javax.inject.Singleton
 class MeditationNotificationManager
 @Inject
 constructor(
-    @ApplicationContext private val context: Context,
+    @ApplicationContext private val context: Context
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -50,7 +50,7 @@ constructor(
                 NotificationChannel(
                     CHANNEL_ID,
                     CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_LOW,
+                    NotificationManager.IMPORTANCE_LOW
                 ).apply {
                     description = CHANNEL_DESCRIPTION
                     setShowBadge(false)
@@ -71,7 +71,7 @@ constructor(
     fun buildNotification(
         meditation: GuidedMeditation,
         isPlaying: Boolean,
-        mediaSession: MediaSessionCompat,
+        mediaSession: MediaSessionCompat
     ): Notification {
         val contentIntent =
             PendingIntent.getActivity(
@@ -80,7 +80,7 @@ constructor(
                 Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
         // Play/Pause action
@@ -88,7 +88,7 @@ constructor(
             NotificationCompat.Action(
                 if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
                 if (isPlaying) "Pause" else "Play",
-                createMediaPendingIntent(if (isPlaying) ACTION_PAUSE else ACTION_PLAY),
+                createMediaPendingIntent(if (isPlaying) ACTION_PAUSE else ACTION_PLAY)
             )
 
         // Stop action
@@ -96,7 +96,7 @@ constructor(
             NotificationCompat.Action(
                 R.drawable.ic_notification,
                 "Stop",
-                createMediaPendingIntent(ACTION_STOP),
+                createMediaPendingIntent(ACTION_STOP)
             )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
@@ -113,7 +113,8 @@ constructor(
             .setStyle(
                 MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0), // Show play/pause in compact view
+                    // Show play/pause in compact view
+                    .setShowActionsInCompactView(0)
             )
             .build()
     }
@@ -143,7 +144,7 @@ constructor(
             context,
             action.hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 

@@ -12,7 +12,7 @@ data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
     val backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
-    val durationMinutes: Int = DEFAULT_DURATION_MINUTES,
+    val durationMinutes: Int = DEFAULT_DURATION_MINUTES
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -69,13 +69,13 @@ data class MeditationSettings(
             intervalGongsEnabled: Boolean = false,
             intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
             backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
-            durationMinutes: Int = DEFAULT_DURATION_MINUTES,
+            durationMinutes: Int = DEFAULT_DURATION_MINUTES
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
                 intervalMinutes = validateInterval(intervalMinutes),
                 backgroundSoundId = backgroundSoundId,
-                durationMinutes = validateDuration(durationMinutes),
+                durationMinutes = validateDuration(durationMinutes)
             )
         }
     }

@@ -33,7 +33,7 @@ data class GuidedMeditationsListUiState(
     /** Whether delete confirmation is shown */
     val showDeleteConfirmation: Boolean = false,
     /** Meditation pending deletion (awaiting confirmation) */
-    val meditationToDelete: GuidedMeditation? = null,
+    val meditationToDelete: GuidedMeditation? = null
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -58,7 +58,7 @@ data class GuidedMeditationsListUiState(
 class GuidedMeditationsListViewModel
 @Inject
 constructor(
-    private val repository: GuidedMeditationRepository,
+    private val repository: GuidedMeditationRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -78,7 +78,7 @@ constructor(
                     _uiState.update {
                         it.copy(
                             groups = groups,
-                            isLoading = false,
+                            isLoading = false
                         )
                     }
                 }
@@ -104,7 +104,7 @@ constructor(
                     _uiState.update {
                         it.copy(
                             error = error.message ?: "Import failed",
-                            isLoading = false,
+                            isLoading = false
                         )
                     }
                 }
@@ -122,7 +122,7 @@ constructor(
         _uiState.update {
             it.copy(
                 meditationToDelete = meditation,
-                showDeleteConfirmation = true,
+                showDeleteConfirmation = true
             )
         }
     }
@@ -134,7 +134,7 @@ constructor(
         _uiState.update {
             it.copy(
                 meditationToDelete = null,
-                showDeleteConfirmation = false,
+                showDeleteConfirmation = false
             )
         }
     }
@@ -150,7 +150,7 @@ constructor(
             _uiState.update {
                 it.copy(
                     meditationToDelete = null,
-                    showDeleteConfirmation = false,
+                    showDeleteConfirmation = false
                 )
             }
         }
@@ -179,7 +179,7 @@ constructor(
         _uiState.update {
             it.copy(
                 selectedMeditation = meditation,
-                showEditSheet = true,
+                showEditSheet = true
             )
         }
     }
@@ -191,7 +191,7 @@ constructor(
         _uiState.update {
             it.copy(
                 selectedMeditation = null,
-                showEditSheet = false,
+                showEditSheet = false
             )
         }
     }

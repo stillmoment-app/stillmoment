@@ -27,7 +27,7 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideApplicationContext(@ApplicationContext context: Context,): Context {
+    fun provideApplicationContext(@ApplicationContext context: Context): Context {
         return context
     }
 
@@ -39,9 +39,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAudioSessionCoordinator(
-        coordinator: AudioSessionCoordinator
-    ): AudioSessionCoordinatorProtocol {
+    fun provideAudioSessionCoordinator(coordinator: AudioSessionCoordinator): AudioSessionCoordinatorProtocol {
         return coordinator
     }
 
@@ -53,9 +51,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGuidedMeditationRepository(
-        impl: GuidedMeditationRepositoryImpl
-    ): GuidedMeditationRepository {
+    fun provideGuidedMeditationRepository(impl: GuidedMeditationRepositoryImpl): GuidedMeditationRepository {
         return impl
     }
 

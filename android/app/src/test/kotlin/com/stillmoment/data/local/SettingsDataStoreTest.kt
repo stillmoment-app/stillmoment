@@ -31,7 +31,7 @@ class SettingsDataStoreTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 backgroundSoundId = "forest",
-                durationMinutes = 20,
+                durationMinutes = 20
             )
 
         assertTrue(settings.intervalGongsEnabled)
@@ -47,7 +47,7 @@ class SettingsDataStoreTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 backgroundSoundId = "forest",
-                durationMinutes = 30,
+                durationMinutes = 30
             )
 
         val updated = original.copy(intervalMinutes = 5)
@@ -96,7 +96,7 @@ class SettingsDataStoreTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 5,
                 backgroundSoundId = "silent",
-                durationMinutes = 10,
+                durationMinutes = 10
             )
 
         val settings2 =
@@ -104,7 +104,7 @@ class SettingsDataStoreTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 5,
                 backgroundSoundId = "silent",
-                durationMinutes = 10,
+                durationMinutes = 10
             )
 
         val settings3 =
@@ -112,7 +112,7 @@ class SettingsDataStoreTest {
                 intervalGongsEnabled = false,
                 intervalMinutes = 5,
                 backgroundSoundId = "silent",
-                durationMinutes = 10,
+                durationMinutes = 10
             )
 
         assertEquals(settings1, settings2)
@@ -138,12 +138,12 @@ class SettingsDataStoreTest {
         assertEquals(
             "timer",
             SettingsDataStore.TAB_TIMER,
-            "TAB_TIMER must remain 'timer' for backwards compatibility",
+            "TAB_TIMER must remain 'timer' for backwards compatibility"
         )
         assertEquals(
             "library",
             SettingsDataStore.TAB_LIBRARY,
-            "TAB_LIBRARY must remain 'library' for backwards compatibility",
+            "TAB_LIBRARY must remain 'library' for backwards compatibility"
         )
     }
 
@@ -156,12 +156,12 @@ class SettingsDataStoreTest {
         assertEquals(
             SettingsDataStore.TAB_TIMER,
             Screen.Timer.route,
-            "TAB_TIMER must match Screen.Timer.route",
+            "TAB_TIMER must match Screen.Timer.route"
         )
         assertEquals(
             SettingsDataStore.TAB_LIBRARY,
             Screen.Library.route,
-            "TAB_LIBRARY must match Screen.Library.route",
+            "TAB_LIBRARY must match Screen.Library.route"
         )
     }
 

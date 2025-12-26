@@ -66,7 +66,7 @@ import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 fun GuidedMeditationsListScreen(
     viewModel: GuidedMeditationsListViewModel = hiltViewModel(),
     onMeditationClick: (GuidedMeditation) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -74,14 +74,14 @@ fun GuidedMeditationsListScreen(
     // Document picker launcher - must be in Activity context, not in Content composable
     val launcher =
         rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocument(),
+            contract = ActivityResultContracts.OpenDocument()
         ) { uri ->
             uri?.let {
                 // Take persistable permission in Activity context (required for SAF)
                 try {
                     context.contentResolver.takePersistableUriPermission(
                         it,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 } catch (e: SecurityException) {
                     // Permission might not be grantable, continue anyway
@@ -104,7 +104,7 @@ fun GuidedMeditationsListScreen(
         onDismissEditSheet = viewModel::hideEditSheet,
         onSaveMeditation = viewModel::updateMeditation,
         onClearError = viewModel::clearError,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -119,7 +119,7 @@ internal fun GuidedMeditationsListScreenContent(
     onDismissEditSheet: () -> Unit,
     onSaveMeditation: (GuidedMeditation) -> Unit,
     onClearError: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
@@ -131,13 +131,13 @@ internal fun GuidedMeditationsListScreenContent(
 
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            containerColor = Color.Transparent,
+            containerColor = Color.Transparent
         ) { padding ->
             Box(
                 modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(padding)
             ) {
                 // Custom TopAppBar (compact, iOS-style)
                 StillMomentTopAppBar(
@@ -148,15 +148,15 @@ internal fun GuidedMeditationsListScreenContent(
                             modifier =
                             Modifier.semantics {
                                 contentDescription = importDescription
-                            },
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    },
+                    }
                 )
 
                 // Content below the app bar
@@ -164,24 +164,24 @@ internal fun GuidedMeditationsListScreenContent(
                     modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(top = TopAppBarHeight),
+                        .padding(top = TopAppBarHeight)
                 ) {
                     when {
                         uiState.isLoading && uiState.groups.isEmpty() -> {
                             // Loading state
                             Box(
                                 modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
+                                contentAlignment = Alignment.Center
                             ) {
                                 CircularProgressIndicator(
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
                         uiState.isEmpty -> {
                             // Empty state
                             EmptyLibraryState(
-                                onImportClick = onImportClick,
+                                onImportClick = onImportClick
                             )
                         }
                         else -> {
@@ -190,7 +190,7 @@ internal fun GuidedMeditationsListScreenContent(
                                 groups = uiState.groups,
                                 onMeditationClick = onMeditationClick,
                                 onEditClick = onEditClick,
-                                onDeleteMeditation = { meditation -> meditationToDelete = meditation },
+                                onDeleteMeditation = { meditation -> meditationToDelete = meditation }
                             )
                         }
                     }
@@ -204,7 +204,7 @@ internal fun GuidedMeditationsListScreenContent(
                 meditation = uiState.selectedMeditation,
                 availableTeachers = uiState.availableTeachers,
                 onDismiss = onDismissEditSheet,
-                onSave = onSaveMeditation,
+                onSave = onSaveMeditation
             )
         }
 
@@ -220,8 +220,8 @@ internal fun GuidedMeditationsListScreenContent(
                         text =
                         stringResource(
                             R.string.delete_confirmation_message,
-                            meditation.effectiveName,
-                        ),
+                            meditation.effectiveName
+                        )
                     )
                 },
                 confirmButton = {
@@ -229,11 +229,11 @@ internal fun GuidedMeditationsListScreenContent(
                         onClick = {
                             onDeleteMeditation(meditation)
                             meditationToDelete = null
-                        },
+                        }
                     ) {
                         Text(
                             text = stringResource(R.string.common_delete),
-                            color = MaterialTheme.colorScheme.error,
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 },
@@ -241,7 +241,7 @@ internal fun GuidedMeditationsListScreenContent(
                     TextButton(onClick = { meditationToDelete = null }) {
                         Text(text = stringResource(R.string.common_cancel))
                     }
-                },
+                }
             )
         }
 
@@ -262,11 +262,11 @@ private fun MeditationsList(
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onDeleteMeditation: (GuidedMeditation) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     ) {
         groups.forEach { group ->
             // Section Header
@@ -277,13 +277,13 @@ private fun MeditationsList(
             // Meditations in group
             items(
                 items = group.meditations,
-                key = { it.id },
+                key = { it.id }
             ) { meditation ->
                 SwipeToDeleteItem(
                     meditation = meditation,
                     onDelete = { onDeleteMeditation(meditation) },
                     onClick = { onMeditationClick(meditation) },
-                    onEditClick = { onEditClick(meditation) },
+                    onEditClick = { onEditClick(meditation) }
                 )
             }
         }
@@ -291,7 +291,7 @@ private fun MeditationsList(
 }
 
 @Composable
-private fun SectionHeader(teacher: String, modifier: Modifier = Modifier,) {
+private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
     Box(
         modifier =
         modifier
@@ -300,15 +300,15 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier,) {
             .semantics {
                 heading()
                 contentDescription = teacher
-            },
+            }
     ) {
         Text(
             text = teacher,
             style =
             MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.SemiBold
             ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -320,7 +320,7 @@ private fun SwipeToDeleteItem(
     onDelete: () -> Unit,
     onClick: () -> Unit,
     onEditClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val dismissState =
         rememberSwipeToDismissBoxState(
@@ -332,7 +332,7 @@ private fun SwipeToDeleteItem(
                 } else {
                     false
                 }
-            },
+            }
         )
 
     val backgroundColor by animateColorAsState(
@@ -341,7 +341,7 @@ private fun SwipeToDeleteItem(
             SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
             else -> Color.Transparent
         },
-        label = "swipe_background",
+        label = "swipe_background"
     )
 
     SwipeToDismissBox(
@@ -353,7 +353,7 @@ private fun SwipeToDeleteItem(
                     .fillMaxSize()
                     .background(backgroundColor)
                     .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.CenterEnd,
+                contentAlignment = Alignment.CenterEnd
             ) {
                 if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
@@ -361,20 +361,20 @@ private fun SwipeToDeleteItem(
                         contentDescription = stringResource(
                             R.string.accessibility_delete_meditation
                         ),
-                        tint = Color.White,
+                        tint = Color.White
                     )
                 }
             }
         },
         enableDismissFromStartToEnd = false,
         enableDismissFromEndToStart = true,
-        modifier = modifier,
+        modifier = modifier
     ) {
         MeditationListItem(
             meditation = meditation,
             onClick = onClick,
             onEditClick = onEditClick,
-            onDeleteClick = onDelete,
+            onDeleteClick = onDelete
         )
     }
 }
@@ -389,7 +389,7 @@ private fun GuidedMeditationsListScreenLoadingPreview() {
             WarmGradientBackground()
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
@@ -423,7 +423,7 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
                         fileName = "meditation1.mp3",
                         duration = 1_200_000L,
                         teacher = "Tara Brach",
-                        name = "Loving Kindness",
+                        name = "Loving Kindness"
                     ),
                     GuidedMeditation(
                         id = "2",
@@ -431,9 +431,9 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
                         fileName = "meditation2.mp3",
                         duration = 900_000L,
                         teacher = "Tara Brach",
-                        name = "Body Scan",
-                    ),
-                ),
+                        name = "Body Scan"
+                    )
+                )
             ),
             GuidedMeditationGroup(
                 teacher = "Jack Kornfield",
@@ -445,10 +445,10 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
                         fileName = "meditation3.mp3",
                         duration = 1_800_000L,
                         teacher = "Jack Kornfield",
-                        name = "Forgiveness Practice",
-                    ),
-                ),
-            ),
+                        name = "Forgiveness Practice"
+                    )
+                )
+            )
         )
 
     StillMomentTheme {
@@ -458,7 +458,7 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
                 groups = groups,
                 onMeditationClick = {},
                 onEditClick = {},
-                onDeleteMeditation = {},
+                onDeleteMeditation = {}
             )
         }
     }

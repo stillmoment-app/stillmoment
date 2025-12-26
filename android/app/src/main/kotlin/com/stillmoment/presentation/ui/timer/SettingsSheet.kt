@@ -51,7 +51,7 @@ fun SettingsSheet(
     settings: MeditationSettings,
     onSettingsChanged: (MeditationSettings) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var intervalGongsEnabled by remember { mutableStateOf(settings.intervalGongsEnabled) }
     var intervalMinutes by remember { mutableIntStateOf(settings.intervalMinutes) }
@@ -72,18 +72,18 @@ fun SettingsSheet(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 16.dp)
-                .navigationBarsPadding(),
+                .navigationBarsPadding()
         ) {
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.settings_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f)
                 )
                 TextButton(
                     onClick = {
@@ -92,19 +92,19 @@ fun SettingsSheet(
                                 intervalGongsEnabled = intervalGongsEnabled,
                                 intervalMinutes = intervalMinutes,
                                 backgroundSoundId = backgroundSoundId,
-                                durationMinutes = settings.durationMinutes,
-                            ),
+                                durationMinutes = settings.durationMinutes
+                            )
                         )
                         onDismiss()
                     },
                     modifier =
                     Modifier.semantics {
                         contentDescription = doneButtonDescription
-                    },
+                    }
                 ) {
                     Text(
                         text = stringResource(R.string.button_done),
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -116,9 +116,9 @@ fun SettingsSheet(
                 text = stringResource(R.string.settings_background_sound),
                 style =
                 MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Medium
                 ),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(itemSpacing))
@@ -129,7 +129,7 @@ fun SettingsSheet(
                     title = stringResource(R.string.sound_silent),
                     description = stringResource(R.string.sound_silent_description),
                     isSelected = backgroundSoundId == "silent",
-                    onSelect = { backgroundSoundId = "silent" },
+                    onSelect = { backgroundSoundId = "silent" }
                 )
 
                 BackgroundSoundOption(
@@ -137,7 +137,7 @@ fun SettingsSheet(
                     title = stringResource(R.string.sound_forest),
                     description = stringResource(R.string.sound_forest_description),
                     isSelected = backgroundSoundId == "forest",
-                    onSelect = { backgroundSoundId = "forest" },
+                    onSelect = { backgroundSoundId = "forest" }
                 )
             }
 
@@ -150,9 +150,9 @@ fun SettingsSheet(
                 text = stringResource(R.string.settings_sound_settings),
                 style =
                 MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Medium
                 ),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(itemSpacing))
@@ -160,18 +160,18 @@ fun SettingsSheet(
             // Interval Gongs Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.settings_interval_gongs),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = stringResource(R.string.settings_interval_gongs_description),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -189,12 +189,12 @@ fun SettingsSheet(
                     colors =
                     SwitchDefaults.colors(
                         checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
                     ),
                     modifier =
                     Modifier.semantics {
                         stateDescription = switchStateDescription
-                    },
+                    }
                 )
             }
 
@@ -205,7 +205,7 @@ fun SettingsSheet(
                 Text(
                     text = stringResource(R.string.settings_interval_minutes),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -215,7 +215,7 @@ fun SettingsSheet(
                         IntervalOption(
                             minutes = minutes,
                             isSelected = intervalMinutes == minutes,
-                            onSelect = { intervalMinutes = minutes },
+                            onSelect = { intervalMinutes = minutes }
                         )
                     }
                 }
@@ -233,7 +233,7 @@ private fun BackgroundSoundOption(
     description: String,
     isSelected: Boolean,
     onSelect: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val soundSelectedDescription =
         if (isSelected) {
@@ -249,45 +249,40 @@ private fun BackgroundSoundOption(
             .selectable(
                 selected = isSelected,
                 onClick = onSelect,
-                role = Role.RadioButton,
+                role = Role.RadioButton
             )
             .semantics {
                 stateDescription = soundSelectedDescription
             }
             .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = isSelected,
             onClick = null,
             colors =
             RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-            ),
+                selectedColor = MaterialTheme.colorScheme.primary
+            )
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
 @Composable
-private fun IntervalOption(
-    minutes: Int,
-    isSelected: Boolean,
-    onSelect: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun IntervalOption(minutes: Int, isSelected: Boolean, onSelect: () -> Unit, modifier: Modifier = Modifier) {
     val intervalDescription = stringResource(R.string.accessibility_interval_option, minutes)
 
     Row(
@@ -297,27 +292,27 @@ private fun IntervalOption(
             .selectable(
                 selected = isSelected,
                 onClick = onSelect,
-                role = Role.RadioButton,
+                role = Role.RadioButton
             )
             .semantics {
                 stateDescription = intervalDescription
             }
             .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = isSelected,
             onClick = null,
             colors =
             RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-            ),
+                selectedColor = MaterialTheme.colorScheme.primary
+            )
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.time_minutes_plural, minutes),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -330,7 +325,7 @@ private fun SettingsSheetPreview() {
         SettingsSheet(
             settings = MeditationSettings.Default,
             onSettingsChanged = {},
-            onDismiss = {},
+            onDismiss = {}
         )
     }
 }
@@ -345,10 +340,10 @@ private fun SettingsSheetWithIntervalsPreview() {
             MeditationSettings(
                 intervalGongsEnabled = true,
                 intervalMinutes = 5,
-                backgroundSoundId = "forest",
+                backgroundSoundId = "forest"
             ),
             onSettingsChanged = {},
-            onDismiss = {},
+            onDismiss = {}
         )
     }
 }

@@ -41,7 +41,7 @@ class TimerForegroundService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int,): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
                 val soundId = intent.getStringExtra(EXTRA_SOUND_ID) ?: "silent"
@@ -112,7 +112,7 @@ class TimerForegroundService : Service() {
                 NotificationChannel(
                     CHANNEL_ID,
                     getString(R.string.notification_channel_name),
-                    NotificationManager.IMPORTANCE_LOW,
+                    NotificationManager.IMPORTANCE_LOW
                 ).apply {
                     description = getString(R.string.notification_channel_description)
                     setShowBadge(false)
@@ -132,7 +132,7 @@ class TimerForegroundService : Service() {
                 Intent(this, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
@@ -160,7 +160,7 @@ class TimerForegroundService : Service() {
         const val ACTION_RESUME_AUDIO = "com.stillmoment.action.RESUME_AUDIO"
         const val EXTRA_SOUND_ID = "sound_id"
 
-        fun startService(context: Context, soundId: String,) {
+        fun startService(context: Context, soundId: String) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
                     action = ACTION_START

@@ -67,8 +67,8 @@ fun AutocompleteTextField(
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
             capitalization = KeyboardCapitalization.Words,
-            imeAction = ImeAction.Next,
-        ),
+            imeAction = ImeAction.Next
+        )
 ) {
     var showSuggestions by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
@@ -104,9 +104,9 @@ fun AutocompleteTextField(
             OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                focusedLabelColor = MaterialTheme.colorScheme.primary
             ),
-            keyboardOptions = keyboardOptions,
+            keyboardOptions = keyboardOptions
         )
 
         if (showSuggestions && filteredSuggestions.isNotEmpty()) {
@@ -116,7 +116,7 @@ fun AutocompleteTextField(
                 onSuggestionClick = { suggestion ->
                     onValueChange(suggestion)
                     showSuggestions = false
-                },
+                }
             )
         }
     }
@@ -129,7 +129,7 @@ fun AutocompleteTextField(
 private fun SuggestionsList(
     suggestions: List<String>,
     onSuggestionClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val suggestionDescription = stringResource(R.string.accessibility_autocomplete_suggestion)
     val hintDescription = stringResource(R.string.accessibility_autocomplete_hint)
@@ -140,22 +140,22 @@ private fun SuggestionsList(
             .fillMaxWidth()
             .shadow(4.dp, RoundedCornerShape(8.dp)),
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surface
     ) {
         LazyColumn(
-            modifier = Modifier.heightIn(max = 200.dp),
+            modifier = Modifier.heightIn(max = 200.dp)
         ) {
             items(suggestions) { suggestion ->
                 SuggestionItem(
                     suggestion = suggestion,
                     onClick = { onSuggestionClick(suggestion) },
                     contentDescription = String.format(suggestionDescription, suggestion),
-                    hintDescription = hintDescription,
+                    hintDescription = hintDescription
                 )
 
                 if (suggestion != suggestions.last()) {
                     HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
                 }
             }
@@ -172,7 +172,7 @@ private fun SuggestionItem(
     onClick: () -> Unit,
     contentDescription: String,
     hintDescription: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier =
@@ -182,12 +182,12 @@ private fun SuggestionItem(
             .padding(horizontal = 12.dp, vertical = 12.dp)
             .semantics {
                 this.contentDescription = "$contentDescription. $hintDescription"
-            },
+            }
     ) {
         Text(
             text = suggestion,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -199,7 +199,7 @@ private fun SuggestionItem(
  * @param text Current input text
  * @return Filtered suggestions (max 5), excluding exact matches
  */
-internal fun filterSuggestions(suggestions: List<String>, text: String,): List<String> {
+internal fun filterSuggestions(suggestions: List<String>, text: String): List<String> {
     if (text.isBlank()) {
         return emptyList()
     }
@@ -222,7 +222,7 @@ private fun AutocompleteTextFieldEmptyPreview() {
             modifier =
             Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
             var text by remember { mutableStateOf("") }
             AutocompleteTextField(
@@ -230,7 +230,7 @@ private fun AutocompleteTextFieldEmptyPreview() {
                 onValueChange = { text = it },
                 suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
                 label = { Text("Teacher") },
-                placeholder = { Text("Enter teacher name") },
+                placeholder = { Text("Enter teacher name") }
             )
         }
     }
@@ -244,7 +244,7 @@ private fun AutocompleteTextFieldWithSuggestionsPreview() {
             modifier =
             Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
             Column {
                 var text by remember { mutableStateOf("Ta") }
@@ -252,14 +252,14 @@ private fun AutocompleteTextFieldWithSuggestionsPreview() {
                     value = text,
                     onValueChange = { text = it },
                     suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
-                    label = { Text("Teacher") },
+                    label = { Text("Teacher") }
                 )
 
                 // Manually show suggestions for preview
                 Spacer(modifier = Modifier.height(4.dp))
                 SuggestionsList(
                     suggestions = listOf("Tara Brach"),
-                    onSuggestionClick = { text = it },
+                    onSuggestionClick = { text = it }
                 )
             }
         }

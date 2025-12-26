@@ -50,7 +50,7 @@ class TimerScreenTest {
                     onSettingsDismiss = {},
                     onSettingsChanged = {},
                     getCurrentCountdownAffirmation = { "Take a deep breath" },
-                    getCurrentRunningAffirmation = { "Be present in this moment" },
+                    getCurrentRunningAffirmation = { "Be present in this moment" }
                 )
             }
         }
@@ -97,8 +97,8 @@ class TimerScreenTest {
                 timerState = TimerState.Countdown,
                 countdownSeconds = 10,
                 remainingSeconds = 600,
-                totalSeconds = 600,
-            ),
+                totalSeconds = 600
+            )
         )
         composeRule.onNodeWithText("10").assertIsDisplayed()
     }
@@ -111,8 +111,8 @@ class TimerScreenTest {
                 timerState = TimerState.Countdown,
                 countdownSeconds = 10,
                 remainingSeconds = 600,
-                totalSeconds = 600,
-            ),
+                totalSeconds = 600
+            )
         )
         composeRule.onNodeWithText("Start over", ignoreCase = true).assertIsDisplayed()
     }
@@ -127,8 +127,8 @@ class TimerScreenTest {
                 timerState = TimerState.Running,
                 remainingSeconds = 300,
                 totalSeconds = 600,
-                progress = 0.5f,
-            ),
+                progress = 0.5f
+            )
         )
         // Format is "%02d:%02d" so 300 seconds = 05:00
         composeRule.onNodeWithText("05:00").assertIsDisplayed()
@@ -141,8 +141,8 @@ class TimerScreenTest {
             TimerUiState(
                 timerState = TimerState.Running,
                 remainingSeconds = 300,
-                totalSeconds = 600,
-            ),
+                totalSeconds = 600
+            )
         )
         composeRule.onNodeWithText("Brief pause", ignoreCase = true).assertIsDisplayed()
     }
@@ -156,8 +156,8 @@ class TimerScreenTest {
             TimerUiState(
                 timerState = TimerState.Paused,
                 remainingSeconds = 300,
-                totalSeconds = 600,
-            ),
+                totalSeconds = 600
+            )
         )
         composeRule.onNodeWithText("Resume", ignoreCase = true).assertIsDisplayed()
     }
@@ -171,7 +171,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }
@@ -185,7 +185,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }
@@ -199,7 +199,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }
@@ -213,7 +213,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }
@@ -227,7 +227,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }
@@ -241,7 +241,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {},
+                    onDismiss = {}
                 )
             }
         }

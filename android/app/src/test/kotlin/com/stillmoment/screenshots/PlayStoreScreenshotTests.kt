@@ -65,7 +65,7 @@ class PlayStoreScreenshotTests {
     val paparazzi =
         Paparazzi(
             deviceConfig = DEVICE_EN,
-            theme = "android:Theme.Material.Light.NoActionBar",
+            theme = "android:Theme.Material.Light.NoActionBar"
         )
 
     // MARK: - Timer Main (Idle State)
@@ -91,9 +91,9 @@ class PlayStoreScreenshotTests {
                         displayState =
                         TimerDisplayState(
                             timerState = TimerState.Idle,
-                            selectedMinutes = 10,
+                            selectedMinutes = 10
                         ),
-                        settings = MeditationSettings.Default,
+                        settings = MeditationSettings.Default
                     ),
                     onMinutesChanged = {},
                     onStartClick = {},
@@ -104,7 +104,7 @@ class PlayStoreScreenshotTests {
                     onSettingsDismiss = {},
                     onSettingsChanged = {},
                     getCurrentCountdownAffirmation = { "" },
-                    getCurrentRunningAffirmation = { "" },
+                    getCurrentRunningAffirmation = { "" }
                 )
             }
         }
@@ -124,7 +124,7 @@ class PlayStoreScreenshotTests {
         captureTimerRunning("-de", "Sei praesent in diesem Moment")
     }
 
-    private fun captureTimerRunning(suffix: String, affirmation: String,) {
+    private fun captureTimerRunning(suffix: String, affirmation: String) {
         paparazzi.snapshot(name = "timer-running$suffix") {
             StillMomentTheme {
                 TimerScreenContent(
@@ -136,9 +136,9 @@ class PlayStoreScreenshotTests {
                             selectedMinutes = 10,
                             remainingSeconds = 595, // ~09:55 like iOS
                             totalSeconds = 600,
-                            progress = 5f / 600f,
+                            progress = 5f / 600f
                         ),
-                        settings = MeditationSettings.Default,
+                        settings = MeditationSettings.Default
                     ),
                     onMinutesChanged = {},
                     onStartClick = {},
@@ -149,7 +149,7 @@ class PlayStoreScreenshotTests {
                     onSettingsDismiss = {},
                     onSettingsChanged = {},
                     getCurrentCountdownAffirmation = { "" },
-                    getCurrentRunningAffirmation = { affirmation },
+                    getCurrentRunningAffirmation = { affirmation }
                 )
             }
         }
@@ -169,12 +169,12 @@ class PlayStoreScreenshotTests {
         captureLibraryList("-de", "Bibliothek")
     }
 
-    private fun captureLibraryList(suffix: String, libraryTitle: String,) {
+    private fun captureLibraryList(suffix: String, libraryTitle: String) {
         paparazzi.snapshot(name = "library-list$suffix") {
             StillMomentTheme {
                 LibraryScreenshotContent(
                     groups = TestFixtures.meditationGroups,
-                    libraryTitle = libraryTitle,
+                    libraryTitle = libraryTitle
                 )
             }
         }
@@ -207,14 +207,14 @@ class PlayStoreScreenshotTests {
                         duration = meditation.duration,
                         currentPosition = 120_000L, // 2 minutes in
                         progress = 120_000f / meditation.duration,
-                        isPlaying = true,
+                        isPlaying = true
                     ),
                     onBack = {},
                     onPlayPause = {},
                     onSeek = {},
                     onSkipForward = {},
                     onSkipBackward = {},
-                    onClearError = {},
+                    onClearError = {}
                 )
             }
         }
@@ -227,7 +227,7 @@ class PlayStoreScreenshotTests {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LibraryScreenshotContent(groups: List<GuidedMeditationGroup>, libraryTitle: String,) {
+private fun LibraryScreenshotContent(groups: List<GuidedMeditationGroup>, libraryTitle: String) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -236,41 +236,41 @@ private fun LibraryScreenshotContent(groups: List<GuidedMeditationGroup>, librar
                         text = libraryTitle,
                         style =
                         MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Medium,
-                        ),
+                            fontWeight = FontWeight.Medium
+                        )
                     )
                 },
                 colors =
                 TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                ),
+                    containerColor = Color.Transparent
+                )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {},
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = null,
+                    contentDescription = null
                 )
             }
         },
-        containerColor = Color.Transparent,
+        containerColor = Color.Transparent
     ) { padding ->
         Box(
             modifier =
             Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
         ) {
             WarmGradientBackground()
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 groups.forEach { group ->
                     item(key = "header_${group.teacher}") {
@@ -280,28 +280,28 @@ private fun LibraryScreenshotContent(groups: List<GuidedMeditationGroup>, librar
                                 .fillMaxWidth()
                                 .background(WarmSand.copy(alpha = 0.95f))
                                 .padding(vertical = 12.dp, horizontal = 4.dp)
-                                .semantics { heading() },
+                                .semantics { heading() }
                         ) {
                             Text(
                                 text = group.teacher,
                                 style =
                                 MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.SemiBold,
+                                    fontWeight = FontWeight.SemiBold
                                 ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
 
                     items(
                         items = group.meditations,
-                        key = { it.id },
+                        key = { it.id }
                     ) { meditation ->
                         MeditationListItem(
                             meditation = meditation,
                             onClick = {},
                             onEditClick = {},
-                            onDeleteClick = {},
+                            onDeleteClick = {}
                         )
                     }
                 }

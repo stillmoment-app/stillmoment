@@ -38,7 +38,7 @@ class MeditationPlayerForegroundService : Service() {
 
     private val mediaButtonReceiver =
         object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?,) {
+            override fun onReceive(context: Context?, intent: Intent?) {
                 when (intent?.action) {
                     MeditationNotificationManager.ACTION_PLAY -> {
                         audioPlayerService.resume()
@@ -68,11 +68,11 @@ class MeditationPlayerForegroundService : Service() {
             this,
             mediaButtonReceiver,
             filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int,): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
                 val meditationJson = intent.getStringExtra(EXTRA_MEDITATION)
@@ -110,7 +110,7 @@ class MeditationPlayerForegroundService : Service() {
             notificationManager.buildNotification(
                 meditation = meditation,
                 isPlaying = isPlaying,
-                mediaSession = mediaSession,
+                mediaSession = mediaSession
             )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -118,7 +118,7 @@ class MeditationPlayerForegroundService : Service() {
                 this,
                 MeditationNotificationManager.NOTIFICATION_ID,
                 notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
             )
         } else {
             startForeground(MeditationNotificationManager.NOTIFICATION_ID, notification)
@@ -134,7 +134,7 @@ class MeditationPlayerForegroundService : Service() {
             notificationManager.buildNotification(
                 meditation = meditation,
                 isPlaying = isPlaying,
-                mediaSession = mediaSession,
+                mediaSession = mediaSession
             )
 
         notificationManager.showNotification(notification)
@@ -154,7 +154,7 @@ class MeditationPlayerForegroundService : Service() {
         /**
          * Starts the foreground service for meditation playback.
          */
-        fun start(context: Context, meditationJson: String,) {
+        fun start(context: Context, meditationJson: String) {
             val intent =
                 Intent(context, MeditationPlayerForegroundService::class.java).apply {
                     action = ACTION_START

@@ -77,7 +77,7 @@ fun GuidedMeditationPlayerScreen(
     meditation: GuidedMeditation,
     viewModel: GuidedMeditationPlayerViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -102,7 +102,7 @@ fun GuidedMeditationPlayerScreen(
         onSkipForward = { viewModel.skipForward() },
         onSkipBackward = { viewModel.skipBackward() },
         onClearError = viewModel::clearError,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -117,7 +117,7 @@ internal fun GuidedMeditationPlayerScreenContent(
     onSkipForward: () -> Unit,
     onSkipBackward: () -> Unit,
     onClearError: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val backDescription = stringResource(R.string.common_close)
@@ -128,13 +128,13 @@ internal fun GuidedMeditationPlayerScreenContent(
 
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            containerColor = Color.Transparent,
+            containerColor = Color.Transparent
         ) { padding ->
             Box(
                 modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(padding),
+                    .padding(padding)
             ) {
                 // Compact top bar (44dp like iOS)
                 StillMomentTopAppBar(
@@ -144,15 +144,15 @@ internal fun GuidedMeditationPlayerScreenContent(
                             modifier =
                             Modifier.semantics {
                                 contentDescription = backDescription
-                            },
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,
-                                tint = WarmGray,
+                                tint = WarmGray
                             )
                         }
-                    },
+                    }
                 )
 
                 Column(
@@ -161,14 +161,14 @@ internal fun GuidedMeditationPlayerScreenContent(
                         .fillMaxSize()
                         .padding(top = TopAppBarHeight)
                         .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Top spacer - pushes content down
                     Spacer(modifier = Modifier.weight(1f))
 
                     // Meditation Info Header
                     MeditationInfoHeader(
-                        meditation = meditation,
+                        meditation = meditation
                     )
 
                     // Middle spacer - separates header from controls
@@ -184,7 +184,7 @@ internal fun GuidedMeditationPlayerScreenContent(
                         formattedRemaining = uiState.formattedRemaining,
                         onSeek = onSeek,
                         onSkipForward = onSkipForward,
-                        onSkipBackward = onSkipBackward,
+                        onSkipBackward = onSkipBackward
                     )
 
                     // Bottom spacer - pushes controls up
@@ -198,11 +198,11 @@ internal fun GuidedMeditationPlayerScreenContent(
                         Modifier
                             .fillMaxSize()
                             .background(WarmBlack.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
                             color = Terracotta,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(48.dp)
                         )
                     }
                 }
@@ -220,27 +220,27 @@ internal fun GuidedMeditationPlayerScreenContent(
 }
 
 @Composable
-private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifier = Modifier,) {
+private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifier = Modifier) {
     val teacherLabel = stringResource(R.string.accessibility_player_teacher)
     val titleLabel = stringResource(R.string.accessibility_player_title)
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(top = 16.dp),
+        modifier = modifier.padding(top = 16.dp)
     ) {
         // Teacher
         Text(
             text = meditation.effectiveTeacher,
             style =
             MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Medium
             ),
             color = Terracotta,
             textAlign = TextAlign.Center,
             modifier =
             Modifier.semantics {
                 contentDescription = "$teacherLabel: ${meditation.effectiveTeacher}"
-            },
+            }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -250,7 +250,7 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
             text = meditation.effectiveName,
             style =
             MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.SemiBold
             ),
             color = WarmBlack,
             textAlign = TextAlign.Center,
@@ -258,7 +258,7 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
             modifier =
             Modifier.semantics {
                 contentDescription = "$titleLabel: ${meditation.effectiveName}"
-            },
+            }
         )
     }
 }
@@ -274,7 +274,7 @@ private fun PlayerControls(
     onSeek: (Float) -> Unit,
     onSkipForward: () -> Unit,
     onSkipBackward: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val seekSliderDescription = stringResource(R.string.accessibility_seek_slider)
     val progressPercent = ((if (duration > 0) currentPosition.toFloat() / duration else 0f) * 100).toInt()
@@ -296,7 +296,7 @@ private fun PlayerControls(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier,
+        modifier = modifier
     ) {
         // Seek Slider
         Slider(
@@ -318,24 +318,24 @@ private fun PlayerControls(
             SliderDefaults.colors(
                 thumbColor = Terracotta,
                 activeTrackColor = Terracotta,
-                inactiveTrackColor = RingBackground,
-            ),
+                inactiveTrackColor = RingBackground
+            )
         )
 
         // Time labels (position left, remaining right - like iOS)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = formattedPosition,
                 style = MaterialTheme.typography.bodySmall,
-                color = WarmGray,
+                color = WarmGray
             )
             Text(
                 text = formattedRemaining,
                 style = MaterialTheme.typography.bodySmall,
-                color = WarmGray,
+                color = WarmGray
             )
         }
 
@@ -344,7 +344,7 @@ private fun PlayerControls(
         // Playback controls
         Row(
             horizontalArrangement = Arrangement.spacedBy(32.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Skip backward
             IconButton(
@@ -352,13 +352,13 @@ private fun PlayerControls(
                 modifier =
                 Modifier.semantics {
                     contentDescription = skipBackwardDescription
-                },
+                }
             ) {
                 Icon(
                     imageVector = Icons.Default.Replay10,
                     contentDescription = null,
                     tint = Terracotta,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(40.dp)
                 )
             }
 
@@ -371,13 +371,13 @@ private fun PlayerControls(
                     .size(72.dp)
                     .semantics {
                         contentDescription = if (isPlaying) pauseDescription else playDescription
-                    },
+                    }
             ) {
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = null,
                     modifier = Modifier.size(36.dp),
-                    tint = Color.White,
+                    tint = Color.White
                 )
             }
 
@@ -387,13 +387,13 @@ private fun PlayerControls(
                 modifier =
                 Modifier.semantics {
                     contentDescription = skipForwardDescription
-                },
+                }
             ) {
                 Icon(
                     imageVector = Icons.Default.Forward10,
                     contentDescription = null,
                     tint = Terracotta,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(40.dp)
                 )
             }
         }
@@ -416,7 +416,7 @@ private fun GuidedMeditationPlayerScreenPreview() {
                 fileName = "meditation.mp3",
                 duration = 1_200_000L,
                 teacher = "Tara Brach",
-                name = "Loving Kindness Meditation",
+                name = "Loving Kindness Meditation"
             )
 
         GuidedMeditationPlayerScreenContent(
@@ -427,14 +427,14 @@ private fun GuidedMeditationPlayerScreenPreview() {
                 duration = 1_200_000L,
                 currentPosition = 300_000L,
                 progress = 0.25f,
-                isPlaying = true,
+                isPlaying = true
             ),
             onBack = {},
             onPlayPause = {},
             onSeek = {},
             onSkipForward = {},
             onSkipBackward = {},
-            onClearError = {},
+            onClearError = {}
         )
     }
 }
@@ -450,7 +450,7 @@ private fun GuidedMeditationPlayerScreenPausedPreview() {
                 fileName = "meditation.mp3",
                 duration = 900_000L,
                 teacher = "Jack Kornfield",
-                name = "Forgiveness Practice",
+                name = "Forgiveness Practice"
             )
 
         GuidedMeditationPlayerScreenContent(
@@ -461,14 +461,14 @@ private fun GuidedMeditationPlayerScreenPausedPreview() {
                 duration = 900_000L,
                 currentPosition = 450_000L,
                 progress = 0.5f,
-                isPlaying = false,
+                isPlaying = false
             ),
             onBack = {},
             onPlayPause = {},
             onSeek = {},
             onSkipForward = {},
             onSkipBackward = {},
-            onClearError = {},
+            onClearError = {}
         )
     }
 }

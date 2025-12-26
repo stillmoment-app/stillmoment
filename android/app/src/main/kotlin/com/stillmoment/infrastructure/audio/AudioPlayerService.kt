@@ -43,7 +43,7 @@ class AudioPlayerService
 constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager,
-    private val notificationManager: MeditationNotificationManager,
+    private val notificationManager: MeditationNotificationManager
 ) : AudioPlayerServiceProtocol {
     private var mediaPlayer: MediaPlayer? = null
     private var onCompletionCallback: (() -> Unit)? = null
@@ -87,7 +87,7 @@ constructor(
                 override fun onStop() = stop()
 
                 override fun onSeekTo(position: Long) = seekTo(position)
-            },
+            }
         )
 
         // Update metadata
@@ -97,7 +97,7 @@ constructor(
         play(Uri.parse(meditation.fileUri), meditation.duration)
     }
 
-    override fun play(uri: Uri, duration: Long,) {
+    override fun play(uri: Uri, duration: Long) {
         stopMediaPlayer()
 
         try {
@@ -107,7 +107,7 @@ constructor(
                         AudioAttributes.Builder()
                             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                             .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .build(),
+                            .build()
                     )
 
                     // Handle different URI schemes
@@ -172,7 +172,7 @@ constructor(
                                 isPlaying = true,
                                 currentPosition = 0L,
                                 duration = duration,
-                                error = null,
+                                error = null
                             )
                         }
                         startProgressUpdates()
@@ -183,7 +183,7 @@ constructor(
                         _playbackState.update {
                             it.copy(
                                 isPlaying = false,
-                                currentPosition = duration,
+                                currentPosition = duration
                             )
                         }
                         stopProgressUpdates()
@@ -195,7 +195,7 @@ constructor(
                         _playbackState.update {
                             it.copy(
                                 isPlaying = false,
-                                error = "Playback error: $what, $extra",
+                                error = "Playback error: $what, $extra"
                             )
                         }
                         stopProgressUpdates()
@@ -209,7 +209,7 @@ constructor(
             _playbackState.update {
                 it.copy(
                     isPlaying = false,
-                    error = "Failed to play: ${e.message}",
+                    error = "Failed to play: ${e.message}"
                 )
             }
         }
@@ -305,7 +305,7 @@ constructor(
         mediaSessionManager.updatePlaybackState(
             isPlaying = state.isPlaying,
             position = state.currentPosition,
-            duration = state.duration,
+            duration = state.duration
         )
     }
 

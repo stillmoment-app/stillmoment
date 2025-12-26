@@ -16,7 +16,7 @@ object TestFixtures {
                 fileName = "mindful-breathing.mp3",
                 duration = 453_000L, // 7:33
                 teacher = "Sarah Kornfield",
-                name = "Mindful Breathing",
+                name = "Mindful Breathing"
             ),
             GuidedMeditation(
                 id = "2",
@@ -24,7 +24,7 @@ object TestFixtures {
                 fileName = "body-scan.mp3",
                 duration = 942_000L, // 15:42
                 teacher = "Sarah Kornfield",
-                name = "Body Scan for Beginners",
+                name = "Body Scan for Beginners"
             ),
             GuidedMeditation(
                 id = "3",
@@ -32,7 +32,7 @@ object TestFixtures {
                 fileName = "loving-kindness.mp3",
                 duration = 737_000L, // 12:17
                 teacher = "Tara Goldstein",
-                name = "Loving Kindness",
+                name = "Loving Kindness"
             ),
             GuidedMeditation(
                 id = "4",
@@ -40,7 +40,7 @@ object TestFixtures {
                 fileName = "evening-wind-down.mp3",
                 duration = 1_145_000L, // 19:05
                 teacher = "Tara Goldstein",
-                name = "Evening Wind Down",
+                name = "Evening Wind Down"
             ),
             GuidedMeditation(
                 id = "5",
@@ -48,8 +48,8 @@ object TestFixtures {
                 fileName = "present-moment.mp3",
                 duration = 1_548_000L, // 25:48
                 teacher = "Jon Salzberg",
-                name = "Present Moment Awareness",
-            ),
+                name = "Present Moment Awareness"
+            )
         )
 
     val meditationGroups: List<GuidedMeditationGroup>

@@ -36,7 +36,7 @@ constructor() : TimerRepository {
         val timer =
             MeditationTimer.create(
                 durationMinutes = durationMinutes,
-                countdownDuration = DEFAULT_COUNTDOWN_DURATION,
+                countdownDuration = DEFAULT_COUNTDOWN_DURATION
             ).startCountdown()
 
         currentTimer = timer

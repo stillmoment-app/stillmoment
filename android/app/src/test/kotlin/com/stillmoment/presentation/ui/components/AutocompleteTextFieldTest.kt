@@ -121,7 +121,7 @@ class AutocompleteTextFieldTest {
                     "Teacher 4",
                     "Teacher 5",
                     "Teacher 6",
-                    "Teacher 7",
+                    "Teacher 7"
                 )
             val text = "Teacher"
 

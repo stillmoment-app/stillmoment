@@ -24,7 +24,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Original Teacher",
-                    name = "Original Name",
+                    name = "Original Name"
                 )
 
             // When
@@ -44,7 +44,7 @@ class EditSheetStateTest {
                     teacher = "Original Teacher",
                     name = "Original Name",
                     customTeacher = "Custom Teacher",
-                    customName = "Custom Name",
+                    customName = "Custom Name"
                 )
 
             // When
@@ -66,7 +66,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Teacher",
-                    name = "Name",
+                    name = "Name"
                 )
             val state = EditSheetState.fromMeditation(meditation)
 
@@ -104,7 +104,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Original Teacher",
-                    name = "Original Name",
+                    name = "Original Name"
                 )
             val state =
                 EditSheetState.fromMeditation(meditation)
@@ -120,7 +120,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Original",
-                    customTeacher = "Custom",
+                    customTeacher = "Custom"
                 )
             // State initialized with custom value
             val state = EditSheetState.fromMeditation(meditation)
@@ -141,7 +141,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "Teacher",
-                    editedName = "Name",
+                    editedName = "Name"
                 )
 
             // When/Then
@@ -154,7 +154,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "",
-                    editedName = "Name",
+                    editedName = "Name"
                 )
 
             // When/Then
@@ -167,7 +167,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "Teacher",
-                    editedName = "",
+                    editedName = ""
                 )
 
             // When/Then
@@ -180,7 +180,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "",
-                    editedName = "",
+                    editedName = ""
                 )
 
             // When/Then
@@ -193,7 +193,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "   ",
-                    editedName = "Name",
+                    editedName = "Name"
                 )
 
             // When/Then
@@ -206,7 +206,7 @@ class EditSheetStateTest {
             val state =
                 createTestState(
                     editedTeacher = "Teacher",
-                    editedName = "\t\n",
+                    editedName = "\t\n"
                 )
 
             // When/Then
@@ -282,7 +282,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     teacher = "Original",
-                    customTeacher = "Was Custom",
+                    customTeacher = "Was Custom"
                 )
             // User edited back to original
             val state =
@@ -303,7 +303,7 @@ class EditSheetStateTest {
             val meditation =
                 createTestMeditation(
                     name = "Original",
-                    customName = "Was Custom",
+                    customName = "Was Custom"
                 )
             // User edited back to original
             val state =
@@ -372,7 +372,7 @@ class EditSheetStateTest {
         teacher: String = "Test Teacher",
         name: String = "Test Meditation",
         customTeacher: String? = null,
-        customName: String? = null,
+        customName: String? = null
     ): GuidedMeditation = GuidedMeditation(
         fileUri = "content://test/uri",
         fileName = "test.mp3",
@@ -380,15 +380,13 @@ class EditSheetStateTest {
         teacher = teacher,
         name = name,
         customTeacher = customTeacher,
-        customName = customName,
+        customName = customName
     )
 
-    private fun createTestState(
-        editedTeacher: String = "Teacher",
-        editedName: String = "Name",
-    ): EditSheetState = EditSheetState(
-        originalMeditation = createTestMeditation(),
-        editedTeacher = editedTeacher,
-        editedName = editedName,
-    )
+    private fun createTestState(editedTeacher: String = "Teacher", editedName: String = "Name"): EditSheetState =
+        EditSheetState(
+            originalMeditation = createTestMeditation(),
+            editedTeacher = editedTeacher,
+            editedName = editedName
+        )
 }
