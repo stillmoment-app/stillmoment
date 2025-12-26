@@ -1,6 +1,5 @@
 package com.stillmoment.screenshots
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,17 +9,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -31,11 +25,12 @@ import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
+import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreenContent
 import com.stillmoment.presentation.ui.meditations.MeditationListItem
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerScreenContent
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 import com.stillmoment.presentation.viewmodel.TimerUiState
@@ -60,6 +55,12 @@ class PlayStoreScreenshotTests {
     companion object {
         private val DEVICE_EN = DeviceConfig.PIXEL_6_PRO.copy(locale = "en")
         private val DEVICE_DE = DeviceConfig.PIXEL_6_PRO.copy(locale = "de")
+
+        // Localized strings for screenshots (mirrors strings.xml)
+        private val GUIDED_MEDITATIONS_TITLE = mapOf(
+            "en" to "Guided Meditations",
+            "de" to "Geführte Meditationen"
+        )
     }
 
     @get:Rule
@@ -161,21 +162,21 @@ class PlayStoreScreenshotTests {
     @Test
     fun libraryList_english() {
         paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_EN)
-        captureLibraryList("", "Library")
+        captureLibraryList("", "en")
     }
 
     @Test
     fun libraryList_german() {
         paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_DE)
-        captureLibraryList("-de", "Bibliothek")
+        captureLibraryList("-de", "de")
     }
 
-    private fun captureLibraryList(suffix: String, libraryTitle: String) {
+    private fun captureLibraryList(suffix: String, locale: String) {
         paparazzi.snapshot(name = "library-list$suffix") {
             StillMomentTheme {
                 LibraryScreenshotContent(
                     groups = TestFixtures.meditationGroups,
-                    libraryTitle = libraryTitle
+                    libraryTitle = GUIDED_MEDITATIONS_TITLE[locale]!!
                 )
             }
         }
@@ -223,88 +224,67 @@ class PlayStoreScreenshotTests {
 }
 
 /**
- * Screenshot-specific library content without Activity dependencies.
- * Uses hardcoded strings instead of stringResource to avoid Activity context requirement.
+ * Screenshot-specific library content matching GuidedMeditationsListScreen layout.
+ * Uses StillMomentTopAppBar for iOS-style centered title with gradient background.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LibraryScreenshotContent(groups: ImmutableList<GuidedMeditationGroup>, libraryTitle: String) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = libraryTitle,
-                        style =
-                        MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Medium
-                        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Gradient behind everything
+        WarmGradientBackground()
+
+        // Custom TopAppBar (compact, iOS-style)
+        StillMomentTopAppBar(
+            title = libraryTitle,
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                },
-                colors =
-                TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {},
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null
-                )
+                }
             }
-        },
-        containerColor = Color.Transparent
-    ) { padding ->
-        Box(
+        )
+
+        // Content below the app bar
+        LazyColumn(
             modifier =
             Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(top = TopAppBarHeight),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            WarmGradientBackground()
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                groups.forEach { group ->
-                    item(key = "header_${group.teacher}") {
-                        Box(
-                            modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .background(WarmSand.copy(alpha = 0.95f))
-                                .padding(vertical = 12.dp, horizontal = 4.dp)
-                                .semantics { heading() }
-                        ) {
-                            Text(
-                                text = group.teacher,
-                                style =
-                                MaterialTheme.typography.titleSmall.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    items(
-                        items = group.meditations,
-                        key = { it.id }
-                    ) { meditation ->
-                        MeditationListItem(
-                            meditation = meditation,
-                            onClick = {},
-                            onEditClick = {},
-                            onDeleteClick = {}
+            groups.forEach { group ->
+                item(key = "header_${group.teacher}") {
+                    Box(
+                        modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp, horizontal = 4.dp)
+                            .semantics { heading() }
+                    ) {
+                        Text(
+                            text = group.teacher,
+                            style =
+                            MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }
+
+                items(
+                    items = group.meditations,
+                    key = { it.id }
+                ) { meditation ->
+                    MeditationListItem(
+                        meditation = meditation,
+                        onClick = {},
+                        onEditClick = {},
+                        onDeleteClick = {}
+                    )
                 }
             }
         }
