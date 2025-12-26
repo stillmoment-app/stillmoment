@@ -43,11 +43,11 @@ fun WheelPicker(
     selectedValue: Int,
     onValueChanged: (Int) -> Unit,
     range: IntRange,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    visibleItems: Int = 5
 ) {
     val items = range.toList()
-    val itemHeight = 50.dp
-    val visibleItems = 3
+    val itemHeight = 40.dp
 
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = (selectedValue - range.first).coerceIn(0, items.size - 1)
@@ -104,6 +104,9 @@ fun WheelPicker(
             },
         contentAlignment = Alignment.Center
     ) {
+        // Number of padding items needed to center the selected item
+        val paddingItems = visibleItems / 2
+
         LazyColumn(
             state = listState,
             flingBehavior = flingBehavior,
@@ -111,8 +114,10 @@ fun WheelPicker(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.height(itemHeight * visibleItems)
         ) {
-            // Padding items for centering
-            item { Box(modifier = Modifier.height(itemHeight)) }
+            // Padding items for centering (top)
+            items(paddingItems) {
+                Box(modifier = Modifier.height(itemHeight))
+            }
 
             itemsIndexed(items) { index, value ->
                 val isSelected = index == centeredItemIndex
@@ -137,8 +142,10 @@ fun WheelPicker(
                 }
             }
 
-            // Padding items for centering
-            item { Box(modifier = Modifier.height(itemHeight)) }
+            // Padding items for centering (bottom)
+            items(paddingItems) {
+                Box(modifier = Modifier.height(itemHeight))
+            }
         }
     }
 }
@@ -151,7 +158,7 @@ private fun WheelPickerPreview() {
             selectedValue = 10,
             onValueChanged = {},
             range = 1..60,
-            modifier = Modifier.height(150.dp)
+            modifier = Modifier.height(200.dp)
         )
     }
 }

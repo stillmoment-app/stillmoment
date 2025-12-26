@@ -225,51 +225,60 @@ private fun MinutePicker(
     onMinutesChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Hands with Heart Image
-        Image(
-            painter = painterResource(id = R.drawable.hands_heart),
-            contentDescription = null,
-            modifier = Modifier
-                .heightIn(min = 80.dp, max = 150.dp)
-                .padding(bottom = 8.dp)
-        )
+    BoxWithConstraints(modifier = modifier) {
+        // Like iOS: compact height (< 700dp) shows 3 items, larger screens show 5
+        val isCompactHeight = maxHeight < 700.dp
+        val visibleItems = if (isCompactHeight) 3 else 5
+        val pickerHeight = (visibleItems * 40).dp
+        val imageSize = if (isCompactHeight) 100.dp else 150.dp
 
-        // Question
-        Text(
-            text = stringResource(R.string.duration_question),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Light
-            ),
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Hands with Heart Image
+            Image(
+                painter = painterResource(id = R.drawable.hands_heart),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(imageSize)
+                    .padding(bottom = 8.dp)
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Question
+            Text(
+                text = stringResource(R.string.duration_question),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Light
+                ),
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
-        // Wheel Picker (simplified as number selector for MVP)
-        WheelPicker(
-            selectedValue = selectedMinutes,
-            onValueChanged = onMinutesChanged,
-            range = 1..60,
-            modifier = Modifier.heightIn(min = 100.dp, max = 150.dp)
-        )
+            Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Wheel Picker
+            WheelPicker(
+                selectedValue = selectedMinutes,
+                onValueChanged = onMinutesChanged,
+                range = 1..60,
+                visibleItems = visibleItems,
+                modifier = Modifier.height(pickerHeight)
+            )
 
-        // Footer
-        Text(
-            text = stringResource(R.string.duration_footer),
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Light
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
+
+            // Footer
+            Text(
+                text = stringResource(R.string.duration_footer),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Light
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
