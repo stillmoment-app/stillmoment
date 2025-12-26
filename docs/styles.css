@@ -295,6 +295,23 @@ header {
     box-shadow: none;
 }
 
+/* Beta Hint */
+.beta-hint {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+    color: var(--warm-gray);
+}
+
+.beta-hint a {
+    color: var(--terracotta);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.beta-hint a:hover {
+    text-decoration: underline;
+}
+
 /* Feature Cards */
 .feature-card {
     background: rgba(255, 255, 255, 0.6);
