@@ -1,6 +1,6 @@
 # Ticket ios-027: GuidedMeditationPlayerView Responsive Layout
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -22,11 +22,11 @@ Aktuell verwendet die View feste Button-Groessen und Spacing-Werte. Bei langen T
 
 ## Akzeptanzkriterien
 
-- [ ] Responsive Button-Groessen (Dynamic Type oder GeometryReader)
-- [ ] Titel passt auf alle Bildschirmgroessen (flexibles lineLimit)
-- [ ] Spacing passt sich Bildschirmhoehe an (isCompactHeight Pattern)
-- [ ] SwiftUI Previews fuer: iPhone SE, iPhone 15, iPhone 15 Pro Max
-- [ ] Controls bleiben gut erreichbar auf allen Bildschirmgroessen
+- [x] Responsive Button-Groessen (Dynamic Type oder GeometryReader)
+- [x] Titel passt auf alle Bildschirmgroessen (flexibles lineLimit)
+- [x] Spacing passt sich Bildschirmhoehe an (isCompactHeight Pattern)
+- [x] SwiftUI Previews fuer: iPhone SE, iPhone 15, iPhone 15 Pro Max
+- [x] Controls bleiben gut erreichbar auf allen Bildschirmgroessen
 
 ---
 

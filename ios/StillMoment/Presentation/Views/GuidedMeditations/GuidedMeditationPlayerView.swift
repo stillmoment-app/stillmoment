@@ -31,123 +31,132 @@ struct GuidedMeditationPlayerView: View {
 
     var body: some View {
         NavigationView {
-            ZStack {
-                // Warm gradient background (consistent with Timer tab)
-                Color.warmGradient
-                    .ignoresSafeArea()
+            GeometryReader { geometry in
+                let isCompactHeight = geometry.size.height < 700
+                let mainSpacing: CGFloat = isCompactHeight ? 20 : 30
+                let infoSpacing: CGFloat = isCompactHeight ? 8 : 12
+                let controlSpacing: CGFloat = isCompactHeight ? 32 : 40
+                let skipButtonSize: CGFloat = isCompactHeight ? 28 : 32
+                let playButtonSize: CGFloat = isCompactHeight ? 56 : 64
 
-                VStack(spacing: 30) {
-                    Spacer()
+                ZStack {
+                    // Warm gradient background (consistent with Timer tab)
+                    Color.warmGradient
+                        .ignoresSafeArea()
 
-                    // Meditation info
-                    VStack(spacing: 12) {
-                        Text(self.viewModel.meditation.effectiveTeacher)
-                            .font(.system(.title3, design: .rounded, weight: .medium))
-                            .foregroundColor(Color.interactive)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .accessibilityLabel("guided_meditations.player.teacher")
-                            .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
+                    VStack(spacing: mainSpacing) {
+                        Spacer()
 
-                        Text(self.viewModel.meditation.effectiveName)
-                            .font(.system(.title, design: .rounded, weight: .semibold))
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.7)
-                            .accessibilityLabel("guided_meditations.player.title")
-                            .accessibilityValue(self.viewModel.meditation.effectiveName)
-                    }
-                    .padding(.horizontal)
-
-                    Spacer()
-
-                    // Progress section
-                    VStack(spacing: 16) {
-                        // Progress slider
-                        Slider(
-                            value: Binding(
-                                get: { self.viewModel.currentTime },
-                                set: { self.viewModel.seek(to: $0) }
-                            ),
-                            in: 0...max(self.viewModel.duration, 1)
-                        )
-                        .tint(Color.interactive)
-                        .accessibilityIdentifier("player.slider.progress")
-                        .accessibilityLabel("guided_meditations.player.progress")
-                        .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
-
-                        // Time labels
-                        HStack {
-                            Text(self.viewModel.formattedCurrentTime)
-                                .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.textSecondary)
-                                .accessibilityIdentifier("player.text.currentTime")
-                                .accessibilityLabel("guided_meditations.player.currentTime")
-                                .accessibilityValue(self.viewModel.formattedCurrentTime)
-
-                            Spacer()
-
-                            Text(self.viewModel.formattedRemainingTime)
-                                .font(.system(.caption, design: .rounded).monospacedDigit())
-                                .foregroundColor(.textSecondary)
-                                .accessibilityIdentifier("player.text.remainingTime")
-                                .accessibilityLabel("guided_meditations.player.remainingTime")
-                                .accessibilityValue(self.viewModel.formattedRemainingTime)
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // Controls
-                    HStack(spacing: 40) {
-                        // Skip backward
-                        Button {
-                            self.viewModel.skipBackward()
-                        } label: {
-                            Image(systemName: "gobackward.10")
-                                .font(.system(size: 32, design: .rounded))
+                        // Meditation info
+                        VStack(spacing: infoSpacing) {
+                            Text(self.viewModel.meditation.effectiveTeacher)
+                                .font(.system(size: isCompactHeight ? 18 : 20, weight: .medium, design: .rounded))
                                 .foregroundColor(Color.interactive)
-                        }
-                        .accessibilityIdentifier("player.button.skipBackward")
-                        .accessibilityLabel("guided_meditations.player.skipBackward")
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                                .accessibilityLabel("guided_meditations.player.teacher")
+                                .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
 
-                        // Play/Pause
-                        Button {
-                            self.viewModel.togglePlayPause()
-                        } label: {
-                            Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 64, design: .rounded))
-                                .foregroundColor(Color.interactive)
+                            Text(self.viewModel.meditation.effectiveName)
+                                .font(.system(size: isCompactHeight ? 24 : 28, weight: .semibold, design: .rounded))
+                                .multilineTextAlignment(.center)
+                                .lineLimit(isCompactHeight ? 2 : 3)
+                                .minimumScaleFactor(0.8)
+                                .accessibilityLabel("guided_meditations.player.title")
+                                .accessibilityValue(self.viewModel.meditation.effectiveName)
                         }
-                        .accessibilityIdentifier("player.button.playPause")
-                        .accessibilityLabel(
-                            self.viewModel.isPlaying ?
-                                "guided_meditations.player.pause" :
-                                "guided_meditations.player.play"
-                        )
+                        .padding(.horizontal)
 
-                        // Skip forward
-                        Button {
-                            self.viewModel.skipForward()
-                        } label: {
-                            Image(systemName: "goforward.10")
-                                .font(.system(size: 32, design: .rounded))
-                                .foregroundColor(Color.interactive)
+                        Spacer()
+
+                        // Progress section
+                        VStack(spacing: isCompactHeight ? 12 : 16) {
+                            // Progress slider
+                            Slider(
+                                value: Binding(
+                                    get: { self.viewModel.currentTime },
+                                    set: { self.viewModel.seek(to: $0) }
+                                ),
+                                in: 0...max(self.viewModel.duration, 1)
+                            )
+                            .tint(Color.interactive)
+                            .accessibilityIdentifier("player.slider.progress")
+                            .accessibilityLabel("guided_meditations.player.progress")
+                            .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
+
+                            // Time labels
+                            HStack {
+                                Text(self.viewModel.formattedCurrentTime)
+                                    .font(.system(.caption, design: .rounded).monospacedDigit())
+                                    .foregroundColor(.textSecondary)
+                                    .accessibilityIdentifier("player.text.currentTime")
+                                    .accessibilityLabel("guided_meditations.player.currentTime")
+                                    .accessibilityValue(self.viewModel.formattedCurrentTime)
+
+                                Spacer()
+
+                                Text(self.viewModel.formattedRemainingTime)
+                                    .font(.system(.caption, design: .rounded).monospacedDigit())
+                                    .foregroundColor(.textSecondary)
+                                    .accessibilityIdentifier("player.text.remainingTime")
+                                    .accessibilityLabel("guided_meditations.player.remainingTime")
+                                    .accessibilityValue(self.viewModel.formattedRemainingTime)
+                            }
                         }
-                        .accessibilityIdentifier("player.button.skipForward")
-                        .accessibilityLabel("guided_meditations.player.skipForward")
+                        .padding(.horizontal)
+
+                        // Controls
+                        HStack(spacing: controlSpacing) {
+                            // Skip backward
+                            Button {
+                                self.viewModel.skipBackward()
+                            } label: {
+                                Image(systemName: "gobackward.10")
+                                    .font(.system(size: skipButtonSize, design: .rounded))
+                                    .foregroundColor(Color.interactive)
+                            }
+                            .accessibilityIdentifier("player.button.skipBackward")
+                            .accessibilityLabel("guided_meditations.player.skipBackward")
+
+                            // Play/Pause
+                            Button {
+                                self.viewModel.togglePlayPause()
+                            } label: {
+                                Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                    .font(.system(size: playButtonSize, design: .rounded))
+                                    .foregroundColor(Color.interactive)
+                            }
+                            .accessibilityIdentifier("player.button.playPause")
+                            .accessibilityLabel(
+                                self.viewModel.isPlaying ?
+                                    "guided_meditations.player.pause" :
+                                    "guided_meditations.player.play"
+                            )
+
+                            // Skip forward
+                            Button {
+                                self.viewModel.skipForward()
+                            } label: {
+                                Image(systemName: "goforward.10")
+                                    .font(.system(size: skipButtonSize, design: .rounded))
+                                    .foregroundColor(Color.interactive)
+                            }
+                            .accessibilityIdentifier("player.button.skipForward")
+                            .accessibilityLabel("guided_meditations.player.skipForward")
+                        }
+                        .padding(.vertical, isCompactHeight ? 12 : 16)
+
+                        Spacer()
                     }
-                    .padding(.vertical)
+                    .padding()
 
-                    Spacer()
-                }
-                .padding()
-
-                // Loading overlay
-                if self.viewModel.playbackState == .loading {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.textPrimary.opacity(.opacityOverlay))
+                    // Loading overlay
+                    if self.viewModel.playbackState == .loading {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.textPrimary.opacity(.opacityOverlay))
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
