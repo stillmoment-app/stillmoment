@@ -309,6 +309,59 @@ extension UTType {
 
 // MARK: - Previews
 
+// Preview-only mock service
+#if DEBUG
+private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
+    var meditations: [GuidedMeditation]
+
+    init(meditations: [GuidedMeditation] = []) {
+        self.meditations = meditations
+    }
+
+    func loadMeditations() throws -> [GuidedMeditation] { self.meditations }
+    func saveMeditations(_ meditations: [GuidedMeditation]) throws { self.meditations = meditations }
+    func addMeditation(from _: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
+        GuidedMeditation(
+            localFilePath: "preview.mp3",
+            fileName: "preview.mp3",
+            duration: metadata.duration,
+            teacher: metadata.artist ?? "Unknown",
+            name: metadata.title ?? "Untitled"
+        )
+    }
+
+    func updateMeditation(_ meditation: GuidedMeditation) throws {}
+    func deleteMeditation(id: UUID) throws {}
+    func getMeditationsDirectory() -> URL { FileManager.default.temporaryDirectory }
+    func needsMigration() -> Bool { false }
+
+    // Sample data for previews
+    static let sampleMeditations: [GuidedMeditation] = [
+        GuidedMeditation(
+            localFilePath: "sample1.mp3",
+            fileName: "loving-kindness.mp3",
+            duration: 691, // 11:31
+            teacher: "Christine Braehler",
+            name: "Loving-without-Losing-Yourself"
+        ),
+        GuidedMeditation(
+            localFilePath: "sample2.mp3",
+            fileName: "einschlafen.mp3",
+            duration: 3629, // 1:00:29
+            teacher: "Somebody",
+            name: "Meditation wieder Einschlafen bei naechtlichem Erwachen"
+        ),
+        GuidedMeditation(
+            localFilePath: "sample3.mp3",
+            fileName: "body-scan.mp3",
+            duration: 1245, // 20:45
+            teacher: "Christine Braehler",
+            name: "Body Scan Meditation"
+        )
+    ]
+}
+#endif
+
 @available(iOS 17.0, *)
 #Preview("Empty State") {
     NavigationStack {
@@ -316,24 +369,55 @@ extension UTType {
     }
 }
 
+@available(iOS 17.0, *)
+#Preview("With Meditations") {
+    NavigationStack {
+        GuidedMeditationsListView(
+            viewModel: GuidedMeditationsListViewModel(
+                meditationService: PreviewMeditationService(
+                    meditations: PreviewMeditationService.sampleMeditations
+                )
+            )
+        )
+    }
+}
+
 // Device Size Previews
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
     NavigationStack {
-        GuidedMeditationsListView()
+        GuidedMeditationsListView(
+            viewModel: GuidedMeditationsListViewModel(
+                meditationService: PreviewMeditationService(
+                    meditations: PreviewMeditationService.sampleMeditations
+                )
+            )
+        )
     }
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
     NavigationStack {
-        GuidedMeditationsListView()
+        GuidedMeditationsListView(
+            viewModel: GuidedMeditationsListViewModel(
+                meditationService: PreviewMeditationService(
+                    meditations: PreviewMeditationService.sampleMeditations
+                )
+            )
+        )
     }
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
     NavigationStack {
-        GuidedMeditationsListView()
+        GuidedMeditationsListView(
+            viewModel: GuidedMeditationsListViewModel(
+                meditationService: PreviewMeditationService(
+                    meditations: PreviewMeditationService.sampleMeditations
+                )
+            )
+        )
     }
 }
