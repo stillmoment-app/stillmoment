@@ -30,8 +30,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.RingBackground
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.Terracotta
@@ -123,95 +123,94 @@ internal fun GuidedMeditationPlayerScreenContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val backDescription = stringResource(R.string.common_close)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.semantics {
-                            contentDescription = backDescription
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                            tint = WarmGray
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent,
-        modifier = modifier
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            WarmGradientBackground()
+    Box(modifier = modifier.fillMaxSize()) {
+        // Gradient behind everything (full screen)
+        WarmGradientBackground()
 
-            Column(
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = Color.Transparent
+        ) { padding ->
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(padding)
             ) {
-                // Top spacer - pushes content down
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Meditation Info Header
-                MeditationInfoHeader(
-                    meditation = meditation
+                // Compact top bar (44dp like iOS)
+                StillMomentTopAppBar(
+                    navigationIcon = {
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier.semantics {
+                                contentDescription = backDescription
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = WarmGray
+                            )
+                        }
+                    }
                 )
 
-                // Middle spacer - separates header from controls
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Controls
-                PlayerControls(
-                    isPlaying = uiState.isPlaying,
-                    onPlayPause = onPlayPause,
-                    currentPosition = uiState.currentPosition,
-                    duration = uiState.duration,
-                    formattedPosition = uiState.formattedPosition,
-                    formattedRemaining = uiState.formattedRemaining,
-                    onSeek = onSeek,
-                    onSkipForward = onSkipForward,
-                    onSkipBackward = onSkipBackward
-                )
-
-                // Bottom spacer - pushes controls up
-                Spacer(modifier = Modifier.weight(1f))
-            }
-
-            // Loading overlay (shown during initial audio load)
-            if (uiState.isLoading) {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(WarmBlack.copy(alpha = 0.3f)),
-                    contentAlignment = Alignment.Center
+                        .padding(top = TopAppBarHeight)
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircularProgressIndicator(
-                        color = Terracotta,
-                        modifier = Modifier.size(48.dp)
+                    // Top spacer - pushes content down
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Meditation Info Header
+                    MeditationInfoHeader(
+                        meditation = meditation
                     )
+
+                    // Middle spacer - separates header from controls
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Controls
+                    PlayerControls(
+                        isPlaying = uiState.isPlaying,
+                        onPlayPause = onPlayPause,
+                        currentPosition = uiState.currentPosition,
+                        duration = uiState.duration,
+                        formattedPosition = uiState.formattedPosition,
+                        formattedRemaining = uiState.formattedRemaining,
+                        onSeek = onSeek,
+                        onSkipForward = onSkipForward,
+                        onSkipBackward = onSkipBackward
+                    )
+
+                    // Bottom spacer - pushes controls up
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+
+                // Loading overlay (shown during initial audio load)
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(WarmBlack.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Terracotta,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
                 }
             }
-        }
 
-        // Error handling via Snackbar
-        LaunchedEffect(uiState.error) {
-            uiState.error?.let { error ->
-                snackbarHostState.showSnackbar(error)
-                onClearError()
+            // Error handling via Snackbar
+            LaunchedEffect(uiState.error) {
+                uiState.error?.let { error ->
+                    snackbarHostState.showSnackbar(error)
+                    onClearError()
+                }
             }
         }
     }

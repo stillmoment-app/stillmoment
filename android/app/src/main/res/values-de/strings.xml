@@ -32,29 +32,27 @@
 
     <!-- Timer States -->
     <string name="state_ready">Bereit, wenn du es bist</string>
-    <string name="state_countdown">Gleich geht\'s los…</string>
-    <string name="state_running">In der Meditation…</string>
-    <string name="state_paused">Lass dir Zeit</string>
+    <string name="state_paused">Nimm dir Zeit</string>
     <string name="state_completed">Danke dir</string>
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
     <string name="settings_background_sound">Hintergrundklang</string>
     <string name="settings_interval_gongs">Intervall-Gongs</string>
-    <string name="settings_interval_gongs_description">Spiele einen sanften Gong in regelmäßigen Abständen</string>
+    <string name="settings_interval_gongs_description">Ein Gong-Klang in regelmäßigen Abständen während der Meditation</string>
     <string name="settings_interval_minutes">Intervall</string>
     <string name="settings_sound_settings">Klang-Einstellungen</string>
 
     <!-- Background Sounds -->
-    <string name="sound_silent">Stille Atmosphäre</string>
-    <string name="sound_silent_description">Hält die App sanft aktiv. Fast lautlos, nur präsent.</string>
-    <string name="sound_forest">Waldatmosphäre</string>
-    <string name="sound_forest_description">Sanfte Naturklänge helfen dir, in die Übung zu finden.</string>
+    <string name="sound_silent">Leise</string>
+    <string name="sound_silent_description">Hält die App sanft im Hintergrund aktiv. Fast unhörbar, einfach präsent.</string>
+    <string name="sound_forest">Weißes Rauschen</string>
+    <string name="sound_forest_description">Sanfter Umgebungsklang, der dir hilft, dich in deine Praxis einzufinden.</string>
 
     <!-- Time -->
     <string name="time_minutes">%d Min</string>
     <string name="time_minutes_plural">%d Minuten</string>
-    <string name="time_seconds">%d Sek</string>
+    <string name="time_seconds">%d Sekunden</string>
     <string name="time_remaining">%s verbleibend</string>
 
     <!-- Accessibility -->
@@ -70,16 +68,16 @@
     <string name="accessibility_minute_picker">Dauer: %d Minuten</string>
 
     <!-- Affirmations - Countdown -->
-    <string name="affirmation_countdown_1">Finde eine bequeme Position</string>
-    <string name="affirmation_countdown_2">Atme tief ein</string>
-    <string name="affirmation_countdown_3">Schließe sanft deine Augen</string>
-    <string name="affirmation_countdown_4">Lass alle Anspannung los</string>
+    <string name="affirmation_countdown_1">Lass dich ankommen...</string>
+    <string name="affirmation_countdown_2">Atme tief durch...</string>
+    <string name="affirmation_countdown_3">Bereite dich sanft vor...</string>
+    <string name="affirmation_countdown_4">Gleich ist Zeit für dich...</string>
 
     <!-- Affirmations - Running -->
-    <string name="affirmation_running_1">Sei präsent in diesem Moment</string>
-    <string name="affirmation_running_2">Atme natürlich und tief</string>
-    <string name="affirmation_running_3">Beobachte deine Gedanken, lass sie ziehen</string>
-    <string name="affirmation_running_4">Spüre die Ruhe in dir</string>
+    <string name="affirmation_running_1">Atme sanft</string>
+    <string name="affirmation_running_2">Alles darf sein</string>
+    <string name="affirmation_running_3">Du bist hier, das reicht</string>
+    <string name="affirmation_running_4">Freundlichkeit beginnt hier</string>
     <string name="affirmation_running_5">Du machst das wunderbar</string>
 
     <!-- Notifications -->
@@ -89,8 +87,9 @@
     <string name="notification_text">Deine Meditationssitzung ist aktiv</string>
 
     <!-- Guided Meditations Library -->
-    <string name="library_empty_title">Deine Bibliothek ist leer</string>
-    <string name="library_empty_description">Importiere Meditations-Audiodateien, um zu beginnen</string>
+    <string name="guided_meditations_title">Geführte Meditationen</string>
+    <string name="library_empty_title">Noch keine Meditationen</string>
+    <string name="library_empty_description">Füge deine erste geführte Meditation hinzu, indem du eine MP3-Datei aus der Dateien-App importierst.</string>
     <string name="library_import_button">Meditation importieren</string>
     <string name="delete_confirmation_title">Meditation löschen</string>
     <string name="delete_confirmation_message">Möchtest du \"%1$s\" wirklich löschen?</string>

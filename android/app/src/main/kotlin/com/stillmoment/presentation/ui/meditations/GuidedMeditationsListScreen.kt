@@ -52,6 +52,7 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
@@ -68,41 +69,9 @@ fun GuidedMeditationsListScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
-    GuidedMeditationsListScreenContent(
-        uiState = uiState,
-        onMeditationClick = onMeditationClick,
-        onImportMeditation = viewModel::importMeditation,
-        onEditClick = viewModel::showEditSheet,
-        onDeleteMeditation = viewModel::deleteMeditation,
-        onDismissEditSheet = viewModel::hideEditSheet,
-        onSaveMeditation = viewModel::updateMeditation,
-        onClearError = viewModel::clearError,
-        modifier = modifier
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun GuidedMeditationsListScreenContent(
-    uiState: GuidedMeditationsListUiState,
-    onMeditationClick: (GuidedMeditation) -> Unit,
-    onImportMeditation: (android.net.Uri) -> Unit,
-    onEditClick: (GuidedMeditation) -> Unit,
-    onDeleteMeditation: (GuidedMeditation) -> Unit,
-    onDismissEditSheet: () -> Unit,
-    onSaveMeditation: (GuidedMeditation) -> Unit,
-    onClearError: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val importDescription = stringResource(R.string.accessibility_import_meditation)
     val context = LocalContext.current
-    var meditationToDelete by remember { mutableStateOf<GuidedMeditation?>(null) }
 
-    // Document picker launcher
-    // IMPORTANT: Take persistable URI permission immediately in Activity context
-    // before passing to ViewModel. This ensures the permission survives app restart.
+    // Document picker launcher - must be in Activity context, not in Content composable
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -117,23 +86,59 @@ internal fun GuidedMeditationsListScreenContent(
                 // Permission might not be grantable, continue anyway
                 android.util.Log.w("GuidedMeditationsListScreen", "Could not take persistable permission", e)
             }
-            onImportMeditation(it)
+            viewModel.importMeditation(it)
         }
     }
+
+    GuidedMeditationsListScreenContent(
+        uiState = uiState,
+        onMeditationClick = onMeditationClick,
+        onImportClick = { launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*")) },
+        onEditClick = viewModel::showEditSheet,
+        onDeleteMeditation = viewModel::deleteMeditation,
+        onDismissEditSheet = viewModel::hideEditSheet,
+        onSaveMeditation = viewModel::updateMeditation,
+        onClearError = viewModel::clearError,
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun GuidedMeditationsListScreenContent(
+    uiState: GuidedMeditationsListUiState,
+    onMeditationClick: (GuidedMeditation) -> Unit,
+    onImportClick: () -> Unit,
+    onEditClick: (GuidedMeditation) -> Unit,
+    onDeleteMeditation: (GuidedMeditation) -> Unit,
+    onDismissEditSheet: () -> Unit,
+    onSaveMeditation: (GuidedMeditation) -> Unit,
+    onClearError: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val importDescription = stringResource(R.string.accessibility_import_meditation)
+    var meditationToDelete by remember { mutableStateOf<GuidedMeditation?>(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
         // Gradient behind everything
         WarmGradientBackground()
 
         Scaffold(
-            topBar = {
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            containerColor = Color.Transparent
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                // Custom TopAppBar (compact, iOS-style)
                 StillMomentTopAppBar(
-                    title = stringResource(R.string.tab_library),
+                    title = stringResource(R.string.guided_meditations_title),
                     actions = {
                         IconButton(
-                            onClick = {
-                                launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*"))
-                            },
+                            onClick = onImportClick,
                             modifier = Modifier.semantics {
                                 contentDescription = importDescription
                             }
@@ -146,44 +151,41 @@ internal fun GuidedMeditationsListScreenContent(
                         }
                     }
                 )
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            containerColor = Color.Transparent
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
 
-            when {
-                uiState.isLoading && uiState.groups.isEmpty() -> {
-                    // Loading state
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
-                uiState.isEmpty -> {
-                    // Empty state
-                    EmptyLibraryState(
-                        onImportClick = {
-                            launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*"))
+                // Content below the app bar
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = TopAppBarHeight)
+                ) {
+                    when {
+                        uiState.isLoading && uiState.groups.isEmpty() -> {
+                            // Loading state
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
-                    )
-                }
-                else -> {
-                    // Meditations list
-                    MeditationsList(
-                        groups = uiState.groups,
-                        onMeditationClick = onMeditationClick,
-                        onEditClick = onEditClick,
-                        onDeleteMeditation = { meditation -> meditationToDelete = meditation }
-                    )
+                        uiState.isEmpty -> {
+                            // Empty state
+                            EmptyLibraryState(
+                                onImportClick = onImportClick
+                            )
+                        }
+                        else -> {
+                            // Meditations list
+                            MeditationsList(
+                                groups = uiState.groups,
+                                onMeditationClick = onMeditationClick,
+                                onEditClick = onEditClick,
+                                onDeleteMeditation = { meditation -> meditationToDelete = meditation }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -240,7 +242,6 @@ internal fun GuidedMeditationsListScreenContent(
                 snackbarHostState.showSnackbar(error)
                 onClearError()
             }
-        }
         }
     }
 }
@@ -367,76 +368,82 @@ private fun SwipeToDeleteItem(
 
 // MARK: - Previews
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Loading")
 @Composable
-private fun GuidedMeditationsListScreenEmptyPreview() {
+private fun GuidedMeditationsListScreenLoadingPreview() {
     StillMomentTheme {
-        GuidedMeditationsListScreenContent(
-            uiState = GuidedMeditationsListUiState(isLoading = false),
-            onMeditationClick = {},
-            onImportMeditation = {},
-            onEditClick = {},
-            onDeleteMeditation = {},
-            onDismissEditSheet = {},
-            onSaveMeditation = {},
-            onClearError = {}
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            WarmGradientBackground()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Empty")
+@Composable
+private fun GuidedMeditationsListScreenEmptyPreview() {
+    StillMomentTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            WarmGradientBackground()
+            EmptyLibraryState(onImportClick = {})
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "With Data")
 @Composable
 private fun GuidedMeditationsListScreenWithDataPreview() {
-    StillMomentTheme {
-        val groups = listOf(
-            GuidedMeditationGroup(
-                teacher = "Tara Brach",
-                meditations = listOf(
-                    GuidedMeditation(
-                        id = "1",
-                        fileUri = "content://test",
-                        fileName = "meditation1.mp3",
-                        duration = 1_200_000L,
-                        teacher = "Tara Brach",
-                        name = "Loving Kindness"
-                    ),
-                    GuidedMeditation(
-                        id = "2",
-                        fileUri = "content://test",
-                        fileName = "meditation2.mp3",
-                        duration = 900_000L,
-                        teacher = "Tara Brach",
-                        name = "Body Scan"
-                    )
+    val groups = listOf(
+        GuidedMeditationGroup(
+            teacher = "Tara Brach",
+            meditations = listOf(
+                GuidedMeditation(
+                    id = "1",
+                    fileUri = "content://test",
+                    fileName = "meditation1.mp3",
+                    duration = 1_200_000L,
+                    teacher = "Tara Brach",
+                    name = "Loving Kindness"
+                ),
+                GuidedMeditation(
+                    id = "2",
+                    fileUri = "content://test",
+                    fileName = "meditation2.mp3",
+                    duration = 900_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan"
                 )
-            ),
-            GuidedMeditationGroup(
-                teacher = "Jack Kornfield",
-                meditations = listOf(
-                    GuidedMeditation(
-                        id = "3",
-                        fileUri = "content://test",
-                        fileName = "meditation3.mp3",
-                        duration = 1_800_000L,
-                        teacher = "Jack Kornfield",
-                        name = "Forgiveness Practice"
-                    )
+            )
+        ),
+        GuidedMeditationGroup(
+            teacher = "Jack Kornfield",
+            meditations = listOf(
+                GuidedMeditation(
+                    id = "3",
+                    fileUri = "content://test",
+                    fileName = "meditation3.mp3",
+                    duration = 1_800_000L,
+                    teacher = "Jack Kornfield",
+                    name = "Forgiveness Practice"
                 )
             )
         )
+    )
 
-        GuidedMeditationsListScreenContent(
-            uiState = GuidedMeditationsListUiState(
+    StillMomentTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            WarmGradientBackground()
+            MeditationsList(
                 groups = groups,
-                isLoading = false
-            ),
-            onMeditationClick = {},
-            onImportMeditation = {},
-            onEditClick = {},
-            onDeleteMeditation = {},
-            onDismissEditSheet = {},
-            onSaveMeditation = {},
-            onClearError = {}
-        )
+                onMeditationClick = {},
+                onEditClick = {},
+                onDeleteMeditation = {}
+            )
+        }
     }
 }

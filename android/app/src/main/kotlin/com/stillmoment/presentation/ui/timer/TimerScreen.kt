@@ -1,13 +1,10 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.ui.unit.min
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -33,8 +29,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -62,6 +56,8 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -112,108 +108,108 @@ internal fun TimerScreenContent(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = stringResource(R.string.accessibility_settings_button),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0f)
-                )
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            WarmGradientBackground()
+    Box(modifier = modifier.fillMaxSize()) {
+        // Gradient behind everything (full screen)
+        WarmGradientBackground()
 
-            Column(
+        Scaffold(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ) { paddingValues ->
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(paddingValues)
             ) {
-                // Top spacer - pushes content down
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Title
-                Text(
-                    text = stringResource(R.string.welcome_title),
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Light
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.semantics { heading() }
+                // Compact top bar (44dp like iOS)
+                StillMomentTopAppBar(
+                    actions = {
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = stringResource(R.string.accessibility_settings_button),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 )
 
-                // Middle spacer - separates title from content
-                Spacer(modifier = Modifier.weight(1f))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = TopAppBarHeight)
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Flexible top space (like iOS Spacer)
+                    Spacer(modifier = Modifier.weight(1f))
 
-                // Timer Display or Picker
-                if (uiState.timerState == TimerState.Idle) {
-                    MinutePicker(
-                        selectedMinutes = uiState.selectedMinutes,
-                        onMinutesChanged = onMinutesChanged
-                    )
-                } else {
-                    TimerDisplay(
-                        uiState = uiState,
-                        getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
-                        getCurrentRunningAffirmation = getCurrentRunningAffirmation
-                    )
-                }
-
-                // Bottom spacer - separates content from controls
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Control Buttons
-                ControlButtons(
-                    uiState = uiState,
-                    onStartClick = onStartClick,
-                    onPauseClick = onPauseClick,
-                    onResumeClick = onResumeClick,
-                    onResetClick = onResetClick
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Error Message
-                uiState.errorMessage?.let { error ->
+                    // Title
                     Text(
-                        text = error,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        text = stringResource(R.string.welcome_title),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Light
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.semantics { heading() }
                     )
+
+                    // Fixed spacing between title and picker (like iOS)
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Timer Display or Picker - uses intrinsic size, centered by surrounding spacers
+                    if (uiState.timerState == TimerState.Idle) {
+                        MinutePicker(
+                            selectedMinutes = uiState.selectedMinutes,
+                            onMinutesChanged = onMinutesChanged
+                        )
+                    } else {
+                        TimerDisplay(
+                            uiState = uiState,
+                            getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
+                            getCurrentRunningAffirmation = getCurrentRunningAffirmation
+                        )
+                    }
+
+                    // Flexible bottom space (like iOS Spacer)
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Control Buttons
+                    ControlButtons(
+                        uiState = uiState,
+                        onStartClick = onStartClick,
+                        onPauseClick = onPauseClick,
+                        onResumeClick = onResumeClick,
+                        onResetClick = onResetClick
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Error Message
+                    uiState.errorMessage?.let { error ->
+                        Text(
+                            text = error,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
                 }
             }
-        }
 
-        // Settings Bottom Sheet
-        if (uiState.showSettings) {
-            ModalBottomSheet(
-                onDismissRequest = onSettingsDismiss,
-                sheetState = sheetState,
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                SettingsSheet(
-                    settings = uiState.settings,
-                    onSettingsChanged = onSettingsChanged,
-                    onDismiss = onSettingsDismiss
-                )
+            // Settings Bottom Sheet
+            if (uiState.showSettings) {
+                ModalBottomSheet(
+                    onDismissRequest = onSettingsDismiss,
+                    sheetState = sheetState,
+                    containerColor = MaterialTheme.colorScheme.surface
+                ) {
+                    SettingsSheet(
+                        settings = uiState.settings,
+                        onSettingsChanged = onSettingsChanged,
+                        onDismiss = onSettingsDismiss
+                    )
+                }
             }
         }
     }
@@ -225,59 +221,59 @@ private fun MinutePicker(
     onMinutesChanged: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BoxWithConstraints(modifier = modifier) {
-        // Like iOS: compact height (< 700dp) shows 3 items, larger screens show 5
-        val isCompactHeight = maxHeight < 700.dp
-        val visibleItems = if (isCompactHeight) 3 else 5
-        val pickerHeight = (visibleItems * 40).dp
-        val imageSize = if (isCompactHeight) 100.dp else 150.dp
+    // Use screen height like iOS does with geometry.size.height
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isCompactHeight = configuration.screenHeightDp < 700
+    val visibleItems = if (isCompactHeight) 3 else 5
+    val pickerHeight = (visibleItems * 40).dp
+    val imageSize = if (isCompactHeight) 100.dp else 150.dp
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Hands with Heart Image
-            Image(
-                painter = painterResource(id = R.drawable.hands_heart),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(imageSize)
-                    .padding(bottom = 8.dp)
-            )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Hands with Heart Image
+        Image(
+            painter = painterResource(id = R.drawable.hands_heart),
+            contentDescription = null,
+            modifier = Modifier
+                .height(imageSize)
+                .padding(bottom = if (isCompactHeight) 4.dp else 8.dp)
+        )
 
-            // Question
-            Text(
-                text = stringResource(R.string.duration_question),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Light
-                ),
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+        // Question
+        Text(
+            text = stringResource(R.string.duration_question),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Light
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
 
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 24.dp))
+        Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 24.dp))
 
-            // Wheel Picker
-            WheelPicker(
-                selectedValue = selectedMinutes,
-                onValueChanged = onMinutesChanged,
-                range = 1..60,
-                visibleItems = visibleItems,
-                modifier = Modifier.height(pickerHeight)
-            )
+        // Wheel Picker
+        WheelPicker(
+            selectedValue = selectedMinutes,
+            onValueChanged = onMinutesChanged,
+            range = 1..60,
+            visibleItems = visibleItems,
+            modifier = Modifier.height(pickerHeight)
+        )
 
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
+        Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
 
-            // Footer
-            Text(
-                text = stringResource(R.string.duration_footer),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Light
-                ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        // Footer
+        Text(
+            text = stringResource(R.string.duration_footer),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Light
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -303,66 +299,63 @@ private fun TimerDisplay(
         stringResource(R.string.accessibility_time_remaining, minutes, seconds)
     }
 
+    // Use screen height like iOS does with geometry.size.height
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isCompactHeight = configuration.screenHeightDp < 700
+    val ringSize = if (isCompactHeight) 200.dp else 250.dp
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Circular Progress with responsive sizing
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+        // Circular Progress
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(ringSize)
+                .semantics {
+                    contentDescription = timerAccessibilityDescription
+                    liveRegion = LiveRegionMode.Polite
+                }
         ) {
-            // Calculate ring size based on available space (min 150dp, max 250dp)
-            val ringSize = min(maxWidth, maxHeight).coerceIn(150.dp, 250.dp)
+            // Background ring
+            CircularProgressIndicator(
+                progress = { 1f },
+                modifier = Modifier.size(ringSize),
+                strokeWidth = 8.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                strokeCap = StrokeCap.Round
+            )
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(ringSize)
-                    .semantics {
-                        contentDescription = timerAccessibilityDescription
-                        liveRegion = LiveRegionMode.Polite
-                    }
-            ) {
-                // Background ring
+            // Progress ring (not shown during countdown)
+            if (!uiState.isCountdown) {
                 CircularProgressIndicator(
-                    progress = { 1f },
+                    progress = { animatedProgress },
                     modifier = Modifier.size(ringSize),
                     strokeWidth = 8.dp,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
                     strokeCap = StrokeCap.Round
                 )
-
-                // Progress ring (not shown during countdown)
-                if (!uiState.isCountdown) {
-                    CircularProgressIndicator(
-                        progress = { animatedProgress },
-                        modifier = Modifier.size(ringSize),
-                        strokeWidth = 8.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
-                        strokeCap = StrokeCap.Round
-                    )
-                }
-
-                // Time Display
-                Text(
-                    text = uiState.formattedTime,
-                    style = if (uiState.isCountdown) {
-                        MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 100.sp,
-                            fontWeight = FontWeight.ExtraLight
-                        )
-                    } else {
-                        MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 60.sp,
-                            fontWeight = FontWeight.Thin
-                        )
-                    },
-                    color = MaterialTheme.colorScheme.onBackground
-                )
             }
+
+            // Time Display
+            Text(
+                text = uiState.formattedTime,
+                style = if (uiState.isCountdown) {
+                    MaterialTheme.typography.displayLarge.copy(
+                        fontSize = if (isCompactHeight) 80.sp else 100.sp,
+                        fontWeight = FontWeight.ExtraLight
+                    )
+                } else {
+                    MaterialTheme.typography.displayLarge.copy(
+                        fontSize = if (isCompactHeight) 48.sp else 60.sp,
+                        fontWeight = FontWeight.Thin
+                    )
+                },
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -378,7 +371,6 @@ private fun TimerDisplay(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-
     }
 }
 

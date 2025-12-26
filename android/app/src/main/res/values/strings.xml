@@ -32,8 +32,6 @@
 
     <!-- Timer States -->
     <string name="state_ready">Ready when you are</string>
-    <string name="state_countdown">Get ready…</string>
-    <string name="state_running">Meditating…</string>
     <string name="state_paused">Take your time</string>
     <string name="state_completed">Thank you</string>
 
@@ -41,20 +39,20 @@
     <string name="settings_title">Settings</string>
     <string name="settings_background_sound">Background Audio</string>
     <string name="settings_interval_gongs">Interval Gongs</string>
-    <string name="settings_interval_gongs_description">Play a gentle gong at regular intervals</string>
+    <string name="settings_interval_gongs_description">Play a gong sound at regular intervals during meditation</string>
     <string name="settings_interval_minutes">Interval</string>
     <string name="settings_sound_settings">Sound Settings</string>
 
     <!-- Background Sounds -->
-    <string name="sound_silent">Silent Ambience</string>
-    <string name="sound_silent_description">Keeps the app gently active. Almost silent, just present.</string>
-    <string name="sound_forest">Forest Ambience</string>
-    <string name="sound_forest_description">Soft nature sounds to help you settle into practice.</string>
+    <string name="sound_silent">Silent</string>
+    <string name="sound_silent_description">Keeps the app gently active in the background. Almost silent, just present.</string>
+    <string name="sound_forest">White Noise</string>
+    <string name="sound_forest_description">Soft ambient sound to help you settle into your practice.</string>
 
     <!-- Time -->
     <string name="time_minutes">%d min</string>
     <string name="time_minutes_plural">%d minutes</string>
-    <string name="time_seconds">%d sec</string>
+    <string name="time_seconds">%d seconds</string>
     <string name="time_remaining">%s remaining</string>
 
     <!-- Accessibility -->
@@ -70,16 +68,16 @@
     <string name="accessibility_minute_picker">Duration: %d minutes</string>
 
     <!-- Affirmations - Countdown -->
-    <string name="affirmation_countdown_1">Find a comfortable position</string>
-    <string name="affirmation_countdown_2">Take a deep breath</string>
-    <string name="affirmation_countdown_3">Close your eyes gently</string>
-    <string name="affirmation_countdown_4">Let go of all tension</string>
+    <string name="affirmation_countdown_1">Settle in...</string>
+    <string name="affirmation_countdown_2">Take a deep breath...</string>
+    <string name="affirmation_countdown_3">Prepare gently...</string>
+    <string name="affirmation_countdown_4">Time for you soon...</string>
 
     <!-- Affirmations - Running -->
-    <string name="affirmation_running_1">Be present in this moment</string>
-    <string name="affirmation_running_2">Breathe naturally and deeply</string>
-    <string name="affirmation_running_3">Notice your thoughts, let them pass</string>
-    <string name="affirmation_running_4">Feel the calm within you</string>
+    <string name="affirmation_running_1">Breathe softly</string>
+    <string name="affirmation_running_2">All is welcome</string>
+    <string name="affirmation_running_3">You\'re here, that\'s enough</string>
+    <string name="affirmation_running_4">Kindness begins here</string>
     <string name="affirmation_running_5">You are doing wonderfully</string>
 
     <!-- Notifications -->
@@ -89,8 +87,9 @@
     <string name="notification_text">Your meditation session is running</string>
 
     <!-- Guided Meditations Library -->
-    <string name="library_empty_title">Your library is empty</string>
-    <string name="library_empty_description">Import meditation audio files to get started</string>
+    <string name="guided_meditations_title">Guided Meditations</string>
+    <string name="library_empty_title">No meditations yet</string>
+    <string name="library_empty_description">Add your first guided meditation by importing an MP3 file from the Files app.</string>
     <string name="library_import_button">Import Meditation</string>
     <string name="delete_confirmation_title">Delete Meditation</string>
     <string name="delete_confirmation_message">Are you sure you want to delete \"%1$s\"?</string>
