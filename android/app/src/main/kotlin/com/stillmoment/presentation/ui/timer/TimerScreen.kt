@@ -233,7 +233,6 @@ private fun MinutePicker(
         val imageSize = if (isCompactHeight) 100.dp else 150.dp
 
         Column(
-            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Hands with Heart Image
@@ -527,7 +526,8 @@ private fun WarmSecondaryButton(
 
 // MARK: - Previews
 
-@Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Phone Small", widthDp = 360, heightDp = 640, showBackground = true)
+@Preview(name = "Phone Large", widthDp = 411, heightDp = 915, showBackground = true)
 @Preview(name = "Tablet", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun TimerScreenIdlePreview() {
@@ -575,7 +575,8 @@ private fun TimerScreenCountdownPreview() {
     }
 }
 
-@Preview(name = "Phone - Running", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Phone Small - Running", widthDp = 360, heightDp = 640, showBackground = true)
+@Preview(name = "Phone Large - Running", widthDp = 411, heightDp = 915, showBackground = true)
 @Preview(name = "Tablet - Running", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun TimerScreenRunningPreview() {
