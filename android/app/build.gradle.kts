@@ -27,8 +27,8 @@ android {
         applicationId = "com.stillmoment"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.3.0"
+        versionCode = 3
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "com.stillmoment.HiltTestRunner"
     }
@@ -63,6 +63,7 @@ android {
             isDebuggable = true
         }
     }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -173,6 +174,7 @@ tasks.register("screenshots") {
     group = "screenshot"
     dependsOn("processScreenshots")
 }
+
 
 // detekt configuration
 detekt {
