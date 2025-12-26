@@ -39,6 +39,7 @@ import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerScreenContent
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 import com.stillmoment.presentation.viewmodel.TimerUiState
+import kotlinx.collections.immutable.ImmutableList
 import org.junit.Rule
 import org.junit.Test
 
@@ -227,7 +228,7 @@ class PlayStoreScreenshotTests {
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LibraryScreenshotContent(groups: List<GuidedMeditationGroup>, libraryTitle: String) {
+private fun LibraryScreenshotContent(groups: ImmutableList<GuidedMeditationGroup>, libraryTitle: String) {
     Scaffold(
         topBar = {
             TopAppBar(

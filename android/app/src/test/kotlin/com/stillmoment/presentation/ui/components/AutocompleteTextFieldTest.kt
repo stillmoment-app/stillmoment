@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.components
 
+import kotlinx.collections.immutable.persistentListOf
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -15,7 +16,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `empty text returns empty list`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg")
             val text = ""
 
             // When
@@ -28,7 +29,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `blank text returns empty list`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "   "
 
             // When
@@ -41,7 +42,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `filters suggestions by case insensitive contains match`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg")
             val text = "tar"
 
             // When
@@ -55,7 +56,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `filters with uppercase input works`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "TARA"
 
             // When
@@ -69,7 +70,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `excludes exact matches ignoring case`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "Tara Brach"
 
             // When
@@ -82,7 +83,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `excludes exact matches with different case`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "tara brach"
 
             // When
@@ -96,7 +97,7 @@ class AutocompleteTextFieldTest {
         fun `returns multiple matching suggestions`() {
             // Given
             val suggestions =
-                listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg", "Sam Harris")
+                persistentListOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg", "Sam Harris")
             val text = "a"
 
             // When
@@ -114,7 +115,7 @@ class AutocompleteTextFieldTest {
         fun `limits results to maximum 5 suggestions`() {
             // Given
             val suggestions =
-                listOf(
+                persistentListOf(
                     "Teacher 1",
                     "Teacher 2",
                     "Teacher 3",
@@ -135,7 +136,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `returns empty list when no suggestions match`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "xyz"
 
             // When
@@ -148,7 +149,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `handles empty suggestions list`() {
             // Given
-            val suggestions = emptyList<String>()
+            val suggestions = persistentListOf<String>()
             val text = "test"
 
             // When
@@ -161,7 +162,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `matches substring in middle of suggestion`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "orn"
 
             // When
@@ -175,7 +176,7 @@ class AutocompleteTextFieldTest {
         @Test
         fun `matches at end of suggestion`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield")
+            val suggestions = persistentListOf("Tara Brach", "Jack Kornfield")
             val text = "ach"
 
             // When

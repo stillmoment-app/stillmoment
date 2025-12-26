@@ -46,6 +46,8 @@ import com.stillmoment.presentation.ui.theme.Terracotta
 import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerScreen
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -106,7 +108,7 @@ fun StillMomentNavHost(
 
     val tabs =
         remember {
-            listOf(
+            persistentListOf(
                 TabItem(
                     screen = Screen.Timer,
                     labelResId = R.string.tab_timer,
@@ -207,7 +209,7 @@ fun StillMomentNavHost(
 
 @Composable
 private fun StillMomentBottomBar(
-    tabs: List<TabItem>,
+    tabs: ImmutableList<TabItem>,
     currentDestination: androidx.navigation.NavDestination?,
     onTabSelect: (Screen) -> Unit,
     modifier: Modifier = Modifier

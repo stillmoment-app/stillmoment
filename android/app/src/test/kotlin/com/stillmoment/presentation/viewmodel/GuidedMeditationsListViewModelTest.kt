@@ -4,6 +4,8 @@ import android.net.Uri
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -82,7 +84,7 @@ class GuidedMeditationsListViewModelTest {
     inner class UiStateTotalCountTests {
         @Test
         fun `totalCount returns zero for empty groups`() {
-            val state = GuidedMeditationsListUiState(groups = emptyList())
+            val state = GuidedMeditationsListUiState(groups = persistentListOf())
 
             assertEquals(0, state.totalCount)
         }
@@ -94,7 +96,7 @@ class GuidedMeditationsListViewModelTest {
                     createTestGroup("Teacher A", 3),
                     createTestGroup("Teacher B", 2),
                     createTestGroup("Teacher C", 5)
-                )
+                ).toImmutableList()
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals(10, state.totalCount)
@@ -102,7 +104,7 @@ class GuidedMeditationsListViewModelTest {
 
         @Test
         fun `totalCount handles single group`() {
-            val groups = listOf(createTestGroup("Teacher", 7))
+            val groups = listOf(createTestGroup("Teacher", 7)).toImmutableList()
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals(7, state.totalCount)
@@ -115,7 +117,7 @@ class GuidedMeditationsListViewModelTest {
         fun `isEmpty returns true when groups empty and not loading`() {
             val state =
                 GuidedMeditationsListUiState(
-                    groups = emptyList(),
+                    groups = persistentListOf(),
                     isLoading = false
                 )
 
@@ -126,7 +128,7 @@ class GuidedMeditationsListViewModelTest {
         fun `isEmpty returns false when groups exist`() {
             val state =
                 GuidedMeditationsListUiState(
-                    groups = listOf(createTestGroup("Teacher", 1)),
+                    groups = listOf(createTestGroup("Teacher", 1)).toImmutableList(),
                     isLoading = false
                 )
 
@@ -137,7 +139,7 @@ class GuidedMeditationsListViewModelTest {
         fun `isEmpty returns false when still loading`() {
             val state =
                 GuidedMeditationsListUiState(
-                    groups = emptyList(),
+                    groups = persistentListOf(),
                     isLoading = true
                 )
 
@@ -149,7 +151,7 @@ class GuidedMeditationsListViewModelTest {
     inner class UiStateAvailableTeachersTests {
         @Test
         fun `availableTeachers returns empty list for empty groups`() {
-            val state = GuidedMeditationsListUiState(groups = emptyList())
+            val state = GuidedMeditationsListUiState(groups = persistentListOf())
 
             assertTrue(state.availableTeachers.isEmpty())
         }
@@ -161,7 +163,7 @@ class GuidedMeditationsListViewModelTest {
                     createTestGroup("Tara Brach", 2),
                     createTestGroup("Jack Kornfield", 1),
                     createTestGroup("Sharon Salzberg", 3)
-                )
+                ).toImmutableList()
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals(3, state.availableTeachers.size)
@@ -177,7 +179,7 @@ class GuidedMeditationsListViewModelTest {
                     createTestGroup("Zebra Teacher", 1),
                     createTestGroup("Alpha Teacher", 1),
                     createTestGroup("Middle Teacher", 1)
-                )
+                ).toImmutableList()
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals("Alpha Teacher", state.availableTeachers[0])

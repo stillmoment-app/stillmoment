@@ -58,6 +58,8 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Guided Meditations Library Screen.
@@ -262,7 +264,7 @@ internal fun GuidedMeditationsListScreenContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MeditationsList(
-    groups: List<GuidedMeditationGroup>,
+    groups: ImmutableList<GuidedMeditationGroup>,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onDeleteMeditation: (GuidedMeditation) -> Unit,
@@ -453,7 +455,7 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
                     )
                 )
             )
-        )
+        ).toImmutableList()
 
     StillMomentTheme {
         Box(modifier = Modifier.fillMaxSize()) {

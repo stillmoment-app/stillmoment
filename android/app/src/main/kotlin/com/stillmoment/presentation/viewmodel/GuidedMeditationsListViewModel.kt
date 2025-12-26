@@ -9,6 +9,9 @@ import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +24,7 @@ import kotlinx.coroutines.launch
  */
 data class GuidedMeditationsListUiState(
     /** Meditations grouped by teacher */
-    val groups: List<GuidedMeditationGroup> = emptyList(),
+    val groups: ImmutableList<GuidedMeditationGroup> = persistentListOf(),
     /** Whether data is being loaded */
     val isLoading: Boolean = true,
     /** Error message if any */
@@ -44,8 +47,8 @@ data class GuidedMeditationsListUiState(
         get() = groups.isEmpty() && !isLoading
 
     /** List of unique teacher names for autocomplete */
-    val availableTeachers: List<String>
-        get() = groups.map { it.teacher }.distinct().sorted()
+    val availableTeachers: ImmutableList<String>
+        get() = groups.map { it.teacher }.distinct().sorted().toImmutableList()
 }
 
 /**
@@ -73,7 +76,7 @@ constructor(
     private fun observeMeditations() {
         viewModelScope.launch {
             repository.meditationsFlow
-                .map { meditations -> meditations.groupByTeacher() }
+                .map { meditations -> meditations.groupByTeacher().toImmutableList() }
                 .collect { groups ->
                     _uiState.update {
                         it.copy(

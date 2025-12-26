@@ -37,6 +37,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * A TextField with autocomplete suggestions dropdown.
@@ -60,7 +63,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 fun AutocompleteTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    suggestions: List<String>,
+    suggestions: ImmutableList<String>,
     modifier: Modifier = Modifier,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
@@ -127,7 +130,7 @@ fun AutocompleteTextField(
  */
 @Composable
 private fun SuggestionsList(
-    suggestions: List<String>,
+    suggestions: ImmutableList<String>,
     onSuggestionClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -199,9 +202,9 @@ private fun SuggestionItem(
  * @param text Current input text
  * @return Filtered suggestions (max 5), excluding exact matches
  */
-internal fun filterSuggestions(suggestions: List<String>, text: String): List<String> {
+internal fun filterSuggestions(suggestions: ImmutableList<String>, text: String): ImmutableList<String> {
     if (text.isBlank()) {
-        return emptyList()
+        return persistentListOf()
     }
 
     return suggestions
@@ -210,6 +213,7 @@ internal fun filterSuggestions(suggestions: List<String>, text: String): List<St
                 !suggestion.equals(text, ignoreCase = true)
         }
         .take(5)
+        .toImmutableList()
 }
 
 // MARK: - Previews
@@ -228,7 +232,7 @@ private fun AutocompleteTextFieldEmptyPreview() {
             AutocompleteTextField(
                 value = text,
                 onValueChange = { text = it },
-                suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
+                suggestions = persistentListOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
                 label = { Text("Teacher") },
                 placeholder = { Text("Enter teacher name") }
             )
@@ -251,14 +255,14 @@ private fun AutocompleteTextFieldWithSuggestionsPreview() {
                 AutocompleteTextField(
                     value = text,
                     onValueChange = { text = it },
-                    suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
+                    suggestions = persistentListOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg"),
                     label = { Text("Teacher") }
                 )
 
                 // Manually show suggestions for preview
                 Spacer(modifier = Modifier.height(4.dp))
                 SuggestionsList(
-                    suggestions = listOf("Tara Brach"),
+                    suggestions = persistentListOf("Tara Brach"),
                     onSuggestionClick = { text = it }
                 )
             }

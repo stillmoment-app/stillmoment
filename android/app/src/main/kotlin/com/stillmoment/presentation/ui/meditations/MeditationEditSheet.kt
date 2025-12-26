@@ -41,6 +41,8 @@ import com.stillmoment.domain.models.EditSheetState
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Bottom sheet for editing meditation metadata (teacher and name).
@@ -58,7 +60,7 @@ fun MeditationEditSheet(
     onDismiss: () -> Unit,
     onSave: (GuidedMeditation) -> Unit,
     modifier: Modifier = Modifier,
-    availableTeachers: List<String> = emptyList()
+    availableTeachers: ImmutableList<String> = persistentListOf()
 ) {
     val sheetState = rememberModalBottomSheetState()
 
@@ -97,7 +99,7 @@ private fun MeditationEditSheetContent(
     teacherText: String,
     nameText: String,
     isValid: Boolean,
-    availableTeachers: List<String>,
+    availableTeachers: ImmutableList<String>,
     onTeacherChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
@@ -272,7 +274,7 @@ private fun MeditationEditSheetDefaultPreview() {
             teacherText = meditation.teacher,
             nameText = meditation.name,
             isValid = true,
-            availableTeachers = listOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
+            availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},
@@ -299,7 +301,7 @@ private fun MeditationEditSheetWithChangesPreview() {
             teacherText = "Jack Kornfield",
             nameText = "Body Scan Meditation",
             isValid = true,
-            availableTeachers = listOf("Tara Brach", "Jack Kornfield"),
+            availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield"),
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},
@@ -326,7 +328,7 @@ private fun MeditationEditSheetLongTextPreview() {
             teacherText = meditation.teacher,
             nameText = meditation.name,
             isValid = true,
-            availableTeachers = emptyList(),
+            availableTeachers = persistentListOf(),
             onTeacherChange = {},
             onNameChange = {},
             onSave = {},

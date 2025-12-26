@@ -123,6 +123,9 @@ dependencies {
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // Immutable Collections (for Compose stability)
+    implementation(libs.kotlinx.collections.immutable)
+
     // Media3 (ExoPlayer) - for audio playback
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.session)

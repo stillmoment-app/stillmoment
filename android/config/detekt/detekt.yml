@@ -84,9 +84,11 @@ exceptions:
 naming:
   active: true
   # Disabled: Compose uses PascalCase for @Composable functions
+  # Note: detekt-compose ComposableNaming Rule handles Compose-specific naming
   FunctionNaming:
     active: false
-  # Disabled: ktlint handles this, we use _state pattern for MutableStateFlow backing
+  # ktlint handles this via .editorconfig (ktlint_standard_property-naming)
+  # we use _state pattern for MutableStateFlow backing
   VariableNaming:
     active: true
     excludes: ["**/test/**", "**/androidTest/**"]
@@ -188,5 +190,84 @@ style:
   WildcardImport:
     active: false  # ktlint handles this
 
-# Compose-specific rules (via detekt-compose plugin if added later)
-# For now, basic Compose-friendly configuration
+# ============================================================================
+# Compose Rules (io.nlopez.compose.rules:detekt)
+# https://mrmans0n.github.io/compose-rules/
+# ============================================================================
+Compose:
+  # --- Naming Rules ---
+  ComposableNaming:
+    active: true
+    # Erlaubt standard PascalCase Composables
+  ComposableAnnotationNaming:
+    active: true
+  CompositionLocalNaming:
+    active: true
+  ModifierNaming:
+    active: true
+  ParameterNaming:
+    active: true
+    treatAsLambda: []
+
+  # --- Parameter & State Rules ---
+  ComposableParamOrder:
+    active: true
+  MutableParams:
+    active: true
+  MutableStateParam:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  DefaultsVisibility:
+    active: true
+
+  # --- Modifier Rules ---
+  ModifierMissing:
+    active: true
+    # checkModifiersForVisibility: only_public
+  ModifierWithoutDefault:
+    active: true
+  ModifierClickableOrder:
+    active: true
+  ModifierComposed:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+
+  # --- Content & Emission Rules ---
+  ContentEmitterReturningValues:
+    active: true
+  ContentTrailingLambda:
+    active: true
+  MultipleEmitters:
+    active: true
+    # contentEmittersDenylist für Custom-Emitter falls nötig
+
+  # --- Remember & State ---
+  RememberMissing:
+    active: true
+  RememberContentMissing:
+    active: true
+  LambdaParameterInRestartableEffect:
+    active: true
+  UnstableCollections:
+    active: true
+
+  # --- ViewModel Rules ---
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true
+
+  # --- Preview Rules ---
+  PreviewAnnotationNaming:
+    active: true
+  PreviewPublic:
+    active: true
+    # Previews sollten private sein
+
+  # --- Material Rules ---
+  Material2:
+    active: false  # Wir nutzen Material3

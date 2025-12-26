@@ -2,6 +2,8 @@ package com.stillmoment.screenshots
 
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Test fixtures for screenshot automation.
@@ -52,7 +54,7 @@ object TestFixtures {
             )
         )
 
-    val meditationGroups: List<GuidedMeditationGroup>
+    val meditationGroups: ImmutableList<GuidedMeditationGroup>
         get() =
             meditations
                 .groupBy { it.effectiveTeacher }
@@ -60,4 +62,5 @@ object TestFixtures {
                     GuidedMeditationGroup(teacher = teacher, meditations = meds)
                 }
                 .sortedBy { it.teacher }
+                .toImmutableList()
 }
