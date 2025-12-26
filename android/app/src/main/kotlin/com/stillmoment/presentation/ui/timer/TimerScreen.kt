@@ -1,11 +1,13 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.unit.min
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -50,6 +53,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -141,7 +145,8 @@ internal fun TimerScreenContent(
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
+                // Top spacer - pushes content down
+                Spacer(modifier = Modifier.weight(1f))
 
                 // Title
                 Text(
@@ -153,7 +158,8 @@ internal fun TimerScreenContent(
                     modifier = Modifier.semantics { heading() }
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                // Middle spacer - separates title from content
+                Spacer(modifier = Modifier.weight(1f))
 
                 // Timer Display or Picker
                 if (uiState.timerState == TimerState.Idle) {
@@ -169,6 +175,7 @@ internal fun TimerScreenContent(
                     )
                 }
 
+                // Bottom spacer - separates content from controls
                 Spacer(modifier = Modifier.weight(1f))
 
                 // Control Buttons
@@ -227,7 +234,7 @@ private fun MinutePicker(
             painter = painterResource(id = R.drawable.hands_heart),
             contentDescription = null,
             modifier = Modifier
-                .size(150.dp)
+                .heightIn(min = 80.dp, max = 150.dp)
                 .padding(bottom = 8.dp)
         )
 
@@ -249,7 +256,7 @@ private fun MinutePicker(
             selectedValue = selectedMinutes,
             onValueChanged = onMinutesChanged,
             range = 1..60,
-            modifier = Modifier.height(150.dp)
+            modifier = Modifier.heightIn(min = 100.dp, max = 150.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -292,54 +299,62 @@ private fun TimerDisplay(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Circular Progress
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(250.dp)
-                .semantics {
-                    contentDescription = timerAccessibilityDescription
-                    liveRegion = LiveRegionMode.Polite
-                }
+        // Circular Progress with responsive sizing
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-            // Background ring
-            CircularProgressIndicator(
-                progress = { 1f },
-                modifier = Modifier.size(250.dp),
-                strokeWidth = 8.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                strokeCap = StrokeCap.Round
-            )
+            // Calculate ring size based on available space (min 150dp, max 250dp)
+            val ringSize = min(maxWidth, maxHeight).coerceIn(150.dp, 250.dp)
 
-            // Progress ring (not shown during countdown)
-            if (!uiState.isCountdown) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(ringSize)
+                    .semantics {
+                        contentDescription = timerAccessibilityDescription
+                        liveRegion = LiveRegionMode.Polite
+                    }
+            ) {
+                // Background ring
                 CircularProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier.size(250.dp),
+                    progress = { 1f },
+                    modifier = Modifier.size(ringSize),
                     strokeWidth = 8.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     strokeCap = StrokeCap.Round
                 )
-            }
 
-            // Time Display
-            Text(
-                text = uiState.formattedTime,
-                style = if (uiState.isCountdown) {
-                    MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 100.sp,
-                        fontWeight = FontWeight.ExtraLight
+                // Progress ring (not shown during countdown)
+                if (!uiState.isCountdown) {
+                    CircularProgressIndicator(
+                        progress = { animatedProgress },
+                        modifier = Modifier.size(ringSize),
+                        strokeWidth = 8.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
+                        strokeCap = StrokeCap.Round
                     )
-                } else {
-                    MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 60.sp,
-                        fontWeight = FontWeight.Thin
-                    )
-                },
-                color = MaterialTheme.colorScheme.onBackground
-            )
+                }
+
+                // Time Display
+                Text(
+                    text = uiState.formattedTime,
+                    style = if (uiState.isCountdown) {
+                        MaterialTheme.typography.displayLarge.copy(
+                            fontSize = 100.sp,
+                            fontWeight = FontWeight.ExtraLight
+                        )
+                    } else {
+                        MaterialTheme.typography.displayLarge.copy(
+                            fontSize = 60.sp,
+                            fontWeight = FontWeight.Thin
+                        )
+                    },
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -503,7 +518,8 @@ private fun WarmSecondaryButton(
 
 // MARK: - Previews
 
-@Preview(showBackground = true)
+@Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Tablet", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun TimerScreenIdlePreview() {
     StillMomentTheme {
@@ -550,7 +566,8 @@ private fun TimerScreenCountdownPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Phone - Running", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Tablet - Running", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun TimerScreenRunningPreview() {
     StillMomentTheme {

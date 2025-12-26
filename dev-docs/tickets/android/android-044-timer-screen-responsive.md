@@ -1,6 +1,6 @@
 # Ticket android-044: TimerScreen Responsive Layout
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ Aktuell verwendet der TimerScreen feste Groessen (150dp Bild, 150dp WheelPicker,
 
 ## Akzeptanzkriterien
 
-- [ ] Proportionale Verteilung mit gewichteten Spacern (wie iOS/PlayerScreen)
-- [ ] `heightIn(min, max)` fuer Elemente die skalieren sollen
-- [ ] @Preview fuer: Phone, Landscape (640x360), Tablet
-- [ ] Layout bleibt visuell ausgewogen auf allen Bildschirmgroessen
+- [x] Proportionale Verteilung mit gewichteten Spacern (wie iOS/PlayerScreen)
+- [x] `heightIn(min, max)` fuer Elemente die skalieren sollen
+- [x] @Preview fuer: Phone, Landscape (640x360), Tablet
+- [x] Layout bleibt visuell ausgewogen auf allen Bildschirmgroessen
 
 ---
 
