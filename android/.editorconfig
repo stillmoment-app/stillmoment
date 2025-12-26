@@ -1,0 +1,51 @@
+# EditorConfig for Still Moment Android
+# https://editorconfig.org
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+ktlint_code_style = android_studio
+max_line_length = 120
+
+# Disable trailing comma requirement (causes many issues)
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+
+# Allow backtick function names in tests (JUnit 5 style)
+ktlint_standard_function-naming = disabled
+
+# Allow inline comments in argument lists
+ktlint_standard_discouraged-comment-location = disabled
+
+# Allow consecutive KDoc comments
+ktlint_standard_no-consecutive-comments = disabled
+
+# Disable strict indentation check (existing code uses mixed styles)
+ktlint_standard_indent = disabled
+
+# Disable multiline expression wrapping (existing code)
+ktlint_standard_multiline-expression-wrapping = disabled
+
+# Disable function signature formatting
+ktlint_standard_function-signature = disabled
+
+# Disable paren/parameter spacing
+ktlint_standard_paren-spacing = disabled
+ktlint_standard_parameter-list-spacing = disabled
+
+# Allow wildcard imports (common in tests)
+ktlint_standard_no-wildcard-imports = disabled
+
+# Allow underscore prefix for backing properties (_state pattern)
+ktlint_standard_property-naming = disabled
+
+[*.md]
+trim_trailing_whitespace = false

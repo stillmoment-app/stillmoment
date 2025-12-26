@@ -1,14 +1,13 @@
 package com.stillmoment.domain.models
 
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.Assertions.*
 
 /**
  * Unit tests for MeditationTimer domain model.
  */
 class MeditationTimerTest {
-
     // MARK: - Creation Tests
 
     @Test
@@ -133,8 +132,9 @@ class MeditationTimerTest {
     @Test
     fun `tick transitions from countdown to running when countdown reaches 0`() {
         // Given
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Countdown, countdownSeconds = 1)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Countdown, countdownSeconds = 1)
 
         // When
         val ticked = timer.tick()
@@ -160,8 +160,9 @@ class MeditationTimerTest {
     @Test
     fun `tick transitions to completed when remaining seconds reach 0`() {
         // Given
-        val timer = MeditationTimer.create(1)
-            .copy(state = TimerState.Running, remainingSeconds = 1)
+        val timer =
+            MeditationTimer.create(1)
+                .copy(state = TimerState.Running, remainingSeconds = 1)
 
         // When
         val ticked = timer.tick()
@@ -174,8 +175,9 @@ class MeditationTimerTest {
     @Test
     fun `tick does not go below 0 remaining seconds`() {
         // Given
-        val timer = MeditationTimer.create(1)
-            .copy(state = TimerState.Running, remainingSeconds = 0)
+        val timer =
+            MeditationTimer.create(1)
+                .copy(state = TimerState.Running, remainingSeconds = 0)
 
         // When
         val ticked = timer.tick()
@@ -210,13 +212,14 @@ class MeditationTimerTest {
     @Test
     fun `reset returns timer to initial state`() {
         // Given
-        val timer = MeditationTimer.create(10)
-            .copy(
-                state = TimerState.Running,
-                remainingSeconds = 100,
-                countdownSeconds = 5,
-                lastIntervalGongAt = 300
-            )
+        val timer =
+            MeditationTimer.create(10)
+                .copy(
+                    state = TimerState.Running,
+                    remainingSeconds = 100,
+                    countdownSeconds = 5,
+                    lastIntervalGongAt = 300,
+                )
 
         // When
         val resetTimer = timer.reset()
@@ -246,8 +249,9 @@ class MeditationTimerTest {
     @Test
     fun `shouldPlayIntervalGong returns true after first interval passed`() {
         // Given: 10 min timer, 5 min elapsed (5 min remaining = 300s)
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Running, remainingSeconds = 300)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Running, remainingSeconds = 300)
 
         // When/Then: 5 minute interval should trigger
         assertTrue(timer.shouldPlayIntervalGong(5))
@@ -256,8 +260,9 @@ class MeditationTimerTest {
     @Test
     fun `shouldPlayIntervalGong returns false before first interval`() {
         // Given: 10 min timer, 2 min elapsed (8 min remaining = 480s)
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Running, remainingSeconds = 480)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Running, remainingSeconds = 480)
 
         // When/Then: 5 minute interval should NOT trigger (only 2 min passed)
         assertFalse(timer.shouldPlayIntervalGong(5))
@@ -266,8 +271,9 @@ class MeditationTimerTest {
     @Test
     fun `markIntervalGongPlayed records remaining seconds`() {
         // Given
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Running, remainingSeconds = 300)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Running, remainingSeconds = 300)
 
         // When
         val marked = timer.markIntervalGongPlayed()
@@ -279,8 +285,9 @@ class MeditationTimerTest {
     @Test
     fun `shouldPlayIntervalGong returns false at 0 remaining seconds`() {
         // Given: Timer completed
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Running, remainingSeconds = 0, lastIntervalGongAt = 300)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Running, remainingSeconds = 0, lastIntervalGongAt = 300)
 
         // When/Then
         assertFalse(timer.shouldPlayIntervalGong(5))
@@ -309,8 +316,9 @@ class MeditationTimerTest {
     @Test
     fun `full timer lifecycle simulation`() {
         // Given: 1 min timer with no countdown
-        var timer = MeditationTimer.create(1, countdownDuration = 0)
-            .copy(state = TimerState.Running)
+        var timer =
+            MeditationTimer.create(1, countdownDuration = 0)
+                .copy(state = TimerState.Running)
 
         // When: Tick 60 times (1 minute)
         repeat(60) {
@@ -342,8 +350,9 @@ class MeditationTimerTest {
     @Test
     fun `tick preserves state when paused but decrements remaining`() {
         // Given
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Paused, remainingSeconds = 300)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Paused, remainingSeconds = 300)
 
         // When
         val ticked = timer.tick()
@@ -357,8 +366,9 @@ class MeditationTimerTest {
     @Test
     fun `tick preserves completed state with zero remaining`() {
         // Given
-        val timer = MeditationTimer.create(10)
-            .copy(state = TimerState.Completed, remainingSeconds = 0)
+        val timer =
+            MeditationTimer.create(10)
+                .copy(state = TimerState.Completed, remainingSeconds = 0)
 
         // When
         val ticked = timer.tick()
@@ -371,12 +381,13 @@ class MeditationTimerTest {
     @Test
     fun `shouldPlayIntervalGong respects lastIntervalGongAt`() {
         // Given: 10 min timer, interval already played at 300s
-        val timer = MeditationTimer.create(10)
-            .copy(
-                state = TimerState.Running,
-                remainingSeconds = 300,
-                lastIntervalGongAt = 300
-            )
+        val timer =
+            MeditationTimer.create(10)
+                .copy(
+                    state = TimerState.Running,
+                    remainingSeconds = 300,
+                    lastIntervalGongAt = 300,
+                )
 
         // When/Then: Should NOT play again at same remaining seconds
         assertFalse(timer.shouldPlayIntervalGong(5))
@@ -386,12 +397,13 @@ class MeditationTimerTest {
     fun `shouldPlayIntervalGong triggers on next interval`() {
         // Given: 10 min timer, first gong played at 300s (5 min elapsed)
         // Now at 0s remaining (timer would complete, but testing interval logic)
-        val timer = MeditationTimer.create(10)
-            .copy(
-                state = TimerState.Running,
-                remainingSeconds = 1, // Almost done, but still running
-                lastIntervalGongAt = 300
-            )
+        val timer =
+            MeditationTimer.create(10)
+                .copy(
+                    state = TimerState.Running,
+                    remainingSeconds = 1, // Almost done, but still running
+                    lastIntervalGongAt = 300,
+                )
 
         // When/Then: Should NOT play (we're at 9:59 elapsed, already played at 5:00)
         // Note: With 5 min intervals on 10 min timer, only one gong at 5 min mark

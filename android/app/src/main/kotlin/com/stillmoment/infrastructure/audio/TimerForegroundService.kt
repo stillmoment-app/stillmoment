@@ -27,7 +27,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class TimerForegroundService : Service() {
-
     @Inject
     lateinit var audioService: AudioService
 
@@ -42,7 +41,7 @@ class TimerForegroundService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int,): Int {
         when (intent?.action) {
             ACTION_START -> {
                 val soundId = intent.getStringExtra(EXTRA_SOUND_ID) ?: "silent"
@@ -109,15 +108,16 @@ class TimerForegroundService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                getString(R.string.notification_channel_name),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = getString(R.string.notification_channel_description)
-                setShowBadge(false)
-                setSound(null, null)
-            }
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    getString(R.string.notification_channel_name),
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    description = getString(R.string.notification_channel_description)
+                    setShowBadge(false)
+                    setSound(null, null)
+                }
 
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
@@ -125,14 +125,15 @@ class TimerForegroundService : Service() {
     }
 
     private fun createNotification(): Notification {
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
@@ -159,46 +160,52 @@ class TimerForegroundService : Service() {
         const val ACTION_RESUME_AUDIO = "com.stillmoment.action.RESUME_AUDIO"
         const val EXTRA_SOUND_ID = "sound_id"
 
-        fun startService(context: Context, soundId: String) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_START
-                putExtra(EXTRA_SOUND_ID, soundId)
-            }
+        fun startService(context: Context, soundId: String,) {
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_START
+                    putExtra(EXTRA_SOUND_ID, soundId)
+                }
             context.startForegroundService(intent)
         }
 
         fun stopService(context: Context) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_STOP
-            }
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_STOP
+                }
             context.startService(intent)
         }
 
         fun playGong(context: Context) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_PLAY_GONG
-            }
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_PLAY_GONG
+                }
             context.startService(intent)
         }
 
         fun playIntervalGong(context: Context) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_PLAY_INTERVAL_GONG
-            }
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_PLAY_INTERVAL_GONG
+                }
             context.startService(intent)
         }
 
         fun pauseAudio(context: Context) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_PAUSE_AUDIO
-            }
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_PAUSE_AUDIO
+                }
             context.startService(intent)
         }
 
         fun resumeAudio(context: Context) {
-            val intent = Intent(context, TimerForegroundService::class.java).apply {
-                action = ACTION_RESUME_AUDIO
-            }
+            val intent =
+                Intent(context, TimerForegroundService::class.java).apply {
+                    action = ACTION_RESUME_AUDIO
+                }
             context.startService(intent)
         }
     }

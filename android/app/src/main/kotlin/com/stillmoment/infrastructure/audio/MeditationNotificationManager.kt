@@ -28,8 +28,10 @@ import javax.inject.Singleton
  * Uses MediaStyle notification for proper media control appearance.
  */
 @Singleton
-class MeditationNotificationManager @Inject constructor(
-    @ApplicationContext private val context: Context
+class MeditationNotificationManager
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -44,15 +46,16 @@ class MeditationNotificationManager @Inject constructor(
      */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = CHANNEL_DESCRIPTION
-                setShowBadge(false)
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
+            val channel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    description = CHANNEL_DESCRIPTION
+                    setShowBadge(false)
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
             notificationManager.createNotificationChannel(channel)
         }
     }
@@ -68,30 +71,33 @@ class MeditationNotificationManager @Inject constructor(
     fun buildNotification(
         meditation: GuidedMeditation,
         isPlaying: Boolean,
-        mediaSession: MediaSessionCompat
+        mediaSession: MediaSessionCompat,
     ): Notification {
-        val contentIntent = PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val contentIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
         // Play/Pause action
-        val playPauseAction = NotificationCompat.Action(
-            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
-            if (isPlaying) "Pause" else "Play",
-            createMediaPendingIntent(if (isPlaying) ACTION_PAUSE else ACTION_PLAY)
-        )
+        val playPauseAction =
+            NotificationCompat.Action(
+                if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
+                if (isPlaying) "Pause" else "Play",
+                createMediaPendingIntent(if (isPlaying) ACTION_PAUSE else ACTION_PLAY),
+            )
 
         // Stop action
-        val stopAction = NotificationCompat.Action(
-            R.drawable.ic_notification,
-            "Stop",
-            createMediaPendingIntent(ACTION_STOP)
-        )
+        val stopAction =
+            NotificationCompat.Action(
+                R.drawable.ic_notification,
+                "Stop",
+                createMediaPendingIntent(ACTION_STOP),
+            )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(meditation.effectiveName)
@@ -107,7 +113,7 @@ class MeditationNotificationManager @Inject constructor(
             .setStyle(
                 MediaStyle()
                     .setMediaSession(mediaSession.sessionToken)
-                    .setShowActionsInCompactView(0) // Show play/pause in compact view
+                    .setShowActionsInCompactView(0), // Show play/pause in compact view
             )
             .build()
     }
@@ -129,14 +135,15 @@ class MeditationNotificationManager @Inject constructor(
     }
 
     private fun createMediaPendingIntent(action: String): PendingIntent {
-        val intent = Intent(action).apply {
-            setPackage(context.packageName)
-        }
+        val intent =
+            Intent(action).apply {
+                setPackage(context.packageName)
+            }
         return PendingIntent.getBroadcast(
             context,
             action.hashCode(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
 

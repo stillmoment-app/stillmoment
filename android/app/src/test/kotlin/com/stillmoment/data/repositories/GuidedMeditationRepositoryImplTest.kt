@@ -15,12 +15,10 @@ import org.junit.jupiter.api.Test
  * These unit tests focus on testable business logic and data mapping.
  */
 class GuidedMeditationRepositoryImplTest {
-
     // MARK: - ImportException Tests
 
     @Nested
     inner class ImportExceptionTests {
-
         @Test
         fun `ImportException stores message correctly`() {
             // Given
@@ -53,7 +51,6 @@ class GuidedMeditationRepositoryImplTest {
 
     @Nested
     inner class FileNameProcessingTests {
-
         @Test
         fun `fileNameWithoutExtension removes mp3 extension`() {
             // When
@@ -118,19 +115,20 @@ class GuidedMeditationRepositoryImplTest {
 
     @Nested
     inner class SerializationTests {
-
-        private val json = Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = true
-        }
+        private val json =
+            Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+            }
 
         @Test
         fun `meditation list can be serialized to JSON`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
-                createTestMeditation(teacher = "Teacher B", name = "Meditation 2")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
+                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2"),
+                )
 
             // When
             val jsonString = json.encodeToString(meditations)
@@ -145,10 +143,11 @@ class GuidedMeditationRepositoryImplTest {
         @Test
         fun `meditation list can be deserialized from JSON`() {
             // Given
-            val original = listOf(
-                createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
-                createTestMeditation(teacher = "Teacher B", name = "Meditation 2")
-            )
+            val original =
+                listOf(
+                    createTestMeditation(teacher = "Teacher A", name = "Meditation 1"),
+                    createTestMeditation(teacher = "Teacher B", name = "Meditation 2"),
+                )
             val jsonString = json.encodeToString(original)
 
             // When
@@ -187,19 +186,20 @@ class GuidedMeditationRepositoryImplTest {
         @Test
         fun `serialization roundtrip preserves all meditation fields`() {
             // Given
-            val original = listOf(
-                GuidedMeditation(
-                    id = "test-id",
-                    fileUri = "content://test/uri",
-                    fileName = "test.mp3",
-                    duration = 300_000L,
-                    teacher = "Original Teacher",
-                    name = "Original Name",
-                    customTeacher = "Custom Teacher",
-                    customName = "Custom Name",
-                    dateAdded = 1234567890L
+            val original =
+                listOf(
+                    GuidedMeditation(
+                        id = "test-id",
+                        fileUri = "content://test/uri",
+                        fileName = "test.mp3",
+                        duration = 300_000L,
+                        teacher = "Original Teacher",
+                        name = "Original Name",
+                        customTeacher = "Custom Teacher",
+                        customName = "Custom Name",
+                        dateAdded = 1234567890L,
+                    ),
                 )
-            )
 
             // When
             val jsonString = json.encodeToString(original)
@@ -215,7 +215,6 @@ class GuidedMeditationRepositoryImplTest {
 
     @Nested
     inner class DefaultValuesTests {
-
         @Test
         fun `default teacher is Unknown when not provided`() {
             // This test documents the expected default behavior
@@ -248,7 +247,7 @@ class GuidedMeditationRepositoryImplTest {
         name: String = "Test Meditation",
         customTeacher: String? = null,
         customName: String? = null,
-        dateAdded: Long = System.currentTimeMillis()
+        dateAdded: Long = System.currentTimeMillis(),
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = fileUri,
@@ -258,6 +257,6 @@ class GuidedMeditationRepositoryImplTest {
         name = name,
         customTeacher = customTeacher,
         customName = customName,
-        dateAdded = dateAdded
+        dateAdded = dateAdded,
     )
 }

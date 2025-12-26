@@ -23,7 +23,7 @@ Visuelle Konsistenz zwischen iOS und Android. Der iOS-Gradient wirkt durch 3 Far
 - [x] `WarmGradientBackground` verwendet 3 Farben wie iOS
 - [x] Farbreihenfolge: WarmCream (oben) → WarmSand (mitte) → PaleApricot (unten)
 - [x] Kein Alpha-Kanal mehr noetig
-- [ ] Visuell konsistent mit iOS (manuell pruefen)
+- [x] Visuell konsistent mit iOS (manuell pruefen)
 
 ---
 

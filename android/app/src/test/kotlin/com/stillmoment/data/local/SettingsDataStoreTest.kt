@@ -4,8 +4,6 @@ import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.navigation.Screen
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test
  * Note: Actual DataStore integration tests require instrumented tests.
  */
 class SettingsDataStoreTest {
-
     // MARK: - MeditationSettings Default Values
 
     @Test
@@ -29,12 +26,13 @@ class SettingsDataStoreTest {
 
     @Test
     fun `settings can be created with custom values`() {
-        val settings = MeditationSettings.create(
-            intervalGongsEnabled = true,
-            intervalMinutes = 10,
-            backgroundSoundId = "forest",
-            durationMinutes = 20
-        )
+        val settings =
+            MeditationSettings.create(
+                intervalGongsEnabled = true,
+                intervalMinutes = 10,
+                backgroundSoundId = "forest",
+                durationMinutes = 20,
+            )
 
         assertTrue(settings.intervalGongsEnabled)
         assertEquals(10, settings.intervalMinutes)
@@ -44,12 +42,13 @@ class SettingsDataStoreTest {
 
     @Test
     fun `settings copy preserves unchanged values`() {
-        val original = MeditationSettings(
-            intervalGongsEnabled = true,
-            intervalMinutes = 10,
-            backgroundSoundId = "forest",
-            durationMinutes = 30
-        )
+        val original =
+            MeditationSettings(
+                intervalGongsEnabled = true,
+                intervalMinutes = 10,
+                backgroundSoundId = "forest",
+                durationMinutes = 30,
+            )
 
         val updated = original.copy(intervalMinutes = 5)
 
@@ -92,26 +91,29 @@ class SettingsDataStoreTest {
 
     @Test
     fun `settings equality works correctly`() {
-        val settings1 = MeditationSettings(
-            intervalGongsEnabled = true,
-            intervalMinutes = 5,
-            backgroundSoundId = "silent",
-            durationMinutes = 10
-        )
+        val settings1 =
+            MeditationSettings(
+                intervalGongsEnabled = true,
+                intervalMinutes = 5,
+                backgroundSoundId = "silent",
+                durationMinutes = 10,
+            )
 
-        val settings2 = MeditationSettings(
-            intervalGongsEnabled = true,
-            intervalMinutes = 5,
-            backgroundSoundId = "silent",
-            durationMinutes = 10
-        )
+        val settings2 =
+            MeditationSettings(
+                intervalGongsEnabled = true,
+                intervalMinutes = 5,
+                backgroundSoundId = "silent",
+                durationMinutes = 10,
+            )
 
-        val settings3 = MeditationSettings(
-            intervalGongsEnabled = false,
-            intervalMinutes = 5,
-            backgroundSoundId = "silent",
-            durationMinutes = 10
-        )
+        val settings3 =
+            MeditationSettings(
+                intervalGongsEnabled = false,
+                intervalMinutes = 5,
+                backgroundSoundId = "silent",
+                durationMinutes = 10,
+            )
 
         assertEquals(settings1, settings2)
         assertFalse(settings1 == settings3)
@@ -136,12 +138,12 @@ class SettingsDataStoreTest {
         assertEquals(
             "timer",
             SettingsDataStore.TAB_TIMER,
-            "TAB_TIMER must remain 'timer' for backwards compatibility"
+            "TAB_TIMER must remain 'timer' for backwards compatibility",
         )
         assertEquals(
             "library",
             SettingsDataStore.TAB_LIBRARY,
-            "TAB_LIBRARY must remain 'library' for backwards compatibility"
+            "TAB_LIBRARY must remain 'library' for backwards compatibility",
         )
     }
 
@@ -154,12 +156,12 @@ class SettingsDataStoreTest {
         assertEquals(
             SettingsDataStore.TAB_TIMER,
             Screen.Timer.route,
-            "TAB_TIMER must match Screen.Timer.route"
+            "TAB_TIMER must match Screen.Timer.route",
         )
         assertEquals(
             SettingsDataStore.TAB_LIBRARY,
             Screen.Library.route,
-            "TAB_LIBRARY must match Screen.Library.route"
+            "TAB_LIBRARY must match Screen.Library.route",
         )
     }
 

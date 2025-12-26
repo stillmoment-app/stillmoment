@@ -8,9 +8,8 @@ package com.stillmoment.domain.models
 data class GuidedMeditationGroup(
     /** Teacher name for this group */
     val teacher: String,
-
     /** List of meditations by this teacher */
-    val meditations: List<GuidedMeditation>
+    val meditations: List<GuidedMeditation>,
 ) {
     /** Number of meditations in this group */
     val count: Int
@@ -28,7 +27,7 @@ fun List<GuidedMeditation>.groupByTeacher(): List<GuidedMeditationGroup> {
         .map { (teacher, meditations) ->
             GuidedMeditationGroup(
                 teacher = teacher,
-                meditations = meditations.sortedBy { it.effectiveName }
+                meditations = meditations.sortedBy { it.effectiveName },
             )
         }
         .sortedBy { it.teacher }

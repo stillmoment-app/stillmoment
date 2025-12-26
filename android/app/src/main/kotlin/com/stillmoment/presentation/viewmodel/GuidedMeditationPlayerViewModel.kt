@@ -8,12 +8,12 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * UI State for the Guided Meditation Player screen.
@@ -21,27 +21,20 @@ import javax.inject.Inject
 data class PlayerUiState(
     /** Currently loaded meditation */
     val meditation: GuidedMeditation? = null,
-
     /** Whether audio is currently loading */
     val isLoading: Boolean = false,
-
     /** Whether audio is playing */
     val isPlaying: Boolean = false,
-
     /** Current playback position in milliseconds */
     val currentPosition: Long = 0L,
-
     /** Total duration in milliseconds */
     val duration: Long = 0L,
-
     /** Playback progress (0.0 to 1.0) */
     val progress: Float = 0f,
-
     /** Error message if any */
     val error: String? = null,
-
     /** Whether playback has completed */
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
 ) {
     /** Formatted current position (MM:SS or HH:MM:SS) */
     val formattedPosition: String
@@ -77,11 +70,12 @@ data class PlayerUiState(
  * with the timer feature.
  */
 @HiltViewModel
-class GuidedMeditationPlayerViewModel @Inject constructor(
+class GuidedMeditationPlayerViewModel
+@Inject
+constructor(
     private val audioPlayerService: AudioPlayerServiceProtocol,
-    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol
+    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
@@ -103,7 +97,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
                         progress = state.progress,
                         error = state.error,
                         // Clear loading state when playback starts or error occurs
-                        isLoading = if (state.isPlaying || state.error != null) false else it.isLoading
+                        isLoading = if (state.isPlaying || state.error != null) false else it.isLoading,
                     )
                 }
             }
@@ -121,7 +115,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
                 it.copy(
                     isPlaying = false,
                     currentPosition = 0L,
-                    progress = 0f
+                    progress = 0f,
                 )
             }
         }
@@ -143,7 +137,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
                 progress = 0f,
                 isPlaying = false,
                 isCompleted = false,
-                error = null
+                error = null,
             )
         }
     }
@@ -222,7 +216,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
             it.copy(
                 currentPosition = clampedPosition,
                 progress = if (duration > 0) clampedPosition.toFloat() / duration else 0f,
-                isCompleted = false
+                isCompleted = false,
             )
         }
     }
@@ -274,7 +268,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
             it.copy(
                 isPlaying = false,
                 currentPosition = 0L,
-                progress = 0f
+                progress = 0f,
             )
         }
     }
@@ -287,7 +281,7 @@ class GuidedMeditationPlayerViewModel @Inject constructor(
                 isPlaying = false,
                 isCompleted = true,
                 progress = 1f,
-                currentPosition = it.duration
+                currentPosition = it.duration,
             )
         }
     }

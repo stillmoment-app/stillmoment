@@ -14,7 +14,6 @@ import com.stillmoment.domain.models.TimerState
  * The reducer contains no side effects - all I/O is represented as effects.
  */
 object TimerReducer {
-
     private const val AFFIRMATION_COUNT = 5
 
     /**
@@ -28,7 +27,7 @@ object TimerReducer {
     fun reduce(
         state: TimerDisplayState,
         action: TimerAction,
-        settings: MeditationSettings
+        settings: MeditationSettings,
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         return when (action) {
             is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes)
@@ -48,11 +47,12 @@ object TimerReducer {
 
     private fun reduceSelectDuration(
         state: TimerDisplayState,
-        minutes: Int
+        minutes: Int,
     ): Pair<TimerDisplayState, List<TimerEffect>> {
-        val newState = state.copy(
-            selectedMinutes = MeditationSettings.validateDuration(minutes)
-        )
+        val newState =
+            state.copy(
+                selectedMinutes = MeditationSettings.validateDuration(minutes),
+            )
         return newState to emptyList()
     }
 
@@ -60,26 +60,29 @@ object TimerReducer {
 
     private fun reduceStartPressed(
         state: TimerDisplayState,
-        settings: MeditationSettings
+        settings: MeditationSettings,
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.selectedMinutes <= 0) {
             return state to emptyList()
         }
 
-        val newState = state.copy(
-            currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
-            intervalGongPlayedForCurrentInterval = false
-        )
+        val newState =
+            state.copy(
+                currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
+                intervalGongPlayedForCurrentInterval = false,
+            )
 
-        val updatedSettings = settings.copy(
-            durationMinutes = state.selectedMinutes
-        )
+        val updatedSettings =
+            settings.copy(
+                durationMinutes = state.selectedMinutes,
+            )
 
-        val effects = listOf(
-            TimerEffect.StartForegroundService(settings.backgroundSoundId),
-            TimerEffect.StartTimer(state.selectedMinutes),
-            TimerEffect.SaveSettings(updatedSettings)
-        )
+        val effects =
+            listOf(
+                TimerEffect.StartForegroundService(settings.backgroundSoundId),
+                TimerEffect.StartTimer(state.selectedMinutes),
+                TimerEffect.SaveSettings(updatedSettings),
+            )
 
         return newState to effects
     }
@@ -109,19 +112,21 @@ object TimerReducer {
             return state to emptyList()
         }
 
-        val newState = state.copy(
-            timerState = TimerState.Idle,
-            remainingSeconds = 0,
-            totalSeconds = 0,
-            countdownSeconds = 0,
-            progress = 0f,
-            intervalGongPlayedForCurrentInterval = false
-        )
+        val newState =
+            state.copy(
+                timerState = TimerState.Idle,
+                remainingSeconds = 0,
+                totalSeconds = 0,
+                countdownSeconds = 0,
+                progress = 0f,
+                intervalGongPlayedForCurrentInterval = false,
+            )
 
-        val effects = listOf(
-            TimerEffect.StopForegroundService,
-            TimerEffect.ResetTimer
-        )
+        val effects =
+            listOf(
+                TimerEffect.StopForegroundService,
+                TimerEffect.ResetTimer,
+            )
 
         return newState to effects
     }
@@ -130,15 +135,16 @@ object TimerReducer {
 
     private fun reduceTick(
         state: TimerDisplayState,
-        action: TimerAction.Tick
+        action: TimerAction.Tick,
     ): Pair<TimerDisplayState, List<TimerEffect>> {
-        val newState = state.copy(
-            remainingSeconds = action.remainingSeconds,
-            totalSeconds = action.totalSeconds,
-            countdownSeconds = action.countdownSeconds,
-            progress = action.progress,
-            timerState = action.state
-        )
+        val newState =
+            state.copy(
+                remainingSeconds = action.remainingSeconds,
+                totalSeconds = action.totalSeconds,
+                countdownSeconds = action.countdownSeconds,
+                progress = action.progress,
+                timerState = action.state,
+            )
         return newState to emptyList()
     }
 
@@ -152,14 +158,16 @@ object TimerReducer {
     private fun reduceTimerCompleted(
         state: TimerDisplayState
     ): Pair<TimerDisplayState, List<TimerEffect>> {
-        val newState = state.copy(
-            timerState = TimerState.Completed,
-            progress = 1.0f
-        )
-        val effects = listOf(
-            TimerEffect.PlayCompletionSound,
-            TimerEffect.StopForegroundService
-        )
+        val newState =
+            state.copy(
+                timerState = TimerState.Completed,
+                progress = 1.0f,
+            )
+        val effects =
+            listOf(
+                TimerEffect.PlayCompletionSound,
+                TimerEffect.StopForegroundService,
+            )
         return newState to effects
     }
 
@@ -167,7 +175,7 @@ object TimerReducer {
 
     private fun reduceIntervalGongTriggered(
         state: TimerDisplayState,
-        settings: MeditationSettings
+        settings: MeditationSettings,
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         if (!settings.intervalGongsEnabled || state.intervalGongPlayedForCurrentInterval) {
             return state to emptyList()

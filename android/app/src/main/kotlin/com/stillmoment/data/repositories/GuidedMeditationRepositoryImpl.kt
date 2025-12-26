@@ -9,13 +9,13 @@ import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 /**
  * Holds extracted metadata from an audio file.
@@ -23,7 +23,7 @@ import javax.inject.Singleton
 private data class MediaMetadata(
     val duration: Long,
     val artist: String?,
-    val title: String?
+    val title: String?,
 )
 
 /**
@@ -33,11 +33,12 @@ private data class MediaMetadata(
  * extracting metadata from ID3 tags, and persisting to DataStore.
  */
 @Singleton
-class GuidedMeditationRepositoryImpl @Inject constructor(
+class GuidedMeditationRepositoryImpl
+@Inject
+constructor(
     @ApplicationContext private val context: Context,
-    private val dataStore: GuidedMeditationDataStore
+    private val dataStore: GuidedMeditationDataStore,
 ) : GuidedMeditationRepository {
-
     override val meditationsFlow: Flow<List<GuidedMeditation>> = dataStore.meditationsFlow
 
     override suspend fun importMeditation(uri: Uri): Result<GuidedMeditation> {
@@ -56,13 +57,14 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
                 Log.d(TAG, "Copied to internal storage: ${localFile.absolutePath}")
 
                 // 4. Create meditation object with local file URI
-                val meditation = GuidedMeditation(
-                    fileUri = localUri.toString(),
-                    fileName = originalFileName,
-                    duration = metadata.duration,
-                    teacher = metadata.artist ?: DEFAULT_TEACHER,
-                    name = metadata.title ?: fileNameWithoutExtension(originalFileName)
-                )
+                val meditation =
+                    GuidedMeditation(
+                        fileUri = localUri.toString(),
+                        fileName = originalFileName,
+                        duration = metadata.duration,
+                        teacher = metadata.artist ?: DEFAULT_TEACHER,
+                        name = metadata.title ?: fileNameWithoutExtension(originalFileName),
+                    )
 
                 // 5. Persist to DataStore
                 dataStore.addMeditation(meditation)
@@ -115,7 +117,7 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
      * @param originalFileName The original file name for extension detection
      * @return The local File in app storage
      */
-    private fun copyFileToInternalStorage(sourceUri: Uri, originalFileName: String): File {
+    private fun copyFileToInternalStorage(sourceUri: Uri, originalFileName: String,): File {
         // Create meditations directory if it doesn't exist
         val meditationsDir = File(context.filesDir, MEDITATIONS_DIR)
         if (!meditationsDir.exists()) {
@@ -165,22 +167,25 @@ class GuidedMeditationRepositoryImpl @Inject constructor(
             retriever.setDataSource(context, uri)
 
             MediaMetadata(
-                duration = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_DURATION
+                duration =
+                retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_DURATION,
                 )?.toLongOrNull() ?: 0L,
-                artist = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_ARTIST
+                artist =
+                retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_ARTIST,
                 )?.takeIf { it.isNotBlank() },
-                title = retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_TITLE
-                )?.takeIf { it.isNotBlank() }
+                title =
+                retriever.extractMetadata(
+                    MediaMetadataRetriever.METADATA_KEY_TITLE,
+                )?.takeIf { it.isNotBlank() },
             )
         } catch (e: Exception) {
             // Return default metadata if extraction fails
             MediaMetadata(
                 duration = 0L,
                 artist = null,
-                title = null
+                title = null,
             )
         } finally {
             retriever.release()

@@ -22,8 +22,10 @@ import javax.inject.Singleton
  * which send toggle events rather than separate play/pause events.
  */
 @Singleton
-class MediaSessionManager @Inject constructor(
-    @ApplicationContext private val context: Context
+class MediaSessionManager
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
 ) {
     private var _mediaSession: MediaSessionCompat? = null
 
@@ -38,8 +40,11 @@ class MediaSessionManager @Inject constructor(
      */
     interface MediaSessionCallback {
         fun onPlay()
+
         fun onPause()
+
         fun onStop()
+
         fun onSeekTo(position: Long)
     }
 
@@ -52,26 +57,29 @@ class MediaSessionManager @Inject constructor(
     fun createSession(callback: MediaSessionCallback): MediaSessionCompat {
         release()
 
-        _mediaSession = MediaSessionCompat(context, "StillMomentPlayer").apply {
-            setCallback(object : MediaSessionCompat.Callback() {
-                override fun onPlay() {
-                    callback.onPlay()
-                }
+        _mediaSession =
+            MediaSessionCompat(context, "StillMomentPlayer").apply {
+                setCallback(
+                    object : MediaSessionCompat.Callback() {
+                        override fun onPlay() {
+                            callback.onPlay()
+                        }
 
-                override fun onPause() {
-                    callback.onPause()
-                }
+                        override fun onPause() {
+                            callback.onPause()
+                        }
 
-                override fun onStop() {
-                    callback.onStop()
-                }
+                        override fun onStop() {
+                            callback.onStop()
+                        }
 
-                override fun onSeekTo(pos: Long) {
-                    callback.onSeekTo(pos)
-                }
-            })
-            isActive = true
-        }
+                        override fun onSeekTo(pos: Long) {
+                            callback.onSeekTo(pos)
+                        }
+                    },
+                )
+                isActive = true
+            }
 
         return _mediaSession!!
     }
@@ -87,7 +95,7 @@ class MediaSessionManager @Inject constructor(
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.effectiveName)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.effectiveTeacher)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, meditation.duration)
-                .build()
+                .build(),
         )
     }
 
@@ -98,24 +106,25 @@ class MediaSessionManager @Inject constructor(
      * @param position Current playback position in milliseconds
      * @param duration Total duration in milliseconds (unused but kept for API consistency)
      */
-    fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long) {
-        val state = if (isPlaying) {
-            PlaybackStateCompat.STATE_PLAYING
-        } else {
-            PlaybackStateCompat.STATE_PAUSED
-        }
+    fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long,) {
+        val state =
+            if (isPlaying) {
+                PlaybackStateCompat.STATE_PLAYING
+            } else {
+                PlaybackStateCompat.STATE_PAUSED
+            }
 
         _mediaSession?.setPlaybackState(
             PlaybackStateCompat.Builder()
                 .setState(state, position, 1f)
                 .setActions(
                     PlaybackStateCompat.ACTION_PLAY or
-                    PlaybackStateCompat.ACTION_PAUSE or
-                    PlaybackStateCompat.ACTION_PLAY_PAUSE or  // CRITICAL: For wired headphones!
-                    PlaybackStateCompat.ACTION_SEEK_TO or
-                    PlaybackStateCompat.ACTION_STOP
+                        PlaybackStateCompat.ACTION_PAUSE or
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or // CRITICAL: For wired headphones!
+                        PlaybackStateCompat.ACTION_SEEK_TO or
+                        PlaybackStateCompat.ACTION_STOP,
                 )
-                .build()
+                .build(),
         )
     }
 

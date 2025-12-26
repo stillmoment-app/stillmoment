@@ -20,33 +20,32 @@ import androidx.core.view.WindowCompat
  * Light mode only (matching iOS design).
  */
 
-private val StillMomentColorScheme = lightColorScheme(
-    primary = Terracotta,
-    onPrimary = Color.White,
-    primaryContainer = PaleApricot,
-    onPrimaryContainer = WarmBlack,
-    secondary = WarmGray,
-    onSecondary = Color.White,
-    secondaryContainer = WarmCream,
-    onSecondaryContainer = WarmBlack,
-    tertiary = Terracotta,
-    onTertiary = Color.White,
-    background = WarmSand,
-    onBackground = WarmBlack,
-    surface = WarmSand,
-    onSurface = WarmBlack,
-    surfaceVariant = WarmCream,
-    onSurfaceVariant = WarmGray,
-    error = WarmError,
-    onError = Color.White,
-    outline = WarmGray,
-    outlineVariant = RingBackground
-)
+private val StillMomentColorScheme =
+    lightColorScheme(
+        primary = Terracotta,
+        onPrimary = Color.White,
+        primaryContainer = PaleApricot,
+        onPrimaryContainer = WarmBlack,
+        secondary = WarmGray,
+        onSecondary = Color.White,
+        secondaryContainer = WarmCream,
+        onSecondaryContainer = WarmBlack,
+        tertiary = Terracotta,
+        onTertiary = Color.White,
+        background = WarmSand,
+        onBackground = WarmBlack,
+        surface = WarmSand,
+        onSurface = WarmBlack,
+        surfaceVariant = WarmCream,
+        onSurfaceVariant = WarmGray,
+        error = WarmError,
+        onError = Color.White,
+        outline = WarmGray,
+        outlineVariant = RingBackground,
+    )
 
 @Composable
-fun StillMomentTheme(
-    content: @Composable () -> Unit
-) {
+fun StillMomentTheme(content: @Composable () -> Unit) {
     val colorScheme = StillMomentColorScheme
     val view = LocalView.current
 
@@ -69,7 +68,7 @@ fun StillMomentTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = StillMomentTypography,
-        content = content
+        content = content,
     )
 }
 
@@ -78,20 +77,21 @@ fun StillMomentTheme(
  * Vertical gradient from WarmCream via WarmSand to PaleApricot.
  */
 @Composable
-fun WarmGradientBackground(
-    modifier: Modifier = Modifier
-) {
+fun WarmGradientBackground(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxSize()
             .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        WarmCream,  // top
-                        WarmSand,   // middle
-                        PaleApricot // bottom
-                    )
-                )
-            )
+                brush =
+                Brush.verticalGradient(
+                    colors =
+                    listOf(
+                        WarmCream, // top
+                        WarmSand, // middle
+                        PaleApricot, // bottom
+                    ),
+                ),
+            ),
     )
 }

@@ -18,12 +18,10 @@ package com.stillmoment.domain.models
 data class EditSheetState(
     /** The original meditation being edited */
     val originalMeditation: GuidedMeditation,
-
     /** Current edited teacher value */
     val editedTeacher: String,
-
     /** Current edited name value */
-    val editedName: String
+    val editedName: String,
 ) {
     /**
      * Whether changes have been made compared to original values.
@@ -32,7 +30,8 @@ data class EditSheetState(
      * since customTeacher/customName should only be set when different from original.
      */
     val hasChanges: Boolean
-        get() = editedTeacher != originalMeditation.teacher ||
+        get() =
+            editedTeacher != originalMeditation.teacher ||
                 editedName != originalMeditation.name
 
     /**
@@ -41,7 +40,8 @@ data class EditSheetState(
      * Both teacher and name must be non-empty after trimming whitespace.
      */
     val isValid: Boolean
-        get() = editedTeacher.trim().isNotEmpty() &&
+        get() =
+            editedTeacher.trim().isNotEmpty() &&
                 editedName.trim().isNotEmpty()
 
     /**
@@ -54,12 +54,14 @@ data class EditSheetState(
      */
     fun applyChanges(): GuidedMeditation {
         return originalMeditation.copy(
-            customTeacher = editedTeacher.takeIf {
+            customTeacher =
+            editedTeacher.takeIf {
                 it.isNotBlank() && it != originalMeditation.teacher
             },
-            customName = editedName.takeIf {
+            customName =
+            editedName.takeIf {
                 it.isNotBlank() && it != originalMeditation.name
-            }
+            },
         )
     }
 
@@ -76,7 +78,7 @@ data class EditSheetState(
             return EditSheetState(
                 originalMeditation = meditation,
                 editedTeacher = meditation.effectiveTeacher,
-                editedName = meditation.effectiveName
+                editedName = meditation.effectiveName,
             )
         }
     }

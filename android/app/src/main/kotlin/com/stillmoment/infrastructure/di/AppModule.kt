@@ -25,18 +25,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Provides
     @Singleton
-    fun provideApplicationContext(@ApplicationContext context: Context): Context {
+    fun provideApplicationContext(@ApplicationContext context: Context,): Context {
         return context
     }
 
     @Provides
     @Singleton
-    fun provideSettingsRepository(
-        settingsDataStore: SettingsDataStore
-    ): SettingsRepository {
+    fun provideSettingsRepository(settingsDataStore: SettingsDataStore): SettingsRepository {
         return settingsDataStore
     }
 
@@ -50,9 +47,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTimerRepository(
-        impl: TimerRepositoryImpl
-    ): TimerRepository {
+    fun provideTimerRepository(impl: TimerRepositoryImpl): TimerRepository {
         return impl
     }
 
@@ -66,9 +61,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAudioPlayerService(
-        impl: AudioPlayerService
-    ): AudioPlayerServiceProtocol {
+    fun provideAudioPlayerService(impl: AudioPlayerService): AudioPlayerServiceProtocol {
         return impl
     }
 }

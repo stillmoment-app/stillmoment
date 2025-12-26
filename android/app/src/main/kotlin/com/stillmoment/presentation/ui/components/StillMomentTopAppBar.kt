@@ -39,48 +39,52 @@ fun StillMomentTopAppBar(
     modifier: Modifier = Modifier,
     title: String = "",
     navigationIcon: @Composable (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .fillMaxWidth()
             .height(TopAppBarHeight)
-            .padding(horizontal = 4.dp)
+            .padding(horizontal = 4.dp),
     ) {
         // Title layer - absolutely centered on screen (iOS style)
         if (title.isNotEmpty()) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium.copy(
+                style =
+                MaterialTheme.typography.titleMedium.copy(
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 ),
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxWidth()
-                    .align(Alignment.Center)
+                    .align(Alignment.Center),
             )
         }
 
         // Navigation and actions layer - on top of title
         Row(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxWidth()
                 .height(TopAppBarHeight),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             // Navigation icon (left side)
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 navigationIcon?.invoke()
             }
 
             // Action buttons (right side)
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 actions()
             }

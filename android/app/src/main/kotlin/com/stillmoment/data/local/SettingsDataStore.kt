@@ -11,15 +11,15 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 // Extension property for DataStore
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "settings"
+    name = "settings",
 )
 
 /**
@@ -27,10 +27,11 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
  * Persists meditation settings using Jetpack DataStore.
  */
 @Singleton
-class SettingsDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
+class SettingsDataStore
+@Inject
+constructor(
+    @ApplicationContext private val context: Context,
 ) : SettingsRepository {
-
     private object Keys {
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
@@ -44,19 +45,24 @@ class SettingsDataStore @Inject constructor(
         const val TAB_LIBRARY = "library"
     }
 
-    override val settingsFlow: Flow<MeditationSettings> = context.dataStore.data
-        .map { preferences ->
-            MeditationSettings.create(
-                intervalGongsEnabled = preferences[Keys.INTERVAL_GONGS_ENABLED]
-                    ?: MeditationSettings.Default.intervalGongsEnabled,
-                intervalMinutes = preferences[Keys.INTERVAL_MINUTES]
-                    ?: MeditationSettings.Default.intervalMinutes,
-                backgroundSoundId = preferences[Keys.BACKGROUND_SOUND_ID]
-                    ?: MeditationSettings.Default.backgroundSoundId,
-                durationMinutes = preferences[Keys.DURATION_MINUTES]
-                    ?: MeditationSettings.Default.durationMinutes
-            )
-        }
+    override val settingsFlow: Flow<MeditationSettings> =
+        context.dataStore.data
+            .map { preferences ->
+                MeditationSettings.create(
+                    intervalGongsEnabled =
+                    preferences[Keys.INTERVAL_GONGS_ENABLED]
+                        ?: MeditationSettings.Default.intervalGongsEnabled,
+                    intervalMinutes =
+                    preferences[Keys.INTERVAL_MINUTES]
+                        ?: MeditationSettings.Default.intervalMinutes,
+                    backgroundSoundId =
+                    preferences[Keys.BACKGROUND_SOUND_ID]
+                        ?: MeditationSettings.Default.backgroundSoundId,
+                    durationMinutes =
+                    preferences[Keys.DURATION_MINUTES]
+                        ?: MeditationSettings.Default.durationMinutes,
+                )
+            }
 
     override suspend fun getSettings(): MeditationSettings {
         return settingsFlow.first()
@@ -120,10 +126,11 @@ class SettingsDataStore @Inject constructor(
      * Flow for the selected tab route.
      * Emits the saved tab or timer as default.
      */
-    val selectedTabFlow: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[Keys.SELECTED_TAB] ?: TAB_TIMER
-        }
+    val selectedTabFlow: Flow<String> =
+        context.dataStore.data
+            .map { preferences ->
+                preferences[Keys.SELECTED_TAB] ?: TAB_TIMER
+            }
 
     /**
      * Get the selected tab synchronously (blocking).

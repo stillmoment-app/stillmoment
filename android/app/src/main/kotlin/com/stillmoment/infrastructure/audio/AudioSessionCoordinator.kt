@@ -2,11 +2,11 @@ package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Singleton coordinator for exclusive audio session access between features.
@@ -18,14 +18,15 @@ import javax.inject.Singleton
  * This mirrors the iOS AudioSessionCoordinator implementation for feature parity.
  */
 @Singleton
-class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorProtocol {
-
+class AudioSessionCoordinator
+@Inject
+constructor() : AudioSessionCoordinatorProtocol {
     private val _activeSource = MutableStateFlow<AudioSource?>(null)
     override val activeSource: StateFlow<AudioSource?> = _activeSource.asStateFlow()
 
     private val conflictHandlers = mutableMapOf<AudioSource, () -> Unit>()
 
-    override fun registerConflictHandler(source: AudioSource, handler: () -> Unit) {
+    override fun registerConflictHandler(source: AudioSource, handler: () -> Unit,) {
         conflictHandlers[source] = handler
     }
 

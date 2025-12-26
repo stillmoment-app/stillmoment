@@ -3,11 +3,11 @@ package com.stillmoment.data.repositories
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.TimerRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Implementation of TimerRepository managing meditation timer state.
@@ -18,8 +18,9 @@ import javax.inject.Singleton
  * Thread-safe: All state mutations go through MutableStateFlow.
  */
 @Singleton
-class TimerRepositoryImpl @Inject constructor() : TimerRepository {
-
+class TimerRepositoryImpl
+@Inject
+constructor() : TimerRepository {
     private val _timer = MutableStateFlow<MeditationTimer?>(null)
 
     override val timerFlow: Flow<MeditationTimer> = _timer.filterNotNull()
@@ -32,10 +33,11 @@ class TimerRepositoryImpl @Inject constructor() : TimerRepository {
         private set
 
     override suspend fun start(durationMinutes: Int) {
-        val timer = MeditationTimer.create(
-            durationMinutes = durationMinutes,
-            countdownDuration = DEFAULT_COUNTDOWN_DURATION
-        ).startCountdown()
+        val timer =
+            MeditationTimer.create(
+                durationMinutes = durationMinutes,
+                countdownDuration = DEFAULT_COUNTDOWN_DURATION,
+            ).startCountdown()
 
         currentTimer = timer
         _timer.value = timer

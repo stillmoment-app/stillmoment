@@ -1,13 +1,12 @@
 package com.stillmoment.domain.models
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 /**
  * Unit tests for MeditationSettings domain model.
  */
 class MeditationSettingsTest {
-
     // MARK: - Default Values Tests
 
     @Test
@@ -100,12 +99,13 @@ class MeditationSettingsTest {
 
     @Test
     fun `create with all parameters`() {
-        val settings = MeditationSettings.create(
-            intervalGongsEnabled = true,
-            intervalMinutes = 10,
-            backgroundSoundId = "forest",
-            durationMinutes = 20
-        )
+        val settings =
+            MeditationSettings.create(
+                intervalGongsEnabled = true,
+                intervalMinutes = 10,
+                backgroundSoundId = "forest",
+                durationMinutes = 20,
+            )
 
         assertTrue(settings.intervalGongsEnabled)
         assertEquals(10, settings.intervalMinutes)

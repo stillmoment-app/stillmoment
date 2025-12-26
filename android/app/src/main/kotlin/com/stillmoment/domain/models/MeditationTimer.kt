@@ -19,7 +19,7 @@ data class MeditationTimer(
     val state: TimerState,
     val countdownSeconds: Int = 0,
     val countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION,
-    val lastIntervalGongAt: Int? = null
+    val lastIntervalGongAt: Int? = null,
 ) {
     init {
         require(durationMinutes in 1..60) {
@@ -33,11 +33,12 @@ data class MeditationTimer(
 
     /** Returns progress as a value between 0.0 and 1.0 */
     val progress: Float
-        get() = if (totalSeconds > 0) {
-            1.0f - (remainingSeconds.toFloat() / totalSeconds.toFloat())
-        } else {
-            0.0f
-        }
+        get() =
+            if (totalSeconds > 0) {
+                1.0f - (remainingSeconds.toFloat() / totalSeconds.toFloat())
+            } else {
+                0.0f
+            }
 
     /** Checks if timer has completed */
     val isCompleted: Boolean
@@ -54,7 +55,7 @@ data class MeditationTimer(
             val newState = if (newCountdown <= 0) TimerState.Running else TimerState.Countdown
             return copy(
                 countdownSeconds = newCountdown,
-                state = newState
+                state = newState,
             )
         }
 
@@ -63,7 +64,7 @@ data class MeditationTimer(
         val newState = if (newRemaining <= 0) TimerState.Completed else state
         return copy(
             remainingSeconds = newRemaining,
-            state = newState
+            state = newState,
         )
     }
 
@@ -77,7 +78,7 @@ data class MeditationTimer(
         return copy(
             state = TimerState.Countdown,
             countdownSeconds = countdownDuration,
-            lastIntervalGongAt = null
+            lastIntervalGongAt = null,
         )
     }
 
@@ -116,7 +117,7 @@ data class MeditationTimer(
             remainingSeconds = durationMinutes * 60,
             state = TimerState.Idle,
             countdownSeconds = 0,
-            lastIntervalGongAt = null
+            lastIntervalGongAt = null,
         )
     }
 
@@ -135,7 +136,7 @@ data class MeditationTimer(
          */
         fun create(
             durationMinutes: Int,
-            countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION
+            countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION,
         ): MeditationTimer {
             return MeditationTimer(
                 durationMinutes = durationMinutes,
@@ -143,7 +144,7 @@ data class MeditationTimer(
                 state = TimerState.Idle,
                 countdownSeconds = 0,
                 countdownDuration = countdownDuration,
-                lastIntervalGongAt = null
+                lastIntervalGongAt = null,
             )
         }
     }

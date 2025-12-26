@@ -22,29 +22,30 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class PlayerScreenTest {
-
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
     @get:Rule(order = 1)
     val composeRule = createComposeRule()
 
-    private val testMeditation = GuidedMeditation(
-        id = "test-1",
-        fileUri = "content://test/meditation.mp3",
-        fileName = "meditation.mp3",
-        duration = 1_200_000L, // 20 minutes
-        teacher = "Test Teacher",
-        name = "Test Meditation"
-    )
+    private val testMeditation =
+        GuidedMeditation(
+            id = "test-1",
+            fileUri = "content://test/meditation.mp3",
+            fileName = "meditation.mp3",
+            duration = 1_200_000L, // 20 minutes
+            teacher = "Test Teacher",
+            name = "Test Meditation",
+        )
 
-    private val testUiState = PlayerUiState(
-        meditation = testMeditation,
-        duration = 1_200_000L,
-        currentPosition = 300_000L, // 5 minutes
-        progress = 0.25f,
-        isPlaying = false
-    )
+    private val testUiState =
+        PlayerUiState(
+            meditation = testMeditation,
+            duration = 1_200_000L,
+            currentPosition = 300_000L, // 5 minutes
+            progress = 0.25f,
+            isPlaying = false,
+        )
 
     @Before
     fun setup() {
@@ -55,7 +56,7 @@ class PlayerScreenTest {
 
     private fun renderPlayerScreen(
         meditation: GuidedMeditation = testMeditation,
-        uiState: PlayerUiState = testUiState
+        uiState: PlayerUiState = testUiState,
     ) {
         composeRule.setContent {
             StillMomentTheme {
@@ -67,7 +68,7 @@ class PlayerScreenTest {
                     onSeek = {},
                     onSkipForward = {},
                     onSkipBackward = {},
-                    onClearError = {}
+                    onClearError = {},
                 )
             }
         }

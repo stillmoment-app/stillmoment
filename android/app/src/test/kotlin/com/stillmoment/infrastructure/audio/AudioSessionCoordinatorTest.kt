@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
  * Tests exclusive audio session management between Timer and Guided Meditations.
  */
 class AudioSessionCoordinatorTest {
-
     private lateinit var sut: AudioSessionCoordinator
 
     @BeforeEach

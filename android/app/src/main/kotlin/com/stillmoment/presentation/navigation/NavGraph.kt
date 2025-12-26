@@ -40,13 +40,13 @@ import androidx.navigation.navArgument
 import com.stillmoment.R
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.GuidedMeditation
-import kotlinx.coroutines.launch
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.theme.Terracotta
 import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerScreen
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -55,7 +55,9 @@ import kotlinx.serialization.json.Json
  */
 sealed class Screen(val route: String) {
     data object Timer : Screen("timer")
+
     data object Library : Screen("library")
+
     data object Player : Screen("player/{meditationJson}") {
         fun createRoute(meditation: GuidedMeditation): String {
             val json = Uri.encode(Json.encodeToString(meditation))
@@ -72,7 +74,7 @@ data class TabItem(
     val labelResId: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val accessibilityResId: Int
+    val accessibilityResId: Int,
 )
 
 /**
@@ -83,7 +85,7 @@ data class TabItem(
 @Composable
 fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
 ) {
     val scope = rememberCoroutineScope()
 
@@ -101,24 +103,25 @@ fun StillMomentNavHost(
         }
     }
 
-    val tabs = remember {
-        listOf(
-            TabItem(
-                screen = Screen.Timer,
-                labelResId = R.string.tab_timer,
-                selectedIcon = Icons.Filled.Timer,
-                unselectedIcon = Icons.Outlined.Timer,
-                accessibilityResId = R.string.accessibility_tab_timer
-            ),
-            TabItem(
-                screen = Screen.Library,
-                labelResId = R.string.tab_library,
-                selectedIcon = Icons.Filled.LibraryMusic,
-                unselectedIcon = Icons.Outlined.LibraryMusic,
-                accessibilityResId = R.string.accessibility_tab_library
+    val tabs =
+        remember {
+            listOf(
+                TabItem(
+                    screen = Screen.Timer,
+                    labelResId = R.string.tab_timer,
+                    selectedIcon = Icons.Filled.Timer,
+                    unselectedIcon = Icons.Outlined.Timer,
+                    accessibilityResId = R.string.accessibility_tab_timer,
+                ),
+                TabItem(
+                    screen = Screen.Library,
+                    labelResId = R.string.tab_library,
+                    selectedIcon = Icons.Filled.LibraryMusic,
+                    unselectedIcon = Icons.Outlined.LibraryMusic,
+                    accessibilityResId = R.string.accessibility_tab_library,
+                ),
             )
-        )
-    }
+        }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -147,20 +150,21 @@ fun StillMomentNavHost(
                             // Restore state when re-selecting a previously selected item
                             restoreState = true
                         }
-                    }
+                    },
                 )
             }
         },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
     ) { padding ->
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Timer.route
+                startDestination = Screen.Timer.route,
             ) {
                 composable(Screen.Timer.route) {
                     TimerScreen()
@@ -170,25 +174,27 @@ fun StillMomentNavHost(
                     GuidedMeditationsListScreen(
                         onMeditationClick = { meditation ->
                             navController.navigate(Screen.Player.createRoute(meditation))
-                        }
+                        },
                     )
                 }
 
                 composable(
                     route = Screen.Player.route,
-                    arguments = listOf(
-                        navArgument("meditationJson") { type = NavType.StringType }
-                    )
+                    arguments =
+                    listOf(
+                        navArgument("meditationJson") { type = NavType.StringType },
+                    ),
                 ) { backStackEntry ->
                     val meditationJson = backStackEntry.arguments?.getString("meditationJson")
-                    val meditation = meditationJson?.let {
-                        Json.decodeFromString<GuidedMeditation>(Uri.decode(it))
-                    }
+                    val meditation =
+                        meditationJson?.let {
+                            Json.decodeFromString<GuidedMeditation>(Uri.decode(it))
+                        }
 
                     meditation?.let {
                         GuidedMeditationPlayerScreen(
                             meditation = it,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                 }
@@ -202,12 +208,12 @@ private fun StillMomentBottomBar(
     tabs: List<TabItem>,
     currentDestination: androidx.navigation.NavDestination?,
     onTabSelected: (Screen) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     NavigationBar(
         containerColor = WarmSand,
         contentColor = Terracotta,
-        modifier = modifier
+        modifier = modifier,
     ) {
         tabs.forEach { tab ->
             val selected = currentDestination?.hierarchy?.any { it.route == tab.screen.route } == true
@@ -219,25 +225,27 @@ private fun StillMomentBottomBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 label = {
                     Text(
                         text = stringResource(tab.labelResId),
-                        style = MaterialTheme.typography.labelSmall
+                        style = MaterialTheme.typography.labelSmall,
                     )
                 },
-                colors = NavigationBarItemDefaults.colors(
+                colors =
+                NavigationBarItemDefaults.colors(
                     selectedIconColor = Terracotta,
                     selectedTextColor = Terracotta,
                     unselectedIconColor = WarmGray,
                     unselectedTextColor = WarmGray,
-                    indicatorColor = Terracotta.copy(alpha = 0.1f)
+                    indicatorColor = Terracotta.copy(alpha = 0.1f),
                 ),
-                modifier = Modifier.semantics {
+                modifier =
+                Modifier.semantics {
                     contentDescription = accessibilityLabel
-                }
+                },
             )
         }
     }

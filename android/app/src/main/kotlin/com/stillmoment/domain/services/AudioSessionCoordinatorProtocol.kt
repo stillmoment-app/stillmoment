@@ -25,7 +25,7 @@ interface AudioSessionCoordinatorProtocol {
      * @param source The audio source registering the handler
      * @param handler The callback to invoke when a conflict occurs
      */
-    fun registerConflictHandler(source: AudioSource, handler: () -> Unit)
+    fun registerConflictHandler(source: AudioSource, handler: () -> Unit,)
 
     /**
      * Request exclusive audio session access for a source.

@@ -1,6 +1,5 @@
 package com.stillmoment.presentation.ui.meditations
 
-import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -23,7 +22,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class LibraryScreenTest {
-
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
@@ -38,7 +36,9 @@ class LibraryScreenTest {
     // MARK: - Helper to render LibraryScreenContent
 
     private fun renderLibraryScreen(
-        uiState: GuidedMeditationsListUiState = GuidedMeditationsListUiState(isLoading = false)
+        uiState: GuidedMeditationsListUiState = GuidedMeditationsListUiState(
+            isLoading = false
+        )
     ) {
         composeRule.setContent {
             StillMomentTheme {
@@ -50,7 +50,7 @@ class LibraryScreenTest {
                     onDeleteMeditation = {},
                     onDismissEditSheet = {},
                     onSaveMeditation = {},
-                    onClearError = {}
+                    onClearError = {},
                 )
             }
         }
@@ -61,7 +61,7 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsEmptyStateTitle_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
         )
         composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()
     }
@@ -69,16 +69,20 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsEmptyStateDescription_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
         )
-        composeRule.onNodeWithText("Import meditation audio files", substring = true, ignoreCase = true)
+        composeRule.onNodeWithText(
+            "Import meditation audio files",
+            substring = true,
+            ignoreCase = true
+        )
             .assertIsDisplayed()
     }
 
     @Test
     fun libraryScreen_showsEmptyStateImportButton_whenNoMeditations() {
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList())
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = emptyList()),
         )
         composeRule.onNodeWithText("Import Meditation", ignoreCase = true).assertIsDisplayed()
     }
@@ -88,23 +92,25 @@ class LibraryScreenTest {
     @Test
     fun libraryScreen_showsImportFab() {
         // Use non-empty state to test FAB without the EmptyState import button
-        val groups = listOf(
-            com.stillmoment.domain.models.GuidedMeditationGroup(
-                teacher = "Test Teacher",
-                meditations = listOf(
-                    GuidedMeditation(
-                        id = "1",
-                        fileUri = "content://test",
-                        fileName = "test.mp3",
-                        duration = 600_000L,
-                        teacher = "Test Teacher",
-                        name = "Test Meditation"
-                    )
-                )
+        val groups =
+            listOf(
+                com.stillmoment.domain.models.GuidedMeditationGroup(
+                    teacher = "Test Teacher",
+                    meditations =
+                    listOf(
+                        GuidedMeditation(
+                            id = "1",
+                            fileUri = "content://test",
+                            fileName = "test.mp3",
+                            duration = 600_000L,
+                            teacher = "Test Teacher",
+                            name = "Test Meditation",
+                        ),
+                    ),
+                ),
             )
-        )
         renderLibraryScreen(
-            uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups)
+            uiState = GuidedMeditationsListUiState(isLoading = false, groups = groups),
         )
         // With data shown, only the FAB has the import description
         composeRule.onNodeWithContentDescription("Import", substring = true, ignoreCase = true)
@@ -121,7 +127,11 @@ class LibraryScreenTest {
             }
         }
         composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()
-        composeRule.onNodeWithText("Import meditation audio files", substring = true, ignoreCase = true)
+        composeRule.onNodeWithText(
+            "Import meditation audio files",
+            substring = true,
+            ignoreCase = true
+        )
             .assertIsDisplayed()
         composeRule.onNodeWithText("Import Meditation", ignoreCase = true).assertIsDisplayed()
     }

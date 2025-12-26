@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
  * Tests timer state management and flow emissions.
  */
 class TimerRepositoryImplTest {
-
     private lateinit var sut: TimerRepositoryImpl
 
     @BeforeEach

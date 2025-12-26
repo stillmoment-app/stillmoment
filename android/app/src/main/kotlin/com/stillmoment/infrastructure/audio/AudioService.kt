@@ -21,11 +21,12 @@ import javax.inject.Singleton
  * when Timer and Guided Meditations features coexist.
  */
 @Singleton
-class AudioService @Inject constructor(
+class AudioService
+@Inject
+constructor(
     @ApplicationContext private val context: Context,
-    private val coordinator: AudioSessionCoordinatorProtocol
+    private val coordinator: AudioSessionCoordinatorProtocol,
 ) {
-
     init {
         // Register conflict handler to stop background audio when another source takes over
         coordinator.registerConflictHandler(AudioSource.TIMER) {
@@ -41,14 +42,16 @@ class AudioService @Inject constructor(
 
     companion object {
         private const val TAG = "AudioService"
+
         /** Duration for fade in effect (3 seconds for smooth meditation experience) */
         private const val FADE_IN_DURATION_MS = 3000L
     }
 
-    private val audioAttributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-        .build()
+    private val audioAttributes =
+        AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
 
     // MARK: - Gong Playback
 
@@ -58,14 +61,15 @@ class AudioService @Inject constructor(
     fun playGong() {
         try {
             releaseGongPlayer()
-            gongPlayer = MediaPlayer.create(context, R.raw.completion).apply {
-                setAudioAttributes(audioAttributes)
-                setOnCompletionListener {
-                    it.release()
-                    gongPlayer = null
+            gongPlayer =
+                MediaPlayer.create(context, R.raw.completion).apply {
+                    setAudioAttributes(audioAttributes)
+                    setOnCompletionListener {
+                        it.release()
+                        gongPlayer = null
+                    }
+                    start()
                 }
-                start()
-            }
             Log.d(TAG, "Playing gong sound")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to play gong: ${e.message}")
@@ -97,22 +101,25 @@ class AudioService @Inject constructor(
 
             stopBackgroundAudioInternal()
 
-            val resourceId = when (soundId) {
-                "forest" -> R.raw.forest_ambience
-                else -> R.raw.silence // Default to silence
-            }
+            val resourceId =
+                when (soundId) {
+                    "forest" -> R.raw.forest_ambience
+                    else -> R.raw.silence // Default to silence
+                }
 
-            targetVolume = when (soundId) {
-                "forest" -> 0.15f
-                else -> 0.15f // Silent ambience at low volume
-            }
+            targetVolume =
+                when (soundId) {
+                    "forest" -> 0.15f
+                    else -> 0.15f // Silent ambience at low volume
+                }
 
-            backgroundPlayer = MediaPlayer.create(context, resourceId).apply {
-                setAudioAttributes(audioAttributes)
-                isLooping = true
-                setVolume(0f, 0f) // Start at 0 for fade in
-                start()
-            }
+            backgroundPlayer =
+                MediaPlayer.create(context, resourceId).apply {
+                    setAudioAttributes(audioAttributes)
+                    isLooping = true
+                    setVolume(0f, 0f) // Start at 0 for fade in
+                    start()
+                }
 
             // Fade in to target volume
             fadeToVolume(targetVolume)
@@ -194,19 +201,20 @@ class AudioService @Inject constructor(
      */
     private fun fadeToVolume(target: Float) {
         cancelFade()
-        fadeAnimator = ValueAnimator.ofFloat(0f, target).apply {
-            duration = FADE_IN_DURATION_MS
-            interpolator = LinearInterpolator()
-            addUpdateListener { animator ->
-                val volume = animator.animatedValue as Float
-                try {
-                    backgroundPlayer?.setVolume(volume, volume)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to set volume during fade: ${e.message}")
+        fadeAnimator =
+            ValueAnimator.ofFloat(0f, target).apply {
+                duration = FADE_IN_DURATION_MS
+                interpolator = LinearInterpolator()
+                addUpdateListener { animator ->
+                    val volume = animator.animatedValue as Float
+                    try {
+                        backgroundPlayer?.setVolume(volume, volume)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to set volume during fade: ${e.message}")
+                    }
                 }
+                start()
             }
-            start()
-        }
     }
 
     /**

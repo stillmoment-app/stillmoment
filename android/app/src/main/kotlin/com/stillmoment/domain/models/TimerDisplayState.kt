@@ -10,27 +10,20 @@ package com.stillmoment.domain.models
 data class TimerDisplayState(
     /** Current timer state */
     val timerState: TimerState = TimerState.Idle,
-
     /** Selected duration in minutes (1-60) */
     val selectedMinutes: Int = DEFAULT_DURATION_MINUTES,
-
     /** Remaining time in seconds */
     val remainingSeconds: Int = 0,
-
     /** Total duration in seconds */
     val totalSeconds: Int = 0,
-
     /** Countdown seconds (15, 14, 13... 0) */
     val countdownSeconds: Int = 0,
-
     /** Progress value (0.0 - 1.0) */
     val progress: Float = 0f,
-
     /** Current affirmation index (rotates between sessions) */
     val currentAffirmationIndex: Int = 0,
-
     /** Whether an interval gong was already played for current interval */
-    val intervalGongPlayedForCurrentInterval: Boolean = false
+    val intervalGongPlayedForCurrentInterval: Boolean = false,
 ) {
     // MARK: - Computed Properties (Pure, Testable)
 
@@ -56,13 +49,14 @@ data class TimerDisplayState(
 
     /** Formatted time string (MM:SS or countdown seconds) */
     val formattedTime: String
-        get() = if (isCountdown) {
-            "$countdownSeconds"
-        } else {
-            val minutes = remainingSeconds / 60
-            val seconds = remainingSeconds % 60
-            String.format("%02d:%02d", minutes, seconds)
-        }
+        get() =
+            if (isCountdown) {
+                "$countdownSeconds"
+            } else {
+                val minutes = remainingSeconds / 60
+                val seconds = remainingSeconds % 60
+                String.format("%02d:%02d", minutes, seconds)
+            }
 
     companion object {
         private const val DEFAULT_DURATION_MINUTES = 10
@@ -75,7 +69,7 @@ data class TimerDisplayState(
          */
         fun withDuration(minutes: Int): TimerDisplayState {
             return Initial.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes)
+                selectedMinutes = MeditationSettings.validateDuration(minutes),
             )
         }
     }

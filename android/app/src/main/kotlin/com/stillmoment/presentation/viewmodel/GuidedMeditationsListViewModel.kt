@@ -8,13 +8,13 @@ import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * UI State for the Guided Meditations Library screen.
@@ -22,24 +22,18 @@ import javax.inject.Inject
 data class GuidedMeditationsListUiState(
     /** Meditations grouped by teacher */
     val groups: List<GuidedMeditationGroup> = emptyList(),
-
     /** Whether data is being loaded */
     val isLoading: Boolean = true,
-
     /** Error message if any */
     val error: String? = null,
-
     /** Currently selected meditation for editing */
     val selectedMeditation: GuidedMeditation? = null,
-
     /** Whether the edit sheet is shown */
     val showEditSheet: Boolean = false,
-
     /** Whether delete confirmation is shown */
     val showDeleteConfirmation: Boolean = false,
-
     /** Meditation pending deletion (awaiting confirmation) */
-    val meditationToDelete: GuidedMeditation? = null
+    val meditationToDelete: GuidedMeditation? = null,
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -61,10 +55,11 @@ data class GuidedMeditationsListUiState(
  * and edit/delete operations.
  */
 @HiltViewModel
-class GuidedMeditationsListViewModel @Inject constructor(
-    private val repository: GuidedMeditationRepository
+class GuidedMeditationsListViewModel
+@Inject
+constructor(
+    private val repository: GuidedMeditationRepository,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
 
@@ -83,7 +78,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             groups = groups,
-                            isLoading = false
+                            isLoading = false,
                         )
                     }
                 }
@@ -109,7 +104,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             error = error.message ?: "Import failed",
-                            isLoading = false
+                            isLoading = false,
                         )
                     }
                 }
@@ -127,7 +122,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 meditationToDelete = meditation,
-                showDeleteConfirmation = true
+                showDeleteConfirmation = true,
             )
         }
     }
@@ -139,7 +134,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 meditationToDelete = null,
-                showDeleteConfirmation = false
+                showDeleteConfirmation = false,
             )
         }
     }
@@ -155,7 +150,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     meditationToDelete = null,
-                    showDeleteConfirmation = false
+                    showDeleteConfirmation = false,
                 )
             }
         }
@@ -184,7 +179,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedMeditation = meditation,
-                showEditSheet = true
+                showEditSheet = true,
             )
         }
     }
@@ -196,7 +191,7 @@ class GuidedMeditationsListViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 selectedMeditation = null,
-                showEditSheet = false
+                showEditSheet = false,
             )
         }
     }

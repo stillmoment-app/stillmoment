@@ -35,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,9 +54,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
-import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -68,10 +67,7 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimerScreen(
-    viewModel: TimerViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
-) {
+fun TimerScreen(viewModel: TimerViewModel = hiltViewModel(), modifier: Modifier = Modifier,) {
     val uiState by viewModel.uiState.collectAsState()
 
     TimerScreenContent(
@@ -86,7 +82,7 @@ fun TimerScreen(
         onSettingsChanged = viewModel::updateSettings,
         getCurrentCountdownAffirmation = viewModel::getCurrentCountdownAffirmation,
         getCurrentRunningAffirmation = viewModel::getCurrentRunningAffirmation,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -104,7 +100,7 @@ internal fun TimerScreenContent(
     onSettingsChanged: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
     getCurrentCountdownAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -113,12 +109,13 @@ internal fun TimerScreenContent(
         WarmGradientBackground()
 
         Scaffold(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
         ) { paddingValues ->
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
             ) {
                 // Compact top bar (44dp like iOS)
                 StillMomentTopAppBar(
@@ -126,19 +123,22 @@ internal fun TimerScreenContent(
                         IconButton(onClick = onSettingsClick) {
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,
-                                contentDescription = stringResource(R.string.accessibility_settings_button),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                contentDescription = stringResource(
+                                    R.string.accessibility_settings_button
+                                ),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                    }
+                    },
                 )
 
                 Column(
-                    modifier = Modifier
+                    modifier =
+                    Modifier
                         .fillMaxSize()
                         .padding(top = TopAppBarHeight)
                         .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     // Flexible top space (like iOS Spacer)
                     Spacer(modifier = Modifier.weight(1f))
@@ -146,11 +146,12 @@ internal fun TimerScreenContent(
                     // Title
                     Text(
                         text = stringResource(R.string.welcome_title),
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Light
+                        style =
+                        MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Light,
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.semantics { heading() }
+                        modifier = Modifier.semantics { heading() },
                     )
 
                     // Fixed spacing between title and picker (like iOS)
@@ -160,13 +161,13 @@ internal fun TimerScreenContent(
                     if (uiState.timerState == TimerState.Idle) {
                         MinutePicker(
                             selectedMinutes = uiState.selectedMinutes,
-                            onMinutesChanged = onMinutesChanged
+                            onMinutesChanged = onMinutesChanged,
                         )
                     } else {
                         TimerDisplay(
                             uiState = uiState,
                             getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
-                            getCurrentRunningAffirmation = getCurrentRunningAffirmation
+                            getCurrentRunningAffirmation = getCurrentRunningAffirmation,
                         )
                     }
 
@@ -179,7 +180,7 @@ internal fun TimerScreenContent(
                         onStartClick = onStartClick,
                         onPauseClick = onPauseClick,
                         onResumeClick = onResumeClick,
-                        onResetClick = onResetClick
+                        onResetClick = onResetClick,
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -191,7 +192,7 @@ internal fun TimerScreenContent(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp),
                         )
                     }
                 }
@@ -202,12 +203,12 @@ internal fun TimerScreenContent(
                 ModalBottomSheet(
                     onDismissRequest = onSettingsDismiss,
                     sheetState = sheetState,
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surface,
                 ) {
                     SettingsSheet(
                         settings = uiState.settings,
                         onSettingsChanged = onSettingsChanged,
-                        onDismiss = onSettingsDismiss
+                        onDismiss = onSettingsDismiss,
                     )
                 }
             }
@@ -219,7 +220,7 @@ internal fun TimerScreenContent(
 private fun MinutePicker(
     selectedMinutes: Int,
     onMinutesChanged: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // Use screen height like iOS does with geometry.size.height
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
@@ -230,26 +231,28 @@ private fun MinutePicker(
 
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Hands with Heart Image
         Image(
             painter = painterResource(id = R.drawable.hands_heart),
             contentDescription = null,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .height(imageSize)
-                .padding(bottom = if (isCompactHeight) 4.dp else 8.dp)
+                .padding(bottom = if (isCompactHeight) 4.dp else 8.dp),
         )
 
         // Question
         Text(
             text = stringResource(R.string.duration_question),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Light
+            style =
+            MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Light,
             ),
             color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 24.dp))
@@ -260,7 +263,7 @@ private fun MinutePicker(
             onValueChanged = onMinutesChanged,
             range = 1..60,
             visibleItems = visibleItems,
-            modifier = Modifier.height(pickerHeight)
+            modifier = Modifier.height(pickerHeight),
         )
 
         Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
@@ -268,11 +271,12 @@ private fun MinutePicker(
         // Footer
         Text(
             text = stringResource(R.string.duration_footer),
-            style = MaterialTheme.typography.bodyMedium.copy(
+            style =
+            MaterialTheme.typography.bodyMedium.copy(
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Light
+                fontWeight = FontWeight.Light,
             ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -282,22 +286,23 @@ private fun TimerDisplay(
     uiState: TimerUiState,
     getCurrentCountdownAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val animatedProgress by animateFloatAsState(
         targetValue = uiState.progress,
         animationSpec = tween(durationMillis = 500),
-        label = "progress"
+        label = "progress",
     )
 
     // Accessibility description for the timer
-    val timerAccessibilityDescription = if (uiState.isCountdown) {
-        stringResource(R.string.accessibility_countdown_seconds, uiState.countdownSeconds)
-    } else {
-        val minutes = uiState.remainingSeconds / 60
-        val seconds = uiState.remainingSeconds % 60
-        stringResource(R.string.accessibility_time_remaining, minutes, seconds)
-    }
+    val timerAccessibilityDescription =
+        if (uiState.isCountdown) {
+            stringResource(R.string.accessibility_countdown_seconds, uiState.countdownSeconds)
+        } else {
+            val minutes = uiState.remainingSeconds / 60
+            val seconds = uiState.remainingSeconds % 60
+            stringResource(R.string.accessibility_time_remaining, minutes, seconds)
+        }
 
     // Use screen height like iOS does with geometry.size.height
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
@@ -306,17 +311,18 @@ private fun TimerDisplay(
 
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Circular Progress
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .size(ringSize)
                 .semantics {
                     contentDescription = timerAccessibilityDescription
                     liveRegion = LiveRegionMode.Polite
-                }
+                },
         ) {
             // Background ring
             CircularProgressIndicator(
@@ -325,7 +331,7 @@ private fun TimerDisplay(
                 strokeWidth = 8.dp,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                strokeCap = StrokeCap.Round
+                strokeCap = StrokeCap.Round,
             )
 
             // Progress ring (not shown during countdown)
@@ -336,25 +342,26 @@ private fun TimerDisplay(
                     strokeWidth = 8.dp,
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
-                    strokeCap = StrokeCap.Round
+                    strokeCap = StrokeCap.Round,
                 )
             }
 
             // Time Display
             Text(
                 text = uiState.formattedTime,
-                style = if (uiState.isCountdown) {
+                style =
+                if (uiState.isCountdown) {
                     MaterialTheme.typography.displayLarge.copy(
                         fontSize = if (isCompactHeight) 80.sp else 100.sp,
-                        fontWeight = FontWeight.ExtraLight
+                        fontWeight = FontWeight.ExtraLight,
                     )
                 } else {
                     MaterialTheme.typography.displayLarge.copy(
                         fontSize = if (isCompactHeight) 48.sp else 60.sp,
-                        fontWeight = FontWeight.Thin
+                        fontWeight = FontWeight.Thin,
                     )
                 },
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
 
@@ -362,14 +369,15 @@ private fun TimerDisplay(
 
         // State Text
         Text(
-            text = getStateText(
+            text =
+            getStateText(
                 state = uiState.timerState,
                 getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
-                getCurrentRunningAffirmation = getCurrentRunningAffirmation
+                getCurrentRunningAffirmation = getCurrentRunningAffirmation,
             ),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -378,7 +386,7 @@ private fun TimerDisplay(
 private fun getStateText(
     state: TimerState,
     getCurrentCountdownAffirmation: () -> String,
-    getCurrentRunningAffirmation: () -> String
+    getCurrentRunningAffirmation: () -> String,
 ): String {
     return when (state) {
         TimerState.Idle -> stringResource(R.string.state_ready)
@@ -396,12 +404,12 @@ private fun ControlButtons(
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
     onResetClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Start/Resume/Pause Button
         when {
@@ -410,7 +418,7 @@ private fun ControlButtons(
                     text = stringResource(R.string.button_start),
                     onClick = onStartClick,
                     icon = Icons.Filled.PlayArrow,
-                    contentDescription = stringResource(R.string.accessibility_start_button)
+                    contentDescription = stringResource(R.string.accessibility_start_button),
                 )
             }
             uiState.canPause -> {
@@ -418,7 +426,7 @@ private fun ControlButtons(
                     text = stringResource(R.string.button_pause),
                     onClick = onPauseClick,
                     iconResId = R.drawable.ic_pause,
-                    contentDescription = stringResource(R.string.accessibility_pause_button)
+                    contentDescription = stringResource(R.string.accessibility_pause_button),
                 )
             }
             uiState.canResume -> {
@@ -426,7 +434,7 @@ private fun ControlButtons(
                     text = stringResource(R.string.button_resume),
                     onClick = onResumeClick,
                     icon = Icons.Filled.PlayArrow,
-                    contentDescription = stringResource(R.string.accessibility_resume_button)
+                    contentDescription = stringResource(R.string.accessibility_resume_button),
                 )
             }
         }
@@ -438,7 +446,7 @@ private fun ControlButtons(
                 text = stringResource(R.string.button_reset),
                 onClick = onResetClick,
                 icon = Icons.Filled.Refresh,
-                contentDescription = stringResource(R.string.accessibility_reset_button)
+                contentDescription = stringResource(R.string.accessibility_reset_button),
             )
         }
     }
@@ -450,28 +458,30 @@ private fun WarmPrimaryButton(
     onClick: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier
+        modifier =
+        modifier
             .height(56.dp)
             .semantics { this.contentDescription = contentDescription },
-        colors = ButtonDefaults.buttonColors(
+        colors =
+        ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
-        shape = CircleShape
+        shape = CircleShape,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(20.dp),
         )
         Spacer(modifier = Modifier.size(8.dp))
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
@@ -483,35 +493,37 @@ private fun WarmSecondaryButton(
     contentDescription: String,
     modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconResId: Int? = null
+    iconResId: Int? = null,
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier
+        modifier =
+        modifier
             .height(56.dp)
             .semantics { this.contentDescription = contentDescription },
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
+        colors =
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.colorScheme.primary,
         ),
-        shape = CircleShape
+        shape = CircleShape,
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
         } else if (iconResId != null) {
             Icon(
                 painter = painterResource(id = iconResId),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(20.dp),
             )
         }
         Spacer(modifier = Modifier.size(8.dp))
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
@@ -535,7 +547,7 @@ private fun TimerScreenIdlePreview() {
             onSettingsDismiss = {},
             onSettingsChanged = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
-            getCurrentRunningAffirmation = { "Be present in this moment" }
+            getCurrentRunningAffirmation = { "Be present in this moment" },
         )
     }
 }
@@ -545,13 +557,15 @@ private fun TimerScreenIdlePreview() {
 private fun TimerScreenCountdownPreview() {
     StillMomentTheme {
         TimerScreenContent(
-            uiState = TimerUiState(
-                displayState = TimerDisplayState(
+            uiState =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
                     timerState = TimerState.Countdown,
                     countdownSeconds = 10,
                     remainingSeconds = 600,
-                    totalSeconds = 600
-                )
+                    totalSeconds = 600,
+                ),
             ),
             onMinutesChanged = {},
             onStartClick = {},
@@ -562,7 +576,7 @@ private fun TimerScreenCountdownPreview() {
             onSettingsDismiss = {},
             onSettingsChanged = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
-            getCurrentRunningAffirmation = { "Be present in this moment" }
+            getCurrentRunningAffirmation = { "Be present in this moment" },
         )
     }
 }
@@ -574,13 +588,15 @@ private fun TimerScreenCountdownPreview() {
 private fun TimerScreenRunningPreview() {
     StillMomentTheme {
         TimerScreenContent(
-            uiState = TimerUiState(
-                displayState = TimerDisplayState(
+            uiState =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
                     timerState = TimerState.Running,
                     remainingSeconds = 300,
                     totalSeconds = 600,
-                    progress = 0.5f
-                )
+                    progress = 0.5f,
+                ),
             ),
             onMinutesChanged = {},
             onStartClick = {},
@@ -591,7 +607,7 @@ private fun TimerScreenRunningPreview() {
             onSettingsDismiss = {},
             onSettingsChanged = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
-            getCurrentRunningAffirmation = { "Be present in this moment" }
+            getCurrentRunningAffirmation = { "Be present in this moment" },
         )
     }
 }
@@ -601,13 +617,15 @@ private fun TimerScreenRunningPreview() {
 private fun TimerScreenPausedPreview() {
     StillMomentTheme {
         TimerScreenContent(
-            uiState = TimerUiState(
-                displayState = TimerDisplayState(
+            uiState =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
                     timerState = TimerState.Paused,
                     remainingSeconds = 300,
                     totalSeconds = 600,
-                    progress = 0.5f
-                )
+                    progress = 0.5f,
+                ),
             ),
             onMinutesChanged = {},
             onStartClick = {},
@@ -618,7 +636,7 @@ private fun TimerScreenPausedPreview() {
             onSettingsDismiss = {},
             onSettingsChanged = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
-            getCurrentRunningAffirmation = { "Be present in this moment" }
+            getCurrentRunningAffirmation = { "Be present in this moment" },
         )
     }
 }
@@ -628,13 +646,15 @@ private fun TimerScreenPausedPreview() {
 private fun TimerScreenCompletedPreview() {
     StillMomentTheme {
         TimerScreenContent(
-            uiState = TimerUiState(
-                displayState = TimerDisplayState(
+            uiState =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
                     timerState = TimerState.Completed,
                     remainingSeconds = 0,
                     totalSeconds = 600,
-                    progress = 1.0f
-                )
+                    progress = 1.0f,
+                ),
             ),
             onMinutesChanged = {},
             onStartClick = {},
@@ -645,7 +665,7 @@ private fun TimerScreenCompletedPreview() {
             onSettingsDismiss = {},
             onSettingsChanged = {},
             getCurrentCountdownAffirmation = { "Take a deep breath" },
-            getCurrentRunningAffirmation = { "Be present in this moment" }
+            getCurrentRunningAffirmation = { "Be present in this moment" },
         )
     }
 }

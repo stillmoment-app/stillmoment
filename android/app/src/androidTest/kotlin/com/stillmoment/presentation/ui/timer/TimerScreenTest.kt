@@ -23,7 +23,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TimerScreenTest {
-
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
@@ -51,7 +50,7 @@ class TimerScreenTest {
                     onSettingsDismiss = {},
                     onSettingsChanged = {},
                     getCurrentCountdownAffirmation = { "Take a deep breath" },
-                    getCurrentRunningAffirmation = { "Be present in this moment" }
+                    getCurrentRunningAffirmation = { "Be present in this moment" },
                 )
             }
         }
@@ -93,12 +92,13 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsCountdownNumber_duringCountdown() {
         renderTimerScreen(
-            uiState = TimerUiState(
+            uiState =
+            TimerUiState(
                 timerState = TimerState.Countdown,
                 countdownSeconds = 10,
                 remainingSeconds = 600,
-                totalSeconds = 600
-            )
+                totalSeconds = 600,
+            ),
         )
         composeRule.onNodeWithText("10").assertIsDisplayed()
     }
@@ -106,12 +106,13 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsResetButton_duringCountdown() {
         renderTimerScreen(
-            uiState = TimerUiState(
+            uiState =
+            TimerUiState(
                 timerState = TimerState.Countdown,
                 countdownSeconds = 10,
                 remainingSeconds = 600,
-                totalSeconds = 600
-            )
+                totalSeconds = 600,
+            ),
         )
         composeRule.onNodeWithText("Start over", ignoreCase = true).assertIsDisplayed()
     }
@@ -121,12 +122,13 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsTimeDisplay_whenRunning() {
         renderTimerScreen(
-            uiState = TimerUiState(
+            uiState =
+            TimerUiState(
                 timerState = TimerState.Running,
                 remainingSeconds = 300,
                 totalSeconds = 600,
-                progress = 0.5f
-            )
+                progress = 0.5f,
+            ),
         )
         // Format is "%02d:%02d" so 300 seconds = 05:00
         composeRule.onNodeWithText("05:00").assertIsDisplayed()
@@ -135,11 +137,12 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsPauseButton_whenRunning() {
         renderTimerScreen(
-            uiState = TimerUiState(
+            uiState =
+            TimerUiState(
                 timerState = TimerState.Running,
                 remainingSeconds = 300,
-                totalSeconds = 600
-            )
+                totalSeconds = 600,
+            ),
         )
         composeRule.onNodeWithText("Brief pause", ignoreCase = true).assertIsDisplayed()
     }
@@ -149,11 +152,12 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsResumeButton_whenPaused() {
         renderTimerScreen(
-            uiState = TimerUiState(
+            uiState =
+            TimerUiState(
                 timerState = TimerState.Paused,
                 remainingSeconds = 300,
-                totalSeconds = 600
-            )
+                totalSeconds = 600,
+            ),
         )
         composeRule.onNodeWithText("Resume", ignoreCase = true).assertIsDisplayed()
     }
@@ -167,7 +171,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }
@@ -181,7 +185,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }
@@ -195,7 +199,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }
@@ -209,7 +213,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }
@@ -223,7 +227,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }
@@ -237,7 +241,7 @@ class TimerScreenTest {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
                     onSettingsChanged = {},
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
         }

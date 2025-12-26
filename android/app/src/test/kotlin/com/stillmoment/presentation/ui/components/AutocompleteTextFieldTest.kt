@@ -1,19 +1,17 @@
 package com.stillmoment.presentation.ui.components
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 
 /**
  * Unit tests for AutocompleteTextField filtering logic.
  */
 class AutocompleteTextFieldTest {
-
     // MARK: - Filter Suggestions Tests
 
     @Nested
     inner class FilterSuggestionsTests {
-
         @Test
         fun `empty text returns empty list`() {
             // Given
@@ -97,7 +95,8 @@ class AutocompleteTextFieldTest {
         @Test
         fun `returns multiple matching suggestions`() {
             // Given
-            val suggestions = listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg", "Sam Harris")
+            val suggestions =
+                listOf("Tara Brach", "Jack Kornfield", "Sharon Salzberg", "Sam Harris")
             val text = "a"
 
             // When
@@ -114,15 +113,16 @@ class AutocompleteTextFieldTest {
         @Test
         fun `limits results to maximum 5 suggestions`() {
             // Given
-            val suggestions = listOf(
-                "Teacher 1",
-                "Teacher 2",
-                "Teacher 3",
-                "Teacher 4",
-                "Teacher 5",
-                "Teacher 6",
-                "Teacher 7"
-            )
+            val suggestions =
+                listOf(
+                    "Teacher 1",
+                    "Teacher 2",
+                    "Teacher 3",
+                    "Teacher 4",
+                    "Teacher 5",
+                    "Teacher 6",
+                    "Teacher 7",
+                )
             val text = "Teacher"
 
             // When

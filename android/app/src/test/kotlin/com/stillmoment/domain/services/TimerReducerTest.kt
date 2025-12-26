@@ -18,25 +18,24 @@ import org.junit.jupiter.api.Test
  * - No mocks needed - just state in, state + effects out
  */
 class TimerReducerTest {
-
     private val defaultSettings = MeditationSettings.Default
 
     // MARK: - SelectDuration Tests
 
     @Nested
     inner class SelectDuration {
-
         @Test
         fun `updates selectedMinutes with valid value`() {
             // Given
             val state = TimerDisplayState.Initial
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.SelectDuration(20),
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.SelectDuration(20),
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(20, newState.selectedMinutes)
@@ -49,11 +48,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial
 
             // When
-            val (newState, _) = TimerReducer.reduce(
-                state,
-                TimerAction.SelectDuration(0),
-                defaultSettings
-            )
+            val (newState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.SelectDuration(0),
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(1, newState.selectedMinutes)
@@ -65,11 +65,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial
 
             // When
-            val (newState, _) = TimerReducer.reduce(
-                state,
-                TimerAction.SelectDuration(100),
-                defaultSettings
-            )
+            val (newState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.SelectDuration(100),
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(60, newState.selectedMinutes)
@@ -80,7 +81,6 @@ class TimerReducerTest {
 
     @Nested
     inner class StartPressed {
-
         @Test
         fun `starts timer with correct effects`() {
             // Given
@@ -88,11 +88,12 @@ class TimerReducerTest {
             val settings = defaultSettings.copy(backgroundSoundId = "forest")
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.StartPressed,
-                settings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings,
+                )
 
             // Then
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
@@ -110,11 +111,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 0)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.StartPressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -124,17 +126,19 @@ class TimerReducerTest {
         @Test
         fun `rotates affirmation index`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                selectedMinutes = 10,
-                currentAffirmationIndex = 4
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    selectedMinutes = 10,
+                    currentAffirmationIndex = 4,
+                )
 
             // When
-            val (newState, _) = TimerReducer.reduce(
-                state,
-                TimerAction.StartPressed,
-                defaultSettings
-            )
+            val (newState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(0, newState.currentAffirmationIndex) // 4 + 1 = 5, 5 % 5 = 0
@@ -143,17 +147,19 @@ class TimerReducerTest {
         @Test
         fun `resets intervalGongPlayedForCurrentInterval`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                selectedMinutes = 10,
-                intervalGongPlayedForCurrentInterval = true
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    selectedMinutes = 10,
+                    intervalGongPlayedForCurrentInterval = true,
+                )
 
             // When
-            val (newState, _) = TimerReducer.reduce(
-                state,
-                TimerAction.StartPressed,
-                defaultSettings
-            )
+            val (newState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
@@ -164,18 +170,18 @@ class TimerReducerTest {
 
     @Nested
     inner class PausePressed {
-
         @Test
         fun `emits PauseBackgroundAudio and PauseTimer effects when running`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.PausePressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState) // State unchanged - TimerRepository handles state change
@@ -188,11 +194,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Idle)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.PausePressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -205,11 +212,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Paused)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.PausePressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -221,22 +229,25 @@ class TimerReducerTest {
 
     @Nested
     inner class ResumePressed {
-
         @Test
         fun `emits ResumeBackgroundAudio and ResumeTimer effects when paused`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Paused)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResumePressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
-            assertEquals(listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer), effects)
+            assertEquals(
+                listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer),
+                effects
+            )
         }
 
         @Test
@@ -245,11 +256,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResumePressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -261,25 +273,26 @@ class TimerReducerTest {
 
     @Nested
     inner class ResetPressed {
-
         @Test
         fun `resets state and emits effects when not idle`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                timerState = TimerState.Running,
-                remainingSeconds = 300,
-                totalSeconds = 600,
-                countdownSeconds = 0,
-                progress = 0.5f,
-                intervalGongPlayedForCurrentInterval = true
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    remainingSeconds = 300,
+                    totalSeconds = 600,
+                    countdownSeconds = 0,
+                    progress = 0.5f,
+                    intervalGongPlayedForCurrentInterval = true,
+                )
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResetPressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(TimerState.Idle, newState.timerState)
@@ -299,11 +312,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResetPressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -316,11 +330,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Completed)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResetPressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(TimerState.Idle, newState.timerState)
@@ -333,11 +348,12 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Paused)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResetPressed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(TimerState.Idle, newState.timerState)
@@ -349,24 +365,24 @@ class TimerReducerTest {
 
     @Nested
     inner class Tick {
-
         @Test
         fun `updates state from tick values`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.Tick(
-                    remainingSeconds = 540,
-                    totalSeconds = 600,
-                    countdownSeconds = 10,
-                    progress = 0.1f,
-                    state = TimerState.Countdown
-                ),
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.Tick(
+                        remainingSeconds = 540,
+                        totalSeconds = 600,
+                        countdownSeconds = 10,
+                        progress = 0.1f,
+                        state = TimerState.Countdown,
+                    ),
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(540, newState.remainingSeconds)
@@ -383,17 +399,18 @@ class TimerReducerTest {
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
             // When
-            val (_, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.Tick(
-                    remainingSeconds = 100,
-                    totalSeconds = 600,
-                    countdownSeconds = 0,
-                    progress = 0.83f,
-                    state = TimerState.Running
-                ),
-                defaultSettings
-            )
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.Tick(
+                        remainingSeconds = 100,
+                        totalSeconds = 600,
+                        countdownSeconds = 0,
+                        progress = 0.83f,
+                        state = TimerState.Running,
+                    ),
+                    defaultSettings,
+                )
 
             // Then
             assertTrue(effects.isEmpty())
@@ -404,18 +421,18 @@ class TimerReducerTest {
 
     @Nested
     inner class CountdownFinished {
-
         @Test
         fun `transitions to running and plays start gong`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.CountdownFinished,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.CountdownFinished,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(TimerState.Running, newState.timerState)
@@ -427,21 +444,22 @@ class TimerReducerTest {
 
     @Nested
     inner class TimerCompleted {
-
         @Test
         fun `transitions to completed and plays completion sound`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                timerState = TimerState.Running,
-                progress = 0.99f
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    progress = 0.99f,
+                )
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.TimerCompleted,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    defaultSettings,
+                )
 
             // Then
             assertEquals(TimerState.Completed, newState.timerState)
@@ -455,22 +473,23 @@ class TimerReducerTest {
 
     @Nested
     inner class IntervalGongTriggered {
-
         @Test
         fun `plays interval gong when enabled and not yet played`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                timerState = TimerState.Running,
-                intervalGongPlayedForCurrentInterval = false
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    intervalGongPlayedForCurrentInterval = false,
+                )
             val settings = defaultSettings.copy(intervalGongsEnabled = true)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.IntervalGongTriggered,
-                settings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntervalGongTriggered,
+                    settings,
+                )
 
             // Then
             assertTrue(newState.intervalGongPlayedForCurrentInterval)
@@ -480,18 +499,20 @@ class TimerReducerTest {
         @Test
         fun `does nothing when interval gongs disabled`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                timerState = TimerState.Running,
-                intervalGongPlayedForCurrentInterval = false
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    intervalGongPlayedForCurrentInterval = false,
+                )
             val settings = defaultSettings.copy(intervalGongsEnabled = false)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.IntervalGongTriggered,
-                settings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntervalGongTriggered,
+                    settings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -501,18 +522,20 @@ class TimerReducerTest {
         @Test
         fun `does nothing when already played for current interval`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                timerState = TimerState.Running,
-                intervalGongPlayedForCurrentInterval = true
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    intervalGongPlayedForCurrentInterval = true,
+                )
             val settings = defaultSettings.copy(intervalGongsEnabled = true)
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.IntervalGongTriggered,
-                settings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntervalGongTriggered,
+                    settings,
+                )
 
             // Then
             assertEquals(state, newState)
@@ -524,20 +547,21 @@ class TimerReducerTest {
 
     @Nested
     inner class IntervalGongPlayed {
-
         @Test
         fun `resets intervalGongPlayedForCurrentInterval`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(
-                intervalGongPlayedForCurrentInterval = true
-            )
+            val state =
+                TimerDisplayState.Initial.copy(
+                    intervalGongPlayedForCurrentInterval = true,
+                )
 
             // When
-            val (newState, effects) = TimerReducer.reduce(
-                state,
-                TimerAction.IntervalGongPlayed,
-                defaultSettings
-            )
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntervalGongPlayed,
+                    defaultSettings,
+                )
 
             // Then
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
@@ -549,7 +573,6 @@ class TimerReducerTest {
 
     @Nested
     inner class Integration {
-
         @Test
         fun `full meditation cycle produces correct state transitions`() {
             // Given - Start in idle
@@ -557,11 +580,12 @@ class TimerReducerTest {
             val settings = defaultSettings
 
             // When - Start
-            val (startState, startEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.StartPressed,
-                settings
-            )
+            val (startState, startEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings,
+                )
             state = startState
 
             // Then - Should have start effects
@@ -569,20 +593,22 @@ class TimerReducerTest {
             assertTrue(startEffects.any { it is TimerEffect.StartForegroundService })
 
             // When - Countdown tick
-            val (countdownState, _) = TimerReducer.reduce(
-                state,
-                TimerAction.Tick(60, 60, 10, 0f, TimerState.Countdown),
-                settings
-            )
+            val (countdownState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.Tick(60, 60, 10, 0f, TimerState.Countdown),
+                    settings,
+                )
             state = countdownState
             assertEquals(TimerState.Countdown, state.timerState)
 
             // When - Countdown finished
-            val (runningState, runningEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.CountdownFinished,
-                settings
-            )
+            val (runningState, runningEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.CountdownFinished,
+                    settings,
+                )
             state = runningState
 
             // Then
@@ -590,11 +616,12 @@ class TimerReducerTest {
             assertTrue(runningEffects.contains(TimerEffect.PlayStartGong))
 
             // When - Timer completed
-            val (completedState, completedEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.TimerCompleted,
-                settings
-            )
+            val (completedState, completedEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    settings,
+                )
             state = completedState
 
             // Then
@@ -602,11 +629,12 @@ class TimerReducerTest {
             assertTrue(completedEffects.contains(TimerEffect.PlayCompletionSound))
 
             // When - Reset
-            val (resetState, resetEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResetPressed,
-                settings
-            )
+            val (resetState, resetEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    settings,
+                )
 
             // Then
             assertEquals(TimerState.Idle, resetState.timerState)
@@ -620,11 +648,12 @@ class TimerReducerTest {
             val settings = defaultSettings
 
             // When - Pause
-            val (pausedState, pauseEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.PausePressed,
-                settings
-            )
+            val (pausedState, pauseEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    settings,
+                )
 
             // Then - Both audio pause and timer pause effects
             assertTrue(pauseEffects.contains(TimerEffect.PauseBackgroundAudio))
@@ -634,11 +663,12 @@ class TimerReducerTest {
             state = pausedState.copy(timerState = TimerState.Paused)
 
             // When - Resume
-            val (_, resumeEffects) = TimerReducer.reduce(
-                state,
-                TimerAction.ResumePressed,
-                settings
-            )
+            val (_, resumeEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    settings,
+                )
 
             // Then - Both audio resume and timer resume effects
             assertTrue(resumeEffects.contains(TimerEffect.ResumeBackgroundAudio))

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
  * Tests the pure data class logic without ViewModel dependencies.
  */
 class TimerViewModelTest {
-
     // MARK: - TimerUiState Tests
 
     @Test
@@ -43,30 +42,43 @@ class TimerViewModelTest {
 
     @Test
     fun `canStart returns true when idle with valid minutes`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle, selectedMinutes = 10)
-        )
+        val state =
+            TimerUiState(
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Idle,
+                    selectedMinutes = 10
+                ),
+            )
         assertTrue(state.canStart)
     }
 
     @Test
     fun `canStart returns false when not idle`() {
-        val runningState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Running, selectedMinutes = 10)
-        )
+        val runningState =
+            TimerUiState(
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Running,
+                    selectedMinutes = 10
+                ),
+            )
         assertFalse(runningState.canStart)
 
-        val pausedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Paused, selectedMinutes = 10)
-        )
+        val pausedState =
+            TimerUiState(
+                displayState = TimerDisplayState(
+                    timerState = TimerState.Paused,
+                    selectedMinutes = 10
+                ),
+            )
         assertFalse(pausedState.canStart)
     }
 
     @Test
     fun `canStart returns false when minutes is zero`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle, selectedMinutes = 0)
-        )
+        val state =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle, selectedMinutes = 0),
+            )
         assertFalse(state.canStart)
     }
 
@@ -74,19 +86,22 @@ class TimerViewModelTest {
 
     @Test
     fun `canPause returns true only when running`() {
-        val runningState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Running)
-        )
+        val runningState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Running),
+            )
         assertTrue(runningState.canPause)
 
-        val idleState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle)
-        )
+        val idleState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle),
+            )
         assertFalse(idleState.canPause)
 
-        val pausedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Paused)
-        )
+        val pausedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Paused),
+            )
         assertFalse(pausedState.canPause)
     }
 
@@ -94,19 +109,22 @@ class TimerViewModelTest {
 
     @Test
     fun `canResume returns true only when paused`() {
-        val pausedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Paused)
-        )
+        val pausedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Paused),
+            )
         assertTrue(pausedState.canResume)
 
-        val runningState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Running)
-        )
+        val runningState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Running),
+            )
         assertFalse(runningState.canResume)
 
-        val idleState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle)
-        )
+        val idleState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle),
+            )
         assertFalse(idleState.canResume)
     }
 
@@ -114,27 +132,31 @@ class TimerViewModelTest {
 
     @Test
     fun `canReset returns true when not idle`() {
-        val runningState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Running)
-        )
+        val runningState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Running),
+            )
         assertTrue(runningState.canReset)
 
-        val pausedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Paused)
-        )
+        val pausedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Paused),
+            )
         assertTrue(pausedState.canReset)
 
-        val completedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Completed)
-        )
+        val completedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Completed),
+            )
         assertTrue(completedState.canReset)
     }
 
     @Test
     fun `canReset returns false when idle`() {
-        val idleState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle)
-        )
+        val idleState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle),
+            )
         assertFalse(idleState.canReset)
     }
 
@@ -142,29 +164,34 @@ class TimerViewModelTest {
 
     @Test
     fun `isCountdown returns correct value based on state`() {
-        val idleState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle)
-        )
+        val idleState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle),
+            )
         assertFalse(idleState.isCountdown)
 
-        val countdownState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Countdown)
-        )
+        val countdownState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Countdown),
+            )
         assertTrue(countdownState.isCountdown)
 
-        val runningState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Running)
-        )
+        val runningState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Running),
+            )
         assertFalse(runningState.isCountdown)
 
-        val pausedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Paused)
-        )
+        val pausedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Paused),
+            )
         assertFalse(pausedState.isCountdown)
 
-        val completedState = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Completed)
-        )
+        val completedState =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Completed),
+            )
         assertFalse(completedState.isCountdown)
     }
 
@@ -172,56 +199,66 @@ class TimerViewModelTest {
 
     @Test
     fun `formattedTime shows countdown seconds during countdown state`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Countdown,
-                countdownSeconds = 15
+        val state =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Countdown,
+                    countdownSeconds = 15,
+                ),
             )
-        )
         assertEquals("15", state.formattedTime)
     }
 
     @Test
     fun `formattedTime shows MM SS format when running`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Running,
-                remainingSeconds = 305 // 5:05
+        val state =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Running,
+                    remainingSeconds = 305, // 5:05
+                ),
             )
-        )
         assertEquals("05:05", state.formattedTime)
     }
 
     @Test
     fun `formattedTime handles zero remaining seconds`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Running,
-                remainingSeconds = 0
+        val state =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Running,
+                    remainingSeconds = 0,
+                ),
             )
-        )
         assertEquals("00:00", state.formattedTime)
     }
 
     @Test
     fun `formattedTime formats full hour correctly`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Running,
-                remainingSeconds = 3600 // 60:00
+        val state =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Running,
+                    remainingSeconds = 3600, // 60:00
+                ),
             )
-        )
         assertEquals("60:00", state.formattedTime)
     }
 
     @Test
     fun `formattedTime handles single digit countdown`() {
-        val state = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Countdown,
-                countdownSeconds = 5
+        val state =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Countdown,
+                    countdownSeconds = 5,
+                ),
             )
-        )
         assertEquals("5", state.formattedTime)
     }
 
@@ -229,12 +266,13 @@ class TimerViewModelTest {
 
     @Test
     fun `state with custom settings preserves values`() {
-        val customSettings = MeditationSettings(
-            intervalGongsEnabled = true,
-            intervalMinutes = 10,
-            backgroundSoundId = "forest",
-            durationMinutes = 20
-        )
+        val customSettings =
+            MeditationSettings(
+                intervalGongsEnabled = true,
+                intervalMinutes = 10,
+                backgroundSoundId = "forest",
+                durationMinutes = 20,
+            )
 
         val state = TimerUiState(settings = customSettings)
 
@@ -248,18 +286,21 @@ class TimerViewModelTest {
 
     @Test
     fun `copy preserves unchanged values`() {
-        val original = TimerUiState(
-            displayState = TimerDisplayState(
-                timerState = TimerState.Running,
-                selectedMinutes = 15,
-                remainingSeconds = 500,
-                progress = 0.5f
+        val original =
+            TimerUiState(
+                displayState =
+                TimerDisplayState(
+                    timerState = TimerState.Running,
+                    selectedMinutes = 15,
+                    remainingSeconds = 500,
+                    progress = 0.5f,
+                ),
             )
-        )
 
-        val updated = original.copy(
-            displayState = original.displayState.copy(progress = 0.6f)
-        )
+        val updated =
+            original.copy(
+                displayState = original.displayState.copy(progress = 0.6f),
+            )
 
         assertEquals(TimerState.Running, updated.timerState)
         assertEquals(15, updated.selectedMinutes)
@@ -269,15 +310,17 @@ class TimerViewModelTest {
 
     @Test
     fun `copy with new state updates derived properties`() {
-        val idle = TimerUiState(
-            displayState = TimerDisplayState(timerState = TimerState.Idle)
-        )
+        val idle =
+            TimerUiState(
+                displayState = TimerDisplayState(timerState = TimerState.Idle),
+            )
         assertTrue(idle.canStart)
         assertFalse(idle.canPause)
 
-        val running = idle.copy(
-            displayState = idle.displayState.copy(timerState = TimerState.Running)
-        )
+        val running =
+            idle.copy(
+                displayState = idle.displayState.copy(timerState = TimerState.Running),
+            )
         assertFalse(running.canStart)
         assertTrue(running.canPause)
     }

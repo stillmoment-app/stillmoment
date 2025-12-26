@@ -1,7 +1,6 @@
 package com.stillmoment.presentation.navigation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -42,7 +41,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NavigationTest {
-
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
@@ -135,13 +133,14 @@ private fun TestNavigationHost() {
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Timer,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     },
                     label = { Text("Timer") },
-                    modifier = Modifier.semantics {
+                    modifier =
+                    Modifier.semantics {
                         contentDescription = "Navigate to timer"
-                    }
+                    },
                 )
                 NavigationBarItem(
                     selected = selectedTab == 1,
@@ -149,22 +148,24 @@ private fun TestNavigationHost() {
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.LibraryMusic,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     },
                     label = { Text("Library") },
-                    modifier = Modifier.semantics {
+                    modifier =
+                    Modifier.semantics {
                         contentDescription = "Navigate to library"
-                    }
+                    },
                 )
             }
-        }
+        },
     ) { padding ->
         Box(
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             when (selectedTab) {
                 0 -> Text("Timer Content")

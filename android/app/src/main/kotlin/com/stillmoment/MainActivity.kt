@@ -20,7 +20,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     @Inject
     lateinit var settingsDataStore: SettingsDataStore
 
@@ -32,7 +31,7 @@ class MainActivity : ComponentActivity() {
             StillMomentTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     StillMomentNavHost(settingsDataStore = settingsDataStore)
                 }

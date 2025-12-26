@@ -10,7 +10,7 @@ data class PlaybackState(
     val isPlaying: Boolean = false,
     val currentPosition: Long = 0L,
     val duration: Long = 0L,
-    val error: String? = null
+    val error: String? = null,
 ) {
     val progress: Float
         get() = if (duration > 0) currentPosition.toFloat() / duration else 0f
@@ -35,7 +35,7 @@ interface AudioPlayerServiceProtocol {
      * @param uri Content URI of the audio file
      * @param duration Expected duration in milliseconds (for progress calculation)
      */
-    fun play(uri: Uri, duration: Long)
+    fun play(uri: Uri, duration: Long,)
 
     /**
      * Pauses the current playback.

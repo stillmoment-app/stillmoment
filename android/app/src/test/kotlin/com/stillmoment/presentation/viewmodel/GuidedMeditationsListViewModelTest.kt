@@ -8,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -29,7 +28,6 @@ import org.mockito.kotlin.mock
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class GuidedMeditationsListViewModelTest {
-
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
     private lateinit var viewModel: GuidedMeditationsListViewModel
@@ -52,7 +50,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class UiStateInitialState {
-
         @Test
         fun `initial state has correct default values`() {
             val state = GuidedMeditationsListUiState()
@@ -83,7 +80,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class UiStateTotalCountTests {
-
         @Test
         fun `totalCount returns zero for empty groups`() {
             val state = GuidedMeditationsListUiState(groups = emptyList())
@@ -93,11 +89,12 @@ class GuidedMeditationsListViewModelTest {
 
         @Test
         fun `totalCount sums meditations across all groups`() {
-            val groups = listOf(
-                createTestGroup("Teacher A", 3),
-                createTestGroup("Teacher B", 2),
-                createTestGroup("Teacher C", 5)
-            )
+            val groups =
+                listOf(
+                    createTestGroup("Teacher A", 3),
+                    createTestGroup("Teacher B", 2),
+                    createTestGroup("Teacher C", 5),
+                )
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals(10, state.totalCount)
@@ -114,33 +111,35 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class UiStateIsEmptyTests {
-
         @Test
         fun `isEmpty returns true when groups empty and not loading`() {
-            val state = GuidedMeditationsListUiState(
-                groups = emptyList(),
-                isLoading = false
-            )
+            val state =
+                GuidedMeditationsListUiState(
+                    groups = emptyList(),
+                    isLoading = false,
+                )
 
             assertTrue(state.isEmpty)
         }
 
         @Test
         fun `isEmpty returns false when groups exist`() {
-            val state = GuidedMeditationsListUiState(
-                groups = listOf(createTestGroup("Teacher", 1)),
-                isLoading = false
-            )
+            val state =
+                GuidedMeditationsListUiState(
+                    groups = listOf(createTestGroup("Teacher", 1)),
+                    isLoading = false,
+                )
 
             assertFalse(state.isEmpty)
         }
 
         @Test
         fun `isEmpty returns false when still loading`() {
-            val state = GuidedMeditationsListUiState(
-                groups = emptyList(),
-                isLoading = true
-            )
+            val state =
+                GuidedMeditationsListUiState(
+                    groups = emptyList(),
+                    isLoading = true,
+                )
 
             assertFalse(state.isEmpty)
         }
@@ -148,7 +147,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class UiStateAvailableTeachersTests {
-
         @Test
         fun `availableTeachers returns empty list for empty groups`() {
             val state = GuidedMeditationsListUiState(groups = emptyList())
@@ -158,11 +156,12 @@ class GuidedMeditationsListViewModelTest {
 
         @Test
         fun `availableTeachers returns unique teacher names`() {
-            val groups = listOf(
-                createTestGroup("Tara Brach", 2),
-                createTestGroup("Jack Kornfield", 1),
-                createTestGroup("Sharon Salzberg", 3)
-            )
+            val groups =
+                listOf(
+                    createTestGroup("Tara Brach", 2),
+                    createTestGroup("Jack Kornfield", 1),
+                    createTestGroup("Sharon Salzberg", 3),
+                )
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals(3, state.availableTeachers.size)
@@ -173,11 +172,12 @@ class GuidedMeditationsListViewModelTest {
 
         @Test
         fun `availableTeachers is sorted alphabetically`() {
-            val groups = listOf(
-                createTestGroup("Zebra Teacher", 1),
-                createTestGroup("Alpha Teacher", 1),
-                createTestGroup("Middle Teacher", 1)
-            )
+            val groups =
+                listOf(
+                    createTestGroup("Zebra Teacher", 1),
+                    createTestGroup("Alpha Teacher", 1),
+                    createTestGroup("Middle Teacher", 1),
+                )
             val state = GuidedMeditationsListUiState(groups = groups)
 
             assertEquals("Alpha Teacher", state.availableTeachers[0])
@@ -192,7 +192,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class ViewModelInitialization {
-
         @Test
         fun `viewModel observes repository on init`() = runTest {
             // Given - repository has meditations
@@ -241,7 +240,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class ImportMeditationTests {
-
         @Test
         fun `importMeditation success updates state`() = runTest {
             // Given
@@ -319,7 +317,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class DeleteMeditationTests {
-
         @Test
         fun `deleteMeditation calls repository`() = runTest {
             // Given
@@ -403,7 +400,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class UpdateMeditationTests {
-
         @Test
         fun `updateMeditation calls repository`() = runTest {
             // Given
@@ -498,7 +494,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class EditSheetTests {
-
         @Test
         fun `showEditSheet sets selectedMeditation and flag`() {
             // Given
@@ -536,7 +531,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class ErrorHandlingTests {
-
         @Test
         fun `clearError sets error to null`() = runTest {
             // Given - error exists
@@ -577,7 +571,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class LoadingStateTests {
-
         @Test
         fun `loading state is managed during import`() = runTest {
             // Given - repository emits, viewModel is ready
@@ -630,26 +623,24 @@ class GuidedMeditationsListViewModelTest {
         id: String = java.util.UUID.randomUUID().toString(),
         name: String = "Test Meditation",
         teacher: String = "Test Teacher",
-        duration: Long = 600_000L
+        duration: Long = 600_000L,
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = "content://test/uri",
         fileName = "test.mp3",
         duration = duration,
         teacher = teacher,
-        name = name
+        name = name,
     )
 
-    private fun createTestGroup(
-        teacher: String,
-        meditationCount: Int
-    ): GuidedMeditationGroup {
-        val meditations = (1..meditationCount).map { index ->
-            createTestMeditation(
-                name = "Meditation $index",
-                teacher = teacher
-            )
-        }
+    private fun createTestGroup(teacher: String, meditationCount: Int,): GuidedMeditationGroup {
+        val meditations =
+            (1..meditationCount).map { index ->
+                createTestMeditation(
+                    name = "Meditation $index",
+                    teacher = teacher,
+                )
+            }
         return GuidedMeditationGroup(teacher = teacher, meditations = meditations)
     }
 }
@@ -664,7 +655,6 @@ class GuidedMeditationsListViewModelTest {
  * Allows controlling behavior via flags and tracking method calls.
  */
 class FakeGuidedMeditationRepository : GuidedMeditationRepository {
-
     // State
     private val _meditations = MutableStateFlow<List<GuidedMeditation>>(emptyList())
 
@@ -692,14 +682,15 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         return if (importShouldFail) {
             Result.failure(Exception(importErrorMessage))
         } else {
-            val meditation = GuidedMeditation(
-                id = java.util.UUID.randomUUID().toString(),
-                fileUri = uri.toString(),
-                fileName = "imported.mp3",
-                duration = 600_000L,
-                teacher = "Imported Teacher",
-                name = "Imported Meditation"
-            )
+            val meditation =
+                GuidedMeditation(
+                    id = java.util.UUID.randomUUID().toString(),
+                    fileUri = uri.toString(),
+                    fileName = "imported.mp3",
+                    duration = 600_000L,
+                    teacher = "Imported Teacher",
+                    name = "Imported Meditation",
+                )
             _meditations.value = _meditations.value + meditation
             Result.success(meditation)
         }
@@ -714,9 +705,10 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
     override suspend fun updateMeditation(meditation: GuidedMeditation) {
         updateWasCalled = true
         lastUpdatedMeditation = meditation
-        _meditations.value = _meditations.value.map {
-            if (it.id == meditation.id) meditation else it
-        }
+        _meditations.value =
+            _meditations.value.map {
+                if (it.id == meditation.id) meditation else it
+            }
     }
 
     override suspend fun getMeditation(id: String): GuidedMeditation? {

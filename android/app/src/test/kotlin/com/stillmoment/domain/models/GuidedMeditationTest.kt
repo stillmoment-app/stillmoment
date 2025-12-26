@@ -1,22 +1,20 @@
 package com.stillmoment.domain.models
 
-import org.junit.jupiter.api.Test
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
+import org.junit.jupiter.api.Test
 
 /**
  * Unit tests for GuidedMeditation and GuidedMeditationGroup domain models.
  */
 class GuidedMeditationTest {
-
     // MARK: - GuidedMeditation Tests
 
     @Nested
     inner class GuidedMeditationCreation {
-
         @Test
         fun `create meditation with all fields succeeds`() {
             // Given
@@ -27,13 +25,14 @@ class GuidedMeditationTest {
             val name = "Loving Kindness"
 
             // When
-            val meditation = GuidedMeditation(
-                fileUri = fileUri,
-                fileName = fileName,
-                duration = duration,
-                teacher = teacher,
-                name = name
-            )
+            val meditation =
+                GuidedMeditation(
+                    fileUri = fileUri,
+                    fileName = fileName,
+                    duration = duration,
+                    teacher = teacher,
+                    name = name,
+                )
 
             // Then
             assertNotNull(meditation.id)
@@ -60,7 +59,6 @@ class GuidedMeditationTest {
 
     @Nested
     inner class EffectiveValues {
-
         @Test
         fun `effectiveTeacher returns original when no custom set`() {
             // Given
@@ -73,10 +71,11 @@ class GuidedMeditationTest {
         @Test
         fun `effectiveTeacher returns custom when set`() {
             // Given
-            val meditation = createTestMeditation(
-                teacher = "Original Teacher",
-                customTeacher = "Custom Teacher"
-            )
+            val meditation =
+                createTestMeditation(
+                    teacher = "Original Teacher",
+                    customTeacher = "Custom Teacher",
+                )
 
             // When/Then
             assertEquals("Custom Teacher", meditation.effectiveTeacher)
@@ -94,10 +93,11 @@ class GuidedMeditationTest {
         @Test
         fun `effectiveName returns custom when set`() {
             // Given
-            val meditation = createTestMeditation(
-                name = "Original Name",
-                customName = "Custom Name"
-            )
+            val meditation =
+                createTestMeditation(
+                    name = "Original Name",
+                    customName = "Custom Name",
+                )
 
             // When/Then
             assertEquals("Custom Name", meditation.effectiveName)
@@ -106,7 +106,6 @@ class GuidedMeditationTest {
 
     @Nested
     inner class FormattedDuration {
-
         @Test
         fun `formats duration under one hour correctly`() {
             // Given - 10 minutes 30 seconds = 630,000 ms
@@ -155,7 +154,6 @@ class GuidedMeditationTest {
 
     @Nested
     inner class WithMethods {
-
         @Test
         fun `withCustomTeacher creates copy with new teacher`() {
             // Given
@@ -215,14 +213,14 @@ class GuidedMeditationTest {
 
     @Nested
     inner class Serialization {
-
         @Test
         fun `meditation can be serialized to JSON`() {
             // Given
-            val meditation = createTestMeditation(
-                teacher = "Test Teacher",
-                name = "Test Meditation"
-            )
+            val meditation =
+                createTestMeditation(
+                    teacher = "Test Teacher",
+                    name = "Test Meditation",
+                )
 
             // When
             val json = Json.encodeToString(meditation)
@@ -235,11 +233,12 @@ class GuidedMeditationTest {
         @Test
         fun `meditation can be deserialized from JSON`() {
             // Given
-            val original = createTestMeditation(
-                teacher = "Test Teacher",
-                name = "Test Meditation",
-                customTeacher = "Custom Teacher"
-            )
+            val original =
+                createTestMeditation(
+                    teacher = "Test Teacher",
+                    name = "Test Meditation",
+                    customTeacher = "Custom Teacher",
+                )
             val json = Json.encodeToString(original)
 
             // When
@@ -257,17 +256,18 @@ class GuidedMeditationTest {
         @Test
         fun `serialization roundtrip preserves all fields`() {
             // Given
-            val original = GuidedMeditation(
-                id = "test-id-123",
-                fileUri = "content://test/uri",
-                fileName = "test.mp3",
-                duration = 300_000L,
-                teacher = "Teacher",
-                name = "Name",
-                customTeacher = "Custom Teacher",
-                customName = "Custom Name",
-                dateAdded = 1234567890L
-            )
+            val original =
+                GuidedMeditation(
+                    id = "test-id-123",
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 300_000L,
+                    teacher = "Teacher",
+                    name = "Name",
+                    customTeacher = "Custom Teacher",
+                    customName = "Custom Name",
+                    dateAdded = 1234567890L,
+                )
 
             // When
             val json = Json.encodeToString(original)
@@ -282,36 +282,35 @@ class GuidedMeditationTest {
 
     @Nested
     inner class GuidedMeditationGroupTests {
-
         @Test
         fun `group count returns correct number of meditations`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(name = "Meditation 1"),
-                createTestMeditation(name = "Meditation 2"),
-                createTestMeditation(name = "Meditation 3")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(name = "Meditation 1"),
+                    createTestMeditation(name = "Meditation 2"),
+                    createTestMeditation(name = "Meditation 3"),
+                )
             val group = GuidedMeditationGroup("Teacher", meditations)
 
             // When/Then
             assertEquals(3, group.count)
         }
-
     }
 
     // MARK: - groupByTeacher Extension Tests
 
     @Nested
     inner class GroupByTeacherTests {
-
         @Test
         fun `groupByTeacher groups meditations by effective teacher`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(teacher = "Teacher A", name = "Med 1"),
-                createTestMeditation(teacher = "Teacher B", name = "Med 2"),
-                createTestMeditation(teacher = "Teacher A", name = "Med 3")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(teacher = "Teacher A", name = "Med 1"),
+                    createTestMeditation(teacher = "Teacher B", name = "Med 2"),
+                    createTestMeditation(teacher = "Teacher A", name = "Med 3"),
+                )
 
             // When
             val groups = meditations.groupByTeacher()
@@ -327,11 +326,12 @@ class GuidedMeditationTest {
         @Test
         fun `groupByTeacher uses customTeacher when set`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(teacher = "Original", customTeacher = "Custom A"),
-                createTestMeditation(teacher = "Original", customTeacher = "Custom B"),
-                createTestMeditation(teacher = "Original")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(teacher = "Original", customTeacher = "Custom A"),
+                    createTestMeditation(teacher = "Original", customTeacher = "Custom B"),
+                    createTestMeditation(teacher = "Original"),
+                )
 
             // When
             val groups = meditations.groupByTeacher()
@@ -346,11 +346,12 @@ class GuidedMeditationTest {
         @Test
         fun `groupByTeacher sorts groups alphabetically by teacher`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(teacher = "Zebra"),
-                createTestMeditation(teacher = "Alpha"),
-                createTestMeditation(teacher = "Middle")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(teacher = "Zebra"),
+                    createTestMeditation(teacher = "Alpha"),
+                    createTestMeditation(teacher = "Middle"),
+                )
 
             // When
             val groups = meditations.groupByTeacher()
@@ -364,11 +365,12 @@ class GuidedMeditationTest {
         @Test
         fun `groupByTeacher sorts meditations within group by name`() {
             // Given
-            val meditations = listOf(
-                createTestMeditation(teacher = "Teacher", name = "Zebra"),
-                createTestMeditation(teacher = "Teacher", name = "Alpha"),
-                createTestMeditation(teacher = "Teacher", name = "Middle")
-            )
+            val meditations =
+                listOf(
+                    createTestMeditation(teacher = "Teacher", name = "Zebra"),
+                    createTestMeditation(teacher = "Teacher", name = "Alpha"),
+                    createTestMeditation(teacher = "Teacher", name = "Middle"),
+                )
 
             // When
             val groups = meditations.groupByTeacher()
@@ -404,16 +406,17 @@ class GuidedMeditationTest {
         name: String = "Test Meditation",
         customTeacher: String? = null,
         customName: String? = null,
-        dateAdded: Long = System.currentTimeMillis()
-    ): GuidedMeditation = GuidedMeditation(
-        id = id,
-        fileUri = fileUri,
-        fileName = fileName,
-        duration = duration,
-        teacher = teacher,
-        name = name,
-        customTeacher = customTeacher,
-        customName = customName,
-        dateAdded = dateAdded
-    )
+        dateAdded: Long = System.currentTimeMillis(),
+    ): GuidedMeditation =
+        GuidedMeditation(
+            id = id,
+            fileUri = fileUri,
+            fileName = fileName,
+            duration = duration,
+            teacher = teacher,
+            name = name,
+            customTeacher = customTeacher,
+            customName = customName,
+            dateAdded = dateAdded,
+        )
 }

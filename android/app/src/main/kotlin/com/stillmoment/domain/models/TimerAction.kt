@@ -33,7 +33,7 @@ sealed class TimerAction {
         val totalSeconds: Int,
         val countdownSeconds: Int,
         val progress: Float,
-        val state: TimerState
+        val state: TimerState,
     ) : TimerAction()
 
     /** Countdown phase finished, transitioning to running */
