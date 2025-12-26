@@ -2,11 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ImplicitDefaultLocale:GuidedMeditation.kt$GuidedMeditation$String.format("%d:%02d", minutes, seconds)</ID>
-    <ID>ImplicitDefaultLocale:GuidedMeditation.kt$GuidedMeditation$String.format("%d:%02d:%02d", hours, minutes, seconds)</ID>
-    <ID>ImplicitDefaultLocale:GuidedMeditationPlayerViewModel.kt$PlayerUiState$String.format("%d:%02d", minutes, seconds)</ID>
-    <ID>ImplicitDefaultLocale:GuidedMeditationPlayerViewModel.kt$PlayerUiState$String.format("%d:%02d:%02d", hours, minutes, seconds)</ID>
-    <ID>ImplicitDefaultLocale:TimerDisplayState.kt$TimerDisplayState$String.format("%02d:%02d", minutes, seconds)</ID>
     <ID>LongMethod:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
     <ID>LongMethod:GuidedMeditationPlayerScreen.kt$@Composable private fun PlayerControls( isPlaying: Boolean, onPlayPause: () -&gt; Unit, currentPosition: Long, duration: Long, formattedPosition: String, formattedRemaining: String, onSeek: (Float) -&gt; Unit, onSkipForward: () -&gt; Unit, onSkipBackward: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>LongMethod:GuidedMeditationPlayerScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable internal fun GuidedMeditationPlayerScreenContent( meditation: GuidedMeditation, uiState: PlayerUiState, onBack: () -&gt; Unit, onPlayPause: () -&gt; Unit, onSeek: (Float) -&gt; Unit, onSkipForward: () -&gt; Unit, onSkipBackward: () -&gt; Unit, onClearError: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
@@ -34,17 +29,9 @@
     <ID>NestedBlockDepth:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
     <ID>NestedBlockDepth:GuidedMeditationRepositoryImpl.kt$GuidedMeditationRepositoryImpl$override suspend fun deleteMeditation(id: String)</ID>
     <ID>ReturnCount:AudioPlayerService.kt$AudioPlayerService$override fun play(uri: Uri, duration: Long)</ID>
-    <ID>SwallowedException:AudioPlayerService.kt$AudioPlayerService$e: Exception</ID>
-    <ID>SwallowedException:GuidedMeditationDataStore.kt$GuidedMeditationDataStore$e: Exception</ID>
-    <ID>SwallowedException:GuidedMeditationRepositoryImpl.kt$GuidedMeditationRepositoryImpl$e: Exception</ID>
-    <ID>SwallowedException:MeditationPlayerForegroundService.kt$MeditationPlayerForegroundService$e: IllegalArgumentException</ID>
     <ID>TooGenericExceptionCaught:AudioPlayerService.kt$AudioPlayerService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:AudioService.kt$AudioService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GuidedMeditationDataStore.kt$GuidedMeditationDataStore$e: Exception</ID>
     <ID>TooGenericExceptionCaught:GuidedMeditationRepositoryImpl.kt$GuidedMeditationRepositoryImpl$e: Exception</ID>
-    <ID>UnusedParameter:MediaSessionManager.kt$MediaSessionManager$duration: Long</ID>
-    <ID>UnusedParameter:SettingsSheet.kt$id: String</ID>
-    <ID>UnusedPrivateProperty:AudioPlayerService.kt$AudioPlayerService$private val notificationManager: MeditationNotificationManager</ID>
-    <ID>UnusedPrivateProperty:TimerViewModel.kt$TimerViewModel$private val audioService: AudioService</ID>
   </CurrentIssues>
 </SmellBaseline>

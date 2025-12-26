@@ -125,7 +125,6 @@ fun SettingsSheet(
 
             Column(modifier = Modifier.selectableGroup()) {
                 BackgroundSoundOption(
-                    id = "silent",
                     title = stringResource(R.string.sound_silent),
                     description = stringResource(R.string.sound_silent_description),
                     isSelected = backgroundSoundId == "silent",
@@ -133,7 +132,6 @@ fun SettingsSheet(
                 )
 
                 BackgroundSoundOption(
-                    id = "forest",
                     title = stringResource(R.string.sound_forest),
                     description = stringResource(R.string.sound_forest_description),
                     isSelected = backgroundSoundId == "forest",
@@ -228,7 +226,6 @@ fun SettingsSheet(
 
 @Composable
 private fun BackgroundSoundOption(
-    id: String,
     title: String,
     description: String,
     isSelected: Boolean,

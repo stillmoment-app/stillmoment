@@ -10,6 +10,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -54,6 +55,7 @@ constructor(
                 try {
                     json.decodeFromString<List<GuidedMeditation>>(jsonString)
                 } catch (e: Exception) {
+                    Log.w(TAG, "Failed to parse meditations JSON, returning empty list", e)
                     emptyList()
                 }
             }
@@ -125,7 +127,12 @@ constructor(
         return try {
             json.decodeFromString<List<GuidedMeditation>>(jsonString)
         } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse meditations JSON, returning empty list", e)
             emptyList()
         }
+    }
+
+    companion object {
+        private const val TAG = "GuidedMeditationDataStore"
     }
 }

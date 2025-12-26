@@ -104,8 +104,9 @@ constructor(
      *
      * @param isPlaying Whether audio is currently playing
      * @param position Current playback position in milliseconds
-     * @param duration Total duration in milliseconds (unused but kept for API consistency)
+     * @param duration Total duration in milliseconds (reserved for future progress display)
      */
+    @Suppress("UNUSED_PARAMETER")
     fun updatePlaybackState(isPlaying: Boolean, position: Long, duration: Long) {
         val state =
             if (isPlaying) {

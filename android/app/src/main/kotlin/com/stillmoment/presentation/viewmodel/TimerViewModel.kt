@@ -13,7 +13,6 @@ import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.services.TimerReducer
-import com.stillmoment.infrastructure.audio.AudioService
 import com.stillmoment.infrastructure.audio.TimerForegroundService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -69,7 +68,6 @@ class TimerViewModel
 @Inject
 constructor(
     application: Application,
-    private val audioService: AudioService,
     private val settingsRepository: SettingsRepository,
     private val timerRepository: TimerRepositoryImpl
 ) : AndroidViewModel(application) {

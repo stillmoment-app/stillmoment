@@ -181,7 +181,7 @@ constructor(
                 )?.takeIf { it.isNotBlank() }
             )
         } catch (e: Exception) {
-            // Return default metadata if extraction fails
+            Log.w(TAG, "Failed to extract metadata from audio file", e)
             MediaMetadata(
                 duration = 0L,
                 artist = null,

@@ -1,6 +1,6 @@
 # Ticket android-048: detekt Baseline Issues beheben
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -23,13 +23,13 @@ Die bei der detekt-Integration identifizierten Code-Qualitaets-Issues aus der Ba
 
 ## Akzeptanzkriterien
 
-- [ ] SwallowedException (4x): Exceptions loggen oder gezielt behandeln
-- [ ] UnusedParameter (2x): Parameter entfernen oder verwenden
-- [ ] UnusedPrivateProperty (2x): Properties entfernen oder verwenden
-- [ ] ImplicitDefaultLocale (5x): `Locale.ROOT` bei String.format verwenden
-- [ ] TooGenericExceptionCaught (4x): Spezifischere Exceptions oder bewusst ignorieren
-- [ ] `./gradlew detekt` laeuft ohne Baseline durch
-- [ ] Baseline-Datei entfernen oder auf LongMethod/LongParameterList reduzieren
+- [x] SwallowedException (4x): Exceptions loggen oder gezielt behandeln
+- [x] UnusedParameter (2x): Parameter entfernen oder verwenden
+- [x] UnusedPrivateProperty (2x): Properties entfernen oder verwenden
+- [x] ImplicitDefaultLocale (5x): `Locale.ROOT` bei String.format verwenden
+- [x] TooGenericExceptionCaught (4x): Spezifischere Exceptions oder bewusst ignorieren
+- [x] `./gradlew detekt` laeuft ohne Baseline durch
+- [x] Baseline-Datei entfernen oder auf LongMethod/LongParameterList reduzieren
 
 ---
 

@@ -1,5 +1,6 @@
 package com.stillmoment.domain.models
 
+import java.util.Locale
 import java.util.UUID
 import kotlinx.serialization.Serializable
 
@@ -55,9 +56,9 @@ data class GuidedMeditation(
             val seconds = totalSeconds % 60
 
             return if (hours > 0) {
-                String.format("%d:%02d:%02d", hours, minutes, seconds)
+                String.format(Locale.ROOT, "%d:%02d:%02d", hours, minutes, seconds)
             } else {
-                String.format("%d:%02d", minutes, seconds)
+                String.format(Locale.ROOT, "%d:%02d", minutes, seconds)
             }
         }
 

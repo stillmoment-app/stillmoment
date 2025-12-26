@@ -42,8 +42,7 @@ class AudioPlayerService
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val mediaSessionManager: MediaSessionManager,
-    private val notificationManager: MeditationNotificationManager
+    private val mediaSessionManager: MediaSessionManager
 ) : AudioPlayerServiceProtocol {
     private var mediaPlayer: MediaPlayer? = null
     private var onCompletionCallback: (() -> Unit)? = null
@@ -267,7 +266,7 @@ constructor(
                 }
                 release()
             } catch (e: Exception) {
-                // Ignore errors during cleanup
+                Log.w(TAG, "Error during media player cleanup (can be ignored)", e)
             }
         }
         mediaPlayer = null
@@ -295,7 +294,7 @@ constructor(
                     }
                 }
             } catch (e: Exception) {
-                // Player may be in invalid state
+                Log.d(TAG, "Progress update skipped - player in invalid state", e)
             }
         }
     }

@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
@@ -96,7 +97,7 @@ class MeditationPlayerForegroundService : Service() {
         try {
             unregisterReceiver(mediaButtonReceiver)
         } catch (e: IllegalArgumentException) {
-            // Receiver not registered
+            Log.d(TAG, "Media button receiver was not registered", e)
         }
         super.onDestroy()
     }
@@ -146,6 +147,7 @@ class MeditationPlayerForegroundService : Service() {
     }
 
     companion object {
+        private const val TAG = "MeditationPlayerService"
         const val ACTION_START = "com.stillmoment.MEDITATION_START"
         const val ACTION_UPDATE = "com.stillmoment.MEDITATION_UPDATE"
         const val ACTION_STOP = "com.stillmoment.MEDITATION_STOP"

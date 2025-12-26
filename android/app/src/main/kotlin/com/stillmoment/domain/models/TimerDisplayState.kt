@@ -1,5 +1,7 @@
 package com.stillmoment.domain.models
 
+import java.util.Locale
+
 /**
  * Complete UI state for the timer display.
  *
@@ -55,7 +57,7 @@ data class TimerDisplayState(
             } else {
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60
-                String.format("%02d:%02d", minutes, seconds)
+                String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
             }
 
     companion object {
