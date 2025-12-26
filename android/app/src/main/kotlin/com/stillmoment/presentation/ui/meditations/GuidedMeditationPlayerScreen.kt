@@ -396,7 +396,6 @@ private fun PlayerControls(
 // MARK: - Previews
 
 @Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
-@Preview(name = "Landscape", widthDp = 640, heightDp = 360, showBackground = true)
 @Preview(name = "Tablet", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun GuidedMeditationPlayerScreenPreview() {

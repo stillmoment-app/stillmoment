@@ -35,6 +35,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-009](shared/shared-009-website-android-ready.md) | Website für iOS + Android | 4-Polish | [x] | [x] |
 | [shared-010](shared/shared-010-silence-label-rename.md) | Stille-Option umbenennen | 4-Polish | [x] | [x] |
 | [shared-011](shared/shared-011-edit-sheet-remove-reset.md) | Edit Sheet Reset-Button entfernen | 4-Polish | [x] | [x] |
+| [shared-012](shared/shared-012-portrait-only.md) | Portrait-Only Modus | 4-Polish | [x] | [x] |
 
 ---
 
@@ -112,7 +113,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-041](android/android-041-remove-notification-permission.md) | Notification Permission entfernen | 4-Polish | [x] | - |
 | [android-042](android/android-042-automated-screenshots.md) | Vollautomatische Screenshots | 5-QA | [ ] | - |
 | [android-043](android/android-043-settings-sheet-responsive.md) | SettingsSheet Scroll + Responsive | 4-Polish | [ ] | - |
-| [android-044](android/android-044-timer-screen-responsive.md) | TimerScreen Responsive Layout | 4-Polish | [ ] | - |
+| [android-044](android/android-044-timer-screen-responsive.md) | TimerScreen Responsive Layout | 4-Polish | [x] | - |
 | [android-045](android/android-045-player-screen-responsive.md) | PlayerScreen Responsive Layout | 4-Polish | [x] | - |
 
 ---
