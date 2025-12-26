@@ -6,9 +6,9 @@ This document contains all the metadata needed for submitting Still Moment to th
 
 ### Basic Details
 - **App Name**: Still Moment
-- **Subtitle**: Warmhearted Meditation Timer
+- **Subtitle**: Your Meditations, Organized
 - **Bundle ID**: com.stillmoment.StillMoment
-- **Version**: 1.0
+- **Version**: 1.4.0
 - **Build Number**: 1
 - **SKU**: stillmoment-ios-001
 - **Primary Language**: English (US)
@@ -26,25 +26,42 @@ Still Moment
 ```
 
 ### Subtitle (30 characters max)
+
+**English:**
 ```
-Simple Meditation Timer
+Your Meditation Library
 ```
-or
+
+**German:**
 ```
-Mindful Meditation Timer
+Deine Meditations-Bibliothek
 ```
 
 ### Promotional Text (170 characters max - can be updated anytime)
+
+**English:**
 ```
-Find your inner peace with Still Moment. A minimalist meditation timer that helps you build a consistent mindfulness practice. No ads, no tracking, just meditation.
+Build your own meditation library. Import audio files, organize by teacher, meditate offline. Distraction-free - no tracking, no ads, no subscriptions.
+```
+
+**German:**
+```
+Baue deine eigene Meditations-Bibliothek. Importiere Audio-Dateien, organisiere nach Lehrer, meditiere offline. Ablenkungsfrei - ohne Tracking, ohne Werbung, ohne Abos.
 ```
 
 ### Description (English - 4000 characters max)
 
 ```
-Still Moment is a beautifully simple meditation timer designed to help you cultivate a consistent mindfulness practice. With countdown preparation, optional interval reminders, configurable background audio, and soothing Tibetan singing bowl sounds, Still Moment keeps you focused on what matters most: your meditation.
+Still Moment combines a beautiful meditation timer with your personal guided meditation library. Import your own audio files, organize them by teacher, and enjoy your practice - all in one elegant, offline app.
 
 KEY FEATURES
+
+📚 YOUR PERSONAL MEDITATION LIBRARY
+• Import your own guided meditation audio files (MP3, M4A, WAV)
+• Organize by teacher or tradition
+• Keep purchased meditations in one beautiful place
+• Play without internet - everything stays on your device
+• Perfect for course meditations, dharma talks, or your own recordings
 
 ⏳ Preparation Countdown
 A 15-second countdown gives you time to settle in before your meditation begins. Get comfortable, close your eyes, and prepare your mind.
@@ -85,13 +102,14 @@ Still Moment works completely offline. Your meditation data never leaves your de
 
 WHY STILL MOMENT?
 
-Unlike other meditation apps loaded with subscriptions, social features, and endless content libraries, Still Moment focuses on what matters: timing your meditation with thoughtful features that enhance rather than distract from your practice.
+Unlike other meditation apps that lock content behind expensive subscriptions, Still Moment lets you use YOUR OWN meditations. Import audio from courses you've taken, dharma talks you've downloaded, or guided sessions you've purchased elsewhere.
 
 Perfect for:
+• Meditators with their own audio collection needing organization
+• Students of meditation courses wanting one place for all recordings
 • Beginners building their first meditation habit
-• Experienced meditators who want simplicity with flexibility
-• Anyone seeking a distraction-free timer with optional interval reminders
-• Mindfulness practitioners of all traditions
+• Experienced practitioners who want simplicity without subscription fees
+• Anyone tired of paying monthly for meditation content they already own
 
 Technical Excellence:
 • Built with Swift & SwiftUI for iOS 16+
@@ -110,9 +128,16 @@ Still Moment is completely free with no in-app purchases, no subscriptions, and 
 ### Description (German - optional)
 
 ```
-Still Moment ist ein wunderschön einfacher Meditationstimer, der dir hilft, eine beständige Achtsamkeitspraxis aufzubauen. Mit seiner klaren, ablenkungsfreien Oberfläche und dem beruhigenden Klang einer tibetischen Klangschale hält dich Still Moment auf das Wesentliche fokussiert: deine Meditation.
+Still Moment vereint einen wunderschönen Meditationstimer mit deiner persönlichen Bibliothek geführter Meditationen. Importiere deine eigenen Audio-Dateien, organisiere sie nach Lehrer und genieße deine Praxis - alles in einer eleganten, offline-fähigen App.
 
 HAUPTFUNKTIONEN
+
+📚 DEINE PERSÖNLICHE MEDITATIONS-BIBLIOTHEK
+• Importiere eigene Audio-Dateien (MP3, M4A, WAV)
+• Organisiere nach Lehrer oder Tradition
+• Alle gekauften Meditationen an einem Ort
+• Funktioniert ohne Internet - alles bleibt auf deinem Gerät
+• Perfekt für Kurs-Meditationen, Dharma-Talks oder eigene Aufnahmen
 
 ⏱️ Flexibler Timer
 Stelle deine Meditationsdauer von 1 bis 60 Minuten ein. Perfekt für kurze Atemübungen oder ausgedehnte Meditationssitzungen.
@@ -137,7 +162,14 @@ Still Moment funktioniert komplett offline. Deine Meditationsdaten verlassen nie
 
 WARUM STILL MOMENT?
 
-Im Gegensatz zu anderen Meditations-Apps, die mit Abonnements, sozialen Features und endlosen Inhaltsbibliotheken überladen sind, macht Still Moment eine Sache außergewöhnlich gut: Es timert deine Meditation. Kein Schnickschnack, keine Upsells, nur ein einfaches, elegantes Werkzeug für deine Praxis.
+Im Gegensatz zu anderen Apps, die Inhalte hinter teuren Abos verstecken, nutzt Still Moment DEINE EIGENEN Meditationen. Importiere Audio aus Kursen, heruntergeladene Dharma-Talks oder woanders gekaufte Sessions.
+
+Perfekt für:
+• Meditierende mit eigener Audio-Sammlung
+• Kursteilnehmer, die alle Aufnahmen an einem Ort wollen
+• Anfänger beim Aufbau einer Meditationsgewohnheit
+• Erfahrene Praktizierende ohne Abo-Gebühren
+• Alle, die keine monatlichen Gebühren für bereits vorhandene Inhalte zahlen möchten
 
 Beginne heute deine Meditationsreise mit Still Moment - wo Einfachheit auf Achtsamkeit trifft.
 
@@ -147,8 +179,15 @@ Still Moment ist komplett kostenlos ohne In-App-Käufe, ohne Abonnements und ohn
 ```
 
 ### Keywords (100 characters max - comma separated)
+
+**English:**
 ```
-meditation,timer,mindfulness,zen,breathing,yoga,calm,peace,focus,relax,wellness,health
+meditation,timer,mindfulness,private,offline,guided,own,library,audio,import,free
+```
+
+**German:**
+```
+meditation,timer,achtsamkeit,privat,offline,geführt,eigene,bibliothek,audio,importieren
 ```
 
 ### Support URL (required)
@@ -281,83 +320,54 @@ You need screenshots for the following display sizes (minimum 2 screenshots per 
 
 ### What's New in This Version (4000 characters max)
 ```
-Version 0.3 - Warmhearted Design & International Support
+Version 1.4.0 - Your Meditations, Organized
 
 NEW IN THIS VERSION
 
-🎨 Complete Visual Redesign
-• Warm earth tone color palette (terracotta, sand, apricot)
-• Soft, friendly SF Pro Rounded typography
-• Elegant thin timer ring with subtle glow
-• Beautiful gradient backgrounds
+📚 Personal Meditation Library
+Import your own guided meditations and build your personal collection:
+• Import MP3, M4A, and WAV audio files
+• Organize by teacher or tradition
+• Edit meditation titles and teacher names
+• All files stored locally on your device
+• Perfect for course recordings, dharma talks, or purchased audio
 
-🌍 Full Localization
-• German (Deutsch) and English supported
-• Warmhearted messages in your language
-• Automatically matches your device language
+🎵 Guided Meditation Player
+• Beautiful full-screen player view
+• Background playback support
+• Play/pause controls
+• Progress indicator
 
-💬 Rotating Affirmations
-• Different calming message each session
-• German: "Atme sanft", "Alles darf sein"
-• English: "Breathe softly", "All is welcome"
-• Includes peaceful silence option
-
-🤲 Mindful Details
-• "Schön, dass du da bist" welcome message
-• "Du verdienst diese Pause" gentle reminder
-• Soft button press animations
-• Thoughtful emoji touches
-
-PREVIOUS FEATURES (v0.2)
-
-NEW FEATURES
-
-⏳ Preparation Countdown
-• 15-second countdown before meditation starts
-• Time to settle in and prepare your mind
-• Visual countdown display
-
-🔔 Enhanced Audio Experience
-• Start Gong: Tibetan singing bowl marks the beginning
-• Interval Gongs: Optional reminders every 3/5/10 minutes (configurable)
-• Completion Gong: Peaceful end to your session
-
-🎧 Background Audio Modes
-• Silent Ambience: Subtle soundscape for focused meditation
-• Forest Ambience: Natural forest sounds to enhance your practice
-• Choose what works best for your practice
-
-⚙️ Settings & Customization
-• New Settings screen (tap gear icon)
-• Enable/disable interval gongs
-• Configure interval duration (3, 5, or 10 minutes)
-• Select background audio mode
-• All preferences saved automatically
-
-🔒 Improved Background Support
-• App stays active throughout your meditation
-• Plays all gongs even when screen is locked
-• Apple Guidelines compliant
+🔄 Responsive Layout
+• Improved player view for all screen sizes
+• Portrait-only mode for focused practice
 
 EXISTING FEATURES
 
-• Flexible timer (1-60 minutes)
-• Full pause/resume/reset controls
-• Complete VoiceOver accessibility
-• 100% offline - no tracking, no ads
-• Beautiful, minimalist design
+⏱️ Meditation Timer
+• Flexible duration (1-60 minutes)
+• 15-second preparation countdown
+• Start & completion gongs (Tibetan singing bowl)
+• Optional interval reminders (3/5/10 min)
 
-🎯 PHILOSOPHY
+🎧 Background Audio
+• Silent ambience for focused meditation
+• Forest ambience for nature lovers
+• Works with screen locked
 
-Still Moment combines simplicity with thoughtful features. Interval gongs help you check in during long sessions. Background audio ensures uninterrupted practice. All features are optional - use what serves your meditation.
+🎨 Warmhearted Design
+• Warm earth tone color palette
+• Rotating affirmations in German & English
+• Full VoiceOver accessibility
 
-🙏 ENJOY YOUR PRACTICE
-
-Thank you for choosing Still Moment for your mindfulness journey.
+🔐 100% Private
+• Works completely offline
+• No accounts, no tracking, no ads
+• All data stays on your device
 
 ---
 
-Questions or feedback? Contact: stillMoment@posteo.de
+Questions or feedback? stillMoment@posteo.de
 ```
 
 ## Privacy Nutrition Label

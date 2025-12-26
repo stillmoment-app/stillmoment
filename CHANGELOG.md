@@ -5,7 +5,7 @@ All notable changes to Still Moment will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.4.0] - 2025-12-26 (Deine Meditations-Bibliothek)
 
 ### Added (Android)
 - **MediaSession Lock Screen Controls** - Lock Screen und Notification Controls für Guided Meditations

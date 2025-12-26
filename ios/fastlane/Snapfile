@@ -1,9 +1,10 @@
 # Snapfile - Fastlane Snapshot Configuration
 # https://docs.fastlane.tools/actions/snapshot/
 
-# Device for App Store screenshots (6.5" - 1284x2778px)
+# Devices for App Store screenshots
+# 6.7" (1290x2796px) and 6.5" (1242x2688px) required
 devices([
-  "iPhone 14 Plus"
+  "iPhone 17 Pro Max"
 ])
 
 # Languages (German primary, English secondary)
@@ -25,7 +26,7 @@ output_directory("./fastlane/screenshots")
 clear_previous_screenshots(true)
 
 # iOS version
-ios_version("18.0")
+ios_version("26.1")
 
 # Skip opening HTML summary
 skip_open_summary(true)
