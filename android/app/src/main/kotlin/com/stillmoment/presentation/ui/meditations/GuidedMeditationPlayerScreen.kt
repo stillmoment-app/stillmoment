@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -48,6 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -159,14 +161,17 @@ internal fun GuidedMeditationPlayerScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Top spacer - pushes content down
+                Spacer(modifier = Modifier.weight(1f))
+
                 // Meditation Info Header
                 MeditationInfoHeader(
                     meditation = meditation
                 )
 
+                // Middle spacer - separates header from controls
                 Spacer(modifier = Modifier.weight(1f))
 
                 // Controls
@@ -181,6 +186,9 @@ internal fun GuidedMeditationPlayerScreenContent(
                     onSkipForward = onSkipForward,
                     onSkipBackward = onSkipBackward
                 )
+
+                // Bottom spacer - pushes controls up
+                Spacer(modifier = Modifier.weight(1f))
             }
 
             // Loading overlay (shown during initial audio load)
@@ -387,7 +395,9 @@ private fun PlayerControls(
 
 // MARK: - Previews
 
-@Preview(showBackground = true)
+@Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
+@Preview(name = "Landscape", widthDp = 640, heightDp = 360, showBackground = true)
+@Preview(name = "Tablet", device = Devices.PIXEL_TABLET, showBackground = true)
 @Composable
 private fun GuidedMeditationPlayerScreenPreview() {
     StillMomentTheme {
@@ -419,7 +429,7 @@ private fun GuidedMeditationPlayerScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Phone - Paused", device = Devices.PIXEL_4, showBackground = true)
 @Composable
 private fun GuidedMeditationPlayerScreenPausedPreview() {
     StillMomentTheme {
