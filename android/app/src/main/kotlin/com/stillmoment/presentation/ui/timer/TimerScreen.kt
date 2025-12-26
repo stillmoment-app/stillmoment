@@ -110,7 +110,7 @@ internal fun TimerScreenContent(
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         topBar = {
