@@ -23,17 +23,17 @@ Importierte Meditations-Dateien in den App-Container kopieren statt Security-Sco
 
 ## Akzeptanzkriterien
 
-- [ ] Import kopiert Datei nach `Application Support/Meditations/`
-- [ ] `GuidedMeditation.fileBookmark: Data` ersetzt durch `fileURL: URL` (oder String-Pfad)
-- [ ] Loeschen einer Meditation loescht auch die lokale Datei
-- [ ] Migration: Bestehende Bookmarks werden zu lokalen Dateien migriert
-- [ ] Einmal-Flag in UserDefaults (`guidedMeditationsMigratedToLocalFiles_v1`)
-- [ ] Nicht-auflösbare Bookmarks: Meditation wird entfernt (mit Logging)
-- [ ] Security-Scoped-Bookmark-Code entfernt (`resolveBookmark`, `startAccessingSecurityScopedResource`, etc.)
-- [ ] `isAppOwnedFile` Check in PlayerViewModel entfernt
-- [ ] TestFixtureSeeder nutzt echten Import-Pfad (kopieren statt Bookmark)
-- [ ] Unit Tests aktualisiert
-- [ ] Bestehende Meditationen funktionieren nach Migration
+- [x] Import kopiert Datei nach `Application Support/Meditations/`
+- [x] `GuidedMeditation.fileBookmark: Data` ersetzt durch `fileURL: URL` (oder String-Pfad)
+- [x] Loeschen einer Meditation loescht auch die lokale Datei
+- [x] Migration: Bestehende Bookmarks werden zu lokalen Dateien migriert
+- [x] Einmal-Flag in UserDefaults (`guidedMeditationsMigratedToLocalFiles_v1`)
+- [x] Nicht-auflösbare Bookmarks: Meditation wird entfernt (mit Logging)
+- [x] Security-Scoped-Bookmark-Code entfernt (`resolveBookmark`, `startAccessingSecurityScopedResource`, etc.)
+- [x] `isAppOwnedFile` Check in PlayerViewModel entfernt
+- [x] TestFixtureSeeder nutzt echten Import-Pfad (kopieren statt Bookmark)
+- [x] Unit Tests aktualisiert
+- [x] Bestehende Meditationen funktionieren nach Migration
 
 ---
 
