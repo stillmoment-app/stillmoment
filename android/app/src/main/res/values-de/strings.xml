@@ -5,7 +5,7 @@
 
     <!-- Main Screen -->
     <string name="welcome_title">Schön, dass du da bist</string>
-    <string name="duration_question">Wie viel Zeit möchtest du dir schenken?</string>
+    <string name="duration_question">Wie viel Zeit schenkst du dir?</string>
     <string name="duration_footer">Du verdienst diese Pause</string>
 
     <!-- Common -->
@@ -37,20 +37,20 @@
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
-    <string name="settings_background_sound">Hintergrundklang</string>
+    <string name="settings_background_sound">Hintergrund-Audio</string>
     <string name="settings_interval_gongs">Intervall-Gongs</string>
     <string name="settings_interval_gongs_description">Ein Gong-Klang in regelmäßigen Abständen während der Meditation</string>
     <string name="settings_interval_minutes">Intervall</string>
     <string name="settings_sound_settings">Klang-Einstellungen</string>
 
     <!-- Background Sounds -->
-    <string name="sound_silent">Leise</string>
-    <string name="sound_silent_description">Hält die App sanft im Hintergrund aktiv. Fast unhörbar, einfach präsent.</string>
-    <string name="sound_forest">Weißes Rauschen</string>
-    <string name="sound_forest_description">Sanfter Umgebungsklang, der dir hilft, dich in deine Praxis einzufinden.</string>
+    <string name="sound_silent">Stille</string>
+    <string name="sound_silent_description">Meditiere in Stille.</string>
+    <string name="sound_forest">Waldatmosphäre</string>
+    <string name="sound_forest_description">Natürliche Waldgeräusche</string>
 
     <!-- Time -->
-    <string name="time_minutes">%d Min</string>
+    <string name="time_minutes">%d min</string>
     <string name="time_minutes_plural">%d Minuten</string>
     <string name="time_seconds">%d Sekunden</string>
     <string name="time_remaining">%s verbleibend</string>

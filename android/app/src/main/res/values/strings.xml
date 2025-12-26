@@ -44,10 +44,10 @@
     <string name="settings_sound_settings">Sound Settings</string>
 
     <!-- Background Sounds -->
-    <string name="sound_silent">Silent</string>
-    <string name="sound_silent_description">Keeps the app gently active in the background. Almost silent, just present.</string>
-    <string name="sound_forest">White Noise</string>
-    <string name="sound_forest_description">Soft ambient sound to help you settle into your practice.</string>
+    <string name="sound_silent">Silence</string>
+    <string name="sound_silent_description">Meditate in silence.</string>
+    <string name="sound_forest">Forest Ambience</string>
+    <string name="sound_forest_description">Natural forest sounds</string>
 
     <!-- Time -->
     <string name="time_minutes">%d min</string>
