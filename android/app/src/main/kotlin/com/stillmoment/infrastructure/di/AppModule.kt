@@ -7,8 +7,10 @@ import com.stillmoment.data.repositories.TimerRepositoryImpl
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AudioFocusManagerProtocol
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.infrastructure.audio.AudioFocusManager
 import com.stillmoment.infrastructure.audio.AudioPlayerService
 import com.stillmoment.infrastructure.audio.AudioSessionCoordinator
 import dagger.Module
@@ -35,6 +37,12 @@ object AppModule {
     @Singleton
     fun provideSettingsRepository(settingsDataStore: SettingsDataStore): SettingsRepository {
         return settingsDataStore
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioFocusManager(impl: AudioFocusManager): AudioFocusManagerProtocol {
+        return impl
     }
 
     @Provides

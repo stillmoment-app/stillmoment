@@ -7,8 +7,10 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
+import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.PlaybackState
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.FileNotFoundException
@@ -42,8 +44,22 @@ class AudioPlayerService
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val mediaSessionManager: MediaSessionManager
+    private val mediaSessionManager: MediaSessionManager,
+    private val coordinator: AudioSessionCoordinatorProtocol
 ) : AudioPlayerServiceProtocol {
+    init {
+        // Register conflict handler to stop playback when another source takes over (Timer)
+        coordinator.registerConflictHandler(AudioSource.GUIDED_MEDITATION) {
+            Log.d(TAG, "Audio conflict: stopping guided meditation for other source")
+            stop()
+        }
+
+        // Register pause handler for system audio focus loss (phone call, other app)
+        coordinator.registerPauseHandler(AudioSource.GUIDED_MEDITATION) {
+            Log.d(TAG, "Audio focus lost: pausing guided meditation")
+            pause()
+        }
+    }
     private var mediaPlayer: MediaPlayer? = null
     private var onCompletionCallback: (() -> Unit)? = null
 
@@ -74,6 +90,12 @@ constructor(
      * @param meditation The meditation to play
      */
     fun playMeditation(meditation: GuidedMeditation) {
+        // Request exclusive audio session
+        if (!coordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
+            Log.w(TAG, "Failed to acquire audio session for guided meditation")
+            return
+        }
+
         currentMeditation = meditation
 
         // Create MediaSession with callbacks
@@ -262,6 +284,7 @@ constructor(
         stopProgressUpdates()
         mediaSessionManager.release()
         stopForegroundService()
+        coordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
         currentMeditation = null
         _playbackState.update {
             PlaybackState()

@@ -33,6 +33,12 @@ constructor(
             Log.d(TAG, "Audio conflict: stopping timer audio for other source")
             stopBackgroundAudioInternal()
         }
+
+        // Register pause handler for system audio focus loss (phone call, other app)
+        coordinator.registerPauseHandler(AudioSource.TIMER) {
+            Log.d(TAG, "Audio focus lost: pausing timer background audio")
+            pauseBackgroundAudio()
+        }
     }
 
     private var gongPlayer: MediaPlayer? = null

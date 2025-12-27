@@ -21,11 +21,22 @@ interface AudioSessionCoordinatorProtocol {
     /**
      * Register a conflict handler for a specific audio source.
      * The handler is invoked when another source requests the audio session.
+     * This should STOP audio playback as another app-internal source takes over.
      *
      * @param source The audio source registering the handler
      * @param handler The callback to invoke when a conflict occurs
      */
     fun registerConflictHandler(source: AudioSource, handler: () -> Unit)
+
+    /**
+     * Register a pause handler for a specific audio source.
+     * The handler is invoked when system audio focus is lost (e.g., phone call, other app).
+     * This should PAUSE audio playback so the user can resume later.
+     *
+     * @param source The audio source registering the handler
+     * @param handler The callback to invoke when audio focus is lost
+     */
+    fun registerPauseHandler(source: AudioSource, handler: () -> Unit)
 
     /**
      * Request exclusive audio session access for a source.
