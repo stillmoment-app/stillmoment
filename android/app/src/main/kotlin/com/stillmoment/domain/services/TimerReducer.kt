@@ -1,6 +1,7 @@
 package com.stillmoment.domain.services
 
 import com.stillmoment.domain.models.MeditationSettings
+import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
@@ -15,7 +16,6 @@ import com.stillmoment.domain.models.TimerState
  */
 object TimerReducer {
     private const val AFFIRMATION_COUNT = 5
-    private const val COUNTDOWN_START_SECONDS = 15
 
     /**
      * Reduces the current state with an action to produce new state and effects.
@@ -70,7 +70,7 @@ object TimerReducer {
         val newState =
             state.copy(
                 timerState = TimerState.Countdown,
-                countdownSeconds = COUNTDOWN_START_SECONDS,
+                countdownSeconds = MeditationTimer.DEFAULT_COUNTDOWN_DURATION,
                 currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
                 intervalGongPlayedForCurrentInterval = false
             )

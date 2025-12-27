@@ -1,5 +1,6 @@
 package com.stillmoment.data.local
 
+import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.navigation.Screen
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -119,56 +120,65 @@ class SettingsDataStoreTest {
         assertFalse(settings1 == settings3)
     }
 
-    // MARK: - Tab Persistence Constants
+    // MARK: - AppTab Enum Tests
 
     @Test
-    fun `TAB_TIMER constant has correct value`() {
-        assertEquals("timer", SettingsDataStore.TAB_TIMER)
+    fun `AppTab TIMER has correct route`() {
+        assertEquals("timerGraph", AppTab.TIMER.route)
     }
 
     @Test
-    fun `TAB_LIBRARY constant has correct value`() {
-        assertEquals("library", SettingsDataStore.TAB_LIBRARY)
+    fun `AppTab LIBRARY has correct route`() {
+        assertEquals("library", AppTab.LIBRARY.route)
     }
 
     @Test
-    fun `tab constants are stable for persistence`() {
-        // These values are persisted in DataStore
-        // Changing them would break existing user preferences
+    fun `AppTab routes are stable for persistence`() {
+        // These values are persisted in DataStore and must match NavHost startDestination routes
         assertEquals(
-            "timer",
-            SettingsDataStore.TAB_TIMER,
-            "TAB_TIMER must remain 'timer' for backwards compatibility"
+            "timerGraph",
+            AppTab.TIMER.route,
+            "AppTab.TIMER.route must be 'timerGraph' (top-level navigation route)"
         )
         assertEquals(
             "library",
-            SettingsDataStore.TAB_LIBRARY,
-            "TAB_LIBRARY must remain 'library' for backwards compatibility"
+            AppTab.LIBRARY.route,
+            "AppTab.LIBRARY.route must remain 'library' for backwards compatibility"
         )
     }
 
-    // MARK: - Tab Constants Consistency with Navigation
+    @Test
+    fun `AppTab DEFAULT is TIMER`() {
+        assertEquals(AppTab.TIMER, AppTab.DEFAULT)
+    }
 
     @Test
-    fun `tab constants match Screen routes for consistency`() {
-        // Ensures SettingsDataStore and NavGraph use the same values
-        // This prevents silent bugs if either side changes
+    fun `AppTab fromRoute parses valid routes`() {
+        assertEquals(AppTab.TIMER, AppTab.fromRoute("timerGraph"))
+        assertEquals(AppTab.LIBRARY, AppTab.fromRoute("library"))
+    }
+
+    @Test
+    fun `AppTab fromRoute returns DEFAULT for unknown routes`() {
+        assertEquals(AppTab.DEFAULT, AppTab.fromRoute("unknown"))
+        assertEquals(AppTab.DEFAULT, AppTab.fromRoute(null))
+        assertEquals(AppTab.DEFAULT, AppTab.fromRoute(""))
+    }
+
+    // MARK: - Screen Routes Consistency with AppTab
+
+    @Test
+    fun `Screen routes match AppTab routes`() {
+        // Ensures Screen and AppTab use the same values (single source of truth)
         assertEquals(
-            SettingsDataStore.TAB_TIMER,
-            Screen.Timer.route,
-            "TAB_TIMER must match Screen.Timer.route"
+            AppTab.TIMER.route,
+            Screen.TimerGraph.route,
+            "Screen.TimerGraph must use AppTab.TIMER.route"
         )
         assertEquals(
-            SettingsDataStore.TAB_LIBRARY,
+            AppTab.LIBRARY.route,
             Screen.Library.route,
-            "TAB_LIBRARY must match Screen.Library.route"
+            "Screen.Library must use AppTab.LIBRARY.route"
         )
-    }
-
-    @Test
-    fun `default tab is timer`() {
-        // When no value is stored, timer should be the default
-        // This matches the behavior in NavGraph.produceState initialValue
-        assertEquals(SettingsDataStore.TAB_TIMER, Screen.Timer.route)
     }
 }

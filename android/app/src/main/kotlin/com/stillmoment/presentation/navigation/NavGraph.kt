@@ -42,6 +42,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.stillmoment.R
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
@@ -58,17 +59,18 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * Navigation routes for Still Moment
+ * Navigation routes for Still Moment.
+ * Top-level tab routes are derived from AppTab (single source of truth).
  */
 sealed class Screen(val route: String) {
     /** Parent route for timer-related screens (for shared ViewModel scoping) */
-    data object TimerGraph : Screen("timerGraph")
+    data object TimerGraph : Screen(AppTab.TIMER.route)
 
     data object Timer : Screen("timer")
 
     data object TimerFocus : Screen("timerFocus")
 
-    data object Library : Screen("library")
+    data object Library : Screen(AppTab.LIBRARY.route)
 
     data object Player : Screen("player/{meditationJson}") {
         fun createRoute(meditation: GuidedMeditation): String {
@@ -82,6 +84,7 @@ sealed class Screen(val route: String) {
  * Tab item for bottom navigation
  */
 data class TabItem(
+    val tab: AppTab,
     val screen: Screen,
     val labelResId: Int,
     val selectedIcon: ImageVector,
@@ -103,17 +106,18 @@ fun StillMomentNavHost(
     val scope = rememberCoroutineScope()
 
     // Load saved tab from DataStore (null = not yet loaded)
-    val savedTab by produceState<String?>(initialValue = null) {
+    val savedTab by produceState<AppTab?>(initialValue = null) {
         value = settingsDataStore.getSelectedTab()
     }
 
     // Wait for tab to be loaded before rendering navigation
-    val startDestination = savedTab ?: return
+    val startDestination = savedTab?.route ?: return
 
     val tabs =
         remember {
             persistentListOf(
                 TabItem(
+                    tab = AppTab.TIMER,
                     screen = Screen.TimerGraph,
                     labelResId = R.string.tab_timer,
                     selectedIcon = Icons.Filled.Timer,
@@ -121,6 +125,7 @@ fun StillMomentNavHost(
                     accessibilityResId = R.string.accessibility_tab_timer
                 ),
                 TabItem(
+                    tab = AppTab.LIBRARY,
                     screen = Screen.Library,
                     labelResId = R.string.tab_library,
                     selectedIcon = Icons.Filled.LibraryMusic,
@@ -145,12 +150,12 @@ fun StillMomentNavHost(
                 StillMomentBottomBar(
                     tabs = tabs,
                     currentDestination = currentDestination,
-                    onTabSelect = { screen ->
+                    onTabSelect = { tabItem ->
                         // Save selected tab for next app launch
                         scope.launch {
-                            settingsDataStore.setSelectedTab(screen.route)
+                            settingsDataStore.setSelectedTab(tabItem.tab)
                         }
-                        navController.navigate(screen.route) {
+                        navController.navigate(tabItem.screen.route) {
                             // Pop up to start destination to avoid building up a large stack
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
@@ -255,7 +260,7 @@ fun StillMomentNavHost(
 private fun StillMomentBottomBar(
     tabs: ImmutableList<TabItem>,
     currentDestination: androidx.navigation.NavDestination?,
-    onTabSelect: (Screen) -> Unit,
+    onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
@@ -263,22 +268,22 @@ private fun StillMomentBottomBar(
         contentColor = Terracotta,
         modifier = modifier
     ) {
-        tabs.forEach { tab ->
-            val selected = currentDestination?.hierarchy?.any { it.route == tab.screen.route } == true
-            val accessibilityLabel = stringResource(tab.accessibilityResId)
+        tabs.forEach { tabItem ->
+            val selected = currentDestination?.hierarchy?.any { it.route == tabItem.screen.route } == true
+            val accessibilityLabel = stringResource(tabItem.accessibilityResId)
 
             NavigationBarItem(
                 selected = selected,
-                onClick = { onTabSelect(tab.screen) },
+                onClick = { onTabSelect(tabItem) },
                 icon = {
                     Icon(
-                        imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
+                        imageVector = if (selected) tabItem.selectedIcon else tabItem.unselectedIcon,
                         contentDescription = null
                     )
                 },
                 label = {
                     Text(
-                        text = stringResource(tab.labelResId),
+                        text = stringResource(tabItem.labelResId),
                         style = MaterialTheme.typography.labelSmall
                     )
                 },

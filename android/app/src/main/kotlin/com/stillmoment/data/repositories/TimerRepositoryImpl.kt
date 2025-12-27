@@ -36,7 +36,7 @@ constructor() : TimerRepository {
         val timer =
             MeditationTimer.create(
                 durationMinutes = durationMinutes,
-                countdownDuration = DEFAULT_COUNTDOWN_DURATION
+                countdownDuration = MeditationTimer.DEFAULT_COUNTDOWN_DURATION
             ).startCountdown()
 
         currentTimer = timer
@@ -85,9 +85,5 @@ constructor() : TimerRepository {
     fun markIntervalGongPlayed() {
         currentTimer = currentTimer?.markIntervalGongPlayed()
         _timer.value = currentTimer
-    }
-
-    companion object {
-        private const val DEFAULT_COUNTDOWN_DURATION = 15
     }
 }

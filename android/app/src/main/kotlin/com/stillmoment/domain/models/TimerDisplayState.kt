@@ -13,7 +13,7 @@ data class TimerDisplayState(
     /** Current timer state */
     val timerState: TimerState = TimerState.Idle,
     /** Selected duration in minutes (1-60) */
-    val selectedMinutes: Int = DEFAULT_DURATION_MINUTES,
+    val selectedMinutes: Int = MeditationSettings.DEFAULT_DURATION_MINUTES,
     /** Remaining time in seconds */
     val remainingSeconds: Int = 0,
     /** Total duration in seconds */
@@ -61,8 +61,6 @@ data class TimerDisplayState(
             }
 
     companion object {
-        private const val DEFAULT_DURATION_MINUTES = 10
-
         /** Initial state for a fresh timer */
         val Initial = TimerDisplayState()
 

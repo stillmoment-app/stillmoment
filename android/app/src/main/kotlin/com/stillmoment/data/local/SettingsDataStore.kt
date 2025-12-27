@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -38,11 +39,6 @@ constructor(
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
-    }
-
-    companion object {
-        const val TAB_TIMER = "timer"
-        const val TAB_LIBRARY = "library"
     }
 
     override val settingsFlow: Flow<MeditationSettings> =
@@ -123,29 +119,29 @@ constructor(
     }
 
     /**
-     * Flow for the selected tab route.
-     * Emits the saved tab or timer as default.
+     * Flow for the selected tab.
+     * Emits the saved tab or AppTab.DEFAULT for new installations.
      */
-    val selectedTabFlow: Flow<String> =
+    val selectedTabFlow: Flow<AppTab> =
         context.dataStore.data
             .map { preferences ->
-                preferences[Keys.SELECTED_TAB] ?: TAB_TIMER
+                AppTab.fromRoute(preferences[Keys.SELECTED_TAB])
             }
 
     /**
-     * Get the selected tab synchronously (blocking).
+     * Get the selected tab.
      * Use only during app initialization.
      */
-    suspend fun getSelectedTab(): String {
+    suspend fun getSelectedTab(): AppTab {
         return selectedTabFlow.first()
     }
 
     /**
      * Save the selected tab.
      */
-    suspend fun setSelectedTab(tab: String) {
+    suspend fun setSelectedTab(tab: AppTab) {
         context.dataStore.edit { preferences ->
-            preferences[Keys.SELECTED_TAB] = tab
+            preferences[Keys.SELECTED_TAB] = tab.route
         }
     }
 }
