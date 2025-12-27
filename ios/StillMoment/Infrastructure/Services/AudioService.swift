@@ -61,7 +61,7 @@ final class AudioService: AudioServiceProtocol {
     func playIntervalGong() throws {
         Logger.audio.info("Playing interval gong")
         try self.configureAudioSession() // Ensure session is active
-        try self.playGong(soundName: "completion")
+        try self.playGong(soundName: "interval")
     }
 
     func startBackgroundAudio(soundId: String) throws {

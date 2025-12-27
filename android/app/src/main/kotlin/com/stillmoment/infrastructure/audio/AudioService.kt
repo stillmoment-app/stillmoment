@@ -80,10 +80,24 @@ constructor(
     }
 
     /**
-     * Play interval gong (same sound, could be different in future).
+     * Play interval gong sound.
      */
     fun playIntervalGong() {
-        playGong()
+        try {
+            releaseGongPlayer()
+            gongPlayer =
+                MediaPlayer.create(context, R.raw.interval).apply {
+                    setAudioAttributes(audioAttributes)
+                    setOnCompletionListener {
+                        it.release()
+                        gongPlayer = null
+                    }
+                    start()
+                }
+            Log.d(TAG, "Playing interval gong sound")
+        } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
+        }
     }
 
     // MARK: - Background Audio

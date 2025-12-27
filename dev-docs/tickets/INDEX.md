@@ -37,6 +37,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-011](shared/shared-011-edit-sheet-remove-reset.md) | Edit Sheet Reset-Button entfernen | 4-Polish | [x] | [x] |
 | [shared-012](shared/shared-012-portrait-only.md) | Portrait-Only Modus | 4-Polish | [x] | [x] |
 | [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [ ] | [ ] |
+| [shared-014](shared/shared-014-interval-sound-update.md) | Neuer Interval-Sound | 4-Polish | [x] | [x] |
 
 ---
 
@@ -125,6 +126,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-052](android/android-052-pure-content-pattern.md) | Pure Content Pattern Screenshot-Tests | 2-Architektur | [ ] | - |
 | [android-053](android/android-053-wheelpicker-api-improvements.md) | WheelPicker API-Verbesserungen | 2-Architektur | [ ] | - |
 | [android-054](android/android-054-timer-repository-interface.md) | TimerRepository Interface erweitern | 2-Architektur | [x] | - |
+| [android-055](android/android-055-progress-update-interval.md) | Progress-Update-Interval optimieren | 4-Polish | [ ] | - |
+| [android-056](android/android-056-audio-focus-management.md) | AudioFocus Management implementieren | 2-Architektur | [ ] | - |
 
 ---
 
