@@ -6,6 +6,7 @@ package com.stillmoment.domain.services
  * Abstracts Android's MediaPlayer for testability.
  * Implementation wraps the actual MediaPlayer and forwards calls.
  */
+@Suppress("TooManyFunctions") // Complete MediaPlayer abstraction requires all these methods
 interface MediaPlayerProtocol {
     /**
      * Starts or resumes playback.

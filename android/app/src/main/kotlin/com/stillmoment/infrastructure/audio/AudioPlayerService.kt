@@ -286,7 +286,7 @@ constructor(
                 }
                 release()
             } catch (e: IllegalStateException) {
-                logger.w(TAG, "MediaPlayer cleanup in invalid state (can be ignored)")
+                logger.w(TAG, "MediaPlayer cleanup in invalid state: ${e.message}")
             }
         }
         mediaPlayer = null
@@ -316,7 +316,7 @@ constructor(
                     }
                 }
             } catch (e: IllegalStateException) {
-                logger.d(TAG, "Progress update skipped - player in invalid state")
+                logger.d(TAG, "Progress update skipped - player in invalid state: ${e.message}")
             }
         }
     }
