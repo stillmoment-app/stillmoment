@@ -1,21 +1,18 @@
 package com.stillmoment.infrastructure.audio
 
-import android.animation.ValueAnimator
-import android.content.Context
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.util.Log
-import android.view.animation.LinearInterpolator
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.stillmoment.domain.services.LoggerProtocol
+import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
+import com.stillmoment.domain.services.MediaPlayerProtocol
+import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Audio Service for playing gong sounds and managing background audio.
- * Uses MediaPlayer for short sounds (gongs) and ExoPlayer for background loops.
+ * Uses MediaPlayer for short sounds (gongs) and background loops.
  *
  * Coordinates with AudioSessionCoordinator to ensure exclusive audio access
  * when Timer and Guided Meditations features coexist.
@@ -24,26 +21,27 @@ import javax.inject.Singleton
 class AudioService
 @Inject
 constructor(
-    @ApplicationContext private val context: Context,
-    private val coordinator: AudioSessionCoordinatorProtocol
+    private val coordinator: AudioSessionCoordinatorProtocol,
+    private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
+    private val volumeAnimator: VolumeAnimatorProtocol,
+    private val logger: LoggerProtocol
 ) {
     init {
         // Register conflict handler to stop background audio when another source takes over
         coordinator.registerConflictHandler(AudioSource.TIMER) {
-            Log.d(TAG, "Audio conflict: stopping timer audio for other source")
+            logger.d(TAG, "Audio conflict: stopping timer audio for other source")
             stopBackgroundAudioInternal()
         }
 
         // Register pause handler for system audio focus loss (phone call, other app)
         coordinator.registerPauseHandler(AudioSource.TIMER) {
-            Log.d(TAG, "Audio focus lost: pausing timer background audio")
+            logger.d(TAG, "Audio focus lost: pausing timer background audio")
             pauseBackgroundAudio()
         }
     }
 
-    private var gongPlayer: MediaPlayer? = null
-    private var backgroundPlayer: MediaPlayer? = null
-    private var fadeAnimator: ValueAnimator? = null
+    private var gongPlayer: MediaPlayerProtocol? = null
+    private var backgroundPlayer: MediaPlayerProtocol? = null
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
     companion object {
@@ -56,12 +54,6 @@ constructor(
         private const val DEFAULT_AMBIENT_VOLUME = 0.15f
     }
 
-    private val audioAttributes =
-        AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .build()
-
     // MARK: - Gong Playback
 
     /**
@@ -70,18 +62,16 @@ constructor(
     fun playGong() {
         try {
             releaseGongPlayer()
-            gongPlayer =
-                MediaPlayer.create(context, R.raw.completion).apply {
-                    setAudioAttributes(audioAttributes)
-                    setOnCompletionListener {
-                        it.release()
-                        gongPlayer = null
-                    }
-                    start()
+            gongPlayer = mediaPlayerFactory.createFromResource(R.raw.completion)?.apply {
+                setOnCompletionListener {
+                    release()
+                    gongPlayer = null
                 }
-            Log.d(TAG, "Playing gong sound")
+                start()
+            }
+            logger.d(TAG, "Playing gong sound")
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to play gong - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to play gong - invalid state: ${e.message}")
         }
     }
 
@@ -91,18 +81,16 @@ constructor(
     fun playIntervalGong() {
         try {
             releaseGongPlayer()
-            gongPlayer =
-                MediaPlayer.create(context, R.raw.interval).apply {
-                    setAudioAttributes(audioAttributes)
-                    setOnCompletionListener {
-                        it.release()
-                        gongPlayer = null
-                    }
-                    start()
+            gongPlayer = mediaPlayerFactory.createFromResource(R.raw.interval)?.apply {
+                setOnCompletionListener {
+                    release()
+                    gongPlayer = null
                 }
-            Log.d(TAG, "Playing interval gong sound")
+                start()
+            }
+            logger.d(TAG, "Playing interval gong sound")
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
         }
     }
 
@@ -118,7 +106,7 @@ constructor(
         try {
             // Request exclusive audio session
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
-                Log.w(TAG, "Failed to acquire audio session for background audio")
+                logger.w(TAG, "Failed to acquire audio session for background audio")
                 return
             }
 
@@ -132,19 +120,17 @@ constructor(
 
             targetVolume = DEFAULT_AMBIENT_VOLUME
 
-            backgroundPlayer =
-                MediaPlayer.create(context, resourceId).apply {
-                    setAudioAttributes(audioAttributes)
-                    isLooping = true
-                    setVolume(0f, 0f) // Start at 0 for fade in
-                    start()
-                }
+            backgroundPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+                isLooping = true
+                setVolume(0f, 0f) // Start at 0 for fade in
+                start()
+            }
 
             // Fade in to target volume
             fadeToVolume(targetVolume)
-            Log.d(TAG, "Started background audio with fade in: $soundId")
+            logger.d(TAG, "Started background audio with fade in: $soundId")
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to start background audio - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to start background audio - invalid state: ${e.message}")
         }
     }
 
@@ -152,7 +138,7 @@ constructor(
      * Stop background audio and release the audio session.
      */
     fun stopBackgroundAudio() {
-        cancelFade()
+        volumeAnimator.cancel()
         stopBackgroundAudioInternal()
         coordinator.releaseAudioSession(AudioSource.TIMER)
     }
@@ -162,16 +148,16 @@ constructor(
      * Used for "Brief Pause" during meditation.
      */
     fun pauseBackgroundAudio() {
-        cancelFade()
+        volumeAnimator.cancel()
         try {
             backgroundPlayer?.let { player ->
                 if (player.isPlaying) {
                     player.pause()
-                    Log.d(TAG, "Paused background audio")
+                    logger.d(TAG, "Paused background audio")
                 }
             }
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to pause background audio - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to pause background audio - invalid state: ${e.message}")
         }
     }
 
@@ -188,10 +174,10 @@ constructor(
                 }
                 // Fade in to target volume
                 fadeToVolume(targetVolume)
-                Log.d(TAG, "Resuming background audio with fade in")
+                logger.d(TAG, "Resuming background audio with fade in")
             }
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to resume background audio - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to resume background audio - invalid state: ${e.message}")
         }
     }
 
@@ -200,7 +186,7 @@ constructor(
      * Used by the conflict handler to stop playback when another source takes over.
      */
     private fun stopBackgroundAudioInternal() {
-        cancelFade()
+        volumeAnimator.cancel()
         try {
             backgroundPlayer?.apply {
                 if (isPlaying) {
@@ -209,9 +195,9 @@ constructor(
                 release()
             }
             backgroundPlayer = null
-            Log.d(TAG, "Stopped background audio")
+            logger.d(TAG, "Stopped background audio")
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to stop background audio - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to stop background audio - invalid state: ${e.message}")
         }
     }
 
@@ -219,29 +205,13 @@ constructor(
      * Animate volume from current level to target over FADE_IN_DURATION_MS.
      */
     private fun fadeToVolume(target: Float) {
-        cancelFade()
-        fadeAnimator =
-            ValueAnimator.ofFloat(0f, target).apply {
-                duration = FADE_IN_DURATION_MS
-                interpolator = LinearInterpolator()
-                addUpdateListener { animator ->
-                    val volume = animator.animatedValue as Float
-                    try {
-                        backgroundPlayer?.setVolume(volume, volume)
-                    } catch (e: IllegalStateException) {
-                        Log.e(TAG, "Failed to set volume during fade - invalid state: ${e.message}")
-                    }
-                }
-                start()
+        volumeAnimator.animate(0f, target, FADE_IN_DURATION_MS) { volume ->
+            try {
+                backgroundPlayer?.setVolume(volume, volume)
+            } catch (e: IllegalStateException) {
+                logger.e(TAG, "Failed to set volume during fade - invalid state: ${e.message}")
             }
-    }
-
-    /**
-     * Cancel any running fade animation.
-     */
-    private fun cancelFade() {
-        fadeAnimator?.cancel()
-        fadeAnimator = null
+        }
     }
 
     /**
@@ -271,7 +241,7 @@ constructor(
             }
             gongPlayer = null
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to release gong player - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to release gong player - invalid state: ${e.message}")
         }
     }
 }

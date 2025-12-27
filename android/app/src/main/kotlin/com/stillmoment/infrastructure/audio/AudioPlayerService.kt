@@ -1,17 +1,16 @@
 package com.stillmoment.infrastructure.audio
 
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.domain.services.LoggerProtocol
+import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
+import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.PlaybackState
+import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.FileNotFoundException
 import javax.inject.Inject
@@ -45,22 +44,25 @@ class AudioPlayerService
 constructor(
     @ApplicationContext private val context: Context,
     private val mediaSessionManager: MediaSessionManager,
-    private val coordinator: AudioSessionCoordinatorProtocol
+    private val coordinator: AudioSessionCoordinatorProtocol,
+    private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
+    private val progressScheduler: ProgressSchedulerProtocol,
+    private val logger: LoggerProtocol
 ) : AudioPlayerServiceProtocol {
     init {
         // Register conflict handler to stop playback when another source takes over (Timer)
         coordinator.registerConflictHandler(AudioSource.GUIDED_MEDITATION) {
-            Log.d(TAG, "Audio conflict: stopping guided meditation for other source")
+            logger.d(TAG, "Audio conflict: stopping guided meditation for other source")
             stop()
         }
 
         // Register pause handler for system audio focus loss (phone call, other app)
         coordinator.registerPauseHandler(AudioSource.GUIDED_MEDITATION) {
-            Log.d(TAG, "Audio focus lost: pausing guided meditation")
+            logger.d(TAG, "Audio focus lost: pausing guided meditation")
             pause()
         }
     }
-    private var mediaPlayer: MediaPlayer? = null
+    private var mediaPlayer: MediaPlayerProtocol? = null
     private var onCompletionCallback: (() -> Unit)? = null
 
     private val _playbackState = MutableStateFlow(PlaybackState())
@@ -72,18 +74,6 @@ constructor(
     var currentMeditation: GuidedMeditation? = null
         private set
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val progressUpdateRunnable =
-        object : Runnable {
-            override fun run() {
-                updateProgress()
-                updateMediaSessionState()
-                if (_playbackState.value.isPlaying) {
-                    handler.postDelayed(this, PROGRESS_UPDATE_INTERVAL)
-                }
-            }
-        }
-
     /**
      * Plays a guided meditation with full MediaSession integration.
      *
@@ -92,7 +82,7 @@ constructor(
     fun playMeditation(meditation: GuidedMeditation) {
         // Request exclusive audio session
         if (!coordinator.requestAudioSession(AudioSource.GUIDED_MEDITATION)) {
-            Log.w(TAG, "Failed to acquire audio session for guided meditation")
+            logger.w(TAG, "Failed to acquire audio session for guided meditation")
             return
         }
 
@@ -124,10 +114,10 @@ constructor(
         try {
             mediaPlayer = createMediaPlayer(uri, duration)
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "MediaPlayer in invalid state: $uri", e)
+            logger.e(TAG, "MediaPlayer in invalid state: $uri", e)
             setPlaybackError("Player error: ${e.message}")
         } catch (e: java.io.IOException) {
-            Log.e(TAG, "Failed to read audio file: $uri", e)
+            logger.e(TAG, "Failed to read audio file: $uri", e)
             setPlaybackError("Could not read file: ${e.message}")
         }
     }
@@ -136,57 +126,51 @@ constructor(
      * Creates and configures a MediaPlayer for the given URI.
      * Returns null if the data source could not be set.
      */
-    private fun createMediaPlayer(uri: Uri, duration: Long): MediaPlayer? {
-        return MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .build()
-            )
+    private fun createMediaPlayer(uri: Uri, duration: Long): MediaPlayerProtocol? {
+        val player = mediaPlayerFactory.create()
 
-            if (!setDataSourceForUri(this, uri)) {
-                release()
-                return null
-            }
-
-            configureListeners(this, duration)
-            prepareAsync()
+        if (!setDataSourceForUri(player, uri)) {
+            player.release()
+            return null
         }
+
+        configureListeners(player, duration)
+        player.prepareAsync()
+        return player
     }
 
     /**
      * Sets the data source on the MediaPlayer based on URI scheme.
      * Returns true on success, false on failure (error state already set).
      */
-    private fun setDataSourceForUri(player: MediaPlayer, uri: Uri): Boolean {
+    private fun setDataSourceForUri(player: MediaPlayerProtocol, uri: Uri): Boolean {
         return when (uri.scheme) {
             "file" -> setFileDataSource(player, uri)
             "content" -> setContentDataSource(player, uri)
             else -> {
-                Log.e(TAG, "Unsupported URI scheme: ${uri.scheme}")
+                logger.e(TAG, "Unsupported URI scheme: ${uri.scheme}")
                 setPlaybackError("Unsupported file type")
                 false
             }
         }
     }
 
-    private fun setFileDataSource(player: MediaPlayer, uri: Uri): Boolean {
+    private fun setFileDataSource(player: MediaPlayerProtocol, uri: Uri): Boolean {
         val path = uri.path
         if (path == null) {
-            Log.e(TAG, "File path is null: $uri")
+            logger.e(TAG, "File path is null: $uri")
             setPlaybackError("Invalid file path")
             return false
         }
-        Log.d(TAG, "Playing local file: $path")
+        logger.d(TAG, "Playing local file: $path")
         player.setDataSource(path)
         return true
     }
 
-    private fun setContentDataSource(player: MediaPlayer, uri: Uri): Boolean {
+    private fun setContentDataSource(player: MediaPlayerProtocol, uri: Uri): Boolean {
         val pfd = openFileDescriptor(uri) ?: return false
-        Log.d(TAG, "Playing content URI via FileDescriptor: $uri")
-        player.setDataSource(pfd.fileDescriptor)
+        logger.d(TAG, "Playing content URI via FileDescriptor: $uri")
+        player.setDataSourceFromFd(pfd.fileDescriptor)
         // Note: pfd will be closed when MediaPlayer is released
         return true
     }
@@ -195,24 +179,24 @@ constructor(
         return try {
             context.contentResolver.openFileDescriptor(uri, "r").also {
                 if (it == null) {
-                    Log.e(TAG, "File descriptor is null: $uri")
+                    logger.e(TAG, "File descriptor is null: $uri")
                     setPlaybackError("File not accessible")
                 }
             }
         } catch (e: SecurityException) {
-            Log.e(TAG, "URI permission lost: $uri", e)
+            logger.e(TAG, "URI permission lost: $uri", e)
             setPlaybackError("Permission lost - please re-import file")
             null
         } catch (e: FileNotFoundException) {
-            Log.e(TAG, "File not found: $uri", e)
+            logger.e(TAG, "File not found: $uri", e)
             setPlaybackError("File was deleted or moved")
             null
         }
     }
 
-    private fun configureListeners(player: MediaPlayer, duration: Long) {
-        player.setOnPreparedListener { mp ->
-            mp.start()
+    private fun configureListeners(player: MediaPlayerProtocol, duration: Long) {
+        player.setOnPreparedListener {
+            player.start()
             _playbackState.update {
                 it.copy(
                     isPlaying = true,
@@ -237,7 +221,7 @@ constructor(
             stopForegroundService()
             onCompletionCallback?.invoke()
         }
-        player.setOnErrorListener { _, what, extra ->
+        player.setOnErrorListener { what, extra ->
             setPlaybackError("Playback error: $what, $extra")
             stopProgressUpdates()
             stopForegroundService()
@@ -302,7 +286,7 @@ constructor(
                 }
                 release()
             } catch (e: IllegalStateException) {
-                Log.w(TAG, "MediaPlayer cleanup in invalid state (can be ignored)", e)
+                logger.w(TAG, "MediaPlayer cleanup in invalid state (can be ignored)")
             }
         }
         mediaPlayer = null
@@ -313,12 +297,14 @@ constructor(
     }
 
     private fun startProgressUpdates() {
-        handler.removeCallbacks(progressUpdateRunnable)
-        handler.post(progressUpdateRunnable)
+        progressScheduler.start(PROGRESS_UPDATE_INTERVAL) {
+            updateProgress()
+            updateMediaSessionState()
+        }
     }
 
     private fun stopProgressUpdates() {
-        handler.removeCallbacks(progressUpdateRunnable)
+        progressScheduler.stop()
     }
 
     private fun updateProgress() {
@@ -330,7 +316,7 @@ constructor(
                     }
                 }
             } catch (e: IllegalStateException) {
-                Log.d(TAG, "Progress update skipped - player in invalid state", e)
+                logger.d(TAG, "Progress update skipped - player in invalid state")
             }
         }
     }
