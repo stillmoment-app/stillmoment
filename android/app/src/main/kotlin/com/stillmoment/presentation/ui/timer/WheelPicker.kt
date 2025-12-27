@@ -21,6 +21,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -63,12 +64,13 @@ fun WheelPicker(
 
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
+    val itemHeightPx = with(LocalDensity.current) { itemHeight.toPx() }.toInt()
+
     // Calculate centered item
     val centeredItemIndex by remember {
         derivedStateOf {
             val firstVisibleIndex = listState.firstVisibleItemIndex
             val firstVisibleOffset = listState.firstVisibleItemScrollOffset
-            val itemHeightPx = 150 // Approximate pixel height for 50.dp
 
             if (firstVisibleOffset > itemHeightPx / 2) {
                 firstVisibleIndex + 1
