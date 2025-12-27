@@ -1,10 +1,24 @@
 # Ticket android-052: Pure Content Pattern fuer Screenshot-Tests
 
-**Status**: [ ] TODO
+**Status**: [x] WONTFIX
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
 **Phase**: 2-Architektur
+
+---
+
+## WONTFIX Begruendung
+
+**Over-Engineering.** Der Nutzen rechtfertigt die Komplexitaet nicht.
+
+Probleme bei der Implementierung:
+- **Massive Boilerplate**: Jeder Screen braucht eine eigene `*Strings` Klasse
+- **3-fache Duplizierung**: Strings in `strings.xml` + `*Strings` Klasse + Screenshot-Test
+- **Fragile String-Manipulation**: Format-Strings mit `replaceFirst("%d", ...)` sind fehleranfaellig
+- **Wartungsaufwand**: Neuer String = 3 Stellen pflegen
+
+Die bestehende Loesung mit ~30 Zeilen dupliziertem Code in `LibraryScreenshotContent` ist pragmatisch und ausreichend. Screenshot-Tests werden selten geaendert.
 
 ---
 
