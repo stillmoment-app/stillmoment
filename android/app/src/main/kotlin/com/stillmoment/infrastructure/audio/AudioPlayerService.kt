@@ -360,6 +360,6 @@ constructor(
 
     companion object {
         private const val TAG = "AudioPlayerService"
-        private const val PROGRESS_UPDATE_INTERVAL = 100L // 100ms for smooth progress
+        private const val PROGRESS_UPDATE_INTERVAL = 500L // 500ms for energy efficiency
     }
 }
