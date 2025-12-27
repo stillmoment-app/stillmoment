@@ -71,6 +71,51 @@ make screenshots        # Generate localized screenshots
 
 ---
 
+## Domain-Driven Design
+
+**Ubiquitous Language**: iOS und Android verwenden identische Begriffe:
+- `TimerState`, `TimerAction`, `TimerEffect` - State Machine
+- `MeditationTimer`, `MeditationSettings` - Core Value Objects
+- `GuidedMeditation`, `BackgroundSound` - Content Models
+
+**Kern-Regeln**:
+
+1. **Immutable Value Objects**: Alle Domain Models sind immutabel
+   ```swift
+   // RICHTIG: Neue Instanz zurückgeben
+   func tick() -> MeditationTimer { ... }
+
+   // FALSCH: Mutation
+   mutating func tick() { remainingSeconds -= 1 }
+   ```
+
+2. **Domain Logic in Models**: Business-Regeln gehören ins Model
+   ```swift
+   // RICHTIG: Logik im Value Object
+   timer.shouldPlayIntervalGong(intervalMinutes: 5)
+
+   // FALSCH: Logik im ViewModel
+   if viewModel.timer.remainingSeconds % (5 * 60) == 0 { ... }
+   ```
+
+3. **Reducer Pattern**: Zustandsänderungen via pure function
+   ```swift
+   let (newState, effects) = TimerReducer.reduce(state, action, settings)
+   ```
+
+4. **Explicit Effects**: Side Effects als Domain-Objekte
+   ```swift
+   enum TimerEffect {
+       case playStartGong
+       case startTimer(durationMinutes: Int)
+       case saveSettings(MeditationSettings)
+   }
+   ```
+
+**Vollständige Dokumentation**: `dev-docs/DDD_GUIDE.md`
+
+---
+
 ## Code Standards
 
 ### Verboten
@@ -226,6 +271,7 @@ make test-report        # Single source of truth
 | View Quality | `/review-view` Skill |
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
 | **Architektur** | `dev-docs/ARCHITECTURE.md` |
+| **DDD** | `dev-docs/DDD_GUIDE.md` |
 | Testing | `dev-docs/TDD_GUIDE.md` |
 | Audio | `dev-docs/AUDIO_ARCHITECTURE.md` |
 | Colors | `dev-docs/COLOR_SYSTEM.md` |
@@ -243,4 +289,4 @@ make test-report        # Single source of truth
 
 ---
 
-**Last Updated**: 2025-12-21 | **Version**: 3.1 (Consolidated)
+**Last Updated**: 2025-12-27 | **Version**: 3.2 (DDD)
