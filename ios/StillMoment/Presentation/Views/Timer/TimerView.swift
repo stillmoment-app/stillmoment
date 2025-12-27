@@ -22,20 +22,10 @@ struct TimerView: View {
     // MARK: Internal
 
     var body: some View {
-        ZStack {
-            self.timerContent
-
-            // Focus View Overlay - slides up from bottom
-            if self.showFocusMode {
-                TimerFocusView(viewModel: self.viewModel) {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        self.showFocusMode = false
-                    }
-                }
-                .transition(.move(edge: .bottom))
-                .zIndex(1)
+        self.timerContent
+            .sheet(isPresented: self.$showFocusMode) {
+                TimerFocusView(viewModel: self.viewModel)
             }
-        }
     }
 
     private var timerContent: some View {
@@ -293,9 +283,7 @@ struct TimerView: View {
             // Start/Resume/Pause Button
             if self.viewModel.canStart {
                 Button {
-                    withAnimation(.easeOut(duration: 0.3)) {
-                        self.showFocusMode = true
-                    }
+                    self.showFocusMode = true
                 } label: {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
                 }

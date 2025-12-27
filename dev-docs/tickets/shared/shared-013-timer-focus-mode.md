@@ -1,6 +1,6 @@
 # Ticket shared-013: Timer Focus Mode
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 4-Polish
@@ -21,21 +21,21 @@ Eine Meditations-App sollte waehrend der Meditation nicht ablenken. Aktuell sind
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | Fertig        |
 | Android   | [x]    | Fertig        |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Timer-Start oeffnet Fokus-Ansicht (Navigation + Tab-Bar versteckt)
-- [ ] "Schliessen" Button (oben links) beendet Timer und kehrt zur Auswahl zurueck
-- [ ] Swipe-to-dismiss bei iOS nur moeglich wenn Timer pausiert
-- [ ] Fokus-Ansicht zeigt: Timer-Display, Pause/Resume Buttons (kein Reset - Close-Button reicht)
-- [ ] Timer-Completion (Gong fertig) schliesst Fokus-Ansicht automatisch
-- [ ] Unit Tests fuer Navigation-Logik
-- [ ] Lokalisiert (DE + EN) - Accessibility-Texte
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [x] Timer-Start oeffnet Fokus-Ansicht (Navigation + Tab-Bar versteckt)
+- [x] "Schliessen" Button (oben links) beendet Timer und kehrt zur Auswahl zurueck
+- [x] Swipe-to-dismiss bei iOS nur moeglich wenn Timer pausiert
+- [x] Fokus-Ansicht zeigt: Timer-Display, Pause/Resume Buttons (kein Reset - Close-Button reicht)
+- [x] Timer-Completion (Gong fertig) schliesst Fokus-Ansicht automatisch
+- [x] Unit Tests fuer Navigation-Logik
+- [x] Lokalisiert (DE + EN) - Accessibility-Texte
+- [x] UX-Konsistenz zwischen iOS und Android
 
 ---
 
