@@ -1,6 +1,8 @@
 package com.stillmoment.presentation.navigation
 
 import android.net.Uri
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,7 +19,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -38,9 +40,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import com.stillmoment.presentation.viewmodel.TimerViewModel
 import com.stillmoment.R
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.GuidedMeditation
@@ -51,7 +50,7 @@ import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch

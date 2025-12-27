@@ -68,11 +68,7 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
  * Automatically closes when meditation completes or is reset.
  */
 @Composable
-fun TimerFocusScreen(
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: TimerViewModel = hiltViewModel()
-) {
+fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: TimerViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
     // Track if timer was ever active (for back navigation when returning to Idle)
@@ -123,77 +119,63 @@ internal fun TimerFocusScreenContent(
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
+    Box(modifier = modifier.fillMaxSize()) {
+        WarmGradientBackground()
+        Scaffold(containerColor = Color.Transparent) { paddingValues ->
+            FocusScreenLayout(
+                uiState = uiState,
+                onBack = onBack,
+                onPauseClick = onPauseClick,
+                onResumeClick = onResumeClick,
+                getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
+                getCurrentRunningAffirmation = getCurrentRunningAffirmation,
+                modifier = Modifier.padding(paddingValues)
+            )
+        }
+    }
+}
+
+@Composable
+private fun FocusScreenLayout(
+    uiState: TimerUiState,
+    onBack: () -> Unit,
+    onPauseClick: () -> Unit,
+    onResumeClick: () -> Unit,
+    getCurrentCountdownAffirmation: () -> String,
+    getCurrentRunningAffirmation: () -> String,
+    modifier: Modifier = Modifier
+) {
     val backDescription = stringResource(R.string.accessibility_close_focus)
 
     Box(modifier = modifier.fillMaxSize()) {
-        WarmGradientBackground()
-
-        Scaffold(
-            containerColor = Color.Transparent
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Top bar with close button
-                StillMomentTopAppBar(
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onBack,
-                            modifier = Modifier.semantics {
-                                contentDescription = backDescription
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = WarmGray
-                            )
-                        }
-                    }
-                )
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = TopAppBarHeight)
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Title
-                    Text(
-                        text = stringResource(R.string.welcome_title),
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Light
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.semantics { heading() }
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Timer Display
-                    FocusTimerDisplay(
-                        uiState = uiState,
-                        getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
-                        getCurrentRunningAffirmation = getCurrentRunningAffirmation
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Control Buttons
-                    FocusControlButtons(
-                        uiState = uiState,
-                        onPauseClick = onPauseClick,
-                        onResumeClick = onResumeClick
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
+        StillMomentTopAppBar(
+            navigationIcon = {
+                IconButton(onClick = onBack, modifier = Modifier.semantics { contentDescription = backDescription }) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = null, tint = WarmGray)
                 }
             }
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(top = TopAppBarHeight).padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.welcome_title),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            FocusTimerDisplay(
+                uiState = uiState,
+                getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
+                getCurrentRunningAffirmation = getCurrentRunningAffirmation
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            FocusControlButtons(uiState = uiState, onPauseClick = onPauseClick, onResumeClick = onResumeClick)
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -205,95 +187,82 @@ private fun FocusTimerDisplay(
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isCompactHeight = configuration.screenHeightDp < 700
+    val ringSize = if (isCompactHeight) 220.dp else 280.dp
+
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        TimerRing(uiState = uiState, ringSize = ringSize, isCompactHeight = isCompactHeight)
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = getStateText(uiState.timerState, getCurrentCountdownAffirmation, getCurrentRunningAffirmation),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun TimerRing(
+    uiState: TimerUiState,
+    ringSize: androidx.compose.ui.unit.Dp,
+    isCompactHeight: Boolean,
+    modifier: Modifier = Modifier
+) {
     val animatedProgress by animateFloatAsState(
         targetValue = uiState.progress,
         animationSpec = tween(durationMillis = 500),
         label = "progress"
     )
-
-    // Show countdown style during Countdown phase
     val isCountdownStyle = uiState.isCountdown
+    val minutes = uiState.remainingSeconds / 60
+    val seconds = uiState.remainingSeconds % 60
+    val timerAccessibilityDescription = if (isCountdownStyle) {
+        stringResource(R.string.accessibility_countdown_seconds, uiState.countdownSeconds)
+    } else {
+        stringResource(R.string.accessibility_time_remaining, minutes, seconds)
+    }
 
-    val displayTime = uiState.formattedTime
-
-    val timerAccessibilityDescription =
-        if (isCountdownStyle) {
-            stringResource(R.string.accessibility_countdown_seconds, uiState.countdownSeconds)
-        } else {
-            val minutes = uiState.remainingSeconds / 60
-            val seconds = uiState.remainingSeconds % 60
-            stringResource(R.string.accessibility_time_remaining, minutes, seconds)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(ringSize).semantics {
+            contentDescription = timerAccessibilityDescription
+            liveRegion = LiveRegionMode.Polite
         }
-
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < 700
-    val ringSize = if (isCompactHeight) 220.dp else 280.dp
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(ringSize)
-                .semantics {
-                    contentDescription = timerAccessibilityDescription
-                    liveRegion = LiveRegionMode.Polite
-                }
-        ) {
-            // Background ring
+        CircularProgressIndicator(
+            progress = { 1f },
+            modifier = Modifier.size(ringSize),
+            strokeWidth = 10.dp,
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            strokeCap = StrokeCap.Round
+        )
+        if (!isCountdownStyle) {
             CircularProgressIndicator(
-                progress = { 1f },
+                progress = { animatedProgress },
                 modifier = Modifier.size(ringSize),
                 strokeWidth = 10.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
                 strokeCap = StrokeCap.Round
             )
-
-            // Progress ring (not shown during countdown or idle)
-            if (!isCountdownStyle) {
-                CircularProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier.size(ringSize),
-                    strokeWidth = 10.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
-                    strokeCap = StrokeCap.Round
-                )
-            }
-
-            // Time Display
-            Text(
-                text = displayTime,
-                style = if (isCountdownStyle) {
-                    MaterialTheme.typography.displayLarge.copy(
-                        fontSize = if (isCompactHeight) 90.sp else 110.sp,
-                        fontWeight = FontWeight.ExtraLight
-                    )
-                } else {
-                    MaterialTheme.typography.displayLarge.copy(
-                        fontSize = if (isCompactHeight) 56.sp else 72.sp,
-                        fontWeight = FontWeight.Thin
-                    )
-                },
-                color = MaterialTheme.colorScheme.onBackground
-            )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // State Text / Affirmation
         Text(
-            text = getStateText(
-                state = uiState.timerState,
-                getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
-                getCurrentRunningAffirmation = getCurrentRunningAffirmation
-            ),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            text = uiState.formattedTime,
+            style = if (isCountdownStyle) {
+                MaterialTheme.typography.displayLarge.copy(
+                    fontSize = if (isCompactHeight) 90.sp else 110.sp,
+                    fontWeight = FontWeight.ExtraLight
+                )
+            } else {
+                MaterialTheme.typography.displayLarge.copy(
+                    fontSize = if (isCompactHeight) 56.sp else 72.sp,
+                    fontWeight = FontWeight.Thin
+                )
+            },
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

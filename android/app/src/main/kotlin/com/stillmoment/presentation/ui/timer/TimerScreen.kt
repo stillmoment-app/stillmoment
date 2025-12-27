@@ -88,88 +88,19 @@ internal fun TimerScreenContent(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Gradient behind everything (full screen)
         WarmGradientBackground()
 
         Scaffold(
             containerColor = androidx.compose.ui.graphics.Color.Transparent
         ) { paddingValues ->
-            Box(
-                modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Compact top bar (44dp like iOS)
-                StillMomentTopAppBar(
-                    actions = {
-                        IconButton(onClick = onSettingsClick) {
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = stringResource(
-                                    R.string.accessibility_settings_button
-                                ),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                )
+            TimerScreenLayout(
+                uiState = uiState,
+                onMinutesChange = onMinutesChange,
+                onStartClick = onStartClick,
+                onSettingsClick = onSettingsClick,
+                modifier = Modifier.padding(paddingValues)
+            )
 
-                Column(
-                    modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(top = TopAppBarHeight)
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Flexible top space (like iOS Spacer)
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Title
-                    Text(
-                        text = stringResource(R.string.welcome_title),
-                        style =
-                        MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Light
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.semantics { heading() }
-                    )
-
-                    // Fixed spacing between title and picker (like iOS)
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Minute Picker - shown only in idle state (timer runs in focus mode)
-                    MinutePicker(
-                        selectedMinutes = uiState.selectedMinutes,
-                        onMinutesChange = onMinutesChange
-                    )
-
-                    // Flexible bottom space (like iOS Spacer)
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Start Button
-                    StartButton(
-                        onClick = onStartClick
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Error Message
-                    uiState.errorMessage?.let { error ->
-                        Text(
-                            text = error,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                    }
-                }
-            }
-
-            // Settings Bottom Sheet
             if (uiState.showSettings) {
                 ModalBottomSheet(
                     onDismissRequest = onSettingsDismiss,
@@ -182,6 +113,59 @@ internal fun TimerScreenContent(
                         onDismiss = onSettingsDismiss
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimerScreenLayout(
+    uiState: TimerUiState,
+    onMinutesChange: (Int) -> Unit,
+    onStartClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        StillMomentTopAppBar(
+            actions = {
+                IconButton(onClick = onSettingsClick) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.accessibility_settings_button),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = TopAppBarHeight)
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.welcome_title),
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light),
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            MinutePicker(selectedMinutes = uiState.selectedMinutes, onMinutesChange = onMinutesChange)
+            Spacer(modifier = Modifier.weight(1f))
+            StartButton(onClick = onStartClick)
+            Spacer(modifier = Modifier.height(16.dp))
+            uiState.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
             }
         }
     }
@@ -249,10 +233,7 @@ private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, m
 }
 
 @Composable
-private fun StartButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val contentDescription = stringResource(R.string.accessibility_start_button)
 
     Button(
