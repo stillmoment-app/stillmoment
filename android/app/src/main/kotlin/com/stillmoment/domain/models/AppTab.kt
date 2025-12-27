@@ -17,7 +17,6 @@ enum class AppTab(val route: String) {
         /**
          * Parse a route string to AppTab, returning DEFAULT for unknown routes.
          */
-        fun fromRoute(route: String?): AppTab =
-            entries.find { it.route == route } ?: DEFAULT
+        fun fromRoute(route: String?): AppTab = entries.find { it.route == route } ?: DEFAULT
     }
 }
