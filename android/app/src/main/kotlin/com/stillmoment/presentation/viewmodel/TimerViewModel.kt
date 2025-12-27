@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.R
-import com.stillmoment.data.repositories.TimerRepositoryImpl
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
@@ -12,6 +11,7 @@ import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
+import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.TimerReducer
 import com.stillmoment.infrastructure.audio.TimerForegroundService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,7 +70,7 @@ class TimerViewModel
 constructor(
     application: Application,
     private val settingsRepository: SettingsRepository,
-    private val timerRepository: TimerRepositoryImpl
+    private val timerRepository: TimerRepository
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()

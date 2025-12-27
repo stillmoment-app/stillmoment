@@ -49,4 +49,18 @@ interface TimerRepository {
      * @param durationMinutes Duration in minutes (1-60)
      */
     suspend fun setDuration(durationMinutes: Int)
+
+    /**
+     * Advances the timer by one second.
+     *
+     * Handles both countdown phase and regular timer phase.
+     * Returns the updated timer or null if no timer exists.
+     */
+    fun tick(): MeditationTimer?
+
+    /**
+     * Marks that an interval gong was played at the current time.
+     * Prevents duplicate gongs at the same interval.
+     */
+    fun markIntervalGongPlayed()
 }

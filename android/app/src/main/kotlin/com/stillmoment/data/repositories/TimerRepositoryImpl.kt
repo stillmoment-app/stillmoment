@@ -72,7 +72,7 @@ constructor() : TimerRepository {
      * Handles both countdown phase and regular timer phase.
      * Returns the updated timer or null if no timer exists.
      */
-    fun tick(): MeditationTimer? {
+    override fun tick(): MeditationTimer? {
         currentTimer = currentTimer?.tick()
         _timer.value = currentTimer
         return currentTimer
@@ -82,7 +82,7 @@ constructor() : TimerRepository {
      * Marks that an interval gong was played at the current time.
      * Prevents duplicate gongs at the same interval.
      */
-    fun markIntervalGongPlayed() {
+    override fun markIntervalGongPlayed() {
         currentTimer = currentTimer?.markIntervalGongPlayed()
         _timer.value = currentTimer
     }

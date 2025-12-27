@@ -124,6 +124,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-051](android/android-051-detekt-compose-compliance.md) | detekt-compose Rules Compliance | 5-QA | [x] | android-050 |
 | [android-052](android/android-052-pure-content-pattern.md) | Pure Content Pattern Screenshot-Tests | 2-Architektur | [ ] | - |
 | [android-053](android/android-053-wheelpicker-api-improvements.md) | WheelPicker API-Verbesserungen | 2-Architektur | [ ] | - |
+| [android-054](android/android-054-timer-repository-interface.md) | TimerRepository Interface erweitern | 2-Architektur | [x] | - |
 
 ---
 
