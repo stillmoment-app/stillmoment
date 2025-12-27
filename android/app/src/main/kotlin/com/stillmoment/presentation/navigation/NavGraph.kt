@@ -103,19 +103,13 @@ fun StillMomentNavHost(
 ) {
     val scope = rememberCoroutineScope()
 
-    // Load saved tab from DataStore
-    val savedTab by produceState(initialValue = Screen.TimerGraph.route) {
+    // Load saved tab from DataStore (null = not yet loaded)
+    val savedTab by produceState<String?>(initialValue = null) {
         value = settingsDataStore.getSelectedTab()
     }
 
-    // Navigate to saved tab on first load (if not timer)
-    LaunchedEffect(savedTab) {
-        if (savedTab == Screen.Library.route) {
-            navController.navigate(Screen.Library.route) {
-                popUpTo(Screen.TimerGraph.route) { inclusive = true }
-            }
-        }
-    }
+    // Wait for tab to be loaded before rendering navigation
+    val startDestination = savedTab ?: return
 
     val tabs =
         remember {
@@ -181,7 +175,7 @@ fun StillMomentNavHost(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.TimerGraph.route
+                startDestination = startDestination
             ) {
                 // Nested navigation graph for Timer screens (shared ViewModel scope)
                 navigation(
