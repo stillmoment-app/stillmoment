@@ -123,6 +123,9 @@
     <string name="accessibility_tab_timer">Zum Timer navigieren</string>
     <string name="accessibility_tab_library">Zur Bibliothek navigieren</string>
 
+    <!-- Timer Focus Mode -->
+    <string name="accessibility_close_focus">Schließen und Meditation beenden</string>
+
     <!-- Settings Accessibility -->
     <string name="accessibility_done_button">Einstellungen speichern und schließen</string>
     <string name="accessibility_interval_enabled">Intervall-Gongs aktiviert, alle %d Minuten</string>

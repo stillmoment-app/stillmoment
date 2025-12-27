@@ -15,6 +15,7 @@ import com.stillmoment.domain.models.TimerState
  */
 object TimerReducer {
     private const val AFFIRMATION_COUNT = 5
+    private const val COUNTDOWN_START_SECONDS = 15
 
     /**
      * Reduces the current state with an action to produce new state and effects.
@@ -68,6 +69,8 @@ object TimerReducer {
 
         val newState =
             state.copy(
+                timerState = TimerState.Countdown,
+                countdownSeconds = COUNTDOWN_START_SECONDS,
                 currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
                 intervalGongPlayedForCurrentInterval = false
             )

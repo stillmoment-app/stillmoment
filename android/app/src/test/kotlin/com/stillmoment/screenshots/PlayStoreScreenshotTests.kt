@@ -31,6 +31,7 @@ import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreenC
 import com.stillmoment.presentation.ui.meditations.MeditationListItem
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.timer.TimerFocusScreenContent
 import com.stillmoment.presentation.ui.timer.TimerScreenContent
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 import com.stillmoment.presentation.viewmodel.TimerUiState
@@ -99,14 +100,9 @@ class PlayStoreScreenshotTests {
                     ),
                     onMinutesChange = {},
                     onStartClick = {},
-                    onPauseClick = {},
-                    onResumeClick = {},
-                    onResetClick = {},
                     onSettingsClick = {},
                     onSettingsDismiss = {},
-                    onSettingsChange = {},
-                    getCurrentCountdownAffirmation = { "" },
-                    getCurrentRunningAffirmation = { "" }
+                    onSettingsChange = {}
                 )
             }
         }
@@ -129,7 +125,7 @@ class PlayStoreScreenshotTests {
     private fun captureTimerRunning(suffix: String, affirmation: String) {
         paparazzi.snapshot(name = "timer-running$suffix") {
             StillMomentTheme {
-                TimerScreenContent(
+                TimerFocusScreenContent(
                     uiState =
                     TimerUiState(
                         displayState =
@@ -142,14 +138,9 @@ class PlayStoreScreenshotTests {
                         ),
                         settings = MeditationSettings.Default
                     ),
-                    onMinutesChange = {},
-                    onStartClick = {},
+                    onBack = {},
                     onPauseClick = {},
                     onResumeClick = {},
-                    onResetClick = {},
-                    onSettingsClick = {},
-                    onSettingsDismiss = {},
-                    onSettingsChange = {},
                     getCurrentCountdownAffirmation = { "" },
                     getCurrentRunningAffirmation = { affirmation }
                 )

@@ -37,6 +37,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import com.stillmoment.presentation.viewmodel.TimerViewModel
 import com.stillmoment.R
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.GuidedMeditation
@@ -45,7 +49,9 @@ import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.theme.Terracotta
 import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.ui.theme.WarmSand
+import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
@@ -56,7 +62,12 @@ import kotlinx.serialization.json.Json
  * Navigation routes for Still Moment
  */
 sealed class Screen(val route: String) {
+    /** Parent route for timer-related screens (for shared ViewModel scoping) */
+    data object TimerGraph : Screen("timerGraph")
+
     data object Timer : Screen("timer")
+
+    data object TimerFocus : Screen("timerFocus")
 
     data object Library : Screen("library")
 
@@ -93,7 +104,7 @@ fun StillMomentNavHost(
     val scope = rememberCoroutineScope()
 
     // Load saved tab from DataStore
-    val savedTab by produceState(initialValue = Screen.Timer.route) {
+    val savedTab by produceState(initialValue = Screen.TimerGraph.route) {
         value = settingsDataStore.getSelectedTab()
     }
 
@@ -101,7 +112,7 @@ fun StillMomentNavHost(
     LaunchedEffect(savedTab) {
         if (savedTab == Screen.Library.route) {
             navController.navigate(Screen.Library.route) {
-                popUpTo(Screen.Timer.route) { inclusive = true }
+                popUpTo(Screen.TimerGraph.route) { inclusive = true }
             }
         }
     }
@@ -110,7 +121,7 @@ fun StillMomentNavHost(
         remember {
             persistentListOf(
                 TabItem(
-                    screen = Screen.Timer,
+                    screen = Screen.TimerGraph,
                     labelResId = R.string.tab_timer,
                     selectedIcon = Icons.Filled.Timer,
                     unselectedIcon = Icons.Outlined.Timer,
@@ -129,8 +140,10 @@ fun StillMomentNavHost(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Hide bottom bar on player screen
-    val showBottomBar = currentDestination?.route?.startsWith("player") != true
+    // Hide bottom bar on player and timer focus screens
+    val showBottomBar = currentDestination?.route?.let { route ->
+        !route.startsWith("player") && route != Screen.TimerFocus.route
+    } != false
 
     Scaffold(
         modifier = modifier,
@@ -168,10 +181,48 @@ fun StillMomentNavHost(
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Timer.route
+                startDestination = Screen.TimerGraph.route
             ) {
-                composable(Screen.Timer.route) {
-                    TimerScreen()
+                // Nested navigation graph for Timer screens (shared ViewModel scope)
+                navigation(
+                    startDestination = Screen.Timer.route,
+                    route = Screen.TimerGraph.route
+                ) {
+                    composable(Screen.Timer.route) { backStackEntry ->
+                        // Get ViewModel scoped to parent navigation graph
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry(Screen.TimerGraph.route)
+                        }
+                        val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
+
+                        TimerScreen(
+                            onNavigateToFocus = {
+                                navController.navigate(Screen.TimerFocus.route)
+                            },
+                            viewModel = sharedViewModel
+                        )
+                    }
+
+                    composable(
+                        route = Screen.TimerFocus.route,
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
+                        popEnterTransition = { EnterTransition.None },
+                        popExitTransition = { ExitTransition.None }
+                    ) { backStackEntry ->
+                        // Get same ViewModel scoped to parent navigation graph
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry(Screen.TimerGraph.route)
+                        }
+                        val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
+
+                        TimerFocusScreen(
+                            onBack = {
+                                navController.popBackStack()
+                            },
+                            viewModel = sharedViewModel
+                        )
+                    }
                 }
 
                 composable(Screen.Library.route) {

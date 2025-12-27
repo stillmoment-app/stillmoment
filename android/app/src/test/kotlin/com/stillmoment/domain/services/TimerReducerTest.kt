@@ -95,7 +95,9 @@ class TimerReducerTest {
                     settings
                 )
 
-            // Then
+            // Then - State transitions to Countdown
+            assertEquals(TimerState.Countdown, newState.timerState)
+            assertEquals(15, newState.countdownSeconds)
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
             assertEquals(1, newState.currentAffirmationIndex) // Rotated from 0
 
@@ -588,7 +590,9 @@ class TimerReducerTest {
                 )
             state = startState
 
-            // Then - Should have start effects
+            // Then - Should transition to Countdown and have start effects
+            assertEquals(TimerState.Countdown, state.timerState)
+            assertEquals(15, state.countdownSeconds)
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
             assertTrue(startEffects.any { it is TimerEffect.StartForegroundService })
 

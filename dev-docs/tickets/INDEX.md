@@ -36,6 +36,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-010](shared/shared-010-silence-label-rename.md) | Stille-Option umbenennen | 4-Polish | [x] | [x] |
 | [shared-011](shared/shared-011-edit-sheet-remove-reset.md) | Edit Sheet Reset-Button entfernen | 4-Polish | [x] | [x] |
 | [shared-012](shared/shared-012-portrait-only.md) | Portrait-Only Modus | 4-Polish | [x] | [x] |
+| [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [ ] | [ ] |
 
 ---
 
@@ -122,6 +123,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-050](android/android-050-detekt-baseline-cleanup.md) | detekt Baseline systematisch abbauen | 5-QA | [x] | android-049 |
 | [android-051](android/android-051-detekt-compose-compliance.md) | detekt-compose Rules Compliance | 5-QA | [x] | android-050 |
 | [android-052](android/android-052-pure-content-pattern.md) | Pure Content Pattern Screenshot-Tests | 2-Architektur | [ ] | - |
+| [android-053](android/android-053-wheelpicker-api-improvements.md) | WheelPicker API-Verbesserungen | 2-Architektur | [ ] | - |
 
 ---
 
