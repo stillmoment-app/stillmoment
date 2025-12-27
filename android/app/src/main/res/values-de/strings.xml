@@ -9,12 +9,9 @@
     <string name="duration_footer">Du verdienst diese Pause</string>
 
     <!-- Common -->
-    <string name="common_error">Fehler</string>
-    <string name="common_ok">OK</string>
     <string name="common_cancel">Abbrechen</string>
     <string name="common_save">Speichern</string>
     <string name="common_close">Schließen</string>
-    <string name="common_and">und</string>
     <string name="common_delete">Löschen</string>
     <string name="common_edit">Bearbeiten</string>
 
@@ -22,8 +19,6 @@
     <string name="button_start">Start</string>
     <string name="button_pause">Kurze Pause</string>
     <string name="button_resume">Weiter</string>
-    <string name="button_reset">Neu beginnen</string>
-    <string name="button_settings">Einstellungen</string>
     <string name="button_done">Fertig</string>
 
     <!-- Tabs -->
@@ -52,16 +47,12 @@
     <!-- Time -->
     <string name="time_minutes">%d min</string>
     <string name="time_minutes_plural">%d Minuten</string>
-    <string name="time_seconds">%d Sekunden</string>
-    <string name="time_remaining">%s verbleibend</string>
 
     <!-- Accessibility -->
-    <string name="accessibility_timer_progress">Timer-Fortschritt</string>
     <string name="accessibility_duration_picker">Meditationsdauer auswählen</string>
     <string name="accessibility_start_button">Meditation starten</string>
     <string name="accessibility_pause_button">Meditation pausieren</string>
     <string name="accessibility_resume_button">Meditation fortsetzen</string>
-    <string name="accessibility_reset_button">Timer zurücksetzen</string>
     <string name="accessibility_settings_button">Einstellungen öffnen</string>
     <string name="accessibility_countdown_seconds">Noch %d Sekunden bis die Meditation beginnt</string>
     <string name="accessibility_time_remaining">%1$d Minuten und %2$d Sekunden verbleibend</string>
@@ -101,13 +92,9 @@
 
     <!-- Guided Meditations Accessibility -->
     <string name="accessibility_import_meditation">Meditations-Audiodatei importieren</string>
-    <string name="accessibility_edit_meditation">Meditationsdetails bearbeiten</string>
     <string name="accessibility_delete_meditation">Meditation löschen</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
     <string name="accessibility_overflow_menu">Weitere Optionen</string>
-
-    <!-- Player Screen -->
-    <string name="player_remaining">verbleibend</string>
 
     <!-- Player Accessibility -->
     <string name="accessibility_player_progress">Wiedergabefortschritt: %d Prozent</string>
