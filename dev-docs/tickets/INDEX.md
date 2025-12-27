@@ -118,7 +118,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-044](android/android-044-timer-screen-responsive.md) | TimerScreen Responsive Layout | 4-Polish | [x] | - |
 | [android-045](android/android-045-player-screen-responsive.md) | PlayerScreen Responsive Layout | 4-Polish | [x] | - |
 | [android-046](android/android-046-gradient-ios-angleichen.md) | Gradient an iOS angleichen | 4-Polish | [x] | - |
-| [android-047](android/android-047-audio-services-testability.md) | Audio-Services Testbarkeit | 2-Architektur | [ ] | - |
+| [android-047](android/android-047-audio-services-testability.md) | Audio-Services Testbarkeit | 2-Architektur | [x] | - |
 | [android-048](android/android-048-detekt-baseline-issues.md) | detekt Baseline Issues beheben | 5-QA | [x] | - |
 | [android-049](android/android-049-ci-ktlint-detekt.md) | CI um ktlint/detekt erweitern | 5-QA | [x] | android-048 |
 | [android-050](android/android-050-detekt-baseline-cleanup.md) | detekt Baseline systematisch abbauen | 5-QA | [x] | android-049 |

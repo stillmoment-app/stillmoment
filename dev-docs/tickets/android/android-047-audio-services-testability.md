@@ -1,6 +1,6 @@
 # Ticket android-047: Audio-Services Testbarkeit
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
