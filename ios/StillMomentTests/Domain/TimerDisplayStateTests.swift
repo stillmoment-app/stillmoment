@@ -81,29 +81,6 @@ final class TimerDisplayStateTests: XCTestCase {
         XCTAssertFalse(state.canResume)
     }
 
-    // MARK: - canReset Tests
-
-    func testCanReset_whenIdle_returnsFalse() {
-        var state = TimerDisplayState.initial
-        state.timerState = .idle
-
-        XCTAssertFalse(state.canReset)
-    }
-
-    func testCanReset_whenRunning_returnsTrue() {
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-
-        XCTAssertTrue(state.canReset)
-    }
-
-    func testCanReset_whenCompleted_returnsTrue() {
-        var state = TimerDisplayState.initial
-        state.timerState = .completed
-
-        XCTAssertTrue(state.canReset)
-    }
-
     // MARK: - formattedTime Tests
 
     func testFormattedTime_whenCountdown_showsCountdownSeconds() {

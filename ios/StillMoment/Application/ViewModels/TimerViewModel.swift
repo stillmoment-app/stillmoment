@@ -84,9 +84,6 @@ final class TimerViewModel: ObservableObject {
     /// Returns true if timer can be resumed
     var canResume: Bool { self.displayState.canResume }
 
-    /// Returns true if timer can be reset
-    var canReset: Bool { self.displayState.canReset }
-
     /// Formatted time string
     var formattedTime: String { self.displayState.formattedTime }
 

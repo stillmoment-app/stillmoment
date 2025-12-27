@@ -217,37 +217,4 @@ final class TimerViewModelBasicTests: XCTestCase {
         // Then
         XCTAssertFalse(self.sut.canResume)
     }
-
-    func testCanReset_whenIdle_returnsFalse() {
-        // Given - initial idle state
-        XCTAssertFalse(self.sut.canReset)
-    }
-
-    func testCanReset_whenRunning_returnsTrue() {
-        // Given - running state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            countdownSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
-
-        // Then
-        XCTAssertTrue(self.sut.canReset)
-    }
-
-    func testCanReset_whenCompleted_returnsTrue() {
-        // Given - completed state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 0,
-            totalSeconds: 600,
-            countdownSeconds: 0,
-            progress: 1.0,
-            state: .completed
-        ))
-
-        // Then
-        XCTAssertTrue(self.sut.canReset)
-    }
 }

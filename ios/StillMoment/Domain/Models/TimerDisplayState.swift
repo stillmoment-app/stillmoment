@@ -61,11 +61,6 @@ struct TimerDisplayState: Equatable {
         self.timerState == .paused
     }
 
-    /// Returns true if timer can be reset
-    var canReset: Bool {
-        self.timerState != .idle
-    }
-
     /// Formatted time string (MM:SS or countdown seconds)
     var formattedTime: String {
         if self.isCountdown {
