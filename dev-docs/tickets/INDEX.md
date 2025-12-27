@@ -36,7 +36,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-010](shared/shared-010-silence-label-rename.md) | Stille-Option umbenennen | 4-Polish | [x] | [x] |
 | [shared-011](shared/shared-011-edit-sheet-remove-reset.md) | Edit Sheet Reset-Button entfernen | 4-Polish | [x] | [x] |
 | [shared-012](shared/shared-012-portrait-only.md) | Portrait-Only Modus | 4-Polish | [x] | [x] |
-| [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [ ] | [ ] |
+| [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [x] | [x] |
 | [shared-014](shared/shared-014-interval-sound-update.md) | Neuer Interval-Sound | 4-Polish | [x] | [x] |
 
 ---
