@@ -40,6 +40,16 @@ repos:
         args: ['--baseline', '.secrets.baseline']
         exclude: package.lock.json
 
+  # Android Kotlin linting
+  - repo: local
+    hooks:
+      - id: ktlint
+        name: ktlint
+        entry: bash -c 'cd android && ./gradlew ktlintCheck --daemon'
+        language: system
+        files: ^android/.*\.kt$
+        pass_filenames: false
+
   # iOS Screenshots Target Synchronization
   # Ensures StillMoment-Screenshots target has all source files from main target
   - repo: local
