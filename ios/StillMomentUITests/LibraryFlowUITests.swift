@@ -200,21 +200,32 @@ final class LibraryFlowUITests: XCTestCase {
     // MARK: - Flow Test 4: Timer Integration with Library
 
     /// Tests that Timer and Library tabs maintain independent state
+    /// Note: With focus view, the timer runs in a sheet. Switching tabs while in focus mode
+    /// may dismiss the sheet, so this test verifies state preservation in idle mode.
     func testTimerAndLibraryIndependentState() {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Start timer on Timer tab") { _ in
-            // Start the timer
+        XCTContext.runActivity(named: "Start timer and verify focus view opens") { _ in
+            // Start the timer - opens focus view
             let startButton = self.app.buttons["timer.button.start"]
             startButton.tap()
 
-            // Verify timer is running (with countdown=0, pause button should appear quickly)
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Timer should be running")
+            // Verify focus view opened (pause button in focus view)
+            let pauseButton = self.app.buttons["focus.button.pause"]
+            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Focus view should open with pause button")
+
+            // Close focus view to return to main timer
+            let closeButton = self.app.buttons["focus.button.close"]
+            XCTAssertTrue(closeButton.exists, "Close button should exist")
+            closeButton.tap()
+
+            // Verify we're back to idle state
+            let startButtonAgain = self.app.buttons["timer.button.start"]
+            XCTAssertTrue(startButtonAgain.waitForExistence(timeout: 2.0), "Should return to idle state")
         }
 
-        XCTContext.runActivity(named: "Switch to Library tab while timer runs") { _ in
+        XCTContext.runActivity(named: "Switch to Library tab") { _ in
             self.libraryTab().tap()
 
             // Library should show its content
@@ -226,18 +237,16 @@ final class LibraryFlowUITests: XCTestCase {
             )
         }
 
-        XCTContext.runActivity(named: "Return to Timer and verify state preserved") { _ in
+        XCTContext.runActivity(named: "Return to Timer and verify idle state preserved") { _ in
             self.timerTab().tap()
 
-            // Timer should still be running (pause button visible)
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 2.0), "Timer should still be running")
+            // Timer should still be in idle state with start button visible
+            let startButton = self.app.buttons["timer.button.start"]
+            XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Timer should be in idle state")
 
-            // Reset for cleanup
-            let resetButton = self.app.buttons["timer.button.reset"]
-            if resetButton.exists {
-                resetButton.tap()
-            }
+            // Duration picker should still be visible
+            let picker = self.app.pickers["timer.picker.minutes"]
+            XCTAssertTrue(picker.exists, "Duration picker should be visible")
         }
     }
 }
