@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * UI State for the Timer Screen.
@@ -78,6 +79,14 @@ constructor(
     private var previousState: TimerState = TimerState.Idle
 
     init {
+        // Load initial settings synchronously (DataStore is fast)
+        // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
+        val initialSettings = runBlocking { settingsRepository.getSettings() }
+        _uiState.value = TimerUiState(
+            displayState = TimerDisplayState.withDuration(initialSettings.durationMinutes),
+            settings = initialSettings
+        )
+        // Continue collecting for future changes (background sound changes, etc.)
         loadSettings()
     }
 
