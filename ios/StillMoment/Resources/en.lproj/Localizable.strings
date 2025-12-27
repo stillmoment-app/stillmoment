@@ -15,8 +15,6 @@
 "button.start" = "Start";
 "button.pause" = "Brief pause";
 "button.resume" = "Resume";
-"button.reset" = "Start over";
-"button.settings" = "Settings";
 "button.done" = "Done";
 
 // MARK: - Common UI Elements
@@ -86,8 +84,6 @@
 "accessibility.pauseMeditation.hint" = "Pauses the running meditation timer";
 "accessibility.resumeMeditation" = "Resume meditation";
 "accessibility.resumeMeditation.hint" = "Resumes the paused meditation timer";
-"accessibility.resetTimer" = "Reset timer";
-"accessibility.resetTimer.hint" = "Resets the timer to its initial state";
 "accessibility.durationPicker" = "Meditation duration picker";
 "accessibility.durationPicker.hint" = "Select the duration for your meditation session in minutes";
 "accessibility.durationPicker.label" = "Minutes";
@@ -108,6 +104,8 @@
 "accessibility.done.hint" = "Save settings and close";
 "accessibility.editSheet.cancel.hint" = "Closes the form without saving changes";
 "accessibility.editSheet.save.hint" = "Saves your changes and closes the form";
+"accessibility.closeFocus" = "Close focus mode";
+"accessibility.closeFocus.hint" = "Ends meditation and returns to timer selection";
 
 // MARK: - Time Units
 

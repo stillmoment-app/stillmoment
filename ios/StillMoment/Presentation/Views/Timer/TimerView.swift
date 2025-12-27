@@ -22,6 +22,23 @@ struct TimerView: View {
     // MARK: Internal
 
     var body: some View {
+        ZStack {
+            self.timerContent
+
+            // Focus View Overlay - slides up from bottom
+            if self.showFocusMode {
+                TimerFocusView(viewModel: self.viewModel) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        self.showFocusMode = false
+                    }
+                }
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
+            }
+        }
+    }
+
+    private var timerContent: some View {
         GeometryReader { geometry in
             let isCompactHeight = geometry.size.height < 700
 
@@ -98,6 +115,7 @@ struct TimerView: View {
 
     @StateObject private var viewModel: TimerViewModel
     @State private var showSettings = false
+    @State private var showFocusMode = false
 
     private var stateText: String {
         switch self.viewModel.timerState {
@@ -274,7 +292,11 @@ struct TimerView: View {
         HStack(spacing: 30) {
             // Start/Resume/Pause Button
             if self.viewModel.canStart {
-                Button(action: self.viewModel.startTimer) {
+                Button {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        self.showFocusMode = true
+                    }
+                } label: {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
                 }
                 .warmPrimaryButton()
@@ -297,17 +319,6 @@ struct TimerView: View {
                 .accessibilityIdentifier("timer.button.resume")
                 .accessibilityLabel("accessibility.resumeMeditation")
                 .accessibilityHint("accessibility.resumeMeditation.hint")
-            }
-
-            // Reset Button
-            if self.viewModel.canReset {
-                Button(action: self.viewModel.resetTimer) {
-                    Label(NSLocalizedString("button.reset", comment: ""), systemImage: "arrow.counterclockwise")
-                }
-                .warmSecondaryButton()
-                .accessibilityIdentifier("timer.button.reset")
-                .accessibilityLabel("accessibility.resetTimer")
-                .accessibilityHint("accessibility.resetTimer.hint")
             }
         }
     }
