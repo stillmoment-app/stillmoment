@@ -85,6 +85,67 @@ final class MockTimerService: TimerServiceProtocol {
         self.subject.send(completedTimer)
     }
 
+    /// Simulates a running timer that has reached an interval gong point
+    /// - Parameters:
+    ///   - durationMinutes: Total timer duration in minutes
+    ///   - elapsedSeconds: Number of seconds elapsed (to calculate remainingSeconds)
+    func simulateTimerAtInterval(
+        durationMinutes: Int,
+        elapsedSeconds: Int
+    ) {
+        guard var timer = try? MeditationTimer(
+            durationMinutes: durationMinutes,
+            countdownDuration: 0
+        ) else {
+            return
+        }
+
+        // Start running
+        timer = timer.withState(.running)
+
+        // Tick to the elapsed time
+        for _ in 0..<elapsedSeconds {
+            timer = timer.tick()
+        }
+
+        self.currentTimerForTest = timer
+        self.subject.send(timer)
+    }
+
+    /// Continues the current timer by ticking additional seconds
+    /// This preserves the lastIntervalGongAt from previous markIntervalGongPlayed calls
+    /// - Parameter additionalSeconds: Number of additional seconds to tick
+    func continueTimer(additionalSeconds: Int) {
+        guard var timer = currentTimerForTest else {
+            return
+        }
+
+        for _ in 0..<additionalSeconds {
+            timer = timer.tick()
+        }
+
+        self.currentTimerForTest = timer
+        self.subject.send(timer)
+    }
+
+    /// Returns the current test timer (for verification)
+    var currentTimerForTest: MeditationTimer?
+
+    /// Marks interval gong as played on the current timer and emits update
+    func markIntervalGongPlayed() {
+        self.markIntervalGongPlayedCalled = true
+        self.markIntervalGongPlayedCount += 1
+        guard let timer = currentTimerForTest else {
+            return
+        }
+        let updatedTimer = timer.markIntervalGongPlayed()
+        self.currentTimerForTest = updatedTimer
+        self.subject.send(updatedTimer)
+    }
+
+    var markIntervalGongPlayedCalled = false
+    var markIntervalGongPlayedCount = 0
+
     // MARK: Private
 
     private let subject = PassthroughSubject<MeditationTimer, Never>()

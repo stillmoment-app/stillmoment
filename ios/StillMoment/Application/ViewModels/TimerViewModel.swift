@@ -283,6 +283,10 @@ final class TimerViewModel: ObservableObject {
     private func executePlayIntervalGong() {
         do {
             try self.audioService.playIntervalGong()
+            // Mark gong played on timer to enable detection of next interval
+            self.timerService.markIntervalGongPlayed()
+            // Reset the UI flag to allow next interval detection
+            self.dispatch(.intervalGongPlayed)
         } catch {
             Logger.viewModel.error("Failed to play interval gong", error: error)
             self.errorMessage = "Failed to play interval sound: \(error.localizedDescription)"

@@ -106,6 +106,18 @@ final class TimerService: TimerServiceProtocol {
         self.timerSubject.send(nil)
     }
 
+    func markIntervalGongPlayed() {
+        guard let timer = currentTimer else {
+            Logger.timer.warning("Attempted to mark interval gong when no timer exists")
+            return
+        }
+
+        Logger.timer.debug("Marking interval gong played", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.markIntervalGongPlayed()
+        self.currentTimer = updatedTimer
+        self.timerSubject.send(updatedTimer)
+    }
+
     // MARK: Private
 
     private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)

@@ -182,11 +182,49 @@ object TimerReducer {
                        └───────────┘
 ```
 
+### Intervall-Gong-Zyklus
+
+Waehrend der Timer im `Running`-Zustand ist, werden Intervall-Gongs in regelmaessigen Abstaenden gespielt. Dieser Zyklus laeuft innerhalb des Running-Zustands ab:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            Running State                                 │
+│                                                                          │
+│   ┌─────────┐  shouldPlayIntervalGong()  ┌────────────────────────┐     │
+│   │ Waiting │────────── true ───────────►│ intervalGongTriggered  │     │
+│   │         │                            │  → playIntervalGong    │     │
+│   └─────────┘                            └────────────────────────┘     │
+│        ▲                                              │                  │
+│        │         intervalGongPlayed                   │                  │
+│        │     (nach Audio-Playback abgeschlossen)      │                  │
+│        └──────────────────────────────────────────────┘                  │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Zwei State-Tracking-Mechanismen:**
+
+| Ebene | Property | Zweck |
+|-------|----------|-------|
+| Domain (`MeditationTimer`) | `lastIntervalGongAt` | Speichert `remainingSeconds` beim letzten Gong fuer Zeitberechnung |
+| UI (`TimerDisplayState`) | `intervalGongPlayedForCurrentInterval` | Verhindert Doppel-Gongs im selben Tick |
+
+**Invarianten:**
+
+1. Nach jedem Gong muss `lastIntervalGongAt` auf aktuellen `remainingSeconds` gesetzt werden
+2. Nach jedem Gong muss `intervalGongPlayedForCurrentInterval` zurueckgesetzt werden
+3. Beide Mechanismen muessen zusammen verwendet werden
+
+**Referenz:**
+- Domain-Logik: `MeditationTimer.shouldPlayIntervalGong()`, `markIntervalGongPlayed()`
+- Reducer: `TimerReducer.reduceIntervalGongTriggered()`, `reduceIntervalGongPlayed()`
+- Orchestrierung: `TimerViewModel.handleTimerUpdate()`
+
 ### Vorteile
 
 - **Testbar**: Pure Function ohne Side Effects
 - **Deterministisch**: Gleiche Eingaben = gleiche Ausgaben
-- **Nachvollziehbar**: Vollständiger Audit Trail
+- **Nachvollziehbar**: Vollstaendiger Audit Trail
 
 ---
 
@@ -310,4 +348,4 @@ Bei jedem neuen Feature prüfen:
 
 ---
 
-**Last Updated**: 2025-12-27
+**Last Updated**: 2026-01-03

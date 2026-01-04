@@ -28,4 +28,8 @@ protocol TimerServiceProtocol {
 
     /// Stops and cleans up the timer
     func stop()
+
+    /// Marks that an interval gong was played at the current position
+    /// This updates lastIntervalGongAt to enable detection of next interval
+    func markIntervalGongPlayed()
 }
