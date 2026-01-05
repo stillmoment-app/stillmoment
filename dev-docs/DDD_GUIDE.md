@@ -14,6 +14,8 @@ Still Moment ist ein Cross-Platform Projekt (iOS + Android). DDD bietet:
 
 ## Ubiquitous Language
 
+> **Vollstaendiges Glossar:** Detaillierte Begriffsdefinitionen mit Datei-Referenzen siehe `dev-docs/GLOSSARY.md`
+
 iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - Einfache Kommunikation im Team
 - Copy-Paste von Logik zwischen Plattformen
@@ -34,7 +36,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 
 | Begriff | Typ | Beschreibung |
 |---------|-----|--------------|
-| `AudioSource` | Enum | Identifiziert Audio-Quellen: timer, player, preview |
+| `AudioSource` | Enum | Identifiziert Audio-Quellen: timer, guidedMeditation (Details: `AUDIO_ARCHITECTURE.md`) |
 | `BackgroundSound` | Value Object | Hintergrundgeräusch mit Lokalisierung |
 | `GuidedMeditation` | Value Object | Geführte Meditation mit Metadaten |
 | `AudioMetadata` | Value Object | Dauer, Titel aus Audio-Datei |
@@ -348,4 +350,4 @@ Bei jedem neuen Feature prüfen:
 
 ---
 
-**Last Updated**: 2026-01-03
+**Last Updated**: 2026-01-05

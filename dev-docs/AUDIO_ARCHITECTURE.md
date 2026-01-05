@@ -1,53 +1,113 @@
-# Audio Architecture - Still Moment
+# Audio-Architektur - Still Moment
 
-This document describes the audio system architecture for background execution, audio session coordination, and platform-specific implementations.
+Dieses Dokument beschreibt die Audio-Architektur fuer Background Execution, Audio Session Koordination und plattformspezifische Implementierungen.
 
-## Overview
+> **Siehe auch:**
+> - Domain-Begriffe: `dev-docs/GLOSSARY.md`
+> - DDD Patterns: `dev-docs/DDD_GUIDE.md`
 
-Still Moment uses continuous audible content to legitimize background execution on iOS and Android. Both platforms implement exclusive audio session coordination to prevent conflicts between Timer and Guided Meditation features.
+---
+
+## Ueberblick
+
+Still Moment nutzt kontinuierliche Audio-Inhalte um Background Execution auf iOS und Android zu legitimieren. Beide Plattformen implementieren exklusive Audio Session Koordination um Konflikte zwischen Timer und Guided Meditations zu vermeiden.
+
+---
 
 ## Background Audio Mode (Apple Guidelines Compliant)
 
-The app legitimizes background audio through **continuous audible content**:
+Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 
-**Audio Components:**
-1. **15-Second Countdown** - Visual countdown before meditation starts
-2. **Start Gong** - Tibetan singing bowl marks beginning (played at countdown→running transition)
-3. **Background Audio** - Continuous loop during meditation (legitimizes background mode)
-   - Flexible sound repository with JSON configuration (`sounds.json`)
-   - **Silent Mode** (id: "silent", `silence.m4a`): Volume 0.15 - quiet but clearly audible
-   - **Forest Ambience** (id: "forest", `forest-ambience.mp3`): Volume 0.15 - natural forest sounds
-   - Extensible: Add new sounds via `sounds.json` + audio files in `BackgroundAudio/`
-4. **Interval Gongs** - Optional gongs at 3/5/10 minute intervals (user configurable)
-5. **Completion Gong** - Tibetan singing bowl marks end (`completion.mp3`)
+### Audio-Komponenten
 
-**Configuration:**
-- Background mode enabled in Info.plist (UIBackgroundModes: audio)
-- Audio session: `.playback` category without `.mixWithOthers` (primary audio)
-- Background audio starts when countdown completes (countdown→running transition)
-- Background audio stops when timer completes or is reset
+| Komponente | Beschreibung |
+|------------|--------------|
+| **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
+| **Start-Gong** | Tibetische Klangschale markiert Beginn |
+| **Hintergrund-Audio** | Kontinuierliche Schleife waehrend Meditation |
+| **Intervall-Gongs** | Optionale Gongs alle 3/5/10 Minuten |
+| **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
+
+### Hintergrund-Sounds
+
+Flexible Sound-Sammlung via JSON-Konfiguration (`sounds.json`):
+
+| Sound ID | Datei | Lautstaerke | Beschreibung |
+|----------|-------|-------------|--------------|
+| `silent` | `silence.m4a` | 0.15 | Leise aber hoerbar |
+| `forest` | `forest-ambience.mp3` | 0.15 | Natuerliche Waldgeraeusche |
+
+Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`.
+
+### Konfiguration
+
+- Background Mode in `Info.plist` (`UIBackgroundModes: audio`)
+- Audio Session: `.playback` Kategorie ohne `.mixWithOthers`
+- Hintergrund-Audio startet bei Countdown→Running Uebergang
+- Hintergrund-Audio stoppt bei Timer-Ende oder Reset
 
 ---
 
-## Audio Session Coordination
+## Audio Session Koordination
 
 ### Problem
 
-Timer and Guided Meditation features can run simultaneously in TabView, potentially causing audio conflicts.
+Timer und Guided Meditations koennen gleichzeitig in der TabView laufen und Audio-Konflikte verursachen.
 
-### Solution
+### Loesung
 
-`AudioSessionCoordinator` singleton manages exclusive audio session access between features.
+`AudioSessionCoordinator` Singleton verwaltet exklusiven Audio Session Zugriff.
+
+### AudioSource
+
+Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `GLOSSARY.md`.
+
+| Wert (iOS/Android) | Beschreibung |
+|--------------------|--------------|
+| `timer` / `TIMER` | Timer-Audio (Gongs, BackgroundSound) |
+| `guidedMeditation` / `GUIDED_MEDITATION` | Gefuehrte Meditation Playback |
+
+**Wartungshinweis:** Bei neuen Audio-Features (z.B. Podcast-Import) neuen AudioSource-Wert hinzufuegen.
 
 ---
 
-## iOS Implementation
+## Integration mit TimerEffect
 
-### Architecture
+Audio-Operationen werden als Effects modelliert (siehe `DDD_GUIDE.md` Effect Pattern):
+
+| TimerEffect | Audio-Aktion |
+|-------------|--------------|
+| `configureAudioSession` | Audio Session aktivieren |
+| `startBackgroundAudio(soundId:)` | Hintergrund-Sound starten |
+| `stopBackgroundAudio` | Hintergrund-Sound stoppen |
+| `playStartGong` | Start-Gong abspielen |
+| `playIntervalGong` | Intervall-Gong abspielen |
+| `playCompletionSound` | Abschluss-Gong abspielen |
+
+**Ausfuehrung:** ViewModel empfaengt Effects vom Reducer und delegiert an AudioService.
+
+```swift
+// iOS - TimerViewModel
+private func executeEffect(_ effect: TimerEffect) {
+    switch effect {
+    case .playStartGong:
+        audioService.playStartGong()
+    case .startBackgroundAudio(let soundId):
+        audioService.startBackgroundAudio(soundId: soundId)
+    // ...
+    }
+}
+```
+
+---
+
+## iOS Implementierung
+
+### Architektur
 
 ```swift
 // Protocol in Domain/Services/
-AudioSessionCoordinatorProtocol {
+protocol AudioSessionCoordinatorProtocol {
     var activeSource: CurrentValueSubject<AudioSource?, Never> { get }
     func requestAudioSession(for source: AudioSource) throws -> Bool
     func releaseAudioSession(for source: AudioSource)
@@ -57,55 +117,62 @@ AudioSessionCoordinatorProtocol {
 AudioSessionCoordinator.shared (singleton)
 ```
 
-### How It Works
+### Ablauf
 
-1. Services request audio session before playback:
+1. Services fordern Audio Session vor Playback an:
    ```swift
-   try coordinator.requestAudioSession(for: .timer)  // or .guidedMeditation
+   try coordinator.requestAudioSession(for: .timer)
    ```
-2. Coordinator grants exclusive access and notifies other services
-3. Other services observe `activeSource` changes and pause their audio
-4. Services release session when done:
+2. Coordinator gewaehrt exklusiven Zugriff und benachrichtigt andere Services
+3. Andere Services beobachten `activeSource` und pausieren ihr Audio
+4. Services geben Session frei wenn fertig:
    ```swift
    coordinator.releaseAudioSession(for: .timer)
    ```
 
-### Integration
+### Fehlerbehandlung
 
-- `AudioService` (timer) uses `.timer` source
-- `AudioPlayerService` (guided meditations) uses `.guidedMeditation` source
-- Both services handle conflicts when another source becomes active:
-  - `AudioService`: Combine subscription to `activeSource` pauses playback
-  - `AudioPlayerService`: Conflict handler callback pauses playback and releases session
-- Coordinator centralizes audio session activation/deactivation for energy efficiency
+```swift
+do {
+    guard try coordinator.requestAudioSession(for: .timer) else {
+        Logger.audio.warning("Audio Session nicht verfuegbar")
+        return
+    }
+    // Audio starten
+} catch {
+    Logger.audio.error("Audio Session Fehler", error: error)
+    // Graceful degradation: Timer laeuft ohne Audio weiter
+}
+```
 
 ### Lock Screen Controls (AudioPlayerService)
 
-**Critical Requirements:**
-- **Now Playing info** MUST be set AFTER audio session is active
-- **Remote Command Center** MUST be configured AFTER audio session is active
-- **One-time setup**: `remoteCommandsConfigured` flag prevents duplicate configuration on pause/resume
-- **Conflict handler** releases audio session to prevent energy waste and ensure clean ownership transfer
+**Kritische Anforderungen:**
+- Now Playing Info MUSS NACH Audio Session Aktivierung gesetzt werden
+- Remote Command Center MUSS NACH Audio Session Aktivierung konfiguriert werden
+- Einmalige Konfiguration: `remoteCommandsConfigured` Flag verhindert Duplikate
 
-**Required Sequence:**
+**Erforderliche Reihenfolge:**
 ```
 requestAudioSession() → setupRemoteCommandCenter() → setupNowPlayingInfo() → play()
 ```
 
-**Why**: iOS fails to display lock screen controls if configured before session activation.
+**Grund:** iOS zeigt Lock Screen Controls nicht an wenn sie vor Session-Aktivierung konfiguriert werden.
 
 ### Interruption Handling
 
-Audio interruptions (phone calls, alerts) are handled via `AVAudioSession.interruptionNotification`:
-- `.began`: Playback pauses automatically
-- `.ended` with `.shouldResume`: Playback resumes automatically if appropriate
-- Interruptions during setup sequence are safe: iOS serializes audio events on main thread
+Audio-Unterbrechungen (Anrufe, Alerts) via `AVAudioSession.interruptionNotification`:
+
+| Event | Verhalten |
+|-------|-----------|
+| `.began` | Playback pausiert automatisch |
+| `.ended` mit `.shouldResume` | Playback setzt automatisch fort |
 
 ---
 
-## Android Implementation
+## Android Implementierung
 
-### Architecture
+### Architektur
 
 ```kotlin
 // Domain Layer - Interface
@@ -121,130 +188,121 @@ interface AudioSessionCoordinatorProtocol {
 class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorProtocol
 ```
 
-### Key Files
+### Wichtige Dateien
 
-- `domain/models/AudioSource.kt` - Enum (TIMER, GUIDED_MEDITATION)
-- `domain/services/AudioSessionCoordinatorProtocol.kt` - Interface
-- `infrastructure/audio/AudioSessionCoordinator.kt` - Implementation
-- `infrastructure/di/AppModule.kt` - DI binding
+| Datei | Beschreibung |
+|-------|--------------|
+| `domain/models/AudioSource.kt` | Enum (TIMER, GUIDED_MEDITATION) |
+| `domain/services/AudioSessionCoordinatorProtocol.kt` | Interface |
+| `infrastructure/audio/AudioSessionCoordinator.kt` | Implementierung |
+| `infrastructure/di/AppModule.kt` | DI Binding |
 
-### How It Works
+### Ablauf
 
-1. Services register conflict handlers at init:
+1. Services registrieren Conflict Handler bei Init:
    ```kotlin
    coordinator.registerConflictHandler(AudioSource.TIMER) {
        stopBackgroundAudioInternal()
    }
    ```
-2. Services request session before playback:
+2. Services fordern Session vor Playback an:
    ```kotlin
    if (!coordinator.requestAudioSession(AudioSource.TIMER)) return
    ```
-3. Coordinator invokes conflict handler of current source (if different)
-4. Services release session when done:
-   ```kotlin
-   coordinator.releaseAudioSession(AudioSource.TIMER)
-   ```
-
-### Integration
-
-- `AudioService` (timer) uses `AudioSource.TIMER`
-- Future `AudioPlayerService` (guided meditations) will use `AudioSource.GUIDED_MEDITATION`
+3. Coordinator ruft Conflict Handler der aktuellen Source auf
+4. Services geben Session frei wenn fertig
 
 ---
 
-## Android File Storage Strategy
+## Android File Storage Strategie
 
 ### Problem
 
-Android SAF (Storage Access Framework) persistable permissions are unreliable, especially with Downloads folder and cloud providers (Google Drive, OneDrive, etc.).
+Android SAF (Storage Access Framework) persistable Permissions sind unzuverlaessig, besonders mit Downloads-Ordner und Cloud-Providern.
 
-### Solution
+### Loesung
 
-Copy imported files to app-internal storage during import.
+Importierte Dateien werden in App-internen Speicher kopiert.
 
-### Flow
+### Ablauf
 
-1. User selects file via OpenDocument picker
-2. `GuidedMeditationRepositoryImpl.importMeditation()` copies file to `filesDir/meditations/`
-3. Local `file://` URI is stored in DataStore (not original `content://` URI)
-4. On delete, local copy is also removed
+1. User waehlt Datei via OpenDocument Picker
+2. `GuidedMeditationRepositoryImpl.importMeditation()` kopiert zu `filesDir/meditations/`
+3. Lokale `file://` URI wird in DataStore gespeichert
+4. Bei Loeschung wird lokale Kopie auch entfernt
 
-### Platform Comparison
+### Plattform-Vergleich
 
-| Aspect | iOS (Bookmarks) | Android (Copy) |
+| Aspekt | iOS (Bookmarks) | Android (Copy) |
 |--------|-----------------|----------------|
-| Storage | No duplication | File copied |
-| Reliability | High | Very High |
-| Original file | Must stay accessible | Can be deleted |
-| Delete behavior | Reference only | File deleted |
-
-### Code Locations
-
-- `GuidedMeditationRepositoryImpl.kt:copyFileToInternalStorage()`
-- `GuidedMeditationRepositoryImpl.kt:deleteMeditation()` (also deletes local file)
-- `AudioPlayerService.kt:play()` (handles both `file://` and `content://` URIs)
-
-### User-Facing Implications
-
-- **Android**: Original file can be safely deleted after import
-- **Android**: Deleting meditation frees up storage space
-- **iOS**: Original file must remain accessible for playback
+| Speicher | Keine Duplizierung | Datei kopiert |
+| Zuverlaessigkeit | Hoch | Sehr hoch |
+| Original-Datei | Muss zugaenglich bleiben | Kann geloescht werden |
 
 ---
 
-## Settings Management
+## Audio-bezogene Einstellungen
 
-### MeditationSettings Model
+### MeditationSettings (Audio-relevant)
 
-Domain layer, persisted via UserDefaults (iOS) / DataStore (Android):
+| Property | Beschreibung |
+|----------|--------------|
+| `intervalGongsEnabled` | Intervall-Gongs aktiviert? |
+| `intervalMinutes` | Intervall (3, 5, 10 Minuten) |
+| `backgroundSoundId` | Sound ID aus `sounds.json` |
 
-```swift
-struct MeditationSettings {
-    var intervalGongsEnabled: Bool        // Default: false
-    var intervalMinutes: Int              // 3, 5, or 10 (default: 5)
-    var backgroundSoundId: String         // Sound ID from sounds.json (default: "silent")
-}
-```
+Vollstaendige MeditationSettings Definition siehe `GLOSSARY.md`.
 
-### Background Sound Architecture
+### BackgroundSoundRepository
 
-- `BackgroundSoundRepository` loads sounds from `BackgroundAudio/sounds.json`
-- Each sound has: id, filename, localized name/description, iconName, volume
-- User selects sound by ID, stored in UserDefaults
-- Legacy migration: Old `BackgroundAudioMode` enum → sound IDs ("Silent" → "silent")
-
-### Settings UI
-
-- Accessible via gear icon in TimerView
-- SettingsView with Form-based configuration
-- Dynamic Picker populated from `BackgroundSoundRepository`
-- Changes saved immediately to UserDefaults
-- Loaded on app launch
-
----
-
-## Benefits of Audio Coordination
-
-- No simultaneous playback conflicts
-- Clean UX: one audio source at a time
-- Automatic coordination between tabs
-- Centralized audio session management
-- Energy efficient (deactivates when idle)
-- Prevents ghost lock screen UI after conflicts
-- Proper lock screen controls for guided meditations
-- Feature parity between iOS and Android
+- Laedt Sounds aus `BackgroundAudio/sounds.json`
+- Jeder Sound: id, filename, lokalisierter Name, iconName, volume
+- Legacy-Migration: `BackgroundAudioMode` enum → Sound IDs
 
 ---
 
 ## Testing
 
-**Physical device testing required** (iPhone 13 mini is target):
-- Test with screen locked to verify background audio
-- Test tab switching during playback to verify coordination
-- Test phone call interruptions
+### Unit Tests
+
+Audio-Koordination wird ueber Mock-Protokolle getestet:
+
+```swift
+// iOS
+final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
+    var requestedSources: [AudioSource] = []
+    var shouldGrantSession = true
+
+    func requestAudioSession(for source: AudioSource) throws -> Bool {
+        requestedSources.append(source)
+        return shouldGrantSession
+    }
+}
+```
+
+### Integrations-Tests
+
+**Physisches Geraet erforderlich** (iPhone 13 mini ist Zielgeraet):
+
+- [ ] Test mit gesperrtem Bildschirm: Background Audio funktioniert?
+- [ ] Test Tab-Wechsel waehrend Playback: Koordination funktioniert?
+- [ ] Test Telefonanruf-Unterbrechungen
+- [ ] Test Lock Screen Controls fuer Guided Meditations
 
 ---
 
-**Last Updated**: 2025-12-21
-**Version**: 1.0
+## Vorteile der Audio-Koordination
+
+- Keine gleichzeitigen Playback-Konflikte
+- Saubere UX: eine Audio-Quelle zur Zeit
+- Automatische Koordination zwischen Tabs
+- Zentralisiertes Audio Session Management
+- Energieeffizient (deaktiviert wenn idle)
+- Verhindert Ghost Lock Screen UI nach Konflikten
+- Korrekte Lock Screen Controls fuer Guided Meditations
+- Feature-Paritaet zwischen iOS und Android
+
+---
+
+**Zuletzt aktualisiert**: 2026-01-05
+**Version**: 2.0
