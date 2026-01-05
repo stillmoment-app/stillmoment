@@ -321,6 +321,21 @@ Podcast-Analytics zählen nur unique Downloads (IAB-Standard). Wiederholtes Offl
 - Background URLSession für große Downloads
 - Core Data Entity für importierte Episoden
 
+#### Share Extension (falls gewählt)
+
+```
+StillMoment/
+├── StillMoment/                    # Haupt-App
+└── StillMomentShareExtension/      # Neues Target
+    ├── ShareViewController.swift   # Extension Entry Point
+    ├── Info.plist                  # URL-Types Konfiguration
+    └── ShareExtension.entitlements # App Groups für Datenaustausch
+```
+
+- **App Groups**: Für Datenaustausch Extension ↔ Haupt-App
+- **NSExtensionActivationRule**: Nur URLs von `podcasts.apple.com` akzeptieren
+- **Shared Container**: Download-Ziel für Extension, Haupt-App liest von dort
+
 ### Android-spezifisch
 
 - Retrofit/Ktor für API-Calls
@@ -328,13 +343,45 @@ Podcast-Analytics zählen nur unique Downloads (IAB-Standard). Wiederholtes Offl
 - WorkManager für Background-Downloads
 - Room Entity für importierte Episoden
 
-## Prototyp
+## Prototyp & Validierung
 
-Ein Web-Prototyp (React) validiert den grundlegenden Flow:
+### Web-Prototyp (React)
+
+Ein Web-Prototyp validiert den grundlegenden Flow:
 - Suche via iTunes API funktioniert
 - Episoden-Liste mit Cover, Titel, Dauer
 - Streaming-Wiedergabe
 
 **Abweichung zur finalen UI**: Prototyp hat eigene Bibliothek-Ansicht. In Still Moment landen Importe stattdessen in der bestehenden Library.
 
-**Erkenntnis aus Prototyp-Analyse**: Die iTunes API liefert bei Podcasts (anders als bei Musik) die volle Episode-URL via `episodeUrl`. Kein RSS-Parsing nötig.
+### API-Tests (2026-01-04)
+
+Validierung des Share-Link → Audio-URL Flows:
+
+| Test | Ergebnis |
+|------|----------|
+| Lookup via Podcast-ID + `entity=podcastEpisode` | Funktioniert, liefert alle Episoden |
+| Episode-ID (`trackId`) Matching | Funktioniert |
+| `episodeUrl` enthält volle MP3-URL | Bestätigt |
+| Direkter Lookup via Episode-ID | Funktioniert NICHT (API-Limitation) |
+| `limit=200` Maximum | Bestätigt |
+
+**Erkenntnisse:**
+1. Die iTunes API liefert bei Podcasts die volle Episode-URL via `episodeUrl` (nicht nur Preview)
+2. Episode-ID aus Share-Link (`i=...`) entspricht `trackId` in API-Response
+3. Kein direkter Episode-Lookup möglich - muss über Podcast-ID gehen
+4. RSS-Feed (`feedUrl`) ist verfügbar als Fallback, aber Episode-Matching komplex
+
+### Getestete Endpoints
+
+```bash
+# Podcast-Episoden via Podcast-ID (funktioniert)
+curl "https://itunes.apple.com/lookup?id=1654749564&entity=podcastEpisode&limit=200"
+
+# Direkt via Episode-ID (funktioniert NICHT)
+curl "https://itunes.apple.com/lookup?id=1000741226134"
+# → resultCount: 0
+
+# Suche nach Episoden (funktioniert)
+curl "https://itunes.apple.com/search?term=meditation&media=podcast&entity=podcastEpisode&limit=25"
+```
