@@ -1,4 +1,4 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean test-clean-unit setup check screenshots screenshots-visible screenshot-setup
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single simulator-reset test-clean setup check screenshots screenshot-setup
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -31,12 +31,6 @@ test-ui: ## Run UI tests only (NO COVERAGE - use 'make test' for coverage)
 test-single: ## Run single test (usage: make test-single TEST=TestClass/testMethod)
 	@./scripts/run-single-test.sh $(TEST)
 
-test-failures: ## List all failing tests from last test run
-	@./scripts/list-test-failures.sh
-
-test-report: ## Display coverage report from last test run
-	@./scripts/test-report.sh
-
 simulator-reset: ## Reset iOS Simulator (reduces Spotlight/WidgetRenderer crashes)
 	@echo "🔄 Resetting iOS Simulator..."
 	@echo "   This helps reduce Spotlight/WidgetRenderer crashes during UI tests"
@@ -46,9 +40,6 @@ simulator-reset: ## Reset iOS Simulator (reduces Spotlight/WidgetRenderer crashe
 
 test-clean: ## Reset simulator and run all tests (unit + UI)
 	@./scripts/run-tests.sh --reset-simulator
-
-test-clean-unit: ## Reset simulator and run unit tests only
-	@./scripts/run-tests.sh --reset-simulator --skip-ui-tests
 
 setup: ## Setup development environment (one-time setup)
 	@echo "🚀 Setting up development environment..."
@@ -78,13 +69,4 @@ screenshots: ## Generate all screenshots automatically (Fastlane)
 		exit 1; \
 	fi
 	@bundle exec fastlane screenshots
-	@echo "✅ Screenshots generated in docs/images/screenshots/"
-
-screenshots-visible: ## Generate screenshots with VISIBLE simulator (watch the automation)
-	@echo "📸 Generating screenshots with visible simulator..."
-	@if [ ! -d "vendor/bundle" ]; then \
-		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
-		exit 1; \
-	fi
-	@HEADLESS=false bundle exec fastlane screenshots
 	@echo "✅ Screenshots generated in docs/images/screenshots/"

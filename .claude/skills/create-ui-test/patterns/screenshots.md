@@ -89,7 +89,7 @@ Das `StillMoment-Screenshots` Target enthaelt 5 vorinstallierte Meditationen:
 make screenshots
 
 # Mit sichtbarem Simulator (zum Debuggen)
-make screenshots-visible
+HEADLESS=false make screenshots
 
 # Einzelnen Test ausfuehren
 xcodebuild test \
@@ -125,7 +125,7 @@ headless(ENV["HEADLESS"] != "false")
 
 1. Pruefen ob `snapshot()` aufgerufen wird
 2. Fastlane-Output auf Fehler pruefen
-3. Mit `make screenshots-visible` debuggen
+3. Mit `HEADLESS=false make screenshots` debuggen
 
 ### Falsches Bundle (leere Library)
 

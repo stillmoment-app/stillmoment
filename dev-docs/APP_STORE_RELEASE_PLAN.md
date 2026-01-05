@@ -49,8 +49,7 @@ git ls-files | xargs grep -l -E "(DEVELOPMENT_TEAM|@icloud.com|password=)" 2>/de
 ### 2.1 Qualitätsprüfungen
 ```bash
 make check              # Format + Lint + Localization
-make test               # Alle Tests (Unit + UI)
-make test-report        # Coverage-Bericht
+make test               # Alle Tests (Unit + UI) + Coverage
 ```
 
 **Aktueller Status:**
@@ -214,7 +213,6 @@ Keywords: meditation,timer,mindfulness,relaxation,calm,gong,singing bowl,zen
 # Finale Qualitätsprüfung
 make check
 make test
-make test-report
 
 # Clean Build
 rm -rf build/

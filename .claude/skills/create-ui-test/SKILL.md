@@ -91,7 +91,7 @@ Lese `patterns/screenshots.md` fuer Details.
 
 2. **Screenshot pruefen (falls Screenshot-Test):**
    ```bash
-   make screenshots-visible  # Mit sichtbarem Simulator
+   HEADLESS=false make screenshots  # Mit sichtbarem Simulator
    ```
 
 3. Bei Fehlern: Pattern-Dateien konsultieren

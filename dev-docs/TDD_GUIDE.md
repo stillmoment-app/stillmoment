@@ -36,31 +36,19 @@ When tests fail, use this systematic approach:
 
 ```bash
 # 1. Identify failing tests
-make test-failures
-
-# Output shows:
-# • AudioSessionCoordinatorTests/testActiveSourcePublisher()
-#   Error: API violation - multiple calls to fulfill
+open TestResults.xcresult  # Visual report in Xcode
 
 # 2. Run single test to understand failure
 make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
 
 # 3. Analyze test code
-# Read test to understand:
 # - What is being tested?
-# - Why is this test necessary?
 # - Why is it failing?
 
 # 4. Fix (either test or app code)
-# - If test is wrong → Fix test
-# - If app code is wrong → Fix app code
-# - If both need changes → Fix both
 
 # 5. Verify fix doesn't break other tests
 make test-unit
-
-# 6. Move to next failing test
-make test-failures
 ```
 
 **Key principle:** Understand each failure before fixing. Don't blindly change code.
@@ -180,19 +168,7 @@ func testFormattedTime() async {
 ```bash
 make test-unit          # Fast unit tests (30-60s) - RECOMMENDED for TDD
 make test               # Full suite including UI tests (2-5min)
-
-# TDD Workflow: Debug specific tests
-make test-failures      # List all failing tests from last run
-make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
-
-# Advanced: Direct script invocation (for special options)
-./scripts/run-tests.sh --device "iPhone 17"
-./scripts/run-tests.sh --help
-```
-
-**Verify with:**
-```bash
-make test-report        # Shows coverage and pass/fail summary
+make test-single TEST=TestClass/testMethod  # Debug specific test
 ```
 
 ### Coverage Reporting
@@ -201,28 +177,16 @@ make test-report        # Shows coverage and pass/fail summary
 
 ```bash
 # ✅ Coverage available
-make test           # ALL tests (unit + UI) → Coverage data generated
-make test-report    # Display coverage from complete run
+make test           # ALL tests (unit + UI) → Shows coverage
 
-# ❌ NO coverage (incomplete data)
-make test-unit      # Unit tests only → Coverage DISABLED (faster, partial data)
-make test-ui        # UI tests only → Coverage DISABLED (faster, partial data)
+# ❌ NO coverage (faster, for TDD loop)
+make test-unit      # Unit tests only
+make test-ui        # UI tests only
 ```
-
-**Why this matters:**
-- Coverage needs ALL tests to be accurate
-- Partial runs show misleading/incomplete coverage data
-- `test-unit` and `test-ui` are optimized for speed (no coverage overhead)
-- CI runs tests for pass/fail only (no coverage processing)
 
 **Workflow:**
 1. **TDD inner loop**: Use `make test-unit` (fast, no coverage)
 2. **Before commit**: Use `make test` (complete validation + coverage)
-3. **Check coverage**: Use `make test-report` (reads from last `make test` run)
-
-**If you see "Coverage UNAVAILABLE" in test-report:**
-- You ran `make test-unit` or `make test-ui` last
-- Solution: Run `make test` first, then `make test-report`
 
 ## UI Tests vs. Unit Tests in TDD
 
@@ -494,7 +458,7 @@ Before starting ANY feature:
 - [ ] Refactor while keeping tests green (BLUE)
 - [ ] Run `make test-unit` after each step
 - [ ] Update CLAUDE.md if architecture changed
-- [ ] Verify coverage with `make test-report`
+- [ ] Verify coverage with `make test`
 - [ ] Commit with confidence (pre-commit hook validates)
 
 **TDD is not optional.** It's the primary defense against test drift and the main tool for maintaining 9/10 quality.

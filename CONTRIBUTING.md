@@ -114,21 +114,12 @@ We follow **strict TDD** for all new features and significant changes:
 ### Running Tests
 
 ```bash
-# Quick feedback loop (recommended for TDD)
-make test-unit          # Unit tests only (~30-60s)
-
-# Debug specific failing tests
-make test-failures      # List all failing tests from last run
-make test-single TEST=AudioSessionCoordinatorTests/testActiveSourcePublisher
-
-# Full validation (before PR)
-make test               # All tests including UI tests (~2-5min)
-make test-report        # Display coverage report
-
-# Troubleshooting (if Simulator becomes unstable)
-make simulator-reset    # Reset iOS Simulator
-make test-clean-unit    # Reset + run unit tests
+make help               # Show all test commands
+make test-unit          # TDD loop (~30-60s)
+make test               # Full validation before PR (~2-5min)
 ```
+
+See `dev-docs/TDD_GUIDE.md` for troubleshooting and advanced options.
 
 ### Test Structure
 
@@ -192,8 +183,7 @@ git checkout -b fix/bug-description
    ```bash
    make format        # Auto-format
    make lint          # Check quality
-   make test-unit     # Run tests
-   make test-report   # Verify coverage ≥80%
+   make test          # Run tests + verify coverage ≥80%
    ```
 
 ### 4. Commit Messages

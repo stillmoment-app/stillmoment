@@ -45,16 +45,6 @@ This directory contains automation scripts for the Still Moment project.
 - Fails if coverage < 80%
 - Enforced in CI/CD pipeline
 
-### `test-report.sh`
-**Purpose**: Display coverage report from last test run (without re-running tests).
-
-**Usage**:
-```bash
-./scripts/test-report.sh
-```
-
-**Output**: Terminal-based coverage report with timestamp and threshold check
-
 ## Troubleshooting
 
 ### "Permission denied"

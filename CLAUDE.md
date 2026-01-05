@@ -30,11 +30,10 @@ stillmoment/
 ### iOS (`ios/` directory)
 
 ```bash
+make help               # Show all commands
 make check              # Format + lint + localization
 make test-unit          # Fast unit tests (~30-60s)
 make test               # Full suite with coverage
-make test-report        # Show coverage
-make screenshots        # Generate localized screenshots
 ```
 
 ### Android (`android/` directory)
@@ -241,7 +240,6 @@ guard let url = URL(string: str) else { return }  // RICHTIG
 ```bash
 make test-unit          # TDD inner loop (fast)
 make test               # Full validation + coverage
-make test-report        # Single source of truth
 ```
 
 **Coverage targets**: Domain 85%+, Infrastructure 70%+, Presentation 50%+

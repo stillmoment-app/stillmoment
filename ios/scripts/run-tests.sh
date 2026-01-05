@@ -177,21 +177,7 @@ if [ "$ENABLE_COVERAGE" = "YES" ]; then
         echo ""
         echo "-------------------"
         echo "Overall Coverage: ${COVERAGE}%"
-        echo "Guideline: ${COVERAGE_THRESHOLD}%+ (indicator, not goal)"
-
-        # Coverage guidance (informational, not enforced)
-        if float_less_than "$COVERAGE" "$COVERAGE_THRESHOLD"; then
-            echo "📊 Coverage below ${COVERAGE_THRESHOLD}%"
-            echo ""
-            echo "💡 Consider:"
-            echo "   1. Are critical paths tested? (MeditationTimer, AudioCoordinator, ViewModels)"
-            echo "   2. Review coverage.txt for gaps in important code"
-            echo "   3. Open $RESULT_BUNDLE in Xcode for visual report"
-            echo "   4. Focus on quality, not quantity - see CRITICAL_CODE.md"
-        else
-            echo "✅ Coverage at ${COVERAGE}% (tracking well)"
-            echo "   Remember: Test quality > coverage percentage"
-        fi
+        echo "Guideline: ${COVERAGE_THRESHOLD}%+"
     else
         echo "⚠️  Could not generate coverage report"
     fi
@@ -220,14 +206,7 @@ echo "   - Open result bundle: open $RESULT_BUNDLE"
 
 if [ "$ENABLE_COVERAGE" = "YES" ]; then
     echo "   - View coverage: cat coverage.txt"
-    echo "   - Test report: make test-report"
 fi
 
 echo "   - Run with options: $0 --help"
-echo ""
-echo "⚠️  Note about crash reports:"
-echo "   If you see crash reports for Spotlight, WidgetRenderer, or other"
-echo "   system processes, these are NORMAL simulator issues and do NOT"
-echo "   affect test results. Only Still Moment crashes indicate real problems."
-echo "   Use --reset-simulator to reduce frequency of these crashes."
 echo ""

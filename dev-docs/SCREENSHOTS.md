@@ -90,7 +90,8 @@ The Screenshots target includes 5 pre-seeded meditations:
 |---------|-------------|----------|
 | `make screenshot-setup` | Install Ruby/Fastlane (one-time) | ~2 min |
 | `make screenshots` | Generate all screenshots (headless) | ~3-5 min |
-| `make screenshots-visible` | Generate with visible simulator | ~3-5 min |
+
+**Debug with visible simulator:** `HEADLESS=false make screenshots`
 
 ## Ruby Environment
 

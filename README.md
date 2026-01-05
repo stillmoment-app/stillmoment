@@ -98,7 +98,6 @@ make format      # Format code (required before commit)
 make lint        # Lint code (strict mode)
 make test        # Run all tests with coverage
 make test-unit   # Run unit tests only (faster)
-make test-report # Display last coverage report
 ```
 
 ### File Management
@@ -136,28 +135,12 @@ GitHub Actions pipeline runs on every push/PR:
 ## 🧪 Testing
 
 ```bash
-# Quick test (unit tests only, ~30-60 seconds)
-make test-unit
-
-# Full test suite (unit + UI, ~2-5 minutes)
-make test
-
-# Display last coverage report
-make test-report
-
-# Or run in Xcode
-⌘U
-
-# View detailed results
-open TestResults.xcresult
+make help        # Show all test commands
+make test-unit   # Quick (~30-60s)
+make test        # Full suite + coverage
 ```
 
-**Coverage Requirements** (enforced):
-- Overall: ≥80%
-- Domain Layer: ≥95%
-- Application Layer: ≥90%
-- Infrastructure Layer: ≥85%
-- Presentation Layer: ≥70%
+**Coverage**: ≥80% overall (enforced). See `dev-docs/TDD_GUIDE.md` for details.
 
 ## 📊 Code Quality Metrics
 
