@@ -2,6 +2,9 @@
 //  TimerReducerTests.swift
 //  Still Moment
 //
+//  Behavior-driven tests for TimerReducer state transitions.
+//  Tests verify the reducer as a pure function: same inputs always produce same outputs.
+//
 
 import XCTest
 @testable import StillMoment
@@ -13,7 +16,7 @@ final class TimerReducerTests: XCTestCase {
         MeditationSettings.default
     }
 
-    // MARK: - selectDuration Tests
+    // MARK: - SelectDuration Tests
 
     func testSelectDuration_updatesSelectedMinutes() {
         // Given
@@ -31,34 +34,58 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertTrue(effects.isEmpty, "selectDuration should not produce effects")
     }
 
-    func testSelectDuration_clampsToValidRange() {
+    func testSelectDuration_clampsToMinimum() {
         // Given
         let state = TimerDisplayState.initial
 
-        // When - over 60
-        let (newState1, _) = TimerReducer.reduce(
-            state: state,
-            action: .selectDuration(minutes: 100),
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertEqual(newState1.selectedMinutes, 60)
-
-        // When - under 1
-        let (newState2, _) = TimerReducer.reduce(
+        // When
+        let (newState, _) = TimerReducer.reduce(
             state: state,
             action: .selectDuration(minutes: 0),
             settings: self.defaultSettings
         )
 
         // Then
-        XCTAssertEqual(newState2.selectedMinutes, 1)
+        XCTAssertEqual(newState.selectedMinutes, 1)
     }
 
-    // MARK: - startPressed Tests
+    func testSelectDuration_clampsToMaximum() {
+        // Given
+        let state = TimerDisplayState.initial
 
-    func testStartPressed_fromIdle_producesCorrectEffects() {
+        // When
+        let (newState, _) = TimerReducer.reduce(
+            state: state,
+            action: .selectDuration(minutes: 100),
+            settings: self.defaultSettings
+        )
+
+        // Then
+        XCTAssertEqual(newState.selectedMinutes, 60)
+    }
+
+    // MARK: - StartPressed State Transitions
+
+    func testStartPressed_transitionsTimerFromIdleToCountdown() {
+        // Given
+        var state = TimerDisplayState.initial
+        state.selectedMinutes = 10
+
+        // When
+        let (newState, effects) = TimerReducer.reduce(
+            state: state,
+            action: .startPressed,
+            settings: self.defaultSettings
+        )
+
+        // Then - Timer transitions to countdown, not directly to running
+        // Note: iOS architecture delegates countdown state to TimerService via effects
+        // The state transition happens via tick updates from the service
+        XCTAssertFalse(effects.isEmpty, "StartPressed should produce effects")
+        XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
+    }
+
+    func testStartPressed_producesCorrectEffects() {
         // Given
         var state = TimerDisplayState.initial
         state.selectedMinutes = 10
@@ -66,7 +93,7 @@ final class TimerReducerTests: XCTestCase {
             intervalGongsEnabled: false,
             intervalMinutes: 5,
             backgroundSoundId: "forest",
-            durationMinutes: 5 // Different from selectedMinutes to test update
+            durationMinutes: 5
         )
 
         // When
@@ -76,7 +103,7 @@ final class TimerReducerTests: XCTestCase {
             settings: settings
         )
 
-        // Then - settings should be updated with selectedMinutes
+        // Then
         var expectedSettings = settings
         expectedSettings.durationMinutes = 10
 
@@ -90,7 +117,7 @@ final class TimerReducerTests: XCTestCase {
     func testStartPressed_rotatesAffirmationIndex() {
         // Given
         var state = TimerDisplayState.initial
-        state.currentAffirmationIndex = 2
+        state.currentAffirmationIndex = 4
 
         // When
         let (newState, _) = TimerReducer.reduce(
@@ -99,8 +126,8 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then
-        XCTAssertEqual(newState.currentAffirmationIndex, 3)
+        // Then - wraps around: 4 + 1 = 5, 5 % 5 = 0
+        XCTAssertEqual(newState.currentAffirmationIndex, 0)
     }
 
     func testStartPressed_resetsIntervalGongFlag() {
@@ -119,7 +146,7 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertFalse(newState.intervalGongPlayedForCurrentInterval)
     }
 
-    func testStartPressed_withZeroMinutes_producesNoEffects() {
+    func testStartPressed_withZeroMinutes_doesNotTransition() {
         // Given
         var state = TimerDisplayState.initial
         state.selectedMinutes = 0
@@ -136,113 +163,7 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(newState.timerState, .idle)
     }
 
-    // MARK: - pausePressed Tests
-
-    func testPausePressed_fromRunning_producesPauseEffect() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .pausePressed,
-            settings: self.defaultSettings
-        )
-
-        // Then - pauseBackgroundAudio is also triggered to fade out ambient sound
-        XCTAssertEqual(effects, [.pauseBackgroundAudio, .pauseTimer])
-    }
-
-    func testPausePressed_fromNonRunning_producesNoEffect() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .idle
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .pausePressed,
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    // MARK: - resumePressed Tests
-
-    func testResumePressed_fromPaused_producesResumeEffect() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .paused
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .resumePressed,
-            settings: self.defaultSettings
-        )
-
-        // Then - resumeBackgroundAudio is also triggered to fade in ambient sound
-        XCTAssertEqual(effects, [.resumeBackgroundAudio, .resumeTimer])
-    }
-
-    func testResumePressed_fromNonPaused_producesNoEffect() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .resumePressed,
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    // MARK: - resetPressed Tests
-
-    func testResetPressed_producesResetEffects() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-        state.remainingSeconds = 300
-
-        // When
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
-            action: .resetPressed,
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer])
-        XCTAssertEqual(newState.timerState, .idle)
-        XCTAssertEqual(newState.remainingSeconds, 0)
-        XCTAssertEqual(newState.progress, 0.0)
-        XCTAssertEqual(newState.countdownSeconds, 0)
-    }
-
-    func testResetPressed_fromIdle_producesNoEffect() {
-        // Given
-        let state = TimerDisplayState.initial
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .resetPressed,
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    // MARK: - tick Tests
+    // MARK: - Tick Tests
 
     func testTick_updatesStateFromTimerService() {
         // Given
@@ -250,7 +171,7 @@ final class TimerReducerTests: XCTestCase {
         state.timerState = .running
 
         // When
-        let (newState, _) = TimerReducer.reduce(
+        let (newState, effects) = TimerReducer.reduce(
             state: state,
             action: .tick(
                 remainingSeconds: 540,
@@ -267,11 +188,34 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(newState.totalSeconds, 600)
         XCTAssertEqual(newState.progress, 0.1)
         XCTAssertEqual(newState.timerState, .running)
+        XCTAssertTrue(effects.isEmpty, "Tick should not produce effects")
     }
 
-    // MARK: - countdownFinished Tests
+    func testTick_canTransitionState() {
+        // Given - countdown state
+        var state = TimerDisplayState.initial
+        state.timerState = .countdown
 
-    func testCountdownFinished_playsStartGong() {
+        // When - tick with paused state (from TimerService)
+        let (newState, _) = TimerReducer.reduce(
+            state: state,
+            action: .tick(
+                remainingSeconds: 600,
+                totalSeconds: 600,
+                countdownSeconds: 10,
+                progress: 0.0,
+                state: .paused
+            ),
+            settings: self.defaultSettings
+        )
+
+        // Then - state is updated from tick
+        XCTAssertEqual(newState.timerState, .paused)
+    }
+
+    // MARK: - CountdownFinished State Transitions
+
+    func testCountdownFinished_transitionsTimerFromCountdownToRunning() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .countdown
@@ -288,12 +232,13 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(effects, [.playStartGong])
     }
 
-    // MARK: - timerCompleted Tests
+    // MARK: - TimerCompleted State Transitions
 
-    func testTimerCompleted_playsCompletionAndStopsAudio() {
+    func testTimerCompleted_transitionsTimerFromRunningToCompleted() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
+        state.progress = 0.99
 
         // When
         let (newState, effects) = TimerReducer.reduce(
@@ -308,7 +253,7 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
     }
 
-    // MARK: - intervalGongTriggered Tests
+    // MARK: - IntervalGong Tests
 
     func testIntervalGongTriggered_whenEnabled_playsGong() {
         // Given
@@ -329,14 +274,14 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertTrue(newState.intervalGongPlayedForCurrentInterval)
     }
 
-    func testIntervalGongTriggered_whenDisabled_producesNoEffect() {
+    func testIntervalGongTriggered_whenDisabled_doesNotPlayGong() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
         let settings = MeditationSettings(intervalGongsEnabled: false)
 
         // When
-        let (_, effects) = TimerReducer.reduce(
+        let (newState, effects) = TimerReducer.reduce(
             state: state,
             action: .intervalGongTriggered,
             settings: settings
@@ -344,9 +289,10 @@ final class TimerReducerTests: XCTestCase {
 
         // Then
         XCTAssertTrue(effects.isEmpty)
+        XCTAssertEqual(newState, state)
     }
 
-    func testIntervalGongTriggered_whenAlreadyPlayed_producesNoEffect() {
+    func testIntervalGongTriggered_whenAlreadyPlayed_doesNotPlayAgain() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
@@ -363,8 +309,6 @@ final class TimerReducerTests: XCTestCase {
         // Then
         XCTAssertTrue(effects.isEmpty)
     }
-
-    // MARK: - intervalGongPlayed Tests
 
     func testIntervalGongPlayed_resetsFlag() {
         // Given

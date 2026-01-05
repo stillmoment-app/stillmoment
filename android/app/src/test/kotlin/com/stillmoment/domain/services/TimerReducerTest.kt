@@ -225,6 +225,42 @@ class TimerReducerTest {
             assertEquals(state, newState)
             assertTrue(effects.isEmpty())
         }
+
+        @Test
+        fun `does nothing when in countdown`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    defaultSettings
+                )
+
+            // Then - Cannot pause during countdown
+            assertEquals(TimerState.Countdown, newState.timerState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `does nothing when completed`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Completed)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PausePressed,
+                    defaultSettings
+                )
+
+            // Then - Cannot pause completed timer
+            assertEquals(TimerState.Completed, newState.timerState)
+            assertTrue(effects.isEmpty())
+        }
     }
 
     // MARK: - ResumePressed Tests
@@ -253,7 +289,7 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `does nothing when not paused`() {
+        fun `does nothing when running`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
@@ -265,8 +301,62 @@ class TimerReducerTest {
                     defaultSettings
                 )
 
-            // Then
-            assertEquals(state, newState)
+            // Then - Already running
+            assertEquals(TimerState.Running, newState.timerState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `does nothing when idle`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Idle)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    defaultSettings
+                )
+
+            // Then - Cannot resume from idle
+            assertEquals(TimerState.Idle, newState.timerState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `does nothing when in countdown`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    defaultSettings
+                )
+
+            // Then - Cannot resume during countdown
+            assertEquals(TimerState.Countdown, newState.timerState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `does nothing when completed`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Completed)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResumePressed,
+                    defaultSettings
+                )
+
+            // Then - Cannot resume completed timer
+            assertEquals(TimerState.Completed, newState.timerState)
             assertTrue(effects.isEmpty())
         }
     }

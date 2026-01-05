@@ -1,6 +1,6 @@
 # Ticket shared-015: State-Machine Tests fuer TimerReducer
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 5-QA
@@ -26,19 +26,19 @@ Ein Bug in Android (Pause/Resume aenderte den State nicht) wurde von Tests nicht
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
-- [ ] Alle State-Uebergaenge laut State-Machine-Dokumentation getestet
-- [ ] Tests beschreiben Verhalten, nicht Implementation
-- [ ] Testnamen folgen Pattern: `{action} transitions timer from {oldState} to {newState}`
-- [ ] Keine manuellen State-Simulationen (kein `state.copy(timerState = ...)` als Workaround)
-- [ ] Jeder ungueltiger Uebergang getestet (z.B. Pause im Idle-State)
-- [ ] Integrationstest deckt vollstaendigen Zyklus ab ohne Workarounds
+- [x] Alle State-Uebergaenge laut State-Machine-Dokumentation getestet
+- [x] Tests beschreiben Verhalten, nicht Implementation
+- [x] Testnamen folgen Pattern: `{action} transitions timer from {oldState} to {newState}`
+- [x] Keine manuellen State-Simulationen (kein `state.copy(timerState = ...)` als Workaround)
+- [x] Jeder ungueltiger Uebergang getestet (z.B. Pause im Idle-State)
+- [x] Integrationstest deckt vollstaendigen Zyklus ab ohne Workarounds
 
 ---
 

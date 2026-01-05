@@ -272,6 +272,7 @@ make test-report        # Single source of truth
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
 | **Architektur** | `dev-docs/ARCHITECTURE.md` |
 | **DDD** | `dev-docs/DDD_GUIDE.md` |
+| **Domain Glossar** | `dev-docs/GLOSSARY.md` |
 | Testing | `dev-docs/TDD_GUIDE.md` |
 | Audio | `dev-docs/AUDIO_ARCHITECTURE.md` |
 | Colors | `dev-docs/COLOR_SYSTEM.md` |
