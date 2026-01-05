@@ -258,8 +258,8 @@ jobs:
   # Android Jobs
   # ===================
 
-  android-lint:
-    name: Android Code Quality (Lint)
+  android-code-quality:
+    name: Android Code Quality
     runs-on: ubuntu-latest
 
     steps:
@@ -276,73 +276,18 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x android/gradlew
 
-    - name: Run Android Lint
-      run: cd android && ./gradlew lint
+    - name: Run Code Quality Checks
+      run: cd android && ./gradlew ktlintCheck lint detekt
 
-    - name: Upload Lint Results
+    - name: Upload Quality Reports
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: android-lint-results
-        path: android/app/build/reports/lint-results*.html
-        retention-days: 7
-
-  android-ktlint:
-    name: Android Code Quality (ktlint)
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x android/gradlew
-
-    - name: Run ktlint Check
-      run: cd android && ./gradlew ktlintCheck
-
-    - name: Upload ktlint Results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: android-ktlint-results
-        path: android/app/build/reports/ktlint/
-        retention-days: 7
-
-  android-detekt:
-    name: Android Code Quality (detekt)
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x android/gradlew
-
-    - name: Run detekt
-      run: cd android && ./gradlew detekt
-
-    - name: Upload detekt Results
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: android-detekt-results
-        path: android/app/build/reports/detekt/
+        name: android-quality-reports
+        path: |
+          android/app/build/reports/lint-results*.html
+          android/app/build/reports/ktlint/
+          android/app/build/reports/detekt/
         retention-days: 7
 
   android-build-and-test:
