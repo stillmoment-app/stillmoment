@@ -94,14 +94,16 @@ object TimerReducer {
         if (state.timerState != TimerState.Running) {
             return state to emptyList()
         }
-        return state to listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer)
+        val newState = state.copy(timerState = TimerState.Paused)
+        return newState to listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer)
     }
 
     private fun reduceResumePressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         if (state.timerState != TimerState.Paused) {
             return state to emptyList()
         }
-        return state to listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer)
+        val newState = state.copy(timerState = TimerState.Running)
+        return newState to listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer)
     }
 
     private fun reduceResetPressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {

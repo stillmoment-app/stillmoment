@@ -173,7 +173,7 @@ class TimerReducerTest {
     @Nested
     inner class PausePressed {
         @Test
-        fun `emits PauseBackgroundAudio and PauseTimer effects when running`() {
+        fun `transitions to paused and emits effects when running`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
 
@@ -186,7 +186,7 @@ class TimerReducerTest {
                 )
 
             // Then
-            assertEquals(state, newState) // State unchanged - TimerRepository handles state change
+            assertEquals(TimerState.Paused, newState.timerState)
             assertEquals(listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer), effects)
         }
 
@@ -232,7 +232,7 @@ class TimerReducerTest {
     @Nested
     inner class ResumePressed {
         @Test
-        fun `emits ResumeBackgroundAudio and ResumeTimer effects when paused`() {
+        fun `transitions to running and emits effects when paused`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Paused)
 
@@ -245,7 +245,7 @@ class TimerReducerTest {
                 )
 
             // Then
-            assertEquals(state, newState)
+            assertEquals(TimerState.Running, newState.timerState)
             assertEquals(
                 listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer),
                 effects
@@ -659,12 +659,12 @@ class TimerReducerTest {
                     settings
                 )
 
-            // Then - Both audio pause and timer pause effects
+            // Then - State transitions to Paused, both audio pause and timer pause effects
+            assertEquals(TimerState.Paused, pausedState.timerState)
             assertTrue(pauseEffects.contains(TimerEffect.PauseBackgroundAudio))
             assertTrue(pauseEffects.contains(TimerEffect.PauseTimer))
 
-            // Simulate state change from repository
-            state = pausedState.copy(timerState = TimerState.Paused)
+            state = pausedState
 
             // When - Resume
             val (_, resumeEffects) =
