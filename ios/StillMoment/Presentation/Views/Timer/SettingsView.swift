@@ -45,6 +45,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.preparationTime")
                         .accessibilityLabel("accessibility.preparationTime")
                         .accessibilityHint("accessibility.preparationTime.hint")
+                        .listRowBackground(Color.backgroundPrimary)
 
                         if self.settings.preparationTimeEnabled {
                             Picker(
@@ -62,6 +63,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
                             .accessibilityLabel("accessibility.preparationTimeDuration")
                             .accessibilityHint("accessibility.preparationTimeDuration.hint")
+                            .listRowBackground(Color.backgroundPrimary)
                         }
                     } header: {
                         Text("settings.preparationTime.header", bundle: .main)
@@ -101,6 +103,7 @@ struct SettingsView: View {
                         .accessibilityLabel(
                             NSLocalizedString("settings.backgroundAudio.title", comment: "")
                         )
+                        .listRowBackground(Color.backgroundPrimary)
                     } header: {
                         Text("settings.backgroundAudio.title", bundle: .main)
                     } footer: {
@@ -124,6 +127,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.intervalGongs")
                         .accessibilityLabel("accessibility.intervalGongs")
                         .accessibilityHint("accessibility.intervalGongs.hint")
+                        .listRowBackground(Color.backgroundPrimary)
 
                         if self.settings.intervalGongsEnabled {
                             Picker(
@@ -138,6 +142,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.intervalMinutes")
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
+                            .listRowBackground(Color.backgroundPrimary)
                         }
                     } header: {
                         Text("settings.soundSettings.title", bundle: .main)

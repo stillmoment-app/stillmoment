@@ -233,6 +233,7 @@ struct GuidedMeditationsListView: View {
             .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
+        .listRowBackground(Color.backgroundPrimary)
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
