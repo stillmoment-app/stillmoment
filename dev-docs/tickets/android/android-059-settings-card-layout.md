@@ -1,6 +1,6 @@
 # Ticket android-059: SettingsSheet mit Card-Layout strukturieren
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine

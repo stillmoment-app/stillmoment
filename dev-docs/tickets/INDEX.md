@@ -133,7 +133,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-056](android/android-056-audio-focus-management.md) | AudioFocus Management implementieren | 2-Architektur | [x] | - |
 | [android-057](android/android-057-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
 | [android-058](android/android-058-settings-sofort-speichern.md) | Settings sofort speichern | 4-Polish | [ ] | - |
-| [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [ ] | - |
+| [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [x] | - |
 
 ---
 
