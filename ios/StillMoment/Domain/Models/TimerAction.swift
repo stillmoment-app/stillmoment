@@ -33,10 +33,16 @@ enum TimerAction: Equatable {
     // MARK: - System Events
 
     /// Timer tick with updated values from TimerService
-    case tick(remainingSeconds: Int, totalSeconds: Int, countdownSeconds: Int, progress: Double, state: TimerState)
+    case tick(
+        remainingSeconds: Int,
+        totalSeconds: Int,
+        remainingPreparationSeconds: Int,
+        progress: Double,
+        state: TimerState
+    )
 
-    /// Countdown phase finished, transitioning to running
-    case countdownFinished
+    /// Preparation phase finished, transitioning to running
+    case preparationFinished
 
     /// Timer completed (reached zero)
     case timerCompleted

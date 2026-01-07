@@ -26,7 +26,7 @@ final class TimerReducerIntegrationTests: XCTestCase {
 
     // MARK: - Full Cycle Tests
 
-    func testMeditationCycle_start_triggers_countdown() {
+    func testMeditationCycle_start_triggers_preparation() {
         var state = TimerDisplayState.initial
         state.selectedMinutes = 1
 
@@ -44,26 +44,26 @@ final class TimerReducerIntegrationTests: XCTestCase {
             action: .tick(
                 remainingSeconds: 60,
                 totalSeconds: 60,
-                countdownSeconds: 10,
+                remainingPreparationSeconds: 10,
                 progress: 0.0,
-                state: .countdown
+                state: .preparation
             ),
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterCountdown.timerState, .countdown)
+        XCTAssertEqual(afterCountdown.timerState, .preparation)
     }
 
-    func testMeditationCycle_countdown_to_running_to_completed() {
+    func testMeditationCycle_preparation_to_running_to_completed() {
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
-        let (afterRunning, countdownEffects) = TimerReducer.reduce(
+        let (afterRunning, preparationEffects) = TimerReducer.reduce(
             state: state,
-            action: .countdownFinished,
+            action: .preparationFinished,
             settings: self.defaultSettings
         )
         XCTAssertEqual(afterRunning.timerState, .running)
-        XCTAssertTrue(countdownEffects.contains(.playStartGong))
+        XCTAssertTrue(preparationEffects.contains(.playStartGong))
 
         let (afterCompleted, completedEffects) = TimerReducer.reduce(
             state: afterRunning,

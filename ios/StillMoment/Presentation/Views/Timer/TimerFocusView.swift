@@ -94,7 +94,7 @@ struct TimerFocusView: View {
                 }
 
                 // Track if timer was ever active
-                if newState == .countdown || newState == .running {
+                if newState == .preparation || newState == .running {
                     self.wasActive = true
                 }
             }
@@ -112,8 +112,8 @@ struct TimerFocusView: View {
         switch self.viewModel.timerState {
         case .idle:
             NSLocalizedString("state.ready", comment: "")
-        case .countdown:
-            self.viewModel.currentCountdownAffirmation
+        case .preparation:
+            self.viewModel.currentPreparationAffirmation
         case .running:
             self.viewModel.currentRunningAffirmation
         case .paused:
@@ -128,8 +128,8 @@ struct TimerFocusView: View {
     private func timerDisplay(circleSize: CGFloat, isCompact: Bool) -> some View {
         VStack(spacing: isCompact ? 12 : 20) {
             ZStack {
-                if self.viewModel.isCountdown {
-                    self.countdownCircle(size: circleSize, isCompact: isCompact)
+                if self.viewModel.isPreparation {
+                    self.preparationCircle(size: circleSize, isCompact: isCompact)
                 } else {
                     self.progressCircle(size: circleSize, isCompact: isCompact)
                 }
@@ -137,7 +137,7 @@ struct TimerFocusView: View {
         }
     }
 
-    private func countdownCircle(size: CGFloat, isCompact: Bool) -> some View {
+    private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
                 .stroke(Color.ringBackground, lineWidth: 10)
@@ -147,10 +147,10 @@ struct TimerFocusView: View {
                 .font(.system(size: isCompact ? 90 : 110, weight: .ultraLight, design: .rounded))
                 .foregroundColor(.textPrimary)
                 .monospacedDigit()
-                .accessibilityIdentifier("focus.display.countdown")
+                .accessibilityIdentifier("focus.display.preparation")
                 .accessibilityLabel(String(
-                    format: NSLocalizedString("accessibility.countdown", comment: ""),
-                    self.viewModel.countdownSeconds
+                    format: NSLocalizedString("accessibility.preparation", comment: ""),
+                    self.viewModel.remainingPreparationSeconds
                 ))
         }
     }
@@ -207,8 +207,8 @@ struct TimerFocusView: View {
 // MARK: - Previews
 
 @available(iOS 17.0, *)
-#Preview("Countdown") {
-    TimerFocusView(viewModel: TimerViewModel.preview(state: .countdown))
+#Preview("Preparation") {
+    TimerFocusView(viewModel: TimerViewModel.preview(state: .preparation))
 }
 
 @available(iOS 17.0, *)

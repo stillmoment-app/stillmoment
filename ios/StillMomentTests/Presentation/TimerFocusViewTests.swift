@@ -25,7 +25,7 @@ final class TimerFocusViewTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.mockTimerService = MockTimerService(countdownDuration: 0)
+        self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -83,17 +83,17 @@ final class TimerFocusViewTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 
-    func testSwipeToDismissDisabledDuringCountdown() {
+    func testSwipeToDismissDisabledDuringPreparation() {
         // Given
-        let expectation = expectation(description: "Countdown running")
+        let expectation = expectation(description: "Preparation running")
 
-        // When - Simulate countdown state directly
-        self.mockTimerService.simulateTick(remainingSeconds: 600, state: .countdown)
+        // When - Simulate preparation state directly
+        self.mockTimerService.simulateTick(remainingSeconds: 600, state: .preparation)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            // Then - canResume is false during countdown, so swipe should be disabled
-            XCTAssertFalse(self.sut.canResume, "canResume should be false during countdown")
-            XCTAssertEqual(self.sut.timerState, .countdown)
+            // Then - canResume is false during preparation, so swipe should be disabled
+            XCTAssertFalse(self.sut.canResume, "canResume should be false during preparation")
+            XCTAssertEqual(self.sut.timerState, .preparation)
             expectation.fulfill()
         }
 

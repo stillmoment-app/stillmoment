@@ -17,12 +17,16 @@ struct MeditationSettings: Codable, Equatable {
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
         backgroundSoundId: String = "silent",
-        durationMinutes: Int = 10
+        durationMinutes: Int = 10,
+        preparationTimeEnabled: Bool = true,
+        preparationTimeSeconds: Int = 15
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
         self.backgroundSoundId = backgroundSoundId
         self.durationMinutes = Self.validateDuration(durationMinutes)
+        self.preparationTimeEnabled = preparationTimeEnabled
+        self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
     }
 
     // MARK: Internal
@@ -34,6 +38,8 @@ struct MeditationSettings: Codable, Equatable {
         static let intervalMinutes = "intervalMinutes"
         static let backgroundSoundId = "backgroundSoundId"
         static let durationMinutes = "durationMinutes"
+        static let preparationTimeEnabled = "preparationTimeEnabled"
+        static let preparationTimeSeconds = "preparationTimeSeconds"
         // Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -49,6 +55,12 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Duration of meditation in minutes (1-60)
     var durationMinutes: Int
+
+    /// Whether preparation time is enabled before meditation starts
+    var preparationTimeEnabled: Bool
+
+    /// Duration of preparation phase in seconds (5, 10, 15, 20, 30, 45)
+    var preparationTimeSeconds: Int
 
     // MARK: - Validation
 
@@ -68,6 +80,15 @@ struct MeditationSettings: Codable, Equatable {
     static func validateDuration(_ minutes: Int) -> Int {
         min(max(minutes, 1), 60)
     }
+
+    /// Valid preparation time options in seconds
+    static let validPreparationTimes = [5, 10, 15, 20, 30, 45]
+
+    /// Validates and clamps preparation time to valid values (5, 10, 15, 20, 30, 45 seconds)
+    static func validatePreparationTime(_ seconds: Int) -> Int {
+        // Find the closest valid value
+        self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 15
+    }
 }
 
 // MARK: - Default Settings
@@ -78,7 +99,9 @@ extension MeditationSettings {
         intervalGongsEnabled: false,
         intervalMinutes: 5,
         backgroundSoundId: "silent",
-        durationMinutes: 10
+        durationMinutes: 10,
+        preparationTimeEnabled: true,
+        preparationTimeSeconds: 15
     )
 }
 

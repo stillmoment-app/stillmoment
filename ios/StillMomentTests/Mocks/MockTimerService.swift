@@ -9,12 +9,6 @@ import Combine
 // MARK: - Mock Services
 
 final class MockTimerService: TimerServiceProtocol {
-    // MARK: Lifecycle
-
-    init(countdownDuration: Int = 15) {
-        self.countdownDuration = countdownDuration
-    }
-
     // MARK: Internal
 
     var startCalled = false
@@ -24,18 +18,20 @@ final class MockTimerService: TimerServiceProtocol {
     var stopCalled = false
 
     var lastStartDuration: Int?
+    var lastStartPreparationTime: Int?
 
     var timerPublisher: AnyPublisher<MeditationTimer, Never> {
         self.subject.eraseToAnyPublisher()
     }
 
-    func start(durationMinutes: Int) {
+    func start(durationMinutes: Int, preparationTimeSeconds: Int) {
         self.startCalled = true
         self.lastStartDuration = durationMinutes
+        self.lastStartPreparationTime = preparationTimeSeconds
 
         guard let timer = try? MeditationTimer(
             durationMinutes: durationMinutes,
-            countdownDuration: self.countdownDuration
+            preparationTimeSeconds: preparationTimeSeconds
         ) else {
             return
         }
@@ -61,7 +57,7 @@ final class MockTimerService: TimerServiceProtocol {
     func simulateTick(remainingSeconds: Int, state: TimerState = .running) {
         guard let timer = try? MeditationTimer(
             durationMinutes: 10,
-            countdownDuration: self.countdownDuration
+            preparationTimeSeconds: 0
         ) else {
             return
         }
@@ -72,7 +68,7 @@ final class MockTimerService: TimerServiceProtocol {
     func simulateCompletion() {
         guard var timer = try? MeditationTimer(
             durationMinutes: 1,
-            countdownDuration: self.countdownDuration
+            preparationTimeSeconds: 0
         ) else {
             return
         }
@@ -95,7 +91,7 @@ final class MockTimerService: TimerServiceProtocol {
     ) {
         guard var timer = try? MeditationTimer(
             durationMinutes: durationMinutes,
-            countdownDuration: 0
+            preparationTimeSeconds: 0
         ) else {
             return
         }
@@ -149,7 +145,6 @@ final class MockTimerService: TimerServiceProtocol {
     // MARK: Private
 
     private let subject = PassthroughSubject<MeditationTimer, Never>()
-    private let countdownDuration: Int
 }
 
 final class MockAudioService: AudioServiceProtocol {

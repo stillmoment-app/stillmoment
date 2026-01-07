@@ -7,20 +7,20 @@ import XCTest
 @testable import StillMoment
 
 final class TimerDisplayStateTests: XCTestCase {
-    // MARK: - isCountdown Tests
+    // MARK: - isPreparation Tests
 
-    func testIsCountdown_whenCountdownState_returnsTrue() {
+    func testIsPreparation_whenPreparationState_returnsTrue() {
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
-        XCTAssertTrue(state.isCountdown)
+        XCTAssertTrue(state.isPreparation)
     }
 
-    func testIsCountdown_whenRunningState_returnsFalse() {
+    func testIsPreparation_whenRunningState_returnsFalse() {
         var state = TimerDisplayState.initial
         state.timerState = .running
 
-        XCTAssertFalse(state.isCountdown)
+        XCTAssertFalse(state.isPreparation)
     }
 
     // MARK: - canStart Tests
@@ -83,10 +83,10 @@ final class TimerDisplayStateTests: XCTestCase {
 
     // MARK: - formattedTime Tests
 
-    func testFormattedTime_whenCountdown_showsCountdownSeconds() {
+    func testFormattedTime_whenPreparation_showsPreparationSeconds() {
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
-        state.countdownSeconds = 12
+        state.timerState = .preparation
+        state.remainingPreparationSeconds = 12
 
         XCTAssertEqual(state.formattedTime, "12")
     }
@@ -124,7 +124,7 @@ final class TimerDisplayStateTests: XCTestCase {
         XCTAssertEqual(state.selectedMinutes, 10)
         XCTAssertEqual(state.remainingSeconds, 0)
         XCTAssertEqual(state.totalSeconds, 0)
-        XCTAssertEqual(state.countdownSeconds, 0)
+        XCTAssertEqual(state.remainingPreparationSeconds, 0)
         XCTAssertEqual(state.progress, 0.0)
         XCTAssertEqual(state.currentAffirmationIndex, 0)
         XCTAssertFalse(state.intervalGongPlayedForCurrentInterval)

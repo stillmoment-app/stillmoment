@@ -39,12 +39,12 @@
 "state.paused" = "Nimm dir Zeit";
 "state.completed" = "Danke dir";
 
-// MARK: - Countdown Affirmations
+// MARK: - Preparation Affirmations
 
-"affirmation.countdown.1" = "Lass dich ankommen...";
-"affirmation.countdown.2" = "Atme tief durch...";
-"affirmation.countdown.3" = "Bereite dich sanft vor...";
-"affirmation.countdown.4" = "Gleich ist Zeit für dich...";
+"affirmation.preparation.1" = "Lass dich ankommen...";
+"affirmation.preparation.2" = "Atme tief durch...";
+"affirmation.preparation.3" = "Bereite dich sanft vor...";
+"affirmation.preparation.4" = "Gleich ist Zeit für dich...";
 
 // MARK: - Running Affirmations
 
@@ -74,6 +74,17 @@
 "settings.interval.5min" = "5 Minuten";
 "settings.interval.10min" = "10 Minuten";
 
+"settings.preparationTime.header" = "Vorbereitung";
+"settings.preparationTime.title" = "Vorbereitungszeit";
+"settings.preparationTime.description" = "Zeit zum Ankommen, bevor die Meditation beginnt";
+"settings.preparationTime.duration" = "Dauer";
+"settings.preparationTime.5s" = "5 Sekunden";
+"settings.preparationTime.10s" = "10 Sekunden";
+"settings.preparationTime.15s" = "15 Sekunden";
+"settings.preparationTime.20s" = "20 Sekunden";
+"settings.preparationTime.30s" = "30 Sekunden";
+"settings.preparationTime.45s" = "45 Sekunden";
+
 // MARK: - Accessibility
 
 "accessibility.settings" = "Einstellungen";
@@ -87,10 +98,10 @@
 "accessibility.durationPicker" = "Meditationsdauer-Auswahl";
 "accessibility.durationPicker.hint" = "Wähle die Dauer für deine Meditationssitzung in Minuten";
 "accessibility.durationPicker.label" = "Minuten";
-"accessibility.countdown" = "Countdown: %d Sekunden";
+"accessibility.preparation" = "Vorbereitung: %d Sekunden";
 "accessibility.remainingTime" = "Verbleibende Zeit: %@";
 "accessibility.timerState.idle" = "Der Timer ist bereit zu starten";
-"accessibility.timerState.countdown" = "Countdown läuft. Mach dich bereit zu meditieren.";
+"accessibility.timerState.preparation" = "Vorbereitung läuft. Mach dich bereit zu meditieren.";
 "accessibility.timerState.running" = "Timer läuft. Aktuell am meditieren.";
 "accessibility.timerState.paused" = "Timer ist pausiert";
 "accessibility.timerState.completed" = "Meditationssitzung abgeschlossen";
@@ -100,6 +111,10 @@
 "accessibility.intervalGongs.hint" = "Aktiviere oder deaktiviere Intervall-Gongs während der Meditation";
 "accessibility.intervalDuration" = "Intervalldauer";
 "accessibility.intervalDuration.hint" = "Wähle aus, wie oft der Intervall-Gong gespielt werden soll";
+"accessibility.preparationTime" = "Vorbereitungszeit";
+"accessibility.preparationTime.hint" = "Aktiviere oder deaktiviere die Vorbereitungszeit vor der Meditation";
+"accessibility.preparationTimeDuration" = "Vorbereitungsdauer";
+"accessibility.preparationTimeDuration.hint" = "Wähle die Dauer der Vorbereitungszeit in Sekunden";
 "accessibility.done" = "Fertig";
 "accessibility.done.hint" = "Einstellungen speichern und schließen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";

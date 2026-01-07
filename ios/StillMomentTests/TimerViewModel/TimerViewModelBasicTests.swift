@@ -18,8 +18,7 @@ final class TimerViewModelBasicTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Use 0 countdown duration for fast tests
-        self.mockTimerService = MockTimerService(countdownDuration: 0)
+        self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -74,7 +73,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))
@@ -91,7 +90,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .paused
         ))
@@ -108,7 +107,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))
@@ -123,13 +122,13 @@ final class TimerViewModelBasicTests: XCTestCase {
     // MARK: - Formatting (tested via dispatch)
 
     func testFormattedTime_duringCountdown_showsSeconds() {
-        // Given - countdown state
+        // Given - preparation state
         self.sut.dispatch(.tick(
             remainingSeconds: 600,
             totalSeconds: 600,
-            countdownSeconds: 12,
+            remainingPreparationSeconds: 12,
             progress: 0.0,
-            state: .countdown
+            state: .preparation
         ))
 
         // Then
@@ -141,7 +140,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 125,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))
@@ -162,7 +161,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))
@@ -176,7 +175,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))
@@ -195,7 +194,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .paused
         ))
@@ -209,7 +208,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
             totalSeconds: 600,
-            countdownSeconds: 0,
+            remainingPreparationSeconds: 0,
             progress: 0.5,
             state: .running
         ))

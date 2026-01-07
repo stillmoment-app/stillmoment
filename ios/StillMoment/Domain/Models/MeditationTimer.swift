@@ -28,17 +28,17 @@ struct MeditationTimer: Equatable {
     /// Initializes a new meditation timer
     /// - Parameters:
     ///   - durationMinutes: Duration in minutes (1-60)
-    ///   - countdownDuration: Duration of countdown in seconds (default: 15). Use 0 to skip countdown.
+    ///   - preparationTimeSeconds: Duration of preparation phase in seconds (default: 15). Use 0 to skip.
     /// - Throws: `MeditationTimerError.invalidDuration` if duration is not between 1 and 60 minutes
-    init(durationMinutes: Int, countdownDuration: Int = 15) throws {
+    init(durationMinutes: Int, preparationTimeSeconds: Int = 15) throws {
         guard (1...60).contains(durationMinutes) else {
             throw MeditationTimerError.invalidDuration(durationMinutes)
         }
         self.durationMinutes = durationMinutes
         self.remainingSeconds = durationMinutes * 60
         self.state = .idle
-        self.countdownSeconds = 0
-        self.countdownDuration = countdownDuration
+        self.remainingPreparationSeconds = 0
+        self.preparationTimeSeconds = preparationTimeSeconds
         self.lastIntervalGongAt = nil
     }
 
@@ -47,15 +47,15 @@ struct MeditationTimer: Equatable {
         durationMinutes: Int,
         remainingSeconds: Int,
         state: TimerState,
-        countdownSeconds: Int = 0,
-        countdownDuration: Int,
+        remainingPreparationSeconds: Int = 0,
+        preparationTimeSeconds: Int,
         lastIntervalGongAt: Int? = nil
     ) {
         self.durationMinutes = durationMinutes
         self.remainingSeconds = remainingSeconds
         self.state = state
-        self.countdownSeconds = countdownSeconds
-        self.countdownDuration = countdownDuration
+        self.remainingPreparationSeconds = remainingPreparationSeconds
+        self.preparationTimeSeconds = preparationTimeSeconds
         self.lastIntervalGongAt = lastIntervalGongAt
     }
 
@@ -70,11 +70,11 @@ struct MeditationTimer: Equatable {
     /// Current state of the timer
     let state: TimerState
 
-    /// Countdown seconds (countdownDuration→0 before timer starts)
-    let countdownSeconds: Int
+    /// Remaining preparation seconds (preparationTimeSeconds→0 before timer starts)
+    let remainingPreparationSeconds: Int
 
-    /// Duration of countdown in seconds (configured at initialization)
-    let countdownDuration: Int
+    /// Duration of preparation phase in seconds (configured at initialization)
+    let preparationTimeSeconds: Int
 
     /// Remaining seconds when last interval gong was played
     let lastIntervalGongAt: Int?
@@ -99,16 +99,16 @@ struct MeditationTimer: Equatable {
 
     /// Returns a copy with updated remaining seconds
     func tick() -> MeditationTimer {
-        // Handle countdown phase
-        if self.state == .countdown {
-            let newCountdown = max(0, countdownSeconds - 1)
-            let newState: TimerState = newCountdown <= 0 ? .running : .countdown
+        // Handle preparation phase
+        if self.state == .preparation {
+            let newPreparation = max(0, remainingPreparationSeconds - 1)
+            let newState: TimerState = newPreparation <= 0 ? .running : .preparation
             return MeditationTimer(
                 durationMinutes: self.durationMinutes,
                 remainingSeconds: self.remainingSeconds,
                 state: newState,
-                countdownSeconds: newCountdown,
-                countdownDuration: self.countdownDuration,
+                remainingPreparationSeconds: newPreparation,
+                preparationTimeSeconds: self.preparationTimeSeconds,
                 lastIntervalGongAt: self.lastIntervalGongAt
             )
         }
@@ -120,8 +120,8 @@ struct MeditationTimer: Equatable {
             durationMinutes: self.durationMinutes,
             remainingSeconds: newRemaining,
             state: newState,
-            countdownSeconds: self.countdownSeconds,
-            countdownDuration: self.countdownDuration,
+            remainingPreparationSeconds: self.remainingPreparationSeconds,
+            preparationTimeSeconds: self.preparationTimeSeconds,
             lastIntervalGongAt: self.lastIntervalGongAt
         )
     }
@@ -132,20 +132,20 @@ struct MeditationTimer: Equatable {
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.remainingSeconds,
             state: newState,
-            countdownSeconds: self.countdownSeconds,
-            countdownDuration: self.countdownDuration,
+            remainingPreparationSeconds: self.remainingPreparationSeconds,
+            preparationTimeSeconds: self.preparationTimeSeconds,
             lastIntervalGongAt: self.lastIntervalGongAt
         )
     }
 
-    /// Returns a copy ready for countdown (uses configured countdownDuration)
-    func startCountdown() -> MeditationTimer {
+    /// Returns a copy ready for preparation phase (uses configured preparationTimeSeconds)
+    func startPreparation() -> MeditationTimer {
         MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.remainingSeconds,
-            state: .countdown,
-            countdownSeconds: self.countdownDuration,
-            countdownDuration: self.countdownDuration,
+            state: .preparation,
+            remainingPreparationSeconds: self.preparationTimeSeconds,
+            preparationTimeSeconds: self.preparationTimeSeconds,
             lastIntervalGongAt: nil
         )
     }
@@ -156,8 +156,8 @@ struct MeditationTimer: Equatable {
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.remainingSeconds,
             state: self.state,
-            countdownSeconds: self.countdownSeconds,
-            countdownDuration: self.countdownDuration,
+            remainingPreparationSeconds: self.remainingPreparationSeconds,
+            preparationTimeSeconds: self.preparationTimeSeconds,
             lastIntervalGongAt: self.remainingSeconds
         )
     }
@@ -194,8 +194,8 @@ struct MeditationTimer: Equatable {
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.durationMinutes * 60,
             state: .idle,
-            countdownSeconds: 0,
-            countdownDuration: self.countdownDuration,
+            remainingPreparationSeconds: 0,
+            preparationTimeSeconds: self.preparationTimeSeconds,
             lastIntervalGongAt: nil
         )
     }

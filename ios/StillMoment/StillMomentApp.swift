@@ -71,21 +71,45 @@ struct StillMomentApp: App {
     // MARK: Private
 
     /// Create configured TimerViewModel based on launch arguments
-    /// UI tests can override countdown duration via "-CountdownDuration 0"
+    /// UI tests can override preparation time via "-PreparationTimeSeconds 0" or disable it with "-DisablePreparation"
     private func createTimerViewModel() -> TimerViewModel {
-        let countdownDuration = self.getCountdownDuration()
-        let timerService = TimerService(countdownDuration: countdownDuration)
-        return TimerViewModel(timerService: timerService)
+        self.applyLaunchArgumentSettings()
+        return TimerViewModel()
     }
 
-    /// Get countdown duration from launch arguments, defaulting to 15 seconds
-    private func getCountdownDuration() -> Int {
-        guard let countdownArg = ProcessInfo.processInfo.arguments.firstIndex(of: "-CountdownDuration"),
-              countdownArg + 1 < ProcessInfo.processInfo.arguments.count,
-              let duration = Int(ProcessInfo.processInfo.arguments[countdownArg + 1])
-        else {
-            return 15 // Default: 15-second countdown
+    /// Apply launch argument overrides to UserDefaults
+    /// This allows UI tests to configure preparation time behavior
+    private func applyLaunchArgumentSettings() {
+        let arguments = ProcessInfo.processInfo.arguments
+        let defaults = UserDefaults.standard
+
+        // Check for disable preparation flag
+        if arguments.contains("-DisablePreparation") {
+            defaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+            return
         }
-        return duration
+
+        // Check for custom preparation time (supports both new and legacy argument names)
+        var preparationSeconds: Int?
+
+        if let prepArg = arguments.firstIndex(of: "-PreparationTimeSeconds"),
+           prepArg + 1 < arguments.count,
+           let duration = Int(arguments[prepArg + 1]) {
+            preparationSeconds = duration
+        } else if let countdownArg = arguments.firstIndex(of: "-CountdownDuration"),
+                  countdownArg + 1 < arguments.count,
+                  let duration = Int(arguments[countdownArg + 1]) {
+            preparationSeconds = duration
+        }
+
+        if let seconds = preparationSeconds {
+            if seconds == 0 {
+                // Zero means disable preparation
+                defaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+            } else {
+                defaults.set(true, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+                defaults.set(seconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
+            }
+        }
     }
 }

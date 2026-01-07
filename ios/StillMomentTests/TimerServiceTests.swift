@@ -15,8 +15,7 @@ final class TimerServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Use 0 countdown duration for fast tests
-        self.sut = TimerService(countdownDuration: 0)
+        self.sut = TimerService()
         self.cancellables = Set<AnyCancellable>()
     }
 
@@ -41,12 +40,12 @@ final class TimerServiceTests: XCTestCase {
             .store(in: &self.cancellables)
 
         // When
-        self.sut.start(durationMinutes: 5)
+        self.sut.start(durationMinutes: 5, preparationTimeSeconds: 0)
 
         // Then
         wait(for: [expectation], timeout: 1.0)
         XCTAssertNotNil(receivedTimer)
-        XCTAssertEqual(receivedTimer?.state, .running) // No countdown (countdownDuration: 0)
+        XCTAssertEqual(receivedTimer?.state, .running) // No preparation (preparationTimeSeconds: 0)
         XCTAssertEqual(receivedTimer?.durationMinutes, 5)
         XCTAssertEqual(receivedTimer?.remainingSeconds, 300)
     }
@@ -71,8 +70,8 @@ final class TimerServiceTests: XCTestCase {
             .store(in: &self.cancellables)
 
         // When
-        self.sut.start(durationMinutes: 1)
-        wait(for: [runningExpectation], timeout: 1.0) // No countdown (countdownDuration: 0)
+        self.sut.start(durationMinutes: 1, preparationTimeSeconds: 0)
+        wait(for: [runningExpectation], timeout: 1.0) // No preparation (preparationTimeSeconds: 0)
 
         self.sut.pause()
 
@@ -80,7 +79,7 @@ final class TimerServiceTests: XCTestCase {
         wait(for: [pauseExpectation], timeout: 1.0)
         XCTAssertTrue(timerStates.contains(.running))
         XCTAssertTrue(timerStates.contains(.paused))
-        XCTAssertFalse(timerStates.contains(.countdown)) // No countdown phase
+        XCTAssertFalse(timerStates.contains(.preparation)) // No preparation phase
     }
 
     func testResumeTimer() {
@@ -108,8 +107,8 @@ final class TimerServiceTests: XCTestCase {
             .store(in: &self.cancellables)
 
         // When
-        self.sut.start(durationMinutes: 1)
-        wait(for: [runningExpectation], timeout: 1.0) // No countdown (countdownDuration: 0)
+        self.sut.start(durationMinutes: 1, preparationTimeSeconds: 0)
+        wait(for: [runningExpectation], timeout: 1.0) // No preparation (preparationTimeSeconds: 0)
 
         self.sut.pause()
         wait(for: [pauseExpectation], timeout: 1.0)
@@ -118,10 +117,10 @@ final class TimerServiceTests: XCTestCase {
 
         // Then
         wait(for: [resumeExpectation], timeout: 1.0)
-        XCTAssertEqual(stateTransitions.first, .running) // No countdown phase
+        XCTAssertEqual(stateTransitions.first, .running) // No preparation phase
         XCTAssertTrue(stateTransitions.contains(.paused))
         XCTAssertEqual(stateTransitions.last, .running)
-        XCTAssertFalse(stateTransitions.contains(.countdown)) // No countdown phase
+        XCTAssertFalse(stateTransitions.contains(.preparation)) // No preparation phase
     }
 
     func testResetTimer() {
@@ -146,7 +145,7 @@ final class TimerServiceTests: XCTestCase {
             .store(in: &self.cancellables)
 
         // When
-        self.sut.start(durationMinutes: 5)
+        self.sut.start(durationMinutes: 5, preparationTimeSeconds: 0)
         wait(for: [startExpectation], timeout: 1.0)
 
         self.sut.reset()
@@ -173,13 +172,13 @@ final class TimerServiceTests: XCTestCase {
             .store(in: &self.cancellables)
 
         // When
-        self.sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1, preparationTimeSeconds: 0)
 
         // Then
         wait(for: [expectation], timeout: 3.0)
 
         XCTAssertGreaterThanOrEqual(receivedTimers.count, 2)
-        XCTAssertEqual(receivedTimers[0].state, .running) // No countdown (countdownDuration: 0)
+        XCTAssertEqual(receivedTimers[0].state, .running) // No preparation (preparationTimeSeconds: 0)
         XCTAssertEqual(receivedTimers[0].remainingSeconds, 60)
 
         // Verify timer is progressing (remainingSeconds decreases)
@@ -199,7 +198,7 @@ final class TimerServiceTests: XCTestCase {
             }
             .store(in: &self.cancellables)
 
-        self.sut.start(durationMinutes: 1)
+        self.sut.start(durationMinutes: 1, preparationTimeSeconds: 0)
         wait(for: [expectation], timeout: 1.0)
 
         // When

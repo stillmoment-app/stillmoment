@@ -13,11 +13,7 @@ import OSLog
 final class TimerService: TimerServiceProtocol {
     // MARK: Lifecycle
 
-    /// Initialize timer service with optional countdown duration
-    /// - Parameter countdownDuration: Duration of countdown in seconds (default: 15). Use 0 to skip countdown.
-    init(countdownDuration: Int = 15) {
-        self.countdownDuration = countdownDuration
-    }
+    init() {}
 
     // MARK: - Deinit
 
@@ -35,24 +31,27 @@ final class TimerService: TimerServiceProtocol {
 
     // MARK: - Public Methods
 
-    func start(durationMinutes: Int) {
-        Logger.timer.info("Starting timer", metadata: ["duration": durationMinutes])
+    func start(durationMinutes: Int, preparationTimeSeconds: Int) {
+        Logger.timer.info("Starting timer", metadata: [
+            "duration": durationMinutes,
+            "preparationTime": preparationTimeSeconds
+        ])
         self.stop() // Clean up any existing timer
 
         do {
             let newTimer = try MeditationTimer(
                 durationMinutes: durationMinutes,
-                countdownDuration: self.countdownDuration
+                preparationTimeSeconds: preparationTimeSeconds
             )
 
-            if self.countdownDuration > 0 {
-                // Start with countdown
-                self.currentTimer = newTimer.startCountdown()
-                Logger.timer.info("Timer countdown started")
+            if preparationTimeSeconds > 0 {
+                // Start with preparation phase
+                self.currentTimer = newTimer.startPreparation()
+                Logger.timer.info("Timer preparation started")
             } else {
-                // Skip countdown (typically for tests)
+                // Skip preparation (typically for tests or disabled preparation)
                 self.currentTimer = newTimer.withState(.running)
-                Logger.timer.info("Timer started directly (no countdown)")
+                Logger.timer.info("Timer started directly (no preparation)")
             }
 
             self.timerSubject.send(self.currentTimer)
@@ -123,7 +122,6 @@ final class TimerService: TimerServiceProtocol {
     private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)
     private var systemTimer: AnyCancellable?
     private var currentTimer: MeditationTimer?
-    private let countdownDuration: Int
 
     // MARK: - Private Methods
 
@@ -147,8 +145,8 @@ final class TimerService: TimerServiceProtocol {
             return
         }
 
-        // Only tick if in countdown or running state
-        guard timer.state == .countdown || timer.state == .running else {
+        // Only tick if in preparation or running state
+        guard timer.state == .preparation || timer.state == .running else {
             return
         }
 
@@ -156,9 +154,9 @@ final class TimerService: TimerServiceProtocol {
         self.currentTimer = updatedTimer
         self.timerSubject.send(updatedTimer)
 
-        // Log countdown transitions
-        if timer.state == .countdown, updatedTimer.state == .running {
-            Logger.timer.info("Countdown complete, starting meditation timer")
+        // Log preparation → running transition
+        if timer.state == .preparation, updatedTimer.state == .running {
+            Logger.timer.info("Preparation complete, starting meditation timer")
         }
 
         // Log every 10 seconds to avoid log spam (only for running timer)

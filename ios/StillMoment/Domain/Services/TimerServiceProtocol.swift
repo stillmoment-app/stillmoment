@@ -14,8 +14,10 @@ protocol TimerServiceProtocol {
     var timerPublisher: AnyPublisher<MeditationTimer, Never> { get }
 
     /// Starts the timer with given duration
-    /// - Parameter durationMinutes: Duration in minutes (1-60)
-    func start(durationMinutes: Int)
+    /// - Parameters:
+    ///   - durationMinutes: Duration in minutes (1-60)
+    ///   - preparationTimeSeconds: Duration of preparation phase in seconds (0 to skip)
+    func start(durationMinutes: Int, preparationTimeSeconds: Int)
 
     /// Pauses the currently running timer
     func pause()

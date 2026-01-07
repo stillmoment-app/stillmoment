@@ -242,6 +242,21 @@ make test-unit          # TDD inner loop (fast)
 make test               # Full validation + coverage
 ```
 
+### Einzelne Tests ausführen
+
+**IMMER `make test-single` verwenden** für einzelne Tests:
+
+```bash
+# Ganze Testklasse
+make test-single TEST=TimerViewModelSettingsTests
+
+# Einzelne Testmethode
+make test-single TEST=TimerViewModelBasicTests/testStartTimer
+
+# UI-Tests
+make test-single TEST=ScreenshotTests/testScreenshot01_TimerIdle
+```
+
 **Coverage targets**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
 
 **Full guide**: `dev-docs/TDD_GUIDE.md`
@@ -288,4 +303,4 @@ make test               # Full validation + coverage
 
 ---
 
-**Last Updated**: 2025-12-27 | **Version**: 3.2 (DDD)
+**Last Updated**: 2026-01-07 | **Version**: 3.3

@@ -36,16 +36,16 @@ enum TimerReducer {
             return self.reduceResumePressed(state: state)
         case .resetPressed:
             return self.reduceResetPressed(state: state)
-        case let .tick(remainingSeconds, totalSeconds, countdownSeconds, progress, timerState):
+        case let .tick(remainingSeconds, totalSeconds, remainingPreparationSeconds, progress, timerState):
             var newState = state
             newState.remainingSeconds = remainingSeconds
             newState.totalSeconds = totalSeconds
-            newState.countdownSeconds = countdownSeconds
+            newState.remainingPreparationSeconds = remainingPreparationSeconds
             newState.progress = progress
             newState.timerState = timerState
             return (newState, [])
-        case .countdownFinished:
-            return self.reduceCountdownFinished(state: state)
+        case .preparationFinished:
+            return self.reducePreparationFinished(state: state)
         case .timerCompleted:
             return self.reduceTimerCompleted(state: state)
         case .intervalGongTriggered:
@@ -126,7 +126,7 @@ enum TimerReducer {
         newState.timerState = .idle
         newState.remainingSeconds = 0
         newState.totalSeconds = 0
-        newState.countdownSeconds = 0
+        newState.remainingPreparationSeconds = 0
         newState.progress = 0.0
         newState.intervalGongPlayedForCurrentInterval = false
 
@@ -135,7 +135,7 @@ enum TimerReducer {
 
     // MARK: - Timer Update Actions
 
-    private static func reduceCountdownFinished(
+    private static func reducePreparationFinished(
         state: TimerDisplayState
     ) -> (TimerDisplayState, [TimerEffect]) {
         var newState = state

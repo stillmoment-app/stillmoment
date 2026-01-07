@@ -19,8 +19,7 @@ final class TimerViewModelRegressionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Use 0 countdown duration for fast tests
-        self.mockTimerService = MockTimerService(countdownDuration: 0)
+        self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -44,12 +43,12 @@ final class TimerViewModelRegressionTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Lock Screen Countdown Bug
+    // MARK: - Lock Screen Preparation Bug
 
     func testBackgroundAudioStartsImmediatelyOnTimerStart() {
-        // CRITICAL: This test prevents the countdown-freeze bug on locked screen
-        // Background audio MUST start IMMEDIATELY when timer starts, not after countdown
-        // Without this, iOS suspends the app during countdown when screen is locked
+        // CRITICAL: This test prevents the preparation-freeze bug on locked screen
+        // Background audio MUST start IMMEDIATELY when timer starts, not after preparation
+        // Without this, iOS suspends the app during preparation when screen is locked
 
         // Given
         self.sut.selectedMinutes = 1
@@ -60,7 +59,7 @@ final class TimerViewModelRegressionTests: XCTestCase {
         // Then - Verify background audio was called
         XCTAssertTrue(
             self.mockAudioService.startBackgroundAudioCalled,
-            "Background audio must start immediately to keep app alive during countdown"
+            "Background audio must start immediately to keep app alive during preparation"
         )
 
         // Critical: Verify audio session was configured before background audio starts

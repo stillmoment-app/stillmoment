@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-01-05
+Last Updated: 2026-01-07
 -->
 
 ## Quick Reference
@@ -41,7 +41,7 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 | Wert | Beschreibung |
 |------|--------------|
 | `idle` | Timer bereit zum Start |
-| `countdown` | 15-Sekunden Countdown vor Meditation |
+| `preparation` | Vorbereitungsphase vor Meditation (konfigurierbar) |
 | `running` | Timer laeuft, Meditation aktiv |
 | `paused` | Timer pausiert, kann fortgesetzt werden |
 | `completed` | Timer abgelaufen, Meditation beendet |
@@ -49,10 +49,15 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 **State Machine:**
 
 ```
-idle --> countdown --> running --> completed
-                          |  ^
-                          v  |
-                        paused
+idle --> preparation --> running --> completed
+  |                        ^  |  ^
+  |                        |  v  |
+  +------------------------+ paused
+
+Pfade:
+- Mit Vorbereitung: idle → preparation → running
+- Ohne Vorbereitung: idle → running (direkt)
+- Start-Gong spielt bei BEIDEN Pfaden beim Übergang zu running
 ```
 
 **Datei-Referenzen:**
@@ -81,7 +86,7 @@ idle --> countdown --> running --> completed
 | Event | Beschreibung |
 |-------|--------------|
 | `tick(...)` | Timer-Tick mit aktualisierten Werten |
-| `countdownFinished` | Countdown abgeschlossen |
+| `preparationFinished` | Vorbereitung abgeschlossen |
 | `timerCompleted` | Timer bei 0 angekommen |
 | `intervalGongTriggered` | Intervall-Gong soll spielen |
 | `intervalGongPlayed` | Intervall-Gong wurde gespielt |
@@ -129,8 +134,8 @@ idle --> countdown --> running --> completed
 | `durationMinutes` | Int | Gesamtdauer (1-60) |
 | `remainingSeconds` | Int | Verbleibende Zeit |
 | `state` | TimerState | Aktueller Zustand |
-| `countdownSeconds` | Int | Countdown (15->0) |
-| `countdownDuration` | Int | Konfigurierte Countdown-Dauer |
+| `remainingPreparationSeconds` | Int | Verbleibende Vorbereitungszeit |
+| `preparationTimeSeconds` | Int | Konfigurierte Vorbereitungszeit |
 | `lastIntervalGongAt` | Int? | Zeitpunkt letzter Gong |
 
 **Computed Properties:**
@@ -147,7 +152,7 @@ idle --> countdown --> running --> completed
 |---------|--------------|
 | `tick()` | Neue Instanz mit Zeit-1 |
 | `withState(_:)` | Neue Instanz mit neuem State |
-| `startCountdown()` | Neue Instanz im Countdown |
+| `startPreparation()` | Neue Instanz im Vorbereitungsmodus |
 | `markIntervalGongPlayed()` | Neue Instanz mit Gong-Marker |
 | `shouldPlayIntervalGong(intervalMinutes:)` | Prueft ob Gong faellig |
 | `reset()` | Zurueckgesetzter Timer |
@@ -179,7 +184,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | `selectedMinutes` | Int | Gewaehlte Dauer |
 | `remainingSeconds` | Int | Verbleibende Zeit |
 | `totalSeconds` | Int | Gesamtzeit |
-| `countdownSeconds` | Int | Countdown-Wert |
+| `remainingPreparationSeconds` | Int | Verbleibende Vorbereitungszeit |
 | `progress` | Double | Fortschritt 0.0-1.0 |
 | `currentAffirmationIndex` | Int | Aktuelle Affirmation |
 | `intervalGongPlayedForCurrentInterval` | Bool | Gong bereits gespielt? |
@@ -188,7 +193,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 
 | Property | Beschreibung |
 |----------|--------------|
-| `isCountdown` | Im Countdown? |
+| `isPreparation` | In Vorbereitung? |
 | `canStart` | Start moeglich? |
 | `canPause` | Pause moeglich? |
 | `canResume` | Fortsetzen moeglich? |
@@ -217,10 +222,13 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | `intervalMinutes` | Int | 5 | Intervall in Minuten (3, 5, 10) |
 | `backgroundSoundId` | String | "silent" | Hintergrund-Sound ID |
 | `durationMinutes` | Int | 10 | Zuletzt gewaehlte Dauer |
+| `preparationTimeEnabled` | Bool | true | Vorbereitungszeit aktiviert? |
+| `preparationTimeSeconds` | Int | 15 | Vorbereitungszeit in Sekunden (5, 10, 15, 20, 30, 45) |
 
 **Validierung:**
 - `validateInterval(_:)` - Clamps zu 3, 5 oder 10
 - `validateDuration(_:)` - Clamps zu 1-60
+- `validatePreparationTime(_:)` - Clamps zu naechstem gueltigen Wert (5, 10, 15, 20, 30, 45)
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/MeditationSettings.swift`
@@ -385,7 +393,7 @@ Kapselt Zustand und Validierungslogik fuer das Editieren von GuidedMeditation-Me
 |---------|----------|------------|
 | `verbPressed` | `startPressed`, `pausePressed` | Benutzer-Interaktion |
 | `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
-| `nounVerbed` | `countdownFinished`, `timerCompleted` | System-Event |
+| `nounVerbed` | `preparationFinished`, `timerCompleted` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event |
 | `nounVerbPlayed` | `intervalGongPlayed` | Bestaetigung |
 

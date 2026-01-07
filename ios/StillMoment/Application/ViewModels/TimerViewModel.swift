@@ -66,14 +66,14 @@ final class TimerViewModel: ObservableObject {
     /// Progress value (0.0 - 1.0)
     var progress: Double { self.displayState.progress }
 
-    /// Countdown seconds
-    var countdownSeconds: Int { self.displayState.countdownSeconds }
+    /// Remaining preparation seconds
+    var remainingPreparationSeconds: Int { self.displayState.remainingPreparationSeconds }
 
     /// Current affirmation index
     var currentAffirmationIndex: Int { self.displayState.currentAffirmationIndex }
 
-    /// Whether currently in countdown phase
-    var isCountdown: Bool { self.displayState.isCountdown }
+    /// Whether currently in preparation phase
+    var isPreparation: Bool { self.displayState.isPreparation }
 
     /// Returns true if timer can be started
     var canStart: Bool { self.displayState.canStart }
@@ -92,9 +92,9 @@ final class TimerViewModel: ObservableObject {
         self.runningAffirmations[self.displayState.currentAffirmationIndex % self.runningAffirmations.count]
     }
 
-    /// Get current countdown affirmation
-    var currentCountdownAffirmation: String {
-        self.countdownAffirmations[self.displayState.currentAffirmationIndex % self.countdownAffirmations.count]
+    /// Get current preparation affirmation
+    var currentPreparationAffirmation: String {
+        self.preparationAffirmations[self.displayState.currentAffirmationIndex % self.preparationAffirmations.count]
     }
 
     // MARK: - Action Dispatch
@@ -142,11 +142,15 @@ final class TimerViewModel: ObservableObject {
         defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
         defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
         defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
+        defaults.set(self.settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        defaults.set(self.settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
             "backgroundSoundId": self.settings.backgroundSoundId,
-            "durationMinutes": self.settings.durationMinutes
+            "durationMinutes": self.settings.durationMinutes,
+            "preparationEnabled": self.settings.preparationTimeEnabled,
+            "preparationSeconds": self.settings.preparationTimeSeconds
         ])
     }
 
@@ -168,13 +172,13 @@ final class TimerViewModel: ObservableObject {
         ]
     }
 
-    /// Affirmations for countdown state
-    private var countdownAffirmations: [String] {
+    /// Affirmations for preparation state
+    private var preparationAffirmations: [String] {
         [
-            NSLocalizedString("affirmation.countdown.1", comment: ""),
-            NSLocalizedString("affirmation.countdown.2", comment: ""),
-            NSLocalizedString("affirmation.countdown.3", comment: ""),
-            NSLocalizedString("affirmation.countdown.4", comment: "")
+            NSLocalizedString("affirmation.preparation.1", comment: ""),
+            NSLocalizedString("affirmation.preparation.2", comment: ""),
+            NSLocalizedString("affirmation.preparation.3", comment: ""),
+            NSLocalizedString("affirmation.preparation.4", comment: "")
         ]
     }
 
@@ -306,7 +310,11 @@ final class TimerViewModel: ObservableObject {
 
     private func executeStartTimer(durationMinutes: Int) {
         self.settings.durationMinutes = durationMinutes
-        self.timerService.start(durationMinutes: durationMinutes)
+        // Use preparation time from settings, or 0 if disabled
+        let preparationTime = self.settings.preparationTimeEnabled
+            ? self.settings.preparationTimeSeconds
+            : 0
+        self.timerService.start(durationMinutes: durationMinutes, preparationTimeSeconds: preparationTime)
     }
 
     private func executeSaveSettings(_ settings: MeditationSettings) {
@@ -330,7 +338,7 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.tick(
             remainingSeconds: timer.remainingSeconds,
             totalSeconds: timer.totalSeconds,
-            countdownSeconds: timer.countdownSeconds,
+            remainingPreparationSeconds: timer.remainingPreparationSeconds,
             progress: timer.progress,
             state: timer.state
         ))
@@ -345,10 +353,12 @@ final class TimerViewModel: ObservableObject {
         to newState: TimerState,
         timer: MeditationTimer
     ) {
-        // Countdown → Running: Dispatch countdownFinished
-        if oldState == .countdown, newState == .running {
-            Logger.viewModel.info("Countdown complete, dispatching countdownFinished")
-            self.dispatch(.countdownFinished)
+        // Transition to Running (from Preparation OR Idle): Play start gong
+        // - With preparation: idle → preparation → running
+        // - Without preparation: idle → running (direct)
+        if newState == .running, oldState == .preparation || oldState == .idle {
+            Logger.viewModel.info("Meditation starting, dispatching preparationFinished")
+            self.dispatch(.preparationFinished)
             return
         }
 
@@ -375,39 +385,52 @@ final class TimerViewModel: ObservableObject {
 
     private func loadSettings() {
         let defaults = UserDefaults.standard
-
-        // Try to load backgroundSoundId, with legacy migration
-        var backgroundSoundId = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
-
-        if backgroundSoundId == nil || backgroundSoundId?.isEmpty == true {
-            if let legacyMode = defaults.string(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode) {
-                backgroundSoundId = MeditationSettings.migrateLegacyMode(legacyMode)
-                defaults.set(backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
-                Logger.viewModel.info("Migrated legacy settings", metadata: [
-                    "legacyMode": legacyMode,
-                    "newSoundId": backgroundSoundId ?? "unknown"
-                ])
-            }
-        }
-
-        let durationMinutes: Int = if defaults.object(forKey: MeditationSettings.Keys.durationMinutes) != nil {
-            defaults.integer(forKey: MeditationSettings.Keys.durationMinutes)
-        } else {
-            10
-        }
+        let backgroundSoundId = self.loadBackgroundSoundId(from: defaults)
+        let durationMinutes = defaults.object(forKey: MeditationSettings.Keys.durationMinutes) != nil
+            ? defaults.integer(forKey: MeditationSettings.Keys.durationMinutes) : 10
+        let preparationTimeEnabled = defaults.object(forKey: MeditationSettings.Keys.preparationTimeEnabled) != nil
+            ? defaults.bool(forKey: MeditationSettings.Keys.preparationTimeEnabled) : true
+        let preparationTimeSeconds = defaults.object(forKey: MeditationSettings.Keys.preparationTimeSeconds) != nil
+            ? defaults.integer(forKey: MeditationSettings.Keys.preparationTimeSeconds) : 15
 
         self.settings = MeditationSettings(
             intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
             intervalMinutes: defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes) == 0
                 ? 5 : defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes),
-            backgroundSoundId: backgroundSoundId ?? "silent",
-            durationMinutes: durationMinutes
+            backgroundSoundId: backgroundSoundId,
+            durationMinutes: durationMinutes,
+            preparationTimeEnabled: preparationTimeEnabled,
+            preparationTimeSeconds: preparationTimeSeconds
         )
+        self.logLoadedSettings()
+    }
+
+    private func loadBackgroundSoundId(from defaults: UserDefaults) -> String {
+        if let soundId = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId),
+           !soundId.isEmpty {
+            return soundId
+        }
+        // Legacy migration
+        if let legacyMode = defaults.string(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode) {
+            let migratedId = MeditationSettings.migrateLegacyMode(legacyMode)
+            defaults.set(migratedId, forKey: MeditationSettings.Keys.backgroundSoundId)
+            Logger.viewModel.info("Migrated legacy settings", metadata: [
+                "legacyMode": legacyMode,
+                "newSoundId": migratedId
+            ])
+            return migratedId
+        }
+        return "silent"
+    }
+
+    private func logLoadedSettings() {
         Logger.viewModel.info("Loaded settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
             "backgroundSoundId": self.settings.backgroundSoundId,
-            "durationMinutes": self.settings.durationMinutes
+            "durationMinutes": self.settings.durationMinutes,
+            "preparationEnabled": self.settings.preparationTimeEnabled,
+            "preparationSeconds": self.settings.preparationTimeSeconds
         ])
     }
 }
@@ -427,10 +450,10 @@ extension TimerViewModel {
         case .idle:
             newState.remainingSeconds = 0
             newState.totalSeconds = 600
-        case .countdown:
+        case .preparation:
             newState.remainingSeconds = 600
             newState.totalSeconds = 600
-            newState.countdownSeconds = 10
+            newState.remainingPreparationSeconds = 10
         case .running,
              .paused:
             newState.remainingSeconds = 300

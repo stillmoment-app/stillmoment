@@ -18,8 +18,7 @@ final class TimerViewModelStateTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Use 0 countdown duration for fast tests
-        self.mockTimerService = MockTimerService(countdownDuration: 0)
+        self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -94,9 +93,9 @@ final class TimerViewModelStateTests: XCTestCase {
         XCTAssertEqual(self.sut.currentAffirmationIndex, initialIndex + 1)
     }
 
-    func testCountdownAffirmations() {
+    func testPreparationAffirmations() {
         // Given/When
-        let affirmation = self.sut.currentCountdownAffirmation
+        let affirmation = self.sut.currentPreparationAffirmation
 
         // Then
         XCTAssertFalse(affirmation.isEmpty)

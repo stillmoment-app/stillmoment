@@ -27,8 +27,8 @@ struct TimerDisplayState: Equatable {
     /// Total duration in seconds
     var totalSeconds: Int
 
-    /// Countdown seconds (15, 14, 13... 0)
-    var countdownSeconds: Int
+    /// Remaining preparation seconds (e.g., 15, 14, 13... 0)
+    var remainingPreparationSeconds: Int
 
     /// Progress value (0.0 - 1.0)
     var progress: Double
@@ -41,9 +41,9 @@ struct TimerDisplayState: Equatable {
 
     // MARK: - Computed Properties (Pure, Testable)
 
-    /// Whether currently in countdown phase
-    var isCountdown: Bool {
-        self.timerState == .countdown
+    /// Whether currently in preparation phase
+    var isPreparation: Bool {
+        self.timerState == .preparation
     }
 
     /// Returns true if timer can be started
@@ -61,10 +61,10 @@ struct TimerDisplayState: Equatable {
         self.timerState == .paused
     }
 
-    /// Formatted time string (MM:SS or countdown seconds)
+    /// Formatted time string (MM:SS or preparation seconds)
     var formattedTime: String {
-        if self.isCountdown {
-            return "\(self.countdownSeconds)"
+        if self.isPreparation {
+            return "\(self.remainingPreparationSeconds)"
         }
         let minutes = self.remainingSeconds / 60
         let seconds = self.remainingSeconds % 60
@@ -79,7 +79,7 @@ struct TimerDisplayState: Equatable {
         selectedMinutes: 10,
         remainingSeconds: 0,
         totalSeconds: 0,
-        countdownSeconds: 0,
+        remainingPreparationSeconds: 0,
         progress: 0.0,
         currentAffirmationIndex: 0,
         intervalGongPlayedForCurrentInterval: false

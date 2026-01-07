@@ -45,9 +45,9 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         XCTAssertTrue(effects.isEmpty)
     }
 
-    func testPausePressed_fromCountdown_doesNotTransition() {
+    func testPausePressed_fromPreparation_doesNotTransition() {
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
         let (newState, effects) = TimerReducer.reduce(
             state: state,
@@ -55,7 +55,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .countdown)
+        XCTAssertEqual(newState.timerState, .preparation)
         XCTAssertTrue(effects.isEmpty)
     }
 
@@ -181,9 +181,9 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         XCTAssertFalse(effects.isEmpty)
     }
 
-    func testResetPressed_transitionsTimerFromCountdownToIdle() {
+    func testResetPressed_transitionsTimerFromPreparationToIdle() {
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
         let (newState, effects) = TimerReducer.reduce(
             state: state,

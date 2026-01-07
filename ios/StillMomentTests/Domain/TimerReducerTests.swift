@@ -66,7 +66,7 @@ final class TimerReducerTests: XCTestCase {
 
     // MARK: - StartPressed State Transitions
 
-    func testStartPressed_transitionsTimerFromIdleToCountdown() {
+    func testStartPressed_transitionsTimerFromIdleToPreparation() {
         // Given
         var state = TimerDisplayState.initial
         state.selectedMinutes = 10
@@ -78,8 +78,8 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then - Timer transitions to countdown, not directly to running
-        // Note: iOS architecture delegates countdown state to TimerService via effects
+        // Then - Timer transitions to preparation, not directly to running
+        // Note: iOS architecture delegates preparation state to TimerService via effects
         // The state transition happens via tick updates from the service
         XCTAssertFalse(effects.isEmpty, "StartPressed should produce effects")
         XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
@@ -176,7 +176,7 @@ final class TimerReducerTests: XCTestCase {
             action: .tick(
                 remainingSeconds: 540,
                 totalSeconds: 600,
-                countdownSeconds: 0,
+                remainingPreparationSeconds: 0,
                 progress: 0.1,
                 state: .running
             ),
@@ -192,9 +192,9 @@ final class TimerReducerTests: XCTestCase {
     }
 
     func testTick_canTransitionState() {
-        // Given - countdown state
+        // Given - preparation state
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
         // When - tick with paused state (from TimerService)
         let (newState, _) = TimerReducer.reduce(
@@ -202,7 +202,7 @@ final class TimerReducerTests: XCTestCase {
             action: .tick(
                 remainingSeconds: 600,
                 totalSeconds: 600,
-                countdownSeconds: 10,
+                remainingPreparationSeconds: 10,
                 progress: 0.0,
                 state: .paused
             ),
@@ -213,17 +213,17 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(newState.timerState, .paused)
     }
 
-    // MARK: - CountdownFinished State Transitions
+    // MARK: - PreparationFinished State Transitions
 
-    func testCountdownFinished_transitionsTimerFromCountdownToRunning() {
+    func testPreparationFinished_transitionsTimerFromPreparationToRunning() {
         // Given
         var state = TimerDisplayState.initial
-        state.timerState = .countdown
+        state.timerState = .preparation
 
         // When
         let (newState, effects) = TimerReducer.reduce(
             state: state,
-            action: .countdownFinished,
+            action: .preparationFinished,
             settings: self.defaultSettings
         )
 

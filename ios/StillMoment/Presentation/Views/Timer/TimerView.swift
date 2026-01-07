@@ -111,8 +111,8 @@ struct TimerView: View {
         switch self.viewModel.timerState {
         case .idle:
             NSLocalizedString("state.ready", comment: "")
-        case .countdown:
-            self.viewModel.currentCountdownAffirmation
+        case .preparation:
+            self.viewModel.currentPreparationAffirmation
         case .running:
             self.viewModel.currentRunningAffirmation
         case .paused:
@@ -153,8 +153,8 @@ struct TimerView: View {
         switch self.viewModel.timerState {
         case .idle:
             NSLocalizedString("accessibility.timerState.idle", comment: "")
-        case .countdown:
-            NSLocalizedString("accessibility.timerState.countdown", comment: "")
+        case .preparation:
+            NSLocalizedString("accessibility.timerState.preparation", comment: "")
         case .running:
             NSLocalizedString("accessibility.timerState.running", comment: "")
         case .paused:
@@ -218,8 +218,8 @@ struct TimerView: View {
 
         return VStack(spacing: spacing) {
             ZStack {
-                if self.viewModel.isCountdown {
-                    self.countdownCircle(size: circleSize, isCompact: isCompactHeight)
+                if self.viewModel.isPreparation {
+                    self.preparationCircle(size: circleSize, isCompact: isCompactHeight)
                 } else {
                     self.progressCircle(size: circleSize, isCompact: isCompactHeight)
                 }
@@ -233,7 +233,7 @@ struct TimerView: View {
         }
     }
 
-    private func countdownCircle(size: CGFloat, isCompact: Bool) -> some View {
+    private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
                 .stroke(Color.ringBackground, lineWidth: 8)
@@ -245,8 +245,8 @@ struct TimerView: View {
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel(String(
-                    format: NSLocalizedString("accessibility.countdown", comment: ""),
-                    self.viewModel.countdownSeconds
+                    format: NSLocalizedString("accessibility.preparation", comment: ""),
+                    self.viewModel.remainingPreparationSeconds
                 ))
         }
     }
@@ -323,9 +323,9 @@ struct TimerView: View {
 }
 
 @available(iOS 17.0, *)
-#Preview("Countdown") {
+#Preview("Preparation") {
     NavigationStack {
-        TimerView(viewModel: TimerViewModel.preview(state: .countdown))
+        TimerView(viewModel: TimerViewModel.preview(state: .preparation))
     }
 }
 

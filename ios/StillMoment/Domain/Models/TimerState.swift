@@ -12,8 +12,8 @@ enum TimerState: Equatable {
     /// Timer is idle and ready to start
     case idle
 
-    /// Timer is in countdown phase (15 seconds before start)
-    case countdown
+    /// Timer is in preparation phase (configurable seconds before meditation starts)
+    case preparation
 
     /// Timer is actively counting down
     case running
@@ -21,6 +21,6 @@ enum TimerState: Equatable {
     /// Timer is paused and can be resumed
     case paused
 
-    /// Timer has completed the countdown
+    /// Timer has completed the meditation
     case completed
 }

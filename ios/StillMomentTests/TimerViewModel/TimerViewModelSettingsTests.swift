@@ -18,8 +18,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        // Use 0 countdown duration for fast tests
-        self.mockTimerService = MockTimerService(countdownDuration: 0)
+        self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
 
         self.sut = TimerViewModel(
@@ -36,6 +35,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         defaults.removeObject(forKey: MeditationSettings.Keys.intervalMinutes)
         defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
         defaults.removeObject(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
+        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
 
         self.sut = nil
         self.mockTimerService = nil
@@ -263,5 +264,114 @@ final class TimerViewModelSettingsTests: XCTestCase {
 
         // Then - Should migrate to "silent" (WhiteNoise was removed)
         XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
+    }
+
+    // MARK: - Preparation Time Settings
+
+    func testPreparationTimeSettings_defaultValues() {
+        // Given - Clear any saved preparation settings
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
+
+        // When - Create new instance (simulates first launch)
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use defaults: enabled with 15 seconds
+        XCTAssertTrue(newViewModel.settings.preparationTimeEnabled)
+        XCTAssertEqual(newViewModel.settings.preparationTimeSeconds, 15)
+    }
+
+    func testPreparationTimeSettings_persistence() {
+        // Given - Configure preparation settings
+        self.sut.settings.preparationTimeEnabled = false
+        self.sut.settings.preparationTimeSeconds = 30
+
+        // When - Save and create new instance
+        self.sut.saveSettings()
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Settings should be restored
+        XCTAssertFalse(newViewModel.settings.preparationTimeEnabled)
+        XCTAssertEqual(newViewModel.settings.preparationTimeSeconds, 30)
+    }
+
+    func testStartTimer_withPreparationEnabled_passesPreparationTime() {
+        // Given - Preparation enabled with specific duration
+        self.sut.settings.preparationTimeEnabled = true
+        self.sut.settings.preparationTimeSeconds = 20
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer
+        self.sut.startTimer()
+
+        // Then - Timer service should receive the preparation time
+        XCTAssertTrue(self.mockTimerService.startCalled)
+        XCTAssertEqual(self.mockTimerService.lastStartDuration, 5)
+        XCTAssertEqual(self.mockTimerService.lastStartPreparationTime, 20)
+    }
+
+    func testStartTimer_withPreparationDisabled_passesZeroPreparationTime() {
+        // Given - Preparation disabled
+        self.sut.settings.preparationTimeEnabled = false
+        self.sut.settings.preparationTimeSeconds = 20 // Should be ignored
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer
+        self.sut.startTimer()
+
+        // Then - Timer service should receive 0 for preparation time
+        XCTAssertTrue(self.mockTimerService.startCalled)
+        XCTAssertEqual(self.mockTimerService.lastStartDuration, 5)
+        XCTAssertEqual(self.mockTimerService.lastStartPreparationTime, 0)
+    }
+
+    func testStartTimer_withPreparationDisabled_playsStartGong() {
+        // Given - Preparation disabled
+        self.sut.settings.preparationTimeEnabled = false
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer and manually trigger the state transition effect
+        self.sut.startTimer()
+
+        // Verify correct preparation time was passed
+        XCTAssertEqual(self.mockTimerService.lastStartPreparationTime, 0)
+
+        // Simulate the effect of idle → running transition
+        self.sut.dispatch(.preparationFinished)
+
+        // Then
+        XCTAssertTrue(
+            self.mockAudioService.playStartGongCalled,
+            "Start gong should play when preparationFinished is dispatched"
+        )
+    }
+
+    func testStartTimer_withPreparationEnabled_playsStartGongAfterPreparation() {
+        // Given - Preparation enabled
+        self.sut.settings.preparationTimeEnabled = true
+        self.sut.settings.preparationTimeSeconds = 15
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer and manually trigger the state transition effect
+        self.sut.startTimer()
+
+        // Verify correct preparation time was passed
+        XCTAssertEqual(self.mockTimerService.lastStartPreparationTime, 15)
+
+        // Simulate the effect of preparation → running transition
+        self.sut.dispatch(.preparationFinished)
+
+        // Then
+        XCTAssertTrue(
+            self.mockAudioService.playStartGongCalled,
+            "Start gong should play when meditation begins"
+        )
     }
 }

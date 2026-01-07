@@ -33,6 +33,41 @@ struct SettingsView: View {
 
                 Form {
                     Section {
+                        Toggle(isOn: self.$settings.preparationTimeEnabled) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("settings.preparationTime.title", bundle: .main)
+                                    .font(.system(size: 17, weight: .regular, design: .rounded))
+                                Text("settings.preparationTime.description", bundle: .main)
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundColor(.textSecondary)
+                            }
+                        }
+                        .accessibilityIdentifier("settings.toggle.preparationTime")
+                        .accessibilityLabel("accessibility.preparationTime")
+                        .accessibilityHint("accessibility.preparationTime.hint")
+
+                        if self.settings.preparationTimeEnabled {
+                            Picker(
+                                NSLocalizedString("settings.preparationTime.duration", comment: ""),
+                                selection: self.$settings.preparationTimeSeconds
+                            ) {
+                                Text("settings.preparationTime.5s", bundle: .main).tag(5)
+                                Text("settings.preparationTime.10s", bundle: .main).tag(10)
+                                Text("settings.preparationTime.15s", bundle: .main).tag(15)
+                                Text("settings.preparationTime.20s", bundle: .main).tag(20)
+                                Text("settings.preparationTime.30s", bundle: .main).tag(30)
+                                Text("settings.preparationTime.45s", bundle: .main).tag(45)
+                            }
+                            .pickerStyle(.menu)
+                            .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
+                            .accessibilityLabel("accessibility.preparationTimeDuration")
+                            .accessibilityHint("accessibility.preparationTimeDuration.hint")
+                        }
+                    } header: {
+                        Text("settings.preparationTime.header", bundle: .main)
+                    }
+
+                    Section {
                         Picker(
                             NSLocalizedString("settings.backgroundAudio.title", comment: ""),
                             selection: self.$settings.backgroundSoundId
