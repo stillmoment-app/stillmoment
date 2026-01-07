@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerState
@@ -207,7 +208,7 @@ class TimerScreenTest {
     }
 
     @Test
-    fun settingsSheet_showsForestAmbienceOption() {
+    fun settingsSheet_showsForestAmbienceOption_whenDropdownOpened() {
         composeRule.setContent {
             StillMomentTheme {
                 SettingsSheet(
@@ -217,6 +218,9 @@ class TimerScreenTest {
                 )
             }
         }
+        // Open the background sound dropdown by clicking on it
+        composeRule.onNodeWithText("Silent Ambience", ignoreCase = true).performClick()
+        // Now Forest Ambience should be visible in the dropdown menu
         composeRule.onNodeWithText("Forest Ambience", ignoreCase = true).assertIsDisplayed()
     }
 

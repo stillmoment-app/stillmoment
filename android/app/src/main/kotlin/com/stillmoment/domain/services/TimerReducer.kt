@@ -1,7 +1,6 @@
 package com.stillmoment.domain.services
 
 import com.stillmoment.domain.models.MeditationSettings
-import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
@@ -37,7 +36,7 @@ object TimerReducer {
             is TimerAction.ResumePressed -> reduceResumePressed(state)
             is TimerAction.ResetPressed -> reduceResetPressed(state)
             is TimerAction.Tick -> reduceTick(state, action)
-            is TimerAction.CountdownFinished -> reduceCountdownFinished(state)
+            is TimerAction.PreparationFinished -> reducePreparationFinished(state)
             is TimerAction.TimerCompleted -> reduceTimerCompleted(state)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(state, settings)
             is TimerAction.IntervalGongPlayed -> reduceIntervalGongPlayed(state)
@@ -67,10 +66,24 @@ object TimerReducer {
             return state to emptyList()
         }
 
+        // Determine preparation time: skip if disabled (0), otherwise use configured value
+        val preparationTime = if (settings.preparationTimeEnabled) {
+            settings.preparationTimeSeconds
+        } else {
+            0
+        }
+
+        // If no preparation time, go directly to Running state
+        val initialState = if (preparationTime > 0) {
+            TimerState.Preparation
+        } else {
+            TimerState.Running
+        }
+
         val newState =
             state.copy(
-                timerState = TimerState.Countdown,
-                countdownSeconds = MeditationTimer.DEFAULT_COUNTDOWN_DURATION,
+                timerState = initialState,
+                remainingPreparationSeconds = preparationTime,
                 currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
                 intervalGongPlayedForCurrentInterval = false
             )
@@ -80,12 +93,17 @@ object TimerReducer {
                 durationMinutes = state.selectedMinutes
             )
 
-        val effects =
-            listOf(
-                TimerEffect.StartForegroundService(settings.backgroundSoundId),
-                TimerEffect.StartTimer(state.selectedMinutes),
-                TimerEffect.SaveSettings(updatedSettings)
-            )
+        // Build effects - add start gong immediately if no preparation time
+        val effects = mutableListOf(
+            TimerEffect.StartForegroundService(settings.backgroundSoundId),
+            TimerEffect.StartTimer(state.selectedMinutes, preparationTime),
+            TimerEffect.SaveSettings(updatedSettings)
+        )
+
+        // Play start gong immediately if skipping preparation
+        if (preparationTime <= 0) {
+            effects.add(TimerEffect.PlayStartGong)
+        }
 
         return newState to effects
     }
@@ -116,7 +134,7 @@ object TimerReducer {
                 timerState = TimerState.Idle,
                 remainingSeconds = 0,
                 totalSeconds = 0,
-                countdownSeconds = 0,
+                remainingPreparationSeconds = 0,
                 progress = 0f,
                 intervalGongPlayedForCurrentInterval = false
             )
@@ -140,14 +158,14 @@ object TimerReducer {
             state.copy(
                 remainingSeconds = action.remainingSeconds,
                 totalSeconds = action.totalSeconds,
-                countdownSeconds = action.countdownSeconds,
+                remainingPreparationSeconds = action.remainingPreparationSeconds,
                 progress = action.progress,
                 timerState = action.state
             )
         return newState to emptyList()
     }
 
-    private fun reduceCountdownFinished(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reducePreparationFinished(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(timerState = TimerState.Running)
         return newState to listOf(TimerEffect.PlayStartGong)
     }

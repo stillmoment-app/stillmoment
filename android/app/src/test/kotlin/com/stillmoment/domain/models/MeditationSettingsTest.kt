@@ -17,6 +17,8 @@ class MeditationSettingsTest {
         assertEquals(5, settings.intervalMinutes)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(10, settings.durationMinutes)
+        assertTrue(settings.preparationTimeEnabled)
+        assertEquals(15, settings.preparationTimeSeconds)
     }
 
     @Test
@@ -27,6 +29,8 @@ class MeditationSettingsTest {
         assertEquals(5, settings.intervalMinutes)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(10, settings.durationMinutes)
+        assertTrue(settings.preparationTimeEnabled)
+        assertEquals(15, settings.preparationTimeSeconds)
     }
 
     // MARK: - Interval Validation Tests
@@ -83,6 +87,52 @@ class MeditationSettingsTest {
         assertEquals(45, MeditationSettings.validateDuration(45))
     }
 
+    // MARK: - Preparation Time Validation Tests
+
+    @Test
+    fun `validatePreparationTime returns exact matches for valid values`() {
+        assertEquals(5, MeditationSettings.validatePreparationTime(5))
+        assertEquals(10, MeditationSettings.validatePreparationTime(10))
+        assertEquals(15, MeditationSettings.validatePreparationTime(15))
+        assertEquals(20, MeditationSettings.validatePreparationTime(20))
+        assertEquals(30, MeditationSettings.validatePreparationTime(30))
+        assertEquals(45, MeditationSettings.validatePreparationTime(45))
+    }
+
+    @Test
+    fun `validatePreparationTime rounds to nearest valid value`() {
+        // Rounds to 5
+        assertEquals(5, MeditationSettings.validatePreparationTime(3))
+        assertEquals(5, MeditationSettings.validatePreparationTime(7))
+
+        // Rounds to 10
+        assertEquals(10, MeditationSettings.validatePreparationTime(8))
+        assertEquals(10, MeditationSettings.validatePreparationTime(12))
+
+        // Rounds to 15
+        assertEquals(15, MeditationSettings.validatePreparationTime(13))
+        assertEquals(15, MeditationSettings.validatePreparationTime(17))
+
+        // Rounds to 20
+        assertEquals(20, MeditationSettings.validatePreparationTime(18))
+        assertEquals(20, MeditationSettings.validatePreparationTime(24))
+
+        // Rounds to 30
+        assertEquals(30, MeditationSettings.validatePreparationTime(26))
+        assertEquals(30, MeditationSettings.validatePreparationTime(37))
+
+        // Rounds to 45
+        assertEquals(45, MeditationSettings.validatePreparationTime(38))
+        assertEquals(45, MeditationSettings.validatePreparationTime(100))
+    }
+
+    @Test
+    fun `validatePreparationTime handles edge cases`() {
+        assertEquals(5, MeditationSettings.validatePreparationTime(0))
+        assertEquals(5, MeditationSettings.validatePreparationTime(-5))
+        assertEquals(5, MeditationSettings.validatePreparationTime(1))
+    }
+
     // MARK: - Create with Validation Tests
 
     @Test
@@ -104,13 +154,23 @@ class MeditationSettingsTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 backgroundSoundId = "forest",
-                durationMinutes = 20
+                durationMinutes = 20,
+                preparationTimeEnabled = false,
+                preparationTimeSeconds = 30
             )
 
         assertTrue(settings.intervalGongsEnabled)
         assertEquals(10, settings.intervalMinutes)
         assertEquals("forest", settings.backgroundSoundId)
         assertEquals(20, settings.durationMinutes)
+        assertFalse(settings.preparationTimeEnabled)
+        assertEquals(30, settings.preparationTimeSeconds)
+    }
+
+    @Test
+    fun `create validates preparation time seconds`() {
+        val settings = MeditationSettings.create(preparationTimeSeconds = 12)
+        assertEquals(10, settings.preparationTimeSeconds) // Rounds to nearest valid value
     }
 
     // MARK: - Copy with Validation Tests
@@ -131,6 +191,23 @@ class MeditationSettingsTest {
 
         assertEquals(60, updated.durationMinutes)
         assertEquals(10, original.durationMinutes) // Original unchanged
+    }
+
+    @Test
+    fun `withPreparationTimeSeconds validates and updates`() {
+        val original = MeditationSettings()
+        val updated = original.withPreparationTimeSeconds(12)
+
+        assertEquals(10, updated.preparationTimeSeconds) // Rounds to nearest valid
+        assertEquals(15, original.preparationTimeSeconds) // Original unchanged
+    }
+
+    @Test
+    fun `withPreparationTimeSeconds accepts valid values`() {
+        val original = MeditationSettings()
+        val updated = original.withPreparationTimeSeconds(30)
+
+        assertEquals(30, updated.preparationTimeSeconds)
     }
 
     // MARK: - Legacy Migration Tests
@@ -158,6 +235,13 @@ class MeditationSettingsTest {
         assertEquals(listOf(3, 5, 10), MeditationSettings.VALID_INTERVALS)
     }
 
+    // MARK: - VALID_PREPARATION_TIMES Tests
+
+    @Test
+    fun `VALID_PREPARATION_TIMES contains expected values`() {
+        assertEquals(listOf(5, 10, 15, 20, 30, 45), MeditationSettings.VALID_PREPARATION_TIMES)
+    }
+
     // MARK: - Keys Tests
 
     @Test
@@ -167,5 +251,7 @@ class MeditationSettingsTest {
         assertEquals("backgroundSoundId", MeditationSettingsKeys.BACKGROUND_SOUND_ID)
         assertEquals("durationMinutes", MeditationSettingsKeys.DURATION_MINUTES)
         assertEquals("backgroundAudioMode", MeditationSettingsKeys.LEGACY_BACKGROUND_AUDIO_MODE)
+        assertEquals("preparationTimeEnabled", MeditationSettingsKeys.PREPARATION_TIME_ENABLED)
+        assertEquals("preparationTimeSeconds", MeditationSettingsKeys.PREPARATION_TIME_SECONDS)
     }
 }

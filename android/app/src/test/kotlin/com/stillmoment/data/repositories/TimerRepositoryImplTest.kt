@@ -28,9 +28,9 @@ class TimerRepositoryImplTest {
 
         // Then
         val timer = sut.timerFlow.first()
-        assertEquals(TimerState.Countdown, timer.state)
+        assertEquals(TimerState.Preparation, timer.state)
         assertEquals(10, timer.durationMinutes)
-        assertEquals(15, timer.countdownSeconds)
+        assertEquals(15, timer.remainingPreparationSeconds)
     }
 
     @Test
@@ -44,6 +44,17 @@ class TimerRepositoryImplTest {
         // Then
         assertNotNull(sut.currentTimer)
         assertEquals(5, sut.currentTimer?.durationMinutes)
+    }
+
+    @Test
+    fun `start with zero preparation time goes directly to running`() = runTest {
+        // When
+        sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
+
+        // Then - Should be in Running state immediately, not Preparation
+        val timer = sut.timerFlow.first()
+        assertEquals(TimerState.Running, timer.state)
+        assertEquals(0, timer.remainingPreparationSeconds)
     }
 
     // MARK: - Pause Tests
@@ -146,8 +157,8 @@ class TimerRepositoryImplTest {
         val result = sut.tick()
 
         // Then
-        assertEquals(14, result?.countdownSeconds)
-        assertEquals(TimerState.Countdown, result?.state)
+        assertEquals(14, result?.remainingPreparationSeconds)
+        assertEquals(TimerState.Preparation, result?.state)
     }
 
     @Test
@@ -161,7 +172,7 @@ class TimerRepositoryImplTest {
 
         // Then
         assertEquals(TimerState.Running, result?.state)
-        assertEquals(0, result?.countdownSeconds)
+        assertEquals(0, result?.remainingPreparationSeconds)
     }
 
     @Test
@@ -190,13 +201,13 @@ class TimerRepositoryImplTest {
     fun `tick updates flow value`() = runTest {
         // Given
         sut.start(durationMinutes = 10)
-        val initialCountdown = sut.timerFlow.first().countdownSeconds
+        val initialCountdown = sut.timerFlow.first().remainingPreparationSeconds
 
         // When
         sut.tick()
 
         // Then
-        val updatedCountdown = sut.timerFlow.first().countdownSeconds
+        val updatedCountdown = sut.timerFlow.first().remainingPreparationSeconds
         assertEquals(initialCountdown - 1, updatedCountdown)
     }
 }

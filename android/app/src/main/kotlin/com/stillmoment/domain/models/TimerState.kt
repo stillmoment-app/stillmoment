@@ -6,53 +6,53 @@ package com.stillmoment.domain.models
  * ## State Machine
  *
  * ```
- *  ┌──────┐ StartPressed  ┌───────────┐ CountdownFinished ┌─────────┐ TimerCompleted ┌───────────┐
- *  │ Idle │──────────────►│ Countdown │──────────────────►│ Running │───────────────►│ Completed │
- *  └──────┘               └───────────┘   + StartGong     └─────────┘   + Gong       └───────────┘
- *     ▲                        │                            │    ▲            │
- *     │                        │                 PausePressed│    │            │
- *     │   ResetPressed         │                            ▼    │            │
- *     │   (from any state      │                        ┌────────┐            │
- *     │    except Idle)        │                        │ Paused │            │
- *     │                        │                        └────────┘            │
- *     │                        │                            │ ResumePressed   │
- *     │                        │                            └─────────────────┤
- *     │                        │                                              │
- *     └────────────────────────┴──────────────────────────────────────────────┘
+ *  ┌──────┐ StartPressed  ┌─────────────┐ PreparationFinished ┌─────────┐ TimerCompleted ┌───────────┐
+ *  │ Idle │──────────────►│ Preparation │────────────────────►│ Running │───────────────►│ Completed │
+ *  └──────┘               └─────────────┘   + StartGong       └─────────┘   + Gong       └───────────┘
+ *     ▲                        │                                │    ▲            │
+ *     │                        │                     PausePressed│    │            │
+ *     │   ResetPressed         │                                ▼    │            │
+ *     │   (from any state      │                            ┌────────┐            │
+ *     │    except Idle)        │                            │ Paused │            │
+ *     │                        │                            └────────┘            │
+ *     │                        │                                │ ResumePressed   │
+ *     │                        │                                └─────────────────┤
+ *     │                        │                                                  │
+ *     └────────────────────────┴──────────────────────────────────────────────────┘
  * ```
  *
  * ## States
  *
  * - **Idle**: Timer Config Screen. User selects duration.
- * - **Countdown**: Focus Screen. 15s preparation countdown before meditation starts.
+ * - **Preparation**: Focus Screen. Configurable preparation time before meditation starts.
  * - **Running**: Focus Screen. Main meditation timer counting down.
  * - **Paused**: Focus Screen. Timer paused, can resume or reset.
  * - **Completed**: Focus Screen (briefly). Meditation finished, auto-navigates back.
  *
  * ## Transitions
  *
- * | From      | To        | Action            | Effects                          |
- * |-----------|-----------|-------------------|----------------------------------|
- * | Idle      | Countdown | StartPressed      | StartForegroundService, StartTimer |
- * | Countdown | Running   | CountdownFinished | PlayStartGong                    |
- * | Running   | Paused    | PausePressed      | PauseBackgroundAudio, PauseTimer |
- * | Paused    | Running   | ResumePressed     | ResumeBackgroundAudio, ResumeTimer |
- * | Running   | Completed | TimerCompleted    | PlayCompletionSound, StopForegroundService |
- * | Any*      | Idle      | ResetPressed      | StopForegroundService, ResetTimer |
+ * | From        | To          | Action              | Effects                          |
+ * |-------------|-------------|---------------------|----------------------------------|
+ * | Idle        | Preparation | StartPressed        | StartForegroundService, StartTimer |
+ * | Preparation | Running     | PreparationFinished | PlayStartGong                    |
+ * | Running     | Paused      | PausePressed        | PauseBackgroundAudio, PauseTimer |
+ * | Paused      | Running     | ResumePressed       | ResumeBackgroundAudio, ResumeTimer |
+ * | Running     | Completed   | TimerCompleted      | PlayCompletionSound, StopForegroundService |
+ * | Any*        | Idle        | ResetPressed        | StopForegroundService, ResetTimer |
  *
  * *ResetPressed has no effect when already Idle.
  *
  * ## UI Screens
  *
  * - **TimerScreen** (Config): Shown when state is Idle
- * - **TimerFocusScreen**: Shown when state is Countdown, Running, Paused, or Completed
+ * - **TimerFocusScreen**: Shown when state is Preparation, Running, Paused, or Completed
  */
 sealed class TimerState {
     /** Timer is idle and ready to start. Shows TimerScreen (config). */
     data object Idle : TimerState()
 
-    /** Timer is in countdown phase (15 seconds before meditation). Shows TimerFocusScreen. */
-    data object Countdown : TimerState()
+    /** Timer is in preparation phase before meditation. Shows TimerFocusScreen. */
+    data object Preparation : TimerState()
 
     /** Timer is actively counting down the meditation. Shows TimerFocusScreen. */
     data object Running : TimerState()

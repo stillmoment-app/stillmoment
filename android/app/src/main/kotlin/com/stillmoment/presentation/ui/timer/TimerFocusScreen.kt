@@ -84,7 +84,7 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
 
     // Navigate back when timer returns to Idle after being active
     LaunchedEffect(uiState.timerState) {
-        if (uiState.timerState == TimerState.Countdown || uiState.timerState == TimerState.Running) {
+        if (uiState.timerState == TimerState.Preparation || uiState.timerState == TimerState.Running) {
             wasActive = true
         }
         if (wasActive && uiState.timerState == TimerState.Idle) {
@@ -103,7 +103,7 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
         },
         onPauseClick = viewModel::pauseTimer,
         onResumeClick = viewModel::resumeTimer,
-        getCurrentCountdownAffirmation = viewModel::getCurrentCountdownAffirmation,
+        getCurrentPreparationAffirmation = viewModel::getCurrentPreparationAffirmation,
         getCurrentRunningAffirmation = viewModel::getCurrentRunningAffirmation,
         modifier = modifier
     )
@@ -115,7 +115,7 @@ internal fun TimerFocusScreenContent(
     onBack: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    getCurrentCountdownAffirmation: () -> String,
+    getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
@@ -127,7 +127,7 @@ internal fun TimerFocusScreenContent(
                 onBack = onBack,
                 onPauseClick = onPauseClick,
                 onResumeClick = onResumeClick,
-                getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
+                getCurrentPreparationAffirmation = getCurrentPreparationAffirmation,
                 getCurrentRunningAffirmation = getCurrentRunningAffirmation,
                 modifier = Modifier.padding(paddingValues)
             )
@@ -141,7 +141,7 @@ private fun FocusScreenLayout(
     onBack: () -> Unit,
     onPauseClick: () -> Unit,
     onResumeClick: () -> Unit,
-    getCurrentCountdownAffirmation: () -> String,
+    getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
@@ -170,7 +170,7 @@ private fun FocusScreenLayout(
             Spacer(modifier = Modifier.height(24.dp))
             FocusTimerDisplay(
                 uiState = uiState,
-                getCurrentCountdownAffirmation = getCurrentCountdownAffirmation,
+                getCurrentPreparationAffirmation = getCurrentPreparationAffirmation,
                 getCurrentRunningAffirmation = getCurrentRunningAffirmation
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -183,7 +183,7 @@ private fun FocusScreenLayout(
 @Composable
 private fun FocusTimerDisplay(
     uiState: TimerUiState,
-    getCurrentCountdownAffirmation: () -> String,
+    getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
 ) {
@@ -195,7 +195,7 @@ private fun FocusTimerDisplay(
         TimerRing(uiState = uiState, ringSize = ringSize, isCompactHeight = isCompactHeight)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = getStateText(uiState.timerState, getCurrentCountdownAffirmation, getCurrentRunningAffirmation),
+            text = getStateText(uiState.timerState, getCurrentPreparationAffirmation, getCurrentRunningAffirmation),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -215,11 +215,11 @@ private fun TimerRing(
         animationSpec = tween(durationMillis = 500),
         label = "progress"
     )
-    val isCountdownStyle = uiState.isCountdown
+    val isPreparationStyle = uiState.isPreparation
     val minutes = uiState.remainingSeconds / 60
     val seconds = uiState.remainingSeconds % 60
-    val timerAccessibilityDescription = if (isCountdownStyle) {
-        stringResource(R.string.accessibility_countdown_seconds, uiState.countdownSeconds)
+    val timerAccessibilityDescription = if (isPreparationStyle) {
+        stringResource(R.string.accessibility_countdown_seconds, uiState.remainingPreparationSeconds)
     } else {
         stringResource(R.string.accessibility_time_remaining, minutes, seconds)
     }
@@ -239,7 +239,7 @@ private fun TimerRing(
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
             strokeCap = StrokeCap.Round
         )
-        if (!isCountdownStyle) {
+        if (!isPreparationStyle) {
             CircularProgressIndicator(
                 progress = { animatedProgress },
                 modifier = Modifier.size(ringSize),
@@ -251,7 +251,7 @@ private fun TimerRing(
         }
         Text(
             text = uiState.formattedTime,
-            style = if (isCountdownStyle) {
+            style = if (isPreparationStyle) {
                 MaterialTheme.typography.displayLarge.copy(
                     fontSize = if (isCompactHeight) 90.sp else 110.sp,
                     fontWeight = FontWeight.ExtraLight
@@ -270,12 +270,12 @@ private fun TimerRing(
 @Composable
 private fun getStateText(
     state: TimerState,
-    getCurrentCountdownAffirmation: () -> String,
+    getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String
 ): String {
     return when (state) {
         TimerState.Idle -> stringResource(R.string.state_ready)
-        TimerState.Countdown -> getCurrentCountdownAffirmation()
+        TimerState.Preparation -> getCurrentPreparationAffirmation()
         TimerState.Running -> getCurrentRunningAffirmation()
         TimerState.Paused -> stringResource(R.string.state_paused)
         TimerState.Completed -> stringResource(R.string.state_completed)
@@ -389,15 +389,15 @@ private fun FocusSecondaryButton(
 
 // MARK: - Previews
 
-@Preview(name = "Focus - Countdown", widthDp = 360, heightDp = 640, showBackground = true)
+@Preview(name = "Focus - Preparation", widthDp = 360, heightDp = 640, showBackground = true)
 @Composable
-private fun TimerFocusCountdownPreview() {
+private fun TimerFocusPreparationPreview() {
     StillMomentTheme {
         TimerFocusScreenContent(
             uiState = TimerUiState(
                 displayState = TimerDisplayState(
-                    timerState = TimerState.Countdown,
-                    countdownSeconds = 7,
+                    timerState = TimerState.Preparation,
+                    remainingPreparationSeconds = 7,
                     remainingSeconds = 600,
                     totalSeconds = 600
                 )
@@ -405,7 +405,7 @@ private fun TimerFocusCountdownPreview() {
             onBack = {},
             onPauseClick = {},
             onResumeClick = {},
-            getCurrentCountdownAffirmation = { "Take a deep breath..." },
+            getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "Be present" }
         )
     }
@@ -427,7 +427,7 @@ private fun TimerFocusRunningPreview() {
             onBack = {},
             onPauseClick = {},
             onResumeClick = {},
-            getCurrentCountdownAffirmation = { "Take a deep breath..." },
+            getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "Breathe softly" }
         )
     }
@@ -449,7 +449,7 @@ private fun TimerFocusPausedPreview() {
             onBack = {},
             onPauseClick = {},
             onResumeClick = {},
-            getCurrentCountdownAffirmation = { "Take a deep breath..." },
+            getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "Be present" }
         )
     }
@@ -471,7 +471,7 @@ private fun TimerFocusTabletPreview() {
             onBack = {},
             onPauseClick = {},
             onResumeClick = {},
-            getCurrentCountdownAffirmation = { "Take a deep breath..." },
+            getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "All is welcome" }
         )
     }

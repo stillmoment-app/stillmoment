@@ -30,8 +30,8 @@ sealed class TimerEffect {
 
     // MARK: - Timer Repository Effects
 
-    /** Start the timer with given duration */
-    data class StartTimer(val durationMinutes: Int) : TimerEffect()
+    /** Start the timer with given duration and preparation time */
+    data class StartTimer(val durationMinutes: Int, val preparationTimeSeconds: Int = 15) : TimerEffect()
 
     /** Pause the timer */
     data object PauseTimer : TimerEffect()

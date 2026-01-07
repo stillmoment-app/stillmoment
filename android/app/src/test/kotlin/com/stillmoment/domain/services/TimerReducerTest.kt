@@ -96,8 +96,8 @@ class TimerReducerTest {
                 )
 
             // Then - State transitions to Countdown
-            assertEquals(TimerState.Countdown, newState.timerState)
-            assertEquals(15, newState.countdownSeconds)
+            assertEquals(TimerState.Preparation, newState.timerState)
+            assertEquals(15, newState.remainingPreparationSeconds)
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
             assertEquals(1, newState.currentAffirmationIndex) // Rotated from 0
 
@@ -166,6 +166,43 @@ class TimerReducerTest {
             // Then
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
         }
+
+        @Test
+        fun `skips preparation and goes directly to running when disabled`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
+            val settings = defaultSettings.copy(preparationTimeEnabled = false)
+
+            // When
+            val (newState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+
+            // Then - Should go directly to Running, not Preparation
+            assertEquals(TimerState.Running, newState.timerState)
+            assertEquals(0, newState.remainingPreparationSeconds)
+        }
+
+        @Test
+        fun `plays start gong immediately when preparation disabled`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
+            val settings = defaultSettings.copy(preparationTimeEnabled = false)
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+
+            // Then - PlayStartGong should be in effects (immediate, not after PreparationFinished)
+            assertTrue(effects.contains(TimerEffect.PlayStartGong))
+        }
     }
 
     // MARK: - PausePressed Tests
@@ -229,7 +266,7 @@ class TimerReducerTest {
         @Test
         fun `does nothing when in countdown`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
 
             // When
             val (newState, effects) =
@@ -240,7 +277,7 @@ class TimerReducerTest {
                 )
 
             // Then - Cannot pause during countdown
-            assertEquals(TimerState.Countdown, newState.timerState)
+            assertEquals(TimerState.Preparation, newState.timerState)
             assertTrue(effects.isEmpty())
         }
 
@@ -327,7 +364,7 @@ class TimerReducerTest {
         @Test
         fun `does nothing when in countdown`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
 
             // When
             val (newState, effects) =
@@ -338,7 +375,7 @@ class TimerReducerTest {
                 )
 
             // Then - Cannot resume during countdown
-            assertEquals(TimerState.Countdown, newState.timerState)
+            assertEquals(TimerState.Preparation, newState.timerState)
             assertTrue(effects.isEmpty())
         }
 
@@ -373,7 +410,7 @@ class TimerReducerTest {
                     timerState = TimerState.Running,
                     remainingSeconds = 300,
                     totalSeconds = 600,
-                    countdownSeconds = 0,
+                    remainingPreparationSeconds = 0,
                     progress = 0.5f,
                     intervalGongPlayedForCurrentInterval = true
                 )
@@ -390,7 +427,7 @@ class TimerReducerTest {
             assertEquals(TimerState.Idle, newState.timerState)
             assertEquals(0, newState.remainingSeconds)
             assertEquals(0, newState.totalSeconds)
-            assertEquals(0, newState.countdownSeconds)
+            assertEquals(0, newState.remainingPreparationSeconds)
             assertEquals(0f, newState.progress)
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
 
@@ -460,7 +497,7 @@ class TimerReducerTest {
         @Test
         fun `updates state from tick values`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
 
             // When
             val (newState, effects) =
@@ -469,9 +506,9 @@ class TimerReducerTest {
                     TimerAction.Tick(
                         remainingSeconds = 540,
                         totalSeconds = 600,
-                        countdownSeconds = 10,
+                        remainingPreparationSeconds = 10,
                         progress = 0.1f,
-                        state = TimerState.Countdown
+                        state = TimerState.Preparation
                     ),
                     defaultSettings
                 )
@@ -479,9 +516,9 @@ class TimerReducerTest {
             // Then
             assertEquals(540, newState.remainingSeconds)
             assertEquals(600, newState.totalSeconds)
-            assertEquals(10, newState.countdownSeconds)
+            assertEquals(10, newState.remainingPreparationSeconds)
             assertEquals(0.1f, newState.progress)
-            assertEquals(TimerState.Countdown, newState.timerState)
+            assertEquals(TimerState.Preparation, newState.timerState)
             assertTrue(effects.isEmpty())
         }
 
@@ -497,7 +534,7 @@ class TimerReducerTest {
                     TimerAction.Tick(
                         remainingSeconds = 100,
                         totalSeconds = 600,
-                        countdownSeconds = 0,
+                        remainingPreparationSeconds = 0,
                         progress = 0.83f,
                         state = TimerState.Running
                     ),
@@ -509,20 +546,20 @@ class TimerReducerTest {
         }
     }
 
-    // MARK: - CountdownFinished Tests
+    // MARK: - PreparationFinished Tests
 
     @Nested
-    inner class CountdownFinished {
+    inner class PreparationFinished {
         @Test
         fun `transitions to running and plays start gong`() {
             // Given
-            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Countdown)
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
 
             // When
             val (newState, effects) =
                 TimerReducer.reduce(
                     state,
-                    TimerAction.CountdownFinished,
+                    TimerAction.PreparationFinished,
                     defaultSettings
                 )
 
@@ -681,8 +718,8 @@ class TimerReducerTest {
             state = startState
 
             // Then - Should transition to Countdown and have start effects
-            assertEquals(TimerState.Countdown, state.timerState)
-            assertEquals(15, state.countdownSeconds)
+            assertEquals(TimerState.Preparation, state.timerState)
+            assertEquals(15, state.remainingPreparationSeconds)
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
             assertTrue(startEffects.any { it is TimerEffect.StartForegroundService })
 
@@ -690,17 +727,17 @@ class TimerReducerTest {
             val (countdownState, _) =
                 TimerReducer.reduce(
                     state,
-                    TimerAction.Tick(60, 60, 10, 0f, TimerState.Countdown),
+                    TimerAction.Tick(60, 60, 10, 0f, TimerState.Preparation),
                     settings
                 )
             state = countdownState
-            assertEquals(TimerState.Countdown, state.timerState)
+            assertEquals(TimerState.Preparation, state.timerState)
 
             // When - Countdown finished
             val (runningState, runningEffects) =
                 TimerReducer.reduce(
                     state,
-                    TimerAction.CountdownFinished,
+                    TimerAction.PreparationFinished,
                     settings
                 )
             state = runningState
@@ -767,6 +804,40 @@ class TimerReducerTest {
             // Then - Both audio resume and timer resume effects
             assertTrue(resumeEffects.contains(TimerEffect.ResumeBackgroundAudio))
             assertTrue(resumeEffects.contains(TimerEffect.ResumeTimer))
+        }
+
+        @Test
+        fun `full cycle without preparation time skips directly to running`() {
+            // Given - Start in idle with preparation disabled
+            var state = TimerDisplayState.Initial.copy(selectedMinutes = 1)
+            val settings = defaultSettings.copy(preparationTimeEnabled = false)
+
+            // When - Start
+            val (startState, startEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+            state = startState
+
+            // Then - Should go directly to Running, not Preparation
+            assertEquals(TimerState.Running, state.timerState)
+            assertEquals(0, state.remainingPreparationSeconds)
+            assertTrue(startEffects.contains(TimerEffect.PlayStartGong))
+            assertTrue(startEffects.any { it is TimerEffect.StartTimer })
+
+            // When - Timer completed (no PreparationFinished needed)
+            val (completedState, completedEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    settings
+                )
+
+            // Then
+            assertEquals(TimerState.Completed, completedState.timerState)
+            assertTrue(completedEffects.contains(TimerEffect.PlayCompletionSound))
         }
     }
 }

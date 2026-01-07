@@ -37,6 +37,11 @@
     <string name="settings_interval_gongs_description">Ein Gong-Klang in regelmäßigen Abständen während der Meditation</string>
     <string name="settings_interval_minutes">Intervall</string>
     <string name="settings_sound_settings">Klang-Einstellungen</string>
+    <string name="settings_preparation_time">Vorbereitungszeit</string>
+    <string name="settings_preparation_on">An</string>
+    <string name="settings_preparation_off">Aus</string>
+    <string name="settings_preparation_description">Zeit zum Ankommen vor der Meditation</string>
+    <string name="settings_preparation_duration">Dauer</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Stille</string>
@@ -47,6 +52,7 @@
     <!-- Time -->
     <string name="time_minutes">%d min</string>
     <string name="time_minutes_plural">%d Minuten</string>
+    <string name="time_seconds">%d Sekunden</string>
 
     <!-- Accessibility -->
     <string name="accessibility_duration_picker">Meditationsdauer auswählen</string>
@@ -119,6 +125,9 @@
     <string name="accessibility_interval_disabled">Intervall-Gongs deaktiviert</string>
     <string name="accessibility_sound_selected">%s ausgewählt</string>
     <string name="accessibility_interval_option">%d Minuten Intervall</string>
+    <string name="accessibility_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
+    <string name="accessibility_preparation_disabled">Vorbereitungszeit deaktiviert</string>
+    <string name="accessibility_preparation_option">%d Sekunden Vorbereitung</string>
 
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Vorschlag: %s</string>

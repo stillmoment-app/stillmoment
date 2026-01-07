@@ -32,12 +32,19 @@ constructor() : TimerRepository {
     var currentTimer: MeditationTimer? = null
         private set
 
-    override suspend fun start(durationMinutes: Int) {
+    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int) {
         val timer =
             MeditationTimer.create(
                 durationMinutes = durationMinutes,
-                countdownDuration = MeditationTimer.DEFAULT_COUNTDOWN_DURATION
-            ).startCountdown()
+                preparationTimeSeconds = preparationTimeSeconds
+            ).let { created ->
+                // If preparation time is 0, start directly in Running state
+                if (preparationTimeSeconds <= 0) {
+                    created.withState(TimerState.Running)
+                } else {
+                    created.startPreparation()
+                }
+            }
 
         currentTimer = timer
         _timer.value = timer

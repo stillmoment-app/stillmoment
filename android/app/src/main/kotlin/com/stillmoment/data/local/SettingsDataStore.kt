@@ -38,6 +38,8 @@ constructor(
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
+        val PREPARATION_TIME_ENABLED = booleanPreferencesKey("preparation_time_enabled")
+        val PREPARATION_TIME_SECONDS = intPreferencesKey("preparation_time_seconds")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
     }
 
@@ -56,7 +58,13 @@ constructor(
                         ?: MeditationSettings.Default.backgroundSoundId,
                     durationMinutes =
                     preferences[Keys.DURATION_MINUTES]
-                        ?: MeditationSettings.Default.durationMinutes
+                        ?: MeditationSettings.Default.durationMinutes,
+                    preparationTimeEnabled =
+                    preferences[Keys.PREPARATION_TIME_ENABLED]
+                        ?: MeditationSettings.Default.preparationTimeEnabled,
+                    preparationTimeSeconds =
+                    preferences[Keys.PREPARATION_TIME_SECONDS]
+                        ?: MeditationSettings.Default.preparationTimeSeconds
                 )
             }
 
@@ -70,6 +78,8 @@ constructor(
             preferences[Keys.INTERVAL_MINUTES] = settings.intervalMinutes
             preferences[Keys.BACKGROUND_SOUND_ID] = settings.backgroundSoundId
             preferences[Keys.DURATION_MINUTES] = settings.durationMinutes
+            preferences[Keys.PREPARATION_TIME_ENABLED] = settings.preparationTimeEnabled
+            preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
         }
     }
 

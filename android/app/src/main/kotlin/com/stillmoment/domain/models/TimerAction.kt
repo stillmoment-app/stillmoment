@@ -31,13 +31,13 @@ sealed class TimerAction {
     data class Tick(
         val remainingSeconds: Int,
         val totalSeconds: Int,
-        val countdownSeconds: Int,
+        val remainingPreparationSeconds: Int,
         val progress: Float,
         val state: TimerState
     ) : TimerAction()
 
-    /** Countdown phase finished, transitioning to running */
-    data object CountdownFinished : TimerAction()
+    /** Preparation phase finished, transitioning to running */
+    data object PreparationFinished : TimerAction()
 
     /** Timer completed (reached zero) */
     data object TimerCompleted : TimerAction()

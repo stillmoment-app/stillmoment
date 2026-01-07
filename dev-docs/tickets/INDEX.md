@@ -131,6 +131,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-054](android/android-054-timer-repository-interface.md) | TimerRepository Interface erweitern | 2-Architektur | [x] | - |
 | [android-055](android/android-055-progress-update-interval.md) | Progress-Update-Interval optimieren | 4-Polish | [x] | - |
 | [android-056](android/android-056-audio-focus-management.md) | AudioFocus Management implementieren | 2-Architektur | [x] | - |
+| [android-057](android/android-057-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [ ] | - |
+| [android-058](android/android-058-settings-sofort-speichern.md) | Settings sofort speichern | 4-Polish | [ ] | - |
 
 ---
 

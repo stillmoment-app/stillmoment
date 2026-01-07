@@ -9,16 +9,16 @@ package com.stillmoment.domain.models
  * @property durationMinutes Duration of the timer in minutes (1-60)
  * @property remainingSeconds Remaining time in seconds
  * @property state Current state of the timer
- * @property countdownSeconds Countdown seconds (countdownDuration→0 before timer starts)
- * @property countdownDuration Duration of countdown in seconds (configured at initialization)
+ * @property remainingPreparationSeconds Remaining preparation seconds (preparationTimeSeconds→0 before timer starts)
+ * @property preparationTimeSeconds Duration of preparation in seconds (configured at initialization)
  * @property lastIntervalGongAt Remaining seconds when last interval gong was played
  */
 data class MeditationTimer(
     val durationMinutes: Int,
     val remainingSeconds: Int,
     val state: TimerState,
-    val countdownSeconds: Int = 0,
-    val countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION,
+    val remainingPreparationSeconds: Int = 0,
+    val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME,
     val lastIntervalGongAt: Int? = null
 ) {
     init {
@@ -46,15 +46,15 @@ data class MeditationTimer(
 
     /**
      * Returns a copy with updated remaining seconds (tick).
-     * Handles both countdown phase and regular timer phase.
+     * Handles both preparation phase and regular timer phase.
      */
     fun tick(): MeditationTimer {
-        // Handle countdown phase
-        if (state == TimerState.Countdown) {
-            val newCountdown = maxOf(0, countdownSeconds - 1)
-            val newState = if (newCountdown <= 0) TimerState.Running else TimerState.Countdown
+        // Handle preparation phase
+        if (state == TimerState.Preparation) {
+            val newPreparation = maxOf(0, remainingPreparationSeconds - 1)
+            val newState = if (newPreparation <= 0) TimerState.Running else TimerState.Preparation
             return copy(
-                countdownSeconds = newCountdown,
+                remainingPreparationSeconds = newPreparation,
                 state = newState
             )
         }
@@ -73,11 +73,11 @@ data class MeditationTimer(
         return copy(state = newState)
     }
 
-    /** Returns a copy ready for countdown (uses configured countdownDuration) */
-    fun startCountdown(): MeditationTimer {
+    /** Returns a copy ready for preparation phase (uses configured preparationTimeSeconds) */
+    fun startPreparation(): MeditationTimer {
         return copy(
-            state = TimerState.Countdown,
-            countdownSeconds = countdownDuration,
+            state = TimerState.Preparation,
+            remainingPreparationSeconds = preparationTimeSeconds,
             lastIntervalGongAt = null
         )
     }
@@ -116,13 +116,13 @@ data class MeditationTimer(
         return copy(
             remainingSeconds = durationMinutes * 60,
             state = TimerState.Idle,
-            countdownSeconds = 0,
+            remainingPreparationSeconds = 0,
             lastIntervalGongAt = null
         )
     }
 
     companion object {
-        const val DEFAULT_COUNTDOWN_DURATION = 15
+        const val DEFAULT_PREPARATION_TIME = 15
         const val MIN_DURATION_MINUTES = 1
         const val MAX_DURATION_MINUTES = 60
 
@@ -130,17 +130,17 @@ data class MeditationTimer(
          * Creates a new meditation timer with validated duration.
          *
          * @param durationMinutes Duration in minutes (1-60)
-         * @param countdownDuration Duration of countdown in seconds (default: 15). Use 0 to skip countdown.
+         * @param preparationTimeSeconds Duration of preparation in seconds (default: 15). Use 0 to skip preparation.
          * @return A new MeditationTimer instance
          * @throws IllegalArgumentException if duration is not between 1 and 60 minutes
          */
-        fun create(durationMinutes: Int, countdownDuration: Int = DEFAULT_COUNTDOWN_DURATION): MeditationTimer {
+        fun create(durationMinutes: Int, preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME): MeditationTimer {
             return MeditationTimer(
                 durationMinutes = durationMinutes,
                 remainingSeconds = durationMinutes * 60,
                 state = TimerState.Idle,
-                countdownSeconds = 0,
-                countdownDuration = countdownDuration,
+                remainingPreparationSeconds = 0,
+                preparationTimeSeconds = preparationTimeSeconds,
                 lastIntervalGongAt = null
             )
         }

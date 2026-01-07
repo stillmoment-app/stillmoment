@@ -46,11 +46,11 @@ data class TimerUiState(
     val remainingSeconds: Int get() = displayState.remainingSeconds
     val totalSeconds: Int get() = displayState.totalSeconds
     val progress: Float get() = displayState.progress
-    val countdownSeconds: Int get() = displayState.countdownSeconds
+    val remainingPreparationSeconds: Int get() = displayState.remainingPreparationSeconds
     val currentAffirmationIndex: Int get() = displayState.currentAffirmationIndex
 
     // Computed properties from displayState
-    val isCountdown: Boolean get() = displayState.isCountdown
+    val isPreparation: Boolean get() = displayState.isPreparation
     val canStart: Boolean get() = displayState.canStart
     val canPause: Boolean get() = displayState.canPause
     val canResume: Boolean get() = displayState.canResume
@@ -133,7 +133,7 @@ constructor(
             }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
-                    timerRepository.start(effect.durationMinutes)
+                    timerRepository.start(effect.durationMinutes, effect.preparationTimeSeconds)
                 }
                 previousState = TimerState.Idle
                 startTimerLoop()
@@ -217,9 +217,9 @@ constructor(
 
     // MARK: - Affirmation Getters
 
-    fun getCurrentCountdownAffirmation(): String {
-        val index = _uiState.value.currentAffirmationIndex % COUNTDOWN_AFFIRMATION_COUNT
-        return getApplication<Application>().getString(COUNTDOWN_AFFIRMATIONS[index])
+    fun getCurrentPreparationAffirmation(): String {
+        val index = _uiState.value.currentAffirmationIndex % PREPARATION_AFFIRMATION_COUNT
+        return getApplication<Application>().getString(PREPARATION_AFFIRMATIONS[index])
     }
 
     fun getCurrentRunningAffirmation(): String {
@@ -252,7 +252,7 @@ constructor(
             TimerAction.Tick(
                 remainingSeconds = updatedTimer.remainingSeconds,
                 totalSeconds = updatedTimer.totalSeconds,
-                countdownSeconds = updatedTimer.countdownSeconds,
+                remainingPreparationSeconds = updatedTimer.remainingPreparationSeconds,
                 progress = updatedTimer.progress,
                 state = updatedTimer.state
             )
@@ -268,8 +268,8 @@ constructor(
             return false
         }
 
-        // Only continue loop if running or countdown
-        if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Countdown) {
+        // Only continue loop if running or preparation
+        if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Preparation) {
             return false
         }
 
@@ -279,9 +279,9 @@ constructor(
     }
 
     private fun handleStateTransition(oldState: TimerState, newState: TimerState) {
-        // Countdown → Running: Dispatch countdown finished action
-        if (oldState == TimerState.Countdown && newState == TimerState.Running) {
-            dispatch(TimerAction.CountdownFinished)
+        // Preparation → Running: Dispatch preparation finished action
+        if (oldState == TimerState.Preparation && newState == TimerState.Running) {
+            dispatch(TimerAction.PreparationFinished)
         }
     }
 
@@ -340,14 +340,14 @@ constructor(
     }
 
     companion object {
-        private const val COUNTDOWN_AFFIRMATION_COUNT = 4
+        private const val PREPARATION_AFFIRMATION_COUNT = 4
         private const val RUNNING_AFFIRMATION_COUNT = 5
 
         /** Delay before stopping foreground service to allow completion sound to play */
         private const val COMPLETION_SOUND_DELAY_MS = 3000L
 
-        /** Affirmation resource IDs for countdown phase */
-        private val COUNTDOWN_AFFIRMATIONS = intArrayOf(
+        /** Affirmation resource IDs for preparation phase */
+        private val PREPARATION_AFFIRMATIONS = intArrayOf(
             R.string.affirmation_countdown_1,
             R.string.affirmation_countdown_2,
             R.string.affirmation_countdown_3,

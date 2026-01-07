@@ -141,7 +141,7 @@ class PlayStoreScreenshotTests {
                     onBack = {},
                     onPauseClick = {},
                     onResumeClick = {},
-                    getCurrentCountdownAffirmation = { "" },
+                    getCurrentPreparationAffirmation = { "" },
                     getCurrentRunningAffirmation = { affirmation }
                 )
             }

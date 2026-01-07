@@ -160,39 +160,39 @@ class TimerViewModelTest {
         assertFalse(idleState.canReset)
     }
 
-    // MARK: - isCountdown Tests
+    // MARK: - isPreparation Tests
 
     @Test
-    fun `isCountdown returns correct value based on state`() {
+    fun `isPreparation returns correct value based on state`() {
         val idleState =
             TimerUiState(
                 displayState = TimerDisplayState(timerState = TimerState.Idle)
             )
-        assertFalse(idleState.isCountdown)
+        assertFalse(idleState.isPreparation)
 
         val countdownState =
             TimerUiState(
-                displayState = TimerDisplayState(timerState = TimerState.Countdown)
+                displayState = TimerDisplayState(timerState = TimerState.Preparation)
             )
-        assertTrue(countdownState.isCountdown)
+        assertTrue(countdownState.isPreparation)
 
         val runningState =
             TimerUiState(
                 displayState = TimerDisplayState(timerState = TimerState.Running)
             )
-        assertFalse(runningState.isCountdown)
+        assertFalse(runningState.isPreparation)
 
         val pausedState =
             TimerUiState(
                 displayState = TimerDisplayState(timerState = TimerState.Paused)
             )
-        assertFalse(pausedState.isCountdown)
+        assertFalse(pausedState.isPreparation)
 
         val completedState =
             TimerUiState(
                 displayState = TimerDisplayState(timerState = TimerState.Completed)
             )
-        assertFalse(completedState.isCountdown)
+        assertFalse(completedState.isPreparation)
     }
 
     // MARK: - formattedTime Tests
@@ -203,8 +203,8 @@ class TimerViewModelTest {
             TimerUiState(
                 displayState =
                 TimerDisplayState(
-                    timerState = TimerState.Countdown,
-                    countdownSeconds = 15
+                    timerState = TimerState.Preparation,
+                    remainingPreparationSeconds = 15
                 )
             )
         assertEquals("15", state.formattedTime)
@@ -255,8 +255,8 @@ class TimerViewModelTest {
             TimerUiState(
                 displayState =
                 TimerDisplayState(
-                    timerState = TimerState.Countdown,
-                    countdownSeconds = 5
+                    timerState = TimerState.Preparation,
+                    remainingPreparationSeconds = 5
                 )
             )
         assertEquals("5", state.formattedTime)

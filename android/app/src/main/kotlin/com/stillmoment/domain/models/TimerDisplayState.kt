@@ -18,8 +18,8 @@ data class TimerDisplayState(
     val remainingSeconds: Int = 0,
     /** Total duration in seconds */
     val totalSeconds: Int = 0,
-    /** Countdown seconds (15, 14, 13... 0) */
-    val countdownSeconds: Int = 0,
+    /** Remaining preparation seconds (15, 14, 13... 0) */
+    val remainingPreparationSeconds: Int = 0,
     /** Progress value (0.0 - 1.0) */
     val progress: Float = 0f,
     /** Current affirmation index (rotates between sessions) */
@@ -29,9 +29,9 @@ data class TimerDisplayState(
 ) {
     // MARK: - Computed Properties (Pure, Testable)
 
-    /** Whether currently in countdown phase */
-    val isCountdown: Boolean
-        get() = timerState == TimerState.Countdown
+    /** Whether currently in preparation phase */
+    val isPreparation: Boolean
+        get() = timerState == TimerState.Preparation
 
     /** Returns true if timer can be started */
     val canStart: Boolean
@@ -49,11 +49,11 @@ data class TimerDisplayState(
     val canReset: Boolean
         get() = timerState != TimerState.Idle
 
-    /** Formatted time string (MM:SS or countdown seconds) */
+    /** Formatted time string (MM:SS or preparation seconds) */
     val formattedTime: String
         get() =
-            if (isCountdown) {
-                "$countdownSeconds"
+            if (isPreparation) {
+                "$remainingPreparationSeconds"
             } else {
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60

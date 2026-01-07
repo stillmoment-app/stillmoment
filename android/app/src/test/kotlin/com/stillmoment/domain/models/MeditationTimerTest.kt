@@ -22,8 +22,8 @@ class MeditationTimerTest {
         assertEquals(10, timer.durationMinutes)
         assertEquals(600, timer.remainingSeconds)
         assertEquals(TimerState.Idle, timer.state)
-        assertEquals(0, timer.countdownSeconds)
-        assertEquals(15, timer.countdownDuration)
+        assertEquals(0, timer.remainingPreparationSeconds)
+        assertEquals(15, timer.preparationTimeSeconds)
         assertNull(timer.lastIntervalGongAt)
     }
 
@@ -64,14 +64,14 @@ class MeditationTimerTest {
 
     @Test
     fun `create timer with custom countdown duration`() {
-        val timer = MeditationTimer.create(10, countdownDuration = 5)
-        assertEquals(5, timer.countdownDuration)
+        val timer = MeditationTimer.create(10, preparationTimeSeconds = 5)
+        assertEquals(5, timer.preparationTimeSeconds)
     }
 
     @Test
     fun `create timer with zero countdown duration (skip countdown)`() {
-        val timer = MeditationTimer.create(10, countdownDuration = 0)
-        assertEquals(0, timer.countdownDuration)
+        val timer = MeditationTimer.create(10, preparationTimeSeconds = 0)
+        assertEquals(0, timer.preparationTimeSeconds)
     }
 
     // MARK: - Computed Properties Tests
@@ -117,15 +117,15 @@ class MeditationTimerTest {
     @Test
     fun `tick during countdown decrements countdown seconds`() {
         // Given
-        val timer = MeditationTimer.create(10).startCountdown()
-        assertEquals(15, timer.countdownSeconds)
+        val timer = MeditationTimer.create(10).startPreparation()
+        assertEquals(15, timer.remainingPreparationSeconds)
 
         // When
         val ticked = timer.tick()
 
         // Then
-        assertEquals(14, ticked.countdownSeconds)
-        assertEquals(TimerState.Countdown, ticked.state)
+        assertEquals(14, ticked.remainingPreparationSeconds)
+        assertEquals(TimerState.Preparation, ticked.state)
         assertEquals(600, ticked.remainingSeconds) // Timer hasn't started
     }
 
@@ -134,13 +134,13 @@ class MeditationTimerTest {
         // Given
         val timer =
             MeditationTimer.create(10)
-                .copy(state = TimerState.Countdown, countdownSeconds = 1)
+                .copy(state = TimerState.Preparation, remainingPreparationSeconds = 1)
 
         // When
         val ticked = timer.tick()
 
         // Then
-        assertEquals(0, ticked.countdownSeconds)
+        assertEquals(0, ticked.remainingPreparationSeconds)
         assertEquals(TimerState.Running, ticked.state)
     }
 
@@ -196,16 +196,16 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `startCountdown sets countdown state and seconds`() {
+    fun `startPreparation sets countdown state and seconds`() {
         // Given
         val timer = MeditationTimer.create(10)
 
         // When
-        val counting = timer.startCountdown()
+        val counting = timer.startPreparation()
 
         // Then
-        assertEquals(TimerState.Countdown, counting.state)
-        assertEquals(15, counting.countdownSeconds)
+        assertEquals(TimerState.Preparation, counting.state)
+        assertEquals(15, counting.remainingPreparationSeconds)
         assertNull(counting.lastIntervalGongAt)
     }
 
@@ -217,7 +217,7 @@ class MeditationTimerTest {
                 .copy(
                     state = TimerState.Running,
                     remainingSeconds = 100,
-                    countdownSeconds = 5,
+                    remainingPreparationSeconds = 5,
                     lastIntervalGongAt = 300
                 )
 
@@ -227,7 +227,7 @@ class MeditationTimerTest {
         // Then
         assertEquals(TimerState.Idle, resetTimer.state)
         assertEquals(600, resetTimer.remainingSeconds)
-        assertEquals(0, resetTimer.countdownSeconds)
+        assertEquals(0, resetTimer.remainingPreparationSeconds)
         assertNull(resetTimer.lastIntervalGongAt)
         assertEquals(10, resetTimer.durationMinutes) // Preserved
     }
@@ -298,9 +298,9 @@ class MeditationTimerTest {
     @Test
     fun `multiple ticks countdown correctly`() {
         // Given: 10 min timer with 3 sec countdown
-        var timer = MeditationTimer.create(10, countdownDuration = 3).startCountdown()
-        assertEquals(TimerState.Countdown, timer.state)
-        assertEquals(3, timer.countdownSeconds)
+        var timer = MeditationTimer.create(10, preparationTimeSeconds = 3).startPreparation()
+        assertEquals(TimerState.Preparation, timer.state)
+        assertEquals(3, timer.remainingPreparationSeconds)
 
         // When: Tick 3 times
         timer = timer.tick() // 2
@@ -309,7 +309,7 @@ class MeditationTimerTest {
 
         // Then: Should be running
         assertEquals(TimerState.Running, timer.state)
-        assertEquals(0, timer.countdownSeconds)
+        assertEquals(0, timer.remainingPreparationSeconds)
         assertEquals(600, timer.remainingSeconds)
     }
 
@@ -317,7 +317,7 @@ class MeditationTimerTest {
     fun `full timer lifecycle simulation`() {
         // Given: 1 min timer with no countdown
         var timer =
-            MeditationTimer.create(1, countdownDuration = 0)
+            MeditationTimer.create(1, preparationTimeSeconds = 0)
                 .copy(state = TimerState.Running)
 
         // When: Tick 60 times (1 minute)

@@ -18,11 +18,12 @@ interface TimerRepository {
     val timerFlow: Flow<MeditationTimer>
 
     /**
-     * Starts a new meditation session with the specified duration.
+     * Starts a new meditation session with the specified duration and preparation time.
      *
      * @param durationMinutes Duration in minutes (1-60)
+     * @param preparationTimeSeconds Duration of preparation phase in seconds (0 to skip)
      */
-    suspend fun start(durationMinutes: Int)
+    suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int = 15)
 
     /**
      * Pauses the current meditation session.

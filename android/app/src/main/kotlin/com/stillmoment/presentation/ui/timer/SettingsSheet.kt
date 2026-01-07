@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -30,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -46,6 +48,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
  * Settings Bottom Sheet for configuring meditation options.
  * Includes background sound selection and interval gong settings.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsSheet(
     settings: MeditationSettings,
@@ -56,6 +59,13 @@ fun SettingsSheet(
     var intervalGongsEnabled by remember { mutableStateOf(settings.intervalGongsEnabled) }
     var intervalMinutes by remember { mutableIntStateOf(settings.intervalMinutes) }
     var backgroundSoundId by remember { mutableStateOf(settings.backgroundSoundId) }
+    var preparationTimeEnabled by remember { mutableStateOf(settings.preparationTimeEnabled) }
+    var preparationTimeSeconds by remember { mutableIntStateOf(settings.preparationTimeSeconds) }
+    var preparationTimeExpanded by remember { mutableStateOf(false) }
+    val preparationTimeOptions = listOf(5, 10, 15, 20, 30, 45)
+    var backgroundSoundExpanded by remember { mutableStateOf(false) }
+    var intervalMinutesExpanded by remember { mutableStateOf(false) }
+    val intervalOptions = listOf(3, 5, 10)
 
     val doneButtonDescription = stringResource(R.string.accessibility_done_button)
     val scrollState = rememberScrollState()
@@ -92,7 +102,9 @@ fun SettingsSheet(
                                 intervalGongsEnabled = intervalGongsEnabled,
                                 intervalMinutes = intervalMinutes,
                                 backgroundSoundId = backgroundSoundId,
-                                durationMinutes = settings.durationMinutes
+                                durationMinutes = settings.durationMinutes,
+                                preparationTimeEnabled = preparationTimeEnabled,
+                                preparationTimeSeconds = preparationTimeSeconds
                             )
                         )
                         onDismiss()
@@ -111,6 +123,110 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
+            // Preparation Time Section
+            Text(
+                text = stringResource(R.string.settings_preparation_time),
+                style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(itemSpacing))
+
+            // Preparation Time Toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (preparationTimeEnabled) {
+                            stringResource(R.string.settings_preparation_on)
+                        } else {
+                            stringResource(R.string.settings_preparation_off)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.settings_preparation_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+
+                val preparationStateDescription =
+                    if (preparationTimeEnabled) {
+                        stringResource(R.string.accessibility_preparation_enabled, preparationTimeSeconds)
+                    } else {
+                        stringResource(R.string.accessibility_preparation_disabled)
+                    }
+
+                Switch(
+                    checked = preparationTimeEnabled,
+                    onCheckedChange = { preparationTimeEnabled = it },
+                    colors =
+                    SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    modifier =
+                    Modifier.semantics {
+                        stateDescription = preparationStateDescription
+                    }
+                )
+            }
+
+            // Preparation Time Selection (shown when enabled)
+            if (preparationTimeEnabled) {
+                Spacer(modifier = Modifier.height(itemSpacing))
+
+                ExposedDropdownMenuBox(
+                    expanded = preparationTimeExpanded,
+                    onExpandedChange = { preparationTimeExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = stringResource(R.string.time_seconds, preparationTimeSeconds),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.settings_preparation_duration)) },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = preparationTimeExpanded)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = preparationTimeExpanded,
+                        onDismissRequest = { preparationTimeExpanded = false }
+                    ) {
+                        preparationTimeOptions.forEach { seconds ->
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.time_seconds, seconds)) },
+                                onClick = {
+                                    preparationTimeSeconds = seconds
+                                    preparationTimeExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(sectionSpacing))
+            HorizontalDivider()
+            Spacer(modifier = Modifier.height(sectionSpacing))
+
             // Background Sound Section
             Text(
                 text = stringResource(R.string.settings_background_sound),
@@ -123,20 +239,72 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(itemSpacing))
 
-            Column(modifier = Modifier.selectableGroup()) {
-                BackgroundSoundOption(
-                    title = stringResource(R.string.sound_silent),
-                    description = stringResource(R.string.sound_silent_description),
-                    isSelected = backgroundSoundId == "silent",
-                    onSelect = { backgroundSoundId = "silent" }
+            ExposedDropdownMenuBox(
+                expanded = backgroundSoundExpanded,
+                onExpandedChange = { backgroundSoundExpanded = it }
+            ) {
+                val selectedSoundName = when (backgroundSoundId) {
+                    "silent" -> stringResource(R.string.sound_silent)
+                    "forest" -> stringResource(R.string.sound_forest)
+                    else -> stringResource(R.string.sound_silent)
+                }
+
+                OutlinedTextField(
+                    value = selectedSoundName,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.settings_background_sound)) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = backgroundSoundExpanded)
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    ),
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                        .fillMaxWidth()
                 )
 
-                BackgroundSoundOption(
-                    title = stringResource(R.string.sound_forest),
-                    description = stringResource(R.string.sound_forest_description),
-                    isSelected = backgroundSoundId == "forest",
-                    onSelect = { backgroundSoundId = "forest" }
-                )
+                ExposedDropdownMenu(
+                    expanded = backgroundSoundExpanded,
+                    onDismissRequest = { backgroundSoundExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.sound_silent))
+                                Text(
+                                    stringResource(R.string.sound_silent_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        onClick = {
+                            backgroundSoundId = "silent"
+                            backgroundSoundExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(stringResource(R.string.sound_forest))
+                                Text(
+                                    stringResource(R.string.sound_forest_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        onClick = {
+                            backgroundSoundId = "forest"
+                            backgroundSoundExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(sectionSpacing))
@@ -200,117 +368,47 @@ fun SettingsSheet(
             if (intervalGongsEnabled) {
                 Spacer(modifier = Modifier.height(itemSpacing))
 
-                Text(
-                    text = stringResource(R.string.settings_interval_minutes),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ExposedDropdownMenuBox(
+                    expanded = intervalMinutesExpanded,
+                    onExpandedChange = { intervalMinutesExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = stringResource(R.string.time_minutes_plural, intervalMinutes),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.settings_interval_minutes)) },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalMinutesExpanded)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Column(modifier = Modifier.selectableGroup()) {
-                    listOf(3, 5, 10).forEach { minutes ->
-                        IntervalOption(
-                            minutes = minutes,
-                            isSelected = intervalMinutes == minutes,
-                            onSelect = { intervalMinutes = minutes }
-                        )
+                    ExposedDropdownMenu(
+                        expanded = intervalMinutesExpanded,
+                        onDismissRequest = { intervalMinutesExpanded = false }
+                    ) {
+                        intervalOptions.forEach { minutes ->
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.time_minutes_plural, minutes)) },
+                                onClick = {
+                                    intervalMinutes = minutes
+                                    intervalMinutesExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(itemSpacing))
         }
-    }
-}
-
-@Composable
-private fun BackgroundSoundOption(
-    title: String,
-    description: String,
-    isSelected: Boolean,
-    onSelect: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val soundSelectedDescription =
-        if (isSelected) {
-            stringResource(R.string.accessibility_sound_selected, title)
-        } else {
-            title
-        }
-
-    Row(
-        modifier =
-        modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = isSelected,
-                onClick = onSelect,
-                role = Role.RadioButton
-            )
-            .semantics {
-                stateDescription = soundSelectedDescription
-            }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null,
-            colors =
-            RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary
-            )
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-private fun IntervalOption(minutes: Int, isSelected: Boolean, onSelect: () -> Unit, modifier: Modifier = Modifier) {
-    val intervalDescription = stringResource(R.string.accessibility_interval_option, minutes)
-
-    Row(
-        modifier =
-        modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = isSelected,
-                onClick = onSelect,
-                role = Role.RadioButton
-            )
-            .semantics {
-                stateDescription = intervalDescription
-            }
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null,
-            colors =
-            RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary
-            )
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(R.string.time_minutes_plural, minutes),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 

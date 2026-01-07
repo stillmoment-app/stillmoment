@@ -37,6 +37,11 @@
     <string name="settings_interval_gongs_description">Play a gong sound at regular intervals during meditation</string>
     <string name="settings_interval_minutes">Interval</string>
     <string name="settings_sound_settings">Sound Settings</string>
+    <string name="settings_preparation_time">Preparation Time</string>
+    <string name="settings_preparation_on">On</string>
+    <string name="settings_preparation_off">Off</string>
+    <string name="settings_preparation_description">Time to settle in before meditation</string>
+    <string name="settings_preparation_duration">Duration</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
@@ -47,6 +52,7 @@
     <!-- Time -->
     <string name="time_minutes">%d min</string>
     <string name="time_minutes_plural">%d minutes</string>
+    <string name="time_seconds">%d seconds</string>
 
     <!-- Accessibility -->
     <string name="accessibility_duration_picker">Select meditation duration</string>
@@ -119,6 +125,9 @@
     <string name="accessibility_interval_disabled">Interval gongs disabled</string>
     <string name="accessibility_sound_selected">%s selected</string>
     <string name="accessibility_interval_option">%d minutes interval</string>
+    <string name="accessibility_preparation_enabled">Preparation time enabled, %d seconds</string>
+    <string name="accessibility_preparation_disabled">Preparation time disabled</string>
+    <string name="accessibility_preparation_option">%d seconds preparation</string>
 
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>

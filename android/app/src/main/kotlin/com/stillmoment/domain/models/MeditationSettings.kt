@@ -7,12 +7,16 @@ package com.stillmoment.domain.models
  * @property intervalMinutes Interval in minutes between gongs (3, 5, or 10)
  * @property backgroundSoundId Background sound ID (references BackgroundSound.id)
  * @property durationMinutes Duration of meditation in minutes (1-60)
+ * @property preparationTimeEnabled Whether preparation time before meditation is enabled
+ * @property preparationTimeSeconds Duration of preparation in seconds (5, 10, 15, 20, 30, or 45)
  */
 data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
     val backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
-    val durationMinutes: Int = DEFAULT_DURATION_MINUTES
+    val durationMinutes: Int = DEFAULT_DURATION_MINUTES,
+    val preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
+    val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -23,6 +27,8 @@ data class MeditationSettings(
         const val DEFAULT_INTERVAL_MINUTES = 5
         const val DEFAULT_BACKGROUND_SOUND_ID = "silent"
         const val DEFAULT_DURATION_MINUTES = 10
+        const val DEFAULT_PREPARATION_TIME_ENABLED = true
+        const val DEFAULT_PREPARATION_TIME_SECONDS = 15
 
         // Valid interval options
         private const val INTERVAL_SHORT = 3
@@ -34,6 +40,9 @@ data class MeditationSettings(
         private const val INTERVAL_THRESHOLD_MEDIUM = 7
 
         val VALID_INTERVALS = listOf(INTERVAL_SHORT, INTERVAL_MEDIUM, INTERVAL_LONG)
+
+        // Valid preparation time options (in seconds)
+        val VALID_PREPARATION_TIMES = listOf(5, 10, 15, 20, 30, 45)
 
         /** Default settings with interval gongs disabled and silent background audio */
         val Default = MeditationSettings()
@@ -57,6 +66,14 @@ data class MeditationSettings(
         }
 
         /**
+         * Validates and clamps preparation time to nearest valid value (5, 10, 15, 20, 30, or 45).
+         */
+        fun validatePreparationTime(seconds: Int): Int {
+            return VALID_PREPARATION_TIMES.minByOrNull { kotlin.math.abs(it - seconds) }
+                ?: DEFAULT_PREPARATION_TIME_SECONDS
+        }
+
+        /**
          * Migrates legacy BackgroundAudioMode enum to sound ID.
          *
          * @param mode Legacy enum value
@@ -77,13 +94,17 @@ data class MeditationSettings(
             intervalGongsEnabled: Boolean = false,
             intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
             backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
-            durationMinutes: Int = DEFAULT_DURATION_MINUTES
+            durationMinutes: Int = DEFAULT_DURATION_MINUTES,
+            preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
+            preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
                 intervalMinutes = validateInterval(intervalMinutes),
                 backgroundSoundId = backgroundSoundId,
-                durationMinutes = validateDuration(durationMinutes)
+                durationMinutes = validateDuration(durationMinutes),
+                preparationTimeEnabled = preparationTimeEnabled,
+                preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds)
             )
         }
     }
@@ -101,6 +122,13 @@ data class MeditationSettings(
     fun withDurationMinutes(minutes: Int): MeditationSettings {
         return copy(durationMinutes = validateDuration(minutes))
     }
+
+    /**
+     * Returns a copy with validated preparation time seconds.
+     */
+    fun withPreparationTimeSeconds(seconds: Int): MeditationSettings {
+        return copy(preparationTimeSeconds = validatePreparationTime(seconds))
+    }
 }
 
 /**
@@ -112,6 +140,8 @@ object MeditationSettingsKeys {
     const val INTERVAL_MINUTES = "intervalMinutes"
     const val BACKGROUND_SOUND_ID = "backgroundSoundId"
     const val DURATION_MINUTES = "durationMinutes"
+    const val PREPARATION_TIME_ENABLED = "preparationTimeEnabled"
+    const val PREPARATION_TIME_SECONDS = "preparationTimeSeconds"
 
     // Legacy key for migration
     const val LEGACY_BACKGROUND_AUDIO_MODE = "backgroundAudioMode"
