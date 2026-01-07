@@ -237,10 +237,37 @@ guard let url = URL(string: str) else { return }  // RICHTIG
 
 **TDD is mandatory** for new features.
 
+### Effizienter TDD-Workflow
+
 ```bash
-make test-unit          # TDD inner loop (fast)
-make test               # Full validation + coverage
+# 1. TDD Inner Loop: Schnelle Iteration (30-60s)
+make test-unit
+
+# 2. Bei Failures: Sofort sehen was fehlschlägt
+make test-failures
+
+# 3. Einzelnen Test fixen und verifizieren
+make test-single TEST=TestClass/testMethod
+
+# 4. Vor Commit: Vollständige Validierung mit Coverage
+make test
+
+# 5. Coverage prüfen (ohne nochmal zu testen)
+make test-report
 ```
+
+### Analyse-Tools (ohne erneuten Testlauf)
+
+| Kommando | Zweck |
+|----------|-------|
+| `make test-failures` | Zeigt fehlgeschlagene Tests aus letztem Run |
+| `make test-report` | Zeigt Coverage-Report aus letztem Run |
+
+**Workflow-Beispiel**: Nach `make test-unit` mit 3 Failures:
+1. `make test-failures` → Saubere Liste der 3 Failures mit Fehlermeldungen
+2. `make test-single TEST=FirstFailingTest` → Ersten Test fixen
+3. Wiederholen bis alle grün
+4. `make test` → Vollständige Validierung vor Commit
 
 ### Einzelne Tests ausführen
 
