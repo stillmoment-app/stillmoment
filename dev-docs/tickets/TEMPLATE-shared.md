@@ -28,13 +28,21 @@
 
 ## Akzeptanzkriterien
 
-{Gemeinsame Kriterien fuer beide Plattformen}
+<!-- Kriterien gelten fuer BEIDE Plattformen. Details: dev-docs/TICKET_GUIDE.md -->
 
-- [ ] Kriterium 1
-- [ ] Kriterium 2
-- [ ] Unit Tests (beide Plattformen)
+### Feature (beide Plattformen)
+- [ ] {Beobachtbares Verhalten 1}
+- [ ] {Beobachtbares Verhalten 2}
 - [ ] Lokalisiert (DE + EN) falls UI
-- [ ] UX-Konsistenz zwischen iOS und Android
+- [ ] Visuell konsistent zwischen iOS und Android
+
+### Tests
+- [ ] Unit Tests iOS
+- [ ] Unit Tests Android
+
+### Dokumentation
+- [ ] CHANGELOG.md (bei user-sichtbaren Aenderungen)
+- [ ] GLOSSARY.md (bei neuen Domain-Begriffen)
 
 ---
 

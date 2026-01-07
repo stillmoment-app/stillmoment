@@ -20,11 +20,19 @@
 
 ## Akzeptanzkriterien
 
-- [ ] Kriterium 1
-- [ ] Kriterium 2
-- [ ] Kriterium 3
-- [ ] Unit Tests geschrieben/aktualisiert
+<!-- Gute Kriterien: Beobachtbar, testbar, user-zentriert. Details: dev-docs/TICKET_GUIDE.md -->
+
+### Feature
+- [ ] {Beobachtbares Verhalten 1}
+- [ ] {Beobachtbares Verhalten 2}
 - [ ] Lokalisiert (DE + EN) falls UI
+
+### Tests
+- [ ] Unit Tests fuer {Hauptlogik}
+
+### Dokumentation
+- [ ] CHANGELOG.md (bei user-sichtbaren Aenderungen)
+- [ ] GLOSSARY.md (bei neuen Domain-Begriffen)
 
 ---
 

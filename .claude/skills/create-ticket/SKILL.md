@@ -72,6 +72,11 @@ Pruefe die Beschreibung gegen `validations/philosophy.md`:
 
 Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
 
+### Schritt 7b: Akzeptanzkriterien-Validierung
+
+Pruefe die Akzeptanzkriterien gegen `validations/acceptance-criteria.md`.
+Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
+
 ### Schritt 8: Ticket erstellen
 
 1. Lade passendes Template:
@@ -110,14 +115,11 @@ Naechste Schritte:
 2. Manuellen Test ergaenzen falls noetig
 ```
 
-## Red Flags (aus philosophy.md)
+## Validierung
 
-Warne wenn die Beschreibung enthaelt:
-- Code oder Pseudo-Code
-- Dateinamen oder Pfade
-- "Implementiere...", "Aendere...", "Fuege hinzu..."
-- Architektur-Details
-- Spezifische API-Aufrufe
+Pruefe Beschreibung und Akzeptanzkriterien gegen die Validierungsdateien:
+- `validations/philosophy.md` - WAS/WARUM statt WIE
+- `validations/acceptance-criteria.md` - Beobachtbar, testbar, keine Platzhalter
 
 ## Beispiel
 
@@ -139,7 +141,9 @@ Naechste Schritte:
 
 ## Referenzen
 
+- `dev-docs/TICKET_GUIDE.md` - Vollstaendiger Leitfaden fuer Ticket-Qualitaet
 - `dev-docs/tickets/INDEX.md` - Ticket-Uebersicht
 - `dev-docs/tickets/TEMPLATE-platform.md` - Platform-Template
 - `dev-docs/tickets/TEMPLATE-shared.md` - Shared-Template
-- `validations/philosophy.md` - Validierungs-Regeln
+- `validations/philosophy.md` - Philosophie-Validierung (WAS/WARUM, nicht WIE)
+- `validations/acceptance-criteria.md` - Akzeptanzkriterien-Validierung
