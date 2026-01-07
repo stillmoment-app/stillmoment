@@ -56,12 +56,13 @@ Alle relevanten Dateien lesen:
 
 ### Schritt 3: Ehrliche Bewertung
 
-Bewerte nach 4 Kategorien - aber nur wenn es etwas zu sagen gibt:
+Bewerte nach 5 Kategorien - aber nur wenn es etwas zu sagen gibt:
 
 1. **Wartbarkeit** - `checklists/wartbarkeit.md`
 2. **Architektur** - `checklists/architektur.md`
 3. **Lesbarkeit (DDD)** - `checklists/lesbarkeit.md`
 4. **Testabdeckung** - `checklists/tests.md`
+5. **Dokumentation** - `checklists/doku.md`
 
 **Wichtig:** Nicht jede Kategorie muss Findings haben. Guter Code ist gut.
 
@@ -71,7 +72,23 @@ Falls Ticket vorhanden:
 - Jedes Akzeptanzkriterium einzeln pruefen
 - Nur dokumentieren was fehlt oder falsch ist
 
-### Schritt 5: Report generieren
+### Schritt 5: Statische Pruefungen ausfuehren
+
+Plattform-spezifisch ausfuehren:
+- **iOS**: `cd ios && make check`
+- **Android**: `cd android && ./gradlew lint`
+
+Fehler im Report dokumentieren. Kein Finding wenn alles gruen ist.
+
+### Schritt 6: Dokumentation pruefen
+
+Pruefen nach `checklists/doku.md`:
+- **GLOSSARY.md**: Neue Domain-Begriffe dokumentiert?
+- **Relevante dev-docs**: Bei Architektur-/Pattern-Aenderungen aktualisiert?
+
+Nur dokumentieren was fehlt.
+
+### Schritt 7: Report generieren
 
 Report nach `templates/report.md`:
 - Kurze Zusammenfassung

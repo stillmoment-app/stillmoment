@@ -21,6 +21,13 @@
 - [ ] {Kriterium 1} - {Erfuellt/Nicht erfuellt}
 - [ ] {Kriterium 2} - {Erfuellt/Nicht erfuellt}
 
+### Statische Pruefungen
+- `make check` / `./gradlew lint`: {Bestanden / X Fehler}
+
+### Dokumentation
+- GLOSSARY.md: {Aktuell / Update noetig: ...}
+- dev-docs: {Aktuell / Update noetig: ...}
+
 ---
 
 ## Findings

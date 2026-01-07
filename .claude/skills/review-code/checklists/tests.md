@@ -22,6 +22,62 @@ Wenn jemand diesen Code aendert - welche Tests wuerden ihm sagen, dass er etwas 
 - Features die der User direkt nutzt
 - Flows die nicht kaputt gehen duerfen
 
+## Sinnvolle Tests (User-Perspektive)
+
+**Tests sollen erwartetes Verhalten verifizieren, nicht den aktuellen Zustand dokumentieren.**
+
+### Prueffragen
+- Testet der Test was RICHTIG ist, oder was der Code AKTUELL tut?
+- Hat der Test echten Pruefwert, oder erhoeht er nur die Coverage?
+- Wuerde der Test fehlschlagen wenn das Feature kaputt geht?
+
+### Warnzeichen fuer sinnlose Tests
+
+| Warnzeichen | Problem |
+|-------------|---------|
+| Test beschreibt Implementierung statt Verhalten | Bricht bei Refactoring, faengt keine Bugs |
+| Assertion wiederholt nur was der Code tut | Verifiziert Bugs statt korrektes Verhalten |
+| Test prueft nur dass kein Crash passiert | Kein echter Pruefwert |
+| Triviale Getter/Setter getestet | Reine Coverage-Inflation |
+
+### Gute vs. schlechte Tests
+
+```swift
+// GUT: Prueft erwartetes Verhalten
+func testPausingTimerStopsCountdownButRetainsProgress()
+func testTimerAt60MinutesIsValidMaximum()
+
+// SCHLECHT: Dokumentiert nur was Code tut (koennte Bug sein)
+func testStartSetsStateToRunning()  // Was wenn running falsch ist?
+
+// SCHLECHT: Kein Pruefwert
+func testTimerInitializesWithoutCrash()
+func testSettingsPropertyReturnsValue()
+```
+
+## Edge Cases aktiv identifizieren
+
+Bei jedem Feature aktiv pruefen:
+
+### Initialisierung
+- Startzustand korrekt?
+- Defaults sinnvoll?
+- Erster Aufruf funktioniert?
+
+### Boundaries
+- 0, 1, Maximum
+- Leere Collections
+- Grenzwerte (z.B. Timer: 1 Minute, 60 Minuten)
+
+### State-Uebergaenge
+- Alle Pfade der State Machine abgedeckt?
+- Unerwartete Uebergaenge behandelt?
+- State nach Fehler korrekt?
+
+### Fehler-Recovery
+- Was passiert nach einem Fehler?
+- Kann der User weitermachen?
+
 ## Was NICHT getestet sein muss
 
 - Triviale Getter/Setter
