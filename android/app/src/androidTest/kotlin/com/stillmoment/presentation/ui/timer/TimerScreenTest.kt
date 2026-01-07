@@ -7,11 +7,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.MeditationSettings
-import com.stillmoment.domain.models.TimerState
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,16 +43,11 @@ class TimerScreenTest {
             StillMomentTheme {
                 TimerScreenContent(
                     uiState = uiState,
-                    onMinutesChanged = {},
+                    onMinutesChange = {},
                     onStartClick = {},
-                    onPauseClick = {},
-                    onResumeClick = {},
-                    onResetClick = {},
                     onSettingsClick = {},
                     onSettingsDismiss = {},
-                    onSettingsChanged = {},
-                    getCurrentCountdownAffirmation = { "Take a deep breath" },
-                    getCurrentRunningAffirmation = { "Be present in this moment" }
+                    onSettingsChange = {}
                 )
             }
         }
@@ -88,81 +84,6 @@ class TimerScreenTest {
             .assertIsDisplayed()
     }
 
-    // MARK: - Countdown State Tests
-
-    @Test
-    fun timerScreen_showsCountdownNumber_duringCountdown() {
-        renderTimerScreen(
-            uiState =
-            TimerUiState(
-                timerState = TimerState.Countdown,
-                countdownSeconds = 10,
-                remainingSeconds = 600,
-                totalSeconds = 600
-            )
-        )
-        composeRule.onNodeWithText("10").assertIsDisplayed()
-    }
-
-    @Test
-    fun timerScreen_showsResetButton_duringCountdown() {
-        renderTimerScreen(
-            uiState =
-            TimerUiState(
-                timerState = TimerState.Countdown,
-                countdownSeconds = 10,
-                remainingSeconds = 600,
-                totalSeconds = 600
-            )
-        )
-        composeRule.onNodeWithText("Start over", ignoreCase = true).assertIsDisplayed()
-    }
-
-    // MARK: - Running State Tests
-
-    @Test
-    fun timerScreen_showsTimeDisplay_whenRunning() {
-        renderTimerScreen(
-            uiState =
-            TimerUiState(
-                timerState = TimerState.Running,
-                remainingSeconds = 300,
-                totalSeconds = 600,
-                progress = 0.5f
-            )
-        )
-        // Format is "%02d:%02d" so 300 seconds = 05:00
-        composeRule.onNodeWithText("05:00").assertIsDisplayed()
-    }
-
-    @Test
-    fun timerScreen_showsPauseButton_whenRunning() {
-        renderTimerScreen(
-            uiState =
-            TimerUiState(
-                timerState = TimerState.Running,
-                remainingSeconds = 300,
-                totalSeconds = 600
-            )
-        )
-        composeRule.onNodeWithText("Brief pause", ignoreCase = true).assertIsDisplayed()
-    }
-
-    // MARK: - Paused State Tests
-
-    @Test
-    fun timerScreen_showsResumeButton_whenPaused() {
-        renderTimerScreen(
-            uiState =
-            TimerUiState(
-                timerState = TimerState.Paused,
-                remainingSeconds = 300,
-                totalSeconds = 600
-            )
-        )
-        composeRule.onNodeWithText("Resume", ignoreCase = true).assertIsDisplayed()
-    }
-
     // MARK: - Settings Sheet Tests
 
     @Test
@@ -171,7 +92,7 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
@@ -185,7 +106,7 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
@@ -199,7 +120,7 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
@@ -213,7 +134,7 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
@@ -230,7 +151,7 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
@@ -244,11 +165,125 @@ class TimerScreenTest {
             StillMomentTheme {
                 SettingsSheet(
                     settings = MeditationSettings.Default,
-                    onSettingsChanged = {},
+                    onSettingsChange = {},
                     onDismiss = {}
                 )
             }
         }
         composeRule.onNodeWithText("Done", ignoreCase = true).assertIsDisplayed()
+    }
+
+    // MARK: - Settings Immediate Callback Tests (android-058)
+
+    @Test
+    fun settingsSheet_callsOnSettingsChange_whenIntervalGongsToggled() {
+        var receivedSettings: MeditationSettings? = null
+
+        composeRule.setContent {
+            StillMomentTheme {
+                SettingsSheet(
+                    settings = MeditationSettings.Default,
+                    onSettingsChange = { settings -> receivedSettings = settings },
+                    onDismiss = {}
+                )
+            }
+        }
+
+        // Toggle the Interval Gongs switch
+        composeRule.onNodeWithContentDescription("Interval Gongs", substring = true, ignoreCase = true)
+            .performClick()
+
+        // Verify callback was invoked immediately with updated settings
+        assertTrue("onSettingsChange should be called", receivedSettings != null)
+        assertEquals(
+            "Interval gongs should be enabled",
+            true,
+            receivedSettings?.intervalGongsEnabled
+        )
+    }
+
+    @Test
+    fun settingsSheet_callsOnSettingsChange_whenPreparationTimeToggled() {
+        var receivedSettings: MeditationSettings? = null
+
+        composeRule.setContent {
+            StillMomentTheme {
+                SettingsSheet(
+                    settings = MeditationSettings.Default,
+                    onSettingsChange = { settings -> receivedSettings = settings },
+                    onDismiss = {}
+                )
+            }
+        }
+
+        // Toggle the Preparation Time switch
+        composeRule.onNodeWithContentDescription("Preparation time", substring = true, ignoreCase = true)
+            .performClick()
+
+        // Verify callback was invoked immediately with updated settings
+        assertTrue("onSettingsChange should be called", receivedSettings != null)
+        assertEquals(
+            "Preparation time should be enabled",
+            true,
+            receivedSettings?.preparationTimeEnabled
+        )
+    }
+
+    @Test
+    fun settingsSheet_callsOnSettingsChange_whenBackgroundSoundChanged() {
+        var receivedSettings: MeditationSettings? = null
+
+        composeRule.setContent {
+            StillMomentTheme {
+                SettingsSheet(
+                    settings = MeditationSettings.Default,
+                    onSettingsChange = { settings -> receivedSettings = settings },
+                    onDismiss = {}
+                )
+            }
+        }
+
+        // Open the background sound dropdown
+        composeRule.onNodeWithText("Silent Ambience", ignoreCase = true).performClick()
+        // Select Forest Ambience
+        composeRule.onNodeWithText("Forest Ambience", ignoreCase = true).performClick()
+
+        // Verify callback was invoked immediately with updated settings
+        assertTrue("onSettingsChange should be called", receivedSettings != null)
+        assertEquals(
+            "Background sound should be forest",
+            "forest",
+            receivedSettings?.backgroundSoundId
+        )
+    }
+
+    @Test
+    fun settingsSheet_doneButton_onlyDismisses_doesNotSave() {
+        var settingsChangeCount = 0
+        var dismissCalled = false
+
+        composeRule.setContent {
+            StillMomentTheme {
+                SettingsSheet(
+                    settings = MeditationSettings.Default,
+                    onSettingsChange = { settingsChangeCount++ },
+                    onDismiss = { dismissCalled = true }
+                )
+            }
+        }
+
+        // Record current count before clicking Done
+        val countBeforeDone = settingsChangeCount
+
+        // Click Done button
+        composeRule.onNodeWithText("Done", ignoreCase = true).performClick()
+
+        // Verify onDismiss was called but onSettingsChange was NOT called again
+        assertTrue("onDismiss should be called", dismissCalled)
+        assertEquals(
+            "Done button should not trigger additional onSettingsChange",
+            countBeforeDone,
+            settingsChangeCount
+        )
     }
 }

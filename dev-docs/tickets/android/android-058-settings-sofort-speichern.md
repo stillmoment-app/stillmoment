@@ -47,4 +47,13 @@ iOS uebernimmt Settings-Aenderungen sofort via Binding. Android wartet auf expli
 
 ## Hinweise
 
-Die iOS-Implementierung nutzt `@Binding` auf `MeditationSettings`. In Compose kann das analog mit einem Callback `onSettingsChange` bei jeder Aenderung erreicht werden, statt nur beim Done-Button.
+**Wichtige Klarstellung iOS vs. Android:**
+
+iOS nutzt `@Binding` - Aenderungen sind sofort im ViewModel sichtbar, aber die Persistierung (UserDefaults) erfolgt erst beim Sheet-Dismiss. Bei App-Crash waehrend offener Settings gehen ungespeicherte Aenderungen verloren.
+
+**Android soll es robuster machen:** Jede Aenderung wird sofort in den DataStore persistiert. Das ist benutzerfreundlicher und verhindert Datenverlust.
+
+**Implementierung:**
+- Callback `onSettingsChange: (MeditationSettings) -> Unit` bei jeder Aenderung aufrufen
+- ViewModel persistiert sofort in SettingsDataStore
+- Done-Button schliesst nur noch das Sheet
