@@ -74,9 +74,9 @@
 "settings.interval.5min" = "5 Minuten";
 "settings.interval.10min" = "10 Minuten";
 
-"settings.preparationTime.header" = "Vorbereitung";
+"settings.preparationTime.header" = "Vorbereitungszeit";
 "settings.preparationTime.title" = "Vorbereitungszeit";
-"settings.preparationTime.description" = "Zeit zum Ankommen, bevor die Meditation beginnt";
+"settings.preparationTime.description" = "Zeit zum Ankommen vor der Meditation";
 "settings.preparationTime.duration" = "Dauer";
 "settings.preparationTime.5s" = "5 Sekunden";
 "settings.preparationTime.10s" = "10 Sekunden";
