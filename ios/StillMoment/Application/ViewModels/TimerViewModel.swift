@@ -359,14 +359,15 @@ final class TimerViewModel: ObservableObject {
         if newState == .running, oldState == .preparation || oldState == .idle {
             Logger.viewModel.info("Meditation starting, dispatching preparationFinished")
             self.dispatch(.preparationFinished)
-            return
+            // Don't return - interval gong check must still run (for test scenarios
+            // simulating elapsed time; in production elapsed=0 so no gong triggers)
         }
 
         // → Completed: Dispatch timerCompleted
         if newState == .completed, oldState != .completed {
             Logger.viewModel.info("Timer completed, dispatching timerCompleted")
             self.dispatch(.timerCompleted)
-            return
+            return // No interval gongs after completion
         }
 
         // Check for interval gongs while running
