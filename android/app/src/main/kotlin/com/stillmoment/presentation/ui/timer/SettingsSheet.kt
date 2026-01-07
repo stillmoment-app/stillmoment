@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +49,9 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 /**
  * Settings Bottom Sheet for configuring meditation options.
  * Includes background sound selection and interval gong settings.
+ *
+ * Changes are persisted immediately via onSettingsChange callback.
+ * Done button only dismisses the sheet.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,11 +61,7 @@ fun SettingsSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var intervalGongsEnabled by remember { mutableStateOf(settings.intervalGongsEnabled) }
-    var intervalMinutes by remember { mutableIntStateOf(settings.intervalMinutes) }
-    var backgroundSoundId by remember { mutableStateOf(settings.backgroundSoundId) }
-    var preparationTimeEnabled by remember { mutableStateOf(settings.preparationTimeEnabled) }
-    var preparationTimeSeconds by remember { mutableIntStateOf(settings.preparationTimeSeconds) }
+    // Only dropdown expanded states are local - actual values come from settings
     var preparationTimeExpanded by remember { mutableStateOf(false) }
     val preparationTimeOptions = listOf(5, 10, 15, 20, 30, 45)
     var backgroundSoundExpanded by remember { mutableStateOf(false) }
@@ -99,19 +97,7 @@ fun SettingsSheet(
                     modifier = Modifier.weight(1f)
                 )
                 TextButton(
-                    onClick = {
-                        onSettingsChange(
-                            MeditationSettings.create(
-                                intervalGongsEnabled = intervalGongsEnabled,
-                                intervalMinutes = intervalMinutes,
-                                backgroundSoundId = backgroundSoundId,
-                                durationMinutes = settings.durationMinutes,
-                                preparationTimeEnabled = preparationTimeEnabled,
-                                preparationTimeSeconds = preparationTimeSeconds
-                            )
-                        )
-                        onDismiss()
-                    },
+                    onClick = onDismiss,
                     modifier =
                     Modifier.semantics {
                         contentDescription = doneButtonDescription
@@ -126,19 +112,18 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
+            // Preparation Time Section Title
+            Text(
+                text = stringResource(R.string.settings_preparation_time),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             // Preparation Time Card
             SettingsCard {
-                Text(
-                    text = stringResource(R.string.settings_preparation_time),
-                    style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(itemSpacing))
-
                 // Preparation Time Toggle
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -146,7 +131,7 @@ fun SettingsSheet(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = if (preparationTimeEnabled) {
+                            text = if (settings.preparationTimeEnabled) {
                                 stringResource(R.string.settings_preparation_on)
                             } else {
                                 stringResource(R.string.settings_preparation_off)
@@ -163,15 +148,17 @@ fun SettingsSheet(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     val preparationStateDescription =
-                        if (preparationTimeEnabled) {
-                            stringResource(R.string.accessibility_preparation_enabled, preparationTimeSeconds)
+                        if (settings.preparationTimeEnabled) {
+                            stringResource(R.string.accessibility_preparation_enabled, settings.preparationTimeSeconds)
                         } else {
                             stringResource(R.string.accessibility_preparation_disabled)
                         }
 
                     Switch(
-                        checked = preparationTimeEnabled,
-                        onCheckedChange = { preparationTimeEnabled = it },
+                        checked = settings.preparationTimeEnabled,
+                        onCheckedChange = { enabled ->
+                            onSettingsChange(settings.copy(preparationTimeEnabled = enabled))
+                        },
                         colors =
                         SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -185,7 +172,7 @@ fun SettingsSheet(
                 }
 
                 // Preparation Time Selection (shown when enabled)
-                if (preparationTimeEnabled) {
+                if (settings.preparationTimeEnabled) {
                     Spacer(modifier = Modifier.height(itemSpacing))
 
                     ExposedDropdownMenuBox(
@@ -193,7 +180,7 @@ fun SettingsSheet(
                         onExpandedChange = { preparationTimeExpanded = it }
                     ) {
                         OutlinedTextField(
-                            value = stringResource(R.string.time_seconds, preparationTimeSeconds),
+                            value = stringResource(R.string.time_seconds, settings.preparationTimeSeconds),
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(stringResource(R.string.settings_preparation_duration)) },
@@ -217,7 +204,7 @@ fun SettingsSheet(
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.time_seconds, seconds)) },
                                     onClick = {
-                                        preparationTimeSeconds = seconds
+                                        onSettingsChange(settings.copy(preparationTimeSeconds = seconds))
                                         preparationTimeExpanded = false
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -230,24 +217,23 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
+            // Background Sound Section Title
+            Text(
+                text = stringResource(R.string.settings_background_sound),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             // Background Sound Card
             SettingsCard {
-                Text(
-                    text = stringResource(R.string.settings_background_sound),
-                    style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(itemSpacing))
-
                 ExposedDropdownMenuBox(
                     expanded = backgroundSoundExpanded,
                     onExpandedChange = { backgroundSoundExpanded = it }
                 ) {
-                    val selectedSoundName = when (backgroundSoundId) {
+                    val selectedSoundName = when (settings.backgroundSoundId) {
                         "silent" -> stringResource(R.string.sound_silent)
                         "forest" -> stringResource(R.string.sound_forest)
                         else -> stringResource(R.string.sound_silent)
@@ -286,7 +272,7 @@ fun SettingsSheet(
                                 }
                             },
                             onClick = {
-                                backgroundSoundId = "silent"
+                                onSettingsChange(settings.copy(backgroundSoundId = "silent"))
                                 backgroundSoundExpanded = false
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -303,7 +289,7 @@ fun SettingsSheet(
                                 }
                             },
                             onClick = {
-                                backgroundSoundId = "forest"
+                                onSettingsChange(settings.copy(backgroundSoundId = "forest"))
                                 backgroundSoundExpanded = false
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -314,19 +300,18 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
+            // Interval Gongs Section Title
+            Text(
+                text = stringResource(R.string.settings_sound_settings),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Medium
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             // Interval Gongs Card
             SettingsCard {
-                Text(
-                    text = stringResource(R.string.settings_sound_settings),
-                    style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(itemSpacing))
-
                 // Interval Gongs Toggle
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -347,15 +332,17 @@ fun SettingsSheet(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     val switchStateDescription =
-                        if (intervalGongsEnabled) {
-                            stringResource(R.string.accessibility_interval_enabled, intervalMinutes)
+                        if (settings.intervalGongsEnabled) {
+                            stringResource(R.string.accessibility_interval_enabled, settings.intervalMinutes)
                         } else {
                             stringResource(R.string.accessibility_interval_disabled)
                         }
 
                     Switch(
-                        checked = intervalGongsEnabled,
-                        onCheckedChange = { intervalGongsEnabled = it },
+                        checked = settings.intervalGongsEnabled,
+                        onCheckedChange = { enabled ->
+                            onSettingsChange(settings.copy(intervalGongsEnabled = enabled))
+                        },
                         colors =
                         SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -369,7 +356,7 @@ fun SettingsSheet(
                 }
 
                 // Interval Selection (shown when enabled)
-                if (intervalGongsEnabled) {
+                if (settings.intervalGongsEnabled) {
                     Spacer(modifier = Modifier.height(itemSpacing))
 
                     ExposedDropdownMenuBox(
@@ -377,7 +364,7 @@ fun SettingsSheet(
                         onExpandedChange = { intervalMinutesExpanded = it }
                     ) {
                         OutlinedTextField(
-                            value = stringResource(R.string.time_minutes_plural, intervalMinutes),
+                            value = stringResource(R.string.time_minutes_plural, settings.intervalMinutes),
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(stringResource(R.string.settings_interval_minutes)) },
@@ -401,7 +388,7 @@ fun SettingsSheet(
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.time_minutes_plural, minutes)) },
                                     onClick = {
-                                        intervalMinutes = minutes
+                                        onSettingsChange(settings.copy(intervalMinutes = minutes))
                                         intervalMinutesExpanded = false
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
