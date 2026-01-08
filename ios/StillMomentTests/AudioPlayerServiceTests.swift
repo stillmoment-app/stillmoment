@@ -525,6 +525,32 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     @MainActor
+    func testPlaySetsArtworkInNowPlayingInfo() async {
+        // Given - Load meditation
+        guard let url = self.createTestAudioURL() else {
+            XCTFail("Test audio file not found")
+            return
+        }
+        let meditation = self.createTestMeditation()
+        try? await self.sut.load(url: url, meditation: meditation)
+
+        // When - Play starts
+        try? self.sut.play()
+
+        // Then - Artwork should be set in Now Playing info (if LockScreenArtwork is available)
+        let nowPlaying = self.mockNowPlayingProvider.nowPlayingInfo
+        XCTAssertNotNil(nowPlaying, "Now Playing info should be set")
+
+        // The artwork will only be set if UIImage(named: "LockScreenArtwork") returns a valid image
+        // In the test bundle, this should work since we're running in the app context
+        let artwork = nowPlaying?[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork
+        XCTAssertNotNil(
+            artwork,
+            "Artwork should be set in Now Playing info for lock screen display"
+        )
+    }
+
+    @MainActor
     func testPlayConfiguresRemoteCommandCenterOnce() async {
         // Given - Load meditation
         guard let url = self.createTestAudioURL() else {

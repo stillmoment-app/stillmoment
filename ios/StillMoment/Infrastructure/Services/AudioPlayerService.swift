@@ -9,6 +9,7 @@ import AVFoundation
 import Combine
 import MediaPlayer
 import OSLog
+import UIKit
 
 /// Concrete implementation of AudioPlayerServiceProtocol
 ///
@@ -325,6 +326,11 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         nowPlayingInfo[MPMediaItemPropertyArtist] = meditation.effectiveTeacher
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
+
+        if let artworkImage = UIImage(named: "LockScreenArtwork") {
+            let artwork = MPMediaItemArtwork(boundsSize: artworkImage.size) { _ in artworkImage }
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+        }
 
         self.nowPlayingProvider.nowPlayingInfo = nowPlayingInfo
     }

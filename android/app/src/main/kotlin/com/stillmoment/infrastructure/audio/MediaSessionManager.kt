@@ -1,9 +1,11 @@
 package com.stillmoment.infrastructure.audio
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -22,10 +24,10 @@ import javax.inject.Singleton
  * which send toggle events rather than separate play/pause events.
  */
 @Singleton
-class MediaSessionManager
+open class MediaSessionManager
 @Inject
 constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext protected val context: Context
 ) {
     private var _mediaSession: MediaSessionCompat? = null
 
@@ -54,7 +56,7 @@ constructor(
      * @param callback Handler for media button events
      * @return The created MediaSession
      */
-    fun createSession(callback: MediaSessionCallback): MediaSessionCompat {
+    open fun createSession(callback: MediaSessionCallback): MediaSessionCompat {
         release()
 
         _mediaSession =
@@ -89,12 +91,15 @@ constructor(
      *
      * @param meditation The meditation being played
      */
-    fun updateMetadata(meditation: GuidedMeditation) {
+    open fun updateMetadata(meditation: GuidedMeditation) {
+        val appIcon = BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
+
         _mediaSession?.setMetadata(
             MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.effectiveName)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.effectiveTeacher)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, meditation.duration)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, appIcon)
                 .build()
         )
     }
@@ -132,7 +137,7 @@ constructor(
     /**
      * Releases the MediaSession and cleans up resources.
      */
-    fun release() {
+    open fun release() {
         _mediaSession?.isActive = false
         _mediaSession?.release()
         _mediaSession = null
