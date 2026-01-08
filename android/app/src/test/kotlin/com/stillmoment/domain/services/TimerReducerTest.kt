@@ -102,7 +102,7 @@ class TimerReducerTest {
             assertEquals(1, newState.currentAffirmationIndex) // Rotated from 0
 
             // Verify effects
-            assertTrue(effects.contains(TimerEffect.StartForegroundService("forest")))
+            assertTrue(effects.any { it is TimerEffect.StartForegroundService && it.soundId == "forest" })
             assertTrue(effects.contains(TimerEffect.StartTimer(15)))
             assertTrue(effects.any { it is TimerEffect.SaveSettings })
         }
@@ -168,6 +168,47 @@ class TimerReducerTest {
         }
 
         @Test
+        fun `passes gongSoundId to StartForegroundService effect`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
+            val settings = defaultSettings.copy(gongSoundId = "deep-zen")
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+
+            // Then
+            val serviceEffect = effects.filterIsInstance<TimerEffect.StartForegroundService>().first()
+            assertEquals("deep-zen", serviceEffect.gongSoundId)
+        }
+
+        @Test
+        fun `passes gongSoundId to PlayStartGong when preparation disabled`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
+            val settings = defaultSettings.copy(
+                preparationTimeEnabled = false,
+                gongSoundId = "warm-zen"
+            )
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+
+            // Then
+            val gongEffect = effects.filterIsInstance<TimerEffect.PlayStartGong>().first()
+            assertEquals("warm-zen", gongEffect.gongSoundId)
+        }
+
+        @Test
         fun `skips preparation and goes directly to running when disabled`() {
             // Given
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
@@ -201,7 +242,7 @@ class TimerReducerTest {
                 )
 
             // Then - PlayStartGong should be in effects (immediate, not after PreparationFinished)
-            assertTrue(effects.contains(TimerEffect.PlayStartGong))
+            assertTrue(effects.any { it is TimerEffect.PlayStartGong })
         }
     }
 
@@ -565,7 +606,27 @@ class TimerReducerTest {
 
             // Then
             assertEquals(TimerState.Running, newState.timerState)
-            assertEquals(listOf(TimerEffect.PlayStartGong), effects)
+            assertEquals(1, effects.size)
+            assertTrue(effects[0] is TimerEffect.PlayStartGong)
+        }
+
+        @Test
+        fun `passes gongSoundId to PlayStartGong effect`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
+            val settings = defaultSettings.copy(gongSoundId = "clear-strike")
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PreparationFinished,
+                    settings
+                )
+
+            // Then
+            val gongEffect = effects.filterIsInstance<TimerEffect.PlayStartGong>().first()
+            assertEquals("clear-strike", gongEffect.gongSoundId)
         }
     }
 
@@ -593,8 +654,27 @@ class TimerReducerTest {
             // Then
             assertEquals(TimerState.Completed, newState.timerState)
             assertEquals(1.0f, newState.progress)
-            assertTrue(effects.contains(TimerEffect.PlayCompletionSound))
+            assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
+        }
+
+        @Test
+        fun `passes gongSoundId to PlayCompletionSound effect`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
+            val settings = defaultSettings.copy(gongSoundId = "deep-resonance")
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    settings
+                )
+
+            // Then
+            val completionEffect = effects.filterIsInstance<TimerEffect.PlayCompletionSound>().first()
+            assertEquals("deep-resonance", completionEffect.gongSoundId)
         }
     }
 
@@ -744,7 +824,7 @@ class TimerReducerTest {
 
             // Then
             assertEquals(TimerState.Running, state.timerState)
-            assertTrue(runningEffects.contains(TimerEffect.PlayStartGong))
+            assertTrue(runningEffects.any { it is TimerEffect.PlayStartGong })
 
             // When - Timer completed
             val (completedState, completedEffects) =
@@ -757,7 +837,7 @@ class TimerReducerTest {
 
             // Then
             assertEquals(TimerState.Completed, state.timerState)
-            assertTrue(completedEffects.contains(TimerEffect.PlayCompletionSound))
+            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
 
             // When - Reset
             val (resetState, resetEffects) =
@@ -824,7 +904,7 @@ class TimerReducerTest {
             // Then - Should go directly to Running, not Preparation
             assertEquals(TimerState.Running, state.timerState)
             assertEquals(0, state.remainingPreparationSeconds)
-            assertTrue(startEffects.contains(TimerEffect.PlayStartGong))
+            assertTrue(startEffects.any { it is TimerEffect.PlayStartGong })
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
 
             // When - Timer completed (no PreparationFinished needed)
@@ -837,7 +917,7 @@ class TimerReducerTest {
 
             // Then
             assertEquals(TimerState.Completed, completedState.timerState)
-            assertTrue(completedEffects.contains(TimerEffect.PlayCompletionSound))
+            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
         }
     }
 }

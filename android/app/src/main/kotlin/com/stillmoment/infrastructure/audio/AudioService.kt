@@ -2,6 +2,7 @@ package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
+import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
@@ -42,6 +43,7 @@ constructor(
 
     private var gongPlayer: MediaPlayerProtocol? = null
     private var backgroundPlayer: MediaPlayerProtocol? = null
+    private var previewPlayer: MediaPlayerProtocol? = null
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
     companion object {
@@ -57,19 +59,22 @@ constructor(
     // MARK: - Gong Playback
 
     /**
-     * Play the start/completion gong sound.
+     * Play the start/completion gong sound with configurable sound.
+     *
+     * @param soundId ID of the gong sound to play (default: classic-bowl)
      */
-    fun playGong() {
+    fun playGong(soundId: String = GongSound.DEFAULT_SOUND_ID) {
         try {
             releaseGongPlayer()
-            gongPlayer = mediaPlayerFactory.createFromResource(R.raw.completion)?.apply {
+            val gongSound = GongSound.findOrDefault(soundId)
+            gongPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
                 setOnCompletionListener {
                     release()
                     gongPlayer = null
                 }
                 start()
             }
-            logger.d(TAG, "Playing gong sound")
+            logger.d(TAG, "Playing gong sound: ${gongSound.id}")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play gong - invalid state: ${e.message}")
         }
@@ -91,6 +96,46 @@ constructor(
             logger.d(TAG, "Playing interval gong sound")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Play a gong sound preview. Automatically stops any previous preview.
+     * Uses a separate player to avoid interfering with timer playback.
+     *
+     * @param soundId ID of the gong sound to preview
+     */
+    fun playGongPreview(soundId: String) {
+        try {
+            stopGongPreview()
+            val gongSound = GongSound.findOrDefault(soundId)
+            previewPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+                setOnCompletionListener {
+                    release()
+                    previewPlayer = null
+                }
+                start()
+            }
+            logger.d(TAG, "Playing gong preview: ${gongSound.id}")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play gong preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Stop the current gong preview. Idempotent - safe to call even if no preview is playing.
+     */
+    fun stopGongPreview() {
+        try {
+            previewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            previewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop gong preview - invalid state: ${e.message}")
         }
     }
 
@@ -228,6 +273,7 @@ constructor(
      */
     fun release() {
         releaseGongPlayer()
+        stopGongPreview()
         stopBackgroundAudio()
     }
 

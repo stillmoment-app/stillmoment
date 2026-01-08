@@ -22,7 +22,7 @@ User haben unterschiedliche Vorlieben fuer Gong-Toene. Ein tieferer Ton kann ent
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
@@ -39,7 +39,7 @@ User haben unterschiedliche Vorlieben fuer Gong-Toene. Ein tieferer Ton kann ent
 
 ### Tests
 - [x] Unit Tests iOS (GongSound, MeditationSettings, AudioService)
-- [ ] Unit Tests Android
+- [x] Unit Tests Android (GongSound, MeditationSettings, AudioService)
 
 ### Dokumentation
 - [ ] CHANGELOG.md
@@ -63,7 +63,7 @@ User haben unterschiedliche Vorlieben fuer Gong-Toene. Ein tieferer Ton kann ent
 
 ## Verfuegbare Sounds
 
-Verwendet werden die 5-Sekunden-Versionen aus `singing_bowls/processed/`:
+Verwendet werden die 5-Sekunden-Versionen aus `singing_bowls/normalized/`:
 
 | ID | Quelldatei | EN Label | DE Label |
 |----|------------|----------|----------|
@@ -88,6 +88,45 @@ Verwendet werden die 5-Sekunden-Versionen aus `singing_bowls/processed/`:
 - iOS: `ios/StillMoment/Presentation/Views/Timer/SettingsView.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/SettingsSheet.kt`
 - Sound-Dateien: `ios/StillMoment/Resources/GongSounds/`
+
+---
+
+## Implementierungshinweise (aus iOS)
+
+### Accessibility
+
+Der Gong-Picker braucht:
+- **Label**: "Gong Sound" / "Gong-Ton"
+- **Hint**: "Choose the gong sound for start and end of meditation" / "Waehle den Gong-Ton fuer Start und Ende der Meditation"
+
+### Preview-Logik
+
+1. **Separater Preview-Player** - Preview darf nicht den Haupt-Audio-Player blockieren
+2. **Stop bei neuem Sound** - Vor jeder neuen Preview die vorherige stoppen (kein Overlap)
+3. **Stop bei Dismiss** - Beim Schliessen des Settings-Sheets Preview stoppen
+
+### AudioService API
+
+Zwei neue Methoden fuer Preview-Funktion:
+- `playGongPreview(soundId:)` - Spielt Vorschau, stoppt vorherige automatisch
+- `stopGongPreview()` - Stoppt aktuelle Vorschau (idempotent)
+
+Bestehende Methoden erweitern:
+- `playStartGong(soundId:)` - War vorher ohne Parameter
+- `playCompletionSound(soundId:)` - War vorher ohne Parameter
+
+### Domain Model
+
+`GongSound` als Value Object mit:
+- `id: String` - Eindeutige ID (z.B. "classic-bowl")
+- `filename: String` - Audio-Dateiname
+- `name: LocalizedString` - Lokalisierter Name (DE/EN)
+
+Statische Methoden:
+- `allSounds` - Liste aller verfuegbaren Sounds
+- `defaultSound` / `defaultSoundId` - Default-Wert
+- `find(byId:)` - Optional, nil wenn nicht gefunden
+- `findOrDefault(byId:)` - Gibt Default zurueck wenn nicht gefunden
 
 ---
 

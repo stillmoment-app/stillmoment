@@ -68,7 +68,7 @@
 "settings.intervalGongs.interval" = "Interval";
 "settings.intervalGongs.footer" = "A gentle bell every %d minutes invites you to check in with yourself.";
 
-"settings.soundSettings.title" = "Sound Settings";
+"settings.gong.title" = "Gong";
 
 "settings.interval.3min" = "3 minutes";
 "settings.interval.5min" = "5 minutes";

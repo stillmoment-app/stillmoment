@@ -9,6 +9,7 @@ package com.stillmoment.domain.models
  * @property durationMinutes Duration of meditation in minutes (1-60)
  * @property preparationTimeEnabled Whether preparation time before meditation is enabled
  * @property preparationTimeSeconds Duration of preparation in seconds (5, 10, 15, 20, 30, or 45)
+ * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
  */
 data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
@@ -16,7 +17,8 @@ data class MeditationSettings(
     val backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
     val durationMinutes: Int = DEFAULT_DURATION_MINUTES,
     val preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
-    val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS
+    val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
+    val gongSoundId: String = DEFAULT_GONG_SOUND_ID
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -29,6 +31,7 @@ data class MeditationSettings(
         const val DEFAULT_DURATION_MINUTES = 10
         const val DEFAULT_PREPARATION_TIME_ENABLED = true
         const val DEFAULT_PREPARATION_TIME_SECONDS = 15
+        const val DEFAULT_GONG_SOUND_ID = GongSound.DEFAULT_SOUND_ID
 
         // Valid interval options
         private const val INTERVAL_SHORT = 3
@@ -96,7 +99,8 @@ data class MeditationSettings(
             backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
             durationMinutes: Int = DEFAULT_DURATION_MINUTES,
             preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
-            preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS
+            preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
+            gongSoundId: String = DEFAULT_GONG_SOUND_ID
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
@@ -104,7 +108,8 @@ data class MeditationSettings(
                 backgroundSoundId = backgroundSoundId,
                 durationMinutes = validateDuration(durationMinutes),
                 preparationTimeEnabled = preparationTimeEnabled,
-                preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds)
+                preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds),
+                gongSoundId = gongSoundId
             )
         }
     }
@@ -142,6 +147,7 @@ object MeditationSettingsKeys {
     const val DURATION_MINUTES = "durationMinutes"
     const val PREPARATION_TIME_ENABLED = "preparationTimeEnabled"
     const val PREPARATION_TIME_SECONDS = "preparationTimeSeconds"
+    const val GONG_SOUND_ID = "gongSoundId"
 
     // Legacy key for migration
     const val LEGACY_BACKGROUND_AUDIO_MODE = "backgroundAudioMode"

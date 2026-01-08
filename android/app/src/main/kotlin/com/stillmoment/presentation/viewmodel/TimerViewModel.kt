@@ -13,6 +13,7 @@ import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.TimerReducer
+import com.stillmoment.infrastructure.audio.AudioService
 import com.stillmoment.infrastructure.audio.TimerForegroundService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -70,7 +71,8 @@ class TimerViewModel
 constructor(
     application: Application,
     private val settingsRepository: SettingsRepository,
-    private val timerRepository: TimerRepository
+    private val timerRepository: TimerRepository,
+    private val audioService: AudioService
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -117,19 +119,19 @@ constructor(
     private fun handleEffect(effect: TimerEffect) {
         when (effect) {
             is TimerEffect.StartForegroundService -> {
-                TimerForegroundService.startService(getApplication(), effect.soundId)
+                TimerForegroundService.startService(getApplication(), effect.soundId, effect.gongSoundId)
             }
             is TimerEffect.StopForegroundService -> {
                 TimerForegroundService.stopService(getApplication())
             }
             is TimerEffect.PlayStartGong -> {
-                TimerForegroundService.playGong(getApplication())
+                TimerForegroundService.playGong(getApplication(), effect.gongSoundId)
             }
             is TimerEffect.PlayIntervalGong -> {
                 TimerForegroundService.playIntervalGong(getApplication())
             }
             is TimerEffect.PlayCompletionSound -> {
-                TimerForegroundService.playGong(getApplication())
+                TimerForegroundService.playGong(getApplication(), effect.gongSoundId)
             }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
@@ -203,7 +205,22 @@ constructor(
     }
 
     fun hideSettings() {
+        stopGongPreview()
         _uiState.update { it.copy(showSettings = false) }
+    }
+
+    /**
+     * Play a gong sound preview. Automatically stops any previous preview.
+     */
+    fun playGongPreview(soundId: String) {
+        audioService.playGongPreview(soundId)
+    }
+
+    /**
+     * Stop the current gong preview.
+     */
+    fun stopGongPreview() {
+        audioService.stopGongPreview()
     }
 
     fun updateSettings(settings: MeditationSettings) {

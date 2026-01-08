@@ -12,7 +12,7 @@ sealed class TimerEffect {
     // MARK: - Foreground Service Effects
 
     /** Start foreground service with background audio */
-    data class StartForegroundService(val soundId: String) : TimerEffect()
+    data class StartForegroundService(val soundId: String, val gongSoundId: String) : TimerEffect()
 
     /** Stop foreground service */
     data object StopForegroundService : TimerEffect()
@@ -20,13 +20,13 @@ sealed class TimerEffect {
     // MARK: - Sound Effects
 
     /** Play the start gong (meditation begins) */
-    data object PlayStartGong : TimerEffect()
+    data class PlayStartGong(val gongSoundId: String) : TimerEffect()
 
     /** Play an interval gong */
     data object PlayIntervalGong : TimerEffect()
 
     /** Play the completion sound (meditation ends) */
-    data object PlayCompletionSound : TimerEffect()
+    data class PlayCompletionSound(val gongSoundId: String) : TimerEffect()
 
     // MARK: - Timer Repository Effects
 

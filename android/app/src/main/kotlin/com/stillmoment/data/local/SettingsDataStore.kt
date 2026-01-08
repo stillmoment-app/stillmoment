@@ -40,6 +40,7 @@ constructor(
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
         val PREPARATION_TIME_ENABLED = booleanPreferencesKey("preparation_time_enabled")
         val PREPARATION_TIME_SECONDS = intPreferencesKey("preparation_time_seconds")
+        val GONG_SOUND_ID = stringPreferencesKey("gong_sound_id")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
     }
 
@@ -64,7 +65,10 @@ constructor(
                         ?: MeditationSettings.Default.preparationTimeEnabled,
                     preparationTimeSeconds =
                     preferences[Keys.PREPARATION_TIME_SECONDS]
-                        ?: MeditationSettings.Default.preparationTimeSeconds
+                        ?: MeditationSettings.Default.preparationTimeSeconds,
+                    gongSoundId =
+                    preferences[Keys.GONG_SOUND_ID]
+                        ?: MeditationSettings.Default.gongSoundId
                 )
             }
 
@@ -80,6 +84,7 @@ constructor(
             preferences[Keys.DURATION_MINUTES] = settings.durationMinutes
             preferences[Keys.PREPARATION_TIME_ENABLED] = settings.preparationTimeEnabled
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
+            preferences[Keys.GONG_SOUND_ID] = settings.gongSoundId
         }
     }
 
@@ -116,6 +121,15 @@ constructor(
     suspend fun setDurationMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[Keys.DURATION_MINUTES] = MeditationSettings.validateDuration(minutes)
+        }
+    }
+
+    /**
+     * Update a single setting - gongSoundId.
+     */
+    suspend fun setGongSoundId(soundId: String) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.GONG_SOUND_ID] = soundId
         }
     }
 

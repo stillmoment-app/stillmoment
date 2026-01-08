@@ -68,7 +68,7 @@
 "settings.intervalGongs.interval" = "Intervall";
 "settings.intervalGongs.footer" = "Eine sanfte Glocke alle %d Minuten lädt dich ein, bei dir selbst einzuchecken.";
 
-"settings.soundSettings.title" = "Klang-Einstellungen";
+"settings.gong.title" = "Gong";
 
 "settings.interval.3min" = "3 Minuten";
 "settings.interval.5min" = "5 Minuten";

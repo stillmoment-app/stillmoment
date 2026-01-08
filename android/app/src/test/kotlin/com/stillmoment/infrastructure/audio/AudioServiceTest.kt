@@ -114,6 +114,79 @@ class AudioServiceTest {
         verify(mockMediaPlayer).start()
     }
 
+    // MARK: - Gong Sound Selection Tests
+
+    @Test
+    fun `playGong with soundId creates media player for specified sound`() {
+        // When
+        sut.playGong("deep-zen")
+
+        // Then
+        verify(mockMediaPlayerFactory).createFromResource(any())
+        verify(mockMediaPlayer).start()
+    }
+
+    @Test
+    fun `playGong with unknown soundId uses default sound`() {
+        // When
+        sut.playGong("nonexistent")
+
+        // Then - should still work (using default)
+        verify(mockMediaPlayerFactory).createFromResource(any())
+        verify(mockMediaPlayer).start()
+    }
+
+    // MARK: - Gong Preview Tests
+
+    @Test
+    fun `playGongPreview creates media player and starts`() {
+        // When
+        sut.playGongPreview("warm-zen")
+
+        // Then
+        verify(mockMediaPlayerFactory).createFromResource(any())
+        verify(mockMediaPlayer).start()
+    }
+
+    @Test
+    fun `playGongPreview stops previous preview`() {
+        // Given: Start a preview
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockMediaPlayer, mockMediaPlayerFactory)
+
+        // When: Start another preview
+        sut.playGongPreview("deep-zen")
+
+        // Then: Previous preview was stopped
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+        verify(mockMediaPlayerFactory).createFromResource(any())
+    }
+
+    @Test
+    fun `stopGongPreview stops and releases player`() {
+        // Given
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockMediaPlayer)
+
+        // When
+        sut.stopGongPreview()
+
+        // Then
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+    }
+
+    @Test
+    fun `stopGongPreview is idempotent when no preview playing`() {
+        // When - should not throw
+        sut.stopGongPreview()
+
+        // Then - no exception thrown, test passes
+    }
+
     // MARK: - Background Audio Tests
 
     @Test

@@ -36,8 +36,8 @@ object TimerReducer {
             is TimerAction.ResumePressed -> reduceResumePressed(state)
             is TimerAction.ResetPressed -> reduceResetPressed(state)
             is TimerAction.Tick -> reduceTick(state, action)
-            is TimerAction.PreparationFinished -> reducePreparationFinished(state)
-            is TimerAction.TimerCompleted -> reduceTimerCompleted(state)
+            is TimerAction.PreparationFinished -> reducePreparationFinished(state, settings)
+            is TimerAction.TimerCompleted -> reduceTimerCompleted(state, settings)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(state, settings)
             is TimerAction.IntervalGongPlayed -> reduceIntervalGongPlayed(state)
         }
@@ -95,14 +95,14 @@ object TimerReducer {
 
         // Build effects - add start gong immediately if no preparation time
         val effects = mutableListOf(
-            TimerEffect.StartForegroundService(settings.backgroundSoundId),
+            TimerEffect.StartForegroundService(settings.backgroundSoundId, settings.gongSoundId),
             TimerEffect.StartTimer(state.selectedMinutes, preparationTime),
             TimerEffect.SaveSettings(updatedSettings)
         )
 
         // Play start gong immediately if skipping preparation
         if (preparationTime <= 0) {
-            effects.add(TimerEffect.PlayStartGong)
+            effects.add(TimerEffect.PlayStartGong(settings.gongSoundId))
         }
 
         return newState to effects
@@ -165,12 +165,18 @@ object TimerReducer {
         return newState to emptyList()
     }
 
-    private fun reducePreparationFinished(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reducePreparationFinished(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(timerState = TimerState.Running)
-        return newState to listOf(TimerEffect.PlayStartGong)
+        return newState to listOf(TimerEffect.PlayStartGong(settings.gongSoundId))
     }
 
-    private fun reduceTimerCompleted(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
+    private fun reduceTimerCompleted(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
                 timerState = TimerState.Completed,
@@ -178,7 +184,7 @@ object TimerReducer {
             )
         val effects =
             listOf(
-                TimerEffect.PlayCompletionSound,
+                TimerEffect.PlayCompletionSound(settings.gongSoundId),
                 TimerEffect.StopForegroundService
             )
         return newState to effects

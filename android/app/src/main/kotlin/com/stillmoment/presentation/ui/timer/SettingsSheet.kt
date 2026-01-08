@@ -19,6 +19,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -43,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
@@ -59,6 +61,7 @@ fun SettingsSheet(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
     onDismiss: () -> Unit,
+    onGongSoundPreview: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Only dropdown expanded states are local - actual values come from settings
@@ -67,6 +70,7 @@ fun SettingsSheet(
     var backgroundSoundExpanded by remember { mutableStateOf(false) }
     var intervalMinutesExpanded by remember { mutableStateOf(false) }
     val intervalOptions = listOf(3, 5, 10)
+    var gongSoundExpanded by remember { mutableStateOf(false) }
 
     val doneButtonDescription = stringResource(R.string.accessibility_done_button)
     val scrollState = rememberScrollState()
@@ -300,9 +304,9 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(sectionSpacing))
 
-            // Interval Gongs Section Title
+            // Gong Section Title
             Text(
-                text = stringResource(R.string.settings_sound_settings),
+                text = stringResource(R.string.settings_gong),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Medium
                 ),
@@ -310,8 +314,55 @@ fun SettingsSheet(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Interval Gongs Card
+            // Gong Settings Card (Sound + Interval)
+            val gongSoundHint = stringResource(R.string.accessibility_gong_sound_hint)
             SettingsCard {
+                ExposedDropdownMenuBox(
+                    expanded = gongSoundExpanded,
+                    onExpandedChange = { gongSoundExpanded = it }
+                ) {
+                    val selectedGongSound = GongSound.findOrDefault(settings.gongSoundId)
+
+                    OutlinedTextField(
+                        value = selectedGongSound.localizedName,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.settings_gong_sound)) },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = gongSoundExpanded)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        ),
+                        modifier = Modifier
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
+                            .semantics { contentDescription = gongSoundHint }
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = gongSoundExpanded,
+                        onDismissRequest = { gongSoundExpanded = false }
+                    ) {
+                        GongSound.allSounds.forEach { gongSound ->
+                            DropdownMenuItem(
+                                text = { Text(gongSound.localizedName) },
+                                onClick = {
+                                    onSettingsChange(settings.copy(gongSoundId = gongSound.id))
+                                    onGongSoundPreview(gongSound.id)
+                                    gongSoundExpanded = false
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(itemSpacing))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(modifier = Modifier.height(itemSpacing))
+
                 // Interval Gongs Toggle
                 Row(
                     modifier = Modifier.fillMaxWidth(),

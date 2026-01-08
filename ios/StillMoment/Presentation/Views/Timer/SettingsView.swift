@@ -172,7 +172,7 @@ struct SettingsView: View {
                             .listRowBackground(Color.backgroundPrimary)
                         }
                     } header: {
-                        Text("settings.soundSettings.title", bundle: .main)
+                        Text("settings.gong.title", bundle: .main)
                     } footer: {
                         if self.settings.intervalGongsEnabled {
                             Text(String(
