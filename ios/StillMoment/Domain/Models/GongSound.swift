@@ -58,36 +58,31 @@ extension GongSound {
     static let allSounds: [GongSound] = [
         GongSound(
             id: "classic-bowl",
-            filename: "singing-bowl-hit-3-33366-5s.mp3",
+            filename: "singing-bowl-hit-3-33366-10s.mp3",
             name: LocalizedString(en: "Classic Bowl", de: "Klassisch")
         ),
         GongSound(
             id: "deep-resonance",
-            filename: "singing-bowl-male-frequency-29714-5s.mp3",
+            filename: "singing-bowl-male-frequency-29714-10s.mp3",
             name: LocalizedString(en: "Deep Resonance", de: "Tiefe Resonanz")
         ),
         GongSound(
             id: "clear-strike",
-            filename: "singing-bowl-strike-sound-84682-5s.mp3",
+            filename: "singing-bowl-strike-sound-84682-10s.mp3",
             name: LocalizedString(en: "Clear Strike", de: "Klarer Anschlag")
         ),
         GongSound(
-            id: "deep-zen",
-            filename: "zen-tone-deep-202555-5s.mp3",
-            name: LocalizedString(en: "Deep Zen", de: "Tiefer Zen")
-        ),
-        GongSound(
-            id: "warm-zen",
-            filename: "zen-tone-mid-202556-5s.mp3",
-            name: LocalizedString(en: "Warm Zen", de: "Warmer Zen")
+            id: "temple-bell",
+            filename: "tibetan-singing-bowl-55786-10s.mp3",
+            name: LocalizedString(en: "Temple Bell", de: "Tempelglocke")
         )
     ]
 
-    /// Default gong sound (Classic Bowl)
-    static let defaultSound: GongSound = allSounds[0]
+    /// Default gong sound (Temple Bell)
+    static let defaultSound: GongSound = allSounds.first { $0.id == defaultSoundId } ?? allSounds[0]
 
     /// Default sound ID for settings
-    static let defaultSoundId: String = "classic-bowl"
+    static let defaultSoundId: String = "temple-bell"
 
     /// Find a gong sound by ID
     /// - Parameter id: The sound ID to search for

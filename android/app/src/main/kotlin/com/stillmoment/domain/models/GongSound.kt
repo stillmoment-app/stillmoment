@@ -34,7 +34,7 @@ data class GongSound(
 
     companion object {
         /** Default gong sound ID */
-        const val DEFAULT_SOUND_ID = "classic-bowl"
+        const val DEFAULT_SOUND_ID = "temple-bell"
 
         /** All available gong sounds */
         val allSounds: List<GongSound> = listOf(
@@ -57,21 +57,15 @@ data class GongSound(
                 rawResId = R.raw.gong_clear_strike
             ),
             GongSound(
-                id = "deep-zen",
-                nameEnglish = "Deep Zen",
-                nameGerman = "Tiefer Zen",
-                rawResId = R.raw.gong_deep_zen
-            ),
-            GongSound(
-                id = "warm-zen",
-                nameEnglish = "Warm Zen",
-                nameGerman = "Warmer Zen",
-                rawResId = R.raw.gong_warm_zen
+                id = "temple-bell",
+                nameEnglish = "Temple Bell",
+                nameGerman = "Tempelglocke",
+                rawResId = R.raw.gong_temple_bell
             )
         )
 
-        /** Default gong sound (Classic Bowl) */
-        val defaultSound: GongSound = allSounds[0]
+        /** Default gong sound (Temple Bell) */
+        val defaultSound: GongSound = allSounds.first { it.id == DEFAULT_SOUND_ID }
 
         /**
          * Find a gong sound by ID.

@@ -19,7 +19,7 @@ class MeditationSettingsTest {
         assertEquals(10, settings.durationMinutes)
         assertTrue(settings.preparationTimeEnabled)
         assertEquals(15, settings.preparationTimeSeconds)
-        assertEquals("classic-bowl", settings.gongSoundId)
+        assertEquals("temple-bell", settings.gongSoundId)
     }
 
     @Test
@@ -32,7 +32,7 @@ class MeditationSettingsTest {
         assertEquals(10, settings.durationMinutes)
         assertTrue(settings.preparationTimeEnabled)
         assertEquals(15, settings.preparationTimeSeconds)
-        assertEquals("classic-bowl", settings.gongSoundId)
+        assertEquals("temple-bell", settings.gongSoundId)
     }
 
     // MARK: - Interval Validation Tests
@@ -159,7 +159,7 @@ class MeditationSettingsTest {
                 durationMinutes = 20,
                 preparationTimeEnabled = false,
                 preparationTimeSeconds = 30,
-                gongSoundId = "deep-zen"
+                gongSoundId = "clear-strike"
             )
 
         assertTrue(settings.intervalGongsEnabled)
@@ -168,13 +168,13 @@ class MeditationSettingsTest {
         assertEquals(20, settings.durationMinutes)
         assertFalse(settings.preparationTimeEnabled)
         assertEquals(30, settings.preparationTimeSeconds)
-        assertEquals("deep-zen", settings.gongSoundId)
+        assertEquals("clear-strike", settings.gongSoundId)
     }
 
     @Test
     fun `create uses default gongSoundId when not specified`() {
         val settings = MeditationSettings.create()
-        assertEquals("classic-bowl", settings.gongSoundId)
+        assertEquals("temple-bell", settings.gongSoundId)
     }
 
     @Test

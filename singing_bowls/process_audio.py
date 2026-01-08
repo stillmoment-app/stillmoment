@@ -96,12 +96,15 @@ def detect_silence(file_path: Path, config: AudioConfig) -> float | None:
         "-f", "null", "-"
     ], capture_stderr=True)
 
-    # Suche nach erstem silence_end (Stille am Anfang)
-    match = re.search(r"silence_end: ([\d.]+)", output)
-    if match:
-        silence_end = float(match.group(1))
-        # Nur relevant wenn > 0.5s
-        if silence_end > 0.5:
+    # Suche nach Stille am Anfang: silence_start muss bei ~0 sein
+    start_match = re.search(r"silence_start: ([\d.]+)", output)
+    end_match = re.search(r"silence_end: ([\d.]+)", output)
+
+    if start_match and end_match:
+        silence_start = float(start_match.group(1))
+        silence_end = float(end_match.group(1))
+        # Nur relevant wenn Stille bei 0 beginnt und > 0.5s dauert
+        if silence_start < 0.1 and silence_end > 0.5:
             return silence_end
     return None
 

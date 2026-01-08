@@ -10,8 +10,8 @@ class GongSoundTest {
     // MARK: - All Sounds Tests
 
     @Test
-    fun `allSounds contains 5 sounds`() {
-        assertEquals(5, GongSound.allSounds.size)
+    fun `allSounds contains 4 sounds`() {
+        assertEquals(4, GongSound.allSounds.size)
     }
 
     @Test
@@ -21,8 +21,7 @@ class GongSoundTest {
         assertTrue(ids.contains("classic-bowl"))
         assertTrue(ids.contains("deep-resonance"))
         assertTrue(ids.contains("clear-strike"))
-        assertTrue(ids.contains("deep-zen"))
-        assertTrue(ids.contains("warm-zen"))
+        assertTrue(ids.contains("temple-bell"))
     }
 
     @Test
@@ -42,27 +41,27 @@ class GongSoundTest {
     // MARK: - Default Sound Tests
 
     @Test
-    fun `DEFAULT_SOUND_ID is classic-bowl`() {
-        assertEquals("classic-bowl", GongSound.DEFAULT_SOUND_ID)
+    fun `DEFAULT_SOUND_ID is temple-bell`() {
+        assertEquals("temple-bell", GongSound.DEFAULT_SOUND_ID)
     }
 
     @Test
-    fun `defaultSound is classic-bowl`() {
-        assertEquals("classic-bowl", GongSound.defaultSound.id)
-        assertEquals("Classic Bowl", GongSound.defaultSound.nameEnglish)
-        assertEquals("Klassisch", GongSound.defaultSound.nameGerman)
+    fun `defaultSound is temple-bell`() {
+        assertEquals("temple-bell", GongSound.defaultSound.id)
+        assertEquals("Temple Bell", GongSound.defaultSound.nameEnglish)
+        assertEquals("Tempelglocke", GongSound.defaultSound.nameGerman)
     }
 
     // MARK: - Find Tests
 
     @Test
     fun `find returns correct sound for valid ID`() {
-        val sound = GongSound.find("deep-zen")
+        val sound = GongSound.find("clear-strike")
 
         assertNotNull(sound)
-        assertEquals("deep-zen", sound?.id)
-        assertEquals("Deep Zen", sound?.nameEnglish)
-        assertEquals("Tiefer Zen", sound?.nameGerman)
+        assertEquals("clear-strike", sound?.id)
+        assertEquals("Clear Strike", sound?.nameEnglish)
+        assertEquals("Klarer Anschlag", sound?.nameGerman)
     }
 
     @Test
@@ -81,10 +80,10 @@ class GongSoundTest {
 
     @Test
     fun `findOrDefault returns correct sound for valid ID`() {
-        val sound = GongSound.findOrDefault("warm-zen")
+        val sound = GongSound.findOrDefault("deep-resonance")
 
-        assertEquals("warm-zen", sound.id)
-        assertEquals("Warm Zen", sound.nameEnglish)
+        assertEquals("deep-resonance", sound.id)
+        assertEquals("Deep Resonance", sound.nameEnglish)
     }
 
     @Test
@@ -92,7 +91,7 @@ class GongSoundTest {
         val sound = GongSound.findOrDefault("nonexistent")
 
         assertEquals(GongSound.defaultSound, sound)
-        assertEquals("classic-bowl", sound.id)
+        assertEquals("temple-bell", sound.id)
     }
 
     @Test
@@ -138,18 +137,10 @@ class GongSoundTest {
     }
 
     @Test
-    fun `deep-zen has correct properties`() {
-        val sound = GongSound.find("deep-zen")!!
+    fun `temple-bell has correct properties`() {
+        val sound = GongSound.find("temple-bell")!!
 
-        assertEquals("Deep Zen", sound.nameEnglish)
-        assertEquals("Tiefer Zen", sound.nameGerman)
-    }
-
-    @Test
-    fun `warm-zen has correct properties`() {
-        val sound = GongSound.find("warm-zen")!!
-
-        assertEquals("Warm Zen", sound.nameEnglish)
-        assertEquals("Warmer Zen", sound.nameGerman)
+        assertEquals("Temple Bell", sound.nameEnglish)
+        assertEquals("Tempelglocke", sound.nameGerman)
     }
 }
