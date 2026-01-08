@@ -73,6 +73,7 @@ struct SettingsView: View {
                             .accessibilityLabel("accessibility.preparationTimeDuration")
                             .accessibilityHint("accessibility.preparationTimeDuration.hint")
                             .listRowBackground(Color.backgroundPrimary)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
                         Text("settings.preparationTime.header", bundle: .main)
@@ -170,6 +171,7 @@ struct SettingsView: View {
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
                             .listRowBackground(Color.backgroundPrimary)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
                         Text("settings.gong.title", bundle: .main)
