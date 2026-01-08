@@ -6,6 +6,11 @@ import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +29,8 @@ import org.mockito.kotlin.whenever
  * Tests gong playback and background audio management.
  */
 class AudioServiceTest {
+    private val testDispatcher = StandardTestDispatcher()
+
     private lateinit var sut: AudioService
     private lateinit var mockCoordinator: AudioSessionCoordinatorProtocol
     private lateinit var mockMediaPlayerFactory: MediaPlayerFactoryProtocol
@@ -36,6 +43,7 @@ class AudioServiceTest {
 
     @BeforeEach
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
         mockCoordinator = mock()
         mockMediaPlayerFactory = mock()
         mockVolumeAnimator = mock()
@@ -56,6 +64,11 @@ class AudioServiceTest {
         verify(mockCoordinator).registerPauseHandler(eq(AudioSource.TIMER), pauseCaptor.capture())
         capturedConflictHandler = conflictCaptor.firstValue
         capturedPauseHandler = pauseCaptor.firstValue
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     // MARK: - Gong Playback Tests
@@ -185,6 +198,138 @@ class AudioServiceTest {
         sut.stopGongPreview()
 
         // Then - no exception thrown, test passes
+    }
+
+    @Test
+    fun `playGongPreview stops any background preview`() {
+        // Given: Start a background preview
+        val mockBackgroundPreviewPlayer: MediaPlayerProtocol = mock()
+        whenever(mockBackgroundPreviewPlayer.isPlaying).thenReturn(true)
+        whenever(mockMediaPlayerFactory.createFromResource(any())).thenReturn(mockBackgroundPreviewPlayer)
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockBackgroundPreviewPlayer, mockMediaPlayerFactory)
+
+        // Reset factory to return a new player for gong
+        val mockGongPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromResource(any())).thenReturn(mockGongPlayer)
+
+        // When: Start a gong preview
+        sut.playGongPreview("classic-bowl")
+
+        // Then: Background preview was stopped
+        verify(mockBackgroundPreviewPlayer).stop()
+        verify(mockBackgroundPreviewPlayer).release()
+    }
+
+    // MARK: - Background Preview Tests
+
+    @Test
+    fun `playBackgroundPreview creates media player and starts`() {
+        // When
+        sut.playBackgroundPreview("forest", 0.15f)
+
+        // Then
+        verify(mockMediaPlayerFactory).createFromResource(any())
+        verify(mockMediaPlayer).start()
+    }
+
+    @Test
+    fun `playBackgroundPreview sets specified volume`() {
+        // When
+        sut.playBackgroundPreview("forest", 0.25f)
+
+        // Then
+        verify(mockMediaPlayer).setVolume(0.25f, 0.25f)
+    }
+
+    @Test
+    fun `playBackgroundPreview stops previous background preview`() {
+        // Given: Start a preview
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockMediaPlayer, mockMediaPlayerFactory)
+
+        // When: Start another preview
+        sut.playBackgroundPreview("forest", 0.2f)
+
+        // Then: Previous preview was stopped
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+        verify(mockMediaPlayerFactory).createFromResource(any())
+    }
+
+    @Test
+    fun `playBackgroundPreview stops any gong preview`() {
+        // Given: Start a gong preview
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockMediaPlayer, mockMediaPlayerFactory)
+
+        // When: Start a background preview
+        sut.playBackgroundPreview("forest", 0.15f)
+
+        // Then: Gong preview was stopped
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+    }
+
+    @Test
+    fun `playBackgroundPreview with silent sound stops all previews without starting new one`() {
+        // Given: Start a gong preview
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockMediaPlayer, mockMediaPlayerFactory)
+
+        // When: Select silent background sound
+        sut.playBackgroundPreview("silent", 0.15f)
+
+        // Then: Gong preview was stopped, but no new player created
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+        verify(mockMediaPlayerFactory, never()).createFromResource(any())
+    }
+
+    @Test
+    fun `stopBackgroundPreview stops and releases player`() {
+        // Given
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockMediaPlayer)
+
+        // When
+        sut.stopBackgroundPreview()
+
+        // Then
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
+    }
+
+    @Test
+    fun `stopBackgroundPreview is idempotent when no preview playing`() {
+        // When - should not throw
+        sut.stopBackgroundPreview()
+
+        // Then - no exception thrown, test passes
+    }
+
+    // MARK: - Sound Resource ID Mapping Tests
+
+    @Test
+    fun `getBackgroundSoundResourceId returns resource for forest`() {
+        // When/Then
+        assertNotNull(AudioService.getBackgroundSoundResourceId("forest"))
+    }
+
+    @Test
+    fun `getBackgroundSoundResourceId returns null for silent`() {
+        // When/Then
+        assertNull(AudioService.getBackgroundSoundResourceId("silent"))
+    }
+
+    @Test
+    fun `getBackgroundSoundResourceId returns null for unknown sound`() {
+        // When/Then
+        assertNull(AudioService.getBackgroundSoundResourceId("nonexistent"))
     }
 
     // MARK: - Background Audio Tests

@@ -40,6 +40,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-014](shared/shared-014-interval-sound-update.md) | Neuer Interval-Sound | 4-Polish | [x] | [x] |
 | [shared-015](shared/shared-015-state-machine-test-coverage.md) | State-Machine Tests TimerReducer | 5-QA | [x] | [x] |
 | [shared-016](shared/shared-016-konfigurierbare-gong-toene.md) | Konfigurierbarer Start/Ende-Gong | 3-Feature | [x] | [ ] |
+| [shared-017](shared/shared-017-background-audio-preview.md) | Background-Audio Preview in Settings | 3-Feature | [x] | [x] |
+| [shared-018](shared/shared-018-lockscreen-artwork.md) | Lock Screen Artwork | 4-Polish | [ ] | [ ] |
 
 ---
 

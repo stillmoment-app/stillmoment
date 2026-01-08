@@ -158,11 +158,15 @@ final class MockAudioService: AudioServiceProtocol {
     var playCompletionSoundCalled = false
     var playGongPreviewCalled = false
     var stopGongPreviewCalled = false
+    var playBackgroundPreviewCalled = false
+    var stopBackgroundPreviewCalled = false
     var stopCalled = false
 
     var lastStartGongSoundId: String?
     var lastCompletionSoundId: String?
     var lastPreviewSoundId: String?
+    var lastBackgroundPreviewSoundId: String?
+    var lastBackgroundPreviewVolume: Float?
 
     var shouldThrowOnConfigure = false
     var shouldThrowOnPlay = false
@@ -239,6 +243,21 @@ final class MockAudioService: AudioServiceProtocol {
     func stopGongPreview() {
         self.stopGongPreviewCalled = true
         self.audioCallOrder.append("stopGongPreview")
+    }
+
+    func playBackgroundPreview(soundId: String, volume: Float) throws {
+        self.playBackgroundPreviewCalled = true
+        self.lastBackgroundPreviewSoundId = soundId
+        self.lastBackgroundPreviewVolume = volume
+        self.audioCallOrder.append("playBackgroundPreview")
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopBackgroundPreview() {
+        self.stopBackgroundPreviewCalled = true
+        self.audioCallOrder.append("stopBackgroundPreview")
     }
 
     func stop() {

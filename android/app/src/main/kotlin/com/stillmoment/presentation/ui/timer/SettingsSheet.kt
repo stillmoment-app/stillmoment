@@ -62,7 +62,8 @@ fun SettingsSheet(
     onSettingsChange: (MeditationSettings) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    onGongSoundPreview: (String) -> Unit = {}
+    onGongSoundPreview: (String) -> Unit = {},
+    onBackgroundSoundPreview: (String) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -89,7 +90,8 @@ fun SettingsSheet(
             Spacer(modifier = Modifier.height(sectionSpacing))
             BackgroundSoundSection(
                 settings = settings,
-                onSettingsChange = onSettingsChange
+                onSettingsChange = onSettingsChange,
+                onBackgroundSoundPreview = onBackgroundSoundPreview
             )
             Spacer(modifier = Modifier.height(sectionSpacing))
             GongSection(
@@ -259,7 +261,11 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BackgroundSoundSection(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+private fun BackgroundSoundSection(
+    settings: MeditationSettings,
+    onSettingsChange: (MeditationSettings) -> Unit,
+    onBackgroundSoundPreview: (String) -> Unit
+) {
     var backgroundSoundExpanded by remember { mutableStateOf(false) }
 
     Column {
@@ -270,7 +276,8 @@ private fun BackgroundSoundSection(settings: MeditationSettings, onSettingsChang
                 expanded = backgroundSoundExpanded,
                 onExpandedChange = { backgroundSoundExpanded = it },
                 settings = settings,
-                onSettingsChange = onSettingsChange
+                onSettingsChange = onSettingsChange,
+                onBackgroundSoundPreview = onBackgroundSoundPreview
             )
         }
     }
@@ -282,7 +289,8 @@ private fun BackgroundSoundDropdown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     settings: MeditationSettings,
-    onSettingsChange: (MeditationSettings) -> Unit
+    onSettingsChange: (MeditationSettings) -> Unit,
+    onBackgroundSoundPreview: (String) -> Unit
 ) {
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -318,6 +326,7 @@ private fun BackgroundSoundDropdown(
                 description = stringResource(R.string.sound_silent_description),
                 onClick = {
                     onSettingsChange(settings.copy(backgroundSoundId = "silent"))
+                    onBackgroundSoundPreview("silent")
                     onExpandedChange(false)
                 }
             )
@@ -326,6 +335,7 @@ private fun BackgroundSoundDropdown(
                 description = stringResource(R.string.sound_forest_description),
                 onClick = {
                     onSettingsChange(settings.copy(backgroundSoundId = "forest"))
+                    onBackgroundSoundPreview("forest")
                     onExpandedChange(false)
                 }
             )

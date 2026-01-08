@@ -31,6 +31,12 @@ final class AudioService: AudioServiceProtocol {
     /// Duration for fade in effect (3 seconds for smooth meditation experience)
     private static let fadeInDuration: TimeInterval = 3.0
 
+    /// Duration for background preview before fade-out starts
+    private static let backgroundPreviewDuration: TimeInterval = 3.0
+
+    /// Duration for fade-out effect
+    private static let fadeOutDuration: TimeInterval = 0.5
+
     convenience init() {
         self.init(coordinator: AudioSessionCoordinator.shared)
     }
@@ -39,6 +45,10 @@ final class AudioService: AudioServiceProtocol {
 
     deinit {
         self.cancellables.removeAll()
+        self.backgroundPreviewTimer?.invalidate()
+        self.backgroundPreviewTimer = nil
+        self.backgroundPreviewPlayer?.stop()
+        self.backgroundPreviewPlayer = nil
         self.stopBackgroundAudio()
         stop()
     }
@@ -66,7 +76,11 @@ final class AudioService: AudioServiceProtocol {
 
     func playGongPreview(soundId: String) throws {
         Logger.audio.info("Playing gong preview", metadata: ["soundId": soundId])
-        self.stopGongPreview() // Stop any previous preview
+
+        // Stop any previous previews (mutual exclusion: gong and background)
+        self.stopGongPreview()
+        self.stopBackgroundPreview()
+
         try self.configureAudioSession() // Ensure session is active
         try self.playGongSound(soundId: soundId, isPreview: true)
     }
@@ -78,6 +92,77 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping gong preview")
         self.previewPlayer?.stop()
         self.previewPlayer = nil
+    }
+
+    func playBackgroundPreview(soundId: String, volume: Float) throws {
+        Logger.audio.info("Playing background preview", metadata: ["soundId": soundId, "volume": "\(volume)"])
+
+        // Stop any previous previews (mutual exclusion: gong and background)
+        self.stopBackgroundPreview()
+        self.stopGongPreview()
+
+        // Don't play preview for silent sound - just stop any running previews
+        if soundId == "silent" {
+            Logger.audio.debug("Skipping preview for silent sound")
+            return
+        }
+
+        try self.configureAudioSession()
+
+        // Get sound from repository
+        guard let sound = self.soundRepository.getSound(byId: soundId) else {
+            Logger.audio.error("Background sound not found for preview", metadata: ["soundId": soundId])
+            throw AudioServiceError.soundFileNotFound
+        }
+
+        // Get file URL from bundle
+        let (name, ext) = self.parseFilename(sound.filename)
+        guard let soundURL = Bundle.main.url(
+            forResource: name,
+            withExtension: ext,
+            subdirectory: "BackgroundAudio"
+        ) else {
+            Logger.audio.error("Background audio file not found for preview", metadata: ["filename": sound.filename])
+            throw AudioServiceError.soundFileNotFound
+        }
+
+        do {
+            self.backgroundPreviewPlayer = try AVAudioPlayer(contentsOf: soundURL)
+            self.backgroundPreviewPlayer?.volume = volume
+            self.backgroundPreviewPlayer?.prepareToPlay()
+            self.backgroundPreviewPlayer?.play()
+
+            // Schedule fade-out after preview duration
+            // Note: Timer must be created on main thread for RunLoop.main
+            self.backgroundPreviewTimer = Timer.scheduledTimer(
+                withTimeInterval: Self.backgroundPreviewDuration,
+                repeats: false
+            ) { [weak self] _ in
+                self?.fadeOutBackgroundPreview()
+            }
+
+            Logger.audio.info(
+                "Background preview started",
+                metadata: ["sound": sound.name.localized, "volume": "\(volume)"]
+            )
+        } catch {
+            Logger.audio.error("Failed to play background preview", error: error)
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopBackgroundPreview() {
+        // Cancel fade-out timer
+        self.backgroundPreviewTimer?.invalidate()
+        self.backgroundPreviewTimer = nil
+
+        guard self.backgroundPreviewPlayer != nil else {
+            return
+        }
+
+        Logger.audio.debug("Stopping background preview")
+        self.backgroundPreviewPlayer?.stop()
+        self.backgroundPreviewPlayer = nil
     }
 
     func startBackgroundAudio(soundId: String) throws {
@@ -92,10 +177,7 @@ final class AudioService: AudioServiceProtocol {
         }
 
         // Get file URL from bundle
-        let filenameComponents = sound.filename.components(separatedBy: ".")
-        let name = filenameComponents.first ?? sound.filename
-        let ext = filenameComponents.count > 1 ? filenameComponents.last : nil
-
+        let (name, ext) = self.parseFilename(sound.filename)
         guard let soundURL = Bundle.main.url(
             forResource: name,
             withExtension: ext,
@@ -190,12 +272,24 @@ final class AudioService: AudioServiceProtocol {
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
+    private var backgroundPreviewPlayer: AVAudioPlayer?
+    private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
 
     /// Target volume for background audio (stored for fade resume)
     private var targetVolume: Float = 0.15
 
     // MARK: - Private Methods
+
+    /// Parses a filename into name and extension components
+    /// - Parameter filename: The full filename (e.g., "forest_ambience.mp3")
+    /// - Returns: Tuple of (name, extension) where extension may be nil
+    private func parseFilename(_ filename: String) -> (name: String, ext: String?) {
+        let components = filename.components(separatedBy: ".")
+        let name = components.first ?? filename
+        let ext = components.count > 1 ? components.last : nil
+        return (name, ext)
+    }
 
     private func setupAudioInterruptionHandling() {
         // Handle audio session interruptions (e.g., phone call) using Combine
@@ -246,10 +340,7 @@ final class AudioService: AudioServiceProtocol {
         let gongSound = GongSound.findOrDefault(byId: soundId)
 
         // Parse filename to get name and extension
-        let filenameComponents = gongSound.filename.components(separatedBy: ".")
-        let name = filenameComponents.first ?? gongSound.filename
-        let ext = filenameComponents.count > 1 ? filenameComponents.last : "mp3"
-
+        let (name, ext) = self.parseFilename(gongSound.filename)
         guard let soundURL = Bundle.main.url(
             forResource: name,
             withExtension: ext,
@@ -299,6 +390,25 @@ final class AudioService: AudioServiceProtocol {
         } catch {
             Logger.audio.error("Failed to play interval sound", error: error)
             throw AudioServiceError.playbackFailed
+        }
+    }
+
+    /// Fades out and stops the background preview player
+    private func fadeOutBackgroundPreview() {
+        guard let player = self.backgroundPreviewPlayer else {
+            return
+        }
+
+        Logger.audio.debug("Fading out background preview")
+
+        // Use AVAudioPlayer's built-in fade
+        player.setVolume(0, fadeDuration: Self.fadeOutDuration)
+
+        // Stop and clean up after fade completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.fadeOutDuration) { [weak self] in
+            self?.backgroundPreviewPlayer?.stop()
+            self?.backgroundPreviewPlayer = nil
+            Logger.audio.debug("Background preview fade-out complete")
         }
     }
 

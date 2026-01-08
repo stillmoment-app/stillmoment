@@ -43,6 +43,15 @@ protocol AudioServiceProtocol {
     /// Stops any currently playing gong preview
     func stopGongPreview()
 
+    /// Plays a preview of a background sound (3 seconds with fade-out)
+    /// - Parameters:
+    ///   - soundId: ID of the background sound to preview (references BackgroundSound.id)
+    ///   - volume: Playback volume (0.0 to 1.0)
+    func playBackgroundPreview(soundId: String, volume: Float) throws
+
+    /// Stops any currently playing background preview
+    func stopBackgroundPreview()
+
     /// Stops any currently playing sound
     func stop()
 }

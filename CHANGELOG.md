@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Lock Screen Artwork** - App-Icon wird im Lock Screen Player und Control Center angezeigt während Guided Meditations
+  - `LockScreenArtwork` Image Asset für programmatischen Zugriff
+  - `MPMediaItemPropertyArtwork` in `setupNowPlayingInfo` gesetzt
+
+- **Background-Sound Preview in Settings** - Bei Auswahl eines Background-Sounds im Picker wird ein 3-Sekunden-Preview mit sanftem Fade-Out abgespielt
+  - `playBackgroundPreview(soundId:volume:)` und `stopBackgroundPreview()` in `AudioServiceProtocol`
+  - Gegenseitiges Stoppen von Gong- und Background-Preview (nur ein Preview gleichzeitig)
+  - Preview stoppt automatisch beim Schliessen der Settings
+  - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
+
+### Added (Android)
+- **Lock Screen Artwork** - App-Icon wird in Media Notifications und Lock Screen Player angezeigt während Guided Meditations
+  - `METADATA_KEY_ART` in `MediaSessionManager.updateMetadata` gesetzt
+
+- **Background-Sound Preview in Settings** - Bei Auswahl eines Background-Sounds im Picker wird ein 3-Sekunden-Preview mit sanftem Fade-Out abgespielt
+  - `playBackgroundPreview(soundId, volume)` und `stopBackgroundPreview()` in `AudioService`
+  - Gegenseitiges Stoppen von Gong- und Background-Preview (nur ein Preview gleichzeitig)
+  - Preview stoppt automatisch beim Schliessen der Settings
+  - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
+  - Unit Tests fuer alle Preview-Szenarien
+
 ### Fixed (iOS)
 - **Intervall-Gong spielt jetzt mehrfach** - Bug behoben bei dem nur der erste Intervall-Gong spielte
   - `TimerServiceProtocol.markIntervalGongPlayed()` hinzugefügt

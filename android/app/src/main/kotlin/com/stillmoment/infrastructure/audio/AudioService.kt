@@ -10,6 +10,13 @@ import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Audio Service for playing gong sounds and managing background audio.
@@ -44,6 +51,9 @@ constructor(
     private var gongPlayer: MediaPlayerProtocol? = null
     private var backgroundPlayer: MediaPlayerProtocol? = null
     private var previewPlayer: MediaPlayerProtocol? = null
+    private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
+    private var backgroundPreviewJob: Job? = null
+    private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
     companion object {
@@ -52,8 +62,28 @@ constructor(
         /** Duration for fade in effect (3 seconds for smooth meditation experience) */
         private const val FADE_IN_DURATION_MS = 3000L
 
+        /** Duration for background preview before fade-out starts */
+        private const val BACKGROUND_PREVIEW_DURATION_MS = 3000L
+
+        /** Duration for fade-out effect */
+        private const val FADE_OUT_DURATION_MS = 500L
+
+        /** Number of steps for fade-out animation */
+        private const val FADE_OUT_STEPS = 10
+
         /** Default volume for ambient/background sounds (0.0 to 1.0) */
         private const val DEFAULT_AMBIENT_VOLUME = 0.15f
+
+        /**
+         * Maps a background sound ID to its resource ID.
+         * @param soundId The sound identifier ("silent" or "forest")
+         * @return Resource ID or null for silent/unknown sounds
+         */
+        fun getBackgroundSoundResourceId(soundId: String): Int? = when (soundId) {
+            "forest" -> R.raw.forest_ambience
+            "silent" -> null
+            else -> null
+        }
     }
 
     // MARK: - Gong Playback
@@ -107,7 +137,10 @@ constructor(
      */
     fun playGongPreview(soundId: String) {
         try {
+            // Stop any previous previews (mutual exclusion: gong and background)
             stopGongPreview()
+            stopBackgroundPreview()
+
             val gongSound = GongSound.findOrDefault(soundId)
             previewPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
                 setOnCompletionListener {
@@ -139,6 +172,105 @@ constructor(
         }
     }
 
+    // MARK: - Background Preview
+
+    /**
+     * Play a background sound preview. Plays for 3 seconds with fade-out.
+     * Automatically stops any previous preview (gong or background).
+     *
+     * @param soundId ID of the background sound to preview ("silent" or "forest")
+     * @param volume Playback volume (0.0 to 1.0)
+     */
+    fun playBackgroundPreview(soundId: String, volume: Float) {
+        // Stop any previous previews (mutual exclusion: gong and background)
+        stopBackgroundPreview()
+        stopGongPreview()
+
+        // Get resource ID - returns null for silent/unknown sounds
+        val resourceId = getBackgroundSoundResourceId(soundId)
+        if (resourceId == null) {
+            logger.d(TAG, "Skipping preview for sound: $soundId")
+            return
+        }
+
+        try {
+            backgroundPreviewPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+                setVolume(volume, volume)
+                setOnCompletionListener {
+                    release()
+                    backgroundPreviewPlayer = null
+                }
+                start()
+            }
+
+            // Schedule fade-out after preview duration
+            backgroundPreviewJob?.cancel()
+            backgroundPreviewJob = mainScope.launch {
+                delay(BACKGROUND_PREVIEW_DURATION_MS)
+                fadeOutBackgroundPreview(volume)
+            }
+
+            logger.d(TAG, "Playing background preview: $soundId at volume $volume")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play background preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
+     */
+    fun stopBackgroundPreview() {
+        // Cancel fade-out job
+        backgroundPreviewJob?.cancel()
+        backgroundPreviewJob = null
+
+        try {
+            backgroundPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            backgroundPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop background preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Fades out and stops the background preview player.
+     * Must be called from a coroutine context.
+     */
+    private suspend fun fadeOutBackgroundPreview(startVolume: Float) {
+        val player = backgroundPreviewPlayer ?: return
+
+        val stepDuration = FADE_OUT_DURATION_MS / FADE_OUT_STEPS
+        for (step in FADE_OUT_STEPS downTo 0) {
+            val volume = startVolume * step / FADE_OUT_STEPS
+            try {
+                player.setVolume(volume, volume)
+            } catch (e: IllegalStateException) {
+                logger.d(TAG, "Fade interrupted - player released: ${e.message}")
+                break
+            }
+            delay(stepDuration)
+        }
+
+        // Stop and clean up after fade completes
+        try {
+            backgroundPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            backgroundPreviewPlayer = null
+            logger.d(TAG, "Background preview fade-out complete")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop background preview after fade - invalid state: ${e.message}")
+        }
+    }
+
     // MARK: - Background Audio
 
     /**
@@ -157,11 +289,8 @@ constructor(
 
             stopBackgroundAudioInternal()
 
-            val resourceId =
-                when (soundId) {
-                    "forest" -> R.raw.forest_ambience
-                    else -> R.raw.silence // Default to silence
-                }
+            // Get resource ID - fallback to silence for unknown sounds
+            val resourceId = getBackgroundSoundResourceId(soundId) ?: R.raw.silence
 
             targetVolume = DEFAULT_AMBIENT_VOLUME
 
@@ -274,7 +403,9 @@ constructor(
     fun release() {
         releaseGongPlayer()
         stopGongPreview()
+        stopBackgroundPreview()
         stopBackgroundAudio()
+        mainScope.cancel()
     }
 
     private fun releaseGongPlayer() {

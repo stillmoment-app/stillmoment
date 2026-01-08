@@ -109,6 +109,9 @@ struct SettingsView: View {
                             }
                         }
                         .pickerStyle(.menu)
+                        .onChange(of: self.settings.backgroundSoundId) { newValue in
+                            self.playBackgroundPreview(soundId: newValue)
+                        }
                         .accessibilityIdentifier("settings.picker.backgroundSound")
                         .accessibilityLabel(
                             NSLocalizedString("settings.backgroundAudio.title", comment: "")
@@ -201,6 +204,11 @@ struct SettingsView: View {
                 }
             }
         }
+        .onDisappear {
+            // Stop all previews when sheet is dismissed (swipe or Done button)
+            self.audioServiceHolder.service.stopGongPreview()
+            self.audioServiceHolder.service.stopBackgroundPreview()
+        }
     }
 
     // MARK: Private
@@ -217,9 +225,16 @@ struct SettingsView: View {
         try? self.audioServiceHolder.service.playGongPreview(soundId: soundId)
     }
 
-    /// Stops gong preview and triggers dismiss
+    /// Plays background sound preview (service handles "silent" internally)
+    private func playBackgroundPreview(soundId: String) {
+        let volume = self.soundRepository.getSound(byId: soundId)?.volume ?? 0.5
+        try? self.audioServiceHolder.service.playBackgroundPreview(soundId: soundId, volume: volume)
+    }
+
+    /// Stops all previews and triggers dismiss
     private func dismissWithCleanup() {
         self.audioServiceHolder.service.stopGongPreview()
+        self.audioServiceHolder.service.stopBackgroundPreview()
         self.onDismiss()
     }
 }

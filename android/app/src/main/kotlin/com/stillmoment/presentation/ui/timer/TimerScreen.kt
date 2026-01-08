@@ -71,6 +71,7 @@ fun TimerScreen(
         onSettingsDismiss = viewModel::hideSettings,
         onSettingsChange = viewModel::updateSettings,
         onGongSoundPreview = viewModel::playGongPreview,
+        onBackgroundSoundPreview = viewModel::playBackgroundPreview,
         modifier = modifier
     )
 }
@@ -85,7 +86,8 @@ internal fun TimerScreenContent(
     onSettingsDismiss: () -> Unit,
     onSettingsChange: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
     modifier: Modifier = Modifier,
-    onGongSoundPreview: (String) -> Unit = {}
+    onGongSoundPreview: (String) -> Unit = {},
+    onBackgroundSoundPreview: (String) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -113,7 +115,8 @@ internal fun TimerScreenContent(
                         settings = uiState.settings,
                         onSettingsChange = onSettingsChange,
                         onDismiss = onSettingsDismiss,
-                        onGongSoundPreview = onGongSoundPreview
+                        onGongSoundPreview = onGongSoundPreview,
+                        onBackgroundSoundPreview = onBackgroundSoundPreview
                     )
                 }
             }

@@ -462,6 +462,123 @@ final class AudioServiceTests: XCTestCase {
         // Then - Both should play (different players)
         self.sut.stop()
     }
+
+    // MARK: - Background Preview Tests
+
+    func testPlayBackgroundPreview_Succeeds() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5))
+
+        // Then - Should play without error
+        self.sut.stopBackgroundPreview()
+        self.sut.stop()
+    }
+
+    func testStopBackgroundPreview_WhenNotPlaying_DoesNotCrash() {
+        // Given - No preview playing
+
+        // When
+        self.sut.stopBackgroundPreview()
+
+        // Then - Should be safe (idempotent)
+        self.sut.stopBackgroundPreview() // Second call should also be safe
+    }
+
+    func testPlayBackgroundPreview_StopsPreviousPreview() throws {
+        // Given - Start first preview
+        try self.sut.configureAudioSession()
+        try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
+
+        // When - Start second preview
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "silent", volume: 0.3))
+
+        // Then - Should replace previous (no crash, no overlap)
+        self.sut.stopBackgroundPreview()
+        self.sut.stop()
+    }
+
+    func testPlayBackgroundPreview_StopsGongPreview() throws {
+        // Given - Start gong preview
+        try self.sut.configureAudioSession()
+        try self.sut.playGongPreview(soundId: "deep-zen")
+
+        // When - Start background preview
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5))
+
+        // Then - Gong preview should be stopped (mutual exclusion)
+        // Clean up
+        self.sut.stopBackgroundPreview()
+        self.sut.stop()
+    }
+
+    func testPlayGongPreview_StopsBackgroundPreview() throws {
+        // Given - Start background preview
+        try self.sut.configureAudioSession()
+        try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
+
+        // When - Start gong preview
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+
+        // Then - Background preview should be stopped (mutual exclusion)
+        // Clean up
+        self.sut.stopGongPreview()
+        self.sut.stop()
+    }
+
+    func testPlayBackgroundPreview_WithInvalidSoundId_ThrowsError() {
+        // Given
+        let invalidSoundId = "nonexistent"
+
+        // When / Then
+        XCTAssertThrowsError(try self.sut.playBackgroundPreview(soundId: invalidSoundId, volume: 0.5)) { error in
+            // Verify the correct error type is thrown
+            guard let audioError = error as? AudioServiceError else {
+                XCTFail("Expected AudioServiceError but got \(type(of: error))")
+                return
+            }
+
+            if case .soundFileNotFound = audioError {
+                // Success - correct error type
+            } else {
+                XCTFail("Expected soundFileNotFound error but got \(audioError)")
+            }
+        }
+    }
+
+    func testPlayBackgroundPreview_WithSilentSoundId_StopsPreviewsWithoutPlaying() throws {
+        // Given - Start a gong preview first
+        try self.sut.configureAudioSession()
+        try self.sut.playGongPreview(soundId: "deep-zen")
+
+        // When - Select "silent" background sound
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "silent", volume: 0.3))
+
+        // Then - Should not throw, and should have stopped any running previews
+        // (calling stop again should be safe)
+        self.sut.stopGongPreview()
+        self.sut.stopBackgroundPreview()
+        self.sut.stop()
+    }
+
+    func testBackgroundPreviewFadeOut_AfterDuration_StopsAutomatically() async throws {
+        // Given
+        try self.sut.configureAudioSession()
+        try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
+
+        // When - Wait for preview duration + fade out (3s + 0.5s + buffer)
+        let expectation = expectation(description: "Wait for fade out")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            expectation.fulfill()
+        }
+        await fulfillment(of: [expectation], timeout: 5.0)
+
+        // Then - Should have stopped automatically (no crash when calling stop again)
+        self.sut.stopBackgroundPreview()
+        self.sut.stop()
+    }
 }
 
 // MARK: - Integration Tests

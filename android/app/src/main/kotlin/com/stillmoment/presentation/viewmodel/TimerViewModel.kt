@@ -65,6 +65,7 @@ data class TimerUiState(
  * Uses Unidirectional Data Flow (UDF) with TimerReducer for pure state transitions
  * and effect handling for side effects (audio, persistence, foreground service).
  */
+@Suppress("TooManyFunctions") // ViewModel naturally has many user-facing action methods
 @HiltViewModel
 class TimerViewModel
 @Inject
@@ -206,6 +207,7 @@ constructor(
 
     fun hideSettings() {
         stopGongPreview()
+        stopBackgroundPreview()
         _uiState.update { it.copy(showSettings = false) }
     }
 
@@ -221,6 +223,21 @@ constructor(
      */
     fun stopGongPreview() {
         audioService.stopGongPreview()
+    }
+
+    /**
+     * Play a background sound preview. Automatically stops any previous preview (gong or background).
+     * Plays for 3 seconds with fade-out.
+     */
+    fun playBackgroundPreview(soundId: String) {
+        audioService.playBackgroundPreview(soundId, DEFAULT_PREVIEW_VOLUME)
+    }
+
+    /**
+     * Stop the current background preview.
+     */
+    fun stopBackgroundPreview() {
+        audioService.stopBackgroundPreview()
     }
 
     fun updateSettings(settings: MeditationSettings) {
@@ -362,6 +379,9 @@ constructor(
 
         /** Delay before stopping foreground service to allow completion sound to play */
         private const val COMPLETION_SOUND_DELAY_MS = 3000L
+
+        /** Default volume for background sound preview (0.0 to 1.0) */
+        private const val DEFAULT_PREVIEW_VOLUME = 0.15f
 
         /** Affirmation resource IDs for preparation phase */
         private val PREPARATION_AFFIRMATIONS = intArrayOf(
