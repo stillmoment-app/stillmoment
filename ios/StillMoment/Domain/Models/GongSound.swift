@@ -57,6 +57,11 @@ extension GongSound {
     /// All available gong sounds
     static let allSounds: [GongSound] = [
         GongSound(
+            id: "temple-bell",
+            filename: "tibetan-singing-bowl-55786-10s.mp3",
+            name: LocalizedString(en: "Temple Bell", de: "Tempelglocke")
+        ),
+        GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
             name: LocalizedString(en: "Classic Bowl", de: "Klassisch")
@@ -70,11 +75,6 @@ extension GongSound {
             id: "clear-strike",
             filename: "singing-bowl-strike-sound-84682-10s.mp3",
             name: LocalizedString(en: "Clear Strike", de: "Klarer Anschlag")
-        ),
-        GongSound(
-            id: "temple-bell",
-            filename: "tibetan-singing-bowl-55786-10s.mp3",
-            name: LocalizedString(en: "Temple Bell", de: "Tempelglocke")
         )
     ]
 

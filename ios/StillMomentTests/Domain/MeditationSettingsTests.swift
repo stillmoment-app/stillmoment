@@ -84,13 +84,13 @@ final class MeditationSettingsTests: XCTestCase {
     func testInit_defaultGongSoundId() {
         let settings = MeditationSettings()
 
-        XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
+        XCTAssertEqual(settings.startGongSoundId, "temple-bell")
     }
 
     func testInit_customGongSoundId() {
-        let settings = MeditationSettings(startGongSoundId: "deep-zen")
+        let settings = MeditationSettings(startGongSoundId: "classic-bowl")
 
-        XCTAssertEqual(settings.startGongSoundId, "deep-zen")
+        XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
     }
 
     func testKeys_containsGongSoundKey() {
@@ -99,7 +99,7 @@ final class MeditationSettingsTests: XCTestCase {
 
     func testEquatable_differentGongSoundIds_areNotEqual() {
         let settings1 = MeditationSettings(startGongSoundId: "classic-bowl")
-        let settings2 = MeditationSettings(startGongSoundId: "deep-zen")
+        let settings2 = MeditationSettings(startGongSoundId: "clear-strike")
 
         XCTAssertNotEqual(settings1, settings2)
     }

@@ -39,6 +39,12 @@ data class GongSound(
         /** All available gong sounds */
         val allSounds: List<GongSound> = listOf(
             GongSound(
+                id = "temple-bell",
+                nameEnglish = "Temple Bell",
+                nameGerman = "Tempelglocke",
+                rawResId = R.raw.gong_temple_bell
+            ),
+            GongSound(
                 id = "classic-bowl",
                 nameEnglish = "Classic Bowl",
                 nameGerman = "Klassisch",
@@ -55,12 +61,6 @@ data class GongSound(
                 nameEnglish = "Clear Strike",
                 nameGerman = "Klarer Anschlag",
                 rawResId = R.raw.gong_clear_strike
-            ),
-            GongSound(
-                id = "temple-bell",
-                nameEnglish = "Temple Bell",
-                nameGerman = "Tempelglocke",
-                rawResId = R.raw.gong_temple_bell
             )
         )
 
