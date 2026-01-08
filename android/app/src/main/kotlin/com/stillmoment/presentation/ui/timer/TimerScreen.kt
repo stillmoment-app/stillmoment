@@ -84,8 +84,8 @@ internal fun TimerScreenContent(
     onSettingsClick: () -> Unit,
     onSettingsDismiss: () -> Unit,
     onSettingsChange: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
-    onGongSoundPreview: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onGongSoundPreview: (String) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
