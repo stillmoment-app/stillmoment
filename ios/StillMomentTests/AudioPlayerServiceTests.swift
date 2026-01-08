@@ -636,6 +636,26 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     @MainActor
+    func testPlaybackFinishedClearsNowPlayingInfo() async throws {
+        // Skip: Test cannot simulate playback finished - notification observer requires specific playerItem
+        // The AudioPlayerService subscribes to AVPlayerItemDidPlayToEndTime with the specific playerItem object,
+        // but we cannot access the private player/playerItem to post the correct notification.
+        throw XCTSkip("Cannot simulate playback finished without access to private playerItem")
+    }
+
+    @MainActor
+    func testPlaybackFinishedDisablesRemoteCommandCenter() async throws {
+        // Skip: Test cannot simulate playback finished - notification observer requires specific playerItem
+        throw XCTSkip("Cannot simulate playback finished without access to private playerItem")
+    }
+
+    @MainActor
+    func testPlaybackFinishedReleasesAudioSession() async throws {
+        // Skip: Test cannot simulate playback finished - notification observer requires specific playerItem
+        throw XCTSkip("Cannot simulate playback finished without access to private playerItem")
+    }
+
+    @MainActor
     func testCleanupResetsRemoteCommandsConfiguredFlag() async {
         // Given - Load and play
         guard let url = self.createTestAudioURL() else {
@@ -681,7 +701,11 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     private func createTestAudioURL() -> URL? {
-        // Use the completion.mp3 file that exists in the bundle for testing
-        Bundle.main.url(forResource: "completion", withExtension: "mp3")
+        // Use silence.m4a from BackgroundAudio - it's short and ideal for testing
+        Bundle.main.url(
+            forResource: "silence",
+            withExtension: "m4a",
+            subdirectory: "BackgroundAudio"
+        )
     }
 }

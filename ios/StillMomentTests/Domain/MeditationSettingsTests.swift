@@ -72,4 +72,47 @@ final class MeditationSettingsTests: XCTestCase {
         let expected = [5, 10, 15, 20, 30, 45]
         XCTAssertEqual(MeditationSettings.validPreparationTimes, expected)
     }
+
+    // MARK: - Gong Sound Settings
+
+    func testDefault_hasCorrectGongSoundSettings() {
+        let settings = MeditationSettings.default
+
+        XCTAssertEqual(settings.startGongSoundId, GongSound.defaultSoundId)
+    }
+
+    func testInit_defaultGongSoundId() {
+        let settings = MeditationSettings()
+
+        XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
+    }
+
+    func testInit_customGongSoundId() {
+        let settings = MeditationSettings(startGongSoundId: "deep-zen")
+
+        XCTAssertEqual(settings.startGongSoundId, "deep-zen")
+    }
+
+    func testKeys_containsGongSoundKey() {
+        XCTAssertEqual(MeditationSettings.Keys.startGongSoundId, "startGongSoundId")
+    }
+
+    func testEquatable_differentGongSoundIds_areNotEqual() {
+        let settings1 = MeditationSettings(startGongSoundId: "classic-bowl")
+        let settings2 = MeditationSettings(startGongSoundId: "deep-zen")
+
+        XCTAssertNotEqual(settings1, settings2)
+    }
+
+    func testCodable_encodesAndDecodesGongSoundId() throws {
+        let original = MeditationSettings(startGongSoundId: "clear-strike")
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertEqual(decoded.startGongSoundId, "clear-strike")
+    }
 }

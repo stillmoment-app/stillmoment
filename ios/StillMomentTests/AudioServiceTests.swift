@@ -47,7 +47,7 @@ final class AudioServiceTests: XCTestCase {
         try? self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
 
         // Note: Actual playback testing requires more complex mocking
         // This test verifies that the method doesn't throw an error
@@ -56,13 +56,13 @@ final class AudioServiceTests: XCTestCase {
     func testPlayCompletionSoundWithoutConfiguration() {
         // When - Try to play without configuring
         // This should still work as AVAudioPlayer can work without explicit session config
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
     }
 
     func testStopAudio() {
         // Given - Configure and play
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound()
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
 
         // When
         self.sut.stop()
@@ -72,11 +72,12 @@ final class AudioServiceTests: XCTestCase {
     }
 
     func testLoadCustomSound() {
-        // When - Load existing sound file
-        let url = self.sut.loadCustomSound(filename: "completion.mp3")
+        // When - Load existing gong sound file
+        let gongSound = GongSound.defaultSound
+        let url = self.sut.loadCustomSound(filename: gongSound.filename)
 
         // Then
-        XCTAssertNotNil(url, "completion.mp3 should exist in bundle")
+        XCTAssertNotNil(url, "\(gongSound.filename) should exist in bundle")
         if let url {
             XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
         }
@@ -92,7 +93,8 @@ final class AudioServiceTests: XCTestCase {
 
     func testLoadCustomSoundWithFullExtension() {
         // When - Load with full filename
-        let url = self.sut.loadCustomSound(filename: "completion.mp3")
+        let gongSound = GongSound.defaultSound
+        let url = self.sut.loadCustomSound(filename: gongSound.filename)
 
         // Then
         XCTAssertNotNil(url)
@@ -106,9 +108,9 @@ final class AudioServiceTests: XCTestCase {
         try? self.sut.configureAudioSession()
 
         // When - Play multiple times rapidly
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
 
         // Then - Should not crash (each call replaces the previous player)
     }
@@ -116,7 +118,7 @@ final class AudioServiceTests: XCTestCase {
     func testDeinitStopsPlayback() {
         // Given
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound()
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
 
         // When - Deallocate service
         self.sut = nil
@@ -142,10 +144,20 @@ final class AudioServiceTests: XCTestCase {
         // When - Try to play with missing file (this would fail if Bundle.main.url returns nil)
         // The actual implementation throws AudioServiceError.soundFileNotFound
 
-        // Note: In the real implementation, if completion.mp3 is missing, it will throw
-        // For this test, we verify the file exists
-        let url = Bundle.main.url(forResource: "completion", withExtension: "mp3")
-        XCTAssertNotNil(url, "completion.mp3 must be included in test bundle")
+        // Note: In the real implementation, if gong sound file is missing, it will throw
+        // For this test, we verify all gong sound files exist
+        for gongSound in GongSound.allSounds {
+            let components = gongSound.filename.components(separatedBy: ".")
+            let name = components.first ?? gongSound.filename
+            let ext = components.count > 1 ? components.last : "mp3"
+
+            let url = Bundle.main.url(
+                forResource: name,
+                withExtension: ext,
+                subdirectory: "GongSounds"
+            )
+            XCTAssertNotNil(url, "\(gongSound.filename) must be included in test bundle")
+        }
     }
 
     func testStartBackgroundAudio_WithInvalidSoundId_ThrowsError() {
@@ -230,7 +242,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playStartGong())
+        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId))
 
         // Then - Should play without error
         // Clean up
@@ -239,7 +251,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testPlayStartGong_WithoutConfiguration_Succeeds() {
         // When - Play without explicit configuration
-        XCTAssertNoThrow(try self.sut.playStartGong())
+        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId))
 
         // Then - Should configure automatically and play
         self.sut.stop()
@@ -261,6 +273,57 @@ final class AudioServiceTests: XCTestCase {
         XCTAssertNoThrow(try self.sut.playIntervalGong())
 
         // Then - Should configure automatically and play
+        self.sut.stop()
+    }
+
+    func testPlayGongPreview_Succeeds() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+
+        // Then - Should play without error
+        self.sut.stopGongPreview()
+        self.sut.stop()
+    }
+
+    func testStopGongPreview_WhenNotPlaying_DoesNotCrash() {
+        // Given - No preview playing
+
+        // When
+        self.sut.stopGongPreview()
+
+        // Then - Should be safe (idempotent)
+        self.sut.stopGongPreview() // Second call should also be safe
+    }
+
+    func testPlayGongPreview_StopsPreviousPreview() throws {
+        // Given - Start first preview
+        try self.sut.configureAudioSession()
+        try self.sut.playGongPreview(soundId: "classic-bowl")
+
+        // When - Start second preview
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+
+        // Then - Should replace previous (no crash, no overlap)
+        self.sut.stopGongPreview()
+        self.sut.stop()
+    }
+
+    func testAllGongSounds_PlaySuccessfully() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        // When - Play all gong sounds
+        for gongSound in GongSound.allSounds {
+            XCTAssertNoThrow(
+                try self.sut.playStartGong(soundId: gongSound.id),
+                "Gong sound '\(gongSound.id)' should play successfully"
+            )
+        }
+
+        // Then - Clean up
         self.sut.stop()
     }
 
@@ -297,7 +360,7 @@ final class AudioServiceTests: XCTestCase {
 
         // Then - Should be able to reconfigure and play again
         XCTAssertNoThrow(try self.sut.configureAudioSession())
-        XCTAssertNoThrow(try self.sut.playCompletionSound())
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
 
         // Clean up
         self.sut.stop()
@@ -306,7 +369,7 @@ final class AudioServiceTests: XCTestCase {
     func testStop_WhenCalledMultipleTimes_IsIdempotent() {
         // Given
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound()
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
 
         // When - Call stop multiple times
         self.sut.stop()
@@ -380,9 +443,9 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When - Play multiple gongs rapidly
-        try self.sut.playStartGong()
+        try self.sut.playStartGong(soundId: GongSound.defaultSoundId)
         try self.sut.playIntervalGong()
-        try self.sut.playCompletionSound()
+        try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
 
         // Then - Should complete without error (each replaces previous)
         self.sut.stop()
@@ -410,7 +473,7 @@ extension AudioServiceTests {
 
         // When - Complete flow: configure -> play -> stop
         XCTAssertNoThrow(try service.configureAudioSession())
-        XCTAssertNoThrow(try service.playCompletionSound())
+        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId))
 
         // Wait briefly for playback to start
         let expectation = expectation(description: "Wait for playback")
@@ -424,7 +487,7 @@ extension AudioServiceTests {
 
         // Should be safe to repeat
         XCTAssertNoThrow(try service.configureAudioSession())
-        XCTAssertNoThrow(try service.playCompletionSound())
+        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId))
     }
 
     func testFullMeditationFlow() async throws {
@@ -433,7 +496,7 @@ extension AudioServiceTests {
 
         // When - Simulate full meditation cycle
         try service.configureAudioSession()
-        try service.playStartGong()
+        try service.playStartGong(soundId: GongSound.defaultSoundId)
 
         // Wait briefly
         let startGongExpectation = expectation(description: "Start gong")
@@ -464,7 +527,7 @@ extension AudioServiceTests {
 
         // Stop background audio and play completion
         service.stopBackgroundAudio()
-        try service.playCompletionSound()
+        try service.playCompletionSound(soundId: GongSound.defaultSoundId)
 
         // Wait briefly
         let completionExpectation = expectation(description: "Completion")

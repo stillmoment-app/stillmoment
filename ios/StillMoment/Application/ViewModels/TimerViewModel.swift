@@ -144,13 +144,15 @@ final class TimerViewModel: ObservableObject {
         defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
         defaults.set(self.settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
         defaults.set(self.settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
+        defaults.set(self.settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
             "backgroundSoundId": self.settings.backgroundSoundId,
             "durationMinutes": self.settings.durationMinutes,
             "preparationEnabled": self.settings.preparationTimeEnabled,
-            "preparationSeconds": self.settings.preparationTimeSeconds
+            "preparationSeconds": self.settings.preparationTimeSeconds,
+            "startGongSoundId": self.settings.startGongSoundId
         ])
     }
 
@@ -277,7 +279,7 @@ final class TimerViewModel: ObservableObject {
 
     private func executePlayStartGong() {
         do {
-            try self.audioService.playStartGong()
+            try self.audioService.playStartGong(soundId: self.settings.startGongSoundId)
         } catch {
             Logger.viewModel.error("Failed to play start gong", error: error)
             self.errorMessage = "Failed to play start sound: \(error.localizedDescription)"
@@ -299,7 +301,7 @@ final class TimerViewModel: ObservableObject {
 
     private func executePlayCompletionSound() {
         do {
-            try self.audioService.playCompletionSound()
+            try self.audioService.playCompletionSound(soundId: self.settings.startGongSoundId)
         } catch {
             Logger.viewModel.error("Failed to play completion sound", error: error)
             self.errorMessage = "Failed to play sound: \(error.localizedDescription)"
@@ -393,6 +395,8 @@ final class TimerViewModel: ObservableObject {
             ? defaults.bool(forKey: MeditationSettings.Keys.preparationTimeEnabled) : true
         let preparationTimeSeconds = defaults.object(forKey: MeditationSettings.Keys.preparationTimeSeconds) != nil
             ? defaults.integer(forKey: MeditationSettings.Keys.preparationTimeSeconds) : 15
+        let startGongSoundId = defaults.string(forKey: MeditationSettings.Keys.startGongSoundId)
+            ?? GongSound.defaultSoundId
 
         self.settings = MeditationSettings(
             intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
@@ -401,7 +405,8 @@ final class TimerViewModel: ObservableObject {
             backgroundSoundId: backgroundSoundId,
             durationMinutes: durationMinutes,
             preparationTimeEnabled: preparationTimeEnabled,
-            preparationTimeSeconds: preparationTimeSeconds
+            preparationTimeSeconds: preparationTimeSeconds,
+            startGongSoundId: startGongSoundId
         )
         self.logLoadedSettings()
     }
@@ -431,7 +436,8 @@ final class TimerViewModel: ObservableObject {
             "backgroundSoundId": self.settings.backgroundSoundId,
             "durationMinutes": self.settings.durationMinutes,
             "preparationEnabled": self.settings.preparationTimeEnabled,
-            "preparationSeconds": self.settings.preparationTimeSeconds
+            "preparationSeconds": self.settings.preparationTimeSeconds,
+            "startGongSoundId": self.settings.startGongSoundId
         ])
     }
 }

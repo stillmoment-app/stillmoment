@@ -43,9 +43,18 @@ final class AudioMetadataServiceTests: XCTestCase {
     // MARK: - Existing Audio File Tests
 
     func testExtractMetadata_ValidMP3_ExtractsDuration() async throws {
-        // Given - Use existing completion.mp3 from bundle
-        guard let audioURL = Bundle.main.url(forResource: "completion", withExtension: "mp3") else {
-            XCTFail("completion.mp3 not found in bundle")
+        // Given - Use existing gong sound from bundle
+        let gongSound = GongSound.defaultSound
+        let filenameComponents = gongSound.filename.components(separatedBy: ".")
+        let name = filenameComponents.first ?? gongSound.filename
+        let ext = filenameComponents.count > 1 ? filenameComponents.last : "mp3"
+
+        guard let audioURL = Bundle.main.url(
+            forResource: name,
+            withExtension: ext,
+            subdirectory: "GongSounds"
+        ) else {
+            XCTFail("\(gongSound.filename) not found in bundle")
             return
         }
 
@@ -55,7 +64,7 @@ final class AudioMetadataServiceTests: XCTestCase {
         // Then - Duration should be positive and finite
         XCTAssertGreaterThan(metadata.duration, 0, "Duration should be > 0")
         XCTAssertTrue(metadata.duration.isFinite, "Duration should be finite")
-        XCTAssertLessThan(metadata.duration, 30, "Completion sound should be < 30 seconds")
+        XCTAssertLessThan(metadata.duration, 30, "Gong sound should be < 30 seconds")
     }
 
     func testExtractMetadata_SilenceFile_ExtractsDuration() async throws {

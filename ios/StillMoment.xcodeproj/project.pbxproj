@@ -16,6 +16,8 @@
 		CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
 		E9DB9A418CDE4A04B3E351F0 /* test-evening-wind-down.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */; };
 		F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
+		GONGSOUNDS0123456789ABCD /* GongSounds in Resources */ = {isa = PBXBuildFile; fileRef = GONGSOUNDS0123456789ABCE /* GongSounds */; };
+		GONGSOUNDS0123456789ABCF /* GongSounds in Resources */ = {isa = PBXBuildFile; fileRef = GONGSOUNDS0123456789ABCE /* GongSounds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,7 @@
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-evening-wind-down.mp3"; sourceTree = "<group>"; };
+		GONGSOUNDS0123456789ABCE /* GongSounds */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GongSounds; path = StillMoment/Resources/GongSounds; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -172,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				CA08C6262EC4729200D7C911 /* BackgroundAudio */,
+				GONGSOUNDS0123456789ABCE /* GongSounds */,
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
 				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
@@ -343,6 +347,7 @@
 				E9DB9A418CDE4A04B3E351F0 /* test-evening-wind-down.mp3 in Resources */,
 				5AE90EAB7FE6F73BA138E1AE /* test-loving-kindness.mp3 in Resources */,
 				F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */,
+				GONGSOUNDS0123456789ABCF /* GongSounds in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,6 +356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */,
+				GONGSOUNDS0123456789ABCD /* GongSounds in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

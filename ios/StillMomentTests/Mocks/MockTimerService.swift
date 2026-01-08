@@ -156,7 +156,13 @@ final class MockAudioService: AudioServiceProtocol {
     var playStartGongCalled = false
     var playIntervalGongCalled = false
     var playCompletionSoundCalled = false
+    var playGongPreviewCalled = false
+    var stopGongPreviewCalled = false
     var stopCalled = false
+
+    var lastStartGongSoundId: String?
+    var lastCompletionSoundId: String?
+    var lastPreviewSoundId: String?
 
     var shouldThrowOnConfigure = false
     var shouldThrowOnPlay = false
@@ -195,8 +201,9 @@ final class MockAudioService: AudioServiceProtocol {
         self.audioCallOrder.append("resumeBackgroundAudio")
     }
 
-    func playStartGong() throws {
+    func playStartGong(soundId: String) throws {
         self.playStartGongCalled = true
+        self.lastStartGongSoundId = soundId
         self.audioCallOrder.append("playStartGong")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
@@ -211,12 +218,27 @@ final class MockAudioService: AudioServiceProtocol {
         }
     }
 
-    func playCompletionSound() throws {
+    func playCompletionSound(soundId: String) throws {
         self.playCompletionSoundCalled = true
+        self.lastCompletionSoundId = soundId
         self.audioCallOrder.append("playCompletionSound")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
+    }
+
+    func playGongPreview(soundId: String) throws {
+        self.playGongPreviewCalled = true
+        self.lastPreviewSoundId = soundId
+        self.audioCallOrder.append("playGongPreview")
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopGongPreview() {
+        self.stopGongPreviewCalled = true
+        self.audioCallOrder.append("stopGongPreview")
     }
 
     func stop() {

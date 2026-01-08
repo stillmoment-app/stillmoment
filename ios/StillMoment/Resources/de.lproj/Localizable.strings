@@ -85,6 +85,8 @@
 "settings.preparationTime.30s" = "30 Sekunden";
 "settings.preparationTime.45s" = "45 Sekunden";
 
+"settings.startGong.title" = "Gong-Ton";
+
 // MARK: - Accessibility
 
 "accessibility.settings" = "Einstellungen";
@@ -109,6 +111,8 @@
 "accessibility.backgroundAudioMode.hint" = "Wähle das Audio, das während der Meditation abgespielt wird";
 "accessibility.intervalGongs" = "Intervall-Gongs";
 "accessibility.intervalGongs.hint" = "Aktiviere oder deaktiviere Intervall-Gongs während der Meditation";
+"accessibility.startGongSound" = "Gong-Ton";
+"accessibility.startGongSound.hint" = "Wähle den Gong-Ton für Start und Ende der Meditation";
 "accessibility.intervalDuration" = "Intervalldauer";
 "accessibility.intervalDuration.hint" = "Wähle aus, wie oft der Intervall-Gong gespielt werden soll";
 "accessibility.preparationTime" = "Vorbereitungszeit";

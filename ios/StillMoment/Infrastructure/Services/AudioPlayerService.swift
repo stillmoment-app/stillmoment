@@ -348,7 +348,10 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     private func handlePlaybackFinished() {
         self.state.send(.finished)
         self.currentTime.send(self.duration.value)
-        self.updateNowPlayingPlaybackInfo()
+
+        // Clear lock screen widget when playback finishes naturally
+        self.clearNowPlayingInfo()
+        self.disableRemoteCommandCenter()
 
         // Release audio session when playback finishes
         self.coordinator.releaseAudioSession(for: .guidedMeditation)

@@ -15,6 +15,7 @@ Last Updated: 2026-01-07
 |---------|-----|--------|--------------|
 | `AudioMetadata` | Value Object | Guided Meditations | Metadaten aus Audio-Dateien (ID3 Tags) |
 | `BackgroundSound` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
+| `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer BackgroundSound |
@@ -224,6 +225,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | `durationMinutes` | Int | 10 | Zuletzt gewaehlte Dauer |
 | `preparationTimeEnabled` | Bool | true | Vorbereitungszeit aktiviert? |
 | `preparationTimeSeconds` | Int | 15 | Vorbereitungszeit in Sekunden (5, 10, 15, 20, 30, 45) |
+| `startGongSoundId` | String | "classic-bowl" | Gong-Ton ID (Start/Ende) |
 
 **Validierung:**
 - `validateInterval(_:)` - Clamps zu 3, 5 oder 10
@@ -244,22 +246,41 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 **Beschreibung:**
 Optionales Hintergrundgeraeusch waehrend der Timer-Meditation. Beiwerk zum Timer, kein eigenstaendiges Feature.
 
+---
+
+### GongSound
+
+**Typ:** Value Object
+**Pattern:** Localized Content
+
+**Beschreibung:**
+Konfigurierbarer Gong-Ton fuer den Start/Ende-Gong. Immutables Value Object mit ID, Dateiname und lokalisiertem Namen. Der Intervall-Gong verwendet einen festen Ton (`interval.mp3`).
+
 **Properties:**
 
 | Property | Typ | Beschreibung |
 |----------|-----|--------------|
-| `id` | String | Eindeutige ID |
+| `id` | String | Eindeutige ID (z.B. "classic-bowl") |
 | `filename` | String | Audio-Dateiname |
 | `name` | LocalizedString | Lokalisierter Name (DE/EN) |
-| `description` | LocalizedString | Lokalisierte Beschreibung |
-| `iconName` | String | SF Symbol Name |
-| `volume` | Float | Lautstaerke (0.0-1.0) |
+
+**Verfuegbare Sounds:**
+
+| ID | EN Label | DE Label |
+|----|----------|----------|
+| `classic-bowl` | Classic Bowl | Klassisch |
+| `deep-resonance` | Deep Resonance | Tiefe Resonanz |
+| `clear-strike` | Clear Strike | Klarer Anschlag |
+| `deep-zen` | Deep Zen | Tiefer Zen |
+| `warm-zen` | Warm Zen | Warmer Zen |
+
+**Default:** `classic-bowl`
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Models/BackgroundSound.swift`
-- Android: via `sounds.json`
+- iOS: `ios/StillMoment/Domain/Models/GongSound.swift`
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/GongSound.kt`
 
-**Siehe auch:** `LocalizedString`, `MeditationSettings.backgroundSoundId`
+**Siehe auch:** `MeditationSettings.startGongSoundId`
 
 ---
 

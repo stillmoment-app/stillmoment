@@ -26,13 +26,22 @@ protocol AudioServiceProtocol {
     func resumeBackgroundAudio()
 
     /// Plays the start gong when countdown completes
-    func playStartGong() throws
+    /// - Parameter soundId: ID of the gong sound to play (references GongSound.id)
+    func playStartGong(soundId: String) throws
 
-    /// Plays an interval gong during meditation
+    /// Plays an interval gong during meditation (uses fixed interval.mp3)
     func playIntervalGong() throws
 
     /// Plays the completion sound when timer finishes
-    func playCompletionSound() throws
+    /// - Parameter soundId: ID of the gong sound to play (references GongSound.id)
+    func playCompletionSound(soundId: String) throws
+
+    /// Plays a preview of a gong sound (stops any previous preview)
+    /// - Parameter soundId: ID of the gong sound to preview (references GongSound.id)
+    func playGongPreview(soundId: String) throws
+
+    /// Stops any currently playing gong preview
+    func stopGongPreview()
 
     /// Stops any currently playing sound
     func stop()

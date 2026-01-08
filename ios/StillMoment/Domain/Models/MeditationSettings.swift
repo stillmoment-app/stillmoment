@@ -19,7 +19,8 @@ struct MeditationSettings: Codable, Equatable {
         backgroundSoundId: String = "silent",
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
-        preparationTimeSeconds: Int = 15
+        preparationTimeSeconds: Int = 15,
+        startGongSoundId: String = GongSound.defaultSoundId
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
@@ -27,6 +28,7 @@ struct MeditationSettings: Codable, Equatable {
         self.durationMinutes = Self.validateDuration(durationMinutes)
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
+        self.startGongSoundId = startGongSoundId
     }
 
     // MARK: Internal
@@ -40,6 +42,7 @@ struct MeditationSettings: Codable, Equatable {
         static let durationMinutes = "durationMinutes"
         static let preparationTimeEnabled = "preparationTimeEnabled"
         static let preparationTimeSeconds = "preparationTimeSeconds"
+        static let startGongSoundId = "startGongSoundId"
         // Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -61,6 +64,9 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Duration of preparation phase in seconds (5, 10, 15, 20, 30, 45)
     var preparationTimeSeconds: Int
+
+    /// Gong sound ID for start/end gong (references GongSound.id)
+    var startGongSoundId: String
 
     // MARK: - Validation
 
@@ -101,7 +107,8 @@ extension MeditationSettings {
         backgroundSoundId: "silent",
         durationMinutes: 10,
         preparationTimeEnabled: true,
-        preparationTimeSeconds: 15
+        preparationTimeSeconds: 15,
+        startGongSoundId: GongSound.defaultSoundId
     )
 }
 

@@ -39,6 +39,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [x] | [x] |
 | [shared-014](shared/shared-014-interval-sound-update.md) | Neuer Interval-Sound | 4-Polish | [x] | [x] |
 | [shared-015](shared/shared-015-state-machine-test-coverage.md) | State-Machine Tests TimerReducer | 5-QA | [x] | [x] |
+| [shared-016](shared/shared-016-konfigurierbare-gong-toene.md) | Konfigurierbarer Start/Ende-Gong | 3-Feature | [x] | [ ] |
 
 ---
 

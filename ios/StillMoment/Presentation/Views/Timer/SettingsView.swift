@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+/// Wrapper to persist AudioService across SwiftUI view recreations
+private final class AudioServiceHolder: ObservableObject {
+    let service: AudioServiceProtocol
+
+    init(service: AudioServiceProtocol = AudioService()) {
+        self.service = service
+    }
+}
+
 /// Settings view for configuring meditation session options
 struct SettingsView: View {
     // MARK: Lifecycle
@@ -115,6 +124,24 @@ struct SettingsView: View {
                     }
 
                     Section {
+                        Picker(
+                            NSLocalizedString("settings.startGong.title", comment: ""),
+                            selection: self.$settings.startGongSoundId
+                        ) {
+                            ForEach(GongSound.allSounds) { sound in
+                                Text(sound.name.localized)
+                                    .tag(sound.id)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .onChange(of: self.settings.startGongSoundId) { newValue in
+                            self.playGongPreview(soundId: newValue)
+                        }
+                        .accessibilityIdentifier("settings.picker.startGongSound")
+                        .accessibilityLabel("accessibility.startGongSound")
+                        .accessibilityHint("accessibility.startGongSound.hint")
+                        .listRowBackground(Color.backgroundPrimary)
+
                         Toggle(isOn: self.$settings.intervalGongsEnabled) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("settings.intervalGongs.title", bundle: .main)
@@ -162,7 +189,7 @@ struct SettingsView: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
-                            self.onDismiss()
+                            self.dismissWithCleanup()
                         }
                         .tint(.interactive)
                         .accessibilityIdentifier("button.done")
@@ -177,10 +204,22 @@ struct SettingsView: View {
     // MARK: Private
 
     @Binding private var settings: MeditationSettings
+    @StateObject private var audioServiceHolder = AudioServiceHolder()
 
     private let onDismiss: () -> Void
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private let availableSounds: [BackgroundSound]
+
+    /// Plays gong preview and stops previous preview
+    private func playGongPreview(soundId: String) {
+        try? self.audioServiceHolder.service.playGongPreview(soundId: soundId)
+    }
+
+    /// Stops gong preview and triggers dismiss
+    private func dismissWithCleanup() {
+        self.audioServiceHolder.service.stopGongPreview()
+        self.onDismiss()
+    }
 }
 
 // MARK: - Previews
