@@ -193,6 +193,7 @@ private fun PreparationTimeDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_preparation_duration)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -222,6 +223,8 @@ private fun PreparationTimeDropdown(
 
 @Composable
 private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+    val preparationContentDescription = stringResource(R.string.accessibility_preparation_time_toggle)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -261,6 +264,7 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
             ),
             modifier = Modifier.semantics {
+                contentDescription = preparationContentDescription
                 stateDescription = preparationStateDescription
             }
         )
@@ -393,6 +397,7 @@ private fun BackgroundSoundDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_background_sound)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -513,6 +518,7 @@ private fun GongSoundDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_gong_sound)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = gongSoundExpanded) },
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline
@@ -566,6 +572,8 @@ private fun IntervalGongsContent(
 
 @Composable
 private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+    val intervalGongsContentDescription = stringResource(R.string.accessibility_interval_gongs_toggle)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -601,6 +609,7 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
             ),
             modifier = Modifier.semantics {
+                contentDescription = intervalGongsContentDescription
                 stateDescription = switchStateDescription
             }
         )
@@ -623,6 +632,7 @@ private fun IntervalMinutesDropdown(settings: MeditationSettings, onSettingsChan
             readOnly = true,
             label = { Text(stringResource(R.string.settings_interval_minutes)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalMinutesExpanded) },
+            shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline

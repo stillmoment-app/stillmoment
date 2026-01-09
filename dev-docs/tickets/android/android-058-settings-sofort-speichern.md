@@ -1,6 +1,6 @@
 # Ticket android-058: Settings sofort speichern
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -20,10 +20,10 @@ iOS uebernimmt Settings-Aenderungen sofort via Binding. Android wartet auf expli
 
 ## Akzeptanzkriterien
 
-- [ ] Jede Aenderung (Toggle, Dropdown) wird sofort an das ViewModel weitergegeben
-- [ ] Done-Button schliesst nur noch das Sheet (kein Speichern mehr noetig)
-- [ ] Verhalten identisch zu iOS SettingsView
-- [ ] Unit Tests aktualisiert
+- [x] Jede Aenderung (Toggle, Dropdown) wird sofort an das ViewModel weitergegeben
+- [x] Done-Button schliesst nur noch das Sheet (kein Speichern mehr noetig)
+- [x] Verhalten identisch zu iOS SettingsView
+- [x] Unit Tests aktualisiert (4 neue Tests in TimerScreenTest)
 
 ---
 

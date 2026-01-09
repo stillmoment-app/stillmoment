@@ -134,6 +134,8 @@
     <string name="accessibility_gong_sound_hint">Wähle den Gong-Ton für Start und Ende der Meditation</string>
     <string name="accessibility_background_volume">Lautstärke: %d Prozent</string>
     <string name="accessibility_gong_volume">Gong-Lautstärke: %d Prozent</string>
+    <string name="accessibility_interval_gongs_toggle">Intervall-Gongs Schalter</string>
+    <string name="accessibility_preparation_time_toggle">Vorbereitungszeit Schalter</string>
 
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Vorschlag: %s</string>

@@ -243,8 +243,8 @@ class TimerScreenTest {
             }
         }
 
-        // Open the background sound dropdown
-        composeRule.onNodeWithText("Silent Ambience", ignoreCase = true).performClick()
+        // Open the background sound dropdown (shows "Silence" by default)
+        composeRule.onNodeWithText("Silence", ignoreCase = true).performClick()
         // Select Forest Ambience
         composeRule.onNodeWithText("Forest Ambience", ignoreCase = true).performClick()
 
