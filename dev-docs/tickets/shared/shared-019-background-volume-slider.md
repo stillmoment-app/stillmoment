@@ -36,7 +36,8 @@ Manche Sounds werden als zu laut empfunden (z.B. Waldatmosphaere bei 15%). Indiv
 - [x] Lautstaerke-Einstellung wird in UserDefaults/Preferences gespeichert
 - [x] Gespeicherte Lautstaerke wird beim Timer-Start verwendet
 - [x] Preview in Settings spielt mit aktueller Slider-Lautstaerke
-- [x] Lokalisiert (DE: "Lautstaerke", EN: "Volume")
+- [x] Kein visuelles Label (Slider mit Speaker-Icons ist selbsterklaerend)
+- [x] Accessibility-Labels lokalisiert (DE/EN) fuer VoiceOver/TalkBack
 - [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests

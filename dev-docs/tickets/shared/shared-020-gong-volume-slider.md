@@ -29,7 +29,7 @@ Manche Benutzer empfinden die Gong-Sounds als zu laut oder zu leise. Individuell
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [x] Gong-Lautstaerke-Slider erscheint als eigene Zeile mit Label (immer sichtbar)
+- [x] Gong-Lautstaerke-Slider erscheint als eigene Zeile (immer sichtbar, ohne Label)
 - [x] Slider-Bereich: 0% bis 100% (entspricht 0.0 - 1.0)
 - [x] Standard-Wert: 100% (volle Lautstaerke)
 - [x] Eine globale Einstellung gilt fuer alle Gong-Typen (Start, Ende, Intervall)
@@ -39,7 +39,8 @@ Manche Benutzer empfinden die Gong-Sounds als zu laut oder zu leise. Individuell
 - [x] Update bestehender User: Fallback auf Default (100%) wenn Key nicht existiert
 - [x] Gespeicherte Lautstaerke wird beim Gong-Abspielen verwendet
 - [x] Preview in Settings spielt mit aktueller Slider-Lautstaerke
-- [x] Lokalisiert (DE: "Lautstaerke", EN: "Volume")
+- [x] Kein visuelles Label (Slider mit Speaker-Icons ist selbsterklaerend)
+- [x] Accessibility-Labels lokalisiert (DE/EN) fuer VoiceOver/TalkBack
 - [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
