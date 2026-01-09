@@ -114,7 +114,7 @@ Start your meditation practice with Still Moment.
 ```
 Version 1.7.0:
 
-• 5 wählbare Gong-Klänge (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• 4 wählbare Gong-Klänge (Tempelglocke, Klassisch, Tiefe Resonanz, Klarer Anschlag)
 • Lautstärkeregler für Hintergrundklänge und Gongs
 • Sound-Vorschau in Einstellungen
 • Konfigurierbare Vorbereitungszeit (10-30 Sek.)
@@ -127,7 +127,7 @@ Version 1.7.0:
 ```
 Version 1.7.0:
 
-• 5 selectable gong sounds (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• 4 selectable gong sounds (Temple Bell, Classic Bowl, Deep Resonance, Clear Strike)
 • Volume sliders for background sounds and gongs
 • Sound preview in settings
 • Configurable preparation time (10-30 sec.)

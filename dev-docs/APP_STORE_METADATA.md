@@ -17,7 +17,7 @@ Still Moment
 
 **Subtitle (optional, 30 characters max):**
 ```
-Warmhearted Meditation Timer
+Meditation as it should be
 ```
 
 ---
@@ -27,68 +27,61 @@ Warmhearted Meditation Timer
 ### English (4000 characters max, ~650 words)
 
 ```
-Still Moment is a warmhearted meditation timer designed for iOS that helps you create peaceful moments in your busy day. Simple, distraction-free, and deeply respectful of your privacy.
+Meditation as it should be.
 
-MEDITATION TIMER
-• Choose 1-60 minutes with intuitive controls
-• 15-second gentle countdown to prepare you
-• Works perfectly with screen locked
-• Tibetan singing bowl sounds mark beginning and end
-• Optional interval gongs every 3, 5, or 10 minutes
-• Two background audio modes: Silent Ambience or Forest Ambience (both at 15% volume)
+Still Moment is a gift, not a product — free and open source. A warmhearted meditation app that helps you create peaceful moments in your busy day. No ads, no tracking, no distractions.
 
-GUIDED MEDITATION LIBRARY
-• Import your own MP3 guided meditations from iCloud Drive or local storage
+GUIDED MEDITATIONS
+Build your personal library with your favorite guided meditations.
+• Import MP3s from iCloud Drive or local storage
 • Automatic teacher name extraction from audio metadata
-• Edit meditation titles and teacher names
-• Grouped display by teacher for easy browsing
+• Edit titles and teacher names freely
+• Organized by teacher for easy browsing
 • Full lock screen controls (play, pause, skip)
-• Background audio playback support
-• Security-scoped bookmarks keep your files accessible
+• Background playback — listen with screen locked
+• Your files stay on your device, always accessible
 
-PRIVACY FIRST
-• Zero data collection - no tracking, no analytics, no ads
-• 100% offline - works without internet connection
-• All data stored locally on your device
-• No account required
-• Open source - verify our privacy claims yourself
+SILENT MEDITATION
+A simple timer that stays out of your way. Does exactly what you need — nothing more.
+• Choose 1-60 minutes with intuitive controls
+• Gentle countdown to prepare you
+• Tibetan singing bowl gongs mark beginning and end
+• Optional interval gongs every 3, 5, or 10 minutes
+• Background ambience options (silent or forest sounds)
+• Works perfectly with screen locked
+
+YOUR MEDITATION, YOUR DATA, YOUR DEVICE
+Still Moment collects absolutely zero data. Everything stays on your device, where it belongs.
+• No tracking, no analytics, no ads
+• 100% offline — no internet required
+• No account, no sign-up, no subscription
+• Open source — verify our privacy claims yourself
 
 BEAUTIFULLY DESIGNED
-• Warm earth tone color palette (terracotta, warm sand)
+• Warm earth tone palette (terracotta, warm sand)
 • SF Pro Rounded typography throughout
-• Clean, calming interface that stays out of your way
-• No unnecessary features or distractions
-• Gentle encouragement along your meditation journey
+• Clean, calming interface
+• No feature bloat or distractions
+• Gentle encouragement along your journey
 
 ACCESSIBILITY
-• Full VoiceOver support with clear, natural descriptions
+• Full VoiceOver support with clear descriptions
 • Works with all iOS assistive technologies
 • Designed to be usable by everyone
 
-BILINGUAL
-• Fully localized in German and English
-• Automatic language detection based on your iOS settings
-
-APPLE-COMPLIANT
-• Background audio properly implemented for locked-screen meditation
-• Respects iOS Low Power Mode
-• Energy efficient audio session management
-• Notification support for session completion
+FREE & OPEN SOURCE
+Still Moment is built by a meditation practitioner, offered freely as a gift to the community. No premium features, no upsells, no hidden costs. The complete source code is available for anyone to review, learn from, or improve.
 
 DESIGNED FOR YOU
-Still Moment was created with one goal: to support your meditation practice without getting in the way. No subscriptions, no upsells, no complicated features. Just a simple, reliable timer and your own guided meditations - exactly what you need, nothing you don't.
-
-Whether you're a seasoned meditator or just starting out, Still Moment offers a calm, welcoming space for your practice. The warm color palette and rounded typography create an inviting atmosphere, while the distraction-free design helps you stay focused on what matters: your inner peace.
+Whether you're a seasoned meditator or just starting out, Still Moment offers a calm, welcoming space for your practice. The warm colors and rounded typography create an inviting atmosphere, while the distraction-free design helps you focus on what matters: your inner peace.
 
 Perfect for:
 • Daily meditation practice
-• Breath work and mindfulness exercises
-• Yoga and body scans
-• Guided meditation sessions with your favorite teachers
+• Guided sessions with your favorite teachers
 • Silent sitting meditation
+• Breath work and mindfulness
+• Yoga and body scans
 • Walking meditation with interval reminders
-
-Built by a meditation practitioner for meditation practitioners. Open source, privacy-respecting, and designed with care.
 
 Download Still Moment and gift yourself the pause you deserve.
 ```
@@ -96,68 +89,61 @@ Download Still Moment and gift yourself the pause you deserve.
 ### German (4000 characters max, ~650 words)
 
 ```
-Still Moment ist ein warmherziger Meditations-Timer für iOS, der dir hilft, friedliche Momente in deinem vollen Alltag zu schaffen. Einfach, ablenkungsfrei und mit tiefem Respekt für deine Privatsphäre.
+Meditation, wie sie sein sollte.
 
-MEDITATIONS-TIMER
-• Wähle 1-60 Minuten mit intuitiver Steuerung
-• 15-Sekunden sanfter Countdown zur Vorbereitung
-• Funktioniert perfekt bei gesperrtem Bildschirm
-• Tibetische Klangschalen-Töne markieren Anfang und Ende
-• Optionale Intervall-Gongs alle 3, 5 oder 10 Minuten
-• Zwei Hintergrund-Audio-Modi: Lautlos (1% Lautstärke) oder Weißes Rauschen (15% Lautstärke)
+Still Moment ist ein Geschenk, kein Produkt — kostenlos und Open Source. Eine warmherzige Meditations-App, die dir hilft, friedliche Momente in deinem vollen Alltag zu schaffen. Keine Werbung, kein Tracking, keine Ablenkung.
 
-BIBLIOTHEK GEFÜHRTER MEDITATIONEN
-• Importiere deine eigenen MP3 geführten Meditationen von iCloud Drive oder lokalem Speicher
-• Automatische Lehrer-Namen-Erkennung aus Audio-Metadaten
-• Bearbeite Meditationstitel und Lehrer-Namen
-• Gruppierte Anzeige nach Lehrer für einfaches Durchsuchen
+GEFÜHRTE MEDITATIONEN
+Erstelle deine persönliche Bibliothek mit deinen Lieblings-Meditationen.
+• Importiere MP3s von iCloud Drive oder lokalem Speicher
+• Automatische Lehrer-Erkennung aus Audio-Metadaten
+• Titel und Lehrer frei bearbeiten
+• Sortiert nach Lehrer für einfaches Durchsuchen
 • Volle Sperrbildschirm-Steuerung (Play, Pause, Skip)
-• Hintergrund-Audio-Wiedergabe Unterstützung
-• Security-scoped Bookmarks halten deine Dateien zugänglich
+• Hintergrund-Wiedergabe — höre mit gesperrtem Bildschirm
+• Deine Dateien bleiben auf deinem Gerät, immer zugänglich
 
-DATENSCHUTZ ZUERST
-• Keine Datenerfassung - kein Tracking, keine Analytik, keine Werbung
-• 100% offline - funktioniert ohne Internetverbindung
-• Alle Daten lokal auf deinem Gerät gespeichert
-• Kein Account erforderlich
-• Open Source - überprüfe unsere Datenschutz-Versprechen selbst
+FREIE MEDITATION
+Ein einfacher Timer, der dir nicht im Weg steht. Tut genau das, was du brauchst — nicht mehr.
+• Wähle 1-60 Minuten mit intuitiver Steuerung
+• Sanfter Countdown zur Vorbereitung
+• Tibetische Klangschalen markieren Anfang und Ende
+• Optionale Intervall-Gongs alle 3, 5 oder 10 Minuten
+• Hintergrund-Optionen (still oder Waldgeräusche)
+• Funktioniert perfekt bei gesperrtem Bildschirm
+
+DEINE MEDITATION, DEINE DATEN, DEIN GERÄT
+Still Moment sammelt absolut keine Daten. Alles bleibt auf deinem Gerät, wo es hingehört.
+• Kein Tracking, keine Analytik, keine Werbung
+• 100% offline — kein Internet erforderlich
+• Kein Account, keine Anmeldung, kein Abo
+• Open Source — überprüfe unsere Versprechen selbst
 
 WUNDERSCHÖN GESTALTET
-• Warme Erdton-Farbpalette (Terrakotta, warmer Sand)
+• Warme Erdton-Palette (Terrakotta, warmer Sand)
 • SF Pro Rounded Typografie durchgehend
-• Saubere, beruhigende Oberfläche, die sich zurücknimmt
-• Keine unnötigen Features oder Ablenkungen
-• Sanfte Ermutigung auf deiner Meditations-Reise
+• Saubere, beruhigende Oberfläche
+• Kein Schnickschnack, keine Ablenkung
+• Sanfte Ermutigung auf deiner Reise
 
 BARRIEREFREIHEIT
-• Volle VoiceOver-Unterstützung mit klaren, natürlichen Beschreibungen
+• Volle VoiceOver-Unterstützung mit klaren Beschreibungen
 • Funktioniert mit allen iOS-Hilfstechnologien
 • Für alle nutzbar konzipiert
 
-ZWEISPRACHIG
-• Vollständig lokalisiert auf Deutsch und Englisch
-• Automatische Spracherkennung basierend auf deinen iOS-Einstellungen
-
-APPLE-KONFORM
-• Hintergrund-Audio ordnungsgemäß implementiert für Meditation mit gesperrtem Bildschirm
-• Respektiert iOS Stromsparmodus
-• Energieeffiziente Audio-Session-Verwaltung
-• Benachrichtigungs-Unterstützung für Sitzungsabschluss
+KOSTENLOS & OPEN SOURCE
+Still Moment wurde von einem Meditierenden gebaut und als Geschenk an die Community angeboten. Keine Premium-Features, keine Upsells, keine versteckten Kosten. Der vollständige Quellcode ist für jeden zugänglich — zum Überprüfen, Lernen oder Verbessern.
 
 FÜR DICH ENTWICKELT
-Still Moment wurde mit einem Ziel erstellt: deine Meditationspraxis zu unterstützen, ohne im Weg zu stehen. Keine Abos, keine Upsells, keine komplizierten Features. Nur ein einfacher, zuverlässiger Timer und deine eigenen geführten Meditationen - genau das, was du brauchst, nichts was du nicht brauchst.
-
-Ob du ein erfahrener Meditierender oder gerade erst am Anfang bist, Still Moment bietet einen ruhigen, einladenden Raum für deine Praxis. Die warme Farbpalette und runde Typografie schaffen eine einladende Atmosphäre, während das ablenkungsfreie Design dir hilft, dich auf das Wesentliche zu konzentrieren: deinen inneren Frieden.
+Ob du ein erfahrener Meditierender oder gerade erst am Anfang bist — Still Moment bietet einen ruhigen, einladenden Raum für deine Praxis. Die warmen Farben und die runde Typografie schaffen eine einladende Atmosphäre, während das ablenkungsfreie Design dir hilft, dich auf das Wesentliche zu konzentrieren: deinen inneren Frieden.
 
 Perfekt für:
 • Tägliche Meditationspraxis
-• Atemarbeit und Achtsamkeitsübungen
-• Yoga und Bodyscans
-• Geführte Meditationssitzungen mit deinen Lieblings-Lehrern
+• Geführte Sessions mit deinen Lieblings-Lehrern
 • Stille Sitzmeditation
+• Atemarbeit und Achtsamkeit
+• Yoga und Bodyscans
 • Gehmeditation mit Intervall-Erinnerungen
-
-Gebaut von einem Meditierenden für Meditierende. Open Source, Datenschutz-respektierend und mit Sorgfalt gestaltet.
 
 Lade Still Moment herunter und schenke dir die Pause, die du verdienst.
 ```
@@ -172,15 +158,15 @@ Lade Still Moment herunter und schenke dir die Pause, die du verdienst.
 ### Primary Keywords (100 characters max)
 
 ```
-meditation,timer,mindfulness,gong,guided,zen,calm,focus,breathing,yoga,offline,privacy
+meditation,app,guided,mindfulness,library,zen,calm,offline,privacy,free,timer,yoga
 ```
 
-**Character count:** 82/100 ✅
+**Character count:** 79/100 ✅
 
 ### Alternative Keywords (if primary doesn't perform)
 
 ```
-meditate,achtsamkeit,klangschale,bell,silent,vipassana,zazen,wellness,relax
+meditate,achtsamkeit,klangschale,gong,bell,silent,vipassana,zazen,wellness,relax
 ```
 
 ---
@@ -189,15 +175,15 @@ meditate,achtsamkeit,klangschale,bell,silent,vipassana,zazen,wellness,relax
 
 ### English
 ```
-A simple, privacy-first meditation timer with Tibetan singing bowls and guided meditation library. Works offline. Zero tracking. Gift yourself the pause you deserve.
+Meditation as it should be. A gift, not a product — free and open source. Guided meditation library + silent timer. No ads, no tracking, no distractions.
 ```
-**Character count:** 169/170 ✅
+**Character count:** 156/170 ✅
 
 ### German
 ```
-Ein einfacher, datenschutzfreundlicher Meditations-Timer mit tibetischen Klangschalen und Bibliothek geführter Meditationen. Funktioniert offline. Kein Tracking.
+Meditation, wie sie sein sollte. Ein Geschenk, kein Produkt — kostenlos und Open Source. Geführte Meditationen + stiller Timer. Keine Werbung, kein Tracking.
 ```
-**Character count:** 165/170 ✅
+**Character count:** 160/170 ✅
 
 ---
 
@@ -318,7 +304,7 @@ Feel free to contact me with any questions!
 ```
 New in Version 1.7.0:
 
-• Selectable gong sounds: 5 different tones for start, end, and intervals (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Selectable gong sounds: 4 different tones for start, end, and intervals (Temple Bell, Classic Bowl, Deep Resonance, Clear Strike)
 • Volume sliders for background sounds and gongs - adjust to your preference
 • Sound preview in settings - hear before you choose
 • Configurable preparation time (10, 15, 20, or 30 seconds)
@@ -332,7 +318,7 @@ Gift yourself the pause you deserve.
 ```
 Neu in Version 1.7.0:
 
-• Wählbare Gong-Klänge: 5 verschiedene Töne für Start, Ende und Intervall (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Wählbare Gong-Klänge: 4 verschiedene Töne für Start, Ende und Intervall (Tempelglocke, Klassisch, Tiefe Resonanz, Klarer Anschlag)
 • Lautstärkeregler für Hintergrundklänge und Gongs - nach deinen Wünschen anpassen
 • Sound-Vorschau in den Einstellungen - vor der Auswahl anhören
 • Konfigurierbare Vorbereitungszeit (10, 15, 20 oder 30 Sekunden)
@@ -357,20 +343,19 @@ docs/images/screenshots/
 ```
 
 **Files:**
-- `timer-ready-{de|en}.png` - Timer idle state
-- `timer-running-{de|en}.png` - Active meditation
-- `timer-paused-{de|en}.png` - Paused state
-- `settings-view-{de|en}.png` - Settings sheet
 - `library-list-{de|en}.png` - Guided meditations library
 - `player-view-{de|en}.png` - Audio player
+- `timer-ready-{de|en}.png` - Timer idle state
+- `timer-running-{de|en}.png` - Active meditation
+- `settings-view-{de|en}.png` - Settings sheet
 
 **Screenshot Captions (optional but recommended):**
 
-1. Timer Ready: "Simple meditation timer with 1-60 minutes"
-2. Timer Running: "Meditate with locked screen and interval gongs"
-3. Settings: "Customize interval gongs and background audio"
-4. Library: "Import your guided meditation MP3s"
-5. Player: "Full lock screen controls and background playback"
+1. Library: "Build your personal meditation library"
+2. Player: "Listen offline with lock screen controls"
+3. Timer Ready: "A simple timer that stays out of your way"
+4. Timer Running: "Meditate with screen locked"
+5. Settings: "Customize sounds and background audio"
 
 ---
 
@@ -378,10 +363,10 @@ docs/images/screenshots/
 
 **Recommended length:** 15-30 seconds
 **Focus on:**
-- Quick tour: Timer → Settings → Library → Player
-- Show lock screen functionality
-- Emphasize privacy ("No data collection")
-- End with "Download now"
+- Quick tour: Library → Player → Timer → Settings
+- Show lock screen functionality for both modes
+- Emphasize "A gift, not a product" and "No data collection"
+- End with "Gift yourself the pause you deserve"
 
 **Device:** iPhone 16 Plus (6.7")
 

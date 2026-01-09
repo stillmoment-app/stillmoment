@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.7.0] - 2026-01-09 (Gong-Auswahl & Lautstärkeregler)
 
 ### Added (iOS & Android)
-- **Wählbare Gong-Klänge** - 5 verschiedene Töne für Start, Ende und Intervall
-  - Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen
+- **Wählbare Gong-Klänge** - 4 verschiedene Töne für Start, Ende und Intervall
+  - Temple Bell, Classic Bowl, Deep Resonance, Clear Strike
   - `GongSound` Domain Model mit lokalisierten Namen (DE/EN)
   - Settings Picker mit automatischer Sound-Vorschau
   - Persistent via `MeditationSettings.startGongSoundId`
