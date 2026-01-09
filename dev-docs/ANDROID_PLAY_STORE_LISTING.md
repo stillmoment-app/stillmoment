@@ -107,30 +107,32 @@ Start your meditation practice with Still Moment.
 
 ---
 
-## Release-Notes (v1.3.0)
+## Release-Notes (v1.7.0)
 
 ### Deutsch
 
 ```
-Erste Android-Version von Still Moment!
+Version 1.7.0:
 
-• Meditations-Timer mit tibetischen Klangschalen
-• Geführte Meditationen importieren und abspielen
-• Hintergrundwiedergabe bei gesperrtem Bildschirm
-• Vollständige deutsche und englische Lokalisierung
-• TalkBack-Unterstützung
+• 5 wählbare Gong-Klänge (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Lautstärkeregler für Hintergrundklänge und Gongs
+• Sound-Vorschau in Einstellungen
+• Konfigurierbare Vorbereitungszeit (10-30 Sek.)
+• Lockscreen-Artwork bei geführten Meditationen
+• Verbessertes Settings-Design mit Card-Layout
 ```
 
 ### English
 
 ```
-First Android release of Still Moment!
+Version 1.7.0:
 
-• Meditation timer with Tibetan singing bowls
-• Import and play guided meditations
-• Background playback with screen locked
-• Full German and English localization
-• TalkBack support
+• 5 selectable gong sounds (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Volume sliders for background sounds and gongs
+• Sound preview in settings
+• Configurable preparation time (10-30 sec.)
+• Lock screen artwork for guided meditations
+• Improved settings design with card layout
 ```
 
 ---
@@ -275,4 +277,4 @@ cd android
 
 ---
 
-**Zuletzt aktualisiert:** 2025-12-20
+**Zuletzt aktualisiert:** 2026-01-09

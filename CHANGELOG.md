@@ -7,67 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
-- **Lock Screen Artwork** - App-Icon wird im Lock Screen Player und Control Center angezeigt während Guided Meditations
-  - `LockScreenArtwork` Image Asset für programmatischen Zugriff
-  - `MPMediaItemPropertyArtwork` in `setupNowPlayingInfo` gesetzt
+## [1.7.0] - 2026-01-09 (Gong-Auswahl & Lautstärkeregler)
 
-- **Background-Sound Preview in Settings** - Bei Auswahl eines Background-Sounds im Picker wird ein 3-Sekunden-Preview mit sanftem Fade-Out abgespielt
-  - `playBackgroundPreview(soundId:volume:)` und `stopBackgroundPreview()` in `AudioServiceProtocol`
-  - Gegenseitiges Stoppen von Gong- und Background-Preview (nur ein Preview gleichzeitig)
-  - Preview stoppt automatisch beim Schliessen der Settings
-  - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
+### Added (iOS & Android)
+- **Wählbare Gong-Klänge** - 5 verschiedene Töne für Start, Ende und Intervall
+  - Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen
+  - `GongSound` Domain Model mit lokalisierten Namen (DE/EN)
+  - Settings Picker mit automatischer Sound-Vorschau
+  - Persistent via `MeditationSettings.startGongSoundId`
+  - Vollständige Accessibility Labels und Hints
+  - Ticket: shared-016
 
 - **Background-Sound Lautstärkeregler** - Slider zur Anpassung der Hintergrund-Lautstärke
   - Slider erscheint unterhalb der Sound-Auswahl (nur wenn nicht "Stille" gewählt)
   - Slider-Bereich: 0% bis 100%, Standard: 15%
-  - Lautstärke wird in UserDefaults gespeichert
   - Preview in Settings spielt mit aktueller Slider-Lautstärke
   - Lokalisiert: "Volume" / "Lautstärke"
   - Ticket: shared-019
 
 - **Gong-Lautstärkeregler** - Slider zur Anpassung der Gong-Lautstärke
-  - Slider erscheint unterhalb der Gong-Sound-Auswahl (immer sichtbar)
+  - Slider immer sichtbar in Gong-Sektion
   - Eine globale Einstellung für alle Gong-Typen (Start, Ende, Intervall)
   - Slider-Bereich: 0% bis 100%, Standard: 100%
   - Lautstärke bleibt bei Sound-Wechsel erhalten
-  - Preview in Settings spielt mit aktueller Slider-Lautstärke
-  - Lokalisiert: "Volume" / "Lautstärke"
   - Ticket: shared-020
 
-### Added (Android)
-- **Lock Screen Artwork** - App-Icon wird in Media Notifications und Lock Screen Player angezeigt während Guided Meditations
-  - `METADATA_KEY_ART` in `MediaSessionManager.updateMetadata` gesetzt
-
-- **Background-Sound Preview in Settings** - Bei Auswahl eines Background-Sounds im Picker wird ein 3-Sekunden-Preview mit sanftem Fade-Out abgespielt
-  - `playBackgroundPreview(soundId, volume)` und `stopBackgroundPreview()` in `AudioService`
-  - Gegenseitiges Stoppen von Gong- und Background-Preview (nur ein Preview gleichzeitig)
+- **Sound-Vorschau in Einstellungen** - 3-Sekunden-Preview mit Fade-Out
+  - Preview bei Auswahl von Background-Sounds und Gong-Klängen
+  - Gegenseitiges Stoppen (nur ein Preview gleichzeitig)
   - Preview stoppt automatisch beim Schliessen der Settings
-  - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
-  - Unit Tests fuer alle Preview-Szenarien
+  - Ticket: shared-017
 
-- **Background-Sound Lautstärkeregler** - Slider zur Anpassung der Hintergrund-Lautstärke
-  - Slider erscheint unterhalb der Sound-Auswahl (nur wenn nicht "Stille" gewählt)
-  - Slider-Bereich: 0% bis 100%, Standard: 15%
-  - Lautstärke wird in DataStore gespeichert
-  - Preview in Settings spielt mit aktueller Slider-Lautstärke
-  - Lokalisiert: "Volume" / "Lautstärke"
-  - Ticket: shared-019
+- **Konfigurierbare Vorbereitungszeit** - Einstellbare Dauer vor Meditationsbeginn
+  - Wählbar: 10, 15, 20 oder 30 Sekunden (Standard: 15)
+  - Toggle zum Aktivieren/Deaktivieren
+  - Visueller Countdown mit rotierenden Affirmationen
+  - Accessibility-Announcements für Dauer
+  - Ticket: ios-029, android-057
 
-- **Gong-Lautstärkeregler** - Slider zur Anpassung der Gong-Lautstärke
-  - Slider erscheint unterhalb der Gong-Sound-Auswahl (immer sichtbar)
-  - Eine globale Einstellung für alle Gong-Typen (Start, Ende, Intervall)
-  - Slider-Bereich: 0% bis 100%, Standard: 100%
-  - Lautstärke bleibt bei Sound-Wechsel erhalten
-  - Preview in Settings spielt mit aktueller Slider-Lautstärke
-  - Lokalisiert: "Volume" / "Lautstärke"
-  - Ticket: shared-020
+- **Lock Screen Artwork** - App-Icon bei geführten Meditationen
+  - iOS: `LockScreenArtwork` Image Asset, `MPMediaItemPropertyArtwork`
+  - Android: `METADATA_KEY_ART` in `MediaSessionManager`
+  - Ticket: shared-018
+
+### Changed (Android)
+- **Settings Card Layout** - Verbessertes Settings-Design
+  - Card-basierte Gruppierung mit visueller Hierarchie
+  - Section-Titel außerhalb der Cards
+  - Warm Dropdown Styling mit abgerundeten Ecken
+  - Ticket: android-059, android-060
+
+- **Sofortiges Settings-Speichern** - Änderungen werden sofort übernommen
+  - Kein Save-Button mehr nötig
+  - Callback-System für sofortige UI-Updates
+  - Ticket: android-058
 
 ### Fixed (iOS)
 - **Intervall-Gong spielt jetzt mehrfach** - Bug behoben bei dem nur der erste Intervall-Gong spielte
   - `TimerServiceProtocol.markIntervalGongPlayed()` hinzugefügt
   - `TimerViewModel` ruft nach jedem Gong beide State-Tracking-Mechanismen auf
   - Regressionstest `testIntervalGongPlaysMultipleTimes_NotJustOnce` hinzugefügt
+
+### Fixed (Android)
+- **Detekt Lint Issues** - Code-Qualitätsprobleme behoben
+  - Timer Views und Code-Generierung korrigiert
+
+### Changed (Shared)
+- **Ubiquitous Language Alignment** - Einheitliche Begriffe auf beiden Plattformen
+  - `countdown` → `preparation` (Vorbereitungszeit)
+  - `background_sound` → `soundscape` (Klanglandschaft)
+  - Lokalisierungs-Keys vereinheitlicht
 
 ## [1.4.0] - 2025-12-26 (Deine Meditations-Bibliothek)
 
@@ -585,17 +594,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History Summary
 
-### v0.3.0 (Current) - Warmherziges Design & Internationalisierung
-Complete visual redesign with warm earth tones and full German/English localization.
+### v1.7.0 (Current) - Gong-Auswahl & Lautstärkeregler
+Wählbare Gong-Klänge, Lautstärkeregler für Sounds und Gongs, Sound-Vorschau, konfigurierbare Vorbereitungszeit, Lock Screen Artwork.
 
-### v0.2.0 - Enhanced Background Audio & Interval Gongs
-Major feature update with countdown, interval gongs, and Apple-compliant background audio.
+### v1.4.0 - Deine Meditations-Bibliothek
+MediaSession Lock Screen Controls, Audio Player UI, TabView Navigation, Audio Session Coordinator.
 
-### v0.1.0 - Quality Improvements
-Significantly enhanced code quality, automation, testing, and accessibility.
+### v1.3.0 - iOS Polish & UX Improvements
+Ambient Sound Fade In, Remember Last Tab, Delete Confirmation, Overflow Menu, Automated Screenshots.
 
-### v0.1.0 (MVP)
-First working version with core meditation timer features.
+### v1.2.0 - iOS 16 Support & Bugfixes
+iOS 16 Support, Kopfhörer Play/Pause Fix.
+
+### v1.1.0 - Verbesserungen & Bugfixes
+Teacher Name Autocomplete, Localization Automation, Responsive Layout, Semantic Color System.
 
 **Quality Score**: 9/10 ⭐
 - Automation: 10/10 ✅

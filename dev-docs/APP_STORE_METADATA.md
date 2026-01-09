@@ -2,8 +2,8 @@
 
 This document contains ready-to-use metadata for App Store Connect submission.
 
-**Last Updated:** November 11, 2025
-**App Version:** 1.0
+**Last Updated:** January 9, 2026
+**App Version:** 1.7.0
 **Prepared for:** Still Moment iOS App
 
 ---
@@ -312,42 +312,32 @@ Feel free to contact me with any questions!
 
 ---
 
-## What's New (Version 1.0)
+## What's New (Version 1.7.0)
 
 ### English
 ```
-Initial release of Still Moment 🎉
+New in Version 1.7.0:
 
-• Flexible meditation timer (1-60 minutes)
-• 15-second countdown before meditation starts
-• Tibetan singing bowl sounds for start and completion
-• Optional interval gongs (3, 5, or 10 minutes)
-• Two background audio modes (Silent or White Noise)
-• Guided meditation library with MP3 import
-• Lock screen controls and background playback
-• German and English localization
-• Full VoiceOver accessibility support
-• Zero data collection - 100% privacy-first
-• Works completely offline
+• Selectable gong sounds: 5 different tones for start, end, and intervals (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Volume sliders for background sounds and gongs - adjust to your preference
+• Sound preview in settings - hear before you choose
+• Configurable preparation time (10, 15, 20, or 30 seconds)
+• Lock screen artwork for guided meditations
+• Fixed interval gong bug (now plays multiple times correctly)
 
 Gift yourself the pause you deserve.
 ```
 
 ### German
 ```
-Erste Veröffentlichung von Still Moment 🎉
+Neu in Version 1.7.0:
 
-• Flexibler Meditations-Timer (1-60 Minuten)
-• 15-Sekunden Countdown bevor Meditation startet
-• Tibetische Klangschalen-Töne für Start und Abschluss
-• Optionale Intervall-Gongs (3, 5 oder 10 Minuten)
-• Zwei Hintergrund-Audio-Modi (Lautlos oder Weißes Rauschen)
-• Bibliothek geführter Meditationen mit MP3-Import
-• Sperrbildschirm-Steuerung und Hintergrund-Wiedergabe
-• Deutsche und englische Lokalisierung
-• Volle VoiceOver Barrierefreiheits-Unterstützung
-• Keine Datenerfassung - 100% Datenschutz-fokussiert
-• Funktioniert vollständig offline
+• Wählbare Gong-Klänge: 5 verschiedene Töne für Start, Ende und Intervall (Classic Bowl, Deep Resonance, Clear Strike, Deep Zen, Warm Zen)
+• Lautstärkeregler für Hintergrundklänge und Gongs - nach deinen Wünschen anpassen
+• Sound-Vorschau in den Einstellungen - vor der Auswahl anhören
+• Konfigurierbare Vorbereitungszeit (10, 15, 20 oder 30 Sekunden)
+• Lockscreen-Artwork bei geführten Meditationen
+• Intervall-Gong Bug behoben (spielt jetzt mehrfach korrekt)
 
 Schenke dir die Pause, die du verdienst.
 ```
@@ -421,11 +411,11 @@ MIT License - Open Source
 
 ## Build Information
 
-**Version:** 1.0
-**Build:** 1
+**Version:** 1.7.0
+**Build:** (increment on each submission)
 **Bundle ID:** com.stillmoment.StillMoment
-**Minimum iOS Version:** 17.0
-**Xcode Version:** 16.2+
+**Minimum iOS Version:** 16.0
+**Xcode Version:** 26.0+
 **Swift Version:** 5.9+
 
 ---
