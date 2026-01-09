@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-01-07
+Last Updated: 2026-01-09
 -->
 
 ## Quick Reference
@@ -14,11 +14,11 @@ Last Updated: 2026-01-07
 | Begriff | Typ | Domain | Beschreibung |
 |---------|-----|--------|--------------|
 | `AudioMetadata` | Value Object | Guided Meditations | Metadaten aus Audio-Dateien (ID3 Tags) |
-| `BackgroundSound` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
+| `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
-| `LocalizedString` | Value Object | Timer | Lokalisierter String fuer BackgroundSound |
+| `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
 | `MeditationSettings` | Value Object | Timer | Benutzereinstellungen |
 | `MeditationTimer` | Value Object | Timer | Zentrales Timer-Modell |
 | `TimerAction` | Enum | Timer | Benutzer-Aktionen und System-Events |
@@ -238,13 +238,13 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 
 ---
 
-### BackgroundSound
+### Soundscape
 
 **Typ:** Value Object
 **Pattern:** Localized Content
 
 **Beschreibung:**
-Optionales Hintergrundgeraeusch waehrend der Timer-Meditation. Beiwerk zum Timer, kein eigenstaendiges Feature.
+Optionales Hintergrundgeraeusch waehrend der Timer-Meditation. Beiwerk zum Timer, kein eigenstaendiges Feature. Im Code als `BackgroundSound` implementiert, UI-Label ist "Soundscape" / "Klangkulisse".
 
 ---
 
@@ -290,7 +290,7 @@ Konfigurierbarer Gong-Ton fuer den Start/Ende-Gong. Immutables Value Object mit 
 **Pattern:** Nested Value Object
 
 **Beschreibung:**
-Lokalisierter String fuer BackgroundSound Namen und Beschreibungen.
+Lokalisierter String fuer Soundscape Namen und Beschreibungen.
 
 **Properties:**
 

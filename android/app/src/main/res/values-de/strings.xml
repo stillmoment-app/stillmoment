@@ -32,15 +32,14 @@
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
-    <string name="settings_background_sound">Hintergrund-Audio</string>
+    <string name="settings_soundscape">Klangkulisse</string>
+    <string name="settings_soundscape_label">Klang</string>
     <string name="settings_interval_gongs">Intervall-Gongs</string>
     <string name="settings_interval_gongs_description">Ein Gong-Klang in regelmäßigen Abständen während der Meditation</string>
     <string name="settings_interval_minutes">Intervall</string>
     <string name="settings_gong">Gong</string>
     <string name="settings_gong_sound">Gong-Ton</string>
     <string name="settings_preparation_time">Vorbereitungszeit</string>
-    <string name="settings_preparation_on">An</string>
-    <string name="settings_preparation_off">Aus</string>
     <string name="settings_preparation_description">Zeit zum Ankommen vor der Meditation</string>
     <string name="settings_preparation_duration">Dauer</string>
 
@@ -65,11 +64,11 @@
     <string name="accessibility_time_remaining">%1$d Minuten und %2$d Sekunden verbleibend</string>
     <string name="accessibility_minute_picker">Dauer: %d Minuten</string>
 
-    <!-- Affirmations - Countdown -->
-    <string name="affirmation_countdown_1">Lass dich ankommen...</string>
-    <string name="affirmation_countdown_2">Atme tief durch...</string>
-    <string name="affirmation_countdown_3">Bereite dich sanft vor...</string>
-    <string name="affirmation_countdown_4">Gleich ist Zeit für dich...</string>
+    <!-- Affirmations - Preparation -->
+    <string name="affirmation_preparation_1">Lass dich ankommen...</string>
+    <string name="affirmation_preparation_2">Atme tief durch...</string>
+    <string name="affirmation_preparation_3">Bereite dich sanft vor...</string>
+    <string name="affirmation_preparation_4">Gleich ist Zeit für dich...</string>
 
     <!-- Affirmations - Running -->
     <string name="affirmation_running_1">Atme sanft</string>
@@ -86,16 +85,16 @@
 
     <!-- Guided Meditations Library -->
     <string name="guided_meditations_title">Geführte Meditationen</string>
-    <string name="library_empty_title">Noch keine Meditationen</string>
-    <string name="library_empty_description">Füge deine erste geführte Meditation hinzu, indem du eine MP3-Datei aus der Dateien-App importierst.</string>
-    <string name="library_import_button">Meditation importieren</string>
-    <string name="delete_confirmation_title">Meditation löschen</string>
-    <string name="delete_confirmation_message">Möchtest du \"%1$s\" wirklich löschen?</string>
-    <string name="edit_meditation_title">Meditation bearbeiten</string>
-    <string name="edit_teacher_label">Lehrer</string>
-    <string name="edit_name_label">Name</string>
-    <string name="edit_file_label">Datei</string>
-    <string name="edit_duration_label">Dauer</string>
+    <string name="guided_meditations_empty_title">Noch keine Meditationen</string>
+    <string name="guided_meditations_empty_description">Füge deine erste geführte Meditation hinzu, indem du eine MP3-Datei aus der Dateien-App importierst.</string>
+    <string name="guided_meditations_import">Meditation importieren</string>
+    <string name="guided_meditations_delete_title">Meditation löschen</string>
+    <string name="guided_meditations_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
+    <string name="guided_meditations_edit_title">Meditation bearbeiten</string>
+    <string name="guided_meditations_edit_teacher">Lehrer</string>
+    <string name="guided_meditations_edit_name">Name</string>
+    <string name="guided_meditations_edit_file">Datei</string>
+    <string name="guided_meditations_edit_duration">Dauer</string>
 
     <!-- Guided Meditations Accessibility -->
     <string name="accessibility_import_meditation">Meditations-Audiodatei importieren</string>

@@ -393,10 +393,10 @@ constructor(
 
         /** Affirmation resource IDs for preparation phase */
         private val PREPARATION_AFFIRMATIONS = intArrayOf(
-            R.string.affirmation_countdown_1,
-            R.string.affirmation_countdown_2,
-            R.string.affirmation_countdown_3,
-            R.string.affirmation_countdown_4
+            R.string.affirmation_preparation_1,
+            R.string.affirmation_preparation_2,
+            R.string.affirmation_preparation_3,
+            R.string.affirmation_preparation_4
         )
 
         /** Affirmation resource IDs for running phase */

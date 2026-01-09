@@ -57,7 +57,8 @@
 // MARK: - Settings
 
 "settings.title" = "Einstellungen";
-"settings.backgroundAudio.title" = "Hintergrund-Audio";
+"settings.backgroundAudio.title" = "Klangkulisse";
+"settings.backgroundAudio.sound" = "Klang";
 "settings.backgroundAudio.silent" = "Leise";
 "settings.backgroundAudio.whiteNoise" = "Weißes Rauschen";
 "settings.backgroundAudio.footer.silent" = "Hält die App sanft im Hintergrund aktiv. Fast unhörbar, einfach präsent.";
@@ -110,8 +111,6 @@
 "accessibility.timerState.running" = "Timer läuft. Aktuell am meditieren.";
 "accessibility.timerState.paused" = "Timer ist pausiert";
 "accessibility.timerState.completed" = "Meditationssitzung abgeschlossen";
-"accessibility.backgroundAudioMode" = "Hintergrund-Audio-Modus";
-"accessibility.backgroundAudioMode.hint" = "Wähle das Audio, das während der Meditation abgespielt wird";
 "accessibility.intervalGongs" = "Intervall-Gongs";
 "accessibility.intervalGongs.hint" = "Aktiviere oder deaktiviere Intervall-Gongs während der Meditation";
 "accessibility.startGongSound" = "Gong-Ton";

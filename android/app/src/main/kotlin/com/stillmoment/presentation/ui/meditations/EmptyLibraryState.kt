@@ -41,7 +41,7 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier) 
     ) {
         // Title
         Text(
-            text = stringResource(R.string.library_empty_title),
+            text = stringResource(R.string.guided_meditations_empty_title),
             style =
             MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.Medium
@@ -54,7 +54,7 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier) 
 
         // Description
         Text(
-            text = stringResource(R.string.library_empty_description),
+            text = stringResource(R.string.guided_meditations_empty_description),
             style =
             MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.Light
@@ -79,7 +79,7 @@ fun EmptyLibraryState(onImportClick: () -> Unit, modifier: Modifier = Modifier) 
             }
         ) {
             Text(
-                text = stringResource(R.string.library_import_button),
+                text = stringResource(R.string.guided_meditations_import),
                 style = MaterialTheme.typography.labelLarge
             )
         }

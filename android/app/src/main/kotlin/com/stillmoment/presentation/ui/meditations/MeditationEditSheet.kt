@@ -115,7 +115,7 @@ private fun MeditationEditSheetContent(
     ) {
         // Title
         Text(
-            text = stringResource(R.string.edit_meditation_title),
+            text = stringResource(R.string.guided_meditations_edit_title),
             style =
             MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Medium
@@ -131,7 +131,7 @@ private fun MeditationEditSheetContent(
             value = teacherText,
             onValueChange = onTeacherChange,
             suggestions = availableTeachers,
-            label = { Text(stringResource(R.string.edit_teacher_label)) },
+            label = { Text(stringResource(R.string.guided_meditations_edit_teacher)) },
             placeholder = { Text(meditation.teacher) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions =
@@ -147,7 +147,7 @@ private fun MeditationEditSheetContent(
         OutlinedTextField(
             value = nameText,
             onValueChange = onNameChange,
-            label = { Text(stringResource(R.string.edit_name_label)) },
+            label = { Text(stringResource(R.string.guided_meditations_edit_name)) },
             placeholder = { Text(meditation.name) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
@@ -179,7 +179,7 @@ private fun MeditationEditSheetContent(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.edit_file_label),
+                    text = stringResource(R.string.guided_meditations_edit_file),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -202,7 +202,7 @@ private fun MeditationEditSheetContent(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.edit_duration_label),
+                    text = stringResource(R.string.guided_meditations_edit_duration),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

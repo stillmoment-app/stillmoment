@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -96,17 +97,17 @@ fun SettingsSheet(
                 itemSpacing = itemSpacing
             )
             Spacer(modifier = Modifier.height(sectionSpacing))
-            BackgroundSoundSection(
-                settings = settings,
-                onSettingsChange = onSettingsChange,
-                onBackgroundSoundPreview = onBackgroundSoundPreview
-            )
-            Spacer(modifier = Modifier.height(sectionSpacing))
             GongSection(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
                 onGongSoundPreview = onGongSoundPreview,
                 itemSpacing = itemSpacing
+            )
+            Spacer(modifier = Modifier.height(sectionSpacing))
+            BackgroundSoundSection(
+                settings = settings,
+                onSettingsChange = onSettingsChange,
+                onBackgroundSoundPreview = onBackgroundSoundPreview
             )
             Spacer(modifier = Modifier.height(itemSpacing))
         }
@@ -129,9 +130,11 @@ private fun SettingsSheetHeader(onDismiss: () -> Unit) {
         )
         TextButton(
             onClick = onDismiss,
-            modifier = Modifier.semantics {
-                contentDescription = doneButtonDescription
-            }
+            modifier = Modifier
+                .testTag("settings.button.done")
+                .semantics {
+                    contentDescription = doneButtonDescription
+                }
         ) {
             Text(
                 text = stringResource(R.string.button_done),
@@ -226,22 +229,12 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (settings.preparationTimeEnabled) {
-                    stringResource(R.string.settings_preparation_on)
-                } else {
-                    stringResource(R.string.settings_preparation_off)
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = stringResource(R.string.settings_preparation_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = stringResource(R.string.settings_preparation_description),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
         Spacer(modifier = Modifier.width(16.dp))
 
         val preparationStateDescription =
@@ -260,10 +253,12 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
             ),
-            modifier = Modifier.semantics {
-                contentDescription = preparationContentDescription
-                stateDescription = preparationStateDescription
-            }
+            modifier = Modifier
+                .testTag("settings.toggle.preparationTime")
+                .semantics {
+                    contentDescription = preparationContentDescription
+                    stateDescription = preparationStateDescription
+                }
         )
     }
 }
@@ -278,7 +273,7 @@ private fun BackgroundSoundSection(
     var backgroundSoundExpanded by remember { mutableStateOf(false) }
 
     Column {
-        SectionTitle(text = stringResource(R.string.settings_background_sound))
+        SectionTitle(text = stringResource(R.string.settings_soundscape))
 
         SettingsCard {
             BackgroundSoundDropdown(
@@ -295,6 +290,7 @@ private fun BackgroundSoundSection(
                 VolumeSlider(
                     volume = settings.backgroundSoundVolume,
                     accessibilityDescriptionResId = R.string.accessibility_background_volume,
+                    testTag = "settings.slider.backgroundVolume",
                     onVolumeChange = { newVolume ->
                         onSettingsChange(settings.copy(backgroundSoundVolume = newVolume))
                     },
@@ -313,6 +309,7 @@ private fun BackgroundSoundSection(
  *
  * @param volume Current volume value (0.0 to 1.0)
  * @param accessibilityDescriptionResId String resource ID for accessibility description (with %d placeholder for percentage)
+ * @param testTag Tag for UI tests
  * @param onVolumeChange Callback when volume changes
  * @param onVolumeChangeFinished Callback when slider is released
  */
@@ -320,6 +317,7 @@ private fun BackgroundSoundSection(
 private fun VolumeSlider(
     volume: Float,
     @StringRes accessibilityDescriptionResId: Int,
+    testTag: String,
     onVolumeChange: (Float) -> Unit,
     onVolumeChangeFinished: () -> Unit
 ) {
@@ -342,6 +340,7 @@ private fun VolumeSlider(
             valueRange = 0f..1f,
             modifier = Modifier
                 .weight(1f)
+                .testTag(testTag)
                 .semantics {
                     contentDescription = volumeDescription
                 },
@@ -381,7 +380,7 @@ private fun BackgroundSoundDropdown(
             value = selectedSoundName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.settings_background_sound)) },
+            label = { Text(stringResource(R.string.settings_soundscape_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = DropdownShape,
             colors = dropdownTextFieldColors(),
@@ -457,6 +456,7 @@ private fun GongSection(
             VolumeSlider(
                 volume = settings.gongVolume,
                 accessibilityDescriptionResId = R.string.accessibility_gong_volume,
+                testTag = "settings.slider.gongVolume",
                 onVolumeChange = { newVolume ->
                     onSettingsChange(settings.copy(gongVolume = newVolume))
                 },
@@ -587,10 +587,12 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
             ),
-            modifier = Modifier.semantics {
-                contentDescription = intervalGongsContentDescription
-                stateDescription = switchStateDescription
-            }
+            modifier = Modifier
+                .testTag("settings.toggle.intervalGongs")
+                .semantics {
+                    contentDescription = intervalGongsContentDescription
+                    stateDescription = switchStateDescription
+                }
         )
     }
 }

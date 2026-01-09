@@ -219,13 +219,13 @@ internal fun GuidedMeditationsListScreenContent(
             AlertDialog(
                 onDismissRequest = { meditationToDelete = null },
                 title = {
-                    Text(text = stringResource(R.string.delete_confirmation_title))
+                    Text(text = stringResource(R.string.guided_meditations_delete_title))
                 },
                 text = {
                     Text(
                         text =
                         stringResource(
-                            R.string.delete_confirmation_message,
+                            R.string.guided_meditations_delete_message,
                             meditation.effectiveName
                         )
                     )
