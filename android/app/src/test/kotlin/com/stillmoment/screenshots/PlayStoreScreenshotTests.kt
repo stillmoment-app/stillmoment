@@ -31,6 +31,7 @@ import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreenC
 import com.stillmoment.presentation.ui.meditations.MeditationListItem
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.timer.SettingsSheet
 import com.stillmoment.presentation.ui.timer.TimerFocusScreenContent
 import com.stillmoment.presentation.ui.timer.TimerScreenContent
 import com.stillmoment.presentation.viewmodel.PlayerUiState
@@ -208,6 +209,42 @@ class PlayStoreScreenshotTests {
                     onSkipForward = {},
                     onSkipBackward = {},
                     onClearError = {}
+                )
+            }
+        }
+    }
+
+    // MARK: - Settings View
+
+    @Test
+    fun timerSettings_english() {
+        paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_EN)
+        captureSettings("")
+    }
+
+    @Test
+    fun timerSettings_german() {
+        paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_DE)
+        captureSettings("-de")
+    }
+
+    private fun captureSettings(suffix: String) {
+        // Settings with preparation time and interval gongs enabled
+        val settings = MeditationSettings(
+            preparationTimeEnabled = true,
+            preparationTimeSeconds = 15,
+            intervalGongsEnabled = true,
+            intervalMinutes = 5,
+            backgroundSoundId = "silent"
+        )
+
+        paparazzi.snapshot(name = "timer-settings$suffix") {
+            StillMomentTheme {
+                WarmGradientBackground()
+                SettingsSheet(
+                    settings = settings,
+                    onSettingsChange = {},
+                    onDismiss = {}
                 )
             }
         }

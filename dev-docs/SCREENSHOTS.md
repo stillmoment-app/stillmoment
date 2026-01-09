@@ -43,8 +43,9 @@ Screenshots are saved to `docs/images/screenshots/`.
 | `timer-running.png` / `timer-running-de.png` | Active meditation timer (~09:55) | Timer started, 5s wait |
 | `library-list.png` / `library-list-de.png` | Guided meditations library | Library tab with test fixtures |
 | `player-view.png` / `player-view-de.png` | Audio player | First meditation tapped |
+| `timer-settings.png` / `timer-settings-de.png` | Timer settings with options | Settings with preparation time + interval gongs enabled |
 
-**Total**: 4 screenshots × 2 languages = 8 files
+**Total**: 5 screenshots × 2 languages = 10 files
 
 ## How It Works
 
@@ -223,7 +224,9 @@ stillmoment/
     ├── library-list.png
     ├── library-list-de.png
     ├── player-view.png
-    └── player-view-de.png
+    ├── player-view-de.png
+    ├── timer-settings.png
+    └── timer-settings-de.png
 ```
 
 ## Resources
@@ -234,5 +237,5 @@ stillmoment/
 
 ---
 
-**Last Updated**: 2025-12-21
-**Version**: 3.0 (Fastlane Automation)
+**Last Updated**: 2026-01-09
+**Version**: 3.1 (Added Settings Screenshot)

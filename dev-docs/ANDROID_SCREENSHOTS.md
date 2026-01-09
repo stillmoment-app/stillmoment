@@ -1,66 +1,59 @@
-# Android Screenshot Generation Guide
+# Android Screenshot Tests (Paparazzi)
 
-This guide explains how to generate localized screenshots for the Still Moment Android app using Paparazzi.
+This guide explains the Paparazzi-based screenshot tests for the Still Moment Android app.
 
 ## Overview
 
-Screenshots are generated **automatically** using Paparazzi (JVM-based screenshot testing):
+Paparazzi generates screenshots on the JVM without emulator/device:
 
-- **Fully automated** - No emulator or device required
-- **Multi-language** - German (de) and English (en)
-- **Play Store ready** - Pixel 6 Pro resolution
-- **Reproducible** - Test fixtures ensure consistent content
 - **Fast** - ~30 seconds for all screenshots
+- **Regression testing** - Detect unintended UI changes
+- **Multi-language** - German (de) and English (en)
+- **No device required** - Runs in CI without emulator
 
 ## Quick Start
 
 ```bash
 cd android
-./gradlew screenshots
+
+# Generate/update golden screenshots
+./gradlew recordPaparazziDebug
+
+# Verify UI against golden screenshots
+./gradlew verifyPaparazziDebug
 ```
 
-Screenshots are saved to `android/screenshots/`.
+Screenshots are stored in `app/src/test/snapshots/images/`.
 
-## What Screenshots Are Generated
+## Screenshot Tests
 
-| Screenshot | Description | Source |
-|------------|-------------|--------|
-| `timer-main.png` / `timer-main-de.png` | Timer idle with duration picker | Timer tab, 10 min selected |
-| `timer-running.png` / `timer-running-de.png` | Active meditation timer (~09:55) | Timer running state |
-| `library-list.png` / `library-list-de.png` | Guided meditations library | Library with test fixtures |
-| `player-view.png` / `player-view-de.png` | Audio player | First meditation loaded |
+| Test | Description |
+|------|-------------|
+| `timerMain_english/german` | Timer idle with 10-min picker |
+| `timerRunning_english/german` | Active timer (~09:55) |
+| `libraryList_english/german` | Guided meditations library |
+| `playerView_english/german` | Audio player view |
+| `timerSettings_english/german` | Settings with options enabled |
 
-**Total**: 4 screenshots x 2 languages = 8 files
+**Total**: 5 views x 2 languages = 10 screenshots
 
-## How It Works
-
-### Architecture
+## Architecture
 
 ```
-android/
-+-- app/
-|   +-- build.gradle.kts              # Paparazzi plugin + screenshots task
-|   +-- src/test/kotlin/.../screenshots/
-|       +-- TestFixtures.kt           # 5 test meditations
-|       +-- PlayStoreScreenshotTests.kt # Paparazzi tests
-+-- scripts/
-    +-- process-screenshots.sh        # Post-processing
+android/app/src/test/kotlin/.../screenshots/
++-- TestFixtures.kt            # 5 test meditations
++-- PlayStoreScreenshotTests.kt  # Paparazzi tests
+
+android/app/src/test/snapshots/images/
++-- com.stillmoment.screenshots_PlayStoreScreenshotTests_*.png
 ```
-
-### Flow
-
-1. **Paparazzi** renders composables to PNG on JVM (no emulator)
-2. **Test fixtures** provide 5 pre-defined meditations
-3. **Locale config** switches between EN/DE for each screenshot
-4. **Post-processing** copies and optimizes images to `android/screenshots/`
 
 ## Commands
 
-| Command | Description | Duration |
-|---------|-------------|----------|
-| `./gradlew screenshots` | Generate all screenshots | ~30s |
-| `./gradlew recordPaparazziDebug` | Raw Paparazzi record | ~20s |
-| `./gradlew verifyPaparazziDebug` | Verify against golden | ~20s |
+| Command | Description |
+|---------|-------------|
+| `./gradlew recordPaparazziDebug` | Update golden screenshots |
+| `./gradlew verifyPaparazziDebug` | Verify against golden (CI) |
 
 ## Test Fixtures
 
@@ -74,30 +67,18 @@ Matching iOS for cross-platform consistency:
 | Tara Goldstein | Evening Wind Down | 19:05 |
 | Jon Salzberg | Present Moment Awareness | 25:48 |
 
-## Troubleshooting
+## CI Integration
 
-### Screenshots Not Generated
+Use `verifyPaparazziDebug` in CI to detect UI regressions:
 
-**Symptom**: `./gradlew screenshots` fails
-
-**Solution**:
-```bash
-# Clean and rebuild
-./gradlew clean
-./gradlew screenshots
+```yaml
+- name: Verify UI Screenshots
+  run: ./gradlew verifyPaparazziDebug
 ```
 
-### Locale Not Changing
-
-**Symptom**: All screenshots show English text
-
-**Solution**: Verify `unsafeUpdateConfig` with correct locale is called in `PlayStoreScreenshotTests.kt`
-
-### Image Quality Issues
-
-**Symptom**: Screenshots look blurry
-
-**Solution**: Check `DeviceConfig` in Paparazzi rule - should be `PIXEL_6_PRO` or similar high-res device
+If verification fails, review the diff and either:
+- Fix the unintended regression, or
+- Run `recordPaparazziDebug` to accept intentional changes
 
 ## Adding New Screenshots
 
@@ -105,17 +86,13 @@ Matching iOS for cross-platform consistency:
    ```kotlin
    @Test
    fun newView_english() {
-       paparazzi.unsafeUpdateConfig(
-           deviceConfig = paparazzi.deviceConfig.copy(locale = "en")
-       )
+       paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_EN)
        captureNewView("")
    }
 
    @Test
    fun newView_german() {
-       paparazzi.unsafeUpdateConfig(
-           deviceConfig = paparazzi.deviceConfig.copy(locale = "de")
-       )
+       paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_DE)
        captureNewView("-de")
    }
 
@@ -128,28 +105,26 @@ Matching iOS for cross-platform consistency:
    }
    ```
 
-2. Run: `./gradlew screenshots`
+2. Run: `./gradlew recordPaparazziDebug`
 
-## Play Store Requirements
+## Troubleshooting
 
-Google Play Store screenshot recommendations:
-- Minimum: 320px
-- Maximum: 3840px
-- Aspect ratio: 16:9 or similar
+### Verification Fails
 
-Our Pixel 6 Pro config produces optimal dimensions for Play Store.
+**Symptom**: `verifyPaparazziDebug` fails with diff
 
-## Comparison with iOS
+**Solution**:
+1. Review HTML report in `app/build/reports/paparazzi/`
+2. If change is intentional: `./gradlew recordPaparazziDebug`
+3. If change is unintended: fix the code
 
-| Aspect | iOS | Android |
-|--------|-----|---------|
-| Tool | Fastlane Snapshot | Paparazzi |
-| Runtime | Simulator | JVM |
-| Speed | ~3-5 min | ~30s |
-| Command | `make screenshots` | `./gradlew screenshots` |
-| Output | `docs/images/screenshots/` | `android/screenshots/` |
+### Locale Not Changing
+
+**Symptom**: All screenshots show English text
+
+**Solution**: Verify `unsafeUpdateConfig` with correct locale
 
 ---
 
-**Last Updated**: 2025-12-21
-**Version**: 1.0
+**Last Updated**: 2026-01-09
+**Version**: 2.0 (Simplified to Paparazzi-only)

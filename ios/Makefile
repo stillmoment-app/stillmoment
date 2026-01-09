@@ -1,4 +1,4 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check screenshots screenshot-setup
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check screenshots screenshot-setup screenshot-single
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -76,3 +76,16 @@ screenshots: ## Generate all screenshots automatically (Fastlane)
 	fi
 	@bundle exec fastlane screenshots
 	@echo "✅ Screenshots generated in docs/images/screenshots/"
+
+screenshot-single: ## Run single screenshot test in EN + DE (TEST=testScreenshot05_SettingsView)
+	@if [ -z "$(TEST)" ]; then \
+		echo "Usage: make screenshot-single TEST=testScreenshot05_SettingsView"; \
+		exit 1; \
+	fi
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@echo "📸 Running screenshot: $(TEST) (EN + DE via Fastlane)..."
+	@bundle exec fastlane screenshot_single test:$(TEST)
+	@echo "✅ Screenshots → docs/images/screenshots/"

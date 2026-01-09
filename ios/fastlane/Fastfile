@@ -19,6 +19,22 @@ platform :ios do
     UI.message("Output: ../docs/images/screenshots/")
   end
 
+  desc "Generate single screenshot in all languages (keeps existing screenshots)"
+  lane :screenshot_single do |options|
+    test_name = options[:test] || ENV["TEST"]
+
+    UI.user_error!("TEST parameter required. Usage: bundle exec fastlane screenshot_single test:testScreenshot05_SettingsView") unless test_name
+
+    capture_screenshots(
+      only_testing: ["StillMomentUITests/ScreenshotTests/#{test_name}"],
+      clear_previous_screenshots: false
+    )
+
+    sh("cd .. && ./scripts/process-screenshots.sh")
+
+    UI.success("Screenshot '#{test_name}' generated in EN + DE!")
+  end
+
   desc "Validate screenshot setup (quick check)"
   lane :screenshot_validate do
     # Just build the scheme to verify everything compiles

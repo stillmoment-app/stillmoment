@@ -158,22 +158,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
-// Screenshot automation - process screenshots after Paparazzi generates them
-tasks.register<Exec>("processScreenshots") {
-    description = "Process Paparazzi screenshots for Play Store"
-    group = "screenshot"
-    workingDir = projectDir.parentFile
-    commandLine("bash", "scripts/process-screenshots.sh")
-    dependsOn("recordPaparazziDebug")
-}
-
-// Convenience task to generate and process screenshots
-tasks.register("screenshots") {
-    description = "Generate Play Store screenshots using Paparazzi"
-    group = "screenshot"
-    dependsOn("processScreenshots")
-}
-
 // detekt configuration
 detekt {
     buildUponDefaultConfig = true

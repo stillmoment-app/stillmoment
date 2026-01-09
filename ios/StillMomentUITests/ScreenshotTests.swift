@@ -220,4 +220,55 @@ final class ScreenshotTests: XCTestCase {
             closeButton.tap()
         }
     }
+
+    /// Screenshot 5: Settings view with preparation time and interval gongs enabled
+    func testScreenshot05_SettingsView() {
+        // Navigate to Timer tab
+        self.navigateToTimerTab()
+
+        // Tap the settings button (gear icon)
+        let settingsButton = self.app.buttons["timer.button.settings"]
+        XCTAssertTrue(settingsButton.waitForExistence(timeout: 3.0), "Settings button not found")
+        settingsButton.tap()
+
+        // Wait for settings sheet to fully appear
+        Thread.sleep(forTimeInterval: 1.0)
+
+        // Find preparation time toggle
+        let preparationToggle = self.app.switches["settings.toggle.preparationTime"]
+        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "Settings sheet did not appear")
+
+        // Enable preparation time: tap if currently OFF
+        if preparationToggle.value as? String == "0" {
+            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+
+        // Find interval gongs toggle - may need to scroll
+        let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
+        if !intervalToggle.exists || !intervalToggle.isHittable {
+            self.app.swipeUp()
+            Thread.sleep(forTimeInterval: 0.3)
+        }
+        XCTAssertTrue(intervalToggle.waitForExistence(timeout: 3.0), "Interval gongs toggle not found")
+
+        // Enable interval gongs: tap if currently OFF
+        if intervalToggle.value as? String == "0" {
+            intervalToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+
+        // Scroll back to top to show preparation time section
+        self.app.swipeDown()
+        Thread.sleep(forTimeInterval: 0.5)
+
+        // Take screenshot
+        snapshot("05_SettingsView")
+
+        // Close settings
+        let doneButton = self.app.buttons["button.done"]
+        if doneButton.exists {
+            doneButton.tap()
+        }
+    }
 }
