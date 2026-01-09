@@ -8,10 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.collections.immutable.persistentListOf
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,20 +16,14 @@ import org.junit.runner.RunWith
 /**
  * UI Tests for GuidedMeditationsListScreen (Library).
  * Tests the empty state and UI elements using the real GuidedMeditationsListScreenContent.
+ *
+ * Note: These tests render isolated composables without real dependencies,
+ * so no Hilt injection is needed.
  */
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class LibraryScreenTest {
-    @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
+    @get:Rule
     val composeRule = createComposeRule()
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
 
     // MARK: - Helper to render LibraryScreenContent
 

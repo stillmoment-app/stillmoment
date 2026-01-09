@@ -9,11 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.TimerUiState
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,20 +18,14 @@ import org.junit.runner.RunWith
 /**
  * UI Tests for TimerScreen.
  * Tests the main timer functionality using the real TimerScreenContent composable.
+ *
+ * Note: These tests render isolated composables without real dependencies,
+ * so no Hilt injection is needed.
  */
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TimerScreenTest {
-    @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
+    @get:Rule
     val composeRule = createComposeRule()
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
 
     // MARK: - Helper to render TimerScreenContent
 
@@ -115,7 +106,7 @@ class TimerScreenTest {
     }
 
     @Test
-    fun settingsSheet_showsSilentAmbienceOption() {
+    fun settingsSheet_showsSilenceOption() {
         composeRule.setContent {
             StillMomentTheme {
                 SettingsSheet(
@@ -125,7 +116,7 @@ class TimerScreenTest {
                 )
             }
         }
-        composeRule.onNodeWithText("Silent Ambience", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithText("Silence", ignoreCase = true).assertIsDisplayed()
     }
 
     @Test
@@ -140,7 +131,7 @@ class TimerScreenTest {
             }
         }
         // Open the background sound dropdown by clicking on it
-        composeRule.onNodeWithText("Silent Ambience", ignoreCase = true).performClick()
+        composeRule.onNodeWithText("Silence", ignoreCase = true).performClick()
         // Now Forest Ambience should be visible in the dropdown menu
         composeRule.onNodeWithText("Forest Ambience", ignoreCase = true).assertIsDisplayed()
     }

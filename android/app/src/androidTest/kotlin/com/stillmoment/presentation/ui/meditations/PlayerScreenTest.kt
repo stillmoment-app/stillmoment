@@ -8,9 +8,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.viewmodel.PlayerUiState
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,14 +15,13 @@ import org.junit.runner.RunWith
 /**
  * UI Tests for GuidedMeditationPlayerScreen.
  * Tests the player controls and display elements using the real GuidedMeditationPlayerScreenContent.
+ *
+ * Note: These tests render isolated composables without real dependencies,
+ * so no Hilt injection is needed.
  */
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class PlayerScreenTest {
-    @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
+    @get:Rule
     val composeRule = createComposeRule()
 
     private val testMeditation =
@@ -48,11 +44,6 @@ class PlayerScreenTest {
             progress = 0.25f,
             isPlaying = false,
         )
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
 
     // MARK: - Helper to render PlayerScreenContent
 

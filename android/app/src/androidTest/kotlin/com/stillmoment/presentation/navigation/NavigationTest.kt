@@ -27,9 +27,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,20 +34,14 @@ import org.junit.runner.RunWith
 /**
  * UI Tests for app navigation.
  * Tests tab navigation between Timer and Library screens.
+ *
+ * Note: These tests render isolated composables without real dependencies,
+ * so no Hilt injection is needed.
  */
-@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class NavigationTest {
-    @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
-
-    @get:Rule(order = 1)
+    @get:Rule
     val composeRule = createComposeRule()
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
-    }
 
     // MARK: - Initial State Tests
 
