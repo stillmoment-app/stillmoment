@@ -161,7 +161,7 @@ Lade Still Moment herunter und schenke dir die Pause, die du verdienst.
 meditation,app,guided,mindfulness,library,zen,calm,offline,privacy,free,timer,yoga
 ```
 
-**Character count:** 79/100 ✅
+**Character count:** 82/100 ✅
 
 ### Alternative Keywords (if primary doesn't perform)
 
@@ -177,7 +177,7 @@ meditate,achtsamkeit,klangschale,gong,bell,silent,vipassana,zazen,wellness,relax
 ```
 Meditation as it should be. A gift, not a product — free and open source. Guided meditation library + silent timer. No ads, no tracking, no distractions.
 ```
-**Character count:** 156/170 ✅
+**Character count:** 155/170 ✅
 
 ### German
 ```
