@@ -294,7 +294,7 @@ private fun BackgroundSoundSection(
                     onVolumeChange = { newVolume ->
                         onSettingsChange(settings.copy(backgroundSoundVolume = newVolume))
                     },
-                    onVolumeChangeFinished = {
+                    onVolumeChangeFinish = {
                         onBackgroundSoundPreview(settings.backgroundSoundId)
                     }
                 )
@@ -311,7 +311,7 @@ private fun BackgroundSoundSection(
  * @param accessibilityDescriptionResId String resource ID for accessibility description (with %d placeholder for percentage)
  * @param testTag Tag for UI tests
  * @param onVolumeChange Callback when volume changes
- * @param onVolumeChangeFinished Callback when slider is released
+ * @param onVolumeChangeFinish Callback when slider is released
  */
 @Composable
 private fun VolumeSlider(
@@ -319,7 +319,7 @@ private fun VolumeSlider(
     @StringRes accessibilityDescriptionResId: Int,
     testTag: String,
     onVolumeChange: (Float) -> Unit,
-    onVolumeChangeFinished: () -> Unit
+    onVolumeChangeFinish: () -> Unit
 ) {
     val volumePercentage = (volume * 100).toInt()
     val volumeDescription = stringResource(accessibilityDescriptionResId, volumePercentage)
@@ -336,7 +336,7 @@ private fun VolumeSlider(
         Slider(
             value = volume,
             onValueChange = onVolumeChange,
-            onValueChangeFinished = onVolumeChangeFinished,
+            onValueChangeFinished = onVolumeChangeFinish,
             valueRange = 0f..1f,
             modifier = Modifier
                 .weight(1f)
@@ -460,7 +460,7 @@ private fun GongSection(
                 onVolumeChange = { newVolume ->
                     onSettingsChange(settings.copy(gongVolume = newVolume))
                 },
-                onVolumeChangeFinished = {
+                onVolumeChangeFinish = {
                     onGongSoundPreview(settings.gongSoundId)
                 }
             )

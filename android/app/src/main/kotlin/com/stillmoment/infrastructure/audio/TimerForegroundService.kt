@@ -31,7 +31,7 @@ class TimerForegroundService : Service() {
     lateinit var audioService: AudioService
 
     private var currentSoundId: String = "silent"
-    private var currentSoundVolume: Float = 0.15f
+    private var currentSoundVolume: Float = DEFAULT_SOUND_VOLUME
     private var currentGongSoundId: String = "classic-bowl"
     private var currentGongVolume: Float = 1.0f
     private var isRunning = false
@@ -48,7 +48,7 @@ class TimerForegroundService : Service() {
         when (intent?.action) {
             ACTION_START -> {
                 val soundId = intent.getStringExtra(EXTRA_SOUND_ID) ?: "silent"
-                val soundVolume = intent.getFloatExtra(EXTRA_SOUND_VOLUME, 0.15f)
+                val soundVolume = intent.getFloatExtra(EXTRA_SOUND_VOLUME, DEFAULT_SOUND_VOLUME)
                 val gongSoundId = intent.getStringExtra(EXTRA_GONG_SOUND_ID) ?: "classic-bowl"
                 val gongVolume = intent.getFloatExtra(EXTRA_GONG_VOLUME, 1.0f)
                 startTimer(soundId, soundVolume, gongSoundId, gongVolume)
@@ -174,6 +174,7 @@ class TimerForegroundService : Service() {
         private const val TAG = "TimerForegroundService"
         private const val CHANNEL_ID = "stillmoment_timer"
         private const val NOTIFICATION_ID = 1
+        private const val DEFAULT_SOUND_VOLUME = 0.15f
 
         const val ACTION_START = "com.stillmoment.action.START"
         const val ACTION_STOP = "com.stillmoment.action.STOP"
@@ -189,7 +190,7 @@ class TimerForegroundService : Service() {
         fun startService(
             context: Context,
             soundId: String,
-            soundVolume: Float = 0.15f,
+            soundVolume: Float = DEFAULT_SOUND_VOLUME,
             gongSoundId: String = "classic-bowl",
             gongVolume: Float = 1.0f
         ) {

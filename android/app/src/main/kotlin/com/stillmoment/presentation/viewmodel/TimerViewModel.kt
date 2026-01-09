@@ -148,15 +148,11 @@ constructor(
                 startTimerLoop()
             }
             is TimerEffect.PauseTimer -> {
-                viewModelScope.launch {
-                    timerRepository.pause()
-                }
+                viewModelScope.launch { timerRepository.pause() }
                 timerJob?.cancel()
             }
             is TimerEffect.ResumeTimer -> {
-                viewModelScope.launch {
-                    timerRepository.resume()
-                }
+                viewModelScope.launch { timerRepository.resume() }
                 startTimerLoop()
             }
             is TimerEffect.PauseBackgroundAudio -> {
@@ -168,15 +164,10 @@ constructor(
             is TimerEffect.ResetTimer -> {
                 timerJob?.cancel()
                 previousState = TimerState.Idle
-                viewModelScope.launch {
-                    timerRepository.reset()
-                }
+                viewModelScope.launch { timerRepository.reset() }
             }
-            is TimerEffect.SaveSettings -> {
-                viewModelScope.launch {
-                    settingsRepository.updateSettings(effect.settings)
-                }
-            }
+            is TimerEffect.SaveSettings ->
+                viewModelScope.launch { settingsRepository.updateSettings(effect.settings) }
         }
     }
 
@@ -387,9 +378,6 @@ constructor(
 
         /** Delay before stopping foreground service to allow completion sound to play */
         private const val COMPLETION_SOUND_DELAY_MS = 3000L
-
-        /** Default volume for background sound preview (0.0 to 1.0) */
-        private const val DEFAULT_PREVIEW_VOLUME = 0.15f
 
         /** Affirmation resource IDs for preparation phase */
         private val PREPARATION_AFFIRMATIONS = intArrayOf(
