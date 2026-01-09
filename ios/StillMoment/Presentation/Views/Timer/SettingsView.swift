@@ -122,7 +122,6 @@ struct SettingsView: View {
                         if self.settings.backgroundSoundId != "silent" {
                             VolumeSliderRow(
                                 volume: self.$settings.backgroundSoundVolume,
-                                titleKey: "settings.backgroundAudio.volume",
                                 accessibilityTitleKey: "settings.backgroundAudio.volume",
                                 accessibilityIdentifier: "settings.slider.backgroundVolume",
                                 accessibilityHintKey: "accessibility.backgroundVolume.hint"
@@ -162,7 +161,6 @@ struct SettingsView: View {
                         // Gong volume slider
                         VolumeSliderRow(
                             volume: self.$settings.gongVolume,
-                            titleKey: "settings.gongVolume.title",
                             accessibilityTitleKey: "settings.gongVolume.title",
                             accessibilityIdentifier: "settings.slider.gongVolume",
                             accessibilityHintKey: "accessibility.gongVolume.hint"
@@ -272,37 +270,33 @@ struct SettingsView: View {
 // MARK: - Volume Slider Row
 
 /// Reusable volume slider row component for settings
+/// No visual label - speaker icons are self-explanatory per shared-019/shared-020
 private struct VolumeSliderRow: View {
     @Binding var volume: Float
-    let titleKey: LocalizedStringKey
     let accessibilityTitleKey: String
     let accessibilityIdentifier: String
     let accessibilityHintKey: String
     let onSliderReleased: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(self.titleKey, bundle: .main)
-                .font(.system(size: 17, weight: .regular, design: .rounded))
-            HStack {
-                Image(systemName: "speaker.fill")
-                    .foregroundColor(.textSecondary)
-                    .font(.system(size: 12))
-                Slider(
-                    value: self.$volume,
-                    in: 0...1,
-                    step: 0.01
-                ) { editing in
-                    // Only trigger preview when slider is released (not during drag)
-                    if !editing {
-                        self.onSliderReleased()
-                    }
+        HStack {
+            Image(systemName: "speaker.fill")
+                .foregroundColor(.textSecondary)
+                .font(.system(size: 12))
+            Slider(
+                value: self.$volume,
+                in: 0...1,
+                step: 0.01
+            ) { editing in
+                // Only trigger preview when slider is released (not during drag)
+                if !editing {
+                    self.onSliderReleased()
                 }
-                .tint(.interactive)
-                Image(systemName: "speaker.wave.3.fill")
-                    .foregroundColor(.textSecondary)
-                    .font(.system(size: 12))
             }
+            .tint(.interactive)
+            Image(systemName: "speaker.wave.3.fill")
+                .foregroundColor(.textSecondary)
+                .font(.system(size: 12))
         }
         .accessibilityIdentifier(self.accessibilityIdentifier)
         .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))

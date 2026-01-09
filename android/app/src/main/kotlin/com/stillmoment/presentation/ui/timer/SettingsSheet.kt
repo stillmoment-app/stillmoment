@@ -294,7 +294,6 @@ private fun BackgroundSoundSection(
                 Spacer(modifier = Modifier.height(16.dp))
                 VolumeSlider(
                     volume = settings.backgroundSoundVolume,
-                    labelResId = R.string.settings_background_volume,
                     accessibilityDescriptionResId = R.string.accessibility_background_volume,
                     onVolumeChange = { newVolume ->
                         onSettingsChange(settings.copy(backgroundSoundVolume = newVolume))
@@ -310,9 +309,9 @@ private fun BackgroundSoundSection(
 
 /**
  * Reusable volume slider component for settings.
+ * No visual label - speaker icons are self-explanatory per shared-019/shared-020.
  *
  * @param volume Current volume value (0.0 to 1.0)
- * @param labelResId String resource ID for the label
  * @param accessibilityDescriptionResId String resource ID for accessibility description (with %d placeholder for percentage)
  * @param onVolumeChange Callback when volume changes
  * @param onVolumeChangeFinished Callback when slider is released
@@ -320,52 +319,42 @@ private fun BackgroundSoundSection(
 @Composable
 private fun VolumeSlider(
     volume: Float,
-    @StringRes labelResId: Int,
     @StringRes accessibilityDescriptionResId: Int,
     onVolumeChange: (Float) -> Unit,
     onVolumeChangeFinished: () -> Unit
 ) {
-    val volumeLabel = stringResource(labelResId)
     val volumePercentage = (volume * 100).toInt()
     val volumeDescription = stringResource(accessibilityDescriptionResId, volumePercentage)
 
-    Column {
-        Text(
-            text = volumeLabel,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.VolumeDown,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.VolumeDown,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+        Slider(
+            value = volume,
+            onValueChange = onVolumeChange,
+            onValueChangeFinished = onVolumeChangeFinished,
+            valueRange = 0f..1f,
+            modifier = Modifier
+                .weight(1f)
+                .semantics {
+                    contentDescription = volumeDescription
+                },
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary
             )
-            Slider(
-                value = volume,
-                onValueChange = onVolumeChange,
-                onValueChangeFinished = onVolumeChangeFinished,
-                valueRange = 0f..1f,
-                modifier = Modifier
-                    .weight(1f)
-                    .semantics {
-                        contentDescription = volumeDescription
-                    },
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary
-                )
-            )
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -467,7 +456,6 @@ private fun GongSection(
 
             VolumeSlider(
                 volume = settings.gongVolume,
-                labelResId = R.string.settings_gong_volume,
                 accessibilityDescriptionResId = R.string.accessibility_gong_volume,
                 onVolumeChange = { newVolume ->
                     onSettingsChange(settings.copy(gongVolume = newVolume))

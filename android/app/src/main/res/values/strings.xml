@@ -38,7 +38,6 @@
     <string name="settings_interval_minutes">Interval</string>
     <string name="settings_gong">Gong</string>
     <string name="settings_gong_sound">Gong Sound</string>
-    <string name="settings_gong_volume">Volume</string>
     <string name="settings_preparation_time">Preparation Time</string>
     <string name="settings_preparation_on">On</string>
     <string name="settings_preparation_off">Off</string>
@@ -50,7 +49,6 @@
     <string name="sound_silent_description">Meditate in silence.</string>
     <string name="sound_forest">Forest Ambience</string>
     <string name="sound_forest_description">Natural forest sounds</string>
-    <string name="settings_background_volume">Volume</string>
 
     <!-- Time -->
     <string name="time_minutes">%d min</string>
