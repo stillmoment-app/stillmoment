@@ -24,8 +24,13 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
     color: var(--warm-black);
-    background: linear-gradient(180deg, var(--warm-cream) 0%, var(--warm-sand) 50%, var(--pale-apricot) 100%);
+    background:
+        /* Sanfter Apricot-Glow oben rechts */
+        radial-gradient(ellipse 80% 50% at 85% 10%, rgba(255, 180, 140, 0.4) 0%, transparent 50%),
+        /* Basis-Verlauf: deutlich wärmer für Kontrast zum Hero */
+        linear-gradient(180deg, #EFE0D0 0%, #E8D5C4 40%, #E2CCBA 70%, #DBBFA8 100%);
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 /* Header */
@@ -34,9 +39,9 @@ header {
     top: 0;
     background: rgba(255, 248, 240, 0.95);
     backdrop-filter: blur(10px);
-    padding: 1rem 2rem;
+    padding: 0.75rem 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     box-shadow: 0 2px 10px rgba(61, 50, 40, 0.1);
     z-index: 100;
@@ -115,8 +120,17 @@ header {
     text-align: center;
     font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     color: var(--warm-black);
+}
+
+.section-description {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--warm-gray);
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+    line-height: 1.6;
 }
 
 /* Cards and Sections */
@@ -355,8 +369,12 @@ header {
 }
 
 .feature-icon {
-    font-size: 2.5rem;
     margin-bottom: 1rem;
+    color: var(--terracotta);
+}
+
+.feature-icon svg {
+    display: block;
 }
 
 .feature-card h3 {
@@ -445,6 +463,7 @@ header {
 
 .carousel {
     display: flex;
+    justify-content: center;
     gap: 2rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -478,7 +497,6 @@ header {
     background: #1f1f1f;
     border-radius: 40px;
     padding: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     position: relative;
 }
 
@@ -638,5 +656,745 @@ footer {
     .impressum-section h2,
     .privacy-section h2 {
         font-size: 1.5rem;
+    }
+}
+
+/* ========================================
+   Split Layout (Text neben Screenshots)
+   ======================================== */
+
+.split-layout .split-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem 5rem;
+    min-height: 400px;
+    overflow: visible;
+}
+
+/* Hero-Hintergrund mit geschwungener Unterkante */
+.split-layout .split-hero::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150vw;
+    height: calc(100% + 100px);
+    background: linear-gradient(180deg,
+        #FFFFFF 0%,
+        #FFFAF5 50%,
+        #FFF5EC 80%,
+        transparent 100%);
+    border-radius: 0 0 50% 50%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.split-layout .hero-content {
+    flex: 0 0 50%;
+    text-align: left;
+    position: relative;
+    z-index: 2;
+}
+
+.split-layout .hero-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.split-layout .hero-title-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.split-layout .hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    margin-bottom: -0.2em;
+}
+
+.split-layout .split-hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--warm-black);
+    margin: 0;
+    line-height: 1;
+}
+
+.split-layout .hero-tagline {
+    font-size: 1.4rem;
+    color: var(--warm-gray);
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.split-layout .hero-features {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.split-layout .hero-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 1rem;
+    color: var(--warm-gray);
+    line-height: 1.4;
+}
+
+.split-layout .hero-features svg {
+    color: var(--terracotta);
+    flex-shrink: 0;
+    margin-top: 0.15em;
+}
+
+.split-layout .hero-badges {
+    display: flex;
+    gap: 1rem;
+}
+
+.split-layout .hero-badges .store-badge img {
+    height: 44px;
+}
+
+.split-layout .hero-image {
+    position: absolute;
+    right: -5%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1;
+}
+
+.split-layout .hero-image img {
+    max-width: 420px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 15px 40px rgba(212, 135, 111, 0.25));
+}
+
+/* Header with badges */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.header-badge img {
+    height: 32px;
+}
+
+.split-layout .split-hero-text h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: var(--warm-black);
+}
+
+.split-layout .split-hero-text .tagline {
+    font-size: 1.25rem;
+    color: var(--warm-gray);
+    margin: 0 0 2rem 0;
+}
+
+.split-layout .hero-badges .store-badge img {
+    height: 50px;
+}
+
+.split-layout .split-hero-image img {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Split Sections */
+.split-layout .split-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+.split-layout .split-section.reverse {
+    direction: rtl;
+}
+
+.split-layout .split-section.reverse > * {
+    direction: ltr;
+}
+
+.split-layout .split-text h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--warm-black);
+}
+
+.split-layout .split-text p {
+    font-size: 1.1rem;
+    color: var(--warm-gray);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.split-layout .split-screenshots {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.split-layout .split-screenshots img {
+    height: 400px;
+    width: auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Features Grid */
+.split-layout .split-features {
+    background: var(--warm-sand);
+    padding: 3rem 2rem;
+}
+
+.split-layout .split-features .features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.split-layout .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.split-layout .feature-item svg {
+    color: var(--terracotta);
+    flex-shrink: 0;
+}
+
+.split-layout .feature-item strong {
+    display: block;
+    color: var(--warm-black);
+    margin-bottom: 0.25rem;
+}
+
+.split-layout .feature-item span {
+    color: var(--warm-gray);
+    font-size: 0.9rem;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .split-layout .split-hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1.5rem 3rem;
+        min-height: auto;
+        overflow: hidden;  /* Kein horizontaler Scroll auf Mobile */
+    }
+
+    .split-layout .hero-content {
+        flex: none;
+        width: 100%;
+        text-align: center;
+        order: 2;
+    }
+
+    .split-layout .hero-intro {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .split-layout .split-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .split-layout .hero-tagline {
+        font-size: 1.1rem;
+    }
+
+    .split-layout .hero-features li {
+        font-size: 0.95rem;
+    }
+
+    .split-layout .hero-badges {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .split-layout .hero-image {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        justify-content: center;
+        order: 1;
+        margin-bottom: 1.5rem;
+    }
+
+    .split-layout .hero-image img {
+        max-width: 180px;
+    }
+
+    .split-layout .split-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .split-layout .split-section.reverse {
+        direction: ltr;
+    }
+
+    .split-layout .split-screenshots img {
+        height: 300px;
+    }
+
+    .split-layout .split-features .features-grid {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+/* ========================================
+   App Store Style (Alternative Design)
+   ======================================== */
+
+.app-store-style .app-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.app-store-style .app-icon-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.app-store-style .app-info {
+    flex: 1;
+}
+
+.app-store-style .app-info h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    color: var(--warm-black);
+}
+
+.app-store-style .app-subtitle {
+    font-size: 1.25rem;
+    color: var(--warm-gray);
+    margin: 0 0 0.5rem 0;
+}
+
+.app-store-style .app-tagline {
+    font-size: 1rem;
+    color: var(--terracotta);
+    margin: 0 0 1rem 0;
+}
+
+.app-store-style .app-badges {
+    display: flex;
+    gap: 1rem;
+}
+
+.app-store-style .app-badges .store-badge img {
+    height: 44px;
+}
+
+/* Screenshots Section */
+.app-store-style .app-screenshots {
+    padding: 2rem 0;
+    background: var(--warm-sand);
+}
+
+.app-store-style .screenshots-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 2rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: var(--terracotta) var(--warm-cream);
+}
+
+.app-store-style .screenshots-scroll img {
+    height: 500px;
+    width: auto;
+    border-radius: 16px;
+    scroll-snap-align: start;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Features List */
+.app-store-style .app-features {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.app-store-style .app-features h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--warm-black);
+}
+
+.app-store-style .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.app-store-style .feature-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--warm-sand);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.app-store-style .feature-list li:last-child {
+    border-bottom: none;
+}
+
+.app-store-style .feature-list strong {
+    color: var(--warm-black);
+    font-weight: 600;
+}
+
+.app-store-style .feature-list span {
+    color: var(--warm-gray);
+    font-size: 0.95rem;
+}
+
+/* Privacy Note */
+.app-store-style .app-privacy {
+    background: var(--warm-cream);
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid var(--warm-sand);
+}
+
+.app-store-style .app-privacy h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--warm-black);
+}
+
+.app-store-style .app-privacy p {
+    color: var(--warm-gray);
+    margin: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .app-store-style .app-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+
+    .app-store-style .app-icon-large {
+        width: 100px;
+        height: 100px;
+    }
+
+    .app-store-style .app-info h1 {
+        font-size: 2rem;
+    }
+
+    .app-store-style .app-badges {
+        justify-content: center;
+    }
+
+    .app-store-style .screenshots-scroll img {
+        height: 400px;
+    }
+}
+
+/* ========================================
+   Small Mobile Devices (< 480px)
+   iPhone SE, older Android, very narrow viewports
+   ======================================== */
+
+@media (max-width: 480px) {
+    /* Header kompakter */
+    header {
+        padding: 0.75rem;
+    }
+
+    .language-switcher button {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    /* Content Padding reduzieren */
+    .content {
+        padding: 2rem 1rem;
+    }
+
+    /* Hero-Anpassungen */
+    .hero h1,
+    .content h1 {
+        font-size: 1.75rem;
+    }
+
+    .hero .tagline {
+        font-size: 1rem;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
+    }
+
+    /* Section Titles kleiner */
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .section-description {
+        font-size: 1rem;
+    }
+
+    /* Cards kompakter */
+    .section-card,
+    .support-section,
+    .impressum-section,
+    .privacy-section {
+        padding: 1.5rem 1rem;
+    }
+
+    .section-card h2,
+    .support-section h2,
+    .impressum-section h2,
+    .privacy-section h2 {
+        font-size: 1.3rem;
+    }
+
+    /* Store Badges kleiner */
+    .store-badge img {
+        height: 44px;
+    }
+
+    /* Carousel anpassen */
+    .carousel {
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+
+    .phone-mockup {
+        flex: 0 0 250px;
+    }
+
+    /* Features kompakter */
+    .features {
+        padding: 2rem 1rem;
+    }
+
+    .feature-card {
+        padding: 1.5rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+    }
+
+    /* Privacy Banner */
+    .privacy-banner {
+        padding: 2rem 1rem;
+        margin: 2rem 0;
+    }
+
+    .privacy-banner h2 {
+        font-size: 1.5rem;
+    }
+
+    .privacy-banner p {
+        font-size: 1rem;
+    }
+
+    /* Footer */
+    footer {
+        padding: 2rem 1rem;
+        margin-top: 2rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .footer-section ul {
+        padding: 0;
+    }
+
+    /* Split Layout für kleine Screens */
+    .split-layout .split-hero {
+        padding: 1.5rem 1rem 3rem;
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    .split-layout .split-hero::before {
+        height: calc(100% + 60px);
+        top: -60px;
+    }
+
+    .split-layout .hero-content {
+        text-align: left;
+    }
+
+    .split-layout .hero-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        margin-top: 0.5rem;
+    }
+
+    .split-layout .split-hero h1 {
+        font-size: 2rem;
+    }
+
+    .split-layout .hero-tagline {
+        font-size: 1rem;
+    }
+
+    .split-layout .hero-features li {
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+
+    .split-layout .hero-features svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .split-layout .hero-badges {
+        justify-content: center;
+    }
+
+    /* Hero-Bild auf kleinen Screens ausblenden */
+    .split-layout .hero-image {
+        display: none;
+    }
+
+    .split-layout .hero-badges .store-badge img {
+        height: 40px;
+    }
+
+    /* Screenshots vertikal stapeln */
+    .split-layout .split-screenshots {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .split-layout .split-screenshots img {
+        height: auto;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    /* Split Sections kompakter */
+    .split-layout .split-section {
+        padding: 2rem 1rem;
+        gap: 1.5rem;
+    }
+
+    .split-layout .split-text h2 {
+        font-size: 1.5rem;
+    }
+
+    .split-layout .split-text p {
+        font-size: 1rem;
+    }
+
+    /* Features Strip kompakter */
+    .split-layout .split-features {
+        padding: 2rem 1rem;
+    }
+
+    .split-layout .feature-item {
+        gap: 0.75rem;
+    }
+
+    .split-layout .feature-item svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* App Store Style */
+    .app-store-style .app-header {
+        padding: 2rem 1rem;
+        gap: 1rem;
+    }
+
+    .app-store-style .app-icon-large {
+        width: 80px;
+        height: 80px;
+    }
+
+    .app-store-style .app-info h1 {
+        font-size: 1.75rem;
+    }
+
+    .app-store-style .app-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .app-store-style .app-badges .store-badge img {
+        height: 40px;
+    }
+
+    .app-store-style .screenshots-scroll {
+        padding: 1rem;
+    }
+
+    .app-store-style .screenshots-scroll img {
+        height: 300px;
+    }
+
+    .app-store-style .app-features {
+        padding: 2rem 1rem;
+    }
+
+    .app-store-style .app-privacy {
+        padding: 1.5rem 1rem;
     }
 }

@@ -28,153 +28,132 @@
     <link rel="icon" type="image/png" href="images/app-icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="split-layout">
     {% include header.html %}
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <img src="images/app-icon.png" alt="Still Moment App Icon" class="hero-icon">
-        <h1 class="lang-en">A warmhearted meditation app</h1>
-        <h1 class="lang-de hidden">Eine warmherzige Meditations-App</h1>
-
-        <p class="tagline lang-en">Gift yourself the pause you deserve</p>
-        <p class="tagline lang-de hidden">Schenke dir die Pause, die du verdienst</p>
-
-        <div class="cta-buttons">
-            <a href="https://apps.apple.com/us/app/still-moment/id6755774465" class="store-badge lang-en" target="_blank">
-                <img src="images/badges/app-store-badge-en.svg" alt="Download on the App Store">
-            </a>
-            <a href="https://apps.apple.com/de/app/still-moment/id6755774465" class="store-badge lang-de hidden" target="_blank">
-                <img src="images/badges/app-store-badge-de.svg" alt="Laden im App Store">
-            </a>
-            <span class="store-badge store-badge-disabled lang-en">
-                <img src="images/badges/google-play-badge-en.svg" alt="Get it on Google Play — Coming Soon">
-            </span>
-            <span class="store-badge store-badge-disabled lang-de hidden">
-                <img src="images/badges/google-play-badge-de.svg" alt="Jetzt bei Google Play — Bald verfügbar">
-            </span>
+    <!-- Hero: Split layout with symbolic image -->
+    <section class="split-hero">
+        <div class="hero-content">
+            <div class="hero-intro">
+                <div class="hero-title-row">
+                    <img src="images/app-icon.png" alt="Still Moment" class="hero-icon">
+                    <h1>Still Moment</h1>
+                </div>
+                <p class="hero-tagline lang-en">Meditation as it should be.</p>
+                <p class="hero-tagline lang-de hidden">Meditation, wie sie sein sollte.</p>
+                <ul class="hero-features lang-en">
+                    <li>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <span>A gift, not a product — free and open source</span>
+                    </li>
+                    <li>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span>No ads, no tracking, no distractions</span>
+                    </li>
+                </ul>
+                <ul class="hero-features lang-de hidden">
+                    <li>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <span>Ein Geschenk, kein Produkt — kostenlos und Open Source</span>
+                    </li>
+                    <li>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span>Keine Werbung, kein Tracking, keine Ablenkung</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="hero-badges">
+                <a href="https://apps.apple.com/us/app/still-moment/id6755774465" class="store-badge lang-en" target="_blank">
+                    <img src="images/badges/app-store-badge-en.svg" alt="Download on the App Store">
+                </a>
+                <a href="https://apps.apple.com/de/app/still-moment/id6755774465" class="store-badge lang-de hidden" target="_blank">
+                    <img src="images/badges/app-store-badge-de.svg" alt="Laden im App Store">
+                </a>
+                <span class="store-badge store-badge-disabled lang-en">
+                    <img src="images/badges/google-play-badge-en.svg" alt="Get it on Google Play — Coming Soon">
+                </span>
+                <span class="store-badge store-badge-disabled lang-de hidden">
+                    <img src="images/badges/google-play-badge-de.svg" alt="Jetzt bei Google Play — Bald verfügbar">
+                </span>
+            </div>
         </div>
-
-        <p class="beta-hint lang-en">Want to test the Android app? Send a message to <a href="mailto:hello@stillmoment.app">hello@stillmoment.app</a></p>
-        <p class="beta-hint lang-de hidden">Du willst die Android-App testen? Schreibe eine Nachricht an <a href="mailto:hello@stillmoment.app">hello@stillmoment.app</a></p>
-    </section>
-
-    <!-- Screenshots Section -->
-    <section class="screenshots">
-        <h2 class="section-title lang-en">Your Moment of Stillness</h2>
-        <h2 class="section-title lang-de hidden">Dein Moment des Innehaltens</h2>
-
-        <div class="carousel">
-            <!-- Player -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/player-view.png" alt="Audio Player">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timer - Running -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/timer-running.png" alt="Timer Running">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timer - Main View -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/timer-main.png" alt="Timer Main View">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timer - Settings -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/timer-settings.png" alt="Timer Settings">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Library -->
-            <div class="phone-mockup">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="images/screenshots/library-list.png" alt="Meditation Library">
-                    </div>
-                </div>
-            </div>
+        <div class="hero-image">
+            <img src="images/hands-heart.png" alt="Hands holding a heart - symbol for self-care">
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features">
-        <h2 class="section-title lang-en">Features that matter</h2>
-        <h2 class="section-title lang-de hidden">Features, die zählen</h2>
+    <!-- Guided Meditations: Text left, Screenshots right -->
+    <section class="split-section">
+        <div class="split-text">
+            <h2 class="lang-en">Guided Meditations</h2>
+            <h2 class="lang-de hidden">Geführte Meditationen</h2>
+            <p class="lang-en">Build your personal library with guided meditations. Import your own audio files, organized by teacher. Listen anytime, offline, without tracking or subscriptions.</p>
+            <p class="lang-de hidden">Erstelle deine persönliche Bibliothek mit geführten Meditationen. Importiere eigene Audio-Dateien, sortiert nach Lehrer. Höre jederzeit, offline, ohne Tracking und Abos.</p>
+        </div>
+        <div class="split-screenshots">
+            <img src="images/screenshots/library-list.png" alt="Library">
+            <img src="images/screenshots/player-view.png" alt="Player">
+        </div>
+    </section>
 
+    <!-- Silent Meditation: Screenshots left, Text right -->
+    <section class="split-section reverse">
+        <div class="split-text">
+            <h2 class="lang-en">Silent Meditation</h2>
+            <h2 class="lang-de hidden">Freie Meditation</h2>
+            <p class="lang-en">A simple timer that stays out of your way. Does exactly what you need – nothing more.</p>
+            <p class="lang-de hidden">Ein einfacher Timer, der dir nicht im Weg steht. Tut genau das, was du brauchst – nicht mehr.</p>
+        </div>
+        <div class="split-screenshots">
+            <img src="images/screenshots/timer-main.png" alt="Timer">
+            <img src="images/screenshots/timer-running.png" alt="Timer Running">
+            <img src="images/screenshots/timer-settings.png" alt="Settings">
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="split-features">
         <div class="features-grid">
-            <!-- Guided Meditations -->
-            <div class="feature-card">
-                <div class="feature-icon">🎧</div>
-                <h3 class="lang-en">Guided Meditation Library</h3>
-                <h3 class="lang-de hidden">Geführte Meditationen</h3>
-                <p class="lang-en">Build your personal library with your own guided meditations, neatly organized by teacher.</p>
-                <p class="lang-de hidden">Erstelle deine persönliche Bibliothek mit eigenen geführten Meditationen, übersichtlich nach Lehrer sortiert.</p>
+            <div class="feature-item">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>
+                </svg>
+                <div>
+                    <strong class="lang-en">Simple & Distraction-Free</strong>
+                    <strong class="lang-de hidden">Einfach & Ablenkungsfrei</strong>
+                    <span class="lang-en">No notifications, no feature bloat</span>
+                    <span class="lang-de hidden">Keine Benachrichtigungen, kein Schnickschnack</span>
+                </div>
             </div>
-
-            <!-- Silent Meditation -->
-            <div class="feature-card">
-                <div class="feature-icon">⏱️</div>
-                <h3 class="lang-en">Silent Meditation</h3>
-                <h3 class="lang-de hidden">Freie Meditation</h3>
-                <p class="lang-en">Meditate in stillness, without spoken guidance. Gentle singing bowls mark the beginning and end of your practice. Optional interval bells invite you back when thoughts drift away.</p>
-                <p class="lang-de hidden">Meditiere in Stille, ohne gesprochene Anleitung. Sanfte Klangschalen markieren Beginn und Ende deiner Praxis. Optionale Intervall-Glocken laden dich ein zurückzukehren, wenn Gedanken wandern.</p>
+            <div class="feature-item">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <div>
+                    <strong class="lang-en">Privacy First</strong>
+                    <strong class="lang-de hidden">Datenschutz zuerst</strong>
+                    <span class="lang-en">100% offline, zero data collection</span>
+                    <span class="lang-de hidden">100% offline, keine Datenerfassung</span>
+                </div>
             </div>
-
-            <!-- Privacy -->
-            <div class="feature-card">
-                <div class="feature-icon">🔒</div>
-                <h3 class="lang-en">Privacy First</h3>
-                <h3 class="lang-de hidden">Datenschutz zuerst</h3>
-                <p class="lang-en">Zero data collection. 100% offline. No tracking, no analytics, no ads. Your meditation practice stays completely private.</p>
-                <p class="lang-de hidden">Keine Datenerfassung. 100% offline. Kein Tracking, keine Analytik, keine Werbung. Deine Meditationspraxis bleibt vollständig privat.</p>
-            </div>
-
-            <!-- Design -->
-            <div class="feature-card">
-                <div class="feature-icon">🎨</div>
-                <h3 class="lang-en">Simple & Distraction-Free</h3>
-                <h3 class="lang-de hidden">Einfach & Ablenkungsfrei</h3>
-                <p class="lang-en">A calm, welcoming design that stays out of your way. No unnecessary features, no distractions. Just what you need for your practice with gentle encouragement along the way.</p>
-                <p class="lang-de hidden">Ein ruhiges, einladendes Design, das sich zurücknimmt. Keine unnötigen Features, keine Ablenkungen. Nur das, was du für deine Praxis brauchst, mit sanfter Ermutigung auf dem Weg.</p>
-            </div>
-
-            <!-- Fully Customizable -->
-            <div class="feature-card">
-                <div class="feature-icon">🎛️</div>
-                <h3 class="lang-en">Fully Customizable</h3>
-                <h3 class="lang-de hidden">Ganz nach deinem Geschmack</h3>
-                <p class="lang-en">Make it yours. Choose your duration and how long you need to settle in. Choose your singing bowl sound. Meditate in silence or let soothing forest sounds accompany you. Every detail, your choice.</p>
-                <p class="lang-de hidden">Mach es zu deinem. Wähle deine Dauer und wie lange du zum Ankommen brauchst. Wähle deinen Klangschalen-Klang. Meditiere in Stille oder lass dich von beruhigenden Waldklängen begleiten. Jedes Detail, deine Wahl.</p>
-            </div>
-
-            <!-- Accessibility -->
-            <div class="feature-card">
-                <div class="feature-icon">♿</div>
-                <h3 class="lang-en">Accessible to All</h3>
-                <h3 class="lang-de hidden">Für alle zugänglich</h3>
-                <p class="lang-en">Works beautifully with VoiceOver and other assistive technologies. Clear, natural descriptions make meditation accessible to everyone.</p>
-                <p class="lang-de hidden">Funktioniert hervorragend mit VoiceOver und anderen Hilfstechnologien. Klare, natürliche Beschreibungen machen Meditation für alle zugänglich.</p>
+            <div class="feature-item">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+                </svg>
+                <div>
+                    <strong class="lang-en">Fully Customizable</strong>
+                    <strong class="lang-de hidden">Ganz nach deinem Geschmack</strong>
+                    <span class="lang-en">Duration, sounds, background audio</span>
+                    <span class="lang-de hidden">Dauer, Klänge, Hintergrund-Audio</span>
+                </div>
             </div>
         </div>
     </section>
@@ -220,25 +199,14 @@
 
         function updateScreenshots(lang) {
             // Update all screenshot images based on language
-            document.querySelectorAll('.phone-screen img').forEach(img => {
+            document.querySelectorAll('.split-screenshots img, .split-hero-image img').forEach(img => {
                 const src = img.getAttribute('src');
-
-                // Extract base screenshot name (e.g., "timer-main" from "images/screenshots/timer-main.png")
                 const match = src.match(/images\/screenshots\/([^.]+)\.png/);
                 if (match) {
-                    const baseName = match[1];
-                    // Remove any existing language suffix
-                    const cleanName = baseName.replace(/-de$/, '');
-
-                    // Build new path with language suffix (or without for English)
-                    let newSrc;
-                    if (lang === 'de') {
-                        newSrc = `images/screenshots/${cleanName}-de.png`;
-                    } else {
-                        newSrc = `images/screenshots/${cleanName}.png`;
-                    }
-
-                    // Update image source
+                    const cleanName = match[1].replace(/-de$/, '');
+                    const newSrc = lang === 'de'
+                        ? `images/screenshots/${cleanName}-de.png`
+                        : `images/screenshots/${cleanName}.png`;
                     img.setAttribute('src', newSrc);
                 }
             });
