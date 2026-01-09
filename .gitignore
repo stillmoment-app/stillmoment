@@ -152,5 +152,4 @@ ios/.bundle/
 ios/Gemfile.lock
 ios/fastlane/report.xml
 ios/fastlane/README.md
-ios/fastlane/screenshots/
 ios/fastlane/test_output/
