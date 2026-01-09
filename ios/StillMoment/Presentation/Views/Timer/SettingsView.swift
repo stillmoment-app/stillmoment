@@ -117,6 +117,19 @@ struct SettingsView: View {
                             NSLocalizedString("settings.backgroundAudio.title", comment: "")
                         )
                         .listRowBackground(Color.backgroundPrimary)
+
+                        // Volume slider - only shown when a non-silent sound is selected
+                        if self.settings.backgroundSoundId != "silent" {
+                            VolumeSliderRow(
+                                volume: self.$settings.backgroundSoundVolume,
+                                titleKey: "settings.backgroundAudio.volume",
+                                accessibilityTitleKey: "settings.backgroundAudio.volume",
+                                accessibilityIdentifier: "settings.slider.backgroundVolume",
+                                accessibilityHintKey: "accessibility.backgroundVolume.hint"
+                            ) {
+                                self.playBackgroundPreview(soundId: self.settings.backgroundSoundId)
+                            }
+                        }
                     } header: {
                         Text("settings.backgroundAudio.title", bundle: .main)
                     } footer: {
@@ -145,6 +158,17 @@ struct SettingsView: View {
                         .accessibilityLabel("accessibility.startGongSound")
                         .accessibilityHint("accessibility.startGongSound.hint")
                         .listRowBackground(Color.backgroundPrimary)
+
+                        // Gong volume slider
+                        VolumeSliderRow(
+                            volume: self.$settings.gongVolume,
+                            titleKey: "settings.gongVolume.title",
+                            accessibilityTitleKey: "settings.gongVolume.title",
+                            accessibilityIdentifier: "settings.slider.gongVolume",
+                            accessibilityHintKey: "accessibility.gongVolume.hint"
+                        ) {
+                            self.playGongPreview(soundId: self.settings.startGongSoundId)
+                        }
 
                         Toggle(isOn: self.$settings.intervalGongsEnabled) {
                             VStack(alignment: .leading, spacing: 4) {
@@ -222,13 +246,19 @@ struct SettingsView: View {
 
     /// Plays gong preview and stops previous preview
     private func playGongPreview(soundId: String) {
-        try? self.audioServiceHolder.service.playGongPreview(soundId: soundId)
+        try? self.audioServiceHolder.service.playGongPreview(
+            soundId: soundId,
+            volume: self.settings.gongVolume
+        )
     }
 
     /// Plays background sound preview (service handles "silent" internally)
     private func playBackgroundPreview(soundId: String) {
-        let volume = self.soundRepository.getSound(byId: soundId)?.volume ?? 0.5
-        try? self.audioServiceHolder.service.playBackgroundPreview(soundId: soundId, volume: volume)
+        // Use the current volume setting from settings
+        try? self.audioServiceHolder.service.playBackgroundPreview(
+            soundId: soundId,
+            volume: self.settings.backgroundSoundVolume
+        )
     }
 
     /// Stops all previews and triggers dismiss
@@ -236,6 +266,49 @@ struct SettingsView: View {
         self.audioServiceHolder.service.stopGongPreview()
         self.audioServiceHolder.service.stopBackgroundPreview()
         self.onDismiss()
+    }
+}
+
+// MARK: - Volume Slider Row
+
+/// Reusable volume slider row component for settings
+private struct VolumeSliderRow: View {
+    @Binding var volume: Float
+    let titleKey: LocalizedStringKey
+    let accessibilityTitleKey: String
+    let accessibilityIdentifier: String
+    let accessibilityHintKey: String
+    let onSliderReleased: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(self.titleKey, bundle: .main)
+                .font(.system(size: 17, weight: .regular, design: .rounded))
+            HStack {
+                Image(systemName: "speaker.fill")
+                    .foregroundColor(.textSecondary)
+                    .font(.system(size: 12))
+                Slider(
+                    value: self.$volume,
+                    in: 0...1,
+                    step: 0.01
+                ) { editing in
+                    // Only trigger preview when slider is released (not during drag)
+                    if !editing {
+                        self.onSliderReleased()
+                    }
+                }
+                .tint(.interactive)
+                Image(systemName: "speaker.wave.3.fill")
+                    .foregroundColor(.textSecondary)
+                    .font(.system(size: 12))
+            }
+        }
+        .accessibilityIdentifier(self.accessibilityIdentifier)
+        .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))
+        .accessibilityValue(String(format: "%.0f%%", self.volume * 100))
+        .accessibilityHint(NSLocalizedString(self.accessibilityHintKey, comment: ""))
+        .listRowBackground(Color.backgroundPrimary)
     }
 }
 

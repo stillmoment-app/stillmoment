@@ -18,6 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Preview stoppt automatisch beim Schliessen der Settings
   - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
 
+- **Background-Sound Lautstärkeregler** - Slider zur Anpassung der Hintergrund-Lautstärke
+  - Slider erscheint unterhalb der Sound-Auswahl (nur wenn nicht "Stille" gewählt)
+  - Slider-Bereich: 0% bis 100%, Standard: 15%
+  - Lautstärke wird in UserDefaults gespeichert
+  - Preview in Settings spielt mit aktueller Slider-Lautstärke
+  - Lokalisiert: "Volume" / "Lautstärke"
+  - Ticket: shared-019
+
+- **Gong-Lautstärkeregler** - Slider zur Anpassung der Gong-Lautstärke
+  - Slider erscheint unterhalb der Gong-Sound-Auswahl (immer sichtbar)
+  - Eine globale Einstellung für alle Gong-Typen (Start, Ende, Intervall)
+  - Slider-Bereich: 0% bis 100%, Standard: 100%
+  - Lautstärke bleibt bei Sound-Wechsel erhalten
+  - Preview in Settings spielt mit aktueller Slider-Lautstärke
+  - Lokalisiert: "Volume" / "Lautstärke"
+  - Ticket: shared-020
+
 ### Added (Android)
 - **Lock Screen Artwork** - App-Icon wird in Media Notifications und Lock Screen Player angezeigt während Guided Meditations
   - `METADATA_KEY_ART` in `MediaSessionManager.updateMetadata` gesetzt
@@ -28,6 +45,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Preview stoppt automatisch beim Schliessen der Settings
   - Bei Auswahl von "Keine" wird nur gestoppt (kein Preview)
   - Unit Tests fuer alle Preview-Szenarien
+
+- **Background-Sound Lautstärkeregler** - Slider zur Anpassung der Hintergrund-Lautstärke
+  - Slider erscheint unterhalb der Sound-Auswahl (nur wenn nicht "Stille" gewählt)
+  - Slider-Bereich: 0% bis 100%, Standard: 15%
+  - Lautstärke wird in DataStore gespeichert
+  - Preview in Settings spielt mit aktueller Slider-Lautstärke
+  - Lokalisiert: "Volume" / "Lautstärke"
+  - Ticket: shared-019
+
+- **Gong-Lautstärkeregler** - Slider zur Anpassung der Gong-Lautstärke
+  - Slider erscheint unterhalb der Gong-Sound-Auswahl (immer sichtbar)
+  - Eine globale Einstellung für alle Gong-Typen (Start, Ende, Intervall)
+  - Slider-Bereich: 0% bis 100%, Standard: 100%
+  - Lautstärke bleibt bei Sound-Wechsel erhalten
+  - Preview in Settings spielt mit aktueller Slider-Lautstärke
+  - Lokalisiert: "Volume" / "Lautstärke"
+  - Ticket: shared-020
 
 ### Fixed (iOS)
 - **Intervall-Gong spielt jetzt mehrfach** - Bug behoben bei dem nur der erste Intervall-Gong spielte

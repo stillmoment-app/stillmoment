@@ -85,7 +85,7 @@ enum TimerReducer {
 
         let effects: [TimerEffect] = [
             .configureAudioSession,
-            .startBackgroundAudio(soundId: settings.backgroundSoundId),
+            .startBackgroundAudio(soundId: settings.backgroundSoundId, volume: settings.backgroundSoundVolume),
             .startTimer(durationMinutes: state.selectedMinutes),
             .saveSettings(updatedSettings)
         ]

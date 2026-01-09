@@ -89,22 +89,25 @@ constructor(
     // MARK: - Gong Playback
 
     /**
-     * Play the start/completion gong sound with configurable sound.
+     * Play the start/completion gong sound with configurable sound and volume.
      *
      * @param soundId ID of the gong sound to play (default: classic-bowl)
+     * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    fun playGong(soundId: String = GongSound.DEFAULT_SOUND_ID) {
+    fun playGong(soundId: String = GongSound.DEFAULT_SOUND_ID, volume: Float = 1.0f) {
         try {
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
+            val clampedVolume = volume.coerceIn(0f, 1f)
             gongPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+                setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
                     gongPlayer = null
                 }
                 start()
             }
-            logger.d(TAG, "Playing gong sound: ${gongSound.id}")
+            logger.d(TAG, "Playing gong sound: ${gongSound.id}, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play gong - invalid state: ${e.message}")
         }
@@ -112,18 +115,22 @@ constructor(
 
     /**
      * Play interval gong sound.
+     *
+     * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    fun playIntervalGong() {
+    fun playIntervalGong(volume: Float = 1.0f) {
         try {
             releaseGongPlayer()
+            val clampedVolume = volume.coerceIn(0f, 1f)
             gongPlayer = mediaPlayerFactory.createFromResource(R.raw.interval)?.apply {
+                setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
                     gongPlayer = null
                 }
                 start()
             }
-            logger.d(TAG, "Playing interval gong sound")
+            logger.d(TAG, "Playing interval gong sound, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
         }
@@ -134,22 +141,25 @@ constructor(
      * Uses a separate player to avoid interfering with timer playback.
      *
      * @param soundId ID of the gong sound to preview
+     * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    fun playGongPreview(soundId: String) {
+    fun playGongPreview(soundId: String, volume: Float = 1.0f) {
         try {
             // Stop any previous previews (mutual exclusion: gong and background)
             stopGongPreview()
             stopBackgroundPreview()
 
             val gongSound = GongSound.findOrDefault(soundId)
+            val clampedVolume = volume.coerceIn(0f, 1f)
             previewPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+                setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
                     previewPlayer = null
                 }
                 start()
             }
-            logger.d(TAG, "Playing gong preview: ${gongSound.id}")
+            logger.d(TAG, "Playing gong preview: ${gongSound.id}, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play gong preview - invalid state: ${e.message}")
         }
@@ -278,8 +288,9 @@ constructor(
      * Requests exclusive audio session before starting playback.
      *
      * @param soundId The sound identifier ("silent" or "forest")
+     * @param volume The playback volume (0.0 to 1.0), defaults to DEFAULT_AMBIENT_VOLUME
      */
-    fun startBackgroundAudio(soundId: String) {
+    fun startBackgroundAudio(soundId: String, volume: Float = DEFAULT_AMBIENT_VOLUME) {
         try {
             // Request exclusive audio session
             if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
@@ -292,7 +303,8 @@ constructor(
             // Get resource ID - fallback to silence for unknown sounds
             val resourceId = getBackgroundSoundResourceId(soundId) ?: R.raw.silence
 
-            targetVolume = DEFAULT_AMBIENT_VOLUME
+            // Use the provided volume (from settings) instead of hardcoded default
+            targetVolume = volume.coerceIn(0f, 1f)
 
             backgroundPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 isLooping = true
@@ -302,7 +314,7 @@ constructor(
 
             // Fade in to target volume
             fadeToVolume(targetVolume)
-            logger.d(TAG, "Started background audio with fade in: $soundId")
+            logger.d(TAG, "Started background audio with fade in: $soundId, volume: $targetVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to start background audio - invalid state: ${e.message}")
         }

@@ -10,15 +10,18 @@ package com.stillmoment.domain.models
  * @property preparationTimeEnabled Whether preparation time before meditation is enabled
  * @property preparationTimeSeconds Duration of preparation in seconds (5, 10, 15, 20, 30, or 45)
  * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
+ * @property gongVolume Volume for gong sounds (0.0 to 1.0) - applies to all gong types
  */
 data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
     val backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
+    val backgroundSoundVolume: Float = DEFAULT_BACKGROUND_SOUND_VOLUME,
     val durationMinutes: Int = DEFAULT_DURATION_MINUTES,
     val preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
     val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
-    val gongSoundId: String = DEFAULT_GONG_SOUND_ID
+    val gongSoundId: String = DEFAULT_GONG_SOUND_ID,
+    val gongVolume: Float = DEFAULT_GONG_VOLUME
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -28,10 +31,12 @@ data class MeditationSettings(
     companion object {
         const val DEFAULT_INTERVAL_MINUTES = 5
         const val DEFAULT_BACKGROUND_SOUND_ID = "silent"
+        const val DEFAULT_BACKGROUND_SOUND_VOLUME = 0.15f
         const val DEFAULT_DURATION_MINUTES = 10
         const val DEFAULT_PREPARATION_TIME_ENABLED = true
         const val DEFAULT_PREPARATION_TIME_SECONDS = 15
         const val DEFAULT_GONG_SOUND_ID = GongSound.DEFAULT_SOUND_ID
+        const val DEFAULT_GONG_VOLUME = 1.0f
 
         // Valid interval options
         private const val INTERVAL_SHORT = 3
@@ -77,6 +82,13 @@ data class MeditationSettings(
         }
 
         /**
+         * Validates and clamps volume to valid range (0.0-1.0).
+         */
+        fun validateVolume(volume: Float): Float {
+            return volume.coerceIn(0f, 1f)
+        }
+
+        /**
          * Migrates legacy BackgroundAudioMode enum to sound ID.
          *
          * @param mode Legacy enum value
@@ -97,19 +109,23 @@ data class MeditationSettings(
             intervalGongsEnabled: Boolean = false,
             intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
             backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
+            backgroundSoundVolume: Float = DEFAULT_BACKGROUND_SOUND_VOLUME,
             durationMinutes: Int = DEFAULT_DURATION_MINUTES,
             preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
             preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
-            gongSoundId: String = DEFAULT_GONG_SOUND_ID
+            gongSoundId: String = DEFAULT_GONG_SOUND_ID,
+            gongVolume: Float = DEFAULT_GONG_VOLUME
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
                 intervalMinutes = validateInterval(intervalMinutes),
                 backgroundSoundId = backgroundSoundId,
+                backgroundSoundVolume = validateVolume(backgroundSoundVolume),
                 durationMinutes = validateDuration(durationMinutes),
                 preparationTimeEnabled = preparationTimeEnabled,
                 preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds),
-                gongSoundId = gongSoundId
+                gongSoundId = gongSoundId,
+                gongVolume = validateVolume(gongVolume)
             )
         }
     }
@@ -144,10 +160,12 @@ object MeditationSettingsKeys {
     const val INTERVAL_GONGS_ENABLED = "intervalGongsEnabled"
     const val INTERVAL_MINUTES = "intervalMinutes"
     const val BACKGROUND_SOUND_ID = "backgroundSoundId"
+    const val BACKGROUND_SOUND_VOLUME = "backgroundSoundVolume"
     const val DURATION_MINUTES = "durationMinutes"
     const val PREPARATION_TIME_ENABLED = "preparationTimeEnabled"
     const val PREPARATION_TIME_SECONDS = "preparationTimeSeconds"
     const val GONG_SOUND_ID = "gongSoundId"
+    const val GONG_VOLUME = "gongVolume"
 
     // Legacy key for migration
     const val LEGACY_BACKGROUND_AUDIO_MODE = "backgroundAudioMode"

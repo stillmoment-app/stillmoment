@@ -47,7 +47,7 @@ final class AudioServiceTests: XCTestCase {
         try? self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Note: Actual playback testing requires more complex mocking
         // This test verifies that the method doesn't throw an error
@@ -56,13 +56,13 @@ final class AudioServiceTests: XCTestCase {
     func testPlayCompletionSoundWithoutConfiguration() {
         // When - Try to play without configuring
         // This should still work as AVAudioPlayer can work without explicit session config
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
     }
 
     func testStopAudio() {
         // Given - Configure and play
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // When
         self.sut.stop()
@@ -108,9 +108,9 @@ final class AudioServiceTests: XCTestCase {
         try? self.sut.configureAudioSession()
 
         // When - Play multiple times rapidly
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Should not crash (each call replaces the previous player)
     }
@@ -118,7 +118,7 @@ final class AudioServiceTests: XCTestCase {
     func testDeinitStopsPlayback() {
         // Given
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // When - Deallocate service
         self.sut = nil
@@ -165,7 +165,7 @@ final class AudioServiceTests: XCTestCase {
         let invalidSoundId = "nonexistent"
 
         // When / Then
-        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: invalidSoundId)) { error in
+        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: invalidSoundId, volume: 0.15)) { error in
             // Verify the correct error type is thrown
             guard let audioError = error as? AudioServiceError else {
                 XCTFail("Expected AudioServiceError but got \(type(of: error))")
@@ -185,7 +185,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When - Start with valid sound ID
-        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent"))
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15))
 
         // Then - Clean up
         self.sut.stop()
@@ -197,7 +197,7 @@ final class AudioServiceTests: XCTestCase {
         let missingSoundId = "whitenoise" // This was removed
 
         // When / Then
-        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: missingSoundId)) { error in
+        XCTAssertThrowsError(try self.sut.startBackgroundAudio(soundId: missingSoundId, volume: 0.15)) { error in
             // Should throw soundFileNotFound error
             XCTAssertTrue(error is AudioServiceError, "Should throw AudioServiceError")
         }
@@ -242,7 +242,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Should play without error
         // Clean up
@@ -251,7 +251,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testPlayStartGong_WithoutConfiguration_Succeeds() {
         // When - Play without explicit configuration
-        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Should configure automatically and play
         self.sut.stop()
@@ -262,7 +262,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playIntervalGong())
+        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
 
         // Then - Should play without error
         self.sut.stop()
@@ -270,7 +270,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testPlayIntervalGong_WithoutConfiguration_Succeeds() {
         // When - Play without explicit configuration
-        XCTAssertNoThrow(try self.sut.playIntervalGong())
+        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
 
         // Then - Should configure automatically and play
         self.sut.stop()
@@ -281,7 +281,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0))
 
         // Then - Should play without error
         self.sut.stopGongPreview()
@@ -301,10 +301,10 @@ final class AudioServiceTests: XCTestCase {
     func testPlayGongPreview_StopsPreviousPreview() throws {
         // Given - Start first preview
         try self.sut.configureAudioSession()
-        try self.sut.playGongPreview(soundId: "classic-bowl")
+        try self.sut.playGongPreview(soundId: "classic-bowl", volume: 1.0)
 
         // When - Start second preview
-        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0))
 
         // Then - Should replace previous (no crash, no overlap)
         self.sut.stopGongPreview()
@@ -318,7 +318,7 @@ final class AudioServiceTests: XCTestCase {
         // When - Play all gong sounds
         for gongSound in GongSound.allSounds {
             XCTAssertNoThrow(
-                try self.sut.playStartGong(soundId: gongSound.id),
+                try self.sut.playStartGong(soundId: gongSound.id, volume: 1.0),
                 "Gong sound '\(gongSound.id)' should play successfully"
             )
         }
@@ -330,7 +330,7 @@ final class AudioServiceTests: XCTestCase {
     func testStopBackgroundAudio_WhenPlaying_StopsPlayback() throws {
         // Given - Start background audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent")
+        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // When
         self.sut.stopBackgroundAudio()
@@ -353,14 +353,14 @@ final class AudioServiceTests: XCTestCase {
     func testStop_ReleasesAudioSession() throws {
         // Given - Configure and start audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent")
+        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // When
         self.sut.stop()
 
         // Then - Should be able to reconfigure and play again
         XCTAssertNoThrow(try self.sut.configureAudioSession())
-        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Clean up
         self.sut.stop()
@@ -369,7 +369,7 @@ final class AudioServiceTests: XCTestCase {
     func testStop_WhenCalledMultipleTimes_IsIdempotent() {
         // Given
         try? self.sut.configureAudioSession()
-        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
+        try? self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // When - Call stop multiple times
         self.sut.stop()
@@ -385,7 +385,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When - Start forest sound
-        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest"))
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest", volume: 0.15))
 
         // Then - Should play without error
         // Clean up
@@ -395,11 +395,11 @@ final class AudioServiceTests: XCTestCase {
     func testBackgroundAudio_SwitchingSounds_Succeeds() throws {
         // Given - Start with silent
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent")
+        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // When - Switch to forest
         self.sut.stopBackgroundAudio()
-        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest"))
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "forest", volume: 0.15))
 
         // Then - Should switch without error
         // Clean up
@@ -443,9 +443,9 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When - Play multiple gongs rapidly
-        try self.sut.playStartGong(soundId: GongSound.defaultSoundId)
-        try self.sut.playIntervalGong()
-        try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId)
+        try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
+        try self.sut.playIntervalGong(volume: 1.0)
+        try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Then - Should complete without error (each replaces previous)
         self.sut.stop()
@@ -454,10 +454,10 @@ final class AudioServiceTests: XCTestCase {
     func testBackgroundAudioAndGong_PlaySimultaneously() throws {
         // Given - Start background audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent")
+        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // When - Play gong while background audio is playing
-        XCTAssertNoThrow(try self.sut.playIntervalGong())
+        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
 
         // Then - Both should play (different players)
         self.sut.stop()
@@ -503,7 +503,7 @@ final class AudioServiceTests: XCTestCase {
     func testPlayBackgroundPreview_StopsGongPreview() throws {
         // Given - Start gong preview
         try self.sut.configureAudioSession()
-        try self.sut.playGongPreview(soundId: "deep-zen")
+        try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0)
 
         // When - Start background preview
         XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5))
@@ -520,7 +520,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
 
         // When - Start gong preview
-        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen"))
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0))
 
         // Then - Background preview should be stopped (mutual exclusion)
         // Clean up
@@ -551,7 +551,7 @@ final class AudioServiceTests: XCTestCase {
     func testPlayBackgroundPreview_WithSilentSoundId_StopsPreviewsWithoutPlaying() throws {
         // Given - Start a gong preview first
         try self.sut.configureAudioSession()
-        try self.sut.playGongPreview(soundId: "deep-zen")
+        try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0)
 
         // When - Select "silent" background sound
         XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "silent", volume: 0.3))
@@ -590,7 +590,7 @@ extension AudioServiceTests {
 
         // When - Complete flow: configure -> play -> stop
         XCTAssertNoThrow(try service.configureAudioSession())
-        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Wait briefly for playback to start
         let expectation = expectation(description: "Wait for playback")
@@ -604,7 +604,7 @@ extension AudioServiceTests {
 
         // Should be safe to repeat
         XCTAssertNoThrow(try service.configureAudioSession())
-        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId))
+        XCTAssertNoThrow(try service.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0))
     }
 
     func testFullMeditationFlow() async throws {
@@ -613,7 +613,7 @@ extension AudioServiceTests {
 
         // When - Simulate full meditation cycle
         try service.configureAudioSession()
-        try service.playStartGong(soundId: GongSound.defaultSoundId)
+        try service.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Wait briefly
         let startGongExpectation = expectation(description: "Start gong")
@@ -623,7 +623,7 @@ extension AudioServiceTests {
         await fulfillment(of: [startGongExpectation], timeout: 0.5)
 
         // Start background audio
-        try service.startBackgroundAudio(soundId: "silent")
+        try service.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // Wait briefly
         let backgroundAudioExpectation = expectation(description: "Background audio")
@@ -633,7 +633,7 @@ extension AudioServiceTests {
         await fulfillment(of: [backgroundAudioExpectation], timeout: 0.5)
 
         // Play interval gong
-        try service.playIntervalGong()
+        try service.playIntervalGong(volume: 1.0)
 
         // Wait briefly
         let intervalGongExpectation = expectation(description: "Interval gong")
@@ -644,7 +644,7 @@ extension AudioServiceTests {
 
         // Stop background audio and play completion
         service.stopBackgroundAudio()
-        try service.playCompletionSound(soundId: GongSound.defaultSoundId)
+        try service.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Wait briefly
         let completionExpectation = expectation(description: "Completion")

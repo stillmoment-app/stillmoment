@@ -31,7 +31,9 @@ class TimerForegroundService : Service() {
     lateinit var audioService: AudioService
 
     private var currentSoundId: String = "silent"
+    private var currentSoundVolume: Float = 0.15f
     private var currentGongSoundId: String = "classic-bowl"
+    private var currentGongVolume: Float = 1.0f
     private var isRunning = false
 
     override fun onCreate() {
@@ -46,15 +48,19 @@ class TimerForegroundService : Service() {
         when (intent?.action) {
             ACTION_START -> {
                 val soundId = intent.getStringExtra(EXTRA_SOUND_ID) ?: "silent"
+                val soundVolume = intent.getFloatExtra(EXTRA_SOUND_VOLUME, 0.15f)
                 val gongSoundId = intent.getStringExtra(EXTRA_GONG_SOUND_ID) ?: "classic-bowl"
-                startTimer(soundId, gongSoundId)
+                val gongVolume = intent.getFloatExtra(EXTRA_GONG_VOLUME, 1.0f)
+                startTimer(soundId, soundVolume, gongSoundId, gongVolume)
             }
             ACTION_PLAY_GONG -> {
                 val gongSoundId = intent?.getStringExtra(EXTRA_GONG_SOUND_ID) ?: currentGongSoundId
-                audioService.playGong(gongSoundId)
+                val gongVolume = intent?.getFloatExtra(EXTRA_GONG_VOLUME, currentGongVolume) ?: currentGongVolume
+                audioService.playGong(gongSoundId, gongVolume)
             }
             ACTION_PLAY_INTERVAL_GONG -> {
-                audioService.playIntervalGong()
+                val gongVolume = intent?.getFloatExtra(EXTRA_GONG_VOLUME, currentGongVolume) ?: currentGongVolume
+                audioService.playIntervalGong(gongVolume)
             }
             ACTION_PAUSE_AUDIO -> {
                 audioService.pauseBackgroundAudio()
@@ -75,29 +81,41 @@ class TimerForegroundService : Service() {
         Log.d(TAG, "Service destroyed")
     }
 
-    private fun startTimer(soundId: String, gongSoundId: String) {
+    private fun startTimer(soundId: String, soundVolume: Float, gongSoundId: String, gongVolume: Float) {
         if (isRunning) {
-            Log.d(TAG, "Timer already running, updating sound to: $soundId, gong: $gongSoundId")
+            Log.d(
+                TAG,
+                "Timer already running, updating sound to: $soundId, volume: $soundVolume, " +
+                    "gong: $gongSoundId, gongVolume: $gongVolume"
+            )
             currentGongSoundId = gongSoundId
-            if (currentSoundId != soundId) {
+            currentGongVolume = gongVolume
+            if (currentSoundId != soundId || currentSoundVolume != soundVolume) {
                 currentSoundId = soundId
-                audioService.startBackgroundAudio(soundId)
+                currentSoundVolume = soundVolume
+                audioService.startBackgroundAudio(soundId, soundVolume)
             }
             return
         }
 
         isRunning = true
         currentSoundId = soundId
+        currentSoundVolume = soundVolume
         currentGongSoundId = gongSoundId
+        currentGongVolume = gongVolume
 
         // Start foreground with notification
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
         // Start background audio
-        audioService.startBackgroundAudio(soundId)
+        audioService.startBackgroundAudio(soundId, soundVolume)
 
-        Log.d(TAG, "Timer started with sound: $soundId, gong: $gongSoundId")
+        Log.d(
+            TAG,
+            "Timer started with sound: $soundId, volume: $soundVolume, " +
+                "gong: $gongSoundId, gongVolume: $gongVolume"
+        )
     }
 
     private fun stopTimer() {
@@ -164,14 +182,24 @@ class TimerForegroundService : Service() {
         const val ACTION_PAUSE_AUDIO = "com.stillmoment.action.PAUSE_AUDIO"
         const val ACTION_RESUME_AUDIO = "com.stillmoment.action.RESUME_AUDIO"
         const val EXTRA_SOUND_ID = "sound_id"
+        const val EXTRA_SOUND_VOLUME = "sound_volume"
         const val EXTRA_GONG_SOUND_ID = "gong_sound_id"
+        const val EXTRA_GONG_VOLUME = "gong_volume"
 
-        fun startService(context: Context, soundId: String, gongSoundId: String = "classic-bowl") {
+        fun startService(
+            context: Context,
+            soundId: String,
+            soundVolume: Float = 0.15f,
+            gongSoundId: String = "classic-bowl",
+            gongVolume: Float = 1.0f
+        ) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
                     action = ACTION_START
                     putExtra(EXTRA_SOUND_ID, soundId)
+                    putExtra(EXTRA_SOUND_VOLUME, soundVolume)
                     putExtra(EXTRA_GONG_SOUND_ID, gongSoundId)
+                    putExtra(EXTRA_GONG_VOLUME, gongVolume)
                 }
             context.startForegroundService(intent)
         }
@@ -184,19 +212,21 @@ class TimerForegroundService : Service() {
             context.startService(intent)
         }
 
-        fun playGong(context: Context, gongSoundId: String = "classic-bowl") {
+        fun playGong(context: Context, gongSoundId: String = "classic-bowl", gongVolume: Float = 1.0f) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
                     action = ACTION_PLAY_GONG
                     putExtra(EXTRA_GONG_SOUND_ID, gongSoundId)
+                    putExtra(EXTRA_GONG_VOLUME, gongVolume)
                 }
             context.startService(intent)
         }
 
-        fun playIntervalGong(context: Context) {
+        fun playIntervalGong(context: Context, gongVolume: Float = 1.0f) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
                     action = ACTION_PLAY_INTERVAL_GONG
+                    putExtra(EXTRA_GONG_VOLUME, gongVolume)
                 }
             context.startService(intent)
         }

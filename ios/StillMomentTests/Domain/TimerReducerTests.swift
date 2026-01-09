@@ -109,7 +109,7 @@ final class TimerReducerTests: XCTestCase {
 
         XCTAssertEqual(effects.count, 4)
         XCTAssertEqual(effects[0], .configureAudioSession)
-        XCTAssertEqual(effects[1], .startBackgroundAudio(soundId: "forest"))
+        XCTAssertEqual(effects[1], .startBackgroundAudio(soundId: "forest", volume: settings.backgroundSoundVolume))
         XCTAssertEqual(effects[2], .startTimer(durationMinutes: 10))
         XCTAssertEqual(effects[3], .saveSettings(expectedSettings))
     }

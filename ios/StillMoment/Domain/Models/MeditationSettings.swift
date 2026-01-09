@@ -13,22 +13,32 @@ struct MeditationSettings: Codable, Equatable {
 
     // MARK: - Initialization
 
+    /// Default volume for background sounds (15%)
+    static let defaultBackgroundSoundVolume: Float = 0.15
+
+    /// Default volume for gong sounds (100%)
+    static let defaultGongVolume: Float = 1.0
+
     init(
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
         backgroundSoundId: String = "silent",
+        backgroundSoundVolume: Float = MeditationSettings.defaultBackgroundSoundVolume,
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
         preparationTimeSeconds: Int = 15,
-        startGongSoundId: String = GongSound.defaultSoundId
+        startGongSoundId: String = GongSound.defaultSoundId,
+        gongVolume: Float = MeditationSettings.defaultGongVolume
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
         self.backgroundSoundId = backgroundSoundId
+        self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
         self.durationMinutes = Self.validateDuration(durationMinutes)
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
         self.startGongSoundId = startGongSoundId
+        self.gongVolume = Self.validateVolume(gongVolume)
     }
 
     // MARK: Internal
@@ -39,10 +49,12 @@ struct MeditationSettings: Codable, Equatable {
         static let intervalGongsEnabled = "intervalGongsEnabled"
         static let intervalMinutes = "intervalMinutes"
         static let backgroundSoundId = "backgroundSoundId"
+        static let backgroundSoundVolume = "backgroundSoundVolume"
         static let durationMinutes = "durationMinutes"
         static let preparationTimeEnabled = "preparationTimeEnabled"
         static let preparationTimeSeconds = "preparationTimeSeconds"
         static let startGongSoundId = "startGongSoundId"
+        static let gongVolume = "gongVolume"
         // Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -56,6 +68,9 @@ struct MeditationSettings: Codable, Equatable {
     /// Background sound ID (references BackgroundSound.id)
     var backgroundSoundId: String
 
+    /// Background sound volume (0.0 to 1.0)
+    var backgroundSoundVolume: Float
+
     /// Duration of meditation in minutes (1-60)
     var durationMinutes: Int
 
@@ -67,6 +82,9 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Gong sound ID for start/end gong (references GongSound.id)
     var startGongSoundId: String
+
+    /// Gong volume (0.0 to 1.0) - applies to all gong types (start, end, interval)
+    var gongVolume: Float
 
     // MARK: - Validation
 
@@ -95,6 +113,11 @@ struct MeditationSettings: Codable, Equatable {
         // Find the closest valid value
         self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 15
     }
+
+    /// Validates and clamps volume to valid range (0.0-1.0)
+    static func validateVolume(_ volume: Float) -> Float {
+        min(max(volume, 0.0), 1.0)
+    }
 }
 
 // MARK: - Default Settings
@@ -105,10 +128,12 @@ extension MeditationSettings {
         intervalGongsEnabled: false,
         intervalMinutes: 5,
         backgroundSoundId: "silent",
+        backgroundSoundVolume: defaultBackgroundSoundVolume,
         durationMinutes: 10,
         preparationTimeEnabled: true,
         preparationTimeSeconds: 15,
-        startGongSoundId: GongSound.defaultSoundId
+        startGongSoundId: GongSound.defaultSoundId,
+        gongVolume: defaultGongVolume
     )
 }
 

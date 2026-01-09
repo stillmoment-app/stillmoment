@@ -187,6 +187,30 @@ class TimerReducerTest {
         }
 
         @Test
+        fun `passes backgroundSoundVolume to StartForegroundService effect`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
+            val customVolume = 0.5f
+            val settings = defaultSettings.copy(
+                backgroundSoundId = "forest",
+                backgroundSoundVolume = customVolume
+            )
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartPressed,
+                    settings
+                )
+
+            // Then
+            val serviceEffect = effects.filterIsInstance<TimerEffect.StartForegroundService>().first()
+            assertEquals("forest", serviceEffect.soundId)
+            assertEquals(customVolume, serviceEffect.soundVolume)
+        }
+
+        @Test
         fun `passes gongSoundId to PlayStartGong when preparation disabled`() {
             // Given
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
@@ -702,7 +726,9 @@ class TimerReducerTest {
 
             // Then
             assertTrue(newState.intervalGongPlayedForCurrentInterval)
-            assertEquals(listOf(TimerEffect.PlayIntervalGong), effects)
+            assertTrue(effects.any { it is TimerEffect.PlayIntervalGong })
+            val intervalEffect = effects.filterIsInstance<TimerEffect.PlayIntervalGong>().first()
+            assertEquals(settings.gongVolume, intervalEffect.gongVolume)
         }
 
         @Test

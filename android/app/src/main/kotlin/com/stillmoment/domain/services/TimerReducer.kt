@@ -95,14 +95,19 @@ object TimerReducer {
 
         // Build effects - add start gong immediately if no preparation time
         val effects = mutableListOf(
-            TimerEffect.StartForegroundService(settings.backgroundSoundId, settings.gongSoundId),
+            TimerEffect.StartForegroundService(
+                settings.backgroundSoundId,
+                settings.backgroundSoundVolume,
+                settings.gongSoundId,
+                settings.gongVolume
+            ),
             TimerEffect.StartTimer(state.selectedMinutes, preparationTime),
             TimerEffect.SaveSettings(updatedSettings)
         )
 
         // Play start gong immediately if skipping preparation
         if (preparationTime <= 0) {
-            effects.add(TimerEffect.PlayStartGong(settings.gongSoundId))
+            effects.add(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
         }
 
         return newState to effects
@@ -170,7 +175,7 @@ object TimerReducer {
         settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(timerState = TimerState.Running)
-        return newState to listOf(TimerEffect.PlayStartGong(settings.gongSoundId))
+        return newState to listOf(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
     }
 
     private fun reduceTimerCompleted(
@@ -184,7 +189,7 @@ object TimerReducer {
             )
         val effects =
             listOf(
-                TimerEffect.PlayCompletionSound(settings.gongSoundId),
+                TimerEffect.PlayCompletionSound(settings.gongSoundId, settings.gongVolume),
                 TimerEffect.StopForegroundService
             )
         return newState to effects
@@ -200,7 +205,7 @@ object TimerReducer {
             return state to emptyList()
         }
         val newState = state.copy(intervalGongPlayedForCurrentInterval = true)
-        return newState to listOf(TimerEffect.PlayIntervalGong)
+        return newState to listOf(TimerEffect.PlayIntervalGong(settings.gongVolume))
     }
 
     private fun reduceIntervalGongPlayed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {

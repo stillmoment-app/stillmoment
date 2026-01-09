@@ -39,9 +39,11 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-013](shared/shared-013-timer-focus-mode.md) | Timer Focus Mode | 4-Polish | [x] | [x] |
 | [shared-014](shared/shared-014-interval-sound-update.md) | Neuer Interval-Sound | 4-Polish | [x] | [x] |
 | [shared-015](shared/shared-015-state-machine-test-coverage.md) | State-Machine Tests TimerReducer | 5-QA | [x] | [x] |
-| [shared-016](shared/shared-016-konfigurierbare-gong-toene.md) | Konfigurierbarer Start/Ende-Gong | 3-Feature | [x] | [ ] |
+| [shared-016](shared/shared-016-konfigurierbare-gong-toene.md) | Konfigurierbarer Start/Ende-Gong | 3-Feature | [x] | [x] |
 | [shared-017](shared/shared-017-background-audio-preview.md) | Background-Audio Preview in Settings | 3-Feature | [x] | [x] |
-| [shared-018](shared/shared-018-lockscreen-artwork.md) | Lock Screen Artwork | 4-Polish | [ ] | [ ] |
+| [shared-018](shared/shared-018-lockscreen-artwork.md) | Lock Screen Artwork | 4-Polish | [x] | [x] |
+| [shared-019](shared/shared-019-background-volume-slider.md) | Lautstaerkeregler Hintergrundsounds | 4-Polish | [x] | [x] |
+| [shared-020](shared/shared-020-gong-volume-slider.md) | Lautstaerkeregler Gong-Sounds | 4-Polish | [x] | [x] |
 
 ---
 
@@ -137,6 +139,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-057](android/android-057-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
 | [android-058](android/android-058-settings-sofort-speichern.md) | Settings sofort speichern | 4-Polish | [ ] | - |
 | [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [x] | - |
+| [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [ ] | - |
 
 ---
 

@@ -1,6 +1,6 @@
 # Ticket shared-018: Lock Screen Artwork
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -21,17 +21,17 @@ Aktuell ist der quadratische Bereich fuer Artwork im Lock Screen Player leer. Da
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] iOS: App-Icon erscheint im Lock Screen Player
-- [ ] iOS: App-Icon erscheint im Control Center
-- [ ] Android: App-Icon erscheint in Media Notification
-- [ ] Android: App-Icon erscheint im Lock Screen Player
+- [x] iOS: App-Icon erscheint im Lock Screen Player
+- [x] iOS: App-Icon erscheint im Control Center
+- [x] Android: App-Icon erscheint in Media Notification
+- [x] Android: App-Icon erscheint im Lock Screen Player
 
 ### Tests
-- [ ] iOS: Unit Test verifiziert dass Artwork gesetzt wird
-- [ ] Android: Unit Test verifiziert dass Artwork gesetzt wird
+- [x] iOS: Unit Test verifiziert dass Artwork gesetzt wird
+- [x] Android: Unit Test verifiziert dass Artwork gesetzt wird
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 

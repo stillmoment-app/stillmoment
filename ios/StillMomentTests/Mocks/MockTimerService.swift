@@ -163,10 +163,16 @@ final class MockAudioService: AudioServiceProtocol {
     var stopCalled = false
 
     var lastStartGongSoundId: String?
+    var lastStartGongVolume: Float?
+    var lastIntervalGongVolume: Float?
     var lastCompletionSoundId: String?
+    var lastCompletionSoundVolume: Float?
     var lastPreviewSoundId: String?
+    var lastPreviewVolume: Float?
     var lastBackgroundPreviewSoundId: String?
     var lastBackgroundPreviewVolume: Float?
+    var lastStartBackgroundAudioSoundId: String?
+    var lastStartBackgroundAudioVolume: Float?
 
     var shouldThrowOnConfigure = false
     var shouldThrowOnPlay = false
@@ -182,8 +188,10 @@ final class MockAudioService: AudioServiceProtocol {
         }
     }
 
-    func startBackgroundAudio(soundId: String) throws {
+    func startBackgroundAudio(soundId: String, volume: Float) throws {
         self.startBackgroundAudioCalled = true
+        self.lastStartBackgroundAudioSoundId = soundId
+        self.lastStartBackgroundAudioVolume = volume
         self.audioCallOrder.append("startBackgroundAudio")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
@@ -205,35 +213,39 @@ final class MockAudioService: AudioServiceProtocol {
         self.audioCallOrder.append("resumeBackgroundAudio")
     }
 
-    func playStartGong(soundId: String) throws {
+    func playStartGong(soundId: String, volume: Float) throws {
         self.playStartGongCalled = true
         self.lastStartGongSoundId = soundId
+        self.lastStartGongVolume = volume
         self.audioCallOrder.append("playStartGong")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
     }
 
-    func playIntervalGong() throws {
+    func playIntervalGong(volume: Float) throws {
         self.playIntervalGongCalled = true
+        self.lastIntervalGongVolume = volume
         self.audioCallOrder.append("playIntervalGong")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
     }
 
-    func playCompletionSound(soundId: String) throws {
+    func playCompletionSound(soundId: String, volume: Float) throws {
         self.playCompletionSoundCalled = true
         self.lastCompletionSoundId = soundId
+        self.lastCompletionSoundVolume = volume
         self.audioCallOrder.append("playCompletionSound")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed
         }
     }
 
-    func playGongPreview(soundId: String) throws {
+    func playGongPreview(soundId: String, volume: Float) throws {
         self.playGongPreviewCalled = true
         self.lastPreviewSoundId = soundId
+        self.lastPreviewVolume = volume
         self.audioCallOrder.append("playGongPreview")
         if self.shouldThrowOnPlay {
             throw AudioServiceError.playbackFailed

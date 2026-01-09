@@ -16,10 +16,12 @@ class MeditationSettingsTest {
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
         assertEquals("silent", settings.backgroundSoundId)
+        assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
         assertTrue(settings.preparationTimeEnabled)
         assertEquals(15, settings.preparationTimeSeconds)
         assertEquals("temple-bell", settings.gongSoundId)
+        assertEquals(1.0f, settings.gongVolume)
     }
 
     @Test
@@ -29,10 +31,12 @@ class MeditationSettingsTest {
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
         assertEquals("silent", settings.backgroundSoundId)
+        assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
         assertTrue(settings.preparationTimeEnabled)
         assertEquals(15, settings.preparationTimeSeconds)
         assertEquals("temple-bell", settings.gongSoundId)
+        assertEquals(1.0f, settings.gongVolume)
     }
 
     // MARK: - Interval Validation Tests
@@ -156,19 +160,23 @@ class MeditationSettingsTest {
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 backgroundSoundId = "forest",
+                backgroundSoundVolume = 0.5f,
                 durationMinutes = 20,
                 preparationTimeEnabled = false,
                 preparationTimeSeconds = 30,
-                gongSoundId = "clear-strike"
+                gongSoundId = "clear-strike",
+                gongVolume = 0.8f
             )
 
         assertTrue(settings.intervalGongsEnabled)
         assertEquals(10, settings.intervalMinutes)
         assertEquals("forest", settings.backgroundSoundId)
+        assertEquals(0.5f, settings.backgroundSoundVolume)
         assertEquals(20, settings.durationMinutes)
         assertFalse(settings.preparationTimeEnabled)
         assertEquals(30, settings.preparationTimeSeconds)
         assertEquals("clear-strike", settings.gongSoundId)
+        assertEquals(0.8f, settings.gongVolume)
     }
 
     @Test
@@ -252,6 +260,83 @@ class MeditationSettingsTest {
         assertEquals(listOf(5, 10, 15, 20, 30, 45), MeditationSettings.VALID_PREPARATION_TIMES)
     }
 
+    // MARK: - Volume Validation Tests
+
+    @Test
+    fun `validateVolume clamps to minimum 0`() {
+        assertEquals(0f, MeditationSettings.validateVolume(-0.5f))
+        assertEquals(0f, MeditationSettings.validateVolume(-1f))
+        assertEquals(0f, MeditationSettings.validateVolume(0f))
+    }
+
+    @Test
+    fun `validateVolume clamps to maximum 1`() {
+        assertEquals(1f, MeditationSettings.validateVolume(1f))
+        assertEquals(1f, MeditationSettings.validateVolume(1.5f))
+        assertEquals(1f, MeditationSettings.validateVolume(2f))
+    }
+
+    @Test
+    fun `validateVolume passes through valid values`() {
+        assertEquals(0.15f, MeditationSettings.validateVolume(0.15f))
+        assertEquals(0.5f, MeditationSettings.validateVolume(0.5f))
+        assertEquals(0.75f, MeditationSettings.validateVolume(0.75f))
+    }
+
+    @Test
+    fun `default backgroundSoundVolume is 0_15`() {
+        assertEquals(0.15f, MeditationSettings.DEFAULT_BACKGROUND_SOUND_VOLUME)
+        assertEquals(0.15f, MeditationSettings.Default.backgroundSoundVolume)
+    }
+
+    @Test
+    fun `default gongVolume is 1_0`() {
+        assertEquals(1.0f, MeditationSettings.DEFAULT_GONG_VOLUME)
+        assertEquals(1.0f, MeditationSettings.Default.gongVolume)
+    }
+
+    @Test
+    fun `create validates backgroundSoundVolume`() {
+        val settingsAboveMax = MeditationSettings.create(backgroundSoundVolume = 1.5f)
+        assertEquals(1f, settingsAboveMax.backgroundSoundVolume)
+
+        val settingsBelowMin = MeditationSettings.create(backgroundSoundVolume = -0.5f)
+        assertEquals(0f, settingsBelowMin.backgroundSoundVolume)
+
+        val settingsValid = MeditationSettings.create(backgroundSoundVolume = 0.5f)
+        assertEquals(0.5f, settingsValid.backgroundSoundVolume)
+    }
+
+    @Test
+    fun `create validates gongVolume`() {
+        val settingsAboveMax = MeditationSettings.create(gongVolume = 1.5f)
+        assertEquals(1f, settingsAboveMax.gongVolume)
+
+        val settingsBelowMin = MeditationSettings.create(gongVolume = -0.5f)
+        assertEquals(0f, settingsBelowMin.gongVolume)
+
+        val settingsValid = MeditationSettings.create(gongVolume = 0.7f)
+        assertEquals(0.7f, settingsValid.gongVolume)
+    }
+
+    @Test
+    fun `copy preserves backgroundSoundVolume`() {
+        val original = MeditationSettings.create(backgroundSoundVolume = 0.75f)
+        val copied = original.copy(durationMinutes = 20)
+
+        assertEquals(0.75f, copied.backgroundSoundVolume)
+        assertEquals(20, copied.durationMinutes)
+    }
+
+    @Test
+    fun `copy preserves gongVolume`() {
+        val original = MeditationSettings.create(gongVolume = 0.6f)
+        val copied = original.copy(durationMinutes = 20)
+
+        assertEquals(0.6f, copied.gongVolume)
+        assertEquals(20, copied.durationMinutes)
+    }
+
     // MARK: - Keys Tests
 
     @Test
@@ -259,10 +344,12 @@ class MeditationSettingsTest {
         assertEquals("intervalGongsEnabled", MeditationSettingsKeys.INTERVAL_GONGS_ENABLED)
         assertEquals("intervalMinutes", MeditationSettingsKeys.INTERVAL_MINUTES)
         assertEquals("backgroundSoundId", MeditationSettingsKeys.BACKGROUND_SOUND_ID)
+        assertEquals("backgroundSoundVolume", MeditationSettingsKeys.BACKGROUND_SOUND_VOLUME)
         assertEquals("durationMinutes", MeditationSettingsKeys.DURATION_MINUTES)
         assertEquals("backgroundAudioMode", MeditationSettingsKeys.LEGACY_BACKGROUND_AUDIO_MODE)
         assertEquals("preparationTimeEnabled", MeditationSettingsKeys.PREPARATION_TIME_ENABLED)
         assertEquals("preparationTimeSeconds", MeditationSettingsKeys.PREPARATION_TIME_SECONDS)
         assertEquals("gongSoundId", MeditationSettingsKeys.GONG_SOUND_ID)
+        assertEquals("gongVolume", MeditationSettingsKeys.GONG_VOLUME)
     }
 }

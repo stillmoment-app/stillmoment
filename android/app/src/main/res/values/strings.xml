@@ -38,6 +38,7 @@
     <string name="settings_interval_minutes">Interval</string>
     <string name="settings_gong">Gong</string>
     <string name="settings_gong_sound">Gong Sound</string>
+    <string name="settings_gong_volume">Volume</string>
     <string name="settings_preparation_time">Preparation Time</string>
     <string name="settings_preparation_on">On</string>
     <string name="settings_preparation_off">Off</string>
@@ -49,6 +50,7 @@
     <string name="sound_silent_description">Meditate in silence.</string>
     <string name="sound_forest">Forest Ambience</string>
     <string name="sound_forest_description">Natural forest sounds</string>
+    <string name="settings_background_volume">Volume</string>
 
     <!-- Time -->
     <string name="time_minutes">%d min</string>
@@ -130,6 +132,8 @@
     <string name="accessibility_preparation_disabled">Preparation time disabled</string>
     <string name="accessibility_preparation_option">%d seconds preparation</string>
     <string name="accessibility_gong_sound_hint">Choose the gong sound for start and end of meditation</string>
+    <string name="accessibility_background_volume">Volume: %d percent</string>
+    <string name="accessibility_gong_volume">Gong volume: %d percent</string>
 
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>

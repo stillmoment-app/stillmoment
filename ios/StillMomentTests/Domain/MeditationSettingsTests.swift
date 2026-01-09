@@ -97,6 +97,68 @@ final class MeditationSettingsTests: XCTestCase {
         XCTAssertEqual(MeditationSettings.Keys.startGongSoundId, "startGongSoundId")
     }
 
+    func testKeys_containsGongVolumeKey() {
+        XCTAssertEqual(MeditationSettings.Keys.gongVolume, "gongVolume")
+    }
+
+    // MARK: - Gong Volume Settings
+
+    func testDefault_hasCorrectGongVolume() {
+        let settings = MeditationSettings.default
+
+        XCTAssertEqual(settings.gongVolume, 1.0)
+    }
+
+    func testInit_defaultGongVolume() {
+        let settings = MeditationSettings()
+
+        XCTAssertEqual(settings.gongVolume, 1.0)
+    }
+
+    func testInit_customGongVolume() {
+        let settings = MeditationSettings(gongVolume: 0.5)
+
+        XCTAssertEqual(settings.gongVolume, 0.5, accuracy: 0.01)
+    }
+
+    func testValidateVolume_clampsToRange() {
+        // Below minimum
+        XCTAssertEqual(MeditationSettings.validateVolume(-0.5), 0.0)
+
+        // Above maximum
+        XCTAssertEqual(MeditationSettings.validateVolume(1.5), 1.0)
+
+        // Within range
+        XCTAssertEqual(MeditationSettings.validateVolume(0.5), 0.5)
+    }
+
+    func testInit_validatesGongVolume() {
+        // Given - Invalid gong volume
+        let settings = MeditationSettings(gongVolume: 1.5)
+
+        // Then - Should be clamped to 1.0
+        XCTAssertEqual(settings.gongVolume, 1.0)
+    }
+
+    func testEquatable_differentGongVolumes_areNotEqual() {
+        let settings1 = MeditationSettings(gongVolume: 0.5)
+        let settings2 = MeditationSettings(gongVolume: 0.8)
+
+        XCTAssertNotEqual(settings1, settings2)
+    }
+
+    func testCodable_encodesAndDecodesGongVolume() throws {
+        let original = MeditationSettings(gongVolume: 0.75)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertEqual(decoded.gongVolume, 0.75, accuracy: 0.01)
+    }
+
     func testEquatable_differentGongSoundIds_areNotEqual() {
         let settings1 = MeditationSettings(startGongSoundId: "classic-bowl")
         let settings2 = MeditationSettings(startGongSoundId: "clear-strike")
@@ -114,5 +176,60 @@ final class MeditationSettingsTests: XCTestCase {
         let decoded = try decoder.decode(MeditationSettings.self, from: data)
 
         XCTAssertEqual(decoded.startGongSoundId, "clear-strike")
+    }
+
+    // MARK: - Background Sound Volume Settings
+
+    func testDefault_hasCorrectBackgroundSoundVolume() {
+        let settings = MeditationSettings.default
+
+        XCTAssertEqual(settings.backgroundSoundVolume, MeditationSettings.defaultBackgroundSoundVolume)
+    }
+
+    func testDefaultBackgroundSoundVolume_isPointOneFive() {
+        XCTAssertEqual(MeditationSettings.defaultBackgroundSoundVolume, 0.15, accuracy: 0.001)
+    }
+
+    func testInit_defaultBackgroundSoundVolume() {
+        let settings = MeditationSettings()
+
+        XCTAssertEqual(settings.backgroundSoundVolume, 0.15, accuracy: 0.001)
+    }
+
+    func testInit_customBackgroundSoundVolume() {
+        let settings = MeditationSettings(backgroundSoundVolume: 0.5)
+
+        XCTAssertEqual(settings.backgroundSoundVolume, 0.5, accuracy: 0.001)
+    }
+
+    func testInit_validatesBackgroundSoundVolume() {
+        let settingsAboveMax = MeditationSettings(backgroundSoundVolume: 1.5)
+        XCTAssertEqual(settingsAboveMax.backgroundSoundVolume, 1.0, accuracy: 0.001)
+
+        let settingsBelowMin = MeditationSettings(backgroundSoundVolume: -0.5)
+        XCTAssertEqual(settingsBelowMin.backgroundSoundVolume, 0.0, accuracy: 0.001)
+    }
+
+    func testKeys_containsBackgroundSoundVolumeKey() {
+        XCTAssertEqual(MeditationSettings.Keys.backgroundSoundVolume, "backgroundSoundVolume")
+    }
+
+    func testEquatable_differentBackgroundSoundVolumes_areNotEqual() {
+        let settings1 = MeditationSettings(backgroundSoundVolume: 0.3)
+        let settings2 = MeditationSettings(backgroundSoundVolume: 0.7)
+
+        XCTAssertNotEqual(settings1, settings2)
+    }
+
+    func testCodable_encodesAndDecodesBackgroundSoundVolume() throws {
+        let original = MeditationSettings(backgroundSoundVolume: 0.75)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertEqual(decoded.backgroundSoundVolume, 0.75, accuracy: 0.001)
     }
 }

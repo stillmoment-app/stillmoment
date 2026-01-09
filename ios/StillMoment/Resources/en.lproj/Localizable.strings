@@ -63,6 +63,8 @@
 "settings.backgroundAudio.footer.silent" = "Keeps the app gently active in the background. Almost silent, just present.";
 "settings.backgroundAudio.footer.whiteNoise" = "Soft ambient sound to help you settle into your practice.";
 
+"settings.backgroundAudio.volume" = "Volume";
+
 "settings.intervalGongs.title" = "Interval Gongs";
 "settings.intervalGongs.description" = "Play a gong sound at regular intervals during meditation";
 "settings.intervalGongs.interval" = "Interval";
@@ -86,6 +88,7 @@
 "settings.preparationTime.45s" = "45 seconds";
 
 "settings.startGong.title" = "Gong Sound";
+"settings.gongVolume.title" = "Volume";
 
 // MARK: - Accessibility
 
@@ -121,6 +124,10 @@
 "accessibility.preparationTimeDuration.hint" = "Select the duration of preparation time in seconds";
 "accessibility.done" = "Done";
 "accessibility.done.hint" = "Save settings and close";
+"accessibility.backgroundVolume" = "Background volume";
+"accessibility.backgroundVolume.hint" = "Adjust the volume of background sounds";
+"accessibility.gongVolume" = "Gong volume";
+"accessibility.gongVolume.hint" = "Adjust the volume of gong sounds";
 "accessibility.editSheet.cancel.hint" = "Closes the form without saving changes";
 "accessibility.editSheet.save.hint" = "Saves your changes and closes the form";
 "accessibility.closeFocus" = "Close focus mode";

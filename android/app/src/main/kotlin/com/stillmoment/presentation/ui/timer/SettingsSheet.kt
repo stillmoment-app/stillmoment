@@ -1,5 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -20,10 +25,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -279,6 +287,83 @@ private fun BackgroundSoundSection(
                 onSettingsChange = onSettingsChange,
                 onBackgroundSoundPreview = onBackgroundSoundPreview
             )
+
+            // Volume slider - only shown when a non-silent sound is selected
+            if (settings.backgroundSoundId != "silent") {
+                Spacer(modifier = Modifier.height(16.dp))
+                VolumeSlider(
+                    volume = settings.backgroundSoundVolume,
+                    labelResId = R.string.settings_background_volume,
+                    accessibilityDescriptionResId = R.string.accessibility_background_volume,
+                    onVolumeChange = { newVolume ->
+                        onSettingsChange(settings.copy(backgroundSoundVolume = newVolume))
+                    },
+                    onVolumeChangeFinished = {
+                        onBackgroundSoundPreview(settings.backgroundSoundId)
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Reusable volume slider component for settings.
+ *
+ * @param volume Current volume value (0.0 to 1.0)
+ * @param labelResId String resource ID for the label
+ * @param accessibilityDescriptionResId String resource ID for accessibility description (with %d placeholder for percentage)
+ * @param onVolumeChange Callback when volume changes
+ * @param onVolumeChangeFinished Callback when slider is released
+ */
+@Composable
+private fun VolumeSlider(
+    volume: Float,
+    @StringRes labelResId: Int,
+    @StringRes accessibilityDescriptionResId: Int,
+    onVolumeChange: (Float) -> Unit,
+    onVolumeChangeFinished: () -> Unit
+) {
+    val volumeLabel = stringResource(labelResId)
+    val volumePercentage = (volume * 100).toInt()
+    val volumeDescription = stringResource(accessibilityDescriptionResId, volumePercentage)
+
+    Column {
+        Text(
+            text = volumeLabel,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.VolumeDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Slider(
+                value = volume,
+                onValueChange = onVolumeChange,
+                onValueChangeFinished = onVolumeChangeFinished,
+                valueRange = 0f..1f,
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics {
+                        contentDescription = volumeDescription
+                    },
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.primary
+                )
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -377,6 +462,20 @@ private fun GongSection(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
                 onGongSoundPreview = onGongSoundPreview
+            )
+
+            Spacer(modifier = Modifier.height(itemSpacing))
+
+            VolumeSlider(
+                volume = settings.gongVolume,
+                labelResId = R.string.settings_gong_volume,
+                accessibilityDescriptionResId = R.string.accessibility_gong_volume,
+                onVolumeChange = { newVolume ->
+                    onSettingsChange(settings.copy(gongVolume = newVolume))
+                },
+                onVolumeChangeFinished = {
+                    onGongSoundPreview(settings.gongSoundId)
+                }
             )
 
             Spacer(modifier = Modifier.height(itemSpacing))

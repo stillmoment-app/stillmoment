@@ -34,9 +34,11 @@ final class TimerViewModelSettingsTests: XCTestCase {
         defaults.removeObject(forKey: MeditationSettings.Keys.intervalGongsEnabled)
         defaults.removeObject(forKey: MeditationSettings.Keys.intervalMinutes)
         defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundVolume)
         defaults.removeObject(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
         defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
         defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
+        defaults.removeObject(forKey: MeditationSettings.Keys.gongVolume)
 
         self.sut = nil
         self.mockTimerService = nil
@@ -226,6 +228,115 @@ final class TimerViewModelSettingsTests: XCTestCase {
 
         // Then - Should use default "silent"
         XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
+    }
+
+    // MARK: - Background Volume Settings
+
+    func testBackgroundSoundVolume_persistence() {
+        // Given - Set custom volume
+        self.sut.settings.backgroundSoundVolume = 0.75
+
+        // When - Save and create new instance
+        self.sut.saveSettings()
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Volume should be restored
+        XCTAssertEqual(newViewModel.settings.backgroundSoundVolume, 0.75, accuracy: 0.001)
+    }
+
+    func testBackgroundSoundVolume_defaultValue() {
+        // Given - Clear any saved volume
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundVolume)
+
+        // When - Create new instance
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use default (0.15)
+        XCTAssertEqual(
+            newViewModel.settings.backgroundSoundVolume,
+            MeditationSettings.defaultBackgroundSoundVolume,
+            accuracy: 0.001
+        )
+    }
+
+    func testStartTimer_passesVolumeToAudioService() {
+        // Given - Set custom volume and sound
+        self.sut.settings.backgroundSoundId = "forest"
+        self.sut.settings.backgroundSoundVolume = 0.5
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer
+        self.sut.startTimer()
+
+        // Then - AudioService should receive the correct volume
+        XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
+        XCTAssertEqual(self.mockAudioService.lastStartBackgroundAudioSoundId, "forest")
+        XCTAssertEqual(
+            Double(self.mockAudioService.lastStartBackgroundAudioVolume ?? 0),
+            0.5,
+            accuracy: 0.001
+        )
+    }
+
+    // MARK: - Gong Volume Settings
+
+    func testGongVolume_persistence() {
+        // Given - Set custom gong volume
+        self.sut.settings.gongVolume = 0.6
+
+        // When - Save and create new instance
+        self.sut.saveSettings()
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Volume should be restored
+        XCTAssertEqual(newViewModel.settings.gongVolume, 0.6, accuracy: 0.001)
+    }
+
+    func testGongVolume_defaultValue() {
+        // Given - Clear any saved gong volume
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: MeditationSettings.Keys.gongVolume)
+
+        // When - Create new instance
+        let newViewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService
+        )
+
+        // Then - Should use default (1.0 = 100%)
+        XCTAssertEqual(
+            newViewModel.settings.gongVolume,
+            MeditationSettings.defaultGongVolume,
+            accuracy: 0.001
+        )
+    }
+
+    func testStartTimer_passesGongVolumeToAudioService() {
+        // Given - Set custom gong volume
+        self.sut.settings.gongVolume = 0.7
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer and trigger preparationFinished
+        self.sut.startTimer()
+        self.sut.dispatch(.preparationFinished)
+
+        // Then - AudioService should receive the correct gong volume
+        XCTAssertTrue(self.mockAudioService.playStartGongCalled)
+        XCTAssertEqual(
+            Double(self.mockAudioService.lastStartGongVolume ?? 0),
+            0.7,
+            accuracy: 0.001
+        )
     }
 
     // MARK: - Legacy Migration

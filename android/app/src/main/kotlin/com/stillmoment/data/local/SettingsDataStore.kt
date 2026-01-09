@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -37,10 +38,12 @@ constructor(
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
+        val BACKGROUND_SOUND_VOLUME = floatPreferencesKey("background_sound_volume")
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
         val PREPARATION_TIME_ENABLED = booleanPreferencesKey("preparation_time_enabled")
         val PREPARATION_TIME_SECONDS = intPreferencesKey("preparation_time_seconds")
         val GONG_SOUND_ID = stringPreferencesKey("gong_sound_id")
+        val GONG_VOLUME = floatPreferencesKey("gong_volume")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
     }
 
@@ -57,6 +60,9 @@ constructor(
                     backgroundSoundId =
                     preferences[Keys.BACKGROUND_SOUND_ID]
                         ?: MeditationSettings.Default.backgroundSoundId,
+                    backgroundSoundVolume =
+                    preferences[Keys.BACKGROUND_SOUND_VOLUME]
+                        ?: MeditationSettings.Default.backgroundSoundVolume,
                     durationMinutes =
                     preferences[Keys.DURATION_MINUTES]
                         ?: MeditationSettings.Default.durationMinutes,
@@ -68,7 +74,10 @@ constructor(
                         ?: MeditationSettings.Default.preparationTimeSeconds,
                     gongSoundId =
                     preferences[Keys.GONG_SOUND_ID]
-                        ?: MeditationSettings.Default.gongSoundId
+                        ?: MeditationSettings.Default.gongSoundId,
+                    gongVolume =
+                    preferences[Keys.GONG_VOLUME]
+                        ?: MeditationSettings.Default.gongVolume
                 )
             }
 
@@ -81,10 +90,12 @@ constructor(
             preferences[Keys.INTERVAL_GONGS_ENABLED] = settings.intervalGongsEnabled
             preferences[Keys.INTERVAL_MINUTES] = settings.intervalMinutes
             preferences[Keys.BACKGROUND_SOUND_ID] = settings.backgroundSoundId
+            preferences[Keys.BACKGROUND_SOUND_VOLUME] = settings.backgroundSoundVolume
             preferences[Keys.DURATION_MINUTES] = settings.durationMinutes
             preferences[Keys.PREPARATION_TIME_ENABLED] = settings.preparationTimeEnabled
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
             preferences[Keys.GONG_SOUND_ID] = settings.gongSoundId
+            preferences[Keys.GONG_VOLUME] = settings.gongVolume
         }
     }
 
@@ -116,6 +127,15 @@ constructor(
     }
 
     /**
+     * Update a single setting - backgroundSoundVolume.
+     */
+    suspend fun setBackgroundSoundVolume(volume: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.BACKGROUND_SOUND_VOLUME] = MeditationSettings.validateVolume(volume)
+        }
+    }
+
+    /**
      * Update a single setting - durationMinutes.
      */
     suspend fun setDurationMinutes(minutes: Int) {
@@ -130,6 +150,15 @@ constructor(
     suspend fun setGongSoundId(soundId: String) {
         context.dataStore.edit { preferences ->
             preferences[Keys.GONG_SOUND_ID] = soundId
+        }
+    }
+
+    /**
+     * Update a single setting - gongVolume.
+     */
+    suspend fun setGongVolume(volume: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.GONG_VOLUME] = MeditationSettings.validateVolume(volume)
         }
     }
 

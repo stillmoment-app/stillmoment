@@ -120,19 +120,25 @@ constructor(
     private fun handleEffect(effect: TimerEffect) {
         when (effect) {
             is TimerEffect.StartForegroundService -> {
-                TimerForegroundService.startService(getApplication(), effect.soundId, effect.gongSoundId)
+                TimerForegroundService.startService(
+                    getApplication(),
+                    effect.soundId,
+                    effect.soundVolume,
+                    effect.gongSoundId,
+                    effect.gongVolume
+                )
             }
             is TimerEffect.StopForegroundService -> {
                 TimerForegroundService.stopService(getApplication())
             }
             is TimerEffect.PlayStartGong -> {
-                TimerForegroundService.playGong(getApplication(), effect.gongSoundId)
+                TimerForegroundService.playGong(getApplication(), effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.PlayIntervalGong -> {
-                TimerForegroundService.playIntervalGong(getApplication())
+                TimerForegroundService.playIntervalGong(getApplication(), effect.gongVolume)
             }
             is TimerEffect.PlayCompletionSound -> {
-                TimerForegroundService.playGong(getApplication(), effect.gongSoundId)
+                TimerForegroundService.playGong(getApplication(), effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
@@ -213,9 +219,10 @@ constructor(
 
     /**
      * Play a gong sound preview. Automatically stops any previous preview.
+     * Uses the current gong volume setting for preview playback.
      */
     fun playGongPreview(soundId: String) {
-        audioService.playGongPreview(soundId)
+        audioService.playGongPreview(soundId, _uiState.value.settings.gongVolume)
     }
 
     /**
@@ -228,9 +235,10 @@ constructor(
     /**
      * Play a background sound preview. Automatically stops any previous preview (gong or background).
      * Plays for 3 seconds with fade-out.
+     * Uses the current volume setting from settings for preview playback.
      */
     fun playBackgroundPreview(soundId: String) {
-        audioService.playBackgroundPreview(soundId, DEFAULT_PREVIEW_VOLUME)
+        audioService.playBackgroundPreview(soundId, _uiState.value.settings.backgroundSoundVolume)
     }
 
     /**
