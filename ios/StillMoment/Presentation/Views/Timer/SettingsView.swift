@@ -5,6 +5,7 @@
 //  Presentation Layer - Settings View
 //
 
+import OSLog
 import SwiftUI
 
 /// Wrapper to persist AudioService across SwiftUI view recreations
@@ -43,12 +44,11 @@ struct SettingsView: View {
                 Form {
                     Section {
                         Toggle(isOn: self.$settings.preparationTimeEnabled) {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("settings.preparationTime.title", bundle: .main)
-                                    .font(.system(size: 17, weight: .regular, design: .rounded))
+                                    .settingsLabelStyle()
                                 Text("settings.preparationTime.description", bundle: .main)
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundColor(.textSecondary)
+                                    .settingsDescriptionStyle()
                             }
                         }
                         .accessibilityIdentifier("settings.toggle.preparationTime")
@@ -81,66 +81,6 @@ struct SettingsView: View {
 
                     Section {
                         Picker(
-                            "",
-                            selection: self.$settings.backgroundSoundId
-                        ) {
-                            ForEach(self.availableSounds) { sound in
-                                Label {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(sound.name.localized)
-                                            .font(.system(size: 17, weight: .regular, design: .rounded))
-                                        Text(sound.description.localized)
-                                            .font(.system(size: 13, weight: .regular, design: .rounded))
-                                            .foregroundColor(.textSecondary)
-                                    }
-                                } icon: {
-                                    Image(systemName: sound.iconName)
-                                        .foregroundColor(.interactive)
-                                }
-                                .tag(sound.id)
-                                .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
-                                .accessibilityHint(
-                                    NSLocalizedString(
-                                        "settings.backgroundAudio.hint",
-                                        value: "Select background sound for meditation",
-                                        comment: "Accessibility hint for sound selection"
-                                    )
-                                )
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .onChange(of: self.settings.backgroundSoundId) { newValue in
-                            self.playBackgroundPreview(soundId: newValue)
-                        }
-                        .accessibilityIdentifier("settings.picker.backgroundSound")
-                        .accessibilityLabel(
-                            NSLocalizedString("settings.backgroundAudio.title", comment: "")
-                        )
-                        .listRowBackground(Color.backgroundPrimary)
-
-                        // Volume slider - only shown when a non-silent sound is selected
-                        if self.settings.backgroundSoundId != "silent" {
-                            VolumeSliderRow(
-                                volume: self.$settings.backgroundSoundVolume,
-                                accessibilityTitleKey: "settings.backgroundAudio.volume",
-                                accessibilityIdentifier: "settings.slider.backgroundVolume",
-                                accessibilityHintKey: "accessibility.backgroundVolume.hint"
-                            ) {
-                                self.playBackgroundPreview(soundId: self.settings.backgroundSoundId)
-                            }
-                        }
-                    } header: {
-                        Text("settings.backgroundAudio.title", bundle: .main)
-                    } footer: {
-                        if let currentSound = self.availableSounds
-                            .first(where: { $0.id == self.settings.backgroundSoundId }) {
-                            Text(currentSound.description.localized)
-                                .font(.system(size: 13, weight: .regular, design: .rounded))
-                        }
-                    }
-
-                    Section {
-                        Picker(
                             NSLocalizedString("settings.startGong.title", comment: ""),
                             selection: self.$settings.startGongSoundId
                         ) {
@@ -169,12 +109,11 @@ struct SettingsView: View {
                         }
 
                         Toggle(isOn: self.$settings.intervalGongsEnabled) {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text("settings.intervalGongs.title", bundle: .main)
-                                    .font(.system(size: 17, weight: .regular, design: .rounded))
+                                    .settingsLabelStyle()
                                 Text("settings.intervalGongs.description", bundle: .main)
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundColor(.textSecondary)
+                                    .settingsDescriptionStyle()
                             }
                         }
                         .accessibilityIdentifier("settings.toggle.intervalGongs")
@@ -200,14 +139,49 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("settings.gong.title", bundle: .main)
-                    } footer: {
-                        if self.settings.intervalGongsEnabled {
-                            Text(String(
-                                format: NSLocalizedString("settings.intervalGongs.footer", comment: ""),
-                                self.settings.intervalMinutes
-                            ))
-                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                    }
+
+                    Section {
+                        Picker(
+                            NSLocalizedString("settings.backgroundAudio.sound", comment: ""),
+                            selection: self.$settings.backgroundSoundId
+                        ) {
+                            ForEach(self.availableSounds) { sound in
+                                Label(sound.name.localized, systemImage: sound.iconName)
+                                    .tag(sound.id)
+                                    .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
+                            }
                         }
+                        .pickerStyle(.menu)
+                        .onChange(of: self.settings.backgroundSoundId) { newValue in
+                            self.playBackgroundPreview(soundId: newValue)
+                        }
+                        .accessibilityIdentifier("settings.picker.backgroundSound")
+                        .accessibilityLabel(
+                            NSLocalizedString("settings.backgroundAudio.sound", comment: "")
+                        )
+                        .accessibilityHint(
+                            NSLocalizedString(
+                                "settings.backgroundAudio.hint",
+                                value: "Select background sound for meditation",
+                                comment: "Accessibility hint for sound selection"
+                            )
+                        )
+                        .listRowBackground(Color.backgroundPrimary)
+
+                        // Volume slider - only shown when a non-silent sound is selected
+                        if self.settings.backgroundSoundId != "silent" {
+                            VolumeSliderRow(
+                                volume: self.$settings.backgroundSoundVolume,
+                                accessibilityTitleKey: "settings.backgroundAudio.volume",
+                                accessibilityIdentifier: "settings.slider.backgroundVolume",
+                                accessibilityHintKey: "accessibility.backgroundVolume.hint"
+                            ) {
+                                self.playBackgroundPreview(soundId: self.settings.backgroundSoundId)
+                            }
+                        }
+                    } header: {
+                        Text("settings.backgroundAudio.title", bundle: .main)
                     }
                 }
                 .scrollContentBackground(.hidden)
@@ -244,19 +218,26 @@ struct SettingsView: View {
 
     /// Plays gong preview and stops previous preview
     private func playGongPreview(soundId: String) {
-        try? self.audioServiceHolder.service.playGongPreview(
-            soundId: soundId,
-            volume: self.settings.gongVolume
-        )
+        do {
+            try self.audioServiceHolder.service.playGongPreview(
+                soundId: soundId,
+                volume: self.settings.gongVolume
+            )
+        } catch {
+            Logger.audio.error("Failed to play gong preview", error: error, metadata: ["soundId": soundId])
+        }
     }
 
     /// Plays background sound preview (service handles "silent" internally)
     private func playBackgroundPreview(soundId: String) {
-        // Use the current volume setting from settings
-        try? self.audioServiceHolder.service.playBackgroundPreview(
-            soundId: soundId,
-            volume: self.settings.backgroundSoundVolume
-        )
+        do {
+            try self.audioServiceHolder.service.playBackgroundPreview(
+                soundId: soundId,
+                volume: self.settings.backgroundSoundVolume
+            )
+        } catch {
+            Logger.audio.error("Failed to play background preview", error: error, metadata: ["soundId": soundId])
+        }
     }
 
     /// Stops all previews and triggers dismiss
@@ -282,7 +263,7 @@ private struct VolumeSliderRow: View {
         HStack {
             Image(systemName: "speaker.fill")
                 .foregroundColor(.textSecondary)
-                .font(.system(size: 12))
+                .font(.settingsIcon)
             Slider(
                 value: self.$volume,
                 in: 0...1,
@@ -296,7 +277,7 @@ private struct VolumeSliderRow: View {
             .tint(.interactive)
             Image(systemName: "speaker.wave.3.fill")
                 .foregroundColor(.textSecondary)
-                .font(.system(size: 12))
+                .font(.settingsIcon)
         }
         .accessibilityIdentifier(self.accessibilityIdentifier)
         .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))
