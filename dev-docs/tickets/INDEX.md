@@ -139,7 +139,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-057](android/android-057-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
 | [android-058](android/android-058-settings-sofort-speichern.md) | Settings sofort speichern | 4-Polish | [x] | - |
 | [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [x] | - |
-| [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [ ] | - |
+| [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [x] | - |
 
 ---
 

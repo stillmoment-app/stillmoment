@@ -1,6 +1,6 @@
 # Ticket android-060: Dropdown-Styling an iOS angleichen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
@@ -24,16 +24,16 @@ Die aktuellen Dropdowns wirken sehr technisch (eckig, grauer Hintergrund) und pa
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Geoeffnete Dropdown-Menues haben warmen Hintergrund (WarmCream)
-- [ ] OutlinedTextFields haben runde Ecken (12dp)
-- [ ] Focus-Border ist Terracotta statt blau
-- [ ] Unfocused-Border ist warm (RingBackground) statt grau
+- [x] Geoeffnete Dropdown-Menues haben warmen Hintergrund (WarmCream)
+- [x] OutlinedTextFields haben runde Ecken (12dp)
+- [x] Focus-Border ist Terracotta statt blau
+- [x] Unfocused-Border ist warm (RingBackground) statt grau
 
 ### Tests
-- [ ] Paparazzi-Screenshots aktualisieren falls Aenderungen sichtbar
+- [x] Paparazzi-Screenshots aktualisieren falls Aenderungen sichtbar
 
 ### Dokumentation
-- [ ] Keine (rein visuell)
+- [x] Keine (rein visuell)
 
 ---
 

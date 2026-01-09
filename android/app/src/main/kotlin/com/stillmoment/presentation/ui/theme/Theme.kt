@@ -38,9 +38,14 @@ private val StillMomentColorScheme =
         onSurface = WarmBlack,
         surfaceVariant = WarmCream,
         onSurfaceVariant = WarmGray,
+        surfaceContainerLowest = WarmCream,
+        surfaceContainerLow = WarmCream,
+        surfaceContainer = WarmCream,
+        surfaceContainerHigh = WarmCream,
+        surfaceContainerHighest = WarmCream,
         error = WarmError,
         onError = Color.White,
-        outline = WarmGray,
+        outline = RingBackground,
         outlineVariant = RingBackground
     )
 

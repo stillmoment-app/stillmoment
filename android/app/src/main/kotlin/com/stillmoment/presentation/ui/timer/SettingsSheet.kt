@@ -193,11 +193,8 @@ private fun PreparationTimeDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_preparation_duration)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
+            shape = DropdownShape,
+            colors = dropdownTextFieldColors(),
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
@@ -397,11 +394,8 @@ private fun BackgroundSoundDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_background_sound)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
+            shape = DropdownShape,
+            colors = dropdownTextFieldColors(),
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
@@ -518,11 +512,8 @@ private fun GongSoundDropdown(
             readOnly = true,
             label = { Text(stringResource(R.string.settings_gong_sound)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = gongSoundExpanded) },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
+            shape = DropdownShape,
+            colors = dropdownTextFieldColors(),
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
@@ -632,11 +623,8 @@ private fun IntervalMinutesDropdown(settings: MeditationSettings, onSettingsChan
             readOnly = true,
             label = { Text(stringResource(R.string.settings_interval_minutes)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalMinutesExpanded) },
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
+            shape = DropdownShape,
+            colors = dropdownTextFieldColors(),
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
@@ -688,6 +676,21 @@ private fun SettingsCard(modifier: Modifier = Modifier, content: @Composable Col
         )
     }
 }
+
+/**
+ * Standard shape for dropdown text fields (12dp rounded corners).
+ */
+private val DropdownShape = RoundedCornerShape(12.dp)
+
+/**
+ * Standard colors for dropdown text fields with warm theme colors.
+ * Focus border is Terracotta (primary), unfocused border is RingBackground (outline).
+ */
+@Composable
+private fun dropdownTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+)
 
 // MARK: - Previews
 
