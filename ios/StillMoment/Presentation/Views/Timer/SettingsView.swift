@@ -81,7 +81,7 @@ struct SettingsView: View {
 
                     Section {
                         Picker(
-                            NSLocalizedString("settings.backgroundAudio.title", comment: ""),
+                            "",
                             selection: self.$settings.backgroundSoundId
                         ) {
                             ForEach(self.availableSounds) { sound in
