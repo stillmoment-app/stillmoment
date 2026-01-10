@@ -210,11 +210,6 @@ https://stillmoment.app/privacy
 - **Privacy Policy**: https://stillmoment.app/privacy (bilingual: English/German)
 - **Home Page**: https://stillmoment.app/
 
-Alternative (if GitHub Pages is not yet activated):
-```
-https://raw.githubusercontent.com/stillmoment-app/stillmoment/main/PRIVACY_POLICY.md
-```
-
 ## App Review Information
 
 ### Contact Information
