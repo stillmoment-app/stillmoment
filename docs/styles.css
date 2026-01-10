@@ -752,8 +752,23 @@ footer {
 
 .split-layout .hero-tagline {
     font-size: 1.4rem;
-    color: var(--warm-gray);
+    color: var(--warm-black);
     margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.split-layout .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--warm-gray);
+    margin: 0.5rem 0 0 0;
+    line-height: 1.4;
+}
+
+.split-layout .hero-usps {
+    font-size: 1rem;
+    color: var(--terracotta);
+    margin: 0.75rem 0 0 0;
     line-height: 1.4;
     font-weight: 500;
 }
@@ -959,6 +974,14 @@ footer {
 
     .split-layout .hero-tagline {
         font-size: 1.1rem;
+    }
+
+    .split-layout .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .split-layout .hero-usps {
+        font-size: 0.95rem;
     }
 
     .split-layout .hero-features li {
@@ -1325,6 +1348,14 @@ footer {
 
     .split-layout .hero-tagline {
         font-size: 1rem;
+    }
+
+    .split-layout .hero-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .split-layout .hero-usps {
+        font-size: 0.85rem;
     }
 
     .split-layout .hero-features li {
