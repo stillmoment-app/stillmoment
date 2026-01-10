@@ -203,12 +203,12 @@ https://github.com/stillmoment-app/stillmoment
 
 ### Privacy Policy URL (required)
 ```
-https://stillmoment-app.github.io/stillmoment/privacy
+https://stillmoment.app/privacy
 ```
 
 **Note**: GitHub Pages website is available at:
-- **Privacy Policy**: https://stillmoment-app.github.io/stillmoment/privacy (bilingual: English/German)
-- **Home Page**: https://stillmoment-app.github.io/stillmoment/
+- **Privacy Policy**: https://stillmoment.app/privacy (bilingual: English/German)
+- **Home Page**: https://stillmoment.app/
 
 Alternative (if GitHub Pages is not yet activated):
 ```
