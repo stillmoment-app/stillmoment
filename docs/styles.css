@@ -234,6 +234,91 @@ header {
     text-decoration: underline;
 }
 
+/* Impressum Compact Layout */
+.impressum-content {
+    max-width: 800px;
+}
+
+.impressum-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.impressum-card {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 1.25rem;
+    border-radius: 12px;
+}
+
+.impressum-card h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--warm-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 0.75rem 0;
+}
+
+.impressum-card p {
+    font-size: 0.95rem;
+    color: var(--warm-black);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.impressum-card a {
+    color: var(--terracotta);
+    text-decoration: none;
+}
+
+.impressum-card a:hover {
+    text-decoration: underline;
+}
+
+.impressum-legal {
+    border-top: 1px solid var(--warm-sand);
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+}
+
+.impressum-legal h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--warm-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+.impressum-legal h3:first-child {
+    margin-top: 0;
+}
+
+.impressum-legal p {
+    font-size: 0.9rem;
+    color: var(--warm-gray);
+    line-height: 1.6;
+    margin: 0 0 0.5rem 0;
+}
+
+.impressum-legal a {
+    color: var(--terracotta);
+    text-decoration: none;
+}
+
+.impressum-legal a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .impressum-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
 /* Highlight Box */
 .highlight-box,
 .contact-box {
