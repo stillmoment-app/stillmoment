@@ -4,26 +4,23 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-Still Moment is a meditation timer app with warm earth tone design and German/English localization. Features rotating affirmations, interval gongs, guided meditation library, and Apple-compliant background audio.
+Still Moment is a meditation app with:
+- **Guided meditations** from user's own MP3s
+- **Silent meditation** with customizable timer
+
+**USPs**: Privacy-first (no tracking, no ads, no subscription), no gamification (no streaks, no levels), distraction-free design.
 
 **Platforms**: iOS (SwiftUI) + Android (Jetpack Compose)
-**Quality**: 9/10 | **Coverage**: ≥80% | **Status**: v0.5
 
 ## Monorepo Structure
 
 ```
 stillmoment/
-├── ios/                    # iOS App (Swift/SwiftUI)
-│   ├── StillMoment/        # Source code + Resources
-│   ├── StillMomentTests/   # Unit tests
-│   └── Makefile            # iOS commands
-├── android/                # Android App (Kotlin/Compose)
-│   └── app/
-├── docs/                   # GitHub Pages (NO .md files!)
-└── dev-docs/               # Documentation (ADD .md files here)
+├── ios/          # cd ios before iOS work
+├── android/      # cd android before Android work
+├── docs/         # GitHub Pages (NO .md files!)
+└── dev-docs/     # Documentation (.md files here)
 ```
-
-**CRITICAL**: `cd ios` before iOS work. `cd android` before Android work.
 
 ## Essential Commands
 
@@ -39,9 +36,9 @@ make test               # Full suite with coverage
 ### Android (`android/` directory)
 
 ```bash
-./gradlew build         # Build
-./gradlew lint          # Lint
-./gradlew test          # Unit tests
+make help               # Show all commands
+make check              # Format + lint (same as CI)
+make test               # Unit tests
 ```
 
 ## Architecture
@@ -72,10 +69,8 @@ make test               # Full suite with coverage
 
 ## Domain-Driven Design
 
-**Ubiquitous Language**: iOS und Android verwenden identische Begriffe:
-- `TimerState`, `TimerAction`, `TimerEffect` - State Machine
-- `MeditationTimer`, `MeditationSettings` - Core Value Objects
-- `GuidedMeditation`, `BackgroundSound` - Content Models
+**Ubiquitous Language**: iOS und Android verwenden identische Begriffe.
+Vor Feature-Implementierung: `dev-docs/GLOSSARY.md` lesen.
 
 **Kern-Regeln**:
 
@@ -151,64 +146,13 @@ Text("greeting.name: \(userName)")  // BUG!
 
 ---
 
-## Logging (OSLog)
+## Logging
+
+Use `Logger.timer`, `.audio`, `.viewModel`, `.error`, `.performance` (not print)
 
 ```swift
-Logger.timer         // Timer operations
-Logger.audio         // Audio playback
-Logger.viewModel     // ViewModel actions
-Logger.error         // Errors
-Logger.performance   // Performance monitoring
-
-// Verwendung
 Logger.timer.info("Started", metadata: ["duration": 10])
-Logger.error.error("Failed", error: error, metadata: ["context": info])
-```
-
----
-
-## Thread Safety & Memory
-
-```swift
-// ViewModels: @MainActor
-@MainActor
-final class TimerViewModel: ObservableObject {
-    @Published var state: TimerState = .idle
-}
-
-// Combine: Explicit main thread + weak self
-timerService.timerPublisher
-    .receive(on: DispatchQueue.main)
-    .sink { [weak self] timer in
-        self?.updateFromTimer(timer)
-    }
-    .store(in: &cancellables)
-```
-
----
-
-## SwiftUI Best Practices
-
-```swift
-struct TimerView: View {
-    @StateObject private var viewModel: TimerViewModel
-
-    var body: some View {
-        VStack {
-            titleSection
-            timerDisplay
-        }
-    }
-
-    private var titleSection: some View {
-        Text("Still Moment").font(.largeTitle)
-    }
-}
-
-// State Management
-@StateObject private var viewModel = TimerViewModel()  // ViewModel
-@State private var isShowing = false                   // Local UI
-@Binding var value: String                             // Child views
+Logger.error.error("Failed", error: error)
 ```
 
 ---
@@ -217,71 +161,41 @@ struct TimerView: View {
 
 ```swift
 // Retain Cycles
-.sink { timer in self.update(timer) }           // FALSCH
-.sink { [weak self] timer in self?.update(timer) }  // RICHTIG
+.sink { timer in self.update(timer) }              // FALSCH
+.sink { [weak self] timer in self?.update(timer) } // RICHTIG
 
 // Main Thread
-service.fetch { data in self.items = data }     // FALSCH
 service.publisher
-    .receive(on: DispatchQueue.main)
-    .sink { data in self.items = data }         // RICHTIG
-
-// Force Unwrap
-let url = URL(string: str)!                     // FALSCH
-guard let url = URL(string: str) else { return }  // RICHTIG
+    .receive(on: DispatchQueue.main)  // Pflicht vor UI-Updates
+    .sink { [weak self] in ... }
 ```
 
 ---
 
 ## Testing
 
-**TDD is mandatory** for new features.
+**Red-Green-Refactor** for all new features:
 
-### Effizienter TDD-Workflow
+1. **RED**: Write failing test FIRST
+   - Create test for planned functionality
+   - Run `make test-unit`, verify it fails
+   - No implementation code yet!
 
-```bash
-# 1. TDD Inner Loop: Schnelle Iteration (30-60s)
-make test-unit
+2. **GREEN**: Minimal implementation
+   - Write just enough code to pass the test
+   - Run `make test-unit`, verify it passes
 
-# 2. Bei Failures: Sofort sehen was fehlschlägt
-make test-failures
+3. **REFACTOR**: Clean up
+   - Improve code quality, remove duplication
+   - Run `make test-unit`, tests must stay green
 
-# 3. Einzelnen Test fixen und verifizieren
-make test-single TEST=TestClass/testMethod
-
-# 4. Vor Commit: Vollständige Validierung mit Coverage
-make test
-
-# 5. Coverage prüfen (ohne nochmal zu testen)
-make test-report
-```
-
-### Analyse-Tools (ohne erneuten Testlauf)
-
-| Kommando | Zweck |
-|----------|-------|
-| `make test-failures` | Zeigt fehlgeschlagene Tests aus letztem Run |
-| `make test-report` | Zeigt Coverage-Report aus letztem Run |
-
-**Workflow-Beispiel**: Nach `make test-unit` mit 3 Failures:
-1. `make test-failures` → Saubere Liste der 3 Failures mit Fehlermeldungen
-2. `make test-single TEST=FirstFailingTest` → Ersten Test fixen
-3. Wiederholen bis alle grün
-4. `make test` → Vollständige Validierung vor Commit
-
-### Einzelne Tests ausführen
-
-**IMMER `make test-single` verwenden** für einzelne Tests:
+### Commands
 
 ```bash
-# Ganze Testklasse
-make test-single TEST=TimerViewModelSettingsTests
-
-# Einzelne Testmethode
-make test-single TEST=TimerViewModelBasicTests/testStartTimer
-
-# UI-Tests
-make test-single TEST=ScreenshotTests/testScreenshot01_TimerIdle
+make test-unit                              # Fast TDD loop (~30-60s)
+make test-single TEST=TestClass/testMethod  # Single test
+make test-failures                          # Show failures from last run
+make test                                   # Full suite before commit
 ```
 
 **Coverage targets**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
@@ -292,12 +206,7 @@ make test-single TEST=ScreenshotTests/testScreenshot01_TimerIdle
 
 ## Design System
 
-**Colors**: Use semantic roles, never direct colors
-
-```swift
-.foregroundColor(.textPrimary)    // RICHTIG
-.foregroundColor(.warmBlack)      // FALSCH
-```
+**Colors**: Use semantic (`.textPrimary`), never direct (`.warmBlack`)
 
 **Full guide**: `dev-docs/COLOR_SYSTEM.md`
 
@@ -310,24 +219,16 @@ make test-single TEST=ScreenshotTests/testScreenshot01_TimerIdle
 | Code Review | `/review-code` Skill |
 | View Quality | `/review-view` Skill |
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
-| **Architektur** | `dev-docs/ARCHITECTURE.md` |
-| **DDD** | `dev-docs/DDD_GUIDE.md` |
-| **Domain Glossar** | `dev-docs/GLOSSARY.md` |
+| Architektur | `dev-docs/ARCHITECTURE.md` |
+| DDD | `dev-docs/DDD_GUIDE.md` |
+| Glossar | `dev-docs/GLOSSARY.md` |
 | Testing | `dev-docs/TDD_GUIDE.md` |
 | Audio | `dev-docs/AUDIO_ARCHITECTURE.md` |
-| Colors | `dev-docs/COLOR_SYSTEM.md` |
-| Screenshots | `dev-docs/SCREENSHOTS.md` |
 
 ---
 
-## Critical Context
+## Quality Gates
 
-1. **Quality 9/10**: Non-negotiable
-2. **Coverage ≥80%**: CI fails below
-3. **No force unwraps**: Proper error handling
-4. **Protocol-first**: Services in Domain
-5. **Accessibility**: Every interactive element needs labels
-
----
-
-**Last Updated**: 2026-01-07 | **Version**: 3.3
+- **Coverage ≥80%**: CI fails below
+- **No force unwraps**: Proper error handling required
+- **Accessibility**: Every interactive element needs labels
