@@ -8,7 +8,7 @@ Kurze Anleitung für wiederkehrende Releases von Still Moment.
 
 ```bash
 # iOS
-cd ios && make check && make test-unit
+cd ios && make check && make test
 
 # Android
 cd android && make check && make test
@@ -17,8 +17,8 @@ cd android && make check && make test
 ### 2. Manueller Test
 
 Vor jedem Release die manuellen Test-Pläne auf echten Geräten durchführen:
-- iOS: `IOS_RELEASE_TEST_PLAN.md`
-- Android: `ANDROID_RELEASE_TEST_PLAN.md`
+- iOS: `TEST_PLAN_IOS.md`
+- Android: `TEST_PLAN_ANDROID.md`
 
 ### 3. Version erhöhen
 
@@ -75,7 +75,8 @@ make screenshots-android  # Paparazzi Screenshots
 
 | Thema | Dokument |
 |-------|----------|
-| App Store Texte | `APP_STORE_METADATA.md` |
-| Play Store Texte | `ANDROID_PLAY_STORE_LISTING.md` |
-| iOS Manual Tests | `IOS_RELEASE_TEST_PLAN.md` |
-| Android Manual Tests | `ANDROID_RELEASE_TEST_PLAN.md` |
+| Gemeinsame Store-Texte | `STORE_CONTENT_SHARED.md` |
+| iOS App Store | `STORE_CONTENT_IOS.md` |
+| Android Play Store | `STORE_CONTENT_ANDROID.md` |
+| iOS Manual Tests | `TEST_PLAN_IOS.md` |
+| Android Manual Tests | `TEST_PLAN_ANDROID.md` |

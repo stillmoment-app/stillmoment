@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-01-10 (Settings-Entdeckbarkeit)
+
+### Added (iOS & Android)
+- **Neues Settings-Icon** - Intuitiveres Slider-Icon ersetzt Kebab-Menü
+  - iOS: `slider.horizontal.3` SF Symbol
+  - Android: `Tune` Material Icon
+  - Bessere Affordance für Einstellungen
+  - Ticket: shared-021
+
+- **Onboarding-Hint für Erstnutzer** - Dezenter Hinweis auf Settings
+  - Erscheint beim ersten App-Start mit Fade-Animation
+  - Verschwindet nach Antippen des Settings-Icons
+  - Persistenz via @AppStorage (iOS) / DataStore (Android)
+  - Lokalisiert: "Tippe hier für Einstellungen" / "Tap here for settings"
+  - Unit Tests für Hint-State Persistenz
+  - Ticket: shared-021
+
+### Changed (Shared)
+- **Dokumentation reorganisiert** - Release-Docs in eigenem Ordner
+  - `dev-docs/release/` für alle Release-Dokumente
+  - Bessere Übersichtlichkeit
+
+### Changed (iOS)
+- **App Store Screenshots aktualisiert** - Neue Screenshots für iPhone 17 Pro Max
+
 ## [1.7.0] - 2026-01-09 (Gong-Auswahl & Lautstärkeregler)
 
 ### Added (iOS & Android)
