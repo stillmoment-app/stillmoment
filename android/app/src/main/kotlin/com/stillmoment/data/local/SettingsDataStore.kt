@@ -45,6 +45,7 @@ constructor(
         val GONG_SOUND_ID = stringPreferencesKey("gong_sound_id")
         val GONG_VOLUME = floatPreferencesKey("gong_volume")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
+        val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
     }
 
     override val settingsFlow: Flow<MeditationSettings> =
@@ -195,6 +196,32 @@ constructor(
     suspend fun setSelectedTab(tab: AppTab) {
         context.dataStore.edit { preferences ->
             preferences[Keys.SELECTED_TAB] = tab.route
+        }
+    }
+
+    /**
+     * Flow for whether the user has seen the settings hint.
+     * Returns false for new installations.
+     */
+    val hasSeenSettingsHintFlow: Flow<Boolean> =
+        context.dataStore.data
+            .map { preferences ->
+                preferences[Keys.HAS_SEEN_SETTINGS_HINT] ?: false
+            }
+
+    /**
+     * Get whether the user has seen the settings hint.
+     */
+    suspend fun getHasSeenSettingsHint(): Boolean {
+        return hasSeenSettingsHintFlow.first()
+    }
+
+    /**
+     * Mark the settings hint as seen.
+     */
+    suspend fun setHasSeenSettingsHint(seen: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.HAS_SEEN_SETTINGS_HINT] = seen
         }
     }
 }

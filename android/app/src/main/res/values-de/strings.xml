@@ -137,4 +137,8 @@
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Vorschlag: %s</string>
     <string name="accessibility_autocomplete_hint">Doppeltippen zum Auswählen</string>
+
+    <!-- Settings Hint -->
+    <string name="settings_hint_text">Passe Klänge &amp; Gongs an</string>
+    <string name="accessibility_settings_hint">Hinweis: Tippe hier, um Klänge und Gongs anzupassen</string>
 </resources>

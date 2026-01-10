@@ -44,6 +44,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-018](shared/shared-018-lockscreen-artwork.md) | Lock Screen Artwork | 4-Polish | [x] | [x] |
 | [shared-019](shared/shared-019-background-volume-slider.md) | Lautstaerkeregler Hintergrundsounds | 4-Polish | [x] | [x] |
 | [shared-020](shared/shared-020-gong-volume-slider.md) | Lautstaerkeregler Gong-Sounds | 4-Polish | [x] | [x] |
+| [shared-021](shared/shared-021-settings-icon-onboarding-hint.md) | Settings-Icon und Onboarding-Hint | 4-Polish | [x] | [x] |
 
 ---
 

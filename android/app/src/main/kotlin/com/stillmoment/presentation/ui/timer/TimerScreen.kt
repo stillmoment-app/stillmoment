@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.presentation.ui.components.SettingsHintTooltip
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -137,12 +138,20 @@ private fun TimerScreenLayout(
             actions = {
                 IconButton(onClick = onSettingsClick) {
                     Icon(
-                        imageVector = Icons.Filled.MoreVert,
+                        imageVector = Icons.Filled.Tune,
                         contentDescription = stringResource(R.string.accessibility_settings_button),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
+        )
+
+        // Settings hint tooltip - positioned left of the settings icon
+        SettingsHintTooltip(
+            isVisible = uiState.showSettingsHint,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 56.dp)
         )
 
         Column(

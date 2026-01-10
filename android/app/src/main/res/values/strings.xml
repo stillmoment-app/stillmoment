@@ -137,4 +137,8 @@
     <!-- Autocomplete Accessibility -->
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>
     <string name="accessibility_autocomplete_hint">Double tap to select</string>
+
+    <!-- Settings Hint -->
+    <string name="settings_hint_text">Customize sounds &amp; gongs</string>
+    <string name="accessibility_settings_hint">Hint: Tap here to customize sounds and gongs</string>
 </resources>

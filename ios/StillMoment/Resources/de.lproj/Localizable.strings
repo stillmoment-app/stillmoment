@@ -95,6 +95,11 @@
 
 "accessibility.settings" = "Einstellungen";
 "accessibility.settings.hint" = "Einstellungen öffnen, um Intervall-Gongs zu konfigurieren";
+
+// MARK: - Settings Hint (Onboarding)
+
+"settings.hint.text" = "Passe Klänge & Gongs an";
+"accessibility.settings.hint.tooltip" = "Hinweis: Tippe hier, um Klänge und Gongs anzupassen";
 "accessibility.startMeditation" = "Meditation starten";
 "accessibility.startMeditation.hint" = "Startet den Meditationstimer mit der gewählten Dauer";
 "accessibility.pauseMeditation" = "Meditation pausieren";

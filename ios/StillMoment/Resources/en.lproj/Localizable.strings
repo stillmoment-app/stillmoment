@@ -95,6 +95,11 @@
 
 "accessibility.settings" = "Settings";
 "accessibility.settings.hint" = "Open settings to configure interval gongs";
+
+// MARK: - Settings Hint (Onboarding)
+
+"settings.hint.text" = "Customize sounds & gongs";
+"accessibility.settings.hint.tooltip" = "Hint: Tap here to customize sounds and gongs";
 "accessibility.startMeditation" = "Start meditation";
 "accessibility.startMeditation.hint" = "Starts the meditation timer with the selected duration";
 "accessibility.pauseMeditation" = "Pause meditation";

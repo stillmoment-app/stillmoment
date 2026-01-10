@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.R
+import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
@@ -39,7 +40,9 @@ data class TimerUiState(
     /** Error message to show */
     val errorMessage: String? = null,
     /** Whether settings sheet is visible */
-    val showSettings: Boolean = false
+    val showSettings: Boolean = false,
+    /** Whether to show the settings hint tooltip (first-time onboarding) */
+    val showSettingsHint: Boolean = false
 ) {
     // Convenience accessors delegating to displayState
     val timerState: TimerState get() = displayState.timerState
@@ -72,6 +75,7 @@ class TimerViewModel
 constructor(
     application: Application,
     private val settingsRepository: SettingsRepository,
+    private val settingsDataStore: SettingsDataStore,
     private val timerRepository: TimerRepository,
     private val audioService: AudioService
 ) : AndroidViewModel(application) {
@@ -85,9 +89,11 @@ constructor(
         // Load initial settings synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
         val initialSettings = runBlocking { settingsRepository.getSettings() }
+        val hasSeenHint = runBlocking { settingsDataStore.getHasSeenSettingsHint() }
         _uiState.value = TimerUiState(
             displayState = TimerDisplayState.withDuration(initialSettings.durationMinutes),
-            settings = initialSettings
+            settings = initialSettings,
+            showSettingsHint = !hasSeenHint
         )
         // Continue collecting for future changes (background sound changes, etc.)
         loadSettings()
@@ -199,7 +205,21 @@ constructor(
     }
 
     fun showSettings() {
+        dismissSettingsHint()
         _uiState.update { it.copy(showSettings = true) }
+    }
+
+    /**
+     * Dismisses the settings hint tooltip and marks it as seen.
+     * Called on timeout or when user taps the settings icon.
+     */
+    fun dismissSettingsHint() {
+        if (_uiState.value.showSettingsHint) {
+            _uiState.update { it.copy(showSettingsHint = false) }
+            viewModelScope.launch {
+                settingsDataStore.setHasSeenSettingsHint(true)
+            }
+        }
     }
 
     fun hideSettings() {

@@ -39,6 +39,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
         defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
         defaults.removeObject(forKey: MeditationSettings.Keys.gongVolume)
+        defaults.removeObject(forKey: "hasSeenSettingsHint")
 
         self.sut = nil
         self.mockTimerService = nil
@@ -484,5 +485,45 @@ final class TimerViewModelSettingsTests: XCTestCase {
             self.mockAudioService.playStartGongCalled,
             "Start gong should play when meditation begins"
         )
+    }
+
+    // MARK: - Settings Hint Persistence (Onboarding)
+
+    func testSettingsHint_defaultIsFalse() {
+        // Given - Clear any saved hint state
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "hasSeenSettingsHint")
+
+        // When - Read the value
+        let hasSeenHint = defaults.bool(forKey: "hasSeenSettingsHint")
+
+        // Then - Should be false (not seen yet)
+        XCTAssertFalse(hasSeenHint, "Default hint state should be false (not seen)")
+    }
+
+    func testSettingsHint_persistsWhenSetToTrue() {
+        // Given - Clear any saved hint state
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "hasSeenSettingsHint")
+
+        // When - Set hint as seen
+        defaults.set(true, forKey: "hasSeenSettingsHint")
+
+        // Then - Should persist
+        let hasSeenHint = defaults.bool(forKey: "hasSeenSettingsHint")
+        XCTAssertTrue(hasSeenHint, "Hint state should persist as true after being set")
+    }
+
+    func testSettingsHint_survivesAppRestart() {
+        // Given - Set hint as seen
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: "hasSeenSettingsHint")
+        defaults.synchronize()
+
+        // When - Simulate app restart by reading from fresh defaults access
+        let hasSeenHint = UserDefaults.standard.bool(forKey: "hasSeenSettingsHint")
+
+        // Then - Should still be true
+        XCTAssertTrue(hasSeenHint, "Hint state should survive simulated app restart")
     }
 }

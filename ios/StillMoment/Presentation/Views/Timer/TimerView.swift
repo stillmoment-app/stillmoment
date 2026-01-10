@@ -80,17 +80,23 @@ struct TimerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    self.showSettings = true
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .foregroundColor(.textSecondary)
-                        .rotationEffect(.degrees(90))
-                        .frame(minWidth: 44, minHeight: 44)
+                HStack(spacing: 8) {
+                    if !self.hasSeenSettingsHint {
+                        self.settingsHintTooltip
+                    }
+
+                    Button {
+                        self.hasSeenSettingsHint = true
+                        self.showSettings = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                            .foregroundColor(.textSecondary)
+                            .frame(minWidth: 44, minHeight: 44)
+                    }
+                    .accessibilityIdentifier("timer.button.settings")
+                    .accessibilityLabel("accessibility.settings")
+                    .accessibilityHint("accessibility.settings.hint")
                 }
-                .accessibilityIdentifier("timer.button.settings")
-                .accessibilityLabel("accessibility.settings")
-                .accessibilityHint("accessibility.settings.hint")
             }
         }
         .sheet(isPresented: self.$showSettings) {
@@ -106,6 +112,8 @@ struct TimerView: View {
     @StateObject private var viewModel: TimerViewModel
     @State private var showSettings = false
     @State private var showFocusMode = false
+    @AppStorage("hasSeenSettingsHint")
+    private var hasSeenSettingsHint = false
 
     private var stateText: String {
         switch self.viewModel.timerState {
@@ -165,6 +173,21 @@ struct TimerView: View {
     }
 
     // MARK: - View Components
+
+    private var settingsHintTooltip: some View {
+        Text("settings.hint.text", bundle: .main)
+            .font(.system(size: 12, weight: .regular, design: .rounded))
+            .foregroundStyle(Color.textPrimary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.paleApricot)
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            )
+            .accessibilityLabel("accessibility.settings.hint.tooltip")
+            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
+    }
 
     private func minutePicker(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
