@@ -14,32 +14,12 @@ Still Moment ist ein Cross-Platform Projekt (iOS + Android). DDD bietet:
 
 ## Ubiquitous Language
 
-> **Vollstaendiges Glossar:** Detaillierte Begriffsdefinitionen mit Datei-Referenzen siehe `dev-docs/GLOSSARY.md`
-
 iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - Einfache Kommunikation im Team
 - Copy-Paste von Logik zwischen Plattformen
 - Konsistente Dokumentation
 
-### Timer Domain
-
-| Begriff | Typ | Beschreibung |
-|---------|-----|--------------|
-| `MeditationTimer` | Value Object | Zentrales Timer-Modell mit Zustand und Logik |
-| `MeditationSettings` | Value Object | Benutzereinstellungen (Dauer, Intervall, Sound) |
-| `TimerState` | Enum/Sealed | Zustandsautomat: Idle, Countdown, Running, Paused, Completed |
-| `TimerAction` | Enum/Sealed | Benutzer-Aktionen: startPressed, pausePressed, resetPressed |
-| `TimerEffect` | Enum/Sealed | Side Effects: playStartGong, saveSettings, startTimer |
-| `TimerDisplayState` | Value Object | Aggregierter UI-Zustand für Views |
-
-### Audio Domain
-
-| Begriff | Typ | Beschreibung |
-|---------|-----|--------------|
-| `AudioSource` | Enum | Identifiziert Audio-Quellen: timer, guidedMeditation (Details: `AUDIO_ARCHITECTURE.md`) |
-| `BackgroundSound` | Value Object | Hintergrundgeräusch mit Lokalisierung |
-| `GuidedMeditation` | Value Object | Geführte Meditation mit Metadaten |
-| `AudioMetadata` | Value Object | Dauer, Titel aus Audio-Datei |
+> **Vollstaendiges Glossar:** Alle Begriffe mit Datei-Referenzen siehe `dev-docs/GLOSSARY.md`
 
 ### Aktions-Namenskonvention
 
@@ -47,7 +27,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - `startPressed`, `pausePressed`, `resetPressed`
 
 **System-Ereignisse** (Verb + Past Participle):
-- `countdownFinished`, `timerCompleted`
+- `preparationFinished`, `timerCompleted`
 - `intervalGongTriggered`, `intervalGongPlayed`
 
 ---
@@ -168,9 +148,9 @@ object TimerReducer {
 ### State Machine
 
 ```
-┌──────┐ startPressed  ┌───────────┐ countdownFinished ┌─────────┐
-│ Idle │──────────────►│ Countdown │──────────────────►│ Running │
-└──────┘               └───────────┘                    └─────────┘
+┌──────┐ startPressed  ┌─────────────┐ preparationFinished ┌─────────┐
+│ Idle │──────────────►│ Preparation │────────────────────►│ Running │
+└──────┘               └─────────────┘                      └─────────┘
     ▲                                                        │
     │                   ┌────────┐                           │
     │   resetPressed    │ Paused │◄──────pausePressed────────┤
@@ -350,4 +330,4 @@ Bei jedem neuen Feature prüfen:
 
 ---
 
-**Last Updated**: 2026-01-05
+**Last Updated**: 2026-01-10

@@ -174,4 +174,4 @@ Für Dark Mode Support:
 
 ---
 
-**Zuletzt aktualisiert**: 2024-12-14
+**Last Updated**: 2026-01-10

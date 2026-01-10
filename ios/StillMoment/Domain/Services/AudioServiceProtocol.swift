@@ -27,7 +27,7 @@ protocol AudioServiceProtocol {
     /// Resumes background audio with fade in (after "Brief Pause")
     func resumeBackgroundAudio()
 
-    /// Plays the start gong when countdown completes
+    /// Plays the start gong when preparation completes
     /// - Parameters:
     ///   - soundId: ID of the gong sound to play (references GongSound.id)
     ///   - volume: Playback volume (0.0 to 1.0)

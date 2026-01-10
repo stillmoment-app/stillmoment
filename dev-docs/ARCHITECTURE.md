@@ -238,14 +238,21 @@ Beide Plattformen nutzen Semantic Versioning: `MAJOR.MINOR.PATCH`
 |-------|----------|
 | Quick Reference | `CLAUDE.md` |
 | **Architektur (dieses Dokument)** | `dev-docs/ARCHITECTURE.md` |
+| Domain-Driven Design | `dev-docs/DDD_GUIDE.md` |
+| Domain Glossar | `dev-docs/GLOSSARY.md` |
 | Audio-System | `dev-docs/AUDIO_ARCHITECTURE.md` |
 | Farb-System | `dev-docs/COLOR_SYSTEM.md` |
 | Testing & TDD | `dev-docs/TDD_GUIDE.md` |
-| Screenshots | `dev-docs/SCREENSHOTS.md` |
 | SwiftLint | `dev-docs/SWIFTLINT_GUIDELINES.md` |
-| iOS Release | `dev-docs/IOS_RELEASE_TEST_PLAN.md` |
-| Android Release | `dev-docs/ANDROID_RELEASE_TEST_PLAN.md` |
+| View-Namen | `dev-docs/VIEW_NAMES.md` |
+| Ticket-Erstellung | `dev-docs/TICKET_GUIDE.md` |
+| iOS Screenshots | `dev-docs/SCREENSHOTS.md` |
+| Android Screenshots | `dev-docs/ANDROID_SCREENSHOTS.md` |
+| iOS Release-Tests | `dev-docs/IOS_RELEASE_TEST_PLAN.md` |
+| Android Release-Tests | `dev-docs/ANDROID_RELEASE_TEST_PLAN.md` |
+| App Store Metadata | `dev-docs/APP_STORE_METADATA.md` |
+| Play Store Listing | `dev-docs/ANDROID_PLAY_STORE_LISTING.md` |
 
 ---
 
-**Last Updated**: 2025-12-27
+**Last Updated**: 2026-01-10

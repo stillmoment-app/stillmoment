@@ -519,7 +519,5 @@ Before starting ANY feature:
 
 **See also:**
 - [CLAUDE.md](../CLAUDE.md): Testing Philosophy
-- [CRITICAL_CODE.md](../CRITICAL_CODE.md): What code MUST be tested
-- [.claude.md](../.claude.md): Test structure standards
 
-**Last Updated**: 2025-12-21
+**Last Updated**: 2026-01-10
