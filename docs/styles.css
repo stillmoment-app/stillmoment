@@ -346,31 +346,23 @@ header {
 }
 
 .store-badge-disabled {
-    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
     cursor: default;
-    overflow: hidden;
 }
 
 .store-badge-disabled img {
-    opacity: 0.6;
-    filter: grayscale(40%);
+    opacity: 0.5;
+    filter: grayscale(50%);
 }
 
 .store-badge-disabled::after {
     content: attr(data-coming-soon);
-    position: absolute;
-    top: 16px;
-    right: -45px;
-    background: var(--terracotta);
-    color: white;
-    font-size: 0.5rem;
-    font-weight: 600;
-    padding: 0.2rem 3.5rem;
-    transform: rotate(35deg);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    white-space: nowrap;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--warm-gray);
 }
 
 .store-badge-disabled:hover {
@@ -789,10 +781,16 @@ footer {
 
 .split-layout .hero-usps {
     font-size: 1rem;
-    color: var(--terracotta);
+    color: var(--warm-gray);
     margin: 0.75rem 0 0 0;
     line-height: 1.4;
-    font-weight: 500;
+}
+
+.split-layout .hero-inline-icon {
+    display: inline-block;
+    vertical-align: -0.2em;
+    margin-right: 0.4rem;
+    opacity: 0.85;
 }
 
 .split-layout .hero-features {
@@ -1378,6 +1376,11 @@ footer {
 
     .split-layout .hero-usps {
         font-size: 0.85rem;
+    }
+
+    .split-layout .hero-inline-icon {
+        width: 16px;
+        height: 16px;
     }
 
     .split-layout .hero-features li {
