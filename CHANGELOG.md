@@ -619,7 +619,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History Summary
 
-### v1.7.0 (Current) - Gong-Auswahl & Lautstärkeregler
+### v1.8.0 (Current) - Settings-Entdeckbarkeit
+Neues Settings-Icon (Slider statt Kebab-Menü), Onboarding-Hint für Erstnutzer.
+
+### v1.7.0 - Gong-Auswahl & Lautstärkeregler
 Wählbare Gong-Klänge, Lautstärkeregler für Sounds und Gongs, Sound-Vorschau, konfigurierbare Vorbereitungszeit, Lock Screen Artwork.
 
 ### v1.4.0 - Deine Meditations-Bibliothek

@@ -124,6 +124,7 @@ Lade Still Moment herunter und schenke dir die Pause, die du verdienst.
 
 ## Release Notes
 
-Siehe [CHANGELOG.md](../../CHANGELOG.md) für aktuelle Release Notes.
+Siehe [RELEASE_NOTES.md](./RELEASE_NOTES.md) für user-facing Release Notes.
 
-Für Store-Einreichung: Die neueste Version aus dem CHANGELOG verwenden.
+Für Store-Einreichung: Die neueste Version aus RELEASE_NOTES.md verwenden.
+Technische Details siehe [CHANGELOG.md](../../CHANGELOG.md).
