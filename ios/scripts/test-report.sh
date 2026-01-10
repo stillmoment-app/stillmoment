@@ -80,8 +80,6 @@ if [ "$TEST_RUN_TYPE" = "all" ]; then
             echo "   - AudioSessionCoordinator: Resource management"
             echo "   - TimerViewModel: User interactions"
             echo "   - GuidedMeditationPlayerViewModel: Playback logic"
-            echo ""
-            echo "   See CRITICAL_CODE.md for testing priorities"
         else
             echo "✅ Coverage at ${COVERAGE}% (tracking well)"
             echo "   Focus: Test quality > coverage percentage"
