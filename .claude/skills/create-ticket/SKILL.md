@@ -141,9 +141,8 @@ Naechste Schritte:
 
 ## Referenzen
 
-- `dev-docs/TICKET_GUIDE.md` - Vollstaendiger Leitfaden fuer Ticket-Qualitaet
 - `dev-docs/tickets/INDEX.md` - Ticket-Uebersicht
 - `dev-docs/tickets/TEMPLATE-platform.md` - Platform-Template
 - `dev-docs/tickets/TEMPLATE-shared.md` - Shared-Template
 - `validations/philosophy.md` - Philosophie-Validierung (WAS/WARUM, nicht WIE)
-- `validations/acceptance-criteria.md` - Akzeptanzkriterien-Validierung
+- `validations/acceptance-criteria.md` - Akzeptanzkriterien-Validierung mit Beispielen

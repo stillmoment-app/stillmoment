@@ -245,7 +245,7 @@ Beide Plattformen nutzen Semantic Versioning: `MAJOR.MINOR.PATCH`
 | Testing & TDD | `dev-docs/TDD_GUIDE.md` |
 | SwiftLint | `dev-docs/SWIFTLINT_GUIDELINES.md` |
 | View-Namen | `dev-docs/VIEW_NAMES.md` |
-| Ticket-Erstellung | `dev-docs/TICKET_GUIDE.md` |
+| Ticket-Erstellung | `/create-ticket` Skill |
 | iOS Screenshots | `dev-docs/SCREENSHOTS.md` |
 | Android Screenshots | `dev-docs/ANDROID_SCREENSHOTS.md` |
 | iOS Release-Tests | `dev-docs/IOS_RELEASE_TEST_PLAN.md` |

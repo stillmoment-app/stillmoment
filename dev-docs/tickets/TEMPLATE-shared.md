@@ -28,7 +28,7 @@
 
 ## Akzeptanzkriterien
 
-<!-- Kriterien gelten fuer BEIDE Plattformen. Details: dev-docs/TICKET_GUIDE.md -->
+<!-- Kriterien gelten fuer BEIDE Plattformen -->
 
 ### Feature (beide Plattformen)
 - [ ] {Beobachtbares Verhalten 1}

@@ -20,7 +20,7 @@
 
 ## Akzeptanzkriterien
 
-<!-- Gute Kriterien: Beobachtbar, testbar, user-zentriert. Details: dev-docs/TICKET_GUIDE.md -->
+<!-- Gute Kriterien: Beobachtbar, testbar, user-zentriert -->
 
 ### Feature
 - [ ] {Beobachtbares Verhalten 1}
