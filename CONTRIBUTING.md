@@ -55,7 +55,6 @@ Thank you for your interest in contributing to Still Moment! This document provi
 ### Required Reading
 
 Before contributing code, please review:
-- **`.claude.md`** - Detailed code standards (840 lines, comprehensive)
 - **`CLAUDE.md`** - Project architecture, patterns, and best practices
 
 ### Key Standards
@@ -247,7 +246,7 @@ Then create a Pull Request on GitHub with:
 - ✅ CI/CD pipeline passes (lint, build, tests)
 - ✅ Code coverage ≥80%
 - ✅ No merge conflicts with `main`
-- ✅ Code follows standards (see `.claude.md`)
+- ✅ Code follows standards (see `CLAUDE.md`)
 - ✅ All tests green (unit + UI)
 - ✅ Changes documented in code comments where needed
 
@@ -331,7 +330,7 @@ Include:
 
 ## 📞 Questions?
 
-- **Documentation:** See `CLAUDE.md`, `.claude.md`, `README.md`
+- **Documentation:** See `CLAUDE.md`, `CONTRIBUTING.md`, `README.md`
 - **Issues:** Create an issue on GitHub
 - **Discussions:** Use GitHub Discussions for general questions
 
