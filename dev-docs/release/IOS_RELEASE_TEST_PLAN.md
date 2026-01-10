@@ -120,15 +120,9 @@ Automatisierte Tests decken bereits ab:
 
 ---
 
-## Release Checkliste
+## Nach dem Test
 
-Nach erfolgreichem Test:
-
-- [ ] Version erhoehen in Xcode (MARKETING_VERSION, CURRENT_PROJECT_VERSION)
-- [ ] CHANGELOG.md aktualisieren
-- [ ] Archive erstellen (Product → Archive)
-- [ ] App Store Connect Upload
-- [ ] Screenshots aktualisieren falls noetig (`make screenshots`)
+Nach erfolgreichem Test weiter mit `RELEASE_GUIDE.md`.
 
 ---
 

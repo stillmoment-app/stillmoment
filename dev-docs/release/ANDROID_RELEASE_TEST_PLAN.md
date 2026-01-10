@@ -102,14 +102,9 @@ Automatisierte Tests decken bereits ab:
 
 ---
 
-## Release Checkliste
+## Nach dem Test
 
-Nach erfolgreichem Test:
-
-- [ ] Version erhoehen in `build.gradle.kts`
-- [ ] CHANGELOG.md aktualisieren
-- [ ] `./gradlew assembleRelease`
-- [ ] APK signieren
+Nach erfolgreichem Test weiter mit `RELEASE_GUIDE.md`.
 
 ---
 
