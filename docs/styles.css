@@ -346,9 +346,31 @@ header {
 }
 
 .store-badge-disabled {
-    opacity: 0.5;
+    position: relative;
     cursor: default;
-    filter: grayscale(50%);
+    overflow: hidden;
+}
+
+.store-badge-disabled img {
+    opacity: 0.6;
+    filter: grayscale(40%);
+}
+
+.store-badge-disabled::after {
+    content: attr(data-coming-soon);
+    position: absolute;
+    top: 16px;
+    right: -45px;
+    background: var(--terracotta);
+    color: white;
+    font-size: 0.5rem;
+    font-weight: 600;
+    padding: 0.2rem 3.5rem;
+    transform: rotate(35deg);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    white-space: nowrap;
 }
 
 .store-badge-disabled:hover {
