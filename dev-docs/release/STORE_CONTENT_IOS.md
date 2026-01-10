@@ -26,15 +26,15 @@ meditate,achtsamkeit,klangschale,gong,bell,silent,vipassana,zazen,wellness,relax
 
 ### English
 ```
-Meditation as it should be. A gift, not a product — free and open source. Guided meditation library + silent timer. No ads, no tracking, no distractions.
+Meditation with your own content. Your MP3s or silent timer – tailored to your preferences. No tracking. No ads. No subscription.
 ```
-**Zeichen:** 155/170
+**Zeichen:** 131/170
 
 ### Deutsch
 ```
-Meditation, wie sie sein sollte. Ein Geschenk, kein Produkt — kostenlos und Open Source. Geführte Meditationen + stiller Timer. Keine Werbung, kein Tracking.
+Meditation mit deinen eigenen Inhalten. Eigene MP3s oder stiller Timer – ganz nach deinen Wünschen. Kein Tracking. Keine Werbung. Kein Abo.
 ```
-**Zeichen:** 160/170
+**Zeichen:** 142/170
 
 ---
 
