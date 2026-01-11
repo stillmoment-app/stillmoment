@@ -238,6 +238,7 @@ Beide Plattformen nutzen Semantic Versioning: `MAJOR.MINOR.PATCH`
 |-------|----------|
 | Quick Reference | `CLAUDE.md` |
 | **Architektur (dieses Dokument)** | `dev-docs/ARCHITECTURE.md` |
+| Architecture Decision Records | `dev-docs/decisions/` |
 | Domain-Driven Design | `dev-docs/DDD_GUIDE.md` |
 | Domain Glossar | `dev-docs/GLOSSARY.md` |
 | Audio-System | `dev-docs/AUDIO_ARCHITECTURE.md` |
