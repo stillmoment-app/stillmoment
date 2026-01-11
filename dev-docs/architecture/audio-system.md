@@ -3,8 +3,8 @@
 Dieses Dokument beschreibt die Audio-Architektur fuer Background Execution, Audio Session Koordination und plattformspezifische Implementierungen.
 
 > **Siehe auch:**
-> - Domain-Begriffe: `dev-docs/GLOSSARY.md`
-> - DDD Patterns: `dev-docs/DDD_GUIDE.md`
+> - Domain-Begriffe: `../reference/glossary.md`
+> - DDD Patterns: `ddd.md`
 
 ---
 
@@ -60,7 +60,7 @@ Timer und Guided Meditations koennen gleichzeitig in der TabView laufen und Audi
 
 ### AudioSource
 
-Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `GLOSSARY.md`.
+Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `../reference/glossary.md`.
 
 | Wert (iOS/Android) | Beschreibung |
 |--------------------|--------------|
@@ -73,7 +73,7 @@ Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `GL
 
 ## Integration mit TimerEffect
 
-Audio-Operationen werden als Effects modelliert (siehe `DDD_GUIDE.md` Effect Pattern):
+Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 
 | TimerEffect | Audio-Aktion |
 |-------------|--------------|
@@ -251,7 +251,7 @@ Importierte Dateien werden in App-internen Speicher kopiert.
 | `intervalMinutes` | Intervall (3, 5, 10 Minuten) |
 | `backgroundSoundId` | Sound ID aus `sounds.json` |
 
-Vollstaendige MeditationSettings Definition siehe `GLOSSARY.md`.
+Vollstaendige MeditationSettings Definition siehe `../reference/glossary.md`.
 
 ### BackgroundSoundRepository
 

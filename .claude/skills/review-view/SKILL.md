@@ -109,7 +109,7 @@ Für kritische Findings (Score-Abzug >= 5 Punkte):
 
 ### Projekt-Standards
 - `CLAUDE.md` - Architektur, Patterns, Standards
-- `dev-docs/COLOR_SYSTEM.md` - Semantic Colors
+- `dev-docs/reference/color-system.md` - Semantic Colors
 
 ### Ticket-System
 - `dev-docs/tickets/TEMPLATE-platform.md` - Ticket-Vorlage

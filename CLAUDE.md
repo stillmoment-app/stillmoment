@@ -70,7 +70,7 @@ make test               # Unit tests
 ## Domain-Driven Design
 
 **Ubiquitous Language**: iOS und Android verwenden identische Begriffe.
-Vor Feature-Implementierung: `dev-docs/GLOSSARY.md` lesen.
+Vor Feature-Implementierung: `dev-docs/reference/glossary.md` lesen.
 
 **Kern-Regeln**:
 
@@ -106,7 +106,7 @@ Vor Feature-Implementierung: `dev-docs/GLOSSARY.md` lesen.
    }
    ```
 
-**Vollständige Dokumentation**: `dev-docs/DDD_GUIDE.md`
+**Vollständige Dokumentation**: `dev-docs/architecture/ddd.md`
 
 ---
 
@@ -200,7 +200,7 @@ make test                                   # Vollständige Suite vor Commit
 
 **Coverage-Ziele**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
 
-**Vollständiger Guide**: `dev-docs/TDD_GUIDE.md`
+**Vollständiger Guide**: `dev-docs/guides/tdd.md`
 
 ---
 
@@ -208,7 +208,7 @@ make test                                   # Vollständige Suite vor Commit
 
 **Colors**: Use semantic (`.textPrimary`), never direct (`.warmBlack`)
 
-**Full guide**: `dev-docs/COLOR_SYSTEM.md`
+**Full guide**: `dev-docs/reference/color-system.md`
 
 ---
 
@@ -220,11 +220,12 @@ make test                                   # Vollständige Suite vor Commit
 | View Quality | `/review-view` Skill |
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
 | Release | `dev-docs/release/RELEASE_GUIDE.md` |
-| Architektur | `dev-docs/ARCHITECTURE.md` |
-| DDD | `dev-docs/DDD_GUIDE.md` |
-| Glossar | `dev-docs/GLOSSARY.md` |
-| Testing | `dev-docs/TDD_GUIDE.md` |
-| Audio | `dev-docs/AUDIO_ARCHITECTURE.md` |
+| Architektur | `dev-docs/architecture/overview.md` |
+| DDD | `dev-docs/architecture/ddd.md` |
+| Glossar | `dev-docs/reference/glossary.md` |
+| Testing | `dev-docs/guides/tdd.md` |
+| Audio | `dev-docs/architecture/audio-system.md` |
+| ADRs | `dev-docs/architecture/decisions/` |
 
 ---
 

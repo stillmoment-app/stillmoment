@@ -19,7 +19,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - Copy-Paste von Logik zwischen Plattformen
 - Konsistente Dokumentation
 
-> **Vollstaendiges Glossar:** Alle Begriffe mit Datei-Referenzen siehe `dev-docs/GLOSSARY.md`
+> **Vollstaendiges Glossar:** Alle Begriffe mit Datei-Referenzen siehe `../reference/glossary.md`
 
 ### Aktions-Namenskonvention
 
@@ -324,9 +324,9 @@ Bei jedem neuen Feature prüfen:
 
 | Thema | Datei |
 |-------|-------|
-| Architektur-Übersicht | `dev-docs/ARCHITECTURE.md` |
-| Testing-Praktiken | `dev-docs/TDD_GUIDE.md` |
-| Audio-Architektur | `dev-docs/AUDIO_ARCHITECTURE.md` |
+| Architektur-Übersicht | `overview.md` |
+| Testing-Praktiken | `../guides/tdd.md` |
+| Audio-Architektur | `audio-system.md` |
 
 ---
 

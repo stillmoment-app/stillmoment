@@ -105,4 +105,4 @@ Lese `patterns/screenshots.md` fuer Details.
 - `patterns/screenshots.md` - Fastlane Snapshot Integration
 - `templates/test-method.md` - Code-Template
 - `ios/StillMomentUITests/ScreenshotTests.swift` - Bestehende Tests
-- `dev-docs/SCREENSHOTS.md` - Screenshot-Dokumentation
+- `dev-docs/guides/screenshots-ios.md` - Screenshot-Dokumentation

@@ -12,10 +12,10 @@ Dokumentation zum Verstaendnis der Systemarchitektur und Design-Entscheidungen.
 
 | Dokument | Inhalt | Wann lesen? |
 |----------|--------|-------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Monorepo-Struktur, Layer, Cross-Platform Patterns | Einstieg ins Projekt |
-| [AUDIO_ARCHITECTURE.md](AUDIO_ARCHITECTURE.md) | Audio-Session-Koordination, Background Audio | Bei Audio-Features |
-| [DDD_GUIDE.md](DDD_GUIDE.md) | Immutable Models, Reducer Pattern, Effects | Bei Domain-Logik-Aenderungen |
-| [decisions/](decisions/) | Architecture Decision Records (ADRs) | "Warum wurde X so geloest?" |
+| [architecture/overview.md](architecture/overview.md) | Monorepo-Struktur, Layer, Cross-Platform Patterns | Einstieg ins Projekt |
+| [architecture/audio-system.md](architecture/audio-system.md) | Audio-Session-Koordination, Background Audio | Bei Audio-Features |
+| [architecture/ddd.md](architecture/ddd.md) | Immutable Models, Reducer Pattern, Effects | Bei Domain-Logik-Aenderungen |
+| [architecture/decisions/](architecture/decisions/) | Architecture Decision Records (ADRs) | "Warum wurde X so geloest?" |
 
 ---
 
@@ -25,10 +25,11 @@ Guides fuer die taegliche Entwicklungsarbeit.
 
 | Dokument | Inhalt | Wann lesen? |
 |----------|--------|-------------|
-| [TDD_GUIDE.md](TDD_GUIDE.md) | Red-Green-Refactor, Test-Patterns, Coverage | Vor Feature-Implementierung |
-| [SWIFTLINT_GUIDELINES.md](SWIFTLINT_GUIDELINES.md) | Lint-Regeln, Disable-Kommentare | Bei Lint-Fehlern |
-| [SCREENSHOTS.md](SCREENSHOTS.md) | iOS App Store Screenshots erstellen | Vor iOS-Release |
-| [ANDROID_SCREENSHOTS.md](ANDROID_SCREENSHOTS.md) | Android Play Store Screenshots | Vor Android-Release |
+| [guides/tdd.md](guides/tdd.md) | Red-Green-Refactor, Test-Patterns, Coverage | Vor Feature-Implementierung |
+| [guides/swiftlint.md](guides/swiftlint.md) | Lint-Regeln, Disable-Kommentare | Bei Lint-Fehlern |
+| [guides/screenshots-ios.md](guides/screenshots-ios.md) | iOS App Store Screenshots erstellen | Vor iOS-Release |
+| [guides/screenshots-android.md](guides/screenshots-android.md) | Android Play Store Screenshots | Vor Android-Release |
+| [guides/website.md](guides/website.md) | GitHub Pages lokal entwickeln | Bei Website-Aenderungen |
 
 ---
 
@@ -38,9 +39,9 @@ Referenzdokumentation zum schnellen Nachschlagen.
 
 | Dokument | Inhalt | Wann lesen? |
 |----------|--------|-------------|
-| [GLOSSARY.md](GLOSSARY.md) | Ubiquitous Language, Domain-Begriffe | Begriff unklar? |
-| [COLOR_SYSTEM.md](COLOR_SYSTEM.md) | Semantische Farben, Design Tokens | Bei UI-Styling |
-| [VIEW_NAMES.md](VIEW_NAMES.md) | Naming-Konventionen fuer Views | Neue View erstellen |
+| [reference/glossary.md](reference/glossary.md) | Ubiquitous Language, Domain-Begriffe | Begriff unklar? |
+| [reference/color-system.md](reference/color-system.md) | Semantische Farben, Design Tokens | Bei UI-Styling |
+| [reference/view-names.md](reference/view-names.md) | Naming-Konventionen fuer Views | Neue View erstellen |
 
 ---
 
@@ -66,15 +67,7 @@ Feature-Konzepte und Ticket-System.
 |-------------|--------|
 | [tickets/](tickets/) | Aktive und abgeschlossene Tickets |
 | [tickets/INDEX.md](tickets/INDEX.md) | Ticket-Uebersicht nach Status |
-| [feature-concepts/](feature-concepts/) | Groessere Feature-Konzepte vor Umsetzung |
-
----
-
-## Sonstiges
-
-| Dokument | Inhalt |
-|----------|--------|
-| [WEBSITE.md](WEBSITE.md) | GitHub Pages Website-Struktur |
+| [concepts/](concepts/) | Groessere Feature-Konzepte vor Umsetzung |
 
 ---
 
@@ -82,8 +75,32 @@ Feature-Konzepte und Ticket-System.
 
 - **CLAUDE.md** im Root: Quick Reference fuer taegliche Arbeit
 - **dev-docs/**: Ausfuehrliche Dokumentation
-- **ADRs**: Signifikante Architekturentscheidungen in `decisions/`
+- **ADRs**: Signifikante Architekturentscheidungen in `architecture/decisions/`
 - **Tickets**: Feature-Arbeit wird ueber `tickets/` getrackt
+
+### Verzeichnisstruktur
+
+```
+dev-docs/
+├── architecture/     # System verstehen (Explanation)
+│   ├── overview.md
+│   ├── audio-system.md
+│   ├── ddd.md
+│   └── decisions/    # ADRs
+├── guides/           # Aufgaben erledigen (How-to)
+│   ├── tdd.md
+│   ├── swiftlint.md
+│   ├── screenshots-ios.md
+│   ├── screenshots-android.md
+│   └── website.md
+├── reference/        # Nachschlagen (Reference)
+│   ├── glossary.md
+│   ├── color-system.md
+│   └── view-names.md
+├── release/          # Release-Prozess
+├── concepts/         # Feature-Planung
+└── tickets/          # Ticket-System
+```
 
 Bei neuen Dokumenten:
 1. Passende Kategorie oben waehlen

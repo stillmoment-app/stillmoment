@@ -115,7 +115,7 @@ Erstelle strukturierten Report nach `templates/report.md`:
 ### Projekt-Standards
 
 - `CLAUDE.md` - Internationalization Guidelines
-- `dev-docs/ARCHITECTURE.md` - Architektur-Uebersicht
+- `dev-docs/architecture/overview.md` - Architektur-Uebersicht
 
 ## Key-Namenskonventionen
 

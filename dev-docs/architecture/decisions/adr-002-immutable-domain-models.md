@@ -123,7 +123,7 @@ func testStartPressed_ReturnsCorrectEffects() {
 
 ### Mitigationen
 
-1. **DDD Guide**: Dokumentation in `dev-docs/DDD_GUIDE.md`
+1. **DDD Guide**: Dokumentation in `../ddd.md`
 2. **Code Reviews**: Mutation wird in Reviews erkannt
 3. **SwiftLint**: Kann `mutating` in Domain-Layer flaggen
 

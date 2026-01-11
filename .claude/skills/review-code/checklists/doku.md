@@ -11,7 +11,7 @@ Nicht jede Code-Aenderung erfordert Doku-Updates. Nur pruefen bei:
 
 ## GLOSSARY.md
 
-**Pfad**: `dev-docs/GLOSSARY.md`
+**Pfad**: `dev-docs/reference/glossary.md`
 
 ### Prueffragen
 - Neue Domain-Begriffe eingefuehrt? -> Im Glossar dokumentieren
@@ -25,7 +25,7 @@ Nicht jede Code-Aenderung erfordert Doku-Updates. Nur pruefen bei:
 - Datei-Referenzen (iOS + Android)
 
 ### Referenz
-Siehe `dev-docs/GLOSSARY.md` Abschnitt "Wartungshinweise" fuer Details.
+Siehe `dev-docs/reference/glossary.md` Abschnitt "Wartungshinweise" fuer Details.
 
 ## Relevante dev-docs
 
@@ -33,11 +33,11 @@ Bei groesseren Aenderungen pruefen ob betroffen:
 
 | Dokument | Wann aktualisieren? |
 |----------|---------------------|
-| `ARCHITECTURE.md` | Neue Layer, Module, Abhaengigkeiten |
-| `DDD_GUIDE.md` | Neue DDD-Patterns, Reducer-Aenderungen |
-| `AUDIO_ARCHITECTURE.md` | Audio-Service-Aenderungen |
-| `COLOR_SYSTEM.md` | Neue Farben oder semantische Rollen |
-| `TDD_GUIDE.md` | Test-Konventionen geaendert |
+| `architecture/overview.md` | Neue Layer, Module, Abhaengigkeiten |
+| `architecture/ddd.md` | Neue DDD-Patterns, Reducer-Aenderungen |
+| `architecture/audio-system.md` | Audio-Service-Aenderungen |
+| `reference/color-system.md` | Neue Farben oder semantische Rollen |
+| `guides/tdd.md` | Test-Konventionen geaendert |
 
 ## NICHT melden
 

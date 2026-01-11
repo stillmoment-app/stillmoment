@@ -194,7 +194,7 @@ Singleton der Audio-Konflikte zwischen Timer-Sounds und Guided Meditations koord
 AudioSessionCoordinator.shared.requestExclusiveAccess(for: .guidedMeditation)
 ```
 
-Siehe: `dev-docs/AUDIO_ARCHITECTURE.md`
+Siehe: `audio-system.md`
 
 ### Design System
 
@@ -205,7 +205,7 @@ Semantische Farben statt direkter Farbwerte:
 .foregroundColor(.warmBlack)      // Falsch
 ```
 
-Siehe: `dev-docs/COLOR_SYSTEM.md`
+Siehe: `../reference/color-system.md`
 
 ---
 
@@ -234,25 +234,21 @@ Beide Plattformen nutzen Semantic Versioning: `MAJOR.MINOR.PATCH`
 
 ## Documentation Map
 
+Vollstaendige Uebersicht: [`dev-docs/README.md`](../README.md)
+
 | Thema | Dokument |
 |-------|----------|
 | Quick Reference | `CLAUDE.md` |
-| **Architektur (dieses Dokument)** | `dev-docs/ARCHITECTURE.md` |
-| Architecture Decision Records | `dev-docs/decisions/` |
-| Domain-Driven Design | `dev-docs/DDD_GUIDE.md` |
-| Domain Glossar | `dev-docs/GLOSSARY.md` |
-| Audio-System | `dev-docs/AUDIO_ARCHITECTURE.md` |
-| Farb-System | `dev-docs/COLOR_SYSTEM.md` |
-| Testing & TDD | `dev-docs/TDD_GUIDE.md` |
-| SwiftLint | `dev-docs/SWIFTLINT_GUIDELINES.md` |
-| View-Namen | `dev-docs/VIEW_NAMES.md` |
-| Ticket-Erstellung | `/create-ticket` Skill |
-| iOS Screenshots | `dev-docs/SCREENSHOTS.md` |
-| Android Screenshots | `dev-docs/ANDROID_SCREENSHOTS.md` |
-| iOS Release-Tests | `dev-docs/IOS_RELEASE_TEST_PLAN.md` |
-| Android Release-Tests | `dev-docs/ANDROID_RELEASE_TEST_PLAN.md` |
-| App Store Metadata | `dev-docs/APP_STORE_METADATA.md` |
-| Play Store Listing | `dev-docs/ANDROID_PLAY_STORE_LISTING.md` |
+| **Architektur (dieses Dokument)** | `architecture/overview.md` |
+| Architecture Decision Records | `architecture/decisions/` |
+| Domain-Driven Design | `architecture/ddd.md` |
+| Audio-System | `architecture/audio-system.md` |
+| Domain Glossar | `reference/glossary.md` |
+| Farb-System | `reference/color-system.md` |
+| Testing & TDD | `guides/tdd.md` |
+| SwiftLint | `guides/swiftlint.md` |
+| Screenshots | `guides/screenshots-ios.md`, `guides/screenshots-android.md` |
+| Release | `release/` |
 
 ---
 

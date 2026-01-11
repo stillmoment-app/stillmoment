@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-01-09
+Last Updated: 2026-01-11
 -->
 
 ## Quick Reference
@@ -18,6 +18,7 @@ Last Updated: 2026-01-09
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
+| `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
 | `MeditationSettings` | Value Object | Timer | Benutzereinstellungen |
 | `MeditationTimer` | Value Object | Timer | Zentrales Timer-Modell |
@@ -96,7 +97,7 @@ Pfade:
 - iOS: `ios/StillMoment/Domain/Models/TimerAction.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/TimerAction.kt`
 
-**Siehe auch:** TimerReducer (Pattern in DDD_GUIDE.md)
+**Siehe auch:** TimerReducer (Pattern in `../architecture/ddd.md`)
 
 ---
 
@@ -119,7 +120,7 @@ Pfade:
 - iOS: `ios/StillMoment/Domain/Models/TimerEffect.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/TimerEffect.kt`
 
-**Pattern-Dokumentation:** `dev-docs/DDD_GUIDE.md` (Effect Pattern)
+**Pattern-Dokumentation:** `../architecture/ddd.md` (Effect Pattern)
 
 ---
 
@@ -406,6 +407,38 @@ Kapselt Zustand und Validierungslogik fuer das Editieren von GuidedMeditation-Me
 
 ---
 
+### GuidedMeditationSettings
+
+**Typ:** Value Object
+**Pattern:** Configuration Object
+
+**Beschreibung:**
+Benutzereinstellungen fuer den Guided Meditation Player. Analog zu `MeditationSettings` fuer den Timer.
+
+**Properties:**
+
+| Property | Typ | Default | Beschreibung |
+|----------|-----|---------|--------------|
+| `preparationTimeSeconds` | Int? | nil | Vorbereitungszeit vor MP3-Start (nil = deaktiviert) |
+
+**Gueltige Werte:**
+- `nil` (Aus), 5, 10, 15, 20, 30, 45 Sekunden
+
+**Validierung:**
+- `validatePreparationTime(_:)` - Gibt nil fuer nil zurueck, sonst naechsten gueltigen Wert
+
+**Persistence:**
+- UserDefaults Key: `guidedMeditation.preparationTimeSeconds`
+- Wert 0 bedeutet deaktiviert (nil)
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/GuidedMeditationSettings.swift`
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/GuidedMeditationSettings.kt` (geplant)
+
+**Siehe auch:** `MeditationSettings` (Timer-Pendant)
+
+---
+
 ## Namenskonventionen
 
 ### Actions (TimerAction)
@@ -444,7 +477,7 @@ Bei neuen Begriffen aus User-Perspektive zuordnen:
 - **Timer Domain**: Alles rund um den Meditation-Timer (inkl. Beiwerk wie BackgroundSound)
 - **Guided Meditations Domain**: Alles rund um importierte Audio-Dateien
 
-Technische Koordinations-Konzepte (z.B. AudioSource) gehoeren in `dev-docs/AUDIO_ARCHITECTURE.md`.
+Technische Koordinations-Konzepte (z.B. AudioSource) gehoeren in `../architecture/audio-system.md`.
 
 ### Review-Checkliste
 
@@ -455,4 +488,4 @@ Bei Code Reviews pruefen:
 
 ---
 
-**Pattern-Dokumentation:** `dev-docs/DDD_GUIDE.md`
+**Pattern-Dokumentation:** `../architecture/ddd.md`
