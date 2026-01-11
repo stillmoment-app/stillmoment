@@ -351,5 +351,56 @@ class MeditationSettingsTest {
         assertEquals("preparationTimeSeconds", MeditationSettingsKeys.PREPARATION_TIME_SECONDS)
         assertEquals("gongSoundId", MeditationSettingsKeys.GONG_SOUND_ID)
         assertEquals("gongVolume", MeditationSettingsKeys.GONG_VOLUME)
+        assertEquals("intervalGongVolume", MeditationSettingsKeys.INTERVAL_GONG_VOLUME)
+    }
+
+    // MARK: - Interval Gong Volume Tests
+
+    @Test
+    fun `default intervalGongVolume is 0_75`() {
+        assertEquals(0.75f, MeditationSettings.DEFAULT_INTERVAL_GONG_VOLUME)
+        assertEquals(0.75f, MeditationSettings.Default.intervalGongVolume)
+    }
+
+    @Test
+    fun `default settings have correct intervalGongVolume`() {
+        val settings = MeditationSettings.Default
+
+        assertEquals(0.75f, settings.intervalGongVolume)
+    }
+
+    @Test
+    fun `constructor uses default intervalGongVolume`() {
+        val settings = MeditationSettings()
+
+        assertEquals(0.75f, settings.intervalGongVolume)
+    }
+
+    @Test
+    fun `create with custom intervalGongVolume`() {
+        val settings = MeditationSettings.create(intervalGongVolume = 0.5f)
+
+        assertEquals(0.5f, settings.intervalGongVolume)
+    }
+
+    @Test
+    fun `create validates intervalGongVolume`() {
+        val settingsAboveMax = MeditationSettings.create(intervalGongVolume = 1.5f)
+        assertEquals(1f, settingsAboveMax.intervalGongVolume)
+
+        val settingsBelowMin = MeditationSettings.create(intervalGongVolume = -0.5f)
+        assertEquals(0f, settingsBelowMin.intervalGongVolume)
+
+        val settingsValid = MeditationSettings.create(intervalGongVolume = 0.6f)
+        assertEquals(0.6f, settingsValid.intervalGongVolume)
+    }
+
+    @Test
+    fun `copy preserves intervalGongVolume`() {
+        val original = MeditationSettings.create(intervalGongVolume = 0.4f)
+        val copied = original.copy(durationMinutes = 20)
+
+        assertEquals(0.4f, copied.intervalGongVolume)
+        assertEquals(20, copied.durationMinutes)
     }
 }

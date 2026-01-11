@@ -131,6 +131,7 @@
     <string name="accessibility_gong_sound_hint">Choose the gong sound for start and end of meditation</string>
     <string name="accessibility_background_volume">Volume: %d percent</string>
     <string name="accessibility_gong_volume">Gong volume: %d percent</string>
+    <string name="accessibility_interval_gong_volume">Interval gong volume: %d percent</string>
     <string name="accessibility_interval_gongs_toggle">Interval Gongs toggle</string>
     <string name="accessibility_preparation_time_toggle">Preparation time toggle</string>
 

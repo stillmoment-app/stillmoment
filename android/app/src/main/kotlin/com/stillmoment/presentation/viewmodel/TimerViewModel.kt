@@ -237,6 +237,14 @@ constructor(
     }
 
     /**
+     * Play interval gong sound preview.
+     * Uses the current interval gong volume setting for preview playback.
+     */
+    fun playIntervalGongPreview() {
+        audioService.playIntervalGong(_uiState.value.settings.intervalGongVolume)
+    }
+
+    /**
      * Stop the current gong preview.
      */
     fun stopGongPreview() {

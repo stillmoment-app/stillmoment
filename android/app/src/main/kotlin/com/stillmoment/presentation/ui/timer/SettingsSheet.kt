@@ -72,6 +72,7 @@ fun SettingsSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     onGongSoundPreview: (String) -> Unit = {},
+    onIntervalGongPreview: () -> Unit = {},
     onBackgroundSoundPreview: (String) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
@@ -101,6 +102,7 @@ fun SettingsSheet(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
                 onGongSoundPreview = onGongSoundPreview,
+                onIntervalGongPreview = onIntervalGongPreview,
                 itemSpacing = itemSpacing
             )
             Spacer(modifier = Modifier.height(sectionSpacing))
@@ -439,6 +441,7 @@ private fun GongSection(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
     onGongSoundPreview: (String) -> Unit,
+    onIntervalGongPreview: () -> Unit,
     itemSpacing: Dp
 ) {
     Column {
@@ -472,6 +475,7 @@ private fun GongSection(
             IntervalGongsContent(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
+                onIntervalGongPreview = onIntervalGongPreview,
                 itemSpacing = itemSpacing
             )
         }
@@ -531,6 +535,7 @@ private fun GongSoundDropdown(
 private fun IntervalGongsContent(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
+    onIntervalGongPreview: () -> Unit,
     itemSpacing: Dp
 ) {
     Column {
@@ -544,6 +549,16 @@ private fun IntervalGongsContent(
             IntervalMinutesDropdown(
                 settings = settings,
                 onSettingsChange = onSettingsChange
+            )
+            Spacer(modifier = Modifier.height(itemSpacing))
+            VolumeSlider(
+                volume = settings.intervalGongVolume,
+                accessibilityDescriptionResId = R.string.accessibility_interval_gong_volume,
+                testTag = "settings.slider.intervalGongVolume",
+                onVolumeChange = { newVolume ->
+                    onSettingsChange(settings.copy(intervalGongVolume = newVolume))
+                },
+                onVolumeChangeFinish = onIntervalGongPreview
             )
         }
     }

@@ -21,6 +21,7 @@ class SettingsDataStoreTest {
 
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
+        assertEquals(0.75f, settings.intervalGongVolume)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(10, settings.durationMinutes)
     }
@@ -31,12 +32,14 @@ class SettingsDataStoreTest {
             MeditationSettings.create(
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
+                intervalGongVolume = 0.5f,
                 backgroundSoundId = "forest",
                 durationMinutes = 20
             )
 
         assertTrue(settings.intervalGongsEnabled)
         assertEquals(10, settings.intervalMinutes)
+        assertEquals(0.5f, settings.intervalGongVolume)
         assertEquals("forest", settings.backgroundSoundId)
         assertEquals(20, settings.durationMinutes)
     }

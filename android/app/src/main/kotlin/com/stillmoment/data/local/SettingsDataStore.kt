@@ -37,6 +37,7 @@ constructor(
     private object Keys {
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
+        val INTERVAL_GONG_VOLUME = floatPreferencesKey("interval_gong_volume")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
         val BACKGROUND_SOUND_VOLUME = floatPreferencesKey("background_sound_volume")
         val DURATION_MINUTES = intPreferencesKey("duration_minutes")
@@ -58,6 +59,9 @@ constructor(
                     intervalMinutes =
                     preferences[Keys.INTERVAL_MINUTES]
                         ?: MeditationSettings.Default.intervalMinutes,
+                    intervalGongVolume =
+                    preferences[Keys.INTERVAL_GONG_VOLUME]
+                        ?: MeditationSettings.Default.intervalGongVolume,
                     backgroundSoundId =
                     preferences[Keys.BACKGROUND_SOUND_ID]
                         ?: MeditationSettings.Default.backgroundSoundId,
@@ -90,6 +94,7 @@ constructor(
         context.dataStore.edit { preferences ->
             preferences[Keys.INTERVAL_GONGS_ENABLED] = settings.intervalGongsEnabled
             preferences[Keys.INTERVAL_MINUTES] = settings.intervalMinutes
+            preferences[Keys.INTERVAL_GONG_VOLUME] = settings.intervalGongVolume
             preferences[Keys.BACKGROUND_SOUND_ID] = settings.backgroundSoundId
             preferences[Keys.BACKGROUND_SOUND_VOLUME] = settings.backgroundSoundVolume
             preferences[Keys.DURATION_MINUTES] = settings.durationMinutes
@@ -115,6 +120,15 @@ constructor(
     suspend fun setIntervalMinutes(minutes: Int) {
         context.dataStore.edit { preferences ->
             preferences[Keys.INTERVAL_MINUTES] = MeditationSettings.validateInterval(minutes)
+        }
+    }
+
+    /**
+     * Update a single setting - intervalGongVolume.
+     */
+    suspend fun setIntervalGongVolume(volume: Float) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.INTERVAL_GONG_VOLUME] = MeditationSettings.validateVolume(volume)
         }
     }
 

@@ -728,7 +728,7 @@ class TimerReducerTest {
             assertTrue(newState.intervalGongPlayedForCurrentInterval)
             assertTrue(effects.any { it is TimerEffect.PlayIntervalGong })
             val intervalEffect = effects.filterIsInstance<TimerEffect.PlayIntervalGong>().first()
-            assertEquals(settings.gongVolume, intervalEffect.gongVolume)
+            assertEquals(settings.intervalGongVolume, intervalEffect.gongVolume)
         }
 
         @Test
