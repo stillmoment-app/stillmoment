@@ -172,35 +172,35 @@ service.publisher
 
 ---
 
-## Testing
+## Implementierungsprozess bei Ticket-Umsetzung
 
-**Red-Green-Refactor** for all new features:
+**TDD ist Pflicht** - Kein Produktiv-Code ohne vorherigen roten Test.
 
-1. **RED**: Write failing test FIRST
-   - Create test for planned functionality
-   - Run `make test-unit`, verify it fails
-   - No implementation code yet!
+1. **RED**: Test ZUERST schreiben
+   - Test für geplante Funktionalität erstellen
+   - `make test-unit` ausführen, Test muss FEHLSCHLAGEN
+   - Noch kein Implementierungscode!
 
-2. **GREEN**: Minimal implementation
-   - Write just enough code to pass the test
-   - Run `make test-unit`, verify it passes
+2. **GREEN**: Minimale Implementierung
+   - Gerade genug Code schreiben, damit Test grün wird
+   - `make test-unit` ausführen, Test muss BESTEHEN
 
-3. **REFACTOR**: Clean up
-   - Improve code quality, remove duplication
-   - Run `make test-unit`, tests must stay green
+3. **REFACTOR**: Aufräumen
+   - Code-Qualität verbessern, Duplikate entfernen
+   - `make test-unit` ausführen, Tests müssen grün bleiben
 
-### Commands
+4. **Wiederholen** für jede weitere Änderung
 
 ```bash
-make test-unit                              # Fast TDD loop (~30-60s)
-make test-single TEST=TestClass/testMethod  # Single test
-make test-failures                          # Show failures from last run
-make test                                   # Full suite before commit
+make test-unit                              # Schneller TDD-Loop (~30-60s)
+make test-single TEST=TestClass/testMethod  # Einzelner Test
+make test-failures                          # Fehler vom letzten Lauf
+make test                                   # Vollständige Suite vor Commit
 ```
 
-**Coverage targets**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
+**Coverage-Ziele**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
 
-**Full guide**: `dev-docs/TDD_GUIDE.md`
+**Vollständiger Guide**: `dev-docs/TDD_GUIDE.md`
 
 ---
 
