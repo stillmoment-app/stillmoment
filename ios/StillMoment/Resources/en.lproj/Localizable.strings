@@ -132,6 +132,8 @@
 "accessibility.backgroundVolume.hint" = "Adjust the volume of background sounds";
 "accessibility.gongVolume" = "Gong volume";
 "accessibility.gongVolume.hint" = "Adjust the volume of gong sounds";
+"accessibility.intervalGongVolume.title" = "Interval gong volume";
+"accessibility.intervalGongVolume.hint" = "Adjust the volume of interval gong sounds";
 "accessibility.editSheet.cancel.hint" = "Closes the form without saving changes";
 "accessibility.editSheet.save.hint" = "Saves your changes and closes the form";
 "accessibility.closeFocus" = "Close focus mode";

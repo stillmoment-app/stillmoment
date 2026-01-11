@@ -140,6 +140,7 @@ final class TimerViewModel: ObservableObject {
         let defaults = UserDefaults.standard
         defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
         defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
+        defaults.set(self.settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
         defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
         defaults.set(self.settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
         defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
@@ -295,7 +296,7 @@ final class TimerViewModel: ObservableObject {
 
     private func executePlayIntervalGong() {
         do {
-            try self.audioService.playIntervalGong(volume: self.settings.gongVolume)
+            try self.audioService.playIntervalGong(volume: self.settings.intervalGongVolume)
             // Mark gong played on timer to enable detection of next interval
             self.timerService.markIntervalGongPlayed()
             // Reset the UI flag to allow next interval detection
@@ -413,11 +414,15 @@ final class TimerViewModel: ObservableObject {
         let gongVolume = defaults.object(forKey: MeditationSettings.Keys.gongVolume) != nil
             ? defaults.float(forKey: MeditationSettings.Keys.gongVolume)
             : MeditationSettings.defaultGongVolume
+        let intervalGongVolume = defaults.object(forKey: MeditationSettings.Keys.intervalGongVolume) != nil
+            ? defaults.float(forKey: MeditationSettings.Keys.intervalGongVolume)
+            : MeditationSettings.defaultIntervalGongVolume
 
         self.settings = MeditationSettings(
             intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
             intervalMinutes: defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes) == 0
                 ? 5 : defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes),
+            intervalGongVolume: intervalGongVolume,
             backgroundSoundId: backgroundSoundId,
             backgroundSoundVolume: backgroundSoundVolume,
             durationMinutes: durationMinutes,

@@ -132,6 +132,8 @@
 "accessibility.backgroundVolume.hint" = "Lautstärke der Hintergrundgeräusche anpassen";
 "accessibility.gongVolume" = "Gong-Lautstärke";
 "accessibility.gongVolume.hint" = "Lautstärke der Gong-Klänge anpassen";
+"accessibility.intervalGongVolume.title" = "Intervall-Gong-Lautstärke";
+"accessibility.intervalGongVolume.hint" = "Lautstärke des Intervall-Gongs anpassen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
 "accessibility.closeFocus" = "Fokus-Modus schließen";

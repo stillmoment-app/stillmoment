@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Intervall-Gong-Lautstärkeregler** - Separate Lautstärke für Intervall-Gong
+  - Slider erscheint nur wenn Intervall-Gong aktiviert ist
+  - Default: 75% (unabhängig von Start/Ende-Gong Lautstärke)
+  - Persistiert in MeditationSettings
+  - Lokalisiert (DE + EN)
+  - Unit Tests für Domain Model
+  - Ticket: shared-022
+
 ## [1.8.0] - 2026-01-10 (Settings-Entdeckbarkeit)
 
 ### Added (iOS & Android)

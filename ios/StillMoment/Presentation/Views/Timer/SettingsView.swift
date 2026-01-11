@@ -122,6 +122,16 @@ struct SettingsView: View {
                         .listRowBackground(Color.backgroundPrimary)
 
                         if self.settings.intervalGongsEnabled {
+                            VolumeSliderRow(
+                                volume: self.$settings.intervalGongVolume,
+                                accessibilityTitleKey: "accessibility.intervalGongVolume.title",
+                                accessibilityIdentifier: "settings.slider.intervalGongVolume",
+                                accessibilityHintKey: "accessibility.intervalGongVolume.hint"
+                            ) {
+                                self.playIntervalGongPreview()
+                            }
+                            .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
+
                             Picker(
                                 NSLocalizedString("settings.intervalGongs.interval", comment: ""),
                                 selection: self.$settings.intervalMinutes
@@ -225,6 +235,16 @@ struct SettingsView: View {
             )
         } catch {
             Logger.audio.error("Failed to play gong preview", error: error, metadata: ["soundId": soundId])
+        }
+    }
+
+    private func playIntervalGongPreview() {
+        do {
+            try self.audioServiceHolder.service.playIntervalGong(
+                volume: self.settings.intervalGongVolume
+            )
+        } catch {
+            Logger.audio.error("Failed to play interval gong preview", error: error)
         }
     }
 

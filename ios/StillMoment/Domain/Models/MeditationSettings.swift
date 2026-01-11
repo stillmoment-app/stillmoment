@@ -19,9 +19,13 @@ struct MeditationSettings: Codable, Equatable {
     /// Default volume for gong sounds (100%)
     static let defaultGongVolume: Float = 1.0
 
+    /// Default volume for interval gong (75%)
+    static let defaultIntervalGongVolume: Float = 0.75
+
     init(
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
+        intervalGongVolume: Float = MeditationSettings.defaultIntervalGongVolume,
         backgroundSoundId: String = "silent",
         backgroundSoundVolume: Float = MeditationSettings.defaultBackgroundSoundVolume,
         durationMinutes: Int = 10,
@@ -32,6 +36,7 @@ struct MeditationSettings: Codable, Equatable {
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
+        self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
         self.durationMinutes = Self.validateDuration(durationMinutes)
@@ -48,6 +53,7 @@ struct MeditationSettings: Codable, Equatable {
     enum Keys {
         static let intervalGongsEnabled = "intervalGongsEnabled"
         static let intervalMinutes = "intervalMinutes"
+        static let intervalGongVolume = "intervalGongVolume"
         static let backgroundSoundId = "backgroundSoundId"
         static let backgroundSoundVolume = "backgroundSoundVolume"
         static let durationMinutes = "durationMinutes"
@@ -64,6 +70,9 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Interval in minutes between gongs (3, 5, or 10)
     var intervalMinutes: Int
+
+    /// Interval gong volume (0.0 to 1.0)
+    var intervalGongVolume: Float
 
     /// Background sound ID (references BackgroundSound.id)
     var backgroundSoundId: String
@@ -83,7 +92,7 @@ struct MeditationSettings: Codable, Equatable {
     /// Gong sound ID for start/end gong (references GongSound.id)
     var startGongSoundId: String
 
-    /// Gong volume (0.0 to 1.0) - applies to all gong types (start, end, interval)
+    /// Gong volume (0.0 to 1.0) - applies to start and end gong
     var gongVolume: Float
 
     // MARK: - Validation
@@ -127,6 +136,7 @@ extension MeditationSettings {
     static let `default` = MeditationSettings(
         intervalGongsEnabled: false,
         intervalMinutes: 5,
+        intervalGongVolume: defaultIntervalGongVolume,
         backgroundSoundId: "silent",
         backgroundSoundVolume: defaultBackgroundSoundVolume,
         durationMinutes: 10,

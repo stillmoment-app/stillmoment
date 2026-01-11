@@ -159,6 +159,61 @@ final class MeditationSettingsTests: XCTestCase {
         XCTAssertEqual(decoded.gongVolume, 0.75, accuracy: 0.01)
     }
 
+    // MARK: - Interval Gong Volume Settings
+
+    func testDefault_hasCorrectIntervalGongVolume() {
+        let settings = MeditationSettings.default
+
+        XCTAssertEqual(settings.intervalGongVolume, 0.75, accuracy: 0.01)
+    }
+
+    func testDefaultIntervalGongVolume_isPointSevenFive() {
+        XCTAssertEqual(MeditationSettings.defaultIntervalGongVolume, 0.75, accuracy: 0.001)
+    }
+
+    func testInit_defaultIntervalGongVolume() {
+        let settings = MeditationSettings()
+
+        XCTAssertEqual(settings.intervalGongVolume, 0.75, accuracy: 0.001)
+    }
+
+    func testInit_customIntervalGongVolume() {
+        let settings = MeditationSettings(intervalGongVolume: 0.5)
+
+        XCTAssertEqual(settings.intervalGongVolume, 0.5, accuracy: 0.001)
+    }
+
+    func testInit_validatesIntervalGongVolume() {
+        let settingsAboveMax = MeditationSettings(intervalGongVolume: 1.5)
+        XCTAssertEqual(settingsAboveMax.intervalGongVolume, 1.0, accuracy: 0.001)
+
+        let settingsBelowMin = MeditationSettings(intervalGongVolume: -0.5)
+        XCTAssertEqual(settingsBelowMin.intervalGongVolume, 0.0, accuracy: 0.001)
+    }
+
+    func testKeys_containsIntervalGongVolumeKey() {
+        XCTAssertEqual(MeditationSettings.Keys.intervalGongVolume, "intervalGongVolume")
+    }
+
+    func testEquatable_differentIntervalGongVolumes_areNotEqual() {
+        let settings1 = MeditationSettings(intervalGongVolume: 0.3)
+        let settings2 = MeditationSettings(intervalGongVolume: 0.8)
+
+        XCTAssertNotEqual(settings1, settings2)
+    }
+
+    func testCodable_encodesAndDecodesIntervalGongVolume() throws {
+        let original = MeditationSettings(intervalGongVolume: 0.6)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertEqual(decoded.intervalGongVolume, 0.6, accuracy: 0.001)
+    }
+
     func testEquatable_differentGongSoundIds_areNotEqual() {
         let settings1 = MeditationSettings(startGongSoundId: "classic-bowl")
         let settings2 = MeditationSettings(startGongSoundId: "clear-strike")
