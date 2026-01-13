@@ -743,6 +743,27 @@ footer {
     display: none !important;
 }
 
+/* Back to home link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--warm-gray);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+    margin-top: 2rem;
+}
+
+.back-link:hover {
+    color: var(--terracotta);
+}
+
+.back-link svg {
+    width: 18px;
+    height: 18px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .hero h1,
