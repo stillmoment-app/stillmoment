@@ -43,7 +43,7 @@ make test               # Unit tests
 
 ## Architecture
 
-**Clean Architecture Light + MVVM** on both platforms.
+**Clean Architecture + MVVM** on both platforms.
 
 ```
 ├── Domain/           # Pure Swift/Kotlin - Models, Protocols

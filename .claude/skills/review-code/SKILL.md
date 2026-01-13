@@ -103,6 +103,29 @@ Keine Anmerkungen.
 
 Das ist ein valides Review-Ergebnis.
 
+### Schritt 8: Interaktive Nachfrage
+
+Nach dem Report dem User die Wahl geben:
+
+**Wenn Findings vorhanden:**
+
+Mit AskUserQuestion nachfragen:
+- "Soll ich die Findings beheben?"
+- Optionen:
+  - **Ja, alle fixen** - Alle fixbaren Findings umsetzen
+  - **Auswahl fixen** - User waehlt welche Findings
+  - **Nein, nur Report** - Keine Aenderungen vornehmen
+
+**Wenn keine Findings:**
+
+Keine Nachfrage noetig, Review ist abgeschlossen.
+
+**Beim Fixen:**
+
+1. TDD-Workflow einhalten (erst Test rot, dann gruen, dann refactor)
+2. Nach jedem Fix `make check` ausfuehren
+3. Aenderungen dokumentieren
+
 ## Was ECHTE Findings sind
 
 | Echtes Finding | Kein Finding |

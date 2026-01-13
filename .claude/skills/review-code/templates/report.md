@@ -62,3 +62,18 @@
 ## Fazit
 
 {Freigabe / Freigabe mit Anmerkungen / Nacharbeit erforderlich}
+
+---
+
+## Naechste Schritte
+
+{Nur anzeigen wenn Findings vorhanden}
+
+Folgende Findings sind automatisch fixbar:
+
+| # | Finding | Komplexitaet |
+|---|---------|--------------|
+| 1 | {Finding 1} | {einfach/mittel/komplex} |
+| 2 | {Finding 2} | {einfach/mittel/komplex} |
+
+Soll ich diese Findings jetzt beheben?
