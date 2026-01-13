@@ -65,7 +65,7 @@ Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `..
 | Wert (iOS/Android) | Beschreibung |
 |--------------------|--------------|
 | `timer` / `TIMER` | Timer-Audio (Gongs, BackgroundSound) |
-| `guidedMeditation` / `GUIDED_MEDITATION` | Gefuehrte Meditation Playback |
+| `guidedMeditation` / `GUIDED_MEDITATION` | Gefuehrte Meditation Playback + Vorbereitungs-Countdown |
 
 **Wartungshinweis:** Bei neuen Audio-Features (z.B. Podcast-Import) neuen AudioSource-Wert hinzufuegen.
 
@@ -98,6 +98,43 @@ private func executeEffect(_ effect: TimerEffect) {
     }
 }
 ```
+
+---
+
+## Guided Meditation Vorbereitungszeit
+
+### Problem
+
+Waehrend des Vorbereitungs-Countdowns (max 45s) fuer gefuehrte Meditationen ist noch keine Musik aktiv. Ohne aktive Audio-Session wird der Timer im Hintergrund suspendiert.
+
+### Loesung
+
+`AudioPlayerService.startSilentBackgroundAudio()` spielt `silent.mp3` in einer Schleife waehrend des Countdowns:
+
+1. **Countdown Start**: `startSilentBackgroundAudio()` aktiviert Audio-Session mit `.guidedMeditation` Source
+2. **Countdown Ende**: `stopSilentBackgroundAudio()` stoppt Silent Audio
+3. **MP3 Playback**: Beginnt sofort danach (gleiche Audio-Session)
+
+### Fallback: Zeit-basierte Berechnung
+
+Falls Audio-Session unterbrochen wird (z.B. Anruf), berechnet `handleReturnFromBackground()` die verbleibende Zeit:
+
+```swift
+let elapsedSeconds = Int(clock.now().timeIntervalSince(startedAt))
+let remainingSeconds = totalSeconds - elapsedSeconds
+if remainingSeconds <= 0 {
+    // Countdown abgelaufen - MP3 sofort starten
+}
+```
+
+### ClockProtocol
+
+Ermoeglicht deterministisches Testen ohne echte Zeitverzoegerungen:
+
+| Implementation | Beschreibung |
+|---------------|--------------|
+| `SystemClock` | Produktion: `Timer.publish` + `Date()` |
+| `MockClock` | Tests: Manuelles `tick()` und `advanceTime(by:)` |
 
 ---
 
@@ -304,5 +341,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-01-05
-**Version**: 2.0
+**Zuletzt aktualisiert**: 2026-01-12
+**Version**: 2.1

@@ -1,6 +1,6 @@
 # Ticket shared-022: Lautstärkeregler Intervall-Gong
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 3-Feature
@@ -24,28 +24,28 @@ Manche bevorzugen einen leiseren Intervall-Gong, der weniger aus der Meditation 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Volume-Slider für Intervall-Gong in Timer-Settings
-- [ ] Slider erscheint nur wenn Intervall-Gong aktiviert ist (conditional visibility)
-- [ ] Default-Wert 75% bei Erstnutzung oder Upgrade (wenn noch kein User-Wert gespeichert)
-- [ ] Beim Abspielen des Intervall-Gongs wird dieses Setting verwendet
-- [ ] Lautstärke wird persistent gespeichert
-- [ ] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
-- [ ] Slider-Design konsistent mit bestehendem Gong-Volume-Slider (shared-020)
+- [x] Volume-Slider für Intervall-Gong in Timer-Settings
+- [x] Slider erscheint nur wenn Intervall-Gong aktiviert ist (conditional visibility)
+- [x] Default-Wert 75% bei Erstnutzung oder Upgrade (wenn noch kein User-Wert gespeichert)
+- [x] Beim Abspielen des Intervall-Gongs wird dieses Setting verwendet
+- [x] Lautstärke wird persistent gespeichert
+- [x] Lokalisiert (DE + EN)
+- [x] Visuell konsistent zwischen iOS und Android
+- [x] Slider-Design konsistent mit bestehendem Gong-Volume-Slider (shared-020)
 
 ### Tests
-- [ ] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests iOS
+- [x] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 

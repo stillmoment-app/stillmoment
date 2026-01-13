@@ -46,7 +46,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-020](shared/shared-020-gong-volume-slider.md) | Lautstaerkeregler Gong-Sounds | 4-Polish | [x] | [x] |
 | [shared-021](shared/shared-021-settings-icon-onboarding-hint.md) | Settings-Icon und Onboarding-Hint | 4-Polish | [x] | [x] |
 | [shared-022](shared/shared-022-interval-gong-volume.md) | Lautstärkeregler Intervall-Gong | 3-Feature | [x] | [x] |
-| [shared-023](shared/shared-023-guided-meditation-preparation-time.md) | Vorbereitungszeit gefuehrte Meditationen | 3-Feature | [ ] | [ ] |
+| [shared-023](shared/shared-023-guided-meditation-preparation-time.md) | Vorbereitungszeit gefuehrte Meditationen | 3-Feature | [x] | [x] |
+| [shared-024](shared/shared-024-clean-architecture-review.md) | Clean Architecture Layer-Review | 2-Architektur | [ ] | [ ] |
+| [shared-025](shared/shared-025-fastlane-integration.md) | Fastlane Integration | 2-Architektur | [ ] | [ ] |
 
 ---
 

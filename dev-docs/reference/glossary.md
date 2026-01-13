@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-01-11
+Last Updated: 2026-01-12
 -->
 
 ## Quick Reference
@@ -19,6 +19,7 @@ Last Updated: 2026-01-11
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
+| `PreparationCountdownState` | Enum | Guided Meditations | Zustandsautomat fuer Vorbereitungs-Countdown |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
 | `MeditationSettings` | Value Object | Timer | Benutzereinstellungen |
 | `MeditationTimer` | Value Object | Timer | Zentrales Timer-Modell |
@@ -436,6 +437,36 @@ Benutzereinstellungen fuer den Guided Meditation Player. Analog zu `MeditationSe
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/GuidedMeditationSettings.kt` (geplant)
 
 **Siehe auch:** `MeditationSettings` (Timer-Pendant)
+
+---
+
+### PreparationCountdownState
+
+**Typ:** Enum
+**Pattern:** State Machine
+
+**Beschreibung:**
+Zustandsautomat fuer den Vorbereitungs-Countdown vor dem Start einer gefuehrten Meditation. Analog zu `TimerState.preparation` fuer den Timer, aber einfacher (nur 3 Zustaende).
+
+**Werte:**
+
+| Wert | Beschreibung |
+|------|--------------|
+| `idle` | Kein Countdown aktiv |
+| `preparation(remainingSeconds:)` | Countdown laeuft, zeigt verbleibende Sekunden |
+| `finished` | Countdown abgeschlossen, MP3 startet |
+
+**State Machine:**
+
+```
+idle --> preparation --> finished --> (MP3 playback)
+```
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Application/ViewModels/GuidedMeditationPlayerViewModel.swift`
+- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/player/` (geplant)
+
+**Siehe auch:** `TimerState` (Timer-Pendant mit `preparation` State)
 
 ---
 

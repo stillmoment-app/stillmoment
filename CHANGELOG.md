@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (iOS)
+- **Vorbereitungszeit für geführte Meditationen** - Countdown vor MP3-Start
+  - Label unter Play-Button zeigt aktuelle Einstellung ("---" oder z.B. "15s")
+  - Tap öffnet Picker mit Optionen: Aus, 5s, 10s, 15s, 20s, 30s, 45s
+  - Countdown-Ring ersetzt Controls während Ablauf
+  - Einstellung persistent (bleibt für alle MP3s erhalten)
+  - Lokalisiert (DE + EN)
+  - Unit Tests für Domain Model und ViewModel
+  - Ticket: shared-023
+
+### Added (iOS & Android)
 - **Intervall-Gong-Lautstärkeregler** - Separate Lautstärke für Intervall-Gong
   - Slider erscheint nur wenn Intervall-Gong aktiviert ist
   - Default: 75% (unabhängig von Start/Ende-Gong Lautstärke)
