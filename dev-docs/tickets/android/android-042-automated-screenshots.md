@@ -24,20 +24,20 @@ sollen Screenshots automatisch generiert werden koennen.
 
 ## Akzeptanzkriterien
 
-- [x] 4 Screenshots pro Sprache generiert (8 total)
-- [x] Gradle Task `./gradlew screenshots` funktioniert
-- [x] Screenshots in android/screenshots/ abgelegt
+- [x] 5 Screenshots pro Sprache generiert (10 total)
+- [x] `cd android && make screenshots` funktioniert (via Fastlane Screengrab)
+- [x] Screenshots in docs/images/screenshots/ abgelegt
 - [x] Namenskonvention wie iOS: timer-main.png, timer-main-de.png, etc.
-- [x] Dokumentation in dev-docs/ANDROID_SCREENSHOTS.md
-- [x] Test-Fixtures fuer konsistente Library-Inhalte
+- [x] Dokumentation in dev-docs/guides/screenshots-android.md
+- [x] Test-Fixtures fuer konsistente Library-Inhalte (TestFixtureSeeder)
 
 ---
 
 ## Manueller Test
 
-1. `cd android && ./gradlew screenshots`
-2. Pruefe android/screenshots/
-3. Erwartung: 8 Screenshots (4 EN + 4 DE) vorhanden
+1. `cd android && make screenshots`
+2. Pruefe docs/images/screenshots/
+3. Erwartung: 10 Screenshots (5 EN + 5 DE) vorhanden
 
 ---
 
@@ -51,8 +51,8 @@ sollen Screenshots automatisch generiert werden koennen.
 ## Hinweise
 
 - iOS nutzt Fastlane Snapshot + XCUITest
-- Fuer Android bieten sich JVM-basierte Loesungen an (schneller, kein Emulator noetig)
-- Library-Inhalte sollten mit iOS TestFixtureSeeder konsistent sein (5 Meditationen)
+- Android nutzt Fastlane Screengrab (Emulator-basiert, authentische Screenshots)
+- Library-Inhalte sind mit iOS TestFixtureSeeder konsistent (5 Meditationen)
 
 ---
 

@@ -71,8 +71,11 @@ User-facing Release Notes erstellen (für App Store / Play Store):
 ### 6. Screenshots aktualisieren (falls UI-Änderungen)
 
 ```bash
-make screenshots-ios      # Fastlane Snapshots
-make screenshots-android  # Paparazzi Screenshots
+# iOS
+cd ios && make screenshots
+
+# Android
+cd android && make screenshots
 ```
 
 ### 7. Git Tag erstellen

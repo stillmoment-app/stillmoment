@@ -30,7 +30,7 @@ Die aktuellen Dropdowns wirken sehr technisch (eckig, grauer Hintergrund) und pa
 - [x] Unfocused-Border ist warm (RingBackground) statt grau
 
 ### Tests
-- [x] Paparazzi-Screenshots aktualisieren falls Aenderungen sichtbar
+- [x] Screenshots aktualisieren falls Aenderungen sichtbar
 
 ### Dokumentation
 - [x] Keine (rein visuell)
