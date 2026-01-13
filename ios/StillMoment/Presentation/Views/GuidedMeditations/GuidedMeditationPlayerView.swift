@@ -19,8 +19,11 @@ import SwiftUI
 struct GuidedMeditationPlayerView: View {
     // MARK: Lifecycle
 
-    init(meditation: GuidedMeditation) {
-        _viewModel = StateObject(wrappedValue: GuidedMeditationPlayerViewModel(meditation: meditation))
+    init(meditation: GuidedMeditation, preparationTimeSeconds: Int? = nil) {
+        _viewModel = StateObject(wrappedValue: GuidedMeditationPlayerViewModel(
+            meditation: meditation,
+            preparationTimeSeconds: preparationTimeSeconds
+        ))
     }
 
     init(viewModel: GuidedMeditationPlayerViewModel) {
@@ -105,46 +108,53 @@ struct GuidedMeditationPlayerView: View {
                         }
                         .padding(.horizontal)
 
-                        // Controls
-                        HStack(spacing: controlSpacing) {
-                            // Skip backward
-                            Button {
-                                self.viewModel.skipBackward()
-                            } label: {
-                                Image(systemName: "gobackward.10")
-                                    .font(.system(size: skipButtonSize, design: .rounded))
-                                    .foregroundColor(Color.interactive)
-                            }
-                            .accessibilityIdentifier("player.button.skipBackward")
-                            .accessibilityLabel("guided_meditations.player.skipBackward")
+                        // Controls or Countdown
+                        if self.viewModel.isPreparing {
+                            // Countdown overlay replaces controls
+                            self.countdownView(size: playButtonSize)
+                                .padding(.vertical, isCompactHeight ? 12 : 16)
+                        } else {
+                            HStack(spacing: controlSpacing) {
+                                // Skip backward
+                                Button {
+                                    self.viewModel.skipBackward()
+                                } label: {
+                                    Image(systemName: "gobackward.10")
+                                        .font(.system(size: skipButtonSize, design: .rounded))
+                                        .foregroundColor(Color.interactive)
+                                }
+                                .accessibilityIdentifier("player.button.skipBackward")
+                                .accessibilityLabel("guided_meditations.player.skipBackward")
 
-                            // Play/Pause
-                            Button {
-                                self.viewModel.togglePlayPause()
-                            } label: {
-                                Image(systemName: self.viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                    .font(.system(size: playButtonSize, design: .rounded))
-                                    .foregroundColor(Color.interactive)
-                            }
-                            .accessibilityIdentifier("player.button.playPause")
-                            .accessibilityLabel(
-                                self.viewModel.isPlaying ?
-                                    "guided_meditations.player.pause" :
-                                    "guided_meditations.player.play"
-                            )
+                                // Play/Pause
+                                Button {
+                                    self.viewModel.startPlayback()
+                                } label: {
+                                    Image(systemName: self.viewModel
+                                        .isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                        .font(.system(size: playButtonSize, design: .rounded))
+                                        .foregroundColor(Color.interactive)
+                                }
+                                .accessibilityIdentifier("player.button.playPause")
+                                .accessibilityLabel(
+                                    self.viewModel.isPlaying ?
+                                        "guided_meditations.player.pause" :
+                                        "guided_meditations.player.play"
+                                )
 
-                            // Skip forward
-                            Button {
-                                self.viewModel.skipForward()
-                            } label: {
-                                Image(systemName: "goforward.10")
-                                    .font(.system(size: skipButtonSize, design: .rounded))
-                                    .foregroundColor(Color.interactive)
+                                // Skip forward
+                                Button {
+                                    self.viewModel.skipForward()
+                                } label: {
+                                    Image(systemName: "goforward.10")
+                                        .font(.system(size: skipButtonSize, design: .rounded))
+                                        .foregroundColor(Color.interactive)
+                                }
+                                .accessibilityIdentifier("player.button.skipForward")
+                                .accessibilityLabel("guided_meditations.player.skipForward")
                             }
-                            .accessibilityIdentifier("player.button.skipForward")
-                            .accessibilityLabel("guided_meditations.player.skipForward")
+                            .padding(.vertical, isCompactHeight ? 12 : 16)
                         }
-                        .padding(.vertical, isCompactHeight ? 12 : 16)
 
                         Spacer()
                     }
@@ -198,6 +208,38 @@ struct GuidedMeditationPlayerView: View {
     @Environment(\.dismiss)
     private var dismiss
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
+
+    // MARK: - Countdown View
+
+    private func countdownView(size: CGFloat) -> some View {
+        ZStack {
+            // Background ring
+            Circle()
+                .stroke(Color.ringBackground, lineWidth: 4)
+                .frame(width: size, height: size)
+
+            // Progress ring
+            Circle()
+                .trim(from: 0, to: self.viewModel.countdownProgress)
+                .stroke(Color.progress, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .frame(width: size, height: size)
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 1.0), value: self.viewModel.countdownProgress)
+
+            // Countdown number
+            Text("\(self.viewModel.remainingCountdownSeconds)")
+                .font(.system(size: size * 0.5, weight: .light, design: .rounded))
+                .foregroundColor(.textPrimary)
+                .monospacedDigit()
+        }
+        .accessibilityIdentifier("player.countdown")
+        .accessibilityLabel(
+            String(
+                format: NSLocalizedString("guided_meditations.player.countdown", comment: ""),
+                self.viewModel.remainingCountdownSeconds
+            )
+        )
+    }
 }
 
 // MARK: - Previews

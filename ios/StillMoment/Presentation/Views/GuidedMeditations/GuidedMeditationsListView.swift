@@ -19,12 +19,17 @@ import UniformTypeIdentifiers
 struct GuidedMeditationsListView: View {
     // MARK: Lifecycle
 
-    init(viewModel: GuidedMeditationsListViewModel? = nil) {
+    init(
+        viewModel: GuidedMeditationsListViewModel? = nil,
+        settingsRepository: GuidedSettingsRepository = GuidedMeditationSettingsRepository()
+    ) {
         if let viewModel {
             _viewModel = StateObject(wrappedValue: viewModel)
         } else {
             _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel())
         }
+        self.settingsRepository = settingsRepository
+        _settings = State(initialValue: settingsRepository.load())
     }
 
     // MARK: Internal
@@ -53,7 +58,7 @@ struct GuidedMeditationsListView: View {
         .navigationTitle("guided_meditations.title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     self.viewModel.showDocumentPicker()
                 } label: {
@@ -64,6 +69,18 @@ struct GuidedMeditationsListView: View {
                 .accessibilityLabel("guided_meditations.add")
                 .accessibilityHint("accessibility.library.add.hint")
                 .accessibilityIdentifier("library.button.add")
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    self.showingSettings = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .foregroundColor(.textSecondary)
+                .accessibilityLabel("guided_meditations.settings")
+                .accessibilityHint("accessibility.library.settings.hint")
+                .accessibilityIdentifier("library.button.settings")
             }
         }
         .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
@@ -89,8 +106,24 @@ struct GuidedMeditationsListView: View {
             }
         }
         .sheet(item: self.$selectedMeditation) { meditation in
-            GuidedMeditationPlayerView(meditation: meditation)
+            GuidedMeditationPlayerView(
+                meditation: meditation,
+                preparationTimeSeconds: self.settings.preparationTimeSeconds
+            )
         }
+        .sheet(
+            isPresented: self.$showingSettings,
+            onDismiss: {
+                // Reload from repository to discard unsaved changes on swipe-dismiss
+                self.settings = self.settingsRepository.load()
+            },
+            content: {
+                GuidedMeditationSettingsView(settings: self.$settings) {
+                    self.settingsRepository.save(self.settings)
+                    self.showingSettings = false
+                }
+            }
+        )
         .alert(
             NSLocalizedString("common.error", comment: ""),
             isPresented: .constant(self.viewModel.errorMessage != nil)
@@ -136,6 +169,10 @@ struct GuidedMeditationsListView: View {
     @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var selectedMeditation: GuidedMeditation?
     @State private var meditationToDelete: GuidedMeditation?
+    @State private var showingSettings = false
+    @State private var settings: GuidedMeditationSettings
+
+    private let settingsRepository: GuidedSettingsRepository
 
     // MARK: - Subviews
 

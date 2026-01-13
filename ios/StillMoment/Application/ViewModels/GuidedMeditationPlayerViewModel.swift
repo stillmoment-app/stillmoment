@@ -9,12 +9,20 @@ import Combine
 import Foundation
 import OSLog
 
+/// State of the preparation countdown
+enum PreparationCountdownState: Equatable {
+    case idle
+    case active(PreparationCountdown)
+    case finished
+}
+
 /// ViewModel for the Guided Meditation Player View
 ///
 /// Manages:
 /// - Audio playback state and controls
 /// - Progress tracking and seeking
 /// - Background audio and lock screen integration
+/// - Preparation countdown before playback
 @MainActor
 final class GuidedMeditationPlayerViewModel: ObservableObject {
     // MARK: Lifecycle
@@ -23,10 +31,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     init(
         meditation: GuidedMeditation,
-        playerService: AudioPlayerServiceProtocol = AudioPlayerService()
+        preparationTimeSeconds: Int? = nil,
+        playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
+        clock: ClockProtocol = SystemClock()
     ) {
         self.meditation = meditation
+        self.preparationTimeSeconds = preparationTimeSeconds
         self.playerService = playerService
+        self.clock = clock
 
         self.setupBindings()
         // Remote controls will be configured in play() after audio session is activated
@@ -42,6 +54,17 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     @Published var currentTime: TimeInterval = 0
     @Published var duration: TimeInterval = 0
     @Published var errorMessage: String?
+
+    // MARK: - Preparation Countdown
+
+    @Published private(set) var countdownState: PreparationCountdownState = .idle
+
+    /// Preparation time in seconds before MP3 starts (nil = disabled)
+    private let preparationTimeSeconds: Int?
+
+    /// Tracks whether the session has started (countdown or playback began)
+    /// Used to prevent countdown from triggering again on resume
+    private(set) var hasSessionStarted = false
 
     /// Formatted current time string (MM:SS or HH:MM:SS)
     var formattedCurrentTime: String {
@@ -65,6 +88,32 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Whether the player is currently playing
     var isPlaying: Bool {
         self.playbackState == .playing
+    }
+
+    // MARK: - Preparation Countdown Properties
+
+    /// Whether preparation countdown is currently active
+    var isPreparing: Bool {
+        if case .active = self.countdownState {
+            return true
+        }
+        return false
+    }
+
+    /// Remaining countdown seconds (for UI)
+    var remainingCountdownSeconds: Int {
+        if case let .active(countdown) = countdownState {
+            return countdown.remainingSeconds
+        }
+        return 0
+    }
+
+    /// Progress for countdown ring (0.0 to 1.0)
+    var countdownProgress: Double {
+        if case let .active(countdown) = countdownState {
+            return countdown.progress
+        }
+        return 0
     }
 
     // MARK: - Public Methods
@@ -163,9 +212,41 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Cleans up resources when done
     func cleanup() {
+        self.countdownTimer?.cancel()
+        self.countdownTimer = nil
         self.playerService.cleanup()
         self.cancellables.removeAll()
         Logger.audioPlayer.debug("Cleaned up player resources")
+    }
+
+    // MARK: - Preparation Countdown Methods
+
+    /// Starts playback (with countdown if configured)
+    ///
+    /// - First call with preparation time: starts countdown, then plays
+    /// - First call without preparation time: plays immediately
+    /// - Subsequent calls: toggles play/pause (no countdown)
+    func startPlayback() {
+        // Don't start if already counting down
+        guard !self.isPreparing else {
+            return
+        }
+
+        // If session already started, just toggle play/pause (no countdown on resume)
+        guard !self.hasSessionStarted else {
+            self.togglePlayPause()
+            return
+        }
+
+        // Mark session as started
+        self.hasSessionStarted = true
+
+        // First start - use countdown if configured
+        if let prepTime = preparationTimeSeconds {
+            self.startCountdown(seconds: prepTime)
+        } else {
+            self.togglePlayPause()
+        }
     }
 
     // MARK: Private
@@ -173,7 +254,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let playerService: AudioPlayerServiceProtocol
+    private let clock: ClockProtocol
     private var cancellables = Set<AnyCancellable>()
+    private var countdownTimer: AnyCancellable?
 
     // MARK: - Private Methods
 
@@ -203,6 +286,44 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             return String(format: "%d:%02d:%02d", hours, minutes, seconds)
         } else {
             return String(format: "%d:%02d", minutes, seconds)
+        }
+    }
+
+    // MARK: - Countdown Methods
+
+    private func startCountdown(seconds: Int) {
+        let countdown = PreparationCountdown(totalSeconds: seconds)
+        self.countdownState = .active(countdown)
+
+        // Start silent background audio to keep app active during countdown
+        do {
+            try self.playerService.startSilentBackgroundAudio()
+        } catch {
+            Logger.audioPlayer.error("Failed to start silent background audio", error: error)
+        }
+
+        self.countdownTimer = self.clock.schedule(interval: 1.0) { [weak self] in
+            self?.tickCountdown()
+        }
+    }
+
+    private func tickCountdown() {
+        guard case let .active(countdown) = countdownState else {
+            return
+        }
+
+        let ticked = countdown.tick()
+
+        if ticked.isFinished {
+            self.countdownTimer?.cancel()
+            self.countdownTimer = nil
+            self.countdownState = .finished
+            // Stop silent background audio before starting MP3
+            self.playerService.stopSilentBackgroundAudio()
+            // Start MP3 after countdown
+            self.togglePlayPause()
+        } else {
+            self.countdownState = .active(ticked)
         }
     }
 }

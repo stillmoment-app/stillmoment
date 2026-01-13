@@ -115,6 +115,19 @@ protocol AudioPlayerServiceProtocol {
     ///   requesting the audio session from the coordinator.
     func setupRemoteCommandCenter()
 
+    /// Starts silent background audio to keep audio session active
+    ///
+    /// Use this during preparation countdown to ensure the timer runs reliably
+    /// in the background. The silent audio prevents iOS from suspending the app.
+    ///
+    /// - Throws: AudioPlayerError if audio session fails
+    func startSilentBackgroundAudio() throws
+
+    /// Stops silent background audio
+    ///
+    /// Call this when preparation countdown ends (before starting actual playback).
+    func stopSilentBackgroundAudio()
+
     /// Cleans up resources (call when done with player)
     func cleanup()
 }

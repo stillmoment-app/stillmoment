@@ -233,7 +233,50 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
     }
 
+    // MARK: - Silent Background Audio
+
+    func startSilentBackgroundAudio() throws {
+        // Request audio session first
+        _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
+
+        // Get silent.mp3 from BackgroundAudio folder
+        guard let silentURL = Bundle.main.url(
+            forResource: "silent",
+            withExtension: "mp3",
+            subdirectory: "BackgroundAudio"
+        ) else {
+            Logger.audio.error("Silent audio file not found in BackgroundAudio folder")
+            throw AudioPlayerError.fileNotAccessible
+        }
+
+        do {
+            self.silentBackgroundPlayer = try AVAudioPlayer(contentsOf: silentURL)
+            self.silentBackgroundPlayer?.numberOfLoops = -1 // Loop indefinitely
+            self.silentBackgroundPlayer?.volume = 0.01 // Nearly silent
+            self.silentBackgroundPlayer?.prepareToPlay()
+            self.silentBackgroundPlayer?.play()
+
+            Logger.audio.info("Silent background audio started for preparation countdown")
+        } catch {
+            Logger.audio.error("Failed to start silent background audio", error: error)
+            throw AudioPlayerError.playbackFailed(reason: error.localizedDescription)
+        }
+    }
+
+    func stopSilentBackgroundAudio() {
+        guard self.silentBackgroundPlayer != nil else {
+            return
+        }
+
+        self.silentBackgroundPlayer?.stop()
+        self.silentBackgroundPlayer = nil
+        Logger.audio.info("Silent background audio stopped")
+    }
+
     func cleanup() {
+        // Stop silent background audio
+        self.stopSilentBackgroundAudio()
+
         // Remove time observer
         if let token = timeObserverToken {
             self.player?.removeTimeObserver(token)
@@ -273,6 +316,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     private var timeObserverToken: Any?
     private var currentMeditation: GuidedMeditation?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Silent background audio player for keeping audio session active during countdown
+    private var silentBackgroundPlayer: AVAudioPlayer?
 
     /// Tracks whether Remote Command Center has been configured for current playback session.
     /// Reset to false in cleanup() to allow reconfiguration after full cleanup.

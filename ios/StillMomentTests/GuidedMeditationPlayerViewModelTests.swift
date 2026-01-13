@@ -28,9 +28,9 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.cancellables = Set<AnyCancellable>()
 
         // Create temporary file for tests
-        self.tempFileURL = self.createTemporaryAudioFile()
+        self.tempFileURL = GuidedMeditationTestHelpers.createTemporaryAudioFile()
 
-        let meditation = self.createTestMeditation(fileURL: self.tempFileURL)
+        let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService
@@ -43,11 +43,10 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.cancellables = nil
         self.sut = nil
         self.mockPlayerService = nil
-        // Clean up temp file
-        if let tempFileURL {
-            try? FileManager.default.removeItem(at: tempFileURL)
-        }
+        // Clean up temp file and UserDefaults
+        GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
         self.tempFileURL = nil
+        GuidedMeditationTestHelpers.cleanupUserDefaults()
         super.tearDown()
     }
 
@@ -78,8 +77,15 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     }
 
     func testLoadAudioWithMissingFile() async {
-        // Given - Create meditation pointing to non-existent file
-        let missingMeditation = self.createTestMeditation(fileURL: URL(fileURLWithPath: "/nonexistent/file.mp3"))
+        // Given - Create meditation pointing to non-existent file (don't use helper - it copies the file)
+        let missingMeditation = GuidedMeditation(
+            id: UUID(),
+            localFilePath: "nonexistent.mp3",
+            fileName: "test.mp3",
+            duration: 600,
+            teacher: "Test",
+            name: "Test"
+        )
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: missingMeditation,
             playerService: self.mockPlayerService
@@ -441,43 +447,6 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(progress, 0)
-    }
-
-    // MARK: Private
-
-    // MARK: - Helper Methods
-
-    private func createTestMeditation(fileURL: URL) -> GuidedMeditation {
-        // Extract the path relative to Application Support/Meditations/
-        // For tests, we use a custom path but need to make fileURL work
-        let meditationId = UUID()
-        let localFileName = "\(meditationId.uuidString).mp3"
-
-        // Create the Meditations directory and symlink the temp file
-        let fileManager = FileManager.default
-        if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let meditationsDir = appSupport.appendingPathComponent("Meditations")
-            try? fileManager.createDirectory(at: meditationsDir, withIntermediateDirectories: true)
-            let targetURL = meditationsDir.appendingPathComponent(localFileName)
-            try? fileManager.removeItem(at: targetURL)
-            try? fileManager.copyItem(at: fileURL, to: targetURL)
-        }
-
-        return GuidedMeditation(
-            id: meditationId,
-            localFilePath: localFileName,
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Test Teacher",
-            name: "Test Meditation"
-        )
-    }
-
-    private func createTemporaryAudioFile() -> URL {
-        let tempDir = FileManager.default.temporaryDirectory
-        let fileURL = tempDir.appendingPathComponent("test_audio_\(UUID().uuidString).mp3")
-        FileManager.default.createFile(atPath: fileURL.path, contents: Data(), attributes: nil)
-        return fileURL
     }
 }
 

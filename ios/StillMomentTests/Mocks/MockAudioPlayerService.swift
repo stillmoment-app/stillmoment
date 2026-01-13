@@ -21,6 +21,8 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var seekTime: TimeInterval?
     var cleanupCalled = false
     var setupRemoteCommandCenterCalled = false
+    var silentBackgroundAudioStarted = false
+    var silentBackgroundAudioStopped = false
 
     func load(url: URL, meditation: GuidedMeditation) async throws {
         if self.loadShouldThrow {
@@ -61,10 +63,20 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
         self.setupRemoteCommandCenterCalled = true
     }
 
+    func startSilentBackgroundAudio() throws {
+        self.silentBackgroundAudioStarted = true
+    }
+
+    func stopSilentBackgroundAudio() {
+        self.silentBackgroundAudioStopped = true
+    }
+
     func cleanup() {
         self.cleanupCalled = true
         self.state.send(.idle)
         self.currentTime.send(0)
         self.duration.send(0)
+        self.silentBackgroundAudioStarted = false
+        self.silentBackgroundAudioStopped = false
     }
 }

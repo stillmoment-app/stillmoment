@@ -186,8 +186,23 @@
 "guided_meditations.player.skipForward" = "15 Sekunden vorspulen";
 "guided_meditations.player.skipBackward" = "15 Sekunden zurückspulen";
 
+// Einstellungen
+"guided_meditations.settings" = "Einstellungen";
+"guided_meditations.settings.title" = "Einstellungen";
+"guided_meditations.settings.preparationTime.header" = "Vorbereitung";
+"guided_meditations.settings.preparationTime.title" = "Vorbereitungszeit";
+"guided_meditations.settings.preparationTime.description" = "Zeit zum Einstimmen bevor die Meditation beginnt";
+"guided_meditations.settings.preparationTime.duration" = "Dauer";
+
+// Vorbereitungszeit (legacy - wird im Countdown verwendet)
+"guided_meditations.preparation.off" = "Aus";
+"guided_meditations.preparation.seconds" = "%ds";
+"guided_meditations.player.preparationTime" = "Vorbereitungszeit";
+"guided_meditations.player.countdown" = "%d Sekunden bis die Meditation beginnt";
+
 "accessibility.guidedMeditations.hint" = "Öffne die Bibliothek der geführten Meditationen";
 
+"accessibility.library.settings.hint" = "Öffnet die Einstellungen für geführte Meditationen";
 "accessibility.library.add.hint" = "Öffnet die Dateiauswahl zum Importieren einer geführten Meditation";
 "accessibility.library.row.hint" = "Öffnet den Meditations-Player";
 "accessibility.library.edit.hint" = "Öffnet das Bearbeitungsformular für die Meditationsdetails";

@@ -186,8 +186,23 @@
 "guided_meditations.player.skipForward" = "Skip forward 15 seconds";
 "guided_meditations.player.skipBackward" = "Skip backward 15 seconds";
 
+// Settings
+"guided_meditations.settings" = "Settings";
+"guided_meditations.settings.title" = "Settings";
+"guided_meditations.settings.preparationTime.header" = "Preparation";
+"guided_meditations.settings.preparationTime.title" = "Preparation Time";
+"guided_meditations.settings.preparationTime.description" = "Time to settle before the meditation starts";
+"guided_meditations.settings.preparationTime.duration" = "Duration";
+
+// Preparation Time (legacy - used in countdown)
+"guided_meditations.preparation.off" = "Off";
+"guided_meditations.preparation.seconds" = "%ds";
+"guided_meditations.player.preparationTime" = "Preparation time";
+"guided_meditations.player.countdown" = "%d seconds until meditation starts";
+
 "accessibility.guidedMeditations.hint" = "Open guided meditations library";
 
+"accessibility.library.settings.hint" = "Opens settings for guided meditations";
 "accessibility.library.add.hint" = "Opens file picker to import a guided meditation";
 "accessibility.library.row.hint" = "Opens the meditation player";
 "accessibility.library.edit.hint" = "Opens edit form to change meditation details";
