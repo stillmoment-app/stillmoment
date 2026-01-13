@@ -21,6 +21,15 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
+/** Creates a mock Uri with the given scheme and path */
+private fun mockUri(scheme: String, path: String): Uri {
+    val uri = mock<Uri>()
+    whenever(uri.scheme).thenReturn(scheme)
+    whenever(uri.path).thenReturn(path)
+    whenever(uri.toString()).thenReturn("$scheme://$path")
+    return uri
+}
+
 /**
  * Unit tests for AudioPlayerService.
  * Tests guided meditation playback with MediaPlayer abstraction.
@@ -94,7 +103,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `play creates media player from factory`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
 
         // When
         sut.play(uri, 60000L)
@@ -106,7 +115,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `play sets data source for file URI`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
 
         // When
         sut.play(uri, 60000L)
@@ -118,7 +127,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `play prepares player asynchronously`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
 
         // When
         sut.play(uri, 60000L)
@@ -130,7 +139,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `play sets error for unsupported URI scheme`() = runTest {
         // Given
-        val uri = Uri.parse("http://example.com/audio.mp3")
+        val uri = mockUri("http", "example.com/audio.mp3")
 
         // When
         sut.play(uri, 60000L)
@@ -147,7 +156,7 @@ class AudioPlayerServiceTest {
     fun `pause pauses playing media player`() {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -161,7 +170,7 @@ class AudioPlayerServiceTest {
     fun `pause stops progress updates`() {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -175,7 +184,7 @@ class AudioPlayerServiceTest {
     fun `pause updates playback state to not playing`() = runTest {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -192,7 +201,7 @@ class AudioPlayerServiceTest {
     fun `resume starts paused media player`() {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(false)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -206,7 +215,7 @@ class AudioPlayerServiceTest {
     fun `resume starts progress updates`() {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(false)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -221,7 +230,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `seekTo seeks media player to position`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -234,7 +243,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `seekTo updates playback state position`() = runTest {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -251,7 +260,7 @@ class AudioPlayerServiceTest {
     fun `stop stops and releases media player`() {
         // Given
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -265,7 +274,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `stop releases audio session`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -278,7 +287,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `stop releases media session`() {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -291,7 +300,7 @@ class AudioPlayerServiceTest {
     @Test
     fun `stop resets playback state`() = runTest {
         // Given
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When
@@ -322,7 +331,7 @@ class AudioPlayerServiceTest {
     fun `onPrepared starts playback and updates state`() = runTest {
         // Given
         val preparedCaptor = argumentCaptor<() -> Unit>()
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
         verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
 
@@ -340,7 +349,7 @@ class AudioPlayerServiceTest {
     fun `onPrepared starts progress updates`() {
         // Given
         val preparedCaptor = argumentCaptor<() -> Unit>()
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
         verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
 
@@ -357,7 +366,7 @@ class AudioPlayerServiceTest {
     fun `onError sets error state`() = runTest {
         // Given
         val errorCaptor = argumentCaptor<(Int, Int) -> Boolean>()
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
         verify(mockMediaPlayer).setOnErrorListener(errorCaptor.capture())
 
@@ -377,7 +386,7 @@ class AudioPlayerServiceTest {
     fun `conflict handler stops playback when invoked`() {
         // Given: Start playback
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When: Conflict handler is invoked
@@ -394,7 +403,7 @@ class AudioPlayerServiceTest {
     fun `pause handler pauses playback when invoked`() {
         // Given: Start playback
         whenever(mockMediaPlayer.isPlaying).thenReturn(true)
-        val uri = Uri.parse("file:///test/audio.mp3")
+        val uri = mockUri("file", "/test/audio.mp3")
         sut.play(uri, 60000L)
 
         // When: Pause handler is invoked

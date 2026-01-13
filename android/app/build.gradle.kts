@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.paparazzi)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
 }
@@ -88,6 +87,7 @@ android {
         unitTests.all {
             it.useJUnitPlatform()
         }
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -140,7 +140,7 @@ dependencies {
     testImplementation(libs.junit5.params)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.kotlin)
-    // JUnit 4 support for Paparazzi screenshot tests
+    // JUnit 4 support for legacy tests
     testImplementation(libs.junit)
     testRuntimeOnly(libs.junit.vintage.engine)
 
@@ -151,6 +151,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.screengrab)
     kspAndroidTest(libs.hilt.compiler)
 
     // Debug

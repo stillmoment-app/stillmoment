@@ -80,9 +80,14 @@ object TimerReducer {
             TimerState.Running
         }
 
+        // Initialize timer seconds immediately so UI shows correct time from the start
+        val totalSeconds = state.selectedMinutes * 60
+
         val newState =
             state.copy(
                 timerState = initialState,
+                remainingSeconds = totalSeconds,
+                totalSeconds = totalSeconds,
                 remainingPreparationSeconds = preparationTime,
                 currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
                 intervalGongPlayedForCurrentInterval = false

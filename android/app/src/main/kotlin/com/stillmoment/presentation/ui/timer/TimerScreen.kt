@@ -139,10 +139,14 @@ private fun TimerScreenLayout(
     Box(modifier = modifier.fillMaxSize()) {
         StillMomentTopAppBar(
             actions = {
-                IconButton(onClick = onSettingsClick) {
+                val settingsDescription = stringResource(R.string.accessibility_settings_button)
+                IconButton(
+                    onClick = onSettingsClick,
+                    modifier = Modifier.semantics { contentDescription = settingsDescription }
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Tune,
-                        contentDescription = stringResource(R.string.accessibility_settings_button),
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

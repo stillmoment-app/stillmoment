@@ -1,130 +1,159 @@
-# Android Screenshot Tests (Paparazzi)
+# Android Screenshot Tests (Fastlane Screengrab)
 
-This guide explains the Paparazzi-based screenshot tests for the Still Moment Android app.
+This guide explains the Fastlane Screengrab-based screenshot tests for the Still Moment Android app.
 
 ## Overview
 
-Paparazzi generates screenshots on the JVM without emulator/device:
+Screengrab generates screenshots on a real emulator - consistent with iOS Fastlane Snapshot:
 
-- **Fast** - ~30 seconds for all screenshots
-- **Regression testing** - Detect unintended UI changes
-- **Multi-language** - German (de) and English (en)
-- **No device required** - Runs in CI without emulator
+- **Authentic** - Real device rendering, not JVM approximation
+- **Multi-language** - German (de-DE) and English (en-US)
+- **Consistent workflow** - Same `make screenshots` command as iOS
+- **Play Store ready** - Screenshots suitable for store listing
 
 ## Quick Start
 
 ```bash
 cd android
 
-# Generate/update golden screenshots
-./gradlew recordPaparazziDebug
+# One-time setup (installs Ruby/Fastlane)
+make screenshot-setup
 
-# Verify UI against golden screenshots
-./gradlew verifyPaparazziDebug
+# Generate all screenshots (starts emulator automatically)
+make screenshots
 ```
 
-Screenshots are stored in `app/src/test/snapshots/images/`.
+The `make screenshots` command automatically starts a Pixel emulator if none is running.
+
+Screenshots are processed and copied to `docs/images/screenshots/`.
 
 ## Screenshot Tests
 
 | Test | Description |
 |------|-------------|
-| `timerMain_english/german` | Timer idle with 10-min picker |
-| `timerRunning_english/german` | Active timer (~09:55) |
-| `libraryList_english/german` | Guided meditations library |
-| `playerView_english/german` | Audio player view |
-| `timerSettings_english/german` | Settings with options enabled |
+| `screenshot01_timerIdle` | Timer idle with duration picker |
+| `screenshot02_timerRunning` | Active timer (~09:55) |
+| `screenshot03_libraryList` | Guided meditations library |
+| `screenshot04_playerView` | Audio player view |
+| `screenshot05_settingsView` | Timer settings sheet |
 
 **Total**: 5 views x 2 languages = 10 screenshots
+
+## Test Fixtures
+
+Screenshots show a populated library with 5 test meditations (matching iOS):
+
+| Name | Teacher | Duration |
+|------|---------|----------|
+| Mindful Breathing | Sarah Kornfield | 7:33 |
+| Body Scan for Beginners | Sarah Kornfield | 15:42 |
+| Loving Kindness | Tara Goldstein | 12:17 |
+| Evening Wind Down | Tara Goldstein | 19:05 |
+| Present Moment Awareness | Jon Salzberg | 25:48 |
+
+The `TestFixtureSeeder` automatically seeds these before each test and cleans up afterward.
 
 ## Architecture
 
 ```
-android/app/src/test/kotlin/.../screenshots/
-+-- TestFixtures.kt            # 5 test meditations
-+-- PlayStoreScreenshotTests.kt  # Paparazzi tests
-
-android/app/src/test/snapshots/images/
-+-- com.stillmoment.screenshots_PlayStoreScreenshotTests_*.png
+android/
+├── fastlane/
+│   ├── Fastfile              # Lane definitions
+│   ├── Screengrabfile        # Device/language config
+│   └── screenshots/          # Raw output (gitignored)
+├── scripts/
+│   └── process-screenshots.sh  # Post-processing
+└── app/src/androidTest/
+    ├── assets/testfixtures/  # Test MP3 files (5 files)
+    └── kotlin/.../screenshots/
+        ├── ScreengrabScreenshotTests.kt  # Test class
+        └── TestFixtureSeeder.kt          # Seeds test data
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `./gradlew recordPaparazziDebug` | Update golden screenshots |
-| `./gradlew verifyPaparazziDebug` | Verify against golden (CI) |
+| `make screenshot-setup` | Install Ruby/Fastlane (one-time) |
+| `make screenshots` | Generate all screenshots |
 
-## Test Fixtures
+## Emulator Requirements
 
-Matching iOS for cross-platform consistency:
+- **Device**: Pixel 6 Pro (6.7" display, matches iOS screenshots)
+- **API Level**: 34 (Android 14)
+- **RAM**: 6GB+ recommended
+- **Hardware Acceleration**: Enabled
 
-| Teacher | Meditation | Duration |
-|---------|------------|----------|
-| Sarah Kornfield | Mindful Breathing | 7:33 |
-| Sarah Kornfield | Body Scan for Beginners | 15:42 |
-| Tara Goldstein | Loving Kindness | 12:17 |
-| Tara Goldstein | Evening Wind Down | 19:05 |
-| Jon Salzberg | Present Moment Awareness | 25:48 |
-
-## CI Integration
-
-Use `verifyPaparazziDebug` in CI to detect UI regressions:
-
-```yaml
-- name: Verify UI Screenshots
-  run: ./gradlew verifyPaparazziDebug
+Create AVD:
+```bash
+sdkmanager "system-images;android-34;google_apis;arm64-v8a"
+avdmanager create avd -n Pixel_6_Pro_API_34 -k "system-images;android-34;google_apis;arm64-v8a" -d "pixel_6_pro"
 ```
 
-If verification fails, review the diff and either:
-- Fix the unintended regression, or
-- Run `recordPaparazziDebug` to accept intentional changes
+## Comparison with iOS
+
+| Aspect | iOS | Android |
+|--------|-----|---------|
+| Tool | Fastlane Snapshot | Fastlane Screengrab |
+| Command | `make screenshots` | `make screenshots` |
+| Runtime | ~5 min (Simulator) | ~5-10 min (Emulator) |
+| Output | `docs/images/screenshots/` | `docs/images/screenshots/` |
+
+Both platforms use the same workflow and produce screenshots in the same output directory.
 
 ## Adding New Screenshots
 
-1. Add test method in `PlayStoreScreenshotTests.kt`:
+1. Add test method in `ScreengrabScreenshotTests.kt`:
    ```kotlin
    @Test
-   fun newView_english() {
-       paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_EN)
-       captureNewView("")
-   }
+   fun screenshot06_newView() {
+       // Navigate to the view
+       navigateToNewView()
 
-   @Test
-   fun newView_german() {
-       paparazzi.unsafeUpdateConfig(deviceConfig = DEVICE_DE)
-       captureNewView("-de")
-   }
+       // Wait for UI to settle
+       Thread.sleep(500)
 
-   private fun captureNewView(suffix: String) {
-       paparazzi.snapshot(name = "new-view$suffix") {
-           StillMomentTheme {
-               // Your composable here
-           }
-       }
+       // Capture screenshot
+       Screengrab.screenshot("06_NewView")
    }
    ```
 
-2. Run: `./gradlew recordPaparazziDebug`
+2. Update `process-screenshots.sh` to include the new screenshot name mapping
+
+3. Run: `make screenshots`
 
 ## Troubleshooting
 
-### Verification Fails
+### No Pixel AVD Found
 
-**Symptom**: `verifyPaparazziDebug` fails with diff
+**Symptom**: `make screenshots` fails with "No Pixel AVD found"
+
+**Solution**: Create a Pixel AVD:
+```bash
+sdkmanager "system-images;android-34;google_apis;arm64-v8a"
+avdmanager create avd -n Pixel_6_Pro_API_34 -k "system-images;android-34;google_apis;arm64-v8a" -d "pixel_6_pro"
+```
+
+### Screenshots Show Wrong Language
+
+**Symptom**: All screenshots in English despite locale setting
+
+**Solution**: `LocaleTestRule` handles locale switching. Ensure tests have:
+```kotlin
+@get:Rule(order = 0)
+val localeTestRule = LocaleTestRule()
+```
+
+### Tests Fail to Find Elements
+
+**Symptom**: `AssertionError` when finding UI elements
 
 **Solution**:
-1. Review HTML report in `app/build/reports/paparazzi/`
-2. If change is intentional: `./gradlew recordPaparazziDebug`
-3. If change is unintended: fix the code
-
-### Locale Not Changing
-
-**Symptom**: All screenshots show English text
-
-**Solution**: Verify `unsafeUpdateConfig` with correct locale
+- Check accessibility labels match (English/German variants)
+- Add `Thread.sleep()` for animations to complete
+- Use `composeRule.waitForIdle()` before assertions
 
 ---
 
-**Last Updated**: 2026-01-09
-**Version**: 2.0 (Simplified to Paparazzi-only)
+**Last Updated**: 2026-01-13
+**Version**: 3.1 (Added TestFixtureSeeder for consistent library screenshots)

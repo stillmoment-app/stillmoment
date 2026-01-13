@@ -28,6 +28,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
  * DataStore-based implementation of SettingsRepository.
  * Persists meditation settings using Jetpack DataStore.
  */
+@Suppress("TooManyFunctions") // DataStore requires individual setters for each preference
 @Singleton
 class SettingsDataStore
 @Inject
@@ -174,6 +175,24 @@ constructor(
     suspend fun setGongVolume(volume: Float) {
         context.dataStore.edit { preferences ->
             preferences[Keys.GONG_VOLUME] = MeditationSettings.validateVolume(volume)
+        }
+    }
+
+    /**
+     * Update a single setting - preparationTimeEnabled.
+     */
+    suspend fun setPreparationTimeEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.PREPARATION_TIME_ENABLED] = enabled
+        }
+    }
+
+    /**
+     * Update a single setting - preparationTimeSeconds.
+     */
+    suspend fun setPreparationTimeSeconds(seconds: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.PREPARATION_TIME_SECONDS] = MeditationSettings.validatePreparationTime(seconds)
         }
     }
 

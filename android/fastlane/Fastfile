@@ -1,0 +1,41 @@
+# Fastfile - Fastlane Configuration for Android
+# https://docs.fastlane.tools
+
+default_platform(:android)
+
+# Configure Android SDK paths
+android_home = ENV["ANDROID_HOME"] || File.expand_path("~/Library/Android/sdk")
+ENV["ANDROID_HOME"] = android_home
+ENV["PATH"] = "#{android_home}/platform-tools:#{android_home}/emulator:#{ENV['PATH']}"
+
+platform :android do
+  desc "Generate localized screenshots for Play Store and website"
+  lane :screenshots do
+    # Build the app and test APKs
+    gradle(
+      task: "assembleDebug assembleAndroidTest"
+    )
+
+    # Install APKs (screengrab reinstall can be unreliable)
+    adb = "#{ENV['ANDROID_HOME']}/platform-tools/adb"
+    sh("#{adb} install -r ../app/build/outputs/apk/debug/app-debug.apk")
+    sh("#{adb} install -r ../app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk")
+
+    # Capture screenshots using Screengrab
+    capture_android_screenshots
+
+    # Post-process: copy and rename to docs/images/screenshots/
+    sh("cd .. && ./scripts/process-screenshots.sh")
+
+    UI.success("Screenshots generated successfully!")
+    UI.message("Output: ../docs/images/screenshots/")
+  end
+
+  desc "Validate screenshot setup (quick check)"
+  lane :screenshot_validate do
+    gradle(
+      task: "assembleDebug assembleAndroidTest"
+    )
+    UI.success("Screenshot APKs built successfully!")
+  end
+end

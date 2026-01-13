@@ -1,4 +1,9 @@
-.PHONY: help format check test build clean
+.PHONY: help format check test build clean screenshot-setup screenshots
+
+# Android SDK paths (auto-detect if ANDROID_HOME not set)
+ANDROID_HOME ?= $(HOME)/Library/Android/sdk
+ADB := $(ANDROID_HOME)/platform-tools/adb
+EMULATOR := $(ANDROID_HOME)/emulator/emulator
 
 help: ## Show this help message
 	@echo "Still Moment Android - Available Commands"
@@ -25,3 +30,46 @@ build: ## Build debug APK
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
 	@./gradlew clean
+
+screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
+	@echo "Setting up Ruby/Fastlane environment..."
+	@if ! command -v rbenv &> /dev/null; then \
+		echo "rbenv not found. Install with: brew install rbenv"; \
+		exit 1; \
+	fi
+	@if ! rbenv versions | grep -q "$$(cat .ruby-version)"; then \
+		echo "Installing Ruby $$(cat .ruby-version)..."; \
+		rbenv install $$(cat .ruby-version); \
+	fi
+	@echo "Installing gems..."
+	@bundle install --path vendor/bundle
+	@echo "Screenshot setup complete!"
+
+screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
+	@echo "Generating screenshots with Fastlane Screengrab..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@# Start emulator if not running
+	@if ! "$(ADB)" devices | grep -q "emulator"; then \
+		echo "Starting emulator..."; \
+		AVD_NAME=$$("$(EMULATOR)" -list-avds | grep -i pixel | head -1); \
+		if [ -z "$$AVD_NAME" ]; then \
+			echo "No Pixel AVD found. Create one with:"; \
+			echo "  avdmanager create avd -n Pixel_6_Pro_API_34 -k 'system-images;android-34;google_apis;arm64-v8a' -d 'pixel_6_pro'"; \
+			exit 1; \
+		fi; \
+		echo "Using AVD: $$AVD_NAME"; \
+		"$(EMULATOR)" -avd "$$AVD_NAME" -no-snapshot-load &>/dev/null & \
+		echo "Waiting for emulator to boot..."; \
+		"$(ADB)" wait-for-device; \
+		while [ "$$("$(ADB)" shell getprop sys.boot_completed 2>/dev/null)" != "1" ]; do \
+			sleep 2; \
+		done; \
+		echo "Emulator ready."; \
+	else \
+		echo "Emulator already running."; \
+	fi
+	@bundle exec fastlane screenshots
+	@echo "Screenshots generated in docs/images/screenshots/"
