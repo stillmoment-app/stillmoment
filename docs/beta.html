@@ -1,0 +1,232 @@
+---
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Join the Still Moment Android Beta. Test the meditation app before official release.">
+    <meta name="robots" content="noindex">
+
+    <title>Android Beta - Still Moment</title>
+
+    <link rel="icon" type="image/png" href="images/app-icon.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .beta-page {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .beta-badge {
+            margin-bottom: 2rem;
+        }
+
+        .beta-badge img {
+            height: 80px;
+            width: auto;
+            opacity: 0.9;
+        }
+
+        .beta-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--warm-black);
+            margin-bottom: 1rem;
+        }
+
+        .beta-intro {
+            font-size: 1.1rem;
+            color: var(--warm-gray);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .beta-steps {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            box-shadow: 0 4px 20px rgba(61, 50, 40, 0.1);
+        }
+
+        .beta-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .beta-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--terracotta);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 0.25rem;
+        }
+
+        .step-content a {
+            color: var(--terracotta);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .step-content a:hover {
+            text-decoration: underline;
+        }
+
+        .step-hint {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--warm-gray);
+            margin-top: 0.25rem;
+        }
+
+        .beta-feedback {
+            background: var(--warm-sand);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .beta-feedback p {
+            color: var(--warm-gray);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .beta-feedback a {
+            color: var(--terracotta);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .beta-feedback a:hover {
+            text-decoration: underline;
+        }
+
+        .beta-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--warm-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .beta-back:hover {
+            color: var(--terracotta);
+        }
+
+        .beta-back svg {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+    {% include header.html %}
+
+    <main class="beta-page">
+        <div class="beta-badge">
+            <img src="images/badges/google-play-badge-en.svg" alt="Google Play" class="lang-en">
+            <img src="images/badges/google-play-badge-de.svg" alt="Google Play" class="lang-de hidden">
+        </div>
+
+        <h1 class="beta-title lang-en">Join the Android Beta</h1>
+        <h1 class="beta-title lang-de hidden">Android Beta testen</h1>
+
+        <p class="beta-intro lang-en">
+            Still Moment for Android is currently in public beta. To install:
+        </p>
+        <p class="beta-intro lang-de hidden">
+            Still Moment für Android ist aktuell in der öffentlichen Beta. So installierst du die App:
+        </p>
+
+        <div class="beta-steps">
+            <div class="beta-step">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                    <a href="https://groups.google.com/g/still-moment-testers" target="_blank" class="lang-en">Become a member of the Google Group</a>
+                    <a href="https://groups.google.com/g/still-moment-testers" target="_blank" class="lang-de hidden">Werde Mitglied in der Google-Gruppe</a>
+                    <span class="step-hint lang-en">(just for access management, no emails) — use the same Google account as in Play Store</span>
+                    <span class="step-hint lang-de hidden">(nur für Rechte-Management, keine Mails) — mit dem Account, den du im Play Store nutzt</span>
+                </div>
+            </div>
+            <div class="beta-step">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                    <a href="https://play.google.com/apps/testing/com.stillmoment" target="_blank" class="lang-en">Install from Play Store</a>
+                    <a href="https://play.google.com/apps/testing/com.stillmoment" target="_blank" class="lang-de hidden">Im Play Store installieren</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="beta-feedback">
+            <p class="lang-en">
+                I'd love to hear your feedback — reach out anytime at <a href="mailto:hello@stillmoment.app">hello@stillmoment.app</a>
+            </p>
+            <p class="lang-de hidden">
+                Über dein Feedback freue ich mich sehr — schreib mir gerne an <a href="mailto:hello@stillmoment.app">hello@stillmoment.app</a>
+            </p>
+        </div>
+
+        <a href="index.html" class="beta-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span class="lang-en">Back to Still Moment</span>
+            <span class="lang-de hidden">Zurück zu Still Moment</span>
+        </a>
+    </main>
+
+    {% include footer.html %}
+
+    <script>
+        function switchLanguage(lang) {
+            localStorage.setItem('preferredLanguage', lang);
+
+            document.querySelectorAll('.language-switcher button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('lang-' + lang).classList.add('active');
+
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.add('hidden'));
+                document.documentElement.lang = 'en';
+                document.title = 'Android Beta - Still Moment';
+            } else {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.lang-de').forEach(el => el.classList.remove('hidden'));
+                document.documentElement.lang = 'de';
+                document.title = 'Android Beta - Still Moment';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+            switchLanguage(savedLang);
+        });
+    </script>
+</body>
+</html>
