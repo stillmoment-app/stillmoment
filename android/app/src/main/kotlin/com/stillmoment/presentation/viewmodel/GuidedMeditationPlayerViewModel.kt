@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.PreparationCountdown
+import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,8 +39,22 @@ data class PlayerUiState(
     /** Error message if any */
     val error: String? = null,
     /** Whether playback has completed */
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    /** Active preparation countdown, null when not counting down */
+    val preparationCountdown: PreparationCountdown? = null
 ) {
+    /** Whether preparation countdown is currently active (not finished) */
+    val isPreparing: Boolean
+        get() = preparationCountdown != null && !preparationCountdown.isFinished
+
+    /** Remaining countdown seconds (0 if no countdown) */
+    val countdownRemainingSeconds: Int
+        get() = preparationCountdown?.remainingSeconds ?: 0
+
+    /** Countdown progress (0.0 to 1.0, 0 if no countdown) */
+    val countdownProgress: Double
+        get() = preparationCountdown?.progress ?: 0.0
+
     /** Formatted current position (MM:SS or HH:MM:SS) */
     val formattedPosition: String
         get() = formatTime(currentPosition)
@@ -75,10 +93,20 @@ class GuidedMeditationPlayerViewModel
 @Inject
 constructor(
     private val audioPlayerService: AudioPlayerServiceProtocol,
-    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol
+    private val audioSessionCoordinator: AudioSessionCoordinatorProtocol,
+    private val settingsRepository: GuidedMeditationSettingsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
+
+    /** Preparation time in seconds (null = disabled) */
+    private var preparationTimeSeconds: Int? = null
+
+    /** Tracks whether the session has started (countdown or playback began) */
+    private var hasSessionStarted = false
+
+    /** Job for the countdown timer */
+    private var countdownJob: Job? = null
 
     init {
         observePlaybackState()
@@ -126,10 +154,18 @@ constructor(
 
     /**
      * Loads a meditation for playback.
+     * Loads the preparation time setting from the repository.
      *
      * @param meditation Meditation to load
      */
     fun loadMeditation(meditation: GuidedMeditation) {
+        // Cancel any running countdown
+        countdownJob?.cancel()
+        countdownJob = null
+
+        // Reset session state
+        hasSessionStarted = false
+
         _uiState.update {
             it.copy(
                 meditation = meditation,
@@ -138,8 +174,78 @@ constructor(
                 progress = 0f,
                 isPlaying = false,
                 isCompleted = false,
-                error = null
+                error = null,
+                preparationCountdown = null
             )
+        }
+
+        // Load settings from repository
+        viewModelScope.launch {
+            val settings = settingsRepository.getSettings()
+            preparationTimeSeconds = settings.effectivePreparationTimeSeconds
+        }
+    }
+
+    /**
+     * Starts playback with optional preparation countdown.
+     *
+     * - First call with preparation time: starts countdown, then plays
+     * - First call without preparation time: plays immediately
+     * - Subsequent calls: toggles play/pause (no countdown)
+     */
+    fun startPlayback() {
+        // Don't start if already counting down
+        if (_uiState.value.isPreparing) {
+            return
+        }
+
+        // If session already started, just toggle play/pause (no countdown on resume)
+        if (hasSessionStarted) {
+            togglePlayPause()
+            return
+        }
+
+        // Mark session as started
+        hasSessionStarted = true
+
+        // First start - use countdown if configured
+        val prepTime = preparationTimeSeconds
+        if (prepTime != null && prepTime > 0) {
+            startCountdown(prepTime)
+        } else {
+            togglePlayPause()
+        }
+    }
+
+    /**
+     * Starts the preparation countdown.
+     */
+    private fun startCountdown(seconds: Int) {
+        val countdown = PreparationCountdown(totalSeconds = seconds)
+        _uiState.update { it.copy(preparationCountdown = countdown) }
+
+        countdownJob = viewModelScope.launch {
+            while (_uiState.value.isPreparing) {
+                delay(1000L)
+                tickCountdown()
+            }
+        }
+    }
+
+    /**
+     * Advances the countdown by one second.
+     */
+    private fun tickCountdown() {
+        val currentCountdown = _uiState.value.preparationCountdown ?: return
+
+        val ticked = currentCountdown.tick()
+        _uiState.update { it.copy(preparationCountdown = ticked) }
+
+        if (ticked.isFinished) {
+            countdownJob?.cancel()
+            countdownJob = null
+            // Start MP3 after countdown
+            play()
         }
     }
 
@@ -263,13 +369,18 @@ constructor(
      * Stops playback and releases resources.
      */
     fun stop() {
+        // Cancel any running countdown
+        countdownJob?.cancel()
+        countdownJob = null
+
         audioPlayerService.stop()
         audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
         _uiState.update {
             it.copy(
                 isPlaying = false,
                 currentPosition = 0L,
-                progress = 0f
+                progress = 0f,
+                preparationCountdown = null
             )
         }
     }

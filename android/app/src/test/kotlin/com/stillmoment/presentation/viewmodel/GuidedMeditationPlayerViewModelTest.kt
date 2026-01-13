@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.viewmodel
 
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.PreparationCountdown
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -334,6 +335,72 @@ class GuidedMeditationPlayerViewModelTest {
 
             assertEquals("10:00:00", state.formattedDuration)
             assertEquals("10:00:00", state.formattedRemaining)
+        }
+    }
+
+    // MARK: - Preparation Countdown Tests
+
+    @Nested
+    inner class PreparationCountdownTests {
+        @Test
+        fun `initial state has no countdown`() {
+            val state = PlayerUiState()
+
+            assertNull(state.preparationCountdown)
+            assertFalse(state.isPreparing)
+        }
+
+        @Test
+        fun `isPreparing is true when countdown is active`() {
+            val countdown = PreparationCountdown(totalSeconds = 15)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertTrue(state.isPreparing)
+        }
+
+        @Test
+        fun `isPreparing is false when countdown is finished`() {
+            val countdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 0)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertFalse(state.isPreparing)
+        }
+
+        @Test
+        fun `isPreparing is false when countdown is null`() {
+            val state = PlayerUiState(preparationCountdown = null)
+
+            assertFalse(state.isPreparing)
+        }
+
+        @Test
+        fun `countdownRemainingSeconds returns remaining when active`() {
+            val countdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertEquals(10, state.countdownRemainingSeconds)
+        }
+
+        @Test
+        fun `countdownRemainingSeconds returns 0 when no countdown`() {
+            val state = PlayerUiState()
+
+            assertEquals(0, state.countdownRemainingSeconds)
+        }
+
+        @Test
+        fun `countdownProgress returns progress when active`() {
+            val countdown = PreparationCountdown(totalSeconds = 10, remainingSeconds = 5)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertEquals(0.5, state.countdownProgress, 0.001)
+        }
+
+        @Test
+        fun `countdownProgress returns 0 when no countdown`() {
+            val state = PlayerUiState()
+
+            assertEquals(0.0, state.countdownProgress, 0.001)
         }
     }
 

@@ -96,8 +96,18 @@
     <string name="guided_meditations_edit_file">Datei</string>
     <string name="guided_meditations_edit_duration">Dauer</string>
 
+    <!-- Guided Meditations Settings -->
+    <string name="guided_meditations_settings_title">Einstellungen</string>
+    <string name="guided_meditations_settings_preparation_time">Vorbereitungszeit</string>
+    <string name="guided_meditations_settings_preparation_description">Zeit zum Ankommen bevor das Audio startet</string>
+    <string name="guided_meditations_settings_preparation_duration">Dauer</string>
+
     <!-- Guided Meditations Accessibility -->
     <string name="accessibility_import_meditation">Meditations-Audiodatei importieren</string>
+    <string name="accessibility_guided_settings_button">Einstellungen für geführte Meditationen öffnen</string>
+    <string name="accessibility_guided_preparation_time_toggle">Vorbereitungszeit Schalter</string>
+    <string name="accessibility_guided_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
+    <string name="accessibility_guided_preparation_disabled">Vorbereitungszeit deaktiviert</string>
     <string name="accessibility_delete_meditation">Meditation löschen</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
     <string name="accessibility_overflow_menu">Weitere Optionen</string>

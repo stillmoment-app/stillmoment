@@ -3,7 +3,9 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -32,13 +34,15 @@ import org.mockito.kotlin.mock
 class GuidedMeditationsListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
+    private lateinit var fakeSettingsRepository: FakeGuidedMeditationSettingsRepository
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeGuidedMeditationRepository()
-        viewModel = GuidedMeditationsListViewModel(fakeRepository)
+        fakeSettingsRepository = FakeGuidedMeditationSettingsRepository()
+        viewModel = GuidedMeditationsListViewModel(fakeRepository, fakeSettingsRepository)
     }
 
     @AfterEach
@@ -730,5 +734,31 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         updateWasCalled = false
         lastDeletedId = null
         lastUpdatedMeditation = null
+    }
+}
+
+// ============================================================
+// MARK: - Fake Settings Repository
+// ============================================================
+
+/**
+ * Fake implementation of GuidedMeditationSettingsRepository for testing.
+ */
+class FakeGuidedMeditationSettingsRepository : GuidedMeditationSettingsRepository {
+    private val _settings = MutableStateFlow(GuidedMeditationSettings.Default)
+
+    override val settingsFlow: Flow<GuidedMeditationSettings>
+        get() = _settings
+
+    override suspend fun getSettings(): GuidedMeditationSettings {
+        return _settings.value
+    }
+
+    override suspend fun updateSettings(settings: GuidedMeditationSettings) {
+        _settings.value = settings
+    }
+
+    fun emitSettings(settings: GuidedMeditationSettings) {
+        _settings.value = settings
     }
 }

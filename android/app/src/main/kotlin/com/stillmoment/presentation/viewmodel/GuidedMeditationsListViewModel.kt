@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -36,7 +38,11 @@ data class GuidedMeditationsListUiState(
     /** Whether delete confirmation is shown */
     val showDeleteConfirmation: Boolean = false,
     /** Meditation pending deletion (awaiting confirmation) */
-    val meditationToDelete: GuidedMeditation? = null
+    val meditationToDelete: GuidedMeditation? = null,
+    /** Current guided meditation settings */
+    val settings: GuidedMeditationSettings = GuidedMeditationSettings.Default,
+    /** Whether the settings sheet is shown */
+    val showSettingsSheet: Boolean = false
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -61,13 +67,15 @@ data class GuidedMeditationsListUiState(
 class GuidedMeditationsListViewModel
 @Inject
 constructor(
-    private val repository: GuidedMeditationRepository
+    private val repository: GuidedMeditationRepository,
+    private val settingsRepository: GuidedMeditationSettingsRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
 
     init {
         observeMeditations()
+        observeSettings()
     }
 
     /**
@@ -85,6 +93,17 @@ constructor(
                         )
                     }
                 }
+        }
+    }
+
+    /**
+     * Observes settings changes and updates UI state.
+     */
+    private fun observeSettings() {
+        viewModelScope.launch {
+            settingsRepository.settingsFlow.collect { settings ->
+                _uiState.update { it.copy(settings = settings) }
+            }
         }
     }
 
@@ -231,6 +250,33 @@ constructor(
         val meditation = _uiState.value.selectedMeditation ?: return
         val updated = meditation.withCustomName(name?.takeIf { it.isNotBlank() })
         _uiState.update { it.copy(selectedMeditation = updated) }
+    }
+
+    // MARK: - Settings
+
+    /**
+     * Shows the settings sheet.
+     */
+    fun showSettingsSheet() {
+        _uiState.update { it.copy(showSettingsSheet = true) }
+    }
+
+    /**
+     * Hides the settings sheet.
+     */
+    fun hideSettingsSheet() {
+        _uiState.update { it.copy(showSettingsSheet = false) }
+    }
+
+    /**
+     * Updates the guided meditation settings.
+     *
+     * @param settings New settings to save
+     */
+    fun updateSettings(settings: GuidedMeditationSettings) {
+        viewModelScope.launch {
+            settingsRepository.updateSettings(settings)
+        }
     }
 
     // MARK: - Error Handling

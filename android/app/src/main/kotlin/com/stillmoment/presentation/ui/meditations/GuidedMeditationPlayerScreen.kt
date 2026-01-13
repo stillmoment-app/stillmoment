@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.RingBackground
@@ -98,7 +99,7 @@ fun GuidedMeditationPlayerScreen(
         meditation = meditation,
         uiState = uiState,
         onBack = onBack,
-        onPlayPause = viewModel::togglePlayPause,
+        onPlayPause = viewModel::startPlayback,
         onSeek = viewModel::seekToProgress,
         onSkipForward = { viewModel.skipForward() },
         onSkipBackward = { viewModel.skipBackward() },
@@ -178,18 +179,26 @@ internal fun GuidedMeditationPlayerScreenContent(
                     // Middle spacer - separates header from controls
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Controls
-                    PlayerControls(
-                        isPlaying = uiState.isPlaying,
-                        onPlayPause = onPlayPause,
-                        currentPosition = uiState.currentPosition,
-                        duration = uiState.duration,
-                        formattedPosition = uiState.formattedPosition,
-                        formattedRemaining = uiState.formattedRemaining,
-                        onSeek = onSeek,
-                        onSkipForward = onSkipForward,
-                        onSkipBackward = onSkipBackward
-                    )
+                    // Show countdown or controls based on state
+                    if (uiState.isPreparing) {
+                        PreparationCountdownDisplay(
+                            remainingSeconds = uiState.countdownRemainingSeconds,
+                            progress = uiState.countdownProgress.toFloat()
+                        )
+                    } else {
+                        // Controls
+                        PlayerControls(
+                            isPlaying = uiState.isPlaying,
+                            onPlayPause = onPlayPause,
+                            currentPosition = uiState.currentPosition,
+                            duration = uiState.duration,
+                            formattedPosition = uiState.formattedPosition,
+                            formattedRemaining = uiState.formattedRemaining,
+                            onSeek = onSeek,
+                            onSkipForward = onSkipForward,
+                            onSkipBackward = onSkipBackward
+                        )
+                    }
 
                     // Bottom spacer - pushes controls up
                     Spacer(modifier = Modifier.weight(1f))
@@ -406,6 +415,56 @@ private fun PlayerControls(
     }
 }
 
+/**
+ * Displays the preparation countdown before playback starts.
+ */
+@Composable
+private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, modifier: Modifier = Modifier) {
+    val countdownDescription = stringResource(
+        R.string.accessibility_countdown_seconds,
+        remainingSeconds
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        // Large countdown number
+        Text(
+            text = remainingSeconds.toString(),
+            style = MaterialTheme.typography.displayLarge.copy(
+                fontWeight = FontWeight.Light
+            ),
+            color = Terracotta,
+            modifier = Modifier.semantics {
+                contentDescription = countdownDescription
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // "Preparing..." text
+        Text(
+            text = stringResource(R.string.affirmation_preparation_1),
+            style = MaterialTheme.typography.bodyLarge,
+            color = WarmGray
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Progress indicator
+        CircularProgressIndicator(
+            progress = { progress },
+            color = Terracotta,
+            trackColor = RingBackground,
+            modifier = Modifier.size(72.dp),
+            strokeWidth = 4.dp
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
 // MARK: - Previews
 
 @Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
@@ -466,6 +525,41 @@ private fun GuidedMeditationPlayerScreenPausedPreview() {
                 currentPosition = 450_000L,
                 progress = 0.5f,
                 isPlaying = false
+            ),
+            onBack = {},
+            onPlayPause = {},
+            onSeek = {},
+            onSkipForward = {},
+            onSkipBackward = {},
+            onClearError = {}
+        )
+    }
+}
+
+@Preview(name = "Phone - Countdown", device = Devices.PIXEL_4, showBackground = true)
+@Composable
+private fun GuidedMeditationPlayerScreenCountdownPreview() {
+    StillMomentTheme {
+        val meditation =
+            GuidedMeditation(
+                id = "3",
+                fileUri = "content://test",
+                fileName = "meditation.mp3",
+                duration = 600_000L,
+                teacher = "Tara Brach",
+                name = "RAIN Meditation"
+            )
+
+        GuidedMeditationPlayerScreenContent(
+            meditation = meditation,
+            uiState =
+            PlayerUiState(
+                meditation = meditation,
+                duration = 600_000L,
+                currentPosition = 0L,
+                progress = 0f,
+                isPlaying = false,
+                preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
             ),
             onBack = {},
             onPlayPause = {},
