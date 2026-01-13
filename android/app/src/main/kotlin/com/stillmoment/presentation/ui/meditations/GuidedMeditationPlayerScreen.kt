@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
@@ -179,26 +180,33 @@ internal fun GuidedMeditationPlayerScreenContent(
                     // Middle spacer - separates header from controls
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Show countdown or controls based on state
+                    // Progress section - always visible (like iOS)
+                    ProgressSection(
+                        currentPosition = uiState.currentPosition,
+                        duration = uiState.duration,
+                        formattedPosition = uiState.formattedPosition,
+                        formattedRemaining = uiState.formattedRemaining,
+                        onSeek = onSeek
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Countdown OR playback buttons (like iOS)
                     if (uiState.isPreparing) {
                         PreparationCountdownDisplay(
                             remainingSeconds = uiState.countdownRemainingSeconds,
                             progress = uiState.countdownProgress.toFloat()
                         )
                     } else {
-                        // Controls
-                        PlayerControls(
+                        PlaybackButtons(
                             isPlaying = uiState.isPlaying,
                             onPlayPause = onPlayPause,
-                            currentPosition = uiState.currentPosition,
-                            duration = uiState.duration,
-                            formattedPosition = uiState.formattedPosition,
-                            formattedRemaining = uiState.formattedRemaining,
-                            onSeek = onSeek,
                             onSkipForward = onSkipForward,
                             onSkipBackward = onSkipBackward
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     // Bottom spacer - pushes controls up
                     Spacer(modifier = Modifier.weight(1f))
@@ -276,27 +284,23 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
     }
 }
 
+/**
+ * Progress section with seek slider and time labels.
+ * Always visible (even during countdown).
+ */
 @Composable
-private fun PlayerControls(
-    isPlaying: Boolean,
-    onPlayPause: () -> Unit,
+private fun ProgressSection(
     currentPosition: Long,
     duration: Long,
     formattedPosition: String,
     formattedRemaining: String,
     onSeek: (Float) -> Unit,
-    onSkipForward: () -> Unit,
-    onSkipBackward: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val seekSliderDescription = stringResource(R.string.accessibility_seek_slider)
     val progressPercent = ((if (duration > 0) currentPosition.toFloat() / duration else 0f) * 100).toInt()
     val sliderStateDescription =
         stringResource(R.string.accessibility_player_progress, progressPercent)
-    val playDescription = stringResource(R.string.accessibility_play_button)
-    val pauseDescription = stringResource(R.string.accessibility_pause_button_player)
-    val skipBackwardDescription = stringResource(R.string.accessibility_skip_backward)
-    val skipForwardDescription = stringResource(R.string.accessibility_skip_forward)
 
     // Track slider position for smooth dragging
     var sliderPosition by remember { mutableFloatStateOf(0f) }
@@ -351,72 +355,87 @@ private fun PlayerControls(
                 color = WarmGray
             )
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(32.dp))
+/**
+ * Playback buttons (skip backward, play/pause, skip forward).
+ * Hidden during countdown, replaced by PreparationCountdownDisplay.
+ */
+@Composable
+private fun PlaybackButtons(
+    isPlaying: Boolean,
+    onPlayPause: () -> Unit,
+    onSkipForward: () -> Unit,
+    onSkipBackward: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val playDescription = stringResource(R.string.accessibility_play_button)
+    val pauseDescription = stringResource(R.string.accessibility_pause_button_player)
+    val skipBackwardDescription = stringResource(R.string.accessibility_skip_backward)
+    val skipForwardDescription = stringResource(R.string.accessibility_skip_forward)
 
-        // Playback controls
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(32.dp),
-            verticalAlignment = Alignment.CenterVertically
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(32.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        // Skip backward
+        IconButton(
+            onClick = onSkipBackward,
+            modifier =
+            Modifier.semantics {
+                contentDescription = skipBackwardDescription
+            }
         ) {
-            // Skip backward
-            IconButton(
-                onClick = onSkipBackward,
-                modifier =
-                Modifier.semantics {
-                    contentDescription = skipBackwardDescription
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Replay10,
-                    contentDescription = null,
-                    tint = Terracotta,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-
-            // Play/Pause Button
-            FloatingActionButton(
-                onClick = onPlayPause,
-                containerColor = Terracotta,
-                modifier =
-                Modifier
-                    .size(72.dp)
-                    .semantics {
-                        contentDescription = if (isPlaying) pauseDescription else playDescription
-                    }
-            ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp),
-                    tint = Color.White
-                )
-            }
-
-            // Skip forward
-            IconButton(
-                onClick = onSkipForward,
-                modifier =
-                Modifier.semantics {
-                    contentDescription = skipForwardDescription
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Forward10,
-                    contentDescription = null,
-                    tint = Terracotta,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Replay10,
+                contentDescription = null,
+                tint = Terracotta,
+                modifier = Modifier.size(40.dp)
+            )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Play/Pause Button
+        FloatingActionButton(
+            onClick = onPlayPause,
+            containerColor = Terracotta,
+            modifier =
+            Modifier
+                .size(72.dp)
+                .semantics {
+                    contentDescription = if (isPlaying) pauseDescription else playDescription
+                }
+        ) {
+            Icon(
+                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = null,
+                modifier = Modifier.size(36.dp),
+                tint = Color.White
+            )
+        }
+
+        // Skip forward
+        IconButton(
+            onClick = onSkipForward,
+            modifier =
+            Modifier.semantics {
+                contentDescription = skipForwardDescription
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Forward10,
+                contentDescription = null,
+                tint = Terracotta,
+                modifier = Modifier.size(40.dp)
+            )
+        }
     }
 }
 
 /**
  * Displays the preparation countdown before playback starts.
+ * Design: Number centered inside progress ring (consistent with iOS).
  */
 @Composable
 private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, modifier: Modifier = Modifier) {
@@ -424,44 +443,42 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
         R.string.accessibility_countdown_seconds,
         remainingSeconds
     )
+    val ringSize = 72.dp
+    val fontSize = ringSize.value * 0.5f
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.semantics {
+            contentDescription = countdownDescription
+        }
     ) {
-        // Large countdown number
-        Text(
-            text = remainingSeconds.toString(),
-            style = MaterialTheme.typography.displayLarge.copy(
-                fontWeight = FontWeight.Light
-            ),
-            color = Terracotta,
-            modifier = Modifier.semantics {
-                contentDescription = countdownDescription
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // "Preparing..." text
-        Text(
-            text = stringResource(R.string.affirmation_preparation_1),
-            style = MaterialTheme.typography.bodyLarge,
-            color = WarmGray
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Progress indicator
+        // Background ring
         CircularProgressIndicator(
-            progress = { progress },
-            color = Terracotta,
-            trackColor = RingBackground,
-            modifier = Modifier.size(72.dp),
+            progress = { 1f },
+            color = RingBackground,
+            trackColor = Color.Transparent,
+            modifier = Modifier.size(ringSize),
             strokeWidth = 4.dp
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // Progress ring
+        CircularProgressIndicator(
+            progress = { progress },
+            color = Terracotta,
+            trackColor = Color.Transparent,
+            modifier = Modifier.size(ringSize),
+            strokeWidth = 4.dp
+        )
+
+        // Countdown number centered
+        Text(
+            text = remainingSeconds.toString(),
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.Light,
+                fontSize = fontSize.sp
+            ),
+            color = WarmBlack
+        )
     }
 }
 

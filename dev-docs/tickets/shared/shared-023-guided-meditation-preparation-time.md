@@ -37,11 +37,20 @@ Settings-Sheet (bei Tap auf ⚙):
 │               [Fertig]     │
 └────────────────────────────┘
 
-Player View (unveraendert):
+Player View waehrend Countdown:
 
-    [<<<]    [▶]    [>>>]
+    ════════●══════════      <- Slider bleibt sichtbar
+    0:00            -10:00   <- Zeit-Labels bleiben sichtbar
 
-    (Countdown-Ring erscheint bei aktivierter Vorbereitungszeit)
+           (3)               <- Countdown ersetzt NUR Buttons
+          ○───○              <- Zahl zentriert im Ring
+
+Player View nach Countdown (normale Wiedergabe):
+
+    ════════●══════════
+    0:00            -10:00
+
+    [<<<]    [▶]    [>>>]    <- Buttons erscheinen wieder
 ```
 
 **Begruendung fuer Settings in Library statt Player:**
@@ -70,7 +79,8 @@ Legende: [x] fertig, [~] in Bearbeitung, [ ] offen
 - [x] Picker-Optionen: 5s, 10s, 15s, 20s, 30s, 45s (nur sichtbar wenn Toggle an) (iOS + Android)
 - [x] Bei deaktiviertem Toggle: MP3 startet sofort nach Play (iOS + Android)
 - [x] Einstellung ist persistent (bleibt fuer alle MP3s erhalten) (iOS + Android)
-- [x] Countdown zeigt Ring + Zahl (wie Timer, nur kleiner im Player) (iOS + Android)
+- [x] Countdown zeigt Ring mit Zahl zentriert darin (wie Timer, nur kleiner) (iOS + Android)
+- [x] Progress-Slider und Zeit-Labels bleiben waehrend Countdown sichtbar (iOS + Android)
 - [x] Nach Countdown: Stiller Uebergang direkt zur MP3 (kein Gong) (iOS + Android)
 - [x] Default: Aus (Toggle deaktiviert) (iOS + Android)
 - [x] Lokalisiert (DE + EN) (iOS + Android)
@@ -127,7 +137,7 @@ Legende: [x] fertig, [~] in Bearbeitung, [ ] offen
 - **UI-Pattern**: Settings-Button in Toolbar oeffnet Sheet mit Form (konsistent mit Timer).
 - **Settings-Icon**: `slider.horizontal.3` (SF Symbol) - identisch mit Timer.
 - **Toggle + Picker**: Vorbereitungszeit ist ein Toggle. Wenn aktiviert, erscheint Picker fuer Dauer.
-- **Countdown ersetzt Play-Button**: Waehrend des Countdowns wird der Play-Button durch den Countdown-Ring ersetzt. Kein Stop/Abbruch moeglich.
-- **Skip-Buttons ausgeblendet**: Die [<<<] und [>>>] Buttons werden waehrend des Countdowns ebenfalls ausgeblendet.
+- **Countdown ersetzt NUR Buttons**: Waehrend des Countdowns werden Play-Button und Skip-Buttons durch den Countdown-Ring ersetzt. Progress-Slider und Zeit-Labels bleiben sichtbar. Kein Stop/Abbruch moeglich.
+- **Countdown-Design**: Zahl zentriert im Ring (nicht darueber oder daneben).
 - **Hintergrund-Verhalten**: Countdown laeuft im Hintergrund weiter und startet die MP3 automatisch.
 - **iOS Picker-Style**: `.menu` (kompakter Dropdown, nicht Wheel-Picker)
