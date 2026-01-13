@@ -255,12 +255,12 @@ final class TimerReducerTests: XCTestCase {
 
     // MARK: - IntervalGong Tests
 
-    func testIntervalGongTriggered_whenEnabled_playsGong() {
+    func testIntervalGongTriggered_whenEnabled_playsGongWithVolume() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
         state.intervalGongPlayedForCurrentInterval = false
-        let settings = MeditationSettings(intervalGongsEnabled: true)
+        let settings = MeditationSettings(intervalGongsEnabled: true, intervalGongVolume: 0.6)
 
         // When
         let (newState, effects) = TimerReducer.reduce(
@@ -270,7 +270,7 @@ final class TimerReducerTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(effects, [.playIntervalGong])
+        XCTAssertEqual(effects, [.playIntervalGong(volume: 0.6)])
         XCTAssertTrue(newState.intervalGongPlayedForCurrentInterval)
     }
 

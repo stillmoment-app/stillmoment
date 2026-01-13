@@ -151,6 +151,7 @@ final class TimerViewModel: ObservableObject {
         Logger.viewModel.info("Saved settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
+            "intervalGongVolume": self.settings.intervalGongVolume,
             "backgroundSoundId": self.settings.backgroundSoundId,
             "backgroundSoundVolume": self.settings.backgroundSoundVolume,
             "durationMinutes": self.settings.durationMinutes,
@@ -225,8 +226,8 @@ final class TimerViewModel: ObservableObject {
             self.audioService.resumeBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
-        case .playIntervalGong:
-            self.executePlayIntervalGong()
+        case let .playIntervalGong(volume):
+            self.executePlayIntervalGong(volume: volume)
         case .playCompletionSound:
             self.executePlayCompletionSound()
         default:
@@ -294,9 +295,9 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func executePlayIntervalGong() {
+    private func executePlayIntervalGong(volume: Float) {
         do {
-            try self.audioService.playIntervalGong(volume: self.settings.intervalGongVolume)
+            try self.audioService.playIntervalGong(volume: volume)
             // Mark gong played on timer to enable detection of next interval
             self.timerService.markIntervalGongPlayed()
             // Reset the UI flag to allow next interval detection
@@ -456,6 +457,7 @@ final class TimerViewModel: ObservableObject {
         Logger.viewModel.info("Loaded settings", metadata: [
             "intervalEnabled": self.settings.intervalGongsEnabled,
             "intervalMinutes": self.settings.intervalMinutes,
+            "intervalGongVolume": self.settings.intervalGongVolume,
             "backgroundSoundId": self.settings.backgroundSoundId,
             "backgroundSoundVolume": self.settings.backgroundSoundVolume,
             "durationMinutes": self.settings.durationMinutes,
