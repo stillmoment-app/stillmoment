@@ -39,8 +39,8 @@ Screenshots are saved to `docs/images/screenshots/`.
 
 | Screenshot | Description | Source |
 |------------|-------------|--------|
-| `timer-main.png` / `timer-main-de.png` | Timer idle with duration picker | Timer tab, 10 min selected |
-| `timer-running.png` / `timer-running-de.png` | Active meditation timer (~09:55) | Timer started, 5s wait |
+| `timer-main.png` / `timer-main-de.png` | Timer idle with duration picker | Timer tab, 1 min selected |
+| `timer-running.png` / `timer-running-de.png` | Active meditation timer (~00:57) | Timer started, ~3s elapsed |
 | `library-list.png` / `library-list-de.png` | Guided meditations library | Library tab with test fixtures |
 | `player-view.png` / `player-view-de.png` | Audio player | First meditation tapped |
 | `timer-settings.png` / `timer-settings-de.png` | Timer settings with options | Settings with preparation time + interval gongs enabled |
@@ -231,11 +231,12 @@ stillmoment/
 
 ## Resources
 
+- [Cross-Platform Screenshot Consistency](screenshots-cross-platform.md) - Best practices for iOS/Android parity
 - [Fastlane Snapshot Documentation](https://docs.fastlane.tools/actions/snapshot/)
 - [rbenv GitHub](https://github.com/rbenv/rbenv)
 - [Apple Screenshot Specifications](https://developer.apple.com/help/app-store-connect/reference/screenshot-specifications)
 
 ---
 
-**Last Updated**: 2026-01-09
-**Version**: 3.1 (Added Settings Screenshot)
+**Last Updated**: 2026-01-14
+**Version**: 3.2 (Added cross-platform guide reference)

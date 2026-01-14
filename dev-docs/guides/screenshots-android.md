@@ -32,7 +32,7 @@ Screenshots are processed and copied to `docs/images/screenshots/`.
 | Test | Description |
 |------|-------------|
 | `screenshot01_timerIdle` | Timer idle with duration picker |
-| `screenshot02_timerRunning` | Active timer (~09:55) |
+| `screenshot02_timerRunning` | Active timer (~00:57) |
 | `screenshot03_libraryList` | Guided meditations library |
 | `screenshot04_playerView` | Audio player view |
 | `screenshot05_settingsView` | Timer settings sheet |
@@ -153,7 +153,12 @@ val localeTestRule = LocaleTestRule()
 - Add `Thread.sleep()` for animations to complete
 - Use `composeRule.waitForIdle()` before assertions
 
+## Resources
+
+- [Cross-Platform Screenshot Consistency](screenshots-cross-platform.md) - Best practices for iOS/Android parity
+- [Fastlane Screengrab Documentation](https://docs.fastlane.tools/actions/screengrab/)
+
 ---
 
-**Last Updated**: 2026-01-13
-**Version**: 3.1 (Added TestFixtureSeeder for consistent library screenshots)
+**Last Updated**: 2026-01-14
+**Version**: 3.2 (Added cross-platform guide reference)

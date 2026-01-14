@@ -79,11 +79,11 @@ class ScreengrabScreenshotTests {
 
         // Reset selected tab to Timer for consistent test start
         // Disable preparation time for faster screenshots (bug fixed: timer now initializes correctly)
-        // Set duration to 10 minutes explicitly
+        // Set duration to 1 minute for faster screenshot generation
         runBlocking {
             settingsDataStore.setSelectedTab(com.stillmoment.domain.models.AppTab.TIMER)
             settingsDataStore.setPreparationTimeEnabled(false)
-            settingsDataStore.setDurationMinutes(10)
+            settingsDataStore.setDurationMinutes(1)
         }
 
         // Now launch the activity
@@ -146,8 +146,8 @@ class ScreengrabScreenshotTests {
         composeRule.onNodeWithText("Start", ignoreCase = true, useUnmergedTree = true)
             .assertIsDisplayed()
 
-        // Wait for UI to settle
-        Thread.sleep(500)
+        // Ensure UI is fully rendered
+        composeRule.waitForIdle()
 
         Screengrab.screenshot("01_TimerIdle")
     }
@@ -167,9 +167,10 @@ class ScreengrabScreenshotTests {
         val closeButtonMatcher = localizedContentDescription("Close and end", "Schließen und Meditation")
         waitForNode(closeButtonMatcher)
 
-        // Wait for timer to tick down to 09:58 (using waitUntil to allow UI updates)
+        // Wait for timer to tick down to 00:5X (1 minute timer, ~3-5 seconds elapsed)
+        // Using regex-like matching for any 00:5X value
         composeRule.waitUntil(timeoutMillis = 10000) {
-            composeRule.onAllNodes(hasText("09:58", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("00:5", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
 
         Screengrab.screenshot("02_TimerRunning")
@@ -185,7 +186,8 @@ class ScreengrabScreenshotTests {
         // Wait for library to load - wait for "Mindful Breathing" to appear
         waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
 
-        Thread.sleep(500)
+        // Ensure UI is fully rendered
+        composeRule.waitForIdle()
 
         Screengrab.screenshot("03_LibraryList")
     }
@@ -210,7 +212,8 @@ class ScreengrabScreenshotTests {
                 .or(hasContentDescription("Pause", substring = true, ignoreCase = true))
         )
 
-        Thread.sleep(500)
+        // Ensure UI is fully rendered
+        composeRule.waitForIdle()
 
         Screengrab.screenshot("04_PlayerView")
 
@@ -223,10 +226,13 @@ class ScreengrabScreenshotTests {
 
     @Test
     fun screenshot05_settingsView() {
-        // Enable preparation time with 15s for a nicer settings screenshot
+        // Enable preparation time and interval gongs for a nicer settings screenshot
+        // (matching iOS which enables both toggles)
         runBlocking {
             settingsDataStore.setPreparationTimeEnabled(true)
             settingsDataStore.setPreparationTimeSeconds(15)
+            settingsDataStore.setIntervalGongsEnabled(true)
+            settingsDataStore.setIntervalMinutes(5)
         }
 
         navigateToTimerTab()
@@ -242,7 +248,8 @@ class ScreengrabScreenshotTests {
             .or(hasText("Fertig", ignoreCase = true))
         waitForNode(doneButtonMatcher)
 
-        Thread.sleep(500)
+        // Ensure UI is fully rendered
+        composeRule.waitForIdle()
 
         Screengrab.screenshot("05_SettingsView")
 

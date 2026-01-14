@@ -74,9 +74,6 @@ final class ScreenshotTests: XCTestCase {
         // Always tap the tab to ensure we're on it (even if isSelected, tap again to be sure)
         libraryTab.tap()
 
-        // Wait for tab content to load
-        Thread.sleep(forTimeInterval: 0.5)
-
         // Verify we're on the Library tab by checking for either add button or empty state
         let addButton = self.app.descendants(matching: .any)["library.button.add"]
         let emptyStateButton = self.app.buttons["library.button.import.emptyState"]
@@ -100,7 +97,7 @@ final class ScreenshotTests: XCTestCase {
     // MARK: - Screenshot Tests
 
     /// Screenshot 1: Timer idle state with duration picker
-    func testScreenshot01_TimerIdle() {
+    func testScreenshot01_timerIdle() {
         // Navigate to Timer tab
         self.navigateToTimerTab()
 
@@ -114,20 +111,20 @@ final class ScreenshotTests: XCTestCase {
         // Select 10 minutes for a nice display
         self.selectDuration(minutes: 10)
 
-        // Small delay for UI to settle
-        Thread.sleep(forTimeInterval: 0.5)
+        // Wait for picker animation to complete
+        _ = startButton.waitForExistence(timeout: 1.0)
 
         // Take screenshot
         snapshot("01_TimerIdle")
     }
 
-    /// Screenshot 2: Timer running state (~09:55 remaining)
-    func testScreenshot02_TimerRunning() {
+    /// Screenshot 2: Timer running state (~00:57 remaining)
+    func testScreenshot02_timerRunning() {
         // Navigate to Timer tab
         self.navigateToTimerTab()
 
-        // Select 10 minutes
-        self.selectDuration(minutes: 10)
+        // Select 1 minute for faster screenshot (less waiting)
+        self.selectDuration(minutes: 1)
 
         // Start timer
         let startButton = self.app.buttons["timer.button.start"]
@@ -138,21 +135,19 @@ final class ScreenshotTests: XCTestCase {
         let pauseButton = self.app.buttons["timer.button.pause"]
         XCTAssertTrue(pauseButton.waitForExistence(timeout: 5.0))
 
-        // Wait a few seconds for a realistic time display (~09:55)
-        Thread.sleep(forTimeInterval: 5.0)
+        // Wait ~3 seconds for a nice time display (00:57)
+        // Using explicit wait instead of Thread.sleep for better reliability
+        let timerLabel = self.app.staticTexts.matching(
+            NSPredicate(format: "label MATCHES '00:5[0-9]'")
+        ).firstMatch
+        _ = timerLabel.waitForExistence(timeout: 10.0)
 
         // Take screenshot
         snapshot("02_TimerRunning")
-
-        // Reset for next test
-        let resetButton = self.app.buttons["timer.button.reset"]
-        if resetButton.exists {
-            resetButton.tap()
-        }
     }
 
     /// Screenshot 3: Library list with guided meditations
-    func testScreenshot03_LibraryList() {
+    func testScreenshot03_libraryList() {
         // Navigate to Library tab (Screenshots target has test fixtures)
         self.navigateToLibraryTab()
 
@@ -161,20 +156,20 @@ final class ScreenshotTests: XCTestCase {
         let addButton = self.app.buttons["library.button.add"]
         XCTAssertTrue(addButton.waitForExistence(timeout: 5.0))
 
-        // Small delay for UI to settle
-        Thread.sleep(forTimeInterval: 1.0)
+        // Wait for first meditation row to appear (ensures list is populated)
+        let meditationRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        )
+        _ = meditationRows.firstMatch.waitForExistence(timeout: 5.0)
 
         // Take screenshot
         snapshot("03_LibraryList")
     }
 
     /// Screenshot 4: Player view with meditation
-    func testScreenshot04_PlayerView() {
+    func testScreenshot04_playerView() {
         // Navigate to Library tab
         self.navigateToLibraryTab()
-
-        // Wait longer for list to populate with test fixtures
-        Thread.sleep(forTimeInterval: 2.0)
 
         // Find and tap the first meditation row
         // Test fixtures include "Mindful Breathing" by Sarah Kornfield
@@ -196,33 +191,25 @@ final class ScreenshotTests: XCTestCase {
             if emptyStateButton.exists {
                 XCTFail("Library is empty - test fixtures not loaded. Empty state visible.")
             } else {
-                // Debug: Print accessibility hierarchy
-                print("DEBUG: App accessibility hierarchy:")
-                print(self.app.debugDescription)
                 XCTFail("No meditation rows found and no empty state. Check test fixtures seeding.")
             }
             return
         }
 
-        // Wait for player sheet to appear
+        // Wait for player sheet to appear with all elements loaded
         let playButton = self.app.buttons["player.button.playPause"]
         XCTAssertTrue(playButton.waitForExistence(timeout: 5.0), "Player sheet did not appear")
 
-        // Small delay for UI to settle
-        Thread.sleep(forTimeInterval: 0.5)
+        // Wait for meditation title to be visible (ensures sheet is fully rendered)
+        let titleLabel = self.app.staticTexts["Mindful Breathing"]
+        _ = titleLabel.waitForExistence(timeout: 3.0)
 
         // Take screenshot
         snapshot("04_PlayerView")
-
-        // Close player
-        let closeButton = self.app.buttons["player.button.close"]
-        if closeButton.exists {
-            closeButton.tap()
-        }
     }
 
     /// Screenshot 5: Settings view with preparation time and interval gongs enabled
-    func testScreenshot05_SettingsView() {
+    func testScreenshot05_settingsView() {
         // Navigate to Timer tab
         self.navigateToTimerTab()
 
@@ -231,44 +218,38 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(settingsButton.waitForExistence(timeout: 3.0), "Settings button not found")
         settingsButton.tap()
 
-        // Wait for settings sheet to fully appear
-        Thread.sleep(forTimeInterval: 1.0)
-
-        // Find preparation time toggle
+        // Find preparation time toggle (wait for sheet to appear)
         let preparationToggle = self.app.switches["settings.toggle.preparationTime"]
         XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "Settings sheet did not appear")
 
         // Enable preparation time: tap if currently OFF
         if preparationToggle.value as? String == "0" {
             preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            Thread.sleep(forTimeInterval: 0.5)
+            // Wait for toggle animation
+            _ = preparationToggle.waitForExistence(timeout: 1.0)
         }
 
         // Find interval gongs toggle - may need to scroll
         let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
         if !intervalToggle.exists || !intervalToggle.isHittable {
             self.app.swipeUp()
-            Thread.sleep(forTimeInterval: 0.3)
+            _ = intervalToggle.waitForExistence(timeout: 2.0)
         }
         XCTAssertTrue(intervalToggle.waitForExistence(timeout: 3.0), "Interval gongs toggle not found")
 
         // Enable interval gongs: tap if currently OFF
         if intervalToggle.value as? String == "0" {
             intervalToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            Thread.sleep(forTimeInterval: 0.5)
+            // Wait for toggle animation
+            _ = intervalToggle.waitForExistence(timeout: 1.0)
         }
 
         // Scroll back to top to show preparation time section
         self.app.swipeDown()
-        Thread.sleep(forTimeInterval: 0.5)
+        // Wait for scroll to complete
+        _ = preparationToggle.waitForExistence(timeout: 2.0)
 
         // Take screenshot
         snapshot("05_SettingsView")
-
-        // Close settings
-        let doneButton = self.app.buttons["button.done"]
-        if doneButton.exists {
-            doneButton.tap()
-        }
     }
 }
