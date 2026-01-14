@@ -1,0 +1,10 @@
+# Appfile - Fastlane Configuration for Play Store
+# https://docs.fastlane.tools/advanced/Appfile/
+
+# Service Account JSON for Play Console API
+# - Local: Place JSON key at ~/.fastlane/stillmoment-play-console.json
+# - CI: Set SUPPLY_JSON_KEY environment variable
+json_key_file(ENV["SUPPLY_JSON_KEY"] || File.expand_path("~/.fastlane/stillmoment-play-console.json"))
+
+# App Package Name
+package_name("com.stillmoment")

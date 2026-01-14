@@ -1,4 +1,4 @@
-.PHONY: help format check test build clean screenshot-setup screenshots
+.PHONY: help format check test build clean screenshot-setup screenshots release release-dry release-production metadata
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -73,3 +73,35 @@ screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
 	fi
 	@bundle exec fastlane screenshots
 	@echo "Screenshots generated in docs/images/screenshots/"
+
+release: ## Upload to Play Store Closed Testing
+	@echo "Building and uploading to Closed Testing..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane release
+
+release-dry: ## Validate release without uploading (dry run)
+	@echo "Validating release configuration..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane release_dry
+
+release-production: ## Upload to Production (with confirmation)
+	@echo "Preparing production release..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane release_production
+
+metadata: ## Update only metadata (descriptions, changelogs) without new build
+	@echo "Updating Play Store metadata..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane metadata

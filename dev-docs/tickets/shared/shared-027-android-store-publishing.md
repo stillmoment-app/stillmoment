@@ -1,6 +1,6 @@
 # Ticket shared-027: Android Store Publishing mit Fastlane
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: ~3h
 **Phase**: 2-Architektur

@@ -38,4 +38,76 @@ platform :android do
     )
     UI.success("Screenshot APKs built successfully!")
   end
+
+  # =============================================================================
+  # Release Lanes
+  # =============================================================================
+
+  desc "Upload to Play Store (Closed Testing by default)"
+  lane :release do |options|
+    track = options[:track] || "alpha"  # alpha = Closed Testing
+
+    UI.message("Building release bundle...")
+    gradle(
+      task: "bundleRelease"
+    )
+
+    UI.message("Uploading to Play Store (#{track})...")
+    supply(
+      track: track,
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_apk: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("Release uploaded to #{track} track!")
+  end
+
+  desc "Validate release without uploading (dry run)"
+  lane :release_dry do
+    UI.message("Building release bundle...")
+    gradle(
+      task: "bundleRelease"
+    )
+
+    UI.message("Validating Play Store configuration...")
+    supply(
+      track: "alpha",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_apk: true,
+      validate_only: true
+    )
+
+    UI.success("Validation successful! Ready for release.")
+  end
+
+  desc "Upload only metadata (descriptions, changelogs) without new build"
+  lane :metadata do
+    UI.message("Uploading metadata to Play Store...")
+    supply(
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: false,
+      skip_upload_changelogs: false,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    UI.success("Metadata updated!")
+  end
+
+  desc "Upload to Production (requires confirmation)"
+  lane :release_production do
+    UI.important("You are about to release to PRODUCTION!")
+    UI.important("This will make the app available to all users.")
+
+    if UI.confirm("Are you sure you want to release to production?")
+      release(track: "production")
+    else
+      UI.user_error!("Release cancelled.")
+    end
+  end
 end
