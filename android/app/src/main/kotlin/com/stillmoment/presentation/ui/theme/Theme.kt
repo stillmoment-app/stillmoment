@@ -56,7 +56,7 @@ fun StillMomentTheme(content: @Composable () -> Unit) {
 
     if (!view.isInEditMode) {
         SideEffect {
-            // Safe cast for Paparazzi/preview compatibility
+            // Safe cast for Compose Preview compatibility
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
             @Suppress("DEPRECATION")
