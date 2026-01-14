@@ -1,19 +1,19 @@
-# Ticket shared-025: Fastlane Integration
+# Ticket shared-025: Fastlane Screenshots
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
-**Aufwand**: iOS ~4h | Android ~4h
+**Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 2-Architektur
 
 ---
 
 ## Was
 
-Fastlane einrichten fuer automatisierte Screenshots und Store-Uploads auf beiden Plattformen.
+Fastlane einrichten fuer automatisierte Screenshot-Generierung auf beiden Plattformen.
 
 ## Warum
 
-Manuelle Screenshot-Erstellung und Store-Uploads sind zeitaufwendig und fehleranfaellig. Fastlane automatisiert diese Prozesse und ermoeglicht konsistente, reproduzierbare Releases.
+Manuelle Screenshot-Erstellung ist zeitaufwendig und fehleranfaellig. Fastlane automatisiert diese Prozesse und ermoeglicht konsistente, reproduzierbare Screenshots fuer Store und Website.
 
 ---
 
@@ -21,55 +21,50 @@ Manuelle Screenshot-Erstellung und Store-Uploads sind zeitaufwendig und fehleran
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Screenshots (beide Plattformen)
-- [ ] Automatische Screenshot-Generierung fuer alle unterstuetzten Geraete
-- [ ] Screenshots in allen unterstuetzten Sprachen (DE, EN)
-- [ ] Optional: Geraeterahmen mit `frameit`
-
-### Store Publishing
-- [ ] iOS: Upload zu App Store Connect via `deliver`
-- [ ] Android: Upload zum Play Store via `supply`
-- [ ] Metadata-Verwaltung (Beschreibungen, Keywords, Release Notes)
-
-### Integration
-- [ ] `make screenshots` Befehl fuer beide Plattformen
-- [ ] `make release` Befehl fuer Store-Upload
-- [ ] CI-Integration moeglich (Credentials via Secrets)
+- [x] Automatische Screenshot-Generierung fuer alle unterstuetzten Geraete
+- [x] Screenshots in allen unterstuetzten Sprachen (DE, EN)
+- [x] `make screenshots` Befehl fuer beide Plattformen
+- [x] Post-Processing Script kopiert Screenshots nach docs/
 
 ### Dokumentation
-- [ ] Setup-Anleitung in dev-docs
-- [ ] Credential-Verwaltung dokumentiert
+- [x] Screenshot-Dokumentation in dev-docs
 
 ---
 
-## Manueller Test
+## Implementiert
 
-1. `make screenshots` ausfuehren
-2. Screenshots werden in korrekten Ordnern generiert
-3. `make release` ausfuehren (Dry-Run)
-4. Erwartung: Upload-Vorschau ohne Fehler
+### iOS
+- `fastlane screenshots` Lane mit `capture_screenshots`
+- `fastlane screenshot_single` fuer einzelne Screenshots
+- Snapfile Konfiguration fuer Geraete und Sprachen
+
+### Android
+- `fastlane screenshots` Lane mit `capture_android_screenshots` (Screengrab)
+- Screengrabfile Konfiguration
+- UI-Tests in `ScreenshotCaptureTest`
+
+---
+
+## Follow-up Tickets
+
+- shared-026: iOS Store Publishing (deliver)
+- shared-027: Android Store Publishing (supply)
+- shared-028: CI Release Pipeline
 
 ---
 
 ## Referenz
 
-- iOS: Bestehende UI-Tests als Basis fuer `snapshot`
-- Android: Bestehende UI-Tests als Basis fuer `screengrab`
-- Fastlane Docs: https://docs.fastlane.tools/
-
----
-
-## Hinweise
-
-- iOS Code Signing: `match` vereinfacht Zertifikat-Verwaltung
-- Android: Service Account fuer Play Console API noetig
-- Beide: Credentials niemals committen, nur via CI-Secrets
+- iOS Screenshots: `ios/fastlane/Fastfile`
+- Android Screenshots: `android/fastlane/Fastfile`
+- Doku: `dev-docs/guides/screenshots.md`
 
 ---

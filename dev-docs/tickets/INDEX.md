@@ -48,7 +48,10 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-022](shared/shared-022-interval-gong-volume.md) | Lautstärkeregler Intervall-Gong | 3-Feature | [x] | [x] |
 | [shared-023](shared/shared-023-guided-meditation-preparation-time.md) | Vorbereitungszeit gefuehrte Meditationen | 3-Feature | [x] | [x] |
 | [shared-024](shared/shared-024-clean-architecture-review.md) | Clean Architecture Layer-Review | 2-Architektur | [ ] | [ ] |
-| [shared-025](shared/shared-025-fastlane-integration.md) | Fastlane Integration | 2-Architektur | [ ] | [ ] |
+| [shared-025](shared/shared-025-fastlane-integration.md) | Fastlane Screenshots | 2-Architektur | [x] | [x] |
+| [shared-026](shared/shared-026-ios-store-publishing.md) | iOS Store Publishing | 2-Architektur | [ ] | - |
+| [shared-027](shared/shared-027-android-store-publishing.md) | Android Store Publishing | 2-Architektur | - | [ ] |
+| [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
 
 ---
 
