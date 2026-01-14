@@ -50,8 +50,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-024](shared/shared-024-clean-architecture-review.md) | Clean Architecture Layer-Review | 2-Architektur | [ ] | [ ] |
 | [shared-025](shared/shared-025-fastlane-integration.md) | Fastlane Screenshots | 2-Architektur | [x] | [x] |
 | [shared-026](shared/shared-026-ios-store-publishing.md) | iOS Store Publishing | 2-Architektur | [ ] | - |
-| [shared-027](shared/shared-027-android-store-publishing.md) | Android Store Publishing | 2-Architektur | - | [ ] |
+| [shared-027](shared/shared-027-android-store-publishing.md) | Android Store Publishing | 2-Architektur | - | [x] |
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
+| [shared-029](shared/shared-029-release-prepare-workflow.md) | Release Prepare Workflow | 2-Architektur | [ ] | [ ] |
 
 ---
 
