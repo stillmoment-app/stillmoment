@@ -180,10 +180,10 @@ User kann:
 
 **Bei `--dry-run`:** Nur Vorschau, hier abbrechen.
 
-**iOS Release Notes:**
+**iOS Changelogs:**
 ```
-ios/fastlane/metadata/de-DE/release_notes.txt
-ios/fastlane/metadata/en-US/release_notes.txt
+ios/fastlane/metadata/de-DE/changelogs/{version}.txt
+ios/fastlane/metadata/en-US/changelogs/{version}.txt
 ```
 
 Inhalt (nur die Bullet Points, kein Header):
@@ -244,8 +244,8 @@ Inhalt identisch zu iOS.
 
 ```
 Written:
-  ✓ ios/fastlane/metadata/de-DE/release_notes.txt
-  ✓ ios/fastlane/metadata/en-US/release_notes.txt
+  ✓ ios/fastlane/metadata/de-DE/changelogs/1.9.0.txt
+  ✓ ios/fastlane/metadata/en-US/changelogs/1.9.0.txt
   ✓ android/fastlane/metadata/android/de-DE/changelogs/12.txt
   ✓ android/fastlane/metadata/android/en-US/changelogs/12.txt
   ✓ CHANGELOG.md ([Unreleased] → [1.9.0])
