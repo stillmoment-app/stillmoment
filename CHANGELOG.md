@@ -7,17 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
+### Added (iOS & Android)
 - **Vorbereitungszeit für geführte Meditationen** - Countdown vor MP3-Start
-  - Label unter Play-Button zeigt aktuelle Einstellung ("---" oder z.B. "15s")
-  - Tap öffnet Picker mit Optionen: Aus, 5s, 10s, 15s, 20s, 30s, 45s
+  - Settings-Button (⚙) in Library-Toolbar öffnet Settings-Sheet
+  - Toggle für Vorbereitungszeit + Picker für Dauer (5s, 10s, 15s, 20s, 30s, 45s)
   - Countdown-Ring ersetzt Controls während Ablauf
+  - Progress-Slider und Zeit-Labels bleiben während Countdown sichtbar
+  - Nach Countdown: Stiller Übergang direkt zur MP3 (kein Gong)
   - Einstellung persistent (bleibt für alle MP3s erhalten)
   - Lokalisiert (DE + EN)
-  - Unit Tests für Domain Model und ViewModel
+  - Unit Tests für State-Machine und Persistence
   - Ticket: shared-023
 
-### Added (iOS & Android)
 - **Intervall-Gong-Lautstärkeregler** - Separate Lautstärke für Intervall-Gong
   - Slider erscheint nur wenn Intervall-Gong aktiviert ist
   - Default: 75% (unabhängig von Start/Ende-Gong Lautstärke)
@@ -25,6 +26,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Lokalisiert (DE + EN)
   - Unit Tests für Domain Model
   - Ticket: shared-022
+
+### Added (Shared)
+- **Release Notes Skill** - `/release-notes` generiert App Store Release Notes
+  - Liest [Unreleased] aus CHANGELOG.md, filtert user-facing Einträge
+  - Übersetzt automatisch nach DE + EN
+  - Schreibt in Fastlane-Struktur für beide Plattformen
+  - Zeichenlimit-Prüfung (Android 500, iOS 4000)
+  - Versions-Vorschlag nach Semantic Versioning
+  - Aktualisiert CHANGELOG.md nach Bestätigung
+  - Ticket: shared-030
+
+### Added (Android)
+- **Fastlane supply für Play Store** - Automatisierte Store-Uploads
+  - `supply` Lane für AAB/APK Upload konfiguriert
+  - Metadata-Verzeichnis mit Beschreibungen (DE, EN)
+  - Screenshots-Integration aus Screengrab
+  - Ticket: shared-027
+
+### Changed (Android)
+- **Screenshot-Migration** - Paparazzi → Fastlane Screengrab
+  - Bessere Zuverlässigkeit und Performance
+  - Konsistent mit iOS Screenshot-Workflow
+  - `make screenshots` für automatische Generierung
+
+### Added (Website)
+- **Android Beta Page** - Installationsanleitung für Android Beta
+  - Download-Link für APK
+  - Schritt-für-Schritt Anleitung
+- **Back-to-Home Links** - Navigation auf allen Unterseiten
 
 ## [1.8.0] - 2026-01-10 (Settings-Entdeckbarkeit)
 
@@ -655,38 +685,6 @@ iOS 16 Support, Kopfhörer Play/Pause Fix.
 
 ### v1.1.0 - Verbesserungen & Bugfixes
 Teacher Name Autocomplete, Localization Automation, Responsive Layout, Semantic Color System.
-
-**Quality Score**: 9/10 ⭐
-- Automation: 10/10 ✅
-- Test Coverage: 85%+ ✅
-- Logging: Production-ready ✅
-- Accessibility: WCAG compliant ✅
-- Error Handling: Safe & testable ✅
-- Background Audio: Apple Guidelines compliant ✅
-
----
-
-## Upcoming Features (Future Versions)
-
-### v0.3.0 (Planned)
-- [ ] Additional background audio options (nature sounds, ambient music, etc.)
-- [ ] Async/await migration from Combine
-- [ ] Observable macro for ViewModels (iOS 17+)
-- [ ] Fastlane integration for deployment
-
-### v1.0.0 (Planned)
-- [ ] Custom sound selection
-- [ ] Multiple timer presets
-- [ ] Dark mode support
-- [ ] Haptic feedback
-- [ ] Widget support
-
-### v2.0.0 (Future)
-- [ ] Statistics and history
-- [ ] Streak tracking
-- [ ] iCloud sync
-- [ ] Apple Watch companion app
-- [ ] Interval timers (meditation + break cycles)
 
 ---
 

@@ -219,6 +219,7 @@ make test                                   # Vollständige Suite vor Commit
 | Code Review | `/review-code` Skill |
 | View Quality | `/review-view` Skill |
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
+| Release Notes | `/release-notes` Skill |
 | Release | `dev-docs/release/RELEASE_GUIDE.md` |
 | Architektur | `dev-docs/architecture/overview.md` |
 | DDD | `dev-docs/architecture/ddd.md` |

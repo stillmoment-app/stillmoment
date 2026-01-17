@@ -1,218 +1,215 @@
 # Ticket shared-029: Release Prepare Workflow
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
-**Aufwand**: ~4h
+**Aufwand**: ~2h
 **Phase**: 2-Architektur
 
 ---
 
 ## Was
 
-Lokalen Release-Vorbereitungs-Workflow automatisieren: Tests, Version bump, RELEASE_NOTES Vorschlag, Git commit und Tag. Standard ist synchroner Release beider Plattformen, mit Option fuer plattformspezifische Bugfixes.
+Shell-Script das den Release-Prozess automatisiert: Validierung, Tests, Screenshots, Version bump, Git commit und Tag. Prueft dass Release Notes vorhanden sind (werden vorher mit `/release-notes` Skill erstellt).
 
 ## Warum
 
-Der manuelle Release-Prozess (RELEASE_GUIDE.md) hat viele Schritte, die vergessen werden koennen. Ein automatisierter Workflow reduziert Fehler und spart Zeit.
+Der manuelle Release-Prozess (RELEASE_GUIDE.md) hat viele Schritte, die vergessen werden koennen. Ein automatisiertes Script reduziert Fehler und spart Zeit.
+
+---
+
+## Architektur: Zwei-Schritt-Prozess
+
+```
+Schritt 1: /release-notes ios          ← Manuell in Claude Code (interaktiv)
+                                          Volle Interaktion moeglich
+
+Schritt 2: make release-prepare VERSION=1.9.0  ← Script (automatisch)
+```
+
+```
+┌─────────────────────────────────┐
+│  1. Validate prerequisites      │
+│  2. Check release notes exist   │ ← Prueft ob Fastlane-Dateien da sind
+│  3. make check                  │
+│  4. make test                   │
+│  5. make screenshots            │
+│  6. bump-version.sh             │
+│  7. git commit + tag            │
+└─────────────────────────────────┘
+         Alles automatisch
+```
+
+**Begruendung**: Release Notes werden separat mit `/release-notes` Skill erstellt. So hat man volle Claude-Interaktion (Feedback, Anpassungen). Das Script validiert nur dass die Notes vorhanden sind und fuehrt dann alles automatisch aus.
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Release Prepare Befehl
-- [ ] `make release-prepare VERSION=1.8.0` - Beide Plattformen (Standard)
-- [ ] `make release-prepare VERSION=1.8.1 PLATFORM=ios` - Nur iOS
-- [ ] `make release-prepare VERSION=1.8.1 PLATFORM=android` - Nur Android
-- [ ] VERSION Parameter: `patch`, `minor`, `major` oder explizit `1.8.0`
-- [ ] Abbruch bei fehlgeschlagenen Tests
 
-### Automatische Schritte
-- [ ] Tests ausfuehren (nur fuer ausgewaehlte Plattform(en))
-- [ ] Version in Build-Konfiguration erhoehen
-  - iOS: `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`
-  - Android: `versionName` + `versionCode`
-- [ ] RELEASE_NOTES.md Vorschlag aus CHANGELOG.md [Unreleased] generieren
-- [ ] User kann Vorschlag editieren oder bestaetigen
-- [ ] Git commit und tag erstellen
+```bash
+# iOS (im ios/ Verzeichnis)
+make release-prepare VERSION=1.9.0
+
+# Android (im android/ Verzeichnis)
+make release-prepare VERSION=1.9.0
+
+# Vorschau ohne Ausfuehrung
+make release-prepare VERSION=1.9.0 DRY_RUN=1
+```
+
+- [x] VERSION Parameter erforderlich (explizit `1.9.0`)
+- [x] DRY_RUN Parameter optional: Zeigt alle geplanten Aenderungen ohne Ausfuehrung
+- [x] Abbruch bei fehlgeschlagenen Tests (set -e)
+- [x] Jede Plattform hat eigene Versionierung
+
+### Validierungen (Schritt 1-2)
+
+- [x] Prueft ob Working Directory clean ist (Release Notes Aenderungen sind erlaubt)
+- [x] Prueft ob Tag nicht bereits existiert
+- [x] Prueft ob Release Notes vorhanden sind (de-DE + en-US):
+  - iOS: `ios/fastlane/metadata/<locale>/changelogs/<VERSION>.txt`
+  - Android: `android/fastlane/metadata/android/<locale>/changelogs/<versionCode+1>.txt`
+- [x] Fehlermeldung mit Hinweis auf `/release-notes` falls nicht vorhanden
+
+### Automatische Schritte (Schritt 3-7)
+
+- [x] `make check` ausfuehren (Format + Lint) - Auto-Fixes werden mitcommited
+- [x] `make test` ausfuehren
+- [x] `make screenshots` ausfuehren
+- [x] Version in Build-Konfiguration erhoehen (per bump-version.sh)
+  - iOS: `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` (+1)
+  - Android: `versionName` + `versionCode` (+1)
+- [x] Git commit + tag erstellen
 
 ### Git Tags
-- [ ] Synchroner Release: `v1.8.0`
-- [ ] Nur iOS: `v1.8.1-ios`
-- [ ] Nur Android: `v1.8.1-android`
 
-### Interaktiver Modus
-- [ ] Zeigt CHANGELOG [Unreleased] Sektion
-- [ ] Schlaegt RELEASE_NOTES vor (user-facing, DE + EN)
-- [ ] Fragt: [e]dit / [c]onfirm / [s]kip
-- [ ] Bei [e]dit: Oeffnet $EDITOR
-
-### Validierungen
-- [ ] Prueft ob CHANGELOG [Unreleased] nicht leer ist
-- [ ] Prueft ob Working Directory clean ist
-- [ ] Prueft ob Tag nicht bereits existiert
-- [ ] Warnung wenn keine Tests vorhanden
+- [x] iOS: `ios-v1.9.0`
+- [x] Android: `android-v1.9.0`
 
 ---
 
 ## Technische Details
 
-### Befehle
+### Dateien
 
-```bash
-# Standard: Beide Plattformen (synchron)
-make release-prepare VERSION=1.8.0
+| Datei | Aktion |
+|-------|--------|
+| `ios/Makefile` | Target `release-prepare` hinzufuegen |
+| `ios/scripts/release-prepare.sh` | Neu erstellen |
+| `ios/scripts/bump-version.sh` | Neu erstellen |
+| `android/Makefile` | Target `release-prepare` hinzufuegen |
+| `android/scripts/release-prepare.sh` | Neu erstellen |
+| `android/scripts/bump-version.sh` | Neu erstellen |
 
-# Semantic Version bump
-make release-prepare VERSION=patch   # 1.7.0 → 1.7.1
-make release-prepare VERSION=minor   # 1.7.0 → 1.8.0
-make release-prepare VERSION=major   # 1.7.0 → 2.0.0
-
-# Plattform-spezifischer Bugfix
-make release-prepare VERSION=1.8.1 PLATFORM=ios
-make release-prepare VERSION=1.8.1 PLATFORM=android
-```
-
-### Ablauf (Standard: beide Plattformen)
+### Ablauf (Beispiel iOS)
 
 ```
-$ make release-prepare VERSION=1.8.0
+# Schritt 1: Release Notes erstellen (in Claude Code)
+/release-notes ios
 
-1. Running tests...
-   iOS:     make -C ios check && make -C ios test ✓
-   Android: make -C android check && make -C android test ✓
+# Schritt 2: Release vorbereiten
+$ cd ios
+$ make release-prepare VERSION=1.9.0
 
-2. Current version: 1.7.0 → 1.8.0
-   iOS:     MARKETING_VERSION=1.8.0, BUILD=12
-   Android: versionName=1.8.0, versionCode=12
+1. Validating prerequisites...
+   ✓ Working directory clean (release notes changes allowed)
+   ✓ Tag ios-v1.9.0 does not exist
 
-3. CHANGELOG [Unreleased]:
-   ### Added (iOS & Android)
-   - **Intervall-Gong-Lautstärkeregler** - Separate Lautstärke...
+2. Checking release notes...
+   ✓ ios/fastlane/metadata/de-DE/changelogs/1.9.0.txt exists
+   ✓ ios/fastlane/metadata/en-US/changelogs/1.9.0.txt exists
 
-4. Suggested RELEASE_NOTES:
+3. Running checks...
+   make check ✓
 
-   ## v1.8.0
+4. Running tests...
+   make test ✓
 
-   ### English
-   - Separate volume control for interval gongs
+5. Generating screenshots...
+   make screenshots ✓
 
-   ### Deutsch
-   - Eigene Lautstärke für Intervall-Gongs
+6. Bumping version to 1.9.0...
+   ✓ MARKETING_VERSION=1.9.0
+   ✓ CURRENT_PROJECT_VERSION=2
 
-   [e]dit / [c]onfirm / [s]kip? c
-
-5. Updating files...
-   ✓ ios/StillMoment.xcodeproj (version)
-   ✓ android/app/build.gradle.kts (version)
-   ✓ dev-docs/release/RELEASE_NOTES.md
-   ✓ CHANGELOG.md ([Unreleased] → [1.8.0])
-
-6. Creating commit and tag...
+7. Creating commit and tag...
    ✓ git add -A
-   ✓ git commit -m "chore: Prepare release v1.8.0"
-   ✓ git tag -a v1.8.0 -m "Release v1.8.0"
+   ✓ git commit -m "chore(ios): Prepare release v1.9.0"
+   ✓ git tag -a ios-v1.9.0 -m "iOS Release v1.9.0"
 
-Done! Next steps:
+Done! Next step:
   git push origin main --tags
-  cd ios && make release      # iOS
-  cd android && make release  # Android
+  make release
+
+If something went wrong, undo with:
+  git reset --hard HEAD~1
+  git tag -d ios-v1.9.0
 ```
 
-### Ablauf (Plattform-spezifisch)
+### Fehlermeldung bei fehlenden Release Notes
 
 ```
-$ make release-prepare VERSION=1.8.1 PLATFORM=ios
+$ make release-prepare VERSION=1.9.0
 
-1. Running tests...
-   iOS: make -C ios check && make -C ios test ✓
-   (Android skipped)
+1. Validating prerequisites...
+   ✓ Working directory clean (release notes changes allowed)
+   ✓ Tag ios-v1.9.0 does not exist
 
-2. Current iOS version: 1.8.0 → 1.8.1
-   MARKETING_VERSION=1.8.1, BUILD=13
+2. Checking release notes...
+   ✗ Release notes not found for version 1.9.0
 
-3. CHANGELOG [Unreleased]:
-   ### Fixed (iOS)
-   - **Crash beim App-Start** - Fix fuer seltenen Edge Case...
+   Run first:
+     /release-notes ios
 
-4. Suggested RELEASE_NOTES:
-   ...
-
-5. Updating files...
-   ✓ ios/StillMoment.xcodeproj (version)
-   ✓ dev-docs/release/RELEASE_NOTES.md
-   ✓ CHANGELOG.md
-
-6. Creating commit and tag...
-   ✓ git commit -m "chore: Prepare release v1.8.1 (iOS)"
-   ✓ git tag -a v1.8.1-ios -m "Release v1.8.1 (iOS only)"
-
-Done! Next steps:
-  git push origin main --tags
-  cd ios && make release
+   Then retry:
+     make release-prepare VERSION=1.9.0
 ```
 
-### RELEASE_NOTES Generierung
+### bump-version.sh
 
-Transformation von technisch → user-facing:
-
-| CHANGELOG (technisch) | RELEASE_NOTES (user-facing) |
-|-----------------------|-----------------------------|
-| `**Feature-Name** - Technische Beschreibung` | Nutzen in einfacher Sprache |
-| Ticket-Referenzen | Entfernt |
-| Code-Details | Entfernt |
-| Architektur-Infos | Entfernt |
-
-### Script-Implementierung
-
-Empfehlung: Bash-Script `scripts/release-prepare.sh`
-
+**iOS** (`ios/scripts/bump-version.sh VERSION`):
 ```bash
-#!/bin/bash
-VERSION=$1
-PLATFORM=${2:-both}  # both, ios, android
+# Ersetzt MARKETING_VERSION in project.pbxproj
+sed -i '' "s/MARKETING_VERSION = .*/MARKETING_VERSION = $VERSION;/g" ...
 
-# ... Implementation
+# Inkrementiert CURRENT_PROJECT_VERSION
+# Liest aktuellen Wert, addiert 1, ersetzt
 ```
 
----
+**Android** (`android/scripts/bump-version.sh VERSION`):
+```bash
+# Ersetzt versionName in build.gradle.kts
+sed -i '' "s/versionName = .*/versionName = \"$VERSION\"/g" ...
 
-## Manueller Test
-
-1. Auf Feature-Branch testen (nicht main)
-2. `make release-prepare VERSION=1.8.0-test`
-3. Pruefen:
-   - Tests liefen
-   - Versionen korrekt aktualisiert
-   - RELEASE_NOTES Vorschlag sinnvoll
-   - Commit und Tag erstellt
-4. Tag loeschen: `git tag -d v1.8.0-test`
-5. Commit reverten: `git reset --hard HEAD~1`
-
-Zusaetzlich plattformspezifisch testen:
-6. `make release-prepare VERSION=1.8.1-test PLATFORM=ios`
-7. Pruefen: Nur iOS Version geaendert, Tag ist `v1.8.1-test-ios`
+# Inkrementiert versionCode
+# Liest aktuellen Wert, addiert 1, ersetzt
+```
 
 ---
 
 ## Abhaengigkeiten
 
+- Voraussetzung: shared-030 (Release Notes Skill)
 - Nachfolger: shared-028 (CI Release Pipeline)
 
 ---
 
 ## Referenz
 
+- **Konzept**: `dev-docs/concepts/release-prepare-workflow.md`
 - Aktueller Prozess: `dev-docs/release/RELEASE_GUIDE.md`
-- CHANGELOG Format: `CHANGELOG.md`
-- RELEASE_NOTES Format: `dev-docs/release/RELEASE_NOTES.md`
+- Release Notes Skill: shared-030
 
 ---
 
 ## Hinweise
 
-- CHANGELOG muss bei Ticket-Abschluss gepflegt sein (`/close-ticket` prueft)
-- RELEASE_NOTES sind user-facing, koennen manuell angepasst werden
-- Script sollte idempotent sein (mehrfach ausfuehrbar ohne Schaden)
-- Bei plattformspezifischen Releases: CHANGELOG-Sektion sollte Plattform angeben
+- iOS und Android Versionen koennen divergieren (z.B. iOS 1.8.2, Android 1.7.5)
+- Script ist komplett nicht-interaktiv (alle Interaktion passiert vorher im Skill)
+- Script bricht bei Fehler sauber ab (set -e), keine Teilzustaende
+- Release Notes Aenderungen (vom vorherigen `/release-notes` Skill) werden mitcommitted
+- Android Changelog-Validierung: Script liest aktuellen versionCode aus build.gradle.kts und prueft ob Datei fuer versionCode+1 existiert
+- Bei Fehler nach Commit: Rollback-Hinweis wird angezeigt (`git reset --hard HEAD~1`)
 
 ---

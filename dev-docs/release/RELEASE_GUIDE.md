@@ -1,10 +1,63 @@
 # Release Guide
 
-Kurze Anleitung für wiederkehrende Releases von Still Moment.
+Kurze Anleitung fuer wiederkehrende Releases von Still Moment.
 
-## Vor dem Release
+## Quick Release (Empfohlen)
 
-### 1. Code-Qualität prüfen
+Der automatisierte Workflow fuehrt alle Schritte durch: Validierung, Tests, Screenshots, Version bump, Git commit und Tag.
+
+### Android
+
+```bash
+cd android
+
+# 1. Release Notes generieren (aus CHANGELOG.md)
+/release-notes android
+
+# 2. Release vorbereiten (Dry Run zuerst empfohlen)
+make release-prepare VERSION=1.9.0 DRY_RUN=1  # Vorschau
+make release-prepare VERSION=1.9.0            # Ausfuehren
+
+# 3. Push und Upload
+git push origin main --tags
+make release
+```
+
+### iOS
+
+```bash
+cd ios
+
+# 1. Release Notes generieren (aus CHANGELOG.md)
+/release-notes ios
+
+# 2. Release vorbereiten (Dry Run zuerst empfohlen)
+make release-prepare VERSION=1.9.0 DRY_RUN=1  # Vorschau
+make release-prepare VERSION=1.9.0            # Ausfuehren
+
+# 3. Push und Upload
+git push origin main --tags
+# Xcode -> Product -> Archive -> Distribute App
+```
+
+### Was `make release-prepare` tut
+
+1. **Validierung**: VERSION Parameter, Working Directory clean, Tag existiert nicht
+2. **Release Notes pruefen**: Changelog-Dateien muessen vorhanden sein
+3. **Code Quality**: `make check` (Format, Lint)
+4. **Tests**: `make test`
+5. **Screenshots**: `make screenshots`
+6. **Version bump**: versionCode/versionName bzw. CURRENT_PROJECT_VERSION/MARKETING_VERSION
+7. **Git commit**: `chore(platform): Prepare release v$VERSION`
+8. **Git tag**: `platform-v$VERSION`
+
+---
+
+## Manueller Release (Alternative)
+
+Falls der automatisierte Workflow nicht genutzt werden soll.
+
+### 1. Code-Qualitaet pruefen
 
 ```bash
 # iOS
@@ -14,27 +67,21 @@ cd ios && make check && make test
 cd android && make check && make test
 ```
 
-### 2. Manueller Test
+### 2. Version erhoehen
 
-Vor jedem Release die manuellen Test-Pläne auf echten Geräten durchführen:
-- iOS: `TEST_PLAN_IOS.md`
-- Android: `TEST_PLAN_ANDROID.md`
-
-### 3. Version erhöhen
-
-**iOS** (in Xcode: Target → General oder direkt in `project.pbxproj`):
+**iOS** (in Xcode: Target -> General oder direkt in `project.pbxproj`):
 - `MARKETING_VERSION` = Versionsnummer (z.B. `1.8.0`)
-- `CURRENT_PROJECT_VERSION` = Build-Nummer erhöhen
+- `CURRENT_PROJECT_VERSION` = Build-Nummer erhoehen
 
 **Android** (`android/app/build.gradle.kts`):
 ```kotlin
-versionCode = 11        // Erhöhen (muss eindeutig sein)
+versionCode = 11        // Erhoehen (muss eindeutig sein)
 versionName = "1.8.0"   // Versionsnummer
 ```
 
-### 4. CHANGELOG.md aktualisieren
+### 3. CHANGELOG.md aktualisieren
 
-Technische Änderungen dokumentieren (für Entwickler):
+Technische Aenderungen dokumentieren (fuer Entwickler):
 
 ```markdown
 ## [1.8.0] - YYYY-MM-DD (Kurztitel)
@@ -45,30 +92,15 @@ Technische Änderungen dokumentieren (für Entwickler):
   - Ticket: shared-XXX
 ```
 
-### 5. RELEASE_NOTES.md aktualisieren
+### 4. Release Notes erstellen
 
-User-facing Release Notes erstellen (für App Store / Play Store):
-
-```markdown
-## v1.8.0 - Kurztitel
-
-### English
-- Feature benefit in simple language
-- Another user-visible improvement
-
-### Deutsch
-- Feature-Nutzen in einfacher Sprache
-- Weitere sichtbare Verbesserung
+```bash
+/release-notes ios    # oder android
 ```
 
-**Qualitätskriterien:**
-- Keine Ticket-Referenzen
-- Keine technischen Details (keine Code-Namen, APIs, Patterns)
-- Nutzen-orientiert, nicht Feature-orientiert
-- 2-5 Punkte pro Version
-- Immer DE + EN
+Der Skill generiert user-facing Release Notes aus CHANGELOG.md und schreibt sie in die Fastlane-Struktur.
 
-### 6. Screenshots aktualisieren (falls UI-Änderungen)
+### 5. Screenshots aktualisieren (falls UI-Aenderungen)
 
 ```bash
 # iOS
@@ -78,9 +110,9 @@ cd ios && make screenshots
 cd android && make screenshots
 ```
 
-### 7. Git Tag erstellen
+### 6. Git Tag erstellen
 
-Nach allen Änderungen, vor dem Store-Upload:
+Nach allen Aenderungen, vor dem Store-Upload:
 
 ```bash
 git add -A
@@ -95,35 +127,30 @@ git push origin main --tags
 
 ### iOS
 
-1. **Archive erstellen**: Xcode → Product → Archive
-2. **Hochladen**: Window → Organizer → Distribute App → App Store Connect
-3. **What's New**: Text aus `RELEASE_NOTES.md` (Deutsch) kopieren
-4. **App Store Connect**: Build auswählen → Submit to App Review
+1. **Archive erstellen**: Xcode -> Product -> Archive
+2. **Hochladen**: Window -> Organizer -> Distribute App -> App Store Connect
+3. **What's New**: Fastlane uebernimmt Release Notes automatisch
+4. **App Store Connect**: Build auswaehlen -> Submit to App Review
 
 ### Android
 
-1. **Signed Bundle erstellen**:
+1. **Upload via Fastlane**:
    ```bash
    cd android
-   ./gradlew bundleRelease
+   make release
    ```
-2. **Play Console**: Bundle hochladen → Release erstellen
-3. **What's New**: Text aus `RELEASE_NOTES.md` (Deutsch + English) kopieren
-4. **Zur Überprüfung senden**
+2. **Play Console**: Release ueberpruefen und freigeben
 
 ## Nach dem Release
 
-- [ ] Store-Listings prüfen (Screenshots, Beschreibung aktuell?)
-- [ ] GitHub Release erstellen (optional, mit Tag verknüpfen)
+- [ ] Store-Listings pruefen (Screenshots, Beschreibung aktuell?)
+- [ ] GitHub Release erstellen (optional, mit Tag verknuepfen)
 
 ## Referenzen
 
 | Thema | Dokument |
 |-------|----------|
-| User-facing Release Notes | `RELEASE_NOTES.md` |
 | Technisches Changelog | `../../CHANGELOG.md` |
 | Gemeinsame Store-Texte | `STORE_CONTENT_SHARED.md` |
 | iOS App Store | `STORE_CONTENT_IOS.md` |
 | Android Play Store | `STORE_CONTENT_ANDROID.md` |
-| iOS Manual Tests | `TEST_PLAN_IOS.md` |
-| Android Manual Tests | `TEST_PLAN_ANDROID.md` |

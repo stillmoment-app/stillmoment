@@ -52,7 +52,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-026](shared/shared-026-ios-store-publishing.md) | iOS Store Publishing | 2-Architektur | [ ] | - |
 | [shared-027](shared/shared-027-android-store-publishing.md) | Android Store Publishing | 2-Architektur | - | [x] |
 | [shared-028](shared/shared-028-ci-release-pipeline.md) | CI Release Pipeline | 2-Architektur | [ ] | [ ] |
-| [shared-029](shared/shared-029-release-prepare-workflow.md) | Release Prepare Workflow | 2-Architektur | [ ] | [ ] |
+| [shared-029](shared/shared-029-release-prepare-workflow.md) | Release Prepare Workflow | 2-Architektur | [x] | [x] |
+| [shared-030](shared/shared-030-release-notes-skill.md) | Release Notes Skill | 2-Architektur | [x] | [x] |
 
 ---
 
