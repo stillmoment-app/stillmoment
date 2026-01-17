@@ -16,7 +16,9 @@ import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.data.local.SettingsDataStore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -68,30 +70,49 @@ class ScreengrabScreenshotTests {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
 
+    private val screenshotStrategy = UiAutomatorScreenshotStrategy()
+    private val screenshotCallback = PlayStoreScreenshotCallback()
+
+    /**
+     * Takes a screenshot using UiAutomator strategy with our custom callback.
+     * Writes directly to Supply-compatible path without timestamps.
+     */
+    private fun takeScreenshot(name: String) {
+        Screengrab.screenshot(name, screenshotStrategy, screenshotCallback)
+    }
+
     @Before
     fun setup() {
         hiltRule.inject()
-        Screengrab.setDefaultScreenshotStrategy(UiAutomatorScreenshotStrategy())
-
-        // Seed test fixtures BEFORE launching the activity
-        // Uses the app's DataStore instance (injected via Hilt)
         TestFixtureSeeder.seed(dataStore)
 
-        // Reset selected tab to Timer for consistent test start
-        // Disable preparation time for faster screenshots (bug fixed: timer now initializes correctly)
-        // Set duration to 1 minute for faster screenshot generation
+        // Verify fixtures are persisted before launching activity.
+        // DataStore writes are async - wait for data to be readable.
+        runBlocking {
+            val meditations = dataStore.meditationsFlow.first()
+            require(meditations.size == 5) {
+                "Expected 5 test fixtures, got ${meditations.size}"
+            }
+        }
+
         runBlocking {
             settingsDataStore.setSelectedTab(com.stillmoment.domain.models.AppTab.TIMER)
             settingsDataStore.setPreparationTimeEnabled(false)
             settingsDataStore.setDurationMinutes(1)
         }
 
-        // Now launch the activity
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val intent = Intent(context, MainActivity::class.java)
-        scenario = ActivityScenario.launch(intent)
+        // Apply locale for this test run.
+        // Screengrab passes -e testLocale <locale> for each locale run.
+        // We launch, set Locale.setDefault(), then recreate() so
+        // MainActivity.attachBaseContext() picks up the new locale.
+        val testLocale = InstrumentationRegistry.getArguments().getString("testLocale") ?: "en-US"
+        val locale = Locale.forLanguageTag(testLocale.replace("_", "-"))
 
-        // Wait for app to be ready
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        scenario = ActivityScenario.launch(Intent(context, MainActivity::class.java))
+        Locale.setDefault(locale)
+        scenario.recreate()
+
         composeRule.waitForIdle()
     }
 
@@ -120,6 +141,9 @@ class ScreengrabScreenshotTests {
             useUnmergedTree = true
         ).performClick()
         composeRule.waitForIdle()
+
+        // Wait for Timer screen to be fully loaded (Start button visible)
+        waitForNode(localizedContentDescription("Start meditation", "Meditation starten"))
     }
 
     private fun navigateToLibraryTab() {
@@ -136,6 +160,17 @@ class ScreengrabScreenshotTests {
         }
     }
 
+    /**
+     * Waits for a node to exist AND be displayed.
+     * ModalBottomSheet nodes exist in semantics before animation completes,
+     * so we need to verify the node is actually displayed, not just present.
+     */
+    private fun waitForNodeDisplayed(matcher: androidx.compose.ui.test.SemanticsMatcher, timeoutMs: Long = 5000) {
+        waitForNode(matcher, timeoutMs)
+        composeRule.onNode(matcher, useUnmergedTree = true).assertIsDisplayed()
+        composeRule.waitForIdle()
+    }
+
     // MARK: - Screenshot Tests
 
     @Test
@@ -149,7 +184,7 @@ class ScreengrabScreenshotTests {
         // Ensure UI is fully rendered
         composeRule.waitForIdle()
 
-        Screengrab.screenshot("01_TimerIdle")
+        takeScreenshot("01_TimerIdle")
     }
 
     @Test
@@ -173,7 +208,7 @@ class ScreengrabScreenshotTests {
             composeRule.onAllNodes(hasText("00:5", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
 
-        Screengrab.screenshot("02_TimerRunning")
+        takeScreenshot("02_TimerRunning")
 
         // Reset timer for next test - close focus mode
         composeRule.onNode(closeButtonMatcher).performClick()
@@ -189,7 +224,7 @@ class ScreengrabScreenshotTests {
         // Ensure UI is fully rendered
         composeRule.waitForIdle()
 
-        Screengrab.screenshot("03_LibraryList")
+        takeScreenshot("03_LibraryList")
     }
 
     @Test
@@ -215,7 +250,7 @@ class ScreengrabScreenshotTests {
         // Ensure UI is fully rendered
         composeRule.waitForIdle()
 
-        Screengrab.screenshot("04_PlayerView")
+        takeScreenshot("04_PlayerView")
 
         // Close player
         composeRule.onNode(
@@ -237,21 +272,34 @@ class ScreengrabScreenshotTests {
 
         navigateToTimerTab()
 
-        // Open settings
-        composeRule.onNode(
-            localizedContentDescription("Open settings", "Einstellungen öffnen"),
-            useUnmergedTree = true
-        ).performClick()
-
-        // Wait for settings sheet to appear - look for "Done" / "Fertig" button
-        val doneButtonMatcher = hasText("Done", ignoreCase = true)
-            .or(hasText("Fertig", ignoreCase = true))
-        waitForNode(doneButtonMatcher)
-
-        // Ensure UI is fully rendered
+        // Wait for Settings icon to confirm Timer screen is fully loaded
+        val settingsButtonMatcher = localizedContentDescription("Open settings", "Einstellungen öffnen")
+        waitForNode(settingsButtonMatcher)
         composeRule.waitForIdle()
 
-        Screengrab.screenshot("05_SettingsView")
+        // Open settings - verify button exists and click
+        composeRule.onNode(settingsButtonMatcher, useUnmergedTree = true)
+            .assertIsDisplayed()
+            .performClick()
+
+        // Wait for settings sheet to appear and stabilize
+        composeRule.waitForIdle()
+
+        // Wait for settings sheet content - ensure fully displayed, not just existing
+        // ModalBottomSheet nodes exist in semantics before animation completes
+        val preparationTimeMatcher = hasText("Preparation time", substring = true, ignoreCase = true)
+            .or(hasText("Vorbereitungszeit", substring = true, ignoreCase = true))
+        waitForNodeDisplayed(preparationTimeMatcher)
+
+        // Also verify Done button is visible and displayed
+        val doneButtonMatcher = hasText("Done", ignoreCase = true)
+            .or(hasText("Fertig", ignoreCase = true))
+        waitForNodeDisplayed(doneButtonMatcher)
+
+        // Final idle check before screenshot
+        composeRule.waitForIdle()
+
+        takeScreenshot("05_SettingsView")
 
         // Close settings
         composeRule.onNode(doneButtonMatcher, useUnmergedTree = true).performClick()

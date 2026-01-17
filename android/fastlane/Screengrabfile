@@ -1,14 +1,18 @@
 # Screengrabfile - Fastlane Screengrab Configuration
 # https://docs.fastlane.tools/actions/screengrab/
 
-# Locales (German and English)
-locales(["de-DE", "en-US"])
+# Locales to generate screenshots for
+# Screengrab passes -e testLocale <locale> to the test runner for each locale.
+locales(["en-US", "de-DE"])
 
 # Clear previous screenshots before generating new ones
 clear_previous_screenshots(true)
 
-# Output directory for raw screenshots
-output_directory("./fastlane/screenshots")
+# Output directory for Screengrab
+# Screengrab writes to: metadata/android/<locale>/images/screenshots/
+# Fastfile renames to:  metadata/android/<locale>/images/phoneScreenshots/
+# (Supply expects phoneScreenshots/ for Play Store upload)
+output_directory("./fastlane/metadata/android")
 
 # App package name
 app_package_name("com.stillmoment")

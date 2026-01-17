@@ -12,8 +12,8 @@ Still Moment generates **identical screenshots** on both platforms to ensure con
 |--------|-------------|--------|
 | Screenshot count | 5 screens x 2 languages = 10 per platform | Enforced |
 | Languages | de-DE, en-US | Identical |
-| Output directory | `docs/images/screenshots/` | Shared |
-| Naming convention | `{screen-name}.png`, `{screen-name}-de.png` | Identical |
+| Output (iOS) | `docs/images/screenshots/` | For website |
+| Output (Android) | `fastlane/metadata/android/` | Direct to Play Store |
 | Test fixtures | Same 5 meditations with identical metadata | Verified |
 
 ## Screenshots
@@ -74,20 +74,17 @@ snapshot("01_TimerIdle")
 
 ```kotlin
 // Android
-Screengrab.screenshot("01_TimerIdle")
+takeScreenshot("01_TimerIdle")
 ```
 
-### Output File Names
+### Output Paths
 
-The `process-screenshots.sh` script on both platforms converts to identical final names:
+**iOS** (for website): `process-screenshots.sh` converts to kebab-case names in `docs/images/screenshots/`:
+- `01_TimerIdle` → `timer-main.png` / `timer-main-de.png`
 
-| Capture Name | EN Output | DE Output |
-|--------------|-----------|-----------|
-| `01_TimerIdle` | `timer-main.png` | `timer-main-de.png` |
-| `02_TimerRunning` | `timer-running.png` | `timer-running-de.png` |
-| `03_LibraryList` | `library-list.png` | `library-list-de.png` |
-| `04_PlayerView` | `player-view.png` | `player-view-de.png` |
-| `05_SettingsView` | `timer-settings.png` | `timer-settings-de.png` |
+**Android** (for Play Store): `PlayStoreScreenshotCallback` writes directly to Supply-expected paths:
+- `01_TimerIdle` → `metadata/android/en-US/images/phoneScreenshots/01_TimerIdle.png`
+- `01_TimerIdle` → `metadata/android/de-DE/images/phoneScreenshots/01_TimerIdle.png`
 
 ## Adding New Screenshots
 
@@ -108,17 +105,19 @@ func testScreenshot06_newView() {
 @Test
 fun screenshot06_newView() {
     // Navigate and capture
-    Screengrab.screenshot("06_NewView")
+    takeScreenshot("06_NewView")
 }
 ```
 
-### 2. Update Process Scripts
+### 2. Update iOS Process Script
 
-Update both `scripts/process-screenshots.sh` files with the new mapping:
+Update `ios/scripts/process-screenshots.sh` with the new mapping:
 
 ```bash
 ["06_NewView"]="new-view"
 ```
+
+(Android needs no script update - screenshots go directly to Play Store metadata)
 
 ### 3. Verify Consistency
 
@@ -147,27 +146,29 @@ Both use 6.7" devices for store listing requirements.
 Both platforms use the same `make` command:
 
 ```bash
-# iOS
+# iOS - for website
 cd ios && make screenshots
+# Output: docs/images/screenshots/
 
-# Android
+# Android - for Play Store
 cd android && make screenshots
+# Output: fastlane/metadata/android/*/images/phoneScreenshots/
 ```
-
-Both output to the shared `docs/images/screenshots/` directory.
 
 ## Validation
 
 Before release, verify cross-platform consistency:
 
 1. **File count**: 10 files per platform (5 screens x 2 languages)
-2. **File names**: Identical between platforms
-3. **Visual content**: Similar UI elements visible
-4. **Fixtures**: Same meditations shown in library
+2. **Visual content**: Similar UI elements visible
+3. **Fixtures**: Same meditations shown in library
 
 ```bash
-# Quick validation
+# iOS validation
 ls docs/images/screenshots/*.png | wc -l  # Should be 10
+
+# Android validation
+ls android/fastlane/metadata/android/*/images/phoneScreenshots/*.png | wc -l  # Should be 10
 ```
 
 ---
@@ -176,4 +177,4 @@ ls docs/images/screenshots/*.png | wc -l  # Should be 10
 - [iOS Screenshots](screenshots-ios.md)
 - [Android Screenshots](screenshots-android.md)
 
-**Last Updated**: 2026-01-14
+**Last Updated**: 2026-01-17

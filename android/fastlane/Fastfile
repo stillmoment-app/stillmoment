@@ -11,24 +11,31 @@ ENV["PATH"] = "#{android_home}/platform-tools:#{android_home}/emulator:#{ENV['PA
 platform :android do
   desc "Generate localized screenshots for Play Store and website"
   lane :screenshots do
+    adb = "#{ENV['ANDROID_HOME']}/platform-tools/adb"
+
     # Build the app and test APKs
     gradle(
       task: "assembleDebug assembleAndroidTest"
     )
 
     # Install APKs (screengrab reinstall can be unreliable)
-    adb = "#{ENV['ANDROID_HOME']}/platform-tools/adb"
     sh("#{adb} install -r ../app/build/outputs/apk/debug/app-debug.apk")
     sh("#{adb} install -r ../app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk")
 
-    # Capture screenshots using Screengrab
+    # Capture screenshots for all locales
     capture_android_screenshots
 
-    # Post-process: copy and rename to docs/images/screenshots/
-    sh("cd .. && ./scripts/process-screenshots.sh")
+    # Rename screenshots folder for Supply
+    # Screengrab writes to: metadata/android/<locale>/images/screenshots/*.png
+    # Supply expects: metadata/android/<locale>/images/phoneScreenshots/*.png
+    Dir.glob("metadata/android/*/images/screenshots").each do |dir|
+      target = dir.gsub("/screenshots", "/phoneScreenshots")
+      FileUtils.rm_rf(target) if File.exist?(target)
+      FileUtils.mv(dir, target)
+    end
 
     UI.success("Screenshots generated successfully!")
-    UI.message("Output: ../docs/images/screenshots/")
+    UI.message("Output: fastlane/metadata/android/*/images/phoneScreenshots/")
   end
 
   desc "Validate screenshot setup (quick check)"
@@ -60,7 +67,7 @@ platform :android do
       skip_upload_metadata: false,
       skip_upload_changelogs: false,
       skip_upload_images: true,
-      skip_upload_screenshots: true
+      skip_upload_screenshots: false
     )
 
     UI.success("Release uploaded to #{track} track!")
@@ -84,10 +91,32 @@ platform :android do
     UI.success("Validation successful! Ready for release.")
   end
 
+  desc "Upload only screenshots without new build"
+  lane :screenshots_upload do |options|
+    track = options[:track] || "alpha"  # alpha = Closed Testing
+    UI.message("Uploading screenshots to Play Store (track: #{track})...")
+
+    upload_to_play_store(
+      track: track,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: false,
+      sync_image_upload: true,
+      version_code: options[:version_code]
+    )
+
+    UI.success("Screenshots uploaded!")
+  end
+
   desc "Upload only metadata (descriptions, changelogs) without new build"
-  lane :metadata do
-    UI.message("Uploading metadata to Play Store...")
+  lane :metadata do |options|
+    track = options[:track] || "alpha"  # alpha = Closed Testing
+    UI.message("Uploading metadata to Play Store (track: #{track})...")
     supply(
+      track: track,
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_metadata: false,

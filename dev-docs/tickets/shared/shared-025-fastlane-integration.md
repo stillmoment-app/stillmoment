@@ -32,7 +32,8 @@ Manuelle Screenshot-Erstellung ist zeitaufwendig und fehleranfaellig. Fastlane a
 - [x] Automatische Screenshot-Generierung fuer alle unterstuetzten Geraete
 - [x] Screenshots in allen unterstuetzten Sprachen (DE, EN)
 - [x] `make screenshots` Befehl fuer beide Plattformen
-- [x] Post-Processing Script kopiert Screenshots nach docs/
+- [x] iOS: Post-Processing Script kopiert Screenshots nach docs/
+- [x] Android: Direkter Output nach Supply-kompatiblem Verzeichnis (kein Post-Processing)
 
 ### Dokumentation
 - [x] Screenshot-Dokumentation in dev-docs
@@ -49,7 +50,9 @@ Manuelle Screenshot-Erstellung ist zeitaufwendig und fehleranfaellig. Fastlane a
 ### Android
 - `fastlane screenshots` Lane mit `capture_android_screenshots` (Screengrab)
 - Screengrabfile Konfiguration
-- UI-Tests in `ScreenshotCaptureTest`
+- UI-Tests in `ScreengrabScreenshotTests`
+- `PlayStoreScreenshotCallback` fuer direkten Supply-kompatiblen Output
+- Lokalisierung via `MainActivity.attachBaseContext()`
 
 ---
 

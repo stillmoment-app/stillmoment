@@ -20,23 +20,25 @@ Manuelle Store-Uploads sind zeitaufwendig und fehleranfaellig. Mit `supply` koen
 ## Akzeptanzkriterien
 
 ### Store Publishing
-- [ ] `fastlane supply` Lane konfiguriert
-- [ ] Metadata-Verzeichnis mit Beschreibungen (DE, EN)
-- [ ] Release Notes Template
-- [ ] Screenshots werden aus bestehendem Verzeichnis verwendet
+- [x] `fastlane supply` Lane konfiguriert
+- [x] Metadata-Verzeichnis mit Beschreibungen (DE, EN)
+- [x] Release Notes Template
+- [x] Screenshots werden direkt in Supply-kompatibles Format geschrieben
 
 ### Service Account
-- [ ] Google Cloud Service Account erstellt
-- [ ] Play Console API Zugriff konfiguriert
-- [ ] JSON Key sicher gespeichert (nicht in Git)
+- [x] Google Cloud Service Account erstellt
+- [x] Play Console API Zugriff konfiguriert
+- [x] JSON Key sicher gespeichert (nicht in Git)
 
 ### Makefile Integration
-- [ ] `make release` oder `make upload` Befehl
-- [ ] Dry-Run Modus fuer Validierung ohne Upload
+- [x] `make release` Befehl
+- [x] `make screenshots-upload` fuer separaten Screenshot-Upload
+- [x] `make metadata` fuer Metadata-only Upload
+- [x] Dry-Run via `make release-validate`
 
 ### Dokumentation
-- [ ] Setup-Anleitung in dev-docs
-- [ ] Service Account Erstellung dokumentiert
+- [x] Setup-Anleitung in dev-docs
+- [x] Screenshot-Dokumentation aktualisiert
 
 ---
 
@@ -64,13 +66,35 @@ android/fastlane/metadata/android/
 │   ├── title.txt
 │   ├── short_description.txt
 │   ├── full_description.txt
-│   └── changelogs/
-│       └── default.txt
-├── en-US/
-│   └── ... (analog)
-└── images/
-    └── ... (Screenshots, falls nicht aus docs/)
+│   ├── changelogs/
+│   │   └── default.txt
+│   └── images/
+│       └── phoneScreenshots/   # Screenshots (Supply-Format)
+└── en-US/
+    └── ... (analog)
 ```
+
+---
+
+## Implementiert
+
+### Fastlane Lanes
+- `release`: Build + Upload zum Play Store (Closed Testing)
+- `metadata`: Nur Metadata/Changelogs hochladen
+- `screenshots_upload`: Nur Screenshots hochladen
+- `release_validate`: Dry-Run Validierung
+
+### Screenshot-Pipeline
+- `PlayStoreScreenshotCallback.kt`: Custom Callback ohne Timestamps
+- Screenshots werden direkt nach `metadata/android/<locale>/images/phoneScreenshots/` geschrieben
+- Kein Post-Processing-Script mehr noetig
+- Lokalisierung via `MainActivity.attachBaseContext()` und `Locale.setDefault()`
+
+### Makefile Commands
+- `make release` - Build + Upload
+- `make release-validate` - Validierung ohne Upload
+- `make metadata` - Nur Metadata hochladen
+- `make screenshots-upload` - Nur Screenshots hochladen
 
 ---
 

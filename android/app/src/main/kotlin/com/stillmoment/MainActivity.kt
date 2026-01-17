@@ -1,5 +1,7 @@
 package com.stillmoment
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +14,7 @@ import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 import javax.inject.Inject
 
 /**
@@ -22,6 +25,20 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsDataStore: SettingsDataStore
+
+    /**
+     * Applies Locale.getDefault() to the activity context.
+     *
+     * Used by screenshot tests: LocaleTestRule sets Locale.setDefault(),
+     * then the test calls recreate() which triggers this method.
+     * This ensures Compose stringResource() uses the correct locale.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        val locale = Locale.getDefault()
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(locale)
+        super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

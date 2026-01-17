@@ -94,7 +94,7 @@ iOSInjectionProject/
 test-output.log
 test-*.log
 test-*.txt
-.claude/settings.local.json
+.claude/
 TestResults.xcresult/
 coverage.json
 coverage.txt
@@ -161,3 +161,5 @@ android/Gemfile.lock
 android/fastlane/report.xml
 android/fastlane/README.md
 android/fastlane/screenshots/
+android/fastlane/metadata/android/screenshots.html
+android/fastlane/metadata/android/*/images/phoneScreenshots/

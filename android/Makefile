@@ -72,7 +72,7 @@ screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
 		echo "Emulator already running."; \
 	fi
 	@bundle exec fastlane screenshots
-	@echo "Screenshots generated in docs/images/screenshots/"
+	@echo "Screenshots generated in fastlane/metadata/android/*/images/phoneScreenshots/"
 
 release: ## Upload to Play Store Closed Testing
 	@echo "Building and uploading to Closed Testing..."
@@ -105,6 +105,14 @@ metadata: ## Update only metadata (descriptions, changelogs) without new build
 		exit 1; \
 	fi
 	@bundle exec fastlane metadata
+
+screenshots-upload: ## Upload screenshots to Play Store without new build
+	@echo "Uploading screenshots to Play Store..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane screenshots_upload
 
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
 	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
