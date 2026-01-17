@@ -1,4 +1,4 @@
-.PHONY: help format check test build clean screenshot-setup screenshots release release-dry release-production metadata
+.PHONY: help format check test build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -105,3 +105,6 @@ metadata: ## Update only metadata (descriptions, changelogs) without new build
 		exit 1; \
 	fi
 	@bundle exec fastlane metadata
+
+release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
+	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
