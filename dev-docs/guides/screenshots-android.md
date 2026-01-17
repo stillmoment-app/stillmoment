@@ -25,7 +25,7 @@ make screenshots
 
 The `make screenshots` command automatically starts a Pixel emulator if none is running.
 
-Screenshots are processed and copied to `docs/images/screenshots/`.
+Screenshots are written directly to `fastlane/metadata/android/<locale>/images/phoneScreenshots/` - the exact format that `fastlane supply` expects for Play Store uploads. No post-processing needed.
 
 ## Screenshot Tests
 
@@ -60,15 +60,18 @@ android/
 ├── fastlane/
 │   ├── Fastfile              # Lane definitions
 │   ├── Screengrabfile        # Device/language config
-│   └── screenshots/          # Raw output (gitignored)
-├── scripts/
-│   └── process-screenshots.sh  # Post-processing
+│   └── metadata/android/     # Play Store metadata + screenshots
+│       ├── de-DE/images/phoneScreenshots/  # German screenshots
+│       └── en-US/images/phoneScreenshots/  # English screenshots
 └── app/src/androidTest/
     ├── assets/testfixtures/  # Test MP3 files (5 files)
     └── kotlin/.../screenshots/
         ├── ScreengrabScreenshotTests.kt  # Test class
+        ├── PlayStoreScreenshotCallback.kt # Custom callback (no timestamps)
         └── TestFixtureSeeder.kt          # Seeds test data
 ```
+
+The `PlayStoreScreenshotCallback` writes screenshots directly to the Supply-expected path structure without timestamps, eliminating post-processing.
 
 ## Commands
 
@@ -97,7 +100,7 @@ avdmanager create avd -n Pixel_6_Pro_API_34 -k "system-images;android-34;google_
 | Tool | Fastlane Snapshot | Fastlane Screengrab |
 | Command | `make screenshots` | `make screenshots` |
 | Runtime | ~5 min (Simulator) | ~5-10 min (Emulator) |
-| Output | `docs/images/screenshots/` | `docs/images/screenshots/` |
+| Output | `docs/images/screenshots/` | `fastlane/metadata/android/` |
 
 Both platforms use the same workflow and produce screenshots in the same output directory.
 
@@ -111,16 +114,16 @@ Both platforms use the same workflow and produce screenshots in the same output 
        navigateToNewView()
 
        // Wait for UI to settle
-       Thread.sleep(500)
+       composeRule.waitForIdle()
 
-       // Capture screenshot
-       Screengrab.screenshot("06_NewView")
+       // Capture screenshot (uses takeScreenshot helper)
+       takeScreenshot("06_NewView")
    }
    ```
 
-2. Update `process-screenshots.sh` to include the new screenshot name mapping
+2. Run: `make screenshots`
 
-3. Run: `make screenshots`
+Screenshots are automatically written to the correct Play Store location.
 
 ## Troubleshooting
 
@@ -144,6 +147,40 @@ avdmanager create avd -n Pixel_6_Pro_API_34 -k "system-images;android-34;google_
 val localeTestRule = LocaleTestRule()
 ```
 
+## Locale-Handling Architektur
+
+Compose's `stringResource()` verwendet den Activity-Context, nicht `Locale.getDefault()`. Daher reicht `LocaleTestRule` allein nicht aus - Compose übernimmt Locale-Änderungen nach Activity-Start nicht automatisch.
+
+**Lösung (3 Komponenten):**
+
+1. **LocaleTestRule** - Fastlane's Rule als Baseline
+2. **Manuelles Setup im Test** - `Locale.setDefault()` + `scenario.recreate()`
+3. **MainActivity.attachBaseContext()** - Wendet `Locale.getDefault()` auf den Context an
+
+```kotlin
+// ScreengrabScreenshotTests.kt
+val testLocale = InstrumentationRegistry.getArguments().getString("testLocale") ?: "en-US"
+val locale = Locale.forLanguageTag(testLocale.replace("_", "-"))
+
+scenario = ActivityScenario.launch(Intent(context, MainActivity::class.java))
+Locale.setDefault(locale)
+scenario.recreate()  // Triggert attachBaseContext() mit neuer Locale
+```
+
+```kotlin
+// MainActivity.kt
+override fun attachBaseContext(newBase: Context) {
+    val locale = Locale.getDefault()
+    val config = Configuration(newBase.resources.configuration)
+    config.setLocale(locale)
+    super.attachBaseContext(newBase.createConfigurationContext(config))
+}
+```
+
+**Warum so komplex?** Android Compose cacht den Context beim Activity-Start. Ohne `recreate()` würde `stringResource()` weiterhin die ursprüngliche Locale verwenden, selbst nach `Locale.setDefault()`.
+
+**Screenshot-Pfade:** `PlayStoreScreenshotCallback` liest dasselbe `testLocale`-Argument, um Screenshots im korrekten Locale-Verzeichnis zu speichern (`metadata/android/en-US/...` bzw. `de-DE/...`).
+
 ### Tests Fail to Find Elements
 
 **Symptom**: `AssertionError` when finding UI elements
@@ -160,5 +197,5 @@ val localeTestRule = LocaleTestRule()
 
 ---
 
-**Last Updated**: 2026-01-14
-**Version**: 3.2 (Added cross-platform guide reference)
+**Last Updated**: 2026-01-17
+**Version**: 4.0 (Direct Supply-compatible output via PlayStoreScreenshotCallback)
