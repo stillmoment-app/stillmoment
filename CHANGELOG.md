@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-01-17
+
 ### Added (iOS & Android)
 - **Vorbereitungszeit für geführte Meditationen** - Countdown vor MP3-Start
   - Settings-Button (⚙) in Library-Toolbar öffnet Settings-Sheet
