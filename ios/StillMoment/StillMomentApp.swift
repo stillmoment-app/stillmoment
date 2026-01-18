@@ -70,8 +70,8 @@ struct StillMomentApp: App {
 
     // MARK: Private
 
-    /// Create configured TimerViewModel based on launch arguments
-    /// UI tests can override preparation time via "-PreparationTimeSeconds 0" or disable it with "-DisablePreparation"
+    /// Create configured TimerViewModel
+    /// UI tests can disable preparation time via "-DisablePreparation" launch argument
     private func createTimerViewModel() -> TimerViewModel {
         self.applyLaunchArgumentSettings()
         return TimerViewModel()
@@ -80,36 +80,9 @@ struct StillMomentApp: App {
     /// Apply launch argument overrides to UserDefaults
     /// This allows UI tests to configure preparation time behavior
     private func applyLaunchArgumentSettings() {
-        let arguments = ProcessInfo.processInfo.arguments
-        let defaults = UserDefaults.standard
-
-        // Check for disable preparation flag
-        if arguments.contains("-DisablePreparation") {
-            defaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-            return
-        }
-
-        // Check for custom preparation time (supports both new and legacy argument names)
-        var preparationSeconds: Int?
-
-        if let prepArg = arguments.firstIndex(of: "-PreparationTimeSeconds"),
-           prepArg + 1 < arguments.count,
-           let duration = Int(arguments[prepArg + 1]) {
-            preparationSeconds = duration
-        } else if let countdownArg = arguments.firstIndex(of: "-CountdownDuration"),
-                  countdownArg + 1 < arguments.count,
-                  let duration = Int(arguments[countdownArg + 1]) {
-            preparationSeconds = duration
-        }
-
-        if let seconds = preparationSeconds {
-            if seconds == 0 {
-                // Zero means disable preparation
-                defaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-            } else {
-                defaults.set(true, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-                defaults.set(seconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
-            }
+        // Check for disable preparation flag (used by UI tests and screenshot automation)
+        if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
+            PreparationTimeConfigurer.disable()
         }
     }
 }

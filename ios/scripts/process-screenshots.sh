@@ -95,8 +95,8 @@ for lang_dir in "$FASTLANE_SCREENSHOTS"/*/; do
 
         if [ -n "$src_file" ] && [ -f "$src_file" ]; then
             cp "$src_file" "$dst_file"
-            # Compress to max 768px for web (good balance between sharpness and file size)
-            sips -Z 768 "$dst_file" > /dev/null 2>&1
+            # Compress to max 1024px for web (good balance between sharpness and file size)
+            sips -Z 1024 "$dst_file" > /dev/null 2>&1
             echo -e "  ${GREEN}✓${NC} $(basename "$src_file") → ${dst_name}${suffix}.png"
             processed=$((processed + 1))
         else

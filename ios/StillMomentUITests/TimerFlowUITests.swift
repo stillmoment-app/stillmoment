@@ -19,7 +19,7 @@ final class TimerFlowUITests: XCTestCase {
         self.app = XCUIApplication()
         self.app.launchArguments = [
             "-AppleLanguages", "(en)", // Force English for consistent testing
-            "-CountdownDuration", "0" // Skip countdown for faster, more reliable tests
+            "-DisablePreparation" // Skip preparation phase for faster, more reliable tests
         ]
 
         self.app.launch()

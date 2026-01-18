@@ -1,6 +1,6 @@
 # Ticket ios-030: Screenshot-Tests ohne Launch-Arguments
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -24,18 +24,18 @@ Screenshot-Tests sollen ohne Launch-Arguments (`-CountdownDuration`) funktionier
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Screenshots-Target startet mit deaktivierter Vorbereitungszeit
-- [ ] Screenshots-Target startet mit passenden Default-Settings fuer Screenshots
-- [ ] Launch-Argument `-CountdownDuration` aus App entfernt
-- [ ] Launch-Argument `-PreparationTimeSeconds` aus App entfernt (Legacy)
-- [ ] `testScreenshot02_timerRunning` laeuft schneller (Ziel: <15s statt 22s)
+- [x] Screenshots-Target startet mit deaktivierter Vorbereitungszeit
+- [x] Screenshots-Target startet mit passenden Default-Settings fuer Screenshots
+- [x] Launch-Argument `-CountdownDuration` aus App entfernt
+- [x] Launch-Argument `-PreparationTimeSeconds` aus App entfernt (Legacy)
+- [x] `testScreenshot02_timerRunning` laeuft schneller (Ziel: <15s statt 22s)
 
 ### Tests
-- [ ] `make screenshots` funktioniert wie bisher
-- [ ] Normale App-Starts unveraendert (keine Regression)
+- [x] `make screenshots` funktioniert wie bisher
+- [x] Normale App-Starts unveraendert (keine Regression)
 
 ### Dokumentation
-- [ ] CHANGELOG.md (interne Verbesserung)
+- [x] Fastlane-Guide aktualisiert (dev-docs/guides/fastlane-ios.md)
 
 ---
 

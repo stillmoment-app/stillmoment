@@ -30,10 +30,11 @@ final class ScreenshotTests: XCTestCase {
         self.app = XCUIApplication(bundleIdentifier: bundleId)
 
         // Setup Fastlane Snapshot (reads language from cache)
-        setupSnapshot(self.app)
+        // waitForAnimations: false - we handle waits explicitly with waitForExistence
+        setupSnapshot(self.app, waitForAnimations: false)
 
-        // Skip 15-second countdown for faster screenshots
-        self.app.launchArguments += ["-CountdownDuration", "0"]
+        // Disable preparation time for faster screenshots (timer starts immediately)
+        self.app.launchArguments += ["-DisablePreparation"]
 
         self.app.launch()
 
@@ -106,7 +107,7 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(startButton.waitForExistence(timeout: 3.0))
 
         let picker = self.app.pickers["timer.picker.minutes"]
-        XCTAssertTrue(picker.exists)
+        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
 
         // Select 10 minutes for a nice display
         self.selectDuration(minutes: 10)
@@ -114,36 +115,36 @@ final class ScreenshotTests: XCTestCase {
         // Wait for picker animation to complete
         _ = startButton.waitForExistence(timeout: 1.0)
 
-        // Take screenshot
-        snapshot("01_TimerIdle")
+        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
+        snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 2: Timer running state (~00:57 remaining)
+    /// Screenshot 2: Timer running state with FocusView (~04:59 remaining)
     func testScreenshot02_timerRunning() {
         // Navigate to Timer tab
-        self.navigateToTimerTab()
+        let timerTab = self.app.tabBars.buttons["Timer"]
+        if timerTab.exists, !timerTab.isSelected {
+            timerTab.tap()
+        }
 
-        // Select 1 minute for faster screenshot (less waiting)
-        self.selectDuration(minutes: 1)
-
-        // Start timer
         let startButton = self.app.buttons["timer.button.start"]
-        XCTAssertTrue(startButton.waitForExistence(timeout: 3.0))
+        XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should exist")
+
+        // Select 5 minutes duration
+        let picker = self.app.pickers["timer.picker.minutes"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
+        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "5 min")
+
+        // Start timer - opens FocusView sheet
         startButton.tap()
 
-        // Wait for timer to be running (countdown is skipped via launch argument)
-        let pauseButton = self.app.buttons["timer.button.pause"]
-        XCTAssertTrue(pauseButton.waitForExistence(timeout: 5.0))
-
-        // Wait ~3 seconds for a nice time display (00:57)
-        // Using explicit wait instead of Thread.sleep for better reliability
-        let timerLabel = self.app.staticTexts.matching(
-            NSPredicate(format: "label MATCHES '00:5[0-9]'")
-        ).firstMatch
-        _ = timerLabel.waitForExistence(timeout: 10.0)
+        // Wait for FocusView to appear (no Thread.sleep - use waitForExistence)
+        let focusTime = self.app.staticTexts["focus.display.time"]
+        XCTAssertTrue(focusTime.waitForExistence(timeout: 2.0), "FocusView time display should appear")
 
         // Take screenshot
-        snapshot("02_TimerRunning")
+        // timeWaitingForIdle: 0 - skip network indicator wait (can cause 20s delays)
+        snapshot("02_TimerRunning", timeWaitingForIdle: 0)
     }
 
     /// Screenshot 3: Library list with guided meditations
@@ -162,8 +163,8 @@ final class ScreenshotTests: XCTestCase {
         )
         _ = meditationRows.firstMatch.waitForExistence(timeout: 5.0)
 
-        // Take screenshot
-        snapshot("03_LibraryList")
+        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
+        snapshot("03_LibraryList", timeWaitingForIdle: 0)
     }
 
     /// Screenshot 4: Player view with meditation
@@ -200,12 +201,12 @@ final class ScreenshotTests: XCTestCase {
         let playButton = self.app.buttons["player.button.playPause"]
         XCTAssertTrue(playButton.waitForExistence(timeout: 5.0), "Player sheet did not appear")
 
-        // Wait for meditation title to be visible (ensures sheet is fully rendered)
-        let titleLabel = self.app.staticTexts["Mindful Breathing"]
-        _ = titleLabel.waitForExistence(timeout: 3.0)
+        // Wait for progress slider to be visible (ensures sheet is fully rendered)
+        let progressSlider = self.app.sliders["player.slider.progress"]
+        XCTAssertTrue(progressSlider.waitForExistence(timeout: 3.0), "Player progress slider should appear")
 
-        // Take screenshot
-        snapshot("04_PlayerView")
+        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
+        snapshot("04_PlayerView", timeWaitingForIdle: 0)
     }
 
     /// Screenshot 5: Settings view with preparation time and interval gongs enabled
@@ -231,9 +232,8 @@ final class ScreenshotTests: XCTestCase {
 
         // Find interval gongs toggle - may need to scroll
         let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
-        if !intervalToggle.exists || !intervalToggle.isHittable {
+        if !intervalToggle.waitForExistence(timeout: 1.0) || !intervalToggle.isHittable {
             self.app.swipeUp()
-            _ = intervalToggle.waitForExistence(timeout: 2.0)
         }
         XCTAssertTrue(intervalToggle.waitForExistence(timeout: 3.0), "Interval gongs toggle not found")
 
@@ -249,7 +249,7 @@ final class ScreenshotTests: XCTestCase {
         // Wait for scroll to complete
         _ = preparationToggle.waitForExistence(timeout: 2.0)
 
-        // Take screenshot
-        snapshot("05_SettingsView")
+        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
+        snapshot("05_SettingsView", timeWaitingForIdle: 0)
     }
 }

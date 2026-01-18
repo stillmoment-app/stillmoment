@@ -58,8 +58,12 @@ make metadata-download   # Laedt name.txt, description.txt, etc.
 ### Screenshots generieren
 
 ```bash
-make screenshots         # Alle Screenshots (DE + EN)
+make screenshots              # Alle Screenshots (DE + EN), headless
+HEADLESS=false make screenshots  # Mit sichtbarem Simulator (zum Debugging)
 ```
+
+Der `HEADLESS`-Modus ist standardmaessig aktiviert (Simulator im Hintergrund).
+Setze `HEADLESS=false` um den Simulator waehrend der Tests zu beobachten.
 
 ### Release zu App Store Connect
 
@@ -157,6 +161,68 @@ steps:
     run: |
       echo '${{ secrets.APP_STORE_CONNECT_P8_KEY }}' > /tmp/stillmoment-appstore.p8
 ```
+
+## Screenshot-Performance optimieren
+
+Die Fastlane `snapshot()` Funktion hat versteckte Zeitfresser die Screenshots
+um bis zu 21 Sekunden verzoegern koennen.
+
+### Problemstellung: SnapshotHelper.swift
+
+```swift
+// In SnapshotHelper.swift (Fastlane-generiert)
+open class func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = 20) {
+    if timeout > 0 {
+        self.waitForLoadingIndicatorToDisappear(within: timeout)  // Bis zu 20s!
+    }
+    if Snapshot.waitForAnimations {
+        sleep(1)  // Harter 1s Sleep
+    }
+    // ... Screenshot erstellen
+}
+```
+
+**Zeitfresser:**
+| Parameter | Default | Auswirkung |
+|-----------|---------|------------|
+| `timeWaitingForIdle` | 20s | Wartet auf Network Loading Indicator in Statusbar |
+| `waitForAnimations` | true | Pauschaler `sleep(1)` vor jedem Screenshot |
+
+### Loesung
+
+**1. setUp konfigurieren:**
+```swift
+override func setUpWithError() throws {
+    // waitForAnimations: false - wir warten explizit mit waitForExistence
+    setupSnapshot(self.app, waitForAnimations: false)
+}
+```
+
+**2. snapshot() mit timeWaitingForIdle: 0 aufrufen:**
+```swift
+// Statt:
+snapshot("01_TimerIdle")
+
+// Besser:
+snapshot("01_TimerIdle", timeWaitingForIdle: 0)
+```
+
+**3. Explizit auf UI-Elemente warten (statt Thread.sleep):**
+```swift
+// Schlecht: Harter Sleep
+Thread.sleep(forTimeInterval: 0.3)
+XCTAssertTrue(element.exists)
+
+// Gut: Intelligentes Warten
+XCTAssertTrue(element.waitForExistence(timeout: 2.0))
+```
+
+### Ergebnis
+
+| Messung | Vorher | Nachher |
+|---------|--------|---------|
+| snapshot() Aufruf | ~2.3s (bis 20s!) | ~0.2s |
+| Timer-Screenshot | 04:47 (13s vergangen) | 04:59 (1s vergangen) |
 
 ## Troubleshooting
 

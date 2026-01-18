@@ -41,10 +41,7 @@ concurrent_simulators(false)
 # Override status bar (optional - cleaner screenshots)
 override_status_bar(true)
 
-# Launch arguments for tests
-launch_arguments([
-  "-CountdownDuration 0"  # Skip 15s countdown for faster screenshots
-])
+# Preparation time disabled via -DisablePreparation launch argument in ScreenshotTests
 
 # Headless mode (default: true for CI/automation)
 # Set to false to watch the simulator while tests run
