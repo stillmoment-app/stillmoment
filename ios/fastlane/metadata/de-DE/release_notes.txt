@@ -1,0 +1,2 @@
+- Neues Settings-Icon für bessere Erkennbarkeit
+- Hilfreicher Hinweis für neue Nutzer

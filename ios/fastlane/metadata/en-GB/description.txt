@@ -1,0 +1,37 @@
+Meditation as it should be.
+
+Still Moment is a gift, not a product — free and open source. A warmhearted meditation app that helps you create peaceful moments in your busy day. Without ads, tracking, or distractions.
+
+GUIDED MEDITATIONS
+Build your personal library with your favorite guided meditations.
+• Import MP3s from iCloud Drive or local storage
+• Organized by teacher for easy browsing
+• Background playback — listen with screen locked
+• Your files stay on your device, always accessible
+
+SILENT MEDITATION
+A simple timer that stays out of your way. Does exactly what you need — nothing more.
+• Choose 1-60 minutes with intuitive controls
+• Gentle countdown to prepare you
+• Choose from different singing bowl sounds for start, end, and intervals
+• Optional interval gongs
+• Adjust gong and background volume to your preference
+• Background ambience options (silent or forest sounds)
+• Works perfectly with screen locked
+
+YOUR MEDITATION, YOUR DATA, YOUR DEVICE
+Still Moment collects absolutely zero data. Everything stays on your device, where it belongs.
+• No tracking, no analytics, no ads
+• 100% offline — no internet required
+• No account, no sign-up, no subscription
+• Open source — verify our privacy claims yourself
+
+WARM & MINIMAL DESIGN
+• Warm earth tones like terracotta and sand
+• Clean, minimal interface
+• No visual distractions
+
+FREE & OPEN SOURCE
+Still Moment is built by a meditation practitioner, offered freely as a gift to the community. No premium features, no upsells, no hidden costs. The complete source code is available for anyone to review, learn from, or improve.
+
+Download Still Moment and gift yourself the pause you deserve.

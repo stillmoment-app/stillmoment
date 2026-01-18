@@ -3,7 +3,40 @@
 
 default_platform(:ios)
 
+# Load API key configuration from JSON file
+# JSON format: {"key_id": "...", "issuer_id": "...", "key": "-----BEGIN...", "in_house": false}
+def api_key
+  json_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || File.expand_path("~/.fastlane/stillmoment-appstore.json")
+
+  unless File.exist?(json_path)
+    UI.user_error!(
+      "App Store Connect API key not found at #{json_path}\n\n" \
+      "Setup:\n" \
+      "  1. Copy .p8 file to ~/.fastlane/stillmoment-appstore.p8\n" \
+      "  2. Set environment variables:\n" \
+      "     export APP_STORE_CONNECT_KEY_ID='your_key_id'\n" \
+      "     export APP_STORE_CONNECT_ISSUER_ID='your_issuer_id'\n" \
+      "  3. Run: ./scripts/create-api-key-json.sh\n\n" \
+      "See dev-docs/guides/fastlane-ios.md for details."
+    )
+  end
+
+  config = JSON.parse(File.read(json_path))
+  app_store_connect_api_key(
+    key_id: config["key_id"],
+    issuer_id: config["issuer_id"],
+    key_content: config["key"],
+    is_key_content_base64: false,
+    in_house: config["in_house"] || false
+  )
+end
+
 platform :ios do
+
+  # =============================================================================
+  # Screenshot Lanes
+  # =============================================================================
+
   desc "Generate localized screenshots for App Store and website"
   lane :screenshots do
     # Capture screenshots using Snapshot
@@ -46,5 +79,180 @@ platform :ios do
       derived_data_path: "./build/DerivedData"
     )
     UI.success("Screenshot setup validated!")
+  end
+
+  # =============================================================================
+  # Metadata Lanes
+  # =============================================================================
+
+  desc "Download metadata from App Store Connect"
+  lane :download_metadata do
+    json_path = File.expand_path("~/.fastlane/stillmoment-appstore.json")
+
+    unless File.exist?(json_path)
+      UI.user_error!(
+        "API key JSON not found at #{json_path}\n" \
+        "Run: ./scripts/create-api-key-json.sh"
+      )
+    end
+
+    sh("cd .. && bundle exec fastlane deliver download_metadata " \
+       "--app_identifier com.stillmoment.StillMoment " \
+       "--metadata_path ./fastlane/metadata " \
+       "--use_live_version true " \
+       "--api_key_path #{json_path}")
+
+    UI.success("Metadata downloaded to fastlane/metadata/")
+  end
+
+  desc "Download screenshots from App Store Connect"
+  lane :download_screenshots do
+    api_key
+
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      skip_metadata: true,
+      force: true,
+      run_precheck_before_submit: false,
+      skip_app_version_update: true
+    )
+
+    UI.success("Screenshots downloaded to fastlane/screenshots/")
+  end
+
+  # =============================================================================
+  # Release Lanes
+  # =============================================================================
+
+  desc "Upload metadata and screenshots to App Store (no binary)"
+  lane :metadata do
+    api_key
+
+    UI.message("Uploading metadata and screenshots to App Store Connect...")
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: false,
+      skip_metadata: false,
+      force: true,
+      run_precheck_before_submit: true,
+      submit_for_review: false
+    )
+
+    UI.success("Metadata and screenshots uploaded!")
+  end
+
+  desc "Validate release configuration (dry run)"
+  lane :release_dry do
+    api_key
+
+    UI.message("Validating configuration...")
+
+    fastlane_dir = File.expand_path("..", __FILE__)
+
+    # Check metadata files exist
+    %w[de-DE en-GB].each do |locale|
+      dir = "#{fastlane_dir}/metadata/#{locale}"
+      %w[name.txt description.txt keywords.txt].each do |file|
+        path = "#{dir}/#{file}"
+        UI.user_error!("Missing: #{path}") unless File.exist?(path)
+      end
+    end
+
+    # Check screenshots exist
+    %w[de-DE en-GB].each do |locale|
+      dir = "#{fastlane_dir}/screenshots/#{locale}"
+      screenshots = Dir.glob("#{dir}/*.png")
+      UI.user_error!("No screenshots in #{dir}") if screenshots.empty?
+      UI.message("Found #{screenshots.count} screenshots in #{locale}")
+    end
+
+    UI.success("Validation successful!")
+    UI.message("Metadata: de-DE, en-GB")
+    UI.message("Screenshots: ready")
+    UI.message("")
+    UI.message("Run 'make release VERSION=X.Y.Z' to upload")
+  end
+
+  desc "Upload to App Store Connect (metadata, screenshots, and optionally build)"
+  lane :release do |options|
+    api_key
+
+    app_version = options[:version]
+    include_build = options[:build] != false
+    UI.user_error!("Version required. Usage: fastlane release version:1.2.3 [build:false]") unless app_version
+
+    ipa_path = nil
+    if include_build
+      UI.message("Building version #{app_version}...")
+      build_app(
+        scheme: "StillMoment",
+        export_method: "app-store",
+        output_directory: "./build",
+        output_name: "StillMoment.ipa"
+      )
+      ipa_path = "./build/StillMoment.ipa"
+    end
+
+    UI.message("Uploading version #{app_version} to App Store Connect...")
+    deliver(
+      ipa: ipa_path,
+      skip_binary_upload: !include_build,
+      skip_screenshots: false,
+      skip_metadata: false,
+      force: true,
+      run_precheck_before_submit: false,
+      submit_for_review: false,
+      automatic_release: false,
+      phased_release: true,
+      app_version: app_version
+    )
+
+    UI.success("Release #{app_version} uploaded to App Store Connect!")
+    if include_build
+      UI.message("Build + metadata + screenshots uploaded. Ready for review.")
+    else
+      UI.message("Metadata + screenshots uploaded (no build).")
+    end
+  end
+
+  desc "Update metadata on live version (no new release)"
+  lane :update_live do
+    api_key
+
+    UI.message("Updating live app metadata...")
+    deliver(
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      force: true,
+      run_precheck_before_submit: false,
+      edit_live: true
+    )
+
+    UI.success("Live metadata updated!")
+  end
+
+  desc "Upload to TestFlight"
+  lane :testflight_upload do |options|
+    api_key
+
+    # Build the app
+    UI.message("Building release...")
+    build_app(
+      scheme: "StillMoment",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "StillMoment.ipa"
+    )
+
+    # Upload to TestFlight
+    UI.message("Uploading to TestFlight...")
+    upload_to_testflight(
+      skip_waiting_for_build_processing: options[:skip_wait] || false,
+      distribute_external: false
+    )
+
+    UI.success("Build uploaded to TestFlight!")
   end
 end

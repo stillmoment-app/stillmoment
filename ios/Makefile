@@ -1,4 +1,4 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check screenshots screenshot-setup screenshot-single release-prepare
+.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -92,3 +92,44 @@ screenshot-single: ## Run single screenshot test in EN + DE (TEST=testScreenshot
 
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
 	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
+
+release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Usage: make release VERSION=x.y.z [SKIP_BUILD=1]"; \
+		exit 1; \
+	fi
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@if [ -n "$(SKIP_BUILD)" ]; then \
+		echo "Uploading metadata for version $(VERSION) to App Store Connect..."; \
+		bundle exec fastlane release version:$(VERSION) build:false; \
+	else \
+		echo "Building and uploading version $(VERSION) to App Store Connect..."; \
+		bundle exec fastlane release version:$(VERSION) build:true; \
+	fi
+
+release-dry: ## Validate App Store Connect configuration (no upload)
+	@echo "Validating App Store Connect configuration..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane release_dry
+
+metadata-download: ## Download metadata from App Store Connect
+	@echo "Downloading metadata from App Store Connect..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane download_metadata
+
+testflight: ## Upload build to TestFlight
+	@echo "Building and uploading to TestFlight..."
+	@if [ ! -d "vendor/bundle" ]; then \
+		echo "Run 'make screenshot-setup' first to install dependencies"; \
+		exit 1; \
+	fi
+	@bundle exec fastlane testflight_upload

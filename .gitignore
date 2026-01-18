@@ -153,6 +153,7 @@ ios/Gemfile.lock
 ios/fastlane/report.xml
 ios/fastlane/README.md
 ios/fastlane/test_output/
+ios/fastlane/screenshots/
 
 # Ruby/Fastlane (android/)
 android/vendor/

@@ -1,0 +1,2 @@
+# Appfile - Fastlane Configuration
+app_identifier("com.stillmoment.StillMoment")

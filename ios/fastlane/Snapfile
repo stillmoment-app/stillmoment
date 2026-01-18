@@ -8,9 +8,10 @@ devices([
 ])
 
 # Languages (German primary, English secondary)
+# Note: App Store Connect uses en-GB for English
 languages([
   "de-DE",
-  "en-US"
+  "en-GB"
 ])
 
 # Use Screenshots target with test fixtures

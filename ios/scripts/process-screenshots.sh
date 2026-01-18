@@ -52,7 +52,7 @@ get_lang_suffix() {
     local lang="$1"
     case "$lang" in
         "de-DE") echo "-de" ;;
-        "en-US") echo "" ;;
+        "en-GB") echo "" ;;
         *)       echo "" ;;
     esac
 }

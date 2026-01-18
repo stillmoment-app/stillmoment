@@ -1,0 +1,46 @@
+# Deliverfile - App Store Connect Upload Configuration
+# https://docs.fastlane.tools/actions/deliver/
+
+# API Key Configuration
+# API key is loaded in Fastfile - no need to configure here
+# See Fastfile api_key() function for setup options
+
+# App Configuration
+app_identifier("com.stillmoment.StillMoment")
+
+# Metadata & Screenshots Paths (relative to ios/ directory)
+metadata_path("./fastlane/metadata")
+screenshots_path("./fastlane/screenshots")
+
+# Submission Configuration
+submit_for_review(false)          # Don't auto-submit for review
+automatic_release(false)          # Don't auto-release after approval
+phased_release(true)              # Enable phased release when approved
+
+# Skip binary upload by default (use upload_to_app_store for builds)
+skip_binary_upload(true)
+
+# Note: price_tier is deprecated - pricing is managed in App Store Connect
+
+# Privacy & Legal
+privacy_url({
+  "default" => "https://stillmoment.app/privacy.html"
+})
+
+support_url({
+  "default" => "https://stillmoment.app/support.html"
+})
+
+marketing_url({
+  "default" => "https://stillmoment.app/"
+})
+
+# App Rating Configuration (path relative to fastlane directory)
+app_rating_config_path("./fastlane/metadata/app_rating_config.json")
+
+# Precheck (validation before upload)
+precheck_include_in_app_purchases(false)
+
+# Force overwrite of all localized metadata/screenshots
+force(true)
+overwrite_screenshots(true)

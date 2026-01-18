@@ -1,0 +1,2 @@
+- New settings icon for better discoverability
+- Helpful hint for first-time users

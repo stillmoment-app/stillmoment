@@ -114,7 +114,7 @@ print_success "Tag '$TAG_NAME' is available"
 print_step "Checking release notes..."
 
 CHANGELOG_DE="$PROJECT_DIR/fastlane/metadata/de-DE/changelogs/${VERSION}.txt"
-CHANGELOG_EN="$PROJECT_DIR/fastlane/metadata/en-US/changelogs/${VERSION}.txt"
+CHANGELOG_EN="$PROJECT_DIR/fastlane/metadata/en-GB/changelogs/${VERSION}.txt"
 
 MISSING_NOTES=0
 
