@@ -10,6 +10,7 @@ VERSION="$1"
 DRY_RUN="$2"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+LOG_FILE="$PROJECT_DIR/release-prepare.log"
 
 # Colors for output
 RED='\033[0;31m'
@@ -41,6 +42,54 @@ run_cmd() {
         "$@"
     fi
 }
+
+# Run command with progress indicator, output to logfile
+# Usage: run_logged "Description" command args...
+run_logged() {
+    local description="$1"
+    shift
+
+    if [ -n "$DRY_RUN" ]; then
+        echo -e "${YELLOW}[DRY RUN] Would execute: $*${NC}"
+        return 0
+    fi
+
+    # Print description without newline
+    printf "${BLUE}==> %s...${NC} " "$description"
+
+    # Run command, capture output to logfile
+    echo "" >> "$LOG_FILE"
+    echo "========== $description ==========" >> "$LOG_FILE"
+    echo "Command: $*" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
+
+    if "$@" >> "$LOG_FILE" 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+        return 0
+    else
+        local exit_code=$?
+        echo -e "${RED}✗${NC}"
+        echo ""
+        print_error "$description failed (exit code $exit_code)"
+        echo ""
+        echo "Last 20 lines of log:"
+        echo "─────────────────────────────────────────"
+        tail -20 "$LOG_FILE"
+        echo "─────────────────────────────────────────"
+        echo ""
+        echo "Full log: $LOG_FILE"
+        return $exit_code
+    fi
+}
+
+# ============================================================================
+# SETUP LOGGING
+# ============================================================================
+
+# Initialize log file
+echo "Release Prepare Log - $(date)" > "$LOG_FILE"
+echo "Version: $VERSION" >> "$LOG_FILE"
+echo "" >> "$LOG_FILE"
 
 # ============================================================================
 # VALIDATION
@@ -167,14 +216,9 @@ print_success "Release notes found (de-DE, en-GB)"
 # RUN CHECKS
 # ============================================================================
 
-print_step "Running code quality checks..."
-run_cmd make -C "$PROJECT_DIR" check
-
-print_step "Running tests..."
-run_cmd make -C "$PROJECT_DIR" test
-
-print_step "Generating screenshots..."
-run_cmd make -C "$PROJECT_DIR" screenshots
+run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
+run_logged "Running tests" make -C "$PROJECT_DIR" test
+run_logged "Generating screenshots" make -C "$PROJECT_DIR" screenshots
 
 # ============================================================================
 # BUMP VERSION
@@ -202,6 +246,8 @@ echo ""
 print_success "============================================"
 print_success "Release v$VERSION prepared successfully!"
 print_success "============================================"
+echo ""
+echo "Log: $LOG_FILE"
 echo ""
 echo "Next steps:"
 echo "  1. Review changes: git log -1 && git show $TAG_NAME"
