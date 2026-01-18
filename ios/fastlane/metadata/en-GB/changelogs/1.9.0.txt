@@ -1,0 +1,2 @@
+- Preparation time for guided meditations - optional countdown before audio starts
+- Interval gong volume control - adjust separately from start/end gongs

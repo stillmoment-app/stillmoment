@@ -102,6 +102,19 @@ release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
 	fi
+	@echo "Preparing release notes for version $(VERSION)..."
+	@for locale in de-DE en-GB; do \
+		changelog="fastlane/metadata/$$locale/changelogs/$(VERSION).txt"; \
+		release_notes="fastlane/metadata/$$locale/release_notes.txt"; \
+		if [ -f "$$changelog" ]; then \
+			cp "$$changelog" "$$release_notes"; \
+			echo "  $$locale: copied from changelogs/$(VERSION).txt"; \
+		else \
+			echo "Error: $$changelog not found"; \
+			echo "Run /release-notes $(VERSION) first to generate changelogs."; \
+			exit 1; \
+		fi; \
+	done
 	@if [ -n "$(SKIP_BUILD)" ]; then \
 		echo "Uploading metadata for version $(VERSION) to App Store Connect..."; \
 		bundle exec fastlane release version:$(VERSION) build:false; \

@@ -1,0 +1,2 @@
+- Vorbereitungszeit für geführte Meditationen - optionaler Countdown vor dem Audio
+- Intervall-Gong Lautstärke - unabhängig von Start/Ende-Gongs einstellbar

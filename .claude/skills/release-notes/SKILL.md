@@ -180,25 +180,16 @@ User kann:
 
 **Bei `--dry-run`:** Nur Vorschau, hier abbrechen.
 
-**iOS Changelogs:**
-```
-ios/fastlane/metadata/de-DE/changelogs/{version}.txt
-ios/fastlane/metadata/en-US/changelogs/{version}.txt
-```
+**Zielverzeichnisse:**
 
-Inhalt (nur die Bullet Points, kein Header):
-```
-- Vorbereitungszeit vor gefuehrten Meditationen
-- Eigene Lautstaerke fuer Intervall-Gongs
-```
+| Plattform | Verzeichnis | Dateiname |
+|-----------|-------------|-----------|
+| iOS | `ios/fastlane/metadata/{locale}/changelogs/` | `{version}.txt` |
+| Android | `android/fastlane/metadata/android/{locale}/changelogs/` | `{versionCode}.txt` |
 
-**Android Changelogs:**
-```
-android/fastlane/metadata/android/de-DE/changelogs/{versionCode}.txt
-android/fastlane/metadata/android/en-US/changelogs/{versionCode}.txt
-```
+**Locales:** `de-DE`, `en-GB` (iOS) / `en-US` (Android)
 
-Inhalt identisch zu iOS.
+**Inhalt:** Nur Bullet Points, kein Header.
 
 **Ordner erstellen** falls nicht vorhanden.
 
@@ -245,7 +236,7 @@ Inhalt identisch zu iOS.
 ```
 Written:
   ✓ ios/fastlane/metadata/de-DE/changelogs/1.9.0.txt
-  ✓ ios/fastlane/metadata/en-US/changelogs/1.9.0.txt
+  ✓ ios/fastlane/metadata/en-GB/changelogs/1.9.0.txt
   ✓ android/fastlane/metadata/android/de-DE/changelogs/12.txt
   ✓ android/fastlane/metadata/android/en-US/changelogs/12.txt
   ✓ CHANGELOG.md ([Unreleased] → [1.9.0])
