@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Fastlane deliver für App Store** - Automatisierte Store-Uploads
+  - `deliver` Lane für Metadata und Screenshots konfiguriert
+  - Metadata-Verzeichnis mit Beschreibungen (DE, EN-GB)
+  - Release und TestFlight Upload Lanes
+  - Setup-Anleitung in `dev-docs/guides/fastlane-ios.md`
+  - Ticket: shared-026
+
 ## [1.9.0] - 2026-01-17
 
 ### Added (iOS & Android)

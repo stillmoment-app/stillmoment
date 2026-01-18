@@ -31,6 +31,12 @@ make help               # Show all commands
 make check              # Format + lint + localization
 make test-unit          # Fast unit tests (~30-60s)
 make test               # Full suite with coverage
+
+# Release (Fastlane)
+make screenshots        # App Store Screenshots generieren
+make release-dry        # Validierung ohne Upload
+make release VERSION=x.y.z  # Store Upload (Metadata + Screenshots)
+make testflight         # TestFlight Upload
 ```
 
 ### Android (`android/` directory)
@@ -221,6 +227,7 @@ make test                                   # Vollständige Suite vor Commit
 | Tickets | `/create-ticket`, `/close-ticket` Skills |
 | Release Notes | `/release-notes` Skill |
 | Release | `dev-docs/release/RELEASE_GUIDE.md` |
+| Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
 | Architektur | `dev-docs/architecture/overview.md` |
 | DDD | `dev-docs/architecture/ddd.md` |
 | Glossar | `dev-docs/reference/glossary.md` |

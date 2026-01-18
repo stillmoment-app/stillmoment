@@ -1,6 +1,6 @@
 # Ticket shared-026: iOS Store Publishing mit Fastlane
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: ~4h
 **Phase**: 2-Architektur
