@@ -86,6 +86,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-027](ios/ios-027-player-responsive-layout.md) | Player View Responsive Layout | 4-Polish | [x] | - |
 | [ios-028](ios/ios-028-interval-gong-single-play-bug.md) | Intervall-Gong spielt nur einmal | 1-Quick Fix | [x] | - |
 | [ios-029](ios/ios-029-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
+| [ios-030](ios/ios-030-screenshot-tests-ohne-launch-args.md) | Screenshot-Tests ohne Launch-Arguments | 2-Architektur | [ ] | - |
 
 ---
 
