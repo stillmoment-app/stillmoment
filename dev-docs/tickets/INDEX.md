@@ -47,7 +47,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-021](shared/shared-021-settings-icon-onboarding-hint.md) | Settings-Icon und Onboarding-Hint | 4-Polish | [x] | [x] |
 | [shared-022](shared/shared-022-interval-gong-volume.md) | Lautstärkeregler Intervall-Gong | 3-Feature | [x] | [x] |
 | [shared-023](shared/shared-023-guided-meditation-preparation-time.md) | Vorbereitungszeit gefuehrte Meditationen | 3-Feature | [x] | [x] |
-| [shared-024](shared/shared-024-clean-architecture-review.md) | Clean Architecture Layer-Review | 2-Architektur | [ ] | [ ] |
+| [shared-024](shared/shared-024-clean-architecture-review.md) | Clean Architecture Layer-Review | 2-Architektur | [x] | [x] |
 | [shared-025](shared/shared-025-fastlane-integration.md) | Fastlane Screenshots | 2-Architektur | [x] | [x] |
 | [shared-026](shared/shared-026-ios-store-publishing.md) | iOS Store Publishing | 2-Architektur | [x] | - |
 | [shared-027](shared/shared-027-android-store-publishing.md) | Android Store Publishing | 2-Architektur | - | [x] |
@@ -87,6 +87,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-028](ios/ios-028-interval-gong-single-play-bug.md) | Intervall-Gong spielt nur einmal | 1-Quick Fix | [x] | - |
 | [ios-029](ios/ios-029-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
 | [ios-030](ios/ios-030-screenshot-tests-ohne-launch-args.md) | Screenshot-Tests ohne Launch-Arguments | 2-Architektur | [ ] | - |
+| [ios-031](ios/ios-031-domain-filemanager-abstraction.md) | Domain FileManager-Abstraktion | 2-Architektur | [ ] | shared-024 |
+| [ios-032](ios/ios-032-timer-settings-repository.md) | Timer Settings Repository | 2-Architektur | [ ] | shared-024 |
+| [ios-033](ios/ios-033-settingsview-dependency-injection.md) | SettingsView Dependency Injection | 2-Architektur | [ ] | shared-024 |
 
 ---
 
@@ -151,6 +154,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-058](android/android-058-settings-sofort-speichern.md) | Settings sofort speichern | 4-Polish | [x] | - |
 | [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [x] | - |
 | [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [x] | - |
+| [android-061](android/android-061-timer-settings-repository.md) | Timer Settings Repository Abstraktion | 2-Architektur | [ ] | shared-024 |
+| [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [ ] | shared-024 |
 
 ---
 
