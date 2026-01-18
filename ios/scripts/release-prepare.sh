@@ -113,29 +113,35 @@ print_success "Tag '$TAG_NAME' is available"
 
 print_step "Checking release notes..."
 
-CHANGELOG_DE="$PROJECT_DIR/fastlane/metadata/de-DE/changelogs/${VERSION}.txt"
-CHANGELOG_EN="$PROJECT_DIR/fastlane/metadata/en-GB/changelogs/${VERSION}.txt"
+RELEASE_NOTES_DE="$PROJECT_DIR/fastlane/metadata/de-DE/release_notes.txt"
+RELEASE_NOTES_EN="$PROJECT_DIR/fastlane/metadata/en-GB/release_notes.txt"
 
 MISSING_NOTES=0
 
-if [ ! -f "$CHANGELOG_DE" ]; then
-    print_warning "Missing: de-DE/changelogs/${VERSION}.txt"
+if [ ! -f "$RELEASE_NOTES_DE" ]; then
+    print_warning "Missing: de-DE/release_notes.txt"
+    MISSING_NOTES=1
+elif [ ! -s "$RELEASE_NOTES_DE" ]; then
+    print_warning "Empty: de-DE/release_notes.txt"
     MISSING_NOTES=1
 fi
 
-if [ ! -f "$CHANGELOG_EN" ]; then
-    print_warning "Missing: en-US/changelogs/${VERSION}.txt"
+if [ ! -f "$RELEASE_NOTES_EN" ]; then
+    print_warning "Missing: en-GB/release_notes.txt"
+    MISSING_NOTES=1
+elif [ ! -s "$RELEASE_NOTES_EN" ]; then
+    print_warning "Empty: en-GB/release_notes.txt"
     MISSING_NOTES=1
 fi
 
 if [ "$MISSING_NOTES" -eq 1 ]; then
-    print_error "Release notes missing for version $VERSION"
+    print_error "Release notes missing or empty"
     echo ""
     echo "Run '/release-notes ios' to generate release notes first"
     exit 1
 fi
 
-print_success "Release notes found for version $VERSION"
+print_success "Release notes found (de-DE, en-GB)"
 
 # ============================================================================
 # RUN CHECKS
