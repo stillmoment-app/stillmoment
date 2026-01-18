@@ -91,6 +91,11 @@ echo "Release Prepare Log - $(date)" > "$LOG_FILE"
 echo "Version: $VERSION" >> "$LOG_FILE"
 echo "" >> "$LOG_FILE"
 
+echo ""
+echo "Output: $LOG_FILE"
+echo "Tip: tail -f $LOG_FILE  (in another terminal for live output)"
+echo ""
+
 # ============================================================================
 # VALIDATION
 # ============================================================================
