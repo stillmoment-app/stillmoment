@@ -283,7 +283,7 @@ Reading versions...
 
 ## Referenz
 
-- Konzept: `dev-docs/concepts/release-prepare-workflow.md`
+- Release Guide: `dev-docs/release/RELEASE_GUIDE.md`
 - CHANGELOG: `CHANGELOG.md`
 - Fastlane iOS: `ios/fastlane/metadata/`
 - Fastlane Android: `android/fastlane/metadata/android/`

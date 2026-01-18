@@ -197,8 +197,7 @@ sed -i '' "s/versionName = .*/versionName = \"$VERSION\"/g" ...
 
 ## Referenz
 
-- **Konzept**: `dev-docs/concepts/release-prepare-workflow.md`
-- Aktueller Prozess: `dev-docs/release/RELEASE_GUIDE.md`
+- Release Guide: `dev-docs/release/RELEASE_GUIDE.md`
 - Release Notes Skill: shared-030
 
 ---

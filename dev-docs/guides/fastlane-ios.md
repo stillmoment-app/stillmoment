@@ -64,8 +64,9 @@ make screenshots         # Alle Screenshots (DE + EN)
 ### Release zu App Store Connect
 
 ```bash
-make release-dry         # Validierung ohne Upload
-make release             # Upload Metadata + Screenshots
+make release-dry                  # Validierung ohne Upload
+make release VERSION=1.9.0        # Build + Upload zu App Store Connect
+make release VERSION=1.9.0 SKIP_BUILD=1  # Nur Metadata + Screenshots
 ```
 
 ### TestFlight Upload

@@ -6,40 +6,35 @@ Kurze Anleitung fuer wiederkehrende Releases von Still Moment.
 
 Der automatisierte Workflow fuehrt alle Schritte durch: Validierung, Tests, Screenshots, Version bump, Git commit, Tag und Upload.
 
-### iOS
-
 ```bash
+# 1. Release Notes generieren (schreibt iOS + Android)
+/release-notes
+
+# 2. iOS Release vorbereiten
 cd ios
-
-# 1. Release Notes generieren (aus CHANGELOG.md)
-/release-notes ios
-
-# 2. Release vorbereiten (Dry Run zuerst empfohlen)
 make release-prepare VERSION=1.9.0 DRY_RUN=1  # Vorschau
 make release-prepare VERSION=1.9.0            # Ausfuehren
 
-# 3. Push
+# 3. Android Release vorbereiten
+cd ../android
+make release-prepare VERSION=1.9.0 DRY_RUN=1  # Vorschau
+make release-prepare VERSION=1.9.0            # Ausfuehren
+
+# 4. Push
 git push origin main --tags
 
-# 4. Build und Upload zu App Store Connect
-make release VERSION=1.9.0
+# 5. Upload zu Stores
+cd ../ios && make release VERSION=1.9.0
+cd ../android && make release VERSION=1.9.0
 ```
 
-### Android
+### Hotfix (nur eine Plattform)
+
+Falls ausnahmsweise nur eine Plattform released werden muss:
 
 ```bash
-cd android
-
-# 1. Release Notes generieren (aus CHANGELOG.md)
-/release-notes android
-
-# 2. Release vorbereiten (Dry Run zuerst empfohlen)
-make release-prepare VERSION=1.9.0 DRY_RUN=1  # Vorschau
-make release-prepare VERSION=1.9.0            # Ausfuehren
-
-# 3. Push und Upload
-git push origin main --tags
-make release
+/release-notes ios 1.8.1    # Schreibt nur iOS-Dateien
+cd ios && make release-prepare VERSION=1.8.1
 ```
 
 ---
@@ -54,8 +49,8 @@ make release
 4. **Tests**: `make test`
 5. **Screenshots**: `make screenshots`
 6. **Version bump**: versionCode/versionName bzw. CURRENT_PROJECT_VERSION/MARKETING_VERSION
-7. **Git commit**: `chore(platform): Prepare release v$VERSION`
-8. **Git tag**: `platform-v$VERSION`
+7. **Git commit**: `chore(ios): Prepare release v1.9.0`
+8. **Git tag**: `ios-v1.9.0` bzw. `android-v1.9.0`
 
 ### `make release VERSION=x.y.z`
 
@@ -94,6 +89,8 @@ make release
 
 | Thema | Dokument |
 |-------|----------|
+| Release Notes Skill | `/release-notes` |
+| Fastlane iOS Setup | `../guides/fastlane-ios.md` |
 | Technisches Changelog | `../../CHANGELOG.md` |
 | Gemeinsame Store-Texte | `STORE_CONTENT_SHARED.md` |
 | iOS App Store | `STORE_CONTENT_IOS.md` |
