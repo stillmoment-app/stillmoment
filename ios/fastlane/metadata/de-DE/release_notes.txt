@@ -1,2 +1,2 @@
-- Neues Settings-Icon für bessere Erkennbarkeit
-- Hilfreicher Hinweis für neue Nutzer
+- Vorbereitungszeit für geführte Meditationen - optionaler Countdown vor dem Audio
+- Intervall-Gong Lautstärke - unabhängig von Start/Ende-Gongs einstellbar
