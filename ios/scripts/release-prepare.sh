@@ -108,6 +108,26 @@ fi
 print_success "Tag '$TAG_NAME' is available"
 
 # ============================================================================
+# COPY VERSIONED CHANGELOGS TO RELEASE NOTES
+# ============================================================================
+
+print_step "Preparing release notes from changelogs..."
+
+for locale in de-DE en-GB; do
+    CHANGELOG="$PROJECT_DIR/fastlane/metadata/$locale/changelogs/$VERSION.txt"
+    RELEASE_NOTES="$PROJECT_DIR/fastlane/metadata/$locale/release_notes.txt"
+
+    if [ -f "$CHANGELOG" ]; then
+        run_cmd cp "$CHANGELOG" "$RELEASE_NOTES"
+        print_success "  $locale: copied from changelogs/$VERSION.txt"
+    else
+        print_error "Changelog not found: $CHANGELOG"
+        echo "Run '/release-notes $VERSION' first to generate changelogs."
+        exit 1
+    fi
+done
+
+# ============================================================================
 # CHECK RELEASE NOTES
 # ============================================================================
 
