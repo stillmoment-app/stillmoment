@@ -73,7 +73,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         // Then
         let silent = sounds.first { $0.id == "silent" }
         XCTAssertNotNil(silent, "Should contain silent sound")
-        XCTAssertEqual(silent?.filename, "silence.m4a")
+        XCTAssertEqual(silent?.filename, "silence.mp3")
     }
 
     func testLoadSounds_ContainsForestSound() throws {

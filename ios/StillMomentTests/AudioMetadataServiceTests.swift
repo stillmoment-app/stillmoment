@@ -68,9 +68,9 @@ final class AudioMetadataServiceTests: XCTestCase {
     }
 
     func testExtractMetadata_SilenceFile_ExtractsDuration() async throws {
-        // Given - Use existing silence.m4a from bundle
-        guard let audioURL = Bundle.main.url(forResource: "silence", withExtension: "m4a") else {
-            XCTFail("silence.m4a not found in bundle")
+        // Given - Use existing silence.mp3 from bundle
+        guard let audioURL = Bundle.main.url(forResource: "silence", withExtension: "mp3") else {
+            XCTFail("silence.mp3 not found in bundle")
             return
         }
 
@@ -85,9 +85,9 @@ final class AudioMetadataServiceTests: XCTestCase {
     // MARK: - Metadata Extraction Tests
 
     func testExtractMetadata_NoID3Tags_ReturnsNilFields() async throws {
-        // Given - silence.m4a likely has no ID3 tags
-        guard let audioURL = Bundle.main.url(forResource: "silence", withExtension: "m4a") else {
-            XCTFail("silence.m4a not found in bundle")
+        // Given - silence.mp3 likely has no ID3 tags
+        guard let audioURL = Bundle.main.url(forResource: "silence", withExtension: "mp3") else {
+            XCTFail("silence.mp3 not found in bundle")
             return
         }
 

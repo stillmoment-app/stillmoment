@@ -25,10 +25,12 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     init(
         coordinator: AudioSessionCoordinatorProtocol,
-        nowPlayingProvider: NowPlayingInfoProvider = SystemNowPlayingInfoProvider()
+        nowPlayingProvider: NowPlayingInfoProvider = SystemNowPlayingInfoProvider(),
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
     ) {
         self.coordinator = coordinator
         self.nowPlayingProvider = nowPlayingProvider
+        self.soundRepository = soundRepository
         super.init()
         self.setupNotifications()
         self.registerConflictHandler()
@@ -239,13 +241,20 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         // Request audio session first
         _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
 
-        // Get silent.mp3 from BackgroundAudio folder
+        // Get silent sound from repository (DRY: same source as BackgroundSound picker)
+        guard let sound = self.soundRepository.getSound(byId: "silent") else {
+            Logger.audio.error("Silent sound not found in repository")
+            throw AudioPlayerError.fileNotAccessible
+        }
+
+        // Parse filename to get name and extension
+        let (name, ext) = self.parseFilename(sound.filename)
         guard let silentURL = Bundle.main.url(
-            forResource: "silent",
-            withExtension: "mp3",
+            forResource: name,
+            withExtension: ext,
             subdirectory: "BackgroundAudio"
         ) else {
-            Logger.audio.error("Silent audio file not found in BackgroundAudio folder")
+            Logger.audio.error("Silent audio file not found", metadata: ["filename": sound.filename])
             throw AudioPlayerError.fileNotAccessible
         }
 
@@ -261,6 +270,16 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             Logger.audio.error("Failed to start silent background audio", error: error)
             throw AudioPlayerError.playbackFailed(reason: error.localizedDescription)
         }
+    }
+
+    /// Parses a filename into name and extension components
+    /// - Parameter filename: The full filename (e.g., "silence.mp3")
+    /// - Returns: Tuple of (name, extension) where extension may be nil
+    private func parseFilename(_ filename: String) -> (name: String, ext: String?) {
+        let components = filename.components(separatedBy: ".")
+        let name = components.first ?? filename
+        let ext = components.count > 1 ? components.last : nil
+        return (name, ext)
     }
 
     func stopSilentBackgroundAudio() {
@@ -312,6 +331,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     private let coordinator: AudioSessionCoordinatorProtocol
     private let nowPlayingProvider: NowPlayingInfoProvider
+    private let soundRepository: BackgroundSoundRepositoryProtocol
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var currentMeditation: GuidedMeditation?

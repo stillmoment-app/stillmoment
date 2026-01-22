@@ -49,7 +49,7 @@ struct BackgroundSound: Codable, Identifiable, Equatable {
     /// Unique identifier for the sound
     let id: String
 
-    /// Filename in the BackgroundAudio bundle (e.g., "silence.m4a")
+    /// Filename in the BackgroundAudio bundle (e.g., "silence.mp3")
     let filename: String
 
     /// Localized display name

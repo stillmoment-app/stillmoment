@@ -696,6 +696,35 @@ final class AudioPlayerServiceTests: XCTestCase {
         )
     }
 
+    // MARK: - Silent Background Audio Tests
+
+    func testStartSilentBackgroundAudio_SoundNotConfigured_ThrowsFileNotAccessible() {
+        // Given
+        let mockRepository = MockBackgroundSoundRepository()
+        mockRepository.soundsToReturn = [] // No "silent" sound configured
+
+        let service = AudioPlayerService(
+            coordinator: self.mockCoordinator,
+            nowPlayingProvider: self.mockNowPlayingProvider,
+            soundRepository: mockRepository
+        )
+
+        // When/Then
+        XCTAssertThrowsError(try service.startSilentBackgroundAudio()) { error in
+            guard let audioError = error as? AudioPlayerError else {
+                XCTFail("Expected AudioPlayerError, got \(error)")
+                return
+            }
+            if case .fileNotAccessible = audioError {
+                // Success - expected error case
+            } else {
+                XCTFail("Expected .fileNotAccessible, got \(audioError)")
+            }
+        }
+
+        service.cleanup()
+    }
+
     // MARK: Private
 
     // MARK: - Helper Methods
@@ -711,10 +740,10 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     private func createTestAudioURL() -> URL? {
-        // Use silence.m4a from BackgroundAudio - it's short and ideal for testing
+        // Use silence.mp3 from BackgroundAudio - it's short and ideal for testing
         Bundle.main.url(
             forResource: "silence",
-            withExtension: "m4a",
+            withExtension: "mp3",
             subdirectory: "BackgroundAudio"
         )
     }

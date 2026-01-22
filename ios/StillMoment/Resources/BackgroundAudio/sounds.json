@@ -2,7 +2,7 @@
   "sounds": [
     {
       "id": "silent",
-      "filename": "silence.m4a",
+      "filename": "silence.mp3",
       "name": {
         "en": "Silence",
         "de": "Stille"

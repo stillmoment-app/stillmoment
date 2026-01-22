@@ -46,7 +46,7 @@
 		AA235990CCAEA51ACEAE1351 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-body-scan.mp3"; sourceTree = "<group>"; };
 		CA08C6262EC4729200D7C911 /* BackgroundAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BackgroundAudio; path = StillMoment/Resources/BackgroundAudio; sourceTree = "<group>"; };
-		CA08C6282EC4800000D7C911 /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
+		CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
 		CABCE91C2EAE3C430059FC11 /* StillMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StillMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -83,15 +83,11 @@
 		};
 		CABCE92C2EAE3C440059FC11 /* StillMomentTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = StillMomentTests;
 			sourceTree = "<group>";
 		};
 		CABCE9362EAE3C440059FC11 /* StillMomentUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = StillMomentUITests;
 			sourceTree = "<group>";
 		};
@@ -170,7 +166,7 @@
 		CA7930B52EC4EBA40070D3BB /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
-				CA08C6282EC4800000D7C911 /* Local.xcconfig */,
+				CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -622,7 +618,7 @@
 		};
 		CABCE93E2EAE3C440059FC11 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -654,7 +650,7 @@
 		};
 		CABCE93F2EAE3C440059FC11 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Local.xcconfig */;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
