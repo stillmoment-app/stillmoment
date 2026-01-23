@@ -111,19 +111,13 @@ struct GuidedMeditationsListView: View {
                 preparationTimeSeconds: self.settings.preparationTimeSeconds
             )
         }
-        .sheet(
-            isPresented: self.$showingSettings,
-            onDismiss: {
-                // Reload from repository to discard unsaved changes on swipe-dismiss
-                self.settings = self.settingsRepository.load()
-            },
-            content: {
-                GuidedMeditationSettingsView(settings: self.$settings) {
-                    self.settingsRepository.save(self.settings)
-                    self.showingSettings = false
-                }
+        .sheet(isPresented: self.$showingSettings) {
+            GuidedMeditationSettingsView(settings: self.settings) { updatedSettings in
+                self.settingsRepository.save(updatedSettings)
+                self.settings = updatedSettings
+                self.showingSettings = false
             }
-        )
+        }
         .alert(
             NSLocalizedString("common.error", comment: ""),
             isPresented: .constant(self.viewModel.errorMessage != nil)

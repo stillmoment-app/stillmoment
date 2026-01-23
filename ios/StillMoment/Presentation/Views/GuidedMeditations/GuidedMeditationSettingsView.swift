@@ -8,12 +8,19 @@
 import SwiftUI
 
 /// Settings view for configuring guided meditation options
+///
+/// Uses local @State to avoid SwiftUI binding propagation issues with Picker.
+/// The onSave callback receives the final settings when user confirms.
 struct GuidedMeditationSettingsView: View {
     // MARK: Lifecycle
 
-    init(settings: Binding<GuidedMeditationSettings>, onDismiss: @escaping () -> Void) {
-        _settings = settings
-        self.onDismiss = onDismiss
+    init(settings: GuidedMeditationSettings, onSave: @escaping (GuidedMeditationSettings) -> Void) {
+        _localSettings = State(initialValue: settings)
+        _preparationTimeEnabled = State(initialValue: settings.preparationTimeSeconds != nil)
+        _preparationTimeSeconds = State(
+            initialValue: settings.preparationTimeSeconds ?? GuidedMeditationSettings.initialPreparationTimeSeconds
+        )
+        self.onSave = onSave
     }
 
     // MARK: Internal
@@ -26,7 +33,7 @@ struct GuidedMeditationSettingsView: View {
 
                 Form {
                     Section {
-                        Toggle(isOn: self.preparationTimeEnabledBinding) {
+                        Toggle(isOn: self.$preparationTimeEnabled) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("guided_meditations.settings.preparationTime.title", bundle: .main)
                                     .settingsLabelStyle()
@@ -36,11 +43,20 @@ struct GuidedMeditationSettingsView: View {
                         }
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
                         .listRowBackground(Color.backgroundPrimary)
+                        .onChange(of: self.preparationTimeEnabled) { newValue in
+                            if newValue {
+                                self.localSettings = self.localSettings.withPreparationTime(
+                                    self.preparationTimeSeconds
+                                )
+                            } else {
+                                self.localSettings = self.localSettings.withPreparationTime(nil)
+                            }
+                        }
 
-                        if self.settings.preparationTimeSeconds != nil {
+                        if self.preparationTimeEnabled {
                             Picker(
                                 NSLocalizedString("guided_meditations.settings.preparationTime.duration", comment: ""),
-                                selection: self.preparationTimeSecondsBinding
+                                selection: self.$preparationTimeSeconds
                             ) {
                                 ForEach(GuidedMeditationSettings.validPreparationTimeValues, id: \.self) { seconds in
                                     Text("\(seconds)s").tag(seconds)
@@ -50,6 +66,9 @@ struct GuidedMeditationSettingsView: View {
                             .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")
                             .listRowBackground(Color.backgroundPrimary)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
+                            .onChange(of: self.preparationTimeSeconds) { newValue in
+                                self.localSettings = self.localSettings.withPreparationTime(newValue)
+                            }
                         }
                     } header: {
                         Text("guided_meditations.settings.preparationTime.header", bundle: .main)
@@ -61,7 +80,7 @@ struct GuidedMeditationSettingsView: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
-                            self.onDismiss()
+                            self.onSave(self.localSettings)
                         }
                         .tint(.interactive)
                         .accessibilityIdentifier("button.done")
@@ -73,35 +92,17 @@ struct GuidedMeditationSettingsView: View {
 
     // MARK: Private
 
-    @Binding private var settings: GuidedMeditationSettings
-    private let onDismiss: () -> Void
+    /// Local copy of settings for editing - avoids SwiftUI binding issues
+    @State private var localSettings: GuidedMeditationSettings
 
-    /// Binding for the preparation time toggle (enabled/disabled)
-    private var preparationTimeEnabledBinding: Binding<Bool> {
-        Binding(
-            get: { self.settings.preparationTimeSeconds != nil },
-            set: { enabled in
-                if enabled {
-                    self.settings = self.settings.withPreparationTime(
-                        GuidedMeditationSettings.initialPreparationTimeSeconds
-                    )
-                } else {
-                    // Disable
-                    self.settings = self.settings.withPreparationTime(nil)
-                }
-            }
-        )
-    }
+    /// Local state for toggle - synced to localSettings via onChange
+    @State private var preparationTimeEnabled: Bool
 
-    /// Binding for the preparation time seconds picker
-    private var preparationTimeSecondsBinding: Binding<Int> {
-        Binding(
-            get: { self.settings.preparationTimeSeconds ?? GuidedMeditationSettings.initialPreparationTimeSeconds },
-            set: { seconds in
-                self.settings = self.settings.withPreparationTime(seconds)
-            }
-        )
-    }
+    /// Local state for picker - synced to localSettings via onChange
+    @State private var preparationTimeSeconds: Int
+
+    /// Callback when user confirms settings
+    private let onSave: (GuidedMeditationSettings) -> Void
 }
 
 // MARK: - Previews
@@ -109,13 +110,13 @@ struct GuidedMeditationSettingsView: View {
 @available(iOS 17.0, *)
 #Preview("Disabled") {
     GuidedMeditationSettingsView(
-        settings: .constant(GuidedMeditationSettings(preparationTimeSeconds: nil))
-    ) {}
+        settings: GuidedMeditationSettings(preparationTimeSeconds: nil)
+    ) { _ in }
 }
 
 @available(iOS 17.0, *)
 #Preview("Enabled 15s") {
     GuidedMeditationSettingsView(
-        settings: .constant(GuidedMeditationSettings(preparationTimeSeconds: 15))
-    ) {}
+        settings: GuidedMeditationSettings(preparationTimeSeconds: 15)
+    ) { _ in }
 }
