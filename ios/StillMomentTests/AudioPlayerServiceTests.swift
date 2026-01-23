@@ -183,14 +183,8 @@ final class AudioPlayerServiceTests: XCTestCase {
         // Then
         XCTAssertEqual(self.sut.state.value, .idle)
         XCTAssertEqual(self.sut.currentTime.value, 0)
-
-        // Verify coordinator was called to release
-        let expectation = self.expectation(description: "Coordinator released")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            XCTAssertTrue(self.mockCoordinator.releasedSources.contains(.guidedMeditation))
-            expectation.fulfill()
-        }
-        await fulfillment(of: [expectation], timeout: 1.0)
+        // stop() synchronously calls releaseAudioSession, no async wait needed
+        XCTAssertTrue(self.mockCoordinator.releasedSources.contains(.guidedMeditation))
     }
 
     @MainActor
