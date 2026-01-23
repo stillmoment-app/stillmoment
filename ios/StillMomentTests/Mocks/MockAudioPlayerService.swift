@@ -23,6 +23,7 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var setupRemoteCommandCenterCalled = false
     var silentBackgroundAudioStarted = false
     var silentBackgroundAudioStopped = false
+    var transitionFromSilentToPlaybackCalled = false
 
     func load(url: URL, meditation: GuidedMeditation) async throws {
         if self.loadShouldThrow {
@@ -71,6 +72,14 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
         self.silentBackgroundAudioStopped = true
     }
 
+    func transitionFromSilentToPlayback() throws {
+        self.transitionFromSilentToPlaybackCalled = true
+        // Real implementation starts playback then stops silent audio
+        self.playCalled = true
+        self.state.send(.playing)
+        self.silentBackgroundAudioStopped = true
+    }
+
     func cleanup() {
         self.cleanupCalled = true
         self.state.send(.idle)
@@ -78,5 +87,6 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
         self.duration.send(0)
         self.silentBackgroundAudioStarted = false
         self.silentBackgroundAudioStopped = false
+        self.transitionFromSilentToPlaybackCalled = false
     }
 }

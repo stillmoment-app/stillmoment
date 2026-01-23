@@ -292,6 +292,41 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         Logger.audio.info("Silent background audio stopped")
     }
 
+    func transitionFromSilentToPlayback() throws {
+        // CRITICAL: This method prevents audio gaps when screen is locked.
+        // By starting playback BEFORE stopping silent audio, we ensure
+        // iOS never has a moment without active audio to suspend the app.
+
+        guard let player else {
+            throw AudioPlayerError.playbackFailed(reason: "No audio loaded")
+        }
+
+        // 1. Request exclusive audio session (already held by silent audio, but confirm)
+        _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
+
+        // 2. Setup remote commands and Now Playing info (same as play())
+        if !self.remoteCommandsConfigured {
+            self.setupRemoteCommandCenter()
+            self.remoteCommandsConfigured = true
+            Logger.audio.info("Remote command center configured (session active)")
+        }
+
+        if let meditation = currentMeditation {
+            self.setupNowPlayingInfo(for: meditation, duration: self.duration.value)
+            Logger.audio.info("Now Playing info configured (session active)")
+        }
+
+        // 3. Start main player BEFORE stopping silent audio
+        player.play()
+        self.state.send(.playing)
+        self.updateNowPlayingPlaybackInfo()
+
+        // 4. NOW stop silent audio (main player already running, no gap)
+        self.stopSilentBackgroundAudio()
+
+        Logger.audio.info("Atomic transition from silent to playback completed")
+    }
+
     func cleanup() {
         // Stop silent background audio
         self.stopSilentBackgroundAudio()

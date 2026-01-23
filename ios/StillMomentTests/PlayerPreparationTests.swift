@@ -269,4 +269,28 @@ final class PlayerPreparationTests: XCTestCase {
         // Then - State unchanged (no crash, no effect)
         XCTAssertEqual(self.sut.countdownState, .idle)
     }
+
+    // MARK: - Atomic Audio Transition
+
+    func testCountdown_usesAtomicTransitionToPreventAudioGap() async {
+        // Given
+        self.sut = self.createViewModel(preparationTimeSeconds: 3)
+        await self.sut.loadAudio()
+        self.sut.startPlayback()
+
+        // When - Countdown finishes
+        self.mockClock.advance(ticks: 3)
+
+        // Then - Should use atomic transition (not separate stop + play calls)
+        XCTAssertTrue(
+            self.mockPlayerService.transitionFromSilentToPlaybackCalled,
+            "Should use atomic transition to prevent audio gap when screen is locked"
+        )
+        // The old separate calls should NOT happen
+        XCTAssertFalse(
+            self.mockPlayerService.silentBackgroundAudioStopped && !self.mockPlayerService
+                .transitionFromSilentToPlaybackCalled,
+            "Should not use separate stop call when atomic transition is available"
+        )
+    }
 }

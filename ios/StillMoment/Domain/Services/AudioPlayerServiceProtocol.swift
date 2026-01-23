@@ -128,6 +128,19 @@ protocol AudioPlayerServiceProtocol {
     /// Call this when preparation countdown ends (before starting actual playback).
     func stopSilentBackgroundAudio()
 
+    /// Atomically transitions from silent background audio to actual playback
+    ///
+    /// This method ensures there is no gap between stopping silent audio and starting
+    /// playback, which prevents iOS from suspending the app when the screen is locked.
+    ///
+    /// The transition sequence:
+    /// 1. Starts the main audio player
+    /// 2. Waits for playback to actually begin
+    /// 3. Only then stops the silent background audio
+    ///
+    /// - Throws: AudioPlayerError if playback fails
+    func transitionFromSilentToPlayback() throws
+
     /// Cleans up resources (call when done with player)
     func cleanup()
 }

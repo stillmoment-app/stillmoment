@@ -318,10 +318,15 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             self.countdownTimer?.cancel()
             self.countdownTimer = nil
             self.countdownState = .finished
-            // Stop silent background audio before starting MP3
-            self.playerService.stopSilentBackgroundAudio()
-            // Start MP3 after countdown
-            self.togglePlayPause()
+            // Use atomic transition to prevent audio gap when screen is locked.
+            // This starts playback BEFORE stopping silent audio, ensuring iOS
+            // never suspends the app due to lack of audio.
+            do {
+                try self.playerService.transitionFromSilentToPlayback()
+            } catch {
+                Logger.audioPlayer.error("Failed to transition to playback", error: error)
+                self.errorMessage = "Playback error: \(error.localizedDescription)"
+            }
         } else {
             self.countdownState = .active(ticked)
         }
