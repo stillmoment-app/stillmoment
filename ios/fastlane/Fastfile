@@ -182,7 +182,7 @@ platform :ios do
     include_build = options[:build] != false
     UI.user_error!("Version required. Usage: fastlane release version:1.2.3 [build:false]") unless app_version
 
-    ipa_path = nil
+    build_number = nil
     if include_build
       UI.message("Building version #{app_version}...")
       build_app(
@@ -191,15 +191,25 @@ platform :ios do
         output_directory: "./build",
         output_name: "StillMoment.ipa"
       )
-      ipa_path = "./build/StillMoment.ipa"
+
+      UI.message("Uploading build to TestFlight and waiting for processing...")
+      upload_to_testflight(
+        ipa: "./build/StillMoment.ipa",
+        skip_waiting_for_build_processing: false,
+        distribute_external: false
+      )
+
+      # Get the build number that was just uploaded
+      build_number = latest_testflight_build_number.to_s
+      UI.message("Build #{build_number} processed successfully")
     end
 
-    UI.message("Uploading version #{app_version} to App Store Connect...")
+    UI.message("Uploading metadata and screenshots for version #{app_version}...")
     deliver(
-      ipa: ipa_path,
-      skip_binary_upload: !include_build,
+      skip_binary_upload: true,  # Build already uploaded via TestFlight
       skip_screenshots: false,
       skip_metadata: false,
+      build_number: build_number,
       force: true,
       run_precheck_before_submit: false,
       submit_for_review: false,
@@ -210,7 +220,8 @@ platform :ios do
 
     UI.success("Release #{app_version} uploaded to App Store Connect!")
     if include_build
-      UI.message("Build + metadata + screenshots uploaded. Ready for review.")
+      UI.message("Build #{build_number} automatically assigned to version #{app_version}.")
+      UI.message("Ready for review in App Store Connect.")
     else
       UI.message("Metadata + screenshots uploaded (no build).")
     end
