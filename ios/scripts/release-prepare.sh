@@ -1,15 +1,14 @@
 #!/bin/bash
 # release-prepare.sh - Prepares iOS release
-# Usage: ./release-prepare.sh <VERSION> [DRY_RUN] [SKIP_SCREENSHOTS]
-# Example: ./release-prepare.sh 1.9.0
-# Example: ./release-prepare.sh 1.9.0 1        # Dry run
-# Example: ./release-prepare.sh 1.9.0 "" 1     # Skip screenshots
+# Usage: VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1] ./release-prepare.sh
+# Or via Makefile: make release-prepare VERSION=1.9.1 SKIP_SCREENSHOTS=1
 
 set -e
 
-VERSION="$1"
-DRY_RUN="$2"
-SKIP_SCREENSHOTS="$3"
+# Parse environment variables (set by Makefile)
+VERSION="${VERSION:-$1}"
+DRY_RUN="${DRY_RUN:-}"
+SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOG_FILE="$PROJECT_DIR/release-prepare.log"
