@@ -1,13 +1,15 @@
 #!/bin/bash
 # release-prepare.sh - Prepares iOS release
-# Usage: ./release-prepare.sh <VERSION> [DRY_RUN]
+# Usage: ./release-prepare.sh <VERSION> [DRY_RUN] [SKIP_SCREENSHOTS]
 # Example: ./release-prepare.sh 1.9.0
-# Example: ./release-prepare.sh 1.9.0 1  # Dry run
+# Example: ./release-prepare.sh 1.9.0 1        # Dry run
+# Example: ./release-prepare.sh 1.9.0 "" 1     # Skip screenshots
 
 set -e
 
 VERSION="$1"
 DRY_RUN="$2"
+SKIP_SCREENSHOTS="$3"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 LOG_FILE="$PROJECT_DIR/release-prepare.log"
@@ -223,7 +225,12 @@ print_success "Release notes found (de-DE, en-GB)"
 
 run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
 run_logged "Running tests" make -C "$PROJECT_DIR" test
-run_logged "Generating screenshots" make -C "$PROJECT_DIR" screenshots
+
+if [ -n "$SKIP_SCREENSHOTS" ]; then
+    print_warning "Skipping screenshots (SKIP_SCREENSHOTS=1)"
+else
+    run_logged "Generating screenshots" make -C "$PROJECT_DIR" screenshots
+fi
 
 # ============================================================================
 # BUMP VERSION

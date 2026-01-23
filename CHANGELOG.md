@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-01-23 (iOS Bugfix)
+
 ### Added (iOS)
 - **Fastlane deliver für App Store** - Automatisierte Store-Uploads
   - `deliver` Lane für Metadata und Screenshots konfiguriert
@@ -14,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Release und TestFlight Upload Lanes
   - Setup-Anleitung in `dev-docs/guides/fastlane-ios.md`
   - Ticket: shared-026
+
+### Fixed (iOS)
+- **App-Suspendierung bei Vorbereitungszeit** - App bleibt jetzt im Hintergrund aktiv
+  - Bug: Bei geführten Meditationen mit Vorbereitungszeit wurde die App suspendiert, wenn der Bildschirm während des Countdowns gesperrt wurde
+  - Ursache: silence.m4a wurde vom System nicht als legitime Audio-Wiedergabe erkannt
+  - Lösung: silence.mp3 Format + Repository-basierter Lookup für Audio-Dateinamen
+
+### Technical (iOS)
+- Screenshot-Tests verwenden jetzt Launch Arguments statt ScreenshotSettingsConfigurer
+  - `-DisablePreparation` Flag für konsistente Screenshots
+  - Ticket: ios-030
 
 ## [1.9.0] - 2026-01-17
 

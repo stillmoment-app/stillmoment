@@ -1,0 +1,1 @@
+- Fixed: App no longer gets suspended when locking the screen during preparation countdown

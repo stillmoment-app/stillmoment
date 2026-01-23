@@ -90,8 +90,8 @@ screenshot-single: ## Run single screenshot test in EN + DE (TEST=testScreenshot
 	@bundle exec fastlane screenshot_single test:$(TEST)
 	@echo "✅ Screenshots → docs/images/screenshots/"
 
-release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
-	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
+release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
+	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN) $(SKIP_SCREENSHOTS)
 
 release: ## Build and upload to App Store Connect (VERSION=x.y.z required, SKIP_BUILD=1 optional)
 	@if [ -z "$(VERSION)" ]; then \
