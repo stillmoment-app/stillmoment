@@ -1,2 +1,1 @@
-- Vorbereitungszeit für geführte Meditationen - optionaler Countdown vor dem Audio
-- Intervall-Gong Lautstärke - unabhängig von Start/Ende-Gongs einstellbar
+- Behoben: App wird nicht mehr suspendiert, wenn der Bildschirm während der Vorbereitungszeit gesperrt wird
