@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ursache: silence.m4a wurde vom System nicht als legitime Audio-Wiedergabe erkannt
   - Lösung: silence.mp3 Format + Repository-basierter Lookup für Audio-Dateinamen
 
+- **Countdown-Timer bei gesperrtem Bildschirm** - Guided Meditation startet jetzt zuverlässig
+  - Bug: Bei geführten Meditationen mit Vorbereitungszeit startete die MP3 nicht, wenn der Bildschirm während des Countdowns gesperrt wurde
+  - Ursache: `Timer.publish(on: .main, in: .common)` wird von iOS pausiert bei gesperrtem Bildschirm
+  - Lösung: `DispatchSourceTimer` statt `Timer.publish` in `SystemClock.swift` - läuft auf DispatchQueue und ist von RunLoop-Mode unabhängig
+
 ### Technical (iOS)
 - Screenshot-Tests verwenden jetzt Launch Arguments statt ScreenshotSettingsConfigurer
   - `-DisablePreparation` Flag für konsistente Screenshots
