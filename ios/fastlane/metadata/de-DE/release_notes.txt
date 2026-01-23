@@ -1,1 +1,1 @@
-- Behoben: App wird nicht mehr suspendiert, wenn der Bildschirm während der Vorbereitungszeit gesperrt wird
+- Fehlerbehebungen bei der Vorbereitungszeit
