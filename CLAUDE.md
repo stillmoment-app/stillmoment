@@ -182,6 +182,25 @@ service.publisher
 
 **TDD ist Pflicht** - Kein Produktiv-Code ohne vorherigen roten Test.
 
+### STOP vor jeder Code-Änderung
+
+1. Gibt es einen fehlschlagenden Test, der das Problem beweist?
+2. Ist der Test fachlich formuliert (Benutzer-Perspektive)?
+
+**Wenn nein → erst Test schreiben, `make test-unit` ausführen, Fehler sehen.**
+
+### Fachlich vs. Technisch
+
+```swift
+// ❌ Technisch (testet Implementierungsdetail):
+XCTAssertTrue(SupportedAudioFormats.types.contains(.mpeg4Audio))
+
+// ✅ Fachlich (testet Benutzer-Anforderung):
+XCTAssertTrue(canImportFile(withExtension: "mp4"))
+```
+
+### TDD-Zyklus
+
 1. **RED**: Test ZUERST schreiben
    - Test für geplante Funktionalität erstellen
    - `make test-unit` ausführen, Test muss FEHLSCHLAGEN
