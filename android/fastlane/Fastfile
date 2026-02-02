@@ -50,9 +50,9 @@ platform :android do
   # Release Lanes
   # =============================================================================
 
-  desc "Upload to Play Store (Closed Testing by default)"
+  desc "Upload to Play Store (Production)"
   lane :release do |options|
-    track = options[:track] || "alpha"  # alpha = Closed Testing
+    track = options[:track] || "production"
 
     UI.message("Building release bundle...")
     gradle(
@@ -93,7 +93,7 @@ platform :android do
 
   desc "Upload only screenshots without new build"
   lane :screenshots_upload do |options|
-    track = options[:track] || "alpha"  # alpha = Closed Testing
+    track = options[:track] || "production"
     UI.message("Uploading screenshots to Play Store (track: #{track})...")
 
     upload_to_play_store(
@@ -113,7 +113,7 @@ platform :android do
 
   desc "Upload only metadata (descriptions, changelogs) without new build"
   lane :metadata do |options|
-    track = options[:track] || "alpha"  # alpha = Closed Testing
+    track = options[:track] || "production"
     UI.message("Uploading metadata to Play Store (track: #{track})...")
     supply(
       track: track,
