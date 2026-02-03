@@ -247,12 +247,15 @@ make test                                   # Vollständige Suite vor Commit
 | Release Notes | `/release-notes` Skill |
 | Release | `dev-docs/release/RELEASE_GUIDE.md` |
 | Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
+| Website | `dev-docs/guides/website.md` |
 | Architektur | `dev-docs/architecture/overview.md` |
 | DDD | `dev-docs/architecture/ddd.md` |
 | Glossar | `dev-docs/reference/glossary.md` |
 | Testing | `dev-docs/guides/tdd.md` |
 | Audio | `dev-docs/architecture/audio-system.md` |
 | ADRs | `dev-docs/architecture/decisions/` |
+
+**Hinweis**: Bei Fragen zu Build, Server, Deployment oder Tools → zuerst `dev-docs/guides/` durchsuchen.
 
 ---
 
