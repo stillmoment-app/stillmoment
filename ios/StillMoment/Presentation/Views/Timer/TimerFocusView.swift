@@ -37,7 +37,7 @@ struct TimerFocusView: View {
                     // Title
                     Text("welcome.title", bundle: .main)
                         .font(.system(size: isCompactHeight ? 24 : 28, weight: .light, design: .rounded))
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(self.theme.textPrimary)
                         .accessibilityAddTraits(.isHeader)
 
                     Spacer()
@@ -52,7 +52,7 @@ struct TimerFocusView: View {
                     // State Text / Affirmation
                     Text(self.stateText)
                         .font(.system(size: isCompactHeight ? 14 : 16, weight: .regular, design: .rounded))
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(self.theme.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .accessibilityIdentifier("focus.state.text")
@@ -65,7 +65,7 @@ struct TimerFocusView: View {
                         .padding(.bottom, isCompactHeight ? 24 : 32)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.warmGradient)
+                .background(self.theme.backgroundGradient)
             }
             .ignoresSafeArea()
             .navigationBarTitleDisplayMode(.inline)
@@ -75,7 +75,7 @@ struct TimerFocusView: View {
                         self.viewModel.resetTimer()
                         self.dismiss()
                     }
-                    .foregroundColor(.textSecondary)
+                    .foregroundColor(self.theme.textSecondary)
                     .accessibilityIdentifier("focus.button.close")
                     .accessibilityLabel("accessibility.closeFocus")
                     .accessibilityHint("accessibility.closeFocus.hint")
@@ -105,6 +105,8 @@ struct TimerFocusView: View {
 
     @Environment(\.dismiss)
     private var dismiss
+    @Environment(\.themeColors)
+    private var theme
     @ObservedObject private var viewModel: TimerViewModel
     @State private var wasActive = false
 
@@ -140,12 +142,12 @@ struct TimerFocusView: View {
     private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringTrack, lineWidth: 10)
+                .stroke(self.theme.ringTrack, lineWidth: 10)
                 .frame(width: size, height: size)
 
             Text(self.viewModel.formattedTime)
                 .font(.system(size: isCompact ? 90 : 110, weight: .ultraLight, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .monospacedDigit()
                 .accessibilityIdentifier("focus.display.preparation")
                 .accessibilityLabel(String(
@@ -158,20 +160,20 @@ struct TimerFocusView: View {
     private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringTrack, lineWidth: 10)
+                .stroke(self.theme.ringTrack, lineWidth: 10)
                 .frame(width: size, height: size)
 
             Circle()
                 .trim(from: 0, to: self.viewModel.progress)
-                .stroke(Color.progress, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .stroke(self.theme.progress, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                 .frame(width: size, height: size)
                 .rotationEffect(.degrees(-90))
                 .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
+                .shadow(color: self.theme.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
 
             Text(self.viewModel.formattedTime)
                 .font(.system(size: isCompact ? 56 : 72, weight: .thin, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .monospacedDigit()
                 .accessibilityIdentifier("focus.display.time")
                 .accessibilityLabel(String(

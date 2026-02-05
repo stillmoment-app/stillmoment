@@ -38,7 +38,7 @@ struct SettingsView: View {
         NavigationView {
             ZStack {
                 // Warm gradient background (consistent with Timer tab)
-                Color.warmGradient
+                self.theme.backgroundGradient
                     .ignoresSafeArea()
 
                 Form {
@@ -54,7 +54,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.preparationTime")
                         .accessibilityLabel("accessibility.preparationTime")
                         .accessibilityHint("accessibility.preparationTime.hint")
-                        .listRowBackground(Color.backgroundPrimary)
+                        .listRowBackground(self.theme.backgroundPrimary)
 
                         if self.settings.preparationTimeEnabled {
                             Picker(
@@ -72,7 +72,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
                             .accessibilityLabel("accessibility.preparationTimeDuration")
                             .accessibilityHint("accessibility.preparationTimeDuration.hint")
-                            .listRowBackground(Color.backgroundPrimary)
+                            .listRowBackground(self.theme.backgroundPrimary)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
@@ -96,7 +96,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.picker.startGongSound")
                         .accessibilityLabel("accessibility.startGongSound")
                         .accessibilityHint("accessibility.startGongSound.hint")
-                        .listRowBackground(Color.backgroundPrimary)
+                        .listRowBackground(self.theme.backgroundPrimary)
 
                         // Gong volume slider
                         VolumeSliderRow(
@@ -119,7 +119,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.intervalGongs")
                         .accessibilityLabel("accessibility.intervalGongs")
                         .accessibilityHint("accessibility.intervalGongs.hint")
-                        .listRowBackground(Color.backgroundPrimary)
+                        .listRowBackground(self.theme.backgroundPrimary)
 
                         if self.settings.intervalGongsEnabled {
                             VolumeSliderRow(
@@ -144,7 +144,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.intervalMinutes")
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
-                            .listRowBackground(Color.backgroundPrimary)
+                            .listRowBackground(self.theme.backgroundPrimary)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
@@ -177,7 +177,7 @@ struct SettingsView: View {
                                 comment: "Accessibility hint for sound selection"
                             )
                         )
-                        .listRowBackground(Color.backgroundPrimary)
+                        .listRowBackground(self.theme.backgroundPrimary)
 
                         // Volume slider - only shown when a non-silent sound is selected
                         if self.settings.backgroundSoundId != "silent" {
@@ -193,6 +193,8 @@ struct SettingsView: View {
                     } header: {
                         Text("settings.backgroundAudio.title", bundle: .main)
                     }
+
+                    GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
                 .navigationTitle(NSLocalizedString("settings.title", comment: ""))
@@ -202,7 +204,7 @@ struct SettingsView: View {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.dismissWithCleanup()
                         }
-                        .tint(.interactive)
+                        .tint(self.theme.interactive)
                         .accessibilityIdentifier("button.done")
                         .accessibilityLabel("accessibility.done")
                         .accessibilityHint("accessibility.done.hint")
@@ -219,6 +221,8 @@ struct SettingsView: View {
 
     // MARK: Private
 
+    @Environment(\.themeColors)
+    private var theme
     @Binding private var settings: MeditationSettings
     @StateObject private var audioServiceHolder = AudioServiceHolder()
 
@@ -273,6 +277,8 @@ struct SettingsView: View {
 /// Reusable volume slider row component for settings
 /// No visual label - speaker icons are self-explanatory per shared-019/shared-020
 private struct VolumeSliderRow: View {
+    @Environment(\.themeColors)
+    private var theme
     @Binding var volume: Float
     let accessibilityTitleKey: String
     let accessibilityIdentifier: String
@@ -282,7 +288,7 @@ private struct VolumeSliderRow: View {
     var body: some View {
         HStack {
             Image(systemName: "speaker.fill")
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .font(.settingsIcon)
             Slider(
                 value: self.$volume,
@@ -294,16 +300,16 @@ private struct VolumeSliderRow: View {
                     self.onSliderReleased()
                 }
             }
-            .tint(.interactive)
+            .tint(self.theme.interactive)
             Image(systemName: "speaker.wave.3.fill")
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .font(.settingsIcon)
         }
         .accessibilityIdentifier(self.accessibilityIdentifier)
         .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))
         .accessibilityValue(String(format: "%.0f%%", self.volume * 100))
         .accessibilityHint(NSLocalizedString(self.accessibilityHintKey, comment: ""))
-        .listRowBackground(Color.backgroundPrimary)
+        .listRowBackground(self.theme.backgroundPrimary)
     }
 }
 

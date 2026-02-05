@@ -91,6 +91,13 @@
 "settings.startGong.title" = "Gong-Ton";
 "settings.gongVolume.title" = "Lautstärke";
 
+// MARK: - General Settings
+
+"settings.general.header" = "Allgemein";
+"settings.theme.title" = "Farbthema";
+"settings.theme.warmDesert" = "Warmer Sand";
+"settings.theme.darkWarm" = "Kerzenschein";
+
 // MARK: - Accessibility
 
 "accessibility.settings" = "Einstellungen";

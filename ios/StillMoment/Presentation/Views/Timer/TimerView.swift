@@ -39,7 +39,7 @@ struct TimerView: View {
                 // Title
                 Text("welcome.title", bundle: .main)
                     .font(.system(size: isCompactHeight ? 24 : 28, weight: .light, design: .rounded))
-                    .foregroundColor(.textPrimary)
+                    .foregroundColor(self.theme.textPrimary)
                     .padding(.horizontal)
 
                 Spacer(minLength: 12)
@@ -65,7 +65,7 @@ struct TimerView: View {
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(.caption)
-                        .foregroundColor(.error)
+                        .foregroundColor(self.theme.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -73,7 +73,7 @@ struct TimerView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(
-                Color.warmGradient
+                self.theme.backgroundGradient
                     .ignoresSafeArea()
             )
         }
@@ -90,7 +90,7 @@ struct TimerView: View {
                         self.showSettings = true
                     } label: {
                         Image(systemName: "slider.horizontal.3")
-                            .foregroundColor(.textSecondary)
+                            .foregroundColor(self.theme.textSecondary)
                             .frame(minWidth: 44, minHeight: 44)
                     }
                     .accessibilityIdentifier("timer.button.settings")
@@ -109,6 +109,8 @@ struct TimerView: View {
 
     // MARK: Private
 
+    @Environment(\.themeColors)
+    private var theme
     @StateObject private var viewModel: TimerViewModel
     @State private var showSettings = false
     @State private var showFocusMode = false
@@ -177,12 +179,12 @@ struct TimerView: View {
     private var settingsHintTooltip: some View {
         Text("settings.hint.text", bundle: .main)
             .font(.system(size: 12, weight: .regular, design: .rounded))
-            .foregroundStyle(Color.textPrimary)
+            .foregroundStyle(self.theme.textPrimary)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.accentBackground)
+                    .fill(self.theme.accentBackground)
                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
             )
             .accessibilityLabel("accessibility.settings.hint.tooltip")
@@ -204,7 +206,7 @@ struct TimerView: View {
 
             Text("duration.question", bundle: .main)
                 .font(.system(size: isCompactHeight ? 18 : 20, weight: .light, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .padding(.horizontal)
@@ -227,7 +229,7 @@ struct TimerView: View {
 
             Text("duration.footer", bundle: .main)
                 .font(.system(size: isCompactHeight ? 14 : 15, weight: .light, design: .rounded))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .italic()
                 .padding(.horizontal)
                 .padding(.top, isCompactHeight ? 8 : 16)
@@ -250,7 +252,7 @@ struct TimerView: View {
 
             Text(self.stateText)
                 .font(.system(size: isCompactHeight ? 14 : 16, weight: .regular, design: .rounded))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
         }
@@ -259,12 +261,12 @@ struct TimerView: View {
     private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringTrack, lineWidth: 8)
+                .stroke(self.theme.ringTrack, lineWidth: 8)
                 .frame(width: size, height: size)
 
             Text(self.viewModel.formattedTime)
                 .font(.system(size: isCompact ? 80 : 100, weight: .ultraLight, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel(String(
@@ -277,20 +279,20 @@ struct TimerView: View {
     private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringTrack, lineWidth: 8)
+                .stroke(self.theme.ringTrack, lineWidth: 8)
                 .frame(width: size, height: size)
 
             Circle()
                 .trim(from: 0, to: self.viewModel.progress)
-                .stroke(Color.progress, style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                .stroke(self.theme.progress, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                 .frame(width: size, height: size)
                 .rotationEffect(.degrees(-90))
                 .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                .shadow(color: Color.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
+                .shadow(color: self.theme.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
 
             Text(self.viewModel.formattedTime)
                 .font(.system(size: isCompact ? 48 : 60, weight: .thin, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel(String(

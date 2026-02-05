@@ -79,6 +79,8 @@ struct AutocompleteTextField: View {
 
     // MARK: Private
 
+    @Environment(\.themeColors)
+    private var theme
     @Binding private var text: String
     @State private var showSuggestions = false
     @FocusState private var isFocused: Bool
@@ -103,7 +105,7 @@ struct AutocompleteTextField: View {
                     HStack {
                         Text(suggestion)
                             .font(.system(.body, design: .rounded))
-                            .foregroundColor(.textPrimary)
+                            .foregroundColor(self.theme.textPrimary)
                         Spacer()
                     }
                     .padding(.horizontal, 12)
@@ -119,14 +121,14 @@ struct AutocompleteTextField: View {
 
                 if suggestion != self.filteredSuggestions.last {
                     Divider()
-                        .background(Color.textSecondary.opacity(.opacityTertiary))
+                        .background(self.theme.textSecondary.opacity(.opacityTertiary))
                 }
             }
         }
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.backgroundSecondary)
-                .shadow(color: Color.textPrimary.opacity(0.1), radius: 4, x: 0, y: 2)
+                .fill(self.theme.backgroundSecondary)
+                .shadow(color: self.theme.textPrimary.opacity(0.1), radius: 4, x: 0, y: 2)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .padding(.top, 4)

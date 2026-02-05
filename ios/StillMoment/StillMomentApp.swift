@@ -17,19 +17,14 @@ enum AppTab: String, CaseIterable {
 struct StillMomentApp: App {
     // MARK: Lifecycle
 
+    /// Theme manager - owns theme state, injected as @EnvironmentObject
+    @StateObject private var themeManager = ThemeManager()
+
     /// Persisted tab selection - remembers last used tab across app launches
     @AppStorage("selectedTab")
     private var selectedTab: String = AppTab.timer.rawValue
 
     init() {
-        // Configure tab bar appearance with warm colors
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(Color.backgroundSecondary)
-
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-
         // Seed test fixtures for screenshot automation (Screenshots target only)
         #if SCREENSHOTS_BUILD
         TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
@@ -40,31 +35,32 @@ struct StillMomentApp: App {
 
     var body: some Scene {
         WindowGroup {
-            TabView(selection: self.$selectedTab) {
-                // Timer Feature Tab
-                NavigationStack {
-                    TimerView(viewModel: self.createTimerViewModel())
-                }
-                .tabItem {
-                    Label("tab.timer", systemImage: "timer")
-                }
-                .tag(AppTab.timer.rawValue)
-                .accessibilityIdentifier("tab.timer")
-                .accessibilityLabel(Text("tab.timer.accessibility"))
+            ThemeRootView {
+                TabView(selection: self.$selectedTab) {
+                    // Timer Feature Tab
+                    NavigationStack {
+                        TimerView(viewModel: self.createTimerViewModel())
+                    }
+                    .tabItem {
+                        Label("tab.timer", systemImage: "timer")
+                    }
+                    .tag(AppTab.timer.rawValue)
+                    .accessibilityIdentifier("tab.timer")
+                    .accessibilityLabel(Text("tab.timer.accessibility"))
 
-                // Guided Meditations Library Tab
-                NavigationStack {
-                    GuidedMeditationsListView()
+                    // Guided Meditations Library Tab
+                    NavigationStack {
+                        GuidedMeditationsListView()
+                    }
+                    .tabItem {
+                        Label("tab.library", systemImage: "music.note.list")
+                    }
+                    .tag(AppTab.library.rawValue)
+                    .accessibilityIdentifier("tab.library")
+                    .accessibilityLabel(Text("tab.library.accessibility"))
                 }
-                .tabItem {
-                    Label("tab.library", systemImage: "music.note.list")
-                }
-                .tag(AppTab.library.rawValue)
-                .accessibilityIdentifier("tab.library")
-                .accessibilityLabel(Text("tab.library.accessibility"))
             }
-            .tint(.interactive)
-            .preferredColorScheme(.light)
+            .environmentObject(self.themeManager)
         }
     }
 

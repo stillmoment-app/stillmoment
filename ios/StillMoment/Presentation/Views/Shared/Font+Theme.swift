@@ -29,18 +29,36 @@ extension Font {
 
 // MARK: - Text Style Modifiers
 
+private struct SettingsLabelModifier: ViewModifier {
+    @Environment(\.themeColors)
+    private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .font(.settingsLabel)
+            .foregroundColor(self.theme.textPrimary)
+    }
+}
+
+private struct SettingsDescriptionModifier: ViewModifier {
+    @Environment(\.themeColors)
+    private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .font(.settingsDescription)
+            .foregroundColor(self.theme.textSecondary)
+    }
+}
+
 extension View {
     /// Settings label style: 17pt rounded + primary text color
     func settingsLabelStyle() -> some View {
-        self
-            .font(.settingsLabel)
-            .foregroundColor(Color.textPrimary)
+        modifier(SettingsLabelModifier())
     }
 
     /// Settings description style: 13pt rounded + secondary text color
     func settingsDescriptionStyle() -> some View {
-        self
-            .font(.settingsDescription)
-            .foregroundColor(Color.textSecondary)
+        modifier(SettingsDescriptionModifier())
     }
 }

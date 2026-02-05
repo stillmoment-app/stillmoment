@@ -28,7 +28,7 @@ struct GuidedMeditationSettingsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.warmGradient
+                self.theme.backgroundGradient
                     .ignoresSafeArea()
 
                 Form {
@@ -42,7 +42,7 @@ struct GuidedMeditationSettingsView: View {
                             }
                         }
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
-                        .listRowBackground(Color.backgroundPrimary)
+                        .listRowBackground(self.theme.backgroundPrimary)
                         .onChange(of: self.preparationTimeEnabled) { newValue in
                             if newValue {
                                 self.localSettings = self.localSettings.withPreparationTime(
@@ -64,7 +64,7 @@ struct GuidedMeditationSettingsView: View {
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")
-                            .listRowBackground(Color.backgroundPrimary)
+                            .listRowBackground(self.theme.backgroundPrimary)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                             .onChange(of: self.preparationTimeSeconds) { newValue in
                                 self.localSettings = self.localSettings.withPreparationTime(newValue)
@@ -73,6 +73,8 @@ struct GuidedMeditationSettingsView: View {
                     } header: {
                         Text("guided_meditations.settings.preparationTime.header", bundle: .main)
                     }
+
+                    GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
                 .navigationTitle(NSLocalizedString("guided_meditations.settings.title", comment: ""))
@@ -82,7 +84,7 @@ struct GuidedMeditationSettingsView: View {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onSave(self.localSettings)
                         }
-                        .tint(.interactive)
+                        .tint(self.theme.interactive)
                         .accessibilityIdentifier("button.done")
                     }
                 }
@@ -91,6 +93,9 @@ struct GuidedMeditationSettingsView: View {
     }
 
     // MARK: Private
+
+    @Environment(\.themeColors)
+    private var theme
 
     /// Local copy of settings for editing - avoids SwiftUI binding issues
     @State private var localSettings: GuidedMeditationSettings

@@ -37,7 +37,7 @@ struct GuidedMeditationsListView: View {
     var body: some View {
         ZStack {
             // Warm gradient background (consistent with Timer tab)
-            Color.warmGradient
+            self.theme.backgroundGradient
                 .ignoresSafeArea()
 
             if self.viewModel.meditations.isEmpty {
@@ -52,7 +52,7 @@ struct GuidedMeditationsListView: View {
                 ProgressView()
                     .scaleEffect(1.5)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.textPrimary.opacity(.opacityOverlay))
+                    .background(self.theme.textPrimary.opacity(.opacityOverlay))
             }
         }
         .navigationTitle("guided_meditations.title")
@@ -65,7 +65,7 @@ struct GuidedMeditationsListView: View {
                     Image(systemName: "plus")
                         .frame(minWidth: 44, minHeight: 44)
                 }
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .accessibilityLabel("guided_meditations.add")
                 .accessibilityHint("accessibility.library.add.hint")
                 .accessibilityIdentifier("library.button.add")
@@ -77,7 +77,7 @@ struct GuidedMeditationsListView: View {
                     Image(systemName: "slider.horizontal.3")
                         .frame(minWidth: 44, minHeight: 44)
                 }
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .accessibilityLabel("guided_meditations.settings")
                 .accessibilityHint("accessibility.library.settings.hint")
                 .accessibilityIdentifier("library.button.settings")
@@ -160,6 +160,8 @@ struct GuidedMeditationsListView: View {
 
     // MARK: Private
 
+    @Environment(\.themeColors)
+    private var theme
     @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var selectedMeditation: GuidedMeditation?
     @State private var meditationToDelete: GuidedMeditation?
@@ -176,31 +178,31 @@ struct GuidedMeditationsListView: View {
                 .scaleEffect(1.5)
             Text("guided_meditations.migration.title")
                 .font(.system(.headline, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
             Text("guided_meditations.migration.message")
                 .font(.system(.subheadline, design: .rounded))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.backgroundPrimary)
+                .fill(self.theme.backgroundPrimary)
                 .shadow(radius: 8)
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.textPrimary.opacity(.opacityOverlay))
+        .background(self.theme.textPrimary.opacity(.opacityOverlay))
     }
 
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Text("guided_meditations.empty.title")
                 .font(.system(.title2, design: .rounded, weight: .medium))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
 
             Text("guided_meditations.empty.message")
                 .font(.system(.body, design: .rounded))
-                .foregroundColor(.textSecondary)
+                .foregroundColor(self.theme.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -246,15 +248,15 @@ struct GuidedMeditationsListView: View {
             HStack {
                 Image(systemName: "play.circle")
                     .font(.system(size: 20))
-                    .foregroundColor(.textSecondary)
+                    .foregroundColor(self.theme.textSecondary)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
                         .font(.system(.body, design: .rounded, weight: .medium))
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(self.theme.textPrimary)
                     Text(meditation.formattedDuration)
                         .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(self.theme.textSecondary)
                 }
 
                 Spacer()
@@ -264,7 +266,7 @@ struct GuidedMeditationsListView: View {
             .padding(.vertical, 4)
         }
         .buttonStyle(.plain)
-        .listRowBackground(Color.backgroundPrimary)
+        .listRowBackground(self.theme.backgroundPrimary)
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
@@ -283,7 +285,7 @@ struct GuidedMeditationsListView: View {
             }
         } label: {
             Image(systemName: "ellipsis")
-                .foregroundColor(Color.interactive)
+                .foregroundColor(self.theme.interactive)
                 .frame(minWidth: 44, minHeight: 44)
         }
         .accessibilityLabel("accessibility.library.overflow")

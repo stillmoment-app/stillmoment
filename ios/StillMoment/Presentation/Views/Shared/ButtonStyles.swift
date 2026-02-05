@@ -23,17 +23,19 @@ enum ButtonStyles {}
 extension ButtonStyles {
     /// Primary button style with terracotta background and shadow
     struct WarmPrimary: ButtonStyle {
+        let colors: ThemeColors
+
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(.textOnInteractive)
+                .foregroundColor(self.colors.textOnInteractive)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: .buttonCornerRadiusPrimary)
-                        .fill(Color.interactive)
+                        .fill(self.colors.interactive)
                         .shadow(
-                            color: Color.interactive.opacity(.opacityShadow),
+                            color: self.colors.interactive.opacity(.opacityShadow),
                             radius: 20,
                             x: 0,
                             y: 8
@@ -46,19 +48,41 @@ extension ButtonStyles {
 
     /// Secondary button style with soft sand background
     struct WarmSecondary: ButtonStyle {
+        let colors: ThemeColors
+
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.colors.textPrimary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: .buttonCornerRadiusSecondary)
-                        .fill(Color.backgroundSecondary.opacity(.opacitySecondary))
+                        .fill(self.colors.backgroundSecondary.opacity(.opacitySecondary))
                 )
                 .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
                 .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
         }
+    }
+}
+
+// MARK: - ViewModifier Bridge
+
+private struct WarmPrimaryButtonModifier: ViewModifier {
+    @Environment(\.themeColors)
+    private var theme
+
+    func body(content: Content) -> some View {
+        content.buttonStyle(ButtonStyles.WarmPrimary(colors: self.theme))
+    }
+}
+
+private struct WarmSecondaryButtonModifier: ViewModifier {
+    @Environment(\.themeColors)
+    private var theme
+
+    func body(content: Content) -> some View {
+        content.buttonStyle(ButtonStyles.WarmSecondary(colors: self.theme))
     }
 }
 
@@ -67,11 +91,11 @@ extension ButtonStyles {
 extension View {
     /// Apply warm primary button style
     func warmPrimaryButton() -> some View {
-        buttonStyle(ButtonStyles.WarmPrimary())
+        modifier(WarmPrimaryButtonModifier())
     }
 
     /// Apply warm secondary button style
     func warmSecondaryButton() -> some View {
-        buttonStyle(ButtonStyles.WarmSecondary())
+        modifier(WarmSecondaryButtonModifier())
     }
 }

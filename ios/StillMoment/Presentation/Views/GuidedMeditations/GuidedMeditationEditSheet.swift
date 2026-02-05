@@ -41,7 +41,7 @@ struct GuidedMeditationEditSheet: View {
         NavigationView {
             ZStack {
                 // Warm gradient background (consistent with other views)
-                Color.warmGradient
+                self.theme.backgroundGradient
                     .ignoresSafeArea()
 
                 Form {
@@ -49,7 +49,7 @@ struct GuidedMeditationEditSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("guided_meditations.edit.teacher")
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .foregroundColor(.textPrimary)
+                                .foregroundColor(self.theme.textPrimary)
 
                             AutocompleteTextField(
                                 text: self.$editState.editedTeacher,
@@ -65,7 +65,7 @@ struct GuidedMeditationEditSheet: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("guided_meditations.edit.name")
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .foregroundColor(.textPrimary)
+                                .foregroundColor(self.theme.textPrimary)
 
                             TextField("guided_meditations.edit.namePlaceholder", text: self.$editState.editedName)
                                 .accessibilityLabel("guided_meditations.edit.name")
@@ -78,21 +78,21 @@ struct GuidedMeditationEditSheet: View {
                             HStack {
                                 Text("guided_meditations.edit.file")
                                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                    .foregroundColor(.textPrimary)
+                                    .foregroundColor(self.theme.textPrimary)
                                 Spacer()
                                 Text(self.meditation.fileName)
                                     .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundColor(self.theme.textSecondary)
                             }
 
                             HStack {
                                 Text("guided_meditations.edit.duration")
                                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                    .foregroundColor(.textPrimary)
+                                    .foregroundColor(self.theme.textPrimary)
                                 Spacer()
                                 Text(self.meditation.formattedDuration)
                                     .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundColor(self.theme.textSecondary)
                             }
                         }
                     } header: {
@@ -108,7 +108,7 @@ struct GuidedMeditationEditSheet: View {
                     Button(NSLocalizedString("common.cancel", comment: "")) {
                         self.onCancel()
                     }
-                    .foregroundColor(.textSecondary)
+                    .foregroundColor(self.theme.textSecondary)
                     .accessibilityIdentifier("editSheet.button.cancel")
                     .accessibilityHint("accessibility.editSheet.cancel.hint")
                 }
@@ -117,7 +117,7 @@ struct GuidedMeditationEditSheet: View {
                     Button(NSLocalizedString("common.save", comment: "")) {
                         self.onSave(self.editState.applyChanges())
                     }
-                    .tint(.interactive)
+                    .tint(self.theme.interactive)
                     .accessibilityIdentifier("editSheet.button.save")
                     .accessibilityHint("accessibility.editSheet.save.hint")
                     .disabled(!self.editState.isValid)
@@ -128,6 +128,8 @@ struct GuidedMeditationEditSheet: View {
 
     // MARK: Private
 
+    @Environment(\.themeColors)
+    private var theme
     @State private var editState: EditSheetState
 }
 

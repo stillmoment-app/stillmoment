@@ -44,7 +44,7 @@ struct GuidedMeditationPlayerView: View {
 
                 ZStack {
                     // Warm gradient background (consistent with Timer tab)
-                    Color.warmGradient
+                    self.theme.backgroundGradient
                         .ignoresSafeArea()
 
                     VStack(spacing: mainSpacing) {
@@ -54,7 +54,7 @@ struct GuidedMeditationPlayerView: View {
                         VStack(spacing: infoSpacing) {
                             Text(self.viewModel.meditation.effectiveTeacher)
                                 .font(.system(size: isCompactHeight ? 18 : 20, weight: .medium, design: .rounded))
-                                .foregroundColor(Color.interactive)
+                                .foregroundColor(self.theme.interactive)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
                                 .accessibilityLabel("guided_meditations.player.teacher")
@@ -82,7 +82,7 @@ struct GuidedMeditationPlayerView: View {
                                 ),
                                 in: 0...max(self.viewModel.duration, 1)
                             )
-                            .tint(Color.interactive)
+                            .tint(self.theme.interactive)
                             .accessibilityIdentifier("player.slider.progress")
                             .accessibilityLabel("guided_meditations.player.progress")
                             .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")
@@ -91,7 +91,7 @@ struct GuidedMeditationPlayerView: View {
                             HStack {
                                 Text(self.viewModel.formattedCurrentTime)
                                     .font(.system(.caption, design: .rounded).monospacedDigit())
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundColor(self.theme.textSecondary)
                                     .accessibilityIdentifier("player.text.currentTime")
                                     .accessibilityLabel("guided_meditations.player.currentTime")
                                     .accessibilityValue(self.viewModel.formattedCurrentTime)
@@ -100,7 +100,7 @@ struct GuidedMeditationPlayerView: View {
 
                                 Text(self.viewModel.formattedRemainingTime)
                                     .font(.system(.caption, design: .rounded).monospacedDigit())
-                                    .foregroundColor(.textSecondary)
+                                    .foregroundColor(self.theme.textSecondary)
                                     .accessibilityIdentifier("player.text.remainingTime")
                                     .accessibilityLabel("guided_meditations.player.remainingTime")
                                     .accessibilityValue(self.viewModel.formattedRemainingTime)
@@ -121,7 +121,7 @@ struct GuidedMeditationPlayerView: View {
                                 } label: {
                                     Image(systemName: "gobackward.10")
                                         .font(.system(size: skipButtonSize, design: .rounded))
-                                        .foregroundColor(Color.interactive)
+                                        .foregroundColor(self.theme.interactive)
                                 }
                                 .accessibilityIdentifier("player.button.skipBackward")
                                 .accessibilityLabel("guided_meditations.player.skipBackward")
@@ -133,7 +133,7 @@ struct GuidedMeditationPlayerView: View {
                                     Image(systemName: self.viewModel
                                         .isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                         .font(.system(size: playButtonSize, design: .rounded))
-                                        .foregroundColor(Color.interactive)
+                                        .foregroundColor(self.theme.interactive)
                                 }
                                 .accessibilityIdentifier("player.button.playPause")
                                 .accessibilityLabel(
@@ -148,7 +148,7 @@ struct GuidedMeditationPlayerView: View {
                                 } label: {
                                     Image(systemName: "goforward.10")
                                         .font(.system(size: skipButtonSize, design: .rounded))
-                                        .foregroundColor(Color.interactive)
+                                        .foregroundColor(self.theme.interactive)
                                 }
                                 .accessibilityIdentifier("player.button.skipForward")
                                 .accessibilityLabel("guided_meditations.player.skipForward")
@@ -165,7 +165,7 @@ struct GuidedMeditationPlayerView: View {
                         ProgressView()
                             .scaleEffect(1.5)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.textPrimary.opacity(.opacityOverlay))
+                            .background(self.theme.textPrimary.opacity(.opacityOverlay))
                     }
                 }
             }
@@ -176,7 +176,7 @@ struct GuidedMeditationPlayerView: View {
                         self.viewModel.cleanup()
                         self.dismiss()
                     }
-                    .foregroundColor(.textSecondary)
+                    .foregroundColor(self.theme.textSecondary)
                     .accessibilityIdentifier("player.button.close")
                 }
             }
@@ -207,6 +207,8 @@ struct GuidedMeditationPlayerView: View {
 
     @Environment(\.dismiss)
     private var dismiss
+    @Environment(\.themeColors)
+    private var theme
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 
     // MARK: - Countdown View
@@ -215,13 +217,13 @@ struct GuidedMeditationPlayerView: View {
         ZStack {
             // Background ring
             Circle()
-                .stroke(Color.ringTrack, lineWidth: 4)
+                .stroke(self.theme.ringTrack, lineWidth: 4)
                 .frame(width: size, height: size)
 
             // Progress ring
             Circle()
                 .trim(from: 0, to: self.viewModel.countdownProgress)
-                .stroke(Color.progress, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .stroke(self.theme.progress, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                 .frame(width: size, height: size)
                 .rotationEffect(.degrees(-90))
                 .animation(.linear(duration: 1.0), value: self.viewModel.countdownProgress)
@@ -229,7 +231,7 @@ struct GuidedMeditationPlayerView: View {
             // Countdown number
             Text("\(self.viewModel.remainingCountdownSeconds)")
                 .font(.system(size: size * 0.5, weight: .light, design: .rounded))
-                .foregroundColor(.textPrimary)
+                .foregroundColor(self.theme.textPrimary)
                 .monospacedDigit()
         }
         .accessibilityIdentifier("player.countdown")
