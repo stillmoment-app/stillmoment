@@ -1,4 +1,8 @@
-.PHONY: help format lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight
+.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight
+
+DEVICE ?= iPhone 17
+IOS_VERSION ?= latest
+ANALYZE_LOG ?= build/analyze.log
 
 help: ## Show this help message
 	@echo "Still Moment - Available Commands"
@@ -8,6 +12,10 @@ help: ## Show this help message
 format: ## Format code with SwiftFormat
 	@echo "🎨 Formatting code..."
 	@swiftformat .
+
+format-check: ## Check formatting without modifying files
+	@echo "🔍 Checking code formatting..."
+	@swiftformat --lint .
 
 lint: ## Lint code with SwiftLint (strict mode)
 	@echo "🔍 Linting code..."
@@ -51,8 +59,31 @@ setup: ## Setup development environment (one-time setup)
 	@echo "🚀 Setting up development environment..."
 	@./scripts/setup-hooks.sh
 
-check: format lint check-localization validate-localization ## Run format, lint, and localization checks
+ifdef CI
+check: format-check lint check-localization validate-localization ## Run all static code checks (format, lint, localization)
+else
+check: format lint check-localization validate-localization
+endif
 	@echo "✅ All checks passed!"
+
+analyze: ## Run Xcode static analysis (fails on any warning)
+	@echo "🔬 Running Xcode static analysis..."
+	@mkdir -p $(dir $(ANALYZE_LOG))
+	@xcodebuild analyze \
+		-project StillMoment.xcodeproj \
+		-scheme StillMoment \
+		-destination "platform=iOS Simulator,name=$(DEVICE),OS=$(IOS_VERSION)" \
+		CODE_SIGN_IDENTITY="" \
+		CODE_SIGNING_REQUIRED=NO \
+		CODE_SIGNING_ALLOWED=NO \
+		2>&1 | tee $(ANALYZE_LOG)
+	@if grep -qE ':[0-9]+:[0-9]+: warning:' $(ANALYZE_LOG); then \
+		echo "❌ Static analysis found warnings:"; \
+		grep -E ':[0-9]+:[0-9]+: warning:' $(ANALYZE_LOG); \
+		exit 1; \
+	else \
+		echo "✅ No static analysis warnings found"; \
+	fi
 
 screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
 	@echo "💎 Setting up Ruby/Fastlane environment..."

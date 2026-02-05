@@ -19,7 +19,7 @@ env:
 
 jobs:
   lint:
-    name: Code Quality (SwiftLint + SwiftFormat)
+    name: Code Quality
     runs-on: macos-26
 
     steps:
@@ -56,11 +56,8 @@ jobs:
         fi
         swiftformat --version
 
-    - name: Run SwiftFormat Check
-      run: cd ios && make format
-
-    - name: Run SwiftLint
-      run: cd ios && make lint
+    - name: Run Code Quality Checks
+      run: cd ios && make check
 
   build-and-test:
     name: Build & Unit Tests
@@ -227,31 +224,14 @@ jobs:
           ${{ runner.os }}-analyze-
 
     - name: Run Xcode Static Analysis
-      run: |
-        xcodebuild analyze \
-          -project ios/StillMoment.xcodeproj \
-          -scheme StillMoment \
-          -destination "platform=iOS Simulator,name=${{ env.DEVICE }},OS=${{ env.IOS_VERSION }}" \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          | tee analyze-output.log
-
-        # Check for analyzer warnings
-        if grep -q "warning:" analyze-output.log; then
-          echo "❌ Static analysis found warnings:"
-          grep "warning:" analyze-output.log
-          exit 1
-        else
-          echo "✅ No static analysis warnings found"
-        fi
+      run: cd ios && make analyze DEVICE="${{ env.DEVICE }}" IOS_VERSION="${{ env.IOS_VERSION }}"
 
     - name: Upload Analysis Results
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: static-analysis-results
-        path: analyze-output.log
+        path: ios/build/analyze.log
         retention-days: 7
 
   # ===================
