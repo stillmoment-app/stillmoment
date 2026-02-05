@@ -135,33 +135,6 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.resetPressed)
     }
 
-    /// Saves settings to UserDefaults
-    func saveSettings() {
-        let defaults = UserDefaults.standard
-        defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
-        defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
-        defaults.set(self.settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
-        defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.set(self.settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
-        defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
-        defaults.set(self.settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-        defaults.set(self.settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
-        defaults.set(self.settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
-        defaults.set(self.settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
-        Logger.viewModel.info("Saved settings", metadata: [
-            "intervalEnabled": self.settings.intervalGongsEnabled,
-            "intervalMinutes": self.settings.intervalMinutes,
-            "intervalGongVolume": self.settings.intervalGongVolume,
-            "backgroundSoundId": self.settings.backgroundSoundId,
-            "backgroundSoundVolume": self.settings.backgroundSoundVolume,
-            "durationMinutes": self.settings.durationMinutes,
-            "preparationEnabled": self.settings.preparationTimeEnabled,
-            "preparationSeconds": self.settings.preparationTimeSeconds,
-            "startGongSoundId": self.settings.startGongSoundId,
-            "gongVolume": self.settings.gongVolume
-        ])
-    }
-
     // MARK: Private
 
     private let timerService: TimerServiceProtocol
@@ -395,8 +368,37 @@ final class TimerViewModel: ObservableObject {
             }
         }
     }
+}
 
-    // MARK: - Settings Management
+// MARK: - Settings Persistence
+
+extension TimerViewModel {
+    /// Saves settings to UserDefaults
+    func saveSettings() {
+        let defaults = UserDefaults.standard
+        defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
+        defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
+        defaults.set(self.settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
+        defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
+        defaults.set(self.settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
+        defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
+        defaults.set(self.settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        defaults.set(self.settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
+        defaults.set(self.settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
+        defaults.set(self.settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
+        Logger.viewModel.info("Saved settings", metadata: [
+            "intervalEnabled": self.settings.intervalGongsEnabled,
+            "intervalMinutes": self.settings.intervalMinutes,
+            "intervalGongVolume": self.settings.intervalGongVolume,
+            "backgroundSoundId": self.settings.backgroundSoundId,
+            "backgroundSoundVolume": self.settings.backgroundSoundVolume,
+            "durationMinutes": self.settings.durationMinutes,
+            "preparationEnabled": self.settings.preparationTimeEnabled,
+            "preparationSeconds": self.settings.preparationTimeSeconds,
+            "startGongSoundId": self.settings.startGongSoundId,
+            "gongVolume": self.settings.gongVolume
+        ])
+    }
 
     private func loadSettings() {
         let defaults = UserDefaults.standard
