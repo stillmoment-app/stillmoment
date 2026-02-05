@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Customizable Color Themes** - 2 Farbpaletten (Warm Desert, Kerzenschein) mit automatischem Light/Dark Mode
+  - Theme-Auswahl in beiden Settings-Sheets (Timer + Library)
+  - Wiederverwendbare "Allgemein"-Section fuer app-weite Einstellungen
+  - Environment-basierte Farb-Reaktivitaet (alle Views aktualisieren sofort)
+  - Theme-Wahl wird persistent gespeichert
+  - Ticket: shared-032
+
+### Technical (iOS)
+- **Theme-Architektur** - Migration von statischen Color-Properties zu @Environment-basiertem ThemeColors-System
+  - Asset Catalog Colorsets durch Inline-RGB in ThemePalettes ersetzt
+  - ViewModifier-Bridge fuer ButtonStyle/Font+Theme (Call Sites unveraendert)
+  - ThemeRootView mit reaktiver TabBar-Appearance
+  - color-system.md komplett ueberarbeitet
+
 ## [1.9.1] - 2026-01-23 (iOS Bugfix)
 
 ### Added (iOS)
