@@ -140,7 +140,7 @@ struct TimerFocusView: View {
     private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringBackground, lineWidth: 10)
+                .stroke(Color.ringTrack, lineWidth: 10)
                 .frame(width: size, height: size)
 
             Text(self.viewModel.formattedTime)
@@ -158,7 +158,7 @@ struct TimerFocusView: View {
     private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringBackground, lineWidth: 10)
+                .stroke(Color.ringTrack, lineWidth: 10)
                 .frame(width: size, height: size)
 
             Circle()

@@ -182,7 +182,7 @@ struct TimerView: View {
             .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.paleApricot)
+                    .fill(Color.accentBackground)
                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
             )
             .accessibilityLabel("accessibility.settings.hint.tooltip")
@@ -259,7 +259,7 @@ struct TimerView: View {
     private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringBackground, lineWidth: 8)
+                .stroke(Color.ringTrack, lineWidth: 8)
                 .frame(width: size, height: size)
 
             Text(self.viewModel.formattedTime)
@@ -277,7 +277,7 @@ struct TimerView: View {
     private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
         ZStack {
             Circle()
-                .stroke(Color.ringBackground, lineWidth: 8)
+                .stroke(Color.ringTrack, lineWidth: 8)
                 .frame(width: size, height: size)
 
             Circle()

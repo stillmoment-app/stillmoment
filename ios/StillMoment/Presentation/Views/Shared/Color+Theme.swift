@@ -64,6 +64,12 @@ extension Color {
     /// Secondary background color
     static var backgroundSecondary: Color { .warmSand }
 
+    /// Background for ring tracks (timer circles, countdown rings)
+    static var ringTrack: Color { .ringBackground }
+
+    /// Accent background for tooltips and highlights
+    static var accentBackground: Color { .paleApricot }
+
     // MARK: - Feedback Colors
 
     /// Color for error states and warnings

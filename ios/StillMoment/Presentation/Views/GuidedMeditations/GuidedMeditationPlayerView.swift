@@ -215,7 +215,7 @@ struct GuidedMeditationPlayerView: View {
         ZStack {
             // Background ring
             Circle()
-                .stroke(Color.ringBackground, lineWidth: 4)
+                .stroke(Color.ringTrack, lineWidth: 4)
                 .frame(width: size, height: size)
 
             // Progress ring
