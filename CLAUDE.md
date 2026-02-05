@@ -1,266 +1,190 @@
-# CLAUDE.md
+# Still Moment Constitution
 
-This file provides guidance to Claude Code when working with this repository.
+## Product Philosophy
 
-## Project Overview
+This is a meditation app for guided meditations (from user's own MP3s) and silent meditation with a customizable timer. Every decision should serve stillness.
 
-Still Moment is a meditation app with:
-- **Guided meditations** from user's own MP3s
-- **Silent meditation** with customizable timer
+**Core Values:**
+- Privacy is non-negotiable (no tracking, no analytics, no servers)
+- No monetization pressure (no ads, no subscription, no in-app purchases)
+- Simplicity over features (no gamification, no streaks, no social)
+- The app should feel like a pause, not another notification
 
-**USPs**: Privacy-first (no tracking, no ads, no subscription), no gamification (no streaks, no levels), distraction-free design.
+**When in doubt:** Would a monk approve? Less is more.
 
-**Platforms**: iOS (SwiftUI) + Android (Jetpack Compose)
+---
 
 ## Monorepo Structure
 
 ```
-stillmoment/
-├── ios/          # cd ios before iOS work
-├── android/      # cd android before Android work
-├── docs/         # GitHub Pages (NO .md files!)
-└── dev-docs/     # Documentation (.md files here)
+ios/       → iOS app (Swift/SwiftUI)
+android/   → Android app (Kotlin/Compose)
+docs/      → GitHub Pages (HTML only, NO .md files)
+dev-docs/  → All documentation lives here
 ```
 
-## Essential Commands
-
-### iOS (`ios/` directory)
-
-```bash
-make help               # Show all commands
-make check              # Format + lint + localization
-make test-unit          # Fast unit tests (~30-60s)
-make test               # Full suite with coverage
-
-# Release (Fastlane)
-make screenshots        # App Store Screenshots generieren
-make release-dry        # Validierung ohne Upload
-make release VERSION=x.y.z  # Store Upload (Metadata + Screenshots)
-make testflight         # TestFlight Upload
-```
-
-### Android (`android/` directory)
-
-```bash
-make help               # Show all commands
-make check              # Format + lint (same as CI)
-make test               # Unit tests
-```
-
-## Architecture
-
-**Clean Architecture + MVVM** on both platforms.
-
-```
-├── Domain/           # Pure Swift/Kotlin - Models, Protocols
-├── Application/      # ViewModels
-├── Presentation/     # Views (no business logic)
-├── Infrastructure/   # Service implementations
-└── Resources/        # Assets, sounds, localization
-```
-
-**Dependency Rules**:
-- Domain: NO dependencies
-- Application: Only Domain
-- Presentation: Domain + Application
-- Infrastructure: Implements Domain protocols
-
-**Key Patterns**:
-- Protocol-based design
-- Constructor injection for testability
-- `AudioSessionCoordinator` singleton for audio conflicts
-- `@MainActor` for ViewModels, `[weak self]` in closures
+**Before platform work:** Read `ios/CLAUDE.md` or `android/CLAUDE.md` first. They contain the platform-specific patterns, code examples, and conventions you must follow.
 
 ---
 
-## Domain-Driven Design
+## Mental Model
 
-**Ubiquitous Language**: iOS und Android verwenden identische Begriffe.
-Vor Feature-Implementierung: `dev-docs/reference/glossary.md` lesen.
+Before touching code, understand:
 
-**Kern-Regeln**:
+1. **Read the glossary first** → `dev-docs/reference/glossary.md`
+   iOS and Android use identical terms. Misnamed concepts create bugs.
 
-1. **Immutable Value Objects**: Alle Domain Models sind immutabel
-   ```swift
-   // RICHTIG: Neue Instanz zurückgeben
-   func tick() -> MeditationTimer { ... }
+2. **Understand the architecture** → `dev-docs/architecture/overview.md`
+   Clean Architecture + MVVM. Know which layer you're in.
 
-   // FALSCH: Mutation
-   mutating func tick() { remainingSeconds -= 1 }
-   ```
+3. **Check existing patterns** → Search before inventing
+   If something similar exists, follow that pattern.
 
-2. **Domain Logic in Models**: Business-Regeln gehören ins Model
-   ```swift
-   // RICHTIG: Logik im Value Object
-   timer.shouldPlayIntervalGong(intervalMinutes: 5)
+---
 
-   // FALSCH: Logik im ViewModel
-   if viewModel.timer.remainingSeconds % (5 * 60) == 0 { ... }
-   ```
+## Architecture Principles
 
-3. **Reducer Pattern**: Zustandsänderungen via pure function
-   ```swift
-   let (newState, effects) = TimerReducer.reduce(state, action, settings)
-   ```
+**Layer Rules** (violating these creates tech debt):
+```
+Domain/        → Pure models. NO dependencies. NO platform imports.
+Application/   → ViewModels. Only imports Domain.
+Presentation/  → Views. NO business logic. Just binds to ViewModels.
+Infrastructure/→ Implementations. Conforms to Domain protocols.
+```
 
-4. **Explicit Effects**: Side Effects als Domain-Objekte
-   ```swift
-   enum TimerEffect {
-       case playStartGong
-       case startTimer(durationMinutes: Int)
-       case saveSettings(MeditationSettings)
-   }
-   ```
+**DDD Rules:**
+- Domain models are immutable (return new instances, don't mutate)
+- Business logic lives in models, not ViewModels
+- Side effects are explicit (enums, not hidden calls)
+- State changes via pure reducer functions
 
-**Vollständige Dokumentation**: `dev-docs/architecture/ddd.md`
+**Full DDD guide:** `dev-docs/architecture/ddd.md`
+
+---
+
+## Cross-Platform Consistency
+
+Both platforms must behave identically. Same features, same UX, same edge cases.
+
+| Concern | iOS | Android |
+|---------|-----|---------|
+| UI Framework | SwiftUI | Jetpack Compose |
+| Architecture | Clean + MVVM | Clean + MVVM |
+| DI Pattern | Constructor injection | Constructor injection |
+| Audio Handling | AudioSessionCoordinator | AudioFocusManager |
+
+When implementing a feature: check how the other platform does it first.
+
+---
+
+## Commands
+
+Both platforms use `make help` to show all available commands.
+
+**Daily workflow:**
+```bash
+# iOS (from ios/ directory)
+make check              # Format + lint + localization
+make test-unit          # Fast TDD loop
+make test               # Full suite with coverage
+
+# Android (from android/ directory)
+make check              # Format + lint
+make test               # Unit tests
+```
+
+**Release** (from `ios/` directory):
+```bash
+make release-dry            # Validate without upload
+make release VERSION=x.y.z  # Store upload
+make testflight             # TestFlight upload
+```
+Full guide: `dev-docs/release/RELEASE_GUIDE.md`
 
 ---
 
 ## Code Standards
 
-### Verboten
+**Design System** — use semantic colors (`.textPrimary`), never direct values (`.warmBlack`).
+Full guide: `dev-docs/reference/color-system.md`
 
+**Logging** — use structured logging, never `print()`:
+`Logger.timer` | `.audio` | `.viewModel` | `.error` | `.performance`
+
+**Forbidden patterns** (both platforms):
+- Force unwrapping / non-null assertions on optionals
+- `print()` for debugging (use structured logging above)
+- Ignoring errors with `try!` or empty catch blocks
+- Direct color values (use semantic colors from design system)
+- Hardcoded strings (everything must be localized)
+- String interpolation in localized texts: `Text("key: \(value)")` is a bug — use `String(format: NSLocalizedString(...))`
+
+**Required patterns:**
+- Proper error handling with meaningful messages
+- `[weak self]` / weak references in closures to prevent leaks
+- UI updates on main thread
+- Accessibility labels on interactive elements
+
+**Common pitfalls:**
 ```swift
-let value = optional!              // Force unwrap
-var property: String!              // Implicitly unwrapped
-print("Debug message")             // Use OSLog
-try! dangerousOperation()          // Handle errors
-```
+.sink { timer in self.update(timer) }              // BUG: retain cycle
+.sink { [weak self] timer in self?.update(timer) } // OK: weak reference
 
-### Empfohlen
+service.publisher.sink { ... }                      // BUG: UI update off main thread
+service.publisher.receive(on: DispatchQueue.main).sink { ... }  // OK
 
-```swift
-guard let value = optional else { return }
-
-do {
-    let result = try operation()
-} catch {
-    Logger.error.error("Failed", error: error)
-}
-```
-
-### Internationalization
-
-```swift
-// Immer lokalisieren
-Text("button.start")  // SwiftUI findet Key automatisch
-Text(String(format: NSLocalizedString("greeting.name", comment: ""), userName))
-
-// NIEMALS direkte Interpolation
-Text("greeting.name: \(userName)")  // BUG!
+Text("greeting: \(name)")                           // BUG: not localizable
+Text(String(format: NSLocalizedString("greeting", comment: ""), name)) // OK
 ```
 
 ---
 
-## Logging
+## Testing Philosophy
 
-Use `Logger.timer`, `.audio`, `.viewModel`, `.error`, `.performance` (not print)
+**STOP before writing production code:** Is there a failing test that proves the problem?
+If not → write the test first, run `make test-unit`, see it fail. Then implement.
 
-```swift
-Logger.timer.info("Started", metadata: ["duration": 10])
-Logger.error.error("Failed", error: error)
+RED → GREEN → REFACTOR. Full cycle: `dev-docs/guides/tdd.md`
+
+Quick commands: `make test-unit`, `make test-single TEST=...`, `make test-failures`
+
+Tests should be **fachlich** (domain-focused), not technical:
+
+```
+// Wrong: Tests implementation detail
+assert(SupportedFormats.contains(.mp4))
+
+// Right: Tests user requirement
+assert(canImportFile("meditation.mp4"))
 ```
 
----
-
-## Common Pitfalls
-
-```swift
-// Retain Cycles
-.sink { timer in self.update(timer) }              // FALSCH
-.sink { [weak self] timer in self?.update(timer) } // RICHTIG
-
-// Main Thread
-service.publisher
-    .receive(on: DispatchQueue.main)  // Pflicht vor UI-Updates
-    .sink { [weak self] in ... }
-```
-
----
-
-## Implementierungsprozess bei Ticket-Umsetzung
-
-**TDD ist Pflicht** - Kein Produktiv-Code ohne vorherigen roten Test.
-
-### STOP vor jeder Code-Änderung
-
-1. Gibt es einen fehlschlagenden Test, der das Problem beweist?
-2. Ist der Test fachlich formuliert (Benutzer-Perspektive)?
-
-**Wenn nein → erst Test schreiben, `make test-unit` ausführen, Fehler sehen.**
-
-### Fachlich vs. Technisch
-
-```swift
-// ❌ Technisch (testet Implementierungsdetail):
-XCTAssertTrue(SupportedAudioFormats.types.contains(.mpeg4Audio))
-
-// ✅ Fachlich (testet Benutzer-Anforderung):
-XCTAssertTrue(canImportFile(withExtension: "mp4"))
-```
-
-### TDD-Zyklus
-
-1. **RED**: Test ZUERST schreiben
-   - Test für geplante Funktionalität erstellen
-   - `make test-unit` ausführen, Test muss FEHLSCHLAGEN
-   - Noch kein Implementierungscode!
-
-2. **GREEN**: Minimale Implementierung
-   - Gerade genug Code schreiben, damit Test grün wird
-   - `make test-unit` ausführen, Test muss BESTEHEN
-
-3. **REFACTOR**: Aufräumen
-   - Code-Qualität verbessern, Duplikate entfernen
-   - `make test-unit` ausführen, Tests müssen grün bleiben
-
-4. **Wiederholen** für jede weitere Änderung
-
-```bash
-make test-unit                              # Schneller TDD-Loop (~30-60s)
-make test-single TEST=TestClass/testMethod  # Einzelner Test
-make test-failures                          # Fehler vom letzten Lauf
-make test                                   # Vollständige Suite vor Commit
-```
-
-**Coverage-Ziele**: Domain 85%+, Infrastructure 70%+, Presentation 50%+
-
-**Vollständiger Guide**: `dev-docs/guides/tdd.md`
-
----
-
-## Design System
-
-**Colors**: Use semantic (`.textPrimary`), never direct (`.warmBlack`)
-
-**Full guide**: `dev-docs/reference/color-system.md`
-
----
-
-## Documentation & Skills
-
-| Thema | Ressource |
-|-------|-----------|
-| Code Review | `/review-code` Skill |
-| View Quality | `/review-view` Skill |
-| Tickets | `/create-ticket`, `/close-ticket` Skills |
-| Release Notes | `/release-notes` Skill |
-| Release | `dev-docs/release/RELEASE_GUIDE.md` |
-| Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
-| Website | `dev-docs/guides/website.md` |
-| Architektur | `dev-docs/architecture/overview.md` |
-| DDD | `dev-docs/architecture/ddd.md` |
-| Glossar | `dev-docs/reference/glossary.md` |
-| Testing | `dev-docs/guides/tdd.md` |
-| Audio | `dev-docs/architecture/audio-system.md` |
-| ADRs | `dev-docs/architecture/decisions/` |
-
-**Hinweis**: Bei Fragen zu Build, Server, Deployment oder Tools → zuerst `dev-docs/guides/` durchsuchen.
+**Coverage targets:** Domain 85%+ | Infrastructure 70%+ | Presentation 50%+
 
 ---
 
 ## Quality Gates
 
-- **Coverage ≥80%**: CI fails below
-- **No force unwraps**: Proper error handling required
-- **Accessibility**: Every interactive element needs labels
+- Coverage ≥80% (CI fails below)
+- No force unwraps / non-null assertions
+- All strings localized
+- Accessibility labels on all interactive elements
+- `make check` passes
+
+---
+
+## Navigation
+
+| Need | Resource |
+|------|----------|
+| Architecture | `dev-docs/architecture/overview.md` |
+| DDD Patterns | `dev-docs/architecture/ddd.md` |
+| Glossary | `dev-docs/reference/glossary.md` |
+| Testing Guide | `dev-docs/guides/tdd.md` |
+| Audio System | `dev-docs/architecture/audio-system.md` |
+| Design System | `dev-docs/reference/color-system.md` |
+| Release Guide | `dev-docs/release/RELEASE_GUIDE.md` |
+| Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
+| Website | `dev-docs/guides/website.md` |
+| Architecture Decisions | `dev-docs/architecture/decisions/` |
+
+**Skills:** `/review-code`, `/review-view`, `/create-ticket`, `/close-ticket`, `/release-notes`
