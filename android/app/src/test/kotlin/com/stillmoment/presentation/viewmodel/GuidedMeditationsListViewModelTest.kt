@@ -264,6 +264,38 @@ class GuidedMeditationsListViewModelTest {
         }
 
         @Test
+        fun `importMeditation opens edit sheet after successful import`() = runTest {
+            // Given
+            val uri = mock<Uri>()
+            fakeRepository.importShouldFail = false
+
+            // When
+            viewModel.importMeditation(uri)
+            advanceUntilIdle()
+
+            // Then - Edit sheet should be shown with imported meditation
+            val state = viewModel.uiState.value
+            assertTrue(state.showEditSheet)
+            assertNotNull(state.selectedMeditation)
+        }
+
+        @Test
+        fun `importMeditation does not open edit sheet on failure`() = runTest {
+            // Given
+            val uri = mock<Uri>()
+            fakeRepository.importShouldFail = true
+
+            // When
+            viewModel.importMeditation(uri)
+            advanceUntilIdle()
+
+            // Then - Edit sheet should NOT be shown
+            val state = viewModel.uiState.value
+            assertFalse(state.showEditSheet)
+            assertNull(state.selectedMeditation)
+        }
+
+        @Test
         fun `importMeditation sets and clears loading state`() = runTest {
             // Given
             val uri = mock<Uri>()

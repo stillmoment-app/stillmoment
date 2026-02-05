@@ -131,6 +131,9 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             // Reload meditations to get sorted list
             self.meditations = try self.meditationService.loadMeditations()
 
+            // Open edit sheet for imported meditation
+            self.showEditSheet(for: meditation)
+
             Logger.guidedMeditation.info("Successfully imported meditation", metadata: ["id": meditation.id.uuidString])
         } catch {
             Logger.guidedMeditation.error("Failed to import meditation", error: error)

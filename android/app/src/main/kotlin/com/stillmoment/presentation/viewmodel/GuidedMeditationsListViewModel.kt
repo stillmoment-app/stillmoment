@@ -119,8 +119,9 @@ constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             repository.importMeditation(uri)
-                .onSuccess {
+                .onSuccess { meditation ->
                     _uiState.update { it.copy(isLoading = false) }
+                    showEditSheet(meditation)
                 }
                 .onFailure { error ->
                     _uiState.update {

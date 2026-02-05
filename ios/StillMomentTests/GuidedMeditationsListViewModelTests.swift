@@ -471,6 +471,33 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertNil(self.sut.errorMessage)
     }
 
+    // MARK: - Import Opens Edit Sheet Tests
+
+    func testImportMeditationOpensEditSheetForImportedMeditation() async {
+        // Given
+        let url = URL(fileURLWithPath: "/tmp/test.mp3")
+
+        // When
+        await self.sut.importMeditation(from: url)
+
+        // Then - Edit sheet should be shown with the imported meditation
+        XCTAssertTrue(self.sut.showingEditSheet)
+        XCTAssertNotNil(self.sut.meditationToEdit)
+    }
+
+    func testImportMeditationDoesNotOpenEditSheetOnError() async {
+        // Given
+        let url = URL(fileURLWithPath: "/tmp/test.mp3")
+        self.mockMetadataService.extractShouldThrow = true
+
+        // When
+        await self.sut.importMeditation(from: url)
+
+        // Then - Edit sheet should NOT be shown
+        XCTAssertFalse(self.sut.showingEditSheet)
+        XCTAssertNil(self.sut.meditationToEdit)
+    }
+
     // MARK: Private
 
     // MARK: - Helper Methods
