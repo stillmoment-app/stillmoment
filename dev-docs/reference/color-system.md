@@ -1,177 +1,155 @@
 # Color System
 
-Dokumentation des Farb-Handlings für Still Moment. Diese Datei dient als Referenz für konsistente Farbverwendung.
+Dokumentation des Farb-Handlings fuer Still Moment. Diese Datei dient als Referenz fuer konsistente Farbverwendung.
 
 ## Grundprinzip
 
-**Niemals direkte Farben verwenden** - immer semantische Farbrollen aus `Color+Theme.swift`.
+**Niemals direkte Farben verwenden** - immer semantische Farbrollen aus `@Environment(\.themeColors)`.
 
 ```swift
-// ❌ FALSCH - direkte Farben
+// ❌ FALSCH - statische Color-Properties (nicht reaktiv)
 .foregroundColor(.warmBlack)
-.foregroundColor(.warmGray)
-.foregroundColor(.terracotta)
-.foregroundColor(.white)
+.foregroundColor(Color.textPrimary)
 
-// ✅ RICHTIG - semantische Farben
-.foregroundColor(.textPrimary)
-.foregroundColor(.textSecondary)
-.foregroundColor(.interactive)
-.foregroundColor(.textOnInteractive)
+// ✅ RICHTIG - Environment-basierte Theme-Farben
+@Environment(\.themeColors)
+private var theme
+
+.foregroundColor(self.theme.textPrimary)
+.foregroundColor(self.theme.textSecondary)
+.foregroundColor(self.theme.interactive)
 ```
+
+## Architektur
+
+```
+ColorTheme (Domain)          - Enum: .warmDesert, .darkWarm
+    |
+ThemeManager (Presentation)  - ObservableObject, @AppStorage-Persistierung
+    |
+ThemeRootView (Presentation) - Liest colorScheme + Theme, injiziert ThemeColors
+    |
+ThemeColors (Presentation)   - Struct mit allen aufgeloesten Farbwerten
+    |
+@Environment(\.themeColors)  - Views lesen Farben reaktiv
+```
+
+**Warum Environment statt statische Properties?**
+Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Observation-System teil. Theme-Aenderungen loesen kein Re-Rendering aus. `@Environment` ist reaktiv.
+
+### Dateien
+
+| Datei | Inhalt |
+|-------|--------|
+| `Domain/Models/ColorTheme.swift` | Theme-Enum (warmDesert, darkWarm) |
+| `Presentation/Theme/ThemeColors.swift` | ThemeColors struct + EnvironmentKey + resolve() |
+| `Presentation/Theme/ThemeColors+Palettes.swift` | 4 Paletten mit konkreten RGB-Werten |
+| `Presentation/Theme/ThemeManager.swift` | ObservableObject mit @AppStorage |
+| `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar |
+| `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
+| `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
+| `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
+| `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
+| `Presentation/Views/Shared/Font+Theme.swift` | Text Styles mit ViewModifier-Bridge |
 
 ## Semantische Farbrollen
 
-Definiert in `StillMoment/Presentation/Views/Shared/Color+Theme.swift`:
+Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 
-| Rolle | Verwendung | Aktueller Wert |
-|-------|------------|----------------|
-| `.textPrimary` | Haupttext, Überschriften | `.warmBlack` |
-| `.textSecondary` | Nebentext, Hinweise, Icons | `.warmGray` |
-| `.textOnInteractive` | Text auf farbigen Buttons | `.white` |
-| `.interactive` | Buttons, Icons, Slider, Links | `.terracotta` |
-| `.progress` | Timer-Ring, Fortschrittsanzeigen | `.terracotta` |
-| `.backgroundPrimary` | Primärer Hintergrund | `.warmCream` |
-| `.backgroundSecondary` | Sekundärer Hintergrund | `.warmSand` |
-| `.error` | Fehlermeldungen | `.warmError` |
+| Rolle | Verwendung |
+|-------|------------|
+| `.textPrimary` | Haupttext, Ueberschriften |
+| `.textSecondary` | Nebentext, Hinweise, Icons |
+| `.textOnInteractive` | Text auf farbigen Buttons |
+| `.interactive` | Buttons, Icons, Slider, Links |
+| `.progress` | Timer-Ring, Fortschrittsanzeigen |
+| `.backgroundPrimary` | Primaerer Hintergrund |
+| `.backgroundSecondary` | Sekundaerer Hintergrund, TabBar |
+| `.ringTrack` | Timer-Ring Hintergrund |
+| `.accentBackground` | Dekorativer Akzent-Hintergrund |
+| `.error` | Fehlermeldungen |
+
+### Gradient
+
+```swift
+self.theme.backgroundGradient  // LinearGradient: backgroundPrimary → backgroundSecondary → accentBackground
+```
+
+## Themes
+
+| Theme | Light | Dark |
+|-------|-------|------|
+| Warm Desert (Default) | `warmDesertLight` - Original-Farben, Zero Visual Regression | `warmDesertDark` - Placeholder |
+| Kerzenschein | `darkWarmLight` - Placeholder | `darkWarmDark` - Placeholder |
+
+Light/Dark folgt automatisch dem System-Setting (`colorScheme`).
 
 ## Opacity Design Tokens
 
-Definiert als `Double` Extension in `Color+Theme.swift`:
+Definiert als `Double` Extension in `Double+Opacity.swift`:
 
 | Token | Wert | Verwendung |
 |-------|------|------------|
 | `.opacityOverlay` | 0.2 | Loading-Overlays, Modals |
 | `.opacityShadow` | 0.3 | Schatten-Effekte |
-| `.opacitySecondary` | 0.5 | Sekundäre/deaktivierte Elemente |
-| `.opacityTertiary` | 0.7 | Tertiäre/Hint-Elemente |
+| `.opacitySecondary` | 0.5 | Sekundaere/deaktivierte Elemente |
+| `.opacityTertiary` | 0.7 | Tertiaere/Hint-Elemente |
+
+## ButtonStyle + ViewModifier-Bridge
+
+`ButtonStyle` kann kein `@Environment` lesen (Protokoll erhaelt nur `Configuration`). Loesung: ViewModifier-Bridge.
 
 ```swift
-// Verwendung
-.background(Color.textPrimary.opacity(.opacityOverlay))
-.shadow(color: Color.interactive.opacity(.opacityShadow), radius: 8)
+// ViewModifier liest Environment, uebergibt an ButtonStyle
+private struct WarmPrimaryButtonModifier: ViewModifier {
+    @Environment(\.themeColors) private var theme
+    func body(content: Content) -> some View {
+        content.buttonStyle(ButtonStyles.WarmPrimary(colors: self.theme))
+    }
+}
+
+// Call Sites bleiben unveraendert:
+Button("Start") { }.warmPrimaryButton()
 ```
+
+Gleiches Pattern fuer `.settingsLabelStyle()` und `.settingsDescriptionStyle()` in `Font+Theme.swift`.
 
 ## View-Struktur mit Gradient
 
-Alle Views verwenden den warmen Gradient-Hintergrund:
-
 ```swift
+@Environment(\.themeColors)
+private var theme
+
 var body: some View {
     NavigationView {
         ZStack {
-            // Immer als erstes Element im ZStack
-            Color.warmGradient
+            self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            // Bei Forms: scrollContentBackground ausblenden
             Form {
                 // ...
             }
             .scrollContentBackground(.hidden)
         }
-        .navigationTitle("...")
-        .toolbar { ... }
     }
 }
 ```
 
-**Wichtig**: Bei `Form`, `List` oder `ScrollView` muss `.scrollContentBackground(.hidden)` gesetzt werden, damit der Gradient sichtbar ist.
+## Checkliste fuer neue Views
 
-## Toolbar-Button Farbgebung
+1. [ ] `@Environment(\.themeColors) private var theme` (zwei Zeilen!)
+2. [ ] `self.theme.backgroundGradient` als Hintergrund
+3. [ ] `.scrollContentBackground(.hidden)` bei Forms/Lists
+4. [ ] Alle Text-Farben mit `self.theme.xxx`
+5. [ ] Toolbar-Buttons: Cancel=theme.textSecondary, Confirm=theme.interactive
+6. [ ] Keine statischen `Color.xxx` Referenzen
 
-Konsistentes Muster für alle Toolbar-Buttons:
+## Bekannte Einschraenkungen
 
-| Button-Typ | Farbe | Beispiel |
-|------------|-------|----------|
-| Icon-Buttons (Settings, Add) | `.textSecondary` | `Image(systemName: "plus").foregroundColor(.textSecondary)` |
-| Cancel/Close | `.textSecondary` | `Button("Cancel") { }.foregroundColor(.textSecondary)` |
-| Bestätigung (Done/Save) | `.interactive` | `Button("Save") { }.tint(.interactive)` |
-
-```swift
-.toolbar {
-    ToolbarItem(placement: .cancellationAction) {
-        Button("Cancel") { ... }
-            .foregroundColor(.textSecondary)  // Cancel = sekundär
-    }
-
-    ToolbarItem(placement: .confirmationAction) {
-        Button("Save") { ... }
-            .tint(.interactive)  // Bestätigung = interaktiv
-    }
-}
-```
-
-## Button Styles
-
-Definiert in `StillMoment/Presentation/Views/Shared/ButtonStyles.swift`:
-
-### Primary Button
-```swift
-Button("Start") { }
-    .warmPrimaryButton()
-
-// Verwendet:
-// - .textOnInteractive für Text
-// - .interactive für Hintergrund
-// - .interactive.opacity(.opacityShadow) für Schatten
-```
-
-### Secondary Button
-```swift
-Button("Reset") { }
-    .warmSecondaryButton()
-
-// Verwendet:
-// - .textPrimary für Text
-// - .backgroundSecondary.opacity(.opacitySecondary) für Hintergrund
-```
-
-## Checkliste für neue Views
-
-1. [ ] `Color.warmGradient` als Hintergrund
-2. [ ] `.scrollContentBackground(.hidden)` bei Forms/Lists
-3. [ ] Alle Text-Farben mit semantischen Rollen
-4. [ ] Toolbar-Buttons nach Muster (Cancel=textSecondary, Confirm=interactive)
-5. [ ] Keine direkten Farben (.warmBlack, .terracotta, etc.)
-
-## Asset Catalog
-
-Farben sind in `StillMoment/Assets.xcassets/Colors/` definiert:
-
-- `WarmCream.colorset`
-- `WarmSand.colorset`
-- `PaleApricot.colorset`
-- `Terracotta.colorset`
-- `WarmBlack.colorset`
-- `WarmGray.colorset`
-- `WarmError.colorset`
-- `RingBackground.colorset`
-
-**Hinweis**: Aktuell nur Light Mode Varianten. Dark Mode würde `appearances` Array in den JSON-Dateien benötigen.
-
-## Light Mode Enforcement
-
-Die App erzwingt Light Mode in `StillMomentApp.swift`:
-
-```swift
-.preferredColorScheme(.light)
-```
-
-Für Dark Mode Support:
-1. Dark-Varianten in allen Colorsets hinzufügen
-2. `.preferredColorScheme(.light)` entfernen
-3. Semantische Farben funktionieren automatisch
-
-## Dateien
-
-| Datei | Inhalt |
-|-------|--------|
-| `Color+Theme.swift` | Semantische Farbrollen, Opacity Tokens, Gradient |
-| `ButtonStyles.swift` | WarmPrimary, WarmSecondary Button Styles |
-| `Assets.xcassets/Colors/` | Color Assets (Light Mode) |
-| `StillMomentApp.swift` | Light Mode Enforcement, TabBar Styling |
+- **iOS 16.0-16.3**: Sheets erben Custom-Environment moeglicherweise nicht. Ggf. explizit `.environment(\.themeColors)` auf Sheets setzen.
+- **TabBar**: `.toolbarBackground()` statt `UITabBar.appearance()` - letzteres ist nicht reaktiv.
+- **`@AppStorage` in ThemeManager**: `@AppStorage` triggert `objectWillChange` bei `ObservableObject` - funktioniert, ist aber kein offiziell dokumentiertes Verhalten.
 
 ---
 
-**Last Updated**: 2026-01-10
+**Last Updated**: 2026-02-05

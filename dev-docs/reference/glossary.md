@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-01-12
+Last Updated: 2026-02-05
 -->
 
 ## Quick Reference
@@ -14,6 +14,7 @@ Last Updated: 2026-01-12
 | Begriff | Typ | Domain | Beschreibung |
 |---------|-----|--------|--------------|
 | `AudioMetadata` | Value Object | Guided Meditations | Metadaten aus Audio-Dateien (ID3 Tags) |
+| `ColorTheme` | Enum | App-wide | Farbthema-Auswahl (warmDesert, darkWarm) |
 | `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
@@ -304,6 +305,38 @@ Lokalisierter String fuer Soundscape Namen und Beschreibungen.
 **Datei-Referenzen:**
 - iOS: nested in `BackgroundSound.swift`
 - Android: nested in `sounds.json` Schema
+
+---
+
+## App-wide Domain
+
+App-weite Konzepte die beide Tabs betreffen.
+
+### ColorTheme
+
+**Typ:** Enum (Domain)
+**Pattern:** Configuration Value
+
+**Beschreibung:**
+Farbthema-Auswahl. Jedes Theme hat eine Light- und Dark-Variante die automatisch dem System-Setting folgt.
+
+**Werte:**
+
+| Wert | Beschreibung |
+|------|--------------|
+| `warmDesert` | Warmer Sand (Default, Original-Farben) |
+| `darkWarm` | Kerzenschein (waermere, bernsteinfarbene Palette) |
+
+**Persistence:** `@AppStorage("selectedTheme")` via `ThemeManager`
+
+**Architektur-Kette:**
+```
+ColorTheme (Domain) → ThemeManager (Presentation) → ThemeRootView → ThemeColors → @Environment(\.themeColors)
+```
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/ColorTheme.swift`
+- Farb-System Doku: `dev-docs/reference/color-system.md`
 
 ---
 

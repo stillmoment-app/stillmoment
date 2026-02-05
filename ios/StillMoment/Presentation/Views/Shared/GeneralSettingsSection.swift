@@ -37,16 +37,3 @@ struct GeneralSettingsSection: View {
         }
     }
 }
-
-// MARK: - ColorTheme Localization
-
-extension ColorTheme {
-    var localizedName: String {
-        switch self {
-        case .warmDesert:
-            NSLocalizedString("settings.theme.warmDesert", comment: "")
-        case .darkWarm:
-            NSLocalizedString("settings.theme.darkWarm", comment: "")
-        }
-    }
-}
