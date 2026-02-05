@@ -84,6 +84,7 @@ iOSInjectionProject/
 # IDEs
 .vscode/
 .idea/
+.xcodebuildmcp/
 *.swp
 *.swo
 *~
