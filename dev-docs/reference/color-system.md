@@ -23,7 +23,7 @@ private var theme
 ## Architektur
 
 ```
-ColorTheme (Domain)          - Enum: .warmDesert, .darkWarm
+ColorTheme (Domain)          - Enum: .candlelight, .forest, .moon
     |
 ThemeManager (Presentation)  - ObservableObject, @AppStorage-Persistierung
     |
@@ -41,9 +41,9 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 
 | Datei | Inhalt |
 |-------|--------|
-| `Domain/Models/ColorTheme.swift` | Theme-Enum (warmDesert, darkWarm) |
+| `Domain/Models/ColorTheme.swift` | Theme-Enum (candlelight, forest, moon) |
 | `Presentation/Theme/ThemeColors.swift` | ThemeColors struct + EnvironmentKey + resolve() |
-| `Presentation/Theme/ThemeColors+Palettes.swift` | 4 Paletten mit konkreten RGB-Werten |
+| `Presentation/Theme/ThemeColors+Palettes.swift` | 6 Paletten mit konkreten RGB-Werten (3 light + 3 dark) |
 | `Presentation/Theme/ThemeManager.swift` | ObservableObject mit @AppStorage |
 | `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar |
 | `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
@@ -77,12 +77,13 @@ self.theme.backgroundGradient  // LinearGradient: backgroundPrimary → backgrou
 
 ## Themes
 
-| Theme | Light | Dark |
-|-------|-------|------|
-| Warm Desert (Default) | `warmDesertLight` - Original-Farben, Zero Visual Regression | `warmDesertDark` - Placeholder |
-| Kerzenschein | `darkWarmLight` - Placeholder | `darkWarmDark` - Placeholder |
+3 Themes, jedes mit Light + Dark Variante. Light/Dark folgt automatisch dem System-Setting.
 
-Light/Dark folgt automatisch dem System-Setting (`colorScheme`).
+| Theme | Light | Dark | Typ |
+|-------|-------|------|-----|
+| Candlelight (Default) | `candlelightLight` | `candlelightDark` | Warm/Sand |
+| Forest | `forestLight` | `forestDark` | Kuehle Natur |
+| Moon | `moonLight` | `moonDark` | Kuehle Nacht |
 
 ## Opacity Design Tokens
 
@@ -112,7 +113,7 @@ private struct WarmPrimaryButtonModifier: ViewModifier {
 Button("Start") { }.warmPrimaryButton()
 ```
 
-Gleiches Pattern fuer `.settingsLabelStyle()` und `.settingsDescriptionStyle()` in `Font+Theme.swift`.
+Typography nutzt denselben ViewModifier-Bridge-Pattern: `.themeFont(.settingsLabel)` in `Font+Theme.swift` (siehe shared-037).
 
 ## View-Struktur mit Gradient
 
@@ -152,4 +153,4 @@ var body: some View {
 
 ---
 
-**Last Updated**: 2026-02-05
+**Last Updated**: 2026-02-06

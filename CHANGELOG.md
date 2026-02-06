@@ -7,20 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
-- **Customizable Color Themes** - 2 Farbpaletten (Warm Desert, Kerzenschein) mit automatischem Light/Dark Mode
+### Added (iOS & Android)
+- **Customizable Color Themes** - 3 Farbthemen (Candlelight, Forest, Moon) mit automatischem Light/Dark Mode
+  - 6 Paletten (3 Themes x light/dark), Farben folgen dem System-Setting
   - Theme-Auswahl in beiden Settings-Sheets (Timer + Library)
   - Wiederverwendbare "Allgemein"-Section fuer app-weite Einstellungen
-  - Environment-basierte Farb-Reaktivitaet (alle Views aktualisieren sofort)
-  - Theme-Wahl wird persistent gespeichert
+  - Sofortiger Farbwechsel bei Theme-Auswahl (Gradient, Buttons, Text, TabBar)
+  - Theme-Wahl wird persistent gespeichert (iOS: @AppStorage, Android: DataStore)
+  - Lokalisiert (DE + EN)
   - Ticket: shared-032
 
 ### Technical (iOS)
 - **Theme-Architektur** - Migration von statischen Color-Properties zu @Environment-basiertem ThemeColors-System
-  - Asset Catalog Colorsets durch Inline-RGB in ThemePalettes ersetzt
+  - ThemeColors struct + EnvironmentKey fuer reaktive Farben
+  - ThemeRootView resolved Theme + colorScheme und injiziert in Environment
   - ViewModifier-Bridge fuer ButtonStyle/Font+Theme (Call Sites unveraendert)
-  - ThemeRootView mit reaktiver TabBar-Appearance
-  - color-system.md komplett ueberarbeitet
+  - Asset Catalog Colorsets durch Inline-RGB in ThemeColors+Palettes ersetzt
+
+### Technical (Android)
+- **Theme-Architektur** - Material3 ColorScheme-Mapping fuer 3 Themes
+  - 6 ColorSchemes mit resolveColorScheme() Funktion
+  - Dynamische StatusBar/NavigationBar-Farben via SideEffect
+  - GeneralSettingsSection als wiederverwendbare Compose-Component
 
 ## [1.9.1] - 2026-01-23 (iOS Bugfix)
 
