@@ -18,10 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-032
 - **Finalisierte Dark Mode Paletten** - Alle 6 Paletten mit echten, abgestimmten Farbwerten
   - Candlelight: Morning Glow (light) / Evening Cocoa (dark)
-  - Forest: Misty Pine (light) / Ancient Woods (dark)
-  - Moon: Pure Silver (light) / Midnight Shimmer (dark)
+  - Forest: Woodland Floor (light) / Deep Woods (dark)
+  - Moon: Sterling Silver (light) / Midnight Shimmer (dark)
   - Visuell konsistent zwischen iOS und Android (identische RGB-Werte)
-  - Ticket: shared-033
+  - WCAG 2.1 AA Kontrast validiert (alle Kombinationen ≥ 4.5:1)
+  - Ticket: shared-033, shared-035
 
 ### Technical (iOS & Android)
 - **Zentrales Typography System** - Semantische Typografie-Rollen mit automatischer Dark Mode Halation-Kompensation

@@ -85,6 +85,24 @@ self.theme.backgroundGradient  // LinearGradient: backgroundPrimary → backgrou
 | Forest | `forestLight` | `forestDark` | Kuehle Natur |
 | Moon | `moonLight` | `moonDark` | Kuehle Nacht |
 
+## WCAG 2.1 AA Kontrast-Validierung
+
+Alle Text-auf-Hintergrund-Kombinationen erfuellen WCAG 2.1 AA. Automatisiert geprueft durch Unit Tests (`WCAGContrastTests` iOS, `WCAGContrastTest` Android).
+
+**Schwellenwerte:** Normaler Text ≥ 4.5:1 | Grosser Text (≥18pt regular / ≥14pt bold) ≥ 3:1
+
+| Kombination | Cd Light | Cd Dark | Fo Light | Fo Dark | Mn Light | Mn Dark | Min |
+|-------------|:--------:|:-------:|:--------:|:-------:|:--------:|:-------:|:---:|
+| textPrimary / backgroundPrimary | 10.4 | 13.8 | 12.0 | 16.0 | 11.2 | 19.8 | 4.5 |
+| textPrimary / backgroundSecondary | 8.8 | 11.5 | 9.7 | 13.7 | 9.4 | 17.1 | 4.5 |
+| textSecondary / backgroundPrimary | 5.6 | 5.8 | 5.7 | 6.0 | 5.6 | 8.1 | 4.5 |
+| textSecondary / backgroundSecondary | 4.7 | 4.9 | 4.6 | 5.1 | 4.7 | 7.0 | 4.5 |
+| textOnInteractive / interactive | 4.7 | 5.8 | 7.3 | 4.8 | 7.8 | 6.9 | 4.5 |
+| interactive / backgroundPrimary | 4.5 | 5.8 | 6.4 | 4.8 | 6.6 | 6.9 | 4.5 |
+| error / backgroundPrimary | 6.3 | 5.3 | 5.3 | 5.3 | 4.9 | 5.9 | 4.5 |
+
+Paletten-Anpassungen (shared-035): Candlelight Light `textSecondary`/`interactive` abgedunkelt, Forest komplett ueberarbeitet (warm-neutral statt kuehl-gruen), Moon Light `backgroundPrimary` abgedunkelt fuer besseren Kontrast.
+
 ## Opacity Design Tokens
 
 Definiert als `Double` Extension in `Double+Opacity.swift`:
