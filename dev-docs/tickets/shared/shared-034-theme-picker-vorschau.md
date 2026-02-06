@@ -13,7 +13,7 @@ Die Theme-Auswahl in den Settings soll neben dem Theme-Namen eine Farbpaletten-V
 
 ## Warum
 
-Aktuell zeigt der Picker nur den Namen ("Warmer Sand", "Kerzenschein"). Der User muss blind wechseln um das Ergebnis zu sehen. Eine kleine Farbvorschau macht die Entscheidung einfacher und die Auswahl ansprechender.
+Aktuell zeigt der Picker nur den Namen ("Kerzenschein", "Wald", "Mondlicht"). Der User muss blind wechseln um das Ergebnis zu sehen. Eine kleine Farbvorschau macht die Entscheidung einfacher und die Auswahl ansprechender.
 
 ---
 
