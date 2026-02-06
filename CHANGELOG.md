@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Theme-Wahl wird persistent gespeichert (iOS: @AppStorage, Android: DataStore)
   - Lokalisiert (DE + EN)
   - Ticket: shared-032
+- **Finalisierte Dark Mode Paletten** - Alle 6 Paletten mit echten, abgestimmten Farbwerten
+  - Candlelight: Morning Glow (light) / Evening Cocoa (dark)
+  - Forest: Misty Pine (light) / Ancient Woods (dark)
+  - Moon: Pure Silver (light) / Midnight Shimmer (dark)
+  - Visuell konsistent zwischen iOS und Android (identische RGB-Werte)
+  - Ticket: shared-033
 
 ### Technical (iOS)
 - **Theme-Architektur** - Migration von statischen Color-Properties zu @Environment-basiertem ThemeColors-System

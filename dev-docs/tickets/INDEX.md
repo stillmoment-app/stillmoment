@@ -56,7 +56,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-030](shared/shared-030-release-notes-skill.md) | Release Notes Skill | 2-Architektur | [x] | [x] |
 | [shared-031](shared/shared-031-import-opens-edit-sheet.md) | Edit Sheet nach Import oeffnen | 4-Polish | [x] | [x] |
 | [shared-032](shared/shared-032-customizable-color-themes.md) | Customizable Color Themes | 3-Feature | [x] | [x] |
-| [shared-033](shared/shared-033-dark-mode-paletten.md) | Theme-Paletten finalisieren | 4-Polish | [x] | [ ] |
+| [shared-033](shared/shared-033-dark-mode-paletten.md) | Theme-Paletten finalisieren | 4-Polish | [x] | [x] |
 | [shared-034](shared/shared-034-theme-picker-vorschau.md) | Theme-Vorschau im Picker | 4-Polish | [ ] | [ ] |
 | [shared-035](shared/shared-035-kontrast-audit-wcag.md) | Kontrast-Audit WCAG-Validierung | 5-QA | [ ] | [ ] |
 | [shared-036](shared/shared-036-kern-features-navigation-pattern.md) | Kern-Features Navigation Pattern | 2-Architektur | [x] | [x] |

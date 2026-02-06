@@ -1,6 +1,6 @@
 # Ticket shared-033: Theme-Paletten finalisieren
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS erledigt | Android ~1h (Paletten von iOS uebernehmen)
 **Phase**: 4-Polish
@@ -24,7 +24,7 @@ User mit System Dark Mode sehen aktuell Placeholder-Farben, die nicht bewusst ge
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | Fertig - alle 6 Paletten mit echten Farbwerten |
-| Android   | [ ]    | shared-032 (Android-Angleichung auf 3 Themes) |
+| Android   | [x]    | Fertig - alle 6 Paletten 1:1 von iOS uebernommen |
 
 ---
 
@@ -40,13 +40,13 @@ User mit System Dark Mode sehen aktuell Placeholder-Farben, die nicht bewusst ge
 - [x] Alle 6 Paletten sind visuell unterscheidbar
 - [x] Gradient, Buttons, Text, TabBar, Timer-Ring sehen in jeder Palette stimmig aus
 - [ ] Kontrast-Verhaeltnisse fuer Lesbarkeit eingehalten (WCAG AA) → shared-035
-- [ ] Visuell konsistent zwischen iOS und Android (Android muss Paletten uebernehmen)
+- [x] Visuell konsistent zwischen iOS und Android (Android muss Paletten uebernehmen)
 
 ### Tests
 - [x] Bestehende Tests bleiben gruen (Paletten-Uniqueness-Test)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
