@@ -10,38 +10,51 @@ import XCTest
 @testable import StillMoment
 
 final class ThemeColorsTests: XCTestCase {
-    func testResolveWarmDesertLight() {
-        let colors = ThemeColors.resolve(theme: .warmDesert, colorScheme: .light)
-        XCTAssertEqual(colors, .warmDesertLight)
+    func testResolveCandlelightLight() {
+        let colors = ThemeColors.resolve(theme: .candlelight, colorScheme: .light)
+        XCTAssertEqual(colors, .candlelightLight)
     }
 
-    func testResolveWarmDesertDark() {
-        let colors = ThemeColors.resolve(theme: .warmDesert, colorScheme: .dark)
-        XCTAssertEqual(colors, .warmDesertDark)
+    func testResolveCandlelightDark() {
+        let colors = ThemeColors.resolve(theme: .candlelight, colorScheme: .dark)
+        XCTAssertEqual(colors, .candlelightDark)
     }
 
-    func testResolveDarkWarmLight() {
-        let colors = ThemeColors.resolve(theme: .darkWarm, colorScheme: .light)
-        XCTAssertEqual(colors, .darkWarmLight)
+    func testResolveForestLight() {
+        let colors = ThemeColors.resolve(theme: .forest, colorScheme: .light)
+        XCTAssertEqual(colors, .forestLight)
     }
 
-    func testResolveDarkWarmDark() {
-        let colors = ThemeColors.resolve(theme: .darkWarm, colorScheme: .dark)
-        XCTAssertEqual(colors, .darkWarmDark)
+    func testResolveForestDark() {
+        let colors = ThemeColors.resolve(theme: .forest, colorScheme: .dark)
+        XCTAssertEqual(colors, .forestDark)
     }
 
-    func testAllPalettesAreDifferent() {
+    func testResolveMoonLight() {
+        let colors = ThemeColors.resolve(theme: .moon, colorScheme: .light)
+        XCTAssertEqual(colors, .moonLight)
+    }
+
+    func testResolveMoonDark() {
+        let colors = ThemeColors.resolve(theme: .moon, colorScheme: .dark)
+        XCTAssertEqual(colors, .moonDark)
+    }
+
+    func testMoonLightAndDarkAreDifferent() {
+        XCTAssertNotEqual(ThemeColors.moonLight, ThemeColors.moonDark)
+    }
+
+    func testAllLightPalettesAreDifferent() {
         let palettes: [ThemeColors] = [
-            .warmDesertLight, .warmDesertDark,
-            .darkWarmLight, .darkWarmDark
+            .candlelightLight, .forestLight, .moonLight
         ]
-        // Each palette should be unique
+        // Each light palette should be unique
         for outer in 0..<palettes.count {
             for inner in (outer + 1)..<palettes.count {
                 XCTAssertNotEqual(
                     palettes[outer],
                     palettes[inner],
-                    "Palette \(outer) should differ from palette \(inner)"
+                    "Light palette \(outer) should differ from light palette \(inner)"
                 )
             }
         }

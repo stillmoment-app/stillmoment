@@ -39,7 +39,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditationSettings
+import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
 /**
@@ -54,7 +56,9 @@ fun GuidedMeditationSettingsSheet(
     settings: GuidedMeditationSettings,
     onSettingsChange: (GuidedMeditationSettings) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
+    onThemeChange: (ColorTheme) -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -68,6 +72,11 @@ fun GuidedMeditationSettingsSheet(
         PreparationTimeSection(
             settings = settings,
             onSettingsChange = onSettingsChange
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        GeneralSettingsSection(
+            selectedTheme = selectedTheme,
+            onThemeChange = onThemeChange
         )
         Spacer(modifier = Modifier.height(16.dp))
     }

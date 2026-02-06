@@ -8,8 +8,9 @@
 import Foundation
 
 enum ColorTheme: String, CaseIterable, Codable {
-    case warmDesert
-    case darkWarm
+    case candlelight
+    case forest
+    case moon
 
-    static let `default`: ColorTheme = .warmDesert
+    static let `default`: ColorTheme = .candlelight
 }

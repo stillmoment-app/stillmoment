@@ -9,12 +9,15 @@ import XCTest
 @testable import StillMoment
 
 final class ColorThemeTests: XCTestCase {
-    func testDefaultIsWarmDesert() {
-        XCTAssertEqual(ColorTheme.default, .warmDesert)
+    func testDefaultIsCandlelight() {
+        XCTAssertEqual(ColorTheme.default, .candlelight)
     }
 
-    func testAllCasesContainsBothThemes() {
-        XCTAssertEqual(ColorTheme.allCases, [.warmDesert, .darkWarm])
+    func testAllCasesContainsAllThemesInPickerOrder() {
+        XCTAssertEqual(
+            ColorTheme.allCases,
+            [.candlelight, .forest, .moon]
+        )
     }
 
     func testRawValueRoundtrip() {
@@ -27,7 +30,8 @@ final class ColorThemeTests: XCTestCase {
 
     func testRawValuesAreStable() {
         // Raw values are used for @AppStorage persistence - changing them breaks user preferences
-        XCTAssertEqual(ColorTheme.warmDesert.rawValue, "warmDesert")
-        XCTAssertEqual(ColorTheme.darkWarm.rawValue, "darkWarm")
+        XCTAssertEqual(ColorTheme.candlelight.rawValue, "candlelight")
+        XCTAssertEqual(ColorTheme.forest.rawValue, "forest")
+        XCTAssertEqual(ColorTheme.moon.rawValue, "moon")
     }
 }

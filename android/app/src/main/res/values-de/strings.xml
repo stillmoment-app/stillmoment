@@ -149,6 +149,16 @@
     <string name="accessibility_autocomplete_suggestion">Vorschlag: %s</string>
     <string name="accessibility_autocomplete_hint">Doppeltippen zum Auswählen</string>
 
+    <!-- General Settings -->
+    <string name="settings_general_header">Allgemein</string>
+    <string name="settings_theme_title">Farbthema</string>
+    <string name="settings_theme_candlelight">Kerzenschein</string>
+    <string name="settings_theme_forest">Wald</string>
+    <string name="settings_theme_moon">Mondlicht</string>
+
+    <!-- Theme Accessibility -->
+    <string name="accessibility_theme_picker">Farbthema auswählen</string>
+
     <!-- Settings Hint -->
     <string name="settings_hint_text">Passe Klänge &amp; Gongs an</string>
     <string name="accessibility_settings_hint">Hinweis: Tippe hier, um Klänge und Gongs anzupassen</string>

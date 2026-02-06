@@ -149,6 +149,16 @@
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>
     <string name="accessibility_autocomplete_hint">Double tap to select</string>
 
+    <!-- General Settings -->
+    <string name="settings_general_header">General</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_candlelight">Candlelight</string>
+    <string name="settings_theme_forest">Forest</string>
+    <string name="settings_theme_moon">Moonlight</string>
+
+    <!-- Theme Accessibility -->
+    <string name="accessibility_theme_picker">Choose color theme</string>
+
     <!-- Settings Hint -->
     <string name="settings_hint_text">Customize sounds &amp; gongs</string>
     <string name="accessibility_settings_hint">Hint: Tap here to customize sounds and gongs</string>

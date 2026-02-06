@@ -48,21 +48,27 @@ struct ThemeColors: Equatable {
 // MARK: - Theme Resolution
 
 extension ThemeColors {
+    private static let palettes: [ColorTheme: (light: ThemeColors, dark: ThemeColors)] = [
+        .candlelight: (light: .candlelightLight, dark: .candlelightDark),
+        .forest: (light: .forestLight, dark: .forestDark),
+        .moon: (light: .moonLight, dark: .moonDark)
+    ]
+
     static func resolve(theme: ColorTheme, colorScheme: ColorScheme) -> ThemeColors {
-        switch (theme, colorScheme) {
-        case (.warmDesert, .light): return .warmDesertLight
-        case (.warmDesert, .dark): return .warmDesertDark
-        case (.darkWarm, .light): return .darkWarmLight
-        case (.darkWarm, .dark): return .darkWarmDark
-        @unknown default: return .warmDesertLight
+        guard let palette = palettes[theme] else {
+            return .candlelightLight
         }
+        if colorScheme == .dark {
+            return palette.dark
+        }
+        return palette.light
     }
 }
 
 // MARK: - Environment Key
 
 private struct ThemeColorsKey: EnvironmentKey {
-    static let defaultValue: ThemeColors = .warmDesertLight
+    static let defaultValue: ThemeColors = .candlelightLight
 }
 
 extension EnvironmentValues {

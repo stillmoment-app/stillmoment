@@ -10,10 +10,12 @@ import Foundation
 extension ColorTheme {
     var localizedName: String {
         switch self {
-        case .warmDesert:
-            NSLocalizedString("settings.theme.warmDesert", comment: "")
-        case .darkWarm:
-            NSLocalizedString("settings.theme.darkWarm", comment: "")
+        case .candlelight:
+            NSLocalizedString("settings.theme.candlelight", comment: "")
+        case .forest:
+            NSLocalizedString("settings.theme.forest", comment: "")
+        case .moon:
+            NSLocalizedString("settings.theme.moon", comment: "")
         }
     }
 }

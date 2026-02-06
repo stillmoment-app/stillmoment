@@ -46,9 +46,9 @@ struct SettingsView: View {
                         Toggle(isOn: self.$settings.preparationTimeEnabled) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("settings.preparationTime.title", bundle: .main)
-                                    .settingsLabelStyle()
+                                    .themeFont(.settingsLabel)
                                 Text("settings.preparationTime.description", bundle: .main)
-                                    .settingsDescriptionStyle()
+                                    .themeFont(.settingsDescription)
                             }
                         }
                         .accessibilityIdentifier("settings.toggle.preparationTime")
@@ -111,9 +111,9 @@ struct SettingsView: View {
                         Toggle(isOn: self.$settings.intervalGongsEnabled) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("settings.intervalGongs.title", bundle: .main)
-                                    .settingsLabelStyle()
+                                    .themeFont(.settingsLabel)
                                 Text("settings.intervalGongs.description", bundle: .main)
-                                    .settingsDescriptionStyle()
+                                    .themeFont(.settingsDescription)
                             }
                         }
                         .accessibilityIdentifier("settings.toggle.intervalGongs")

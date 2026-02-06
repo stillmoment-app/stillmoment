@@ -5,74 +5,105 @@
 //  Presentation Layer - Concrete color values for each theme + color scheme combination.
 //
 //  All colors are inline RGB (sRGB color space). This replaces the Asset Catalog
-//  colorsets with a single source of truth that's easier to maintain across 4 palettes.
+//  colorsets with a single source of truth that's easier to maintain across palettes.
 //
-//  warmDesertLight values are identical to the original Asset Catalog colors
-//  to ensure zero visual regression.
+//  Three themes: Candlelight (warm), Forest (cool green), Moon (silver/indigo).
 //
 
 import SwiftUI
 
-// MARK: - Warm Desert
+// MARK: - Candlelight ("Kerzenschein")
 
 extension ThemeColors {
-    /// Current theme - identical RGB values from Asset Catalog (zero visual regression)
-    static let warmDesertLight = ThemeColors(
-        textPrimary: Color(red: 0.239, green: 0.196, blue: 0.157),
-        textSecondary: Color(red: 0.545, green: 0.490, blue: 0.420),
+    /// Morning Glow - warmer Sonnenaufgang-Gradient
+    static let candlelightLight = ThemeColors(
+        textPrimary: Color(red: 0.290, green: 0.231, blue: 0.196),
+        textSecondary: Color(red: 0.612, green: 0.400, blue: 0.373),
         textOnInteractive: .white,
-        interactive: Color(red: 0.831, green: 0.529, blue: 0.435),
-        progress: Color(red: 0.831, green: 0.529, blue: 0.435),
-        backgroundPrimary: Color(red: 1.000, green: 0.973, blue: 0.941),
-        backgroundSecondary: Color(red: 0.961, green: 0.902, blue: 0.827),
-        ringTrack: Color(red: 0.910, green: 0.867, blue: 0.816),
-        accentBackground: Color(red: 1.000, green: 0.831, blue: 0.722),
-        error: Color(red: 0.780, green: 0.294, blue: 0.231)
+        interactive: Color(red: 0.851, green: 0.467, blue: 0.408),
+        progress: Color(red: 0.851, green: 0.467, blue: 0.408),
+        backgroundPrimary: Color(red: 1.000, green: 0.984, blue: 0.961),
+        backgroundSecondary: Color(red: 1.000, green: 0.894, blue: 0.839),
+        ringTrack: Color(red: 0.784, green: 0.655, blue: 0.588),
+        accentBackground: Color(red: 1.000, green: 0.796, blue: 0.643),
+        error: Color(red: 0.729, green: 0.102, blue: 0.102)
     )
 
-    /// Placeholder - will be designed iteratively with MCP screenshots
-    static let warmDesertDark = ThemeColors(
-        textPrimary: Color(red: 0.961, green: 0.937, blue: 0.910),
-        textSecondary: Color(red: 0.710, green: 0.667, blue: 0.616),
-        textOnInteractive: .white,
-        interactive: Color(red: 0.878, green: 0.592, blue: 0.498),
-        progress: Color(red: 0.878, green: 0.592, blue: 0.498),
-        backgroundPrimary: Color(red: 0.118, green: 0.098, blue: 0.078),
-        backgroundSecondary: Color(red: 0.176, green: 0.149, blue: 0.122),
-        ringTrack: Color(red: 0.235, green: 0.208, blue: 0.176),
-        accentBackground: Color(red: 0.294, green: 0.243, blue: 0.192),
+    /// Evening Cocoa - gedämpftes Terrakotta auf dunklem Kakao-Grund
+    static let candlelightDark = ThemeColors(
+        textPrimary: Color(red: 0.898, green: 0.863, blue: 0.804),
+        textSecondary: Color(red: 0.651, green: 0.541, blue: 0.502),
+        textOnInteractive: Color(red: 0.102, green: 0.063, blue: 0.047),
+        interactive: Color(red: 0.780, green: 0.490, blue: 0.388),
+        progress: Color(red: 0.780, green: 0.490, blue: 0.388),
+        backgroundPrimary: Color(red: 0.102, green: 0.063, blue: 0.047),
+        backgroundSecondary: Color(red: 0.196, green: 0.122, blue: 0.098),
+        ringTrack: Color(red: 0.243, green: 0.145, blue: 0.118),
+        accentBackground: Color(red: 0.365, green: 0.227, blue: 0.184),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
     )
 }
 
-// MARK: - Dark Warm ("Kerzenschein")
+// MARK: - Forest ("Wald")
 
 extension ThemeColors {
-    /// Placeholder - will be designed iteratively with MCP screenshots
-    static let darkWarmLight = ThemeColors(
-        textPrimary: Color(red: 0.200, green: 0.157, blue: 0.118),
-        textSecondary: Color(red: 0.475, green: 0.427, blue: 0.369),
-        textOnInteractive: .white,
-        interactive: Color(red: 0.776, green: 0.486, blue: 0.247),
-        progress: Color(red: 0.776, green: 0.486, blue: 0.247),
-        backgroundPrimary: Color(red: 0.988, green: 0.965, blue: 0.933),
-        backgroundSecondary: Color(red: 0.953, green: 0.918, blue: 0.867),
-        ringTrack: Color(red: 0.910, green: 0.867, blue: 0.804),
-        accentBackground: Color(red: 0.976, green: 0.851, blue: 0.710),
-        error: Color(red: 0.780, green: 0.294, blue: 0.231)
+    /// Misty Pine - kühler Wald-Gradient
+    static let forestLight = ThemeColors(
+        textPrimary: Color(red: 0.102, green: 0.149, blue: 0.110),
+        textSecondary: Color(red: 0.361, green: 0.431, blue: 0.384),
+        textOnInteractive: Color(red: 0.878, green: 0.902, blue: 0.882),
+        interactive: Color(red: 0.180, green: 0.251, blue: 0.200),
+        progress: Color(red: 0.180, green: 0.251, blue: 0.200),
+        backgroundPrimary: Color(red: 0.949, green: 0.957, blue: 0.953),
+        backgroundSecondary: Color(red: 0.878, green: 0.902, blue: 0.882),
+        ringTrack: Color(red: 0.553, green: 0.639, blue: 0.573),
+        accentBackground: Color(red: 0.796, green: 0.835, blue: 0.808),
+        error: Color(red: 0.729, green: 0.102, blue: 0.102)
     )
 
-    /// Placeholder - will be designed iteratively with MCP screenshots
-    static let darkWarmDark = ThemeColors(
-        textPrimary: Color(red: 0.941, green: 0.914, blue: 0.878),
-        textSecondary: Color(red: 0.667, green: 0.624, blue: 0.569),
-        textOnInteractive: .white,
-        interactive: Color(red: 0.839, green: 0.557, blue: 0.325),
-        progress: Color(red: 0.839, green: 0.557, blue: 0.325),
-        backgroundPrimary: Color(red: 0.098, green: 0.078, blue: 0.059),
-        backgroundSecondary: Color(red: 0.157, green: 0.129, blue: 0.098),
-        ringTrack: Color(red: 0.216, green: 0.184, blue: 0.149),
-        accentBackground: Color(red: 0.275, green: 0.227, blue: 0.169),
+    /// Ancient Woods - tiefer Wald-Gradient
+    static let forestDark = ThemeColors(
+        textPrimary: Color(red: 0.910, green: 0.922, blue: 0.914),
+        textSecondary: Color(red: 0.541, green: 0.604, blue: 0.553),
+        textOnInteractive: Color(red: 0.043, green: 0.071, blue: 0.051),
+        interactive: Color(red: 0.345, green: 0.471, blue: 0.376),
+        progress: Color(red: 0.345, green: 0.471, blue: 0.376),
+        backgroundPrimary: Color(red: 0.043, green: 0.071, blue: 0.051),
+        backgroundSecondary: Color(red: 0.094, green: 0.149, blue: 0.110),
+        ringTrack: Color(red: 0.290, green: 0.365, blue: 0.322),
+        accentBackground: Color(red: 0.184, green: 0.251, blue: 0.196),
+        error: Color(red: 0.878, green: 0.380, blue: 0.318)
+    )
+}
+
+// MARK: - Moon ("Mondlicht")
+
+extension ThemeColors {
+    /// Pure Silver - neutraler Silber-Gradient
+    static let moonLight = ThemeColors(
+        textPrimary: Color(red: 0.059, green: 0.090, blue: 0.165),
+        textSecondary: Color(red: 0.392, green: 0.455, blue: 0.545),
+        textOnInteractive: Color(red: 0.973, green: 0.980, blue: 0.988),
+        interactive: Color(red: 0.278, green: 0.333, blue: 0.412),
+        progress: Color(red: 0.278, green: 0.333, blue: 0.412),
+        backgroundPrimary: .white,
+        backgroundSecondary: Color(red: 0.973, green: 0.980, blue: 0.988),
+        ringTrack: Color(red: 0.580, green: 0.639, blue: 0.722),
+        accentBackground: Color(red: 0.796, green: 0.835, blue: 0.882),
+        error: Color(red: 0.729, green: 0.102, blue: 0.102)
+    )
+
+    /// Midnight Shimmer - tiefstes Schwarz mit Indigo-Schimmer
+    static let moonDark = ThemeColors(
+        textPrimary: Color(red: 0.973, green: 0.980, blue: 0.988),
+        textSecondary: Color(red: 0.580, green: 0.639, blue: 0.722),
+        textOnInteractive: Color(red: 0.008, green: 0.008, blue: 0.020),
+        interactive: Color(red: 0.506, green: 0.549, blue: 0.973),
+        progress: Color(red: 0.506, green: 0.549, blue: 0.973),
+        backgroundPrimary: Color(red: 0.008, green: 0.008, blue: 0.020),
+        backgroundSecondary: Color(red: 0.059, green: 0.090, blue: 0.165),
+        ringTrack: Color(red: 0.278, green: 0.333, blue: 0.412),
+        accentBackground: Color(red: 0.192, green: 0.180, blue: 0.506),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
     )
 }

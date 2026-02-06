@@ -21,25 +21,25 @@ final class ThemeManagerTests: XCTestCase {
         self.sut.selectedTheme = .default
     }
 
-    func testDefaultThemeIsWarmDesert() {
-        XCTAssertEqual(self.sut.selectedTheme, .warmDesert)
+    func testDefaultThemeIsCandlelight() {
+        XCTAssertEqual(self.sut.selectedTheme, .candlelight)
     }
 
     func testResolvedColorsReturnsCorrectPaletteForLightMode() {
-        self.sut.selectedTheme = .darkWarm
+        self.sut.selectedTheme = .forest
         let colors = self.sut.resolvedColors(for: .light)
-        XCTAssertEqual(colors, .darkWarmLight)
+        XCTAssertEqual(colors, .forestLight)
     }
 
     func testResolvedColorsReturnsCorrectPaletteForDarkMode() {
-        self.sut.selectedTheme = .warmDesert
+        self.sut.selectedTheme = .candlelight
         let colors = self.sut.resolvedColors(for: .dark)
-        XCTAssertEqual(colors, .warmDesertDark)
+        XCTAssertEqual(colors, .candlelightDark)
     }
 
     func testThemeSwitchChangesResolvedColors() {
         let before = self.sut.resolvedColors(for: .light)
-        self.sut.selectedTheme = .darkWarm
+        self.sut.selectedTheme = .forest
         let after = self.sut.resolvedColors(for: .light)
         XCTAssertNotEqual(before, after)
     }

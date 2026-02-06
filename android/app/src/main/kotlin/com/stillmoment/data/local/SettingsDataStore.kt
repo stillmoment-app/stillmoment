@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.stillmoment.domain.models.AppTab
+import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -47,6 +48,7 @@ constructor(
         val GONG_SOUND_ID = stringPreferencesKey("gong_sound_id")
         val GONG_VOLUME = floatPreferencesKey("gong_volume")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
+        val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
     }
 
@@ -229,6 +231,32 @@ constructor(
     suspend fun setSelectedTab(tab: AppTab) {
         context.dataStore.edit { preferences ->
             preferences[Keys.SELECTED_TAB] = tab.route
+        }
+    }
+
+    /**
+     * Flow for the selected color theme.
+     * Emits the saved theme or ColorTheme.DEFAULT for new installations.
+     */
+    val selectedThemeFlow: Flow<ColorTheme> =
+        context.dataStore.data
+            .map { preferences ->
+                ColorTheme.fromString(preferences[Keys.SELECTED_THEME])
+            }
+
+    /**
+     * Get the selected color theme.
+     */
+    suspend fun getSelectedTheme(): ColorTheme {
+        return selectedThemeFlow.first()
+    }
+
+    /**
+     * Save the selected color theme.
+     */
+    suspend fun setSelectedTheme(theme: ColorTheme) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.SELECTED_THEME] = theme.name
         }
     }
 

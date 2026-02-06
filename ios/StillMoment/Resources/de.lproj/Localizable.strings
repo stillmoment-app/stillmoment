@@ -95,8 +95,9 @@
 
 "settings.general.header" = "Allgemein";
 "settings.theme.title" = "Farbthema";
-"settings.theme.warmDesert" = "Warmer Sand";
-"settings.theme.darkWarm" = "Kerzenschein";
+"settings.theme.candlelight" = "Kerzenschein";
+"settings.theme.forest" = "Wald";
+"settings.theme.moon" = "Mondlicht";
 
 // MARK: - Accessibility
 
@@ -143,8 +144,9 @@
 "accessibility.intervalGongVolume.hint" = "Lautstärke des Intervall-Gongs anpassen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
-"accessibility.closeFocus" = "Fokus-Modus schließen";
-"accessibility.closeFocus.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
+"accessibility.endMeditation" = "Meditation beenden";
+"accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
+"accessibility.backToLibrary" = "Zurück zur Bibliothek";
 
 // MARK: - Time Units
 
