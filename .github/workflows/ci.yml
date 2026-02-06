@@ -16,6 +16,8 @@ env:
   XCODE_VERSION: '26.0'
   IOS_VERSION: '19.0'
   DEVICE: 'iPhone 17'
+  SWIFTFORMAT_VERSION: '0.59.1'
+  SWIFTLINT_VERSION: '0.62.2'
 
 jobs:
   lint:
@@ -47,14 +49,24 @@ jobs:
         if ! command -v swiftlint &> /dev/null; then
           brew install swiftlint
         fi
-        swiftlint version
+        INSTALLED=$(swiftlint version)
+        if [ "$INSTALLED" != "$SWIFTLINT_VERSION" ]; then
+          echo "::error::SwiftLint version mismatch: expected $SWIFTLINT_VERSION, got $INSTALLED. Update SWIFTLINT_VERSION in ci.yml and run 'brew upgrade swiftlint' locally."
+          exit 1
+        fi
+        echo "SwiftLint $INSTALLED ✓"
 
     - name: Install SwiftFormat
       run: |
         if ! command -v swiftformat &> /dev/null; then
           brew install swiftformat
         fi
-        swiftformat --version
+        INSTALLED=$(swiftformat --version)
+        if [ "$INSTALLED" != "$SWIFTFORMAT_VERSION" ]; then
+          echo "::error::SwiftFormat version mismatch: expected $SWIFTFORMAT_VERSION, got $INSTALLED. Update SWIFTFORMAT_VERSION in ci.yml and run 'brew upgrade swiftformat' locally."
+          exit 1
+        fi
+        echo "SwiftFormat $INSTALLED ✓"
 
     - name: Run Code Quality Checks
       run: cd ios && make check

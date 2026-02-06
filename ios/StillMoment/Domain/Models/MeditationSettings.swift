@@ -61,7 +61,7 @@ struct MeditationSettings: Codable, Equatable {
         static let preparationTimeSeconds = "preparationTimeSeconds"
         static let startGongSoundId = "startGongSoundId"
         static let gongVolume = "gongVolume"
-        // Legacy key for migration
+        /// Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
 

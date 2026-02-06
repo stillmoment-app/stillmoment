@@ -49,7 +49,9 @@ final class TimerViewModel: ObservableObject {
     // MARK: - Computed Properties (Forwarded from DisplayState)
 
     /// Current timer state
-    var timerState: TimerState { self.displayState.timerState }
+    var timerState: TimerState {
+        self.displayState.timerState
+    }
 
     /// Selected duration in minutes
     var selectedMinutes: Int {
@@ -58,34 +60,54 @@ final class TimerViewModel: ObservableObject {
     }
 
     /// Remaining time in seconds
-    var remainingSeconds: Int { self.displayState.remainingSeconds }
+    var remainingSeconds: Int {
+        self.displayState.remainingSeconds
+    }
 
     /// Total duration in seconds
-    var totalSeconds: Int { self.displayState.totalSeconds }
+    var totalSeconds: Int {
+        self.displayState.totalSeconds
+    }
 
     /// Progress value (0.0 - 1.0)
-    var progress: Double { self.displayState.progress }
+    var progress: Double {
+        self.displayState.progress
+    }
 
     /// Remaining preparation seconds
-    var remainingPreparationSeconds: Int { self.displayState.remainingPreparationSeconds }
+    var remainingPreparationSeconds: Int {
+        self.displayState.remainingPreparationSeconds
+    }
 
     /// Current affirmation index
-    var currentAffirmationIndex: Int { self.displayState.currentAffirmationIndex }
+    var currentAffirmationIndex: Int {
+        self.displayState.currentAffirmationIndex
+    }
 
     /// Whether currently in preparation phase
-    var isPreparation: Bool { self.displayState.isPreparation }
+    var isPreparation: Bool {
+        self.displayState.isPreparation
+    }
 
     /// Returns true if timer can be started
-    var canStart: Bool { self.displayState.canStart }
+    var canStart: Bool {
+        self.displayState.canStart
+    }
 
     /// Returns true if timer can be paused
-    var canPause: Bool { self.displayState.canPause }
+    var canPause: Bool {
+        self.displayState.canPause
+    }
 
     /// Returns true if timer can be resumed
-    var canResume: Bool { self.displayState.canResume }
+    var canResume: Bool {
+        self.displayState.canResume
+    }
 
     /// Formatted time string
-    var formattedTime: String { self.displayState.formattedTime }
+    var formattedTime: String {
+        self.displayState.formattedTime
+    }
 
     /// Get current running affirmation
     var currentRunningAffirmation: String {

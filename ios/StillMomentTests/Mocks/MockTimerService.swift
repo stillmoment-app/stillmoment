@@ -177,7 +177,7 @@ final class MockAudioService: AudioServiceProtocol {
     var shouldThrowOnConfigure = false
     var shouldThrowOnPlay = false
 
-    // Track order of audio calls (for critical regression tests)
+    /// Track order of audio calls (for critical regression tests)
     var audioCallOrder: [String] = []
 
     func configureAudioSession() throws {

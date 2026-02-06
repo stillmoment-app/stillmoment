@@ -16,7 +16,7 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     var updateShouldThrow = false
     var deleteShouldThrow = false
 
-    // Migration simulation
+    /// Migration simulation
     var mockNeedsMigration = false
 
     func loadMeditations() throws -> [GuidedMeditation] {

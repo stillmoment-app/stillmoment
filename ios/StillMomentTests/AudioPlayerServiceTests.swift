@@ -420,7 +420,7 @@ final class AudioPlayerServiceTests: XCTestCase {
     // MARK: - Coordinator Observer Tests
 
     @MainActor
-    func testCoordinatorCallbackPausesOnConflict() async throws {
+    func testCoordinatorCallbackPausesOnConflict() async {
         // Given - Load and play
         guard let url = self.createTestAudioURL() else {
             XCTFail("Test audio file not found")
@@ -443,7 +443,7 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     @MainActor
-    func testConflictHandlerClearsNowPlayingInfo() async throws {
+    func testConflictHandlerClearsNowPlayingInfo() async {
         // Given - Load and play
         guard let url = self.createTestAudioURL() else {
             XCTFail("Test audio file not found")
@@ -469,7 +469,7 @@ final class AudioPlayerServiceTests: XCTestCase {
     }
 
     @MainActor
-    func testConflictHandlerReleasesAudioSession() async throws {
+    func testConflictHandlerReleasesAudioSession() async {
         // Given - Load and play
         guard let url = self.createTestAudioURL() else {
             XCTFail("Test audio file not found")

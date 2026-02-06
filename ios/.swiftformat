@@ -2,7 +2,7 @@
 # See https://github.com/nicklockwood/SwiftFormat for documentation
 
 # File options
---exclude Pods,.build,DerivedData,.swiftpm
+--exclude Pods,.build,DerivedData,.swiftpm,vendor
 
 # Format options
 --swiftversion 5.9
