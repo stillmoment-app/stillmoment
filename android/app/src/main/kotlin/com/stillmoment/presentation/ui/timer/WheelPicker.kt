@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,12 +27,14 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
@@ -144,12 +145,12 @@ fun WheelPicker(
                 ) {
                     Text(
                         text = stringResource(R.string.time_minutes, value),
-                        style =
-                        MaterialTheme.typography.headlineMedium.copy(
-                            fontSize = if (isSelected) 32.sp else 24.sp,
-                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Light
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground,
+                        style = if (isSelected) {
+                            TypographyRole.ScreenTitle.textStyle(sizeOverride = 32.sp)
+                        } else {
+                            TypographyRole.BodySecondary.textStyle(sizeOverride = 24.sp)
+                        },
+                        color = TypographyRole.ScreenTitle.textColor(),
                         modifier = Modifier.alpha(alpha)
                     )
                 }

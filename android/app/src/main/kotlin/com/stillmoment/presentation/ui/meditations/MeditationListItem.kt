@@ -33,13 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 
 /**
  * List item displaying a single guided meditation.
@@ -99,19 +101,16 @@ fun MeditationListItem(
             ) {
                 Text(
                     text = meditation.effectiveName,
-                    style =
-                    MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Medium
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = TypographyRole.ListTitle.textStyle(),
+                    color = TypographyRole.ListTitle.textColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = meditation.formattedDuration,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = TypographyRole.ListSubtitle.textStyle(),
+                    color = TypographyRole.ListSubtitle.textColor()
                 )
             }
 

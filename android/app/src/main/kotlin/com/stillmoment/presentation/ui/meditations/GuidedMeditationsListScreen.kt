@@ -48,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,7 +59,10 @@ import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -362,11 +364,8 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = teacher,
-            style =
-            MaterialTheme.typography.titleSmall.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = TypographyRole.ListSectionTitle.textStyle(),
+            color = TypographyRole.ListSectionTitle.textColor()
         )
     }
 }

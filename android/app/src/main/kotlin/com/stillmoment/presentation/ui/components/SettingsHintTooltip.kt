@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textStyle
 
 private const val HINT_ANIMATION_DURATION_MS = 300
 
@@ -66,7 +68,7 @@ fun SettingsHintTooltip(isVisible: Boolean, modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.settings_hint_text),
-                style = MaterialTheme.typography.bodySmall,
+                style = TypographyRole.Caption.textStyle(),
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }

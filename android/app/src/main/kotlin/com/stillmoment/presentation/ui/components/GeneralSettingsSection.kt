@@ -25,12 +25,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 
 /**
  * General settings section with theme picker.
@@ -45,10 +47,8 @@ fun GeneralSettingsSection(
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.settings_general_header),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
+            style = TypographyRole.SectionTitle.textStyle(),
+            color = TypographyRole.SectionTitle.textColor(),
             modifier = Modifier.padding(bottom = 8.dp)
         )
 

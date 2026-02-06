@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +40,9 @@ import com.stillmoment.domain.models.EditSheetState
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -116,11 +118,8 @@ private fun MeditationEditSheetContent(
         // Title
         Text(
             text = stringResource(R.string.guided_meditations_edit_title),
-            style =
-            MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
+            style = TypographyRole.ScreenTitle.textStyle(),
+            color = TypographyRole.ScreenTitle.textColor(),
             modifier = Modifier.semantics { heading() }
         )
 
@@ -180,13 +179,13 @@ private fun MeditationEditSheetContent(
             ) {
                 Text(
                     text = stringResource(R.string.guided_meditations_edit_file),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = TypographyRole.EditLabel.textStyle(),
+                    color = TypographyRole.EditCaption.textColor()
                 )
                 Text(
                     text = meditation.fileName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = TypographyRole.EditLabel.textStyle(),
+                    color = TypographyRole.EditLabel.textColor(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
@@ -203,13 +202,13 @@ private fun MeditationEditSheetContent(
             ) {
                 Text(
                     text = stringResource(R.string.guided_meditations_edit_duration),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = TypographyRole.EditLabel.textStyle(),
+                    color = TypographyRole.EditCaption.textColor()
                 )
                 Text(
                     text = meditation.formattedDuration,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = TypographyRole.EditLabel.textStyle(),
+                    color = TypographyRole.EditLabel.textColor()
                 )
             }
         }

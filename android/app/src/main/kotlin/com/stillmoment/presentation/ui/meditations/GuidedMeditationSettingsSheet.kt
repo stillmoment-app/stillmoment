@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
@@ -43,6 +42,9 @@ import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 
 /**
  * Settings Bottom Sheet for configuring guided meditation options.
@@ -92,8 +94,8 @@ private fun SettingsSheetHeader(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(R.string.guided_meditations_settings_title),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = TypographyRole.ScreenTitle.textStyle(),
+            color = TypographyRole.ScreenTitle.textColor(),
             modifier = Modifier.weight(1f)
         )
         TextButton(
@@ -158,8 +160,8 @@ private fun PreparationTimeToggle(
     ) {
         Text(
             text = stringResource(R.string.guided_meditations_settings_preparation_description),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor(),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -242,10 +244,8 @@ private fun PreparationTimeDropdown(
 private fun SectionTitle(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.Medium
-        ),
-        color = MaterialTheme.colorScheme.onSurface,
+        style = TypographyRole.SectionTitle.textStyle(),
+        color = TypographyRole.SectionTitle.textColor(),
         modifier = Modifier.padding(bottom = 8.dp)
     )
 }

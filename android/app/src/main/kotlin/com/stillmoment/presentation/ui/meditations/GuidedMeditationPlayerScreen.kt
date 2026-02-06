@@ -45,7 +45,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,7 +57,10 @@ import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 
@@ -248,11 +250,8 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
         // Teacher
         Text(
             text = meditation.effectiveTeacher,
-            style =
-            MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Medium
-            ),
-            color = MaterialTheme.colorScheme.primary,
+            style = TypographyRole.PlayerTeacher.textStyle(),
+            color = TypographyRole.PlayerTeacher.textColor(),
             textAlign = TextAlign.Center,
             modifier =
             Modifier.semantics {
@@ -265,11 +264,8 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
         // Meditation Name
         Text(
             text = meditation.effectiveName,
-            style =
-            MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.onBackground,
+            style = TypographyRole.PlayerTitle.textStyle(),
+            color = TypographyRole.PlayerTitle.textColor(),
             textAlign = TextAlign.Center,
             maxLines = 2,
             modifier =
@@ -342,13 +338,13 @@ private fun ProgressSection(
         ) {
             Text(
                 text = formattedPosition,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = TypographyRole.PlayerTimestamp.textStyle(),
+                color = TypographyRole.PlayerTimestamp.textColor()
             )
             Text(
                 text = formattedRemaining,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = TypographyRole.PlayerTimestamp.textStyle(),
+                color = TypographyRole.PlayerTimestamp.textColor()
             )
         }
     }
@@ -469,11 +465,8 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
         // Countdown number centered
         Text(
             text = remainingSeconds.toString(),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Light,
-                fontSize = fontSize.sp
-            ),
-            color = MaterialTheme.colorScheme.onBackground
+            style = TypographyRole.PlayerCountdown.textStyle(sizeOverride = fontSize.sp),
+            color = TypographyRole.PlayerCountdown.textColor()
         )
     }
 }

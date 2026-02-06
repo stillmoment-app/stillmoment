@@ -43,7 +43,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +55,10 @@ import com.stillmoment.domain.models.TimerState
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.textColor
+import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 
@@ -169,8 +171,8 @@ private fun FocusScreenLayout(
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = stringResource(R.string.welcome_title),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Light),
-                color = MaterialTheme.colorScheme.onBackground,
+                style = TypographyRole.ScreenTitle.textStyle(),
+                color = TypographyRole.ScreenTitle.textColor(),
                 modifier = Modifier.semantics { heading() }
             )
             Spacer(modifier = Modifier.height(24.dp))
@@ -202,8 +204,8 @@ private fun FocusTimerDisplay(
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = getStateText(uiState.timerState, getCurrentPreparationAffirmation, getCurrentRunningAffirmation),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = TypographyRole.BodySecondary.textStyle(),
+            color = TypographyRole.BodySecondary.textColor(),
             textAlign = TextAlign.Center
         )
     }
@@ -258,17 +260,15 @@ private fun TimerRing(
         Text(
             text = uiState.formattedTime,
             style = if (isPreparationStyle) {
-                MaterialTheme.typography.displayLarge.copy(
-                    fontSize = if (isCompactHeight) 90.sp else 110.sp,
-                    fontWeight = FontWeight.ExtraLight
+                TypographyRole.TimerCountdown.textStyle(
+                    sizeOverride = if (isCompactHeight) 90.sp else 110.sp
                 )
             } else {
-                MaterialTheme.typography.displayLarge.copy(
-                    fontSize = if (isCompactHeight) 56.sp else 72.sp,
-                    fontWeight = FontWeight.Thin
+                TypographyRole.TimerRunning.textStyle(
+                    sizeOverride = if (isCompactHeight) 56.sp else 72.sp
                 )
             },
-            color = MaterialTheme.colorScheme.onBackground
+            color = TypographyRole.TimerCountdown.textColor()
         )
     }
 }
