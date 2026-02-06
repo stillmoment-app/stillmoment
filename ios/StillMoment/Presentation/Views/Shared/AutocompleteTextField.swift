@@ -104,8 +104,7 @@ struct AutocompleteTextField: View {
                 } label: {
                     HStack {
                         Text(suggestion)
-                            .font(.system(.body, design: .rounded))
-                            .foregroundColor(self.theme.textPrimary)
+                            .themeFont(.bodyPrimary)
                         Spacer()
                     }
                     .padding(.horizontal, 12)
