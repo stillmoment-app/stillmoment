@@ -57,7 +57,6 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 
@@ -150,8 +149,15 @@ private fun FocusScreenLayout(
     Box(modifier = modifier.fillMaxSize()) {
         StillMomentTopAppBar(
             navigationIcon = {
-                IconButton(onClick = onBack, modifier = Modifier.semantics { contentDescription = backDescription }) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = null, tint = WarmGray)
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.semantics { contentDescription = backDescription }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         )

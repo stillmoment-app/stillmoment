@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.GuidedMeditationSettings
@@ -73,7 +74,9 @@ import kotlinx.collections.immutable.toImmutableList
 fun GuidedMeditationsListScreen(
     onMeditationClick: (GuidedMeditation) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: GuidedMeditationsListViewModel = hiltViewModel()
+    viewModel: GuidedMeditationsListViewModel = hiltViewModel(),
+    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
+    onThemeChange: (ColorTheme) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -114,6 +117,8 @@ fun GuidedMeditationsListScreen(
         onSettingsClick = viewModel::showSettingsSheet,
         onDismissSettingsSheet = viewModel::hideSettingsSheet,
         onSettingsChange = viewModel::updateSettings,
+        selectedTheme = selectedTheme,
+        onThemeChange = onThemeChange,
         modifier = modifier
     )
 }
@@ -133,7 +138,9 @@ internal fun GuidedMeditationsListScreenContent(
     onSettingsClick: () -> Unit,
     onDismissSettingsSheet: () -> Unit,
     onSettingsChange: (GuidedMeditationSettings) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
+    onThemeChange: (ColorTheme) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
@@ -297,7 +304,9 @@ internal fun GuidedMeditationsListScreenContent(
                 GuidedMeditationSettingsSheet(
                     settings = uiState.settings,
                     onSettingsChange = onSettingsChange,
-                    onDismiss = onDismissSettingsSheet
+                    onDismiss = onDismissSettingsSheet,
+                    selectedTheme = selectedTheme,
+                    onThemeChange = onThemeChange
                 )
             }
         }

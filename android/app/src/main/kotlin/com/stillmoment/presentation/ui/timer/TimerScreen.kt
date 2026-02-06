@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.presentation.ui.components.SettingsHintTooltip
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
@@ -57,7 +58,9 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
 fun TimerScreen(
     onNavigateToFocus: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: TimerViewModel = hiltViewModel()
+    viewModel: TimerViewModel = hiltViewModel(),
+    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
+    onThemeChange: (ColorTheme) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -74,6 +77,8 @@ fun TimerScreen(
         onGongSoundPreview = viewModel::playGongPreview,
         onIntervalGongPreview = viewModel::playIntervalGongPreview,
         onBackgroundSoundPreview = viewModel::playBackgroundPreview,
+        selectedTheme = selectedTheme,
+        onThemeChange = onThemeChange,
         modifier = modifier
     )
 }
@@ -90,7 +95,9 @@ internal fun TimerScreenContent(
     modifier: Modifier = Modifier,
     onGongSoundPreview: (String) -> Unit = {},
     onIntervalGongPreview: () -> Unit = {},
-    onBackgroundSoundPreview: (String) -> Unit = {}
+    onBackgroundSoundPreview: (String) -> Unit = {},
+    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
+    onThemeChange: (ColorTheme) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -120,7 +127,9 @@ internal fun TimerScreenContent(
                         onDismiss = onSettingsDismiss,
                         onGongSoundPreview = onGongSoundPreview,
                         onIntervalGongPreview = onIntervalGongPreview,
-                        onBackgroundSoundPreview = onBackgroundSoundPreview
+                        onBackgroundSoundPreview = onBackgroundSoundPreview,
+                        selectedTheme = selectedTheme,
+                        onThemeChange = onThemeChange
                     )
                 }
             }

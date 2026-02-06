@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -43,12 +44,10 @@ import androidx.navigation.navigation
 import com.stillmoment.R
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
+import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
-import com.stillmoment.presentation.ui.theme.Terracotta
-import com.stillmoment.presentation.ui.theme.WarmGray
-import com.stillmoment.presentation.ui.theme.WarmSand
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -112,6 +111,13 @@ fun StillMomentNavHost(
 
     // Wait for tab to be loaded before rendering navigation
     val startDestination = savedTab?.route ?: return
+
+    // Theme state for settings sheets
+    val selectedTheme by settingsDataStore.selectedThemeFlow
+        .collectAsState(initial = ColorTheme.DEFAULT)
+    val onThemeChange: (ColorTheme) -> Unit = { theme ->
+        scope.launch { settingsDataStore.setSelectedTheme(theme) }
+    }
 
     val tabs =
         remember {
@@ -197,7 +203,9 @@ fun StillMomentNavHost(
                             onNavigateToFocus = {
                                 navController.navigate(Screen.TimerFocus.route)
                             },
-                            viewModel = sharedViewModel
+                            viewModel = sharedViewModel,
+                            selectedTheme = selectedTheme,
+                            onThemeChange = onThemeChange
                         )
                     }
 
@@ -227,7 +235,9 @@ fun StillMomentNavHost(
                     GuidedMeditationsListScreen(
                         onMeditationClick = { meditation ->
                             navController.navigate(Screen.Player.createRoute(meditation))
-                        }
+                        },
+                        selectedTheme = selectedTheme,
+                        onThemeChange = onThemeChange
                     )
                 }
 
@@ -264,8 +274,8 @@ private fun StillMomentBottomBar(
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
-        containerColor = WarmSand,
-        contentColor = Terracotta,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.primary,
         modifier = modifier
     ) {
         tabs.forEach { tabItem ->
@@ -289,11 +299,11 @@ private fun StillMomentBottomBar(
                 },
                 colors =
                 NavigationBarItemDefaults.colors(
-                    selectedIconColor = Terracotta,
-                    selectedTextColor = Terracotta,
-                    unselectedIconColor = WarmGray,
-                    unselectedTextColor = WarmGray,
-                    indicatorColor = Terracotta.copy(alpha = 0.1f)
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                 ),
                 modifier =
                 Modifier.semantics {

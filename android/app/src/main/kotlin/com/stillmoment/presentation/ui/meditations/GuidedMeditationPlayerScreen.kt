@@ -57,12 +57,8 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
-import com.stillmoment.presentation.ui.theme.RingBackground
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.Terracotta
-import com.stillmoment.presentation.ui.theme.WarmBlack
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.WarmGray
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 
@@ -155,7 +151,7 @@ internal fun GuidedMeditationPlayerScreenContent(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = null,
-                                tint = WarmGray
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -218,11 +214,11 @@ internal fun GuidedMeditationPlayerScreenContent(
                         modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(WarmBlack.copy(alpha = 0.3f)),
+                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = Terracotta,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(48.dp)
                         )
                     }
@@ -256,7 +252,7 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
             MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Medium
             ),
-            color = Terracotta,
+            color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             modifier =
             Modifier.semantics {
@@ -273,7 +269,7 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
             MaterialTheme.typography.headlineSmall.copy(
                 fontWeight = FontWeight.SemiBold
             ),
-            color = WarmBlack,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center,
             maxLines = 2,
             modifier =
@@ -333,9 +329,9 @@ private fun ProgressSection(
                 },
             colors =
             SliderDefaults.colors(
-                thumbColor = Terracotta,
-                activeTrackColor = Terracotta,
-                inactiveTrackColor = RingBackground
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.outline
             )
         )
 
@@ -347,12 +343,12 @@ private fun ProgressSection(
             Text(
                 text = formattedPosition,
                 style = MaterialTheme.typography.bodySmall,
-                color = WarmGray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = formattedRemaining,
                 style = MaterialTheme.typography.bodySmall,
-                color = WarmGray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -391,7 +387,7 @@ private fun PlaybackButtons(
             Icon(
                 imageVector = Icons.Default.Replay10,
                 contentDescription = null,
-                tint = Terracotta,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -399,7 +395,7 @@ private fun PlaybackButtons(
         // Play/Pause Button
         FloatingActionButton(
             onClick = onPlayPause,
-            containerColor = Terracotta,
+            containerColor = MaterialTheme.colorScheme.primary,
             modifier =
             Modifier
                 .size(72.dp)
@@ -411,7 +407,7 @@ private fun PlaybackButtons(
                 imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = null,
                 modifier = Modifier.size(36.dp),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -426,7 +422,7 @@ private fun PlaybackButtons(
             Icon(
                 imageVector = Icons.Default.Forward10,
                 contentDescription = null,
-                tint = Terracotta,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
         }
@@ -455,7 +451,7 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
         // Background ring
         CircularProgressIndicator(
             progress = { 1f },
-            color = RingBackground,
+            color = MaterialTheme.colorScheme.outline,
             trackColor = Color.Transparent,
             modifier = Modifier.size(ringSize),
             strokeWidth = 4.dp
@@ -464,7 +460,7 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
         // Progress ring
         CircularProgressIndicator(
             progress = { progress },
-            color = Terracotta,
+            color = MaterialTheme.colorScheme.primary,
             trackColor = Color.Transparent,
             modifier = Modifier.size(ringSize),
             strokeWidth = 4.dp
@@ -477,7 +473,7 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
                 fontWeight = FontWeight.Light,
                 fontSize = fontSize.sp
             ),
-            color = WarmBlack
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }
