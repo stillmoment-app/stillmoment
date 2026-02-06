@@ -56,9 +56,9 @@ Eine Meditations-App sollte waehrend der Meditation nicht ablenken. Aktuell sind
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| Praesentation | Sheet (wie Meditations-Player) | Navigation zu Focus Screen |
-| Schliessen | Text-Button "Schliessen" oben links | X-Icon oben links |
-| Swipe-Dismiss | Nur bei pausiertem Timer | System Back (immer moeglich) |
+| Praesentation | ~~Sheet~~ Navigation (korrigiert in shared-036) | Navigation zu Focus Screen |
+| Schliessen | ~~Text-Button "Schliessen"~~ X-Icon links (korrigiert in shared-036) | X-Icon oben links |
+| Swipe-Dismiss | ~~Nur bei pausiertem Timer~~ Nicht moeglich (Navigation) | System Back (immer moeglich) |
 | Bottom-Bar | Automatisch durch Sheet versteckt | Via Route-Check versteckt |
 
 ---
@@ -81,8 +81,9 @@ Eine Meditations-App sollte waehrend der Meditation nicht ablenken. Aktuell sind
 
 ## Hinweise
 
-- iOS: `.interactiveDismissDisabled()` fuer Swipe-Kontrolle
+- iOS: ~~`.interactiveDismissDisabled()` fuer Swipe-Kontrolle~~ Nicht mehr relevant (Navigation statt Sheet, siehe shared-036)
 - Android: Bottom-Bar bereits via Route-Check gesteuert (Player-Pattern)
+- **Update:** [shared-036](shared-036-kern-features-navigation-pattern.md) hat das iOS-Pattern korrigiert: Sheet → Navigation, TimerFocusView eliminiert, konsistentes X-Icon
 
 ### Wichtig: Timer-State beim Start
 

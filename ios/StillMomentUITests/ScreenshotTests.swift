@@ -119,7 +119,7 @@ final class ScreenshotTests: XCTestCase {
         snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 2: Timer running state with FocusView (~04:59 remaining)
+    /// Screenshot 2: Timer running state (~04:59 remaining)
     func testScreenshot02_timerRunning() {
         // Navigate to Timer tab
         let timerTab = self.app.tabBars.buttons["Timer"]
@@ -135,12 +135,12 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
         picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "5 min")
 
-        // Start timer - opens FocusView sheet
+        // Start timer
         startButton.tap()
 
-        // Wait for FocusView to appear (no Thread.sleep - use waitForExistence)
-        let focusTime = self.app.staticTexts["focus.display.time"]
-        XCTAssertTrue(focusTime.waitForExistence(timeout: 2.0), "FocusView time display should appear")
+        // Wait for timer display to appear
+        let timerDisplay = self.app.staticTexts["timer.display.time"]
+        XCTAssertTrue(timerDisplay.waitForExistence(timeout: 2.0), "Timer display should appear")
 
         // Take screenshot
         // timeWaitingForIdle: 0 - skip network indicator wait (can cause 20s delays)

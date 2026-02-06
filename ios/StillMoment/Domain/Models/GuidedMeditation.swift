@@ -13,7 +13,7 @@ import Foundation
 /// Legacy installations may have security-scoped bookmarks which are migrated on first launch.
 ///
 /// Metadata can be customized by the user, overriding values read from ID3 tags.
-struct GuidedMeditation: Identifiable, Codable, Equatable {
+struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
     // MARK: Lifecycle
 
     /// Initializes a new guided meditation with a local file path (preferred)

@@ -105,7 +105,7 @@ struct GuidedMeditationsListView: View {
                 )
             }
         }
-        .sheet(item: self.$selectedMeditation) { meditation in
+        .navigationDestination(for: GuidedMeditation.self) { meditation in
             GuidedMeditationPlayerView(
                 meditation: meditation,
                 preparationTimeSeconds: self.settings.preparationTimeSeconds
@@ -163,7 +163,6 @@ struct GuidedMeditationsListView: View {
     @Environment(\.themeColors)
     private var theme
     @StateObject private var viewModel: GuidedMeditationsListViewModel
-    @State private var selectedMeditation: GuidedMeditation?
     @State private var meditationToDelete: GuidedMeditation?
     @State private var showingSettings = false
     @State private var settings: GuidedMeditationSettings
@@ -177,11 +176,9 @@ struct GuidedMeditationsListView: View {
             ProgressView()
                 .scaleEffect(1.5)
             Text("guided_meditations.migration.title")
-                .font(.system(.headline, design: .rounded))
-                .foregroundColor(self.theme.textPrimary)
+                .themeFont(.listTitle)
             Text("guided_meditations.migration.message")
-                .font(.system(.subheadline, design: .rounded))
-                .foregroundColor(self.theme.textSecondary)
+                .themeFont(.listSubtitle)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
@@ -197,12 +194,10 @@ struct GuidedMeditationsListView: View {
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Text("guided_meditations.empty.title")
-                .font(.system(.title2, design: .rounded, weight: .medium))
-                .foregroundColor(self.theme.textPrimary)
+                .themeFont(.listSectionTitle)
 
             Text("guided_meditations.empty.message")
-                .font(.system(.body, design: .rounded))
-                .foregroundColor(self.theme.textSecondary)
+                .themeFont(.listBody)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -232,7 +227,7 @@ struct GuidedMeditationsListView: View {
                     }
                 } header: {
                     Text(section.teacher)
-                        .font(.system(.headline, design: .rounded))
+                        .themeFont(.listTitle)
                         .textCase(nil)
                 }
             }
@@ -242,9 +237,10 @@ struct GuidedMeditationsListView: View {
     }
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
-        Button {
-            self.selectedMeditation = meditation
-        } label: {
+        ZStack {
+            NavigationLink(value: meditation) { EmptyView() }
+                .opacity(0)
+
             HStack {
                 Image(systemName: "play.circle")
                     .font(.system(size: 20))
@@ -252,11 +248,9 @@ struct GuidedMeditationsListView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
-                        .font(.system(.body, design: .rounded, weight: .medium))
-                        .foregroundColor(self.theme.textPrimary)
+                        .themeFont(.listActionLabel)
                     Text(meditation.formattedDuration)
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundColor(self.theme.textSecondary)
+                        .themeFont(.listSubtitle)
                 }
 
                 Spacer()
@@ -265,7 +259,6 @@ struct GuidedMeditationsListView: View {
             }
             .padding(.vertical, 4)
         }
-        .buttonStyle(.plain)
         .listRowBackground(self.theme.backgroundPrimary)
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
@@ -352,8 +345,14 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
         self.meditations = meditations
     }
 
-    func loadMeditations() throws -> [GuidedMeditation] { self.meditations }
-    func saveMeditations(_ meditations: [GuidedMeditation]) throws { self.meditations = meditations }
+    func loadMeditations() throws -> [GuidedMeditation] {
+        self.meditations
+    }
+
+    func saveMeditations(_ meditations: [GuidedMeditation]) throws {
+        self.meditations = meditations
+    }
+
     func addMeditation(from _: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
         GuidedMeditation(
             localFilePath: "preview.mp3",
@@ -365,11 +364,18 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     }
 
     func updateMeditation(_ meditation: GuidedMeditation) throws {}
-    func deleteMeditation(id: UUID) throws {}
-    func getMeditationsDirectory() -> URL { FileManager.default.temporaryDirectory }
-    func needsMigration() -> Bool { false }
 
-    // Sample data for previews
+    func deleteMeditation(id: UUID) throws {}
+
+    func getMeditationsDirectory() -> URL {
+        FileManager.default.temporaryDirectory
+    }
+
+    func needsMigration() -> Bool {
+        false
+    }
+
+    /// Sample data for previews
     static let sampleMeditations: [GuidedMeditation] = [
         GuidedMeditation(
             localFilePath: "sample1.mp3",

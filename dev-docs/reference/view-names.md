@@ -8,7 +8,6 @@ Einheitliche Begriffe für Tickets und Dokumentation.
 |----------------|-----|---------|
 | **Timer** | `TimerView` | `TimerScreen` |
 | **Settings** | `SettingsView` | `SettingsSheet` |
-| **TimerFocus** | `TimerFocusView` | `TimerFocusScreen` |
 
 > **Hinweis:** Der Minute Picker ist Teil von **Timer** (kein eigener View).
 
@@ -34,7 +33,6 @@ Einheitliche Begriffe für Tickets und Dokumentation.
 ios/StillMoment/Presentation/Views/
 ├── Timer/
 │   ├── TimerView.swift
-│   ├── TimerFocusView.swift
 │   └── SettingsView.swift
 └── GuidedMeditations/
     ├── GuidedMeditationsListView.swift
@@ -57,4 +55,4 @@ android/app/src/main/kotlin/com/stillmoment/presentation/ui/
 
 ---
 
-**Last Updated**: 2025-12-27
+**Last Updated**: 2026-02-06

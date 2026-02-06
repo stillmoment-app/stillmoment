@@ -76,67 +76,66 @@ final class TimerFlowUITests: XCTestCase {
             XCTAssertTrue(startButton.isEnabled)
         }
 
-        XCTContext.runActivity(named: "Start timer and verify running state in focus view") { _ in
-            // Tap start - opens focus view sheet
+        XCTContext.runActivity(named: "Start timer and verify running state") { _ in
+            // Tap start
             self.app.buttons["timer.button.start"].tap()
 
-            // Timer display should appear in focus view (countdown or time)
-            let countdownDisplay = self.app.staticTexts["focus.display.countdown"]
-            let timerDisplay = self.app.staticTexts["focus.display.time"]
+            // Timer display should appear (countdown or time)
+            let timerDisplay = self.app.staticTexts["timer.display.time"]
             XCTAssertTrue(
-                countdownDisplay.waitForExistence(timeout: 3.0) || timerDisplay.waitForExistence(timeout: 1.0),
+                timerDisplay.waitForExistence(timeout: 3.0),
                 "Timer display should appear after starting"
             )
 
-            // Pause button should appear in focus view
-            let pauseButton = self.app.buttons["focus.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should appear in focus view")
+            // Pause button should appear
+            let pauseButton = self.app.buttons["timer.button.pause"]
+            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should appear")
 
-            // Close button should appear (replaces reset in focus view)
-            let closeButton = self.app.buttons["focus.button.close"]
-            XCTAssertTrue(closeButton.waitForExistence(timeout: 2.0), "Close button should appear in focus view")
+            // End button should appear in toolbar
+            let endButton = self.app.buttons["timer.button.end"]
+            XCTAssertTrue(endButton.waitForExistence(timeout: 2.0), "End button should appear in toolbar")
         }
     }
 
     // MARK: - Flow Test 2: Timer Controls Flow
 
-    /// Tests pause, resume, close functionality in focus view
+    /// Tests pause, resume, end functionality
     /// Consolidates: testPauseAndResumeTimer, testResetTimer
     func testTimerControlsFlow() {
         // Navigate to Timer tab (app may remember last tab)
         self.navigateToTimerTab()
 
-        // Start timer first - opens focus view
+        // Start timer first
         self.app.buttons["timer.button.start"].tap()
 
-        XCTContext.runActivity(named: "Pause timer in focus view") { _ in
-            let pauseButton = self.app.buttons["focus.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should exist in focus view")
+        XCTContext.runActivity(named: "Pause timer") { _ in
+            let pauseButton = self.app.buttons["timer.button.pause"]
+            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should exist")
             pauseButton.tap()
 
             // Resume button should appear
-            let resumeButton = self.app.buttons["focus.button.resume"]
+            let resumeButton = self.app.buttons["timer.button.resume"]
             XCTAssertTrue(resumeButton.waitForExistence(timeout: 2.0), "Resume button should appear after pause")
 
             // State indicator should show paused
-            let stateText = self.app.staticTexts["focus.state.text"]
+            let stateText = self.app.staticTexts["timer.state.text"]
             XCTAssertTrue(stateText.waitForExistence(timeout: 2.0), "State text should be visible")
         }
 
-        XCTContext.runActivity(named: "Resume timer in focus view") { _ in
-            let resumeButton = self.app.buttons["focus.button.resume"]
+        XCTContext.runActivity(named: "Resume timer") { _ in
+            let resumeButton = self.app.buttons["timer.button.resume"]
             resumeButton.tap()
 
             // Pause button should reappear
-            let pauseButton = self.app.buttons["focus.button.pause"]
+            let pauseButton = self.app.buttons["timer.button.pause"]
             XCTAssertTrue(pauseButton.waitForExistence(timeout: 2.0), "Pause button should reappear after resume")
         }
 
-        XCTContext.runActivity(named: "Close focus view to return to timer") { _ in
-            // Close button dismisses focus view and resets timer
-            let closeButton = self.app.buttons["focus.button.close"]
-            XCTAssertTrue(closeButton.exists, "Close button should exist")
-            closeButton.tap()
+        XCTContext.runActivity(named: "End timer to return to selection") { _ in
+            // End button resets timer
+            let endButton = self.app.buttons["timer.button.end"]
+            XCTAssertTrue(endButton.exists, "End button should exist")
+            endButton.tap()
 
             // Should return to initial state
             let selectDurationLabel = self.app.staticTexts["timer.duration.question"]
@@ -150,31 +149,26 @@ final class TimerFlowUITests: XCTestCase {
 
     // MARK: - Flow Test 3: Timer Countdown Verification
 
-    /// Tests that timer actually counts down and validates format in focus view
+    /// Tests that timer actually counts down and validates format
     func testTimerCountdown() {
         self.navigateToTimerTab()
 
-        // Start timer - opens focus view
+        // Start timer
         self.app.buttons["timer.button.start"].tap()
 
-        // Wait for timer display in focus view (countdown first, then time)
-        let countdownDisplay = self.app.staticTexts["focus.display.countdown"]
-        let timerDisplay = self.app.staticTexts["focus.display.time"]
+        // Wait for timer display
+        let timerDisplay = self.app.staticTexts["timer.display.time"]
+        XCTAssertTrue(timerDisplay.waitForExistence(timeout: 3.0), "Timer display should appear")
 
-        let hasCountdown = countdownDisplay.waitForExistence(timeout: 3.0)
-        let hasTimer = timerDisplay.waitForExistence(timeout: 1.0)
-        XCTAssertTrue(hasCountdown || hasTimer, "Timer display should appear in focus view")
-
-        let activeDisplay = hasTimer ? timerDisplay : countdownDisplay
-        let initialTime = activeDisplay.label
+        let initialTime = timerDisplay.label
 
         // Wait for time to change
         let predicate = NSPredicate(format: "label != %@", initialTime)
-        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: activeDisplay)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: timerDisplay)
         let result = XCTWaiter.wait(for: [expectation], timeout: 5.0)
         XCTAssertEqual(result, .completed, "Timer should count down")
 
-        let laterTime = activeDisplay.label
+        let laterTime = timerDisplay.label
         XCTAssertNotEqual(initialTime, laterTime, "Timer should have counted down")
 
         // Verify format is correct (MM:SS or just seconds for countdown)
@@ -184,28 +178,28 @@ final class TimerFlowUITests: XCTestCase {
 
     // MARK: - Flow Test 4: Timer State Navigation
 
-    /// Tests navigation through all timer states in focus view
+    /// Tests navigation through all timer states
     func testTimerStateNavigation() {
         self.navigateToTimerTab()
 
-        // Start timer - opens focus view
+        // Start timer
         self.app.buttons["timer.button.start"].tap()
 
         // Wait for running state
-        let pauseButton = self.app.buttons["focus.button.pause"]
+        let pauseButton = self.app.buttons["timer.button.pause"]
         XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Should be in running state")
 
         // Running -> Paused
         pauseButton.tap()
-        XCTAssertTrue(self.app.buttons["focus.button.resume"].waitForExistence(timeout: 2.0))
-        XCTAssertTrue(self.app.staticTexts["focus.state.text"].waitForExistence(timeout: 2.0))
+        XCTAssertTrue(self.app.buttons["timer.button.resume"].waitForExistence(timeout: 2.0))
+        XCTAssertTrue(self.app.staticTexts["timer.state.text"].waitForExistence(timeout: 2.0))
 
         // Paused -> Running
-        self.app.buttons["focus.button.resume"].tap()
-        XCTAssertTrue(self.app.buttons["focus.button.pause"].waitForExistence(timeout: 2.0))
+        self.app.buttons["timer.button.resume"].tap()
+        XCTAssertTrue(self.app.buttons["timer.button.pause"].waitForExistence(timeout: 2.0))
 
-        // Running -> Idle (close focus view)
-        self.app.buttons["focus.button.close"].tap()
+        // Running -> Idle (end timer)
+        self.app.buttons["timer.button.end"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.start"].waitForExistence(timeout: 2.0))
         XCTAssertTrue(self.app.staticTexts["timer.duration.question"].waitForExistence(timeout: 2.0))
     }

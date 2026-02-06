@@ -22,24 +22,20 @@ struct TimerView: View {
     // MARK: Internal
 
     var body: some View {
-        self.timerContent
-            .sheet(isPresented: self.$showFocusMode) {
-                TimerFocusView(viewModel: self.viewModel)
-            }
-    }
-
-    private var timerContent: some View {
         GeometryReader { geometry in
             let isCompactHeight = geometry.size.height < 700
 
             VStack(spacing: 0) {
-                Spacer(minLength: 8)
-                    .frame(maxHeight: 40)
+                if self.viewModel.timerState == .idle {
+                    Spacer(minLength: 8)
+                        .frame(maxHeight: 40)
+                } else {
+                    Spacer(minLength: 8)
+                }
 
                 // Title
                 Text("welcome.title", bundle: .main)
-                    .font(.system(size: isCompactHeight ? 24 : 28, weight: .light, design: .rounded))
-                    .foregroundColor(self.theme.textPrimary)
+                    .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
                     .padding(.horizontal)
 
                 Spacer(minLength: 12)
@@ -64,8 +60,7 @@ struct TimerView: View {
                 // Error Message
                 if let error = viewModel.errorMessage {
                     Text(error)
-                        .font(.caption)
-                        .foregroundColor(self.theme.error)
+                        .themeFont(.caption, color: \.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -79,23 +74,39 @@ struct TimerView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 8) {
-                    if !self.hasSeenSettingsHint {
-                        self.settingsHintTooltip
-                    }
-
+            ToolbarItem(placement: .navigationBarLeading) {
+                if self.viewModel.timerState != .idle {
                     Button {
-                        self.hasSeenSettingsHint = true
-                        self.showSettings = true
+                        self.viewModel.resetTimer()
                     } label: {
-                        Image(systemName: "slider.horizontal.3")
+                        Image(systemName: "xmark")
                             .foregroundColor(self.theme.textSecondary)
                             .frame(minWidth: 44, minHeight: 44)
                     }
-                    .accessibilityIdentifier("timer.button.settings")
-                    .accessibilityLabel("accessibility.settings")
-                    .accessibilityHint("accessibility.settings.hint")
+                    .accessibilityIdentifier("timer.button.end")
+                    .accessibilityLabel("accessibility.endMeditation")
+                    .accessibilityHint("accessibility.endMeditation.hint")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if self.viewModel.timerState == .idle {
+                    HStack(spacing: 8) {
+                        if !self.hasSeenSettingsHint {
+                            self.settingsHintTooltip
+                        }
+
+                        Button {
+                            self.hasSeenSettingsHint = true
+                            self.showSettings = true
+                        } label: {
+                            Image(systemName: "slider.horizontal.3")
+                                .foregroundColor(self.theme.textSecondary)
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                        .accessibilityIdentifier("timer.button.settings")
+                        .accessibilityLabel("accessibility.settings")
+                        .accessibilityHint("accessibility.settings.hint")
+                    }
                 }
             }
         }
@@ -113,7 +124,6 @@ struct TimerView: View {
     private var theme
     @StateObject private var viewModel: TimerViewModel
     @State private var showSettings = false
-    @State private var showFocusMode = false
     @AppStorage("hasSeenSettingsHint")
     private var hasSeenSettingsHint = false
 
@@ -178,8 +188,7 @@ struct TimerView: View {
 
     private var settingsHintTooltip: some View {
         Text("settings.hint.text", bundle: .main)
-            .font(.system(size: 12, weight: .regular, design: .rounded))
-            .foregroundStyle(self.theme.textPrimary)
+            .themeFont(.caption, color: \.textPrimary)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(
@@ -194,7 +203,6 @@ struct TimerView: View {
     private func minutePicker(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
         let imageSize: CGFloat = isCompactHeight ? 100 : 150
-        let pickerHeight: CGFloat = isCompactHeight ? 120 : 150
         let spacing: CGFloat = isCompactHeight ? 12 : 20
 
         return VStack(spacing: spacing) {
@@ -205,40 +213,42 @@ struct TimerView: View {
                 .padding(.bottom, isCompactHeight ? 4 : 8)
 
             Text("duration.question", bundle: .main)
-                .font(.system(size: isCompactHeight ? 18 : 20, weight: .light, design: .rounded))
-                .foregroundColor(self.theme.textPrimary)
+                .themeFont(.sectionTitle, size: isCompactHeight ? 18 : nil)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .padding(.horizontal)
                 .accessibilityIdentifier("timer.duration.question")
 
-            Picker(
-                NSLocalizedString("accessibility.durationPicker.label", comment: ""),
-                selection: self.$viewModel.selectedMinutes
-            ) {
-                ForEach(1...60, id: \.self) { minute in
-                    Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
-                        .tag(minute)
-                }
-            }
-            .pickerStyle(.wheel)
-            .frame(height: pickerHeight)
-            .accessibilityIdentifier("timer.picker.minutes")
-            .accessibilityLabel("accessibility.durationPicker")
-            .accessibilityHint("accessibility.durationPicker.hint")
+            self.durationWheel(isCompact: isCompactHeight)
 
             Text("duration.footer", bundle: .main)
-                .font(.system(size: isCompactHeight ? 14 : 15, weight: .light, design: .rounded))
-                .foregroundColor(self.theme.textSecondary)
+                .themeFont(.bodySecondary, size: isCompactHeight ? 14 : nil)
                 .italic()
                 .padding(.horizontal)
                 .padding(.top, isCompactHeight ? 8 : 16)
         }
     }
 
+    private func durationWheel(isCompact: Bool) -> some View {
+        Picker(
+            NSLocalizedString("accessibility.durationPicker.label", comment: ""),
+            selection: self.$viewModel.selectedMinutes
+        ) {
+            ForEach(1...60, id: \.self) { minute in
+                Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
+                    .tag(minute)
+            }
+        }
+        .pickerStyle(.wheel)
+        .frame(height: isCompact ? 120 : 150)
+        .accessibilityIdentifier("timer.picker.minutes")
+        .accessibilityLabel("accessibility.durationPicker")
+        .accessibilityHint("accessibility.durationPicker.hint")
+    }
+
     private func timerDisplay(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
-        let circleSize: CGFloat = isCompactHeight ? 200 : 250
+        let circleSize: CGFloat = min(geometry.size.width * (isCompactHeight ? 0.55 : 0.7), 320)
         let spacing: CGFloat = isCompactHeight ? 12 : 20
 
         return VStack(spacing: spacing) {
@@ -251,8 +261,7 @@ struct TimerView: View {
             }
 
             Text(self.stateText)
-                .font(.system(size: isCompactHeight ? 14 : 16, weight: .regular, design: .rounded))
-                .foregroundColor(self.theme.textSecondary)
+                .themeFont(.bodySecondary, size: isCompactHeight ? 14 : nil)
                 .accessibilityIdentifier("timer.state.text")
                 .accessibilityLabel(self.accessibilityStateLabel)
         }
@@ -265,8 +274,7 @@ struct TimerView: View {
                 .frame(width: size, height: size)
 
             Text(self.viewModel.formattedTime)
-                .font(.system(size: isCompact ? 80 : 100, weight: .ultraLight, design: .rounded))
-                .foregroundColor(self.theme.textPrimary)
+                .themeFont(.timerCountdown, size: isCompact ? 80 : nil)
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel(String(
@@ -291,8 +299,7 @@ struct TimerView: View {
                 .shadow(color: self.theme.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
 
             Text(self.viewModel.formattedTime)
-                .font(.system(size: isCompact ? 48 : 60, weight: .thin, design: .rounded))
-                .foregroundColor(self.theme.textPrimary)
+                .themeFont(.timerRunning, size: isCompact ? 48 : nil)
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel(String(
@@ -307,9 +314,7 @@ struct TimerView: View {
         HStack(spacing: 30) {
             // Start/Resume/Pause Button
             if self.viewModel.canStart {
-                Button {
-                    self.showFocusMode = true
-                } label: {
+                Button(action: self.viewModel.startTimer) {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
                 }
                 .warmPrimaryButton()

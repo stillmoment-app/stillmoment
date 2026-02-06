@@ -200,25 +200,23 @@ final class LibraryFlowUITests: XCTestCase {
     // MARK: - Flow Test 4: Timer Integration with Library
 
     /// Tests that Timer and Library tabs maintain independent state
-    /// Note: With focus view, the timer runs in a sheet. Switching tabs while in focus mode
-    /// may dismiss the sheet, so this test verifies state preservation in idle mode.
     func testTimerAndLibraryIndependentState() {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Start timer and verify focus view opens") { _ in
-            // Start the timer - opens focus view
+        XCTContext.runActivity(named: "Start and end timer") { _ in
+            // Start the timer
             let startButton = self.app.buttons["timer.button.start"]
             startButton.tap()
 
-            // Verify focus view opened (pause button in focus view)
-            let pauseButton = self.app.buttons["focus.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Focus view should open with pause button")
+            // Verify timer is running (pause button visible)
+            let pauseButton = self.app.buttons["timer.button.pause"]
+            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Timer should be running with pause button")
 
-            // Close focus view to return to main timer
-            let closeButton = self.app.buttons["focus.button.close"]
-            XCTAssertTrue(closeButton.exists, "Close button should exist")
-            closeButton.tap()
+            // End timer to return to idle
+            let endButton = self.app.buttons["timer.button.end"]
+            XCTAssertTrue(endButton.exists, "End button should exist")
+            endButton.tap()
 
             // Verify we're back to idle state
             let startButtonAgain = self.app.buttons["timer.button.start"]
