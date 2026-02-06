@@ -48,8 +48,7 @@ struct GuidedMeditationEditSheet: View {
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("guided_meditations.edit.teacher")
-                                .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .foregroundColor(self.theme.textPrimary)
+                                .themeFont(.editLabel)
 
                             AutocompleteTextField(
                                 text: self.$editState.editedTeacher,
@@ -64,8 +63,7 @@ struct GuidedMeditationEditSheet: View {
                     Section {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("guided_meditations.edit.name")
-                                .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .foregroundColor(self.theme.textPrimary)
+                                .themeFont(.editLabel)
 
                             TextField("guided_meditations.edit.namePlaceholder", text: self.$editState.editedName)
                                 .accessibilityLabel("guided_meditations.edit.name")
@@ -77,22 +75,18 @@ struct GuidedMeditationEditSheet: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text("guided_meditations.edit.file")
-                                    .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                    .foregroundColor(self.theme.textPrimary)
+                                    .themeFont(.editLabel)
                                 Spacer()
                                 Text(self.meditation.fileName)
-                                    .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(self.theme.textSecondary)
+                                    .themeFont(.editCaption)
                             }
 
                             HStack {
                                 Text("guided_meditations.edit.duration")
-                                    .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                    .foregroundColor(self.theme.textPrimary)
+                                    .themeFont(.editLabel)
                                 Spacer()
                                 Text(self.meditation.formattedDuration)
-                                    .font(.system(.caption, design: .rounded))
-                                    .foregroundColor(self.theme.textSecondary)
+                                    .themeFont(.editCaption)
                             }
                         }
                     } header: {

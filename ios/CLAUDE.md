@@ -195,6 +195,27 @@ Uses a private serial `DispatchQueue` — always go through the coordinator, nev
 
 ---
 
+## Xcode Project Structure
+
+### File System Synchronized Groups
+
+The project uses `PBXFileSystemSynchronizedRootGroup` — Xcode automatically detects new files placed in the correct directory. **No manual pbxproj manipulation needed.** Just create the file in the right folder and Xcode picks it up.
+
+### Simulator Selection for MCP/CLI
+
+When using `XcodeBuildMCP` or `xcodebuild` CLI, set a **specific `simulatorId`** instead of `simulatorName`. Using `simulatorName: "iPhone 16"` with `useLatestOS` can fail if the runtime isn't installed. Find available simulators:
+
+```bash
+xcrun simctl list devices available
+```
+
+Then set the ID:
+```
+session-set-defaults { simulatorId: "29FD6D91-..." }
+```
+
+---
+
 ## Testing
 
 ### Mock Services via Protocols

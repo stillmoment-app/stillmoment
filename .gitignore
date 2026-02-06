@@ -85,6 +85,9 @@ iOSInjectionProject/
 .vscode/
 .idea/
 .xcodebuildmcp/
+
+# Local working directory (screenshots, debug output, etc.)
+tmp/
 *.swp
 *.swo
 *~

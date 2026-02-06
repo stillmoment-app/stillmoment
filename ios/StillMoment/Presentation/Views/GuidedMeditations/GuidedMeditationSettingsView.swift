@@ -36,9 +36,9 @@ struct GuidedMeditationSettingsView: View {
                         Toggle(isOn: self.$preparationTimeEnabled) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("guided_meditations.settings.preparationTime.title", bundle: .main)
-                                    .settingsLabelStyle()
+                                    .themeFont(.settingsLabel)
                                 Text("guided_meditations.settings.preparationTime.description", bundle: .main)
-                                    .settingsDescriptionStyle()
+                                    .themeFont(.settingsDescription)
                             }
                         }
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
