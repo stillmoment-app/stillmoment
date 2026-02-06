@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Visuell konsistent zwischen iOS und Android (identische RGB-Werte)
   - Ticket: shared-033
 
+### Technical (iOS & Android)
+- **Zentrales Typography System** - Semantische Typografie-Rollen mit automatischer Dark Mode Halation-Kompensation
+  - 20 TypographyRole-Rollen (Timer, Headings, Body, Settings, Player, List, Edit)
+  - Font Weight wird im Dark Mode automatisch eine Stufe schwerer (verhindert optisch duennere Schrift)
+  - iOS: `.themeFont(.screenTitle)` ViewModifier mit `@Environment`-Integration
+  - Android: `TypographyRole.ScreenTitle.textStyle()` Composable mit Nunito Variable Font
+  - Unit Tests fuer Halation-Kompensation und Rollen-Eindeutigkeit
+  - Ticket: shared-037
+
 ### Technical (iOS)
 - **Theme-Architektur** - Migration von statischen Color-Properties zu @Environment-basiertem ThemeColors-System
   - ThemeColors struct + EnvironmentKey fuer reaktive Farben

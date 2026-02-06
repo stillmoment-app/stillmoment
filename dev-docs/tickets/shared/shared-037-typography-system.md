@@ -1,8 +1,8 @@
 # Ticket shared-037: Zentrales Typography System
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
-**Aufwand**: iOS erledigt | Android ~3-4h
+**Aufwand**: iOS erledigt | Android erledigt
 **Phase**: 2-Architektur
 
 ---
@@ -21,8 +21,8 @@ Konsistente Typografie ueber alle Screens hinweg. Aenderungen an Schriftgroessen
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [x]    | Fertig (19 TypographyRoles, 6 Views migriert, Unit Tests) |
-| Android   | [ ]    | shared-032 (Theme-System) |
+| iOS       | [x]    | Fertig (20 TypographyRoles, alle Views migriert, Unit Tests) |
+| Android   | [x]    | Fertig (20 TypographyRoles, Nunito Font, alle 14 Views migriert, Unit Tests) |
 
 ---
 
@@ -33,14 +33,14 @@ Konsistente Typografie ueber alle Screens hinweg. Aenderungen an Schriftgroessen
 - [x] Einzelner Aufruf pro Text-Element statt separate Font + Color-Angaben
 - [x] Dark Mode Halation-Kompensation: Font Weight automatisch eine Stufe schwerer im Dark Mode
 - [x] Feste Groessen fuer dekorative Elemente (Timer-Display, Headings), Dynamic Type fuer Lesetext
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
 - [x] Unit Tests: Halation-Kompensation liefert korrektes Weight pro Light/Dark
 - [x] Unit Tests: Jede Rolle hat eindeutige Font/Size/Color-Kombination
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
@@ -60,7 +60,7 @@ Konsistente Typografie ueber alle Screens hinweg. Aenderungen an Schriftgroessen
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| Aufruf | `.themeFont(.screenTitle)` ViewModifier | MaterialTheme Typography (Compose) |
+| Aufruf | `.themeFont(.screenTitle)` ViewModifier | `TypographyRole.ScreenTitle.textStyle()` Composable |
 | Halation | Font Weight +1 Stufe in Dark Mode | Font Weight +1 Stufe in Dark Mode |
 | Dynamic Type | Body/List-Rollen skalieren | Body/List-Rollen skalieren |
 
@@ -69,13 +69,13 @@ Konsistente Typografie ueber alle Screens hinweg. Aenderungen an Schriftgroessen
 ## Referenz
 
 - iOS: `ios/StillMoment/Presentation/Views/Shared/Font+Theme.swift`
-- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/theme/Type.kt` (zu erstellen)
+- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/theme/Type.kt`
 
 ---
 
 ## Hinweise
 
-- iOS nutzt `TypographyRole` Enum mit 19 Rollen und `ThemeTypographyModifier`
+- iOS nutzt `TypographyRole` Enum mit 20 Rollen und `ThemeTypographyModifier`
 - Dark Mode Halation-Kompensation: ultraLight→thin, thin→light, light→regular, regular→medium
 - SF Symbol Icons sind NICHT Teil des Typography Systems (eigene Sizing-Logik)
 - Android muss MaterialTheme Typography erweitern, nicht ersetzen
