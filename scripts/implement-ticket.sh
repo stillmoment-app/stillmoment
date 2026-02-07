@@ -7,6 +7,54 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MAX_REVIEWS=5
 
+# Tool permissions for claude subprocesses (mirrors settings.local.json)
+ALLOWED_TOOLS=(
+  # File operations
+  Read Edit Write Glob Grep WebSearch
+
+  # Build & test
+  "Bash(make:*)"
+  "Bash(xcodebuild:*)"
+  "Bash(xcrun:*)"
+  "Bash(sw_vers:*)"
+  "Bash(swiftc:*)"
+  "Bash(bash -n:*)"
+  "Bash(./gradlew:*)"
+
+  # Git
+  "Bash(git add:*)"
+  "Bash(git commit:*)"
+  "Bash(git status:*)"
+  "Bash(git show:*)"
+  "Bash(git show-ref:*)"
+  "Bash(git diff:*)"
+  "Bash(git log:*)"
+
+  # File utilities
+  "Bash(ls:*)"
+  "Bash(find:*)"
+  "Bash(grep:*)"
+  "Bash(cat:*)"
+  "Bash(wc:*)"
+  "Bash(tree:*)"
+  "Bash(tr:*)"
+  "Bash(echo:*)"
+  "Bash(sips:*)"
+
+  # MCP tools
+  mcp__XcodeBuildMCP__build_sim
+  mcp__XcodeBuildMCP__test_sim
+  mcp__XcodeBuildMCP__list_schemes
+  mcp__XcodeBuildMCP__session-set-defaults
+  mcp__XcodeBuildMCP__session-show-defaults
+  mcp__XcodeBuildMCP__discover_projs
+
+  # Skills
+  "Skill(review-code)"
+  "Skill(close-ticket)"
+)
+ALLOWED_TOOLS_ARG=$(IFS=,; echo "${ALLOWED_TOOLS[*]}")
+
 # Parse --platform flag
 shift
 while [[ $# -gt 0 ]]; do
@@ -61,7 +109,8 @@ Ticket-Datei: $TICKET_FILE
 $TICKET_CONTENT" \
   --agent ticket-implementer \
   --no-session-persistence \
-  --verbose
+  --verbose \
+  --allowedTools "$ALLOWED_TOOLS_ARG"
 
 # === REVIEW/FIX LOOP ===
 for i in $(seq 1 $MAX_REVIEWS); do
@@ -75,7 +124,8 @@ Ticket-Inhalt:
 $TICKET_CONTENT" \
     --agent ticket-reviewer \
     --no-session-persistence \
-    --verbose)
+    --verbose \
+    --allowedTools "$ALLOWED_TOOLS_ARG")
 
   echo "$REVIEW"
 
@@ -134,7 +184,8 @@ claude -p "Schliesse Ticket $TICKET_ID:
 - Commit: docs: #$TICKET_ID Close ticket" \
   --agent ticket-implementer \
   --no-session-persistence \
-  --verbose
+  --verbose \
+  --allowedTools "$ALLOWED_TOOLS_ARG"
 
 echo ""
 echo "=== FERTIG ==="
