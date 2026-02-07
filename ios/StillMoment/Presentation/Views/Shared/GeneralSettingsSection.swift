@@ -33,20 +33,25 @@ struct GeneralSettingsSection: View {
             .accessibilityLabel("settings.theme.title")
             .listRowBackground(self.theme.backgroundPrimary)
 
-            Picker(
-                NSLocalizedString("settings.appearance.title", comment: ""),
-                selection: self.$themeManager.appearanceMode
-            ) {
-                ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                    Text(mode.localizedName)
-                        .tag(mode)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("settings.appearance.title", bundle: .main)
+                    .themeFont(.settingsDescription)
+
+                Picker(
+                    NSLocalizedString("settings.appearance.title", comment: ""),
+                    selection: self.$themeManager.appearanceMode
+                ) {
+                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                        Text(mode.localizedName)
+                            .tag(mode)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("settings.picker.appearance")
+                .accessibilityLabel(
+                    NSLocalizedString("settings.appearance.title", comment: "")
+                )
             }
-            .pickerStyle(.segmented)
-            .accessibilityIdentifier("settings.picker.appearance")
-            .accessibilityLabel(
-                NSLocalizedString("settings.appearance.title", comment: "")
-            )
             .listRowBackground(self.theme.backgroundPrimary)
         } header: {
             Text("settings.general.header", bundle: .main)

@@ -91,9 +91,9 @@
 "settings.startGong.title" = "Gong-Ton";
 "settings.gongVolume.title" = "Lautstärke";
 
-// MARK: - General Settings
+// MARK: - Appearance Settings
 
-"settings.general.header" = "Allgemein";
+"settings.general.header" = "Erscheinungsbild";
 "settings.theme.title" = "Farbthema";
 "settings.theme.candlelight" = "Kerzenschein";
 "settings.theme.forest" = "Wald";
