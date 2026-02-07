@@ -57,10 +57,10 @@ Uebersetze alle Findings in BLOCKER oder DISCUSSION:
 
 ## Implementation Log
 
-Du bekommst einen Pfad zu einer Log-Datei (`tmp/implement-log-<ticket-id>.md`) und die Review-Runde.
+Du bekommst einen Pfad zu einer Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md`) und die Review-Runde.
 
 1. **Lies die Datei** am Anfang - sie enthaelt was bisher implementiert wurde
-2. **Haenge deinen Review-Abschnitt an** mit: `tee -a tmp/implement-log-<ticket-id>.md <<'EOF'`
+2. **Haenge deinen Review-Abschnitt an** mit: `tee -a dev-docs/tickets/logs/<ticket-id>.md <<'EOF'`
 
 ### Format bei PASS:
 ```

@@ -54,7 +54,7 @@ flowchart TD
     Close --> Done["Fertig\nBranch: feature/ios-032\nManuell mergen"]
 ```
 
-Die Agents kommunizieren ueber eine shared Log-Datei (`tmp/implement-log-<ticket-id>.md`). Jeder Agent liest den bisherigen Verlauf und haengt seinen Abschnitt an. Das Script liest das Verdict strukturiert aus der Datei statt aus stdout - dadurch ist die PASS/FAIL-Erkennung robust unabhaengig vom Ausgabeformat des LLMs.
+Die Agents kommunizieren ueber eine shared Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md`). Jeder Agent liest den bisherigen Verlauf und haengt seinen Abschnitt an. Das Script liest das Verdict strukturiert aus der Datei statt aus stdout - dadurch ist die PASS/FAIL-Erkennung robust unabhaengig vom Ausgabeformat des LLMs.
 
 ## Die zwei Agents
 
@@ -155,12 +155,12 @@ git branch -d feature/ios-032
 Bei Abbruch nach 5 Reviews oder Agent-Fehler enthaelt die Log-Datei den vollstaendigen Verlauf:
 
 ```
-tmp/implement-log-<ticket-id>.md
+dev-docs/tickets/logs/<ticket-id>.md
 ```
 
 Der Feature-Branch bleibt erhalten. Optionen:
 1. Manuell fixen und erneut starten
-2. Komplett neu starten: `git branch -D feature/<ticket-id> && rm tmp/implement-log-<ticket-id>.md`
+2. Komplett neu starten: `git branch -D feature/<ticket-id> && rm dev-docs/tickets/logs/<ticket-id>.md`
 
 ## Dateien
 
@@ -169,5 +169,5 @@ Der Feature-Branch bleibt erhalten. Optionen:
 | `scripts/implement-ticket.sh` | Orchestrator-Script |
 | `.claude/agents/ticket-implementer.md` | Implementer-Agent (Opus) |
 | `.claude/agents/ticket-reviewer.md` | Reviewer-Agent (Sonnet) |
-| `tmp/implement-log-<id>.md` | Shared Log-Datei (Kommunikationskanal zwischen Agents) |
+| `dev-docs/tickets/logs/<id>.md` | Implementation-Log (Kommunikationskanal zwischen Agents, wird persistiert) |
 | `dev-docs/tickets/discussions/<id>.md` | Gesammelte Discussion-Items (pro Ticket) |
