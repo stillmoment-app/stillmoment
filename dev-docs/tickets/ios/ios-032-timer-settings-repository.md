@@ -1,6 +1,6 @@
 # Ticket ios-032: Timer Settings Repository
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: shared-024
