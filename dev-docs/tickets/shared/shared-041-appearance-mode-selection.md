@@ -1,6 +1,6 @@
 # Ticket shared-041: Appearance Mode Selection
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 3-Feature
@@ -21,7 +21,7 @@ Manche User bevorzugen einen festen Modus unabhaengig vom System-Setting — z.B
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-032    |
+| iOS       | [x]    | shared-032    |
 | Android   | [ ]    | shared-032    |
 
 ---

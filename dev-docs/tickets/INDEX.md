@@ -64,7 +64,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-038](shared/shared-038-import-reibung-eliminieren.md) | Import-Reibung eliminieren (Share Sheet + Batch) | 3-Feature | [ ] | [ ] |
 | [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
-| [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [ ] | [ ] |
+| [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [ ] |
 
 ---
 
