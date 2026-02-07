@@ -44,7 +44,6 @@ SHARED_TOOLS=(
 
   # MCP tools
   mcp__XcodeBuildMCP__build_sim
-  mcp__XcodeBuildMCP__test_sim
   mcp__XcodeBuildMCP__list_schemes
   mcp__XcodeBuildMCP__session-set-defaults
   mcp__XcodeBuildMCP__session-show-defaults
@@ -61,10 +60,10 @@ IMPLEMENTER_TOOLS=(
 )
 IMPLEMENTER_TOOLS_ARG=$(IFS=,; echo "${IMPLEMENTER_TOOLS[*]}")
 
-# Reviewer: read-only + Write for log file, review skill
+# Reviewer: read-only + append to log file via Bash, review skill
 REVIEWER_TOOLS=(
   "${SHARED_TOOLS[@]}"
-  Write
+  "Bash(tee -a tmp/implement-log-*)"
   "Skill(review-code)"
 )
 REVIEWER_TOOLS_ARG=$(IFS=,; echo "${REVIEWER_TOOLS[*]}")
@@ -112,16 +111,23 @@ DISCUSSION_FILE="dev-docs/tickets/discussions/${TICKET_ID}.md"
 BRANCH="feature/${TICKET_ID}"
 LOG_FILE="tmp/implement-log-${TICKET_ID}.md"
 
-if git show-ref --verify --quiet "refs/heads/$BRANCH" && [[ -f "$LOG_FILE" ]]; then
-  echo "Error: Branch '$BRANCH' und Log '$LOG_FILE' existieren bereits (vorheriger Lauf)."
+BRANCH_EXISTS=false
+LOG_EXISTS=false
+git show-ref --verify --quiet "refs/heads/$BRANCH" && BRANCH_EXISTS=true
+[[ -f "$LOG_FILE" ]] && LOG_EXISTS=true
+
+if $BRANCH_EXISTS || $LOG_EXISTS; then
+  echo "Error: Vorheriger Lauf fuer $TICKET_ID gefunden."
+  $BRANCH_EXISTS && echo "  Branch: $BRANCH"
+  $LOG_EXISTS && echo "  Log:    $LOG_FILE"
   echo ""
   echo "Optionen:"
-  echo "  Neu starten:  git branch -D $BRANCH && rm $LOG_FILE && make implement TICKET=$TICKET_ID"
-  echo "  Log ansehen:  cat $LOG_FILE"
+  echo "  Neu starten:  ${BRANCH_EXISTS:+git branch -D $BRANCH}${BRANCH_EXISTS:+${LOG_EXISTS:+ && }}${LOG_EXISTS:+rm $LOG_FILE} && make implement TICKET=$TICKET_ID"
+  $LOG_EXISTS && echo "  Log ansehen:  cat $LOG_FILE"
   exit 1
 fi
 
-git checkout -b "$BRANCH" main 2>/dev/null || git checkout "$BRANCH"
+git checkout -b "$BRANCH" main
 
 # Create shared implementation log
 mkdir -p tmp
@@ -135,10 +141,23 @@ Started: $(date '+%Y-%m-%d %H:%M')
 EOF
 echo "Log: $LOG_FILE"
 
+# Run an agent with structured error handling
+run_agent() {
+  local phase="$1"; shift
+  if ! "$@"; then
+    echo ""
+    echo "Error: Agent failed in phase: $phase"
+    echo "Log pruefen: $LOG_FILE"
+    echo "Branch: $BRANCH (Zwischenzustand)"
+    exit 1
+  fi
+}
+
 # === IMPLEMENT ===
 echo ""
 echo "=== IMPLEMENT ==="
-claude -p "Implementiere dieses Ticket fuer die $PLATFORM Plattform.
+run_agent "IMPLEMENT" \
+  claude -p "Implementiere dieses Ticket fuer die $PLATFORM Plattform.
 
 Ticket-Datei: $TICKET_FILE
 Implementation-Log: $LOG_FILE
@@ -161,7 +180,8 @@ fi
 for i in $(seq 1 $MAX_REVIEWS); do
   echo ""
   echo "=== REVIEW ($i/$MAX_REVIEWS) ==="
-  claude -p "Reviewe die Aenderungen auf Branch $BRANCH fuer Ticket $TICKET_ID ($PLATFORM).
+  run_agent "REVIEW $i" \
+    claude -p "Reviewe die Aenderungen auf Branch $BRANCH fuer Ticket $TICKET_ID ($PLATFORM).
 
 Ticket-Datei: $TICKET_FILE
 Implementation-Log: $LOG_FILE
@@ -189,8 +209,8 @@ Haenge deinen Review-Abschnitt an das Implementation-Log an (siehe Agent-Instruk
     exit 1
   fi
 
-  # Extract DISCUSSION items from the last REVIEW section in log (best-effort, non-fatal)
-  DISCUSSION=$(sed -nE '/^## REVIEW '"$i"'/,/^---|^## /{ /^DISCUSSION:/,/^[A-Z]|^---|^$/{ /^DISCUSSION:/d; /^---/d; /^$/d; /^[A-Z][A-Z]/d; p; } }' "$LOG_FILE") || true
+  # Extract DISCUSSION items between markers, scoped to current review round
+  DISCUSSION=$(sed -n '/^## REVIEW '"$i"'/,$ { /<!-- DISCUSSION_START -->/,/<!-- DISCUSSION_END -->/{//d;p;} }' "$LOG_FILE" | sed '/^$/d') || true
   if [[ -n "$DISCUSSION" ]]; then
     mkdir -p "$(dirname "$DISCUSSION_FILE")"
     if [[ ! -f "$DISCUSSION_FILE" ]]; then
@@ -222,7 +242,8 @@ HEADER
 
   echo ""
   echo "=== FIX ($i) ==="
-  claude -p "Fixe die BLOCKER-Findings aus dem letzten Review fuer Ticket $TICKET_ID ($PLATFORM).
+  run_agent "FIX $i" \
+    claude -p "Fixe die BLOCKER-Findings aus dem letzten Review fuer Ticket $TICKET_ID ($PLATFORM).
 
 Implementation-Log: $LOG_FILE
 Ticket-Datei: $TICKET_FILE
@@ -245,14 +266,11 @@ done
 # === CLOSE TICKET ===
 echo ""
 echo "=== CLOSE ==="
-claude -p "Schliesse Ticket $TICKET_ID:
-- Setze Status auf [x] DONE in $TICKET_FILE
-- Update INDEX.md
-- Pruefe ob CHANGELOG.md einen Eintrag braucht
-- Commit: docs: #$TICKET_ID Close ticket
+run_agent "CLOSE" \
+  claude -p "Nutze /close-ticket fuer Ticket $TICKET_ID.
 
 Implementation-Log: $LOG_FILE
-Haenge deinen CLOSE-Abschnitt an das Implementation-Log an." \
+Haenge deinen CLOSE-Abschnitt an das Implementation-Log an (siehe Agent-Instruktionen fuer Format)." \
   --agent ticket-implementer \
   --no-session-persistence \
   --verbose \

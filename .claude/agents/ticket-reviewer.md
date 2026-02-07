@@ -73,7 +73,7 @@ cd <platform> && make test-unit
 Du bekommst einen Pfad zu einer Log-Datei (`tmp/implement-log-<ticket-id>.md`) und die Review-Runde.
 
 1. **Lies die Datei** am Anfang - sie enthaelt was bisher implementiert wurde
-2. **Haenge deinen Review-Abschnitt an** wenn du fertig bist
+2. **Haenge deinen Review-Abschnitt an** mit: `tee -a tmp/implement-log-<ticket-id>.md <<'EOF'`
 
 ### Format bei PASS:
 ```
@@ -84,6 +84,10 @@ Verdict: PASS
 
 make check: OK
 make test-unit: OK
+
+DISCUSSION:
+<!-- DISCUSSION_START -->
+<!-- DISCUSSION_END -->
 
 Summary:
 <Review-Zusammenfassung>
@@ -103,7 +107,9 @@ BLOCKER:
 - datei:zeile - Beschreibung des Problems
 
 DISCUSSION:
+<!-- DISCUSSION_START -->
 - datei:zeile - Verbesserungsvorschlag
+<!-- DISCUSSION_END -->
 
 Summary:
 <Review-Zusammenfassung>
