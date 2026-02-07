@@ -87,7 +87,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             Logger.guidedMeditation.info("Loaded \(self.meditations.count) meditations")
         } catch {
             Logger.guidedMeditation.error("Failed to load meditations", error: error)
-            self.errorMessage = "Failed to load meditations: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.meditationsLoadFailed", comment: "Failed to load meditations")
         }
 
         self.isLoading = false
@@ -137,7 +137,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             Logger.guidedMeditation.info("Successfully imported meditation", metadata: ["id": meditation.id.uuidString])
         } catch {
             Logger.guidedMeditation.error("Failed to import meditation", error: error)
-            self.errorMessage = "Failed to import meditation: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.importFailed", comment: "Failed to import meditation")
         }
 
         self.isLoading = false
@@ -153,7 +153,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             Logger.guidedMeditation.info("Deleted meditation", metadata: ["id": meditation.id.uuidString])
         } catch {
             Logger.guidedMeditation.error("Failed to delete meditation", error: error)
-            self.errorMessage = "Failed to delete meditation: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.deleteFailed", comment: "Failed to delete meditation")
         }
     }
 
@@ -181,7 +181,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             Logger.guidedMeditation.info("Updated meditation", metadata: ["id": meditation.id.uuidString])
         } catch {
             Logger.guidedMeditation.error("Failed to update meditation", error: error)
-            self.errorMessage = "Failed to update meditation: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.updateFailed", comment: "Failed to update meditation")
         }
     }
 

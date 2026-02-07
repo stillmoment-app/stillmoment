@@ -141,25 +141,6 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         }
     }
 
-    /// Returns the URL to the local audio file
-    ///
-    /// Uses localFilePath if available, otherwise returns nil.
-    /// Legacy bookmarks must be migrated before accessing.
-    var fileURL: URL? {
-        guard let localFilePath else {
-            return nil
-        }
-        guard
-            let appSupport = FileManager.default.urls(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask
-            ).first
-        else {
-            return nil
-        }
-        return appSupport.appendingPathComponent("Meditations").appendingPathComponent(localFilePath)
-    }
-
     /// Returns true if this meditation needs migration from bookmark to local file
     var needsMigration: Bool {
         self.localFilePath == nil && self.fileBookmark != nil

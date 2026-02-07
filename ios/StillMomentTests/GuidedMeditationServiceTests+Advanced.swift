@@ -61,7 +61,7 @@ extension GuidedMeditationServiceTests {
         XCTAssertEqual(meditation.duration, 600)
         XCTAssertEqual(meditation.fileName, tempURL.lastPathComponent)
         XCTAssertNotNil(meditation.localFilePath)
-        XCTAssertNotNil(meditation.fileURL)
+        XCTAssertNotNil(sut.fileURL(for: meditation))
 
         // Verify it was saved
         let loaded = try sut.loadMeditations()
@@ -174,8 +174,8 @@ extension GuidedMeditationServiceTests {
         // When
         let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
 
-        // Then - File should exist at fileURL
-        guard let fileURL = meditation.fileURL else {
+        // Then - File should exist at resolved fileURL
+        guard let fileURL = sut.fileURL(for: meditation) else {
             XCTFail("fileURL should not be nil")
             return
         }

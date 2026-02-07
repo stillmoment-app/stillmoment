@@ -18,6 +18,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockPlayerService: MockAudioPlayerService!
     // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockMeditationService: MockGuidedMeditationService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var tempFileURL: URL!
@@ -25,6 +27,7 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.mockPlayerService = MockAudioPlayerService()
+        self.mockMeditationService = MockGuidedMeditationService()
         self.cancellables = Set<AnyCancellable>()
 
         // Create temporary file for tests
@@ -33,7 +36,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         let meditation = GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL)
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
-            playerService: self.mockPlayerService
+            playerService: self.mockPlayerService,
+            meditationService: self.mockMeditationService
         )
     }
 
@@ -43,6 +47,7 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.cancellables = nil
         self.sut = nil
         self.mockPlayerService = nil
+        self.mockMeditationService = nil
         // Clean up temp file and UserDefaults
         GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
         self.tempFileURL = nil
@@ -77,19 +82,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     }
 
     func testLoadAudioWithMissingFile() async {
-        // Given - Create meditation pointing to non-existent file (don't use helper - it copies the file)
-        let missingMeditation = GuidedMeditation(
-            id: UUID(),
-            localFilePath: "nonexistent.mp3",
-            fileName: "test.mp3",
-            duration: 600,
-            teacher: "Test",
-            name: "Test"
-        )
-        self.sut = GuidedMeditationPlayerViewModel(
-            meditation: missingMeditation,
-            playerService: self.mockPlayerService
-        )
+        // Given - Service reports file doesn't exist
+        self.mockMeditationService.mockFileExists = false
 
         // When
         await self.sut.loadAudio()
@@ -110,7 +104,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         )
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: legacyMeditation,
-            playerService: self.mockPlayerService
+            playerService: self.mockPlayerService,
+            meditationService: self.mockMeditationService
         )
 
         // When

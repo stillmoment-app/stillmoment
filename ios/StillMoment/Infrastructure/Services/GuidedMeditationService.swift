@@ -99,13 +99,24 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
         let meditation = self.meditations[index]
 
         // Delete local file if exists
-        if let fileURL = meditation.fileURL {
+        if let fileURL = self.fileURL(for: meditation) {
             try? self.fileManager.removeItem(at: fileURL)
             Logger.audio.debug("Deleted local file: \(fileURL.path)")
         }
 
         self.meditations.remove(at: index)
         try self.saveMeditations(self.meditations)
+    }
+
+    func fileURL(for meditation: GuidedMeditation) -> URL? {
+        guard let localFilePath = meditation.localFilePath else {
+            return nil
+        }
+        let url = self.getMeditationsDirectory().appendingPathComponent(localFilePath)
+        guard self.fileManager.fileExists(atPath: url.path) else {
+            return nil
+        }
+        return url
     }
 
     func getMeditationsDirectory() -> URL {

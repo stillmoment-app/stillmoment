@@ -227,4 +227,10 @@
 // MARK: - Errors
 
 "error.audioFileNotFound" = "Audiodatei nicht gefunden";
-"error.audioFileMissing" = "Audiodatei fehlt";
+"error.audioLoadFailed" = "Audio konnte nicht geladen werden";
+"error.playbackFailed" = "Wiedergabefehler";
+"error.seekFailed" = "Fehler beim Spulen";
+"error.meditationsLoadFailed" = "Meditationen konnten nicht geladen werden";
+"error.importFailed" = "Meditation konnte nicht importiert werden";
+"error.deleteFailed" = "Meditation konnte nicht gelöscht werden";
+"error.updateFailed" = "Meditation konnte nicht aktualisiert werden";

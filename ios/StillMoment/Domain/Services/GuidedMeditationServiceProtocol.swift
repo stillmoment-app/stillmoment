@@ -83,6 +83,15 @@ protocol GuidedMeditationServiceProtocol {
     /// - Returns: URL to Application Support/Meditations/
     func getMeditationsDirectory() -> URL
 
+    /// Returns the absolute file URL for a meditation's audio file
+    ///
+    /// Resolves the meditation's relative `localFilePath` against the
+    /// Application Support/Meditations/ directory and verifies the file exists.
+    ///
+    /// - Parameter meditation: The meditation to resolve the URL for
+    /// - Returns: Absolute file URL, or nil if meditation has no local file path or the file doesn't exist
+    func fileURL(for meditation: GuidedMeditation) -> URL?
+
     /// Checks if migration from legacy bookmarks is needed
     ///
     /// Returns true if there are meditations with bookmarks that haven't

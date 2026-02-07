@@ -97,7 +97,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-028](ios/ios-028-interval-gong-single-play-bug.md) | Intervall-Gong spielt nur einmal | 1-Quick Fix | [x] | - |
 | [ios-029](ios/ios-029-konfigurierbare-vorbereitungszeit.md) | Konfigurierbare Vorbereitungszeit | 3-Feature | [x] | - |
 | [ios-030](ios/ios-030-screenshot-tests-ohne-launch-args.md) | Screenshot-Tests ohne Launch-Arguments | 2-Architektur | [ ] | - |
-| [ios-031](ios/ios-031-domain-filemanager-abstraction.md) | Domain FileManager-Abstraktion | 2-Architektur | [ ] | shared-024 |
+| [ios-031](ios/ios-031-domain-filemanager-abstraction.md) | Domain FileManager-Abstraktion | 2-Architektur | [x] | shared-024 |
 | [ios-032](ios/ios-032-timer-settings-repository.md) | Timer Settings Repository | 2-Architektur | [ ] | shared-024 |
 | [ios-033](ios/ios-033-settingsview-dependency-injection.md) | SettingsView Dependency Injection | 2-Architektur | [ ] | shared-024 |
 

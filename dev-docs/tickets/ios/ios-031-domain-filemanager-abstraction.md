@@ -1,6 +1,6 @@
 # Ticket ios-031: Domain FileManager-Abstraktion
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Klein
 **Abhaengigkeiten**: shared-024
@@ -23,17 +23,17 @@ Gefunden im Clean Architecture Review (shared-024).
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Domain Model enthält keine FileManager-Aufrufe
-- [ ] URL-Auflösung erfolgt über Service/Repository
-- [ ] Bestehende Funktionalität bleibt erhalten
-- [ ] Keine Regression beim Laden/Abspielen von Meditationen
+- [x] Domain Model enthält keine FileManager-Aufrufe
+- [x] URL-Auflösung erfolgt über Service/Repository
+- [x] Bestehende Funktionalität bleibt erhalten
+- [x] Keine Regression beim Laden/Abspielen von Meditationen
 
 ### Tests
-- [ ] Bestehende Tests bleiben grün
-- [ ] Neue Unit Tests für URL-Auflösungs-Logik
+- [x] Bestehende Tests bleiben grün
+- [x] Neue Unit Tests für URL-Auflösungs-Logik
 
 ### Dokumentation
-- [ ] Keine (interne Refaktorierung)
+- [x] Keine (interne Refaktorierung)
 
 ---
 

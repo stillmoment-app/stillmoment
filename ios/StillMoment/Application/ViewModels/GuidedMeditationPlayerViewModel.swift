@@ -33,11 +33,13 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         meditation: GuidedMeditation,
         preparationTimeSeconds: Int? = nil,
         playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
+        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
         clock: ClockProtocol = SystemClock()
     ) {
         self.meditation = meditation
         self.preparationTimeSeconds = preparationTimeSeconds
         self.playerService = playerService
+        self.meditationService = meditationService
         self.clock = clock
 
         self.setupBindings()
@@ -127,17 +129,10 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             "teacher": self.meditation.effectiveTeacher
         ])
 
-        // Get local file URL
-        guard let fileURL = meditation.fileURL else {
-            Logger.audioPlayer.error("No file URL for meditation")
+        // Get local file URL via service (resolves path and verifies file exists)
+        guard let fileURL = meditationService.fileURL(for: meditation) else {
+            Logger.audioPlayer.error("No file URL for meditation or file missing")
             self.errorMessage = NSLocalizedString("error.audioFileNotFound", comment: "Audio file not found error")
-            return
-        }
-
-        // Verify file exists
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            Logger.audioPlayer.error("Audio file missing at path: \(fileURL.path)")
-            self.errorMessage = NSLocalizedString("error.audioFileMissing", comment: "Audio file missing error")
             return
         }
 
@@ -146,7 +141,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             Logger.audioPlayer.info("Audio loaded successfully")
         } catch {
             Logger.audioPlayer.error("Failed to load audio", error: error)
-            self.errorMessage = "Failed to load audio: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.audioLoadFailed", comment: "Failed to load audio")
         }
     }
 
@@ -171,7 +166,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             }
         } catch {
             Logger.audioPlayer.error("Failed to toggle playback", error: error)
-            self.errorMessage = "Playback error: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.playbackFailed", comment: "Playback error")
         }
     }
 
@@ -190,7 +185,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             Logger.audioPlayer.debug("Seeked to \(time)s")
         } catch {
             Logger.audioPlayer.error("Failed to seek", error: error)
-            self.errorMessage = "Seek error: \(error.localizedDescription)"
+            self.errorMessage = NSLocalizedString("error.seekFailed", comment: "Seek error")
         }
     }
 
@@ -254,6 +249,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let playerService: AudioPlayerServiceProtocol
+    private let meditationService: GuidedMeditationServiceProtocol
     private let clock: ClockProtocol
     private var cancellables = Set<AnyCancellable>()
     private var countdownTimer: AnyCancellable?
@@ -325,7 +321,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
                 try self.playerService.transitionFromSilentToPlayback()
             } catch {
                 Logger.audioPlayer.error("Failed to transition to playback", error: error)
-                self.errorMessage = "Playback error: \(error.localizedDescription)"
+                self.errorMessage = NSLocalizedString("error.playbackFailed", comment: "Playback error")
             }
         } else {
             self.countdownState = .active(ticked)

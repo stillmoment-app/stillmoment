@@ -21,12 +21,16 @@ struct GuidedMeditationsListView: View {
 
     init(
         viewModel: GuidedMeditationsListViewModel? = nil,
+        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
         settingsRepository: GuidedSettingsRepository = GuidedMeditationSettingsRepository()
     ) {
+        self.meditationService = meditationService
         if let viewModel {
             _viewModel = StateObject(wrappedValue: viewModel)
         } else {
-            _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel())
+            _viewModel = StateObject(wrappedValue: GuidedMeditationsListViewModel(
+                meditationService: meditationService
+            ))
         }
         self.settingsRepository = settingsRepository
         _settings = State(initialValue: settingsRepository.load())
@@ -108,7 +112,8 @@ struct GuidedMeditationsListView: View {
         .navigationDestination(for: GuidedMeditation.self) { meditation in
             GuidedMeditationPlayerView(
                 meditation: meditation,
-                preparationTimeSeconds: self.settings.preparationTimeSeconds
+                preparationTimeSeconds: self.settings.preparationTimeSeconds,
+                meditationService: self.meditationService
             )
         }
         .sheet(isPresented: self.$showingSettings) {
@@ -167,6 +172,7 @@ struct GuidedMeditationsListView: View {
     @State private var showingSettings = false
     @State private var settings: GuidedMeditationSettings
 
+    private let meditationService: GuidedMeditationServiceProtocol
     private let settingsRepository: GuidedSettingsRepository
 
     // MARK: - Subviews
@@ -367,6 +373,15 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
 
     func deleteMeditation(id: UUID) throws {}
 
+    func fileURL(for meditation: GuidedMeditation) -> URL? {
+        guard let localFilePath = meditation.localFilePath else {
+            return nil
+        }
+        return FileManager.default.temporaryDirectory
+            .appendingPathComponent("Meditations")
+            .appendingPathComponent(localFilePath)
+    }
+
     func getMeditationsDirectory() -> URL {
         FileManager.default.temporaryDirectory
     }
@@ -412,54 +427,34 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
 
 @available(iOS 17.0, *)
 #Preview("With Meditations") {
+    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
     NavigationStack {
-        GuidedMeditationsListView(
-            viewModel: GuidedMeditationsListViewModel(
-                meditationService: PreviewMeditationService(
-                    meditations: PreviewMeditationService.sampleMeditations
-                )
-            )
-        )
+        GuidedMeditationsListView(meditationService: service)
     }
 }
 
 // Device Size Previews
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
     NavigationStack {
-        GuidedMeditationsListView(
-            viewModel: GuidedMeditationsListViewModel(
-                meditationService: PreviewMeditationService(
-                    meditations: PreviewMeditationService.sampleMeditations
-                )
-            )
-        )
+        GuidedMeditationsListView(meditationService: service)
     }
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
+    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
     NavigationStack {
-        GuidedMeditationsListView(
-            viewModel: GuidedMeditationsListViewModel(
-                meditationService: PreviewMeditationService(
-                    meditations: PreviewMeditationService.sampleMeditations
-                )
-            )
-        )
+        GuidedMeditationsListView(meditationService: service)
     }
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
+    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
     NavigationStack {
-        GuidedMeditationsListView(
-            viewModel: GuidedMeditationsListViewModel(
-                meditationService: PreviewMeditationService(
-                    meditations: PreviewMeditationService.sampleMeditations
-                )
-            )
-        )
+        GuidedMeditationsListView(meditationService: service)
     }
 }
 #endif

@@ -19,10 +19,15 @@ import SwiftUI
 struct GuidedMeditationPlayerView: View {
     // MARK: Lifecycle
 
-    init(meditation: GuidedMeditation, preparationTimeSeconds: Int? = nil) {
+    init(
+        meditation: GuidedMeditation,
+        preparationTimeSeconds: Int? = nil,
+        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService()
+    ) {
         _viewModel = StateObject(wrappedValue: GuidedMeditationPlayerViewModel(
             meditation: meditation,
-            preparationTimeSeconds: preparationTimeSeconds
+            preparationTimeSeconds: preparationTimeSeconds,
+            meditationService: meditationService
         ))
     }
 

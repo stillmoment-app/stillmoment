@@ -19,6 +19,9 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     /// Migration simulation
     var mockNeedsMigration = false
 
+    /// File existence simulation (when false, fileURL returns nil even with valid localFilePath)
+    var mockFileExists = true
+
     func loadMeditations() throws -> [GuidedMeditation] {
         if self.loadShouldThrow {
             throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
@@ -66,8 +69,21 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
         self.meditations.removeAll { $0.id == id }
     }
 
+    func fileURL(for meditation: GuidedMeditation) -> URL? {
+        guard let localFilePath = meditation.localFilePath else {
+            return nil
+        }
+        guard self.mockFileExists else {
+            return nil
+        }
+        return self.getMeditationsDirectory().appendingPathComponent(localFilePath)
+    }
+
     func getMeditationsDirectory() -> URL {
-        FileManager.default.temporaryDirectory.appendingPathComponent("Meditations")
+        // Must match the real service path so test helpers' files are found
+        // swiftlint:disable:next force_unwrapping
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        return appSupport.appendingPathComponent("Meditations")
     }
 
     func needsMigration() -> Bool {

@@ -209,7 +209,7 @@ extension GuidedMeditationServiceTests {
         XCTAssertEqual(migrated?.name, "Real Meditation")
 
         // Verify file was copied
-        if let fileURL = migrated?.fileURL {
+        if let migrated, let fileURL = sut.fileURL(for: migrated) {
             XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
         } else {
             XCTFail("fileURL should not be nil after migration")

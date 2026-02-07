@@ -20,6 +20,8 @@ final class PlayerPreparationTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockPlayerService: MockAudioPlayerService!
     // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockMeditationService: MockGuidedMeditationService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockClock: MockClock!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
@@ -29,6 +31,7 @@ final class PlayerPreparationTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.mockPlayerService = MockAudioPlayerService()
+        self.mockMeditationService = MockGuidedMeditationService()
         self.mockClock = MockClock()
         self.cancellables = Set<AnyCancellable>()
 
@@ -45,6 +48,7 @@ final class PlayerPreparationTests: XCTestCase {
         self.cancellables = nil
         self.sut = nil
         self.mockPlayerService = nil
+        self.mockMeditationService = nil
         self.mockClock = nil
         // Clean up temp file
         GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
@@ -61,6 +65,7 @@ final class PlayerPreparationTests: XCTestCase {
             meditation: meditation,
             preparationTimeSeconds: preparationTimeSeconds,
             playerService: self.mockPlayerService,
+            meditationService: self.mockMeditationService,
             clock: self.mockClock
         )
     }
