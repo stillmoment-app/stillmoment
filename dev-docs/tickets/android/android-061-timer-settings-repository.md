@@ -1,6 +1,6 @@
 # Ticket android-061: Timer Settings Repository Abstraktion
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: shared-024
@@ -23,18 +23,18 @@ Gefunden im Clean Architecture Review (shared-024).
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] TimerViewModel importiert kein `SettingsDataStore` mehr
-- [ ] `hasSeenSettingsHint` wird ueber SettingsRepository abgewickelt
-- [ ] Bestehende Funktionalität bleibt erhalten (Onboarding-Hint)
-- [ ] Keine Regression bei Settings-Handling
+- [x] TimerViewModel importiert kein `SettingsDataStore` mehr
+- [x] `hasSeenSettingsHint` wird ueber SettingsRepository abgewickelt
+- [x] Bestehende Funktionalität bleibt erhalten (Onboarding-Hint)
+- [x] Keine Regression bei Settings-Handling
 
 ### Tests
-- [ ] SettingsRepository Tests fuer neue Methoden
-- [ ] TimerViewModel Tests mit Mock-Repository
-- [ ] Bestehende Tests bleiben gruen
+- [x] SettingsRepository Tests fuer neue Methoden
+- [x] TimerViewModel Tests mit Mock-Repository
+- [x] Bestehende Tests bleiben gruen
 
 ### Dokumentation
-- [ ] Keine (interne Refaktorierung)
+- [x] Keine (interne Refaktorierung)
 
 ---
 
