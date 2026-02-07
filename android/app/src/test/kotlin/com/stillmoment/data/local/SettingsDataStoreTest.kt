@@ -1,6 +1,7 @@
 package com.stillmoment.data.local
 
 import com.stillmoment.domain.models.AppTab
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.navigation.Screen
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -166,6 +167,34 @@ class SettingsDataStoreTest {
         assertEquals(AppTab.DEFAULT, AppTab.fromRoute("unknown"))
         assertEquals(AppTab.DEFAULT, AppTab.fromRoute(null))
         assertEquals(AppTab.DEFAULT, AppTab.fromRoute(""))
+    }
+
+    // MARK: - AppearanceMode Persistence
+
+    @Test
+    fun `AppearanceMode DEFAULT is SYSTEM`() {
+        assertEquals(AppearanceMode.SYSTEM, AppearanceMode.DEFAULT)
+    }
+
+    @Test
+    fun `AppearanceMode names are stable for persistence`() {
+        assertEquals("SYSTEM", AppearanceMode.SYSTEM.name)
+        assertEquals("LIGHT", AppearanceMode.LIGHT.name)
+        assertEquals("DARK", AppearanceMode.DARK.name)
+    }
+
+    @Test
+    fun `AppearanceMode fromString roundtrip for all entries`() {
+        AppearanceMode.entries.forEach { mode ->
+            assertEquals(mode, AppearanceMode.fromString(mode.name))
+        }
+    }
+
+    @Test
+    fun `AppearanceMode fromString returns DEFAULT for unknown values`() {
+        assertEquals(AppearanceMode.DEFAULT, AppearanceMode.fromString("UNKNOWN"))
+        assertEquals(AppearanceMode.DEFAULT, AppearanceMode.fromString(null))
+        assertEquals(AppearanceMode.DEFAULT, AppearanceMode.fromString(""))
     }
 
     // MARK: - Screen Routes Consistency with AppTab

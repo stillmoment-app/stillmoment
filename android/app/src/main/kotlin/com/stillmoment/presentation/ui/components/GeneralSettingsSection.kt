@@ -1,7 +1,9 @@
 package com.stillmoment.presentation.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -14,6 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +33,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
@@ -35,14 +41,16 @@ import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 
 /**
- * General settings section with theme picker.
+ * General settings section with appearance mode and theme picker.
  * Reusable across Timer and Guided Meditation settings sheets.
  */
 @Composable
 fun GeneralSettingsSection(
     selectedTheme: ColorTheme,
     onThemeChange: (ColorTheme) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     Column(modifier = modifier) {
         Text(
@@ -61,10 +69,52 @@ fun GeneralSettingsSection(
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
+                AppearanceModePicker(
+                    selectedMode = selectedAppearanceMode,
+                    onModeChange = onAppearanceModeChange
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 ThemeDropdown(
                     selectedTheme = selectedTheme,
                     onThemeChange = onThemeChange
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppearanceModePicker(selectedMode: AppearanceMode, onModeChange: (AppearanceMode) -> Unit) {
+    val appearancePickerDescription = stringResource(R.string.accessibility_appearance_picker)
+
+    Column {
+        Text(
+            text = stringResource(R.string.settings_appearance_title),
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("settings.segmented.appearance")
+                .semantics {
+                    contentDescription = appearancePickerDescription
+                }
+        ) {
+            AppearanceMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    selected = mode == selectedMode,
+                    onClick = { onModeChange(mode) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = AppearanceMode.entries.size
+                    )
+                ) {
+                    Text(mode.displayName())
+                }
             }
         }
     }
@@ -121,6 +171,17 @@ private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme)
 }
 
 /**
+ * Localized display name for an AppearanceMode.
+ * Kept in Presentation layer (Domain stays free of Android imports).
+ */
+@Composable
+private fun AppearanceMode.displayName(): String = when (this) {
+    AppearanceMode.SYSTEM -> stringResource(R.string.settings_appearance_system)
+    AppearanceMode.LIGHT -> stringResource(R.string.settings_appearance_light)
+    AppearanceMode.DARK -> stringResource(R.string.settings_appearance_dark)
+}
+
+/**
  * Localized display name for a ColorTheme.
  * Kept in Presentation layer (Domain stays free of Android imports).
  */
@@ -140,6 +201,8 @@ private fun GeneralSettingsSectionPreview() {
         GeneralSettingsSection(
             selectedTheme = ColorTheme.CANDLELIGHT,
             onThemeChange = {},
+            selectedAppearanceMode = AppearanceMode.SYSTEM,
+            onAppearanceModeChange = {},
             modifier = Modifier.padding(24.dp)
         )
     }

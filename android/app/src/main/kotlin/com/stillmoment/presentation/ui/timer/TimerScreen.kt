@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.presentation.ui.components.SettingsHintTooltip
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
@@ -62,7 +63,9 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     viewModel: TimerViewModel = hiltViewModel(),
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {}
+    onThemeChange: (ColorTheme) -> Unit = {},
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -81,6 +84,8 @@ fun TimerScreen(
         onBackgroundSoundPreview = viewModel::playBackgroundPreview,
         selectedTheme = selectedTheme,
         onThemeChange = onThemeChange,
+        selectedAppearanceMode = selectedAppearanceMode,
+        onAppearanceModeChange = onAppearanceModeChange,
         modifier = modifier
     )
 }
@@ -99,7 +104,9 @@ internal fun TimerScreenContent(
     onIntervalGongPreview: () -> Unit = {},
     onBackgroundSoundPreview: (String) -> Unit = {},
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {}
+    onThemeChange: (ColorTheme) -> Unit = {},
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -131,7 +138,9 @@ internal fun TimerScreenContent(
                         onIntervalGongPreview = onIntervalGongPreview,
                         onBackgroundSoundPreview = onBackgroundSoundPreview,
                         selectedTheme = selectedTheme,
-                        onThemeChange = onThemeChange
+                        onThemeChange = onThemeChange,
+                        selectedAppearanceMode = selectedAppearanceMode,
+                        onAppearanceModeChange = onAppearanceModeChange
                     )
                 }
             }

@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
@@ -78,7 +79,9 @@ fun GuidedMeditationsListScreen(
     modifier: Modifier = Modifier,
     viewModel: GuidedMeditationsListViewModel = hiltViewModel(),
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {}
+    onThemeChange: (ColorTheme) -> Unit = {},
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -121,6 +124,8 @@ fun GuidedMeditationsListScreen(
         onSettingsChange = viewModel::updateSettings,
         selectedTheme = selectedTheme,
         onThemeChange = onThemeChange,
+        selectedAppearanceMode = selectedAppearanceMode,
+        onAppearanceModeChange = onAppearanceModeChange,
         modifier = modifier
     )
 }
@@ -142,7 +147,9 @@ internal fun GuidedMeditationsListScreenContent(
     onSettingsChange: (GuidedMeditationSettings) -> Unit,
     modifier: Modifier = Modifier,
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {}
+    onThemeChange: (ColorTheme) -> Unit = {},
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
@@ -308,7 +315,9 @@ internal fun GuidedMeditationsListScreenContent(
                     onSettingsChange = onSettingsChange,
                     onDismiss = onDismissSettingsSheet,
                     selectedTheme = selectedTheme,
-                    onThemeChange = onThemeChange
+                    onThemeChange = onThemeChange,
+                    selectedAppearanceMode = selectedAppearanceMode,
+                    onAppearanceModeChange = onAppearanceModeChange
                 )
             }
         }
