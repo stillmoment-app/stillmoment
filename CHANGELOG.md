@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Improved (iOS)
+### Improved (iOS & Android)
 - **Settings Appearance Section** - Section-Header von "Allgemein" zu "Erscheinungsbild" umbenannt
   - Sichtbares Label "Darstellung" ueber dem System/Hell/Dunkel-Picker
   - Ticket: shared-042
