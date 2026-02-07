@@ -161,12 +161,24 @@ struct GuidedMeditationsListView: View {
         .onAppear {
             self.viewModel.loadMeditations()
         }
+        .onChange(of: self.fileOpenHandler.importedMeditation) { newMeditation in
+            guard let meditation = newMeditation else {
+                return
+            }
+            // Reload library to include the newly imported file
+            self.viewModel.loadMeditations()
+            // Open edit sheet for the imported meditation
+            self.viewModel.showEditSheet(for: meditation)
+            // Consume the event
+            self.fileOpenHandler.importedMeditation = nil
+        }
     }
 
     // MARK: Private
 
     @Environment(\.themeColors)
     private var theme
+    @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var meditationToDelete: GuidedMeditation?
     @State private var showingSettings = false
@@ -423,6 +435,7 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     NavigationStack {
         GuidedMeditationsListView()
     }
+    .environmentObject(FileOpenHandler())
 }
 
 @available(iOS 17.0, *)
@@ -431,6 +444,7 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     NavigationStack {
         GuidedMeditationsListView(meditationService: service)
     }
+    .environmentObject(FileOpenHandler())
 }
 
 // Device Size Previews
@@ -440,6 +454,7 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     NavigationStack {
         GuidedMeditationsListView(meditationService: service)
     }
+    .environmentObject(FileOpenHandler())
 }
 
 @available(iOS 17.0, *)
@@ -448,6 +463,7 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     NavigationStack {
         GuidedMeditationsListView(meditationService: service)
     }
+    .environmentObject(FileOpenHandler())
 }
 
 @available(iOS 17.0, *)
@@ -456,5 +472,6 @@ private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
     NavigationStack {
         GuidedMeditationsListView(meditationService: service)
     }
+    .environmentObject(FileOpenHandler())
 }
 #endif

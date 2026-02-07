@@ -5,6 +5,7 @@
 //  Created by Helmut Zechmann on 26.10.25.
 //
 
+import OSLog
 import SwiftUI
 
 /// Tab identifiers for persistence
@@ -20,9 +21,15 @@ struct StillMomentApp: App {
     /// Theme manager - owns theme state, injected as @EnvironmentObject
     @StateObject private var themeManager = ThemeManager()
 
+    /// File open handler - manages "Open with" imports from Files app
+    @StateObject private var fileOpenHandler = FileOpenHandler()
+
     /// Persisted tab selection - remembers last used tab across app launches
     @AppStorage("selectedTab")
     private var selectedTab: String = AppTab.timer.rawValue
+
+    /// Error message from file open handling
+    @State private var fileOpenErrorMessage: String?
 
     init() {
         // Seed test fixtures for screenshot automation (Screenshots target only)
@@ -61,6 +68,22 @@ struct StillMomentApp: App {
                 }
             }
             .environmentObject(self.themeManager)
+            .environmentObject(self.fileOpenHandler)
+            .onOpenURL { url in
+                self.handleFileOpen(url: url)
+            }
+            .alert(
+                NSLocalizedString("common.error", comment: ""),
+                isPresented: .constant(self.fileOpenErrorMessage != nil)
+            ) {
+                Button(NSLocalizedString("common.ok", comment: "")) {
+                    self.fileOpenErrorMessage = nil
+                }
+            } message: {
+                if let errorMessage = fileOpenErrorMessage {
+                    Text(errorMessage)
+                }
+            }
         }
     }
 
@@ -79,6 +102,29 @@ struct StillMomentApp: App {
         // Check for disable preparation flag (used by UI tests and screenshot automation)
         if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
             PreparationTimeConfigurer.disable()
+        }
+    }
+
+    /// Handles a file URL received via "Open with" (CFBundleDocumentTypes)
+    private func handleFileOpen(url: URL) {
+        Logger.guidedMeditation.info(
+            "Received file open URL",
+            metadata: ["file": url.lastPathComponent]
+        )
+
+        Task {
+            let result = await self.fileOpenHandler.handleFileOpen(url: url)
+
+            switch result {
+            case let .success(meditation):
+                // Switch to library tab so user sees the import
+                self.selectedTab = AppTab.library.rawValue
+                // Publish the imported meditation for the list view to show edit sheet
+                self.fileOpenHandler.importedMeditation = meditation
+
+            case let .failure(error):
+                self.fileOpenErrorMessage = error.localizedDescription
+            }
         }
     }
 }
