@@ -61,6 +61,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-035](shared/shared-035-kontrast-audit-wcag.md) | Kontrast-Audit WCAG-Validierung | 5-QA | [x] | [x] |
 | [shared-036](shared/shared-036-kern-features-navigation-pattern.md) | Kern-Features Navigation Pattern | 2-Architektur | [x] | [x] |
 | [shared-037](shared/shared-037-typography-system.md) | Zentrales Typography System | 2-Architektur | [x] | [x] |
+| [shared-038](shared/shared-038-import-reibung-eliminieren.md) | Import-Reibung eliminieren (Share Sheet + Batch) | 3-Feature | [ ] | [ ] |
+| [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
+| [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 
 ---
 
