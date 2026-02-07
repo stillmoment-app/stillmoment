@@ -89,6 +89,12 @@ if [[ -z "$PLATFORM" ]]; then
   esac
 fi
 
+# Platform suffix for shared tickets (ios/android tickets already have platform in ID)
+PLATFORM_SUFFIX=""
+if [[ "$TICKET_ID" == shared-* ]]; then
+  PLATFORM_SUFFIX="-${PLATFORM}"
+fi
+
 # Preflight checks
 cd "$PROJECT_ROOT"
 if [[ -n "$(git status --porcelain)" ]]; then
@@ -107,11 +113,11 @@ echo "Ticket: $TICKET_FILE"
 echo "Platform: $PLATFORM"
 
 # Discussion items file
-DISCUSSION_FILE="dev-docs/tickets/discussions/${TICKET_ID}.md"
+DISCUSSION_FILE="dev-docs/tickets/discussions/${TICKET_ID}${PLATFORM_SUFFIX}.md"
 
 # Create or switch to feature branch
-BRANCH="feature/${TICKET_ID}"
-LOG_FILE="dev-docs/tickets/logs/${TICKET_ID}.md"
+BRANCH="feature/${TICKET_ID}${PLATFORM_SUFFIX}"
+LOG_FILE="dev-docs/tickets/logs/${TICKET_ID}${PLATFORM_SUFFIX}.md"
 
 BRANCH_EXISTS=false
 LOG_EXISTS=false
