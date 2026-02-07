@@ -61,11 +61,14 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-035](shared/shared-035-kontrast-audit-wcag.md) | Kontrast-Audit WCAG-Validierung | 5-QA | [x] | [x] |
 | [shared-036](shared/shared-036-kern-features-navigation-pattern.md) | Kern-Features Navigation Pattern | 2-Architektur | [x] | [x] |
 | [shared-037](shared/shared-037-typography-system.md) | Zentrales Typography System | 2-Architektur | [x] | [x] |
-| [shared-038](shared/shared-038-import-reibung-eliminieren.md) | Import-Reibung eliminieren (Share Sheet + Batch) | 3-Feature | [ ] | [ ] |
+| [shared-038](shared/shared-038-import-reibung-eliminieren.md) | ~~Import-Reibung eliminieren~~ (aufgeteilt in 043-045) | 3-Feature | [x] SPLIT | [x] SPLIT |
+| [shared-043](shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [ ] | [ ] |
+| [shared-044](shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [ ] | [ ] |
+| [shared-045](shared/shared-045-share-sheet-file-association.md) | Share Sheet und File Association | 3-Feature | [ ] | [ ] |
 | [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [x] |
-| [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [ ] | [ ] |
+| [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [ ] |
 
 ---
 

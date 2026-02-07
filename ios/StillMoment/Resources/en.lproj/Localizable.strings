@@ -91,9 +91,9 @@
 "settings.startGong.title" = "Gong Sound";
 "settings.gongVolume.title" = "Volume";
 
-// MARK: - General Settings
+// MARK: - Appearance Settings
 
-"settings.general.header" = "General";
+"settings.general.header" = "Appearance";
 "settings.theme.title" = "Theme";
 "settings.theme.candlelight" = "Candlelight";
 "settings.theme.forest" = "Forest";
