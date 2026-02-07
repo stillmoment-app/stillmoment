@@ -28,5 +28,6 @@ struct ThemeRootView<Content: View>: View {
             .tint(self.resolvedColors.interactive)
             .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
+            .preferredColorScheme(self.themeManager.preferredColorScheme)
     }
 }

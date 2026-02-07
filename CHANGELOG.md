@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Appearance Mode Selection** - Darstellungsmodus (System / Hell / Dunkel) in den Einstellungen
+  - Segmented Control in der "Allgemein"-Section neben dem Theme-Picker
+  - "System" folgt dem Geraete-Setting (bisheriges Verhalten, Default)
+  - "Hell"/"Dunkel" erzwingt den jeweiligen Modus unabhaengig vom System
+  - Auswahl wird persistent gespeichert und wirkt sofort
+  - Lokalisiert (DE + EN)
+  - Ticket: shared-041
+
 ### Added (iOS & Android)
 - **Customizable Color Themes** - 3 Farbthemen (Candlelight, Forest, Moon) mit automatischem Light/Dark Mode
   - 6 Paletten (3 Themes x light/dark), Farben folgen dem System-Setting

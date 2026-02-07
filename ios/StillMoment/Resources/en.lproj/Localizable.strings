@@ -99,6 +99,11 @@
 "settings.theme.forest" = "Forest";
 "settings.theme.moon" = "Moonlight";
 
+"settings.appearance.title" = "Appearance";
+"settings.appearance.system" = "System";
+"settings.appearance.light" = "Light";
+"settings.appearance.dark" = "Dark";
+
 // MARK: - Accessibility
 
 "accessibility.settings" = "Settings";

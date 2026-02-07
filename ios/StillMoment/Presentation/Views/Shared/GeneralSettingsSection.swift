@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Reusable settings section for app-wide settings (theme selection).
+/// Reusable settings section for app-wide settings (theme and appearance selection).
 ///
 /// Embedded at the bottom of both Timer Settings and Library Settings
 /// to provide consistent access to general preferences from either tab.
@@ -31,6 +31,22 @@ struct GeneralSettingsSection: View {
             .pickerStyle(.menu)
             .accessibilityIdentifier("settings.picker.theme")
             .accessibilityLabel("settings.theme.title")
+            .listRowBackground(self.theme.backgroundPrimary)
+
+            Picker(
+                NSLocalizedString("settings.appearance.title", comment: ""),
+                selection: self.$themeManager.appearanceMode
+            ) {
+                ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                    Text(mode.localizedName)
+                        .tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .accessibilityIdentifier("settings.picker.appearance")
+            .accessibilityLabel(
+                NSLocalizedString("settings.appearance.title", comment: "")
+            )
             .listRowBackground(self.theme.backgroundPrimary)
         } header: {
             Text("settings.general.header", bundle: .main)
