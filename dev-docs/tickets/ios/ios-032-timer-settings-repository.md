@@ -51,6 +51,7 @@ Gefunden im Clean Architecture Review (shared-024).
 ## Referenz
 
 - Review-Ticket: shared-024 (Clean Architecture Layer-Review)
+- Android-Pendant: android-061
 - Bestehendes Pattern: `GuidedSettingsRepository`
 - Architektur: `dev-docs/architecture/overview.md`
 
@@ -62,3 +63,5 @@ Das neue Repository sollte dem Pattern von `GuidedSettingsRepository` folgen:
 - Protokoll im Domain Layer
 - Implementierung in Infrastructure
 - Injection via Konstruktor im ViewModel
+- Legacy-Migration-Logik (`loadBackgroundSoundId`) gehoert ins Repository, nicht ins ViewModel
+- `hasSeenSettingsHint` ist `@AppStorage` in der View (Presentation Layer) — nicht Teil dieses Refactorings

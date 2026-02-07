@@ -93,6 +93,11 @@ make check              # Format + lint
 make test               # Unit tests
 ```
 
+**Testing rules (Claude Code):**
+- Always use `make test-unit` / `make test` / `make test-single` — never MCP `test_sim`
+- Always run tests via Task subagent (Bash type) to keep main context clean
+- xcbeautify required for clean output (installed via `make setup`)
+
 **Release** (from `ios/` directory):
 ```bash
 make release-dry            # Validate without upload
