@@ -15,30 +15,27 @@ final class TimerViewModelStateTests: XCTestCase {
     var mockTimerService: MockTimerService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockSettingsRepository: MockTimerSettingsRepository!
 
     override func setUp() {
         super.setUp()
         self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
+        self.mockSettingsRepository = MockTimerSettingsRepository()
 
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
     }
 
     override func tearDown() {
-        // Clean up UserDefaults to prevent test pollution
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.durationMinutes)
-        defaults.removeObject(forKey: MeditationSettings.Keys.intervalGongsEnabled)
-        defaults.removeObject(forKey: MeditationSettings.Keys.intervalMinutes)
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.removeObject(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
-
         self.sut = nil
         self.mockTimerService = nil
         self.mockAudioService = nil
+        self.mockSettingsRepository = nil
         super.tearDown()
     }
 

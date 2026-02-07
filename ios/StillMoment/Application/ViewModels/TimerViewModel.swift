@@ -22,12 +22,14 @@ final class TimerViewModel: ObservableObject {
 
     init(
         timerService: TimerServiceProtocol = TimerService(),
-        audioService: AudioServiceProtocol = AudioService()
+        audioService: AudioServiceProtocol = AudioService(),
+        settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository()
     ) {
         self.timerService = timerService
         self.audioService = audioService
+        self.settingsRepository = settingsRepository
 
-        self.loadSettings()
+        self.settings = settingsRepository.load()
         // Initialize display state with saved duration
         self.displayState = TimerDisplayState.withDuration(minutes: self.settings.durationMinutes)
         self.setupBindings()
@@ -161,6 +163,7 @@ final class TimerViewModel: ObservableObject {
 
     private let timerService: TimerServiceProtocol
     private let audioService: AudioServiceProtocol
+    private let settingsRepository: TimerSettingsRepository
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
 
@@ -328,7 +331,7 @@ final class TimerViewModel: ObservableObject {
 
     private func executeSaveSettings(_ settings: MeditationSettings) {
         self.settings = settings
-        self.saveSettings()
+        self.settingsRepository.save(settings)
     }
 
     // MARK: - Bindings
@@ -395,101 +398,9 @@ final class TimerViewModel: ObservableObject {
 // MARK: - Settings Persistence
 
 extension TimerViewModel {
-    /// Saves settings to UserDefaults
+    /// Saves current settings via the repository
     func saveSettings() {
-        let defaults = UserDefaults.standard
-        defaults.set(self.settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
-        defaults.set(self.settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
-        defaults.set(self.settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
-        defaults.set(self.settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.set(self.settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
-        defaults.set(self.settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
-        defaults.set(self.settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-        defaults.set(self.settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
-        defaults.set(self.settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
-        defaults.set(self.settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
-        Logger.viewModel.info("Saved settings", metadata: [
-            "intervalEnabled": self.settings.intervalGongsEnabled,
-            "intervalMinutes": self.settings.intervalMinutes,
-            "intervalGongVolume": self.settings.intervalGongVolume,
-            "backgroundSoundId": self.settings.backgroundSoundId,
-            "backgroundSoundVolume": self.settings.backgroundSoundVolume,
-            "durationMinutes": self.settings.durationMinutes,
-            "preparationEnabled": self.settings.preparationTimeEnabled,
-            "preparationSeconds": self.settings.preparationTimeSeconds,
-            "startGongSoundId": self.settings.startGongSoundId,
-            "gongVolume": self.settings.gongVolume
-        ])
-    }
-
-    private func loadSettings() {
-        let defaults = UserDefaults.standard
-        let backgroundSoundId = self.loadBackgroundSoundId(from: defaults)
-        let backgroundSoundVolume = defaults.object(forKey: MeditationSettings.Keys.backgroundSoundVolume) != nil
-            ? defaults.float(forKey: MeditationSettings.Keys.backgroundSoundVolume)
-            : MeditationSettings.defaultBackgroundSoundVolume
-        let durationMinutes = defaults.object(forKey: MeditationSettings.Keys.durationMinutes) != nil
-            ? defaults.integer(forKey: MeditationSettings.Keys.durationMinutes) : 10
-        let preparationTimeEnabled = defaults.object(forKey: MeditationSettings.Keys.preparationTimeEnabled) != nil
-            ? defaults.bool(forKey: MeditationSettings.Keys.preparationTimeEnabled) : true
-        let preparationTimeSeconds = defaults.object(forKey: MeditationSettings.Keys.preparationTimeSeconds) != nil
-            ? defaults.integer(forKey: MeditationSettings.Keys.preparationTimeSeconds) : 15
-        let startGongSoundId = defaults.string(forKey: MeditationSettings.Keys.startGongSoundId)
-            ?? GongSound.defaultSoundId
-        let gongVolume = defaults.object(forKey: MeditationSettings.Keys.gongVolume) != nil
-            ? defaults.float(forKey: MeditationSettings.Keys.gongVolume)
-            : MeditationSettings.defaultGongVolume
-        let intervalGongVolume = defaults.object(forKey: MeditationSettings.Keys.intervalGongVolume) != nil
-            ? defaults.float(forKey: MeditationSettings.Keys.intervalGongVolume)
-            : MeditationSettings.defaultIntervalGongVolume
-
-        self.settings = MeditationSettings(
-            intervalGongsEnabled: defaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
-            intervalMinutes: defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes) == 0
-                ? 5 : defaults.integer(forKey: MeditationSettings.Keys.intervalMinutes),
-            intervalGongVolume: intervalGongVolume,
-            backgroundSoundId: backgroundSoundId,
-            backgroundSoundVolume: backgroundSoundVolume,
-            durationMinutes: durationMinutes,
-            preparationTimeEnabled: preparationTimeEnabled,
-            preparationTimeSeconds: preparationTimeSeconds,
-            startGongSoundId: startGongSoundId,
-            gongVolume: gongVolume
-        )
-        self.logLoadedSettings()
-    }
-
-    private func loadBackgroundSoundId(from defaults: UserDefaults) -> String {
-        if let soundId = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId),
-           !soundId.isEmpty {
-            return soundId
-        }
-        // Legacy migration
-        if let legacyMode = defaults.string(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode) {
-            let migratedId = MeditationSettings.migrateLegacyMode(legacyMode)
-            defaults.set(migratedId, forKey: MeditationSettings.Keys.backgroundSoundId)
-            Logger.viewModel.info("Migrated legacy settings", metadata: [
-                "legacyMode": legacyMode,
-                "newSoundId": migratedId
-            ])
-            return migratedId
-        }
-        return "silent"
-    }
-
-    private func logLoadedSettings() {
-        Logger.viewModel.info("Loaded settings", metadata: [
-            "intervalEnabled": self.settings.intervalGongsEnabled,
-            "intervalMinutes": self.settings.intervalMinutes,
-            "intervalGongVolume": self.settings.intervalGongVolume,
-            "backgroundSoundId": self.settings.backgroundSoundId,
-            "backgroundSoundVolume": self.settings.backgroundSoundVolume,
-            "durationMinutes": self.settings.durationMinutes,
-            "preparationEnabled": self.settings.preparationTimeEnabled,
-            "preparationSeconds": self.settings.preparationTimeSeconds,
-            "startGongSoundId": self.settings.startGongSoundId,
-            "gongVolume": self.settings.gongVolume
-        ])
+        self.settingsRepository.save(self.settings)
     }
 }
 
