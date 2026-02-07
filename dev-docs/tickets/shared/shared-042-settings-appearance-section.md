@@ -1,6 +1,6 @@
 # Ticket shared-042: Settings Erscheinungsbild-Section verbessern
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~15min | Android ~10min
 **Phase**: 4-Polish
@@ -21,7 +21,7 @@ Der Header "Allgemein" ist zu generisch fuer eine Section, die ausschliesslich E
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
