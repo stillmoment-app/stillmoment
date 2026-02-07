@@ -2,34 +2,32 @@
 //  SettingsView.swift
 //  Still Moment
 //
-//  Presentation Layer - Settings View
+//  Presentation Layer - Settings View (pure view, no services)
 //
 
-import OSLog
 import SwiftUI
 
-/// Wrapper to persist AudioService across SwiftUI view recreations
-private final class AudioServiceHolder: ObservableObject {
-    let service: AudioServiceProtocol
-
-    init(service: AudioServiceProtocol = AudioService()) {
-        self.service = service
-    }
-}
-
 /// Settings view for configuring meditation session options
+///
+/// Pure presentation view — receives data and callbacks, holds no services.
+/// Audio preview logic lives in TimerViewModel (ios-033).
 struct SettingsView: View {
     // MARK: Lifecycle
 
     init(
         settings: Binding<MeditationSettings>,
-        onDismiss: @escaping () -> Void,
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+        availableSounds: [BackgroundSound],
+        onGongChanged: @escaping (String, Float) -> Void,
+        onBackgroundChanged: @escaping (String, Float) -> Void,
+        onIntervalGongPreview: @escaping (Float) -> Void,
+        onDismiss: @escaping () -> Void
     ) {
         _settings = settings
+        self.availableSounds = availableSounds
+        self.onGongChanged = onGongChanged
+        self.onBackgroundChanged = onBackgroundChanged
+        self.onIntervalGongPreview = onIntervalGongPreview
         self.onDismiss = onDismiss
-        self.soundRepository = soundRepository
-        self.availableSounds = soundRepository.availableSounds
     }
 
     // MARK: Internal
@@ -91,7 +89,7 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.startGongSoundId) { newValue in
-                            self.playGongPreview(soundId: newValue)
+                            self.onGongChanged(newValue, self.settings.gongVolume)
                         }
                         .accessibilityIdentifier("settings.picker.startGongSound")
                         .accessibilityLabel("accessibility.startGongSound")
@@ -105,7 +103,7 @@ struct SettingsView: View {
                             accessibilityIdentifier: "settings.slider.gongVolume",
                             accessibilityHintKey: "accessibility.gongVolume.hint"
                         ) {
-                            self.playGongPreview(soundId: self.settings.startGongSoundId)
+                            self.onGongChanged(self.settings.startGongSoundId, self.settings.gongVolume)
                         }
 
                         Toggle(isOn: self.$settings.intervalGongsEnabled) {
@@ -128,7 +126,7 @@ struct SettingsView: View {
                                 accessibilityIdentifier: "settings.slider.intervalGongVolume",
                                 accessibilityHintKey: "accessibility.intervalGongVolume.hint"
                             ) {
-                                self.playIntervalGongPreview()
+                                self.onIntervalGongPreview(self.settings.intervalGongVolume)
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
 
@@ -164,7 +162,7 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.backgroundSoundId) { newValue in
-                            self.playBackgroundPreview(soundId: newValue)
+                            self.onBackgroundChanged(newValue, self.settings.backgroundSoundVolume)
                         }
                         .accessibilityIdentifier("settings.picker.backgroundSound")
                         .accessibilityLabel(
@@ -187,7 +185,10 @@ struct SettingsView: View {
                                 accessibilityIdentifier: "settings.slider.backgroundVolume",
                                 accessibilityHintKey: "accessibility.backgroundVolume.hint"
                             ) {
-                                self.playBackgroundPreview(soundId: self.settings.backgroundSoundId)
+                                self.onBackgroundChanged(
+                                    self.settings.backgroundSoundId,
+                                    self.settings.backgroundSoundVolume
+                                )
                             }
                         }
                     } header: {
@@ -202,7 +203,7 @@ struct SettingsView: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
-                            self.dismissWithCleanup()
+                            self.onDismiss()
                         }
                         .tint(self.theme.interactive)
                         .accessibilityIdentifier("button.done")
@@ -212,11 +213,6 @@ struct SettingsView: View {
                 }
             }
         }
-        .onDisappear {
-            // Stop all previews when sheet is dismissed (swipe or Done button)
-            self.audioServiceHolder.service.stopGongPreview()
-            self.audioServiceHolder.service.stopBackgroundPreview()
-        }
     }
 
     // MARK: Private
@@ -224,52 +220,12 @@ struct SettingsView: View {
     @Environment(\.themeColors)
     private var theme
     @Binding private var settings: MeditationSettings
-    @StateObject private var audioServiceHolder = AudioServiceHolder()
 
-    private let onDismiss: () -> Void
-    private let soundRepository: BackgroundSoundRepositoryProtocol
     private let availableSounds: [BackgroundSound]
-
-    /// Plays gong preview and stops previous preview
-    private func playGongPreview(soundId: String) {
-        do {
-            try self.audioServiceHolder.service.playGongPreview(
-                soundId: soundId,
-                volume: self.settings.gongVolume
-            )
-        } catch {
-            Logger.audio.error("Failed to play gong preview", error: error, metadata: ["soundId": soundId])
-        }
-    }
-
-    private func playIntervalGongPreview() {
-        do {
-            try self.audioServiceHolder.service.playIntervalGong(
-                volume: self.settings.intervalGongVolume
-            )
-        } catch {
-            Logger.audio.error("Failed to play interval gong preview", error: error)
-        }
-    }
-
-    /// Plays background sound preview (service handles "silent" internally)
-    private func playBackgroundPreview(soundId: String) {
-        do {
-            try self.audioServiceHolder.service.playBackgroundPreview(
-                soundId: soundId,
-                volume: self.settings.backgroundSoundVolume
-            )
-        } catch {
-            Logger.audio.error("Failed to play background preview", error: error, metadata: ["soundId": soundId])
-        }
-    }
-
-    /// Stops all previews and triggers dismiss
-    private func dismissWithCleanup() {
-        self.audioServiceHolder.service.stopGongPreview()
-        self.audioServiceHolder.service.stopBackgroundPreview()
-        self.onDismiss()
-    }
+    private let onGongChanged: (String, Float) -> Void
+    private let onBackgroundChanged: (String, Float) -> Void
+    private let onIntervalGongPreview: (Float) -> Void
+    private let onDismiss: () -> Void
 }
 
 // MARK: - Volume Slider Row
@@ -329,26 +285,61 @@ private let forestSettings = MeditationSettings(
 
 @available(iOS 17.0, *)
 #Preview("Default Settings") {
-    SettingsView(settings: .constant(defaultSettings)) {}
+    SettingsView(
+        settings: .constant(defaultSettings),
+        availableSounds: [],
+        onGongChanged: { _, _ in },
+        onBackgroundChanged: { _, _ in },
+        onIntervalGongPreview: { _ in },
+        onDismiss: {}
+    )
 }
 
 @available(iOS 17.0, *)
 #Preview("Forest + Intervals") {
-    SettingsView(settings: .constant(forestSettings)) {}
+    SettingsView(
+        settings: .constant(forestSettings),
+        availableSounds: [],
+        onGongChanged: { _, _ in },
+        onBackgroundChanged: { _, _ in },
+        onIntervalGongPreview: { _ in },
+        onDismiss: {}
+    )
 }
 
 // Device Size Previews
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
-    SettingsView(settings: .constant(forestSettings)) {}
+    SettingsView(
+        settings: .constant(forestSettings),
+        availableSounds: [],
+        onGongChanged: { _, _ in },
+        onBackgroundChanged: { _, _ in },
+        onIntervalGongPreview: { _ in },
+        onDismiss: {}
+    )
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    SettingsView(settings: .constant(forestSettings)) {}
+    SettingsView(
+        settings: .constant(forestSettings),
+        availableSounds: [],
+        onGongChanged: { _, _ in },
+        onBackgroundChanged: { _, _ in },
+        onIntervalGongPreview: { _ in },
+        onDismiss: {}
+    )
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    SettingsView(settings: .constant(forestSettings)) {}
+    SettingsView(
+        settings: .constant(forestSettings),
+        availableSounds: [],
+        onGongChanged: { _, _ in },
+        onBackgroundChanged: { _, _ in },
+        onIntervalGongPreview: { _ in },
+        onDismiss: {}
+    )
 }
