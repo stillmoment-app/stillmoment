@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
+### Added (iOS & Android)
 - **Appearance Mode Selection** - Darstellungsmodus (System / Hell / Dunkel) in den Einstellungen
   - Segmented Control in der "Allgemein"-Section neben dem Theme-Picker
   - "System" folgt dem Geraete-Setting (bisheriges Verhalten, Default)

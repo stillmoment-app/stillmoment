@@ -22,7 +22,7 @@ Manche User bevorzugen einen festen Modus unabhaengig vom System-Setting — z.B
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-032    |
-| Android   | [ ]    | shared-032    |
+| Android   | [x]    | shared-032    |
 
 ---
 
@@ -31,23 +31,23 @@ Manche User bevorzugen einen festen Modus unabhaengig vom System-Setting — z.B
 <!-- Kriterien gelten fuer BEIDE Plattformen -->
 
 ### Feature (beide Plattformen)
-- [ ] Settings zeigt Segmented Control mit drei Optionen: System / Light / Dark
-- [ ] Segmented Control befindet sich in derselben Section wie der Theme-Picker
-- [ ] Default-Auswahl ist "System" (bisheriges Verhalten bleibt erhalten)
-- [ ] Bei "System": App folgt dem Geraete-Erscheinungsbild (wie bisher)
-- [ ] Bei "Light": App zeigt immer die helle Variante des gewaehlten Themes
-- [ ] Bei "Dark": App zeigt immer die dunkle Variante des gewaehlten Themes
-- [ ] Auswahl wird persistent gespeichert und bleibt nach App-Neustart erhalten
-- [ ] Aenderung wird sofort wirksam (ohne App-Neustart)
-- [ ] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Settings zeigt Segmented Control mit drei Optionen: System / Light / Dark
+- [x] Segmented Control befindet sich in derselben Section wie der Theme-Picker
+- [x] Default-Auswahl ist "System" (bisheriges Verhalten bleibt erhalten)
+- [x] Bei "System": App folgt dem Geraete-Erscheinungsbild (wie bisher)
+- [x] Bei "Light": App zeigt immer die helle Variante des gewaehlten Themes
+- [x] Bei "Dark": App zeigt immer die dunkle Variante des gewaehlten Themes
+- [x] Auswahl wird persistent gespeichert und bleibt nach App-Neustart erhalten
+- [x] Aenderung wird sofort wirksam (ohne App-Neustart)
+- [x] Lokalisiert (DE + EN)
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests iOS
+- [x] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 - [ ] GLOSSARY.md (falls neuer Domain-Begriff)
 
 ---
