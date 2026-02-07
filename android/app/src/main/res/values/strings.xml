@@ -149,8 +149,8 @@
     <string name="accessibility_autocomplete_suggestion">Suggestion: %s</string>
     <string name="accessibility_autocomplete_hint">Double tap to select</string>
 
-    <!-- General Settings -->
-    <string name="settings_general_header">General</string>
+    <!-- Appearance Settings -->
+    <string name="settings_general_header">Appearance</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_candlelight">Candlelight</string>
     <string name="settings_theme_forest">Forest</string>
