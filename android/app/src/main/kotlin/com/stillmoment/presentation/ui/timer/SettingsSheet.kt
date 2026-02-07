@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.MeditationSettings
@@ -79,7 +80,9 @@ fun SettingsSheet(
     onIntervalGongPreview: () -> Unit = {},
     onBackgroundSoundPreview: (String) -> Unit = {},
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {}
+    onThemeChange: (ColorTheme) -> Unit = {},
+    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
+    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -120,7 +123,9 @@ fun SettingsSheet(
             Spacer(modifier = Modifier.height(sectionSpacing))
             GeneralSettingsSection(
                 selectedTheme = selectedTheme,
-                onThemeChange = onThemeChange
+                onThemeChange = onThemeChange,
+                selectedAppearanceMode = selectedAppearanceMode,
+                onAppearanceModeChange = onAppearanceModeChange
             )
             Spacer(modifier = Modifier.height(itemSpacing))
         }

@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.stillmoment.domain.models.AppTab
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
@@ -49,6 +50,7 @@ constructor(
         val GONG_VOLUME = floatPreferencesKey("gong_volume")
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
+        val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
         val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
     }
 
@@ -257,6 +259,32 @@ constructor(
     suspend fun setSelectedTheme(theme: ColorTheme) {
         context.dataStore.edit { preferences ->
             preferences[Keys.SELECTED_THEME] = theme.name
+        }
+    }
+
+    /**
+     * Flow for the selected appearance mode.
+     * Emits the saved mode or AppearanceMode.DEFAULT (SYSTEM) for new installations.
+     */
+    val appearanceModeFlow: Flow<AppearanceMode> =
+        context.dataStore.data
+            .map { preferences ->
+                AppearanceMode.fromString(preferences[Keys.APPEARANCE_MODE])
+            }
+
+    /**
+     * Get the selected appearance mode.
+     */
+    suspend fun getAppearanceMode(): AppearanceMode {
+        return appearanceModeFlow.first()
+    }
+
+    /**
+     * Save the selected appearance mode.
+     */
+    suspend fun setAppearanceMode(mode: AppearanceMode) {
+        context.dataStore.edit { preferences ->
+            preferences[Keys.APPEARANCE_MODE] = mode.name
         }
     }
 
