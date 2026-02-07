@@ -5,6 +5,7 @@ tools: Read, Write, Glob, Grep, Bash
 model: sonnet
 skills:
   - review-code
+  - review-localization
 memory: project
 ---
 
@@ -30,43 +31,29 @@ git log main..HEAD --oneline
 - Fehlende Kriterien als BLOCKER melden
 
 ### 3. Code-Qualitaet pruefen
-Wende die review-code Checklisten an:
-- Wartbarkeit, Architektur, Lesbarkeit (DDD), Testabdeckung, Dokumentation
-- Nur echte Findings - keine kuenstlichen Anmerkungen
+Nutze `/review-code` fuer das Ticket. Der Skill prueft Wartbarkeit, Architektur, Lesbarkeit (DDD), Testabdeckung und Dokumentation anhand seiner Checklisten.
 
-### 4. Statische Pruefungen ausfuehren
+### 4. Localization pruefen
+Nutze `/review-localization` um Uebersetzungen, ungenutzte Keys und Cross-Platform-Konsistenz zu pruefen.
+
+### 5. Statische Pruefungen ausfuehren
 ```bash
 cd <platform> && make check
 cd <platform> && make test-unit
 ```
 
-### 5. Spezifische Pruefungen
-- **[weak self]** in allen Closures mit self-Referenz
-- **Force-Unwraps** - keine erlaubt
-- **Hardcoded Strings** - alles lokalisiert?
-- **Layer-Violations** - Domain importiert keine Platform-Frameworks?
-- **Semantische Farben** - keine direkten Farbwerte?
-- **Error Handling** - keine leeren catch-Bloecke?
-- **Tests** - kritische Pfade abgedeckt?
+### 6. Ergebnisse klassifizieren
 
-## Severity-Klassifikation
+Uebersetze alle Findings in BLOCKER oder DISCUSSION:
 
 **BLOCKER** (fuehrt zu FAIL):
-- Bugs oder falsches Verhalten
-- Security-Probleme
-- Layer-Violations (Domain importiert UIKit/SwiftUI)
-- Fehlende [weak self] in Closures
-- Force-Unwraps oder try!
-- Hardcoded Strings (nicht lokalisiert)
-- Fehlende Tests fuer kritische Business-Logik
+- Skill-Findings unter "Muss gefixt werden"
 - `make check` oder `make test-unit` schlaegt fehl
 - Akzeptanzkriterien nicht erfuellt
 
 **DISCUSSION** (fuehrt NICHT zu FAIL):
-- Design-Alternativen
-- Naming-Verbesserungen
-- Zukunfts-Verbesserungen
-- Stilfragen ohne Substanz
+- Skill-Findings unter "Sollte verbessert werden"
+- Design-Alternativen, Naming, Zukunfts-Verbesserungen
 
 ## Implementation Log
 

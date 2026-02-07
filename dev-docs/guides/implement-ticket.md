@@ -13,30 +13,45 @@ make implement TICKET=shared-040 PLATFORM=ios
 
 ## Wie es funktioniert
 
-```
-make implement TICKET=ios-032
-    |
-    ├── git checkout -b feature/ios-032
-    ├── Log-Datei erstellen: tmp/implement-log-ios-032.md
-    |
-    ├── claude --agent ticket-implementer     (Opus)
-    │   liest Log → implementiert → schreibt in Log
-    │   → Code + Tests + Commits (TDD)
-    |
-    ├── claude --agent ticket-reviewer        (Sonnet)  ←──┐
-    │   liest Log → reviewt → schreibt Verdict in Log      │
-    │   → Script liest Verdict aus Log                      │
-    |                                                       │
-    ├── if FAIL:                                            │
-    │   claude --agent ticket-implementer                   │
-    │   liest Log (inkl. BLOCKER) → fixt → schreibt in Log  │
-    │   → zurueck zum Review ───────────────────────────────┘
-    |                       (max 5x)
-    |
-    └── if PASS:
-        claude --agent ticket-implementer
-        "Schliesse Ticket ios-032"
-        → Status [x] DONE, INDEX.md, Commit
+```mermaid
+flowchart TD
+    Start["make implement TICKET=ios-032"] --> Preflight
+    Preflight["Preflight Checks\n- Git sauber?\n- Ticket existiert?\n- Kein vorheriger Lauf?"] -->|OK| Branch["git checkout -b feature/ios-032\nLog-Datei erstellen"]
+    Preflight -->|Fehler| Abort["Abbruch mit Hinweis"]
+
+    Branch --> Implement
+
+    subgraph Implement["IMPLEMENT (Opus)"]
+        direction LR
+        I1["Ticket + CLAUDE.md lesen"] --> I2["TDD: Test rot → Code gruen → Refactor"] --> I3["make check + make test-unit"] --> I4["Commits + Log schreiben"]
+    end
+
+    Implement --> Review
+
+    subgraph Review["REVIEW (Sonnet)"]
+        direction LR
+        R1["Log + Diff lesen"] --> R2["/review-code"] --> R3["/review-localization"] --> R4["make check + make test-unit"] --> R5["Verdict in Log schreiben"]
+    end
+
+    Review --> Verdict{Verdict?}
+    Verdict -->|PASS| Close
+    Verdict -->|FAIL| MaxCheck{"Review < 5?"}
+    MaxCheck -->|Ja| Fix
+    MaxCheck -->|Nein| FailAbort["Abbruch\nLog + Branch bleiben erhalten"]
+
+    subgraph Fix["FIX (Opus)"]
+        direction LR
+        F1["Log mit BLOCKER-Findings lesen"] --> F2["Fixes implementieren"] --> F3["make check + make test-unit"] --> F4["Commits + Log schreiben"]
+    end
+
+    Fix --> Review
+
+    subgraph Close["CLOSE (Opus)"]
+        direction LR
+        C1["/close-ticket Skill ausfuehren"] --> C2["Log schreiben"]
+    end
+
+    Close --> Done["Fertig\nBranch: feature/ios-032\nManuell mergen"]
 ```
 
 Die Agents kommunizieren ueber eine shared Log-Datei (`tmp/implement-log-<ticket-id>.md`). Jeder Agent liest den bisherigen Verlauf und haengt seinen Abschnitt an. Das Script liest das Verdict strukturiert aus der Datei statt aus stdout - dadurch ist die PASS/FAIL-Erkennung robust unabhaengig vom Ausgabeformat des LLMs.
@@ -52,15 +67,25 @@ Die Agents kommunizieren ueber eine shared Log-Datei (`tmp/implement-log-<ticket
 - Kann auch Review-Findings fixen und Tickets schliessen
 - **Darf nicht pushen**
 
+**Skills:**
+| Phase | Skill | Zweck |
+|-------|-------|-------|
+| CLOSE | `/close-ticket` | Ticket-Status, INDEX.md, CHANGELOG.md |
+
 ### ticket-reviewer (Sonnet)
 
-- Read-only: kann keinen Code aendern
+- Read-only: kann keinen Code aendern (nur Log-Datei via `tee -a`)
 - Prueft gegen Ticket-Akzeptanzkriterien
 - Lauft `make check` + `make test-unit`
-- Wendet review-code Checklisten an
 - Schreibt Verdict (`PASS`/`FAIL`) in die Log-Datei
 - BLOCKER fuehren zu FAIL, DISCUSSION-Punkte nicht
 - DISCUSSION-Items werden in `dev-docs/tickets/discussions/<ticket-id>.md` gesammelt
+
+**Skills:**
+| Phase | Skill | Zweck |
+|-------|-------|-------|
+| REVIEW | `/review-code` | Wartbarkeit, Architektur, Lesbarkeit, Testabdeckung |
+| REVIEW | `/review-localization` | Uebersetzungen, ungenutzte Keys, Cross-Platform-Konsistenz |
 
 ## Voraussetzungen
 
@@ -75,15 +100,26 @@ Die Agents kommunizieren ueber eine shared Log-Datei (`tmp/implement-log-<ticket
 |-----------|-------------|
 | Kein Push | Script pusht nie - manuelles Merge erforderlich |
 | Feature Branch | main bleibt immer sauber |
-| Read-only Reviewer | Kann keinen Code aendern (nur Log-Datei schreiben) |
+| Read-only Reviewer | Kann keinen Code aendern (nur `tee -a` auf Log-Datei) |
 | Max 5 Reviews | Abbruch nach 5 fehlgeschlagenen Reviews |
 | Preflight | Uncommitted changes → sofortiger Abbruch |
+| Branch/Log-Detection | Vorheriger Lauf (Branch oder Log) → sofortiger Abbruch mit Cleanup-Hinweis |
+| Phase-aware Errors | `run_agent()` meldet Phase, Log-Pfad und Branch bei Agent-Fehlern |
 
 ## Discussion-Items
 
 Der Reviewer klassifiziert Findings als BLOCKER oder DISCUSSION. BLOCKER muessen gefixt werden (fuehren zu FAIL). DISCUSSION-Items sind Anregungen, die nicht blockieren aber spaeter besprochen werden sollten.
 
-Das Script extrahiert DISCUSSION-Items aus jeder Review-Runde und sammelt sie in:
+Der Reviewer schreibt DISCUSSION-Items zwischen Marker:
+
+```
+DISCUSSION:
+<!-- DISCUSSION_START -->
+- datei:zeile - Verbesserungsvorschlag
+<!-- DISCUSSION_END -->
+```
+
+Das Script extrahiert diese Items aus jeder Review-Runde und sammelt sie in:
 
 ```
 dev-docs/tickets/discussions/<ticket-id>.md
@@ -116,7 +152,7 @@ git branch -d feature/ios-032
 
 ## Fehlschlag
 
-Bei Abbruch nach 5 Reviews enthaelt die Log-Datei den vollstaendigen Verlauf aller Implementierungs- und Review-Runden:
+Bei Abbruch nach 5 Reviews oder Agent-Fehler enthaelt die Log-Datei den vollstaendigen Verlauf:
 
 ```
 tmp/implement-log-<ticket-id>.md
@@ -124,7 +160,7 @@ tmp/implement-log-<ticket-id>.md
 
 Der Feature-Branch bleibt erhalten. Optionen:
 1. Manuell fixen und erneut starten
-2. Branch loeschen: `git branch -D feature/<ticket-id>`
+2. Komplett neu starten: `git branch -D feature/<ticket-id> && rm tmp/implement-log-<ticket-id>.md`
 
 ## Dateien
 

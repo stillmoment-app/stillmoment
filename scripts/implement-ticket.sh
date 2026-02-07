@@ -65,6 +65,7 @@ REVIEWER_TOOLS=(
   "${SHARED_TOOLS[@]}"
   "Bash(tee -a tmp/implement-log-*)"
   "Skill(review-code)"
+  "Skill(review-localization)"
 )
 REVIEWER_TOOLS_ARG=$(IFS=,; echo "${REVIEWER_TOOLS[*]}")
 
