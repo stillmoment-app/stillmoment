@@ -1,9 +1,8 @@
 ---
 name: ticket-reviewer
 description: Reviews code changes for quality, architecture, and test coverage. Read-only - never modifies code.
-tools: Read, Edit, Glob, Grep, Bash
+tools: Read, Write, Glob, Grep, Bash
 model: sonnet
-permissionMode: bypassPermissions
 skills:
   - review-code
 memory: project

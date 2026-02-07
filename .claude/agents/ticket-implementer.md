@@ -2,7 +2,6 @@
 name: ticket-implementer
 description: Implements and fixes tickets following TDD and project conventions. Use for ticket implementation, fixing review findings, and closing tickets.
 model: opus
-permissionMode: bypassPermissions
 disallowedTools: WebFetch, WebSearch
 skills:
   - close-ticket
