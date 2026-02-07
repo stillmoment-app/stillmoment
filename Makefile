@@ -1,4 +1,4 @@
-.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all
+.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all implement
 
 help: ## Show this help message
 	@echo "Still Moment - Project Commands"
@@ -48,3 +48,10 @@ screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots
 	@echo "✅ All screenshots generated!"
 	@echo "   iOS:     docs/images/screenshots/"
 	@echo "   Android: android/screenshots/"
+
+# =============================================================================
+# Autonomous Ticket Implementation
+# =============================================================================
+
+implement: ## Implement ticket autonomously (TICKET=ios-032 [PLATFORM=ios|android])
+	@./scripts/implement-ticket.sh $(TICKET) $(if $(PLATFORM),--platform $(PLATFORM))
