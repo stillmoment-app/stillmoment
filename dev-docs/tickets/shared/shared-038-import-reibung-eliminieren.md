@@ -1,6 +1,6 @@
 # Ticket shared-038: Import-Reibung eliminieren
 
-**Status**: [ ] TODO
+**Status**: [x] SPLIT → shared-043, shared-044, shared-045
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3d | Android ~3d
 **Phase**: 3-Feature
