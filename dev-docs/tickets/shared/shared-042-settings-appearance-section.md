@@ -22,7 +22,7 @@ Der Header "Allgemein" ist zu generisch fuer eine Section, die ausschliesslich E
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
