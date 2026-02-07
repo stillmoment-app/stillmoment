@@ -60,7 +60,8 @@ Ticket-Datei: $TICKET_FILE
 
 $TICKET_CONTENT" \
   --agent ticket-implementer \
-  --no-session-persistence
+  --no-session-persistence \
+  --verbose
 
 # === REVIEW/FIX LOOP ===
 for i in $(seq 1 $MAX_REVIEWS); do
@@ -73,7 +74,8 @@ Ticket-Datei: $TICKET_FILE
 Ticket-Inhalt:
 $TICKET_CONTENT" \
     --agent ticket-reviewer \
-    --no-session-persistence)
+    --no-session-persistence \
+    --verbose)
 
   echo "$REVIEW"
 
@@ -118,7 +120,8 @@ HEADER
 
 $REVIEW" \
     --agent ticket-implementer \
-    --no-session-persistence
+    --no-session-persistence \
+    --verbose
 done
 
 # === CLOSE TICKET ===
@@ -130,7 +133,8 @@ claude -p "Schliesse Ticket $TICKET_ID:
 - Pruefe ob CHANGELOG.md einen Eintrag braucht
 - Commit: docs: #$TICKET_ID Close ticket" \
   --agent ticket-implementer \
-  --no-session-persistence
+  --no-session-persistence \
+  --verbose
 
 echo ""
 echo "=== FERTIG ==="
