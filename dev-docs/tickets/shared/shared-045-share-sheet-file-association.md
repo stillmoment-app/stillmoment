@@ -23,8 +23,8 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-043    |
-| Android   | [ ]    | shared-043    |
+| iOS       | [ ]    | -             |
+| Android   | [ ]    | -             |
 
 ---
 
@@ -52,8 +52,9 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ### Fehlerfaelle
 
-- [ ] Nicht-unterstuetztes Format (z.B. WAV, FLAC, OGG): Abbruch mit Fehlermeldung ("Format nicht unterstuetzt")
+- [ ] Nicht-unterstuetztes Format: Durch spezifische Registrierung (nur MP3/M4A) sollte Still Moment bei anderen Formaten gar nicht als Option erscheinen. Falls dennoch ein unterstuetztes Format ankommt: Abbruch mit Fehlermeldung ("Format nicht unterstuetzt")
 - [ ] Korrupte/unlesbare Audio-Datei: Fehlermeldung ("Datei konnte nicht importiert werden")
+- [ ] Share Extension kann Datei nicht kopieren (z.B. Speicher voll): Abbruch mit Fehlermeldung in der Extension
 - [ ] Duplikat (Datei bereits importiert): Hinweis dass nichts gemacht wird ("Meditation bereits in der Bibliothek")
 
 ### Tests
@@ -142,4 +143,4 @@ iOS benoetigt zwei separate Mechanismen um beide Wege abzudecken:
 - iOS Share Extension laeuft in eigenem Prozess mit begrenztem Speicher (~120MB). Die Extension soll nur die Datei in den Shared Container kopieren, kein Import durchfuehren.
 - iOS: `CFBundleDocumentTypes` fuer spezifische Audio-UTIs registrieren (nicht `public.audio` generisch).
 - Android: Intent Filter fuer `ACTION_VIEW` und `ACTION_SEND` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`), nicht `audio/*`.
-- Duplikat-Erkennung: Vergleich ueber Dateiname + Dateigroesse (oder Hash) — Details in Implementierung klaeren.
+- Duplikat-Erkennung: Vergleich ueber Dateiname + Dateigroesse.
