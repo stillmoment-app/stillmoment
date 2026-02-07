@@ -273,14 +273,14 @@ constructor(
     /**
      * Get whether the user has seen the settings hint.
      */
-    suspend fun getHasSeenSettingsHint(): Boolean {
+    override suspend fun getHasSeenSettingsHint(): Boolean {
         return hasSeenSettingsHintFlow.first()
     }
 
     /**
      * Mark the settings hint as seen.
      */
-    suspend fun setHasSeenSettingsHint(seen: Boolean) {
+    override suspend fun setHasSeenSettingsHint(seen: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[Keys.HAS_SEEN_SETTINGS_HINT] = seen
         }

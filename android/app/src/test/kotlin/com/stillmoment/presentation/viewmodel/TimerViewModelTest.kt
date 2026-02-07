@@ -1,18 +1,39 @@
 package com.stillmoment.presentation.viewmodel
 
+import android.app.Application
 import com.stillmoment.domain.models.MeditationSettings
+import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
+import com.stillmoment.domain.repositories.SettingsRepository
+import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.infrastructure.audio.AudioService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 
 /**
- * Unit tests for TimerUiState.
- * Tests the pure data class logic without ViewModel dependencies.
+ * Unit tests for TimerUiState and TimerViewModel.
+ * Tests the pure data class logic and ViewModel behavior with mock dependencies.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class TimerViewModelTest {
     // MARK: - TimerUiState Tests
 
@@ -365,5 +386,186 @@ class TimerViewModelTest {
         val settingsOpen = TimerUiState(showSettingsHint = false, showSettings = true)
         assertFalse(settingsOpen.showSettingsHint)
         assertTrue(settingsOpen.showSettings)
+    }
+
+    // ============================================================
+    // MARK: - ViewModel Settings Hint Tests
+    // ============================================================
+
+    @Nested
+    inner class ViewModelSettingsHint {
+        private val testDispatcher = StandardTestDispatcher()
+        private lateinit var fakeSettingsRepository: FakeSettingsRepository
+        private lateinit var fakeTimerRepository: FakeTimerRepository
+        private lateinit var mockAudioService: AudioService
+        private lateinit var mockApplication: Application
+
+        @BeforeEach
+        fun setUp() {
+            Dispatchers.setMain(testDispatcher)
+            fakeSettingsRepository = FakeSettingsRepository()
+            fakeTimerRepository = FakeTimerRepository()
+            mockAudioService = mock()
+            mockApplication = mock()
+        }
+
+        @AfterEach
+        fun tearDown() {
+            Dispatchers.resetMain()
+        }
+
+        private fun createViewModel(): TimerViewModel {
+            return TimerViewModel(
+                application = mockApplication,
+                settingsRepository = fakeSettingsRepository,
+                timerRepository = fakeTimerRepository,
+                audioService = mockAudioService
+            )
+        }
+
+        @Test
+        fun `shows hint when user has not seen it before`() = runTest {
+            // Given - hint has not been seen
+            fakeSettingsRepository.hasSeenHint = false
+
+            // When
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Then
+            assertTrue(viewModel.uiState.value.showSettingsHint)
+        }
+
+        @Test
+        fun `hides hint when user has already seen it`() = runTest {
+            // Given - hint has been seen
+            fakeSettingsRepository.hasSeenHint = true
+
+            // When
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Then
+            assertFalse(viewModel.uiState.value.showSettingsHint)
+        }
+
+        @Test
+        fun `dismissSettingsHint persists via repository`() = runTest {
+            // Given - hint has not been seen
+            fakeSettingsRepository.hasSeenHint = false
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.showSettingsHint)
+
+            // When
+            viewModel.dismissSettingsHint()
+            advanceUntilIdle()
+
+            // Then - hint hidden in UI
+            assertFalse(viewModel.uiState.value.showSettingsHint)
+            // And persisted via repository
+            assertTrue(fakeSettingsRepository.hasSeenHint)
+        }
+
+        @Test
+        fun `showSettings dismisses hint and persists`() = runTest {
+            // Given - hint visible
+            fakeSettingsRepository.hasSeenHint = false
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            assertTrue(viewModel.uiState.value.showSettingsHint)
+
+            // When - user taps settings
+            viewModel.showSettings()
+            advanceUntilIdle()
+
+            // Then - hint dismissed and persisted
+            assertFalse(viewModel.uiState.value.showSettingsHint)
+            assertTrue(viewModel.uiState.value.showSettings)
+            assertTrue(fakeSettingsRepository.hasSeenHint)
+        }
+
+        @Test
+        fun `dismissSettingsHint is idempotent when already dismissed`() = runTest {
+            // Given - hint already seen
+            fakeSettingsRepository.hasSeenHint = true
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When - dismiss called again
+            viewModel.dismissSettingsHint()
+            advanceUntilIdle()
+
+            // Then - still seen, no side effects
+            assertFalse(viewModel.uiState.value.showSettingsHint)
+            assertTrue(fakeSettingsRepository.hasSeenHint)
+        }
+    }
+}
+
+// ============================================================
+// MARK: - Fake SettingsRepository
+// ============================================================
+
+/**
+ * Fake implementation of SettingsRepository for testing.
+ * Tracks hasSeenSettingsHint state for verification.
+ */
+class FakeSettingsRepository : SettingsRepository {
+    private val _settings = MutableStateFlow(MeditationSettings.Default)
+    var hasSeenHint = false
+
+    override val settingsFlow: Flow<MeditationSettings> = _settings
+
+    override suspend fun updateSettings(settings: MeditationSettings) {
+        _settings.value = settings
+    }
+
+    override suspend fun getSettings(): MeditationSettings = _settings.first()
+
+    override suspend fun getHasSeenSettingsHint(): Boolean = hasSeenHint
+
+    override suspend fun setHasSeenSettingsHint(seen: Boolean) {
+        hasSeenHint = seen
+    }
+}
+
+// ============================================================
+// MARK: - Fake TimerRepository
+// ============================================================
+
+/**
+ * Fake implementation of TimerRepository for testing.
+ */
+class FakeTimerRepository : TimerRepository {
+    private val _timer = MutableStateFlow<MeditationTimer?>(null)
+
+    override val timerFlow: Flow<MeditationTimer> =
+        _timer.filterNotNull()
+
+    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int) {
+        // no-op for tests
+    }
+
+    override suspend fun pause() {
+        // no-op for tests
+    }
+
+    override suspend fun resume() {
+        // no-op for tests
+    }
+
+    override suspend fun reset() {
+        // no-op for tests
+    }
+
+    override suspend fun setDuration(durationMinutes: Int) {
+        // no-op for tests
+    }
+
+    override fun tick(): MeditationTimer? = null
+
+    override fun markIntervalGongPlayed() {
+        // no-op for tests
     }
 }

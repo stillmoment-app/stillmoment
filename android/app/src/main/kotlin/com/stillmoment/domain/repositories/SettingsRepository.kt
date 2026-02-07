@@ -30,4 +30,19 @@ interface SettingsRepository {
      * @return The current MeditationSettings
      */
     suspend fun getSettings(): MeditationSettings
+
+    /**
+     * Gets whether the user has seen the settings hint tooltip.
+     * Returns false for new installations.
+     *
+     * @return true if the user has already seen the hint
+     */
+    suspend fun getHasSeenSettingsHint(): Boolean
+
+    /**
+     * Marks the settings hint as seen or unseen.
+     *
+     * @param seen true to mark hint as seen, false to reset
+     */
+    suspend fun setHasSeenSettingsHint(seen: Boolean)
 }

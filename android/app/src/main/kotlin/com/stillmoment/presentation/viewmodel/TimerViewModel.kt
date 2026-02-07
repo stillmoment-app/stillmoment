@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.R
-import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
@@ -75,7 +74,6 @@ class TimerViewModel
 constructor(
     application: Application,
     private val settingsRepository: SettingsRepository,
-    private val settingsDataStore: SettingsDataStore,
     private val timerRepository: TimerRepository,
     private val audioService: AudioService
 ) : AndroidViewModel(application) {
@@ -89,7 +87,7 @@ constructor(
         // Load initial settings synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
         val initialSettings = runBlocking { settingsRepository.getSettings() }
-        val hasSeenHint = runBlocking { settingsDataStore.getHasSeenSettingsHint() }
+        val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
         _uiState.value = TimerUiState(
             displayState = TimerDisplayState.withDuration(initialSettings.durationMinutes),
             settings = initialSettings,
@@ -217,7 +215,7 @@ constructor(
         if (_uiState.value.showSettingsHint) {
             _uiState.update { it.copy(showSettingsHint = false) }
             viewModelScope.launch {
-                settingsDataStore.setHasSeenSettingsHint(true)
+                settingsRepository.setHasSeenSettingsHint(true)
             }
         }
     }
