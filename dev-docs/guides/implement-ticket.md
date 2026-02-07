@@ -51,10 +51,21 @@ flowchart TD
         C1["/close-ticket Skill ausfuehren"] --> C2["Log schreiben"]
     end
 
-    Close --> Done["Fertig\nBranch: feature/ios-032\nManuell mergen"]
+    Close --> LearnCheck{"Challenges\nvorhanden?"}
+    LearnCheck -->|Ja| Learn
+    LearnCheck -->|Nein| Done
+
+    subgraph Learn["LEARN (Opus)"]
+        direction LR
+        L1["Challenges aus Log lesen"] --> L2["Gegen MEMORY.md +\nCLAUDE.md pruefen"] --> L3["Neue Learnings\npersistieren"] --> L4["Log schreiben"]
+    end
+
+    Learn --> Done["Fertig\nBranch: feature/ios-032\nManuell mergen"]
 ```
 
 Die Agents kommunizieren ueber eine shared Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md`). Jeder Agent liest den bisherigen Verlauf und haengt seinen Abschnitt an. Das Script liest das Verdict strukturiert aus der Datei statt aus stdout - dadurch ist die PASS/FAIL-Erkennung robust unabhaengig vom Ausgabeformat des LLMs.
+
+Der Implementer erfasst in jeder Phase (IMPLEMENT, FIX) aufgetretene Challenges zwischen `<!-- CHALLENGES_START -->` / `<!-- CHALLENGES_END -->`-Markern. Das Script sammelt diese am Ende und reicht sie an die LEARN-Phase weiter, die entscheidet ob sie als Learnings in MEMORY.md oder CLAUDE.md persistiert werden.
 
 ## Die zwei Agents
 
@@ -66,6 +77,8 @@ Die Agents kommunizieren ueber eine shared Log-Datei (`dev-docs/tickets/logs/<ti
 - Commit-Format: `feat(ios): #ios-032 Beschreibung`
 - Kann auch Review-Findings fixen und Tickets schliessen
 - **Darf nicht pushen**
+- Erfasst Challenges (Stolpersteine, Workarounds) zwischen strukturierten Markern
+- Persistiert Learnings in MEMORY.md oder CLAUDE.md (LEARN-Phase)
 
 **Skills:**
 | Phase | Skill | Zweck |
@@ -105,6 +118,7 @@ Die Agents kommunizieren ueber eine shared Log-Datei (`dev-docs/tickets/logs/<ti
 | Preflight | Uncommitted changes → sofortiger Abbruch |
 | Branch/Log-Detection | Vorheriger Lauf (Branch oder Log) → sofortiger Abbruch mit Cleanup-Hinweis |
 | Phase-aware Errors | `run_agent()` meldet Phase, Log-Pfad und Branch bei Agent-Fehlern |
+| LEARN nicht blockierend | Fehlende Challenges oder LEARN-Fehler → Warning statt Abbruch |
 
 ## Discussion-Items
 
@@ -171,3 +185,4 @@ Der Feature-Branch bleibt erhalten. Optionen:
 | `.claude/agents/ticket-reviewer.md` | Reviewer-Agent (Sonnet) |
 | `dev-docs/tickets/logs/<id>.md` | Implementation-Log (Kommunikationskanal zwischen Agents, wird persistiert) |
 | `dev-docs/tickets/discussions/<id>.md` | Gesammelte Discussion-Items (pro Ticket) |
+| `~/.claude/projects/.../memory/MEMORY.md` | Persistierte Learnings (projektspezifisch) |

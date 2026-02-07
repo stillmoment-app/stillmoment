@@ -10,6 +10,7 @@ MAX_TURNS_IMPLEMENT=50
 MAX_TURNS_REVIEW=30
 MAX_TURNS_FIX=30
 MAX_TURNS_CLOSE=15
+MAX_TURNS_LEARN=15
 
 # Shared tools (read-only operations both agents need)
 SHARED_TOOLS=(
@@ -177,6 +178,10 @@ if ! grep -q "^## IMPLEMENT" "$LOG_FILE"; then
   exit 1
 fi
 
+if ! grep -q "CHALLENGES_START" "$LOG_FILE"; then
+  echo "Warning: IMPLEMENT-Abschnitt enthaelt keine Challenges-Marker. LEARN-Phase wird eingeschraenkt."
+fi
+
 # === REVIEW/FIX LOOP ===
 for i in $(seq 1 $MAX_REVIEWS); do
   echo ""
@@ -284,6 +289,50 @@ if ! grep -q "^## CLOSE" "$LOG_FILE"; then
   exit 1
 fi
 
+# === LEARN ===
+# Collect all challenges from IMPLEMENT and FIX sections
+CHALLENGES=$(sed -n '/<!-- CHALLENGES_START -->/,/<!-- CHALLENGES_END -->/{//d;p;}' "$LOG_FILE" | sed '/^$/d') || true
+
+echo ""
+echo "=== LEARN ==="
+if [[ -n "$CHALLENGES" ]]; then
+  run_agent "LEARN" \
+    claude -p "Reflektiere ueber die Challenges aus der Implementierung von Ticket $TICKET_ID und persistiere relevante Learnings.
+
+Implementation-Log: $LOG_FILE
+
+Gesammelte Challenges:
+$CHALLENGES
+
+Pruefe fuer jede Challenge: Ist das generisch genug fuer zukuenftige Arbeiten? Steht es schon in MEMORY.md oder CLAUDE.md?
+Wenn nein → persistiere es. Wenn ja → ueberspringe es.
+
+Haenge deinen LEARN-Abschnitt an das Implementation-Log an (siehe Agent-Instruktionen fuer Format)." \
+    --agent ticket-implementer \
+    --no-session-persistence \
+    --verbose \
+    --max-turns "$MAX_TURNS_LEARN" \
+    --allowedTools "$IMPLEMENTER_TOOLS_ARG"
+else
+  echo "Keine Challenges gefunden — LEARN uebersprungen."
+  # Write minimal LEARN section to log
+  cat >> "$LOG_FILE" <<'LEARN_EOF'
+
+---
+
+## LEARN
+Status: SKIPPED (keine Challenges erfasst)
+Learnings: keine
+LEARN_EOF
+fi
+
+if [[ -n "$CHALLENGES" ]] && ! grep -q "^## LEARN" "$LOG_FILE"; then
+  echo "Warning: LEARN-Abschnitt fehlt im Log. Agent hat moeglicherweise max-turns erreicht (aktuell: $MAX_TURNS_LEARN)."
+fi
+
+# Extract learnings from log for display
+LEARNINGS=$(sed -n '/^## LEARN/,/^## /{/^Learnings:/,/^$/p}' "$LOG_FILE" | grep -v "^Learnings:" | sed '/^$/d') || true
+
 echo ""
 echo "=== FERTIG ==="
 echo "Branch: $BRANCH"
@@ -291,6 +340,12 @@ echo "Commits:"
 git log main.."$BRANCH" --oneline
 
 echo "Log: $LOG_FILE"
+
+if [[ -n "$LEARNINGS" && "$LEARNINGS" != "keine" ]]; then
+  echo ""
+  echo "Learnings:"
+  echo "$LEARNINGS" | sed 's/^/  /'
+fi
 
 if [[ -f "$DISCUSSION_FILE" ]]; then
   echo ""
