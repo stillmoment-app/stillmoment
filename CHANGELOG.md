@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved (iOS)
+- **Settings Appearance Section** - Section-Header von "Allgemein" zu "Erscheinungsbild" umbenannt
+  - Sichtbares Label "Darstellung" ueber dem System/Hell/Dunkel-Picker
+  - Ticket: shared-042
+
 ### Added (iOS & Android)
 - **Appearance Mode Selection** - Darstellungsmodus (System / Hell / Dunkel) in den Einstellungen
-  - Segmented Control in der "Allgemein"-Section neben dem Theme-Picker
+  - Segmented Control in der Erscheinungsbild-Section neben dem Theme-Picker
   - "System" folgt dem Geraete-Setting (bisheriges Verhalten, Default)
   - "Hell"/"Dunkel" erzwingt den jeweiligen Modus unabhaengig vom System
   - Auswahl wird persistent gespeichert und wirkt sofort
