@@ -50,6 +50,7 @@ struct GeneralSettingsSection: View {
             .listRowBackground(self.theme.backgroundPrimary)
         } header: {
             Text("settings.general.header", bundle: .main)
+                .foregroundColor(self.theme.textSecondary)
         }
     }
 }

@@ -75,6 +75,7 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("settings.preparationTime.header", bundle: .main)
+                            .foregroundColor(self.theme.textSecondary)
                     }
 
                     Section {
@@ -147,6 +148,7 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("settings.gong.title", bundle: .main)
+                            .foregroundColor(self.theme.textSecondary)
                     }
 
                     Section {
@@ -193,6 +195,7 @@ struct SettingsView: View {
                         }
                     } header: {
                         Text("settings.backgroundAudio.title", bundle: .main)
+                            .foregroundColor(self.theme.textSecondary)
                     }
 
                     GeneralSettingsSection()

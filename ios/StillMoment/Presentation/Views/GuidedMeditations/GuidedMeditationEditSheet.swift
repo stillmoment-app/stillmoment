@@ -91,6 +91,7 @@ struct GuidedMeditationEditSheet: View {
                         }
                     } header: {
                         Text("guided_meditations.edit.fileInfo")
+                            .foregroundColor(self.theme.textSecondary)
                     }
                 }
                 .scrollContentBackground(.hidden)

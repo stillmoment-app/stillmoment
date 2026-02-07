@@ -72,6 +72,7 @@ struct GuidedMeditationSettingsView: View {
                         }
                     } header: {
                         Text("guided_meditations.settings.preparationTime.header", bundle: .main)
+                            .foregroundColor(self.theme.textSecondary)
                     }
 
                     GeneralSettingsSection()
