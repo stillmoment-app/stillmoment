@@ -48,6 +48,14 @@ else
     echo "  ✅ detect-secrets already installed"
 fi
 
+# Install xcbeautify for clean xcodebuild output
+if ! command -v xcbeautify &> /dev/null; then
+    echo "  Installing xcbeautify..."
+    brew install xcbeautify
+else
+    echo "  ✅ xcbeautify already installed"
+fi
+
 echo ""
 echo "🔧 Setting up Git hooks..."
 

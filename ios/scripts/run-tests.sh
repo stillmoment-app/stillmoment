@@ -6,7 +6,7 @@
 # Usage: ./scripts/run-tests.sh [--skip-ui-tests] [--only-ui-tests] [--device "iPhone 17"] [--reset-simulator]
 #
 
-set -e
+set -eo pipefail
 
 # Load shared configuration and helpers
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -87,9 +87,11 @@ DEVICE_ID=$(auto_detect_device "$DEVICE") || exit 1
 # Build destination string
 DESTINATION="id=$DEVICE_ID"
 
-# Clean previous results
-echo "🧹 Cleaning previous test results..."
-rm -rf "$RESULT_BUNDLE" coverage.json coverage.txt
+# Clean previous results (only for full/UI runs that use result bundles)
+if [ "$SKIP_UI_TESTS" = false ]; then
+    echo "🧹 Cleaning previous test results..."
+    rm -rf "$RESULT_BUNDLE" coverage.json coverage.txt
+fi
 
 # Determine test mode and coverage flag
 # Coverage ONLY enabled for ALL tests (complete data)
@@ -106,12 +108,15 @@ if [ "$SKIP_UI_TESTS" = true ]; then
         -scheme "$UNIT_TEST_SCHEME" \
         -destination "$DESTINATION" \
         -enableCodeCoverage "$ENABLE_COVERAGE" \
-        -resultBundlePath "$RESULT_BUNDLE" \
+        -skipPackagePluginValidation \
+        -skipMacroValidation \
         -parallel-testing-enabled YES \
-        -parallel-testing-worker-count 2 \
+        -parallel-testing-worker-count 4 \
         -maximum-concurrent-test-simulator-destinations 1 \
         CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
+        2>&1 | format_output --quiet
 
 elif [ "$ONLY_UI_TESTS" = true ]; then
     echo "🧪 Running UI tests only..."
@@ -124,9 +129,13 @@ elif [ "$ONLY_UI_TESTS" = true ]; then
         -destination "$DESTINATION" \
         -enableCodeCoverage "$ENABLE_COVERAGE" \
         -resultBundlePath "$RESULT_BUNDLE" \
+        -skipPackagePluginValidation \
+        -skipMacroValidation \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
+        2>&1 | format_output
 
 else
     echo "🧪 Running all tests (unit + UI)..."
@@ -140,16 +149,13 @@ else
         -destination "$DESTINATION" \
         -enableCodeCoverage "$ENABLE_COVERAGE" \
         -resultBundlePath "$RESULT_BUNDLE" \
+        -skipPackagePluginValidation \
+        -skipMacroValidation \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO
-fi
-
-# Check if tests succeeded
-if [ $? -ne 0 ]; then
-    echo ""
-    echo "❌ Tests failed!"
-    exit 1
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGNING_ALLOWED=NO \
+        2>&1 | format_output
 fi
 
 echo ""
@@ -191,22 +197,25 @@ echo ""
 echo "=================================================="
 echo "✅ Test execution completed successfully!"
 echo "=================================================="
-echo ""
-echo "📁 Generated files:"
-echo "   - $RESULT_BUNDLE (Xcode result bundle)"
 
-if [ "$ENABLE_COVERAGE" = "YES" ]; then
-    echo "   - coverage.txt (Text coverage report)"
-    echo "   - coverage.json (JSON coverage report)"
+if [ "$SKIP_UI_TESTS" = false ]; then
+    echo ""
+    echo "📁 Generated files:"
+    echo "   - $RESULT_BUNDLE (Xcode result bundle)"
+
+    if [ "$ENABLE_COVERAGE" = "YES" ]; then
+        echo "   - coverage.txt (Text coverage report)"
+        echo "   - coverage.json (JSON coverage report)"
+    fi
+
+    echo ""
+    echo "💡 Next steps:"
+    echo "   - Open result bundle: open $RESULT_BUNDLE"
+
+    if [ "$ENABLE_COVERAGE" = "YES" ]; then
+        echo "   - View coverage: cat coverage.txt"
+    fi
+
+    echo "   - Run with options: $0 --help"
 fi
-
-echo ""
-echo "💡 Next steps:"
-echo "   - Open result bundle: open $RESULT_BUNDLE"
-
-if [ "$ENABLE_COVERAGE" = "YES" ]; then
-    echo "   - View coverage: cat coverage.txt"
-fi
-
-echo "   - Run with options: $0 --help"
 echo ""

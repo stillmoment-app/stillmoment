@@ -6,7 +6,7 @@
 # Usage: ./scripts/run-single-test.sh TestClass/testMethod
 #
 
-set -e
+set -eo pipefail
 
 # Load shared configuration and helpers
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -52,6 +52,7 @@ echo ""
 echo "🧪 Running test..."
 
 # Run test with appropriate settings
+# pipefail ensures xcodebuild exit code propagates through the pipe
 if [ "$TEST_TYPE" = "ui" ]; then
     # UI tests need parallel testing disabled to prevent race conditions
     # when multiple UI tests try to launch the same app instance
@@ -60,10 +61,13 @@ if [ "$TEST_TYPE" = "ui" ]; then
         -scheme "$TEST_SCHEME" \
         -destination "id=$DEVICE_ID" \
         -only-testing:"$TEST_TARGET" \
+        -skipPackagePluginValidation \
+        -skipMacroValidation \
         -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
-        2>&1 | grep -E "(Test Case|passed|failed|Testing failed|TEST SUCCEEDED)" || true
+        CODE_SIGNING_ALLOWED=NO \
+        2>&1 | format_output --quiet
 else
     # Unit tests can run with default settings
     xcodebuild test \
@@ -71,19 +75,13 @@ else
         -scheme "$TEST_SCHEME" \
         -destination "id=$DEVICE_ID" \
         -only-testing:"$TEST_TARGET" \
+        -skipPackagePluginValidation \
+        -skipMacroValidation \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
-        2>&1 | grep -E "(Test Case|passed|failed|Testing failed|TEST SUCCEEDED)" || true
+        CODE_SIGNING_ALLOWED=NO \
+        2>&1 | format_output --quiet
 fi
-
-# Check result
-TEST_RESULT=${PIPESTATUS[0]}
 
 echo ""
-if [ $TEST_RESULT -eq 0 ]; then
-    echo "✅ Test passed!"
-    exit 0
-else
-    echo "❌ Test failed - check output above"
-    exit 1
-fi
+echo "✅ Test passed!"

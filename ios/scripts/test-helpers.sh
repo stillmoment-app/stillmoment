@@ -182,3 +182,34 @@ format_test_run_type() {
             ;;
     esac
 }
+
+# Check if xcbeautify is installed
+# Usage: if has_xcbeautify; then ...
+has_xcbeautify() {
+    command -v xcbeautify &> /dev/null
+}
+
+# Format xcodebuild output through xcbeautify or cat fallback
+# Usage: xcodebuild ... 2>&1 | format_output [--quiet]
+# --quiet: Only show test results and errors (ideal for TDD)
+_XCBEAUTIFY_WARNED=false
+format_output() {
+    local quiet=false
+    if [ "${1:-}" = "--quiet" ]; then
+        quiet=true
+    fi
+
+    if has_xcbeautify; then
+        if [ "$quiet" = true ]; then
+            xcbeautify --quiet
+        else
+            xcbeautify
+        fi
+    else
+        if [ "$_XCBEAUTIFY_WARNED" = false ]; then
+            echo "⚠️  xcbeautify not installed — showing raw output (brew install xcbeautify)" >&2
+            _XCBEAUTIFY_WARNED=true
+        fi
+        cat
+    fi
+}
