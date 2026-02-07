@@ -23,11 +23,13 @@ final class TimerViewModel: ObservableObject {
     init(
         timerService: TimerServiceProtocol = TimerService(),
         audioService: AudioServiceProtocol = AudioService(),
-        settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository()
+        settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository(),
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
     ) {
         self.timerService = timerService
         self.audioService = audioService
         self.settingsRepository = settingsRepository
+        self.soundRepository = soundRepository
 
         self.settings = settingsRepository.load()
         // Initialize display state with saved duration
@@ -164,6 +166,7 @@ final class TimerViewModel: ObservableObject {
     private let timerService: TimerServiceProtocol
     private let audioService: AudioServiceProtocol
     private let settingsRepository: TimerSettingsRepository
+    private let soundRepository: BackgroundSoundRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
 
@@ -401,6 +404,48 @@ extension TimerViewModel {
     /// Saves current settings via the repository
     func saveSettings() {
         self.settingsRepository.save(self.settings)
+    }
+}
+
+// MARK: - Audio Preview (for Settings UI)
+
+extension TimerViewModel {
+    /// All available background sounds from the repository
+    var availableBackgroundSounds: [BackgroundSound] {
+        self.soundRepository.availableSounds
+    }
+
+    /// Plays a gong sound preview when user changes gong selection in settings
+    func playGongPreview(soundId: String, volume: Float) {
+        do {
+            try self.audioService.playGongPreview(soundId: soundId, volume: volume)
+        } catch {
+            Logger.audio.error("Failed to play gong preview", error: error, metadata: ["soundId": soundId])
+        }
+    }
+
+    /// Plays an interval gong preview when user adjusts interval gong volume in settings
+    func playIntervalGongPreview(volume: Float) {
+        do {
+            try self.audioService.playIntervalGong(volume: volume)
+        } catch {
+            Logger.audio.error("Failed to play interval gong preview", error: error)
+        }
+    }
+
+    /// Plays a background sound preview when user changes background sound in settings
+    func playBackgroundPreview(soundId: String, volume: Float) {
+        do {
+            try self.audioService.playBackgroundPreview(soundId: soundId, volume: volume)
+        } catch {
+            Logger.audio.error("Failed to play background preview", error: error, metadata: ["soundId": soundId])
+        }
+    }
+
+    /// Stops all active audio previews (called on settings dismiss)
+    func stopAllPreviews() {
+        self.audioService.stopGongPreview()
+        self.audioService.stopBackgroundPreview()
     }
 }
 
