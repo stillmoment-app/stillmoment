@@ -108,6 +108,17 @@ Dokumentation:
 - CLAUDE.md: [Aktualisiert/Nicht noetig]
 ```
 
+## Autonomer Modus (Agent-Aufruf)
+
+Wenn dieser Skill von einem Agent aufgerufen wird (z.B. `make implement` Pipeline), gibt es keinen User fuer Rueckfragen. In diesem Fall:
+
+- **Schritt 3** (Status pruefen): Bei TODO trotzdem als DONE markieren (Agent hat implementiert)
+- **Schritt 4** (Akzeptanzkriterien): Selbst gegen Code pruefen, nicht fragen. Bei Zweifel: als erfuellt werten (der Reviewer hat bereits geprueft)
+- **Schritt 5** (Dokumentations-Check): Selbst pruefen ob CHANGELOG.md/CLAUDE.md aktualisiert werden muessen. Bei Bedarf selbst aktualisieren
+- **Shared-Tickets**: Plattform aus dem Aufruf-Kontext ableiten
+
+Alle anderen Schritte (Status setzen, INDEX.md, Statistik, Commit) bleiben gleich.
+
 ## Sonderfaelle
 
 ### WONTFIX

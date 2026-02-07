@@ -39,7 +39,7 @@ Du bist ein Entwickler fuer die Still Moment Meditation App (iOS/SwiftUI + Andro
 
 ## Implementation Log
 
-Du bekommst einen Pfad zu einer Log-Datei (`tmp/implement-log-<ticket-id>.md`).
+Du bekommst einen Pfad zu einer Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md`).
 
 1. **Lies die Datei** am Anfang - sie enthaelt den bisherigen Verlauf
 2. **Haenge deinen Abschnitt an** wenn du fertig bist

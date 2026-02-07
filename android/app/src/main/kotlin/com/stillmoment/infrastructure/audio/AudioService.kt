@@ -3,6 +3,7 @@ package com.stillmoment.infrastructure.audio
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GongSound
+import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
@@ -33,7 +34,7 @@ constructor(
     private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
     private val volumeAnimator: VolumeAnimatorProtocol,
     private val logger: LoggerProtocol
-) {
+) : AudioServiceProtocol {
     init {
         // Register conflict handler to stop background audio when another source takes over
         coordinator.registerConflictHandler(AudioSource.TIMER) {
@@ -118,7 +119,7 @@ constructor(
      *
      * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    fun playIntervalGong(volume: Float = 1.0f) {
+    override fun playIntervalGong(volume: Float) {
         try {
             releaseGongPlayer()
             val clampedVolume = volume.coerceIn(0f, 1f)
@@ -143,7 +144,7 @@ constructor(
      * @param soundId ID of the gong sound to preview
      * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    fun playGongPreview(soundId: String, volume: Float = 1.0f) {
+    override fun playGongPreview(soundId: String, volume: Float) {
         try {
             // Stop any previous previews (mutual exclusion: gong and background)
             stopGongPreview()
@@ -168,7 +169,7 @@ constructor(
     /**
      * Stop the current gong preview. Idempotent - safe to call even if no preview is playing.
      */
-    fun stopGongPreview() {
+    override fun stopGongPreview() {
         try {
             previewPlayer?.apply {
                 if (isPlaying) {
@@ -191,7 +192,7 @@ constructor(
      * @param soundId ID of the background sound to preview ("silent" or "forest")
      * @param volume Playback volume (0.0 to 1.0)
      */
-    fun playBackgroundPreview(soundId: String, volume: Float) {
+    override fun playBackgroundPreview(soundId: String, volume: Float) {
         // Stop any previous previews (mutual exclusion: gong and background)
         stopBackgroundPreview()
         stopGongPreview()
@@ -229,7 +230,7 @@ constructor(
     /**
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
-    fun stopBackgroundPreview() {
+    override fun stopBackgroundPreview() {
         // Cancel fade-out job
         backgroundPreviewJob?.cancel()
         backgroundPreviewJob = null

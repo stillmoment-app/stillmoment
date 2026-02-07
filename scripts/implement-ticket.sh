@@ -63,8 +63,9 @@ IMPLEMENTER_TOOLS_ARG=$(IFS=,; echo "${IMPLEMENTER_TOOLS[*]}")
 # Reviewer: read-only + append to log file via Bash, review skill
 REVIEWER_TOOLS=(
   "${SHARED_TOOLS[@]}"
-  "Bash(tee -a tmp/implement-log-*)"
+  "Bash(tee -a dev-docs/tickets/logs/*)"
   "Skill(review-code)"
+  "Skill(review-localization)"
 )
 REVIEWER_TOOLS_ARG=$(IFS=,; echo "${REVIEWER_TOOLS[*]}")
 
@@ -109,7 +110,7 @@ DISCUSSION_FILE="dev-docs/tickets/discussions/${TICKET_ID}.md"
 
 # Create or switch to feature branch
 BRANCH="feature/${TICKET_ID}"
-LOG_FILE="tmp/implement-log-${TICKET_ID}.md"
+LOG_FILE="dev-docs/tickets/logs/${TICKET_ID}.md"
 
 BRANCH_EXISTS=false
 LOG_EXISTS=false
@@ -130,7 +131,7 @@ fi
 git checkout -b "$BRANCH" main
 
 # Create shared implementation log
-mkdir -p tmp
+mkdir -p dev-docs/tickets/logs
 cat > "$LOG_FILE" <<EOF
 # Implementation Log: ${TICKET_ID}
 

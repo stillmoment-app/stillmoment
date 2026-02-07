@@ -11,16 +11,20 @@ import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
+import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
+import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import com.stillmoment.infrastructure.audio.AudioFocusManager
 import com.stillmoment.infrastructure.audio.AudioPlayerService
+import com.stillmoment.infrastructure.audio.AudioService
 import com.stillmoment.infrastructure.audio.AudioSessionCoordinator
 import com.stillmoment.infrastructure.audio.MediaPlayerFactory
 import com.stillmoment.infrastructure.audio.ProgressScheduler
+import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
 import com.stillmoment.infrastructure.audio.VolumeAnimator
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import dagger.Module
@@ -106,6 +110,18 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLogger(impl: AndroidLogger): LoggerProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioService(impl: AudioService): AudioServiceProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideTimerForegroundService(impl: TimerForegroundServiceWrapper): TimerForegroundServiceProtocol {
         return impl
     }
 }
