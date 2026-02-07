@@ -12,9 +12,9 @@ import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
-import com.stillmoment.infrastructure.audio.AudioService
-import com.stillmoment.infrastructure.audio.TimerForegroundService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -75,7 +75,8 @@ constructor(
     application: Application,
     private val settingsRepository: SettingsRepository,
     private val timerRepository: TimerRepository,
-    private val audioService: AudioService
+    private val audioService: AudioServiceProtocol,
+    private val foregroundService: TimerForegroundServiceProtocol
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -124,8 +125,7 @@ constructor(
     private fun handleEffect(effect: TimerEffect) {
         when (effect) {
             is TimerEffect.StartForegroundService -> {
-                TimerForegroundService.startService(
-                    getApplication(),
+                foregroundService.startService(
                     effect.soundId,
                     effect.soundVolume,
                     effect.gongSoundId,
@@ -133,16 +133,16 @@ constructor(
                 )
             }
             is TimerEffect.StopForegroundService -> {
-                TimerForegroundService.stopService(getApplication())
+                foregroundService.stopService()
             }
             is TimerEffect.PlayStartGong -> {
-                TimerForegroundService.playGong(getApplication(), effect.gongSoundId, effect.gongVolume)
+                foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.PlayIntervalGong -> {
-                TimerForegroundService.playIntervalGong(getApplication(), effect.gongVolume)
+                foregroundService.playIntervalGong(effect.gongVolume)
             }
             is TimerEffect.PlayCompletionSound -> {
-                TimerForegroundService.playGong(getApplication(), effect.gongSoundId, effect.gongVolume)
+                foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
@@ -160,10 +160,10 @@ constructor(
                 startTimerLoop()
             }
             is TimerEffect.PauseBackgroundAudio -> {
-                TimerForegroundService.pauseAudio(getApplication())
+                foregroundService.pauseAudio()
             }
             is TimerEffect.ResumeBackgroundAudio -> {
-                TimerForegroundService.resumeAudio(getApplication())
+                foregroundService.resumeAudio()
             }
             is TimerEffect.ResetTimer -> {
                 timerJob?.cancel()
@@ -351,7 +351,7 @@ constructor(
         // Stop foreground service after a short delay to let gong play
         viewModelScope.launch {
             delay(COMPLETION_SOUND_DELAY_MS)
-            TimerForegroundService.stopService(getApplication())
+            foregroundService.stopService()
         }
     }
 

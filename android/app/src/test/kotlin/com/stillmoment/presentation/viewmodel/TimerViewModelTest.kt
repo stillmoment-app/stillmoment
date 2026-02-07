@@ -7,7 +7,8 @@ import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
-import com.stillmoment.infrastructure.audio.AudioService
+import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +32,7 @@ import org.mockito.kotlin.mock
 
 /**
  * Unit tests for TimerUiState and TimerViewModel.
- * Tests the pure data class logic and ViewModel behavior with mock dependencies.
+ * Tests the pure data class logic and ViewModel behavior with fake dependencies.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class TimerViewModelTest {
@@ -389,7 +390,7 @@ class TimerViewModelTest {
     }
 
     // ============================================================
-    // MARK: - ViewModel Settings Hint Tests
+    // MARK: - ViewModel Tests with Protocol Abstractions
     // ============================================================
 
     @Nested
@@ -397,7 +398,8 @@ class TimerViewModelTest {
         private val testDispatcher = StandardTestDispatcher()
         private lateinit var fakeSettingsRepository: FakeSettingsRepository
         private lateinit var fakeTimerRepository: FakeTimerRepository
-        private lateinit var mockAudioService: AudioService
+        private lateinit var fakeAudioService: FakeAudioService
+        private lateinit var fakeForegroundService: FakeTimerForegroundService
         private lateinit var mockApplication: Application
 
         @BeforeEach
@@ -405,7 +407,8 @@ class TimerViewModelTest {
             Dispatchers.setMain(testDispatcher)
             fakeSettingsRepository = FakeSettingsRepository()
             fakeTimerRepository = FakeTimerRepository()
-            mockAudioService = mock()
+            fakeAudioService = FakeAudioService()
+            fakeForegroundService = FakeTimerForegroundService()
             mockApplication = mock()
         }
 
@@ -419,7 +422,8 @@ class TimerViewModelTest {
                 application = mockApplication,
                 settingsRepository = fakeSettingsRepository,
                 timerRepository = fakeTimerRepository,
-                audioService = mockAudioService
+                audioService = fakeAudioService,
+                foregroundService = fakeForegroundService
             )
         }
 
@@ -500,6 +504,285 @@ class TimerViewModelTest {
             assertFalse(viewModel.uiState.value.showSettingsHint)
             assertTrue(fakeSettingsRepository.hasSeenHint)
         }
+    }
+
+    // ============================================================
+    // MARK: - ViewModel Audio Preview Tests
+    // ============================================================
+
+    @Nested
+    inner class ViewModelAudioPreview {
+        private val testDispatcher = StandardTestDispatcher()
+        private lateinit var fakeSettingsRepository: FakeSettingsRepository
+        private lateinit var fakeTimerRepository: FakeTimerRepository
+        private lateinit var fakeAudioService: FakeAudioService
+        private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var mockApplication: Application
+
+        @BeforeEach
+        fun setUp() {
+            Dispatchers.setMain(testDispatcher)
+            fakeSettingsRepository = FakeSettingsRepository()
+            fakeTimerRepository = FakeTimerRepository()
+            fakeAudioService = FakeAudioService()
+            fakeForegroundService = FakeTimerForegroundService()
+            mockApplication = mock()
+        }
+
+        @AfterEach
+        fun tearDown() {
+            Dispatchers.resetMain()
+        }
+
+        private fun createViewModel(): TimerViewModel {
+            return TimerViewModel(
+                application = mockApplication,
+                settingsRepository = fakeSettingsRepository,
+                timerRepository = fakeTimerRepository,
+                audioService = fakeAudioService,
+                foregroundService = fakeForegroundService
+            )
+        }
+
+        @Test
+        fun `playGongPreview delegates to audio service with current volume`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When
+            viewModel.playGongPreview("singing-bowl")
+
+            // Then
+            assertEquals("singing-bowl", fakeAudioService.lastGongPreviewSoundId)
+            assertEquals(
+                viewModel.uiState.value.settings.gongVolume,
+                fakeAudioService.lastGongPreviewVolume
+            )
+        }
+
+        @Test
+        fun `stopGongPreview delegates to audio service`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When
+            viewModel.stopGongPreview()
+
+            // Then
+            assertTrue(fakeAudioService.gongPreviewStopped)
+        }
+
+        @Test
+        fun `playBackgroundPreview delegates to audio service with current volume`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When
+            viewModel.playBackgroundPreview("forest")
+
+            // Then
+            assertEquals("forest", fakeAudioService.lastBackgroundPreviewSoundId)
+            assertEquals(
+                viewModel.uiState.value.settings.backgroundSoundVolume,
+                fakeAudioService.lastBackgroundPreviewVolume
+            )
+        }
+
+        @Test
+        fun `stopBackgroundPreview delegates to audio service`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When
+            viewModel.stopBackgroundPreview()
+
+            // Then
+            assertTrue(fakeAudioService.backgroundPreviewStopped)
+        }
+
+        @Test
+        fun `hideSettings stops all previews`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.showSettings()
+            advanceUntilIdle()
+
+            // When
+            viewModel.hideSettings()
+
+            // Then
+            assertTrue(fakeAudioService.gongPreviewStopped)
+            assertTrue(fakeAudioService.backgroundPreviewStopped)
+            assertFalse(viewModel.uiState.value.showSettings)
+        }
+    }
+
+    // ============================================================
+    // MARK: - ViewModel Foreground Service Tests
+    // ============================================================
+
+    @Nested
+    inner class ViewModelForegroundService {
+        private val testDispatcher = StandardTestDispatcher()
+        private lateinit var fakeSettingsRepository: FakeSettingsRepository
+        private lateinit var fakeTimerRepository: FakeTimerRepository
+        private lateinit var fakeAudioService: FakeAudioService
+        private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var mockApplication: Application
+
+        @BeforeEach
+        fun setUp() {
+            Dispatchers.setMain(testDispatcher)
+            fakeSettingsRepository = FakeSettingsRepository()
+            fakeTimerRepository = FakeTimerRepository()
+            fakeAudioService = FakeAudioService()
+            fakeForegroundService = FakeTimerForegroundService()
+            mockApplication = mock()
+        }
+
+        @AfterEach
+        fun tearDown() {
+            Dispatchers.resetMain()
+        }
+
+        private fun createViewModel(): TimerViewModel {
+            return TimerViewModel(
+                application = mockApplication,
+                settingsRepository = fakeSettingsRepository,
+                timerRepository = fakeTimerRepository,
+                audioService = fakeAudioService,
+                foregroundService = fakeForegroundService
+            )
+        }
+
+        @Test
+        fun `ViewModel uses protocol dependencies not concrete classes`() = runTest {
+            // This test verifies that the ViewModel can be constructed
+            // with protocol-conforming fakes (no infrastructure imports needed)
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // Verify initial state is correct
+            assertEquals(TimerState.Idle, viewModel.uiState.value.timerState)
+        }
+
+        @Test
+        fun `startTimer dispatches foreground service start`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When
+            viewModel.startTimer()
+            advanceUntilIdle()
+
+            // Then - foreground service was started
+            assertTrue(fakeForegroundService.serviceStarted)
+        }
+
+        @Test
+        fun `resetTimer does not interact with foreground service`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            // When - reset without starting
+            viewModel.resetTimer()
+            advanceUntilIdle()
+
+            // Then - no foreground service interaction
+            assertFalse(fakeForegroundService.serviceStarted)
+            assertFalse(fakeForegroundService.serviceStopped)
+        }
+    }
+}
+
+// ============================================================
+// MARK: - Fake AudioServiceProtocol
+// ============================================================
+
+/**
+ * Fake implementation of AudioServiceProtocol for testing.
+ * Tracks method calls for verification.
+ */
+class FakeAudioService : AudioServiceProtocol {
+    var lastGongPreviewSoundId: String? = null
+    var lastGongPreviewVolume: Float? = null
+    var gongPreviewStopped = false
+    var lastBackgroundPreviewSoundId: String? = null
+    var lastBackgroundPreviewVolume: Float? = null
+    var backgroundPreviewStopped = false
+    var lastIntervalGongVolume: Float? = null
+
+    override fun playGongPreview(soundId: String, volume: Float) {
+        lastGongPreviewSoundId = soundId
+        lastGongPreviewVolume = volume
+    }
+
+    override fun playIntervalGong(volume: Float) {
+        lastIntervalGongVolume = volume
+    }
+
+    override fun stopGongPreview() {
+        gongPreviewStopped = true
+    }
+
+    override fun playBackgroundPreview(soundId: String, volume: Float) {
+        lastBackgroundPreviewSoundId = soundId
+        lastBackgroundPreviewVolume = volume
+    }
+
+    override fun stopBackgroundPreview() {
+        backgroundPreviewStopped = true
+    }
+}
+
+// ============================================================
+// MARK: - Fake TimerForegroundServiceProtocol
+// ============================================================
+
+/**
+ * Fake implementation of TimerForegroundServiceProtocol for testing.
+ * Tracks method calls for verification.
+ */
+class FakeTimerForegroundService : TimerForegroundServiceProtocol {
+    var serviceStarted = false
+    var serviceStopped = false
+    var lastStartSoundId: String? = null
+    var lastStartSoundVolume: Float? = null
+    var lastStartGongSoundId: String? = null
+    var lastStartGongVolume: Float? = null
+    var lastGongSoundId: String? = null
+    var lastGongVolume: Float? = null
+    var lastIntervalGongVolume: Float? = null
+    var audioPaused = false
+    var audioResumed = false
+
+    override fun startService(soundId: String, soundVolume: Float, gongSoundId: String, gongVolume: Float) {
+        serviceStarted = true
+        lastStartSoundId = soundId
+        lastStartSoundVolume = soundVolume
+        lastStartGongSoundId = gongSoundId
+        lastStartGongVolume = gongVolume
+    }
+
+    override fun stopService() {
+        serviceStopped = true
+    }
+
+    override fun playGong(gongSoundId: String, gongVolume: Float) {
+        lastGongSoundId = gongSoundId
+        lastGongVolume = gongVolume
+    }
+
+    override fun playIntervalGong(gongVolume: Float) {
+        lastIntervalGongVolume = gongVolume
+    }
+
+    override fun pauseAudio() {
+        audioPaused = true
+    }
+
+    override fun resumeAudio() {
+        audioResumed = true
     }
 }
 
