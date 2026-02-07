@@ -38,6 +38,49 @@ Du bist ein Entwickler fuer die Still Moment Meditation App (iOS/SwiftUI + Andro
 - Beispiel: `feat(ios): #ios-032 Add meditation history view`
 - Committe logische Einheiten, nicht alles auf einmal
 
+## Implementation Log
+
+Du bekommst einen Pfad zu einer Log-Datei (`tmp/implement-log-<ticket-id>.md`).
+
+1. **Lies die Datei** am Anfang - sie enthaelt den bisherigen Verlauf
+2. **Haenge deinen Abschnitt an** wenn du fertig bist
+
+### Format fuer IMPLEMENT:
+```
+---
+
+## IMPLEMENT
+Status: DONE
+Commits:
+- <hash> <message>
+
+Summary:
+<2-3 Saetze was gemacht wurde>
+```
+
+### Format fuer FIX:
+```
+---
+
+## FIX <n>
+Status: DONE
+Commits:
+- <hash> <message>
+
+Summary:
+<Was gefixt wurde, Bezug auf BLOCKER-Findings>
+```
+
+### Format fuer CLOSE:
+```
+---
+
+## CLOSE
+Status: DONE
+Commits:
+- <hash> <message>
+```
+
 ## Regeln
 
 - **NICHT pushen** - nur lokale Commits

@@ -17,19 +17,20 @@ make implement TICKET=shared-040 PLATFORM=ios
 make implement TICKET=ios-032
     |
     ├── git checkout -b feature/ios-032
+    ├── Log-Datei erstellen: tmp/implement-log-ios-032.md
     |
     ├── claude --agent ticket-implementer     (Opus)
-    │   "Implementiere Ticket ios-032"
+    │   liest Log → implementiert → schreibt in Log
     │   → Code + Tests + Commits (TDD)
     |
     ├── claude --agent ticket-reviewer        (Sonnet)  ←──┐
-    │   "Reviewe die Aenderungen"                          │
-    │   → PASS oder FAIL + Findings                        │
-    |                                                      │
-    ├── if FAIL:                                           │
-    │   claude --agent ticket-implementer                  │
-    │   "Fixe diese Review-Findings: ..."                  │
-    │   → zurueck zum Review ──────────────────────────────┘
+    │   liest Log → reviewt → schreibt Verdict in Log      │
+    │   → Script liest Verdict aus Log                      │
+    |                                                       │
+    ├── if FAIL:                                            │
+    │   claude --agent ticket-implementer                   │
+    │   liest Log (inkl. BLOCKER) → fixt → schreibt in Log  │
+    │   → zurueck zum Review ───────────────────────────────┘
     |                       (max 5x)
     |
     └── if PASS:
@@ -38,7 +39,7 @@ make implement TICKET=ios-032
         → Status [x] DONE, INDEX.md, Commit
 ```
 
-Jeder `claude -p` Aufruf startet einen frischen Context. Der Reviewer (Sonnet) sieht den Code mit unvoreingenommenen Augen.
+Die Agents kommunizieren ueber eine shared Log-Datei (`tmp/implement-log-<ticket-id>.md`). Jeder Agent liest den bisherigen Verlauf und haengt seinen Abschnitt an. Das Script liest das Verdict strukturiert aus der Datei statt aus stdout - dadurch ist die PASS/FAIL-Erkennung robust unabhaengig vom Ausgabeformat des LLMs.
 
 ## Die zwei Agents
 
@@ -57,7 +58,7 @@ Jeder `claude -p` Aufruf startet einen frischen Context. Der Reviewer (Sonnet) s
 - Prueft gegen Ticket-Akzeptanzkriterien
 - Lauft `make check` + `make test-unit`
 - Wendet review-code Checklisten an
-- Ausgabe beginnt mit `PASS` oder `FAIL`
+- Schreibt Verdict (`PASS`/`FAIL`) in die Log-Datei
 - BLOCKER fuehren zu FAIL, DISCUSSION-Punkte nicht
 - DISCUSSION-Items werden in `dev-docs/tickets/discussions/<ticket-id>.md` gesammelt
 
@@ -74,7 +75,7 @@ Jeder `claude -p` Aufruf startet einen frischen Context. Der Reviewer (Sonnet) s
 |-----------|-------------|
 | Kein Push | Script pusht nie - manuelles Merge erforderlich |
 | Feature Branch | main bleibt immer sauber |
-| Read-only Reviewer | Kann keinen Code aendern |
+| Read-only Reviewer | Kann keinen Code aendern (nur Log-Datei schreiben) |
 | Max 5 Reviews | Abbruch nach 5 fehlgeschlagenen Reviews |
 | Preflight | Uncommitted changes → sofortiger Abbruch |
 
@@ -115,10 +116,10 @@ git branch -d feature/ios-032
 
 ## Fehlschlag
 
-Bei Abbruch nach 5 Reviews werden die letzten Findings gespeichert:
+Bei Abbruch nach 5 Reviews enthaelt die Log-Datei den vollstaendigen Verlauf aller Implementierungs- und Review-Runden:
 
 ```
-tmp/review-findings-<ticket-id>.txt
+tmp/implement-log-<ticket-id>.md
 ```
 
 Der Feature-Branch bleibt erhalten. Optionen:
@@ -132,4 +133,5 @@ Der Feature-Branch bleibt erhalten. Optionen:
 | `scripts/implement-ticket.sh` | Orchestrator-Script |
 | `.claude/agents/ticket-implementer.md` | Implementer-Agent (Opus) |
 | `.claude/agents/ticket-reviewer.md` | Reviewer-Agent (Sonnet) |
+| `tmp/implement-log-<id>.md` | Shared Log-Datei (Kommunikationskanal zwischen Agents) |
 | `dev-docs/tickets/discussions/<id>.md` | Gesammelte Discussion-Items (pro Ticket) |

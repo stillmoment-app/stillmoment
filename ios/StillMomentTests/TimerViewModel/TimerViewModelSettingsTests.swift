@@ -6,7 +6,7 @@
 import XCTest
 @testable import StillMoment
 
-/// Tests for TimerViewModel settings persistence, duration management, and legacy migration
+/// Tests for TimerViewModel settings persistence, duration management, and repository integration
 @MainActor
 final class TimerViewModelSettingsTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
@@ -15,39 +15,79 @@ final class TimerViewModelSettingsTests: XCTestCase {
     var mockTimerService: MockTimerService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockSettingsRepository: MockTimerSettingsRepository!
 
     override func setUp() {
         super.setUp()
         self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
+        self.mockSettingsRepository = MockTimerSettingsRepository()
 
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
     }
 
     override func tearDown() {
-        // Clean up UserDefaults to prevent test pollution
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.durationMinutes)
-        defaults.removeObject(forKey: MeditationSettings.Keys.intervalGongsEnabled)
-        defaults.removeObject(forKey: MeditationSettings.Keys.intervalMinutes)
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundVolume)
-        defaults.removeObject(forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
-        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
-        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
-        defaults.removeObject(forKey: MeditationSettings.Keys.gongVolume)
-        defaults.removeObject(forKey: "hasSeenSettingsHint")
-
         self.sut = nil
         self.mockTimerService = nil
         self.mockAudioService = nil
+        self.mockSettingsRepository = nil
         super.tearDown()
     }
 
-    // MARK: - Settings Persistence
+    // MARK: - Repository Integration
+
+    func testInit_loadsSettingsFromRepository() {
+        // Then - Repository should have been called on init
+        XCTAssertTrue(self.mockSettingsRepository.loadCalled)
+        XCTAssertEqual(self.mockSettingsRepository.loadCallCount, 1)
+    }
+
+    func testInit_usesSettingsFromRepository() {
+        // Given - Configure repository to return custom settings
+        let customSettings = MeditationSettings(
+            intervalGongsEnabled: true,
+            intervalMinutes: 10,
+            backgroundSoundId: "forest",
+            durationMinutes: 25
+        )
+        let repository = MockTimerSettingsRepository()
+        repository.settingsToReturn = customSettings
+
+        // When - Create new ViewModel
+        let viewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService,
+            settingsRepository: repository
+        )
+
+        // Then - ViewModel should have the repository's settings
+        XCTAssertEqual(viewModel.settings.intervalGongsEnabled, true)
+        XCTAssertEqual(viewModel.settings.intervalMinutes, 10)
+        XCTAssertEqual(viewModel.settings.backgroundSoundId, "forest")
+        XCTAssertEqual(viewModel.settings.durationMinutes, 25)
+    }
+
+    func testSaveSettings_delegatesToRepository() {
+        // Given
+        self.sut.settings.intervalGongsEnabled = true
+        self.sut.settings.backgroundSoundId = "forest"
+
+        // When
+        self.sut.saveSettings()
+
+        // Then
+        XCTAssertTrue(self.mockSettingsRepository.saveCalled)
+        XCTAssertEqual(self.mockSettingsRepository.saveCallCount, 1)
+        XCTAssertEqual(self.mockSettingsRepository.lastSavedSettings?.intervalGongsEnabled, true)
+        XCTAssertEqual(self.mockSettingsRepository.lastSavedSettings?.backgroundSoundId, "forest")
+    }
+
+    // MARK: - Settings Persistence (via shared repository)
 
     func testSettingsLoadAndSave() {
         // Given
@@ -59,10 +99,11 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // When
         self.sut.saveSettings()
 
-        // Create new instance
+        // Create new instance with same repository (simulates app restart)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then
@@ -84,7 +125,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // Create new instance to verify persistence
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then
@@ -99,52 +141,12 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // When - Create new instance (simulates app restart)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Duration should be restored
-        XCTAssertEqual(newViewModel.selectedMinutes, 30, "Duration should restore from UserDefaults on init")
-    }
-
-    func testDurationValidation() {
-        // Given - Duration below minimum
-        self.sut.settings.durationMinutes = 0
-        self.sut.saveSettings()
-
-        // When - Create new instance
-        var newViewModel = TimerViewModel(
-            timerService: self.mockTimerService,
-            audioService: self.mockAudioService
-        )
-
-        // Then - Should clamp to minimum (1)
-        XCTAssertEqual(newViewModel.selectedMinutes, 1, "Duration should clamp to minimum of 1 minute")
-
-        // Given - Duration above maximum
-        self.sut.settings.durationMinutes = 100
-        self.sut.saveSettings()
-
-        // When - Create new instance
-        newViewModel = TimerViewModel(
-            timerService: self.mockTimerService,
-            audioService: self.mockAudioService
-        )
-
-        // Then - Should clamp to maximum (60)
-        XCTAssertEqual(newViewModel.selectedMinutes, 60, "Duration should clamp to maximum of 60 minutes")
-
-        // Given - Valid duration
-        self.sut.settings.durationMinutes = 35
-        self.sut.saveSettings()
-
-        // When - Create new instance
-        newViewModel = TimerViewModel(
-            timerService: self.mockTimerService,
-            audioService: self.mockAudioService
-        )
-
-        // Then - Should use exact value
-        XCTAssertEqual(newViewModel.selectedMinutes, 35, "Valid duration should be preserved")
+        XCTAssertEqual(newViewModel.selectedMinutes, 30, "Duration should restore from repository on init")
     }
 
     func testPickerChangesDoNotPersistUntilStart() {
@@ -157,7 +159,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // Create new instance (simulates app restart)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Should still have default (10), not the changed value (20)
@@ -170,7 +173,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // Create another instance
         let anotherViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Should now have the started duration (20)
@@ -178,14 +182,14 @@ final class TimerViewModelSettingsTests: XCTestCase {
     }
 
     func testDefaultDurationIsUsedOnFirstLaunch() {
-        // Given - Clear any saved duration
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.durationMinutes)
+        // Given - Repository returns default settings (first launch scenario)
+        let freshRepository = MockTimerSettingsRepository()
 
         // When - Create new instance (simulates first launch)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: freshRepository
         )
 
         // Then - Should use default of 10 minutes
@@ -194,15 +198,16 @@ final class TimerViewModelSettingsTests: XCTestCase {
 
     // MARK: - Background Sound Settings
 
-    func testSettingsLoadWithInvalidSoundId_FallsBackToDefault() {
-        // Given - Save an invalid sound ID
-        let defaults = UserDefaults.standard
-        defaults.set("invalid_sound_id", forKey: MeditationSettings.Keys.backgroundSoundId)
+    func testSettingsLoadWithInvalidSoundId() {
+        // Given - Repository returns settings with invalid sound ID
+        let repository = MockTimerSettingsRepository()
+        repository.settingsToReturn = MeditationSettings(backgroundSoundId: "invalid_sound_id")
 
         // When - Create new ViewModel (loads settings)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: repository
         )
 
         // Then - Should still use the invalid ID (AudioService will handle the error)
@@ -216,15 +221,15 @@ final class TimerViewModelSettingsTests: XCTestCase {
         XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
     }
 
-    func testSettingsLoadWithMissingBackgroundSoundId_UsesDefault() {
-        // Given - Remove backgroundSoundId from UserDefaults
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
+    func testDefaultBackgroundSoundId() {
+        // Given - Repository returns default settings
+        let freshRepository = MockTimerSettingsRepository()
 
-        // When - Create new ViewModel (loads settings)
+        // When - Create new ViewModel
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: freshRepository
         )
 
         // Then - Should use default "silent"
@@ -241,7 +246,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.saveSettings()
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Volume should be restored
@@ -249,14 +255,14 @@ final class TimerViewModelSettingsTests: XCTestCase {
     }
 
     func testBackgroundSoundVolume_defaultValue() {
-        // Given - Clear any saved volume
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundVolume)
+        // Given - Repository returns default settings
+        let freshRepository = MockTimerSettingsRepository()
 
         // When - Create new instance
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: freshRepository
         )
 
         // Then - Should use default (0.15)
@@ -296,7 +302,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.saveSettings()
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Volume should be restored
@@ -304,14 +311,14 @@ final class TimerViewModelSettingsTests: XCTestCase {
     }
 
     func testGongVolume_defaultValue() {
-        // Given - Clear any saved gong volume
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.gongVolume)
+        // Given - Repository returns default settings
+        let freshRepository = MockTimerSettingsRepository()
 
         // When - Create new instance
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: freshRepository
         )
 
         // Then - Should use default (1.0 = 100%)
@@ -340,56 +347,17 @@ final class TimerViewModelSettingsTests: XCTestCase {
         )
     }
 
-    // MARK: - Legacy Migration
-
-    func testSettingsLegacyMigration_SilentMode() {
-        // Given - Save legacy backgroundAudioMode setting
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.set("Silent", forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
-
-        // When - Create new ViewModel (triggers migration)
-        let newViewModel = TimerViewModel(
-            timerService: self.mockTimerService,
-            audioService: self.mockAudioService
-        )
-
-        // Then - Should migrate to "silent" sound ID
-        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
-
-        // Verify migration saved the new value
-        let savedValue = defaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
-        XCTAssertEqual(savedValue, "silent")
-    }
-
-    func testSettingsLegacyMigration_WhiteNoiseMode() {
-        // Given - Save legacy "White Noise" setting
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.backgroundSoundId)
-        defaults.set("White Noise", forKey: MeditationSettings.Keys.legacyBackgroundAudioMode)
-
-        // When - Create new ViewModel (triggers migration)
-        let newViewModel = TimerViewModel(
-            timerService: self.mockTimerService,
-            audioService: self.mockAudioService
-        )
-
-        // Then - Should migrate to "silent" (WhiteNoise was removed)
-        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
-    }
-
     // MARK: - Preparation Time Settings
 
     func testPreparationTimeSettings_defaultValues() {
-        // Given - Clear any saved preparation settings
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeEnabled)
-        defaults.removeObject(forKey: MeditationSettings.Keys.preparationTimeSeconds)
+        // Given - Repository returns default settings
+        let freshRepository = MockTimerSettingsRepository()
 
         // When - Create new instance (simulates first launch)
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: freshRepository
         )
 
         // Then - Should use defaults: enabled with 15 seconds
@@ -406,7 +374,8 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.saveSettings()
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            settingsRepository: self.mockSettingsRepository
         )
 
         // Then - Settings should be restored
@@ -488,6 +457,9 @@ final class TimerViewModelSettingsTests: XCTestCase {
     }
 
     // MARK: - Settings Hint Persistence (Onboarding)
+
+    // Note: hasSeenSettingsHint is @AppStorage in the View (Presentation Layer)
+    // These tests verify the UserDefaults behavior directly, not via the repository
 
     func testSettingsHint_defaultIsFalse() {
         // Given - Clear any saved hint state

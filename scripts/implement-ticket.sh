@@ -7,6 +7,54 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 MAX_REVIEWS=5
 
+# Tool permissions for claude subprocesses (mirrors settings.local.json)
+ALLOWED_TOOLS=(
+  # File operations
+  Read Edit Write Glob Grep WebSearch
+
+  # Build & test
+  "Bash(make:*)"
+  "Bash(xcodebuild:*)"
+  "Bash(xcrun:*)"
+  "Bash(sw_vers:*)"
+  "Bash(swiftc:*)"
+  "Bash(bash -n:*)"
+  "Bash(./gradlew:*)"
+
+  # Git
+  "Bash(git add:*)"
+  "Bash(git commit:*)"
+  "Bash(git status:*)"
+  "Bash(git show:*)"
+  "Bash(git show-ref:*)"
+  "Bash(git diff:*)"
+  "Bash(git log:*)"
+
+  # File utilities
+  "Bash(ls:*)"
+  "Bash(find:*)"
+  "Bash(grep:*)"
+  "Bash(cat:*)"
+  "Bash(wc:*)"
+  "Bash(tree:*)"
+  "Bash(tr:*)"
+  "Bash(echo:*)"
+  "Bash(sips:*)"
+
+  # MCP tools
+  mcp__XcodeBuildMCP__build_sim
+  mcp__XcodeBuildMCP__test_sim
+  mcp__XcodeBuildMCP__list_schemes
+  mcp__XcodeBuildMCP__session-set-defaults
+  mcp__XcodeBuildMCP__session-show-defaults
+  mcp__XcodeBuildMCP__discover_projs
+
+  # Skills
+  "Skill(review-code)"
+  "Skill(close-ticket)"
+)
+ALLOWED_TOOLS_ARG=$(IFS=,; echo "${ALLOWED_TOOLS[*]}")
+
 # Parse --platform flag
 shift
 while [[ $# -gt 0 ]]; do
@@ -51,34 +99,62 @@ DISCUSSION_FILE="dev-docs/tickets/discussions/${TICKET_ID}.md"
 BRANCH="feature/${TICKET_ID}"
 git checkout -b "$BRANCH" main 2>/dev/null || git checkout "$BRANCH"
 
+# Create shared implementation log
+LOG_FILE="tmp/implement-log-${TICKET_ID}.md"
+mkdir -p tmp
+cat > "$LOG_FILE" <<EOF
+# Implementation Log: ${TICKET_ID}
+
+Ticket: ${TICKET_FILE}
+Platform: ${PLATFORM}
+Branch: ${BRANCH}
+Started: $(date '+%Y-%m-%d %H:%M')
+EOF
+echo "Log: $LOG_FILE"
+
 # === IMPLEMENT ===
 echo ""
 echo "=== IMPLEMENT ==="
-claude -p "Lies und implementiere dieses Ticket fuer die $PLATFORM Plattform:
+claude -p "Implementiere dieses Ticket fuer die $PLATFORM Plattform.
 
 Ticket-Datei: $TICKET_FILE
+Implementation-Log: $LOG_FILE
+
+Lies zuerst das Ticket, dann implementiere es.
+Wenn du fertig bist, haenge deinen Abschnitt an das Implementation-Log an (siehe Agent-Instruktionen fuer Format).
 
 $TICKET_CONTENT" \
   --agent ticket-implementer \
-  --no-session-persistence
+  --no-session-persistence \
+  --verbose \
+  --allowedTools "$ALLOWED_TOOLS_ARG"
 
 # === REVIEW/FIX LOOP ===
 for i in $(seq 1 $MAX_REVIEWS); do
   echo ""
   echo "=== REVIEW ($i/$MAX_REVIEWS) ==="
-  REVIEW=$(claude -p "Reviewe die Aenderungen auf Branch $BRANCH fuer Ticket $TICKET_ID ($PLATFORM).
+  claude -p "Reviewe die Aenderungen auf Branch $BRANCH fuer Ticket $TICKET_ID ($PLATFORM).
 
 Ticket-Datei: $TICKET_FILE
+Implementation-Log: $LOG_FILE
+Review-Runde: $i
+
+Lies zuerst das Implementation-Log fuer den bisherigen Verlauf, dann reviewe die Aenderungen.
+Haenge deinen Review-Abschnitt an das Implementation-Log an (siehe Agent-Instruktionen fuer Format).
 
 Ticket-Inhalt:
 $TICKET_CONTENT" \
     --agent ticket-reviewer \
-    --no-session-persistence)
+    --no-session-persistence \
+    --verbose \
+    --allowedTools "$ALLOWED_TOOLS_ARG"
 
-  echo "$REVIEW"
+  # Read verdict from log file (last Verdict: line)
+  VERDICT=$(grep "^Verdict:" "$LOG_FILE" | tail -1 | awk '{print $2}')
+  echo "Verdict: $VERDICT"
 
-  # Extract DISCUSSION items and append to file
-  DISCUSSION=$(echo "$REVIEW" | sed -n '/^DISCUSSION:/,/^[A-Z]/{ /^DISCUSSION:/d; /^[A-Z]/d; p; }')
+  # Extract DISCUSSION items from the last REVIEW section in log
+  DISCUSSION=$(sed -n '/^## REVIEW '"$i"'/,/^---\|^## /{ /^DISCUSSION:/,/^[A-Z]\|^---\|^$/{ /^DISCUSSION:/d; /^---/d; /^$/d; /^[A-Z][A-Z]/d; p; } }' "$LOG_FILE")
   if [[ -n "$DISCUSSION" ]]; then
     mkdir -p "$(dirname "$DISCUSSION_FILE")"
     if [[ ! -f "$DISCUSSION_FILE" ]]; then
@@ -95,9 +171,7 @@ HEADER
     echo "" >> "$DISCUSSION_FILE"
   fi
 
-  # Check first line for PASS/FAIL
-  VERDICT=$(echo "$REVIEW" | head -1)
-  if [[ "$VERDICT" == PASS* ]]; then
+  if [[ "$VERDICT" == "PASS" ]]; then
     echo ""
     echo "=== Review bestanden ==="
     break
@@ -106,19 +180,23 @@ HEADER
   if [[ $i -eq $MAX_REVIEWS ]]; then
     echo ""
     echo "=== ABBRUCH: $MAX_REVIEWS Reviews ohne PASS ==="
-    mkdir -p tmp
-    echo "$REVIEW" > "tmp/review-findings-${TICKET_ID}.txt"
-    echo "Findings gespeichert: tmp/review-findings-${TICKET_ID}.txt"
+    echo "Findings im Log: $LOG_FILE"
     exit 1
   fi
 
   echo ""
   echo "=== FIX ($i) ==="
-  claude -p "Fixe diese Review-Findings fuer Ticket $TICKET_ID ($PLATFORM):
+  claude -p "Fixe die BLOCKER-Findings aus dem letzten Review fuer Ticket $TICKET_ID ($PLATFORM).
 
-$REVIEW" \
+Implementation-Log: $LOG_FILE
+Ticket-Datei: $TICKET_FILE
+
+Lies das Implementation-Log fuer den vollstaendigen Verlauf und die BLOCKER-Findings.
+Haenge deinen Fix-Abschnitt an das Implementation-Log an (siehe Agent-Instruktionen fuer Format)." \
     --agent ticket-implementer \
-    --no-session-persistence
+    --no-session-persistence \
+    --verbose \
+    --allowedTools "$ALLOWED_TOOLS_ARG"
 done
 
 # === CLOSE TICKET ===
@@ -128,15 +206,22 @@ claude -p "Schliesse Ticket $TICKET_ID:
 - Setze Status auf [x] DONE in $TICKET_FILE
 - Update INDEX.md
 - Pruefe ob CHANGELOG.md einen Eintrag braucht
-- Commit: docs: #$TICKET_ID Close ticket" \
+- Commit: docs: #$TICKET_ID Close ticket
+
+Implementation-Log: $LOG_FILE
+Haenge deinen CLOSE-Abschnitt an das Implementation-Log an." \
   --agent ticket-implementer \
-  --no-session-persistence
+  --no-session-persistence \
+  --verbose \
+  --allowedTools "$ALLOWED_TOOLS_ARG"
 
 echo ""
 echo "=== FERTIG ==="
 echo "Branch: $BRANCH"
 echo "Commits:"
 git log main.."$BRANCH" --oneline
+
+echo "Log: $LOG_FILE"
 
 if [[ -f "$DISCUSSION_FILE" ]]; then
   echo ""
