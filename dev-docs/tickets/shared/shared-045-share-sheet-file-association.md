@@ -1,19 +1,19 @@
-# Ticket shared-045: Share Sheet und File Association
+# Ticket shared-045: File Association ("Oeffnen mit")
 
 **Status**: [ ] TODO
 **Prioritaet**: HOCH
-**Aufwand**: iOS ~2d | Android ~1d
+**Aufwand**: iOS ~0.5d | Android ~0.5d
 **Phase**: 3-Feature
 
 ---
 
 ## Was
 
-Audio-Dateien (MP3, M4A) koennen ueber das System-Share-Sheet ("Teilen") und "Oeffnen mit" an Still Moment gesendet werden. Die App registriert sich als Handler fuer diese Audio-Dateitypen.
+Audio-Dateien (MP3, M4A) koennen ueber "Oeffnen mit" an Still Moment gesendet werden. Die App registriert sich als Handler fuer diese Audio-Dateitypen ueber File Association.
 
 ## Warum
 
-Aktuell muessen Nutzer die App oeffnen, "+"-Button tippen und die Datei im Picker suchen. Wenn jemand eine MP3 in Safari herunterlaed, in Mail erhaelt oder in der Files-App findet, ist der natuerliche Impuls "Teilen → Still Moment". Das reduziert den Import von 4 Schritten auf 2 und macht das Alleinstellungsmerkmal praktisch nutzbar.
+Aktuell muessen Nutzer die App oeffnen, "+"-Button tippen und die Datei im Picker suchen. Wenn jemand eine MP3 in der Files-App (iOS) oder im Dateimanager (Android) findet, ist der natuerliche Impuls "Oeffnen mit → Still Moment". Das reduziert den Import von 4 Schritten auf 2.
 
 Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
@@ -30,9 +30,9 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ## Scope
 
+- **Nur File Association ("Oeffnen mit").** Share Sheet ("Teilen") ist in shared-046 als separates Ticket.
 - **Einzeldatei-Import.** Mehrere Dateien gleichzeitig sind nicht in-scope (siehe shared-044 Batch Import).
 - **Unterstuetzte Formate: nur MP3 und M4A.** Registrierung nur fuer diese spezifischen Typen, nicht `audio/*`.
-- **Kein Drag & Drop (iPad).** Kann spaeter als eigenes Ticket ergaenzt werden.
 
 ---
 
@@ -40,21 +40,19 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ### Feature (beide Plattformen)
 
-- [ ] MP3- und M4A-Dateien koennen ueber das System-Share-Sheet an Still Moment gesendet werden
-- [ ] MP3- und M4A-Dateien koennen aus der Files-App (iOS) / Dateimanager (Android) direkt mit Still Moment geoeffnet werden
-- [ ] Import erfolgt automatisch (Datei kopieren, Metadaten extrahieren, Library aktualisieren) - gemaess shared-043 Logik
-- [ ] Erfolgs-Feedback nach Import (kurze Bestaetigungs-Anzeige wie shared-043)
+- [ ] MP3- und M4A-Dateien koennen aus der Files-App (iOS) / Dateimanager (Android) direkt mit Still Moment geoeffnet werden ("Oeffnen mit")
+- [ ] Import erfolgt ueber den bestehenden Import-Flow (Datei kopieren, Metadaten extrahieren, Library aktualisieren)
+- [ ] Erfolgs-Feedback nach Import (Edit Sheet bei fehlenden ID3-Tags, oder stille Bestaetigung falls shared-043 umgesetzt)
 - [ ] Wenn App nicht laeuft: wird gestartet und Import durchgefuehrt
 - [ ] Wenn App im Hintergrund: Import wird durchgefuehrt und Library aktualisiert
-- [ ] Wenn App im Vordergrund: Import und Bestaetigung sofort sichtbar
+- [ ] Wenn App im Vordergrund: Import sofort sichtbar
 - [ ] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Fehlerfaelle
 
-- [ ] Nicht-unterstuetztes Format: Durch spezifische Registrierung (nur MP3/M4A) sollte Still Moment bei anderen Formaten gar nicht als Option erscheinen. Falls dennoch ein unterstuetztes Format ankommt: Abbruch mit Fehlermeldung ("Format nicht unterstuetzt")
+- [ ] Nicht-unterstuetztes Format: Durch spezifische Registrierung (nur MP3/M4A) sollte Still Moment bei anderen Formaten gar nicht als Option erscheinen. Falls dennoch ein unerwartetes Format ankommt: Abbruch mit Fehlermeldung ("Format nicht unterstuetzt")
 - [ ] Korrupte/unlesbare Audio-Datei: Fehlermeldung ("Datei konnte nicht importiert werden")
-- [ ] Share Extension kann Datei nicht kopieren (z.B. Speicher voll): Abbruch mit Fehlermeldung in der Extension
 - [ ] Duplikat (Datei bereits importiert): Hinweis dass nichts gemacht wird ("Meditation bereits in der Bibliothek")
 
 ### Tests
@@ -66,54 +64,37 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ---
 
-## iOS: Zwei Mechanismen
+## Technische Umsetzung
 
-iOS benoetigt zwei separate Mechanismen um beide Wege abzudecken:
+### iOS
 
-### 1. File Association ("Oeffnen mit")
-- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs
+- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs (`public.mp3`, `public.mpeg-4-audio`)
 - `onOpenURL` Handler in der App empfaengt die Datei-URL direkt
 - Deckt ab: Files App ("Oeffnen mit"), Safari Downloads, Mail-Anhaenge
 
-### 2. Share Extension ("Teilen")
-- Separates App Extension Target (`StillMomentShareExtension`)
-- Erscheint im System-Share-Sheet (die App-Icons beim "Teilen"-Dialog)
-- Extension kopiert Datei in Shared App Group Container
-- Haupt-App prueft Container beim Start / Vordergrund und fuehrt Import durch
-- Deckt ab: Teilen aus jeder App heraus (Safari, Mail, WhatsApp, Telegram, etc.)
+### Android
 
-**Warum beides:** "Oeffnen mit" allein reicht nicht — die meisten Nutzer druecken instinktiv "Teilen", nicht "Oeffnen mit". Ohne Share Extension ist Still Moment im Teilen-Dialog unsichtbar.
+- Intent Filter fuer `ACTION_VIEW` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`)
+- `onCreate` / `onNewIntent` verarbeitet den Intent und triggert Import
+- Deckt ab: Dateimanager, Download-Manager
 
 ---
 
 ## Manueller Test
 
-### Share Sheet (iOS)
-1. Oeffne Safari und lade eine MP3-Datei herunter
-2. Tippe auf "Teilen" (Share-Icon)
-3. Waehle "Still Moment" aus den App-Icons
-4. Erwartung: App oeffnet sich (oder kommt in Vordergrund), Datei wird importiert, kurze Bestaetigung, Meditation erscheint in Library
-
 ### Oeffnen mit (iOS)
 1. Oeffne Files App, navigiere zu einer MP3
 2. Long-Press → "Oeffnen mit" → "Still Moment"
-3. Erwartung: Still Moment oeffnet sich, Datei importiert
-
-### Share Sheet (Android)
-1. Oeffne Chrome und lade eine MP3-Datei herunter
-2. Tippe auf "Teilen"
-3. Waehle "Still Moment"
-4. Erwartung: App oeffnet sich, Datei wird importiert, kurze Bestaetigung
+3. Erwartung: Still Moment oeffnet sich, Datei wird importiert
 
 ### Dateimanager (Android)
 1. Oeffne Dateimanager, navigiere zu einer MP3
 2. Tippe auf die Datei → "Still Moment" waehlen
-3. Erwartung: Still Moment oeffnet sich, Datei importiert
+3. Erwartung: Still Moment oeffnet sich, Datei wird importiert
 
 ### Fehlerfaelle (beide Plattformen)
-1. Teile eine WAV-Datei → Erwartung: Fehlermeldung "Format nicht unterstuetzt"
-2. Teile eine korrupte MP3 → Erwartung: Fehlermeldung
-3. Teile eine bereits importierte MP3 → Erwartung: Hinweis "bereits vorhanden"
+1. Oeffne eine korrupte MP3 mit Still Moment → Erwartung: Fehlermeldung
+2. Oeffne eine bereits importierte MP3 → Erwartung: Hinweis "bereits vorhanden"
 
 ---
 
@@ -121,12 +102,10 @@ iOS benoetigt zwei separate Mechanismen um beide Wege abzudecken:
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| Share Sheet | Share Extension Target | Intent Filter ACTION_SEND |
 | File Association | CFBundleDocumentTypes + onOpenURL | Intent Filter ACTION_VIEW |
 | Format-Filter | UTIs: public.mp3, public.mpeg-4-audio | MIME: audio/mpeg, audio/mp4 |
 | Fehler-Anzeige | Alert | Snackbar / Dialog |
-| Datei-Uebergabe (Share) | Shared App Group Container | Intent URI direkt |
-| App-Kaltstart | onOpenURL / Container-Check | onCreate Intent-Handling |
+| App-Kaltstart | onOpenURL | onCreate Intent-Handling |
 
 ---
 
@@ -140,7 +119,7 @@ iOS benoetigt zwei separate Mechanismen um beide Wege abzudecken:
 
 ## Hinweise
 
-- iOS Share Extension laeuft in eigenem Prozess mit begrenztem Speicher (~120MB). Die Extension soll nur die Datei in den Shared Container kopieren, kein Import durchfuehren.
 - iOS: `CFBundleDocumentTypes` fuer spezifische Audio-UTIs registrieren (nicht `public.audio` generisch).
-- Android: Intent Filter fuer `ACTION_VIEW` und `ACTION_SEND` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`), nicht `audio/*`.
+- Android: Intent Filter fuer `ACTION_VIEW` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`), nicht `audio/*`.
 - Duplikat-Erkennung: Vergleich ueber Dateiname + Dateigroesse.
+- Kein neues Xcode-Target noetig — alles in der Haupt-App.
