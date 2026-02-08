@@ -104,7 +104,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
 | File Association | CFBundleDocumentTypes + onOpenURL | Intent Filter ACTION_VIEW |
-| Format-Filter | UTIs: public.mp3, public.mpeg-4-audio | MIME: audio/mpeg, audio/mp4 |
+| Format-Filter | UTIs: public.mp3, com.apple.m4a-audio | MIME: audio/mpeg, audio/mp4 |
 | Fehler-Anzeige | Alert | Snackbar / Dialog |
 | App-Kaltstart | onOpenURL | onCreate Intent-Handling |
 
@@ -112,7 +112,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ## Referenz
 
-- iOS Info.plist: `ios/StillMoment/Info.plist` (aktuell keine Document Types)
+- iOS Info.plist: `ios/StillMoment/Info.plist` (CFBundleDocumentTypes fuer MP3/M4A)
 - iOS App Entry: `ios/StillMoment/StillMomentApp.swift`
 - Android Manifest: `android/app/src/main/AndroidManifest.xml` (aktuell keine Intent Filter)
 

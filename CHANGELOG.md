@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **File Association ("Oeffnen mit")** - MP3- und M4A-Dateien koennen aus der Files-App direkt mit Still Moment geoeffnet werden
+  - Long-Press auf Audio-Datei → "Oeffnen mit" → Still Moment
+  - Import ueber bestehenden Flow (Datei kopieren, Metadaten extrahieren, Library aktualisieren)
+  - Duplikat-Erkennung ueber Dateiname + Dateigroesse
+  - Fehlermeldungen fuer korrupte Dateien und nicht unterstuetzte Formate
+  - Lokalisiert (DE + EN)
+  - Ticket: shared-045
+
 ### Improved (iOS & Android)
 - **Settings Appearance Section** - Section-Header von "Allgemein" zu "Erscheinungsbild" umbenannt
   - Sichtbares Label "Darstellung" ueber dem System/Hell/Dunkel-Picker
