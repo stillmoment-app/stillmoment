@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Improved (iOS)
+- **Theme-Picker Icons + Haptic Feedback** - SF-Symbol-Icons (flame, leaf.fill, moon.fill) fuer visuelle Theme-Orientierung im Picker + Haptic Feedback bei Theme-Wechsel
+  - Ticket: shared-034
 - **Card Visual Separation** - Meditations-Cards heben sich visuell klar vom Gradient-Hintergrund ab
   - Light Mode: weicher Drop-Shadow fuer moderne Tiefenwirkung
   - Dark Mode: subtiler Border (0.5pt, aufgehellt) fuer klare Kartengrenzen
@@ -77,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-037
 
 ### Technical (iOS)
+- **UIKit-Control-Rebuild** - Slider und Picker(.segmented) werden bei Theme-Wechsel via `.id(theme)` neu erstellt, damit UIAppearance-Aenderungen greifen
 - **Theme-Architektur** - Migration von statischen Color-Properties zu @Environment-basiertem ThemeColors-System
   - ThemeColors struct + EnvironmentKey fuer reaktive Farben
   - ThemeRootView resolved Theme + colorScheme und injiziert in Environment

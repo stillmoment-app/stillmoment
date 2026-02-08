@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-02-05
+Last Updated: 2026-02-08
 -->
 
 ## Quick Reference
@@ -14,7 +14,8 @@ Last Updated: 2026-02-05
 | Begriff | Typ | Domain | Beschreibung |
 |---------|-----|--------|--------------|
 | `AudioMetadata` | Value Object | Guided Meditations | Metadaten aus Audio-Dateien (ID3 Tags) |
-| `ColorTheme` | Enum | App-wide | Farbthema-Auswahl (warmDesert, darkWarm) |
+| `AppearanceMode` | Enum | App-wide | Darstellungsmodus (system, light, dark) |
+| `ColorTheme` | Enum | App-wide | Farbthema-Auswahl (candlelight, forest, moon) |
 | `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
@@ -324,8 +325,9 @@ Farbthema-Auswahl. Jedes Theme hat eine Light- und Dark-Variante die automatisch
 
 | Wert | Beschreibung |
 |------|--------------|
-| `warmDesert` | Warmer Sand (Default, Original-Farben) |
-| `darkWarm` | Kerzenschein (waermere, bernsteinfarbene Palette) |
+| `candlelight` | Kerzenschein — warm/sand (Default) |
+| `forest` | Wald — warm-neutral, natuerlich |
+| `moon` | Mond — silber/indigo, naechtlich |
 
 **Persistence:** `@AppStorage("selectedTheme")` via `ThemeManager`
 
@@ -337,6 +339,34 @@ ColorTheme (Domain) → ThemeManager (Presentation) → ThemeRootView → ThemeC
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/ColorTheme.swift`
 - Farb-System Doku: `dev-docs/reference/color-system.md`
+
+---
+
+### AppearanceMode
+
+**Typ:** Enum (Domain)
+**Pattern:** Configuration Value
+
+**Beschreibung:**
+Darstellungsmodus-Auswahl. Ermoeglicht dem User, Light/Dark Mode unabhaengig vom System-Setting zu erzwingen.
+
+**Werte:**
+
+| Wert | Beschreibung |
+|------|--------------|
+| `system` | Folgt dem Geraete-Setting (Default) |
+| `light` | Erzwingt Light Mode |
+| `dark` | Erzwingt Dark Mode |
+
+**Persistence:** `@AppStorage("appearanceMode")` via `ThemeManager`
+
+**Architektur-Kette:**
+```
+AppearanceMode (Domain) → ThemeManager (Presentation) → ThemeRootView → .preferredColorScheme()
+```
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/AppearanceMode.swift`
 
 ---
 

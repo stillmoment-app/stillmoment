@@ -1,6 +1,6 @@
 # Ticket shared-034: Theme-Vorschau im Picker
 
-**Status**: [ ] TODO
+**Status**: [x] DONE (umgesetzt mit SF-Symbol-Icons statt Farbkreisen + Haptic Feedback)
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 4-Polish
@@ -21,8 +21,8 @@ Aktuell zeigt der Picker nur den Namen ("Kerzenschein", "Wald", "Mondlicht"). De
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-032    |
-| Android   | [ ]    | shared-032    |
+| iOS       | [x]    | shared-032    |
+| Android   | [x]    | shared-032    |
 
 ---
 

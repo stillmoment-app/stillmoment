@@ -59,7 +59,9 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 | `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
 | `Presentation/Views/Shared/ToggleStyles.swift` | Toggle Style mit ViewModifier-Bridge (WCAG controlTrack) |
 | `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
+| `Presentation/Views/Shared/CardRowBackground.swift` | Card-Hintergrund mit Shadow/Border je nach Color Scheme |
 | `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
+| `Presentation/Theme/AppearanceMode+Localization.swift` | Lokalisierte Modus-Namen (System/Hell/Dunkel) |
 
 ---
 
@@ -80,6 +82,7 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 | `.cardBackground` | Karten-Hintergrund (Light: = backgroundPrimary, Dark: eigener Wert) |
 | `.ringTrack` | Timer-Ring Hintergrund |
 | `.accentBackground` | Dekorativer Akzent-Hintergrund |
+| `.cardBorder` | Card-Rahmen (Light: clear, Dark: aufgehellter Stroke 0.5pt) |
 | `.error` | Fehlermeldungen |
 
 ### Gradient
@@ -165,6 +168,33 @@ Views muessen nichts tun — die Kompensation ist in `ThemeTypographyModifier` g
 
 ---
 
+## Appearance Mode
+
+Der User kann in den Settings zwischen drei Darstellungsmodi waehlen:
+
+| Modus | Verhalten |
+|-------|-----------|
+| System (Default) | Folgt dem Geraete-Setting |
+| Hell | Erzwingt Light Mode |
+| Dunkel | Erzwingt Dark Mode |
+
+`ThemeManager` persistiert den gewaehlten `AppearanceMode` via `@AppStorage("appearanceMode")`. `ThemeRootView` setzt `.preferredColorScheme()` basierend auf dem Modus — `nil` fuer System (kein Override), `.light` oder `.dark` fuer erzwungenen Modus.
+
+---
+
+## Card Visual Separation
+
+`CardRowBackground` ViewModifier (`.cardRowBackground(theme:)`) sorgt fuer visuelle Trennung von Karten auf dem Gradient-Hintergrund:
+
+| Modus | Strategie | Details |
+|-------|-----------|---------|
+| Light Mode | Drop-Shadow | `opacityCardShadow` (0.12), weicher Schatten |
+| Dark Mode | Border | `.strokeBorder()` mit `cardBorder` (0.5pt aufgehellter Stroke) |
+
+**Wichtig:** `.strokeBorder()` statt `.stroke()` verwenden — `.stroke()` zeichnet mittig auf der Kante und wird an List-Sektionsgrenzen abgeschnitten. `.strokeBorder()` bleibt innerhalb der Bounds.
+
+---
+
 ## WCAG 2.1 AA Kontrast-Validierung
 
 Alle Text-auf-Hintergrund-Kombinationen erfuellen WCAG 2.1 AA. Automatisiert geprueft durch Unit Tests (`WCAGContrastTests` iOS, `WCAGContrastTest` Android).
@@ -221,6 +251,7 @@ Definiert als `Double` Extension in `Double+Opacity.swift`:
 | `.opacityOverlay` | 0.2 | Loading-Overlays, Modals |
 | `.opacityShadow` | 0.3 | Schatten-Effekte |
 | `.opacitySecondary` | 0.5 | Sekundaere/deaktivierte Elemente |
+| `.opacityCardShadow` | 0.12 | Card Drop-Shadow (Light Mode) |
 | `.opacityTertiary` | 0.7 | Tertiaere/Hint-Elemente |
 
 ---
