@@ -22,6 +22,7 @@ struct ThemeColors: Equatable {
 
     let interactive: Color
     let progress: Color
+    let controlTrack: Color
 
     // MARK: - Background Colors
 

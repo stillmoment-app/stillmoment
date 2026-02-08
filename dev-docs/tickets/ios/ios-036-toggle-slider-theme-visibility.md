@@ -1,6 +1,6 @@
 # Ticket ios-036: Toggle/Slider Controls in Settings schlecht erkennbar
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine

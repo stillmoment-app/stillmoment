@@ -49,6 +49,7 @@ struct SettingsView: View {
                                     .themeFont(.settingsDescription)
                             }
                         }
+                        .themedToggle()
                         .accessibilityIdentifier("settings.toggle.preparationTime")
                         .accessibilityLabel("accessibility.preparationTime")
                         .accessibilityHint("accessibility.preparationTime.hint")
@@ -115,6 +116,7 @@ struct SettingsView: View {
                                     .themeFont(.settingsDescription)
                             }
                         }
+                        .themedToggle()
                         .accessibilityIdentifier("settings.toggle.intervalGongs")
                         .accessibilityLabel("accessibility.intervalGongs")
                         .accessibilityHint("accessibility.intervalGongs.hint")

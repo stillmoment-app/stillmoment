@@ -41,6 +41,7 @@ struct GuidedMeditationSettingsView: View {
                                     .themeFont(.settingsDescription)
                             }
                         }
+                        .themedToggle()
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
                         .listRowBackground(self.theme.cardBackground)
                         .onChange(of: self.preparationTimeEnabled) { newValue in

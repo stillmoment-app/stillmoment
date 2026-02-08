@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed (iOS)
+- **Toggle/Slider Theme-Sichtbarkeit** - WCAG-konforme Kontrastfarben fuer Toggle- und Slider-Controls
+  - Neue semantische Farbrolle `controlTrack` fuer inaktive Control-Tracks (>= 3:1 Kontrast gegen cardBackground)
+  - Custom ToggleStyle mit Theme-Farben (On = `interactive`, Off = `controlTrack`)
+  - UISlider maximumTrackTintColor folgt dem Theme via UIAppearance
+  - Betrifft Timer-Settings (2 Toggles, Volume-Slider) und Guided-Meditation-Settings (1 Toggle)
+  - Ticket: ios-036
 - **Picker-Label Theme-Farben** - Alle Picker-Labels in den Settings nutzen jetzt das Typography-System
   - Labels "Dauer", "Gong-Ton", "Intervall", "Klang", "Farbthema" sind in allen Themes gut lesbar
   - Settings-Hint-Tooltip Shadow nutzt Theme-Farbe statt hardcodiertem Schwarz

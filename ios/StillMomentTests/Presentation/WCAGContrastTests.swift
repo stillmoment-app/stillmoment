@@ -211,6 +211,31 @@ final class WCAGContrastTests: XCTestCase {
         self.assertAllCombinations(.moonDark, name: "Moon Dark")
     }
 
+    // MARK: - Control Track Contrast (WCAG SC 1.4.11)
+
+    func testControlTrackContrastAgainstCardBackground() {
+        let palettes: [(ThemeColors, String)] = [
+            (.candlelightLight, "Candlelight Light"),
+            (.candlelightDark, "Candlelight Dark"),
+            (.forestLight, "Forest Light"),
+            (.forestDark, "Forest Dark"),
+            (.moonLight, "Moon Light"),
+            (.moonDark, "Moon Dark")
+        ]
+        for (palette, name) in palettes {
+            self.assertContrast(
+                ContrastCheck(
+                    foreground: palette.controlTrack,
+                    background: palette.cardBackground,
+                    foregroundName: "controlTrack",
+                    backgroundName: "cardBackground"
+                ),
+                minimumRatio: self.largeTextMinContrast,
+                palette: name
+            )
+        }
+    }
+
     // MARK: - Luminance Formula Sanity Checks
 
     func testBlackHasZeroLuminance() {

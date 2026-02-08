@@ -30,13 +30,13 @@ struct ThemeRootView<Content: View>: View {
             .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
             .preferredColorScheme(self.themeManager.preferredColorScheme)
-            .onAppear { self.configureSegmentedControlAppearance() }
+            .onAppear { self.configureUIKitAppearance() }
             .onChange(of: self.resolvedColors) { _ in
-                self.configureSegmentedControlAppearance()
+                self.configureUIKitAppearance()
             }
     }
 
-    private func configureSegmentedControlAppearance() {
+    private func configureUIKitAppearance() {
         let normalColor = UIColor(self.resolvedColors.textPrimary)
         let selectedColor = UIColor(self.resolvedColors.textOnInteractive)
         UISegmentedControl.appearance().setTitleTextAttributes(
@@ -49,5 +49,6 @@ struct ThemeRootView<Content: View>: View {
         )
         UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(self.resolvedColors.interactive)
         UISegmentedControl.appearance().backgroundColor = UIColor(self.resolvedColors.cardBackground)
+        UISlider.appearance().maximumTrackTintColor = UIColor(self.resolvedColors.controlTrack)
     }
 }

@@ -57,6 +57,7 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 | `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
 | `Presentation/Views/Shared/Font+Theme.swift` | Typography System: TypographyRole + ThemeTypographyModifier |
 | `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
+| `Presentation/Views/Shared/ToggleStyles.swift` | Toggle Style mit ViewModifier-Bridge (WCAG controlTrack) |
 | `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
 | `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
 
@@ -73,6 +74,7 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 | `.textOnInteractive` | Text auf farbigen Buttons |
 | `.interactive` | Buttons, Icons, Slider, Links, Teacher-Name |
 | `.progress` | Timer-Ring, Fortschrittsanzeigen |
+| `.controlTrack` | Toggle Off-Track, Slider Inactive Track (WCAG >= 3:1 vs cardBackground) |
 | `.backgroundPrimary` | Primaerer Hintergrund |
 | `.backgroundSecondary` | Sekundaerer Hintergrund, TabBar |
 | `.cardBackground` | Karten-Hintergrund (Light: = backgroundPrimary, Dark: eigener Wert) |
@@ -184,6 +186,7 @@ Getestete Kombinationen pro Palette (11 Checks):
 | interactive / cardBackground | 4.5 |
 | interactive / backgroundSecondary | 4.5 |
 | error / backgroundPrimary | 4.5 |
+| controlTrack / cardBackground | 3.0 |
 
 ---
 
