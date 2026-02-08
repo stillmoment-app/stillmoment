@@ -236,6 +236,49 @@ final class WCAGContrastTests: XCTestCase {
         }
     }
 
+    // MARK: - Card Border Visibility (Dark Mode)
+
+    func testDarkModeCardBorderIsLighterThanCardBackground() {
+        let darkPalettes: [(ThemeColors, String)] = [
+            (.candlelightDark, "Candlelight Dark"),
+            (.forestDark, "Forest Dark"),
+            (.moonDark, "Moon Dark")
+        ]
+        for (palette, name) in darkPalettes {
+            let borderLum = self.luminanceFromColor(palette.cardBorder)
+            let cardLum = self.luminanceFromColor(palette.cardBackground)
+            XCTAssertGreaterThan(
+                borderLum,
+                cardLum,
+                "\(name): cardBorder should be lighter than cardBackground for visual separation"
+            )
+        }
+    }
+
+    func testLightModeCardBorderIsClear() {
+        let lightPalettes: [(ThemeColors, String)] = [
+            (.candlelightLight, "Candlelight Light"),
+            (.forestLight, "Forest Light"),
+            (.moonLight, "Moon Light")
+        ]
+        for (palette, name) in lightPalettes {
+            let uiColor = UIColor(palette.cardBorder)
+            var alpha: CGFloat = 0
+            uiColor.getRed(nil, green: nil, blue: nil, alpha: &alpha)
+            XCTAssertEqual(
+                alpha,
+                0,
+                accuracy: 0.01,
+                "\(name): cardBorder should be clear in light mode (shadow provides separation)"
+            )
+        }
+    }
+
+    private func luminanceFromColor(_ color: Color) -> CGFloat {
+        let rgb = self.extractRGB(from: color)
+        return self.relativeLuminance(red: rgb.red, green: rgb.green, blue: rgb.blue)
+    }
+
     // MARK: - Luminance Formula Sanity Checks
 
     func testBlackHasZeroLuminance() {

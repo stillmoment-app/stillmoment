@@ -16,6 +16,9 @@ extension Double {
     /// Opacity for shadow effects
     static let opacityShadow: Double = 0.3
 
+    /// Opacity for card drop shadows (softer than button shadows)
+    static let opacityCardShadow: Double = 0.12
+
     /// Opacity for secondary/disabled UI elements
     static let opacitySecondary: Double = 0.5
 

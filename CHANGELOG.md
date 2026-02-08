@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved (iOS)
+- **Card Visual Separation** - Meditations-Cards heben sich visuell klar vom Gradient-Hintergrund ab
+  - Light Mode: weicher Drop-Shadow fuer moderne Tiefenwirkung
+  - Dark Mode: subtiler Border (0.5pt, aufgehellt) fuer klare Kartengrenzen
+  - Neue semantische Farbrolle `cardBorder` und Opacity-Token `opacityCardShadow`
+  - Einheitlicher `cardRowBackground()` ViewModifier fuer alle Listen-Views
+  - Ticket: ios-035
+
 ### Fixed (iOS)
 - **Toggle/Slider Theme-Sichtbarkeit** - WCAG-konforme Kontrastfarben fuer Toggle- und Slider-Controls
   - Neue semantische Farbrolle `controlTrack` fuer inaktive Control-Tracks (>= 3:1 Kontrast gegen cardBackground)

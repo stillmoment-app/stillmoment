@@ -43,7 +43,7 @@ struct GuidedMeditationSettingsView: View {
                         }
                         .themedToggle()
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
-                        .listRowBackground(self.theme.cardBackground)
+                        .cardRowBackground()
                         .onChange(of: self.preparationTimeEnabled) { newValue in
                             if newValue {
                                 self.localSettings = self.localSettings.withPreparationTime(
@@ -65,7 +65,7 @@ struct GuidedMeditationSettingsView: View {
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")
-                            .listRowBackground(self.theme.cardBackground)
+                            .cardRowBackground()
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                             .onChange(of: self.preparationTimeSeconds) { newValue in
                                 self.localSettings = self.localSettings.withPreparationTime(newValue)

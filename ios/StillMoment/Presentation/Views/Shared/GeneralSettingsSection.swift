@@ -31,7 +31,7 @@ struct GeneralSettingsSection: View {
             .pickerStyle(.menu)
             .accessibilityIdentifier("settings.picker.theme")
             .accessibilityLabel("settings.theme.title")
-            .listRowBackground(self.theme.cardBackground)
+            .cardRowBackground()
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("settings.appearance.title", bundle: .main)
@@ -52,7 +52,7 @@ struct GeneralSettingsSection: View {
                     NSLocalizedString("settings.appearance.title", comment: "")
                 )
             }
-            .listRowBackground(self.theme.cardBackground)
+            .cardRowBackground()
         } header: {
             Text("settings.general.header", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)

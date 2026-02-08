@@ -280,7 +280,7 @@ struct GuidedMeditationsListView: View {
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(self.theme.cardBackground)
+        .cardRowBackground()
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
