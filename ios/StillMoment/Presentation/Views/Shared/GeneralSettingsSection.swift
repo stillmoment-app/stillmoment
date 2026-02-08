@@ -33,25 +33,20 @@ struct GeneralSettingsSection: View {
             .accessibilityLabel("settings.theme.title")
             .cardRowBackground()
 
-            VStack(alignment: .leading, spacing: 8) {
+            Picker(selection: self.$themeManager.appearanceMode) {
+                ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                    Text(mode.localizedName)
+                        .tag(mode)
+                }
+            } label: {
                 Text("settings.appearance.title", bundle: .main)
                     .themeFont(.settingsLabel)
-
-                Picker(selection: self.$themeManager.appearanceMode) {
-                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                        Text(mode.localizedName)
-                            .tag(mode)
-                    }
-                } label: {
-                    Text("settings.appearance.title", bundle: .main)
-                        .themeFont(.settingsLabel)
-                }
-                .pickerStyle(.segmented)
-                .accessibilityIdentifier("settings.picker.appearance")
-                .accessibilityLabel(
-                    NSLocalizedString("settings.appearance.title", comment: "")
-                )
             }
+            .pickerStyle(.menu)
+            .accessibilityIdentifier("settings.picker.appearance")
+            .accessibilityLabel(
+                NSLocalizedString("settings.appearance.title", comment: "")
+            )
             .cardRowBackground()
         } header: {
             Text("settings.general.header", bundle: .main)

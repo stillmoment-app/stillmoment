@@ -254,17 +254,18 @@ private struct VolumeSliderRow: View {
             Image(systemName: "speaker.fill")
                 .foregroundColor(self.theme.textSecondary)
                 .font(.settingsIcon)
-            Slider(
-                value: self.$volume,
-                in: 0...1,
+            ThemedSlider(
+                value: Binding(
+                    get: { Double(self.volume) },
+                    set: { self.volume = Float($0) }
+                ),
+                range: 0...1,
                 step: 0.01
             ) { editing in
-                // Only trigger preview when slider is released (not during drag)
                 if !editing {
                     self.onSliderReleased()
                 }
             }
-            .tint(self.theme.interactive)
             Image(systemName: "speaker.wave.3.fill")
                 .foregroundColor(self.theme.textSecondary)
                 .font(.settingsIcon)

@@ -76,14 +76,13 @@ struct GuidedMeditationPlayerView: View {
 
                     // Progress section
                     VStack(spacing: isCompactHeight ? 12 : 16) {
-                        Slider(
+                        ThemedSlider(
                             value: Binding(
                                 get: { self.viewModel.currentTime },
                                 set: { self.viewModel.seek(to: $0) }
                             ),
-                            in: 0...max(self.viewModel.duration, 1)
+                            range: 0...max(self.viewModel.duration, 1)
                         )
-                        .tint(self.theme.interactive)
                         .accessibilityIdentifier("player.slider.progress")
                         .accessibilityLabel("guided_meditations.player.progress")
                         .accessibilityValue("\(Int(self.viewModel.progress * 100)) percent")

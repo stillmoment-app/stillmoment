@@ -11,7 +11,7 @@
 
 import SwiftUI
 
-struct ThemeColors: Equatable {
+struct ThemeColors: Equatable, Hashable {
     // MARK: - Text Colors
 
     let textPrimary: Color

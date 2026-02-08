@@ -10,6 +10,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Namespace for toggle styles
 enum ToggleStyles {}
@@ -35,7 +36,9 @@ extension ToggleStyles {
                         .padding(2)
                 }
                 .animation(.easeInOut(duration: 0.2), value: configuration.isOn)
+                .accessibilityAddTraits(.isButton)
                 .onTapGesture {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     configuration.isOn.toggle()
                 }
             }
