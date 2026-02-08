@@ -1,8 +1,11 @@
 package com.stillmoment.presentation.ui.theme
 
+import androidx.compose.ui.graphics.Color
 import com.stillmoment.domain.models.ColorTheme
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ThemeResolutionTest {
@@ -80,4 +83,73 @@ class ThemeResolutionTest {
             assertNotEquals(light.background, dark.background, "Background should differ for $theme")
         }
     }
+
+    // region StillMomentColors
+
+    @Nested
+    inner class StillMomentColorsResolution {
+        @Test
+        fun `all themes resolve StillMomentColors for light`() {
+            ColorTheme.entries.forEach { theme ->
+                val colors = resolveStillMomentColors(theme, darkTheme = false)
+                assertNotNull(colors.progress, "progress should be set for $theme light")
+                assertNotNull(colors.controlTrack, "controlTrack should be set for $theme light")
+                assertNotNull(colors.cardBackground, "cardBackground should be set for $theme light")
+            }
+        }
+
+        @Test
+        fun `all themes resolve StillMomentColors for dark`() {
+            ColorTheme.entries.forEach { theme ->
+                val colors = resolveStillMomentColors(theme, darkTheme = true)
+                assertNotNull(colors.progress, "progress should be set for $theme dark")
+                assertNotNull(colors.controlTrack, "controlTrack should be set for $theme dark")
+                assertNotNull(colors.cardBackground, "cardBackground should be set for $theme dark")
+            }
+        }
+
+        @Test
+        fun `light themes have transparent cardBorder`() {
+            ColorTheme.entries.forEach { theme ->
+                val colors = resolveStillMomentColors(theme, darkTheme = false)
+                assertEquals(Color.Transparent, colors.cardBorder, "Light $theme should have transparent cardBorder")
+            }
+        }
+
+        @Test
+        fun `dark themes have visible cardBorder`() {
+            ColorTheme.entries.forEach { theme ->
+                val colors = resolveStillMomentColors(theme, darkTheme = true)
+                assertNotEquals(
+                    Color.Transparent,
+                    colors.cardBorder,
+                    "Dark $theme should have a visible cardBorder"
+                )
+            }
+        }
+
+        @Test
+        fun `light and dark StillMomentColors differ for each theme`() {
+            ColorTheme.entries.forEach { theme ->
+                val light = resolveStillMomentColors(theme, darkTheme = false)
+                val dark = resolveStillMomentColors(theme, darkTheme = true)
+                assertNotEquals(
+                    light.controlTrack,
+                    dark.controlTrack,
+                    "controlTrack should differ for $theme"
+                )
+            }
+        }
+
+        @Test
+        fun `all themes produce distinct colors`() {
+            val lightColors = ColorTheme.entries.map { resolveStillMomentColors(it, darkTheme = false) }
+            assertEquals(3, lightColors.toSet().size, "All light StillMomentColors should be distinct")
+
+            val darkColors = ColorTheme.entries.map { resolveStillMomentColors(it, darkTheme = true) }
+            assertEquals(3, darkColors.toSet().size, "All dark StillMomentColors should be distinct")
+        }
+    }
+
+    // endregion
 }

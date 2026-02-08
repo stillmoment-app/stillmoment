@@ -56,6 +56,26 @@ class TypographyTest {
         fun `dark mode Bold stays Bold`() {
             assertEquals(FontWeight.Bold, FontWeight.Bold.darkModeCompensated(true))
         }
+
+        @Test
+        fun `dark mode ExtraBold stays ExtraBold`() {
+            assertEquals(FontWeight.ExtraBold, FontWeight.ExtraBold.darkModeCompensated(true))
+        }
+
+        @Test
+        fun `dark mode Black stays Black`() {
+            assertEquals(FontWeight.Black, FontWeight.Black.darkModeCompensated(true))
+        }
+
+        @Test
+        fun `light mode ExtraBold returns original weight`() {
+            assertEquals(FontWeight.ExtraBold, FontWeight.ExtraBold.darkModeCompensated(false))
+        }
+
+        @Test
+        fun `light mode Black returns original weight`() {
+            assertEquals(FontWeight.Black, FontWeight.Black.darkModeCompensated(false))
+        }
     }
 
     @Nested

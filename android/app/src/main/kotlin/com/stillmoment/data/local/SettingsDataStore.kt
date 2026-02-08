@@ -30,7 +30,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
  * DataStore-based implementation of SettingsRepository.
  * Persists meditation settings using Jetpack DataStore.
  */
-@Suppress("TooManyFunctions") // DataStore requires individual setters for each preference
+@Suppress("TooManyFunctions") // 14 preference keys each need typed getter/setter/flow — collapsing into a generic
+// set(key, value) would lose compile-time type safety and validation (e.g. validateVolume, validateInterval).
 @Singleton
 class SettingsDataStore
 @Inject

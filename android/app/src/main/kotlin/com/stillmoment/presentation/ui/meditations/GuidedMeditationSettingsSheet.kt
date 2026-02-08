@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,6 +43,7 @@ import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -188,7 +190,8 @@ private fun PreparationTimeToggle(
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
             ),
             modifier = Modifier
                 .testTag("guidedSettings.toggle.preparationTime")
@@ -260,10 +263,11 @@ private fun SettingsCard(modifier: Modifier = Modifier, content: @Composable () 
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = LocalStillMomentColors.current.cardBackground
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, LocalStillMomentColors.current.cardBorder)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             content()

@@ -1,6 +1,6 @@
 # Ticket ios-033: SettingsView — Business-Logik ins ViewModel verschieben
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: shared-024, ios-032

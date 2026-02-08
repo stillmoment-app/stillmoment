@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,56 @@ import com.stillmoment.domain.models.ColorTheme
  * Used by TypographyRole.textStyle() for dark mode halation compensation.
  */
 val LocalIsDarkTheme = compositionLocalOf { false }
+
+/**
+ * Additional semantic colors not covered by Material 3 ColorScheme.
+ * These map to iOS ThemeColors roles that have no Material 3 equivalent.
+ */
+data class StillMomentColors(
+    /** Timer ring progress color */
+    val progress: Color,
+    /** Toggle/Slider inactive track color (WCAG >= 3:1 vs cardBackground) */
+    val controlTrack: Color,
+    /** Card background color (Light ~= bgPrimary, Dark = own value) */
+    val cardBackground: Color,
+    /** Card border: Light = Transparent, Dark = subtle stroke */
+    val cardBorder: Color
+)
+
+/**
+ * CompositionLocal providing the current StillMomentColors.
+ * Access via `LocalStillMomentColors.current` in Composables.
+ */
+val LocalStillMomentColors = staticCompositionLocalOf {
+    StillMomentColors(
+        progress = CdLightProgress,
+        controlTrack = CdLightControlTrack,
+        cardBackground = CdLightCardBackground,
+        cardBorder = CdLightCardBorder
+    )
+}
+
+/**
+ * Resolve StillMomentColors for the given theme and dark mode combination.
+ * Internal visibility for testability.
+ */
+internal fun resolveStillMomentColors(theme: ColorTheme, darkTheme: Boolean): StillMomentColors = when (theme) {
+    ColorTheme.CANDLELIGHT -> if (darkTheme) {
+        StillMomentColors(CdDarkProgress, CdDarkControlTrack, CdDarkCardBackground, CdDarkCardBorder)
+    } else {
+        StillMomentColors(CdLightProgress, CdLightControlTrack, CdLightCardBackground, CdLightCardBorder)
+    }
+    ColorTheme.FOREST -> if (darkTheme) {
+        StillMomentColors(FoDarkProgress, FoDarkControlTrack, FoDarkCardBackground, FoDarkCardBorder)
+    } else {
+        StillMomentColors(FoLightProgress, FoLightControlTrack, FoLightCardBackground, FoLightCardBorder)
+    }
+    ColorTheme.MOON -> if (darkTheme) {
+        StillMomentColors(MnDarkProgress, MnDarkControlTrack, MnDarkCardBackground, MnDarkCardBorder)
+    } else {
+        StillMomentColors(MnLightProgress, MnLightControlTrack, MnLightCardBackground, MnLightCardBorder)
+    }
+}
 
 /**
  * Still Moment Theme - Multiple color themes with Material 3.
@@ -227,6 +278,7 @@ fun StillMomentTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = resolveColorScheme(colorTheme, darkTheme)
+    val stillMomentColors = resolveStillMomentColors(colorTheme, darkTheme)
     val view = LocalView.current
 
     if (!view.isInEditMode) {
@@ -235,9 +287,9 @@ fun StillMomentTheme(
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
             @Suppress("DEPRECATION")
-            window.statusBarColor = colorScheme.background.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
             @Suppress("DEPRECATION")
-            window.navigationBarColor = colorScheme.background.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
             val isLightAppearance = !darkTheme
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = isLightAppearance
@@ -246,7 +298,10 @@ fun StillMomentTheme(
         }
     }
 
-    CompositionLocalProvider(LocalIsDarkTheme provides darkTheme) {
+    CompositionLocalProvider(
+        LocalIsDarkTheme provides darkTheme,
+        LocalStillMomentColors provides stillMomentColors
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = StillMomentTypography,

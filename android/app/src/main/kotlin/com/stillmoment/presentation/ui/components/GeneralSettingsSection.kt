@@ -1,17 +1,23 @@
 package com.stillmoment.presentation.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.NightsStay
+import androidx.compose.material.icons.filled.Park
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -26,6 +32,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -35,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -63,10 +73,11 @@ fun GeneralSettingsSection(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = LocalStillMomentColors.current.cardBackground
             ),
             shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            border = BorderStroke(0.5.dp, LocalStillMomentColors.current.cardBorder)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 AppearanceModePicker(
@@ -87,6 +98,7 @@ fun GeneralSettingsSection(
 @Composable
 private fun AppearanceModePicker(selectedMode: AppearanceMode, onModeChange: (AppearanceMode) -> Unit) {
     val appearancePickerDescription = stringResource(R.string.accessibility_appearance_picker)
+    val haptic = LocalHapticFeedback.current
 
     Column {
         Text(
@@ -107,7 +119,10 @@ private fun AppearanceModePicker(selectedMode: AppearanceMode, onModeChange: (Ap
             AppearanceMode.entries.forEachIndexed { index, mode ->
                 SegmentedButton(
                     selected = mode == selectedMode,
-                    onClick = { onModeChange(mode) },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onModeChange(mode)
+                    },
                     shape = SegmentedButtonDefaults.itemShape(
                         index = index,
                         count = AppearanceMode.entries.size
@@ -125,6 +140,7 @@ private fun AppearanceModePicker(selectedMode: AppearanceMode, onModeChange: (Ap
 private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme) -> Unit) {
     var themeExpanded by remember { mutableStateOf(false) }
     val themePickerDescription = stringResource(R.string.accessibility_theme_picker)
+    val haptic = LocalHapticFeedback.current
 
     ExposedDropdownMenuBox(
         expanded = themeExpanded,
@@ -135,9 +151,8 @@ private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme)
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.settings_theme_title)) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = themeExpanded)
-            },
+            leadingIcon = { ThemeIcon(selectedTheme.icon(), MaterialTheme.colorScheme.primary) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = themeExpanded) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -147,9 +162,7 @@ private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme)
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
                 .testTag("settings.dropdown.theme")
-                .semantics {
-                    contentDescription = themePickerDescription
-                }
+                .semantics { contentDescription = themePickerDescription }
         )
 
         ExposedDropdownMenu(
@@ -158,8 +171,10 @@ private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme)
         ) {
             ColorTheme.entries.forEach { theme ->
                 DropdownMenuItem(
+                    leadingIcon = { ThemeIcon(theme.icon(), MaterialTheme.colorScheme.onSurfaceVariant) },
                     text = { Text(theme.displayName()) },
                     onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         onThemeChange(theme)
                         themeExpanded = false
                     },
@@ -168,6 +183,11 @@ private fun ThemeDropdown(selectedTheme: ColorTheme, onThemeChange: (ColorTheme)
             }
         }
     }
+}
+
+@Composable
+private fun ThemeIcon(icon: ImageVector, tint: androidx.compose.ui.graphics.Color) {
+    Icon(imageVector = icon, contentDescription = null, tint = tint)
 }
 
 /**
@@ -190,6 +210,15 @@ private fun ColorTheme.displayName(): String = when (this) {
     ColorTheme.CANDLELIGHT -> stringResource(R.string.settings_theme_candlelight)
     ColorTheme.FOREST -> stringResource(R.string.settings_theme_forest)
     ColorTheme.MOON -> stringResource(R.string.settings_theme_moon)
+}
+
+/**
+ * Icon for a ColorTheme in the theme picker.
+ */
+private fun ColorTheme.icon(): ImageVector = when (this) {
+    ColorTheme.CANDLELIGHT -> Icons.Default.LocalFireDepartment
+    ColorTheme.FOREST -> Icons.Default.Park
+    ColorTheme.MOON -> Icons.Default.NightsStay
 }
 
 // MARK: - Previews

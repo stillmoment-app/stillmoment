@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -58,6 +61,7 @@ import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -242,6 +246,7 @@ private fun PreparationTimeDropdown(
 @Composable
 private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
     val preparationContentDescription = stringResource(R.string.accessibility_preparation_time_toggle)
+    val haptic = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -265,11 +270,13 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
         Switch(
             checked = settings.preparationTimeEnabled,
             onCheckedChange = { enabled ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(preparationTimeEnabled = enabled))
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
             ),
             modifier = Modifier
                 .testTag("settings.toggle.preparationTime")
@@ -364,7 +371,8 @@ private fun VolumeSlider(
                 },
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = LocalStillMomentColors.current.controlTrack
             )
         )
         Icon(
@@ -583,6 +591,7 @@ private fun IntervalGongsContent(
 @Composable
 private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
     val intervalGongsContentDescription = stringResource(R.string.accessibility_interval_gongs_toggle)
+    val haptic = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -612,11 +621,13 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
         Switch(
             checked = settings.intervalGongsEnabled,
             onCheckedChange = { enabled ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(intervalGongsEnabled = enabled))
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
             ),
             modifier = Modifier
                 .testTag("settings.toggle.intervalGongs")
@@ -684,10 +695,11 @@ private fun SettingsCard(modifier: Modifier = Modifier, content: @Composable Col
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = LocalStillMomentColors.current.cardBackground
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, LocalStillMomentColors.current.cardBorder)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
