@@ -18,4 +18,12 @@ extension ColorTheme {
             NSLocalizedString("settings.theme.moon", comment: "")
         }
     }
+
+    var iconName: String {
+        switch self {
+        case .candlelight: "flame"
+        case .forest: "leaf.fill"
+        case .moon: "moon.fill"
+        }
+    }
 }

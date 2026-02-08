@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Settings view for configuring guided meditation options
 ///
@@ -68,6 +69,7 @@ struct GuidedMeditationSettingsView: View {
                             .cardRowBackground()
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                             .onChange(of: self.preparationTimeSeconds) { newValue in
+                                UISelectionFeedbackGenerator().selectionChanged()
                                 self.localSettings = self.localSettings.withPreparationTime(newValue)
                             }
                         }

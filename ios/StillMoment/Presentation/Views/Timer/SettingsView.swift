@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Settings view for configuring meditation session options
 ///
@@ -71,6 +72,9 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
                             .accessibilityLabel("accessibility.preparationTimeDuration")
                             .accessibilityHint("accessibility.preparationTimeDuration.hint")
+                            .onChange(of: self.settings.preparationTimeSeconds) { _ in
+                                UISelectionFeedbackGenerator().selectionChanged()
+                            }
                             .cardRowBackground()
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
@@ -91,6 +95,7 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.startGongSoundId) { newValue in
+                            UISelectionFeedbackGenerator().selectionChanged()
                             self.onGongChanged(newValue, self.settings.gongVolume)
                         }
                         .accessibilityIdentifier("settings.picker.startGongSound")
@@ -145,6 +150,9 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.intervalMinutes")
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
+                            .onChange(of: self.settings.intervalMinutes) { _ in
+                                UISelectionFeedbackGenerator().selectionChanged()
+                            }
                             .cardRowBackground()
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
@@ -166,6 +174,7 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.backgroundSoundId) { newValue in
+                            UISelectionFeedbackGenerator().selectionChanged()
                             self.onBackgroundChanged(newValue, self.settings.backgroundSoundVolume)
                         }
                         .accessibilityIdentifier("settings.picker.backgroundSound")

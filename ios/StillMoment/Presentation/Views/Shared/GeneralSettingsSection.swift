@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Reusable settings section for app-wide settings (theme and appearance selection).
 ///
@@ -21,7 +22,7 @@ struct GeneralSettingsSection: View {
         Section {
             Picker(selection: self.$themeManager.selectedTheme) {
                 ForEach(ColorTheme.allCases, id: \.self) { colorTheme in
-                    Text(colorTheme.localizedName)
+                    Label(colorTheme.localizedName, systemImage: colorTheme.iconName)
                         .tag(colorTheme)
                 }
             } label: {
@@ -29,6 +30,9 @@ struct GeneralSettingsSection: View {
                     .themeFont(.settingsLabel)
             }
             .pickerStyle(.menu)
+            .onChange(of: self.themeManager.selectedTheme) { _ in
+                UISelectionFeedbackGenerator().selectionChanged()
+            }
             .accessibilityIdentifier("settings.picker.theme")
             .accessibilityLabel("settings.theme.title")
             .cardRowBackground()
@@ -43,6 +47,9 @@ struct GeneralSettingsSection: View {
                     .themeFont(.settingsLabel)
             }
             .pickerStyle(.menu)
+            .onChange(of: self.themeManager.appearanceMode) { _ in
+                UISelectionFeedbackGenerator().selectionChanged()
+            }
             .accessibilityIdentifier("settings.picker.appearance")
             .accessibilityLabel(
                 NSLocalizedString("settings.appearance.title", comment: "")
