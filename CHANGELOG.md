@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (iOS)
+- **Picker-Label Theme-Farben** - Alle Picker-Labels in den Settings nutzen jetzt das Typography-System
+  - Labels "Dauer", "Gong-Ton", "Intervall", "Klang", "Farbthema" sind in allen Themes gut lesbar
+  - Settings-Hint-Tooltip Shadow nutzt Theme-Farbe statt hardcodiertem Schwarz
+  - Ticket: ios-034
+
 ### Added (iOS)
 - **File Association ("Oeffnen mit")** - MP3- und M4A-Dateien koennen aus der Files-App direkt mit Still Moment geoeffnet werden
   - Long-Press auf Audio-Datei → "Oeffnen mit" → Still Moment

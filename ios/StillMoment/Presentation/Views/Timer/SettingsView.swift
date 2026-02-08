@@ -55,16 +55,16 @@ struct SettingsView: View {
                         .listRowBackground(self.theme.backgroundPrimary)
 
                         if self.settings.preparationTimeEnabled {
-                            Picker(
-                                NSLocalizedString("settings.preparationTime.duration", comment: ""),
-                                selection: self.$settings.preparationTimeSeconds
-                            ) {
+                            Picker(selection: self.$settings.preparationTimeSeconds) {
                                 Text("settings.preparationTime.5s", bundle: .main).tag(5)
                                 Text("settings.preparationTime.10s", bundle: .main).tag(10)
                                 Text("settings.preparationTime.15s", bundle: .main).tag(15)
                                 Text("settings.preparationTime.20s", bundle: .main).tag(20)
                                 Text("settings.preparationTime.30s", bundle: .main).tag(30)
                                 Text("settings.preparationTime.45s", bundle: .main).tag(45)
+                            } label: {
+                                Text("settings.preparationTime.duration", bundle: .main)
+                                    .themeFont(.settingsLabel)
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
@@ -79,14 +79,14 @@ struct SettingsView: View {
                     }
 
                     Section {
-                        Picker(
-                            NSLocalizedString("settings.startGong.title", comment: ""),
-                            selection: self.$settings.startGongSoundId
-                        ) {
+                        Picker(selection: self.$settings.startGongSoundId) {
                             ForEach(GongSound.allSounds) { sound in
                                 Text(sound.name.localized)
                                     .tag(sound.id)
                             }
+                        } label: {
+                            Text("settings.startGong.title", bundle: .main)
+                                .themeFont(.settingsLabel)
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.startGongSoundId) { newValue in
@@ -131,13 +131,13 @@ struct SettingsView: View {
                             }
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
 
-                            Picker(
-                                NSLocalizedString("settings.intervalGongs.interval", comment: ""),
-                                selection: self.$settings.intervalMinutes
-                            ) {
+                            Picker(selection: self.$settings.intervalMinutes) {
                                 Text("settings.interval.3min", bundle: .main).tag(3)
                                 Text("settings.interval.5min", bundle: .main).tag(5)
                                 Text("settings.interval.10min", bundle: .main).tag(10)
+                            } label: {
+                                Text("settings.intervalGongs.interval", bundle: .main)
+                                    .themeFont(.settingsLabel)
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("settings.picker.intervalMinutes")
@@ -152,15 +152,15 @@ struct SettingsView: View {
                     }
 
                     Section {
-                        Picker(
-                            NSLocalizedString("settings.backgroundAudio.sound", comment: ""),
-                            selection: self.$settings.backgroundSoundId
-                        ) {
+                        Picker(selection: self.$settings.backgroundSoundId) {
                             ForEach(self.availableSounds) { sound in
                                 Label(sound.name.localized, systemImage: sound.iconName)
                                     .tag(sound.id)
                                     .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
                             }
+                        } label: {
+                            Text("settings.backgroundAudio.sound", bundle: .main)
+                                .themeFont(.settingsLabel)
                         }
                         .pickerStyle(.menu)
                         .onChange(of: self.settings.backgroundSoundId) { newValue in

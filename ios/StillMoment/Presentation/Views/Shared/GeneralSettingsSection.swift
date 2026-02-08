@@ -19,14 +19,14 @@ struct GeneralSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(
-                NSLocalizedString("settings.theme.title", comment: ""),
-                selection: self.$themeManager.selectedTheme
-            ) {
+            Picker(selection: self.$themeManager.selectedTheme) {
                 ForEach(ColorTheme.allCases, id: \.self) { colorTheme in
                     Text(colorTheme.localizedName)
                         .tag(colorTheme)
                 }
+            } label: {
+                Text("settings.theme.title", bundle: .main)
+                    .themeFont(.settingsLabel)
             }
             .pickerStyle(.menu)
             .accessibilityIdentifier("settings.picker.theme")

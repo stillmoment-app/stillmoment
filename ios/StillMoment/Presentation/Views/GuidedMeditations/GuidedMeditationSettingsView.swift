@@ -54,13 +54,13 @@ struct GuidedMeditationSettingsView: View {
                         }
 
                         if self.preparationTimeEnabled {
-                            Picker(
-                                NSLocalizedString("guided_meditations.settings.preparationTime.duration", comment: ""),
-                                selection: self.$preparationTimeSeconds
-                            ) {
+                            Picker(selection: self.$preparationTimeSeconds) {
                                 ForEach(GuidedMeditationSettings.validPreparationTimeValues, id: \.self) { seconds in
                                     Text("\(seconds)s").tag(seconds)
                                 }
+                            } label: {
+                                Text("guided_meditations.settings.preparationTime.duration", bundle: .main)
+                                    .themeFont(.settingsLabel)
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")

@@ -213,7 +213,7 @@ struct TimerView: View {
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .fill(self.theme.accentBackground)
-                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    .shadow(color: self.theme.textPrimary.opacity(0.1), radius: 4, x: 0, y: 2)
             )
             .accessibilityLabel("accessibility.settings.hint.tooltip")
             .transition(.opacity.animation(.easeInOut(duration: 0.3)))
