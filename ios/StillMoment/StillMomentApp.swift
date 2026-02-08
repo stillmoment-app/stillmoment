@@ -74,7 +74,10 @@ struct StillMomentApp: App {
             }
             .alert(
                 NSLocalizedString("common.error", comment: ""),
-                isPresented: .constant(self.fileOpenErrorMessage != nil)
+                isPresented: Binding(
+                    get: { self.fileOpenErrorMessage != nil },
+                    set: { if !$0 { self.fileOpenErrorMessage = nil } }
+                )
             ) {
                 Button(NSLocalizedString("common.ok", comment: "")) {
                     self.fileOpenErrorMessage = nil

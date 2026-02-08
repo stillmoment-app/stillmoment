@@ -231,6 +231,48 @@ final class FileOpenHandlerTests: XCTestCase {
     }
 
     func testSameNameDifferentSizeIsNotDuplicate() async {
+        // Given - two files with same name but different sizes on disk
+        let incomingURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("meditation.mp3")
+        let existingLocalPath = "existing-\(UUID().uuidString).mp3"
+        let existingURL = self.mockMeditationService.getMeditationsDirectory()
+            .appendingPathComponent(existingLocalPath)
+
+        // Create both files with different sizes
+        let fileManager = FileManager.default
+        try? fileManager.createDirectory(
+            at: self.mockMeditationService.getMeditationsDirectory(),
+            withIntermediateDirectories: true
+        )
+        fileManager.createFile(atPath: incomingURL.path, contents: Data(repeating: 0xAA, count: 1000))
+        fileManager.createFile(atPath: existingURL.path, contents: Data(repeating: 0xBB, count: 2000))
+
+        defer {
+            try? fileManager.removeItem(at: incomingURL)
+            try? fileManager.removeItem(at: existingURL)
+        }
+
+        let existingMeditation = GuidedMeditation(
+            localFilePath: existingLocalPath,
+            fileName: "meditation.mp3",
+            duration: 600,
+            teacher: "Teacher",
+            name: "Existing"
+        )
+        self.mockMeditationService.meditations = [existingMeditation]
+
+        // When
+        let result = await self.sut.handleFileOpen(url: incomingURL)
+
+        // Then - different file size → not a duplicate → import succeeds
+        switch result {
+        case .success:
+            XCTAssertEqual(self.mockMeditationService.meditations.count, 2)
+        case let .failure(error):
+            XCTFail("Same name but different size should not be duplicate, got: \(error)")
+        }
+    }
+
+    func testSameNameWithUnresolvableFileDefaultsToNameOnlyDuplicateCheck() async {
         // Given - existing meditation with same filename but file doesn't exist on disk
         // (fileURL returns nil → falls back to name-only, but when file doesn't exist
         // the mock returns nil for unresolvable files)

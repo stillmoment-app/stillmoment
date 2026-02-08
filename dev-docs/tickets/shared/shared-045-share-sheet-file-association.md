@@ -58,6 +58,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 ### Tests
 - [ ] Unit Tests iOS (URL-Handling, Import-Trigger, Fehlerfaelle)
 - [ ] Unit Tests Android (Intent-Handling, Import-Trigger, Fehlerfaelle)
+- [ ] Kein UI-Test: `simctl openurl` mit `file://`-URLs routet nicht an registrierte Apps (iOS leitet an Files.app weiter). Ein UI-Test muesste die Dateien-App fernsteuern (fragile fremde UI). Der E2E-Flow wird manuell getestet. Ein automatisierter Round-Trip-Test wird moeglich wenn shared-047 (Export) umgesetzt ist.
 
 ### Dokumentation
 - [ ] CHANGELOG.md
@@ -68,7 +69,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ### iOS
 
-- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs (`public.mp3`, `public.mpeg-4-audio`)
+- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs (`public.mp3`, `com.apple.m4a-audio`)
 - `onOpenURL` Handler in der App empfaengt die Datei-URL direkt
 - Deckt ab: Files App ("Oeffnen mit"), Safari Downloads, Mail-Anhaenge
 
