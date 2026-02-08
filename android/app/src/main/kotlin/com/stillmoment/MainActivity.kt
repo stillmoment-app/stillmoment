@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -100,8 +101,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
+        Log.d("FileOpen", "handleIncomingIntent: action=${intent?.action}, data=${intent?.data}")
         if (intent?.action == Intent.ACTION_VIEW) {
             intent.data?.let { uri ->
+                Log.d("FileOpen", "Setting pendingFileUri: $uri")
                 _pendingFileUri.value = uri
             }
         }

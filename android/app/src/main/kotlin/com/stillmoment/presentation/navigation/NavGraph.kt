@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.navigation
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
@@ -329,9 +330,10 @@ private fun FileOpenEffect(
     val currentOnClearFileUri by rememberUpdatedState(onClearFileUri)
 
     LaunchedEffect(fileUri) {
+        Log.d("FileOpen", "LaunchedEffect fired: fileUri=$fileUri, handler=${fileOpenHandler != null}")
         val uri = fileUri ?: return@LaunchedEffect
         val handler = fileOpenHandler ?: return@LaunchedEffect
-        currentOnClearFileUri()
+        Log.d("FileOpen", "Processing file URI: $uri")
 
         navController.navigate(Screen.Library.route) {
             popUpTo(navController.graph.findStartDestination().id) {
@@ -342,11 +344,15 @@ private fun FileOpenEffect(
         }
 
         val result = handler.handleFileOpen(uri)
+        currentOnClearFileUri()
+        Log.d("FileOpen", "handleFileOpen result: ${result.isSuccess}, ${result.exceptionOrNull()?.message}")
         result.fold(
             onSuccess = { meditation ->
+                Log.d("FileOpen", "Import success: ${meditation.fileName}")
                 pendingImportedMeditation.value = meditation
             },
             onFailure = { error ->
+                Log.e("FileOpen", "Import failed", error)
                 val message = when ((error as? FileOpenException)?.error) {
                     FileOpenError.UNSUPPORTED_FORMAT -> errorUnsupportedFormat
                     FileOpenError.ALREADY_IMPORTED -> errorAlreadyImported
