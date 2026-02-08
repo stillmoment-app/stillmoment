@@ -58,7 +58,6 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
@@ -127,9 +126,6 @@ internal fun GuidedMeditationPlayerScreenContent(
     val currentOnClearError by rememberUpdatedState(onClearError)
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Gradient behind everything (full screen)
-        WarmGradientBackground()
-
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent

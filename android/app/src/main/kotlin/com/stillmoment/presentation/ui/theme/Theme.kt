@@ -287,9 +287,9 @@ fun StillMomentTheme(
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
             @Suppress("DEPRECATION")
-            window.statusBarColor = colorScheme.background.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
             @Suppress("DEPRECATION")
-            window.navigationBarColor = colorScheme.background.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
             val isLightAppearance = !darkTheme
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = isLightAppearance

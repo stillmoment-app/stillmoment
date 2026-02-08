@@ -161,9 +161,6 @@ internal fun GuidedMeditationsListScreenContent(
     val currentOnClearError by rememberUpdatedState(onClearError)
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Gradient behind everything
-        WarmGradientBackground()
-
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent
