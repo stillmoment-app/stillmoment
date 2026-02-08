@@ -64,8 +64,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-038](shared/shared-038-import-reibung-eliminieren.md) | ~~Import-Reibung eliminieren~~ (aufgeteilt in 043-045) | 3-Feature | [x] SPLIT | [x] SPLIT |
 | [shared-043](shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [ ] | [ ] |
 | [shared-044](shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [ ] | [ ] |
-| [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [ ] | [ ] |
+| [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [ ] |
 | [shared-046](shared/shared-046-share-extension.md) | Share Extension ("Teilen") | 3-Feature | [ ] | [ ] |
+| [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
 | [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [x] |
@@ -106,6 +107,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-031](ios/ios-031-domain-filemanager-abstraction.md) | Domain FileManager-Abstraktion | 2-Architektur | [x] | shared-024 |
 | [ios-032](ios/ios-032-timer-settings-repository.md) | Timer Settings Repository | 2-Architektur | [x] | shared-024 |
 | [ios-033](ios/ios-033-settingsview-dependency-injection.md) | SettingsView Dependency Injection | 2-Architektur | [ ] | shared-024 |
+| [ios-034](ios/ios-034-picker-label-theme-color.md) | Fehlende Theme-Farben Settings/Tooltip | 4-Polish | [ ] | - |
 
 ---
 

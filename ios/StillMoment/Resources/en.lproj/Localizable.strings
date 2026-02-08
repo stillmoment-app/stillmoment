@@ -239,3 +239,6 @@
 "error.importFailed" = "Failed to import meditation";
 "error.deleteFailed" = "Failed to delete meditation";
 "error.updateFailed" = "Failed to update meditation";
+"error.unsupportedFormat" = "This file format is not supported";
+"error.fileOpenImportFailed" = "The file could not be imported";
+"error.alreadyImported" = "This meditation is already in your library";

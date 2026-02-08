@@ -72,7 +72,7 @@ final class TimerReducerTests: XCTestCase {
         state.selectedMinutes = 10
 
         // When
-        let (newState, effects) = TimerReducer.reduce(
+        let (_, effects) = TimerReducer.reduce(
             state: state,
             action: .startPressed,
             settings: self.defaultSettings

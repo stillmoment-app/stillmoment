@@ -1,6 +1,6 @@
 # Ticket shared-045: File Association ("Oeffnen mit")
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~0.5d | Android ~0.5d
 **Phase**: 3-Feature
@@ -23,7 +23,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -58,6 +58,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 ### Tests
 - [ ] Unit Tests iOS (URL-Handling, Import-Trigger, Fehlerfaelle)
 - [ ] Unit Tests Android (Intent-Handling, Import-Trigger, Fehlerfaelle)
+- [ ] Kein UI-Test: `simctl openurl` mit `file://`-URLs routet nicht an registrierte Apps (iOS leitet an Files.app weiter). Ein UI-Test muesste die Dateien-App fernsteuern (fragile fremde UI). Der E2E-Flow wird manuell getestet. Ein automatisierter Round-Trip-Test wird moeglich wenn shared-047 (Export) umgesetzt ist.
 
 ### Dokumentation
 - [ ] CHANGELOG.md
@@ -68,7 +69,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ### iOS
 
-- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs (`public.mp3`, `public.mpeg-4-audio`)
+- `CFBundleDocumentTypes` in Info.plist fuer MP3/M4A UTIs (`public.mp3`, `com.apple.m4a-audio`)
 - `onOpenURL` Handler in der App empfaengt die Datei-URL direkt
 - Deckt ab: Files App ("Oeffnen mit"), Safari Downloads, Mail-Anhaenge
 
@@ -103,7 +104,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
 | File Association | CFBundleDocumentTypes + onOpenURL | Intent Filter ACTION_VIEW |
-| Format-Filter | UTIs: public.mp3, public.mpeg-4-audio | MIME: audio/mpeg, audio/mp4 |
+| Format-Filter | UTIs: public.mp3, com.apple.m4a-audio | MIME: audio/mpeg, audio/mp4 |
 | Fehler-Anzeige | Alert | Snackbar / Dialog |
 | App-Kaltstart | onOpenURL | onCreate Intent-Handling |
 
@@ -111,7 +112,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ## Referenz
 
-- iOS Info.plist: `ios/StillMoment/Info.plist` (aktuell keine Document Types)
+- iOS Info.plist: `ios/StillMoment/Info.plist` (CFBundleDocumentTypes fuer MP3/M4A)
 - iOS App Entry: `ios/StillMoment/StillMomentApp.swift`
 - Android Manifest: `android/app/src/main/AndroidManifest.xml` (aktuell keine Intent Filter)
 
@@ -123,3 +124,10 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 - Android: Intent Filter fuer `ACTION_VIEW` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`), nicht `audio/*`.
 - Duplikat-Erkennung: Vergleich ueber Dateiname + Dateigroesse.
 - Kein neues Xcode-Target noetig — alles in der Haupt-App.
+
+---
+
+## Bekannte Edge Cases
+
+- **Datei waehrend Timer-Session geoeffnet:** App wechselt zum Library-Tab und zeigt Edit Sheet. Die laufende Timer-Session laeuft im Hintergrund weiter — kein Konflikt, da Timer und Import unterschiedliche Audio-Sessions nutzen.
+- **Grosse Dateien:** Kein Groessen-Limit. Der User entscheidet selbst welche Dateien er importiert. iOS kopiert die Datei in den App-Speicher, der durch das System-Quota begrenzt ist.

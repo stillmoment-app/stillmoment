@@ -149,10 +149,52 @@ Started: $(date '+%Y-%m-%d %H:%M')
 EOF
 echo "Log: $LOG_FILE"
 
-# Run an agent with structured error handling
+# Show progress while agent runs
+monitor_progress() {
+  local phase="$1"
+  local agent_pid="$2"
+  local interval=20
+  local elapsed=0
+
+  while kill -0 "$agent_pid" 2>/dev/null; do
+    sleep "$interval"
+    elapsed=$((elapsed + interval))
+
+    local changed=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
+    local untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
+    local mins=$((elapsed / 60))
+    local secs=$((elapsed % 60))
+
+    local status=""
+    [[ "$changed" -gt 0 ]] && status="${changed} modified"
+    [[ "$untracked" -gt 0 ]] && status="${status:+$status, }${untracked} new"
+    [[ -z "$status" ]] && status="working..."
+
+    printf "  [%s %d:%02d] %s\n" "$phase" "$mins" "$secs" "$status"
+  done
+}
+
+# Run an agent with progress monitoring
 run_agent() {
   local phase="$1"; shift
-  if ! "$@"; then
+
+  # Start agent in background
+  "$@" &
+  local agent_pid=$!
+
+  # Start progress monitor
+  monitor_progress "$phase" "$agent_pid" &
+  local monitor_pid=$!
+
+  # Wait for agent
+  local exit_code=0
+  wait "$agent_pid" || exit_code=$?
+
+  # Stop monitor
+  kill "$monitor_pid" 2>/dev/null || true
+  wait "$monitor_pid" 2>/dev/null || true
+
+  if [[ $exit_code -ne 0 ]]; then
     echo ""
     echo "Error: Agent failed in phase: $phase"
     echo "Log pruefen: $LOG_FILE"

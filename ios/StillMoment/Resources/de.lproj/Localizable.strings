@@ -239,3 +239,6 @@
 "error.importFailed" = "Meditation konnte nicht importiert werden";
 "error.deleteFailed" = "Meditation konnte nicht gelöscht werden";
 "error.updateFailed" = "Meditation konnte nicht aktualisiert werden";
+"error.unsupportedFormat" = "Dieses Dateiformat wird nicht unterstützt";
+"error.fileOpenImportFailed" = "Die Datei konnte nicht importiert werden";
+"error.alreadyImported" = "Diese Meditation ist bereits in deiner Bibliothek";
