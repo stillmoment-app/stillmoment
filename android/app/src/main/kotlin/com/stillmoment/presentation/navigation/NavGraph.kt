@@ -1,12 +1,13 @@
 package com.stillmoment.presentation.navigation
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Timer
@@ -30,12 +31,14 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -65,6 +68,7 @@ import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
@@ -143,7 +147,7 @@ fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
-    pendingFileUri: StateFlow<Uri?>? = null,
+    pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
     navController: NavHostController = rememberNavController()
 ) {
@@ -161,7 +165,7 @@ fun StillMomentNavHost(
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
     val pendingImportedMeditation = remember {
-        kotlinx.coroutines.flow.MutableStateFlow<GuidedMeditation?>(null)
+        MutableStateFlow<GuidedMeditation?>(null)
     }
 
     FileOpenEffect(
@@ -197,7 +201,7 @@ private fun NavHostScaffold(
     snackbarHostState: SnackbarHostState,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: kotlinx.coroutines.flow.MutableStateFlow<GuidedMeditation?>,
+    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>,
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -228,7 +232,7 @@ private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: kotlinx.coroutines.flow.MutableStateFlow<GuidedMeditation?>
+    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         timerNavGraph(navController, settingsState)
@@ -313,27 +317,23 @@ private fun NavGraphBuilder.playerComposable(navController: NavHostController) {
 @Composable
 private fun FileOpenEffect(
     fileOpenHandler: FileOpenHandler?,
-    pendingFileUri: StateFlow<Uri?>?,
+    pendingFileUri: StateFlow<Uri?>,
     onClearFileUri: () -> Unit,
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    pendingImportedMeditation: kotlinx.coroutines.flow.MutableStateFlow<GuidedMeditation?>
+    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>
 ) {
     val errorUnsupportedFormat = stringResource(R.string.error_unsupported_format)
     val errorAlreadyImported = stringResource(R.string.error_already_imported)
     val errorImportFailed = stringResource(R.string.error_import_failed)
 
-    val fileUri by pendingFileUri?.collectAsState() ?: remember {
-        kotlinx.coroutines.flow.MutableStateFlow<Uri?>(null)
-    }.collectAsState()
+    val fileUri by pendingFileUri.collectAsState()
 
     val currentOnClearFileUri by rememberUpdatedState(onClearFileUri)
 
     LaunchedEffect(fileUri) {
-        Log.d("FileOpen", "LaunchedEffect fired: fileUri=$fileUri, handler=${fileOpenHandler != null}")
         val uri = fileUri ?: return@LaunchedEffect
         val handler = fileOpenHandler ?: return@LaunchedEffect
-        Log.d("FileOpen", "Processing file URI: $uri")
 
         navController.navigate(Screen.Library.route) {
             popUpTo(navController.graph.findStartDestination().id) {
@@ -345,14 +345,11 @@ private fun FileOpenEffect(
 
         val result = handler.handleFileOpen(uri)
         currentOnClearFileUri()
-        Log.d("FileOpen", "handleFileOpen result: ${result.isSuccess}, ${result.exceptionOrNull()?.message}")
         result.fold(
             onSuccess = { meditation ->
-                Log.d("FileOpen", "Import success: ${meditation.fileName}")
                 pendingImportedMeditation.value = meditation
             },
             onFailure = { error ->
-                Log.e("FileOpen", "Import failed", error)
                 val message = when ((error as? FileOpenException)?.error) {
                     FileOpenError.UNSUPPORTED_FORMAT -> errorUnsupportedFormat
                     FileOpenError.ALREADY_IMPORTED -> errorAlreadyImported
@@ -375,43 +372,45 @@ private fun StillMomentBottomBar(
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.primary,
-        modifier = modifier
-    ) {
-        tabs.forEach { tabItem ->
-            val selected = currentDestination?.hierarchy?.any { it.route == tabItem.screen.route } == true
-            val accessibilityLabel = stringResource(tabItem.accessibilityResId)
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        NavigationBar(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.widthIn(max = 280.dp)
+        ) {
+            tabs.forEach { tabItem ->
+                val selected = currentDestination?.hierarchy?.any { it.route == tabItem.screen.route } == true
+                val accessibilityLabel = stringResource(tabItem.accessibilityResId)
 
-            NavigationBarItem(
-                selected = selected,
-                onClick = { onTabSelect(tabItem) },
-                icon = {
-                    Icon(
-                        imageVector = if (selected) tabItem.selectedIcon else tabItem.unselectedIcon,
-                        contentDescription = null
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(tabItem.labelResId),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                },
-                colors =
-                NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                ),
-                modifier =
-                Modifier.semantics {
-                    contentDescription = accessibilityLabel
-                }
-            )
+                NavigationBarItem(
+                    selected = selected,
+                    onClick = { onTabSelect(tabItem) },
+                    icon = {
+                        Icon(
+                            imageVector = if (selected) tabItem.selectedIcon else tabItem.unselectedIcon,
+                            contentDescription = null
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = stringResource(tabItem.labelResId),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors =
+                    NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                    ),
+                    modifier =
+                    Modifier.semantics {
+                        contentDescription = accessibilityLabel
+                    }
+                )
+            }
         }
     }
 }

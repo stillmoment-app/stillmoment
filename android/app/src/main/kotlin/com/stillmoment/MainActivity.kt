@@ -4,15 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +21,7 @@ import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
+import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -80,10 +80,8 @@ class MainActivity : ComponentActivity() {
             }
 
             StillMomentTheme(colorTheme = colorTheme, darkTheme = darkTheme) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    WarmGradientBackground()
                     StillMomentNavHost(
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
@@ -101,12 +99,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
-        Log.d("FileOpen", "handleIncomingIntent: action=${intent?.action}, data=${intent?.data}")
-        if (intent?.action == Intent.ACTION_VIEW) {
-            intent.data?.let { uri ->
-                Log.d("FileOpen", "Setting pendingFileUri: $uri")
-                _pendingFileUri.value = uri
+        val uri: Uri? = when (intent?.action) {
+            Intent.ACTION_VIEW -> intent.data
+            Intent.ACTION_SEND -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra(Intent.EXTRA_STREAM)
             }
+            else -> null
         }
+        uri?.let { _pendingFileUri.value = it }
     }
 }

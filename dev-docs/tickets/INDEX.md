@@ -64,7 +64,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-038](shared/shared-038-import-reibung-eliminieren.md) | ~~Import-Reibung eliminieren~~ (aufgeteilt in 043-045) | 3-Feature | [x] SPLIT | [x] SPLIT |
 | [shared-043](shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [ ] | [ ] |
 | [shared-044](shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [ ] | [ ] |
-| [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [ ] |
+| [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [x] |
 | [shared-046](shared/shared-046-share-extension.md) | ~~Share Extension ("Teilen")~~ WONTFIX | 3-Feature | — | — |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
 | [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
@@ -176,6 +176,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [x] | - |
 | [android-061](android/android-061-timer-settings-repository.md) | Timer Settings Repository Abstraktion | 2-Architektur | [x] | shared-024 |
 | [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [ ] | shared-024 |
+| [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [ ] | - |
 
 ---
 

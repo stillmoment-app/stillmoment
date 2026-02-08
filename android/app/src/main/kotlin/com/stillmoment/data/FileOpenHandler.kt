@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,9 +28,12 @@ class FileOpenHandler
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val repository: GuidedMeditationRepository
+    private val repository: GuidedMeditationRepository,
+    private val logger: LoggerProtocol
 ) {
     companion object {
+        private const val TAG = "FileOpen"
+
         /** Supported MIME types for audio import */
         val SUPPORTED_MIME_TYPES = setOf(
             "audio/mpeg",
@@ -65,18 +69,28 @@ constructor(
      * @return Result with the imported GuidedMeditation or a FileOpenError
      */
     suspend fun handleFileOpen(uri: Uri): Result<GuidedMeditation> {
+        logger.d(TAG, "Processing file URI: $uri")
+
         if (!canHandle(uri)) {
+            logger.w(TAG, "Rejected file with unsupported format: $uri")
             return Result.failure(FileOpenException(FileOpenError.UNSUPPORTED_FORMAT))
         }
 
         if (isDuplicate(uri)) {
+            logger.d(TAG, "File already imported: ${getFileName(uri)}")
             return Result.failure(FileOpenException(FileOpenError.ALREADY_IMPORTED))
         }
 
         val importResult = repository.importMeditation(uri)
         return importResult.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED, it)) }
+            onSuccess = {
+                logger.d(TAG, "Import success: ${it.fileName}")
+                Result.success(it)
+            },
+            onFailure = {
+                logger.e(TAG, "Import failed for $uri", it)
+                Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED, it))
+            }
         )
     }
 

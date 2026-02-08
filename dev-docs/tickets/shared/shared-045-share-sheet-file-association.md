@@ -1,6 +1,6 @@
 # Ticket shared-045: File Association ("Oeffnen mit")
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~0.5d | Android ~0.5d
 **Phase**: 3-Feature
@@ -24,13 +24,13 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Scope
 
-- **Nur File Association ("Oeffnen mit").** Share Sheet ("Teilen") ist in shared-046 als separates Ticket.
+- **File Association ("Oeffnen mit") auf beiden Plattformen.** Android unterstuetzt zusaetzlich ACTION_SEND ("Teilen"), da dies trivial moeglich ist. iOS Share Extension bleibt WONTFIX (shared-046).
 - **Einzeldatei-Import.** Mehrere Dateien gleichzeitig sind nicht in-scope (siehe shared-044 Batch Import).
 - **Unterstuetzte Formate: nur MP3 und M4A.** Registrierung nur fuer diese spezifischen Typen, nicht `audio/*`.
 
@@ -75,9 +75,9 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 ### Android
 
-- Intent Filter fuer `ACTION_VIEW` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`)
+- Intent Filter fuer `ACTION_VIEW` und `ACTION_SEND` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`, `audio/x-m4a`)
 - `onCreate` / `onNewIntent` verarbeitet den Intent und triggert Import
-- Deckt ab: Dateimanager, Download-Manager
+- Deckt ab: Dateimanager, Download-Manager, "Teilen"-Menue aus anderen Apps
 
 ---
 
@@ -103,7 +103,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| File Association | CFBundleDocumentTypes + onOpenURL | Intent Filter ACTION_VIEW |
+| File Association | CFBundleDocumentTypes + onOpenURL | Intent Filter ACTION_VIEW + ACTION_SEND |
 | Format-Filter | UTIs: public.mp3, com.apple.m4a-audio | MIME: audio/mpeg, audio/mp4 |
 | Fehler-Anzeige | Alert | Snackbar / Dialog |
 | App-Kaltstart | onOpenURL | onCreate Intent-Handling |
