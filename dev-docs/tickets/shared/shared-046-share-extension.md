@@ -1,9 +1,10 @@
 # Ticket shared-046: Share Extension ("Teilen")
 
-**Status**: [ ] TODO
+**Status**: [x] WONTFIX
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~0.5d
 **Phase**: 3-Feature
+**Abschluss**: File Association (shared-045) + geplanter In-App Import decken den Use Case ab. Share Extension ist unnoetig — Still Moment wuerde in der App-Liste des Teilen-Menues zwischen dutzenden anderen Apps untergehen. Der natuerliche Flow ist: Datei in Downloads sichern, dann in Still Moment importieren.
 
 ---
 
