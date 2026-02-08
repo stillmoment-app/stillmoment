@@ -1,6 +1,6 @@
 # Ticket ios-034: Fehlende Theme-Farben in Settings und Tooltip
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
