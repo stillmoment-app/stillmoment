@@ -174,7 +174,7 @@ fun StillMomentNavHost(
         onClearFileUri = onClearFileUri,
         navController = navController,
         snackbarHostState = snackbarHostState,
-        pendingImportedMeditation = pendingImportedMeditation
+        onMeditationImport = { pendingImportedMeditation.value = it }
     )
 
     NavHostScaffold(
@@ -184,6 +184,7 @@ fun StillMomentNavHost(
         startDestination = startDestination,
         settingsState = settingsState,
         pendingImportedMeditation = pendingImportedMeditation,
+        onClearImportedMeditation = { pendingImportedMeditation.value = null },
         onTabSelect = { tabItem ->
             scope.launch { settingsDataStore.setSelectedTab(tabItem.tab) }
             navController.navigate(tabItem.screen.route) {
@@ -201,7 +202,8 @@ private fun NavHostScaffold(
     snackbarHostState: SnackbarHostState,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>,
+    pendingImportedMeditation: StateFlow<GuidedMeditation?>,
+    onClearImportedMeditation: () -> Unit,
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -222,7 +224,13 @@ private fun NavHostScaffold(
         containerColor = Color.Transparent
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            StillMomentNavContent(navController, startDestination, settingsState, pendingImportedMeditation)
+            StillMomentNavContent(
+                navController,
+                startDestination,
+                settingsState,
+                pendingImportedMeditation,
+                onClearImportedMeditation
+            )
         }
     }
 }
@@ -232,7 +240,8 @@ private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>
+    pendingImportedMeditation: StateFlow<GuidedMeditation?>,
+    onClearImportedMeditation: () -> Unit
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         timerNavGraph(navController, settingsState)
@@ -240,10 +249,11 @@ private fun StillMomentNavContent(
         composable(Screen.Library.route) {
             val importedMeditation by pendingImportedMeditation.collectAsState()
             val listViewModel: GuidedMeditationsListViewModel = hiltViewModel()
+            val currentOnClear by rememberUpdatedState(onClearImportedMeditation)
 
             LaunchedEffect(importedMeditation) {
                 val meditation = importedMeditation ?: return@LaunchedEffect
-                pendingImportedMeditation.value = null
+                currentOnClear()
                 listViewModel.showEditSheet(meditation)
             }
 
@@ -321,7 +331,7 @@ private fun FileOpenEffect(
     onClearFileUri: () -> Unit,
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    pendingImportedMeditation: MutableStateFlow<GuidedMeditation?>
+    onMeditationImport: (GuidedMeditation) -> Unit
 ) {
     val errorUnsupportedFormat = stringResource(R.string.error_unsupported_format)
     val errorAlreadyImported = stringResource(R.string.error_already_imported)
@@ -330,6 +340,7 @@ private fun FileOpenEffect(
     val fileUri by pendingFileUri.collectAsState()
 
     val currentOnClearFileUri by rememberUpdatedState(onClearFileUri)
+    val currentOnMeditationImport by rememberUpdatedState(onMeditationImport)
 
     LaunchedEffect(fileUri) {
         val uri = fileUri ?: return@LaunchedEffect
@@ -347,7 +358,7 @@ private fun FileOpenEffect(
         currentOnClearFileUri()
         result.fold(
             onSuccess = { meditation ->
-                pendingImportedMeditation.value = meditation
+                currentOnMeditationImport(meditation)
             },
             onFailure = { error ->
                 val message = when ((error as? FileOpenException)?.error) {
