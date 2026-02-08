@@ -40,7 +40,7 @@ enum FileOpenError: Error, Equatable, LocalizedError {
 ///
 /// Flow:
 /// 1. Validate file format (MP3/M4A only)
-/// 2. Check for duplicates (same filename)
+/// 2. Check for duplicates (same filename + file size)
 /// 3. Extract metadata via AudioMetadataService
 /// 4. Import via GuidedMeditationService
 @MainActor
@@ -90,7 +90,7 @@ final class FileOpenHandler: ObservableObject {
             return .failure(.unsupportedFormat)
         }
 
-        if self.isDuplicate(fileName: url.lastPathComponent) {
+        if self.isDuplicate(url: url) {
             return .failure(.alreadyImported)
         }
 
@@ -105,11 +105,32 @@ final class FileOpenHandler: ObservableObject {
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol
 
-    /// Checks whether a file with the same name is already in the library
-    private func isDuplicate(fileName: String) -> Bool {
+    /// Checks whether a file with the same name and size is already in the library
+    ///
+    /// Uses both filename and file size to avoid false positives when different files
+    /// share the same name (e.g. multiple "meditation.mp3" from different sources).
+    private func isDuplicate(url: URL) -> Bool {
         do {
             let existing = try self.meditationService.loadMeditations()
-            let found = existing.contains { $0.fileName == fileName }
+            let fileName = url.lastPathComponent
+            let incomingFileSize = self.fileSize(of: url)
+
+            let found = existing.contains { meditation in
+                guard meditation.fileName == fileName else {
+                    return false
+                }
+                guard let incomingSize = incomingFileSize else {
+                    // Cannot determine incoming file size — fall back to name-only check
+                    return true
+                }
+                guard let existingURL = self.meditationService.fileURL(for: meditation) else {
+                    // Cannot resolve existing file — fall back to name-only check
+                    return true
+                }
+                let existingSize = self.fileSize(of: existingURL)
+                return existingSize == incomingSize
+            }
+
             if found {
                 Logger.guidedMeditation.info("Duplicate file detected", metadata: ["fileName": fileName])
             }
@@ -118,6 +139,16 @@ final class FileOpenHandler: ObservableObject {
             Logger.guidedMeditation.error("Failed to load meditations for duplicate check", error: error)
             return false
         }
+    }
+
+    /// Returns the file size in bytes, or nil if the file attributes cannot be read
+    private func fileSize(of url: URL) -> UInt64? {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let size = attributes[.size] as? UInt64
+        else {
+            return nil
+        }
+        return size
     }
 
     /// Performs the actual file import with security-scoped access

@@ -1,6 +1,6 @@
 # Ticket shared-045: File Association ("Oeffnen mit")
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~0.5d | Android ~0.5d
 **Phase**: 3-Feature
@@ -23,7 +23,7 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -123,3 +123,10 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 - Android: Intent Filter fuer `ACTION_VIEW` mit spezifischen MIME-Types (`audio/mpeg`, `audio/mp4`), nicht `audio/*`.
 - Duplikat-Erkennung: Vergleich ueber Dateiname + Dateigroesse.
 - Kein neues Xcode-Target noetig — alles in der Haupt-App.
+
+---
+
+## Bekannte Edge Cases
+
+- **Datei waehrend Timer-Session geoeffnet:** App wechselt zum Library-Tab und zeigt Edit Sheet. Die laufende Timer-Session laeuft im Hintergrund weiter — kein Konflikt, da Timer und Import unterschiedliche Audio-Sessions nutzen.
+- **Grosse Dateien:** Kein Groessen-Limit. Der User entscheidet selbst welche Dateien er importiert. iOS kopiert die Datei in den App-Speicher, der durch das System-Quota begrenzt ist.

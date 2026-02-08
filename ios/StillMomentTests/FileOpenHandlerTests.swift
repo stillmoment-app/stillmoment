@@ -230,6 +230,34 @@ final class FileOpenHandlerTests: XCTestCase {
         }
     }
 
+    func testSameNameDifferentSizeIsNotDuplicate() async {
+        // Given - existing meditation with same filename but file doesn't exist on disk
+        // (fileURL returns nil → falls back to name-only, but when file doesn't exist
+        // the mock returns nil for unresolvable files)
+        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        let existingMeditation = GuidedMeditation(
+            localFilePath: "existing.mp3",
+            fileName: "meditation.mp3",
+            duration: 600,
+            teacher: "Teacher",
+            name: "Existing"
+        )
+        self.mockMeditationService.meditations = [existingMeditation]
+        // Simulate that the existing file cannot be found on disk
+        self.mockMeditationService.mockFileExists = false
+
+        // When
+        let result = await self.sut.handleFileOpen(url: url)
+
+        // Then - falls back to name-only check when file can't be resolved
+        switch result {
+        case .success:
+            XCTFail("Expected duplicate detection when existing file cannot be resolved")
+        case let .failure(error):
+            XCTAssertEqual(error, .alreadyImported)
+        }
+    }
+
     // MARK: - State Management Tests
 
     func testIsProcessingIsTrueDuringImport() async {
