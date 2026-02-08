@@ -44,7 +44,7 @@ extension ThemeColors {
         backgroundSecondary: Color(red: 0.196, green: 0.122, blue: 0.098),
         cardBackground: Color(red: 0.145, green: 0.137, blue: 0.133),
         cardBorder: Color(red: 0.245, green: 0.237, blue: 0.233),
-        ringTrack: Color(red: 0.243, green: 0.145, blue: 0.118),
+        ringTrack: Color(red: 0.632, green: 0.377, blue: 0.307),
         accentBackground: Color(red: 0.365, green: 0.227, blue: 0.184),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
     )
@@ -82,7 +82,7 @@ extension ThemeColors {
         backgroundSecondary: Color(red: 0.102, green: 0.141, blue: 0.106),
         cardBackground: Color(red: 0.133, green: 0.145, blue: 0.137),
         cardBorder: Color(red: 0.233, green: 0.245, blue: 0.237),
-        ringTrack: Color(red: 0.200, green: 0.259, blue: 0.212),
+        ringTrack: Color(red: 0.360, green: 0.466, blue: 0.382),
         accentBackground: Color(red: 0.173, green: 0.231, blue: 0.188),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
     )
