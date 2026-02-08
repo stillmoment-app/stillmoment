@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved (Android)
+- **Semantische Farben in Views** - Alle Views nutzen jetzt die eigenen semantischen Farbrollen statt Material3-Defaults
+  - Timer-Ring: `progress`-Farbe statt `primary`
+  - Toggle/Slider inaktiver Track: `controlTrack`-Farbe (WCAG >= 3:1)
+  - Card-Hintergruende: `cardBackground` statt `surfaceVariant`
+  - Dark Mode: Cards zeigen subtilen Border (`cardBorder`), Light Mode: transparent
+  - Betrifft: TimerFocusScreen, SettingsSheet, GuidedMeditationSettingsSheet, GuidedMeditationPlayerScreen, MeditationListItem, GeneralSettingsSection
+  - Ticket: android-063
+
 ### Improved (iOS)
 - **Theme-Picker Icons + Haptic Feedback** - SF-Symbol-Icons (flame, leaf.fill, moon.fill) fuer visuelle Theme-Orientierung im Picker + Haptic Feedback bei Theme-Wechsel
   - Ticket: shared-034

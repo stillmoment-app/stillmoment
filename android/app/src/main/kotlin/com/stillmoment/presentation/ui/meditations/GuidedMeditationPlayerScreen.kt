@@ -56,6 +56,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -323,7 +324,7 @@ private fun ProgressSection(
             SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
                 activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = MaterialTheme.colorScheme.outline
+                inactiveTrackColor = LocalStillMomentColors.current.controlTrack
             )
         )
 

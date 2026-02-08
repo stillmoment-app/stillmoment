@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,7 @@ import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -273,7 +275,8 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
             ),
             modifier = Modifier
                 .testTag("settings.toggle.preparationTime")
@@ -368,7 +371,8 @@ private fun VolumeSlider(
                 },
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = LocalStillMomentColors.current.controlTrack
             )
         )
         Icon(
@@ -622,7 +626,8 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
             },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
             ),
             modifier = Modifier
                 .testTag("settings.toggle.intervalGongs")
@@ -690,10 +695,11 @@ private fun SettingsCard(modifier: Modifier = Modifier, content: @Composable Col
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = LocalStillMomentColors.current.cardBackground
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, LocalStillMomentColors.current.cardBorder)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

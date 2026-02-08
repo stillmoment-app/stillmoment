@@ -176,7 +176,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [x] | - |
 | [android-061](android/android-061-timer-settings-repository.md) | Timer Settings Repository Abstraktion | 2-Architektur | [x] | shared-024 |
 | [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [ ] | shared-024 |
-| [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [ ] | - |
+| [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [x] | - |
 
 ---
 

@@ -1,6 +1,6 @@
 # Ticket android-063: Semantische Farben in Views konsumieren
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -21,20 +21,20 @@ iOS nutzt diese vier Rollen bereits aktiv (Timer-Ring, custom ToggleStyle, Theme
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Timer-Ring nutzt `progress`-Farbe statt Material3 `primary`
-- [ ] Toggle inaktiver Track nutzt `controlTrack`-Farbe (WCAG >= 3:1 vs Hintergrund)
-- [ ] Slider inaktiver Track nutzt `controlTrack`-Farbe
-- [ ] Card-Hintergruende nutzen `cardBackground`
-- [ ] Dark Mode: Cards zeigen subtilen Border (`cardBorder`)
-- [ ] Light Mode: Cards haben keinen sichtbaren Border (transparent)
-- [ ] Alle drei Themes (Candlelight, Forest, Moon) sehen konsistent aus
+- [x] Timer-Ring nutzt `progress`-Farbe statt Material3 `primary`
+- [x] Toggle inaktiver Track nutzt `controlTrack`-Farbe (WCAG >= 3:1 vs Hintergrund)
+- [x] Slider inaktiver Track nutzt `controlTrack`-Farbe
+- [x] Card-Hintergruende nutzen `cardBackground`
+- [x] Dark Mode: Cards zeigen subtilen Border (`cardBorder`)
+- [x] Light Mode: Cards haben keinen sichtbaren Border (transparent)
+- [x] Alle drei Themes (Candlelight, Forest, Moon) sehen konsistent aus
 
 ### Tests
-- [ ] Bestehende WCAG-Kontrast-Tests bleiben gruen
+- [x] Bestehende WCAG-Kontrast-Tests bleiben gruen
 - [ ] Visueller Vergleich mit iOS-Screenshots fuer alle 6 Theme/Mode-Kombinationen
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
