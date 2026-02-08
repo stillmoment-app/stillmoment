@@ -1,6 +1,6 @@
 # Ticket ios-035: Meditations-Cards visuell vom Hintergrund abheben
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
