@@ -273,6 +273,7 @@ Compose:
     active: true
     allowedCompositionLocals:
       - "LocalIsDarkTheme"
+      - "LocalStillMomentColors"
 
   # --- Material Rules ---
   Material2:

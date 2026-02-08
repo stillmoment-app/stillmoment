@@ -43,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -242,6 +244,7 @@ private fun PreparationTimeDropdown(
 @Composable
 private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
     val preparationContentDescription = stringResource(R.string.accessibility_preparation_time_toggle)
+    val haptic = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -265,6 +268,7 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
         Switch(
             checked = settings.preparationTimeEnabled,
             onCheckedChange = { enabled ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(preparationTimeEnabled = enabled))
             },
             colors = SwitchDefaults.colors(
@@ -583,6 +587,7 @@ private fun IntervalGongsContent(
 @Composable
 private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
     val intervalGongsContentDescription = stringResource(R.string.accessibility_interval_gongs_toggle)
+    val haptic = LocalHapticFeedback.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -612,6 +617,7 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
         Switch(
             checked = settings.intervalGongsEnabled,
             onCheckedChange = { enabled ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(intervalGongsEnabled = enabled))
             },
             colors = SwitchDefaults.colors(

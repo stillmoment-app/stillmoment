@@ -20,6 +20,7 @@ class WCAGContrastTest {
 
     companion object {
         private const val NORMAL_TEXT_MIN_CONTRAST = 4.5
+        private const val NON_TEXT_MIN_CONTRAST = 3.0
     }
 
     // region WCAG Contrast Calculation
@@ -263,6 +264,85 @@ class WCAGContrastTest {
         @Test
         fun `all combinations meet WCAG AA`() {
             assertAllCombinations(moonDark)
+        }
+    }
+
+    // endregion
+
+    // region controlTrack vs cardBackground Tests (WCAG non-text contrast 3:1)
+
+    @Nested
+    inner class ControlTrackContrast {
+        @Test
+        fun `candlelight light controlTrack vs cardBackground`() {
+            assertContrast(
+                CdLightControlTrack,
+                CdLightCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Candlelight Light"
+            )
+        }
+
+        @Test
+        fun `candlelight dark controlTrack vs cardBackground`() {
+            assertContrast(
+                CdDarkControlTrack,
+                CdDarkCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Candlelight Dark"
+            )
+        }
+
+        @Test
+        fun `forest light controlTrack vs cardBackground`() {
+            assertContrast(
+                FoLightControlTrack,
+                FoLightCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Forest Light"
+            )
+        }
+
+        @Test
+        fun `forest dark controlTrack vs cardBackground`() {
+            assertContrast(
+                FoDarkControlTrack,
+                FoDarkCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Forest Dark"
+            )
+        }
+
+        @Test
+        fun `moon light controlTrack vs cardBackground`() {
+            assertContrast(
+                MnLightControlTrack,
+                MnLightCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Moon Light"
+            )
+        }
+
+        @Test
+        fun `moon dark controlTrack vs cardBackground`() {
+            assertContrast(
+                MnDarkControlTrack,
+                MnDarkCardBackground,
+                NON_TEXT_MIN_CONTRAST,
+                "controlTrack",
+                "cardBackground",
+                "Moon Dark"
+            )
         }
     }
 

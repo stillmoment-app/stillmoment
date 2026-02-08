@@ -166,6 +166,11 @@
     <string name="accessibility_theme_picker">Farbthema auswählen</string>
     <string name="accessibility_appearance_picker">Darstellungsmodus auswählen</string>
 
+    <!-- File Open Errors -->
+    <string name="error_unsupported_format">Dieses Dateiformat wird nicht unterstützt. Nur MP3- und M4A-Dateien können importiert werden.</string>
+    <string name="error_already_imported">Diese Meditation ist bereits in deiner Bibliothek.</string>
+    <string name="error_import_failed">Die Datei konnte nicht importiert werden. Bitte versuche es erneut.</string>
+
     <!-- Settings Hint -->
     <string name="settings_hint_text">Passe Klänge &amp; Gongs an</string>
     <string name="accessibility_settings_hint">Hinweis: Tippe hier, um Klänge und Gongs anzupassen</string>
