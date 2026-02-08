@@ -106,7 +106,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-030](ios/ios-030-screenshot-tests-ohne-launch-args.md) | Screenshot-Tests ohne Launch-Arguments | 2-Architektur | [ ] | - |
 | [ios-031](ios/ios-031-domain-filemanager-abstraction.md) | Domain FileManager-Abstraktion | 2-Architektur | [x] | shared-024 |
 | [ios-032](ios/ios-032-timer-settings-repository.md) | Timer Settings Repository | 2-Architektur | [x] | shared-024 |
-| [ios-033](ios/ios-033-settingsview-dependency-injection.md) | SettingsView Dependency Injection | 2-Architektur | [ ] | shared-024 |
+| [ios-033](ios/ios-033-settingsview-dependency-injection.md) | SettingsView Dependency Injection | 2-Architektur | [x] | shared-024 |
 | [ios-034](ios/ios-034-picker-label-theme-color.md) | Fehlende Theme-Farben Settings/Tooltip | 4-Polish | [x] | - |
 | [ios-035](ios/ios-035-card-visual-separation.md) | Meditations-Cards visuell abheben | 4-Polish | [x] | - |
 | [ios-036](ios/ios-036-toggle-slider-theme-visibility.md) | Toggle/Slider Controls Theme-Sichtbarkeit | 4-Polish | [x] | - |
@@ -175,7 +175,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-059](android/android-059-settings-card-layout.md) | SettingsSheet Card-Layout | 4-Polish | [x] | - |
 | [android-060](android/android-060-dropdown-styling.md) | Dropdown-Styling an iOS angleichen | 4-Polish | [x] | - |
 | [android-061](android/android-061-timer-settings-repository.md) | Timer Settings Repository Abstraktion | 2-Architektur | [x] | shared-024 |
-| [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [ ] | shared-024 |
+| [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [x] | shared-024 |
 | [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [x] | - |
 
 ---

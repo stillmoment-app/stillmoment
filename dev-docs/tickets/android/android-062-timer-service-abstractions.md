@@ -1,6 +1,6 @@
 # Ticket android-062: Timer Service Abstraktionen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: shared-024
