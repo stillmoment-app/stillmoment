@@ -96,9 +96,12 @@ struct GuidedMeditationEditSheet: View {
                 }
                 .scrollContentBackground(.hidden)
             }
-            .navigationTitle("guided_meditations.edit.title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("guided_meditations.edit.title", bundle: .main)
+                        .themeFont(.inlineNavigationTitle)
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button(NSLocalizedString("common.cancel", comment: "")) {
                         self.onCancel()

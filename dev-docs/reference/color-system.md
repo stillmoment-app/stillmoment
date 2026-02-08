@@ -1,23 +1,29 @@
-# Color System
+# Design System (Farben + Typografie)
 
-Dokumentation des Farb-Handlings fuer Still Moment. Diese Datei dient als Referenz fuer konsistente Farbverwendung.
+Dokumentation des visuellen Design Systems fuer Still Moment (iOS). Farben und Typografie sind als ein zusammenhaengender Cross-Cutting Concern implementiert — ein Pattern, eine Architektur.
 
 ## Grundprinzip
 
-**Niemals direkte Farben verwenden** - immer semantische Farbrollen aus `@Environment(\.themeColors)`.
+**Niemals direkte Farben oder Fonts verwenden** — immer semantische Rollen aus dem Design System.
 
 ```swift
-// ❌ FALSCH - statische Color-Properties (nicht reaktiv)
+// FALSCH - statische Properties (nicht reaktiv), direkte Fonts
 .foregroundColor(.warmBlack)
 .foregroundColor(Color.textPrimary)
+.font(.system(size: 16))
 
-// ✅ RICHTIG - Environment-basierte Theme-Farben
+// RICHTIG - Environment-basierte Theme-Farben + Typography Roles
 @Environment(\.themeColors)
 private var theme
 
-.foregroundColor(self.theme.textPrimary)
-.foregroundColor(self.theme.textSecondary)
-.foregroundColor(self.theme.interactive)
+Text("welcome.title", bundle: .main)
+    .themeFont(.screenTitle)                    // setzt Font UND Farbe
+
+Text(error)
+    .themeFont(.caption, color: \.error)        // Farb-Override
+
+Image(systemName: "play.circle")
+    .foregroundColor(self.theme.interactive)     // Icons: nur Farbe
 ```
 
 ## Architektur
@@ -32,6 +38,8 @@ ThemeRootView (Presentation) - Liest colorScheme + Theme, injiziert ThemeColors
 ThemeColors (Presentation)   - Struct mit allen aufgeloesten Farbwerten
     |
 @Environment(\.themeColors)  - Views lesen Farben reaktiv
+    |
+.themeFont(.role)            - ViewModifier: setzt Font + Farbe atomar
 ```
 
 **Warum Environment statt statische Properties?**
@@ -45,12 +53,14 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 | `Presentation/Theme/ThemeColors.swift` | ThemeColors struct + EnvironmentKey + resolve() |
 | `Presentation/Theme/ThemeColors+Palettes.swift` | 6 Paletten mit konkreten RGB-Werten (3 light + 3 dark) |
 | `Presentation/Theme/ThemeManager.swift` | ObservableObject mit @AppStorage |
-| `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar |
+| `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar + Tint |
 | `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
+| `Presentation/Views/Shared/Font+Theme.swift` | Typography System: TypographyRole + ThemeTypographyModifier |
+| `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
 | `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
 | `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
-| `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
-| `Presentation/Views/Shared/Font+Theme.swift` | Text Styles mit ViewModifier-Bridge |
+
+---
 
 ## Semantische Farbrollen
 
@@ -59,12 +69,13 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 | Rolle | Verwendung |
 |-------|------------|
 | `.textPrimary` | Haupttext, Ueberschriften |
-| `.textSecondary` | Nebentext, Hinweise, Icons |
+| `.textSecondary` | Nebentext, Hinweise, Section Headers |
 | `.textOnInteractive` | Text auf farbigen Buttons |
-| `.interactive` | Buttons, Icons, Slider, Links |
+| `.interactive` | Buttons, Icons, Slider, Links, Teacher-Name |
 | `.progress` | Timer-Ring, Fortschrittsanzeigen |
 | `.backgroundPrimary` | Primaerer Hintergrund |
 | `.backgroundSecondary` | Sekundaerer Hintergrund, TabBar |
+| `.cardBackground` | Karten-Hintergrund (Light: = backgroundPrimary, Dark: eigener Wert) |
 | `.ringTrack` | Timer-Ring Hintergrund |
 | `.accentBackground` | Dekorativer Akzent-Hintergrund |
 | `.error` | Fehlermeldungen |
@@ -72,8 +83,73 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 ### Gradient
 
 ```swift
-self.theme.backgroundGradient  // LinearGradient: backgroundPrimary → backgroundSecondary → accentBackground
+self.theme.backgroundGradient  // LinearGradient: backgroundPrimary -> backgroundSecondary -> accentBackground
 ```
+
+---
+
+## Typography System
+
+Definiert in `Font+Theme.swift`. Jede `TypographyRole` kapselt Font-Groesse, Weight, Design und Default-Farbe.
+
+### Aufruf
+
+```swift
+.themeFont(.screenTitle)                           // Standard: Font + Default-Farbe
+.themeFont(.timerCountdown, size: isCompact ? 80 : nil)  // Responsive Groesse
+.themeFont(.caption, color: \.error)               // Farb-Override
+```
+
+**Wichtig:** `.themeFont()` setzt immer BEIDES — `.font()` UND `.foregroundColor()`. Nie zusaetzlich `.foregroundColor()` auf denselben Text setzen.
+
+### Typography Roles (21 Rollen)
+
+| Gruppe | Rolle | FontSpec | Default-Farbe |
+|--------|-------|----------|---------------|
+| Timer | `timerCountdown` | fixed 100pt ultraLight | textPrimary |
+| Timer | `timerRunning` | fixed 60pt thin | textPrimary |
+| Headings | `screenTitle` | fixed 28pt light | textPrimary |
+| Headings | `inlineNavigationTitle` | dynamic .headline | textPrimary |
+| Headings | `sectionTitle` | fixed 20pt light | textPrimary |
+| Body | `bodyPrimary` | fixed 16pt regular | textPrimary |
+| Body | `bodySecondary` | fixed 15pt light | textSecondary |
+| Body | `caption` | dynamic .caption regular | textSecondary |
+| Settings | `settingsLabel` | fixed 17pt regular | textPrimary |
+| Settings | `settingsDescription` | fixed 13pt regular | textSecondary |
+| Player | `playerTitle` | fixed 28pt semibold | textPrimary |
+| Player | `playerTeacher` | fixed 20pt medium | interactive |
+| Player | `playerTimestamp` | dynamic .caption regular | textSecondary |
+| Player | `playerCountdown` | fixed 32pt light | textPrimary |
+| List | `listTitle` | dynamic .headline | textPrimary |
+| List | `listSubtitle` | dynamic .subheadline regular | textSecondary |
+| List | `listBody` | dynamic .body regular | textSecondary |
+| List | `listSectionTitle` | dynamic .title2 medium | textPrimary |
+| List | `listActionLabel` | dynamic .body medium | textPrimary |
+| Edit | `editLabel` | dynamic .subheadline medium | textPrimary |
+| Edit | `editCaption` | dynamic .caption regular | textSecondary |
+
+Alle Rollen verwenden `.rounded` Design. Unit Tests (`TypographyTests`) pruefen das exhaustiv.
+
+### FontSpec-Typen
+
+- **`.fixed(size:weight:design:)`** — Explizite Groesse. Fuer Timer, Headings, Settings, Player. Unterstuetzt `size:`-Override fuer responsive Layouts.
+- **`.dynamic(style:weight:design:)`** — Dynamic Type. Skaliert mit der Benutzer-Textgroessen-Einstellung. Fuer Listen, Captions, Navigation Titles. Kein `size:`-Override (Assert schlaegt fehl).
+
+### Dark Mode Halation-Kompensation
+
+Helle Schrift auf dunklem Hintergrund wirkt duenner. Der Modifier kompensiert automatisch:
+
+| Light Mode Weight | Dark Mode Weight |
+|-------------------|------------------|
+| ultraLight | thin |
+| thin | light |
+| light | regular |
+| regular | medium |
+| medium+ | unveraendert |
+
+Views muessen nichts tun — die Kompensation ist in `ThemeTypographyModifier` gekapselt.
+
+---
 
 ## Themes
 
@@ -82,26 +158,56 @@ self.theme.backgroundGradient  // LinearGradient: backgroundPrimary → backgrou
 | Theme | Light | Dark | Typ |
 |-------|-------|------|-----|
 | Candlelight (Default) | `candlelightLight` | `candlelightDark` | Warm/Sand |
-| Forest | `forestLight` | `forestDark` | Kuehle Natur |
-| Moon | `moonLight` | `moonDark` | Kuehle Nacht |
+| Forest | `forestLight` | `forestDark` | Warm-neutral Natur |
+| Moon | `moonLight` | `moonDark` | Silber/Indigo Nacht |
+
+---
 
 ## WCAG 2.1 AA Kontrast-Validierung
 
 Alle Text-auf-Hintergrund-Kombinationen erfuellen WCAG 2.1 AA. Automatisiert geprueft durch Unit Tests (`WCAGContrastTests` iOS, `WCAGContrastTest` Android).
 
-**Schwellenwerte:** Normaler Text ≥ 4.5:1 | Grosser Text (≥18pt regular / ≥14pt bold) ≥ 3:1
+**Schwellenwerte:** Normaler Text >= 4.5:1 | Grosser Text (>=18pt regular / >=14pt bold) >= 3:1
 
-| Kombination | Cd Light | Cd Dark | Fo Light | Fo Dark | Mn Light | Mn Dark | Min |
-|-------------|:--------:|:-------:|:--------:|:-------:|:--------:|:-------:|:---:|
-| textPrimary / backgroundPrimary | 10.4 | 13.8 | 12.0 | 16.0 | 11.2 | 19.8 | 4.5 |
-| textPrimary / backgroundSecondary | 8.8 | 11.5 | 9.7 | 13.7 | 9.4 | 17.1 | 4.5 |
-| textSecondary / backgroundPrimary | 5.6 | 5.8 | 5.7 | 6.0 | 5.6 | 8.1 | 4.5 |
-| textSecondary / backgroundSecondary | 4.7 | 4.9 | 4.6 | 5.1 | 4.7 | 7.0 | 4.5 |
-| textOnInteractive / interactive | 4.7 | 5.8 | 7.3 | 4.8 | 7.8 | 6.9 | 4.5 |
-| interactive / backgroundPrimary | 4.5 | 5.8 | 6.4 | 4.8 | 6.6 | 6.9 | 4.5 |
-| error / backgroundPrimary | 6.3 | 5.3 | 5.3 | 5.3 | 4.9 | 5.9 | 4.5 |
+Getestete Kombinationen pro Palette (11 Checks):
 
-Paletten-Anpassungen (shared-035): Candlelight Light `textSecondary`/`interactive` abgedunkelt, Forest komplett ueberarbeitet (warm-neutral statt kuehl-gruen), Moon Light `backgroundPrimary` abgedunkelt fuer besseren Kontrast.
+| Kombination | Min. Ratio |
+|-------------|:----------:|
+| textPrimary / backgroundPrimary | 4.5 |
+| textPrimary / backgroundSecondary | 4.5 |
+| textPrimary / cardBackground | 4.5 |
+| textSecondary / backgroundPrimary | 4.5 |
+| textSecondary / backgroundSecondary | 4.5 |
+| textSecondary / cardBackground | 4.5 |
+| textOnInteractive / interactive | 4.5 |
+| interactive / backgroundPrimary | 4.5 |
+| interactive / cardBackground | 4.5 |
+| interactive / backgroundSecondary | 4.5 |
+| error / backgroundPrimary | 4.5 |
+
+---
+
+## ButtonStyle + ViewModifier-Bridge
+
+`ButtonStyle.makeBody()` ist ein Protokoll-Callback ohne Zugriff auf `@Environment`. Loesung: ViewModifier-Bridge.
+
+```swift
+// ViewModifier liest Environment, uebergibt an ButtonStyle
+private struct WarmPrimaryButtonModifier: ViewModifier {
+    @Environment(\.themeColors) private var theme
+    func body(content: Content) -> some View {
+        content.buttonStyle(ButtonStyles.WarmPrimary(colors: self.theme))
+    }
+}
+
+// Call Sites:
+Button("Start") { }.warmPrimaryButton()
+Button("Cancel") { }.warmSecondaryButton()
+```
+
+Button-Font (18pt medium rounded) ist direkt im ButtonStyle definiert — nicht Teil des Typography-Systems. Das ist akzeptabel, weil `medium` keine Dark-Mode-Kompensation benoetigt (Kompensation greift nur bei Weights <= regular).
+
+---
 
 ## Opacity Design Tokens
 
@@ -114,24 +220,7 @@ Definiert als `Double` Extension in `Double+Opacity.swift`:
 | `.opacitySecondary` | 0.5 | Sekundaere/deaktivierte Elemente |
 | `.opacityTertiary` | 0.7 | Tertiaere/Hint-Elemente |
 
-## ButtonStyle + ViewModifier-Bridge
-
-`ButtonStyle` kann kein `@Environment` lesen (Protokoll erhaelt nur `Configuration`). Loesung: ViewModifier-Bridge.
-
-```swift
-// ViewModifier liest Environment, uebergibt an ButtonStyle
-private struct WarmPrimaryButtonModifier: ViewModifier {
-    @Environment(\.themeColors) private var theme
-    func body(content: Content) -> some View {
-        content.buttonStyle(ButtonStyles.WarmPrimary(colors: self.theme))
-    }
-}
-
-// Call Sites bleiben unveraendert:
-Button("Start") { }.warmPrimaryButton()
-```
-
-Typography nutzt denselben ViewModifier-Bridge-Pattern: `.themeFont(.settingsLabel)` in `Font+Theme.swift` (siehe shared-037).
+---
 
 ## View-Struktur mit Gradient
 
@@ -154,21 +243,32 @@ var body: some View {
 }
 ```
 
+---
+
 ## Checkliste fuer neue Views
 
-1. [ ] `@Environment(\.themeColors) private var theme` (zwei Zeilen!)
+1. [ ] `@Environment(\.themeColors) private var theme`
 2. [ ] `self.theme.backgroundGradient` als Hintergrund
 3. [ ] `.scrollContentBackground(.hidden)` bei Forms/Lists
-4. [ ] Alle Text-Farben mit `self.theme.xxx`
-5. [ ] Toolbar-Buttons: Cancel=theme.textSecondary, Confirm=theme.interactive
-6. [ ] Keine statischen `Color.xxx` Referenzen
+4. [ ] `.themeFont(.role)` fuer allen Text — nie direktes `.font()`
+5. [ ] Label-Closure-Syntax fuer Picker/Toggle/DatePicker (String-Parameter ignorieren `.themeFont()`)
+6. [ ] Icons: `.foregroundColor(self.theme.xxx)` + `.font(.system(size:))` (kein `.themeFont()`)
+7. [ ] Section Headers: nur `.foregroundColor(self.theme.textSecondary)` (System-Font beibehalten)
+8. [ ] Toolbar-Buttons: Cancel=theme.textSecondary, Confirm=theme.interactive
+9. [ ] Keine statischen `Color.xxx` Referenzen
+10. [ ] Keine direkten `.font(.system(...))` auf Text-Elemente
+
+---
 
 ## Bekannte Einschraenkungen
 
 - **iOS 16.0-16.3**: Sheets erben Custom-Environment moeglicherweise nicht. Ggf. explizit `.environment(\.themeColors)` auf Sheets setzen.
-- **TabBar**: `.toolbarBackground()` statt `UITabBar.appearance()` - letzteres ist nicht reaktiv.
-- **`@AppStorage` in ThemeManager**: `@AppStorage` triggert `objectWillChange` bei `ObservableObject` - funktioniert, ist aber kein offiziell dokumentiertes Verhalten.
+- **TabBar**: `.toolbarBackground()` statt `UITabBar.appearance()` — letzteres ist nicht reaktiv.
+- **`@AppStorage` in ThemeManager**: `@AppStorage` triggert `objectWillChange` bei `ObservableObject` — funktioniert, ist aber kein offiziell dokumentiertes Verhalten.
+- **`.navigationTitle()` ist eine UIKit-Bridge**: Nutzt NICHT `@Environment(\.themeColors)`, folgt `UITraitCollection`. Fix: `.toolbar(.principal) { Text("...").themeFont(.inlineNavigationTitle) }` statt `.navigationTitle()`.
+- **Picker `.menu`-Style**: Options im Menu-Dropdown werden von UIKit gerendert und koennen nicht mit `.themeFont()` gestylt werden.
+- **Button-Font**: 18pt medium rounded ist direkt in `ButtonStyles.swift` definiert, nicht im Typography-System. Akzeptabel weil keine Dark-Mode-Kompensation noetig.
 
 ---
 
-**Last Updated**: 2026-02-06
+**Last Updated**: 2026-02-08

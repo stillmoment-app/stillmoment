@@ -31,20 +31,20 @@ struct GeneralSettingsSection: View {
             .pickerStyle(.menu)
             .accessibilityIdentifier("settings.picker.theme")
             .accessibilityLabel("settings.theme.title")
-            .listRowBackground(self.theme.backgroundPrimary)
+            .listRowBackground(self.theme.cardBackground)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("settings.appearance.title", bundle: .main)
-                    .themeFont(.settingsDescription)
+                    .themeFont(.settingsLabel)
 
-                Picker(
-                    NSLocalizedString("settings.appearance.title", comment: ""),
-                    selection: self.$themeManager.appearanceMode
-                ) {
+                Picker(selection: self.$themeManager.appearanceMode) {
                     ForEach(AppearanceMode.allCases, id: \.self) { mode in
                         Text(mode.localizedName)
                             .tag(mode)
                     }
+                } label: {
+                    Text("settings.appearance.title", bundle: .main)
+                        .themeFont(.settingsLabel)
                 }
                 .pickerStyle(.segmented)
                 .accessibilityIdentifier("settings.picker.appearance")
@@ -52,7 +52,7 @@ struct GeneralSettingsSection: View {
                     NSLocalizedString("settings.appearance.title", comment: "")
                 )
             }
-            .listRowBackground(self.theme.backgroundPrimary)
+            .listRowBackground(self.theme.cardBackground)
         } header: {
             Text("settings.general.header", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)

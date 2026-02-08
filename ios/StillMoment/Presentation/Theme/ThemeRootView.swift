@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ThemeRootView<Content: View>: View {
     @EnvironmentObject private var themeManager: ThemeManager
@@ -29,5 +30,24 @@ struct ThemeRootView<Content: View>: View {
             .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
             .preferredColorScheme(self.themeManager.preferredColorScheme)
+            .onAppear { self.configureSegmentedControlAppearance() }
+            .onChange(of: self.resolvedColors) { _ in
+                self.configureSegmentedControlAppearance()
+            }
+    }
+
+    private func configureSegmentedControlAppearance() {
+        let normalColor = UIColor(self.resolvedColors.textPrimary)
+        let selectedColor = UIColor(self.resolvedColors.textOnInteractive)
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [.foregroundColor: normalColor],
+            for: .normal
+        )
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [.foregroundColor: selectedColor],
+            for: .selected
+        )
+        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(self.resolvedColors.interactive)
+        UISegmentedControl.appearance().backgroundColor = UIColor(self.resolvedColors.cardBackground)
     }
 }

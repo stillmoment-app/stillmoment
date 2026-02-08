@@ -20,10 +20,11 @@ extension ThemeColors {
         textPrimary: Color(red: 0.290, green: 0.231, blue: 0.196),
         textSecondary: Color(red: 0.541, green: 0.353, blue: 0.325),
         textOnInteractive: .white,
-        interactive: Color(red: 0.690, green: 0.361, blue: 0.298),
-        progress: Color(red: 0.690, green: 0.361, blue: 0.298),
+        interactive: Color(red: 0.620, green: 0.325, blue: 0.267),
+        progress: Color(red: 0.620, green: 0.325, blue: 0.267),
         backgroundPrimary: Color(red: 1.000, green: 0.984, blue: 0.961),
         backgroundSecondary: Color(red: 1.000, green: 0.894, blue: 0.839),
+        cardBackground: Color(red: 1.000, green: 0.984, blue: 0.961),
         ringTrack: Color(red: 0.784, green: 0.655, blue: 0.588),
         accentBackground: Color(red: 1.000, green: 0.796, blue: 0.643),
         error: Color(red: 0.729, green: 0.102, blue: 0.102)
@@ -38,6 +39,7 @@ extension ThemeColors {
         progress: Color(red: 0.780, green: 0.490, blue: 0.388),
         backgroundPrimary: Color(red: 0.102, green: 0.063, blue: 0.047),
         backgroundSecondary: Color(red: 0.196, green: 0.122, blue: 0.098),
+        cardBackground: Color(red: 0.145, green: 0.137, blue: 0.133),
         ringTrack: Color(red: 0.243, green: 0.145, blue: 0.118),
         accentBackground: Color(red: 0.365, green: 0.227, blue: 0.184),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
@@ -56,6 +58,7 @@ extension ThemeColors {
         progress: Color(red: 0.322, green: 0.329, blue: 0.255),
         backgroundPrimary: Color(red: 0.922, green: 0.914, blue: 0.871),
         backgroundSecondary: Color(red: 0.839, green: 0.827, blue: 0.773),
+        cardBackground: Color(red: 0.922, green: 0.914, blue: 0.871),
         ringTrack: Color(red: 0.620, green: 0.616, blue: 0.561),
         accentBackground: Color(red: 0.690, green: 0.686, blue: 0.612),
         error: Color(red: 0.729, green: 0.102, blue: 0.102)
@@ -66,10 +69,11 @@ extension ThemeColors {
         textPrimary: Color(red: 0.918, green: 0.937, blue: 0.918),
         textSecondary: Color(red: 0.522, green: 0.588, blue: 0.533),
         textOnInteractive: Color(red: 0.059, green: 0.078, blue: 0.059),
-        interactive: Color(red: 0.392, green: 0.541, blue: 0.420),
-        progress: Color(red: 0.392, green: 0.541, blue: 0.420),
+        interactive: Color(red: 0.440, green: 0.590, blue: 0.465),
+        progress: Color(red: 0.440, green: 0.590, blue: 0.465),
         backgroundPrimary: Color(red: 0.059, green: 0.078, blue: 0.059),
         backgroundSecondary: Color(red: 0.102, green: 0.141, blue: 0.106),
+        cardBackground: Color(red: 0.133, green: 0.145, blue: 0.137),
         ringTrack: Color(red: 0.200, green: 0.259, blue: 0.212),
         accentBackground: Color(red: 0.173, green: 0.231, blue: 0.188),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
@@ -88,6 +92,7 @@ extension ThemeColors {
         progress: Color(red: 0.200, green: 0.306, blue: 0.408),
         backgroundPrimary: Color(red: 0.851, green: 0.886, blue: 0.925),
         backgroundSecondary: Color(red: 0.773, green: 0.816, blue: 0.871),
+        cardBackground: Color(red: 0.851, green: 0.886, blue: 0.925),
         ringTrack: Color(red: 0.510, green: 0.604, blue: 0.694),
         accentBackground: Color(red: 0.624, green: 0.702, blue: 0.784),
         error: Color(red: 0.729, green: 0.102, blue: 0.102)
@@ -102,6 +107,7 @@ extension ThemeColors {
         progress: Color(red: 0.506, green: 0.549, blue: 0.973),
         backgroundPrimary: Color(red: 0.008, green: 0.008, blue: 0.020),
         backgroundSecondary: Color(red: 0.059, green: 0.090, blue: 0.165),
+        cardBackground: Color(red: 0.133, green: 0.137, blue: 0.157),
         ringTrack: Color(red: 0.278, green: 0.333, blue: 0.412),
         accentBackground: Color(red: 0.192, green: 0.180, blue: 0.506),
         error: Color(red: 0.878, green: 0.380, blue: 0.318)

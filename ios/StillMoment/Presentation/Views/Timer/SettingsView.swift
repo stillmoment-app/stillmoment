@@ -52,7 +52,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.preparationTime")
                         .accessibilityLabel("accessibility.preparationTime")
                         .accessibilityHint("accessibility.preparationTime.hint")
-                        .listRowBackground(self.theme.backgroundPrimary)
+                        .listRowBackground(self.theme.cardBackground)
 
                         if self.settings.preparationTimeEnabled {
                             Picker(selection: self.$settings.preparationTimeSeconds) {
@@ -70,7 +70,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
                             .accessibilityLabel("accessibility.preparationTimeDuration")
                             .accessibilityHint("accessibility.preparationTimeDuration.hint")
-                            .listRowBackground(self.theme.backgroundPrimary)
+                            .listRowBackground(self.theme.cardBackground)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
@@ -95,7 +95,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.picker.startGongSound")
                         .accessibilityLabel("accessibility.startGongSound")
                         .accessibilityHint("accessibility.startGongSound.hint")
-                        .listRowBackground(self.theme.backgroundPrimary)
+                        .listRowBackground(self.theme.cardBackground)
 
                         // Gong volume slider
                         VolumeSliderRow(
@@ -118,7 +118,7 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.toggle.intervalGongs")
                         .accessibilityLabel("accessibility.intervalGongs")
                         .accessibilityHint("accessibility.intervalGongs.hint")
-                        .listRowBackground(self.theme.backgroundPrimary)
+                        .listRowBackground(self.theme.cardBackground)
 
                         if self.settings.intervalGongsEnabled {
                             VolumeSliderRow(
@@ -143,7 +143,7 @@ struct SettingsView: View {
                             .accessibilityIdentifier("settings.picker.intervalMinutes")
                             .accessibilityLabel("accessibility.intervalDuration")
                             .accessibilityHint("accessibility.intervalDuration.hint")
-                            .listRowBackground(self.theme.backgroundPrimary)
+                            .listRowBackground(self.theme.cardBackground)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                         }
                     } header: {
@@ -177,7 +177,7 @@ struct SettingsView: View {
                                 comment: "Accessibility hint for sound selection"
                             )
                         )
-                        .listRowBackground(self.theme.backgroundPrimary)
+                        .listRowBackground(self.theme.cardBackground)
 
                         // Volume slider - only shown when a non-silent sound is selected
                         if self.settings.backgroundSoundId != "silent" {
@@ -201,9 +201,12 @@ struct SettingsView: View {
                     GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
-                .navigationTitle(NSLocalizedString("settings.title", comment: ""))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("settings.title", bundle: .main)
+                            .themeFont(.inlineNavigationTitle)
+                    }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onDismiss()
@@ -268,7 +271,7 @@ private struct VolumeSliderRow: View {
         .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))
         .accessibilityValue(String(format: "%.0f%%", self.volume * 100))
         .accessibilityHint(NSLocalizedString(self.accessibilityHintKey, comment: ""))
-        .listRowBackground(self.theme.backgroundPrimary)
+        .listRowBackground(self.theme.cardBackground)
     }
 }
 

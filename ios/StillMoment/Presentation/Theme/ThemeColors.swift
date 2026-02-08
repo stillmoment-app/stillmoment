@@ -27,6 +27,7 @@ struct ThemeColors: Equatable {
 
     let backgroundPrimary: Color
     let backgroundSecondary: Color
+    let cardBackground: Color
     let ringTrack: Color
     let accentBackground: Color
 

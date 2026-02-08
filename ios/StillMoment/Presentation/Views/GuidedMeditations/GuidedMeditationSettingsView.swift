@@ -42,7 +42,7 @@ struct GuidedMeditationSettingsView: View {
                             }
                         }
                         .accessibilityIdentifier("guidedMeditation.toggle.preparationTime")
-                        .listRowBackground(self.theme.backgroundPrimary)
+                        .listRowBackground(self.theme.cardBackground)
                         .onChange(of: self.preparationTimeEnabled) { newValue in
                             if newValue {
                                 self.localSettings = self.localSettings.withPreparationTime(
@@ -64,7 +64,7 @@ struct GuidedMeditationSettingsView: View {
                             }
                             .pickerStyle(.menu)
                             .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")
-                            .listRowBackground(self.theme.backgroundPrimary)
+                            .listRowBackground(self.theme.cardBackground)
                             .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                             .onChange(of: self.preparationTimeSeconds) { newValue in
                                 self.localSettings = self.localSettings.withPreparationTime(newValue)
@@ -78,9 +78,12 @@ struct GuidedMeditationSettingsView: View {
                     GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
-                .navigationTitle(NSLocalizedString("guided_meditations.settings.title", comment: ""))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("guided_meditations.settings.title", bundle: .main)
+                            .themeFont(.inlineNavigationTitle)
+                    }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onSave(self.localSettings)

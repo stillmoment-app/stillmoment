@@ -59,9 +59,12 @@ struct GuidedMeditationsListView: View {
                     .background(self.theme.textPrimary.opacity(.opacityOverlay))
             }
         }
-        .navigationTitle("guided_meditations.title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("guided_meditations.title", bundle: .main)
+                    .themeFont(.inlineNavigationTitle)
+            }
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     self.viewModel.showDocumentPicker()
@@ -202,7 +205,7 @@ struct GuidedMeditationsListView: View {
         .padding(32)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(self.theme.backgroundPrimary)
+                .fill(self.theme.cardBackground)
                 .shadow(radius: 8)
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -277,7 +280,7 @@ struct GuidedMeditationsListView: View {
             }
             .padding(.vertical, 4)
         }
-        .listRowBackground(self.theme.backgroundPrimary)
+        .listRowBackground(self.theme.cardBackground)
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }

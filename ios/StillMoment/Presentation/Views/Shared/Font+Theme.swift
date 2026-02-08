@@ -26,6 +26,7 @@ enum TypographyRole: CaseIterable {
 
     // Headings
     case screenTitle
+    case inlineNavigationTitle
     case sectionTitle
 
     // Body
@@ -72,6 +73,8 @@ extension TypographyRole {
         case .timerRunning: .fixed(size: 60, weight: .thin, design: .rounded)
         // Headings
         case .screenTitle: .fixed(size: 28, weight: .light, design: .rounded)
+        // .headline is inherently semibold — halation compensation not needed
+        case .inlineNavigationTitle: .dynamic(style: .headline, weight: nil, design: .rounded)
         case .sectionTitle: .fixed(size: 20, weight: .light, design: .rounded)
         // Body
         case .bodyPrimary: .fixed(size: 16, weight: .regular, design: .rounded)
@@ -103,6 +106,7 @@ extension TypographyRole {
         case .timerCountdown,
              .timerRunning: \.textPrimary
         case .screenTitle,
+             .inlineNavigationTitle,
              .sectionTitle: \.textPrimary
         case .bodyPrimary: \.textPrimary
         case .bodySecondary,

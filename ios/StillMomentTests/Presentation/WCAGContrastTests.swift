@@ -115,6 +115,18 @@ final class WCAGContrastTests: XCTestCase {
                 background: palette.backgroundSecondary,
                 foregroundName: "textSecondary",
                 backgroundName: "backgroundSecondary"
+            ),
+            ContrastCheck(
+                foreground: palette.textPrimary,
+                background: palette.cardBackground,
+                foregroundName: "textPrimary",
+                backgroundName: "cardBackground"
+            ),
+            ContrastCheck(
+                foreground: palette.textSecondary,
+                background: palette.cardBackground,
+                foregroundName: "textSecondary",
+                backgroundName: "cardBackground"
             )
         ]
     }
@@ -132,6 +144,18 @@ final class WCAGContrastTests: XCTestCase {
                 background: palette.backgroundPrimary,
                 foregroundName: "interactive",
                 backgroundName: "backgroundPrimary"
+            ),
+            ContrastCheck(
+                foreground: palette.interactive,
+                background: palette.cardBackground,
+                foregroundName: "interactive",
+                backgroundName: "cardBackground"
+            ),
+            ContrastCheck(
+                foreground: palette.interactive,
+                background: palette.backgroundSecondary,
+                foregroundName: "interactive",
+                backgroundName: "backgroundSecondary"
             ),
             ContrastCheck(
                 foreground: palette.error,

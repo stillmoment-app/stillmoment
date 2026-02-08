@@ -61,7 +61,7 @@ final class TypographyTests: XCTestCase {
         // but within a group each role should be visually distinct.
         let groups: [(String, [TypographyRole])] = [
             ("Timer", [.timerCountdown, .timerRunning]),
-            ("Headings", [.screenTitle, .sectionTitle]),
+            ("Headings", [.screenTitle, .inlineNavigationTitle, .sectionTitle]),
             ("Body", [.bodyPrimary, .bodySecondary, .caption]),
             ("Settings", [.settingsLabel, .settingsDescription]),
             ("Player", [.playerTitle, .playerTeacher, .playerTimestamp, .playerCountdown]),
@@ -82,7 +82,7 @@ final class TypographyTests: XCTestCase {
     }
 
     func testAllRolesCovered() {
-        XCTAssertEqual(self.allRoles.count, 20, "Update this count when adding new TypographyRole cases")
+        XCTAssertEqual(self.allRoles.count, 21, "Update this count when adding new TypographyRole cases")
     }
 
     // MARK: - Font Spec Expectations
@@ -127,7 +127,7 @@ final class TypographyTests: XCTestCase {
     func testPrimaryColorRoles() {
         let primaryRoles: [TypographyRole] = [
             .timerCountdown, .timerRunning,
-            .screenTitle, .sectionTitle,
+            .screenTitle, .inlineNavigationTitle, .sectionTitle,
             .bodyPrimary,
             .settingsLabel,
             .playerTitle, .playerCountdown,
