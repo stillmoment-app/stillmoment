@@ -128,7 +128,8 @@ constructor(
     private fun getFileSize(uri: Uri): Long? {
         return try {
             queryFileSize(uri)
-        } catch (_: Exception) {
+        } catch (e: SecurityException) {
+            logger.w(TAG, "Could not query file size for $uri: ${e.message}")
             null
         }
     }

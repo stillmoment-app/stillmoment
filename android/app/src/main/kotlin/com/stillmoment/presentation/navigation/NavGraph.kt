@@ -354,8 +354,8 @@ private fun FileOpenEffect(
             restoreState = true
         }
 
-        val result = handler.handleFileOpen(uri)
         currentOnClearFileUri()
+        val result = handler.handleFileOpen(uri)
         result.fold(
             onSuccess = { meditation ->
                 currentOnMeditationImport(meditation)
