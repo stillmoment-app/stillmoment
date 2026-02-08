@@ -149,41 +149,142 @@ Started: $(date '+%Y-%m-%d %H:%M')
 EOF
 echo "Log: $LOG_FILE"
 
-# Show progress while agent runs
+# Parse JSONL stream and show agent activity
 monitor_progress() {
   local phase="$1"
   local agent_pid="$2"
-  local interval=20
-  local elapsed=0
+  local stream_file="$3"
+  local start_time
+  start_time=$(date +%s)
 
-  while kill -0 "$agent_pid" 2>/dev/null; do
-    sleep "$interval"
-    elapsed=$((elapsed + interval))
+  python3 - "$phase" "$stream_file" "$agent_pid" "$start_time" <<'PYEOF'
+import json, sys, os, time, signal
 
-    local changed=$(git diff --name-only HEAD 2>/dev/null | wc -l | tr -d ' ')
-    local untracked=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
-    local mins=$((elapsed / 60))
-    local secs=$((elapsed % 60))
+phase = sys.argv[1]
+stream_file = sys.argv[2]
+agent_pid = int(sys.argv[3])
+start_time = int(sys.argv[4])
 
-    local status=""
-    [[ "$changed" -gt 0 ]] && status="${changed} modified"
-    [[ "$untracked" -gt 0 ]] && status="${status:+$status, }${untracked} new"
-    [[ -z "$status" ]] && status="working..."
+def fmt_time():
+    elapsed = int(time.time()) - start_time
+    return f"{elapsed // 60}:{elapsed % 60:02d}"
 
-    printf "  [%s %d:%02d] %s\n" "$phase" "$mins" "$secs" "$status"
-  done
+def is_alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+def summarize_tool(name, inp):
+    if name == "Read":
+        return inp.get("file_path", "").replace(os.getcwd() + "/", "")
+    if name == "Glob":
+        return inp.get("pattern", "")
+    if name == "Grep":
+        path = inp.get("path", "").replace(os.getcwd() + "/", "")
+        pat = inp.get("pattern", "")
+        if path:
+            return f'"{pat}" in {path}'
+        return f'"{pat}"'
+    if name == "Edit":
+        return inp.get("file_path", "").replace(os.getcwd() + "/", "")
+    if name == "Write":
+        return inp.get("file_path", "").replace(os.getcwd() + "/", "")
+    if name == "Bash":
+        cmd = inp.get("command", "")
+        if "git commit" in cmd:
+            msg = cmd.split("-m")[-1].strip().strip("'\"")[:80] if "-m" in cmd else ""
+            return f"commit: {msg}" if msg else "git commit"
+        return cmd[:100]
+    if name == "Skill":
+        return inp.get("skill", "")
+    return str(inp)[:80]
+
+signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+signal.signal(signal.SIGINT, lambda *_: sys.exit(0))
+
+last_pos = 0
+idle_count = 0
+
+while is_alive(agent_pid):
+    time.sleep(2)
+    try:
+        size = os.path.getsize(stream_file)
+    except OSError:
+        continue
+    if size <= last_pos:
+        idle_count += 1
+        if idle_count >= 15:  # 30s without output
+            print(f"  [{phase} {fmt_time()}] working...", flush=True)
+            idle_count = 0
+        continue
+    idle_count = 0
+    with open(stream_file, "r") as f:
+        f.seek(last_pos)
+        new_data = f.read()
+        last_pos = f.tell()
+    for line in new_data.strip().split("\n"):
+        if not line.strip():
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("type") != "assistant":
+            # Show result summary at the end
+            if obj.get("type") == "result":
+                turns = obj.get("num_turns", "?")
+                cost = obj.get("total_cost_usd", 0)
+                print(f"  [{phase} {fmt_time()}] done: turns={turns} cost=${cost:.2f}", flush=True)
+            continue
+        for block in obj.get("message", {}).get("content", []):
+            if block.get("type") == "tool_use":
+                name = block.get("name", "?")
+                inp = block.get("input", {})
+                detail = summarize_tool(name, inp)
+                print(f"  [{phase} {fmt_time()}] {name} {detail}", flush=True)
+
+# Process remaining lines after agent exits
+try:
+    with open(stream_file, "r") as f:
+        f.seek(last_pos)
+        remaining = f.read()
+    for line in remaining.strip().split("\n"):
+        if not line.strip():
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("type") == "result":
+            turns = obj.get("num_turns", "?")
+            cost = obj.get("total_cost_usd", 0)
+            print(f"  [{phase} {fmt_time()}] done: turns={turns} cost=${cost:.2f}", flush=True)
+        elif obj.get("type") == "assistant":
+            for block in obj.get("message", {}).get("content", []):
+                if block.get("type") == "tool_use":
+                    name = block.get("name", "?")
+                    inp = block.get("input", {})
+                    detail = summarize_tool(name, inp)
+                    print(f"  [{phase} {fmt_time()}] {name} {detail}", flush=True)
+except OSError:
+    pass
+PYEOF
 }
 
 # Run an agent with progress monitoring
 run_agent() {
   local phase="$1"; shift
+  local stream_file
+  stream_file=$(mktemp /tmp/implement-stream-XXXXXX.jsonl)
 
-  # Start agent in background
-  "$@" &
+  # Start agent in background, stdout -> JSONL file
+  "$@" > "$stream_file" &
   local agent_pid=$!
 
   # Start progress monitor
-  monitor_progress "$phase" "$agent_pid" &
+  monitor_progress "$phase" "$agent_pid" "$stream_file" &
   local monitor_pid=$!
 
   # Wait for agent
@@ -193,6 +294,8 @@ run_agent() {
   # Stop monitor
   kill "$monitor_pid" 2>/dev/null || true
   wait "$monitor_pid" 2>/dev/null || true
+
+  rm -f "$stream_file"
 
   if [[ $exit_code -ne 0 ]]; then
     echo ""
@@ -217,6 +320,7 @@ Wenn du fertig bist, haenge deinen Abschnitt an das Implementation-Log an (siehe
   --agent ticket-implementer \
   --no-session-persistence \
   --verbose \
+  --output-format stream-json \
   --max-turns "$MAX_TURNS_IMPLEMENT" \
   --allowedTools "$IMPLEMENTER_TOOLS_ARG"
 
@@ -246,6 +350,7 @@ Haenge deinen Review-Abschnitt an das Implementation-Log an (siehe Agent-Instruk
     --agent ticket-reviewer \
     --no-session-persistence \
     --verbose \
+    --output-format stream-json \
     --max-turns "$MAX_TURNS_REVIEW" \
     --allowedTools "$REVIEWER_TOOLS_ARG"
 
@@ -307,6 +412,7 @@ Haenge deinen Fix-Abschnitt an das Implementation-Log an (siehe Agent-Instruktio
     --agent ticket-implementer \
     --no-session-persistence \
     --verbose \
+    --output-format stream-json \
     --max-turns "$MAX_TURNS_FIX" \
     --allowedTools "$IMPLEMENTER_TOOLS_ARG"
 
@@ -328,6 +434,7 @@ Haenge deinen CLOSE-Abschnitt an das Implementation-Log an (siehe Agent-Instrukt
   --agent ticket-implementer \
   --no-session-persistence \
   --verbose \
+  --output-format stream-json \
   --max-turns "$MAX_TURNS_CLOSE" \
   --allowedTools "$IMPLEMENTER_TOOLS_ARG"
 
@@ -359,6 +466,7 @@ Haenge deinen LEARN-Abschnitt an das Implementation-Log an (siehe Agent-Instrukt
     --agent ticket-implementer \
     --no-session-persistence \
     --verbose \
+    --output-format stream-json \
     --max-turns "$MAX_TURNS_LEARN" \
     --allowedTools "$IMPLEMENTER_TOOLS_ARG"
 else
