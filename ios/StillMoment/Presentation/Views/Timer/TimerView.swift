@@ -117,22 +117,24 @@ struct TimerView: View {
                 self.viewModel.saveSettings()
             },
             content: {
-                SettingsView(
-                    settings: self.$viewModel.settings,
-                    availableSounds: self.viewModel.availableBackgroundSounds,
-                    onGongChanged: { soundId, volume in
-                        self.viewModel.playGongPreview(soundId: soundId, volume: volume)
-                    },
-                    onBackgroundChanged: { soundId, volume in
-                        self.viewModel.playBackgroundPreview(soundId: soundId, volume: volume)
-                    },
-                    onIntervalGongPreview: { volume in
-                        self.viewModel.playIntervalGongPreview(volume: volume)
-                    },
-                    onDismiss: {
-                        self.showSettings = false
-                    }
-                )
+                ThemeRootView {
+                    SettingsView(
+                        settings: self.$viewModel.settings,
+                        availableSounds: self.viewModel.availableBackgroundSounds,
+                        onGongChanged: { soundId, volume in
+                            self.viewModel.playGongPreview(soundId: soundId, volume: volume)
+                        },
+                        onBackgroundChanged: { soundId, volume in
+                            self.viewModel.playBackgroundPreview(soundId: soundId, volume: volume)
+                        },
+                        onIntervalGongPreview: { volume in
+                            self.viewModel.playIntervalGongPreview(volume: volume)
+                        },
+                        onDismiss: {
+                            self.showSettings = false
+                        }
+                    )
+                }
             }
         )
     }

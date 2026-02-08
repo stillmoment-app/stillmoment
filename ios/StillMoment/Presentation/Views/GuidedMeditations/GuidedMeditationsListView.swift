@@ -98,18 +98,20 @@ struct GuidedMeditationsListView: View {
             }
         }
         .sheet(isPresented: self.$viewModel.showingEditSheet) {
-            if let meditation = viewModel.meditationToEdit {
-                GuidedMeditationEditSheet(
-                    meditation: meditation,
-                    availableTeachers: self.viewModel.uniqueTeachers,
-                    onSave: { updated in
-                        self.viewModel.updateMeditation(updated)
-                        self.viewModel.showingEditSheet = false
-                    },
-                    onCancel: {
-                        self.viewModel.showingEditSheet = false
-                    }
-                )
+            ThemeRootView {
+                if let meditation = viewModel.meditationToEdit {
+                    GuidedMeditationEditSheet(
+                        meditation: meditation,
+                        availableTeachers: self.viewModel.uniqueTeachers,
+                        onSave: { updated in
+                            self.viewModel.updateMeditation(updated)
+                            self.viewModel.showingEditSheet = false
+                        },
+                        onCancel: {
+                            self.viewModel.showingEditSheet = false
+                        }
+                    )
+                }
             }
         }
         .navigationDestination(for: GuidedMeditation.self) { meditation in
@@ -120,10 +122,12 @@ struct GuidedMeditationsListView: View {
             )
         }
         .sheet(isPresented: self.$showingSettings) {
-            GuidedMeditationSettingsView(settings: self.settings) { updatedSettings in
-                self.settingsRepository.save(updatedSettings)
-                self.settings = updatedSettings
-                self.showingSettings = false
+            ThemeRootView {
+                GuidedMeditationSettingsView(settings: self.settings) { updatedSettings in
+                    self.settingsRepository.save(updatedSettings)
+                    self.settings = updatedSettings
+                    self.showingSettings = false
+                }
             }
         }
         .alert(
@@ -266,6 +270,7 @@ struct GuidedMeditationsListView: View {
                 Image(systemName: "play.circle")
                     .font(.system(size: 20))
                     .foregroundColor(self.theme.textSecondary)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
@@ -308,129 +313,7 @@ struct GuidedMeditationsListView: View {
     }
 }
 
-// MARK: - Document Picker
-
-struct DocumentPicker: UIViewControllerRepresentable {
-    class Coordinator: NSObject, UIDocumentPickerDelegate {
-        // MARK: Lifecycle
-
-        init(onPick: @escaping (URL) -> Void) {
-            self.onPick = onPick
-        }
-
-        // MARK: Internal
-
-        let onPick: (URL) -> Void
-
-        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            guard let url = urls.first else {
-                return
-            }
-            self.onPick(url)
-        }
-    }
-
-    let onPick: (URL) -> Void
-
-    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(
-            forOpeningContentTypes: [.audio, .mp3],
-            asCopy: false
-        )
-        picker.delegate = context.coordinator
-        picker.allowsMultipleSelection = false
-        return picker
-    }
-
-    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onPick: self.onPick)
-    }
-}
-
-// MARK: - UTType Extension
-
-extension UTType {
-    static let mp3 = UTType(filenameExtension: "mp3") ?? .audio
-}
-
 // MARK: - Previews
-
-// Preview-only mock service
-#if DEBUG
-private final class PreviewMeditationService: GuidedMeditationServiceProtocol {
-    var meditations: [GuidedMeditation]
-
-    init(meditations: [GuidedMeditation] = []) {
-        self.meditations = meditations
-    }
-
-    func loadMeditations() throws -> [GuidedMeditation] {
-        self.meditations
-    }
-
-    func saveMeditations(_ meditations: [GuidedMeditation]) throws {
-        self.meditations = meditations
-    }
-
-    func addMeditation(from _: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
-        GuidedMeditation(
-            localFilePath: "preview.mp3",
-            fileName: "preview.mp3",
-            duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown",
-            name: metadata.title ?? "Untitled"
-        )
-    }
-
-    func updateMeditation(_ meditation: GuidedMeditation) throws {}
-
-    func deleteMeditation(id: UUID) throws {}
-
-    func fileURL(for meditation: GuidedMeditation) -> URL? {
-        guard let localFilePath = meditation.localFilePath else {
-            return nil
-        }
-        return FileManager.default.temporaryDirectory
-            .appendingPathComponent("Meditations")
-            .appendingPathComponent(localFilePath)
-    }
-
-    func getMeditationsDirectory() -> URL {
-        FileManager.default.temporaryDirectory
-    }
-
-    func needsMigration() -> Bool {
-        false
-    }
-
-    /// Sample data for previews
-    static let sampleMeditations: [GuidedMeditation] = [
-        GuidedMeditation(
-            localFilePath: "sample1.mp3",
-            fileName: "loving-kindness.mp3",
-            duration: 691, // 11:31
-            teacher: "Christine Braehler",
-            name: "Loving-without-Losing-Yourself"
-        ),
-        GuidedMeditation(
-            localFilePath: "sample2.mp3",
-            fileName: "einschlafen.mp3",
-            duration: 3629, // 1:00:29
-            teacher: "Somebody",
-            name: "Meditation wieder Einschlafen bei naechtlichem Erwachen"
-        ),
-        GuidedMeditation(
-            localFilePath: "sample3.mp3",
-            fileName: "body-scan.mp3",
-            duration: 1245, // 20:45
-            teacher: "Christine Braehler",
-            name: "Body Scan Meditation"
-        )
-    ]
-}
-#endif
 
 #if DEBUG
 @available(iOS 17.0, *)
