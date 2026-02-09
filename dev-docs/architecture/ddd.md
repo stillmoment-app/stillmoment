@@ -24,7 +24,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 ### Aktions-Namenskonvention
 
 **Benutzer-Aktionen** (Verb + `Pressed`):
-- `startPressed`, `pausePressed`, `resetPressed`
+- `startPressed`, `closePressed`
 
 **System-Ereignisse** (Verb + Past Participle):
 - `preparationFinished`, `timerCompleted`
@@ -152,13 +152,10 @@ object TimerReducer {
 │ Idle │──────────────►│ Preparation │────────────────────►│ Running │
 └──────┘               └─────────────┘                      └─────────┘
     ▲                                                        │
-    │                   ┌────────┐                           │
-    │   resetPressed    │ Paused │◄──────pausePressed────────┤
-    │                   └────────┘                           │
-    │                       │                                │
-    │       resetPressed    │        timerCompleted          │
-    │◄──────────────────────┴────────────────────────────────┘
+    │                  closePressed                           │
+    │◄───────────────────────────────────────────────────────┤
     │                                                        │
+    │                                    timerCompleted       │
     │                  ┌───────────┐                         │
     └──────────────────│ Completed │◄────────────────────────┘
                        └───────────┘
@@ -232,8 +229,6 @@ enum TimerEffect: Equatable {
     case playIntervalGong
     case playCompletionGong
     case startTimer(durationMinutes: Int)
-    case pauseTimer
-    case resumeTimer
     case resetTimer
     case saveSettings(MeditationSettings)
     case prepareHaptics
@@ -250,8 +245,6 @@ sealed class TimerEffect {
     data object PlayIntervalGong : TimerEffect()
     data object PlayCompletionGong : TimerEffect()
     data class StartTimer(val durationMinutes: Int) : TimerEffect()
-    data object PauseTimer : TimerEffect()
-    data object ResumeTimer : TimerEffect()
     data object ResetTimer : TimerEffect()
     data class SaveSettings(val settings: MeditationSettings) : TimerEffect()
 }
@@ -330,4 +323,4 @@ Bei jedem neuen Feature prüfen:
 
 ---
 
-**Last Updated**: 2026-01-10
+**Last Updated**: 2026-02-09
