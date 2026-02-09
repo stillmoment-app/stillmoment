@@ -137,7 +137,7 @@ constructor(
                 foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.PlayIntervalGong -> {
-                foregroundService.playIntervalGong(effect.gongVolume)
+                foregroundService.playIntervalGong(effect.gongSoundId, effect.gongVolume)
             }
             is TimerEffect.PlayCompletionSound -> {
                 foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
@@ -212,10 +212,18 @@ constructor(
 
     /**
      * Play interval gong sound preview.
-     * Uses the current interval gong volume setting for preview playback.
+     * Uses the current interval gong sound and volume settings for preview playback.
      */
     fun playIntervalGongPreview() {
-        audioService.playIntervalGong(_uiState.value.settings.intervalGongVolume)
+        val settings = _uiState.value.settings
+        audioService.playIntervalGong(settings.intervalSoundId, settings.intervalGongVolume)
+    }
+
+    /**
+     * Play a specific interval gong sound preview (e.g., when changing sound selection).
+     */
+    fun playIntervalGongPreview(soundId: String) {
+        audioService.playIntervalGong(soundId, _uiState.value.settings.intervalGongVolume)
     }
 
     /**
@@ -335,7 +343,12 @@ constructor(
         val settings = _uiState.value.settings
         if (!settings.intervalGongsEnabled) return
 
-        if (timer.shouldPlayIntervalGong(settings.intervalMinutes)) {
+        if (timer.shouldPlayIntervalGong(
+                intervalMinutes = settings.intervalMinutes,
+                repeating = settings.intervalRepeating,
+                fromEnd = settings.effectiveIntervalFromEnd
+            )
+        ) {
             timerRepository.markIntervalGongPlayed()
             dispatch(TimerAction.IntervalGongTriggered)
             // Mark as played for next interval

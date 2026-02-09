@@ -32,8 +32,17 @@
     <string name="settings_soundscape">Soundscape</string>
     <string name="settings_soundscape_label">Sound</string>
     <string name="settings_interval_gongs">Interval Gongs</string>
-    <string name="settings_interval_gongs_description">Play a gong sound at regular intervals during meditation</string>
+    <string name="settings_interval_gongs_description">Gentle sounds during meditation</string>
     <string name="settings_interval_minutes">Interval</string>
+    <string name="settings_interval_repeating">Repeat</string>
+    <string name="settings_interval_from_end">Count from end</string>
+    <string name="settings_interval_sound">Sound</string>
+
+    <!-- Interval Gongs Dynamic Description -->
+    <string name="settings_interval_desc_repeating_start">Every %1$d min, %2$s</string>
+    <string name="settings_interval_desc_repeating_end">Every %1$d min from end, %2$s</string>
+    <string name="settings_interval_desc_single">%1$d min before end, %2$s</string>
+    <string name="settings_interval_minutes_format">%d min</string>
     <string name="settings_gong">Gong</string>
     <string name="settings_gong_sound">Gong Sound</string>
     <string name="settings_preparation_time">Preparation Time</string>
@@ -138,6 +147,12 @@
     <string name="accessibility_gong_volume">Gong volume: %d percent</string>
     <string name="accessibility_interval_gong_volume">Interval gong volume: %d percent</string>
     <string name="accessibility_interval_gongs_toggle">Interval Gongs toggle</string>
+    <string name="accessibility_interval_repeating_toggle">Repeat interval gongs toggle</string>
+    <string name="accessibility_interval_from_end_toggle">Count from end toggle</string>
+    <string name="accessibility_interval_stepper">Interval: %d minutes</string>
+    <string name="accessibility_interval_decrease">Decrease interval</string>
+    <string name="accessibility_interval_increase">Increase interval</string>
+    <string name="accessibility_interval_sound_hint">Choose interval gong sound</string>
     <string name="accessibility_preparation_time_toggle">Preparation time toggle</string>
 
     <!-- Autocomplete Accessibility -->

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,14 +20,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -44,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
@@ -51,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -81,7 +87,7 @@ fun SettingsSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     onGongSoundPreview: (String) -> Unit = {},
-    onIntervalGongPreview: () -> Unit = {},
+    onIntervalGongPreview: (String) -> Unit = {},
     onBackgroundSoundPreview: (String) -> Unit = {},
     selectedTheme: ColorTheme = ColorTheme.DEFAULT,
     onThemeChange: (ColorTheme) -> Unit = {},
@@ -115,6 +121,12 @@ fun SettingsSheet(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
                 onGongSoundPreview = onGongSoundPreview,
+                itemSpacing = itemSpacing
+            )
+            Spacer(modifier = Modifier.height(sectionSpacing))
+            IntervalGongsSection(
+                settings = settings,
+                onSettingsChange = onSettingsChange,
                 onIntervalGongPreview = onIntervalGongPreview,
                 itemSpacing = itemSpacing
             )
@@ -465,7 +477,6 @@ private fun GongSection(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
     onGongSoundPreview: (String) -> Unit,
-    onIntervalGongPreview: () -> Unit,
     itemSpacing: Dp
 ) {
     Column {
@@ -490,17 +501,6 @@ private fun GongSection(
                 onVolumeChangeFinish = {
                     onGongSoundPreview(settings.gongSoundId)
                 }
-            )
-
-            Spacer(modifier = Modifier.height(itemSpacing))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(modifier = Modifier.height(itemSpacing))
-
-            IntervalGongsContent(
-                settings = settings,
-                onSettingsChange = onSettingsChange,
-                onIntervalGongPreview = onIntervalGongPreview,
-                itemSpacing = itemSpacing
             )
         }
     }
@@ -555,36 +555,106 @@ private fun GongSoundDropdown(
     }
 }
 
+// MARK: - Interval Gongs Section
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntervalGongsContent(
+private fun IntervalGongsSection(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
-    onIntervalGongPreview: () -> Unit,
+    onIntervalGongPreview: (String) -> Unit,
     itemSpacing: Dp
 ) {
     Column {
-        IntervalGongsToggleRow(
-            settings = settings,
-            onSettingsChange = onSettingsChange
-        )
+        SectionTitle(text = stringResource(R.string.settings_interval_gongs))
 
-        if (settings.intervalGongsEnabled) {
-            Spacer(modifier = Modifier.height(itemSpacing))
-            IntervalMinutesDropdown(
+        SettingsCard {
+            IntervalGongsToggleRow(
                 settings = settings,
                 onSettingsChange = onSettingsChange
             )
+
+            if (settings.intervalGongsEnabled) {
+                IntervalGongsEnabledContent(
+                    settings = settings,
+                    onSettingsChange = onSettingsChange,
+                    onIntervalGongPreview = onIntervalGongPreview,
+                    itemSpacing = itemSpacing
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IntervalGongsEnabledContent(
+    settings: MeditationSettings,
+    onSettingsChange: (MeditationSettings) -> Unit,
+    onIntervalGongPreview: (String) -> Unit,
+    itemSpacing: Dp
+) {
+    Column {
+        Spacer(modifier = Modifier.height(itemSpacing))
+
+        IntervalMinutesStepper(
+            minutes = settings.intervalMinutes,
+            onMinutesChange = { newMinutes ->
+                onSettingsChange(settings.copy(intervalMinutes = newMinutes))
+            }
+        )
+
+        Spacer(modifier = Modifier.height(itemSpacing))
+
+        IntervalToggleRow(
+            label = stringResource(R.string.settings_interval_repeating),
+            checked = settings.intervalRepeating,
+            testTag = "settings.toggle.intervalRepeating",
+            accessibilityDescription = stringResource(R.string.accessibility_interval_repeating_toggle),
+            onCheckedChange = { repeating ->
+                onSettingsChange(settings.copy(intervalRepeating = repeating))
+            }
+        )
+
+        if (settings.intervalRepeating) {
             Spacer(modifier = Modifier.height(itemSpacing))
-            VolumeSlider(
-                volume = settings.intervalGongVolume,
-                accessibilityDescriptionResId = R.string.accessibility_interval_gong_volume,
-                testTag = "settings.slider.intervalGongVolume",
-                onVolumeChange = { newVolume ->
-                    onSettingsChange(settings.copy(intervalGongVolume = newVolume))
-                },
-                onVolumeChangeFinish = onIntervalGongPreview
+
+            IntervalToggleRow(
+                label = stringResource(R.string.settings_interval_from_end),
+                checked = settings.intervalFromEnd,
+                testTag = "settings.toggle.intervalFromEnd",
+                accessibilityDescription = stringResource(R.string.accessibility_interval_from_end_toggle),
+                onCheckedChange = { fromEnd ->
+                    onSettingsChange(settings.copy(intervalFromEnd = fromEnd))
+                }
             )
         }
+
+        Spacer(modifier = Modifier.height(itemSpacing))
+
+        IntervalSoundDropdown(
+            settings = settings,
+            onSettingsChange = onSettingsChange,
+            onIntervalGongPreview = onIntervalGongPreview
+        )
+
+        Spacer(modifier = Modifier.height(itemSpacing))
+
+        VolumeSlider(
+            volume = settings.intervalGongVolume,
+            accessibilityDescriptionResId = R.string.accessibility_interval_gong_volume,
+            testTag = "settings.slider.intervalGongVolume",
+            onVolumeChange = { newVolume ->
+                onSettingsChange(settings.copy(intervalGongVolume = newVolume))
+            },
+            onVolumeChangeFinish = {
+                onIntervalGongPreview(settings.intervalSoundId)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        IntervalDescription(settings = settings)
     }
 }
 
@@ -639,45 +709,222 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
     }
 }
 
+/**
+ * Stepper for interval minutes (1-60).
+ * Shows a -/+ button pair with the current value in the center.
+ */
+@Composable
+private fun IntervalMinutesStepper(minutes: Int, onMinutesChange: (Int) -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    val stepperDescription = stringResource(R.string.accessibility_interval_stepper, minutes)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = stepperDescription },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = stringResource(R.string.settings_interval_minutes),
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier.weight(1f)
+        )
+
+        StepperButton(
+            icon = Icons.Default.Remove,
+            enabled = minutes > MeditationSettings.MIN_INTERVAL_MINUTES,
+            testTag = "settings.stepper.intervalDecrease",
+            accessibilityDescription = stringResource(R.string.accessibility_interval_decrease),
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onMinutesChange(minutes - 1)
+            }
+        )
+
+        Text(
+            text = stringResource(R.string.settings_interval_minutes_format, minutes),
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier
+                .width(56.dp)
+                .testTag("settings.label.intervalMinutes"),
+            textAlign = TextAlign.Center
+        )
+
+        StepperButton(
+            icon = Icons.Default.Add,
+            enabled = minutes < MeditationSettings.MAX_INTERVAL_MINUTES,
+            testTag = "settings.stepper.intervalIncrease",
+            accessibilityDescription = stringResource(R.string.accessibility_interval_increase),
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onMinutesChange(minutes + 1)
+            }
+        )
+    }
+}
+
+/**
+ * Reusable stepper button (- or +) with themed colors.
+ */
+@Composable
+private fun StepperButton(
+    icon: ImageVector,
+    enabled: Boolean,
+    testTag: String,
+    accessibilityDescription: String,
+    onClick: () -> Unit
+) {
+    IconButton(
+        onClick = onClick,
+        enabled = enabled,
+        colors = IconButtonDefaults.iconButtonColors(
+            contentColor = MaterialTheme.colorScheme.primary,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        ),
+        modifier = Modifier
+            .size(40.dp)
+            .testTag(testTag)
+            .semantics { contentDescription = accessibilityDescription }
+    ) {
+        Icon(imageVector = icon, contentDescription = null)
+    }
+}
+
+/**
+ * Reusable toggle row for interval settings (Repeat, Count from end).
+ */
+@Composable
+private fun IntervalToggleRow(
+    label: String,
+    checked: Boolean,
+    testTag: String,
+    accessibilityDescription: String,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Switch(
+            checked = checked,
+            onCheckedChange = { value ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onCheckedChange(value)
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
+            ),
+            modifier = Modifier
+                .testTag(testTag)
+                .semantics { contentDescription = accessibilityDescription }
+        )
+    }
+}
+
+/**
+ * Dropdown for interval gong sound selection.
+ * Shows all 5 sounds from GongSound.allIntervalSounds.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntervalMinutesDropdown(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
-    var intervalMinutesExpanded by remember { mutableStateOf(false) }
-    val intervalOptions = listOf(3, 5, 10)
+private fun IntervalSoundDropdown(
+    settings: MeditationSettings,
+    onSettingsChange: (MeditationSettings) -> Unit,
+    onIntervalGongPreview: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val soundHint = stringResource(R.string.accessibility_interval_sound_hint)
 
     ExposedDropdownMenuBox(
-        expanded = intervalMinutesExpanded,
-        onExpandedChange = { intervalMinutesExpanded = it }
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
     ) {
+        val selectedSound = GongSound.findOrDefault(settings.intervalSoundId)
+
         OutlinedTextField(
-            value = stringResource(R.string.time_minutes_plural, settings.intervalMinutes),
+            value = selectedSound.localizedName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.settings_interval_minutes)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = intervalMinutesExpanded) },
+            label = { Text(stringResource(R.string.settings_interval_sound)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = DropdownShape,
             colors = dropdownTextFieldColors(),
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
+                .semantics { contentDescription = soundHint }
         )
 
         ExposedDropdownMenu(
-            expanded = intervalMinutesExpanded,
-            onDismissRequest = { intervalMinutesExpanded = false }
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
         ) {
-            intervalOptions.forEach { minutes ->
+            GongSound.allIntervalSounds.forEach { gongSound ->
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.time_minutes_plural, minutes)) },
+                    text = { Text(gongSound.localizedName) },
                     onClick = {
-                        onSettingsChange(settings.copy(intervalMinutes = minutes))
-                        intervalMinutesExpanded = false
+                        onSettingsChange(settings.copy(intervalSoundId = gongSound.id))
+                        onIntervalGongPreview(gongSound.id)
+                        expanded = false
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
         }
     }
+}
+
+/**
+ * Dynamic description showing the current interval configuration.
+ * Adapts text based on repeating/single mode and from-start/from-end direction.
+ */
+@Composable
+private fun IntervalDescription(settings: MeditationSettings) {
+    val soundName = GongSound.findOrDefault(settings.intervalSoundId).localizedName
+    val description = if (settings.intervalRepeating) {
+        if (settings.intervalFromEnd) {
+            stringResource(
+                R.string.settings_interval_desc_repeating_end,
+                settings.intervalMinutes,
+                soundName
+            )
+        } else {
+            stringResource(
+                R.string.settings_interval_desc_repeating_start,
+                settings.intervalMinutes,
+                soundName
+            )
+        }
+    } else {
+        stringResource(
+            R.string.settings_interval_desc_single,
+            settings.intervalMinutes,
+            soundName
+        )
+    }
+
+    Text(
+        text = description,
+        style = TypographyRole.SettingsDescription.textStyle(),
+        color = TypographyRole.SettingsDescription.textColor(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("settings.label.intervalDescription")
+    )
 }
 
 @Composable
@@ -746,7 +993,10 @@ private fun SettingsSheetWithIntervalsPreview() {
         SettingsSheet(
             settings = MeditationSettings(
                 intervalGongsEnabled = true,
-                intervalMinutes = 5,
+                intervalMinutes = 7,
+                intervalRepeating = true,
+                intervalFromEnd = false,
+                intervalSoundId = GongSound.SOFT_INTERVAL_SOUND_ID,
                 backgroundSoundId = "forest"
             ),
             onSettingsChange = {},
