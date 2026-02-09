@@ -15,9 +15,8 @@ class MeditationSettingsTest {
 
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
-        assertTrue(settings.intervalRepeating)
-        assertFalse(settings.intervalFromEnd)
-        assertEquals("temple-bell", settings.intervalSoundId)
+        assertEquals(IntervalMode.REPEATING, settings.intervalMode)
+        assertEquals("soft-interval", settings.intervalSoundId)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
@@ -33,9 +32,8 @@ class MeditationSettingsTest {
 
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
-        assertTrue(settings.intervalRepeating)
-        assertFalse(settings.intervalFromEnd)
-        assertEquals("temple-bell", settings.intervalSoundId)
+        assertEquals(IntervalMode.REPEATING, settings.intervalMode)
+        assertEquals("soft-interval", settings.intervalSoundId)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
@@ -256,73 +254,51 @@ class MeditationSettingsTest {
         assertEquals("silent", MeditationSettings.migrateLegacyMode(""))
     }
 
-    // MARK: - Interval Repeating, FromEnd, SoundId Tests
+    // MARK: - IntervalMode Tests
 
     @Test
-    fun `default intervalRepeating is true`() {
-        assertTrue(MeditationSettings.DEFAULT_INTERVAL_REPEATING)
-        assertTrue(MeditationSettings.Default.intervalRepeating)
+    fun `default intervalMode is REPEATING`() {
+        assertEquals(IntervalMode.REPEATING, MeditationSettings.DEFAULT_INTERVAL_MODE)
+        assertEquals(IntervalMode.REPEATING, MeditationSettings.Default.intervalMode)
     }
 
     @Test
-    fun `default intervalFromEnd is false`() {
-        assertFalse(MeditationSettings.DEFAULT_INTERVAL_FROM_END)
-        assertFalse(MeditationSettings.Default.intervalFromEnd)
+    fun `default intervalSoundId is soft-interval`() {
+        assertEquals(GongSound.SOFT_INTERVAL_SOUND_ID, MeditationSettings.DEFAULT_INTERVAL_SOUND_ID)
+        assertEquals("soft-interval", MeditationSettings.Default.intervalSoundId)
     }
 
     @Test
-    fun `default intervalSoundId is temple-bell`() {
-        assertEquals(GongSound.DEFAULT_SOUND_ID, MeditationSettings.DEFAULT_INTERVAL_SOUND_ID)
-        assertEquals("temple-bell", MeditationSettings.Default.intervalSoundId)
-    }
-
-    @Test
-    fun `create with new interval fields`() {
+    fun `create with intervalMode BEFORE_END`() {
         val settings = MeditationSettings.create(
-            intervalRepeating = false,
-            intervalFromEnd = true,
+            intervalMode = IntervalMode.BEFORE_END,
             intervalSoundId = "soft-interval"
         )
 
-        assertFalse(settings.intervalRepeating)
-        assertTrue(settings.intervalFromEnd)
+        assertEquals(IntervalMode.BEFORE_END, settings.intervalMode)
         assertEquals("soft-interval", settings.intervalSoundId)
     }
 
     @Test
-    fun `copy preserves new interval fields`() {
+    fun `create with intervalMode AFTER_START`() {
+        val settings = MeditationSettings.create(
+            intervalMode = IntervalMode.AFTER_START
+        )
+
+        assertEquals(IntervalMode.AFTER_START, settings.intervalMode)
+    }
+
+    @Test
+    fun `copy preserves intervalMode`() {
         val original = MeditationSettings(
-            intervalRepeating = false,
-            intervalFromEnd = true,
+            intervalMode = IntervalMode.BEFORE_END,
             intervalSoundId = "soft-interval"
         )
         val copied = original.copy(durationMinutes = 20)
 
-        assertFalse(copied.intervalRepeating)
-        assertTrue(copied.intervalFromEnd)
+        assertEquals(IntervalMode.BEFORE_END, copied.intervalMode)
         assertEquals("soft-interval", copied.intervalSoundId)
         assertEquals(20, copied.durationMinutes)
-    }
-
-    // MARK: - effectiveIntervalFromEnd Tests
-
-    @Test
-    fun `effectiveIntervalFromEnd returns intervalFromEnd when repeating`() {
-        val settingsFromStart = MeditationSettings(intervalRepeating = true, intervalFromEnd = false)
-        assertFalse(settingsFromStart.effectiveIntervalFromEnd)
-
-        val settingsFromEnd = MeditationSettings(intervalRepeating = true, intervalFromEnd = true)
-        assertTrue(settingsFromEnd.effectiveIntervalFromEnd)
-    }
-
-    @Test
-    fun `effectiveIntervalFromEnd returns true when not repeating`() {
-        // Single mode always counts from end
-        val settingsNotRepeatingFromStart = MeditationSettings(intervalRepeating = false, intervalFromEnd = false)
-        assertTrue(settingsNotRepeatingFromStart.effectiveIntervalFromEnd)
-
-        val settingsNotRepeatingFromEnd = MeditationSettings(intervalRepeating = false, intervalFromEnd = true)
-        assertTrue(settingsNotRepeatingFromEnd.effectiveIntervalFromEnd)
     }
 
     // MARK: - MIN/MAX Interval Constants Tests
@@ -423,8 +399,7 @@ class MeditationSettingsTest {
     fun `settings keys have expected values`() {
         assertEquals("intervalGongsEnabled", MeditationSettingsKeys.INTERVAL_GONGS_ENABLED)
         assertEquals("intervalMinutes", MeditationSettingsKeys.INTERVAL_MINUTES)
-        assertEquals("intervalRepeating", MeditationSettingsKeys.INTERVAL_REPEATING)
-        assertEquals("intervalFromEnd", MeditationSettingsKeys.INTERVAL_FROM_END)
+        assertEquals("intervalMode", MeditationSettingsKeys.INTERVAL_MODE)
         assertEquals("intervalSoundId", MeditationSettingsKeys.INTERVAL_SOUND_ID)
         assertEquals("backgroundSoundId", MeditationSettingsKeys.BACKGROUND_SOUND_ID)
         assertEquals("backgroundSoundVolume", MeditationSettingsKeys.BACKGROUND_SOUND_VOLUME)
@@ -435,6 +410,12 @@ class MeditationSettingsTest {
         assertEquals("gongSoundId", MeditationSettingsKeys.GONG_SOUND_ID)
         assertEquals("gongVolume", MeditationSettingsKeys.GONG_VOLUME)
         assertEquals("intervalGongVolume", MeditationSettingsKeys.INTERVAL_GONG_VOLUME)
+    }
+
+    @Test
+    fun `legacy keys have expected values`() {
+        assertEquals("interval_repeating", MeditationSettingsKeys.LEGACY_INTERVAL_REPEATING)
+        assertEquals("interval_from_end", MeditationSettingsKeys.LEGACY_INTERVAL_FROM_END)
     }
 
     // MARK: - Interval Gong Volume Tests
@@ -485,5 +466,28 @@ class MeditationSettingsTest {
 
         assertEquals(0.4f, copied.intervalGongVolume)
         assertEquals(20, copied.durationMinutes)
+    }
+
+    // MARK: - IntervalMode Enum Tests
+
+    @Test
+    fun `IntervalMode fromString parses valid values`() {
+        assertEquals(IntervalMode.REPEATING, IntervalMode.fromString("REPEATING"))
+        assertEquals(IntervalMode.AFTER_START, IntervalMode.fromString("AFTER_START"))
+        assertEquals(IntervalMode.BEFORE_END, IntervalMode.fromString("BEFORE_END"))
+    }
+
+    @Test
+    fun `IntervalMode fromString returns DEFAULT for invalid values`() {
+        assertEquals(IntervalMode.REPEATING, IntervalMode.fromString(null))
+        assertEquals(IntervalMode.REPEATING, IntervalMode.fromString(""))
+        assertEquals(IntervalMode.REPEATING, IntervalMode.fromString("INVALID"))
+    }
+
+    @Test
+    fun `IntervalMode isRepeating returns true only for REPEATING`() {
+        assertTrue(IntervalMode.REPEATING.isRepeating)
+        assertFalse(IntervalMode.AFTER_START.isRepeating)
+        assertFalse(IntervalMode.BEFORE_END.isRepeating)
     }
 }

@@ -67,13 +67,15 @@ data class GongSound(
             )
         )
 
-        /** All available interval sounds (allSounds + soft interval tone) */
-        val allIntervalSounds: List<GongSound> = allSounds + GongSound(
-            id = SOFT_INTERVAL_SOUND_ID,
-            nameEnglish = "Soft Interval Tone",
-            nameGerman = "Sanfter Intervallton",
-            rawResId = R.raw.interval
-        )
+        /** All available interval sounds (soft interval tone first, then allSounds) */
+        val allIntervalSounds: List<GongSound> = listOf(
+            GongSound(
+                id = SOFT_INTERVAL_SOUND_ID,
+                nameEnglish = "Soft Interval Tone",
+                nameGerman = "Sanfter Intervallton",
+                rawResId = R.raw.interval
+            )
+        ) + allSounds
 
         /** Default gong sound (Temple Bell) */
         val defaultSound: GongSound = allSounds.first { it.id == DEFAULT_SOUND_ID }

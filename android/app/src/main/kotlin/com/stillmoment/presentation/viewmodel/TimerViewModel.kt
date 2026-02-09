@@ -345,8 +345,7 @@ constructor(
 
         if (timer.shouldPlayIntervalGong(
                 intervalMinutes = settings.intervalMinutes,
-                repeating = settings.intervalRepeating,
-                fromEnd = settings.effectiveIntervalFromEnd
+                mode = settings.intervalMode
             )
         ) {
             timerRepository.markIntervalGongPlayed()

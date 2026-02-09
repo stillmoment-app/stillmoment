@@ -12,6 +12,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,8 +42,7 @@ constructor(
     private object Keys {
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
-        val INTERVAL_REPEATING = booleanPreferencesKey("interval_repeating")
-        val INTERVAL_FROM_END = booleanPreferencesKey("interval_from_end")
+        val INTERVAL_MODE = stringPreferencesKey("interval_mode")
         val INTERVAL_SOUND_ID = stringPreferencesKey("interval_sound_id")
         val INTERVAL_GONG_VOLUME = floatPreferencesKey("interval_gong_volume")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
@@ -56,6 +56,31 @@ constructor(
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
         val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
+
+        // Legacy keys kept for migration
+        val LEGACY_INTERVAL_REPEATING = booleanPreferencesKey("interval_repeating")
+        val LEGACY_INTERVAL_FROM_END = booleanPreferencesKey("interval_from_end")
+    }
+
+    /**
+     * Migrates legacy boolean pair (interval_repeating + interval_from_end) to IntervalMode string.
+     * Returns the IntervalMode for the current preferences, handling migration transparently.
+     */
+    private fun migrateIntervalMode(preferences: Preferences): IntervalMode {
+        // If new key exists, use it directly
+        preferences[Keys.INTERVAL_MODE]?.let { return IntervalMode.fromString(it) }
+
+        // Migrate from legacy boolean keys
+        val repeating = preferences[Keys.LEGACY_INTERVAL_REPEATING]
+        val fromEnd = preferences[Keys.LEGACY_INTERVAL_FROM_END]
+
+        // No legacy keys either → use default
+        if (repeating == null && fromEnd == null) return MeditationSettings.DEFAULT_INTERVAL_MODE
+
+        // Migration logic:
+        // repeating=true → REPEATING (fromEnd is ignored, "repeating from end" mode removed)
+        // repeating=false → BEFORE_END
+        return if (repeating != false) IntervalMode.REPEATING else IntervalMode.BEFORE_END
     }
 
     override val settingsFlow: Flow<MeditationSettings> =
@@ -68,12 +93,7 @@ constructor(
                     intervalMinutes =
                     preferences[Keys.INTERVAL_MINUTES]
                         ?: MeditationSettings.Default.intervalMinutes,
-                    intervalRepeating =
-                    preferences[Keys.INTERVAL_REPEATING]
-                        ?: MeditationSettings.Default.intervalRepeating,
-                    intervalFromEnd =
-                    preferences[Keys.INTERVAL_FROM_END]
-                        ?: MeditationSettings.Default.intervalFromEnd,
+                    intervalMode = migrateIntervalMode(preferences),
                     intervalSoundId =
                     preferences[Keys.INTERVAL_SOUND_ID]
                         ?: MeditationSettings.Default.intervalSoundId,
@@ -112,8 +132,7 @@ constructor(
         context.dataStore.edit { preferences ->
             preferences[Keys.INTERVAL_GONGS_ENABLED] = settings.intervalGongsEnabled
             preferences[Keys.INTERVAL_MINUTES] = settings.intervalMinutes
-            preferences[Keys.INTERVAL_REPEATING] = settings.intervalRepeating
-            preferences[Keys.INTERVAL_FROM_END] = settings.intervalFromEnd
+            preferences[Keys.INTERVAL_MODE] = settings.intervalMode.name
             preferences[Keys.INTERVAL_SOUND_ID] = settings.intervalSoundId
             preferences[Keys.INTERVAL_GONG_VOLUME] = settings.intervalGongVolume
             preferences[Keys.BACKGROUND_SOUND_ID] = settings.backgroundSoundId

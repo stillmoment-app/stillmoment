@@ -35,6 +35,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -65,6 +68,7 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GongSound
+import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -606,29 +610,12 @@ private fun IntervalGongsEnabledContent(
 
         Spacer(modifier = Modifier.height(itemSpacing))
 
-        IntervalToggleRow(
-            label = stringResource(R.string.settings_interval_repeating),
-            checked = settings.intervalRepeating,
-            testTag = "settings.toggle.intervalRepeating",
-            accessibilityDescription = stringResource(R.string.accessibility_interval_repeating_toggle),
-            onCheckedChange = { repeating ->
-                onSettingsChange(settings.copy(intervalRepeating = repeating))
+        IntervalModeSelector(
+            selectedMode = settings.intervalMode,
+            onModeChange = { mode ->
+                onSettingsChange(settings.copy(intervalMode = mode))
             }
         )
-
-        if (settings.intervalRepeating) {
-            Spacer(modifier = Modifier.height(itemSpacing))
-
-            IntervalToggleRow(
-                label = stringResource(R.string.settings_interval_from_end),
-                checked = settings.intervalFromEnd,
-                testTag = "settings.toggle.intervalFromEnd",
-                accessibilityDescription = stringResource(R.string.accessibility_interval_from_end_toggle),
-                onCheckedChange = { fromEnd ->
-                    onSettingsChange(settings.copy(intervalFromEnd = fromEnd))
-                }
-            )
-        }
 
         Spacer(modifier = Modifier.height(itemSpacing))
 
@@ -667,18 +654,12 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.settings_interval_gongs),
-                style = TypographyRole.SettingsLabel.textStyle(),
-                color = TypographyRole.SettingsLabel.textColor()
-            )
-            Text(
-                text = stringResource(R.string.settings_interval_gongs_description),
-                style = TypographyRole.SettingsDescription.textStyle(),
-                color = TypographyRole.SettingsDescription.textColor()
-            )
-        }
+        Text(
+            text = stringResource(R.string.settings_interval_gongs_description),
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor(),
+            modifier = Modifier.weight(1f)
+        )
         Spacer(modifier = Modifier.width(16.dp))
 
         val switchStateDescription =
@@ -794,44 +775,38 @@ private fun StepperButton(
 }
 
 /**
- * Reusable toggle row for interval settings (Repeat, Count from end).
+ * Segmented button row for selecting the interval mode (Repeating, After Start, Before End).
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntervalToggleRow(
-    label: String,
-    checked: Boolean,
-    testTag: String,
-    accessibilityDescription: String,
-    onCheckedChange: (Boolean) -> Unit
-) {
+private fun IntervalModeSelector(selectedMode: IntervalMode, onModeChange: (IntervalMode) -> Unit) {
     val haptic = LocalHapticFeedback.current
+    val selectorDescription = stringResource(R.string.accessibility_interval_mode_selector)
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    val modes = listOf(
+        IntervalMode.REPEATING to stringResource(R.string.settings_interval_mode_repeating),
+        IntervalMode.AFTER_START to stringResource(R.string.settings_interval_mode_after_start),
+        IntervalMode.BEFORE_END to stringResource(R.string.settings_interval_mode_before_end)
+    )
+
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("settings.segmented.intervalMode")
+            .semantics { contentDescription = selectorDescription }
     ) {
-        Text(
-            text = label,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
-            modifier = Modifier.weight(1f)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Switch(
-            checked = checked,
-            onCheckedChange = { value ->
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                onCheckedChange(value)
-            },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
-            modifier = Modifier
-                .testTag(testTag)
-                .semantics { contentDescription = accessibilityDescription }
-        )
+        modes.forEachIndexed { index, (mode, label) ->
+            SegmentedButton(
+                selected = selectedMode == mode,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onModeChange(mode)
+                },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size)
+            ) {
+                Text(text = label)
+            }
+        }
     }
 }
 
@@ -890,28 +865,24 @@ private fun IntervalSoundDropdown(
 
 /**
  * Dynamic description showing the current interval configuration.
- * Adapts text based on repeating/single mode and from-start/from-end direction.
+ * Adapts text based on the selected [IntervalMode].
  */
 @Composable
 private fun IntervalDescription(settings: MeditationSettings) {
     val soundName = GongSound.findOrDefault(settings.intervalSoundId).localizedName
-    val description = if (settings.intervalRepeating) {
-        if (settings.intervalFromEnd) {
-            stringResource(
-                R.string.settings_interval_desc_repeating_end,
-                settings.intervalMinutes,
-                soundName
-            )
-        } else {
-            stringResource(
-                R.string.settings_interval_desc_repeating_start,
-                settings.intervalMinutes,
-                soundName
-            )
-        }
-    } else {
-        stringResource(
-            R.string.settings_interval_desc_single,
+    val description = when (settings.intervalMode) {
+        IntervalMode.REPEATING -> stringResource(
+            R.string.settings_interval_desc_repeating,
+            settings.intervalMinutes,
+            soundName
+        )
+        IntervalMode.AFTER_START -> stringResource(
+            R.string.settings_interval_desc_after_start,
+            settings.intervalMinutes,
+            soundName
+        )
+        IntervalMode.BEFORE_END -> stringResource(
+            R.string.settings_interval_desc_before_end,
             settings.intervalMinutes,
             soundName
         )
@@ -994,8 +965,7 @@ private fun SettingsSheetWithIntervalsPreview() {
             settings = MeditationSettings(
                 intervalGongsEnabled = true,
                 intervalMinutes = 7,
-                intervalRepeating = true,
-                intervalFromEnd = false,
+                intervalMode = IntervalMode.REPEATING,
                 intervalSoundId = GongSound.SOFT_INTERVAL_SOUND_ID,
                 backgroundSoundId = "forest"
             ),

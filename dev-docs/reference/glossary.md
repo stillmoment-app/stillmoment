@@ -18,6 +18,7 @@ Last Updated: 2026-02-09
 | `ColorTheme` | Enum | App-wide | Farbthema-Auswahl (candlelight, forest, moon) |
 | `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
+| `IntervalMode` | Enum | Timer | Intervallmodus (REPEATING, AFTER_START, BEFORE_END) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
@@ -157,7 +158,7 @@ Pfade:
 | `withState(_:)` | Neue Instanz mit neuem State |
 | `startPreparation()` | Neue Instanz im Vorbereitungsmodus |
 | `markIntervalGongPlayed()` | Neue Instanz mit Gong-Marker |
-| `shouldPlayIntervalGong(intervalMinutes:)` | Prueft ob Gong faellig |
+| `shouldPlayIntervalGong(intervalMinutes:mode:)` | Prueft ob Gong faellig |
 | `reset()` | Zurueckgesetzter Timer |
 
 **Invarianten:**
@@ -221,15 +222,18 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | Property | Typ | Default | Beschreibung |
 |----------|-----|---------|--------------|
 | `intervalGongsEnabled` | Bool | false | Intervall-Gongs aktiviert? |
-| `intervalMinutes` | Int | 5 | Intervall in Minuten (3, 5, 10) |
+| `intervalMinutes` | Int | 5 | Intervall in Minuten (1-60) |
+| `intervalMode` | IntervalMode | REPEATING | Intervallmodus (REPEATING, AFTER_START, BEFORE_END) |
+| `intervalSoundId` | String | "soft-interval" | Sound ID fuer Intervallklaenge |
+| `intervalGongVolume` | Float | 0.75 | Lautstaerke fuer Intervallklaenge (0.0-1.0) |
 | `backgroundSoundId` | String | "silent" | Hintergrund-Sound ID |
 | `durationMinutes` | Int | 10 | Zuletzt gewaehlte Dauer |
 | `preparationTimeEnabled` | Bool | true | Vorbereitungszeit aktiviert? |
 | `preparationTimeSeconds` | Int | 15 | Vorbereitungszeit in Sekunden (5, 10, 15, 20, 30, 45) |
-| `startGongSoundId` | String | "classic-bowl" | Gong-Ton ID (Start/Ende) |
+| `gongSoundId` | String | "temple-bell" | Gong-Ton ID (Start/Ende) |
 
 **Validierung:**
-- `validateInterval(_:)` - Clamps zu 3, 5 oder 10
+- `validateInterval(_:)` - Clamps zu 1-60
 - `validateDuration(_:)` - Clamps zu 1-60
 - `validatePreparationTime(_:)` - Clamps zu naechstem gueltigen Wert (5, 10, 15, 20, 30, 45)
 
@@ -255,33 +259,65 @@ Optionales Hintergrundgeraeusch waehrend der Timer-Meditation. Beiwerk zum Timer
 **Pattern:** Localized Content
 
 **Beschreibung:**
-Konfigurierbarer Gong-Ton fuer den Start/Ende-Gong. Immutables Value Object mit ID, Dateiname und lokalisiertem Namen. Der Intervall-Gong verwendet einen festen Ton (`interval.mp3`).
+Konfigurierbarer Gong-Ton fuer Start/Ende-Gong und Intervall-Gong. Immutables Value Object mit ID, Audio-Ressource und lokalisiertem Namen.
 
 **Properties:**
 
 | Property | Typ | Beschreibung |
 |----------|-----|--------------|
-| `id` | String | Eindeutige ID (z.B. "classic-bowl") |
-| `filename` | String | Audio-Dateiname |
-| `name` | LocalizedString | Lokalisierter Name (DE/EN) |
+| `id` | String | Eindeutige ID (z.B. "temple-bell") |
+| `rawResId` / `filename` | Int / String | Audio-Ressource (plattformspezifisch) |
+| `localizedName` | String | Lokalisierter Name (DE/EN) |
 
-**Verfuegbare Sounds:**
+**Verfuegbare Sounds (Start/Ende-Gong):**
 
 | ID | EN Label | DE Label |
 |----|----------|----------|
+| `temple-bell` | Temple Bell | Tempelglocke |
 | `classic-bowl` | Classic Bowl | Klassisch |
 | `deep-resonance` | Deep Resonance | Tiefe Resonanz |
 | `clear-strike` | Clear Strike | Klarer Anschlag |
-| `deep-zen` | Deep Zen | Tiefer Zen |
-| `warm-zen` | Warm Zen | Warmer Zen |
 
-**Default:** `classic-bowl`
+**Zusaetzlicher Sound (nur Intervall-Gong):**
+
+| ID | EN Label | DE Label |
+|----|----------|----------|
+| `soft-interval` | Soft Interval Tone | Sanfter Intervallton |
+
+**Default (Start/Ende):** `temple-bell`
+**Default (Intervall):** `soft-interval`
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/GongSound.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/GongSound.kt`
 
-**Siehe auch:** `MeditationSettings.startGongSoundId`
+**Siehe auch:** `MeditationSettings.gongSoundId`, `MeditationSettings.intervalSoundId`
+
+---
+
+### IntervalMode
+
+**Typ:** Enum
+**Pattern:** Strategy
+
+**Beschreibung:**
+Definiert wie Intervallklaenge waehrend der Meditation ausgeloest werden. Ersetzt das fruehere Boolean-Paar (`intervalRepeating` + `intervalFromEnd`) durch drei selbsterklaerende Modi.
+
+**Werte:**
+
+| Wert | Beschreibung | Beispiel (20 Min., 5 Min. Intervall) |
+|------|--------------|---------------------------------------|
+| `REPEATING` | Gongs bei jedem vollen Intervall vom Start | Klaenge bei 5:00, 10:00, 15:00 |
+| `AFTER_START` | Genau 1 Gong X Minuten nach Start | 1 Klang bei 5:00 |
+| `BEFORE_END` | Genau 1 Gong X Minuten vor Ende | 1 Klang bei 15:00 |
+
+**Default:** `REPEATING`
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/IntervalMode.swift` (geplant)
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/IntervalMode.kt`
+
+**Siehe auch:** `MeditationTimer.shouldPlayIntervalGong()`, `MeditationSettings.intervalMode`
 
 ---
 

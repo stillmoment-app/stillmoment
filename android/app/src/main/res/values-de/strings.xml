@@ -32,16 +32,19 @@
     <string name="settings_soundscape">Klangkulisse</string>
     <string name="settings_soundscape_label">Klang</string>
     <string name="settings_interval_gongs">Intervallklänge</string>
-    <string name="settings_interval_gongs_description">Sanfte Klänge während der Meditation</string>
+    <string name="settings_interval_gongs_description">Ein Gong-Klang in regelmäßigen Abständen während der Meditation</string>
     <string name="settings_interval_minutes">Intervall</string>
-    <string name="settings_interval_repeating">Wiederholen</string>
-    <string name="settings_interval_from_end">Vom Ende zählen</string>
     <string name="settings_interval_sound">Klang</string>
 
+    <!-- Interval Mode Labels -->
+    <string name="settings_interval_mode_repeating">Regelmäßig</string>
+    <string name="settings_interval_mode_after_start">Nach Start</string>
+    <string name="settings_interval_mode_before_end">Vor Ende</string>
+
     <!-- Interval Gongs Dynamic Description -->
-    <string name="settings_interval_desc_repeating_start">Alle %1$d Min., %2$s</string>
-    <string name="settings_interval_desc_repeating_end">Alle %1$d Min. vom Ende, %2$s</string>
-    <string name="settings_interval_desc_single">%1$d Min. vor Ende, %2$s</string>
+    <string name="settings_interval_desc_repeating">Alle %1$d Min., %2$s</string>
+    <string name="settings_interval_desc_after_start">%1$d Min. nach Start, %2$s</string>
+    <string name="settings_interval_desc_before_end">%1$d Min. vor Ende, %2$s</string>
     <string name="settings_interval_minutes_format">%d Min.</string>
     <string name="settings_gong">Gong</string>
     <string name="settings_gong_sound">Gong-Ton</string>
@@ -147,8 +150,7 @@
     <string name="accessibility_gong_volume">Gong-Lautstärke: %d Prozent</string>
     <string name="accessibility_interval_gong_volume">Intervall-Gong-Lautstärke: %d Prozent</string>
     <string name="accessibility_interval_gongs_toggle">Intervallklänge Schalter</string>
-    <string name="accessibility_interval_repeating_toggle">Intervallklänge wiederholen Schalter</string>
-    <string name="accessibility_interval_from_end_toggle">Vom Ende zählen Schalter</string>
+    <string name="accessibility_interval_mode_selector">Intervallmodus</string>
     <string name="accessibility_interval_stepper">Intervall: %d Minuten</string>
     <string name="accessibility_interval_decrease">Intervall verringern</string>
     <string name="accessibility_interval_increase">Intervall erhöhen</string>

@@ -32,34 +32,32 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 
 **Datenmodell**
 - [ ] Intervall frei waehlbar von 1 bis 60 Minuten (statt fest 3/5/10)
-- [ ] Wiederholen an/aus (Default: an = bisheriges Verhalten)
-- [ ] Richtung "vom Ende zaehlen" an/aus (Default: aus = bisheriges Verhalten)
+- [ ] IntervalMode Enum: REPEATING (Default), AFTER_START, BEFORE_END
 - [ ] Eigener Sound fuer Intervallklaenge, unabhaengig vom Start/Ende-Gong
 - [ ] Bestehende Einstellungen migrieren sauber (keine Datenverluste)
 
 **Intervall-Logik**
-- [ ] Wiederholend + vom Anfang: Klaenge bei jedem vollen Intervall vom Start (5:00, 10:00, 15:00, ...)
-- [ ] Wiederholend + vom Ende: Klaenge rueckwaerts vom Ende, letzter Klang exakt X Min. vor Ende
-- [ ] Einmalig: Genau 1 Klang X Minuten vor Ende (Richtungswahl nicht sichtbar)
+- [ ] REPEATING: Klaenge bei jedem vollen Intervall vom Start (5:00, 10:00, 15:00, ...)
+- [ ] AFTER_START: Genau 1 Klang X Minuten nach Start
+- [ ] BEFORE_END: Genau 1 Klang X Minuten vor Ende
 - [ ] Kein Klang wenn Intervall >= Meditation (kein Fehler, kein Warning)
 - [ ] Kein Intervall-Klang in den letzten 5 Sekunden (Kollision mit Ende-Gong vermeiden)
 
 **Settings-UI**
 - [ ] Intervallklaenge bekommen eine eigene Section (getrennt von Gong-Section)
 - [ ] Stepper fuer Intervall 1-60 Min. (statt Dropdown)
-- [ ] Toggle fuer "Wiederholen"
-- [ ] Toggle fuer "Vom Ende zaehlen" -- nur sichtbar wenn Wiederholen an
+- [ ] IntervalMode-Auswahl: Segmented Button (Android) / Picker(.menu) (iOS) mit 3 Optionen
 - [ ] Sound-Picker fuer Intervall-Sound (5 Optionen: bisherige 4 + "Sanfter Intervallton")
 - [ ] Lautstaerkeregler fuer Intervall-Sound
 - [ ] Dynamische Beschreibung unter dem Intervall-Toggle zeigt aktuelle Konfiguration
 
 **Dynamische Beschreibung**
 
-| Konfiguration | DE | EN |
-|---------------|----|----|
-| Wiederholen AN, vom Anfang | "Alle X Min., {Soundname}" | "Every X min, {Soundname}" |
-| Wiederholen AN, vom Ende | "Alle X Min. vom Ende, {Soundname}" | "Every X min from end, {Soundname}" |
-| Wiederholen AUS | "X Min. vor Ende, {Soundname}" | "X min before end, {Soundname}" |
+| IntervalMode | DE | EN |
+|--------------|----|----|
+| REPEATING | "Alle X Min., {Soundname}" | "Every X min, {Soundname}" |
+| AFTER_START | "X Min. nach Start, {Soundname}" | "X min after start, {Soundname}" |
+| BEFORE_END | "X Min. vor Ende, {Soundname}" | "X min before end, {Soundname}" |
 | Toggle AUS | Statische Beschreibung (wie bisher) | Statische Beschreibung (wie bisher) |
 
 **Sound-Optionen**
@@ -71,9 +69,9 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 | Zustand | Sichtbar |
 |---------|----------|
 | Intervallklaenge AUS | Nur Toggle + statische Beschreibung |
-| Wiederholend, vom Anfang (Default) | Toggle, Stepper, Wiederholen-Toggle, Vom-Ende-Toggle (aus), Sound-Picker, Volume |
-| Wiederholend, vom Ende | Toggle, Stepper, Wiederholen-Toggle, Vom-Ende-Toggle (an), Sound-Picker, Volume |
-| Einmalig | Toggle, Stepper, Wiederholen-Toggle (aus), Sound-Picker, Volume (kein Vom-Ende-Toggle) |
+| REPEATING (Default) | Toggle, Stepper, IntervalMode-Selector, Sound-Picker, Volume |
+| AFTER_START | Toggle, Stepper, IntervalMode-Selector, Sound-Picker, Volume |
+| BEFORE_END | Toggle, Stepper, IntervalMode-Selector, Sound-Picker, Volume |
 
 - [ ] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
@@ -151,39 +149,33 @@ Die Section-Reihenfolge bleibt gleich, nur "Gong" wird aufgeteilt:
 └──────────────────────────────────────────────┘
 ```
 
-### Intervallklaenge Section — 4 Zustaende
+### Intervallklaenge Section — 3 Zustaende (+ AUS)
 
-#### Zustand 1: AUS (collapsed)
+#### Zustand: AUS (collapsed)
 
 ```
   INTERVALLKLAENGE
 ┌──────────────────────────────────────────────┐
-│  Intervallklaenge              ┌─────┐       │
-│                                │ OFF │       │
-│  Sanfte Klaenge waehrend       └─────┘       │
-│  der Meditation                              │
+│  Ein Gong-Klang in             ┌─────┐       │
+│  regelmaessigen Abstaenden     │ OFF │       │
+│  waehrend der Meditation       └─────┘       │
 └──────────────────────────────────────────────┘
 ```
 
-#### Zustand 2: AN — Wiederholend, vom Anfang (Default)
+#### Zustand: AN — REPEATING (Default)
 
 ```
   INTERVALLKLAENGE
 ┌──────────────────────────────────────────────┐
-│  Intervallklaenge              ┌─────┐       │
+│  Alle 5 Min., Tempelglocke    ┌─────┐       │
 │                                │  ON │       │
-│  Alle 5 Min., Tempelglocke    └─────┘       │
+│                                └─────┘       │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
 │  Intervall       [ - ]   5 Min.   [ + ]      │
 │                                              │
-│                                ┌─────┐       │
-│  Wiederholen                   │  ON │       │
-│                                └─────┘       │
-│                                ┌─────┐       │
-│  Vom Ende zaehlen              │ OFF │       │
-│                                └─────┘       │
+│  [Regelmaessig] [Nach Start] [Vor Ende]      │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
@@ -194,54 +186,45 @@ Die Section-Reihenfolge bleibt gleich, nur "Gong" wird aufgeteilt:
   → Ergebnis (20 Min.): Klaenge bei 5:00, 10:00, 15:00
 ```
 
-#### Zustand 3: AN — Wiederholend, vom Ende
+#### Zustand: AN — AFTER_START
 
 ```
   INTERVALLKLAENGE
 ┌──────────────────────────────────────────────┐
-│  Intervallklaenge              ┌─────┐       │
-│                                │  ON │       │
-│  Alle 5 Min. vom Ende,        └─────┘       │
-│  Klarer Anschlag                             │
+│  5 Min. nach Start,            ┌─────┐       │
+│  Tempelglocke                  │  ON │       │
+│                                └─────┘       │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
 │  Intervall       [ - ]   5 Min.   [ + ]      │
 │                                              │
-│                                ┌─────┐       │
-│  Wiederholen                   │  ON │       │
-│                                └─────┘       │
-│                                ┌─────┐       │
-│  Vom Ende zaehlen              │  ON │       │
-│                                └─────┘       │
+│  [Regelmaessig] [Nach Start] [Vor Ende]      │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
-│  Klang              [Klarer Anschlag ▾]      │
+│  Klang              [ Tempelglocke   ▾]      │
 │                                              │
 │  🔉━━━━━━━━●━━━━━━━━🔊                      │
 └──────────────────────────────────────────────┘
-  → Ergebnis (23 Min.): Klaenge bei 3:00, 8:00, 13:00, 18:00
+  → Ergebnis (20 Min.): 1 Klang bei 5:00
 ```
 
-#### Zustand 4: AN — Einmalig (immer vor Ende)
+#### Zustand: AN — BEFORE_END
 
 ```
   INTERVALLKLAENGE
 ┌──────────────────────────────────────────────┐
-│  Intervallklaenge              ┌─────┐       │
-│                                │  ON │       │
-│  5 Min. vor Ende,              └─────┘       │
-│  Tempelglocke                                │
+│  5 Min. vor Ende,              ┌─────┐       │
+│  Tempelglocke                  │  ON │       │
+│                                └─────┘       │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
 │  Intervall       [ - ]   5 Min.   [ + ]      │
 │                                              │
-│                                ┌─────┐       │
-│  Wiederholen                   │ OFF │       │
-│                                └─────┘       │
-│                                              │  ← kein "Vom Ende" Toggle
+│  [Regelmaessig] [Nach Start] [Vor Ende]      │
+│                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
 │  Klang              [ Tempelglocke   ▾]      │
@@ -290,10 +273,9 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
-│  Intervallklaenge              ┌─────┐       │
-│                                │  ON │       │
-│  Ein Gong-Klang in             └─────┘       │
-│  regelmaessigen Abstaenden                   │
+│  Ein Gong-Klang in             ┌─────┐       │
+│  regelmaessigen Abstaenden     │  ON │       │
+│  waehrend der Meditation       └─────┘       │
 │                                              │
 │  🔉━━━━━━━━●━━━━━━━━🔊                      │
 │                                              │
@@ -311,20 +293,15 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 
   INTERVALLKLAENGE
 ┌──────────────────────────────────────────────┐
-│  Intervallklaenge              ┌─────┐       │
+│  Alle 5 Min., Tempelglocke    ┌─────┐       │
 │                                │  ON │       │
-│  Alle 5 Min., Tempelglocke    └─────┘       │
+│                                └─────┘       │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
 │  Intervall       [ - ]   5 Min.   [ + ]      │
 │                                              │
-│                                ┌─────┐       │
-│  Wiederholen                   │  ON │       │
-│                                └─────┘       │
-│                                ┌─────┐       │
-│  Vom Ende zaehlen              │ OFF │       │
-│                                └─────┘       │
+│  [Regelmaessig] [Nach Start] [Vor Ende]      │
 │                                              │
 │  ──────────────────────────────────────────  │
 │                                              │
@@ -338,19 +315,19 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 
 ## Manueller Test
 
-### Wiederholend vom Anfang (Default)
+### REPEATING (Default)
 1. Settings oeffnen, Intervallklaenge aktivieren
-2. Intervall auf 5 Min. stellen, Wiederholen an, Vom Ende aus
+2. Intervall auf 5 Min. stellen, Modus "Regelmaessig"
 3. 20-Min-Meditation starten
 4. Erwartung: Klaenge bei 5:00, 10:00, 15:00 verstrichener Zeit
 
-### Wiederholend vom Ende
-1. Intervall 5 Min., Wiederholen an, Vom Ende an
-2. 23-Min-Meditation starten
-3. Erwartung: Klaenge bei 3:00, 8:00, 13:00, 18:00 (= 20, 15, 10, 5 Min. vor Ende)
+### AFTER_START
+1. Intervall 5 Min., Modus "Nach Start"
+2. 20-Min-Meditation starten
+3. Erwartung: Genau 1 Klang bei 5:00 verstrichener Zeit
 
-### Einmalig (vor Ende)
-1. Intervall 5 Min., Wiederholen aus
+### BEFORE_END
+1. Intervall 5 Min., Modus "Vor Ende"
 2. 20-Min-Meditation starten
 3. Erwartung: Genau 1 Klang bei 15:00 (= 5 Min. vor Ende)
 
@@ -370,6 +347,7 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
+| IntervalMode-Auswahl | Picker(.menu) | SingleChoiceSegmentedButtonRow (Material3) |
 | Stepper | Nativer `Stepper(value:in:)` | Custom Row mit -/+ Buttons (Material3) |
 | Sound-Picker | Nativer Picker | ExposedDropdownMenuBox |
 | Section-Trennung | Eigene List-Section | Eigene Card |
@@ -385,14 +363,13 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 
 ## Hinweise
 
-- **Regel bei Einmalig**: `intervalFromEnd` wird automatisch true und das Toggle ist nicht sichtbar. Der haeufigste Einzelklang-Usecase ist "X Min. vor Ende".
+- **IntervalMode Enum**: Ersetzt das fruehere Boolean-Paar (`intervalRepeating` + `intervalFromEnd`). 3 selbsterklaerende Werte statt 4 Boolean-Kombinationen (davon 1 sinnlos).
 - **Verhaltensmatrix**:
 
-| Wiederholen | Vom Ende | Beispiel (20 Min., 5 Min. Intervall) |
-|-------------|----------|---------------------------------------|
-| AN          | AUS      | Klaenge bei 5:00, 10:00, 15:00       |
-| AN          | AN       | Klaenge bei 5:00, 10:00, 15:00 vor Ende |
-| AUS         | (immer vom Ende) | 1 Klang bei 15:00 (= 5 vor Ende) |
+| IntervalMode | Beispiel (20 Min., 5 Min. Intervall) |
+|--------------|---------------------------------------|
+| REPEATING    | Klaenge bei 5:00, 10:00, 15:00       |
+| AFTER_START  | 1 Klang bei 5:00                     |
+| BEFORE_END   | 1 Klang bei 15:00 (= 5 vor Ende)    |
 
-- **Vom-Ende-Rechnung**: 23 Min., 5 Min. Intervall → Klaenge bei 3:00, 8:00, 13:00, 18:00. Erster Klang ist der "Rest" (23 mod 5 = 3), danach regelmaessig.
 - **5-Sekunden-Schutz**: Bestehende Logik `remainingSeconds > 0` auf `remainingSeconds > 5` erhoehen, um Kollision mit Ende-Gong zu vermeiden.

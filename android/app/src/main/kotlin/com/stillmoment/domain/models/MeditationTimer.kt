@@ -90,20 +90,19 @@ data class MeditationTimer(
     /**
      * Checks if an interval gong should be played.
      *
-     * Supports 3 modes:
-     * - Repeating from start: Gongs at every full interval from elapsed time (5:00, 10:00, 15:00...)
-     * - Repeating from end: Gongs at intervals counted backward from end (remainder first, then regular)
-     * - Single (not repeating): Exactly 1 gong X minutes before end
+     * Supports 3 modes via [IntervalMode]:
+     * - REPEATING: Gongs at every full interval from elapsed time (5:00, 10:00, 15:00...)
+     * - AFTER_START: Single gong X minutes after start
+     * - BEFORE_END: Single gong X minutes before end
      *
      * The 5-second protection prevents collision with the end gong.
      *
      * @param intervalMinutes Interval in minutes (1-60)
-     * @param repeating Whether to repeat the gong at every interval
-     * @param fromEnd Whether to count intervals from the end of meditation
+     * @param mode How interval gongs are triggered
      * @return True if a gong should be played at the current remaining time
      */
     @Suppress("ReturnCount") // Multiple guard clauses for clarity
-    fun shouldPlayIntervalGong(intervalMinutes: Int, repeating: Boolean = true, fromEnd: Boolean = false): Boolean {
+    fun shouldPlayIntervalGong(intervalMinutes: Int, mode: IntervalMode = IntervalMode.REPEATING): Boolean {
         if (state != TimerState.Running) return false
         if (intervalMinutes <= 0) return false
 
@@ -117,22 +116,14 @@ data class MeditationTimer(
 
         val elapsed = totalSeconds - remainingSeconds
 
-        // Effective fromEnd: single gong is always "from end"
-        val effectiveFromEnd = if (!repeating) true else fromEnd
-
-        return if (!repeating) {
-            // Single mode: exactly 1 gong at (totalSeconds - intervalSeconds) elapsed
-            shouldPlaySingleGong(elapsed, intervalSeconds)
-        } else if (effectiveFromEnd) {
-            // Repeating from end
-            shouldPlayRepeatingFromEnd(elapsed, intervalSeconds)
-        } else {
-            // Repeating from start
-            shouldPlayRepeatingFromStart(elapsed, intervalSeconds)
+        return when (mode) {
+            IntervalMode.REPEATING -> shouldPlayRepeatingFromStart(elapsed, intervalSeconds)
+            IntervalMode.AFTER_START -> shouldPlaySingleFromStart(elapsed, intervalSeconds)
+            IntervalMode.BEFORE_END -> shouldPlaySingleFromEnd(elapsed, intervalSeconds)
         }
     }
 
-    private fun shouldPlaySingleGong(elapsed: Int, intervalSeconds: Int): Boolean {
+    private fun shouldPlaySingleFromEnd(elapsed: Int, intervalSeconds: Int): Boolean {
         val targetElapsed = totalSeconds - intervalSeconds
         if (targetElapsed <= 0) return false
 
@@ -142,6 +133,13 @@ data class MeditationTimer(
         return elapsed >= targetElapsed
     }
 
+    private fun shouldPlaySingleFromStart(elapsed: Int, intervalSeconds: Int): Boolean {
+        // Already played?
+        if (lastIntervalGongAt != null) return false
+
+        return elapsed >= intervalSeconds
+    }
+
     private fun shouldPlayRepeatingFromStart(elapsed: Int, intervalSeconds: Int): Boolean {
         // First gong not yet played
         if (lastIntervalGongAt == null) {
@@ -149,21 +147,6 @@ data class MeditationTimer(
         }
 
         // Check if enough time passed since last gong
-        val timeSinceLastGong = lastIntervalGongAt - remainingSeconds
-        return timeSinceLastGong >= intervalSeconds
-    }
-
-    private fun shouldPlayRepeatingFromEnd(elapsed: Int, intervalSeconds: Int): Boolean {
-        // Calculate gong times from the end:
-        // For 23 min, 5 min interval: gongs at 3:00, 8:00, 13:00, 18:00 elapsed
-        // First offset = totalSeconds % intervalSeconds (remainder)
-        val remainder = totalSeconds % intervalSeconds
-        val firstGongElapsed = if (remainder > 0) remainder else intervalSeconds
-
-        if (lastIntervalGongAt == null) {
-            return elapsed >= firstGongElapsed
-        }
-
         val timeSinceLastGong = lastIntervalGongAt - remainingSeconds
         return timeSinceLastGong >= intervalSeconds
     }

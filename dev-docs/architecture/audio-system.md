@@ -25,7 +25,7 @@ Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 | **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
 | **Start-Gong** | Tibetische Klangschale markiert Beginn |
 | **Hintergrund-Audio** | Kontinuierliche Schleife waehrend Meditation |
-| **Intervall-Gongs** | Optionale Gongs alle 3/5/10 Minuten |
+| **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi: regelmaessig, nach Start, vor Ende) |
 | **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
 
 ### Hintergrund-Sounds
@@ -285,7 +285,9 @@ Importierte Dateien werden in App-internen Speicher kopiert.
 | Property | Beschreibung |
 |----------|--------------|
 | `intervalGongsEnabled` | Intervall-Gongs aktiviert? |
-| `intervalMinutes` | Intervall (3, 5, 10 Minuten) |
+| `intervalMinutes` | Intervall (1-60 Minuten) |
+| `intervalMode` | Modus: REPEATING, AFTER_START, BEFORE_END |
+| `intervalSoundId` | Intervall-Sound ID (unabhaengig vom Start/Ende-Gong) |
 | `backgroundSoundId` | Sound ID aus `sounds.json` |
 
 Vollstaendige MeditationSettings Definition siehe `../reference/glossary.md`.
