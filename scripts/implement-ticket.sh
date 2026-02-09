@@ -487,7 +487,7 @@ if [[ -n "$CHALLENGES" ]] && ! grep -q "^## LEARN" "$LOG_FILE"; then
 fi
 
 # Extract learnings from log for display
-LEARNINGS=$(sed -n '/^## LEARN/,/^## /{/^Learnings:/,/^$/p}' "$LOG_FILE" | grep -v "^Learnings:" | sed '/^$/d') || true
+LEARNINGS=$(awk '/^## LEARN/{found=1} found && /^Learnings:/{cap=1; next} cap && /^$/{cap=0} cap{print}' "$LOG_FILE") || true
 
 echo ""
 echo "=== FERTIG ==="
