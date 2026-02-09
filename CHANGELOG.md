@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed (Android)
+- **Timer Pause-Button entfernt** - Meditation Timer hat keinen Pause/Resume-Button mehr
+  - Laufende Meditation kann nur ueber Close (X) beendet werden
+  - State Machine vereinfacht: Running geht nur noch zu Completed oder Idle
+  - Guided Meditation Player behaelt Play/Pause (Audio-Steuerung, nicht Meditation-Pause)
+  - Nicht mehr benoetigte Lokalisierungs-Strings entfernt (DE + EN)
+  - Ticket: shared-048
+
 ### Improved (Android)
 - **Semantische Farben in Views** - Alle Views nutzen jetzt die eigenen semantischen Farbrollen statt Material3-Defaults
   - Timer-Ring: `progress`-Farbe statt `primary`

@@ -103,7 +103,6 @@ sealed class TimerState {
     data object Idle : TimerState()
     data object Preparation : TimerState()
     data object Running : TimerState()
-    data object Paused : TimerState()
     data object Completed : TimerState()
 }
 ```
@@ -221,8 +220,8 @@ Domain defines the interface, Infrastructure implements with DataStore:
 interface TimerRepository {
     val timerFlow: Flow<MeditationTimer>
     suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int)
-    suspend fun pause()
-    suspend fun resume()
+    suspend fun reset()
+    fun tick(): MeditationTimer?
 }
 
 // Infrastructure

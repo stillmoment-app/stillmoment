@@ -9,7 +9,9 @@
 
 ## Was
 
-Bei aktivem Timer (countdown, running, paused) soll ein ablenkungsfreier Fokus-Modus aktiv sein. Navigation und Tab-Bar werden versteckt, nur der Timer und die Controls sind sichtbar.
+Bei aktivem Timer (countdown, running) soll ein ablenkungsfreier Fokus-Modus aktiv sein. Navigation und Tab-Bar werden versteckt, nur der Timer und die Controls sind sichtbar.
+
+> **Hinweis:** Der Paused-State wurde in [shared-048](shared-048-timer-remove-pause.md) entfernt. Meditation kennt kein Pausieren — der Timer laeuft immer weiter.
 
 ## Warum
 
@@ -30,8 +32,8 @@ Eine Meditations-App sollte waehrend der Meditation nicht ablenken. Aktuell sind
 
 - [x] Timer-Start oeffnet Fokus-Ansicht (Navigation + Tab-Bar versteckt)
 - [x] "Schliessen" Button (oben links) beendet Timer und kehrt zur Auswahl zurueck
-- [x] Swipe-to-dismiss bei iOS nur moeglich wenn Timer pausiert
-- [x] Fokus-Ansicht zeigt: Timer-Display, Pause/Resume Buttons (kein Reset - Close-Button reicht)
+- [x] ~~Swipe-to-dismiss bei iOS nur moeglich wenn Timer pausiert~~ (Pause entfernt in shared-048, Swipe-to-dismiss entfernt in shared-036)
+- [x] Fokus-Ansicht zeigt: Timer-Display, Close-Button (Pause/Resume wurde in shared-048 entfernt)
 - [x] Timer-Completion (Gong fertig) schliesst Fokus-Ansicht automatisch
 - [x] Unit Tests fuer Navigation-Logik
 - [x] Lokalisiert (DE + EN) - Accessibility-Texte
