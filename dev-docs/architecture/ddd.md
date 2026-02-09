@@ -197,7 +197,110 @@ Waehrend der Timer im `Running`-Zustand ist, werden Intervall-Gongs in regelmaes
 **Referenz:**
 - Domain-Logik: `MeditationTimer.shouldPlayIntervalGong()`, `markIntervalGongPlayed()`
 - Reducer: `TimerReducer.reduceIntervalGongTriggered()`, `reduceIntervalGongPlayed()`
-- Orchestrierung: `TimerViewModel.handleTimerUpdate()`
+- Orchestrierung: `TimerViewModel.checkIntervalGong()` (Android), `TimerViewModel.handleTimerUpdate()` (iOS)
+
+### Flexible Intervall-Modi
+
+`shouldPlayIntervalGong(intervalMinutes, repeating, fromEnd)` unterstuetzt drei Modi:
+
+#### Guard Clauses (alle Modi)
+
+Bevor ein Modus geprueft wird, verhindern vier Guards unzulaessige Gongs:
+
+1. `state != Running` → kein Gong ausserhalb des laufenden Timers
+2. `intervalMinutes <= 0` → ungueltige Eingabe
+3. `intervalSeconds >= totalSeconds` → Intervall laenger als Timer-Dauer
+4. `remainingSeconds <= 5` → **End-Protection**: kein Gong in den letzten 5 Sekunden (Kollision mit Ende-Gong)
+
+#### Modus 1: Repeating from Start (`repeating=true, fromEnd=false`)
+
+Gongs in regelmaessigen Abstaenden ab Timer-Start.
+
+```
+Beispiel: 10 min Timer, 3 min Intervall
+
+elapsed:  0     180    360    540    600
+          |------|------|------|------|
+               Gong1  Gong2  Gong3  Ende
+```
+
+**Logik:**
+- Erster Gong: `elapsed >= intervalSeconds`
+- Folgende: `lastIntervalGongAt - remainingSeconds >= intervalSeconds`
+
+#### Modus 2: Repeating from End (`repeating=true, fromEnd=true`)
+
+Gongs in regelmaessigen Abstaenden **rueckwaerts vom Ende** gezaehlt. Der Remainder (Rest bei ungleicher Teilung) faellt an den Anfang.
+
+```
+Beispiel: 5 min Timer (300s), 2 min Intervall (120s)
+
+remainder = 300 % 120 = 60
+firstGongElapsed = 60
+
+elapsed:  0    60         180        300
+          |-----|----------|----------|
+             Gong1      Gong2      Ende
+             (Rest)    (Intervall)
+
+Vom Ende betrachtet:  4:00      2:00      0:00
+```
+
+```
+Beispiel: 23 min Timer (1380s), 5 min Intervall (300s)
+
+remainder = 1380 % 300 = 180
+firstGongElapsed = 180
+
+elapsed:  0   180   480   780   1080  1380
+          |----|-----|-----|-----|-----|
+            Gong1 Gong2 Gong3 Gong4  Ende
+
+Vom Ende betrachtet:  20:00 15:00 10:00  5:00  0:00
+```
+
+**Logik:**
+- `remainder = totalSeconds % intervalSeconds`
+- `firstGongElapsed = remainder > 0 ? remainder : intervalSeconds`
+- Erster Gong: `elapsed >= firstGongElapsed`
+- Folgende: `lastIntervalGongAt - remainingSeconds >= intervalSeconds`
+
+**Warum Remainder vorne?** Damit die Gongs exakt X Minuten vor Ende liegen. Bei 23 min / 5 min Intervall sollen Gongs bei 20:00, 15:00, 10:00, 5:00 verbleibend ertoenen — der 3-Minuten-Rest faellt an den Anfang.
+
+#### Modus 3: Single (`repeating=false`)
+
+Genau **ein** Gong, X Minuten vor Ende. Intern immer `fromEnd=true`.
+
+```
+Beispiel: 10 min Timer, 3 min Intervall (single)
+
+elapsed:  0              420        600
+          |---------------|----------|
+                        Gong      Ende
+                    (7 min elapsed = 3 min vor Ende)
+```
+
+**Logik:**
+- `targetElapsed = totalSeconds - intervalSeconds`
+- Gong wenn `elapsed >= targetElapsed` und `lastIntervalGongAt == null`
+- Nach dem einzigen Gong: `lastIntervalGongAt != null` → nie wieder true
+
+#### Settings-Mapping
+
+| UI-Setting | Domain-Parameter | Bemerkung |
+|------------|-----------------|-----------|
+| `intervalMinutes` (1-60) | `intervalMinutes` | Stepper in Settings |
+| `intervalRepeating` | `repeating` | Toggle "Wiederholen" |
+| `intervalFromEnd` | `fromEnd` | Toggle "Vom Ende zaehlen" (nur sichtbar wenn repeating=true) |
+| `effectiveIntervalFromEnd` | — | Computed: `!repeating ? true : intervalFromEnd`. Single ist immer fromEnd |
+| `intervalSoundId` | — | Klang-Auswahl (5 Sounds inkl. "Sanfter Intervallton") |
+
+#### Plattform-Status
+
+| Plattform | Flexible Intervalle | Referenz |
+|-----------|-------------------|----------|
+| Android | Vollstaendig implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes, repeating, fromEnd)` |
+| iOS | Noch nicht implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes:)` (nur repeating-from-start) |
 
 ### Vorteile
 

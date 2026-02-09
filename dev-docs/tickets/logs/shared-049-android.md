@@ -92,3 +92,54 @@ Keine Blocker. Die Implementierung ist produktionsreif.
 Status: DONE
 Commits:
 - 3a3695c docs: #shared-049 Close ticket (Android)
+
+---
+
+## POST-REVIEW FIX
+Status: DONE
+
+Change: Default interval sound changed from "temple-bell" to "soft-interval" (Sanfter Intervallton).
+Rationale: The soft interval tone is a more natural default for interval gongs — less intrusive than the temple bell.
+Files changed:
+- MeditationSettings.kt: DEFAULT_INTERVAL_SOUND_ID → GongSound.SOFT_INTERVAL_SOUND_ID
+- MeditationSettingsTest.kt: 3 test assertions updated
+
+All 574 tests green, make check passed.
+
+---
+
+## REFACTOR: IntervalMode Enum statt Boolean-Paar
+Status: DONE
+
+Change: Replaced `intervalRepeating: Boolean` + `intervalFromEnd: Boolean` with `IntervalMode` enum (REPEATING, AFTER_START, BEFORE_END).
+
+Rationale:
+- 2 Booleans ergaben 4 Kombinationen, davon 1 sinnlos (single + fromStart)
+- `effectiveIntervalFromEnd` Property war ein Workaround fuer die sinnlose Kombination
+- UI brauchte 2 Toggles mit bedingter Sichtbarkeit statt einer klaren Auswahl
+- Neuer AFTER_START Modus (1 Klang X Min. nach Start) fehlte komplett
+
+Files changed:
+- IntervalMode.kt (NEU): Enum mit 3 Werten, `isRepeating`, `fromString()`
+- MeditationSettings.kt: `intervalMode: IntervalMode` ersetzt 2 Booleans, `effectiveIntervalFromEnd` entfernt
+- MeditationTimer.kt: `shouldPlayIntervalGong(mode: IntervalMode)`, neue `shouldPlaySingleFromStart()`, `shouldPlayRepeatingFromEnd()` entfernt
+- SettingsDataStore.kt: String-Key statt 2 Boolean-Keys, Legacy-Migration
+- TimerViewModel.kt: 1-Zeile Anpassung
+- SettingsSheet.kt: 2 Toggles → Material3 SingleChoiceSegmentedButtonRow
+- strings.xml (EN+DE): Alte Toggle-Strings entfernt, neue Mode-Labels hinzugefuegt
+- MeditationSettingsTest.kt + MeditationTimerTest.kt: Komplett ueberarbeitet
+
+All tests green, make check passed.
+
+---
+
+## LEARN
+Status: DONE
+
+Learnings:
+- [MEMORY.md] detekt LongMethod (60 Zeilen) bei Compose-Composables: proaktiv in kleinere Composables aufteilen
+- [MEMORY.md] detekt MultipleEmitters: mehrere Top-Level-Emitter in Column/Row wrappen
+- [keine] Alte Tests/Fakes bei Interface-Aenderungen nachziehen — erwarteter Aufwand, kein neues Learning
+
+Summary:
+Zwei Android/detekt-spezifische Learnings zu LongMethod und MultipleEmitters in MEMORY.md persistiert. Die uebrigen Challenges (alte Tests/Fakes aktualisieren) sind normaler Wartungsaufwand ohne generischen Mehrwert.
