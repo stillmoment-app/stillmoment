@@ -71,6 +71,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [x] |
 | [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [x] |
+| [shared-048](shared/shared-048-timer-remove-pause.md) | Timer Pause-Button entfernen | 4-Polish | [ ] | [ ] |
 
 ---
 
