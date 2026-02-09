@@ -98,6 +98,241 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 
 ### Dokumentation
 - [ ] CHANGELOG.md
+- [ ] `dev-docs/reference/glossary.md` — `intervalMinutes` Range 3/5/10 → 1-60, neue Felder (`repeating`, `fromEnd`, `intervalSoundId`), `validateInterval()` aktualisieren
+- [ ] `dev-docs/architecture/ddd.md` — "Intervall-Gong-Zyklus" Section: 3 Modi dokumentieren, `shouldPlayIntervalGong()` Logik, 5-Sekunden-Schutz
+- [ ] `dev-docs/architecture/audio-system.md` — "alle 3/5/10 Minuten" → flexibel 1-60, drei Abspielmodi, separater Sound
+- [ ] `dev-docs/concepts/timer-presets.md` — `TimerPreset` Datenmodell um neue Felder erweitern
+- [ ] `dev-docs/release/STORE_CONTENT_IOS.md` — Feature-Beschreibung "3/5/10" → "1-60 min"
+
+---
+
+## UI-Mockup: Settings Sheet
+
+### Gesamte Settings-Sheet Struktur (Soll-Zustand)
+
+Die Section-Reihenfolge bleibt gleich, nur "Gong" wird aufgeteilt:
+
+```
+┌──────────────────────────────────────────────┐
+│  Einstellungen                      [Fertig] │
+└──────────────────────────────────────────────┘
+
+  VORBEREITUNGSZEIT
+┌──────────────────────────────────────────────┐
+│  Zeit zum Ankommen vor         ┌────┐        │
+│  der Meditation                │ ON │        │
+│                                └────┘        │
+│  Dauer              [ 15 Sekunden  ▾]        │
+└──────────────────────────────────────────────┘
+
+  GONG
+┌──────────────────────────────────────────────┐
+│  Gong-Ton           [ Tempelglocke   ▾]      │
+│                                              │
+│  🔉━━━━━━━━━━━●━━━━━━🔊                     │
+└──────────────────────────────────────────────┘
+
+  INTERVALLKLAENGE                    ← NEU: eigene Section
+┌──────────────────────────────────────────────┐
+│                                              │
+│    (Inhalt je nach Zustand — siehe unten)     │
+│                                              │
+└──────────────────────────────────────────────┘
+
+  KLANGKULISSE
+┌──────────────────────────────────────────────┐
+│  Klang              [ Stille         ▾]      │
+└──────────────────────────────────────────────┘
+
+  ERSCHEINUNGSBILD
+┌──────────────────────────────────────────────┐
+│  Farbthema   [Kerzenschein] [Wald] [Mond]    │
+│  Darstellung [System] [Hell] [Dunkel]        │
+└──────────────────────────────────────────────┘
+```
+
+### Intervallklaenge Section — 4 Zustaende
+
+#### Zustand 1: AUS (collapsed)
+
+```
+  INTERVALLKLAENGE
+┌──────────────────────────────────────────────┐
+│  Intervallklaenge              ┌─────┐       │
+│                                │ OFF │       │
+│  Sanfte Klaenge waehrend       └─────┘       │
+│  der Meditation                              │
+└──────────────────────────────────────────────┘
+```
+
+#### Zustand 2: AN — Wiederholend, vom Anfang (Default)
+
+```
+  INTERVALLKLAENGE
+┌──────────────────────────────────────────────┐
+│  Intervallklaenge              ┌─────┐       │
+│                                │  ON │       │
+│  Alle 5 Min., Tempelglocke    └─────┘       │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Intervall       [ - ]   5 Min.   [ + ]      │
+│                                              │
+│                                ┌─────┐       │
+│  Wiederholen                   │  ON │       │
+│                                └─────┘       │
+│                                ┌─────┐       │
+│  Vom Ende zaehlen              │ OFF │       │
+│                                └─────┘       │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Klang              [ Tempelglocke   ▾]      │
+│                                              │
+│  🔉━━━━━━━━●━━━━━━━━🔊                      │
+└──────────────────────────────────────────────┘
+  → Ergebnis (20 Min.): Klaenge bei 5:00, 10:00, 15:00
+```
+
+#### Zustand 3: AN — Wiederholend, vom Ende
+
+```
+  INTERVALLKLAENGE
+┌──────────────────────────────────────────────┐
+│  Intervallklaenge              ┌─────┐       │
+│                                │  ON │       │
+│  Alle 5 Min. vom Ende,        └─────┘       │
+│  Klarer Anschlag                             │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Intervall       [ - ]   5 Min.   [ + ]      │
+│                                              │
+│                                ┌─────┐       │
+│  Wiederholen                   │  ON │       │
+│                                └─────┘       │
+│                                ┌─────┐       │
+│  Vom Ende zaehlen              │  ON │       │
+│                                └─────┘       │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Klang              [Klarer Anschlag ▾]      │
+│                                              │
+│  🔉━━━━━━━━●━━━━━━━━🔊                      │
+└──────────────────────────────────────────────┘
+  → Ergebnis (23 Min.): Klaenge bei 3:00, 8:00, 13:00, 18:00
+```
+
+#### Zustand 4: AN — Einmalig (immer vor Ende)
+
+```
+  INTERVALLKLAENGE
+┌──────────────────────────────────────────────┐
+│  Intervallklaenge              ┌─────┐       │
+│                                │  ON │       │
+│  5 Min. vor Ende,              └─────┘       │
+│  Tempelglocke                                │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Intervall       [ - ]   5 Min.   [ + ]      │
+│                                              │
+│                                ┌─────┐       │
+│  Wiederholen                   │ OFF │       │
+│                                └─────┘       │
+│                                              │  ← kein "Vom Ende" Toggle
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Klang              [ Tempelglocke   ▾]      │
+│                                              │
+│  🔉━━━━━━━━●━━━━━━━━🔊                      │
+└──────────────────────────────────────────────┘
+  → Ergebnis (20 Min.): 1 Klang bei 15:00
+```
+
+### Stepper-Verhalten
+
+```
+  Minimum:        [ - ]   1 Min.   [ + ]     ← [-] disabled/grau
+  Normal:         [ - ]   5 Min.   [ + ]
+  Maximum:        [ - ]  60 Min.   [ + ]     ← [+] disabled/grau
+```
+
+- Tap auf [-]/[+]: Aendert um 1 Minute
+- Long-Press: Beschleunigtes Aendern (Plattform-nativ)
+- Haptic Feedback bei Tap
+
+### Sound-Picker Dropdown (geoeffnet)
+
+```
+  Klang              [ Tempelglocke   ▾]
+                     ┌─────────────────────┐
+                     │  Tempelglocke    ✓  │
+                     │  Klassisch          │
+                     │  Tiefe Resonanz     │
+                     │  Klarer Anschlag    │
+                     │  Sanfter Intervall- │
+                     │  ton                │
+                     └─────────────────────┘
+```
+
+Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
+
+### Vergleich: Vorher → Nachher
+
+#### VORHER (Ist-Zustand)
+```
+  GONG
+┌──────────────────────────────────────────────┐
+│  Gong-Ton           [ Tempelglocke   ▾]      │
+│  🔉━━━━━━━━━━━●━━━━━━🔊                     │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Intervallklaenge              ┌─────┐       │
+│                                │  ON │       │
+│  Ein Gong-Klang in             └─────┘       │
+│  regelmaessigen Abstaenden                   │
+│                                              │
+│  🔉━━━━━━━━●━━━━━━━━🔊                      │
+│                                              │
+│  Intervall          [  5 Minuten     ▾]      │
+└──────────────────────────────────────────────┘
+```
+
+#### NACHHER (Soll-Zustand)
+```
+  GONG
+┌──────────────────────────────────────────────┐
+│  Gong-Ton           [ Tempelglocke   ▾]      │
+│  🔉━━━━━━━━━━━●━━━━━━🔊                     │
+└──────────────────────────────────────────────┘
+
+  INTERVALLKLAENGE
+┌──────────────────────────────────────────────┐
+│  Intervallklaenge              ┌─────┐       │
+│                                │  ON │       │
+│  Alle 5 Min., Tempelglocke    └─────┘       │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Intervall       [ - ]   5 Min.   [ + ]      │
+│                                              │
+│                                ┌─────┐       │
+│  Wiederholen                   │  ON │       │
+│                                └─────┘       │
+│                                ┌─────┐       │
+│  Vom Ende zaehlen              │ OFF │       │
+│                                └─────┘       │
+│                                              │
+│  ──────────────────────────────────────────  │
+│                                              │
+│  Klang              [ Tempelglocke   ▾]      │
+│                                              │
+│  🔉━━━━━━━━●━━━━━━━━🔊                      │
+└──────────────────────────────────────────────┘
+```
 
 ---
 
