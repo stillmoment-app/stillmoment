@@ -25,6 +25,8 @@ struct MeditationSettings: Codable, Equatable {
     init(
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
+        intervalMode: IntervalMode = .repeating,
+        intervalSoundId: String = GongSound.defaultIntervalSoundId,
         intervalGongVolume: Float = MeditationSettings.defaultIntervalGongVolume,
         backgroundSoundId: String = "silent",
         backgroundSoundVolume: Float = MeditationSettings.defaultBackgroundSoundVolume,
@@ -36,6 +38,8 @@ struct MeditationSettings: Codable, Equatable {
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
+        self.intervalMode = intervalMode
+        self.intervalSoundId = intervalSoundId
         self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
@@ -53,6 +57,8 @@ struct MeditationSettings: Codable, Equatable {
     enum Keys {
         static let intervalGongsEnabled = "intervalGongsEnabled"
         static let intervalMinutes = "intervalMinutes"
+        static let intervalMode = "intervalMode"
+        static let intervalSoundId = "intervalSoundId"
         static let intervalGongVolume = "intervalGongVolume"
         static let backgroundSoundId = "backgroundSoundId"
         static let backgroundSoundVolume = "backgroundSoundVolume"
@@ -68,8 +74,14 @@ struct MeditationSettings: Codable, Equatable {
     /// Whether interval gongs are enabled during meditation
     var intervalGongsEnabled: Bool
 
-    /// Interval in minutes between gongs (3, 5, or 10)
+    /// Interval in minutes between gongs (1-60)
     var intervalMinutes: Int
+
+    /// Interval gong mode (repeating, afterStart, beforeEnd)
+    var intervalMode: IntervalMode
+
+    /// Sound ID for interval gongs (independent from start/end gong)
+    var intervalSoundId: String
 
     /// Interval gong volume (0.0 to 1.0)
     var intervalGongVolume: Float
@@ -97,16 +109,9 @@ struct MeditationSettings: Codable, Equatable {
 
     // MARK: - Validation
 
-    /// Validates and clamps interval to valid values (3, 5, or 10)
+    /// Validates and clamps interval to valid range (1-60 minutes)
     static func validateInterval(_ minutes: Int) -> Int {
-        switch minutes {
-        case ...3:
-            3
-        case 4...7:
-            5
-        default:
-            10
-        }
+        min(max(minutes, 1), 60)
     }
 
     /// Validates and clamps duration to valid range (1-60 minutes)
@@ -136,6 +141,8 @@ extension MeditationSettings {
     static let `default` = MeditationSettings(
         intervalGongsEnabled: false,
         intervalMinutes: 5,
+        intervalMode: .repeating,
+        intervalSoundId: GongSound.defaultIntervalSoundId,
         intervalGongVolume: defaultIntervalGongVolume,
         backgroundSoundId: "silent",
         backgroundSoundVolume: defaultBackgroundSoundVolume,

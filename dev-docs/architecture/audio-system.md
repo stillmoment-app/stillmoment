@@ -25,7 +25,7 @@ Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 | **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
 | **Start-Gong** | Tibetische Klangschale markiert Beginn |
 | **Hintergrund-Audio** | Kontinuierliche Schleife waehrend Meditation |
-| **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi: regelmaessig, nach Start, vor Ende) |
+| **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi — siehe `ddd.md`) |
 | **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
 
 ### Hintergrund-Sounds
@@ -280,17 +280,9 @@ Importierte Dateien werden in App-internen Speicher kopiert.
 
 ## Audio-bezogene Einstellungen
 
-### MeditationSettings (Audio-relevant)
+Alle Audio-relevanten Properties sind in `MeditationSettings` definiert — siehe `../reference/glossary.md` fuer die vollstaendige Definition.
 
-| Property | Beschreibung |
-|----------|--------------|
-| `intervalGongsEnabled` | Intervall-Gongs aktiviert? |
-| `intervalMinutes` | Intervall (1-60 Minuten) |
-| `intervalMode` | Modus: REPEATING, AFTER_START, BEFORE_END |
-| `intervalSoundId` | Intervall-Sound ID (unabhaengig vom Start/Ende-Gong) |
-| `backgroundSoundId` | Sound ID aus `sounds.json` |
-
-Vollstaendige MeditationSettings Definition siehe `../reference/glossary.md`.
+**Intervall-Gong-Logik** (3 Modi, Guard Clauses, End-Protection) — siehe `ddd.md` (Flexible Intervall-Modi).
 
 ### BackgroundSoundRepository
 
@@ -343,5 +335,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-01-12
-**Version**: 2.1
+**Zuletzt aktualisiert**: 2026-02-09
+**Version**: 2.2

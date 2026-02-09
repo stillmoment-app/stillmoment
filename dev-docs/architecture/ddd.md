@@ -201,7 +201,15 @@ Waehrend der Timer im `Running`-Zustand ist, werden Intervall-Gongs in regelmaes
 
 ### Flexible Intervall-Modi
 
-`shouldPlayIntervalGong(intervalMinutes, repeating, fromEnd)` unterstuetzt drei Modi:
+`shouldPlayIntervalGong(intervalMinutes, mode)` unterstuetzt drei Modi via `IntervalMode` Enum:
+
+| IntervalMode | Beschreibung | Beispiel (20 Min., 5 Min. Intervall) |
+|--------------|--------------|---------------------------------------|
+| `REPEATING` | Gongs bei jedem vollen Intervall vom Start | Klaenge bei 5:00, 10:00, 15:00 |
+| `AFTER_START` | Genau 1 Gong X Minuten nach Start | 1 Klang bei 5:00 |
+| `BEFORE_END` | Genau 1 Gong X Minuten vor Ende | 1 Klang bei 15:00 |
+
+> **Definition:** `IntervalMode` siehe `../reference/glossary.md`
 
 #### Guard Clauses (alle Modi)
 
@@ -212,7 +220,7 @@ Bevor ein Modus geprueft wird, verhindern vier Guards unzulaessige Gongs:
 3. `intervalSeconds >= totalSeconds` → Intervall laenger als Timer-Dauer
 4. `remainingSeconds <= 5` → **End-Protection**: kein Gong in den letzten 5 Sekunden (Kollision mit Ende-Gong)
 
-#### Modus 1: Repeating from Start (`repeating=true, fromEnd=false`)
+#### REPEATING
 
 Gongs in regelmaessigen Abstaenden ab Timer-Start.
 
@@ -228,51 +236,30 @@ elapsed:  0     180    360    540    600
 - Erster Gong: `elapsed >= intervalSeconds`
 - Folgende: `lastIntervalGongAt - remainingSeconds >= intervalSeconds`
 
-#### Modus 2: Repeating from End (`repeating=true, fromEnd=true`)
+#### AFTER_START
 
-Gongs in regelmaessigen Abstaenden **rueckwaerts vom Ende** gezaehlt. Der Remainder (Rest bei ungleicher Teilung) faellt an den Anfang.
-
-```
-Beispiel: 5 min Timer (300s), 2 min Intervall (120s)
-
-remainder = 300 % 120 = 60
-firstGongElapsed = 60
-
-elapsed:  0    60         180        300
-          |-----|----------|----------|
-             Gong1      Gong2      Ende
-             (Rest)    (Intervall)
-
-Vom Ende betrachtet:  4:00      2:00      0:00
-```
+Genau **ein** Gong, X Minuten nach Start.
 
 ```
-Beispiel: 23 min Timer (1380s), 5 min Intervall (300s)
+Beispiel: 20 min Timer, 5 min Intervall
 
-remainder = 1380 % 300 = 180
-firstGongElapsed = 180
-
-elapsed:  0   180   480   780   1080  1380
-          |----|-----|-----|-----|-----|
-            Gong1 Gong2 Gong3 Gong4  Ende
-
-Vom Ende betrachtet:  20:00 15:00 10:00  5:00  0:00
+elapsed:  0        300                1200
+          |---------|------------------|
+                  Gong               Ende
+              (5 min elapsed)
 ```
 
 **Logik:**
-- `remainder = totalSeconds % intervalSeconds`
-- `firstGongElapsed = remainder > 0 ? remainder : intervalSeconds`
-- Erster Gong: `elapsed >= firstGongElapsed`
-- Folgende: `lastIntervalGongAt - remainingSeconds >= intervalSeconds`
+- `targetElapsed = intervalSeconds`
+- Gong wenn `elapsed >= targetElapsed` und `lastIntervalGongAt == null`
+- Nach dem einzigen Gong: `lastIntervalGongAt != null` → nie wieder true
 
-**Warum Remainder vorne?** Damit die Gongs exakt X Minuten vor Ende liegen. Bei 23 min / 5 min Intervall sollen Gongs bei 20:00, 15:00, 10:00, 5:00 verbleibend ertoenen — der 3-Minuten-Rest faellt an den Anfang.
+#### BEFORE_END
 
-#### Modus 3: Single (`repeating=false`)
-
-Genau **ein** Gong, X Minuten vor Ende. Intern immer `fromEnd=true`.
+Genau **ein** Gong, X Minuten vor Ende.
 
 ```
-Beispiel: 10 min Timer, 3 min Intervall (single)
+Beispiel: 10 min Timer, 3 min Intervall
 
 elapsed:  0              420        600
           |---------------|----------|
@@ -290,17 +277,15 @@ elapsed:  0              420        600
 | UI-Setting | Domain-Parameter | Bemerkung |
 |------------|-----------------|-----------|
 | `intervalMinutes` (1-60) | `intervalMinutes` | Stepper in Settings |
-| `intervalRepeating` | `repeating` | Toggle "Wiederholen" |
-| `intervalFromEnd` | `fromEnd` | Toggle "Vom Ende zaehlen" (nur sichtbar wenn repeating=true) |
-| `effectiveIntervalFromEnd` | — | Computed: `!repeating ? true : intervalFromEnd`. Single ist immer fromEnd |
+| `intervalMode` | `mode` | Segmented Button (Android) / Picker (iOS) mit 3 Optionen |
 | `intervalSoundId` | — | Klang-Auswahl (5 Sounds inkl. "Sanfter Intervallton") |
 
 #### Plattform-Status
 
 | Plattform | Flexible Intervalle | Referenz |
 |-----------|-------------------|----------|
-| Android | Vollstaendig implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes, repeating, fromEnd)` |
-| iOS | Noch nicht implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes:)` (nur repeating-from-start) |
+| Android | Vollstaendig implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes, mode)` |
+| iOS | Noch nicht implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes:)` (nur REPEATING) |
 
 ### Vorteile
 

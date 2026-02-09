@@ -152,6 +152,7 @@ final class MockAudioService: AudioServiceProtocol {
 
     var lastStartGongSoundId: String?
     var lastStartGongVolume: Float?
+    var lastIntervalGongSoundId: String?
     var lastIntervalGongVolume: Float?
     var lastCompletionSoundId: String?
     var lastCompletionSoundVolume: Float?
@@ -201,8 +202,9 @@ final class MockAudioService: AudioServiceProtocol {
         }
     }
 
-    func playIntervalGong(volume: Float) throws {
+    func playIntervalGong(soundId: String, volume: Float) throws {
         self.playIntervalGongCalled = true
+        self.lastIntervalGongSoundId = soundId
         self.lastIntervalGongVolume = volume
         self.audioCallOrder.append("playIntervalGong")
         if self.shouldThrowOnPlay {

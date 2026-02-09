@@ -301,21 +301,23 @@ Konfigurierbarer Gong-Ton fuer Start/Ende-Gong und Intervall-Gong. Immutables Va
 **Pattern:** Strategy
 
 **Beschreibung:**
-Definiert wie Intervallklaenge waehrend der Meditation ausgeloest werden. Ersetzt das fruehere Boolean-Paar (`intervalRepeating` + `intervalFromEnd`) durch drei selbsterklaerende Modi.
+Definiert wie Intervallklaenge waehrend der Meditation ausgeloest werden.
 
 **Werte:**
 
-| Wert | Beschreibung | Beispiel (20 Min., 5 Min. Intervall) |
-|------|--------------|---------------------------------------|
-| `REPEATING` | Gongs bei jedem vollen Intervall vom Start | Klaenge bei 5:00, 10:00, 15:00 |
-| `AFTER_START` | Genau 1 Gong X Minuten nach Start | 1 Klang bei 5:00 |
-| `BEFORE_END` | Genau 1 Gong X Minuten vor Ende | 1 Klang bei 15:00 |
+| Wert | Beschreibung |
+|------|--------------|
+| `REPEATING` | Gongs bei jedem vollen Intervall vom Start |
+| `AFTER_START` | Genau 1 Gong X Minuten nach Start |
+| `BEFORE_END` | Genau 1 Gong X Minuten vor Ende |
 
 **Default:** `REPEATING`
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Models/IntervalMode.swift` (geplant)
+- iOS: `ios/StillMoment/Domain/Models/IntervalMode.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/IntervalMode.kt`
+
+**Algorithmus-Details:** `../architecture/ddd.md` (Flexible Intervall-Modi)
 
 **Siehe auch:** `MeditationTimer.shouldPlayIntervalGong()`, `MeditationSettings.intervalMode`
 

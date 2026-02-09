@@ -162,10 +162,12 @@ struct MeditationTimer: Equatable {
         )
     }
 
-    /// Checks if an interval gong should be played
-    /// - Parameter intervalMinutes: Interval in minutes (e.g., 5 for every 5 minutes)
-    /// - Returns: True if enough time has passed since last interval gong
-    func shouldPlayIntervalGong(intervalMinutes: Int) -> Bool {
+    /// Checks if an interval gong should be played based on the interval mode
+    /// - Parameters:
+    ///   - intervalMinutes: Interval in minutes (e.g., 5 for every 5 minutes)
+    ///   - mode: The interval mode (repeating, afterStart, beforeEnd)
+    /// - Returns: True if gong should be played now
+    func shouldPlayIntervalGong(intervalMinutes: Int, mode: IntervalMode = .repeating) -> Bool {
         guard self.state == .running else {
             return false
         }
@@ -173,17 +175,57 @@ struct MeditationTimer: Equatable {
             return false
         }
 
+        // 5-second protection: no gong in the last 5 seconds to avoid collision with end gong
+        guard self.remainingSeconds > 5 else {
+            return false
+        }
+
         let intervalSeconds = intervalMinutes * 60
 
+        switch mode {
+        case .repeating:
+            return self.shouldPlayRepeatingGong(intervalSeconds: intervalSeconds)
+        case .afterStart:
+            return self.shouldPlayAfterStartGong(intervalSeconds: intervalSeconds)
+        case .beforeEnd:
+            return self.shouldPlayBeforeEndGong(intervalSeconds: intervalSeconds)
+        }
+    }
+
+    // MARK: - Private Interval Gong Helpers
+
+    /// Repeating mode: gongs at every full interval from start (5:00, 10:00, 15:00, ...)
+    private func shouldPlayRepeatingGong(intervalSeconds: Int) -> Bool {
         // Never played before - play if we've passed first interval
         guard let lastGongAt = lastIntervalGongAt else {
             let elapsed = self.totalSeconds - self.remainingSeconds
-            return elapsed >= intervalSeconds && self.remainingSeconds > 0
+            return elapsed >= intervalSeconds
         }
 
         // Check if enough time passed since last gong
         let timeSinceLastGong = lastGongAt - self.remainingSeconds
-        return timeSinceLastGong >= intervalSeconds && self.remainingSeconds > 0
+        return timeSinceLastGong >= intervalSeconds
+    }
+
+    /// After start mode: exactly 1 gong X minutes after start
+    private func shouldPlayAfterStartGong(intervalSeconds: Int) -> Bool {
+        // Already played - single gong only
+        guard self.lastIntervalGongAt == nil else {
+            return false
+        }
+
+        let elapsed = self.totalSeconds - self.remainingSeconds
+        return elapsed >= intervalSeconds
+    }
+
+    /// Before end mode: exactly 1 gong X minutes before end
+    private func shouldPlayBeforeEndGong(intervalSeconds: Int) -> Bool {
+        // Already played - single gong only
+        guard self.lastIntervalGongAt == nil else {
+            return false
+        }
+
+        return self.remainingSeconds <= intervalSeconds
     }
 
     /// Returns a reset timer with original duration

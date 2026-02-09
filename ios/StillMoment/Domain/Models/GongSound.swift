@@ -54,7 +54,7 @@ struct GongSound: Codable, Identifiable, Equatable {
 // MARK: - Static Sound Definitions
 
 extension GongSound {
-    /// All available gong sounds
+    /// All available gong sounds (for start/end gong)
     static let allSounds: [GongSound] = [
         GongSound(
             id: "temple-bell",
@@ -78,17 +78,30 @@ extension GongSound {
         )
     ]
 
+    /// Soft interval tone (5th sound option, only for interval gongs)
+    static let softIntervalTone = GongSound(
+        id: "soft-interval",
+        filename: "interval.mp3",
+        name: LocalizedString(en: "Soft Interval Tone", de: "Sanfter Intervallton")
+    )
+
+    /// All available interval gong sounds (4 standard + soft interval tone)
+    static let allIntervalSounds: [GongSound] = allSounds + [softIntervalTone]
+
     /// Default gong sound (Temple Bell)
     static let defaultSound: GongSound = allSounds.first { $0.id == defaultSoundId } ?? allSounds[0]
 
     /// Default sound ID for settings
     static let defaultSoundId: String = "temple-bell"
 
-    /// Find a gong sound by ID
+    /// Default interval sound ID (soft interval tone)
+    static let defaultIntervalSoundId: String = "soft-interval"
+
+    /// Find a gong sound by ID (searches all sounds including interval sounds)
     /// - Parameter id: The sound ID to search for
     /// - Returns: The matching GongSound or nil if not found
     static func find(byId id: String) -> GongSound? {
-        self.allSounds.first { $0.id == id }
+        self.allIntervalSounds.first { $0.id == id }
     }
 
     /// Find a gong sound by ID, returning default if not found

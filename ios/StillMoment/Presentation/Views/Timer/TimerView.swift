@@ -127,8 +127,8 @@ struct TimerView: View {
                         onBackgroundChanged: { soundId, volume in
                             self.viewModel.playBackgroundPreview(soundId: soundId, volume: volume)
                         },
-                        onIntervalGongPreview: { volume in
-                            self.viewModel.playIntervalGongPreview(volume: volume)
+                        onIntervalGongPreview: { soundId, volume in
+                            self.viewModel.playIntervalGongPreview(soundId: soundId, volume: volume)
                         },
                         onDismiss: {
                             self.showSettings = false

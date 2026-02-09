@@ -138,7 +138,11 @@ enum TimerReducer {
         }
         var newState = state
         newState.intervalGongPlayedForCurrentInterval = true
-        return (newState, [.playIntervalGong(volume: settings.intervalGongVolume)])
+        let effect = TimerEffect.playIntervalGong(
+            soundId: settings.intervalSoundId,
+            volume: settings.intervalGongVolume
+        )
+        return (newState, [effect])
     }
 
     private static func reduceIntervalGongPlayed(

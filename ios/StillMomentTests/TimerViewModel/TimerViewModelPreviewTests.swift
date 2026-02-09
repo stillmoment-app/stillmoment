@@ -74,11 +74,12 @@ final class TimerViewModelPreviewTests: XCTestCase {
 
     func testPlayIntervalGongPreview_delegatesToAudioService() {
         // When
-        self.sut.playIntervalGongPreview(volume: 0.6)
+        self.sut.playIntervalGongPreview(soundId: "soft-interval", volume: 0.6)
 
-        // Then
-        XCTAssertTrue(self.mockAudioService.playIntervalGongCalled)
-        XCTAssertEqual(Double(self.mockAudioService.lastIntervalGongVolume ?? 0), 0.6, accuracy: 0.001)
+        // Then — uses preview player (not main player) to avoid conflicts during meditation
+        XCTAssertTrue(self.mockAudioService.playGongPreviewCalled)
+        XCTAssertEqual(self.mockAudioService.lastPreviewSoundId, "soft-interval")
+        XCTAssertEqual(Double(self.mockAudioService.lastPreviewVolume ?? 0), 0.6, accuracy: 0.001)
     }
 
     func testPlayIntervalGongPreview_handlesErrorGracefully() {
@@ -86,10 +87,10 @@ final class TimerViewModelPreviewTests: XCTestCase {
         self.mockAudioService.shouldThrowOnPlay = true
 
         // When — should not crash
-        self.sut.playIntervalGongPreview(volume: 0.5)
+        self.sut.playIntervalGongPreview(soundId: "soft-interval", volume: 0.5)
 
         // Then — error was handled
-        XCTAssertTrue(self.mockAudioService.playIntervalGongCalled)
+        XCTAssertTrue(self.mockAudioService.playGongPreviewCalled)
     }
 
     // MARK: - Background Sound Preview

@@ -262,7 +262,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When
-        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
+        XCTAssertNoThrow(try self.sut.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Should play without error
         self.sut.stop()
@@ -270,7 +270,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testPlayIntervalGong_WithoutConfiguration_Succeeds() {
         // When - Play without explicit configuration
-        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
+        XCTAssertNoThrow(try self.sut.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Should configure automatically and play
         self.sut.stop()
@@ -444,7 +444,7 @@ final class AudioServiceTests: XCTestCase {
 
         // When - Play multiple gongs rapidly
         try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
-        try self.sut.playIntervalGong(volume: 1.0)
+        try self.sut.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0)
         try self.sut.playCompletionSound(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Then - Should complete without error (each replaces previous)
@@ -457,7 +457,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
 
         // When - Play gong while background audio is playing
-        XCTAssertNoThrow(try self.sut.playIntervalGong(volume: 1.0))
+        XCTAssertNoThrow(try self.sut.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0))
 
         // Then - Both should play (different players)
         self.sut.stop()
@@ -633,7 +633,7 @@ extension AudioServiceTests {
         await fulfillment(of: [backgroundAudioExpectation], timeout: 0.5)
 
         // Play interval gong
-        try service.playIntervalGong(volume: 1.0)
+        try service.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Wait briefly
         let intervalGongExpectation = expectation(description: "Interval gong")

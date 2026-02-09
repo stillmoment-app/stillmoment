@@ -10,7 +10,7 @@
 User konfiguriert bei jeder stillen Meditation:
 - Dauer (1-60 Minuten)
 - Vorbereitungszeit (aus/5s/10s/15s/20s/30s/45s)
-- Intervall-Gong (aus/3/5/10 Minuten)
+- Intervall-Gong (aus/1-60 Minuten, 3 Modi)
 - Start/End-Gong Sound + Lautstärke
 - Intervall-Gong Sound + Lautstärke
 - Hintergrund-Soundscape + Lautstärke
@@ -515,7 +515,8 @@ struct TimerPreset: Identifiable, Codable {
     var name: String
     var durationMinutes: Int
     var preparationSeconds: Int?
-    var intervalMinutes: Int?
+    var intervalMinutes: Int?          // 1-60
+    var intervalMode: IntervalMode      // REPEATING, AFTER_START, BEFORE_END
     var startGongSound: GongSound
     var startGongVolume: Float
     var intervalGongSound: GongSound?

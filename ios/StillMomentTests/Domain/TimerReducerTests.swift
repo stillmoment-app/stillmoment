@@ -270,7 +270,7 @@ final class TimerReducerTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(effects, [.playIntervalGong(volume: 0.6)])
+        XCTAssertEqual(effects, [.playIntervalGong(soundId: GongSound.defaultIntervalSoundId, volume: 0.6)])
         XCTAssertTrue(newState.intervalGongPlayedForCurrentInterval)
     }
 

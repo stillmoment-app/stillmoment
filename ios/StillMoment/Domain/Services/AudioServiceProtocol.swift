@@ -27,9 +27,11 @@ protocol AudioServiceProtocol {
     ///   - volume: Playback volume (0.0 to 1.0)
     func playStartGong(soundId: String, volume: Float) throws
 
-    /// Plays an interval gong during meditation (uses fixed interval.mp3)
-    /// - Parameter volume: Playback volume (0.0 to 1.0)
-    func playIntervalGong(volume: Float) throws
+    /// Plays an interval gong during meditation
+    /// - Parameters:
+    ///   - soundId: ID of the interval gong sound to play (references GongSound.id)
+    ///   - volume: Playback volume (0.0 to 1.0)
+    func playIntervalGong(soundId: String, volume: Float) throws
 
     /// Plays the completion sound when timer finishes
     /// - Parameters:

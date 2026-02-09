@@ -28,8 +28,8 @@ enum TimerEffect: Equatable {
     /// Play the start gong (meditation begins)
     case playStartGong
 
-    /// Play an interval gong with the specified volume
-    case playIntervalGong(volume: Float)
+    /// Play an interval gong with the specified sound and volume
+    case playIntervalGong(soundId: String, volume: Float)
 
     /// Play the completion sound (meditation ends)
     case playCompletionSound

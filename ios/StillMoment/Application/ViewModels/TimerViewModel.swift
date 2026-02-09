@@ -208,8 +208,8 @@ final class TimerViewModel: ObservableObject {
             self.audioService.stopBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
-        case let .playIntervalGong(volume):
-            self.executePlayIntervalGong(volume: volume)
+        case let .playIntervalGong(soundId, volume):
+            self.executePlayIntervalGong(soundId: soundId, volume: volume)
         case .playCompletionSound:
             self.executePlayCompletionSound()
         default:
@@ -273,9 +273,9 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func executePlayIntervalGong(volume: Float) {
+    private func executePlayIntervalGong(soundId: String, volume: Float) {
         do {
-            try self.audioService.playIntervalGong(volume: volume)
+            try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
             // Mark gong played on timer to enable detection of next interval
             self.timerService.markIntervalGongPlayed()
             // Reset the UI flag to allow next interval detection
@@ -364,9 +364,13 @@ final class TimerViewModel: ObservableObject {
 
         // Check for interval gongs while running
         if newState == .running, self.settings.intervalGongsEnabled {
-            if timer.shouldPlayIntervalGong(intervalMinutes: self.settings.intervalMinutes) {
+            if timer.shouldPlayIntervalGong(
+                intervalMinutes: self.settings.intervalMinutes,
+                mode: self.settings.intervalMode
+            ) {
                 Logger.viewModel.info("Interval gong triggered", metadata: [
                     "interval": self.settings.intervalMinutes,
+                    "mode": self.settings.intervalMode.rawValue,
                     "remaining": timer.remainingSeconds
                 ])
                 self.dispatch(.intervalGongTriggered)
@@ -401,10 +405,10 @@ extension TimerViewModel {
         }
     }
 
-    /// Plays an interval gong preview when user adjusts interval gong volume in settings
-    func playIntervalGongPreview(volume: Float) {
+    /// Plays an interval gong preview when user changes interval sound or adjusts volume in settings
+    func playIntervalGongPreview(soundId: String, volume: Float) {
         do {
-            try self.audioService.playIntervalGong(volume: volume)
+            try self.audioService.playGongPreview(soundId: soundId, volume: volume)
         } catch {
             Logger.audio.error("Failed to play interval gong preview", error: error)
         }

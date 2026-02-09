@@ -75,13 +75,13 @@ This meditation timer uses background audio to support meditation with locked sc
 2. Background audio loop during meditation:
    - Silent Ambience: 15% volume (subtle ambient soundscape)
    - Forest Ambience: 15% volume (natural forest sounds)
-3. Optional interval gongs every 3/5/10 minutes - clearly audible
+3. Optional interval gongs (1-60 minutes, 3 modes: repeating, after start, before end) - clearly audible
 4. Completion gong - clearly audible
 
 This provides continuous audio content (not a "silent audio trick") to legitimize background mode. The app properly activates/deactivates the audio session for energy efficiency.
 
 TESTING THE APP:
-1. Start a 2-minute meditation with interval gongs enabled (Settings → Interval Gongs → 3 minutes)
+1. Start a 2-minute meditation with interval gongs enabled (Settings → Interval Gongs → 1 minute)
 2. Lock the screen
 3. You'll hear the start gong, then background audio, then completion gong
 4. Background audio keeps the timer active while screen is locked

@@ -28,6 +28,9 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
         let settings = MeditationSettings(
             intervalGongsEnabled: self.userDefaults.bool(forKey: MeditationSettings.Keys.intervalGongsEnabled),
             intervalMinutes: self.loadIntervalMinutes(),
+            intervalMode: self.loadIntervalMode(),
+            intervalSoundId: self.userDefaults.string(forKey: MeditationSettings.Keys.intervalSoundId)
+                ?? GongSound.defaultIntervalSoundId,
             intervalGongVolume: self.loadFloat(
                 MeditationSettings.Keys.intervalGongVolume,
                 default: MeditationSettings.defaultIntervalGongVolume
@@ -55,6 +58,8 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
     func save(_ settings: MeditationSettings) {
         self.userDefaults.set(settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
         self.userDefaults.set(settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
+        self.userDefaults.set(settings.intervalMode.rawValue, forKey: MeditationSettings.Keys.intervalMode)
+        self.userDefaults.set(settings.intervalSoundId, forKey: MeditationSettings.Keys.intervalSoundId)
         self.userDefaults.set(settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
         self.userDefaults.set(settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
         self.userDefaults.set(settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
@@ -96,6 +101,14 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
         return stored == 0 ? 5 : stored
     }
 
+    /// Loads interval mode with fallback to default (repeating)
+    private func loadIntervalMode() -> IntervalMode {
+        guard let rawValue = self.userDefaults.string(forKey: MeditationSettings.Keys.intervalMode) else {
+            return .repeating
+        }
+        return IntervalMode(rawValue: rawValue) ?? .repeating
+    }
+
     // MARK: - Legacy Migration
 
     /// Loads background sound ID with legacy migration support
@@ -122,6 +135,8 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
         Logger.infrastructure.info("\(action) timer settings", metadata: [
             "intervalEnabled": settings.intervalGongsEnabled,
             "intervalMinutes": settings.intervalMinutes,
+            "intervalMode": settings.intervalMode.rawValue,
+            "intervalSoundId": settings.intervalSoundId,
             "backgroundSoundId": settings.backgroundSoundId,
             "durationMinutes": settings.durationMinutes,
             "preparationEnabled": settings.preparationTimeEnabled,

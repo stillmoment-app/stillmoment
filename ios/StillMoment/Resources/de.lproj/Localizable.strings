@@ -65,14 +65,20 @@
 
 "settings.intervalGongs.title" = "Intervall-Gongs";
 "settings.intervalGongs.description" = "Ein Gong-Klang in regelmäßigen Abständen während der Meditation";
+"settings.intervalGongs.description.repeating" = "Alle %d Min., %@";
+"settings.intervalGongs.description.afterStart" = "%d Min. nach Start, %@";
+"settings.intervalGongs.description.beforeEnd" = "%d Min. vor Ende, %@";
 "settings.intervalGongs.interval" = "Intervall";
 "settings.intervalGongs.footer" = "Eine sanfte Glocke alle %d Minuten lädt dich ein, bei dir selbst einzuchecken.";
+"settings.intervalGongs.header" = "Intervallklänge";
+"settings.intervalGongs.sound" = "Klang";
+"settings.intervalGongs.stepper" = "%d Min.";
+
+"settings.intervalMode.repeating" = "Regelmäßig";
+"settings.intervalMode.afterStart" = "Nach Start";
+"settings.intervalMode.beforeEnd" = "Vor Ende";
 
 "settings.gong.title" = "Gong";
-
-"settings.interval.3min" = "3 Minuten";
-"settings.interval.5min" = "5 Minuten";
-"settings.interval.10min" = "10 Minuten";
 
 "settings.preparationTime.header" = "Vorbereitungszeit";
 "settings.preparationTime.title" = "Vorbereitungszeit";
@@ -126,7 +132,11 @@
 "accessibility.startGongSound" = "Gong-Ton";
 "accessibility.startGongSound.hint" = "Wähle den Gong-Ton für Start und Ende der Meditation";
 "accessibility.intervalDuration" = "Intervalldauer";
-"accessibility.intervalDuration.hint" = "Wähle aus, wie oft der Intervall-Gong gespielt werden soll";
+"accessibility.intervalDuration.hint" = "Intervalldauer in Minuten anpassen";
+"accessibility.intervalMode" = "Intervallmodus";
+"accessibility.intervalMode.hint" = "Wähle wann Intervall-Gongs gespielt werden";
+"accessibility.intervalSound" = "Intervall-Klang";
+"accessibility.intervalSound.hint" = "Wähle den Klang für Intervall-Gongs";
 "accessibility.preparationTime" = "Vorbereitungszeit";
 "accessibility.preparationTime.hint" = "Aktiviere oder deaktiviere die Vorbereitungszeit vor der Meditation";
 "accessibility.preparationTimeDuration" = "Vorbereitungsdauer";

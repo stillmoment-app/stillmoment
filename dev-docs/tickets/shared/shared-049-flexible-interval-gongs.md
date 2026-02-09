@@ -347,7 +347,7 @@ Sound-Vorhoeren: Bei Tap auf einen Eintrag wird der Sound kurz abgespielt.
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| IntervalMode-Auswahl | Picker(.menu) | SingleChoiceSegmentedButtonRow (Material3) |
+| IntervalMode-Auswahl | Picker(.segmented) | SingleChoiceSegmentedButtonRow (Material3) |
 | Stepper | Nativer `Stepper(value:in:)` | Custom Row mit -/+ Buttons (Material3) |
 | Sound-Picker | Nativer Picker | ExposedDropdownMenuBox |
 | Section-Trennung | Eigene List-Section | Eigene Card |
