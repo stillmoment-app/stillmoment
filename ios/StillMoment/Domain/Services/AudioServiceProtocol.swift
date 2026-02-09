@@ -21,12 +21,6 @@ protocol AudioServiceProtocol {
     /// Stops background audio (with fade out)
     func stopBackgroundAudio()
 
-    /// Pauses background audio with fade out (for "Brief Pause")
-    func pauseBackgroundAudio()
-
-    /// Resumes background audio with fade in (after "Brief Pause")
-    func resumeBackgroundAudio()
-
     /// Plays the start gong when preparation completes
     /// - Parameters:
     ///   - soundId: ID of the gong sound to play (references GongSound.id)

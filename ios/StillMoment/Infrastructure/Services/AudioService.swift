@@ -223,33 +223,6 @@ final class AudioService: AudioServiceProtocol {
         self.deactivateAudioSessionIfIdle()
     }
 
-    func pauseBackgroundAudio() {
-        guard let player = self.backgroundAudioPlayer, player.isPlaying else {
-            return
-        }
-
-        Logger.audio.debug("Pausing background audio")
-        player.pause()
-    }
-
-    func resumeBackgroundAudio() {
-        guard let player = self.backgroundAudioPlayer else {
-            return
-        }
-
-        Logger.audio.debug("Resuming background audio with fade in")
-
-        // If paused, start playing first
-        if !player.isPlaying {
-            player.volume = 0
-            player.play()
-        }
-
-        // Fade in to target volume
-        player.setVolume(self.targetVolume, fadeDuration: Self.fadeInDuration)
-        Logger.audio.info("Background audio resuming with fade in", metadata: ["targetVolume": "\(self.targetVolume)"])
-    }
-
     func playCompletionSound(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing completion sound", metadata: ["soundId": soundId, "volume": "\(volume)"])
         try self.configureAudioSession() // Ensure session is active

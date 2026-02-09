@@ -156,8 +156,6 @@ struct TimerView: View {
             self.viewModel.currentPreparationAffirmation
         case .running:
             self.viewModel.currentRunningAffirmation
-        case .paused:
-            NSLocalizedString("state.paused", comment: "")
         case .completed:
             NSLocalizedString("state.completed", comment: "")
         }
@@ -198,8 +196,6 @@ struct TimerView: View {
             NSLocalizedString("accessibility.timerState.preparation", comment: "")
         case .running:
             NSLocalizedString("accessibility.timerState.running", comment: "")
-        case .paused:
-            NSLocalizedString("accessibility.timerState.paused", comment: "")
         case .completed:
             NSLocalizedString("accessibility.timerState.completed", comment: "")
         }
@@ -333,7 +329,7 @@ struct TimerView: View {
 
     private var controlButtons: some View {
         HStack(spacing: 30) {
-            // Start/Resume/Pause Button
+            // Start Button (only in idle state)
             if self.viewModel.canStart {
                 Button(action: self.viewModel.startTimer) {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
@@ -342,22 +338,6 @@ struct TimerView: View {
                 .accessibilityIdentifier("timer.button.start")
                 .accessibilityLabel("accessibility.startMeditation")
                 .accessibilityHint("accessibility.startMeditation.hint")
-            } else if self.viewModel.canPause {
-                Button(action: self.viewModel.pauseTimer) {
-                    Label(NSLocalizedString("button.pause", comment: ""), systemImage: "pause.circle")
-                }
-                .warmSecondaryButton()
-                .accessibilityIdentifier("timer.button.pause")
-                .accessibilityLabel("accessibility.pauseMeditation")
-                .accessibilityHint("accessibility.pauseMeditation.hint")
-            } else if self.viewModel.canResume {
-                Button(action: self.viewModel.resumeTimer) {
-                    Label(NSLocalizedString("button.resume", comment: ""), systemImage: "play.fill")
-                }
-                .warmPrimaryButton()
-                .accessibilityIdentifier("timer.button.resume")
-                .accessibilityLabel("accessibility.resumeMeditation")
-                .accessibilityHint("accessibility.resumeMeditation.hint")
             }
         }
     }
@@ -384,13 +364,6 @@ struct TimerView: View {
 #Preview("Running") {
     NavigationStack {
         TimerView(viewModel: TimerViewModel.preview(state: .running))
-    }
-}
-
-@available(iOS 17.0, *)
-#Preview("Paused") {
-    NavigationStack {
-        TimerView(viewModel: TimerViewModel.preview(state: .paused))
     }
 }
 

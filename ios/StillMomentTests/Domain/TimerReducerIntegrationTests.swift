@@ -87,49 +87,19 @@ final class TimerReducerIntegrationTests: XCTestCase {
         XCTAssertTrue(resetEffects.contains(.resetTimer))
     }
 
-    // MARK: - Pause/Resume Cycle Tests
+    // MARK: - Running to Idle (Close Button)
 
-    func testPauseResumeCycle_running_to_paused_to_running() {
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-        state.remainingSeconds = 300
-        state.totalSeconds = 600
-
-        let (afterPause, pauseEffects) = TimerReducer.reduce(
-            state: state,
-            action: .pausePressed,
-            settings: self.defaultSettings
-        )
-        XCTAssertEqual(afterPause.timerState, .paused)
-        XCTAssertTrue(pauseEffects.contains(.pauseBackgroundAudio))
-        XCTAssertTrue(pauseEffects.contains(.pauseTimer))
-
-        let (afterResume, resumeEffects) = TimerReducer.reduce(
-            state: afterPause,
-            action: .resumePressed,
-            settings: self.defaultSettings
-        )
-        XCTAssertEqual(afterResume.timerState, .running)
-        XCTAssertTrue(resumeEffects.contains(.resumeBackgroundAudio))
-        XCTAssertTrue(resumeEffects.contains(.resumeTimer))
-    }
-
-    func testPauseResetCycle_running_to_paused_to_idle() {
+    func testRunningToIdle_viaReset() {
         var state = TimerDisplayState.initial
         state.timerState = .running
 
-        let (afterPause, _) = TimerReducer.reduce(
+        let (afterReset, effects) = TimerReducer.reduce(
             state: state,
-            action: .pausePressed,
-            settings: self.defaultSettings
-        )
-        XCTAssertEqual(afterPause.timerState, .paused)
-
-        let (afterReset, _) = TimerReducer.reduce(
-            state: afterPause,
             action: .resetPressed,
             settings: self.defaultSettings
         )
         XCTAssertEqual(afterReset.timerState, .idle)
+        XCTAssertTrue(effects.contains(.stopBackgroundAudio))
+        XCTAssertTrue(effects.contains(.resetTimer))
     }
 }

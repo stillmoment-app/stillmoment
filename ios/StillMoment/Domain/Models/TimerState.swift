@@ -18,9 +18,6 @@ enum TimerState: Equatable {
     /// Timer is actively counting down
     case running
 
-    /// Timer is paused and can be resumed
-    case paused
-
     /// Timer has completed the meditation
     case completed
 }

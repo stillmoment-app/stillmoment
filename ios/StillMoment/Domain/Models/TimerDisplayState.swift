@@ -51,14 +51,9 @@ struct TimerDisplayState: Equatable {
         self.timerState == .idle && self.selectedMinutes > 0
     }
 
-    /// Returns true if timer can be paused
-    var canPause: Bool {
+    /// Whether the timer is actively running (for UI display)
+    var isRunning: Bool {
         self.timerState == .running
-    }
-
-    /// Returns true if timer can be resumed
-    var canResume: Bool {
-        self.timerState == .paused
     }
 
     /// Formatted time string (MM:SS or preparation seconds)
