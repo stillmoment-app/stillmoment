@@ -19,12 +19,6 @@ protocol TimerServiceProtocol {
     ///   - preparationTimeSeconds: Duration of preparation phase in seconds (0 to skip)
     func start(durationMinutes: Int, preparationTimeSeconds: Int)
 
-    /// Pauses the currently running timer
-    func pause()
-
-    /// Resumes a paused timer
-    func resume()
-
     /// Resets the timer to initial state
     func reset()
 

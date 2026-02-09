@@ -215,7 +215,7 @@ Coverage: Critical user paths only
 ### When to Write UI Tests
 
 **Write UI tests for:**
-- Critical user journeys (e.g., "Start timer → Pause → Resume → Complete")
+- Critical user journeys (e.g., "Start timer → Wait → Complete")
 - Complex navigation flows (e.g., "Import meditation → Edit metadata → Play")
 - Accessibility validation (VoiceOver navigation)
 - Integration points between features
@@ -261,14 +261,8 @@ func testCompleteTimerFlow() {
     ).firstMatch
     XCTAssertTrue(countdownLabel.waitForExistence(timeout: 2.0))
 
-    // When - User pauses
-    app.buttons["Pause"].tap()
-
-    // Then - Timer should pause
-    XCTAssertTrue(app.staticTexts["Paused"].exists)
-
-    // When - User resets
-    app.buttons["Reset"].tap()
+    // When - User closes the session
+    app.buttons["Close"].tap()
 
     // Then - Should return to initial state
     XCTAssertTrue(app.staticTexts["Select Duration"].exists)

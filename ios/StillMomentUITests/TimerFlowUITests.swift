@@ -2,7 +2,7 @@
 //  TimerFlowUITests.swift
 //  Still Moment
 //
-//  Optimized UI Tests - Consolidated from 7 tests to 3 flow-based tests
+//  Optimized UI Tests - Consolidated flow-based tests
 //  to reduce app launch overhead (ios-005)
 //
 
@@ -51,7 +51,6 @@ final class TimerFlowUITests: XCTestCase {
     // MARK: - Flow Test 1: Basic Timer Flow
 
     /// Tests app launch, duration selection, and timer start
-    /// Consolidates: testAppLaunches, testSelectDurationAndStart, testCircularProgressUpdates
     func testTimerBasicFlow() {
         // Navigate to Timer tab (app may remember last tab)
         self.navigateToTimerTab()
@@ -87,54 +86,34 @@ final class TimerFlowUITests: XCTestCase {
                 "Timer display should appear after starting"
             )
 
-            // Pause button should appear
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should appear")
-
-            // End button should appear in toolbar
+            // End button should appear in toolbar (only control during running)
             let endButton = self.app.buttons["timer.button.end"]
             XCTAssertTrue(endButton.waitForExistence(timeout: 2.0), "End button should appear in toolbar")
+
+            // Start button should NOT be visible during running state
+            let startButton = self.app.buttons["timer.button.start"]
+            XCTAssertFalse(startButton.exists, "Start button should not be visible while running")
         }
     }
 
-    // MARK: - Flow Test 2: Timer Controls Flow
+    // MARK: - Flow Test 2: Timer End Flow
 
-    /// Tests pause, resume, end functionality
-    /// Consolidates: testPauseAndResumeTimer, testResetTimer
-    func testTimerControlsFlow() {
+    /// Tests ending a running timer via close button
+    func testTimerEndFlow() {
         // Navigate to Timer tab (app may remember last tab)
         self.navigateToTimerTab()
 
         // Start timer first
         self.app.buttons["timer.button.start"].tap()
 
-        XCTContext.runActivity(named: "Pause timer") { _ in
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Pause button should exist")
-            pauseButton.tap()
-
-            // Resume button should appear
-            let resumeButton = self.app.buttons["timer.button.resume"]
-            XCTAssertTrue(resumeButton.waitForExistence(timeout: 2.0), "Resume button should appear after pause")
-
-            // State indicator should show paused
-            let stateText = self.app.staticTexts["timer.state.text"]
-            XCTAssertTrue(stateText.waitForExistence(timeout: 2.0), "State text should be visible")
-        }
-
-        XCTContext.runActivity(named: "Resume timer") { _ in
-            let resumeButton = self.app.buttons["timer.button.resume"]
-            resumeButton.tap()
-
-            // Pause button should reappear
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 2.0), "Pause button should reappear after resume")
-        }
+        // Wait for running state (timer display visible)
+        let timerDisplay = self.app.staticTexts["timer.display.time"]
+        XCTAssertTrue(timerDisplay.waitForExistence(timeout: 3.0), "Timer display should appear")
 
         XCTContext.runActivity(named: "End timer to return to selection") { _ in
             // End button resets timer
             let endButton = self.app.buttons["timer.button.end"]
-            XCTAssertTrue(endButton.exists, "End button should exist")
+            XCTAssertTrue(endButton.waitForExistence(timeout: 2.0), "End button should exist")
             endButton.tap()
 
             // Should return to initial state
@@ -178,25 +157,19 @@ final class TimerFlowUITests: XCTestCase {
 
     // MARK: - Flow Test 4: Timer State Navigation
 
-    /// Tests navigation through all timer states
+    /// Tests navigation: start → running → end → idle
     func testTimerStateNavigation() {
         self.navigateToTimerTab()
 
         // Start timer
         self.app.buttons["timer.button.start"].tap()
 
-        // Wait for running state
-        let pauseButton = self.app.buttons["timer.button.pause"]
-        XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Should be in running state")
+        // Wait for running state (timer display visible)
+        let timerDisplay = self.app.staticTexts["timer.display.time"]
+        XCTAssertTrue(timerDisplay.waitForExistence(timeout: 3.0), "Should be in running state")
 
-        // Running -> Paused
-        pauseButton.tap()
-        XCTAssertTrue(self.app.buttons["timer.button.resume"].waitForExistence(timeout: 2.0))
+        // State text should be visible
         XCTAssertTrue(self.app.staticTexts["timer.state.text"].waitForExistence(timeout: 2.0))
-
-        // Paused -> Running
-        self.app.buttons["timer.button.resume"].tap()
-        XCTAssertTrue(self.app.buttons["timer.button.pause"].waitForExistence(timeout: 2.0))
 
         // Running -> Idle (end timer)
         self.app.buttons["timer.button.end"].tap()

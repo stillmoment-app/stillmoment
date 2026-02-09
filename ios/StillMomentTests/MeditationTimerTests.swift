@@ -172,8 +172,8 @@ final class MeditationTimerTests: XCTestCase {
         // When/Then - idle state
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: intervalMinutes))
 
-        // When/Then - paused state
-        timer = timer.withState(.paused)
+        // When/Then - preparation state
+        timer = timer.withState(.preparation)
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: intervalMinutes))
 
         // When/Then - completed state

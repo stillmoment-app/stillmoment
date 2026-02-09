@@ -196,7 +196,7 @@ final class TimerReducerTests: XCTestCase {
         var state = TimerDisplayState.initial
         state.timerState = .preparation
 
-        // When - tick with paused state (from TimerService)
+        // When - tick with running state (from TimerService after preparation)
         let (newState, _) = TimerReducer.reduce(
             state: state,
             action: .tick(
@@ -204,13 +204,13 @@ final class TimerReducerTests: XCTestCase {
                 totalSeconds: 600,
                 remainingPreparationSeconds: 10,
                 progress: 0.0,
-                state: .paused
+                state: .running
             ),
             settings: self.defaultSettings
         )
 
         // Then - state is updated from tick
-        XCTAssertEqual(newState.timerState, .paused)
+        XCTAssertEqual(newState.timerState, .running)
     }
 
     // MARK: - PreparationFinished State Transitions

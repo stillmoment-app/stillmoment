@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-02-08
+Last Updated: 2026-02-09
 -->
 
 ## Quick Reference
@@ -48,21 +48,21 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 | `idle` | Timer bereit zum Start |
 | `preparation` | Vorbereitungsphase vor Meditation (konfigurierbar) |
 | `running` | Timer laeuft, Meditation aktiv |
-| `paused` | Timer pausiert, kann fortgesetzt werden |
 | `completed` | Timer abgelaufen, Meditation beendet |
 
 **State Machine:**
 
 ```
 idle --> preparation --> running --> completed
-  |                        ^  |  ^
-  |                        |  v  |
-  +------------------------+ paused
+  |                        ^
+  |                        |
+  +------------------------+
 
 Pfade:
-- Mit Vorbereitung: idle → preparation → running
-- Ohne Vorbereitung: idle → running (direkt)
+- Mit Vorbereitung: idle → preparation → running → completed
+- Ohne Vorbereitung: idle → running → completed (direkt)
 - Start-Gong spielt bei BEIDEN Pfaden beim Übergang zu running
+- Running kann nur zu Completed (Timer abgelaufen) oder Idle (Close gedrueckt) wechseln
 ```
 
 **Datei-Referenzen:**
@@ -82,8 +82,6 @@ Pfade:
 |--------|--------------|
 | `selectDuration(minutes:)` | Dauer gewaehlt |
 | `startPressed` | Start-Button gedrueckt |
-| `pausePressed` | Pause-Button gedrueckt |
-| `resumePressed` | Fortsetzen-Button gedrueckt |
 | `resetPressed` | Reset-Button gedrueckt |
 
 **System-Events (Verb + Past Participle):**
@@ -114,9 +112,9 @@ Pfade:
 | Kategorie | Effects |
 |-----------|---------|
 | Audio Session | `configureAudioSession` |
-| Background Audio | `startBackgroundAudio(soundId:)`, `stopBackgroundAudio`, `pauseBackgroundAudio`, `resumeBackgroundAudio` |
+| Background Audio | `startBackgroundAudio(soundId:)`, `stopBackgroundAudio` |
 | Sound Effects | `playStartGong`, `playIntervalGong`, `playCompletionSound` |
-| Timer Service | `startTimer(durationMinutes:)`, `pauseTimer`, `resumeTimer`, `resetTimer` |
+| Timer Service | `startTimer(durationMinutes:)`, `resetTimer` |
 | Persistence | `saveSettings(MeditationSettings)` |
 
 **Datei-Referenzen:**
@@ -200,8 +198,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 |----------|--------------|
 | `isPreparation` | In Vorbereitung? |
 | `canStart` | Start moeglich? |
-| `canPause` | Pause moeglich? |
-| `canResume` | Fortsetzen moeglich? |
+| `isRunning` | Timer laeuft? |
 | `formattedTime` | Formatierte Anzeige (MM:SS) |
 
 **Factory:**
@@ -539,7 +536,7 @@ idle --> preparation --> finished --> (MP3 playback)
 
 | Pattern | Beispiel | Verwendung |
 |---------|----------|------------|
-| `verbPressed` | `startPressed`, `pausePressed` | Benutzer-Interaktion |
+| `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
 | `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
 | `nounVerbed` | `preparationFinished`, `timerCompleted` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event |

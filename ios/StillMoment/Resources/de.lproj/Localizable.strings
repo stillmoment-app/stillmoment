@@ -13,8 +13,6 @@
 // MARK: - Buttons
 
 "button.start" = "Start";
-"button.pause" = "Kurze Pause";
-"button.resume" = "Weiter";
 "button.done" = "Fertig";
 
 // MARK: - Common UI Elements
@@ -36,7 +34,6 @@
 // MARK: - State Messages
 
 "state.ready" = "Bereit, wenn du es bist";
-"state.paused" = "Nimm dir Zeit";
 "state.completed" = "Danke dir";
 
 // MARK: - Preparation Affirmations
@@ -115,10 +112,6 @@
 "accessibility.settings.hint.tooltip" = "Hinweis: Tippe hier, um Klänge und Gongs anzupassen";
 "accessibility.startMeditation" = "Meditation starten";
 "accessibility.startMeditation.hint" = "Startet den Meditationstimer mit der gewählten Dauer";
-"accessibility.pauseMeditation" = "Meditation pausieren";
-"accessibility.pauseMeditation.hint" = "Pausiert den laufenden Meditationstimer";
-"accessibility.resumeMeditation" = "Meditation fortsetzen";
-"accessibility.resumeMeditation.hint" = "Setzt den pausierten Meditationstimer fort";
 "accessibility.durationPicker" = "Meditationsdauer-Auswahl";
 "accessibility.durationPicker.hint" = "Wähle die Dauer für deine Meditationssitzung in Minuten";
 "accessibility.durationPicker.label" = "Minuten";
@@ -127,7 +120,6 @@
 "accessibility.timerState.idle" = "Der Timer ist bereit zu starten";
 "accessibility.timerState.preparation" = "Vorbereitung läuft. Mach dich bereit zu meditieren.";
 "accessibility.timerState.running" = "Timer läuft. Aktuell am meditieren.";
-"accessibility.timerState.paused" = "Timer ist pausiert";
 "accessibility.timerState.completed" = "Meditationssitzung abgeschlossen";
 "accessibility.intervalGongs" = "Intervall-Gongs";
 "accessibility.intervalGongs.hint" = "Aktiviere oder deaktiviere Intervall-Gongs während der Meditation";

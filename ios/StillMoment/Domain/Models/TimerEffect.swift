@@ -23,12 +23,6 @@ enum TimerEffect: Equatable {
     /// Stop background audio playback (with fade out)
     case stopBackgroundAudio
 
-    /// Pause background audio with fade out (for "Brief Pause")
-    case pauseBackgroundAudio
-
-    /// Resume background audio with fade in (after "Brief Pause")
-    case resumeBackgroundAudio
-
     // MARK: - Sound Effects
 
     /// Play the start gong (meditation begins)
@@ -44,12 +38,6 @@ enum TimerEffect: Equatable {
 
     /// Start the timer with given duration
     case startTimer(durationMinutes: Int)
-
-    /// Pause the timer
-    case pauseTimer
-
-    /// Resume the timer
-    case resumeTimer
 
     /// Reset the timer
     case resetTimer

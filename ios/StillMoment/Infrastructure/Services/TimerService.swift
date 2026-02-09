@@ -61,30 +61,6 @@ final class TimerService: TimerServiceProtocol {
         }
     }
 
-    func pause() {
-        guard let timer = currentTimer, timer.state == .running else {
-            Logger.timer.warning("Attempted to pause timer in invalid state")
-            return
-        }
-
-        Logger.timer.debug("Pausing timer")
-        self.currentTimer = timer.withState(.paused)
-        self.timerSubject.send(self.currentTimer)
-        self.stopSystemTimer()
-    }
-
-    func resume() {
-        guard let timer = currentTimer, timer.state == .paused else {
-            Logger.timer.warning("Attempted to resume timer in invalid state")
-            return
-        }
-
-        Logger.timer.debug("Resuming timer")
-        self.currentTimer = timer.withState(.running)
-        self.timerSubject.send(self.currentTimer)
-        self.startSystemTimer()
-    }
-
     func reset() {
         guard let timer = currentTimer else {
             Logger.timer.warning("Attempted to reset when no timer exists")

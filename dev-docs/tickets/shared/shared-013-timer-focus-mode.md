@@ -46,11 +46,10 @@ Eine Meditations-App sollte waehrend der Meditation nicht ablenken. Aktuell sind
 1. App oeffnen, Timer-Tab aktiv
 2. Minuten auswaehlen und Start druecken
 3. Erwartung: Fokus-Ansicht oeffnet sich, nur Timer sichtbar
-4. Timer pausieren
-5. "Schliessen" druecken
-6. Erwartung: Zurueck zur Timer-Auswahl, Timer ist zurueckgesetzt
-7. Erneut Timer starten, bis zum Ende laufen lassen
-8. Erwartung: Nach Completion schliesst Fokus-Ansicht automatisch
+4. "Schliessen" (X) druecken
+5. Erwartung: Zurueck zur Timer-Auswahl, Timer ist zurueckgesetzt
+6. Erneut Timer starten, bis zum Ende laufen lassen
+7. Erwartung: Nach Completion schliesst Fokus-Ansicht automatisch
 
 ---
 

@@ -65,40 +65,6 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertEqual(self.mockTimerService.lastStartDuration, 15)
     }
 
-    func testPauseTimer_whenRunning_callsService() {
-        // Given - simulate running state via tick
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
-
-        // When
-        self.sut.pauseTimer()
-
-        // Then
-        XCTAssertTrue(self.mockTimerService.pauseCalled)
-    }
-
-    func testResumeTimer_whenPaused_callsService() {
-        // Given - simulate paused state via tick
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .paused
-        ))
-
-        // When
-        self.sut.resumeTimer()
-
-        // Then
-        XCTAssertTrue(self.mockTimerService.resumeCalled)
-    }
-
     func testResetTimer_whenRunning_callsService() {
         // Given - simulate running state
         self.sut.dispatch(.tick(
@@ -167,7 +133,7 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertFalse(self.sut.canStart)
     }
 
-    func testCanPause_whenRunning_returnsTrue() {
+    func testIsRunning_whenRunning_returnsTrue() {
         // Given - running state
         self.sut.dispatch(.tick(
             remainingSeconds: 300,
@@ -178,39 +144,11 @@ final class TimerViewModelBasicTests: XCTestCase {
         ))
 
         // Then
-        XCTAssertTrue(self.sut.canPause)
+        XCTAssertTrue(self.sut.isRunning)
     }
 
-    func testCanPause_whenIdle_returnsFalse() {
+    func testIsRunning_whenIdle_returnsFalse() {
         // Given - initial idle state
-        XCTAssertFalse(self.sut.canPause)
-    }
-
-    func testCanResume_whenPaused_returnsTrue() {
-        // Given - paused state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .paused
-        ))
-
-        // Then
-        XCTAssertTrue(self.sut.canResume)
-    }
-
-    func testCanResume_whenRunning_returnsFalse() {
-        // Given - running state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
-
-        // Then
-        XCTAssertFalse(self.sut.canResume)
+        XCTAssertFalse(self.sut.isRunning)
     }
 }

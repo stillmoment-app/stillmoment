@@ -76,7 +76,7 @@ Sheets sind fuer temporaere Aufgaben (Einstellungen, Bearbeitung), nicht fuer Ke
 
 ## Hinweise
 
-- iOS: `TimerFocusView.swift` wurde eliminiert - Timer-States (countdown, running, paused, completed) sind jetzt direkt in `TimerView` integriert
+- iOS: `TimerFocusView.swift` wurde eliminiert - Timer-States (preparation, running, completed) sind jetzt direkt in `TimerView` integriert
 - iOS: `.navigationDestination(for:)` ersetzt `.sheet(item:)` fuer den Player
 - iOS: Disclosure-Indicators via `.listRowSeparator(.hidden)` und custom Row-Style versteckt
 - Korrigiert die iOS-Implementierung von shared-013 auf das Android-Pattern

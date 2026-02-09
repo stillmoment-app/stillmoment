@@ -369,7 +369,12 @@ Haenge deinen Review-Abschnitt an das Implementation-Log an (siehe Agent-Instruk
   fi
 
   # Extract DISCUSSION items between markers, scoped to current review round
-  DISCUSSION=$(sed -n '/^## REVIEW '"$i"'/,$ { /<!-- DISCUSSION_START -->/,/<!-- DISCUSSION_END -->/{//d;p;} }' "$LOG_FILE" | sed '/^$/d') || true
+  DISCUSSION=$(awk '
+    /^## REVIEW '"$i"'/ { found = 1 }
+    found && /<!-- DISCUSSION_START -->/ { cap = 1; next }
+    found && /<!-- DISCUSSION_END -->/ { cap = 0; next }
+    cap && NF { print }
+  ' "$LOG_FILE") || true
   if [[ -n "$DISCUSSION" ]]; then
     mkdir -p "$(dirname "$DISCUSSION_FILE")"
     if [[ ! -f "$DISCUSSION_FILE" ]]; then

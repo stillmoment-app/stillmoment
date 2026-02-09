@@ -30,10 +30,6 @@ enum TimerReducer {
             return self.reduceSelectDuration(state: state, minutes: minutes)
         case .startPressed:
             return self.reduceStartPressed(state: state, settings: settings)
-        case .pausePressed:
-            return self.reducePausePressed(state: state)
-        case .resumePressed:
-            return self.reduceResumePressed(state: state)
         case .resetPressed:
             return self.reduceResetPressed(state: state)
         case let .tick(remainingSeconds, totalSeconds, remainingPreparationSeconds, progress, timerState):
@@ -91,28 +87,6 @@ enum TimerReducer {
         ]
 
         return (newState, effects)
-    }
-
-    private static func reducePausePressed(
-        state: TimerDisplayState
-    ) -> (TimerDisplayState, [TimerEffect]) {
-        guard state.timerState == .running else {
-            return (state, [])
-        }
-        var newState = state
-        newState.timerState = .paused
-        return (newState, [.pauseBackgroundAudio, .pauseTimer])
-    }
-
-    private static func reduceResumePressed(
-        state: TimerDisplayState
-    ) -> (TimerDisplayState, [TimerEffect]) {
-        guard state.timerState == .paused else {
-            return (state, [])
-        }
-        var newState = state
-        newState.timerState = .running
-        return (newState, [.resumeBackgroundAudio, .resumeTimer])
     }
 
     private static func reduceResetPressed(

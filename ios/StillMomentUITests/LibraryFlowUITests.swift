@@ -209,13 +209,11 @@ final class LibraryFlowUITests: XCTestCase {
             let startButton = self.app.buttons["timer.button.start"]
             startButton.tap()
 
-            // Verify timer is running (pause button visible)
-            let pauseButton = self.app.buttons["timer.button.pause"]
-            XCTAssertTrue(pauseButton.waitForExistence(timeout: 3.0), "Timer should be running with pause button")
+            // Verify timer is running (end button visible)
+            let endButton = self.app.buttons["timer.button.end"]
+            XCTAssertTrue(endButton.waitForExistence(timeout: 3.0), "Timer should be running with end button")
 
             // End timer to return to idle
-            let endButton = self.app.buttons["timer.button.end"]
-            XCTAssertTrue(endButton.exists, "End button should exist")
             endButton.tap()
 
             // Verify we're back to idle state

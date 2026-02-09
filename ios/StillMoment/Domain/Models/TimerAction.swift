@@ -21,12 +21,6 @@ enum TimerAction: Equatable {
     /// User pressed the start button
     case startPressed
 
-    /// User pressed the pause button
-    case pausePressed
-
-    /// User pressed the resume button
-    case resumePressed
-
     /// User pressed the reset button
     case resetPressed
 

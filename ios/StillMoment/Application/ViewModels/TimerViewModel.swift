@@ -98,14 +98,9 @@ final class TimerViewModel: ObservableObject {
         self.displayState.canStart
     }
 
-    /// Returns true if timer can be paused
-    var canPause: Bool {
-        self.displayState.canPause
-    }
-
-    /// Returns true if timer can be resumed
-    var canResume: Bool {
-        self.displayState.canResume
+    /// Whether the timer is actively running
+    var isRunning: Bool {
+        self.displayState.isRunning
     }
 
     /// Formatted time string
@@ -139,21 +134,11 @@ final class TimerViewModel: ObservableObject {
         self.executeEffects(effects)
     }
 
-    // MARK: - Legacy Public Methods (For backward compatibility)
+    // MARK: - Public Methods
 
     /// Starts the timer with selected duration
     func startTimer() {
         self.dispatch(.startPressed)
-    }
-
-    /// Pauses the running timer
-    func pauseTimer() {
-        self.dispatch(.pausePressed)
-    }
-
-    /// Resumes the paused timer
-    func resumeTimer() {
-        self.dispatch(.resumePressed)
     }
 
     /// Resets the timer to initial state
@@ -221,10 +206,6 @@ final class TimerViewModel: ObservableObject {
             self.executeStartBackgroundAudio(soundId: soundId, volume: volume)
         case .stopBackgroundAudio:
             self.audioService.stopBackgroundAudio()
-        case .pauseBackgroundAudio:
-            self.audioService.pauseBackgroundAudio()
-        case .resumeBackgroundAudio:
-            self.audioService.resumeBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
         case let .playIntervalGong(volume):
@@ -241,10 +222,6 @@ final class TimerViewModel: ObservableObject {
         switch effect {
         case let .startTimer(durationMinutes):
             self.executeStartTimer(durationMinutes: durationMinutes)
-        case .pauseTimer:
-            self.timerService.pause()
-        case .resumeTimer:
-            self.timerService.resume()
         case .resetTimer:
             self.timerService.reset()
         default:
@@ -468,8 +445,7 @@ extension TimerViewModel {
             newState.remainingSeconds = 600
             newState.totalSeconds = 600
             newState.remainingPreparationSeconds = 10
-        case .running,
-             .paused:
+        case .running:
             newState.remainingSeconds = 300
             newState.totalSeconds = 600
             newState.progress = 0.5
