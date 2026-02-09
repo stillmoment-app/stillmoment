@@ -643,6 +643,7 @@ class FakeAudioService : AudioServiceProtocol {
     var lastBackgroundPreviewSoundId: String? = null
     var lastBackgroundPreviewVolume: Float? = null
     var backgroundPreviewStopped = false
+    var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
 
     override fun playGongPreview(soundId: String, volume: Float) {
@@ -650,7 +651,8 @@ class FakeAudioService : AudioServiceProtocol {
         lastGongPreviewVolume = volume
     }
 
-    override fun playIntervalGong(volume: Float) {
+    override fun playIntervalGong(soundId: String, volume: Float) {
+        lastIntervalGongSoundId = soundId
         lastIntervalGongVolume = volume
     }
 
@@ -685,6 +687,7 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
     var lastStartGongVolume: Float? = null
     var lastGongSoundId: String? = null
     var lastGongVolume: Float? = null
+    var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
     var audioPaused = false
     var audioResumed = false
@@ -706,7 +709,8 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
         lastGongVolume = gongVolume
     }
 
-    override fun playIntervalGong(gongVolume: Float) {
+    override fun playIntervalGong(gongSoundId: String, gongVolume: Float) {
+        lastIntervalGongSoundId = gongSoundId
         lastIntervalGongVolume = gongVolume
     }
 

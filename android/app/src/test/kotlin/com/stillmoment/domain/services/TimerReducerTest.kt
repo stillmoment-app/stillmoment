@@ -521,6 +521,32 @@ class TimerReducerTest {
         }
 
         @Test
+        fun `passes intervalSoundId to PlayIntervalGong effect`() {
+            // Given
+            val state =
+                TimerDisplayState.Initial.copy(
+                    timerState = TimerState.Running,
+                    intervalGongPlayedForCurrentInterval = false
+                )
+            val settings = defaultSettings.copy(
+                intervalGongsEnabled = true,
+                intervalSoundId = "soft-interval"
+            )
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntervalGongTriggered,
+                    settings
+                )
+
+            // Then
+            val intervalEffect = effects.filterIsInstance<TimerEffect.PlayIntervalGong>().first()
+            assertEquals("soft-interval", intervalEffect.gongSoundId)
+        }
+
+        @Test
         fun `does nothing when interval gongs disabled`() {
             // Given
             val state =

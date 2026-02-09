@@ -112,7 +112,7 @@ class AudioServiceTest {
     @Test
     fun `playIntervalGong creates media player from resource`() {
         // When
-        sut.playIntervalGong()
+        sut.playIntervalGong("temple-bell")
 
         // Then
         verify(mockMediaPlayerFactory).createFromResource(any())
@@ -121,7 +121,7 @@ class AudioServiceTest {
     @Test
     fun `playIntervalGong starts the media player`() {
         // When
-        sut.playIntervalGong()
+        sut.playIntervalGong("temple-bell")
 
         // Then
         verify(mockMediaPlayer).start()

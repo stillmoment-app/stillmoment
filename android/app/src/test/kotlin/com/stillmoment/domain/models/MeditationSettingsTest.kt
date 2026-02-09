@@ -15,6 +15,9 @@ class MeditationSettingsTest {
 
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
+        assertTrue(settings.intervalRepeating)
+        assertFalse(settings.intervalFromEnd)
+        assertEquals("temple-bell", settings.intervalSoundId)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
@@ -30,6 +33,9 @@ class MeditationSettingsTest {
 
         assertFalse(settings.intervalGongsEnabled)
         assertEquals(5, settings.intervalMinutes)
+        assertTrue(settings.intervalRepeating)
+        assertFalse(settings.intervalFromEnd)
+        assertEquals("temple-bell", settings.intervalSoundId)
         assertEquals("silent", settings.backgroundSoundId)
         assertEquals(0.15f, settings.backgroundSoundVolume)
         assertEquals(10, settings.durationMinutes)
@@ -42,32 +48,27 @@ class MeditationSettingsTest {
     // MARK: - Interval Validation Tests
 
     @Test
-    fun `validateInterval returns 3 for values up to 3`() {
-        assertEquals(3, MeditationSettings.validateInterval(1))
-        assertEquals(3, MeditationSettings.validateInterval(2))
-        assertEquals(3, MeditationSettings.validateInterval(3))
+    fun `validateInterval clamps to minimum 1`() {
+        assertEquals(1, MeditationSettings.validateInterval(0))
+        assertEquals(1, MeditationSettings.validateInterval(-5))
+        assertEquals(1, MeditationSettings.validateInterval(1))
     }
 
     @Test
-    fun `validateInterval returns 5 for values 4-7`() {
-        assertEquals(5, MeditationSettings.validateInterval(4))
+    fun `validateInterval clamps to maximum 60`() {
+        assertEquals(60, MeditationSettings.validateInterval(60))
+        assertEquals(60, MeditationSettings.validateInterval(61))
+        assertEquals(60, MeditationSettings.validateInterval(100))
+    }
+
+    @Test
+    fun `validateInterval passes through valid values`() {
+        assertEquals(1, MeditationSettings.validateInterval(1))
         assertEquals(5, MeditationSettings.validateInterval(5))
-        assertEquals(5, MeditationSettings.validateInterval(6))
-        assertEquals(5, MeditationSettings.validateInterval(7))
-    }
-
-    @Test
-    fun `validateInterval returns 10 for values 8 and above`() {
-        assertEquals(10, MeditationSettings.validateInterval(8))
-        assertEquals(10, MeditationSettings.validateInterval(10))
-        assertEquals(10, MeditationSettings.validateInterval(15))
-        assertEquals(10, MeditationSettings.validateInterval(100))
-    }
-
-    @Test
-    fun `validateInterval returns 3 for negative values`() {
-        assertEquals(3, MeditationSettings.validateInterval(-5))
-        assertEquals(3, MeditationSettings.validateInterval(0))
+        assertEquals(7, MeditationSettings.validateInterval(7))
+        assertEquals(15, MeditationSettings.validateInterval(15))
+        assertEquals(30, MeditationSettings.validateInterval(30))
+        assertEquals(60, MeditationSettings.validateInterval(60))
     }
 
     // MARK: - Duration Validation Tests
@@ -143,8 +144,14 @@ class MeditationSettingsTest {
 
     @Test
     fun `create validates interval minutes`() {
-        val settings = MeditationSettings.create(intervalMinutes = 4)
-        assertEquals(5, settings.intervalMinutes)
+        val settings = MeditationSettings.create(intervalMinutes = 0)
+        assertEquals(1, settings.intervalMinutes)
+
+        val settingsMax = MeditationSettings.create(intervalMinutes = 100)
+        assertEquals(60, settingsMax.intervalMinutes)
+
+        val settingsValid = MeditationSettings.create(intervalMinutes = 7)
+        assertEquals(7, settingsValid.intervalMinutes)
     }
 
     @Test
@@ -196,10 +203,13 @@ class MeditationSettingsTest {
     @Test
     fun `withIntervalMinutes validates and updates`() {
         val original = MeditationSettings()
-        val updated = original.withIntervalMinutes(4)
+        val updated = original.withIntervalMinutes(0)
 
-        assertEquals(5, updated.intervalMinutes)
+        assertEquals(1, updated.intervalMinutes)
         assertEquals(5, original.intervalMinutes) // Original unchanged
+
+        val updatedValid = original.withIntervalMinutes(7)
+        assertEquals(7, updatedValid.intervalMinutes)
     }
 
     @Test
@@ -246,11 +256,81 @@ class MeditationSettingsTest {
         assertEquals("silent", MeditationSettings.migrateLegacyMode(""))
     }
 
-    // MARK: - VALID_INTERVALS Tests
+    // MARK: - Interval Repeating, FromEnd, SoundId Tests
 
     @Test
-    fun `VALID_INTERVALS contains expected values`() {
-        assertEquals(listOf(3, 5, 10), MeditationSettings.VALID_INTERVALS)
+    fun `default intervalRepeating is true`() {
+        assertTrue(MeditationSettings.DEFAULT_INTERVAL_REPEATING)
+        assertTrue(MeditationSettings.Default.intervalRepeating)
+    }
+
+    @Test
+    fun `default intervalFromEnd is false`() {
+        assertFalse(MeditationSettings.DEFAULT_INTERVAL_FROM_END)
+        assertFalse(MeditationSettings.Default.intervalFromEnd)
+    }
+
+    @Test
+    fun `default intervalSoundId is temple-bell`() {
+        assertEquals(GongSound.DEFAULT_SOUND_ID, MeditationSettings.DEFAULT_INTERVAL_SOUND_ID)
+        assertEquals("temple-bell", MeditationSettings.Default.intervalSoundId)
+    }
+
+    @Test
+    fun `create with new interval fields`() {
+        val settings = MeditationSettings.create(
+            intervalRepeating = false,
+            intervalFromEnd = true,
+            intervalSoundId = "soft-interval"
+        )
+
+        assertFalse(settings.intervalRepeating)
+        assertTrue(settings.intervalFromEnd)
+        assertEquals("soft-interval", settings.intervalSoundId)
+    }
+
+    @Test
+    fun `copy preserves new interval fields`() {
+        val original = MeditationSettings(
+            intervalRepeating = false,
+            intervalFromEnd = true,
+            intervalSoundId = "soft-interval"
+        )
+        val copied = original.copy(durationMinutes = 20)
+
+        assertFalse(copied.intervalRepeating)
+        assertTrue(copied.intervalFromEnd)
+        assertEquals("soft-interval", copied.intervalSoundId)
+        assertEquals(20, copied.durationMinutes)
+    }
+
+    // MARK: - effectiveIntervalFromEnd Tests
+
+    @Test
+    fun `effectiveIntervalFromEnd returns intervalFromEnd when repeating`() {
+        val settingsFromStart = MeditationSettings(intervalRepeating = true, intervalFromEnd = false)
+        assertFalse(settingsFromStart.effectiveIntervalFromEnd)
+
+        val settingsFromEnd = MeditationSettings(intervalRepeating = true, intervalFromEnd = true)
+        assertTrue(settingsFromEnd.effectiveIntervalFromEnd)
+    }
+
+    @Test
+    fun `effectiveIntervalFromEnd returns true when not repeating`() {
+        // Single mode always counts from end
+        val settingsNotRepeatingFromStart = MeditationSettings(intervalRepeating = false, intervalFromEnd = false)
+        assertTrue(settingsNotRepeatingFromStart.effectiveIntervalFromEnd)
+
+        val settingsNotRepeatingFromEnd = MeditationSettings(intervalRepeating = false, intervalFromEnd = true)
+        assertTrue(settingsNotRepeatingFromEnd.effectiveIntervalFromEnd)
+    }
+
+    // MARK: - MIN/MAX Interval Constants Tests
+
+    @Test
+    fun `interval range constants are correct`() {
+        assertEquals(1, MeditationSettings.MIN_INTERVAL_MINUTES)
+        assertEquals(60, MeditationSettings.MAX_INTERVAL_MINUTES)
     }
 
     // MARK: - VALID_PREPARATION_TIMES Tests
@@ -343,6 +423,9 @@ class MeditationSettingsTest {
     fun `settings keys have expected values`() {
         assertEquals("intervalGongsEnabled", MeditationSettingsKeys.INTERVAL_GONGS_ENABLED)
         assertEquals("intervalMinutes", MeditationSettingsKeys.INTERVAL_MINUTES)
+        assertEquals("intervalRepeating", MeditationSettingsKeys.INTERVAL_REPEATING)
+        assertEquals("intervalFromEnd", MeditationSettingsKeys.INTERVAL_FROM_END)
+        assertEquals("intervalSoundId", MeditationSettingsKeys.INTERVAL_SOUND_ID)
         assertEquals("backgroundSoundId", MeditationSettingsKeys.BACKGROUND_SOUND_ID)
         assertEquals("backgroundSoundVolume", MeditationSettingsKeys.BACKGROUND_SOUND_VOLUME)
         assertEquals("durationMinutes", MeditationSettingsKeys.DURATION_MINUTES)

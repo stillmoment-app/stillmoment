@@ -66,21 +66,20 @@ class SettingsDataStoreTest {
     // MARK: - Settings Validation
 
     @Test
-    fun `validateInterval maps to valid intervals (3, 5, 10)`() {
-        // Values <= 3 map to 3
-        assertEquals(3, MeditationSettings.validateInterval(0))
-        assertEquals(3, MeditationSettings.validateInterval(-5))
-        assertEquals(3, MeditationSettings.validateInterval(3))
+    fun `validateInterval clamps to valid range (1-60)`() {
+        // Values below minimum clamp to 1
+        assertEquals(1, MeditationSettings.validateInterval(0))
+        assertEquals(1, MeditationSettings.validateInterval(-5))
 
-        // Values 4-7 map to 5
-        assertEquals(5, MeditationSettings.validateInterval(4))
+        // Valid values pass through
+        assertEquals(1, MeditationSettings.validateInterval(1))
         assertEquals(5, MeditationSettings.validateInterval(5))
-        assertEquals(5, MeditationSettings.validateInterval(7))
+        assertEquals(7, MeditationSettings.validateInterval(7))
+        assertEquals(30, MeditationSettings.validateInterval(30))
 
-        // Values > 7 map to 10
-        assertEquals(10, MeditationSettings.validateInterval(8))
-        assertEquals(10, MeditationSettings.validateInterval(10))
-        assertEquals(10, MeditationSettings.validateInterval(30))
+        // Values above maximum clamp to 60
+        assertEquals(60, MeditationSettings.validateInterval(60))
+        assertEquals(60, MeditationSettings.validateInterval(100))
     }
 
     @Test

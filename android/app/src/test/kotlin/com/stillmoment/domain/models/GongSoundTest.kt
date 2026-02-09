@@ -143,4 +143,55 @@ class GongSoundTest {
         assertEquals("Temple Bell", sound.nameEnglish)
         assertEquals("Tempelglocke", sound.nameGerman)
     }
+
+    // MARK: - Interval Sounds Tests
+
+    @Test
+    fun `allIntervalSounds contains 5 sounds`() {
+        assertEquals(5, GongSound.allIntervalSounds.size)
+    }
+
+    @Test
+    fun `allIntervalSounds includes all base sounds plus soft-interval`() {
+        val ids = GongSound.allIntervalSounds.map { it.id }
+
+        assertTrue(ids.contains("classic-bowl"))
+        assertTrue(ids.contains("deep-resonance"))
+        assertTrue(ids.contains("clear-strike"))
+        assertTrue(ids.contains("temple-bell"))
+        assertTrue(ids.contains("soft-interval"))
+    }
+
+    @Test
+    fun `allIntervalSounds have unique IDs`() {
+        val ids = GongSound.allIntervalSounds.map { it.id }
+        assertEquals(ids.size, ids.distinct().size)
+    }
+
+    @Test
+    fun `SOFT_INTERVAL_SOUND_ID is soft-interval`() {
+        assertEquals("soft-interval", GongSound.SOFT_INTERVAL_SOUND_ID)
+    }
+
+    @Test
+    fun `soft-interval has correct properties`() {
+        val sound = GongSound.find("soft-interval")
+
+        assertNotNull(sound)
+        assertEquals("Soft Interval Tone", sound?.nameEnglish)
+        assertEquals("Sanfter Intervallton", sound?.nameGerman)
+    }
+
+    @Test
+    fun `find searches allIntervalSounds including soft-interval`() {
+        val sound = GongSound.find("soft-interval")
+        assertNotNull(sound)
+        assertEquals("soft-interval", sound?.id)
+    }
+
+    @Test
+    fun `findOrDefault returns soft-interval for soft-interval ID`() {
+        val sound = GongSound.findOrDefault("soft-interval")
+        assertEquals("soft-interval", sound.id)
+    }
 }
