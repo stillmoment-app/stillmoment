@@ -1,6 +1,6 @@
 # Ticket shared-048: Timer Pause-Button entfernen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 4-Polish
@@ -21,7 +21,7 @@ Meditation kennt kein Pausieren. Wenn man unterbrochen wird, laeuft die Zeit wei
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [x]    | -             |
 
 ---
@@ -30,25 +30,25 @@ Meditation kennt kein Pausieren. Wenn man unterbrochen wird, laeuft die Zeit wei
 
 ### Feature (beide Plattformen)
 
-- [ ] Timer Focus Mode zeigt keinen Pause/Resume-Button mehr
-- [ ] Laufender Timer kann nur ueber Close (X) beendet werden
-- [ ] State Machine: Running geht nur noch zu Completed (Timer abgelaufen) oder Idle (Close gedrueckt)
-- [ ] "Take your time" / Paused-Zustandstext entfaellt
-- [ ] Guided Meditation Player behaelt Play/Pause (Audio-Playback-Steuerung, nicht Meditation-Pause)
-- [ ] Lokalisiert: Nicht mehr benoetigte Strings entfernen (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Timer Focus Mode zeigt keinen Pause/Resume-Button mehr
+- [x] Laufender Timer kann nur ueber Close (X) beendet werden
+- [x] State Machine: Running geht nur noch zu Completed (Timer abgelaufen) oder Idle (Close gedrueckt)
+- [x] "Take your time" / Paused-Zustandstext entfaellt
+- [x] Guided Meditation Player behaelt Play/Pause (Audio-Playback-Steuerung, nicht Meditation-Pause)
+- [x] Lokalisiert: Nicht mehr benoetigte Strings entfernen (DE + EN)
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
 
-- [ ] Unit Tests iOS (Pause-Tests entfernen, vereinfachte State Machine testen)
-- [ ] Unit Tests Android (Pause-Tests entfernen, vereinfachte State Machine testen)
+- [x] Unit Tests iOS (Pause-Tests entfernen, vereinfachte State Machine testen)
+- [x] Unit Tests Android (Pause-Tests entfernen, vereinfachte State Machine testen)
 
 ### Dokumentation
 
-- [ ] CHANGELOG.md
-- [ ] State Machine Dokumentation aktualisieren (Paused-State entfernen)
-- [ ] shared-013 Ticket-Datei: Hinweis ergaenzen dass Pause entfernt wurde
-- [ ] Audio-System Doku (`dev-docs/architecture/audio-system.md`): pauseBackgroundAudio/resumeBackgroundAudio entfernen falls dokumentiert
+- [x] CHANGELOG.md
+- [x] State Machine Dokumentation aktualisieren (Paused-State entfernen)
+- [x] shared-013 Ticket-Datei: Hinweis ergaenzen dass Pause entfernt wurde
+- [x] Audio-System Doku (`dev-docs/architecture/audio-system.md`): pauseBackgroundAudio/resumeBackgroundAudio entfernen falls dokumentiert (war nicht dokumentiert)
 
 ---
 
