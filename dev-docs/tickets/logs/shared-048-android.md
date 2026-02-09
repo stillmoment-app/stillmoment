@@ -91,4 +91,16 @@ Code-Qualitaet: Saubere, konsistente Entfernung ueber alle Schichten (Domain, Ap
 ## CLOSE
 Status: DONE
 Commits:
-- 62bb5bb docs(android): #shared-048 Update CHANGELOG and shared-013 ticket
+- 48f765f docs: #shared-048 Close ticket (Android)
+
+---
+
+## LEARN
+Status: DONE
+
+Learnings:
+- [MEMORY.md] Ticket-Dateinamen nie raten — ID und Dateiname stimmen nicht immer ueberein. Immer per Glob nach Ticket-ID suchen.
+- [MEMORY.md] Bei Feature-Entfernungen ios/CLAUDE.md und android/CLAUDE.md auf veraltete Code-Beispiele pruefen.
+
+Summary:
+Zwei von vier Challenges waren generisch genug fuer Learnings: Ticket-Dateinamen-Konvention und CLAUDE.md-Pflege bei Feature-Entfernungen. Beide in Projekt-MEMORY.md und Agent-Memory persistiert. Die anderen zwei (INDEX.md Staging, GPG-Signing) waren situativ und nicht persistierenswert.
