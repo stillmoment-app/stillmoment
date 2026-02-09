@@ -22,7 +22,7 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

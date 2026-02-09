@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Android)
+- **Flexible Intervallklänge** - Intervallklänge frei konfigurierbar (1-60 Min.)
+  - Drei Modi: Wiederholend vom Anfang, wiederholend vom Ende, einmaliger Klang vor Ende
+  - Eigener Sound für Intervallklänge (5 Optionen inkl. "Sanfter Intervallton")
+  - Stepper (1-60 Min.) statt fester 3/5/10-Auswahl
+  - "Wiederholen" und "Vom Ende zählen" Toggles
+  - Eigene Lautstärkeregelung und Sound-Vorschau
+  - Dynamische Beschreibung zeigt aktuelle Konfiguration
+  - 5-Sekunden-Schutz verhindert Kollision mit Ende-Gong
+  - Bestehende Einstellungen migrieren automatisch
+  - Lokalisiert (DE + EN)
+  - Ticket: shared-049
+
 ### Removed (iOS & Android)
 - **Timer Pause-Button entfernt** - Meditation Timer hat keinen Pause/Resume-Button mehr
   - Laufende Meditation kann nur ueber Close (X) beendet werden
