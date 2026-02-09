@@ -9,7 +9,6 @@ Akzeptiert
 `MeditationTimer` muss verschiedene Zustandsuebergaenge abbilden:
 
 - `tick`: Sekunde verstreicht
-- `pause` / `resume`: Benutzer pausiert/setzt fort
 - `reset`: Zurueck zum Ausgangszustand
 - `complete`: Timer ist abgelaufen
 
