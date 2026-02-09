@@ -16,12 +16,6 @@ sealed class TimerAction {
     /** User pressed the start button */
     data object StartPressed : TimerAction()
 
-    /** User pressed the pause button */
-    data object PausePressed : TimerAction()
-
-    /** User pressed the resume button */
-    data object ResumePressed : TimerAction()
-
     /** User pressed the reset button */
     data object ResetPressed : TimerAction()
 

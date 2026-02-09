@@ -9,24 +9,24 @@ package com.stillmoment.domain.models
  *  ┌──────┐ StartPressed  ┌─────────────┐ PreparationFinished ┌─────────┐ TimerCompleted ┌───────────┐
  *  │ Idle │──────────────►│ Preparation │────────────────────►│ Running │───────────────►│ Completed │
  *  └──────┘               └─────────────┘   + StartGong       └─────────┘   + Gong       └───────────┘
- *     ▲                        │                                │    ▲            │
- *     │                        │                     PausePressed│    │            │
- *     │   ResetPressed         │                                ▼    │            │
- *     │   (from any state      │                            ┌────────┐            │
- *     │    except Idle)        │                            │ Paused │            │
- *     │                        │                            └────────┘            │
- *     │                        │                                │ ResumePressed   │
- *     │                        │                                └─────────────────┤
+ *     ▲                        │                                                  │
+ *     │   ResetPressed         │                                                  │
+ *     │   (from any state      │                                                  │
+ *     │    except Idle)        │                                                  │
  *     │                        │                                                  │
  *     └────────────────────────┴──────────────────────────────────────────────────┘
  * ```
+ *
+ * ## Philosophy
+ *
+ * Meditation has no pause. If interrupted, the session ends (Close/Reset).
+ * The timer keeps running — that IS the practice.
  *
  * ## States
  *
  * - **Idle**: Timer Config Screen. User selects duration.
  * - **Preparation**: Focus Screen. Configurable preparation time before meditation starts.
  * - **Running**: Focus Screen. Main meditation timer counting down.
- * - **Paused**: Focus Screen. Timer paused, can resume or reset.
  * - **Completed**: Focus Screen (briefly). Meditation finished, auto-navigates back.
  *
  * ## Transitions
@@ -35,8 +35,6 @@ package com.stillmoment.domain.models
  * |-------------|-------------|---------------------|----------------------------------|
  * | Idle        | Preparation | StartPressed        | StartForegroundService, StartTimer |
  * | Preparation | Running     | PreparationFinished | PlayStartGong                    |
- * | Running     | Paused      | PausePressed        | PauseBackgroundAudio, PauseTimer |
- * | Paused      | Running     | ResumePressed       | ResumeBackgroundAudio, ResumeTimer |
  * | Running     | Completed   | TimerCompleted      | PlayCompletionSound, StopForegroundService |
  * | Any*        | Idle        | ResetPressed        | StopForegroundService, ResetTimer |
  *
@@ -45,7 +43,7 @@ package com.stillmoment.domain.models
  * ## UI Screens
  *
  * - **TimerScreen** (Config): Shown when state is Idle
- * - **TimerFocusScreen**: Shown when state is Preparation, Running, Paused, or Completed
+ * - **TimerFocusScreen**: Shown when state is Preparation, Running, or Completed
  */
 sealed class TimerState {
     /** Timer is idle and ready to start. Shows TimerScreen (config). */
@@ -56,9 +54,6 @@ sealed class TimerState {
 
     /** Timer is actively counting down the meditation. Shows TimerFocusScreen. */
     data object Running : TimerState()
-
-    /** Timer is paused and can be resumed. Shows TimerFocusScreen. */
-    data object Paused : TimerState()
 
     /** Timer has completed. Shows TimerFocusScreen briefly, then navigates back. */
     data object Completed : TimerState()

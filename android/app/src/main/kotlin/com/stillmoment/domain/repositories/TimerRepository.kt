@@ -26,18 +26,6 @@ interface TimerRepository {
     suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int = 15)
 
     /**
-     * Pauses the current meditation session.
-     * Only valid when timer is running.
-     */
-    suspend fun pause()
-
-    /**
-     * Resumes a paused meditation session.
-     * Only valid when timer is paused.
-     */
-    suspend fun resume()
-
-    /**
      * Resets the timer to idle state.
      * Can be called from any state.
      */

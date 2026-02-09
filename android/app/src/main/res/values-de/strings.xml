@@ -17,8 +17,6 @@
 
     <!-- Buttons -->
     <string name="button_start">Start</string>
-    <string name="button_pause">Kurze Pause</string>
-    <string name="button_resume">Weiter</string>
     <string name="button_done">Fertig</string>
 
     <!-- Tabs -->
@@ -27,7 +25,6 @@
 
     <!-- Timer States -->
     <string name="state_ready">Bereit, wenn du es bist</string>
-    <string name="state_paused">Nimm dir Zeit</string>
     <string name="state_completed">Danke dir</string>
 
     <!-- Settings -->
@@ -57,8 +54,6 @@
     <!-- Accessibility -->
     <string name="accessibility_duration_picker">Meditationsdauer auswählen</string>
     <string name="accessibility_start_button">Meditation starten</string>
-    <string name="accessibility_pause_button">Meditation pausieren</string>
-    <string name="accessibility_resume_button">Meditation fortsetzen</string>
     <string name="accessibility_settings_button">Einstellungen öffnen</string>
     <string name="accessibility_countdown_seconds">Noch %d Sekunden bis die Meditation beginnt</string>
     <string name="accessibility_time_remaining">%1$d Minuten und %2$d Sekunden verbleibend</string>

@@ -37,14 +37,6 @@ data class TimerDisplayState(
     val canStart: Boolean
         get() = timerState == TimerState.Idle && selectedMinutes > 0
 
-    /** Returns true if timer can be paused */
-    val canPause: Boolean
-        get() = timerState == TimerState.Running
-
-    /** Returns true if timer can be resumed */
-    val canResume: Boolean
-        get() = timerState == TimerState.Paused
-
     /** Returns true if timer can be reset */
     val canReset: Boolean
         get() = timerState != TimerState.Idle

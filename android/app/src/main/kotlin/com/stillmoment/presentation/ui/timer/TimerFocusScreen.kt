@@ -2,27 +2,19 @@ package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -102,8 +93,6 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
             viewModel.resetTimer()
             safeOnBack()
         },
-        onPauseClick = viewModel::pauseTimer,
-        onResumeClick = viewModel::resumeTimer,
         getCurrentPreparationAffirmation = viewModel::getCurrentPreparationAffirmation,
         getCurrentRunningAffirmation = viewModel::getCurrentRunningAffirmation,
         modifier = modifier
@@ -114,8 +103,6 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
 internal fun TimerFocusScreenContent(
     uiState: TimerUiState,
     onBack: () -> Unit,
-    onPauseClick: () -> Unit,
-    onResumeClick: () -> Unit,
     getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
@@ -125,8 +112,6 @@ internal fun TimerFocusScreenContent(
             FocusScreenLayout(
                 uiState = uiState,
                 onBack = onBack,
-                onPauseClick = onPauseClick,
-                onResumeClick = onResumeClick,
                 getCurrentPreparationAffirmation = getCurrentPreparationAffirmation,
                 getCurrentRunningAffirmation = getCurrentRunningAffirmation,
                 modifier = Modifier.padding(paddingValues)
@@ -139,8 +124,6 @@ internal fun TimerFocusScreenContent(
 private fun FocusScreenLayout(
     uiState: TimerUiState,
     onBack: () -> Unit,
-    onPauseClick: () -> Unit,
-    onResumeClick: () -> Unit,
     getCurrentPreparationAffirmation: () -> String,
     getCurrentRunningAffirmation: () -> String,
     modifier: Modifier = Modifier
@@ -181,8 +164,6 @@ private fun FocusScreenLayout(
                 getCurrentRunningAffirmation = getCurrentRunningAffirmation
             )
             Spacer(modifier = Modifier.weight(1f))
-            FocusControlButtons(uiState = uiState, onPauseClick = onPauseClick, onResumeClick = onResumeClick)
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -282,113 +263,7 @@ private fun getStateText(
         TimerState.Idle -> stringResource(R.string.state_ready)
         TimerState.Preparation -> getCurrentPreparationAffirmation()
         TimerState.Running -> getCurrentRunningAffirmation()
-        TimerState.Paused -> stringResource(R.string.state_paused)
         TimerState.Completed -> stringResource(R.string.state_completed)
-    }
-}
-
-@Composable
-private fun FocusControlButtons(
-    uiState: TimerUiState,
-    onPauseClick: () -> Unit,
-    onResumeClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        when {
-            uiState.canPause -> {
-                FocusSecondaryButton(
-                    text = stringResource(R.string.button_pause),
-                    onClick = onPauseClick,
-                    iconResId = R.drawable.ic_pause,
-                    contentDescription = stringResource(R.string.accessibility_pause_button)
-                )
-            }
-            uiState.canResume -> {
-                FocusPrimaryButton(
-                    text = stringResource(R.string.button_resume),
-                    onClick = onResumeClick,
-                    icon = Icons.Filled.PlayArrow,
-                    contentDescription = stringResource(R.string.accessibility_resume_button)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FocusPrimaryButton(
-    text: String,
-    onClick: () -> Unit,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .height(56.dp)
-            .semantics { this.contentDescription = contentDescription },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = CircleShape
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
-        )
-    }
-}
-
-@Composable
-private fun FocusSecondaryButton(
-    text: String,
-    onClick: () -> Unit,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
-    iconResId: Int? = null
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier
-            .height(56.dp)
-            .semantics { this.contentDescription = contentDescription },
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.primary
-        ),
-        shape = CircleShape
-    ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-        } else if (iconResId != null) {
-            Icon(
-                painter = painterResource(id = iconResId),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        Spacer(modifier = Modifier.size(8.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
-        )
     }
 }
 
@@ -408,8 +283,6 @@ private fun TimerFocusPreparationPreview() {
                 )
             ),
             onBack = {},
-            onPauseClick = {},
-            onResumeClick = {},
             getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "Be present" }
         )
@@ -430,32 +303,8 @@ private fun TimerFocusRunningPreview() {
                 )
             ),
             onBack = {},
-            onPauseClick = {},
-            onResumeClick = {},
             getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "Breathe softly" }
-        )
-    }
-}
-
-@Preview(name = "Focus - Paused", device = Devices.PIXEL_4, showBackground = true)
-@Composable
-private fun TimerFocusPausedPreview() {
-    StillMomentTheme {
-        TimerFocusScreenContent(
-            uiState = TimerUiState(
-                displayState = TimerDisplayState(
-                    timerState = TimerState.Paused,
-                    remainingSeconds = 300,
-                    totalSeconds = 600,
-                    progress = 0.5f
-                )
-            ),
-            onBack = {},
-            onPauseClick = {},
-            onResumeClick = {},
-            getCurrentPreparationAffirmation = { "Take a deep breath..." },
-            getCurrentRunningAffirmation = { "Be present" }
         )
     }
 }
@@ -474,8 +323,6 @@ private fun TimerFocusTabletPreview() {
                 )
             ),
             onBack = {},
-            onPauseClick = {},
-            onResumeClick = {},
             getCurrentPreparationAffirmation = { "Take a deep breath..." },
             getCurrentRunningAffirmation = { "All is welcome" }
         )

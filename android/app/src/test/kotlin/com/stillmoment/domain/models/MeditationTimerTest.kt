@@ -191,8 +191,8 @@ class MeditationTimerTest {
     @Test
     fun `withState changes state`() {
         val timer = MeditationTimer.create(10)
-        val paused = timer.withState(TimerState.Paused)
-        assertEquals(TimerState.Paused, paused.state)
+        val running = timer.withState(TimerState.Running)
+        assertEquals(TimerState.Running, running.state)
     }
 
     @Test
@@ -236,7 +236,7 @@ class MeditationTimerTest {
 
     @Test
     fun `shouldPlayIntervalGong returns false when not running`() {
-        val timer = MeditationTimer.create(10).copy(state = TimerState.Paused)
+        val timer = MeditationTimer.create(10).copy(state = TimerState.Idle)
         assertFalse(timer.shouldPlayIntervalGong(5))
     }
 
@@ -345,22 +345,6 @@ class MeditationTimerTest {
         // Note: ViewModel only calls tick() during Countdown/Running states
         assertEquals(TimerState.Idle, ticked.state)
         assertEquals(599, ticked.remainingSeconds)
-    }
-
-    @Test
-    fun `tick preserves state when paused but decrements remaining`() {
-        // Given
-        val timer =
-            MeditationTimer.create(10)
-                .copy(state = TimerState.Paused, remainingSeconds = 300)
-
-        // When
-        val ticked = timer.tick()
-
-        // Then: State preserved, remaining decremented
-        // Note: ViewModel only calls tick() during Countdown/Running states
-        assertEquals(TimerState.Paused, ticked.state)
-        assertEquals(299, ticked.remainingSeconds)
     }
 
     @Test

@@ -57,40 +57,6 @@ class TimerRepositoryImplTest {
         assertEquals(0, timer.remainingPreparationSeconds)
     }
 
-    // MARK: - Pause Tests
-
-    @Test
-    fun `pause changes state to paused`() = runTest {
-        // Given
-        sut.start(durationMinutes = 10)
-        // Simulate countdown completion
-        repeat(16) { sut.tick() }
-
-        // When
-        sut.pause()
-
-        // Then
-        val timer = sut.timerFlow.first()
-        assertEquals(TimerState.Paused, timer.state)
-    }
-
-    // MARK: - Resume Tests
-
-    @Test
-    fun `resume changes state to running`() = runTest {
-        // Given
-        sut.start(durationMinutes = 10)
-        repeat(16) { sut.tick() } // Complete countdown
-        sut.pause()
-
-        // When
-        sut.resume()
-
-        // Then
-        val timer = sut.timerFlow.first()
-        assertEquals(TimerState.Running, timer.state)
-    }
-
     // MARK: - Reset Tests
 
     @Test

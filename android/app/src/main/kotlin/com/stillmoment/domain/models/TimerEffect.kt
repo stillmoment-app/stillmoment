@@ -38,22 +38,8 @@ sealed class TimerEffect {
     /** Start the timer with given duration and preparation time */
     data class StartTimer(val durationMinutes: Int, val preparationTimeSeconds: Int = 15) : TimerEffect()
 
-    /** Pause the timer */
-    data object PauseTimer : TimerEffect()
-
-    /** Resume the timer */
-    data object ResumeTimer : TimerEffect()
-
     /** Reset the timer */
     data object ResetTimer : TimerEffect()
-
-    // MARK: - Background Audio Effects
-
-    /** Pause background audio (immediate, no fade) */
-    data object PauseBackgroundAudio : TimerEffect()
-
-    /** Resume background audio with fade in */
-    data object ResumeBackgroundAudio : TimerEffect()
 
     // MARK: - Persistence Effects
 

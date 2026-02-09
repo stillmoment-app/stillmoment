@@ -50,16 +50,6 @@ constructor() : TimerRepository {
         _timer.value = timer
     }
 
-    override suspend fun pause() {
-        currentTimer = currentTimer?.withState(TimerState.Paused)
-        _timer.value = currentTimer
-    }
-
-    override suspend fun resume() {
-        currentTimer = currentTimer?.withState(TimerState.Running)
-        _timer.value = currentTimer
-    }
-
     override suspend fun reset() {
         currentTimer = null
         _timer.value = null

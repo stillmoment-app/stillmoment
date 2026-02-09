@@ -55,8 +55,6 @@ data class TimerUiState(
     // Computed properties from displayState
     val isPreparation: Boolean get() = displayState.isPreparation
     val canStart: Boolean get() = displayState.canStart
-    val canPause: Boolean get() = displayState.canPause
-    val canResume: Boolean get() = displayState.canResume
     val canReset: Boolean get() = displayState.canReset
     val formattedTime: String get() = displayState.formattedTime
 }
@@ -151,20 +149,6 @@ constructor(
                 previousState = TimerState.Idle
                 startTimerLoop()
             }
-            is TimerEffect.PauseTimer -> {
-                viewModelScope.launch { timerRepository.pause() }
-                timerJob?.cancel()
-            }
-            is TimerEffect.ResumeTimer -> {
-                viewModelScope.launch { timerRepository.resume() }
-                startTimerLoop()
-            }
-            is TimerEffect.PauseBackgroundAudio -> {
-                foregroundService.pauseAudio()
-            }
-            is TimerEffect.ResumeBackgroundAudio -> {
-                foregroundService.resumeAudio()
-            }
             is TimerEffect.ResetTimer -> {
                 timerJob?.cancel()
                 previousState = TimerState.Idle
@@ -188,14 +172,6 @@ constructor(
 
     fun startTimer() {
         dispatch(TimerAction.StartPressed)
-    }
-
-    fun pauseTimer() {
-        dispatch(TimerAction.PausePressed)
-    }
-
-    fun resumeTimer() {
-        dispatch(TimerAction.ResumePressed)
     }
 
     fun resetTimer() {

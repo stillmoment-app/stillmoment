@@ -32,8 +32,6 @@ object TimerReducer {
         return when (action) {
             is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes)
             is TimerAction.StartPressed -> reduceStartPressed(state, settings)
-            is TimerAction.PausePressed -> reducePausePressed(state)
-            is TimerAction.ResumePressed -> reduceResumePressed(state)
             is TimerAction.ResetPressed -> reduceResetPressed(state)
             is TimerAction.Tick -> reduceTick(state, action)
             is TimerAction.PreparationFinished -> reducePreparationFinished(state, settings)
@@ -116,22 +114,6 @@ object TimerReducer {
         }
 
         return newState to effects
-    }
-
-    private fun reducePausePressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
-        if (state.timerState != TimerState.Running) {
-            return state to emptyList()
-        }
-        val newState = state.copy(timerState = TimerState.Paused)
-        return newState to listOf(TimerEffect.PauseBackgroundAudio, TimerEffect.PauseTimer)
-    }
-
-    private fun reduceResumePressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
-        if (state.timerState != TimerState.Paused) {
-            return state to emptyList()
-        }
-        val newState = state.copy(timerState = TimerState.Running)
-        return newState to listOf(TimerEffect.ResumeBackgroundAudio, TimerEffect.ResumeTimer)
     }
 
     private fun reduceResetPressed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
