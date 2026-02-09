@@ -69,7 +69,6 @@
 "settings.intervalGongs.description.afterStart" = "%d min after start, %@";
 "settings.intervalGongs.description.beforeEnd" = "%d min before end, %@";
 "settings.intervalGongs.interval" = "Interval";
-"settings.intervalGongs.footer" = "A gentle bell every %d minutes invites you to check in with yourself.";
 "settings.intervalGongs.header" = "Interval Gongs";
 "settings.intervalGongs.sound" = "Sound";
 "settings.intervalGongs.stepper" = "%d min";

@@ -71,7 +71,7 @@ final class AudioService: AudioServiceProtocol {
     func playIntervalGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing interval gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
         try self.configureAudioSession() // Ensure session is active
-        try self.playIntervalSound(soundId: soundId, volume: volume)
+        try self.playGongSound(soundId: soundId, volume: volume)
     }
 
     func playGongPreview(soundId: String, volume: Float) throws {
@@ -350,47 +350,6 @@ final class AudioService: AudioServiceProtocol {
             )
         } catch {
             Logger.audio.error("Failed to play gong", error: error, metadata: ["soundId": soundId])
-            throw AudioServiceError.playbackFailed
-        }
-    }
-
-    /// Plays an interval sound by sound ID
-    /// - Parameters:
-    ///   - soundId: The GongSound ID to play
-    ///   - volume: Playback volume (0.0 to 1.0)
-    private func playIntervalSound(soundId: String, volume: Float) throws {
-        let gongSound = GongSound.findOrDefault(byId: soundId)
-
-        // Soft interval tone uses root Resources, not GongSounds subdirectory
-        let soundURL: URL?
-        if gongSound.id == "soft-interval" {
-            let (name, ext) = self.parseFilename(gongSound.filename)
-            soundURL = Bundle.main.url(forResource: name, withExtension: ext)
-        } else {
-            let (name, ext) = self.parseFilename(gongSound.filename)
-            soundURL = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "GongSounds")
-        }
-
-        guard let url = soundURL else {
-            Logger.audio.error(
-                "Interval sound file not found",
-                metadata: ["soundId": soundId, "filename": gongSound.filename]
-            )
-            throw AudioServiceError.soundFileNotFound
-        }
-
-        do {
-            let player = try AVAudioPlayer(contentsOf: url)
-            player.volume = volume
-            player.prepareToPlay()
-            player.play()
-            self.audioPlayer = player
-            Logger.audio.info(
-                "Interval sound playing",
-                metadata: ["soundId": soundId, "volume": "\(volume)"]
-            )
-        } catch {
-            Logger.audio.error("Failed to play interval sound", error: error, metadata: ["soundId": soundId])
             throw AudioServiceError.playbackFailed
         }
     }

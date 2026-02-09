@@ -285,7 +285,7 @@ elapsed:  0              420        600
 | Plattform | Flexible Intervalle | Referenz |
 |-----------|-------------------|----------|
 | Android | Vollstaendig implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes, mode)` |
-| iOS | Noch nicht implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes:)` (nur REPEATING) |
+| iOS | Vollstaendig implementiert | `MeditationTimer.shouldPlayIntervalGong(intervalMinutes:, mode:)` |
 
 ### Vorteile
 

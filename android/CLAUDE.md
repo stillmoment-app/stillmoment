@@ -148,13 +148,7 @@ fun withCustomTeacher(teacher: String?): GuidedMeditation = copy(customTeacher =
 
 ```kotlin
 companion object {
-    val VALID_INTERVALS = listOf(3, 5, 10)
-
-    fun validateInterval(minutes: Int): Int = when {
-        minutes <= 3 -> 3
-        minutes <= 7 -> 5
-        else -> 10
-    }
+    fun validateInterval(minutes: Int): Int = minutes.coerceIn(1, 60)
 
     fun create(durationMinutes: Int, ...): MeditationSettings {
         return MeditationSettings(

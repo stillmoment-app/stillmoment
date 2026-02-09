@@ -199,29 +199,44 @@ final class IntervalModeTests: XCTestCase {
     }
 
     func testFiveSecondProtection_sixSecondsRemainingIsAllowed() throws {
-        // Given: 1 min meditation, 1 min before end
-        var timer = try MeditationTimer(durationMinutes: 1)
+        // Given: 2 min meditation, 1 min before end (interval < meditation)
+        var timer = try MeditationTimer(durationMinutes: 2)
         timer = timer.withState(.running)
 
-        // When: 54 seconds elapsed (6 remaining)
-        for _ in 0..<54 {
+        // When: 114 seconds elapsed (6 remaining)
+        for _ in 0..<114 {
             timer = timer.tick()
         }
 
-        // Then: remaining = 6, should be allowed for beforeEnd
+        // Then: remaining = 6, should be allowed for beforeEnd (6 > 5 protection threshold)
         XCTAssertEqual(timer.remainingSeconds, 6)
-        // Note: for beforeEnd with 1 min interval, remaining (6) <= 60 and > 5, so should play
         XCTAssertTrue(timer.shouldPlayIntervalGong(intervalMinutes: 1, mode: .beforeEnd))
     }
 
     // MARK: - Edge Cases
 
-    func testIntervalLongerThanMeditation_noGong() throws {
-        // Given: 5 min meditation, 10 min interval
+    func testIntervalLongerThanMeditation_noGongEarlyInTimer() throws {
+        // Given: 5 min meditation, 10 min interval — only a few seconds elapsed
         var timer = try MeditationTimer(durationMinutes: 5)
         timer = timer.withState(.running)
 
-        // When: entire timer runs
+        // When: only 10 seconds elapsed (remaining = 290, well above 5-second protection)
+        for _ in 0..<10 {
+            timer = timer.tick()
+        }
+
+        // Then: no gong for any mode — interval >= meditation should never trigger
+        XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .repeating))
+        XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .afterStart))
+        XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .beforeEnd))
+    }
+
+    func testIntervalLongerThanMeditation_noGongLateInTimer() throws {
+        // Given: 5 min meditation, 10 min interval — near the end
+        var timer = try MeditationTimer(durationMinutes: 5)
+        timer = timer.withState(.running)
+
+        // When: 295 seconds elapsed (remaining = 5)
         for _ in 0..<295 {
             timer = timer.tick()
         }
@@ -229,7 +244,6 @@ final class IntervalModeTests: XCTestCase {
         // Then: no gong for any mode
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .repeating))
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .afterStart))
-        // beforeEnd with 10 min interval: remaining (5 sec) <= 600, but 5 second protection
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 10, mode: .beforeEnd))
     }
 
@@ -238,13 +252,15 @@ final class IntervalModeTests: XCTestCase {
         var timer = try MeditationTimer(durationMinutes: 5)
         timer = timer.withState(.running)
 
-        // When: run most of the timer (leave 5 seconds)
-        for _ in 0..<295 {
+        // When: only a few seconds elapsed
+        for _ in 0..<10 {
             timer = timer.tick()
         }
 
-        // Then: remaining = 5 seconds = not > 5, 5-second protection kicks in
+        // Then: no gong for any mode — interval >= meditation should never trigger
         XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 5, mode: .repeating))
+        XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 5, mode: .afterStart))
+        XCTAssertFalse(timer.shouldPlayIntervalGong(intervalMinutes: 5, mode: .beforeEnd))
     }
 
     func testNotRunning_noGong() throws {

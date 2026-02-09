@@ -69,7 +69,6 @@
 "settings.intervalGongs.description.afterStart" = "%d Min. nach Start, %@";
 "settings.intervalGongs.description.beforeEnd" = "%d Min. vor Ende, %@";
 "settings.intervalGongs.interval" = "Intervall";
-"settings.intervalGongs.footer" = "Eine sanfte Glocke alle %d Minuten lädt dich ein, bei dir selbst einzuchecken.";
 "settings.intervalGongs.header" = "Intervallklänge";
 "settings.intervalGongs.sound" = "Klang";
 "settings.intervalGongs.stepper" = "%d Min.";

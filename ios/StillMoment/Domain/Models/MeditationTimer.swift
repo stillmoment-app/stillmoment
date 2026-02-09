@@ -182,6 +182,11 @@ struct MeditationTimer: Equatable {
 
         let intervalSeconds = intervalMinutes * 60
 
+        // No gong if interval >= total duration (consistent with Android)
+        guard intervalSeconds < self.totalSeconds else {
+            return false
+        }
+
         switch mode {
         case .repeating:
             return self.shouldPlayRepeatingGong(intervalSeconds: intervalSeconds)
