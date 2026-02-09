@@ -22,7 +22,7 @@ Meditation kennt kein Pausieren. Wenn man unterbrochen wird, laeuft die Zeit wei
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
