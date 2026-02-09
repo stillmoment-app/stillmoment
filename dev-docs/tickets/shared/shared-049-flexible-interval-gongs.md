@@ -1,6 +1,6 @@
 # Ticket shared-049: Flexible Intervallklaenge
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~6h | Android ~6h
 **Phase**: 3-Feature
@@ -21,7 +21,7 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [x]    | -             |
 
 ---
