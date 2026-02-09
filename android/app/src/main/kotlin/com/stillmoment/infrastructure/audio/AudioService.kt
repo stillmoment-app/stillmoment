@@ -115,15 +115,17 @@ constructor(
     }
 
     /**
-     * Play interval gong sound.
+     * Play interval gong sound with configurable sound selection.
      *
+     * @param soundId ID of the gong sound to play (from GongSound.allIntervalSounds)
      * @param volume Playback volume (0.0 to 1.0), defaults to 1.0
      */
-    override fun playIntervalGong(volume: Float) {
+    override fun playIntervalGong(soundId: String, volume: Float) {
         try {
             releaseGongPlayer()
+            val gongSound = GongSound.findOrDefault(soundId)
             val clampedVolume = volume.coerceIn(0f, 1f)
-            gongPlayer = mediaPlayerFactory.createFromResource(R.raw.interval)?.apply {
+            gongPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
@@ -131,7 +133,7 @@ constructor(
                 }
                 start()
             }
-            logger.d(TAG, "Playing interval gong sound, volume: $clampedVolume")
+            logger.d(TAG, "Playing interval gong: ${gongSound.id}, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play interval gong - invalid state: ${e.message}")
         }

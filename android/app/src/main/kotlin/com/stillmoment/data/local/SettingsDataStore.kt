@@ -41,6 +41,9 @@ constructor(
     private object Keys {
         val INTERVAL_GONGS_ENABLED = booleanPreferencesKey("interval_gongs_enabled")
         val INTERVAL_MINUTES = intPreferencesKey("interval_minutes")
+        val INTERVAL_REPEATING = booleanPreferencesKey("interval_repeating")
+        val INTERVAL_FROM_END = booleanPreferencesKey("interval_from_end")
+        val INTERVAL_SOUND_ID = stringPreferencesKey("interval_sound_id")
         val INTERVAL_GONG_VOLUME = floatPreferencesKey("interval_gong_volume")
         val BACKGROUND_SOUND_ID = stringPreferencesKey("background_sound_id")
         val BACKGROUND_SOUND_VOLUME = floatPreferencesKey("background_sound_volume")
@@ -65,6 +68,15 @@ constructor(
                     intervalMinutes =
                     preferences[Keys.INTERVAL_MINUTES]
                         ?: MeditationSettings.Default.intervalMinutes,
+                    intervalRepeating =
+                    preferences[Keys.INTERVAL_REPEATING]
+                        ?: MeditationSettings.Default.intervalRepeating,
+                    intervalFromEnd =
+                    preferences[Keys.INTERVAL_FROM_END]
+                        ?: MeditationSettings.Default.intervalFromEnd,
+                    intervalSoundId =
+                    preferences[Keys.INTERVAL_SOUND_ID]
+                        ?: MeditationSettings.Default.intervalSoundId,
                     intervalGongVolume =
                     preferences[Keys.INTERVAL_GONG_VOLUME]
                         ?: MeditationSettings.Default.intervalGongVolume,
@@ -100,6 +112,9 @@ constructor(
         context.dataStore.edit { preferences ->
             preferences[Keys.INTERVAL_GONGS_ENABLED] = settings.intervalGongsEnabled
             preferences[Keys.INTERVAL_MINUTES] = settings.intervalMinutes
+            preferences[Keys.INTERVAL_REPEATING] = settings.intervalRepeating
+            preferences[Keys.INTERVAL_FROM_END] = settings.intervalFromEnd
+            preferences[Keys.INTERVAL_SOUND_ID] = settings.intervalSoundId
             preferences[Keys.INTERVAL_GONG_VOLUME] = settings.intervalGongVolume
             preferences[Keys.BACKGROUND_SOUND_ID] = settings.backgroundSoundId
             preferences[Keys.BACKGROUND_SOUND_VOLUME] = settings.backgroundSoundVolume

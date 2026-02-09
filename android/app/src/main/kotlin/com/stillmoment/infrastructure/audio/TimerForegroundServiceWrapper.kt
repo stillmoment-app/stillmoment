@@ -30,8 +30,8 @@ constructor(
         TimerForegroundService.playGong(context, gongSoundId, gongVolume)
     }
 
-    override fun playIntervalGong(gongVolume: Float) {
-        TimerForegroundService.playIntervalGong(context, gongVolume)
+    override fun playIntervalGong(gongSoundId: String, gongVolume: Float) {
+        TimerForegroundService.playIntervalGong(context, gongSoundId, gongVolume)
     }
 
     override fun pauseAudio() {

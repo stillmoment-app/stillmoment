@@ -59,8 +59,9 @@ class TimerForegroundService : Service() {
                 audioService.playGong(gongSoundId, gongVolume)
             }
             ACTION_PLAY_INTERVAL_GONG -> {
+                val gongSoundId = intent?.getStringExtra(EXTRA_GONG_SOUND_ID) ?: currentGongSoundId
                 val gongVolume = intent?.getFloatExtra(EXTRA_GONG_VOLUME, currentGongVolume) ?: currentGongVolume
-                audioService.playIntervalGong(gongVolume)
+                audioService.playIntervalGong(gongSoundId, gongVolume)
             }
             ACTION_PAUSE_AUDIO -> {
                 audioService.pauseBackgroundAudio()
@@ -223,10 +224,11 @@ class TimerForegroundService : Service() {
             context.startService(intent)
         }
 
-        fun playIntervalGong(context: Context, gongVolume: Float = 1.0f) {
+        fun playIntervalGong(context: Context, gongSoundId: String, gongVolume: Float = 1.0f) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
                     action = ACTION_PLAY_INTERVAL_GONG
+                    putExtra(EXTRA_GONG_SOUND_ID, gongSoundId)
                     putExtra(EXTRA_GONG_VOLUME, gongVolume)
                 }
             context.startService(intent)
