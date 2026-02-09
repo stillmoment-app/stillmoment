@@ -192,7 +192,9 @@ object TimerReducer {
             return state to emptyList()
         }
         val newState = state.copy(intervalGongPlayedForCurrentInterval = true)
-        return newState to listOf(TimerEffect.PlayIntervalGong(settings.intervalGongVolume))
+        return newState to listOf(
+            TimerEffect.PlayIntervalGong(settings.intervalSoundId, settings.intervalGongVolume)
+        )
     }
 
     private fun reduceIntervalGongPlayed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {

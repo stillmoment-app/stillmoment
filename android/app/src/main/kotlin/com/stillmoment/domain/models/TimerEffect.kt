@@ -27,8 +27,8 @@ sealed class TimerEffect {
     /** Play the start gong (meditation begins) */
     data class PlayStartGong(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
 
-    /** Play an interval gong */
-    data class PlayIntervalGong(val gongVolume: Float) : TimerEffect()
+    /** Play an interval gong with configurable sound */
+    data class PlayIntervalGong(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
 
     /** Play the completion sound (meditation ends) */
     data class PlayCompletionSound(val gongSoundId: String, val gongVolume: Float) : TimerEffect()

@@ -24,9 +24,10 @@ interface AudioServiceProtocol {
     /**
      * Play interval gong sound (for preview in settings).
      *
+     * @param soundId ID of the interval gong sound to play
      * @param volume Playback volume (0.0 to 1.0)
      */
-    fun playIntervalGong(volume: Float = 1.0f)
+    fun playIntervalGong(soundId: String, volume: Float = 1.0f)
 
     /**
      * Stop the current gong preview. Idempotent - safe to call even if no preview is playing.

@@ -36,7 +36,10 @@ data class GongSound(
         /** Default gong sound ID */
         const val DEFAULT_SOUND_ID = "temple-bell"
 
-        /** All available gong sounds */
+        /** ID for the soft interval tone (uses existing interval.mp3) */
+        const val SOFT_INTERVAL_SOUND_ID = "soft-interval"
+
+        /** All available gong sounds (for start/end gong selection) */
         val allSounds: List<GongSound> = listOf(
             GongSound(
                 id = "temple-bell",
@@ -64,16 +67,24 @@ data class GongSound(
             )
         )
 
+        /** All available interval sounds (allSounds + soft interval tone) */
+        val allIntervalSounds: List<GongSound> = allSounds + GongSound(
+            id = SOFT_INTERVAL_SOUND_ID,
+            nameEnglish = "Soft Interval Tone",
+            nameGerman = "Sanfter Intervallton",
+            rawResId = R.raw.interval
+        )
+
         /** Default gong sound (Temple Bell) */
         val defaultSound: GongSound = allSounds.first { it.id == DEFAULT_SOUND_ID }
 
         /**
-         * Find a gong sound by ID.
+         * Find a gong sound by ID (searches all sounds including interval-only sounds).
          *
          * @param id The sound ID to search for
          * @return The matching GongSound or null if not found
          */
-        fun find(id: String): GongSound? = allSounds.find { it.id == id }
+        fun find(id: String): GongSound? = allIntervalSounds.find { it.id == id }
 
         /**
          * Find a gong sound by ID, returning default if not found.

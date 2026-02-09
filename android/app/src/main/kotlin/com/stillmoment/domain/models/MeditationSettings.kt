@@ -4,7 +4,10 @@ package com.stillmoment.domain.models
  * Settings for meditation sessions.
  *
  * @property intervalGongsEnabled Whether interval gongs are enabled during meditation
- * @property intervalMinutes Interval in minutes between gongs (3, 5, or 10)
+ * @property intervalMinutes Interval in minutes between gongs (1-60)
+ * @property intervalRepeating Whether interval gongs repeat (true) or play once (false)
+ * @property intervalFromEnd Whether to count intervals from end of meditation (true) or from start (false)
+ * @property intervalSoundId ID of the sound for interval gongs (references GongSound.id, including "soft-interval")
  * @property intervalGongVolume Volume for interval gong sounds (0.0 to 1.0)
  * @property backgroundSoundId Background sound ID (references BackgroundSound.id)
  * @property durationMinutes Duration of meditation in minutes (1-60)
@@ -16,6 +19,9 @@ package com.stillmoment.domain.models
 data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
+    val intervalRepeating: Boolean = DEFAULT_INTERVAL_REPEATING,
+    val intervalFromEnd: Boolean = DEFAULT_INTERVAL_FROM_END,
+    val intervalSoundId: String = DEFAULT_INTERVAL_SOUND_ID,
     val intervalGongVolume: Float = DEFAULT_INTERVAL_GONG_VOLUME,
     val backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
     val backgroundSoundVolume: Float = DEFAULT_BACKGROUND_SOUND_VOLUME,
@@ -32,6 +38,9 @@ data class MeditationSettings(
 
     companion object {
         const val DEFAULT_INTERVAL_MINUTES = 5
+        const val DEFAULT_INTERVAL_REPEATING = true
+        const val DEFAULT_INTERVAL_FROM_END = false
+        const val DEFAULT_INTERVAL_SOUND_ID = GongSound.DEFAULT_SOUND_ID
         const val DEFAULT_INTERVAL_GONG_VOLUME = 0.75f
         const val DEFAULT_BACKGROUND_SOUND_ID = "silent"
         const val DEFAULT_BACKGROUND_SOUND_VOLUME = 0.15f
@@ -41,16 +50,11 @@ data class MeditationSettings(
         const val DEFAULT_GONG_SOUND_ID = GongSound.DEFAULT_SOUND_ID
         const val DEFAULT_GONG_VOLUME = 1.0f
 
-        // Valid interval options
-        private const val INTERVAL_SHORT = 3
-        private const val INTERVAL_MEDIUM = 5
-        private const val INTERVAL_LONG = 10
+        /** Minimum interval in minutes */
+        const val MIN_INTERVAL_MINUTES = 1
 
-        // Thresholds for interval validation
-        private const val INTERVAL_THRESHOLD_SHORT = 3
-        private const val INTERVAL_THRESHOLD_MEDIUM = 7
-
-        val VALID_INTERVALS = listOf(INTERVAL_SHORT, INTERVAL_MEDIUM, INTERVAL_LONG)
+        /** Maximum interval in minutes */
+        const val MAX_INTERVAL_MINUTES = 60
 
         // Valid preparation time options (in seconds)
         val VALID_PREPARATION_TIMES = listOf(5, 10, 15, 20, 30, 45)
@@ -59,14 +63,10 @@ data class MeditationSettings(
         val Default = MeditationSettings()
 
         /**
-         * Validates and clamps interval to valid values (3, 5, or 10).
+         * Validates and clamps interval to valid range (1-60 minutes).
          */
         fun validateInterval(minutes: Int): Int {
-            return when {
-                minutes <= INTERVAL_THRESHOLD_SHORT -> INTERVAL_SHORT
-                minutes <= INTERVAL_THRESHOLD_MEDIUM -> INTERVAL_MEDIUM
-                else -> INTERVAL_LONG
-            }
+            return minutes.coerceIn(MIN_INTERVAL_MINUTES, MAX_INTERVAL_MINUTES)
         }
 
         /**
@@ -111,6 +111,9 @@ data class MeditationSettings(
         fun create(
             intervalGongsEnabled: Boolean = false,
             intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
+            intervalRepeating: Boolean = DEFAULT_INTERVAL_REPEATING,
+            intervalFromEnd: Boolean = DEFAULT_INTERVAL_FROM_END,
+            intervalSoundId: String = DEFAULT_INTERVAL_SOUND_ID,
             intervalGongVolume: Float = DEFAULT_INTERVAL_GONG_VOLUME,
             backgroundSoundId: String = DEFAULT_BACKGROUND_SOUND_ID,
             backgroundSoundVolume: Float = DEFAULT_BACKGROUND_SOUND_VOLUME,
@@ -123,6 +126,9 @@ data class MeditationSettings(
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
                 intervalMinutes = validateInterval(intervalMinutes),
+                intervalRepeating = intervalRepeating,
+                intervalFromEnd = intervalFromEnd,
+                intervalSoundId = intervalSoundId,
                 intervalGongVolume = validateVolume(intervalGongVolume),
                 backgroundSoundId = backgroundSoundId,
                 backgroundSoundVolume = validateVolume(backgroundSoundVolume),
@@ -155,6 +161,13 @@ data class MeditationSettings(
     fun withPreparationTimeSeconds(seconds: Int): MeditationSettings {
         return copy(preparationTimeSeconds = validatePreparationTime(seconds))
     }
+
+    /**
+     * Returns the effective intervalFromEnd value.
+     * When not repeating, it's always from end (single reminder before end).
+     */
+    val effectiveIntervalFromEnd: Boolean
+        get() = if (!intervalRepeating) true else intervalFromEnd
 }
 
 /**
@@ -164,6 +177,9 @@ data class MeditationSettings(
 object MeditationSettingsKeys {
     const val INTERVAL_GONGS_ENABLED = "intervalGongsEnabled"
     const val INTERVAL_MINUTES = "intervalMinutes"
+    const val INTERVAL_REPEATING = "intervalRepeating"
+    const val INTERVAL_FROM_END = "intervalFromEnd"
+    const val INTERVAL_SOUND_ID = "intervalSoundId"
     const val INTERVAL_GONG_VOLUME = "intervalGongVolume"
     const val BACKGROUND_SOUND_ID = "backgroundSoundId"
     const val BACKGROUND_SOUND_VOLUME = "backgroundSoundVolume"

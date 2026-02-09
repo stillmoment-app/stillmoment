@@ -34,9 +34,10 @@ interface TimerForegroundServiceProtocol {
     /**
      * Play an interval gong sound through the foreground service.
      *
+     * @param gongSoundId Interval gong sound identifier
      * @param gongVolume Gong playback volume (0.0 to 1.0)
      */
-    fun playIntervalGong(gongVolume: Float)
+    fun playIntervalGong(gongSoundId: String, gongVolume: Float)
 
     /**
      * Pause background audio immediately (no fade).

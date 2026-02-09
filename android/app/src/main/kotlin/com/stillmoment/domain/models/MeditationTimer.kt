@@ -90,25 +90,82 @@ data class MeditationTimer(
     /**
      * Checks if an interval gong should be played.
      *
-     * @param intervalMinutes Interval in minutes (e.g., 5 for every 5 minutes)
-     * @return True if enough time has passed since last interval gong
+     * Supports 3 modes:
+     * - Repeating from start: Gongs at every full interval from elapsed time (5:00, 10:00, 15:00...)
+     * - Repeating from end: Gongs at intervals counted backward from end (remainder first, then regular)
+     * - Single (not repeating): Exactly 1 gong X minutes before end
+     *
+     * The 5-second protection prevents collision with the end gong.
+     *
+     * @param intervalMinutes Interval in minutes (1-60)
+     * @param repeating Whether to repeat the gong at every interval
+     * @param fromEnd Whether to count intervals from the end of meditation
+     * @return True if a gong should be played at the current remaining time
      */
-    fun shouldPlayIntervalGong(intervalMinutes: Int): Boolean {
+    @Suppress("ReturnCount") // Multiple guard clauses for clarity
+    fun shouldPlayIntervalGong(intervalMinutes: Int, repeating: Boolean = true, fromEnd: Boolean = false): Boolean {
         if (state != TimerState.Running) return false
         if (intervalMinutes <= 0) return false
 
-        val intervalSeconds = intervalMinutes * 60
+        val intervalSeconds = intervalMinutes * SECONDS_PER_MINUTE
 
-        // Never played before - play if we've passed first interval
-        val lastGongAt = lastIntervalGongAt
-        if (lastGongAt == null) {
-            val elapsed = totalSeconds - remainingSeconds
-            return elapsed >= intervalSeconds && remainingSeconds > 0
+        // No gong if interval >= total duration
+        if (intervalSeconds >= totalSeconds) return false
+
+        // 5-second protection: no gong in final 5 seconds to avoid collision with end gong
+        if (remainingSeconds <= END_GONG_PROTECTION_SECONDS) return false
+
+        val elapsed = totalSeconds - remainingSeconds
+
+        // Effective fromEnd: single gong is always "from end"
+        val effectiveFromEnd = if (!repeating) true else fromEnd
+
+        return if (!repeating) {
+            // Single mode: exactly 1 gong at (totalSeconds - intervalSeconds) elapsed
+            shouldPlaySingleGong(elapsed, intervalSeconds)
+        } else if (effectiveFromEnd) {
+            // Repeating from end
+            shouldPlayRepeatingFromEnd(elapsed, intervalSeconds)
+        } else {
+            // Repeating from start
+            shouldPlayRepeatingFromStart(elapsed, intervalSeconds)
+        }
+    }
+
+    private fun shouldPlaySingleGong(elapsed: Int, intervalSeconds: Int): Boolean {
+        val targetElapsed = totalSeconds - intervalSeconds
+        if (targetElapsed <= 0) return false
+
+        // Already played?
+        if (lastIntervalGongAt != null) return false
+
+        return elapsed >= targetElapsed
+    }
+
+    private fun shouldPlayRepeatingFromStart(elapsed: Int, intervalSeconds: Int): Boolean {
+        // First gong not yet played
+        if (lastIntervalGongAt == null) {
+            return elapsed >= intervalSeconds
         }
 
         // Check if enough time passed since last gong
-        val timeSinceLastGong = lastGongAt - remainingSeconds
-        return timeSinceLastGong >= intervalSeconds && remainingSeconds > 0
+        val timeSinceLastGong = lastIntervalGongAt - remainingSeconds
+        return timeSinceLastGong >= intervalSeconds
+    }
+
+    private fun shouldPlayRepeatingFromEnd(elapsed: Int, intervalSeconds: Int): Boolean {
+        // Calculate gong times from the end:
+        // For 23 min, 5 min interval: gongs at 3:00, 8:00, 13:00, 18:00 elapsed
+        // First offset = totalSeconds % intervalSeconds (remainder)
+        val remainder = totalSeconds % intervalSeconds
+        val firstGongElapsed = if (remainder > 0) remainder else intervalSeconds
+
+        if (lastIntervalGongAt == null) {
+            return elapsed >= firstGongElapsed
+        }
+
+        val timeSinceLastGong = lastIntervalGongAt - remainingSeconds
+        return timeSinceLastGong >= intervalSeconds
     }
 
     /** Returns a reset timer with original duration */
@@ -125,6 +182,10 @@ data class MeditationTimer(
         const val DEFAULT_PREPARATION_TIME = 15
         const val MIN_DURATION_MINUTES = 1
         const val MAX_DURATION_MINUTES = 60
+        private const val SECONDS_PER_MINUTE = 60
+
+        /** Protection zone: no interval gong in last 5 seconds to avoid collision with end gong */
+        const val END_GONG_PROTECTION_SECONDS = 5
 
         /**
          * Creates a new meditation timer with validated duration.
