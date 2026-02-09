@@ -15,6 +15,8 @@ Systematische, behavior-driven Tests fuer alle State-Uebergaenge im TimerReducer
 
 Ein Bug in Android (Pause/Resume aenderte den State nicht) wurde von Tests nicht erkannt, weil die Tests das falsche Verhalten explizit als korrekt definierten. Die Tests prueften "State bleibt unveraendert" statt "Nach Pause ist der Timer pausiert".
 
+> **Hinweis:** Pause/Resume wurde in shared-048 komplett entfernt. Die hier beschriebenen Bugs sind historisch.
+
 **Ursachen des Problems:**
 - Tests prueften Implementation statt Benutzerverhalten
 - Integrationstest simulierte fehlenden State-Change manuell (Workaround)
@@ -51,13 +53,13 @@ Nicht anwendbar - reine Test-Verbesserung.
 ## State-Machine Uebergaenge (Referenz)
 
 ```
-Idle -> Countdown      (StartPressed)
-Countdown -> Running   (CountdownFinished)
-Running -> Paused      (PausePressed)
-Paused -> Running      (ResumePressed)
+Idle -> Preparation    (StartPressed)
+Preparation -> Running (CountdownFinished)
 Running -> Completed   (TimerCompleted)
 Any* -> Idle           (ResetPressed)
 ```
+
+> **Hinweis:** Pause/Resume wurde in shared-048 entfernt. Dieses Diagramm zeigt die aktuelle State Machine.
 
 ---
 
@@ -71,8 +73,8 @@ Any* -> Idle           (ResetPressed)
 
 ## Hinweise
 
-- Der Android-Bug wurde bereits behoben (reducePausePressed/reduceResumePressed setzen jetzt den State)
-- iOS TimerReducer sollte auf dasselbe Problem geprueft werden
+- ~~Der Android-Bug wurde bereits behoben (reducePausePressed/reduceResumePressed setzen jetzt den State)~~ Pause/Resume komplett entfernt in shared-048
+- ~~iOS TimerReducer sollte auf dasselbe Problem geprueft werden~~ Nicht mehr relevant seit shared-048
 - Bestehende Tests koennen als Basis dienen, muessen aber auf Behavior-Driven umgestellt werden
 
 ---
