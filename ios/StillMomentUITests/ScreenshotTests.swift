@@ -36,6 +36,14 @@ final class ScreenshotTests: XCTestCase {
         // Disable preparation time for faster screenshots (timer starts immediately)
         self.app.launchArguments += ["-DisablePreparation"]
 
+        // Theme override for screenshot variants (e.g., SCREENSHOT_THEME=moon SCREENSHOT_MODE=dark)
+        if let theme = ProcessInfo.processInfo.environment["SCREENSHOT_THEME"], !theme.isEmpty {
+            self.app.launchArguments += ["-selectedTheme", theme]
+        }
+        if let mode = ProcessInfo.processInfo.environment["SCREENSHOT_MODE"], !mode.isEmpty {
+            self.app.launchArguments += ["-appearanceMode", mode]
+        }
+
         self.app.launch()
 
         // Force portrait orientation
