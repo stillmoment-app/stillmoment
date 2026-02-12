@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-02-12
+
 ### Added (iOS & Android)
 - **Flexible Intervallklänge** - Intervallklänge frei konfigurierbar (1-60 Min.)
   - Drei Modi: Regelmäßig, Nach Start, Vor Ende

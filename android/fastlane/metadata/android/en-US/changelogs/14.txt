@@ -1,0 +1,4 @@
+- Now available: Candlelight, Forest, and Moon color themes
+- Light and dark mode selection in settings
+- Freely configurable interval gongs with own sound and volume
+- Simplified timer for uninterrupted meditation
