@@ -1,1 +1,4 @@
-- Behoben: App wird nicht mehr suspendiert, wenn der Bildschirm während der Vorbereitungszeit gesperrt wird
+- Neu: Farbthemen Kerzenlicht, Wald und Mond
+- Hell- und Dunkelmodus in den Einstellungen wählbar
+- Frei einstellbare Intervallklänge mit eigenem Sound und Lautstärke
+- Vereinfachter Timer für ungestörte Meditation
