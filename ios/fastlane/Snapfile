@@ -43,6 +43,17 @@ override_status_bar(true)
 
 # Preparation time disabled via -DisablePreparation launch argument in ScreenshotTests
 
+# Theme override for screenshot variants (e.g., SCREENSHOT_THEME=moon SCREENSHOT_MODE=dark)
+# These become app launch arguments via setupSnapshot() → @AppStorage UserDefaults mapping.
+theme_args = []
+if ENV["SCREENSHOT_THEME"] && !ENV["SCREENSHOT_THEME"].empty?
+  theme_args << "-selectedTheme #{ENV['SCREENSHOT_THEME']}"
+end
+if ENV["SCREENSHOT_MODE"] && !ENV["SCREENSHOT_MODE"].empty?
+  theme_args << "-appearanceMode #{ENV['SCREENSHOT_MODE']}"
+end
+launch_arguments([theme_args.join(" ")])
+
 # Headless mode (default: true for CI/automation)
 # Set to false to watch the simulator while tests run
 # Can be overridden via: HEADLESS=false make screenshots

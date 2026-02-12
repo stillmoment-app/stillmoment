@@ -36,13 +36,8 @@ final class ScreenshotTests: XCTestCase {
         // Disable preparation time for faster screenshots (timer starts immediately)
         self.app.launchArguments += ["-DisablePreparation"]
 
-        // Theme override for screenshot variants (e.g., SCREENSHOT_THEME=moon SCREENSHOT_MODE=dark)
-        if let theme = ProcessInfo.processInfo.environment["SCREENSHOT_THEME"], !theme.isEmpty {
-            self.app.launchArguments += ["-selectedTheme", theme]
-        }
-        if let mode = ProcessInfo.processInfo.environment["SCREENSHOT_MODE"], !mode.isEmpty {
-            self.app.launchArguments += ["-appearanceMode", mode]
-        }
+        // Theme/appearance override comes from Snapfile launch_arguments via setupSnapshot()
+        // (e.g., make screenshots THEME=moon MODE=dark)
 
         self.app.launch()
 
@@ -192,8 +187,14 @@ final class ScreenshotTests: XCTestCase {
         let hasMeditations = firstMeditationRow.waitForExistence(timeout: 5.0)
 
         if hasMeditations {
-            // Tap the meditation row to open player
-            firstMeditationRow.tap()
+            // The hidden NavigationLink pattern creates a tiny (7x12pt) Button at the
+            // row's trailing edge. XCUITest may resolve to it instead of the full row.
+            // Tap at the row's Y center but at the screen's horizontal center —
+            // SwiftUI List makes the entire row area tappable for NavigationLink.
+            let rowMidY = firstMeditationRow.frame.midY
+            self.app.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: 200, dy: rowMidY))
+                .tap()
         } else {
             // No meditations found - check if empty state is visible
             let emptyStateButton = self.app.buttons["library.button.import.emptyState"]

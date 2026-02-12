@@ -71,18 +71,12 @@ struct ThemedSlider: View {
             )
         }
         .frame(height: Self.touchTarget)
-        .accessibilityElement()
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAdjustableAction { direction in
-            let increment = self.step ?? (self.range.upperBound - self.range.lowerBound) / 10
-            switch direction {
-            case .increment:
-                self.value = min(self.value + increment, self.range.upperBound)
-            case .decrement:
-                self.value = max(self.value - increment, self.range.lowerBound)
-            @unknown default:
-                break
-            }
+        .accessibilityRepresentation {
+            Slider(
+                value: self.$value,
+                in: self.range,
+                step: self.step ?? (self.range.upperBound - self.range.lowerBound) / 10
+            )
         }
     }
 
