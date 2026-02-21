@@ -133,7 +133,7 @@ def preflight_checks(ticket_id: str) -> Path:
 
     # Find ticket file
     tickets_dir = PROJECT_ROOT / "dev-docs" / "tickets"
-    matches = list(tickets_dir.glob(f"{ticket_id}-*.md")) + list(tickets_dir.glob(f"{ticket_id}.md"))
+    matches = list(tickets_dir.rglob(f"{ticket_id}-*.md")) + list(tickets_dir.rglob(f"{ticket_id}.md"))
     if not matches:
         print(f"Error: ticket file not found for {ticket_id}")
         sys.exit(1)
