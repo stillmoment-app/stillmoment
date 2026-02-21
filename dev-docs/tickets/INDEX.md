@@ -73,6 +73,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [x] |
 | [shared-048](shared/shared-048-timer-remove-pause.md) | Timer Pause-Button entfernen | 4-Polish | [x] | [x] |
 | [shared-049](shared/shared-049-flexible-interval-gongs.md) | Flexible Intervallklaenge | 3-Feature | [x] | [x] |
+| [shared-050](shared/shared-050-optionale-einleitung-timer.md) | Optionale Einleitung Meditationstimer | 3-Feature | [ ] | [ ] |
 
 ---
 

@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "AppIcon-1024x1024.png",
+      "filename" : "LockScreenArtwork.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "LockScreenArtwork@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "LockScreenArtwork@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
