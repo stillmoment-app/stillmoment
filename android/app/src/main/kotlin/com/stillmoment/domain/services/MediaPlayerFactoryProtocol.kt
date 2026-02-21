@@ -12,7 +12,7 @@ interface MediaPlayerFactoryProtocol {
      *
      * The returned player is already prepared and ready to play.
      *
-     * @param resourceId Raw resource ID (e.g., R.raw.completion)
+     * @param resourceId Raw resource ID (e.g., R.raw.gong_temple_bell)
      * @return Configured MediaPlayerProtocol instance, or null if creation fails
      */
     fun createFromResource(resourceId: Int): MediaPlayerProtocol?
