@@ -40,6 +40,8 @@ Before touching code, understand:
 3. **Check existing patterns** → Search before inventing
    If something similar exists, follow that pattern.
 
+4. **Research external APIs** → When using SwiftUI, AVFoundation, Jetpack Compose, or other framework APIs: verify current signatures and availability against official docs (WebFetch/WebSearch). Training data may be outdated.
+
 ---
 
 ## Architecture Principles
