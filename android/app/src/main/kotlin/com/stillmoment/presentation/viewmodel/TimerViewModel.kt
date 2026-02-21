@@ -3,7 +3,6 @@ package com.stillmoment.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
@@ -258,18 +257,6 @@ constructor(
         _uiState.update { it.copy(errorMessage = null) }
     }
 
-    // MARK: - Affirmation Getters
-
-    fun getCurrentPreparationAffirmation(): String {
-        val index = _uiState.value.currentAffirmationIndex % PREPARATION_AFFIRMATION_COUNT
-        return getApplication<Application>().getString(PREPARATION_AFFIRMATIONS[index])
-    }
-
-    fun getCurrentRunningAffirmation(): String {
-        val index = _uiState.value.currentAffirmationIndex % RUNNING_AFFIRMATION_COUNT
-        return getApplication<Application>().getString(RUNNING_AFFIRMATIONS[index])
-    }
-
     // MARK: - Private Methods
 
     private fun startTimerLoop() {
@@ -387,27 +374,7 @@ constructor(
     }
 
     companion object {
-        private const val PREPARATION_AFFIRMATION_COUNT = 4
-        private const val RUNNING_AFFIRMATION_COUNT = 5
-
         /** Delay before stopping foreground service to allow completion sound to play */
         private const val COMPLETION_SOUND_DELAY_MS = 3000L
-
-        /** Affirmation resource IDs for preparation phase */
-        private val PREPARATION_AFFIRMATIONS = intArrayOf(
-            R.string.affirmation_preparation_1,
-            R.string.affirmation_preparation_2,
-            R.string.affirmation_preparation_3,
-            R.string.affirmation_preparation_4
-        )
-
-        /** Affirmation resource IDs for running phase */
-        private val RUNNING_AFFIRMATIONS = intArrayOf(
-            R.string.affirmation_running_1,
-            R.string.affirmation_running_2,
-            R.string.affirmation_running_3,
-            R.string.affirmation_running_4,
-            R.string.affirmation_running_5
-        )
     }
 }

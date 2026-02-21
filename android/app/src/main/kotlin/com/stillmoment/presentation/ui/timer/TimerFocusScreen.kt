@@ -53,6 +53,23 @@ import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 
+/** Affirmation resource IDs for preparation phase */
+private val preparationAffirmations = intArrayOf(
+    R.string.affirmation_preparation_1,
+    R.string.affirmation_preparation_2,
+    R.string.affirmation_preparation_3,
+    R.string.affirmation_preparation_4
+)
+
+/** Affirmation resource IDs for running phase */
+private val runningAffirmations = intArrayOf(
+    R.string.affirmation_running_1,
+    R.string.affirmation_running_2,
+    R.string.affirmation_running_3,
+    R.string.affirmation_running_4,
+    R.string.affirmation_running_5
+)
+
 /**
  * Timer Focus Screen - Distraction-free view during active meditation.
  *
@@ -93,27 +110,17 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
             viewModel.resetTimer()
             safeOnBack()
         },
-        getCurrentPreparationAffirmation = viewModel::getCurrentPreparationAffirmation,
-        getCurrentRunningAffirmation = viewModel::getCurrentRunningAffirmation,
         modifier = modifier
     )
 }
 
 @Composable
-internal fun TimerFocusScreenContent(
-    uiState: TimerUiState,
-    onBack: () -> Unit,
-    getCurrentPreparationAffirmation: () -> String,
-    getCurrentRunningAffirmation: () -> String,
-    modifier: Modifier = Modifier
-) {
+internal fun TimerFocusScreenContent(uiState: TimerUiState, onBack: () -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(containerColor = Color.Transparent) { paddingValues ->
             FocusScreenLayout(
                 uiState = uiState,
                 onBack = onBack,
-                getCurrentPreparationAffirmation = getCurrentPreparationAffirmation,
-                getCurrentRunningAffirmation = getCurrentRunningAffirmation,
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -121,13 +128,7 @@ internal fun TimerFocusScreenContent(
 }
 
 @Composable
-private fun FocusScreenLayout(
-    uiState: TimerUiState,
-    onBack: () -> Unit,
-    getCurrentPreparationAffirmation: () -> String,
-    getCurrentRunningAffirmation: () -> String,
-    modifier: Modifier = Modifier
-) {
+private fun FocusScreenLayout(uiState: TimerUiState, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val backDescription = stringResource(R.string.accessibility_close_focus)
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -158,23 +159,14 @@ private fun FocusScreenLayout(
                 modifier = Modifier.semantics { heading() }
             )
             Spacer(modifier = Modifier.height(24.dp))
-            FocusTimerDisplay(
-                uiState = uiState,
-                getCurrentPreparationAffirmation = getCurrentPreparationAffirmation,
-                getCurrentRunningAffirmation = getCurrentRunningAffirmation
-            )
+            FocusTimerDisplay(uiState = uiState)
             Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun FocusTimerDisplay(
-    uiState: TimerUiState,
-    getCurrentPreparationAffirmation: () -> String,
-    getCurrentRunningAffirmation: () -> String,
-    modifier: Modifier = Modifier
-) {
+private fun FocusTimerDisplay(uiState: TimerUiState, modifier: Modifier = Modifier) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isCompactHeight = configuration.screenHeightDp < 700
     val ringSize = if (isCompactHeight) 220.dp else 280.dp
@@ -183,7 +175,7 @@ private fun FocusTimerDisplay(
         TimerRing(uiState = uiState, ringSize = ringSize, isCompactHeight = isCompactHeight)
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = getStateText(uiState.timerState, getCurrentPreparationAffirmation, getCurrentRunningAffirmation),
+            text = getStateText(uiState.timerState, uiState.currentAffirmationIndex),
             style = TypographyRole.BodySecondary.textStyle(),
             color = TypographyRole.BodySecondary.textColor(),
             textAlign = TextAlign.Center
@@ -254,15 +246,17 @@ private fun TimerRing(
 }
 
 @Composable
-private fun getStateText(
-    state: TimerState,
-    getCurrentPreparationAffirmation: () -> String,
-    getCurrentRunningAffirmation: () -> String
-): String {
+private fun getStateText(state: TimerState, affirmationIndex: Int): String {
     return when (state) {
         TimerState.Idle -> stringResource(R.string.state_ready)
-        TimerState.Preparation -> getCurrentPreparationAffirmation()
-        TimerState.Running -> getCurrentRunningAffirmation()
+        TimerState.Preparation -> {
+            val index = affirmationIndex % preparationAffirmations.size
+            stringResource(preparationAffirmations[index])
+        }
+        TimerState.Running -> {
+            val index = affirmationIndex % runningAffirmations.size
+            stringResource(runningAffirmations[index])
+        }
         TimerState.Completed -> stringResource(R.string.state_completed)
     }
 }
@@ -282,9 +276,7 @@ private fun TimerFocusPreparationPreview() {
                     totalSeconds = 600
                 )
             ),
-            onBack = {},
-            getCurrentPreparationAffirmation = { "Take a deep breath..." },
-            getCurrentRunningAffirmation = { "Be present" }
+            onBack = {}
         )
     }
 }
@@ -302,9 +294,7 @@ private fun TimerFocusRunningPreview() {
                     progress = 0.3f
                 )
             ),
-            onBack = {},
-            getCurrentPreparationAffirmation = { "Take a deep breath..." },
-            getCurrentRunningAffirmation = { "Breathe softly" }
+            onBack = {}
         )
     }
 }
@@ -322,9 +312,7 @@ private fun TimerFocusTabletPreview() {
                     progress = 0.4f
                 )
             ),
-            onBack = {},
-            getCurrentPreparationAffirmation = { "Take a deep breath..." },
-            getCurrentRunningAffirmation = { "All is welcome" }
+            onBack = {}
         )
     }
 }
