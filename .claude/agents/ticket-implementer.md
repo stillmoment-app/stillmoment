@@ -90,25 +90,9 @@ Commits:
 - <hash> <message>
 ```
 
-### Format fuer LEARN:
-```
----
-
-## LEARN
-Status: DONE
-
-Learnings:
-- [<Ziel>] <Was gelernt wurde>
-
-Summary:
-<Kurze Zusammenfassung oder "Keine neuen Erkenntnisse">
-```
-
-`<Ziel>` ist wo das Learning gespeichert wurde: `MEMORY.md`, `CLAUDE.md`, `<topic>.md`, oder `keine` wenn nichts zu lernen war.
-
 ## Challenges erfassen
 
-Der `Challenges:`-Abschnitt ist ein **Pflichtfeld** in IMPLEMENT und FIX. Er dokumentiert was unerwartet war oder nicht auf Anhieb funktioniert hat. Diese Challenges werden spaeter automatisch ausgewertet und als Learnings persistiert.
+Der `Challenges:`-Abschnitt ist ein **Pflichtfeld** in IMPLEMENT und FIX. Er dokumentiert was unerwartet war oder nicht auf Anhieb funktioniert hat. Diese Challenges werden am Ende im Terminal angezeigt.
 
 `Challenges: keine` ist erlaubt — keine kuenstlichen Findings erzwingen.
 
@@ -134,22 +118,6 @@ Keine Challenges sind: normale Arbeitsschritte, erwartetes Verhalten, triviale T
 - **[weak self] in Closures** - Retain Cycles vermeiden
 - **Semantische Farben** - nie direkte Farbwerte
 - **Structured Logging** - nie `print()`
-
-## Learnings persistieren
-
-Wenn du den LEARN-Schritt ausfuehren sollst:
-
-1. Lies die gesammelten Challenges aus dem Implementation-Log (werden dir im Prompt mitgegeben)
-2. Pruefe fuer jede Challenge: Ist das generisch genug, dass es beim naechsten Mal hilft?
-3. Pruefe ob das Learning schon in MEMORY.md oder CLAUDE.md steht
-4. Wenn ja → ueberspringen. Wenn nein → an der passenden Stelle einfuegen:
-   - **MEMORY.md** (`/Users/helmut/.claude/projects/-Users-helmut-devel-stillmoment/memory/MEMORY.md`): Projekt-spezifische Patterns, Workarounds, Tooling-Erkenntnisse
-   - **Topic-Dateien** (z.B. `swiftui-theme-architecture.md` im selben Verzeichnis): Detaillierte Notizen zu einem Thema
-   - **CLAUDE.md** (Projekt-Root): Nur fuer fundamentale Regeln die ALLE zukuenftigen Arbeiten betreffen (neue Forbidden Patterns, Architektur-Entscheidungen)
-5. Wenn CLAUDE.md geaendert wurde → Commit: `docs: #<ticket-id> Update CLAUDE.md with learnings`
-6. Haenge den LEARN-Abschnitt ans Implementation-Log an
-
-Wenn keine Challenge generisch genug ist → `Learnings: keine` und fertig.
 
 ## Ticket schliessen
 

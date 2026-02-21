@@ -54,4 +54,4 @@ screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots
 # =============================================================================
 
 implement: ## Implement ticket autonomously (TICKET=ios-032 [PLATFORM=ios|android])
-	@./scripts/implement-ticket.sh $(TICKET) $(if $(PLATFORM),--platform $(PLATFORM))
+	@uv run scripts/implement-ticket.py $(TICKET) $(if $(PLATFORM),--platform $(PLATFORM))
