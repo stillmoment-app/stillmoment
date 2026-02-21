@@ -75,6 +75,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-049](shared/shared-049-flexible-interval-gongs.md) | Flexible Intervallklaenge | 3-Feature | [x] | [x] |
 | [shared-050](shared/shared-050-optionale-einleitung-timer.md) | Optionale Einleitung Meditationstimer | 3-Feature | [x] | [ ] |
 | [shared-051](shared/shared-051-timer-presets-custom-audio.md) | Meditation Timer Presets & Custom Audio (Konzept) | 3-Feature | [ ] | [ ] |
+| [shared-052](shared/shared-052-timer-completion-danke.md) | Timer Completion "Danke" | 4-Polish | [ ] | [ ] |
+| [shared-053](shared/shared-053-guided-meditation-completion.md) | Guided Meditation Completion Screen | 4-Polish | [ ] | [ ] |
 
 ---
 
