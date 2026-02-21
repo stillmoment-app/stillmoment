@@ -116,7 +116,7 @@ if [ "$SKIP_UI_TESTS" = true ]; then
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGNING_ALLOWED=NO \
-        2>&1 | format_output --quiet
+        2>&1 | format_output
 
 elif [ "$ONLY_UI_TESTS" = true ]; then
     echo "🧪 Running UI tests only..."
