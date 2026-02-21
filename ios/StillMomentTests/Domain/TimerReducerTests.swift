@@ -64,6 +64,38 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(newState.selectedMinutes, 60)
     }
 
+    func testSelectDuration_withIntroduction_clampsToMinimum() {
+        // Given - Settings with breath introduction (minimum 3 minutes)
+        let state = TimerDisplayState.initial
+        let settings = MeditationSettings(introductionId: "breath")
+
+        // When - Trying to select 1 minute (below minimum)
+        let (newState, _) = TimerReducer.reduce(
+            state: state,
+            action: .selectDuration(minutes: 1),
+            settings: settings
+        )
+
+        // Then - Clamped to minimum (3 minutes for breath intro)
+        XCTAssertEqual(newState.selectedMinutes, MeditationSettings.minimumDuration(for: "breath"))
+    }
+
+    func testSelectDuration_withIntroduction_preservesValidDuration() {
+        // Given - Settings with breath introduction
+        let state = TimerDisplayState.initial
+        let settings = MeditationSettings(introductionId: "breath")
+
+        // When - Selecting duration above minimum
+        let (newState, _) = TimerReducer.reduce(
+            state: state,
+            action: .selectDuration(minutes: 10),
+            settings: settings
+        )
+
+        // Then - Duration preserved
+        XCTAssertEqual(newState.selectedMinutes, 10)
+    }
+
     // MARK: - StartPressed State Transitions
 
     func testStartPressed_transitionsTimerFromIdleToPreparation() {
@@ -103,15 +135,14 @@ final class TimerReducerTests: XCTestCase {
             settings: settings
         )
 
-        // Then
+        // Then - Background audio is NOT started here; it starts in preparationFinished
         var expectedSettings = settings
         expectedSettings.durationMinutes = 10
 
-        XCTAssertEqual(effects.count, 4)
+        XCTAssertEqual(effects.count, 3)
         XCTAssertEqual(effects[0], .configureAudioSession)
-        XCTAssertEqual(effects[1], .startBackgroundAudio(soundId: "forest", volume: settings.backgroundSoundVolume))
-        XCTAssertEqual(effects[2], .startTimer(durationMinutes: 10))
-        XCTAssertEqual(effects[3], .saveSettings(expectedSettings))
+        XCTAssertEqual(effects[1], .startTimer(durationMinutes: 10))
+        XCTAssertEqual(effects[2], .saveSettings(expectedSettings))
     }
 
     func testStartPressed_rotatesAffirmationIndex() {
@@ -215,7 +246,7 @@ final class TimerReducerTests: XCTestCase {
 
     // MARK: - PreparationFinished State Transitions
 
-    func testPreparationFinished_transitionsTimerFromPreparationToRunning() {
+    func testPreparationFinished_transitionsTimerFromPreparationToStartGong() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .preparation
@@ -227,9 +258,30 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then
-        XCTAssertEqual(newState.timerState, .running)
+        // Then - Transitions to startGong with gong effect only.
+        // Background audio starts later when gong finishes (startGongFinished).
+        XCTAssertEqual(newState.timerState, .startGong)
         XCTAssertEqual(effects, [.playStartGong])
+    }
+
+    func testStartGongFinished_fromStartGong_withoutIntro_transitionsToRunningWithBackgroundAudio() {
+        // Given
+        var state = TimerDisplayState.initial
+        state.timerState = .startGong
+
+        // When
+        let (newState, effects) = TimerReducer.reduce(
+            state: state,
+            action: .startGongFinished,
+            settings: self.defaultSettings
+        )
+
+        // Then - Transitions to running with background audio
+        XCTAssertEqual(newState.timerState, .running)
+        XCTAssertTrue(effects.contains(.startBackgroundAudio(
+            soundId: self.defaultSettings.backgroundSoundId,
+            volume: self.defaultSettings.backgroundSoundVolume
+        )))
     }
 
     // MARK: - TimerCompleted State Transitions

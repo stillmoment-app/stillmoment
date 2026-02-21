@@ -213,9 +213,11 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // Then - Should still use the invalid ID (AudioService will handle the error)
         XCTAssertEqual(newViewModel.settings.backgroundSoundId, "invalid_sound_id")
 
-        // When - Try to start timer with invalid sound ID
+        // When - Start timer and transition through startGong to running
         newViewModel.selectedMinutes = 1
         newViewModel.startTimer()
+        newViewModel.dispatch(.preparationFinished)
+        newViewModel.dispatch(.startGongFinished)
 
         // Then - AudioService should be called but will throw error
         XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
@@ -279,8 +281,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.settings.backgroundSoundVolume = 0.5
         self.sut.selectedMinutes = 5
 
-        // When - Start timer
+        // When - Start timer and transition through startGong to running
         self.sut.startTimer()
+        self.sut.dispatch(.preparationFinished)
+        self.sut.dispatch(.startGongFinished)
 
         // Then - AudioService should receive the correct volume
         XCTAssertTrue(self.mockAudioService.startBackgroundAudioCalled)
@@ -334,7 +338,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.settings.gongVolume = 0.7
         self.sut.selectedMinutes = 5
 
-        // When - Start timer and trigger preparationFinished
+        // When - Start timer and trigger preparationFinished (which plays the gong)
         self.sut.startTimer()
         self.sut.dispatch(.preparationFinished)
 
@@ -424,7 +428,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // Verify correct preparation time was passed
         XCTAssertEqual(self.mockTimerService.lastStartPreparationTime, 0)
 
-        // Simulate the effect of idle → running transition
+        // Simulate the effect of idle → startGong transition
         self.sut.dispatch(.preparationFinished)
 
         // Then

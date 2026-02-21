@@ -34,7 +34,8 @@ struct MeditationSettings: Codable, Equatable {
         preparationTimeEnabled: Bool = true,
         preparationTimeSeconds: Int = 15,
         startGongSoundId: String = GongSound.defaultSoundId,
-        gongVolume: Float = MeditationSettings.defaultGongVolume
+        gongVolume: Float = MeditationSettings.defaultGongVolume,
+        introductionId: String? = nil
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
@@ -43,11 +44,12 @@ struct MeditationSettings: Codable, Equatable {
         self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
-        self.durationMinutes = Self.validateDuration(durationMinutes)
+        self.durationMinutes = Self.validateDuration(durationMinutes, introductionId: introductionId)
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
         self.startGongSoundId = startGongSoundId
         self.gongVolume = Self.validateVolume(gongVolume)
+        self.introductionId = introductionId
     }
 
     // MARK: Internal
@@ -67,6 +69,7 @@ struct MeditationSettings: Codable, Equatable {
         static let preparationTimeSeconds = "preparationTimeSeconds"
         static let startGongSoundId = "startGongSoundId"
         static let gongVolume = "gongVolume"
+        static let introductionId = "introductionId"
         /// Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -107,6 +110,9 @@ struct MeditationSettings: Codable, Equatable {
     /// Gong volume (0.0 to 1.0) - applies to start and end gong
     var gongVolume: Float
 
+    /// Introduction ID (nil = no introduction, references Introduction.id)
+    var introductionId: String?
+
     // MARK: - Validation
 
     /// Validates and clamps interval to valid range (1-60 minutes)
@@ -114,9 +120,27 @@ struct MeditationSettings: Codable, Equatable {
         min(max(minutes, 1), 60)
     }
 
-    /// Validates and clamps duration to valid range (1-60 minutes)
-    static func validateDuration(_ minutes: Int) -> Int {
-        min(max(minutes, 1), 60)
+    /// Returns the minimum meditation duration in minutes for a given introduction.
+    /// When an introduction is selected, the minimum ensures at least 1 minute of silent meditation.
+    /// Formula: ceil(introductionDurationSeconds / 60) + 1
+    static func minimumDuration(for introductionId: String?) -> Int {
+        guard let introId = introductionId,
+              let intro = Introduction.find(byId: introId) else {
+            return 1
+        }
+        return Int(ceil(Double(intro.durationSeconds) / 60.0)) + 1
+    }
+
+    /// Minimum meditation duration in minutes based on current introduction setting
+    var minimumDurationMinutes: Int {
+        Self.minimumDuration(for: self.introductionId)
+    }
+
+    /// Validates and clamps duration to valid range (minimum-60 minutes).
+    /// Minimum is 1 without introduction, or ceil(introDuration/60)+1 with introduction.
+    static func validateDuration(_ minutes: Int, introductionId: String? = nil) -> Int {
+        let minimum = Self.minimumDuration(for: introductionId)
+        return min(max(minutes, minimum), 60)
     }
 
     /// Valid preparation time options in seconds
@@ -150,7 +174,8 @@ extension MeditationSettings {
         preparationTimeEnabled: true,
         preparationTimeSeconds: 15,
         startGongSoundId: GongSound.defaultSoundId,
-        gongVolume: defaultGongVolume
+        gongVolume: defaultGongVolume,
+        introductionId: nil
     )
 }
 

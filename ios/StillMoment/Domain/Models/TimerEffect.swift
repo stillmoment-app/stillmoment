@@ -28,6 +28,12 @@ enum TimerEffect: Equatable {
     /// Play the start gong (meditation begins)
     case playStartGong
 
+    /// Play the introduction audio (e.g., guided breathing exercise)
+    case playIntroduction(introductionId: String)
+
+    /// Stop the introduction audio (on reset or timer completion during introduction)
+    case stopIntroduction
+
     /// Play an interval gong with the specified sound and volume
     case playIntervalGong(soundId: String, volume: Float)
 
@@ -41,6 +47,9 @@ enum TimerEffect: Equatable {
 
     /// Reset the timer
     case resetTimer
+
+    /// End the introduction phase (transition timer from .introduction to .running)
+    case endIntroductionPhase
 
     // MARK: - Persistence Effects
 

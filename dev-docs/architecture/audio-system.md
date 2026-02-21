@@ -24,7 +24,8 @@ Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 |------------|--------------|
 | **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
 | **Start-Gong** | Tibetische Klangschale markiert Beginn |
-| **Hintergrund-Audio** | Kontinuierliche Schleife waehrend Meditation |
+| **Einleitung (optional)** | Gefuehrtes Audio (z.B. Atemuebung) nach Start-Gong, vor stiller Phase |
+| **Hintergrund-Audio** | Kontinuierliche Schleife waehrend stiller Meditationsphase |
 | **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi — siehe `ddd.md`) |
 | **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
 
@@ -43,7 +44,8 @@ Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`
 
 - Background Mode in `Info.plist` (`UIBackgroundModes: audio`)
 - Audio Session: `.playback` Kategorie ohne `.mixWithOthers`
-- Hintergrund-Audio startet bei Countdown→Running Uebergang
+- Hintergrund-Audio startet bei Introduction→Running oder Preparation→Running Uebergang
+- Bei konfigurierter Einleitung: Einleitungs-Audio haelt Audio-Session waehrend Introduction-Phase aktiv
 - Hintergrund-Audio stoppt bei Timer-Ende oder Reset
 
 ---
@@ -78,10 +80,12 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 | TimerEffect | Audio-Aktion |
 |-------------|--------------|
 | `configureAudioSession` | Audio Session aktivieren |
-| `startBackgroundAudio(soundId:)` | Hintergrund-Sound starten |
-| `stopBackgroundAudio` | Hintergrund-Sound stoppen |
 | `playStartGong` | Start-Gong abspielen |
-| `playIntervalGong` | Intervall-Gong abspielen |
+| `playIntroduction(introductionId:)` | Einleitungs-Audio starten (haelt Audio-Session aktiv) |
+| `stopIntroduction` | Einleitungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einleitung) |
+| `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Einleitung) |
+| `stopBackgroundAudio` | Hintergrund-Sound stoppen |
+| `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen |
 | `playCompletionSound` | Abschluss-Gong abspielen |
 
 **Ausfuehrung:** ViewModel empfaengt Effects vom Reducer und delegiert an AudioService.
@@ -98,6 +102,51 @@ private func executeEffect(_ effect: TimerEffect) {
     }
 }
 ```
+
+---
+
+## Timer-Einleitung (Introduction Audio)
+
+### Problem
+
+Vor der stillen Meditation soll optional eine gefuehrte Einleitung (z.B. Atemuebung) abgespielt werden. Waehrenddessen muss die Audio-Session aktiv bleiben (auch bei gesperrtem Bildschirm), aber Hintergrund-Audio und Intervall-Gongs duerfen noch nicht starten.
+
+### Loesung
+
+Die Einleitung ist eine eigene Phase in der Timer State Machine (`TimerState.introduction`). Das Einleitungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
+
+### Ablauf
+
+```
+Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Background Audio + Running
+     │              │                         │                       │
+     │              │                         │                       └─ Intervall-Gongs zaehlen ab hier
+     │              │                         └─ Audio-Session aktiv via Einleitungs-Audio
+     │              └─ Gong spielt beim Uebergang preparation→introduction
+     │                 Einleitung wartet auf Gong-Ende (startGongFinished Action)
+     └─ Visuelle Vorbereitung (kein Audio)
+```
+
+**Sequenzierung:** Der Start-Gong und die Einleitung spielen **nicht gleichzeitig**. Die Einleitung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playIntroduction`.
+
+### Verhalten
+
+| Aspekt | Detail |
+|--------|--------|
+| **Lautstaerke** | `volume = 0.9` (leicht reduziert gegenueber voller Medienlautstaerke, kein eigener Regler) |
+| **Timer-Countdown** | Laeuft waehrend Einleitung bereits (zaehlt zur Gesamtzeit) |
+| **Hintergrund-Audio** | Startet erst nach Einleitung (`introductionFinished` → `startBackgroundAudio`) |
+| **Intervall-Gongs** | Zaehlen ab Ende der Einleitung (`silentPhaseStartRemaining` als Baseline) |
+| **Audio-Unterbrechung** | Einleitung setzt nach Unterbrechung fort, Timer laeuft weiter |
+| **Timer laeuft ab** | Einleitung wird abgeschnitten, Abschluss-Gong spielt |
+| **Reset/Close** | `stopIntroduction` Effect stoppt Einleitung sofort |
+| **Lock Screen** | Uebergang Introduction→Running funktioniert bei gesperrtem Bildschirm |
+
+### Audio-Assets
+
+Namenskonvention: `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
+
+Einleitungen sind App-Bundle-Assets (nicht user-importierbar). Registry in `Introduction.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster.
 
 ---
 
@@ -335,5 +384,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-02-09
-**Version**: 2.2
+**Zuletzt aktualisiert**: 2026-02-21
+**Version**: 2.3

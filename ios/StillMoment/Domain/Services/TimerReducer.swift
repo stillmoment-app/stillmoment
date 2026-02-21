@@ -27,11 +27,11 @@ enum TimerReducer {
     ) -> (TimerDisplayState, [TimerEffect]) {
         switch action {
         case let .selectDuration(minutes):
-            return self.reduceSelectDuration(state: state, minutes: minutes)
+            return self.reduceSelectDuration(state: state, minutes: minutes, settings: settings)
         case .startPressed:
             return self.reduceStartPressed(state: state, settings: settings)
         case .resetPressed:
-            return self.reduceResetPressed(state: state)
+            return self.reduceResetPressed(state: state, settings: settings)
         case let .tick(remainingSeconds, totalSeconds, remainingPreparationSeconds, progress, timerState):
             var newState = state
             newState.remainingSeconds = remainingSeconds
@@ -41,9 +41,13 @@ enum TimerReducer {
             newState.timerState = timerState
             return (newState, [])
         case .preparationFinished:
-            return self.reducePreparationFinished(state: state)
+            return self.reducePreparationFinished(state: state, settings: settings)
+        case .startGongFinished:
+            return self.reduceStartGongFinished(state: state, settings: settings)
+        case .introductionFinished:
+            return self.reduceIntroductionFinished(state: state, settings: settings)
         case .timerCompleted:
-            return self.reduceTimerCompleted(state: state)
+            return self.reduceTimerCompleted(state: state, settings: settings)
         case .intervalGongTriggered:
             return self.reduceIntervalGongTriggered(state: state, settings: settings)
         case .intervalGongPlayed:
@@ -55,10 +59,14 @@ enum TimerReducer {
 
     private static func reduceSelectDuration(
         state: TimerDisplayState,
-        minutes: Int
+        minutes: Int,
+        settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
         var newState = state
-        newState.selectedMinutes = MeditationSettings.validateDuration(minutes)
+        newState.selectedMinutes = MeditationSettings.validateDuration(
+            minutes,
+            introductionId: settings.introductionId
+        )
         return (newState, [])
     }
 
@@ -79,18 +87,22 @@ enum TimerReducer {
         var updatedSettings = settings
         updatedSettings.durationMinutes = state.selectedMinutes
 
-        let effects: [TimerEffect] = [
-            .configureAudioSession,
-            .startBackgroundAudio(soundId: settings.backgroundSoundId, volume: settings.backgroundSoundVolume),
-            .startTimer(durationMinutes: state.selectedMinutes),
-            .saveSettings(updatedSettings)
+        // Background audio never starts here. It starts when the start gong finishes:
+        // - Without introduction: in reduceStartGongFinished
+        // - With introduction: in reduceIntroductionFinished
+        var effects: [TimerEffect] = [
+            .configureAudioSession
         ]
+
+        effects.append(.startTimer(durationMinutes: state.selectedMinutes))
+        effects.append(.saveSettings(updatedSettings))
 
         return (newState, effects)
     }
 
     private static func reduceResetPressed(
-        state: TimerDisplayState
+        state: TimerDisplayState,
+        settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
         guard state.timerState != .idle else {
             return (state, [])
@@ -104,26 +116,91 @@ enum TimerReducer {
         newState.progress = 0.0
         newState.intervalGongPlayedForCurrentInterval = false
 
-        return (newState, [.stopBackgroundAudio, .resetTimer])
+        var effects: [TimerEffect] = []
+        if state.timerState == .introduction {
+            effects.append(.stopIntroduction)
+        }
+        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer])
+
+        return (newState, effects)
     }
 
     // MARK: - Timer Update Actions
 
     private static func reducePreparationFinished(
-        state: TimerDisplayState
+        state: TimerDisplayState,
+        settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
         var newState = state
-        newState.timerState = .running
+        newState.timerState = .startGong
+        // Play start gong. Background audio decision is deferred to startGongFinished.
         return (newState, [.playStartGong])
     }
 
+    private static func reduceStartGongFinished(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ) -> (TimerDisplayState, [TimerEffect]) {
+        guard state.timerState == .startGong else {
+            return (state, [])
+        }
+
+        var newState = state
+        if self.hasActiveIntroduction(settings: settings),
+           let introId = settings.introductionId {
+            // Introduction configured → transition to .introduction and play audio
+            newState.timerState = .introduction
+            return (newState, [.playIntroduction(introductionId: introId)])
+        } else {
+            // No introduction → transition directly to .running with background audio
+            newState.timerState = .running
+            let effect = TimerEffect.startBackgroundAudio(
+                soundId: settings.backgroundSoundId,
+                volume: settings.backgroundSoundVolume
+            )
+            return (newState, [effect])
+        }
+    }
+
+    private static func reduceIntroductionFinished(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ) -> (TimerDisplayState, [TimerEffect]) {
+        guard state.timerState == .introduction else {
+            return (state, [])
+        }
+
+        var newState = state
+        newState.timerState = .running
+
+        let effects: [TimerEffect] = [
+            .stopIntroduction,
+            .endIntroductionPhase,
+            .startBackgroundAudio(
+                soundId: settings.backgroundSoundId,
+                volume: settings.backgroundSoundVolume
+            )
+        ]
+
+        return (newState, effects)
+    }
+
     private static func reduceTimerCompleted(
-        state: TimerDisplayState
+        state: TimerDisplayState,
+        settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
         var newState = state
         newState.timerState = .completed
         newState.progress = 1.0
-        return (newState, [.playCompletionSound, .stopBackgroundAudio])
+
+        var effects: [TimerEffect] = [.playCompletionSound]
+        // Stop introduction if it was still playing (timer expired during introduction)
+        if state.timerState == .introduction {
+            effects.append(.stopIntroduction)
+        }
+        effects.append(.stopBackgroundAudio)
+
+        return (newState, effects)
     }
 
     // MARK: - Interval Gong Actions
@@ -151,5 +228,15 @@ enum TimerReducer {
         var newState = state
         newState.intervalGongPlayedForCurrentInterval = false
         return (newState, [])
+    }
+
+    // MARK: - Helpers
+
+    /// Checks if an introduction is configured and available for the current language
+    private static func hasActiveIntroduction(settings: MeditationSettings) -> Bool {
+        guard let introId = settings.introductionId else {
+            return false
+        }
+        return Introduction.isAvailableForCurrentLanguage(introId)
     }
 }

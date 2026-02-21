@@ -135,16 +135,16 @@ final class TimerViewModelPreviewTests: XCTestCase {
             BackgroundSound(
                 id: "forest",
                 filename: "forest.mp3",
-                name: BackgroundSound.LocalizedString(en: "Forest", de: "Wald"),
-                description: BackgroundSound.LocalizedString(en: "Forest sounds", de: "Waldgeraeusche"),
+                name: "Forest",
+                description: "Forest sounds",
                 iconName: "leaf.fill",
                 volume: 0.15
             ),
             BackgroundSound(
                 id: "rain",
                 filename: "rain.mp3",
-                name: BackgroundSound.LocalizedString(en: "Rain", de: "Regen"),
-                description: BackgroundSound.LocalizedString(en: "Rain sounds", de: "Regengeraeusche"),
+                name: "Rain",
+                description: "Rain sounds",
                 iconName: "cloud.rain.fill",
                 volume: 0.15
             )

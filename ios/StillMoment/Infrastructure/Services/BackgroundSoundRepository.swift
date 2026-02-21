@@ -87,7 +87,7 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
         do {
             let data = try Data(contentsOf: url)
             let config = try JSONDecoder().decode(SoundsConfiguration.self, from: data)
-            return config.sounds
+            return config.sounds.map { self.mapToBackgroundSound($0) }
         } catch let error as DecodingError {
             Logger.audio.error("Failed to decode sounds.json", error: error)
             throw BackgroundSoundRepositoryError.decodingFailed(error)
@@ -96,11 +96,50 @@ final class BackgroundSoundRepository: BackgroundSoundRepositoryProtocol {
             throw BackgroundSoundRepositoryError.invalidJSON
         }
     }
+
+    /// Maps a JSON DTO to the domain model, resolving localized strings for the current device language
+    private static func mapToBackgroundSound(_ dto: BackgroundSoundDTO) -> BackgroundSound {
+        BackgroundSound(
+            id: dto.id,
+            filename: dto.filename,
+            name: self.resolveLocale(dto.name),
+            description: self.resolveLocale(dto.description),
+            iconName: dto.iconName,
+            volume: dto.volume
+        )
+    }
+
+    /// Resolves a localized string from the JSON DTO to the current device language
+    private static func resolveLocale(_ localizedString: BackgroundSoundDTO.LocalizedString) -> String {
+        let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+        switch languageCode {
+        case "de":
+            return localizedString.de
+        default:
+            return localizedString.en
+        }
+    }
 }
 
-// MARK: - Configuration Model
+// MARK: - JSON DTOs
+
+/// DTO matching the sounds.json format with inline translations.
+/// File-private: only used by BackgroundSoundRepository for JSON parsing.
+struct BackgroundSoundDTO: Codable {
+    struct LocalizedString: Codable {
+        let en: String
+        let de: String
+    }
+
+    let id: String
+    let filename: String
+    let name: LocalizedString
+    let description: LocalizedString
+    let iconName: String
+    let volume: Float
+}
 
 /// Internal model for decoding sounds.json
 private struct SoundsConfiguration: Codable {
-    let sounds: [BackgroundSound]
+    let sounds: [BackgroundSoundDTO]
 }

@@ -28,4 +28,8 @@ protocol TimerServiceProtocol {
     /// Marks that an interval gong was played at the current position
     /// This updates lastIntervalGongAt to enable detection of next interval
     func markIntervalGongPlayed()
+
+    /// Ends the introduction phase, transitioning the timer from .introduction to .running.
+    /// Called when the introduction audio finishes playing (event-driven).
+    func endIntroductionPhase()
 }

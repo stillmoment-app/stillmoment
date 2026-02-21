@@ -33,7 +33,7 @@ final class MockTimerService: TimerServiceProtocol {
         ) else {
             return
         }
-        self.subject.send(timer.withState(.running))
+        self.subject.send(timer.withState(.startGong))
     }
 
     func reset() {
@@ -86,10 +86,10 @@ final class MockTimerService: TimerServiceProtocol {
             return
         }
 
-        // Start running
+        // Start running directly
         timer = timer.withState(.running)
 
-        // Tick to the elapsed time
+        // Tick elapsed time in running state
         for _ in 0..<elapsedSeconds {
             timer = timer.tick()
         }
@@ -132,18 +132,42 @@ final class MockTimerService: TimerServiceProtocol {
     var markIntervalGongPlayedCalled = false
     var markIntervalGongPlayedCount = 0
 
+    var endIntroductionPhaseCalled = false
+
+    func endIntroductionPhase() {
+        self.endIntroductionPhaseCalled = true
+        guard let timer = currentTimerForTest else {
+            return
+        }
+        let updatedTimer = timer.endIntroduction()
+        self.currentTimerForTest = updatedTimer
+        self.subject.send(updatedTimer)
+    }
+
     // MARK: Private
 
     private let subject = PassthroughSubject<MeditationTimer, Never>()
 }
 
 final class MockAudioService: AudioServiceProtocol {
+    let gongCompletionSubject = PassthroughSubject<Void, Never>()
+    var gongCompletionPublisher: AnyPublisher<Void, Never> {
+        self.gongCompletionSubject.eraseToAnyPublisher()
+    }
+
+    let introductionCompletionSubject = PassthroughSubject<Void, Never>()
+    var introductionCompletionPublisher: AnyPublisher<Void, Never> {
+        self.introductionCompletionSubject.eraseToAnyPublisher()
+    }
+
     var configureAudioSessionCalled = false
     var startBackgroundAudioCalled = false
     var stopBackgroundAudioCalled = false
     var playStartGongCalled = false
     var playIntervalGongCalled = false
     var playCompletionSoundCalled = false
+    var playIntroductionCalled = false
+    var stopIntroductionCalled = false
     var playGongPreviewCalled = false
     var stopGongPreviewCalled = false
     var playBackgroundPreviewCalled = false
@@ -156,6 +180,7 @@ final class MockAudioService: AudioServiceProtocol {
     var lastIntervalGongVolume: Float?
     var lastCompletionSoundId: String?
     var lastCompletionSoundVolume: Float?
+    var lastIntroductionFilename: String?
     var lastPreviewSoundId: String?
     var lastPreviewVolume: Float?
     var lastBackgroundPreviewSoundId: String?
@@ -190,6 +215,20 @@ final class MockAudioService: AudioServiceProtocol {
     func stopBackgroundAudio() {
         self.stopBackgroundAudioCalled = true
         self.audioCallOrder.append("stopBackgroundAudio")
+    }
+
+    func playIntroduction(filename: String) throws {
+        self.playIntroductionCalled = true
+        self.lastIntroductionFilename = filename
+        self.audioCallOrder.append("playIntroduction")
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopIntroduction() {
+        self.stopIntroductionCalled = true
+        self.audioCallOrder.append("stopIntroduction")
     }
 
     func playStartGong(soundId: String, volume: Float) throws {

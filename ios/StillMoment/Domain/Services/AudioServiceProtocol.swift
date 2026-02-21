@@ -5,10 +5,19 @@
 //  Domain Service Protocol - Audio Playback
 //
 
+import Combine
 import Foundation
 
 /// Protocol defining audio playback behavior
 protocol AudioServiceProtocol {
+    /// Publishes when a gong sound (start/interval/completion) finishes playing.
+    /// Used to sequence introduction audio after start gong completes.
+    var gongCompletionPublisher: AnyPublisher<Void, Never> { get }
+
+    /// Publishes when the introduction audio finishes playing naturally.
+    /// Does NOT fire when introduction is stopped manually (via stopIntroduction).
+    var introductionCompletionPublisher: AnyPublisher<Void, Never> { get }
+
     /// Configures the audio session for background-capable playback
     func configureAudioSession() throws
 
@@ -38,6 +47,13 @@ protocol AudioServiceProtocol {
     ///   - soundId: ID of the gong sound to play (references GongSound.id)
     ///   - volume: Playback volume (0.0 to 1.0)
     func playCompletionSound(soundId: String, volume: Float) throws
+
+    /// Plays the introduction audio (e.g., guided breathing exercise)
+    /// - Parameter filename: Resolved filename of the introduction audio (e.g., "intro-breath-de.mp3")
+    func playIntroduction(filename: String) throws
+
+    /// Stops the introduction audio
+    func stopIntroduction()
 
     /// Plays a preview of a gong sound (stops any previous preview)
     /// - Parameters:

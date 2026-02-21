@@ -45,7 +45,7 @@ final class TimerServiceTests: XCTestCase {
         // Then
         wait(for: [expectation], timeout: 1.0)
         XCTAssertNotNil(receivedTimer)
-        XCTAssertEqual(receivedTimer?.state, .running) // No preparation (preparationTimeSeconds: 0)
+        XCTAssertEqual(receivedTimer?.state, .startGong) // No preparation → startGong directly
         XCTAssertEqual(receivedTimer?.durationMinutes, 5)
         XCTAssertEqual(receivedTimer?.remainingSeconds, 300)
     }
@@ -62,7 +62,7 @@ final class TimerServiceTests: XCTestCase {
             .sink { timer in
                 lastTimer = timer
 
-                if timer.state == .running, !startFulfilled {
+                if timer.state == .startGong, !startFulfilled {
                     startFulfilled = true
                     startExpectation.fulfill()
                 } else if timer.state == .idle, timer.remainingSeconds == timer.totalSeconds {
@@ -105,12 +105,12 @@ final class TimerServiceTests: XCTestCase {
         wait(for: [expectation], timeout: 3.0)
 
         XCTAssertGreaterThanOrEqual(receivedTimers.count, 2)
-        XCTAssertEqual(receivedTimers[0].state, .running) // No preparation (preparationTimeSeconds: 0)
+        XCTAssertEqual(receivedTimers[0].state, .startGong) // No preparation → startGong directly
         XCTAssertEqual(receivedTimers[0].remainingSeconds, 60)
 
         // Verify timer is progressing (remainingSeconds decreases)
         if receivedTimers.count >= 2 {
-            XCTAssertEqual(receivedTimers[1].state, .running)
+            XCTAssertEqual(receivedTimers[1].state, .startGong)
             XCTAssertLessThan(receivedTimers[1].remainingSeconds, receivedTimers[0].remainingSeconds)
         }
     }

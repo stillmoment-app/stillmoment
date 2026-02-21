@@ -42,21 +42,38 @@ final class TimerViewModelRegressionTests: XCTestCase {
 
     // MARK: - Lock Screen Preparation Bug
 
-    func testBackgroundAudioStartsImmediatelyOnTimerStart() {
-        // CRITICAL: This test prevents the preparation-freeze bug on locked screen
-        // Background audio MUST start IMMEDIATELY when timer starts, not after preparation
-        // Without this, iOS suspends the app during preparation when screen is locked
+    func testBackgroundAudioStartsWhenMeditationBegins() {
+        // Background audio starts when the start gong finishes (via startGongFinished),
+        // not immediately on startPressed. This keeps the preparation phase silent.
 
         // Given
         self.sut.selectedMinutes = 1
 
-        // When
+        // When - Start timer (preparation phase)
         self.sut.startTimer()
 
-        // Then - Verify background audio was called
+        // Then - Background audio must NOT be started yet
+        XCTAssertFalse(
+            self.mockAudioService.startBackgroundAudioCalled,
+            "Background audio must not start during preparation"
+        )
+
+        // When - Preparation finishes → startGong state
+        self.sut.dispatch(.preparationFinished)
+
+        // Then - Background audio must NOT be started yet (still playing gong)
+        XCTAssertFalse(
+            self.mockAudioService.startBackgroundAudioCalled,
+            "Background audio must not start during start gong"
+        )
+
+        // When - Start gong finishes → running with background audio
+        self.sut.dispatch(.startGongFinished)
+
+        // Then - Background audio starts now
         XCTAssertTrue(
             self.mockAudioService.startBackgroundAudioCalled,
-            "Background audio must start immediately to keep app alive during preparation"
+            "Background audio must start when start gong finishes"
         )
 
         // Critical: Verify audio session was configured before background audio starts

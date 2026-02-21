@@ -15,13 +15,12 @@ final class GongSoundTests: XCTestCase {
         let sound = GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: "Classic Bowl"
         )
 
         XCTAssertEqual(sound.id, "classic-bowl")
         XCTAssertEqual(sound.filename, "singing-bowl-hit-3-33366-10s.mp3")
-        XCTAssertEqual(sound.name.en, "Classic Bowl")
-        XCTAssertEqual(sound.name.de, "Klassisch")
+        XCTAssertEqual(sound.name, "Classic Bowl")
     }
 
     // MARK: - Equatable Tests
@@ -30,12 +29,12 @@ final class GongSoundTests: XCTestCase {
         let sound1 = GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: "Classic Bowl"
         )
         let sound2 = GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: "Classic Bowl"
         )
 
         XCTAssertEqual(sound1, sound2)
@@ -45,12 +44,12 @@ final class GongSoundTests: XCTestCase {
         let sound1 = GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: "Classic Bowl"
         )
         let sound2 = GongSound(
             id: "temple-bell",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: "Classic Bowl"
         )
 
         XCTAssertNotEqual(sound1, sound2)
@@ -62,75 +61,18 @@ final class GongSoundTests: XCTestCase {
         let sound = GongSound(
             id: "temple-bell",
             filename: "tibetan-singing-bowl-55786-10s.mp3",
-            name: GongSound.LocalizedString(en: "Temple Bell", de: "Tempelglocke")
+            name: "Temple Bell"
         )
 
         XCTAssertEqual(sound.id, "temple-bell")
     }
 
-    // MARK: - LocalizedString Tests
+    // MARK: - Localized Name Tests
 
-    func testLocalizedString_localized_returnsCorrectLanguage() {
-        let localizedString = GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
-
-        // The actual result depends on the device/simulator locale
-        // We just verify it returns one of the valid values
-        let result = localizedString.localized
-        XCTAssertTrue(result == "Classic Bowl" || result == "Klassisch")
-    }
-
-    func testLocalizedString_equatable_sameValues_areEqual() {
-        let string1 = GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
-        let string2 = GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
-
-        XCTAssertEqual(string1, string2)
-    }
-
-    func testLocalizedString_equatable_differentValues_areNotEqual() {
-        let string1 = GongSound.LocalizedString(en: "Classic Bowl", de: "Klassisch")
-        let string2 = GongSound.LocalizedString(en: "Deep Zen", de: "Tiefer Zen")
-
-        XCTAssertNotEqual(string1, string2)
-    }
-
-    // MARK: - Codable Tests
-
-    func testGongSound_codable_encodesAndDecodes() throws {
-        let original = GongSound(
-            id: "clear-strike",
-            filename: "singing-bowl-strike-sound-84682-10s.mp3",
-            name: GongSound.LocalizedString(en: "Clear Strike", de: "Klarer Anschlag")
-        )
-
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(original)
-
-        let decoder = JSONDecoder()
-        let decoded = try decoder.decode(GongSound.self, from: data)
-
-        XCTAssertEqual(decoded, original)
-    }
-
-    func testGongSound_codable_decodesFromJSON() throws {
-        let json = """
-            {
-                "id": "deep-resonance",
-                "filename": "singing-bowl-male-frequency-29714-10s.mp3",
-                "name": {
-                    "en": "Deep Resonance",
-                    "de": "Tiefe Resonanz"
-                }
-            }
-            """
-
-        let data = try XCTUnwrap(json.data(using: .utf8))
-        let decoder = JSONDecoder()
-        let sound = try decoder.decode(GongSound.self, from: data)
-
-        XCTAssertEqual(sound.id, "deep-resonance")
-        XCTAssertEqual(sound.filename, "singing-bowl-male-frequency-29714-10s.mp3")
-        XCTAssertEqual(sound.name.en, "Deep Resonance")
-        XCTAssertEqual(sound.name.de, "Tiefe Resonanz")
+    func testGongSound_name_isNonEmpty() {
+        for sound in GongSound.allSounds {
+            XCTAssertFalse(sound.name.isEmpty, "Gong sound '\(sound.id)' should have a non-empty name")
+        }
     }
 
     // MARK: - All Available Sounds Tests
@@ -159,7 +101,7 @@ final class GongSoundTests: XCTestCase {
 
         XCTAssertNotNil(sound)
         XCTAssertEqual(sound?.id, "clear-strike")
-        XCTAssertEqual(sound?.name.en, "Clear Strike")
+        XCTAssertFalse(sound?.name.isEmpty ?? true, "Found sound should have a name")
     }
 
     func testFindById_nonExistingId_returnsNil() {
@@ -178,5 +120,18 @@ final class GongSoundTests: XCTestCase {
         let sound = GongSound.findOrDefault(byId: "non-existing-sound")
 
         XCTAssertEqual(sound.id, "temple-bell")
+    }
+
+    // MARK: - Interval Sounds
+
+    func testAllIntervalSounds_containsSoftIntervalTone() {
+        XCTAssertNotNil(
+            GongSound.allIntervalSounds.first { $0.id == "soft-interval" },
+            "Interval sounds should contain soft interval tone"
+        )
+    }
+
+    func testAllIntervalSounds_hasFiveSounds() {
+        XCTAssertEqual(GongSound.allIntervalSounds.count, 5)
     }
 }

@@ -31,7 +31,18 @@ Automatisierte Tests decken bereits ab:
 - [ ] Interval Gongs werden zum richtigen Zeitpunkt gespielt
 - [ ] Fade-In bei Background Audio Start (2 Sekunden)
 
-### 1.2 Guided Meditation Audio
+### 1.2 Einleitung (Introduction)
+- [ ] Einleitung "Atemuebung" wird nach Start-Gong hoerbar abgespielt
+- [ ] Einleitung spielt mit leicht reduzierter Lautstaerke (0.9)
+- [ ] Nach Einleitung startet Hintergrund-Sound (falls konfiguriert)
+- [ ] Timer-Countdown laeuft waehrend der Einleitung weiter
+- [ ] Abbruch (Close) waehrend Einleitung beendet Meditation sofort
+- [ ] Ohne Einleitung: Verhalten wie bisher (keine Regression)
+
+### 1.3 Einleitung mit kurzer Meditationszeit
+- [ ] Meditationszeit 1 Min + Einleitung 1:35: Einleitung wird abgeschnitten, End-Gong spielt
+
+### 1.4 Guided Meditation Audio
 - [ ] MP3-Wiedergabe funktioniert
 - [ ] Lautstaerke ist angemessen
 - [ ] Seek Slider aendert Position hoerbar
@@ -44,6 +55,8 @@ Automatisierte Tests decken bereits ab:
 - [ ] Background Audio laeuft bei gesperrtem Bildschirm weiter
 - [ ] Completion Gong spielt bei gesperrtem Bildschirm
 - [ ] Interval Gongs spielen bei gesperrtem Bildschirm
+- [ ] Einleitung spielt bei gesperrtem Bildschirm weiter
+- [ ] Uebergang Einleitung → stille Meditation (inkl. Hintergrund-Sound) funktioniert bei gesperrtem Bildschirm
 
 ### 2.2 Guided Meditation
 - [ ] Audio laeuft bei gesperrtem Bildschirm weiter
@@ -68,6 +81,7 @@ Automatisierte Tests decken bereits ab:
 - [ ] Siri-Aktivierung pausiert Audio
 - [ ] App-Minimieren: Timer Audio laeuft weiter
 - [ ] App-Kill: Sauberer Neustart ohne Crash
+- [ ] Anruf waehrend Einleitung: Einleitung setzt nach Unterbrechung fort, Timer laeuft weiter
 
 ### 3.3 Kopfhoerer
 - [ ] Play/Pause ueber Kopfhoerer-Taste (kabelgebunden)
@@ -82,12 +96,16 @@ Automatisierte Tests decken bereits ab:
 - [ ] Affirmationen auf Deutsch
 - [ ] Empty State Text auf Deutsch
 - [ ] Tab-Labels auf Deutsch
+- [ ] Einleitungs-Section "Einleitung" sichtbar in Timer-Settings
+- [ ] Einleitung "Atemuebung" in Picker verfuegbar
 
 ### 4.2 Englisch (Geraetesprache: Englisch)
 - [ ] Alle UI-Texte auf Englisch
 - [ ] Affirmationen auf Englisch
 - [ ] Empty State Text auf Englisch
 - [ ] Tab-Labels auf Englisch
+- [ ] Einleitungs-Section NICHT sichtbar (keine englischen Einleitungen verfuegbar)
+- [ ] Gespeicherte Einleitung faellt auf "Keine" zurueck
 
 ---
 

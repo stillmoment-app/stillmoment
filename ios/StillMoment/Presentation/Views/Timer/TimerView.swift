@@ -121,6 +121,7 @@ struct TimerView: View {
                     SettingsView(
                         settings: self.$viewModel.settings,
                         availableSounds: self.viewModel.availableBackgroundSounds,
+                        availableIntroductions: self.viewModel.availableIntroductions,
                         onGongChanged: { soundId, volume in
                             self.viewModel.playGongPreview(soundId: soundId, volume: volume)
                         },
@@ -154,7 +155,9 @@ struct TimerView: View {
             NSLocalizedString("state.ready", comment: "")
         case .preparation:
             self.viewModel.currentPreparationAffirmation
-        case .running:
+        case .startGong,
+             .introduction,
+             .running:
             self.viewModel.currentRunningAffirmation
         case .completed:
             NSLocalizedString("state.completed", comment: "")
@@ -194,7 +197,9 @@ struct TimerView: View {
             NSLocalizedString("accessibility.timerState.idle", comment: "")
         case .preparation:
             NSLocalizedString("accessibility.timerState.preparation", comment: "")
-        case .running:
+        case .startGong,
+             .introduction,
+             .running:
             NSLocalizedString("accessibility.timerState.running", comment: "")
         case .completed:
             NSLocalizedString("accessibility.timerState.completed", comment: "")
@@ -251,7 +256,7 @@ struct TimerView: View {
             NSLocalizedString("accessibility.durationPicker.label", comment: ""),
             selection: self.$viewModel.selectedMinutes
         ) {
-            ForEach(1...60, id: \.self) { minute in
+            ForEach(self.viewModel.minimumDurationMinutes...60, id: \.self) { minute in
                 Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
                     .tag(minute)
             }

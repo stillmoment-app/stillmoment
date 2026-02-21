@@ -18,6 +18,7 @@ struct SettingsView: View {
     init(
         settings: Binding<MeditationSettings>,
         availableSounds: [BackgroundSound],
+        availableIntroductions: [Introduction] = [],
         onGongChanged: @escaping (String, Float) -> Void,
         onBackgroundChanged: @escaping (String, Float) -> Void,
         onIntervalGongPreview: @escaping (String, Float) -> Void,
@@ -25,6 +26,7 @@ struct SettingsView: View {
     ) {
         _settings = settings
         self.availableSounds = availableSounds
+        self.availableIntroductions = availableIntroductions
         self.onGongChanged = onGongChanged
         self.onBackgroundChanged = onBackgroundChanged
         self.onIntervalGongPreview = onIntervalGongPreview
@@ -43,6 +45,9 @@ struct SettingsView: View {
                 Form {
                     self.preparationTimeSection
                     self.gongSection
+                    if !self.availableIntroductions.isEmpty {
+                        self.introductionSection
+                    }
                     self.intervalGongsSection
                     self.backgroundAudioSection
 
@@ -76,6 +81,7 @@ struct SettingsView: View {
     @Binding private var settings: MeditationSettings
 
     private let availableSounds: [BackgroundSound]
+    private let availableIntroductions: [Introduction]
     private let onGongChanged: (String, Float) -> Void
     private let onBackgroundChanged: (String, Float) -> Void
     private let onIntervalGongPreview: (String, Float) -> Void
@@ -133,7 +139,7 @@ struct SettingsView: View {
         Section {
             Picker(selection: self.$settings.startGongSoundId) {
                 ForEach(GongSound.allSounds) { sound in
-                    Text(sound.name.localized)
+                    Text(sound.name)
                         .tag(sound.id)
                 }
             } label: {
@@ -161,6 +167,47 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.gong.title", bundle: .main)
+                .foregroundColor(self.theme.textSecondary)
+        }
+    }
+
+    // MARK: - Introduction Section
+
+    private var introductionSection: some View {
+        Section {
+            Picker(selection: Binding(
+                get: { self.settings.introductionId ?? "" },
+                set: { self.settings.introductionId = $0.isEmpty ? nil : $0 }
+            )) {
+                Text("settings.introduction.none", bundle: .main)
+                    .tag("")
+                ForEach(self.availableIntroductions) { intro in
+                    Text(
+                        String(
+                            format: NSLocalizedString("settings.introduction.option", comment: ""),
+                            intro.name,
+                            intro.formattedDuration
+                        )
+                    )
+                    .tag(intro.id)
+                }
+            } label: {
+                Text("settings.introduction.title", bundle: .main)
+                    .themeFont(.settingsLabel)
+            }
+            .pickerStyle(.menu)
+            .onChange(of: self.settings.introductionId) { _ in
+                UISelectionFeedbackGenerator().selectionChanged()
+            }
+            .accessibilityIdentifier("settings.picker.introduction")
+            .accessibilityLabel(NSLocalizedString("accessibility.introduction", comment: ""))
+            .accessibilityHint(NSLocalizedString("accessibility.introduction.hint", comment: ""))
+            .cardRowBackground()
+        } header: {
+            Text("settings.introduction.header", bundle: .main)
+                .foregroundColor(self.theme.textSecondary)
+        } footer: {
+            Text("settings.introduction.footer", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
         }
     }
@@ -201,7 +248,7 @@ struct SettingsView: View {
             return NSLocalizedString("settings.intervalGongs.description", comment: "")
         }
 
-        let soundName = GongSound.findOrDefault(byId: self.settings.intervalSoundId).name.localized
+        let soundName = GongSound.findOrDefault(byId: self.settings.intervalSoundId).name
         let minutes = self.settings.intervalMinutes
 
         let key = switch self.settings.intervalMode {
@@ -270,7 +317,7 @@ struct SettingsView: View {
     private var intervalSoundPicker: some View {
         Picker(selection: self.$settings.intervalSoundId) {
             ForEach(GongSound.allIntervalSounds) { sound in
-                Text(sound.name.localized)
+                Text(sound.name)
                     .tag(sound.id)
             }
         } label: {
@@ -308,9 +355,9 @@ struct SettingsView: View {
         Section {
             Picker(selection: self.$settings.backgroundSoundId) {
                 ForEach(self.availableSounds) { sound in
-                    Label(sound.name.localized, systemImage: sound.iconName)
+                    Label(sound.name, systemImage: sound.iconName)
                         .tag(sound.id)
-                        .accessibilityLabel("\(sound.name.localized). \(sound.description.localized)")
+                        .accessibilityLabel("\(sound.name). \(sound.description)")
                 }
             } label: {
                 Text("settings.backgroundAudio.sound", bundle: .main)
@@ -352,48 +399,6 @@ struct SettingsView: View {
             Text("settings.backgroundAudio.title", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
         }
-    }
-}
-
-// MARK: - Volume Slider Row
-
-/// Reusable volume slider row component for settings
-/// No visual label - speaker icons are self-explanatory per shared-019/shared-020
-private struct VolumeSliderRow: View {
-    @Environment(\.themeColors)
-    private var theme
-    @Binding var volume: Float
-    let accessibilityTitleKey: String
-    let accessibilityIdentifier: String
-    let accessibilityHintKey: String
-    let onSliderReleased: () -> Void
-
-    var body: some View {
-        HStack {
-            Image(systemName: "speaker.fill")
-                .foregroundColor(self.theme.textSecondary)
-                .font(.settingsIcon)
-            ThemedSlider(
-                value: Binding(
-                    get: { Double(self.volume) },
-                    set: { self.volume = Float($0) }
-                ),
-                range: 0...1,
-                step: 0.01
-            ) { editing in
-                if !editing {
-                    self.onSliderReleased()
-                }
-            }
-            Image(systemName: "speaker.wave.3.fill")
-                .foregroundColor(self.theme.textSecondary)
-                .font(.settingsIcon)
-        }
-        .accessibilityIdentifier(self.accessibilityIdentifier)
-        .accessibilityLabel(NSLocalizedString(self.accessibilityTitleKey, comment: ""))
-        .accessibilityValue(String(format: "%.0f%%", self.volume * 100))
-        .accessibilityHint(NSLocalizedString(self.accessibilityHintKey, comment: ""))
-        .cardRowBackground()
     }
 }
 

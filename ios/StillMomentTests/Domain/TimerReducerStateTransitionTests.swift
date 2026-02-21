@@ -78,6 +78,20 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         XCTAssertTrue(effects.isEmpty)
     }
 
+    func testResetPressed_fromStartGong_transitionsToIdle() {
+        var state = TimerDisplayState.initial
+        state.timerState = .startGong
+
+        let (newState, effects) = TimerReducer.reduce(
+            state: state,
+            action: .resetPressed,
+            settings: self.defaultSettings
+        )
+
+        XCTAssertEqual(newState.timerState, .idle)
+        XCTAssertFalse(effects.isEmpty)
+    }
+
     func testResetPressed_resetsIntervalGongFlag() {
         var state = TimerDisplayState.initial
         state.timerState = .running

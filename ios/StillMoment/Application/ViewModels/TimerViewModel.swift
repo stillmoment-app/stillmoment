@@ -32,8 +32,11 @@ final class TimerViewModel: ObservableObject {
         self.soundRepository = soundRepository
 
         self.settings = settingsRepository.load()
-        // Initialize display state with saved duration
-        self.displayState = TimerDisplayState.withDuration(minutes: self.settings.durationMinutes)
+        // Initialize display state with saved duration (clamped to minimum for introduction)
+        self.displayState = TimerDisplayState.withDuration(
+            minutes: self.settings.durationMinutes,
+            introductionId: self.settings.introductionId
+        )
         self.setupBindings()
     }
 
@@ -96,6 +99,11 @@ final class TimerViewModel: ObservableObject {
     /// Returns true if timer can be started
     var canStart: Bool {
         self.displayState.canStart
+    }
+
+    /// Minimum duration in minutes based on current introduction setting
+    var minimumDurationMinutes: Int {
+        MeditationSettings.minimumDuration(for: self.settings.introductionId)
     }
 
     /// Whether the timer is actively running
@@ -208,6 +216,10 @@ final class TimerViewModel: ObservableObject {
             self.audioService.stopBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
+        case let .playIntroduction(introductionId):
+            self.executePlayIntroduction(introductionId: introductionId)
+        case .stopIntroduction:
+            self.audioService.stopIntroduction()
         case let .playIntervalGong(soundId, volume):
             self.executePlayIntervalGong(soundId: soundId, volume: volume)
         case .playCompletionSound:
@@ -224,6 +236,8 @@ final class TimerViewModel: ObservableObject {
             self.executeStartTimer(durationMinutes: durationMinutes)
         case .resetTimer:
             self.timerService.reset()
+        case .endIntroductionPhase:
+            self.timerService.endIntroductionPhase()
         default:
             return false
         }
@@ -273,6 +287,24 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
+    private func executePlayIntroduction(introductionId: String) {
+        guard let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) else {
+            Logger.viewModel.error(
+                "Introduction audio not available",
+                metadata: ["introductionId": introductionId, "language": Introduction.currentLanguage]
+            )
+            return
+        }
+
+        do {
+            try self.audioService.playIntroduction(filename: filename)
+            Logger.viewModel.info("Introduction audio started", metadata: ["introductionId": introductionId])
+        } catch {
+            Logger.viewModel.error("Failed to play introduction audio", error: error)
+            self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
+        }
+    }
+
     private func executePlayIntervalGong(soundId: String, volume: Float) {
         do {
             try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
@@ -306,7 +338,11 @@ final class TimerViewModel: ObservableObject {
         let preparationTime = self.settings.preparationTimeEnabled
             ? self.settings.preparationTimeSeconds
             : 0
-        self.timerService.start(durationMinutes: durationMinutes, preparationTimeSeconds: preparationTime)
+
+        self.timerService.start(
+            durationMinutes: durationMinutes,
+            preparationTimeSeconds: preparationTime
+        )
     }
 
     private func executeSaveSettings(_ settings: MeditationSettings) {
@@ -321,6 +357,32 @@ final class TimerViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] timer in
                 self?.handleTimerUpdate(timer)
+            }
+            .store(in: &self.cancellables)
+
+        self.audioService.gongCompletionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.dispatch(.startGongFinished)
+            }
+            .store(in: &self.cancellables)
+
+        self.audioService.introductionCompletionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.dispatch(.introductionFinished)
+            }
+            .store(in: &self.cancellables)
+
+        // Enforce minimum duration when introduction changes
+        self.$settings
+            .map { MeditationSettings.minimumDuration(for: $0.introductionId) }
+            .removeDuplicates()
+            .sink { [weak self] minimum in
+                guard let self, self.displayState.selectedMinutes < minimum else {
+                    return
+                }
+                self.dispatch(.selectDuration(minutes: minimum))
             }
             .store(in: &self.cancellables)
     }
@@ -345,36 +407,43 @@ final class TimerViewModel: ObservableObject {
         to newState: TimerState,
         timer: MeditationTimer
     ) {
-        // Transition to Running (from Preparation OR Idle): Play start gong
-        // - With preparation: idle → preparation → running
-        // - Without preparation: idle → running (direct)
-        if newState == .running, oldState == .preparation || oldState == .idle {
+        self.handlePhaseTransitions(from: oldState, to: newState)
+        self.checkIntervalGongs(state: newState, timer: timer)
+    }
+
+    /// Dispatches actions for phase transitions in the meditation lifecycle.
+    /// State machine: idle → preparation → startGong → [introduction →] running → completed
+    private func handlePhaseTransitions(from oldState: TimerState, to newState: TimerState) {
+        // Preparation/idle → startGong: play start gong
+        if oldState == .preparation || oldState == .idle,
+           newState == .startGong {
             Logger.viewModel.info("Meditation starting, dispatching preparationFinished")
             self.dispatch(.preparationFinished)
-            // Don't return - interval gong check must still run (for test scenarios
-            // simulating elapsed time; in production elapsed=0 so no gong triggers)
         }
 
-        // → Completed: Dispatch timerCompleted
-        if newState == .completed, oldState != .completed {
+        // Timer completed (any active state → completed)
+        if oldState != .completed, newState == .completed {
             Logger.viewModel.info("Timer completed, dispatching timerCompleted")
             self.dispatch(.timerCompleted)
-            return // No interval gongs after completion
+        }
+    }
+
+    /// Checks if an interval gong should be played (only during silent meditation phase)
+    private func checkIntervalGongs(state: TimerState, timer: MeditationTimer) {
+        guard state == .running, self.settings.intervalGongsEnabled else {
+            return
         }
 
-        // Check for interval gongs while running
-        if newState == .running, self.settings.intervalGongsEnabled {
-            if timer.shouldPlayIntervalGong(
-                intervalMinutes: self.settings.intervalMinutes,
-                mode: self.settings.intervalMode
-            ) {
-                Logger.viewModel.info("Interval gong triggered", metadata: [
-                    "interval": self.settings.intervalMinutes,
-                    "mode": self.settings.intervalMode.rawValue,
-                    "remaining": timer.remainingSeconds
-                ])
-                self.dispatch(.intervalGongTriggered)
-            }
+        if timer.shouldPlayIntervalGong(
+            intervalMinutes: self.settings.intervalMinutes,
+            mode: self.settings.intervalMode
+        ) {
+            Logger.viewModel.info("Interval gong triggered", metadata: [
+                "interval": self.settings.intervalMinutes,
+                "mode": self.settings.intervalMode.rawValue,
+                "remaining": timer.remainingSeconds
+            ])
+            self.dispatch(.intervalGongTriggered)
         }
     }
 }
@@ -394,6 +463,11 @@ extension TimerViewModel {
     /// All available background sounds from the repository
     var availableBackgroundSounds: [BackgroundSound] {
         self.soundRepository.availableSounds
+    }
+
+    /// Introductions available for the current device language
+    var availableIntroductions: [Introduction] {
+        Introduction.availableForCurrentLanguage()
     }
 
     /// Plays a gong sound preview when user changes gong selection in settings
@@ -449,6 +523,14 @@ extension TimerViewModel {
             newState.remainingSeconds = 600
             newState.totalSeconds = 600
             newState.remainingPreparationSeconds = 10
+        case .startGong:
+            newState.remainingSeconds = 597
+            newState.totalSeconds = 600
+            newState.progress = 0.005
+        case .introduction:
+            newState.remainingSeconds = 505
+            newState.totalSeconds = 600
+            newState.progress = 0.158
         case .running:
             newState.remainingSeconds = 300
             newState.totalSeconds = 600

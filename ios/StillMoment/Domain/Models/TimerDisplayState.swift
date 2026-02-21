@@ -52,8 +52,10 @@ struct TimerDisplayState: Equatable {
     }
 
     /// Whether the timer is actively running (for UI display)
+    /// Returns true during start gong, introduction and silent meditation phases
+    /// (no visual difference between these phases per design)
     var isRunning: Bool {
-        self.timerState == .running
+        self.timerState == .running || self.timerState == .introduction || self.timerState == .startGong
     }
 
     /// Formatted time string (MM:SS or preparation seconds)
@@ -81,9 +83,9 @@ struct TimerDisplayState: Equatable {
     )
 
     /// Creates a state with custom selected minutes (for loading from settings)
-    static func withDuration(minutes: Int) -> TimerDisplayState {
+    static func withDuration(minutes: Int, introductionId: String? = nil) -> TimerDisplayState {
         var state = self.initial
-        state.selectedMinutes = MeditationSettings.validateDuration(minutes)
+        state.selectedMinutes = MeditationSettings.validateDuration(minutes, introductionId: introductionId)
         return state
     }
 }

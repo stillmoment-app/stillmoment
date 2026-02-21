@@ -13,42 +13,22 @@ import Foundation
 /// or interval gong. Sounds include:
 /// - Unique identifier for persistence
 /// - Audio file reference
-/// - Localized name (German + English)
+/// - Localized name (resolved via NSLocalizedString)
 ///
 /// Example usage:
 /// ```swift
-/// let sound = GongSound(
-///     id: "classic-bowl",
-///     filename: "singing-bowl-hit-3-33366-5s.mp3",
-///     name: LocalizedString(en: "Classic Bowl", de: "Klassisch")
-/// )
+/// let sound = GongSound.defaultSound
+/// print(sound.name) // "Temple Bell" (en) / "Tempelglocke" (de)
 /// ```
-struct GongSound: Codable, Identifiable, Equatable {
-    /// Localized string supporting German and English
-    struct LocalizedString: Codable, Equatable {
-        let en: String
-        let de: String
-
-        /// Returns localized string based on current locale
-        var localized: String {
-            let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
-            switch languageCode {
-            case "de":
-                return self.de
-            default:
-                return self.en
-            }
-        }
-    }
-
+struct GongSound: Identifiable, Equatable {
     /// Unique identifier for the sound
     let id: String
 
     /// Filename in the GongSounds bundle (e.g., "singing-bowl-hit-3-33366-5s.mp3")
     let filename: String
 
-    /// Localized display name
-    let name: LocalizedString
+    /// Localized display name (resolved at creation time)
+    let name: String
 }
 
 // MARK: - Static Sound Definitions
@@ -59,22 +39,22 @@ extension GongSound {
         GongSound(
             id: "temple-bell",
             filename: "tibetan-singing-bowl-55786-10s.mp3",
-            name: LocalizedString(en: "Temple Bell", de: "Tempelglocke")
+            name: NSLocalizedString("gong.temple-bell", comment: "")
         ),
         GongSound(
             id: "classic-bowl",
             filename: "singing-bowl-hit-3-33366-10s.mp3",
-            name: LocalizedString(en: "Classic Bowl", de: "Klassisch")
+            name: NSLocalizedString("gong.classic-bowl", comment: "")
         ),
         GongSound(
             id: "deep-resonance",
             filename: "singing-bowl-male-frequency-29714-10s.mp3",
-            name: LocalizedString(en: "Deep Resonance", de: "Tiefe Resonanz")
+            name: NSLocalizedString("gong.deep-resonance", comment: "")
         ),
         GongSound(
             id: "clear-strike",
             filename: "singing-bowl-strike-sound-84682-10s.mp3",
-            name: LocalizedString(en: "Clear Strike", de: "Klarer Anschlag")
+            name: NSLocalizedString("gong.clear-strike", comment: "")
         )
     ]
 
@@ -82,7 +62,7 @@ extension GongSound {
     static let softIntervalTone = GongSound(
         id: "soft-interval",
         filename: "interval.mp3",
-        name: LocalizedString(en: "Soft Interval Tone", de: "Sanfter Intervallton")
+        name: NSLocalizedString("gong.soft-interval", comment: "")
     )
 
     /// All available interval gong sounds (4 standard + soft interval tone)

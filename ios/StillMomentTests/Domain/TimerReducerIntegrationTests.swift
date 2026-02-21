@@ -53,18 +53,34 @@ final class TimerReducerIntegrationTests: XCTestCase {
         XCTAssertEqual(afterCountdown.timerState, .preparation)
     }
 
-    func testMeditationCycle_preparation_to_running_to_completed() {
+    func testMeditationCycle_preparation_to_startGong_to_running_to_completed() {
         var state = TimerDisplayState.initial
         state.timerState = .preparation
 
-        let (afterRunning, preparationEffects) = TimerReducer.reduce(
+        // preparation → startGong (plays start gong)
+        let (afterStartGong, preparationEffects) = TimerReducer.reduce(
             state: state,
             action: .preparationFinished,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterRunning.timerState, .running)
+        XCTAssertEqual(afterStartGong.timerState, .startGong)
         XCTAssertTrue(preparationEffects.contains(.playStartGong))
 
+        // startGong → running (gong finished, no introduction configured)
+        let (afterRunning, gongEffects) = TimerReducer.reduce(
+            state: afterStartGong,
+            action: .startGongFinished,
+            settings: self.defaultSettings
+        )
+        XCTAssertEqual(afterRunning.timerState, .running)
+        XCTAssertTrue(gongEffects.contains { effect in
+            if case .startBackgroundAudio = effect {
+                return true
+            }
+            return false
+        })
+
+        // running → completed
         let (afterCompleted, completedEffects) = TimerReducer.reduce(
             state: afterRunning,
             action: .timerCompleted,

@@ -13,6 +13,27 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/test-config.sh"
 source "$SCRIPT_DIR/test-helpers.sh"
 
+# Capture raw output for failure summary at the end
+TEMP_OUTPUT=$(mktemp)
+print_failure_summary() {
+    if [ -f "$TEMP_OUTPUT" ]; then
+        local failures
+        failures=$(grep " failed (" "$TEMP_OUTPUT" | grep "Test Case" || true)
+        if [ -n "$failures" ]; then
+            local count
+            count=$(echo "$failures" | wc -l | tr -d ' ')
+            echo ""
+            echo "=================================================="
+            echo "  ❌ FAILED TESTS ($count)"
+            echo "=================================================="
+            echo "$failures"
+            echo "=================================================="
+        fi
+        rm -f "$TEMP_OUTPUT"
+    fi
+}
+trap print_failure_summary EXIT
+
 # Runtime flags
 SKIP_UI_TESTS=false
 ONLY_UI_TESTS=false
@@ -116,7 +137,7 @@ if [ "$SKIP_UI_TESTS" = true ]; then
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGNING_ALLOWED=NO \
-        2>&1 | format_output
+        2>&1 | tee "$TEMP_OUTPUT" | format_output
 
 elif [ "$ONLY_UI_TESTS" = true ]; then
     echo "🧪 Running UI tests only..."
@@ -135,7 +156,7 @@ elif [ "$ONLY_UI_TESTS" = true ]; then
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGNING_ALLOWED=NO \
-        2>&1 | format_output
+        2>&1 | tee "$TEMP_OUTPUT" | format_output
 
 else
     echo "🧪 Running all tests (unit + UI)..."
@@ -155,7 +176,7 @@ else
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGNING_ALLOWED=NO \
-        2>&1 | format_output
+        2>&1 | tee "$TEMP_OUTPUT" | format_output
 fi
 
 echo ""

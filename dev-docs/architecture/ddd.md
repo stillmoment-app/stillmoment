@@ -27,7 +27,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - `startPressed`, `closePressed`
 
 **System-Ereignisse** (Verb + Past Participle):
-- `preparationFinished`, `timerCompleted`
+- `preparationFinished`, `introductionFinished`, `timerCompleted`
 - `intervalGongTriggered`, `intervalGongPlayed`
 
 ---
@@ -148,18 +148,31 @@ object TimerReducer {
 ### State Machine
 
 ```
-┌──────┐ startPressed  ┌─────────────┐ preparationFinished ┌─────────┐
-│ Idle │──────────────►│ Preparation │────────────────────►│ Running │
-└──────┘               └─────────────┘                      └─────────┘
-    ▲                                                        │
-    │                  closePressed                           │
-    │◄───────────────────────────────────────────────────────┤
-    │                                                        │
-    │                                    timerCompleted       │
-    │                  ┌───────────┐                         │
-    └──────────────────│ Completed │◄────────────────────────┘
+┌──────┐ startPressed  ┌─────────────┐ prep.Finished ┌───────────┐ startGongFinished ┌──────────────┐ intro.Finished ┌─────────┐
+│ Idle │──────────────►│ Preparation │──────────────►│ StartGong │─────────────────►│ Introduction │───────────────►│ Running │
+└──────┘               └─────────────┘               └───────────┘                   └──────────────┘                └─────────┘
+    ▲                       │                              │                                │                           │
+    │                       │  (no preparation)            │  (no introduction)             │  (timer expired)          │
+    │                       └──►┐                          └───────────────────────────────►┐                           │
+    │                            │                                                          │                           │
+    │                  closePressed                                                         │                           │
+    │◄─────────────────────────────────────────────────────────────────────────────────────┤                           │
+    │                                                                                       │  timerCompleted           │
+    │                  ┌───────────┐                                                         │                           │
+    └──────────────────│ Completed │◄───────────────────────────────────────────────────────┘◄──────────────────────────┘
                        └───────────┘
 ```
+
+**Pfade:**
+- Voll: idle → preparation → startGong → introduction → running → completed
+- Ohne Einleitung: idle → preparation → startGong → running → completed
+- Ohne Vorbereitung: idle → startGong → introduction → running → completed
+- Minimal: idle → startGong → running → completed
+- Start-Gong spielt im `startGong`-State; Einleitung wartet auf `startGongFinished` Action
+- Einleitungs-Audio startet erst nach dem Start-Gong (sequenziell via `startGongFinished` Action)
+- Einleitung zaehlt zur Gesamtmeditationszeit (Countdown laeuft bereits)
+- Hintergrund-Audio und Intervall-Gongs starten erst beim Uebergang zu running
+- Wenn Timer waehrend der Einleitung ablaeuft: introduction → completed (Einleitung wird abgeschnitten)
 
 ### Intervall-Gong-Zyklus
 
@@ -311,15 +324,16 @@ Side Effects werden als **explizite Domain-Objekte** modelliert.
 // iOS
 enum TimerEffect: Equatable {
     case configureAudioSession
-    case startBackgroundAudio(soundId: String)
+    case startBackgroundAudio(soundId: String, volume: Float)
     case stopBackgroundAudio
     case playStartGong
-    case playIntervalGong
-    case playCompletionGong
+    case playIntroduction(introductionId: String)
+    case stopIntroduction
+    case playIntervalGong(soundId: String, volume: Float)
+    case playCompletionSound
     case startTimer(durationMinutes: Int)
     case resetTimer
     case saveSettings(MeditationSettings)
-    case prepareHaptics
 }
 ```
 
@@ -330,6 +344,8 @@ sealed class TimerEffect {
     data class StartForegroundService(val soundId: String) : TimerEffect()
     data object StopForegroundService : TimerEffect()
     data object PlayStartGong : TimerEffect()
+    data class PlayIntroduction(val introductionId: String) : TimerEffect()
+    data object StopIntroduction : TimerEffect()
     data object PlayIntervalGong : TimerEffect()
     data object PlayCompletionGong : TimerEffect()
     data class StartTimer(val durationMinutes: Int) : TimerEffect()
@@ -411,4 +427,4 @@ Bei jedem neuen Feature prüfen:
 
 ---
 
-**Last Updated**: 2026-02-09
+**Last Updated**: 2026-02-21

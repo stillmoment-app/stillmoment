@@ -1,6 +1,6 @@
 # Ticket shared-050: Optionale Einleitung fuer Meditationstimer
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~M | Android ~M
 **Phase**: 3-Feature
@@ -21,7 +21,7 @@ Vor allem Einsteiger profitieren von einer kurzen gefuehrten Einfuehrung (z.B. A
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -102,9 +102,10 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 ```
 
 #### Wiedergabe-Verhalten
-- [ ] Reihenfolge: Vorbereitungszeit → Start-Gong → Einleitung → stille Meditation → End-Gong
+- [ ] Reihenfolge: Vorbereitungszeit → Start-Gong → (Gong fertig) → Einleitung → stille Meditation → End-Gong
+- [ ] Einleitung startet erst nach dem Start-Gong (sequenziell, nicht gleichzeitig)
 - [ ] Einleitung zaehlt zur Gesamtmeditationszeit (Beispiel: 10 Min Timer + 1:35 Einleitung = 1:35 Einleitung + 8:25 stille Meditation)
-- [ ] Einleitung spielt mit `volume = 1.0` (volle Medienlauststaerke, kein eigener Regler)
+- [ ] Einleitung spielt mit `volume = 0.9` (leicht reduziert gegenueber voller Medienlauststaerke, kein eigener Regler)
 - [ ] Kein visueller Unterschied waehrend der Einleitung (normaler Countdown)
 - [ ] Einleitung ist nicht ueberspringbar (bewusste Designentscheidung: die konfigurierte Meditation laeuft durch wie zusammengestellt)
 - [ ] Abbruch waehrend der Einleitung beendet die Meditation sofort
@@ -115,11 +116,17 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 - [ ] Intervall-Gongs zaehlen ab Ende der Einleitung (erster Gong = Intervall nach Start der stillen Phase)
 
 #### Hintergrund-Sound-Interaktion
-- [ ] Alle Hintergrund-Sounds (inkl. Silent-Track) starten erst nach Ende der Einleitung
+- [ ] Hintergrund-Sounds starten nie waehrend Vorbereitungszeit oder Einleitung — immer erst beim Uebergang zu `.running`
+- [ ] Ohne Einleitung: Hintergrund-Sound startet nach Start-Gong (bei `preparationFinished`)
+- [ ] Mit Einleitung: Hintergrund-Sound startet nach Ende der Einleitung (bei `introductionFinished`)
+- [ ] Hintergrund-Sound startet mit 10-Sekunden-Fade-In fuer sanften Uebergang
 - [ ] Einleitung haelt die Audio-Session selbst aktiv, gehoert zu `AudioSource.timer`
 
-#### Zeitliche Grenzfaelle
-- [ ] Wenn Meditationszeit < Einleitungsdauer: Einleitung wird abgeschnitten, Meditation endet normal mit End-Gong
+#### Mindestdauer
+- [ ] Wenn eine Einleitung ausgewaehlt ist: Mindestdauer = ceil(Einleitungsdauer / 60) + 1 Minute (z.B. Atemuebung 1:35 → Minimum 3 Minuten)
+- [ ] Timer-Dauerauswahl beginnt bei Mindestdauer statt bei 1 Minute
+- [ ] Aenderung der Einleitung passt die gewaehlte Dauer automatisch an, falls diese unter der neuen Mindestdauer liegt
+- [ ] Ohne Einleitung: Mindestdauer bleibt 1 Minute (unveraendertes Verhalten)
 
 #### Sprachwechsel-Verhalten
 - [ ] Einleitungs-Auswahl zeigt nur Einleitungen die fuer die aktuelle Geraetesprache verfuegbar sind
@@ -130,7 +137,7 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 - [ ] Unit Tests iOS
 - [ ] Unit Tests Android
 - [ ] Automatisierter Test: Timer-Reducer spielt Einleitung nach Start-Gong, dann Hintergrund-Sound
-- [ ] Automatisierter Test: Einleitung wird abgeschnitten wenn Meditationszeit ablaeuft
+- [ ] Automatisierter Test: Mindestdauer = ceil(Einleitungsdauer/60) + 1 Minute bei aktiver Einleitung
 - [ ] Automatisierter Test: Intervall-Gongs zaehlen ab Ende der Einleitung
 - [ ] Automatisierter Test: Ohne Einleitung unveraendertes Verhalten
 - [ ] Automatisierter Test: Sprachwechsel-Fallback auf "Keine"
@@ -152,19 +159,20 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 2. Einleitung "Atemuebung" auswaehlen
 3. Meditationszeit auf 10 Minuten setzen
 4. Timer starten
-5. Erwartung: Start-Gong → Einleitung spielt → nach Einleitung laeuft Meditation weiter → Timer zaehlt durchgehend runter
+5. Erwartung: Start-Gong spielt fertig → dann Einleitung spielt → nach Einleitung laeuft Meditation weiter → Timer zaehlt durchgehend runter
 
-### Test 2: Einleitung laenger als Meditationszeit
-1. Einleitung "Atemuebung" auswaehlen
-2. Meditationszeit auf 1 Minute setzen (kuerzer als Einleitungsdauer von 1:35)
-3. Timer starten
-4. Erwartung: Start-Gong → Einleitung startet → Timer laeuft ab → Einleitung wird abgeschnitten → End-Gong
+### Test 2: Mindestdauer bei aktiver Einleitung
+1. Einleitung "Atemuebung" auswaehlen (Dauer 1:35)
+2. Timer-Dauerauswahl pruefen
+3. Erwartung: Mindestdauer ist 3 Minuten (Dauerauswahl beginnt bei 3 statt bei 1)
+4. Meditationszeit auf 3 Minuten setzen, Timer starten
+5. Erwartung: Start-Gong spielt fertig → Einleitung (1:35) → stille Meditation (1:25) → End-Gong
 
 ### Test 3: Einleitung mit Hintergrund-Sound
 1. Einleitung "Atemuebung" auswaehlen
 2. Hintergrund-Sound "Wald" auswaehlen
 3. Timer starten
-4. Erwartung: Start-Gong → Einleitung spielt (ohne Hintergrund-Sound) → nach Einleitung startet Hintergrund-Sound
+4. Erwartung: Start-Gong spielt fertig → Einleitung spielt (ohne Hintergrund-Sound) → nach Einleitung startet Hintergrund-Sound
 
 ### Test 4: Keine Einleitung
 1. Einleitung auf "Keine" setzen
@@ -176,7 +184,7 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 2. Hintergrund-Sound "Wald" auswaehlen
 3. Meditationszeit auf 10 Minuten setzen
 4. Timer starten, sofort Bildschirm sperren
-5. Erwartung: Einleitung spielt im Hintergrund → nach Einleitung startet Hintergrund-Sound → Timer laeuft weiter bis End-Gong
+5. Erwartung: Start-Gong spielt fertig → Einleitung spielt im Hintergrund → nach Einleitung startet Hintergrund-Sound → Timer laeuft weiter bis End-Gong
 
 ### Test 6: Sprachwechsel
 1. Geraetesprache Deutsch, Einleitung "Atemuebung" auswaehlen
@@ -195,6 +203,7 @@ Einordnung in bestehende Settings (chronologisch nach Meditationsablauf):
 - Architektur soll erweiterbar sein fuer weitere Einleitungen und Sprachen
 - Namenskonvention Audio-Dateien: `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`, `intro-breath-en.mp3`)
 - Registry/Konfiguration mit ID, Dauer, verfuegbaren Sprachen, Audio-Dateinamen (Umsetzung plattformspezifisch)
+- Einleitung startet sequenziell nach dem Start-Gong (via `startGongFinished` Action / `gongCompletionPublisher`)
 
 ---
 

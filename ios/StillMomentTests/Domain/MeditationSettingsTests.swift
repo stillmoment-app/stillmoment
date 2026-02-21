@@ -287,4 +287,113 @@ final class MeditationSettingsTests: XCTestCase {
 
         XCTAssertEqual(decoded.backgroundSoundVolume, 0.75, accuracy: 0.001)
     }
+
+    // MARK: - Introduction Settings
+
+    func testDefault_hasNoIntroduction() {
+        let settings = MeditationSettings.default
+
+        XCTAssertNil(settings.introductionId)
+    }
+
+    func testInit_defaultIntroductionId() {
+        let settings = MeditationSettings()
+
+        XCTAssertNil(settings.introductionId)
+    }
+
+    func testInit_customIntroductionId() {
+        let settings = MeditationSettings(introductionId: "breath")
+
+        XCTAssertEqual(settings.introductionId, "breath")
+    }
+
+    func testKeys_containsIntroductionIdKey() {
+        XCTAssertEqual(MeditationSettings.Keys.introductionId, "introductionId")
+    }
+
+    func testEquatable_differentIntroductionIds_areNotEqual() {
+        let settings1 = MeditationSettings(introductionId: nil)
+        let settings2 = MeditationSettings(introductionId: "breath")
+
+        XCTAssertNotEqual(settings1, settings2)
+    }
+
+    func testCodable_encodesAndDecodesIntroductionId() throws {
+        let original = MeditationSettings(introductionId: "breath")
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertEqual(decoded.introductionId, "breath")
+    }
+
+    func testCodable_encodesAndDecodesNilIntroductionId() throws {
+        let original = MeditationSettings(introductionId: nil)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(original)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(MeditationSettings.self, from: data)
+
+        XCTAssertNil(decoded.introductionId)
+    }
+
+    // MARK: - Minimum Duration with Introduction
+
+    func testMinimumDuration_noIntroduction_isOne() {
+        XCTAssertEqual(MeditationSettings.minimumDuration(for: nil), 1)
+    }
+
+    func testMinimumDuration_unknownIntroduction_isOne() {
+        XCTAssertEqual(MeditationSettings.minimumDuration(for: "nonexistent"), 1)
+    }
+
+    func testMinimumDuration_breathIntroduction_isThreeMinutes() {
+        // Breath introduction is 95 seconds (1:35)
+        // ceil(95/60) + 1 = 2 + 1 = 3 minutes
+        XCTAssertEqual(MeditationSettings.minimumDuration(for: "breath"), 3)
+    }
+
+    func testMinimumDurationMinutes_computedProperty() {
+        let settings = MeditationSettings(introductionId: "breath")
+        XCTAssertEqual(settings.minimumDurationMinutes, 3)
+
+        let settingsNoIntro = MeditationSettings(introductionId: nil)
+        XCTAssertEqual(settingsNoIntro.minimumDurationMinutes, 1)
+    }
+
+    func testValidateDuration_withIntroduction_clampsToMinimum() {
+        // With breath introduction, minimum is 3
+        XCTAssertEqual(MeditationSettings.validateDuration(1, introductionId: "breath"), 3)
+        XCTAssertEqual(MeditationSettings.validateDuration(2, introductionId: "breath"), 3)
+        XCTAssertEqual(MeditationSettings.validateDuration(3, introductionId: "breath"), 3)
+        XCTAssertEqual(MeditationSettings.validateDuration(10, introductionId: "breath"), 10)
+    }
+
+    func testValidateDuration_withoutIntroduction_clampsToOne() {
+        XCTAssertEqual(MeditationSettings.validateDuration(0, introductionId: nil), 1)
+        XCTAssertEqual(MeditationSettings.validateDuration(1, introductionId: nil), 1)
+        XCTAssertEqual(MeditationSettings.validateDuration(10, introductionId: nil), 10)
+    }
+
+    func testInit_withIntroduction_clampsLowDuration() {
+        // Given - Duration below minimum for breath introduction
+        let settings = MeditationSettings(durationMinutes: 1, introductionId: "breath")
+
+        // Then - Duration is clamped to minimum (3 minutes)
+        XCTAssertEqual(settings.durationMinutes, 3)
+    }
+
+    func testInit_withIntroduction_preservesValidDuration() {
+        // Given - Duration above minimum
+        let settings = MeditationSettings(durationMinutes: 10, introductionId: "breath")
+
+        // Then - Duration preserved
+        XCTAssertEqual(settings.durationMinutes, 10)
+    }
 }

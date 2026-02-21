@@ -48,7 +48,8 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
             gongVolume: self.loadFloat(
                 MeditationSettings.Keys.gongVolume,
                 default: MeditationSettings.defaultGongVolume
-            )
+            ),
+            introductionId: self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId)
         )
 
         self.logSettings(settings, action: "Loaded")
@@ -68,6 +69,7 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
         self.userDefaults.set(settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
         self.userDefaults.set(settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
         self.userDefaults.set(settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
+        self.userDefaults.set(settings.introductionId, forKey: MeditationSettings.Keys.introductionId)
 
         self.logSettings(settings, action: "Saved")
     }

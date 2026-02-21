@@ -35,8 +35,14 @@ enum TimerAction: Equatable {
         state: TimerState
     )
 
-    /// Preparation phase finished, transitioning to running
+    /// Preparation phase finished, transitioning to introduction or running
     case preparationFinished
+
+    /// Start gong finished playing, introduction audio can now begin
+    case startGongFinished
+
+    /// Introduction audio finished, transitioning to silent meditation
+    case introductionFinished
 
     /// Timer completed (reached zero)
     case timerCompleted

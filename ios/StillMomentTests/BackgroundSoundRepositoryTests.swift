@@ -137,8 +137,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         for sound in sounds {
             XCTAssertFalse(sound.id.isEmpty, "Sound ID should not be empty")
             XCTAssertFalse(sound.filename.isEmpty, "Filename should not be empty")
-            XCTAssertFalse(sound.name.en.isEmpty, "English name should not be empty")
-            XCTAssertFalse(sound.name.de.isEmpty, "German name should not be empty")
+            XCTAssertFalse(sound.name.isEmpty, "Name should not be empty")
             XCTAssertFalse(sound.iconName.isEmpty, "Icon name should not be empty")
             XCTAssertGreaterThanOrEqual(sound.volume, 0.0, "Volume should be >= 0.0")
             XCTAssertLessThanOrEqual(sound.volume, 1.0, "Volume should be <= 1.0")
@@ -185,18 +184,6 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
             accuracy: 0.001,
             "Forest sound should have moderate volume (0.15)"
         )
-    }
-
-    func testLocalizedString_EnglishLocale_ReturnsEnglish() {
-        // Given
-        let localizedString = BackgroundSound.LocalizedString(en: "Hello", de: "Hallo")
-
-        // When
-        // Note: This test depends on system locale
-        let result = localizedString.localized
-
-        // Then
-        XCTAssertTrue(result == "Hello" || result == "Hallo", "Should return localized string")
     }
 
     func testLoadSounds_AllSoundsHaveCorrespondingBundleFiles() throws {
@@ -358,42 +345,16 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
     }
 }
 
-// MARK: - LocalizedString and Model Tests
+// MARK: - BackgroundSound Model Tests
 
 extension BackgroundSoundRepositoryTests {
-    func testLocalizedString_Initialization_StoresValues() {
-        // Given/When
-        let localizedString = BackgroundSound.LocalizedString(en: "Test English", de: "Test Deutsch")
-
-        // Then
-        XCTAssertEqual(localizedString.en, "Test English")
-        XCTAssertEqual(localizedString.de, "Test Deutsch")
-    }
-
-    func testLocalizedString_Localized_ReturnsNonEmptyString() {
-        // Given
-        let localizedString = BackgroundSound.LocalizedString(en: "English", de: "Deutsch")
-
-        // When
-        let result = localizedString.localized
-
-        // Then
-        XCTAssertFalse(result.isEmpty, "Localized string should not be empty")
-        XCTAssertTrue(
-            result == "English" || result == "Deutsch",
-            "Should return either English or German"
-        )
-    }
-
-    // MARK: - BackgroundSound Model Tests
-
     func testBackgroundSound_Initialization_StoresAllProperties() {
         // Given/When
         let sound = BackgroundSound(
             id: "test-id",
             filename: "test.mp3",
-            name: BackgroundSound.LocalizedString(en: "Test", de: "Test"),
-            description: BackgroundSound.LocalizedString(en: "Desc", de: "Beschr"),
+            name: "Test",
+            description: "Desc",
             iconName: "music.note",
             volume: 0.5
         )
@@ -401,8 +362,8 @@ extension BackgroundSoundRepositoryTests {
         // Then
         XCTAssertEqual(sound.id, "test-id")
         XCTAssertEqual(sound.filename, "test.mp3")
-        XCTAssertEqual(sound.name.en, "Test")
-        XCTAssertEqual(sound.description.en, "Desc")
+        XCTAssertEqual(sound.name, "Test")
+        XCTAssertEqual(sound.description, "Desc")
         XCTAssertEqual(sound.iconName, "music.note")
         XCTAssertEqual(sound.volume, 0.5, accuracy: 0.001)
     }

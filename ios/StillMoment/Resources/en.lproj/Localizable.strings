@@ -79,6 +79,22 @@
 
 "settings.gong.title" = "Gong";
 
+// MARK: - Gong Sound Names
+"gong.temple-bell" = "Temple Bell";
+"gong.classic-bowl" = "Classic Bowl";
+"gong.deep-resonance" = "Deep Resonance";
+"gong.clear-strike" = "Clear Strike";
+"gong.soft-interval" = "Soft Interval Tone";
+
+// MARK: - Introduction Names
+"introduction.breath.name" = "Breathing Exercise";
+
+"settings.introduction.header" = "Introduction";
+"settings.introduction.title" = "Introduction";
+"settings.introduction.none" = "None";
+"settings.introduction.option" = "%@ (%@)";
+"settings.introduction.footer" = "An optional guided introduction (e.g. breathing exercise) that plays after the gong before silent meditation.";
+
 "settings.preparationTime.header" = "Preparation Time";
 "settings.preparationTime.title" = "Preparation Time";
 "settings.preparationTime.description" = "Time to settle in before meditation";
@@ -136,6 +152,8 @@
 "accessibility.intervalMode.hint" = "Choose when interval gongs play";
 "accessibility.intervalSound" = "Interval sound";
 "accessibility.intervalSound.hint" = "Choose the sound for interval gongs";
+"accessibility.introduction" = "Introduction";
+"accessibility.introduction.hint" = "Choose an optional introduction for the beginning of meditation";
 "accessibility.preparationTime" = "Preparation time";
 "accessibility.preparationTime.hint" = "Enable or disable preparation time before meditation";
 "accessibility.preparationTimeDuration" = "Preparation duration";

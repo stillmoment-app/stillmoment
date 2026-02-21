@@ -51,7 +51,7 @@ final class TimerViewModelStateTests: XCTestCase {
         // Wait for state to update
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             // Then
-            XCTAssertEqual(self.sut.timerState, .running)
+            XCTAssertTrue(self.sut.displayState.isRunning)
             XCTAssertEqual(self.sut.remainingSeconds, 600) // 10 minutes
             expectation.fulfill()
         }

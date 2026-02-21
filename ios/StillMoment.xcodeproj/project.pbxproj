@@ -18,6 +18,8 @@
 		F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
 		GONGSOUNDS0123456789ABCD /* GongSounds in Resources */ = {isa = PBXBuildFile; fileRef = GONGSOUNDS0123456789ABCE /* GongSounds */; };
 		GONGSOUNDS0123456789ABCF /* GongSounds in Resources */ = {isa = PBXBuildFile; fileRef = GONGSOUNDS0123456789ABCE /* GongSounds */; };
+		INTROAUDIO0123456789ABCD /* IntroductionAudio in Resources */ = {isa = PBXBuildFile; fileRef = INTROAUDIO0123456789ABCE /* IntroductionAudio */; };
+		INTROAUDIO0123456789ABCF /* IntroductionAudio in Resources */ = {isa = PBXBuildFile; fileRef = INTROAUDIO0123456789ABCE /* IntroductionAudio */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,7 @@
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-evening-wind-down.mp3"; sourceTree = "<group>"; };
 		GONGSOUNDS0123456789ABCE /* GongSounds */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GongSounds; path = StillMoment/Resources/GongSounds; sourceTree = "<group>"; };
+		INTROAUDIO0123456789ABCE /* IntroductionAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = IntroductionAudio; path = StillMoment/Resources/IntroductionAudio; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -176,6 +179,7 @@
 			children = (
 				CA08C6262EC4729200D7C911 /* BackgroundAudio */,
 				GONGSOUNDS0123456789ABCE /* GongSounds */,
+				INTROAUDIO0123456789ABCE /* IntroductionAudio */,
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
 				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
@@ -348,6 +352,7 @@
 				5AE90EAB7FE6F73BA138E1AE /* test-loving-kindness.mp3 in Resources */,
 				F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */,
 				GONGSOUNDS0123456789ABCF /* GongSounds in Resources */,
+				INTROAUDIO0123456789ABCF /* IntroductionAudio in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -357,6 +362,7 @@
 			files = (
 				CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */,
 				GONGSOUNDS0123456789ABCD /* GongSounds in Resources */,
+				INTROAUDIO0123456789ABCD /* IntroductionAudio in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

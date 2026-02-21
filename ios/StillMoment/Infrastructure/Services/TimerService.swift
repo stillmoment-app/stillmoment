@@ -49,9 +49,9 @@ final class TimerService: TimerServiceProtocol {
                 self.currentTimer = newTimer.startPreparation()
                 Logger.timer.info("Timer preparation started")
             } else {
-                // Skip preparation (typically for tests or disabled preparation)
-                self.currentTimer = newTimer.withState(.running)
-                Logger.timer.info("Timer started directly (no preparation)")
+                // Skip preparation, go directly to start gong
+                self.currentTimer = newTimer.withState(.startGong)
+                Logger.timer.info("Timer started directly with start gong (no preparation)")
             }
 
             self.timerSubject.send(self.currentTimer)
@@ -62,7 +62,7 @@ final class TimerService: TimerServiceProtocol {
     }
 
     func reset() {
-        guard let timer = currentTimer else {
+        guard let timer = self.currentTimer else {
             Logger.timer.warning("Attempted to reset when no timer exists")
             return
         }
@@ -82,13 +82,25 @@ final class TimerService: TimerServiceProtocol {
     }
 
     func markIntervalGongPlayed() {
-        guard let timer = currentTimer else {
+        guard let timer = self.currentTimer else {
             Logger.timer.warning("Attempted to mark interval gong when no timer exists")
             return
         }
 
         Logger.timer.debug("Marking interval gong played", metadata: ["remaining": timer.remainingSeconds])
         let updatedTimer = timer.markIntervalGongPlayed()
+        self.currentTimer = updatedTimer
+        self.timerSubject.send(updatedTimer)
+    }
+
+    func endIntroductionPhase() {
+        guard let timer = self.currentTimer else {
+            Logger.timer.warning("Attempted to end introduction when no timer exists")
+            return
+        }
+
+        Logger.timer.info("Ending introduction phase", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.endIntroduction()
         self.currentTimer = updatedTimer
         self.timerSubject.send(updatedTimer)
     }
@@ -117,12 +129,14 @@ final class TimerService: TimerServiceProtocol {
     }
 
     private func tick() {
-        guard let timer = currentTimer else {
+        guard let timer = self.currentTimer else {
             return
         }
 
-        // Only tick if in preparation or running state
-        guard timer.state == .preparation || timer.state == .running else {
+        // Only tick if in an active state
+        guard timer.state == .preparation || timer.state == .startGong
+            || timer.state == .introduction || timer.state == .running
+        else {
             return
         }
 
@@ -130,13 +144,15 @@ final class TimerService: TimerServiceProtocol {
         self.currentTimer = updatedTimer
         self.timerSubject.send(updatedTimer)
 
-        // Log preparation → running transition
-        if timer.state == .preparation, updatedTimer.state == .running {
-            Logger.timer.info("Preparation complete, starting meditation timer")
+        // Log state transitions
+        if timer.state == .preparation, updatedTimer.state == .startGong {
+            Logger.timer.info("Preparation complete, playing start gong")
         }
 
-        // Log every 10 seconds to avoid log spam (only for running timer)
-        if updatedTimer.state == .running, updatedTimer.remainingSeconds.isMultiple(of: 10) {
+        // Log every 10 seconds to avoid log spam (only for running/introduction/startGong timer)
+        if updatedTimer.state == .running || updatedTimer.state == .introduction
+            || updatedTimer.state == .startGong,
+            updatedTimer.remainingSeconds.isMultiple(of: 10) {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])
         }
 
