@@ -77,7 +77,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-051](shared/shared-051-timer-presets-custom-audio.md) | ~~Meditation Timer Presets & Custom Audio~~ (aufgeteilt in 061-066) | 3-Feature | [x] SPLIT | [x] SPLIT |
 | [shared-052](shared/shared-052-timer-completion-danke.md) | Timer Completion "Danke" | 4-Polish | [ ] | [ ] |
 | [shared-053](shared/shared-053-guided-meditation-completion.md) | Guided Meditation Completion Screen | 4-Polish | [ ] | [ ] |
-| [shared-054](shared/shared-054-preview-audio-trennen.md) | Preview-Audio von Timer-Lifecycle trennen | 2-Architektur | [ ] | [ ] |
+| [shared-054](shared/shared-054-preview-audio-trennen.md) | Preview-Audio von Timer-Lifecycle trennen | 2-Architektur | [x] | [x] |
 | [shared-055](shared/shared-055-endgong-phase.md) | endGong als eigene Phase | 2-Architektur | [ ] | shared-059 |
 | [shared-056](shared/shared-056-tick-emittiert-events.md) | tick() emittiert Domain Events | 2-Architektur | [ ] | [ ] |
 | [shared-057](shared/shared-057-display-state-eliminieren.md) | TimerDisplayState eliminieren | 2-Architektur | [ ] | shared-056 |
@@ -90,6 +90,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-064](shared/shared-064-praxis-editor.md) | Praxis-Editor und Settings-Abloesung | 3-Feature | [ ] | [ ] |
 | [shared-065](shared/shared-065-custom-audio-import.md) | Custom Audio Import | 3-Feature | [ ] | [ ] |
 | [shared-066](shared/shared-066-zen-modus.md) | Zen-Modus (Tab-Bar ausblenden) | 4-Polish | [ ] | [ ] |
+| [shared-067](shared/shared-067-rename-introduction-attunement.md) | Code-Rename Introduction → Attunement | 4-Polish | [ ] | [ ] |
 
 ---
 

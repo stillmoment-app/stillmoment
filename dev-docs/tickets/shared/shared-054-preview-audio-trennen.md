@@ -1,6 +1,6 @@
 # Ticket shared-054: Preview-Audio von Timer-Lifecycle trennen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 2-Architektur
@@ -31,7 +31,7 @@ Preview→Preview-Abbruch (Gong→Gong, Gong→Background etc.) funktioniert ber
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-059    |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
