@@ -1,6 +1,6 @@
 # Ticket shared-051: Meditation Timer Presets & Custom Audio
 
-**Status**: [ ] TODO — Konzept-Ticket (wird vor Umsetzung in Einzel-Tickets aufgeteilt)
+**Status**: [x] SPLIT — Aufgeteilt in shared-061 bis shared-066
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~8 | Android ~8 (Gesamt, wird auf Sub-Tickets verteilt)
 **Phase**: 3-Feature

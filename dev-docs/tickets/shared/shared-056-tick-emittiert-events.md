@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4h | Android ~4h
-**Phase**: 3-Refactoring
+**Phase**: 2-Architektur
 
 ---
 
@@ -101,3 +101,4 @@ enum TimerEvent: Equatable {
 - TimerService reicht Events durch via Publisher
 - Wenn shared-055 (endGong) schon umgesetzt ist: `.meditationCompleted` fuehrt zu `.endGong`
 - Wenn shared-055 noch nicht umgesetzt ist: `.meditationCompleted` fuehrt zu `.completed` (wie bisher)
+- `introductionCompleted` ist KEIN TimerEvent. Introduction-Completion ist Audio-Callback-getrieben (Datei fertig), nicht tick-getrieben (Countdown bei 0). Der bestehende Flow (Audio-Callback → `introductionFinished`-Action → Reducer) bleibt unveraendert. `TimerEvent` beschreibt ausschliesslich was tick() waehrend des Countdowns feststellt.

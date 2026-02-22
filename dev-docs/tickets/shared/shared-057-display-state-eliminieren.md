@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~3h | Android ~3h
-**Phase**: 3-Refactoring
+**Phase**: 2-Architektur
 **Blocked by**: shared-056
 
 ---

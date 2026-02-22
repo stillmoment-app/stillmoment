@@ -3,7 +3,8 @@
 **Status**: [ ] TODO
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3h | Android ~3h
-**Phase**: 3-Refactoring
+**Phase**: 2-Architektur
+**Blocked by**: shared-059 (iOS)
 
 ---
 
@@ -23,7 +24,7 @@ Aktuell zeigt die UI "Meditation beendet" waehrend der Gong noch spielt. Auf And
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [ ]    | shared-059    |
 | Android   | [ ]    | -             |
 
 ---
@@ -91,5 +92,6 @@ NACHHER:  running -> tick(0) -> .endGong   + Event/Effect: playCompletionGong
 ## Hinweise
 
 - Vollstaendig unabhaengig von den anderen Timer-Refactoring-Tickets (shared-054, shared-056, shared-057)
+- Profitiert von shared-059 (Keep-Alive-Invariante): endGong fuegt eine neue Audio-Transition hinzu — mit der Invariante ist Keep-Alive automatisch abgesichert, ohne muss es manuell beruecksichtigt werden
 - Audio-Timing ist sensibel — gruendliches Device-Testing noetig
 - Falls shared-052 (Timer Completion "Danke") schon umgesetzt ist: der "Danke"-Screen erscheint erst nach `.endGong` -> `.completed`

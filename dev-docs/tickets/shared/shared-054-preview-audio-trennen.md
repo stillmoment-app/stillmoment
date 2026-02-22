@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2h | Android ~1h
-**Phase**: 3-Refactoring
+**Phase**: 2-Architektur
 
 ---
 

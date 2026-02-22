@@ -3,7 +3,7 @@
 **Status**: [ ] TODO
 **Prioritaet**: NIEDRIG
 **Aufwand**: ~1h (Review, kein Code)
-**Phase**: 3-Refactoring
+**Phase**: 2-Architektur
 **Blocked by**: shared-057
 
 ---
