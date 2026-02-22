@@ -6,5 +6,6 @@ package com.stillmoment.domain.models
  */
 enum class AudioSource {
     TIMER,
-    GUIDED_MEDITATION
+    GUIDED_MEDITATION,
+    PREVIEW
 }

@@ -50,6 +50,12 @@ constructor(
             logger.d(TAG, "Audio focus lost: pausing timer background audio")
             pauseBackgroundAudio()
         }
+
+        // Register conflict handler to stop preview audio when another source takes over
+        coordinator.registerConflictHandler(AudioSource.PREVIEW) {
+            logger.d(TAG, "Audio conflict: stopping preview audio for other source")
+            cleanupPreviewPlayers()
+        }
     }
 
     private var gongPlayer: MediaPlayerProtocol? = null
@@ -186,6 +192,8 @@ constructor(
             stopGongPreview()
             stopBackgroundPreview()
 
+            coordinator.requestAudioSession(AudioSource.PREVIEW)
+
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
@@ -194,6 +202,7 @@ constructor(
                 setOnCompletionListener {
                     release()
                     previewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
                 }
                 start()
             }
@@ -207,6 +216,7 @@ constructor(
      * Stop the current gong preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopGongPreview() {
+        val hadPlayer = previewPlayer != null
         try {
             previewPlayer?.apply {
                 if (isPlaying) {
@@ -217,6 +227,9 @@ constructor(
             previewPlayer = null
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to stop gong preview - invalid state: ${e.message}")
+        }
+        if (hadPlayer) {
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
     }
 
@@ -290,12 +303,15 @@ constructor(
             return
         }
 
+        coordinator.requestAudioSession(AudioSource.PREVIEW)
+
         try {
             backgroundPreviewPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 setVolume(volume, volume)
                 setOnCompletionListener {
                     release()
                     backgroundPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
                 }
                 start()
             }
@@ -317,6 +333,7 @@ constructor(
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopBackgroundPreview() {
+        val hadPlayer = backgroundPreviewPlayer != null
         // Cancel fade-out job
         backgroundPreviewJob?.cancel()
         backgroundPreviewJob = null
@@ -331,6 +348,9 @@ constructor(
             backgroundPreviewPlayer = null
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to stop background preview - invalid state: ${e.message}")
+        }
+        if (hadPlayer) {
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
     }
 
@@ -362,6 +382,7 @@ constructor(
                 release()
             }
             backgroundPreviewPlayer = null
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
             logger.d(TAG, "Background preview fade-out complete")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to stop background preview after fade - invalid state: ${e.message}")
@@ -492,6 +513,42 @@ constructor(
      */
     fun isBackgroundAudioPlaying(): Boolean {
         return backgroundPlayer?.isPlaying == true
+    }
+
+    // MARK: - Preview Cleanup
+
+    /**
+     * Stops all preview players without releasing the audio session.
+     * Used by the conflict handler to stop previews when another source takes over.
+     */
+    private fun cleanupPreviewPlayers() {
+        // Cancel background preview fade-out job
+        backgroundPreviewJob?.cancel()
+        backgroundPreviewJob = null
+
+        try {
+            previewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            previewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to cleanup gong preview - invalid state: ${e.message}")
+        }
+
+        try {
+            backgroundPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            backgroundPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to cleanup background preview - invalid state: ${e.message}")
+        }
     }
 
     // MARK: - Lifecycle

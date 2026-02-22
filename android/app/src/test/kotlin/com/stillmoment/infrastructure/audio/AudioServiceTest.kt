@@ -40,6 +40,7 @@ class AudioServiceTest {
 
     private lateinit var capturedConflictHandler: () -> Unit
     private lateinit var capturedPauseHandler: () -> Unit
+    private lateinit var capturedPreviewConflictHandler: () -> Unit
 
     @BeforeEach
     fun setUp() {
@@ -60,10 +61,16 @@ class AudioServiceTest {
         sut = AudioService(mockCoordinator, mockMediaPlayerFactory, mockVolumeAnimator, mockLogger)
 
         // Capture the registered handlers
+        val previewConflictCaptor = argumentCaptor<() -> Unit>()
         verify(mockCoordinator).registerConflictHandler(eq(AudioSource.TIMER), conflictCaptor.capture())
         verify(mockCoordinator).registerPauseHandler(eq(AudioSource.TIMER), pauseCaptor.capture())
+        verify(mockCoordinator).registerConflictHandler(
+            eq(AudioSource.PREVIEW),
+            previewConflictCaptor.capture()
+        )
         capturedConflictHandler = conflictCaptor.firstValue
         capturedPauseHandler = pauseCaptor.firstValue
+        capturedPreviewConflictHandler = previewConflictCaptor.firstValue
     }
 
     @AfterEach
@@ -310,6 +317,127 @@ class AudioServiceTest {
         sut.stopBackgroundPreview()
 
         // Then - no exception thrown, test passes
+    }
+
+    // MARK: - Preview Audio Session Tests
+
+    @Test
+    fun `playGongPreview requests audio session as PREVIEW`() {
+        // Given
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.playGongPreview("classic-bowl")
+
+        // Then
+        verify(mockCoordinator).requestAudioSession(AudioSource.PREVIEW)
+        verify(mockCoordinator, never()).requestAudioSession(AudioSource.TIMER)
+    }
+
+    @Test
+    fun `stopGongPreview releases audio session as PREVIEW`() {
+        // Given
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopGongPreview()
+
+        // Then
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `stopGongPreview does not release session when no preview playing`() {
+        // Given: No preview started
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopGongPreview()
+
+        // Then
+        verify(mockCoordinator, never()).releaseAudioSession(any())
+    }
+
+    @Test
+    fun `gong preview completion releases audio session as PREVIEW`() {
+        // Given
+        val listenerCaptor = argumentCaptor<() -> Unit>()
+        sut.playGongPreview("classic-bowl")
+        verify(mockMediaPlayer).setOnCompletionListener(listenerCaptor.capture())
+        clearInvocations(mockCoordinator)
+
+        // When: Completion callback fires
+        listenerCaptor.firstValue.invoke()
+
+        // Then
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `playBackgroundPreview requests audio session as PREVIEW`() {
+        // Given
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.playBackgroundPreview("forest", 0.15f)
+
+        // Then
+        verify(mockCoordinator).requestAudioSession(AudioSource.PREVIEW)
+        verify(mockCoordinator, never()).requestAudioSession(AudioSource.TIMER)
+    }
+
+    @Test
+    fun `stopBackgroundPreview releases audio session as PREVIEW`() {
+        // Given
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopBackgroundPreview()
+
+        // Then
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `stopBackgroundPreview does not release session when no preview playing`() {
+        // Given: No preview started
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopBackgroundPreview()
+
+        // Then
+        verify(mockCoordinator, never()).releaseAudioSession(any())
+    }
+
+    @Test
+    fun `playBackgroundPreview with silent sound releases audio session`() {
+        // Given: A gong preview is active with PREVIEW session
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockCoordinator)
+
+        // When: Select silent background sound
+        sut.playBackgroundPreview("silent", 0.15f)
+
+        // Then: Session is released since no preview is active after stop
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `preview conflict handler stops all preview players`() {
+        // Given: Start a gong preview
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playGongPreview("classic-bowl")
+        clearInvocations(mockMediaPlayer)
+
+        // When: Preview conflict handler is invoked (e.g., timer starting)
+        capturedPreviewConflictHandler.invoke()
+
+        // Then: Preview player was stopped
+        verify(mockMediaPlayer).stop()
+        verify(mockMediaPlayer).release()
     }
 
     // MARK: - Sound Resource ID Mapping Tests

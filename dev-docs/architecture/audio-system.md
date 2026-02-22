@@ -319,7 +319,7 @@ class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorPro
 
 | Datei | Beschreibung |
 |-------|--------------|
-| `domain/models/AudioSource.kt` | Enum (TIMER, GUIDED_MEDITATION) |
+| `domain/models/AudioSource.kt` | Enum (TIMER, GUIDED_MEDITATION, PREVIEW) |
 | `domain/services/AudioSessionCoordinatorProtocol.kt` | Interface |
 | `infrastructure/audio/AudioSessionCoordinator.kt` | Implementierung |
 | `infrastructure/di/AppModule.kt` | DI Binding |

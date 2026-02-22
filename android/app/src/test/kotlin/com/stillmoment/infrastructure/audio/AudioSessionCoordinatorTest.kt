@@ -253,6 +253,44 @@ class AudioSessionCoordinatorTest {
     }
 
     @Test
+    fun `full scenario - preview to timer handoff`() = runTest {
+        // Given: Preview conflict handler
+        var previewStopped = false
+        sut.registerConflictHandler(AudioSource.PREVIEW) {
+            previewStopped = true
+        }
+
+        // When: Preview starts
+        sut.requestAudioSession(AudioSource.PREVIEW)
+        assertEquals(AudioSource.PREVIEW, sut.activeSource.first())
+
+        // When: Timer requests (takes over)
+        sut.requestAudioSession(AudioSource.TIMER)
+
+        // Then: Preview was notified and timer is active
+        assertTrue(previewStopped)
+        assertEquals(AudioSource.TIMER, sut.activeSource.first())
+    }
+
+    @Test
+    fun `preview does not conflict with itself`() = runTest {
+        // Given: Preview is active
+        var conflictCalled = false
+        sut.registerConflictHandler(AudioSource.PREVIEW) {
+            conflictCalled = true
+        }
+        sut.requestAudioSession(AudioSource.PREVIEW)
+
+        // When: Preview requests again (switching from gong to background preview)
+        val granted = sut.requestAudioSession(AudioSource.PREVIEW)
+
+        // Then: No conflict, still granted
+        assertTrue(granted)
+        assertFalse(conflictCalled)
+        assertEquals(AudioSource.PREVIEW, sut.activeSource.first())
+    }
+
+    @Test
     fun `full scenario - release and re-acquire`() = runTest {
         // Given: Timer is active
         sut.requestAudioSession(AudioSource.TIMER)

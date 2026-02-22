@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed (iOS)
-- **Preview-Audio von Timer-Lifecycle getrennt** - Gong- und Hintergrund-Vorhoeren nutzt eigene Audio-Session (.preview) statt Timer-Session
+### Changed (iOS & Android)
+- **Preview-Audio von Timer-Lifecycle getrennt** - Gong- und Hintergrund-Vorhoeren nutzt eigene Audio-Session (.preview / PREVIEW) statt Timer-Session
   - Kein Session-Lifecycle-Leck mehr (Preview gibt Session nach Abschluss frei)
   - Preview startet kein Keep-Alive
   - Bei Timer-Start wird laufendes Preview via Conflict Handler gestoppt
