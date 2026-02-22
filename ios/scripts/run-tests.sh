@@ -120,7 +120,7 @@ ENABLE_COVERAGE="NO"
 COVERAGE_NOTE=""
 
 if [ "$SKIP_UI_TESTS" = true ]; then
-    echo "🧪 Running unit tests only (parallel)..."
+    echo "🧪 Running unit tests only..."
     echo "   Scheme: $UNIT_TEST_SCHEME"
     COVERAGE_NOTE="ℹ️  Coverage DISABLED - unit tests only (run 'make test' for coverage)"
 
@@ -131,9 +131,7 @@ if [ "$SKIP_UI_TESTS" = true ]; then
         -enableCodeCoverage "$ENABLE_COVERAGE" \
         -skipPackagePluginValidation \
         -skipMacroValidation \
-        -parallel-testing-enabled YES \
-        -parallel-testing-worker-count 4 \
-        -maximum-concurrent-test-simulator-destinations 1 \
+        -parallel-testing-enabled NO \
         CODE_SIGN_IDENTITY="" \
         CODE_SIGNING_REQUIRED=NO \
         CODE_SIGNING_ALLOWED=NO \

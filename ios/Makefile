@@ -1,4 +1,4 @@
-.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight
+.PHONY: help format format-check lint check-localization validate-localization test test-unit test-ui test-single test-failures test-report simulator-reset test-clean setup check analyze screenshots screenshot-setup screenshot-single release-prepare release release-dry metadata-download testflight test-unit-agent test-single-agent
 
 DEVICE ?= iPhone 17
 IOS_VERSION ?= latest
@@ -38,6 +38,12 @@ test-ui: ## Run UI tests only (NO COVERAGE - use 'make test' for coverage)
 
 test-single: ## Run single test (usage: make test-single TEST=TestClass/testMethod)
 	@./scripts/run-single-test.sh $(TEST)
+
+test-unit-agent: ## Run unit tests with agent-optimized output (summary + failures only)
+	@./scripts/run-tests-agent.sh
+
+test-single-agent: ## Run single test with agent output (usage: make test-single-agent TEST=TestClass/testMethod)
+	@./scripts/run-tests-agent.sh --single $(TEST)
 
 test-failures: ## List all failing tests from last test run
 	@./scripts/list-test-failures.sh

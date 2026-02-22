@@ -96,9 +96,12 @@ make test               # Unit tests
 ```
 
 **Testing rules (Claude Code):**
-- Always use `make test-unit` / `make test` / `make test-single` — never MCP `test_sim`
+- Always use `make test-unit-agent` / `make test-single-agent` — agent-optimized output
+- `make test-unit` / `make test-single` are for humans (xcbeautify, verbose)
 - Always run tests via Task subagent (Bash type) to keep main context clean
-- xcbeautify required for clean output (installed via `make setup`)
+- Bash timeout: Always set `timeout: 300000` (5 Min) for test commands
+- TDD-Loop: `make test-single-agent TEST=ClassName/testMethod` (schnellstes Feedback)
+- Never retry the same failing command — investigate root cause first
 
 **Release** (from `ios/` directory):
 ```bash
