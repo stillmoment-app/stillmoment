@@ -1,4 +1,4 @@
-# Ticket shared-065: Custom Audio Import (Hintergrundklaenge und Einstimmungen)
+# Ticket shared-065: Custom Audio Import (Soundscapes und Attunements)
 
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
@@ -10,11 +10,13 @@
 
 ## Was
 
-User koennen eigene Audio-Dateien als Hintergrundklaenge und Einstimmungen importieren, auswaehlen und loeschen. Import-UI lebt innerhalb der Praxis-Editor Sub-Screens.
+User koennen eigene Audio-Dateien als Hintergrundklaenge (Soundscapes) und Einstimmungen (Attunements) importieren, auswaehlen und loeschen. Import-UI lebt innerhalb der Praxis-Editor Sub-Screens.
+
+**Abgrenzung:** Hintergrundklaenge spielen als Loop **waehrend** der Meditation. Einstimmungen spielen **einmalig** nach dem Start-Gong **vor** der stillen Phase.
 
 ## Warum
 
-Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Meditationen, sondern auch Ambient Sounds und Einstimmungen. "Make it yours" ohne Server-Abhaengigkeit, passend zur Privatsphaerenphilosophie.
+Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Meditationen, sondern auch Soundscapes und Einstimmungen (Attunements). "Make it yours" ohne Server-Abhaengigkeit, passend zur Privatsphaerenphilosophie.
 
 ---
 
@@ -32,13 +34,13 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 ### Feature (beide Plattformen)
 
 #### Domain & Persistenz
-- [ ] CustomAudioFile-Modell: id, name, filename, duration (automatisch erkannt), type (background/introduction), dateAdded
+- [ ] CustomAudioFile-Modell: id, name, filename, duration (automatisch erkannt), type (soundscape/attunement), dateAdded
 - [ ] CustomAudioRepository: importieren, alle laden (nach Typ), loeschen
 - [ ] Importierte Dateien werden in den lokalen App-Speicher kopiert (nicht nur referenziert)
 - [ ] Unterstuetzte Formate: MP3, M4A, WAV
 
 #### Import-Flow
-- [ ] "Eigene Datei importieren" Button in Hintergrundklang-Sub-Screen und Einstimmung-Sub-Screen
+- [ ] "Eigene Datei importieren" Button in Soundscape-Sub-Screen und Einstimmung-Sub-Screen
 - [ ] Oeffnet nativen Document Picker (iOS) / SAF File Picker (Android)
 - [ ] Dateiname (ohne Extension) als initialer Name
 - [ ] Dauer wird automatisch aus der Audio-Datei erkannt und angezeigt
@@ -48,12 +50,12 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 - [ ] Sektion "Meine Klaenge" / "Meine Einstimmungen" unterhalb der mitgelieferten Sounds
 - [ ] Leerer Zustand: "Keine eigenen Dateien importiert"
 - [ ] Checkmark bei ausgewaehltem Sound (mitgeliefert ODER custom)
-- [ ] Loeschen-Button pro importiertem Sound (Muelleimer-Icon)
+- [ ] Loeschen-Button pro importierter Datei (Muelleimer-Icon)
 
 #### Loeschen
 - [ ] Bestaetigungsdialog beim Loeschen
-- [ ] Warnung wenn Sound in einer oder mehreren Praxis-Presets verwendet wird ("Wird in X Praxis verwendet")
-- [ ] Nach Loeschen: betroffene Praxis-Presets fallen zurueck auf "Stille" (Hintergrund) bzw. "Keine Einstimmung"
+- [ ] Warnung wenn Datei in einer oder mehreren Praxis-Presets verwendet wird ("Wird in X Praxis verwendet")
+- [ ] Nach Loeschen: betroffene Praxis-Presets fallen zurueck auf "Stille" (Soundscape) bzw. "Keine Einstimmung" (Attunement)
 - [ ] Datei wird aus dem lokalen App-Speicher entfernt
 
 #### Edge Cases
@@ -79,25 +81,25 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 ## Manueller Test
 
 ### Import
-1. Praxis-Editor → Audio & Klaenge → Hintergrundklang
+1. Praxis-Editor → Audio & Klaenge → Soundscape
 2. "Eigene Datei importieren" → Datei-Picker → MP3 auswaehlen
 3. Sound erscheint unter "Meine Klaenge" mit Name und Dauer
 4. Sound auswaehlen (Checkmark) → Zurueck zum Editor → "Fertig"
-5. Meditation starten → eigener Background spielt
+5. Meditation starten → eigener Soundscape spielt als Loop
 
 ### Loeschen mit Warnung
-1. Custom Sound in Praxis "Standard" verwenden
-2. Neue Praxis "Abend" anlegen, denselben Sound verwenden
-3. Sound loeschen → Warnung "Wird in 2 Praxis verwendet"
-4. Trotzdem loeschen → Sound weg
-5. Praxis "Standard" oeffnen → Hintergrundklang steht auf "Stille"
-6. Praxis "Abend" oeffnen → Hintergrundklang steht auf "Stille"
+1. Custom Soundscape in Praxis "Standard" verwenden
+2. Neue Praxis "Abend" anlegen, denselben Soundscape verwenden
+3. Soundscape loeschen → Warnung "Wird in 2 Praxis verwendet"
+4. Trotzdem loeschen → Soundscape weg
+5. Praxis "Standard" oeffnen → Soundscape steht auf "Stille"
+6. Praxis "Abend" oeffnen → Soundscape steht auf "Stille"
 
-### Einstimmung
+### Einstimmung (Attunement)
 1. Praxis-Editor → Audio & Klaenge → Einstimmung
 2. "Eigene Datei importieren" → Audio-Datei waehlen
 3. Datei erscheint unter "Meine Einstimmungen" mit Name und erkannter Dauer
-4. Auswaehlen → Meditation starten → eigene Einstimmung spielt nach Start-Gong
+4. Auswaehlen → Meditation starten → eigene Einstimmung spielt einmalig nach Start-Gong, dann stille Phase
 
 ---
 
@@ -113,6 +115,6 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 ## Hinweise
 
 - Gleiche Import-Patterns wie gefuehrte Meditationen verwenden (Document Picker + lokale Kopie). Die Infrastruktur existiert bereits — wiederverwenden, nicht neu bauen.
-- Hintergrundklaenge und Einstimmungen getrennt speichern (verschiedene Verzeichnisse / Typen), auch wenn das Modell aehnlich ist.
+- Soundscapes und Einstimmungen (Attunements) getrennt speichern (verschiedene Verzeichnisse / Typen), auch wenn das Modell aehnlich ist.
 - Vorhoer-Funktion fuer Custom Sounds ist bewusst NICHT Teil dieses Tickets — kann als Follow-up ergaenzt werden.
 - Umbenennen von Custom Sounds ist bewusst NICHT Teil dieses Tickets — reduziert Komplexitaet. Dateiname ist der initiale Name.

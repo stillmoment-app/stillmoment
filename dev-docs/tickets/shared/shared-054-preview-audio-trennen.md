@@ -30,7 +30,7 @@ Preview→Preview-Abbruch (Gong→Gong, Gong→Background etc.) funktioniert ber
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-059    |
+| iOS       | [x]    | shared-059    |
 | Android   | [ ]    | -             |
 
 ---

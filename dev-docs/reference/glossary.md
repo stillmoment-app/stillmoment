@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-02-21
+Last Updated: 2026-02-22
 -->
 
 ## Quick Reference
@@ -21,7 +21,7 @@ Last Updated: 2026-02-21
 | `IntervalMode` | Enum | Timer | Intervallmodus (REPEATING, AFTER_START, BEFORE_END) |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
-| `Introduction` | Value Object | Timer | Optionale Einleitung (z.B. Atemuebung) vor stiller Meditation |
+| `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation. Im Code aktuell noch `Introduction` (Rename-Ticket pending). |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
 | `PreparationCountdownState` | Enum | Guided Meditations | Zustandsautomat fuer Vorbereitungs-Countdown |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
@@ -50,7 +50,7 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 | `idle` | Timer bereit zum Start |
 | `preparation` | Vorbereitungsphase vor Meditation (konfigurierbar) |
 | `startGong` | Start-Gong spielt, Meditation-Countdown laeuft bereits |
-| `introduction` | Einleitungs-Audio spielt (z.B. Atemuebung), Meditation-Countdown laeuft bereits |
+| `introduction` | Einstimmungs-Audio spielt (z.B. Atemuebung), Meditation-Countdown laeuft bereits |
 | `running` | Timer laeuft, stille Meditationsphase aktiv |
 | `completed` | Timer abgelaufen, Meditation beendet |
 
@@ -60,18 +60,18 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 idle --> preparation --> startGong --> introduction --> running --> completed
   |                        |              |               ^
   |                        |              +---------------+
-  |                        |              (no introduction)
+  |                        |              (no attunement)
   +------------------------+--------------+
 
 Pfade:
 - Voll: idle → preparation → startGong → introduction → running → completed
-- Ohne Einleitung: idle → preparation → startGong → running → completed
+- Ohne Einstimmung: idle → preparation → startGong → running → completed
 - Ohne Vorbereitung: idle → startGong → introduction → running → completed
 - Minimal: idle → startGong → running → completed
-- Start-Gong spielt im startGong-State; Einleitung wartet auf startGongFinished
-- Einleitungs-Audio startet erst nach dem Start-Gong (sequenziell via startGongFinished)
-- Hintergrund-Audio startet erst beim Uebergang zu running (nach Einleitung)
-- Einleitungs-Timer zaehlt zur Gesamtmeditationszeit
+- Start-Gong spielt im startGong-State; Einstimmung wartet auf startGongFinished
+- Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via startGongFinished)
+- Hintergrund-Audio startet erst beim Uebergang zu running (nach Einstimmung)
+- Einstimmungs-Timer zaehlt zur Gesamtmeditationszeit
 - Running kann nur zu Completed (Timer abgelaufen) oder Idle (Close gedrueckt) wechseln
 ```
 
@@ -100,8 +100,8 @@ Pfade:
 |-------|--------------|
 | `tick(...)` | Timer-Tick mit aktualisierten Werten |
 | `preparationFinished` | Vorbereitung abgeschlossen |
-| `startGongFinished` | Start-Gong fertig abgespielt, Einleitungs-Audio kann starten |
-| `introductionFinished` | Einleitungs-Audio beendet, stille Meditation beginnt |
+| `startGongFinished` | Start-Gong fertig abgespielt, Einstimmungs-Audio kann starten |
+| `introductionFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
 | `timerCompleted` | Timer bei 0 angekommen |
 | `intervalGongTriggered` | Intervall-Gong soll spielen |
 | `intervalGongPlayed` | Intervall-Gong wurde gespielt |
@@ -169,7 +169,7 @@ Pfade:
 | `tick()` | Neue Instanz mit Zeit-1 |
 | `withState(_:)` | Neue Instanz mit neuem State |
 | `startPreparation()` | Neue Instanz im Vorbereitungsmodus |
-| `endIntroduction()` | Neue Instanz im Running-State, setzt `silentPhaseStartRemaining` |
+| `endIntroduction()` | Neue Instanz im Running-State nach Einstimmung, setzt `silentPhaseStartRemaining` |
 | `markIntervalGongPlayed()` | Neue Instanz mit Gong-Marker |
 | `shouldPlayIntervalGong(intervalMinutes:mode:)` | Prueft ob Gong faellig |
 | `reset()` | Zurueckgesetzter Timer |
@@ -244,7 +244,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | `preparationTimeEnabled` | Bool | true | Vorbereitungszeit aktiviert? |
 | `preparationTimeSeconds` | Int | 15 | Vorbereitungszeit in Sekunden (5, 10, 15, 20, 30, 45) |
 | `gongSoundId` | String | "temple-bell" | Gong-Ton ID (Start/Ende) |
-| `introductionId` | String? | nil | Einleitungs-ID (nil = keine Einleitung) |
+| `introductionId` | String? | nil | Einstimmungs-ID (nil = keine Einstimmung) |
 
 **Validierung:**
 - `validateInterval(_:)` - Clamps zu 1-60
@@ -257,13 +257,16 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 
 ---
 
-### Introduction / Einleitung
+### Attunement / Einstimmung
 
 **Typ:** Value Object
 **Pattern:** Static Registry
+**Code-Name (aktuell):** `Introduction` — Rename zu `Attunement` als eigenes Ticket geplant.
 
 **Beschreibung:**
-Optionales Einleitungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Gong und vor der stillen Meditationsphase abgespielt wird. Einleitungen sind fest in der App gebundelt, sprachspezifisch und ueber die Timer-Einstellungen konfigurierbar. Die Einleitungszeit zaehlt zur Gesamtmeditationszeit.
+Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Gong und vor der stillen Meditationsphase abgespielt wird. Einstimmungen spielen einmalig und bereiten den Meditierenden auf die stille Phase vor. Sie sind fest in der App gebundelt, sprachspezifisch und ueber die Timer-Einstellungen konfigurierbar. Die Einstimmungszeit zaehlt zur Gesamtmeditationszeit.
+
+**Abgrenzung zu Soundscape:** Einstimmungen spielen **einmalig vor** der stillen Phase. Soundscapes spielen **als Loop waehrend** der stillen Phase.
 
 **Properties:**
 
@@ -271,7 +274,7 @@ Optionales Einleitungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Gon
 |----------|-----|--------------|
 | `id` | String | Sprachuebergreifend konstante ID (z.B. "breath") |
 | `name` | LocalizedString | Lokalisierter Anzeigename (DE/EN) |
-| `durationSeconds` | Int | Dauer des Einleitungs-Audios in Sekunden |
+| `durationSeconds` | Int | Dauer des Einstimmungs-Audios in Sekunden |
 | `availableLanguages` | [String] | Sprachcodes fuer die Audio-Dateien vorhanden sind |
 | `filenamePattern` | String | Dateiname-Muster mit `{lang}` Platzhalter |
 
@@ -287,16 +290,16 @@ Optionales Einleitungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Gon
 |---------|--------------|
 | `audioFilename(for:)` | Gibt Dateinamen fuer eine Sprache zurueck |
 | `availableForCurrentLanguage()` | Filtert nach Geraetesprache |
-| `find(byId:)` | Sucht Einleitung per ID |
+| `find(byId:)` | Sucht Einstimmung per ID |
 | `isAvailableForCurrentLanguage(_:)` | Prueft Verfuegbarkeit fuer aktuelle Sprache |
 
 **Audio-Dateinamen-Konvention:** `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Models/Introduction.swift`
+- iOS: `ios/StillMoment/Domain/Models/Introduction.swift` (Rename zu `Attunement.swift` geplant)
 - Android: (geplant)
 
-**Siehe auch:** `MeditationSettings.introductionId`, `TimerState.introduction`, `TimerEffect.playIntroduction`
+**Siehe auch:** `MeditationSettings.introductionId`, `TimerState.introduction`, `TimerEffect.playIntroduction` (Code-Rename geplant)
 
 ---
 
@@ -633,7 +636,7 @@ idle --> preparation --> finished --> (MP3 playback)
 |---------|----------|------------|
 | `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
 | `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
-| `nounVerbed` | `preparationFinished`, `introductionFinished`, `timerCompleted` | System-Event |
+| `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event |
 | `nounVerbPlayed` | `intervalGongPlayed` | Bestaetigung |
 

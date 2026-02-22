@@ -23,6 +23,7 @@ final class AudioSessionCoordinatorTests: XCTestCase {
         // Reset state for test isolation
         self.sut.releaseAudioSession(for: .timer)
         self.sut.releaseAudioSession(for: .guidedMeditation)
+        self.sut.releaseAudioSession(for: .preview)
         self.cancellables = Set<AnyCancellable>()
     }
 
@@ -30,6 +31,7 @@ final class AudioSessionCoordinatorTests: XCTestCase {
         // Clean up state
         self.sut.releaseAudioSession(for: .timer)
         self.sut.releaseAudioSession(for: .guidedMeditation)
+        self.sut.releaseAudioSession(for: .preview)
         self.cancellables = nil
         self.sut = nil
         super.tearDown()
@@ -223,6 +225,64 @@ final class AudioSessionCoordinatorTests: XCTestCase {
             self.sut.activeSource.value,
             .guidedMeditation,
             "Concurrent requests should result in last requester owning session"
+        )
+    }
+
+    // MARK: - Preview Source Tests
+
+    func testPreviewCanRequestAndReleaseSession() {
+        // Given - No active source
+        XCTAssertNil(self.sut.activeSource.value)
+
+        // When - Preview requests session
+        _ = try? self.sut.requestAudioSession(for: .preview)
+
+        // Then - Preview becomes owner
+        XCTAssertEqual(
+            self.sut.activeSource.value,
+            .preview,
+            "Preview should become active source after request"
+        )
+
+        // When - Preview releases session
+        self.sut.releaseAudioSession(for: .preview)
+
+        // Then - No active source
+        XCTAssertNil(
+            self.sut.activeSource.value,
+            "Releasing preview should clear active source"
+        )
+    }
+
+    func testTimerReplacesPreviewSession() {
+        // Given - Preview owns session
+        _ = try? self.sut.requestAudioSession(for: .preview)
+        XCTAssertEqual(self.sut.activeSource.value, .preview)
+
+        // When - Timer requests session
+        _ = try? self.sut.requestAudioSession(for: .timer)
+
+        // Then - Timer replaces preview
+        XCTAssertEqual(
+            self.sut.activeSource.value,
+            .timer,
+            "Timer should replace preview as active source"
+        )
+    }
+
+    func testPreviewReplacesTimerSession() {
+        // Given - Timer owns session
+        _ = try? self.sut.requestAudioSession(for: .timer)
+        XCTAssertEqual(self.sut.activeSource.value, .timer)
+
+        // When - Preview requests session
+        _ = try? self.sut.requestAudioSession(for: .preview)
+
+        // Then - Preview replaces timer
+        XCTAssertEqual(
+            self.sut.activeSource.value,
+            .preview,
+            "Preview should replace timer as active source"
         )
     }
 

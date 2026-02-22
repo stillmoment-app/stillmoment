@@ -12,6 +12,7 @@ import Foundation
 enum AudioSource: String, Equatable {
     case timer
     case guidedMeditation
+    case preview
 }
 
 /// Centralized coordinator for audio session management

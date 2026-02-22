@@ -24,7 +24,7 @@ Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 |------------|--------------|
 | **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
 | **Start-Gong** | Tibetische Klangschale markiert Beginn |
-| **Einleitung (optional)** | Gefuehrtes Audio (z.B. Atemuebung) nach Start-Gong, vor stiller Phase |
+| **Einstimmung (optional)** | Gefuehrtes Audio (z.B. Atemuebung) nach Start-Gong, vor stiller Phase |
 | **Hintergrund-Audio** | Kontinuierliche Schleife waehrend stiller Meditationsphase |
 | **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi — siehe `ddd.md`) |
 | **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
@@ -69,6 +69,9 @@ Identifiziert die Quelle einer Audio-Anfrage. Vollstaendige Definition siehe `..
 |--------------------|--------------|
 | `timer` / `TIMER` | Timer-Audio (Gongs, BackgroundSound) |
 | `guidedMeditation` / `GUIDED_MEDITATION` | Gefuehrte Meditation Playback + Vorbereitungs-Countdown |
+| `preview` / `PREVIEW` | Vorhoer-Audio (Gong-Preview, Hintergrund-Preview in Einstellungen) |
+
+**Preview-Trennung (shared-054):** Preview-Methoden (`playGongPreview`, `playBackgroundPreview`) registrieren sich als `.preview`, nicht als `.timer`. Dadurch entsteht kein Session-Lifecycle-Leck (Preview gibt Session nach Abschluss frei) und die Semantik ist eindeutig. Preview startet kein Keep-Alive. Bei Timer-Start wird laufendes Preview via Conflict Handler gestoppt.
 
 **Wartungshinweis:** Bei neuen Audio-Features (z.B. Podcast-Import) neuen AudioSource-Wert hinzufuegen.
 
@@ -82,11 +85,11 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 |-------------|--------------|
 | `activateTimerSession` | Audio Session + Keep-Alive starten (Timer-Start) |
 | `deactivateTimerSession` | Keep-Alive stoppen + Audio Session freigeben (Timer-Ende/Reset) |
-| `configureAudioSession` | Audio Session aktivieren (nur fuer Nicht-Timer-Pfade: Previews) |
+| `configureAudioSession` | Audio Session aktivieren (Legacy, nicht mehr fuer Previews — Previews nutzen `.preview` Source direkt) |
 | `playStartGong` | Start-Gong abspielen |
-| `playIntroduction(introductionId:)` | Einleitungs-Audio starten (haelt Audio-Session aktiv) |
-| `stopIntroduction` | Einleitungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einleitung) |
-| `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Einleitung) |
+| `playIntroduction(introductionId:)` | Einstimmungs-Audio starten (haelt Audio-Session aktiv) |
+| `stopIntroduction` | Einstimmungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einstimmung) |
+| `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Einstimmung) |
 | `stopBackgroundAudio` | Hintergrund-Sound stoppen |
 | `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen |
 | `playCompletionSound` | Abschluss-Gong abspielen |
@@ -108,15 +111,15 @@ private func executeEffect(_ effect: TimerEffect) {
 
 ---
 
-## Timer-Einleitung (Introduction Audio)
+## Timer-Einstimmung (Attunement Audio)
 
 ### Problem
 
-Vor der stillen Meditation soll optional eine gefuehrte Einleitung (z.B. Atemuebung) abgespielt werden. Waehrenddessen muss die Audio-Session aktiv bleiben (auch bei gesperrtem Bildschirm), aber Hintergrund-Audio und Intervall-Gongs duerfen noch nicht starten.
+Vor der stillen Meditation soll optional eine Einstimmung (Attunement, z.B. Atemuebung) abgespielt werden. Waehrenddessen muss die Audio-Session aktiv bleiben (auch bei gesperrtem Bildschirm), aber Hintergrund-Audio und Intervall-Gongs duerfen noch nicht starten.
 
 ### Loesung
 
-Die Einleitung ist eine eigene Phase in der Timer State Machine (`TimerState.introduction`). Das Einleitungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
+Die Einstimmung ist eine eigene Phase in der Timer State Machine (`TimerState.introduction`). Das Einstimmungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
 
 ### Ablauf
 
@@ -128,30 +131,30 @@ Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Backgr
      │              │                         │                       └─ Intervall-Gongs zaehlen ab hier
      │              │                         └─ Audio-Session aktiv via Keep-Alive (parallel)
      │              └─ Gong spielt beim Uebergang preparation→introduction
-     │                 Einleitung wartet auf Gong-Ende (startGongFinished Action)
+     │                 Einstimmung wartet auf Gong-Ende (startGongFinished Action)
      └─ Audio-Session aktiv via Keep-Alive Audio
 ```
 
-**Sequenzierung:** Der Start-Gong und die Einleitung spielen **nicht gleichzeitig**. Die Einleitung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playIntroduction`.
+**Sequenzierung:** Der Start-Gong und die Einstimmung spielen **nicht gleichzeitig**. Die Einstimmung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playIntroduction`.
 
 ### Verhalten
 
 | Aspekt | Detail |
 |--------|--------|
 | **Lautstaerke** | `volume = 0.9` (leicht reduziert gegenueber voller Medienlautstaerke, kein eigener Regler) |
-| **Timer-Countdown** | Laeuft waehrend Einleitung bereits (zaehlt zur Gesamtzeit) |
-| **Hintergrund-Audio** | Startet erst nach Einleitung (`introductionFinished` → `startBackgroundAudio`) |
-| **Intervall-Gongs** | Zaehlen ab Ende der Einleitung (`silentPhaseStartRemaining` als Baseline) |
-| **Audio-Unterbrechung** | Einleitung setzt nach Unterbrechung fort, Timer laeuft weiter |
-| **Timer laeuft ab** | Einleitung wird abgeschnitten, Abschluss-Gong spielt |
-| **Reset/Close** | `stopIntroduction` Effect stoppt Einleitung sofort |
+| **Timer-Countdown** | Laeuft waehrend Einstimmung bereits (zaehlt zur Gesamtzeit) |
+| **Hintergrund-Audio** | Startet erst nach Einstimmung (`introductionFinished` → `startBackgroundAudio`) |
+| **Intervall-Gongs** | Zaehlen ab Ende der Einstimmung (`silentPhaseStartRemaining` als Baseline) |
+| **Audio-Unterbrechung** | Einstimmung setzt nach Unterbrechung fort, Timer laeuft weiter |
+| **Timer laeuft ab** | Einstimmung wird abgeschnitten, Abschluss-Gong spielt |
+| **Reset/Close** | `stopIntroduction` Effect stoppt Einstimmung sofort |
 | **Lock Screen** | Keep-Alive Audio haelt App waehrend aller Phasen wach (siehe ADR-004) |
 
 ### Audio-Assets
 
 Namenskonvention: `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
 
-Einleitungen sind App-Bundle-Assets (nicht user-importierbar). Registry in `Introduction.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster.
+Einstimmungen sind sowohl App-Bundle-Assets als auch user-importierbar (siehe shared-065). Registry in `Introduction.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster fuer mitgelieferte Einstimmungen.
 
 ---
 
@@ -159,7 +162,7 @@ Einleitungen sind App-Bundle-Assets (nicht user-importierbar). Registry in `Intr
 
 ### Problem
 
-Waehrend Preparation, Start-Gong-Uebergang und Introduction→Running-Uebergang laeuft kein hoerbarer Audio-Stream. iOS suspendiert die App wenn keine aktive Audio-Wiedergabe vorhanden ist.
+Waehrend Preparation, Start-Gong-Uebergang und Einstimmung→Running-Uebergang laeuft kein hoerbarer Audio-Stream. iOS suspendiert die App wenn keine aktive Audio-Wiedergabe vorhanden ist.
 
 ### Loesung (Always-On, seit shared-059)
 

@@ -125,7 +125,7 @@ final class AudioService: AudioServiceProtocol {
         self.stopGongPreview()
         self.stopBackgroundPreview()
 
-        try self.configureAudioSession() // Ensure session is active
+        _ = try self.coordinator.requestAudioSession(for: .preview)
         try self.playGongSound(soundId: soundId, volume: volume, isPreview: true)
     }
 
@@ -136,6 +136,7 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping gong preview")
         self.previewPlayer?.stop()
         self.previewPlayer = nil
+        self.coordinator.releaseAudioSession(for: .preview)
     }
 
     func playBackgroundPreview(soundId: String, volume: Float) throws {
@@ -151,7 +152,7 @@ final class AudioService: AudioServiceProtocol {
             return
         }
 
-        try self.configureAudioSession()
+        _ = try self.coordinator.requestAudioSession(for: .preview)
 
         // Get sound from repository
         guard let sound = self.soundRepository.getSound(byId: soundId) else {
@@ -207,6 +208,7 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping background preview")
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
+        self.coordinator.releaseAudioSession(for: .preview)
     }
 
     func startBackgroundAudio(soundId: String, volume: Float) throws {
@@ -487,12 +489,17 @@ final class AudioService: AudioServiceProtocol {
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.fadeOutDuration) { [weak self] in
             self?.backgroundPreviewPlayer?.stop()
             self?.backgroundPreviewPlayer = nil
+            self?.coordinator.releaseAudioSession(for: .preview)
             Logger.audio.debug("Background preview fade-out complete")
         }
     }
+}
 
-    /// Registers conflict handler to stop audio when another source becomes active
-    private func registerConflictHandler() {
+// MARK: - Conflict Handlers
+
+private extension AudioService {
+    /// Registers conflict handlers to stop audio when another source becomes active
+    func registerConflictHandler() {
         self.coordinator.registerConflictHandler(for: .timer) { [weak self] in
             guard let self else {
                 return
@@ -508,6 +515,20 @@ final class AudioService: AudioServiceProtocol {
             self.introductionPlayer = nil
             self.backgroundAudioPlayer = nil
             self.keepAlivePlayer = nil
+        }
+
+        self.coordinator.registerConflictHandler(for: .preview) { [weak self] in
+            guard let self else {
+                return
+            }
+
+            Logger.audio.info("Preview audio stopping - another source became active")
+            self.previewPlayer?.stop()
+            self.previewPlayer = nil
+            self.backgroundPreviewTimer?.invalidate()
+            self.backgroundPreviewTimer = nil
+            self.backgroundPreviewPlayer?.stop()
+            self.backgroundPreviewPlayer = nil
         }
     }
 }
