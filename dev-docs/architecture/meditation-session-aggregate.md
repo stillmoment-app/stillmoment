@@ -4,6 +4,20 @@
 > DDD Aggregate mit klarem Lifecycle, Domain Events und einer einzigen
 > Quelle der Wahrheit.
 
+### Implementierungsfortschritt
+
+Dieses Konzept wird inkrementell umgesetzt (siehe `timer-incremental-refactoring.md`).
+
+| Schritt | Beschreibung | Status | Ticket |
+|---------|-------------|--------|--------|
+| 1 | `tick()` emittiert Events | ✅ Implementiert (iOS) | shared-056 |
+| 2 | `TimerDisplayState` eliminieren | Offen | - |
+| 3 | `endGong` als eigene Phase | ✅ Implementiert (iOS + Android) | shared-055 |
+| 4 | Preview-Audio trennen | Offen | - |
+| 5 | Keep-Alive strukturell absichern | Offen | - |
+
+**Schritt 1 (shared-056):** `MeditationTimer.tick(intervalSettings:)` gibt `(MeditationTimer, [TimerEvent])` zurueck. `TimerEvent` enum mit `.preparationCompleted`, `.meditationCompleted`, `.intervalGongDue`. Intervall-Gong-Erkennung vom ViewModel ins Domain-Modell verschoben. `previousState`, `handlePhaseTransitions()`, `checkIntervalGongs()` aus dem ViewModel entfernt.
+
 ---
 
 ## 1. Motivation: Warum der Reducer nicht funktioniert

@@ -186,6 +186,41 @@ StillMomentUITests/
 
 ## Key Components
 
+### Timer Data Flow (Event-based)
+
+`MeditationTimer.tick()` gibt neben dem neuen Timer-State auch Domain Events zurueck, die ausdruecken was waehrend des Ticks passiert ist. Das ViewModel verarbeitet Events direkt statt Transitions durch `previousState`-Vergleich zu erkennen.
+
+```
+  TimerService
+    | systemTimer (1s Takt)
+    | ruft tick(intervalSettings:) auf
+    v
+  MeditationTimer.tick(intervalSettings:)
+    -> (MeditationTimer, [TimerEvent])
+    |
+    | TimerEvent: .preparationCompleted | .meditationCompleted | .intervalGongDue
+    v
+  TimerService publiziert (Timer, [TimerEvent]) via Combine
+    |
+    v
+  TimerViewModel
+    | verarbeitet Events direkt (kein previousState-Vergleich)
+    | dispatcht Actions an Reducer basierend auf Events
+    v
+  TimerReducer
+    -> (TimerDisplayState, [TimerEffect])
+    -> ViewModel fuehrt Effects aus (Audio, Persistence)
+```
+
+**Domain Events (`TimerEvent`):**
+- `.preparationCompleted` — Vorbereitung abgeschlossen, StartGong-Phase beginnt
+- `.meditationCompleted` — Timer bei 0, Meditation abgeschlossen
+- `.intervalGongDue` — Intervall-Gong ist faellig
+
+**Intervall-Gong-Erkennung** (repeating, afterStart, beforeEnd, 5-Sekunden-Schutz) liegt im Domain-Modell (`MeditationTimer`), nicht im ViewModel.
+
+Siehe: `timer-incremental-refactoring.md` (Schritt 1), `../reference/glossary.md` (TimerEvent, IntervalSettings)
+
 ### AudioSessionCoordinator (iOS)
 
 Singleton der Audio-Konflikte zwischen Timer-Sounds und Guided Meditations koordiniert.
@@ -252,4 +287,4 @@ Vollstaendige Uebersicht: [`dev-docs/README.md`](../README.md)
 
 ---
 
-**Last Updated**: 2026-01-10
+**Last Updated**: 2026-02-22
