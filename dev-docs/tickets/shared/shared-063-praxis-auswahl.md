@@ -89,4 +89,4 @@ User soll schnell zwischen vordefinierten Timer-Konfigurationen wechseln koennen
 
 - Der Pill-Button ersetzt NOCH NICHT das Settings-Zahnrad in diesem Ticket. Beide koexistieren voruebergehend. Erst shared-064 entfernt das Zahnrad.
 - Bottom Sheet soll als Half-Sheet erscheinen (nicht Fullscreen), mit Drag-Indikator oben.
-- Beim Wechsel der Praxis aendern sich die Timer-Einstellungen sofort (Gong, Background etc.) — die Dauer bleibt unveraendert.
+- Beim Wechsel der Praxis aendern sich alle Timer-Einstellungen sofort (Gong, Background, Dauer etc.). Die Dauer kann danach auf dem Timer Screen vor Start angepasst werden (session-only).

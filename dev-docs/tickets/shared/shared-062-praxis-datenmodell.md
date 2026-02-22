@@ -30,8 +30,8 @@ Aktuell gibt es nur eine einzige globale Timer-Konfiguration. Mit dem Praxis-Mod
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Praxis ist ein immutables Domain-Modell (Value Object) mit: id (UUID), name (String), preparationTimeEnabled, preparationTimeSeconds, startGongSoundId, gongVolume, introductionId, intervalGongsEnabled, intervalMinutes, intervalMode, intervalSoundId, intervalGongVolume, backgroundSoundId, backgroundSoundVolume
-- [ ] Dauer (durationMinutes) ist NICHT Teil der Praxis — bleibt variabel auf dem Timer Screen
+- [ ] Praxis ist ein immutables Domain-Modell (Value Object) mit: id (UUID), name (String), durationMinutes, preparationTimeEnabled, preparationTimeSeconds, startGongSoundId, gongVolume, introductionId, intervalGongsEnabled, intervalMinutes, intervalMode, intervalSoundId, intervalGongVolume, backgroundSoundId, backgroundSoundVolume
+- [ ] Dauer (durationMinutes) ist Teil der Praxis und wird beim Laden vorausgefuellt. Auf dem Timer Screen kann die Dauer vor Start angepasst werden (session-only, aendert nicht die gespeicherte Praxis)
 - [ ] PraxisRepository-Protokoll mit: alle laden, nach ID laden, speichern, loeschen, aktive Praxis ID setzen/abrufen
 - [ ] Persistenz-Implementierung (JSON-Dateien oder geeigneter Mechanismus)
 - [ ] Bei Erstinstallation wird automatisch eine "Standard"-Praxis mit Default-Werten angelegt
@@ -63,6 +63,6 @@ Aktuell gibt es nur eine einzige globale Timer-Konfiguration. Mit dem Praxis-Mod
 ## Hinweise
 
 - Die bestehende MeditationSettings-Klasse bleibt zunaechst bestehen — der Timer liest weiterhin von dort. Erst shared-064 verdrahtet den Timer mit dem Praxis-System.
-- Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern (minus durationMinutes). Keine neuen Konfigurationsoptionen in diesem Ticket.
-- Die Kurzbeschreibung sollte die wichtigsten Merkmale zeigen: Hintergrundklang, Gong, Vorbereitung. Lokalisiert (DE + EN).
+- Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern (inklusive durationMinutes). Keine neuen Konfigurationsoptionen in diesem Ticket.
+- Die Kurzbeschreibung sollte die wichtigsten Merkmale zeigen: Dauer, Hintergrundklang, Gong, Vorbereitung (z.B. "10 Min · Stille · Tempelglocke · 15s Vorbereitung"). Lokalisiert (DE + EN).
 - Architektur-Tickets shared-054 bis shared-060 (Timer-Refactoring) sind orthogonal — sie betreffen die Timer-Statemachine, nicht das Konfigurationsmodell.

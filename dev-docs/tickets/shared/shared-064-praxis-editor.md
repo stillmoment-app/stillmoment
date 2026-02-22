@@ -34,6 +34,7 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 #### Editor-Struktur
 - [ ] Fullscreen-Navigation (Push, nicht Modal) mit Navigation-Bar: "Abbrechen" / Titel "Praxis bearbeiten" / "Fertig"
 - [ ] Textfeld fuer Praxis-Name (bearbeitbar)
+- [ ] Dauer-Picker (1-60 Minuten) — Standard-Dauer der Praxis, kann auf dem Timer Screen vor Start angepasst werden
 - [ ] Sektion "Vorbereitung" mit Sanduhr-Icon: Toggle an/aus + Dauer-Picker (5/10/15/20/30/45s)
 - [ ] Sektion "Audio & Klaenge" mit Wind-Icon: Row "Einstimmung" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Hintergrundklang" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
 - [ ] Sektion "Gongs" mit Glocken-Icon: Row "Start & Ende" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Intervall-Gongs" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
