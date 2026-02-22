@@ -31,7 +31,7 @@ Das Timer-Settings-Sheet ist aktuell ueberladen mit Timer-Konfiguration UND App-
 
 ### Feature (beide Plattformen)
 - [ ] Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen
-- [ ] Icons: Timer (Timer/Hourglass), Bibliothek (ListMusic/Headphones), Einstellungen (Settings/Gear)
+- [ ] Icons: Timer und Bibliothek bleiben wie bisher. Einstellungen-Tab: `gearshape` (iOS) / `Icons.Outlined.Settings` (Android) — bewusst unterschiedlich vom Inline-Settings-Icon (`slider.horizontal.3` / `Icons.Filled.Tune`), um App-Einstellungen von Timer-Tuning zu unterscheiden
 - [ ] Einstellungen-Screen mit Sektion "Erscheinungsbild": Theme-Auswahl und Appearance-Mode (System/Hell/Dunkel)
 - [ ] Einstellungen-Screen mit Sektion "Info & Rechtliches": Sound Attributions, Datenschutz, App-Version
 - [ ] Theme/Appearance aus Timer-Settings-Sheet entfernt (lebt nur noch im Einstellungen-Tab)
