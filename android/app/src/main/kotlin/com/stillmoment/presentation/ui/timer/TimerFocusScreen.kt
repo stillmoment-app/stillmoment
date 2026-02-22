@@ -92,7 +92,13 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
     }
 
     // Navigate back when timer returns to Idle after being active
-    val activeStates = setOf(TimerState.Preparation, TimerState.StartGong, TimerState.Introduction, TimerState.Running)
+    val activeStates = setOf(
+        TimerState.Preparation,
+        TimerState.StartGong,
+        TimerState.Introduction,
+        TimerState.Running,
+        TimerState.EndGong
+    )
     LaunchedEffect(uiState.timerState) {
         if (uiState.timerState in activeStates) {
             wasActive = true
@@ -254,7 +260,7 @@ private fun getStateText(state: TimerState, affirmationIndex: Int): String {
             val index = affirmationIndex % preparationAffirmations.size
             stringResource(preparationAffirmations[index])
         }
-        TimerState.StartGong, TimerState.Introduction, TimerState.Running -> {
+        TimerState.StartGong, TimerState.Introduction, TimerState.Running, TimerState.EndGong -> {
             val index = affirmationIndex % runningAffirmations.size
             stringResource(runningAffirmations[index])
         }

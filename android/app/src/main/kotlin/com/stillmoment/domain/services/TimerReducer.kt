@@ -39,6 +39,7 @@ object TimerReducer {
             is TimerAction.StartGongFinished -> reduceStartGongFinished(state, settings)
             is TimerAction.IntroductionFinished -> reduceIntroductionFinished(state, settings)
             is TimerAction.TimerCompleted -> reduceTimerCompleted(state, settings)
+            is TimerAction.EndGongFinished -> reduceEndGongFinished(state)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(state, settings)
             is TimerAction.IntervalGongPlayed -> reduceIntervalGongPlayed(state)
         }
@@ -225,7 +226,7 @@ object TimerReducer {
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
-                timerState = TimerState.Completed,
+                timerState = TimerState.EndGong,
                 progress = 1.0f
             )
 
@@ -236,9 +237,17 @@ object TimerReducer {
         if (state.timerState == TimerState.Introduction) {
             effects.add(TimerEffect.StopIntroduction)
         }
-        effects.add(TimerEffect.StopForegroundService)
 
         return newState to effects
+    }
+
+    private fun reduceEndGongFinished(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
+        if (state.timerState != TimerState.EndGong) {
+            return state to emptyList()
+        }
+
+        val newState = state.copy(timerState = TimerState.Completed)
+        return newState to listOf(TimerEffect.StopForegroundService)
     }
 
     // MARK: - Interval Gong Actions

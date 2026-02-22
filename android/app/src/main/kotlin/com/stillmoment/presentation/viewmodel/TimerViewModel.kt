@@ -103,7 +103,7 @@ constructor(
         // Subscribe to audio completion flows
         viewModelScope.launch {
             audioService.gongCompletionFlow.collect {
-                dispatch(TimerAction.StartGongFinished)
+                onGongCompleted()
             }
         }
         viewModelScope.launch {
@@ -353,7 +353,7 @@ constructor(
             return false
         }
 
-        // Continue loop for all active states
+        // Continue loop for all active states (EndGong does not tick, handled by audio callback)
         val activeStates = setOf(
             TimerState.Preparation,
             TimerState.StartGong,
@@ -381,11 +381,19 @@ constructor(
     private fun onTimerCompleted() {
         timerJob?.cancel()
         dispatch(TimerAction.TimerCompleted)
+        // Foreground service stays active — stopped by EndGongFinished via reducer
+    }
 
-        // Stop foreground service after a short delay to let gong play
-        viewModelScope.launch {
-            delay(COMPLETION_SOUND_DELAY_MS)
-            foregroundService.stopService()
+    /**
+     * Handles gong audio completion callback.
+     * Dispatches the appropriate action based on current timer state:
+     * - StartGong → StartGongFinished (start gong finished, proceed to next phase)
+     * - EndGong → EndGongFinished (completion gong finished, meditation complete)
+     */
+    private fun onGongCompleted() {
+        when (_uiState.value.timerState) {
+            TimerState.EndGong -> dispatch(TimerAction.EndGongFinished)
+            else -> dispatch(TimerAction.StartGongFinished)
         }
     }
 
@@ -436,8 +444,5 @@ constructor(
         // Don't stop service here - let it run if timer is active
     }
 
-    companion object {
-        /** Delay before stopping foreground service to allow completion sound to play */
-        private const val COMPLETION_SOUND_DELAY_MS = 3000L
-    }
+    companion object
 }

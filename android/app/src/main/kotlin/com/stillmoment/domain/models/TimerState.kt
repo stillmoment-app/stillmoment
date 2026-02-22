@@ -6,15 +6,15 @@ package com.stillmoment.domain.models
  * ## State Machine
  *
  * ```
- *  ┌──────┐ StartPressed  ┌─────────────┐ PrepFinished ┌───────────┐ GongFinished ┌──────────────┐ IntroFinished ┌─────────┐ Completed ┌───────────┐
- *  │ Idle │──────────────►│ Preparation │─────────────►│ StartGong │─────────────►│ Introduction │──────────────►│ Running │──────────►│ Completed │
- *  └──────┘               └─────────────┘              └───────────┘              └──────────────┘               └─────────┘           └───────────┘
- *     ▲                        │                             │                                                                              │
- *     │   ResetPressed         │                             │ (no intro)                                                                   │
- *     │   (from any state      │                             └──────────────────────────────────►│                                           │
- *     │    except Idle)        │                                                                                                            │
- *     │                        │                                                                                                            │
- *     └────────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+ *  ┌──────┐ StartPressed  ┌─────────────┐ PrepFinished ┌───────────┐ GongFinished ┌──────────────┐ IntroFinished ┌─────────┐ Completed ┌─────────┐ EndGongFinished ┌───────────┐
+ *  │ Idle │──────────────►│ Preparation │─────────────►│ StartGong │─────────────►│ Introduction │──────────────►│ Running │──────────►│ EndGong │────────────────►│ Completed │
+ *  └──────┘               └─────────────┘              └───────────┘              └──────────────┘               └─────────┘           └─────────┘                 └───────────┘
+ *     ▲                        │                             │                                                                              │                          │
+ *     │   ResetPressed         │                             │ (no intro)                                                                   │                          │
+ *     │   (from any state      │                             └──────────────────────────────────►│                                           │                          │
+ *     │    except Idle)        │                                                                                                            │                          │
+ *     │                        │                                                                                                            │                          │
+ *     └────────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────────────────────┘
  * ```
  *
  * ## Philosophy
@@ -29,6 +29,7 @@ package com.stillmoment.domain.models
  * - **StartGong**: Transitional. Start gong is playing, timer countdown is active.
  * - **Introduction**: Focus Screen. Optional introduction audio playing, timer counting down.
  * - **Running**: Focus Screen. Main meditation timer counting down.
+ * - **EndGong**: Focus Screen. Completion gong is playing after timer reached zero. Timer shows 00:00, ring is full.
  * - **Completed**: Focus Screen. Meditation finished, screen stays until user closes.
  *
  * ## Transitions
@@ -40,7 +41,8 @@ package com.stillmoment.domain.models
  * | StartGong    | Introduction | StartGongFinished    | PlayIntroduction (if intro configured)      |
  * | StartGong    | Running      | StartGongFinished    | StartBackgroundAudio (if no intro)          |
  * | Introduction | Running      | IntroductionFinished | StopIntroduction, StartBackgroundAudio      |
- * | Running      | Completed    | TimerCompleted       | PlayCompletionSound, StopForegroundService  |
+ * | Running      | EndGong      | TimerCompleted       | PlayCompletionSound                         |
+ * | EndGong      | Completed    | EndGongFinished      | StopForegroundService                       |
  * | Any*         | Idle         | ResetPressed         | StopForegroundService, ResetTimer           |
  *
  * *ResetPressed has no effect when already Idle.
@@ -65,6 +67,9 @@ sealed class TimerState {
 
     /** Timer is actively counting down the meditation. Shows TimerFocusScreen. */
     data object Running : TimerState()
+
+    /** Completion gong is playing after timer reached zero. Timer shows 00:00, ring is full. */
+    data object EndGong : TimerState()
 
     /** Timer has completed. Shows TimerFocusScreen briefly, then navigates back. */
     data object Completed : TimerState()

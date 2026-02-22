@@ -58,7 +58,7 @@ data class MeditationTimer(
             TimerState.StartGong -> tickRunning()
             TimerState.Introduction -> tickIntroduction()
             TimerState.Running -> tickRunning()
-            TimerState.Idle, TimerState.Completed -> this
+            TimerState.Idle, TimerState.EndGong, TimerState.Completed -> this
         }
     }
 
@@ -78,7 +78,7 @@ data class MeditationTimer(
      */
     private fun tickIntroduction(): MeditationTimer {
         val newRemaining = maxOf(0, remainingSeconds - 1)
-        val newState = if (newRemaining <= 0) TimerState.Completed else TimerState.Introduction
+        val newState = if (newRemaining <= 0) TimerState.EndGong else TimerState.Introduction
         return copy(
             remainingSeconds = newRemaining,
             state = newState
@@ -88,7 +88,7 @@ data class MeditationTimer(
     /** Ticks the main meditation timer (used for StartGong and Running states). */
     private fun tickRunning(): MeditationTimer {
         val newRemaining = maxOf(0, remainingSeconds - 1)
-        val newState = if (newRemaining <= 0) TimerState.Completed else state
+        val newState = if (newRemaining <= 0) TimerState.EndGong else state
         return copy(
             remainingSeconds = newRemaining,
             state = newState

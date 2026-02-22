@@ -33,6 +33,10 @@ data class TimerDisplayState(
     val isPreparation: Boolean
         get() = timerState == TimerState.Preparation
 
+    /** Whether the session is active (includes all states from Preparation through EndGong) */
+    val isActive: Boolean
+        get() = timerState != TimerState.Idle && timerState != TimerState.Completed
+
     /** Returns true if timer can be started */
     val canStart: Boolean
         get() = timerState == TimerState.Idle && selectedMinutes > 0
