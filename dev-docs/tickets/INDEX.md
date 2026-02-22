@@ -77,6 +77,11 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-051](shared/shared-051-timer-presets-custom-audio.md) | Meditation Timer Presets & Custom Audio (Konzept) | 3-Feature | [ ] | [ ] |
 | [shared-052](shared/shared-052-timer-completion-danke.md) | Timer Completion "Danke" | 4-Polish | [ ] | [ ] |
 | [shared-053](shared/shared-053-guided-meditation-completion.md) | Guided Meditation Completion Screen | 4-Polish | [ ] | [ ] |
+| [shared-054](shared/shared-054-preview-audio-trennen.md) | Preview-Audio von Timer-Lifecycle trennen | 3-Refactoring | [ ] | [ ] |
+| [shared-055](shared/shared-055-endgong-phase.md) | endGong als eigene Phase | 3-Refactoring | [ ] | [ ] |
+| [shared-056](shared/shared-056-tick-emittiert-events.md) | tick() emittiert Domain Events | 3-Refactoring | [ ] | [ ] |
+| [shared-057](shared/shared-057-display-state-eliminieren.md) | TimerDisplayState eliminieren | 3-Refactoring | [ ] | shared-056 |
+| [shared-058](shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 3-Refactoring | [ ] | shared-057 |
 
 ---
 
