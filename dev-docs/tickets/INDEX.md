@@ -130,7 +130,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-034](ios/ios-034-picker-label-theme-color.md) | Fehlende Theme-Farben Settings/Tooltip | 4-Polish | [x] | - |
 | [ios-035](ios/ios-035-card-visual-separation.md) | Meditations-Cards visuell abheben | 4-Polish | [x] | - |
 | [ios-036](ios/ios-036-toggle-slider-theme-visibility.md) | Toggle/Slider Controls Theme-Sichtbarkeit | 4-Polish | [x] | - |
-| [ios-037](ios/ios-037-slow-test-time-injection.md) | Langsame Tests Time-Injection | 5-QA | [ ] | - |
+| [ios-037](ios/ios-037-slow-test-time-injection.md) | Langsame Tests Time-Injection | 5-QA | [x] | - |
 
 ---
 

@@ -1,6 +1,6 @@
 # Ticket ios-037: Langsame Tests durch Time-Injection beschleunigen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -25,16 +25,16 @@ Drei Unit-Tests warten auf echte Zeitablaeufe und verlangsamen die Test-Suite um
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Alle drei Tests laufen in unter 1 Sekunde (ohne echte Wartezeiten)
-- [ ] Bestehende Funktionalitaet bleibt unveraendert (keine Regression)
-- [ ] Zeitabhaengigkeiten sind in Tests steuerbar (keine hard-coded Delays)
+- [x] Alle drei Tests laufen in unter 1 Sekunde (ohne echte Wartezeiten)
+- [x] Bestehende Funktionalitaet bleibt unveraendert (keine Regression)
+- [x] Zeitabhaengigkeiten sind in Tests steuerbar (keine hard-coded Delays)
 
 ### Tests
-- [ ] Bestehende Tests bleiben gruen
-- [ ] Neue Tests nutzen kontrollierte Zeit statt echte Wartezeiten
+- [x] Bestehende Tests bleiben gruen
+- [x] Neue Tests nutzen kontrollierte Zeit statt echte Wartezeiten
 
 ### Dokumentation
-- [ ] CHANGELOG.md (nicht noetig — nur interne Test-Aenderung)
+- [x] CHANGELOG.md (nicht noetig — nur interne Test-Aenderung)
 
 ---
 
