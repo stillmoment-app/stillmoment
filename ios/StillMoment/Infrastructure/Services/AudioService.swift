@@ -487,11 +487,39 @@ final class AudioService: AudioServiceProtocol {
 
         // Stop and clean up after fade completes
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.fadeOutDuration) { [weak self] in
-            self?.backgroundPreviewPlayer?.stop()
-            self?.backgroundPreviewPlayer = nil
+            self?.cleanupPreviewPlayers()
             self?.coordinator.releaseAudioSession(for: .preview)
             Logger.audio.debug("Background preview fade-out complete")
         }
+    }
+}
+
+// MARK: - Player Cleanup
+
+private extension AudioService {
+    /// Cleans up all preview players without releasing the audio session.
+    /// Used by conflict handler and fade-out completion.
+    func cleanupPreviewPlayers() {
+        self.previewPlayer?.stop()
+        self.previewPlayer = nil
+        self.backgroundPreviewTimer?.invalidate()
+        self.backgroundPreviewTimer = nil
+        self.backgroundPreviewPlayer?.stop()
+        self.backgroundPreviewPlayer = nil
+    }
+
+    /// Cleans up all timer players (including keep-alive) without releasing the audio session.
+    /// Used by conflict handler when another source takes over.
+    func cleanupTimerPlayers() {
+        self.timerSessionActive = false
+        self.audioPlayer?.stop()
+        self.audioPlayer = nil
+        self.introductionPlayer?.stop()
+        self.introductionPlayer = nil
+        self.backgroundAudioPlayer?.stop()
+        self.backgroundAudioPlayer = nil
+        self.keepAlivePlayer?.stop()
+        self.keepAlivePlayer = nil
     }
 }
 
@@ -506,15 +534,7 @@ private extension AudioService {
             }
 
             Logger.audio.info("Timer audio stopping - another source became active")
-            self.timerSessionActive = false
-            self.audioPlayer?.stop()
-            self.introductionPlayer?.stop()
-            self.backgroundAudioPlayer?.stop()
-            self.keepAlivePlayer?.stop()
-            self.audioPlayer = nil
-            self.introductionPlayer = nil
-            self.backgroundAudioPlayer = nil
-            self.keepAlivePlayer = nil
+            self.cleanupTimerPlayers()
         }
 
         self.coordinator.registerConflictHandler(for: .preview) { [weak self] in
@@ -523,12 +543,7 @@ private extension AudioService {
             }
 
             Logger.audio.info("Preview audio stopping - another source became active")
-            self.previewPlayer?.stop()
-            self.previewPlayer = nil
-            self.backgroundPreviewTimer?.invalidate()
-            self.backgroundPreviewTimer = nil
-            self.backgroundPreviewPlayer?.stop()
-            self.backgroundPreviewPlayer = nil
+            self.cleanupPreviewPlayers()
         }
     }
 }
