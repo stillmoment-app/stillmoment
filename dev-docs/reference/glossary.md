@@ -19,6 +19,7 @@ Last Updated: 2026-02-22
 | `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `IntervalMode` | Enum | Timer | Intervallmodus (REPEATING, AFTER_START, BEFORE_END) |
+| `IntervalSettings` | Value Object | Timer | Intervall-Gong-Konfiguration fuer tick() |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation. Im Code aktuell noch `Introduction` (Rename-Ticket pending). |
@@ -30,6 +31,7 @@ Last Updated: 2026-02-22
 | `TimerAction` | Enum | Timer | Benutzer-Aktionen und System-Events |
 | `TimerDisplayState` | Value Object | Timer | Aggregierter UI-Zustand |
 | `TimerEffect` | Enum | Timer | Side Effects des Reducers |
+| `TimerEvent` | Enum | Timer | Domain Events aus tick() (preparationCompleted, meditationCompleted, intervalGongDue) |
 | `TimerState` | Enum | Timer | Zustandsautomat (Idle/Running/etc.) |
 
 ---
@@ -106,14 +108,60 @@ Pfade:
 | `introductionFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
 | `timerCompleted` | Timer bei 0 angekommen, wechselt zu endGong-Phase |
 | `endGongFinished` | Completion-Gong fertig abgespielt (Audio-Callback), wechselt zu completed |
-| `intervalGongTriggered` | Intervall-Gong soll spielen |
-| `intervalGongPlayed` | Intervall-Gong wurde gespielt |
+| `intervalGongTriggered` | Intervall-Gong soll spielen (ausgeloest durch TimerEvent.intervalGongDue) |
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/TimerAction.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/TimerAction.kt`
 
 **Siehe auch:** TimerReducer (Pattern in `../architecture/ddd.md`)
+
+---
+
+### TimerEvent
+
+**Typ:** Enum
+**Pattern:** Domain Event
+
+**Beschreibung:**
+Domain Events, die von `MeditationTimer.tick()` emittiert werden. Druecken aus, was waehrend eines Ticks passiert ist. Das ViewModel verarbeitet Events direkt statt Transitions via `previousState`-Vergleich zu erkennen.
+
+**Events:**
+
+| Event | Beschreibung |
+|-------|--------------|
+| `preparationCompleted` | Vorbereitung abgeschlossen, StartGong-Phase beginnt |
+| `meditationCompleted` | Timer bei 0, EndGong-Phase beginnt |
+| `intervalGongDue` | Intervall-Gong ist faellig (tick() hat lastIntervalGongAt intern markiert) |
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/TimerEvent.swift`
+- Android: (geplant)
+
+**Siehe auch:** `MeditationTimer.tick()`, `IntervalSettings`
+
+---
+
+### IntervalSettings
+
+**Typ:** Value Object
+**Pattern:** Configuration Object
+
+**Beschreibung:**
+Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(intervalSettings:)` uebergeben wird. Wird aus `MeditationSettings` aufgebaut wenn Intervall-Gongs aktiviert sind, sonst `nil`.
+
+**Properties:**
+
+| Property | Typ | Beschreibung |
+|----------|-----|--------------|
+| `intervalMinutes` | Int | Intervall in Minuten (z.B. 5 fuer alle 5 Minuten) |
+| `mode` | IntervalMode | Intervallmodus (repeating, afterStart, beforeEnd) |
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/IntervalSettings.swift`
+- Android: (geplant)
+
+**Siehe auch:** `IntervalMode`, `MeditationSettings.intervalMinutes`
 
 ---
 
@@ -169,7 +217,7 @@ Pfade:
 
 | Methode | Beschreibung |
 |---------|--------------|
-| `tick()` | Neue Instanz mit Zeit-1 |
+| `tick(intervalSettings:)` | Neue Instanz mit Zeit-1 und Domain Events `(MeditationTimer, [TimerEvent])` |
 | `withState(_:)` | Neue Instanz mit neuem State |
 | `startPreparation()` | Neue Instanz im Vorbereitungsmodus |
 | `endIntroduction()` | Neue Instanz im Running-State nach Einstimmung, setzt `silentPhaseStartRemaining` |
@@ -207,7 +255,6 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | `remainingPreparationSeconds` | Int | Verbleibende Vorbereitungszeit |
 | `progress` | Double | Fortschritt 0.0-1.0 |
 | `currentAffirmationIndex` | Int | Aktuelle Affirmation |
-| `intervalGongPlayedForCurrentInterval` | Bool | Gong bereits gespielt? |
 
 **Computed Properties:**
 
@@ -641,8 +688,7 @@ idle --> preparation --> finished --> (MP3 playback)
 | `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
 | `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
 | `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted`, `endGongFinished` | System-Event |
-| `nounVerbTriggered` | `intervalGongTriggered` | Internes Event |
-| `nounVerbPlayed` | `intervalGongPlayed` | Bestaetigung |
+| `nounVerbTriggered` | `intervalGongTriggered` | Internes Event (von TimerEvent ausgeloest) |
 
 ### Effects (TimerEffect)
 

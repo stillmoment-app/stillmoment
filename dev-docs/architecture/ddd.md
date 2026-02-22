@@ -28,7 +28,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 
 **System-Ereignisse** (Verb + Past Participle):
 - `preparationFinished`, `introductionFinished`, `timerCompleted`
-- `intervalGongTriggered`, `intervalGongPlayed`
+- `intervalGongTriggered` (ausgeloest durch TimerEvent.intervalGongDue)
 
 ---
 
@@ -182,35 +182,28 @@ Waehrend der Timer im `Running`-Zustand ist, werden Intervall-Gongs in regelmaes
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                            Running State                                 │
 │                                                                          │
-│   ┌─────────┐  shouldPlayIntervalGong()  ┌────────────────────────┐     │
-│   │ Waiting │────────── true ───────────►│ intervalGongTriggered  │     │
-│   │         │                            │  → playIntervalGong    │     │
-│   └─────────┘                            └────────────────────────┘     │
-│        ▲                                              │                  │
-│        │         intervalGongPlayed                   │                  │
-│        │     (nach Audio-Playback abgeschlossen)      │                  │
-│        └──────────────────────────────────────────────┘                  │
+│   tick(intervalSettings:)                                                │
+│     ├── shouldPlayIntervalGong() == true?                                │
+│     │     ├── markIntervalGongPlayed() (intern)                          │
+│     │     └── emit TimerEvent.intervalGongDue                            │
+│     └── ViewModel dispatcht .intervalGongTriggered → playIntervalGong    │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Zwei State-Tracking-Mechanismen:**
+**State-Tracking im Domain-Modell:**
 
-| Ebene | Property | Zweck |
-|-------|----------|-------|
-| Domain (`MeditationTimer`) | `lastIntervalGongAt` | Speichert `remainingSeconds` beim letzten Gong fuer Zeitberechnung |
-| UI (`TimerDisplayState`) | `intervalGongPlayedForCurrentInterval` | Verhindert Doppel-Gongs im selben Tick |
+| Property | Zweck |
+|----------|-------|
+| `lastIntervalGongAt` | Speichert `remainingSeconds` beim letzten Gong fuer Zeitberechnung |
 
-**Invarianten:**
-
-1. Nach jedem Gong muss `lastIntervalGongAt` auf aktuellen `remainingSeconds` gesetzt werden
-2. Nach jedem Gong muss `intervalGongPlayedForCurrentInterval` zurueckgesetzt werden
-3. Beide Mechanismen muessen zusammen verwendet werden
+**Invariante:** `tick()` ruft `markIntervalGongPlayed()` intern auf wenn es `.intervalGongDue` emittiert. Kein externer Roundtrip noetig.
 
 **Referenz:**
-- Domain-Logik: `MeditationTimer.shouldPlayIntervalGong()`, `markIntervalGongPlayed()`
-- Reducer: `TimerReducer.reduceIntervalGongTriggered()`, `reduceIntervalGongPlayed()`
-- Orchestrierung: `TimerViewModel.checkIntervalGong()` (Android), `TimerViewModel.handleTimerUpdate()` (iOS)
+- Domain-Logik: `MeditationTimer.shouldPlayIntervalGong()`, `markIntervalGongPlayed()` (intern von tick() aufgerufen)
+- Domain-Events: `TimerEvent.intervalGongDue` (emittiert von tick())
+- Reducer: `TimerReducer.reduceIntervalGong()`
+- ViewModel: `TimerViewModel.processTimerEvents()`
 
 ### Flexible Intervall-Modi
 
