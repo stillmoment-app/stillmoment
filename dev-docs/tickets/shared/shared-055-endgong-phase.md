@@ -1,6 +1,6 @@
 # Ticket shared-055: endGong als eigene Phase
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3h | Android ~3h
 **Phase**: 2-Architektur
