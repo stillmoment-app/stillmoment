@@ -52,6 +52,11 @@
     <string name="settings_preparation_description">Zeit zum Ankommen vor der Meditation</string>
     <string name="settings_preparation_duration">Dauer</string>
 
+    <!-- Introduction -->
+    <string name="settings_introduction">Einleitung</string>
+    <string name="settings_introduction_none">Keine</string>
+    <string name="accessibility_introduction_picker">Einleitung auswählen</string>
+
     <!-- Background Sounds -->
     <string name="sound_silent">Stille</string>
     <string name="sound_silent_description">Meditiere in Stille.</string>

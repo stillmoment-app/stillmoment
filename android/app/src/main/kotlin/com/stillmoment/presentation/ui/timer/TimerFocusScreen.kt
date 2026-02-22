@@ -74,7 +74,7 @@ private val runningAffirmations = intArrayOf(
  * Timer Focus Screen - Distraction-free view during active meditation.
  *
  * Shows only the timer display and controls without navigation elements.
- * Automatically closes when meditation completes or is reset.
+ * Closes when user taps the close button or resets the timer.
  */
 @Composable
 fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: TimerViewModel = hiltViewModel()) {
@@ -92,8 +92,9 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
     }
 
     // Navigate back when timer returns to Idle after being active
+    val activeStates = setOf(TimerState.Preparation, TimerState.StartGong, TimerState.Introduction, TimerState.Running)
     LaunchedEffect(uiState.timerState) {
-        if (uiState.timerState == TimerState.Preparation || uiState.timerState == TimerState.Running) {
+        if (uiState.timerState in activeStates) {
             wasActive = true
         }
         if (wasActive && uiState.timerState == TimerState.Idle) {
@@ -253,7 +254,7 @@ private fun getStateText(state: TimerState, affirmationIndex: Int): String {
             val index = affirmationIndex % preparationAffirmations.size
             stringResource(preparationAffirmations[index])
         }
-        TimerState.Running -> {
+        TimerState.StartGong, TimerState.Introduction, TimerState.Running -> {
             val index = affirmationIndex % runningAffirmations.size
             stringResource(runningAffirmations[index])
         }

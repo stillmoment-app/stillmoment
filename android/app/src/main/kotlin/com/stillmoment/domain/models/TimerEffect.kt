@@ -33,10 +33,33 @@ sealed class TimerEffect {
     /** Play the completion sound (meditation ends) */
     data class PlayCompletionSound(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
 
+    // MARK: - Introduction Effects
+
+    /** Play introduction audio (after start gong, before silent meditation) */
+    data class PlayIntroduction(val introductionId: String) : TimerEffect()
+
+    /** Stop introduction audio (on reset or timer completed during introduction) */
+    data object StopIntroduction : TimerEffect()
+
+    /** Signal the timer repository to start the introduction phase (sync timer model state) */
+    data object StartIntroductionPhase : TimerEffect()
+
+    /** Signal the timer repository to end the introduction phase */
+    data object EndIntroductionPhase : TimerEffect()
+
+    // MARK: - Background Audio Effects
+
+    /** Start background audio (ambient sound) — only when entering Running state */
+    data class StartBackgroundAudio(val soundId: String, val soundVolume: Float) : TimerEffect()
+
     // MARK: - Timer Repository Effects
 
-    /** Start the timer with given duration and preparation time */
-    data class StartTimer(val durationMinutes: Int, val preparationTimeSeconds: Int = 15) : TimerEffect()
+    /** Start the timer with given duration, preparation time, and optional introduction duration */
+    data class StartTimer(
+        val durationMinutes: Int,
+        val preparationTimeSeconds: Int = 15,
+        val introductionDurationSeconds: Int = 0
+    ) : TimerEffect()
 
     /** Reset the timer */
     data object ResetTimer : TimerEffect()

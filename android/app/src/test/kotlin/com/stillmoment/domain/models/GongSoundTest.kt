@@ -104,9 +104,9 @@ class GongSoundTest {
     // MARK: - Localized Name Tests
 
     @Test
-    fun `all sounds have valid rawResId`() {
+    fun `all sounds have valid rawResourceName`() {
         for (sound in GongSound.allSounds) {
-            assertTrue(sound.rawResId != 0, "Sound ${sound.id} has invalid rawResId")
+            assertTrue(sound.rawResourceName.isNotBlank(), "Sound ${sound.id} has blank rawResourceName")
         }
     }
 

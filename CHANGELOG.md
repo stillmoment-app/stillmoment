@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added (iOS)
+### Added (iOS & Android)
 - **Optionale Einleitung fuer Meditationstimer** - Gefuehrte Einleitung (z.B. Atemuebung) vor der stillen Meditation
   - Neue Section "Einleitung" in den Timer-Einstellungen (zwischen Gong und Intervallklaenge)
   - Erste Einleitung: "Atemuebung" (ID: breath, Dauer: 1:35, Deutsch)

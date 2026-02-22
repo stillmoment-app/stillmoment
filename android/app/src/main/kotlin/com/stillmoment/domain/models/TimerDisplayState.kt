@@ -47,6 +47,7 @@ data class TimerDisplayState(
             if (isPreparation) {
                 "$remainingPreparationSeconds"
             } else {
+                // StartGong and Introduction show same format as Running (MM:SS)
                 val minutes = remainingSeconds / 60
                 val seconds = remainingSeconds % 60
                 String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
@@ -58,10 +59,11 @@ data class TimerDisplayState(
 
         /**
          * Creates a state with custom selected minutes (for loading from settings).
+         * Validates against introduction minimum duration when introductionId is provided.
          */
-        fun withDuration(minutes: Int): TimerDisplayState {
+        fun withDuration(minutes: Int, introductionId: String? = null): TimerDisplayState {
             return Initial.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes)
+                selectedMinutes = MeditationSettings.validateDuration(minutes, introductionId)
             )
         }
     }

@@ -17,6 +17,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -50,12 +53,20 @@ constructor(
     }
 
     private var gongPlayer: MediaPlayerProtocol? = null
+    private var introductionPlayer: MediaPlayerProtocol? = null
     private var backgroundPlayer: MediaPlayerProtocol? = null
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
+
+    // Completion flows for ViewModel to observe
+    private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val gongCompletionFlow: SharedFlow<Unit> = _gongCompletionFlow.asSharedFlow()
+
+    private val _introductionCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val introductionCompletionFlow: SharedFlow<Unit> = _introductionCompletionFlow.asSharedFlow()
 
     companion object {
         private const val TAG = "AudioService"
@@ -74,6 +85,26 @@ constructor(
 
         /** Default volume for ambient/background sounds (0.0 to 1.0) */
         private const val DEFAULT_AMBIENT_VOLUME = 0.15f
+
+        /** Volume for introduction audio playback */
+        private const val INTRODUCTION_VOLUME = 0.9f
+
+        /**
+         * Resolves a raw resource name to its Android resource ID.
+         * @param name The resource name (e.g., "gong_temple_bell")
+         * @return Resource ID or 0 if not found
+         */
+        fun resolveRawResourceId(name: String): Int = when (name) {
+            "gong_temple_bell" -> R.raw.gong_temple_bell
+            "gong_classic_bowl" -> R.raw.gong_classic_bowl
+            "gong_deep_resonance" -> R.raw.gong_deep_resonance
+            "gong_clear_strike" -> R.raw.gong_clear_strike
+            "interval" -> R.raw.interval
+            "intro_breath_de" -> R.raw.intro_breath_de
+            "forest_ambience" -> R.raw.forest_ambience
+            "silence" -> R.raw.silence
+            else -> 0
+        }
 
         /**
          * Maps a background sound ID to its resource ID.
@@ -99,12 +130,14 @@ constructor(
         try {
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
+            val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
-            gongPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+            gongPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
                     gongPlayer = null
+                    _gongCompletionFlow.tryEmit(Unit)
                 }
                 start()
             }
@@ -124,8 +157,9 @@ constructor(
         try {
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
+            val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
-            gongPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+            gongPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
@@ -153,8 +187,9 @@ constructor(
             stopBackgroundPreview()
 
             val gongSound = GongSound.findOrDefault(soundId)
+            val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
-            previewPlayer = mediaPlayerFactory.createFromResource(gongSound.rawResId)?.apply {
+            previewPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
@@ -182,6 +217,55 @@ constructor(
             previewPlayer = null
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to stop gong preview - invalid state: ${e.message}")
+        }
+    }
+
+    // MARK: - Introduction Playback
+
+    /**
+     * Play introduction audio from a raw resource name.
+     *
+     * @param resourceName Raw resource name for the introduction audio (e.g., "intro_breath_de")
+     * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
+     */
+    fun playIntroduction(resourceName: String, volume: Float = INTRODUCTION_VOLUME) {
+        try {
+            stopIntroduction()
+            val resourceId = resolveRawResourceId(resourceName)
+            if (resourceId == 0) {
+                logger.e(TAG, "Unknown introduction resource: $resourceName")
+                return
+            }
+            val clampedVolume = volume.coerceIn(0f, 1f)
+            introductionPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+                setVolume(clampedVolume, clampedVolume)
+                setOnCompletionListener {
+                    release()
+                    introductionPlayer = null
+                    _introductionCompletionFlow.tryEmit(Unit)
+                }
+                start()
+            }
+            logger.d(TAG, "Playing introduction audio, volume: $clampedVolume")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play introduction - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Stop introduction audio. Idempotent.
+     */
+    fun stopIntroduction() {
+        try {
+            introductionPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            introductionPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop introduction - invalid state: ${e.message}")
         }
     }
 
@@ -417,6 +501,7 @@ constructor(
      */
     fun release() {
         releaseGongPlayer()
+        stopIntroduction()
         stopGongPreview()
         stopBackgroundPreview()
         stopBackgroundAudio()

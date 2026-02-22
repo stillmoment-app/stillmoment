@@ -35,7 +35,7 @@ Flexible Sound-Sammlung via JSON-Konfiguration (`sounds.json`):
 
 | Sound ID | Datei | Lautstaerke | Beschreibung |
 |----------|-------|-------------|--------------|
-| `silent` | `silence.m4a` | 0.15 | Leise aber hoerbar |
+| `silent` | `silence.mp3` | 0.15 | Leise aber hoerbar |
 | `forest` | `forest-ambience.mp3` | 0.15 | Natuerliche Waldgeraeusche |
 
 Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`.
@@ -44,9 +44,9 @@ Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`
 
 - Background Mode in `Info.plist` (`UIBackgroundModes: audio`)
 - Audio Session: `.playback` Kategorie ohne `.mixWithOthers`
-- Hintergrund-Audio startet bei Introduction→Running oder Preparation→Running Uebergang
-- Bei konfigurierter Einleitung: Einleitungs-Audio haelt Audio-Session waehrend Introduction-Phase aktiv
-- Hintergrund-Audio stoppt bei Timer-Ende oder Reset
+- **Keep-Alive**: `configureAudioSession()` startet intern einen stillen Audio-Loop (`silence.mp3`), der die Audio-Session waehrend Preparation, Start-Gong und Introduction am Leben haelt (siehe ADR-004)
+- Hintergrund-Audio (`startBackgroundAudio`) ersetzt den Keep-Alive-Loop beim Uebergang zu Running
+- Bei Timer-Ende oder Reset wird alles gestoppt (inkl. Keep-Alive)
 
 ---
 
@@ -118,13 +118,15 @@ Die Einleitung ist eine eigene Phase in der Timer State Machine (`TimerState.int
 ### Ablauf
 
 ```
+Keep-Alive Audio: ═══════════════════════════════════════╗
+                                                         ║ (ersetzt durch Background Audio)
 Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Background Audio + Running
      │              │                         │                       │
      │              │                         │                       └─ Intervall-Gongs zaehlen ab hier
-     │              │                         └─ Audio-Session aktiv via Einleitungs-Audio
+     │              │                         └─ Audio-Session aktiv via Einleitungs-Audio + Keep-Alive
      │              └─ Gong spielt beim Uebergang preparation→introduction
      │                 Einleitung wartet auf Gong-Ende (startGongFinished Action)
-     └─ Visuelle Vorbereitung (kein Audio)
+     └─ Audio-Session aktiv via Keep-Alive Audio
 ```
 
 **Sequenzierung:** Der Start-Gong und die Einleitung spielen **nicht gleichzeitig**. Die Einleitung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playIntroduction`.
@@ -140,13 +142,37 @@ Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Backgr
 | **Audio-Unterbrechung** | Einleitung setzt nach Unterbrechung fort, Timer laeuft weiter |
 | **Timer laeuft ab** | Einleitung wird abgeschnitten, Abschluss-Gong spielt |
 | **Reset/Close** | `stopIntroduction` Effect stoppt Einleitung sofort |
-| **Lock Screen** | Uebergang Introduction→Running funktioniert bei gesperrtem Bildschirm |
+| **Lock Screen** | Keep-Alive Audio haelt App waehrend aller Phasen wach (siehe ADR-004) |
 
 ### Audio-Assets
 
 Namenskonvention: `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
 
 Einleitungen sind App-Bundle-Assets (nicht user-importierbar). Registry in `Introduction.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster.
+
+---
+
+## Timer Keep-Alive Audio
+
+### Problem
+
+Waehrend Preparation, Start-Gong-Uebergang und Introduction→Running-Uebergang laeuft kein hoerbarer Audio-Stream. iOS suspendiert die App wenn keine aktive Audio-Wiedergabe vorhanden ist.
+
+### Loesung
+
+AudioService spielt intern `silence.mp3` in einer Schleife sobald `configureAudioSession()` aufgerufen wird. Dieser Keep-Alive-Loop wird automatisch durch den echten Background-Sound ersetzt wenn `startBackgroundAudio()` aufgerufen wird.
+
+**Wichtig:** Der Reducer weiss nichts vom Keep-Alive. Er emittiert dieselben Effects wie bisher. Das Keep-Alive ist ein reines Infrastructure-Detail.
+
+### Analogie zu Guided Meditations
+
+Das gleiche Pattern existiert bereits fuer Guided Meditations:
+- `AudioPlayerService.startSilentBackgroundAudio()` waehrend Vorbereitungs-Countdown
+- `stopSilentBackgroundAudio()` vor MP3-Playback-Start
+
+### Delegate-Absicherung
+
+Audio-Player-Delegates feuern auch bei `successfully: false` (z.B. Audio-Interruption). Verhindert dass die State Machine in `.startGong` oder `.introduction` haengen bleibt.
 
 ---
 
@@ -384,5 +410,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-02-21
-**Version**: 2.3
+**Zuletzt aktualisiert**: 2026-02-22
+**Version**: 2.4

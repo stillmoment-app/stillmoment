@@ -1,5 +1,6 @@
 package com.stillmoment.domain.services
 
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerDisplayState
@@ -75,6 +76,52 @@ class TimerReducerTest {
             // Then
             assertEquals(60, newState.selectedMinutes)
         }
+
+        @Test
+        fun `clamps duration to introduction minimum when introduction active`() {
+            // Given — breath introduction requires minimum 3 minutes
+            Introduction.languageOverride = "de"
+            try {
+                val state = TimerDisplayState.Initial
+                val settings = defaultSettings.copy(introductionId = "breath")
+
+                // When — select 1 minute (below minimum of 3)
+                val (newState, _) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.SelectDuration(1),
+                        settings
+                    )
+
+                // Then — clamped to 3
+                assertEquals(3, newState.selectedMinutes)
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `preserves valid duration with introduction active`() {
+            // Given
+            Introduction.languageOverride = "de"
+            try {
+                val state = TimerDisplayState.Initial
+                val settings = defaultSettings.copy(introductionId = "breath")
+
+                // When — select 10 minutes (above minimum of 3)
+                val (newState, _) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.SelectDuration(10),
+                        settings
+                    )
+
+                // Then — preserved
+                assertEquals(10, newState.selectedMinutes)
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
     }
 
     // MARK: - StartPressed Tests
@@ -101,8 +148,8 @@ class TimerReducerTest {
             assertFalse(newState.intervalGongPlayedForCurrentInterval)
             assertEquals(1, newState.currentAffirmationIndex) // Rotated from 0
 
-            // Verify effects
-            assertTrue(effects.any { it is TimerEffect.StartForegroundService && it.soundId == "forest" })
+            // Verify effects — foreground service always starts with "silent" (background audio starts later)
+            assertTrue(effects.any { it is TimerEffect.StartForegroundService && it.soundId == "silent" })
             assertTrue(effects.contains(TimerEffect.StartTimer(15)))
             assertTrue(effects.any { it is TimerEffect.SaveSettings })
         }
@@ -204,9 +251,9 @@ class TimerReducerTest {
                     settings
                 )
 
-            // Then
+            // Then — foreground service always starts with "silent", volume is still passed
             val serviceEffect = effects.filterIsInstance<TimerEffect.StartForegroundService>().first()
-            assertEquals("forest", serviceEffect.soundId)
+            assertEquals("silent", serviceEffect.soundId)
             assertEquals(customVolume, serviceEffect.soundVolume)
         }
 
@@ -233,7 +280,7 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `skips preparation and goes directly to running when disabled`() {
+        fun `skips preparation and goes directly to start gong when disabled`() {
             // Given
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
             val settings = defaultSettings.copy(preparationTimeEnabled = false)
@@ -246,8 +293,8 @@ class TimerReducerTest {
                     settings
                 )
 
-            // Then - Should go directly to Running, not Preparation
-            assertEquals(TimerState.Running, newState.timerState)
+            // Then - Should go directly to StartGong (gong plays immediately), not Preparation
+            assertEquals(TimerState.StartGong, newState.timerState)
             assertEquals(0, newState.remainingPreparationSeconds)
         }
 
@@ -342,6 +389,45 @@ class TimerReducerTest {
             assertEquals(TimerState.Idle, newState.timerState)
             assertFalse(effects.isEmpty())
         }
+
+        @Test
+        fun `does not stop introduction when resetting from StartGong`() {
+            // Given — still in StartGong, introduction not yet started
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.StartGong)
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings
+                )
+
+            // Then — no StopIntroduction since we never entered Introduction
+            assertFalse(effects.any { it is TimerEffect.StopIntroduction })
+            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+            assertTrue(effects.contains(TimerEffect.ResetTimer))
+        }
+
+        @Test
+        fun `stops introduction when resetting during introduction`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Introduction)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings
+                )
+
+            // Then
+            assertEquals(TimerState.Idle, newState.timerState)
+            assertTrue(effects.any { it is TimerEffect.StopIntroduction })
+            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+            assertTrue(effects.contains(TimerEffect.ResetTimer))
+        }
     }
 
     // MARK: - Tick Tests
@@ -405,7 +491,7 @@ class TimerReducerTest {
     @Nested
     inner class PreparationFinished {
         @Test
-        fun `transitions to running and plays start gong`() {
+        fun `transitions to start gong and plays start gong`() {
             // Given
             val state = TimerDisplayState.Initial.copy(timerState = TimerState.Preparation)
 
@@ -418,7 +504,7 @@ class TimerReducerTest {
                 )
 
             // Then
-            assertEquals(TimerState.Running, newState.timerState)
+            assertEquals(TimerState.StartGong, newState.timerState)
             assertEquals(1, effects.size)
             assertTrue(effects[0] is TimerEffect.PlayStartGong)
         }
@@ -440,6 +526,144 @@ class TimerReducerTest {
             // Then
             val gongEffect = effects.filterIsInstance<TimerEffect.PlayStartGong>().first()
             assertEquals("clear-strike", gongEffect.gongSoundId)
+        }
+    }
+
+    // MARK: - StartGongFinished Tests
+
+    @Nested
+    inner class StartGongFinished {
+        @Test
+        fun `transitions to running without introduction`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.StartGong)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartGongFinished,
+                    defaultSettings
+                )
+
+            // Then — no introduction configured, go directly to Running
+            assertEquals(TimerState.Running, newState.timerState)
+            assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
+        }
+
+        @Test
+        fun `transitions to introduction when configured`() {
+            // Given
+            Introduction.languageOverride = "de"
+            try {
+                val state = TimerDisplayState.Initial.copy(timerState = TimerState.StartGong)
+                val settings = defaultSettings.copy(introductionId = "breath")
+
+                // When
+                val (newState, effects) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.StartGongFinished,
+                        settings
+                    )
+
+                // Then
+                assertEquals(TimerState.Introduction, newState.timerState)
+                assertTrue(effects.any { it is TimerEffect.StartIntroductionPhase })
+                assertTrue(effects.any { it is TimerEffect.PlayIntroduction })
+                val introEffect = effects.filterIsInstance<TimerEffect.PlayIntroduction>().first()
+                assertEquals("breath", introEffect.introductionId)
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `does nothing when not in StartGong state`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartGongFinished,
+                    defaultSettings
+                )
+
+            // Then
+            assertEquals(state, newState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `starts background audio when no introduction`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.StartGong)
+            val settings = defaultSettings.copy(
+                backgroundSoundId = "forest",
+                backgroundSoundVolume = 0.5f
+            )
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartGongFinished,
+                    settings
+                )
+
+            // Then
+            val audioEffect = effects.filterIsInstance<TimerEffect.StartBackgroundAudio>().first()
+            assertEquals("forest", audioEffect.soundId)
+            assertEquals(0.5f, audioEffect.soundVolume)
+        }
+    }
+
+    // MARK: - IntroductionFinished Tests
+
+    @Nested
+    inner class IntroductionFinished {
+        @Test
+        fun `transitions to running and starts background audio`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Introduction)
+            val settings = defaultSettings.copy(
+                backgroundSoundId = "forest",
+                backgroundSoundVolume = 0.3f
+            )
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntroductionFinished,
+                    settings
+                )
+
+            // Then
+            assertEquals(TimerState.Running, newState.timerState)
+            assertTrue(effects.any { it is TimerEffect.StopIntroduction })
+            assertTrue(effects.any { it is TimerEffect.EndIntroductionPhase })
+            assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
+        }
+
+        @Test
+        fun `does nothing when not in Introduction state`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.IntroductionFinished,
+                    defaultSettings
+                )
+
+            // Then
+            assertEquals(state, newState)
+            assertTrue(effects.isEmpty())
         }
     }
 
@@ -469,6 +693,44 @@ class TimerReducerTest {
             assertEquals(1.0f, newState.progress)
             assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
+        }
+
+        @Test
+        fun `stops introduction when timer expires during introduction`() {
+            // Given — timer is still in Introduction phase when it reaches zero
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Introduction)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    defaultSettings
+                )
+
+            // Then — should complete, stop introduction, play completion sound
+            assertEquals(TimerState.Completed, newState.timerState)
+            assertTrue(effects.any { it is TimerEffect.StopIntroduction })
+            assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
+            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+        }
+
+        @Test
+        fun `does not stop introduction when completing from Running`() {
+            // Given — timer completes normally from Running (introduction already finished)
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
+
+            // When
+            val (_, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.TimerCompleted,
+                    defaultSettings
+                )
+
+            // Then — no StopIntroduction since we were in Running, not Introduction
+            assertFalse(effects.any { it is TimerEffect.StopIntroduction })
+            assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
         }
 
         @Test
@@ -638,7 +900,7 @@ class TimerReducerTest {
                 )
             state = startState
 
-            // Then - Should transition to Countdown and have start effects
+            // Then - Should transition to Preparation and have start effects
             assertEquals(TimerState.Preparation, state.timerState)
             assertEquals(15, state.remainingPreparationSeconds)
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
@@ -654,18 +916,27 @@ class TimerReducerTest {
             state = countdownState
             assertEquals(TimerState.Preparation, state.timerState)
 
-            // When - Countdown finished
-            val (runningState, runningEffects) =
+            // When - Preparation finished → StartGong
+            val (startGongState, startGongEffects) =
                 TimerReducer.reduce(
                     state,
                     TimerAction.PreparationFinished,
                     settings
                 )
-            state = runningState
+            state = startGongState
+            assertEquals(TimerState.StartGong, state.timerState)
+            assertTrue(startGongEffects.any { it is TimerEffect.PlayStartGong })
 
-            // Then
+            // When - Start gong finished → Running (no introduction)
+            val (runningState, runningEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartGongFinished,
+                    settings
+                )
+            state = runningState
             assertEquals(TimerState.Running, state.timerState)
-            assertTrue(runningEffects.any { it is TimerEffect.PlayStartGong })
+            assertTrue(runningEffects.any { it is TimerEffect.StartBackgroundAudio })
 
             // When - Timer completed
             val (completedState, completedEffects) =
@@ -694,7 +965,7 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `full cycle without preparation time skips directly to running`() {
+        fun `full cycle without preparation time skips directly to start gong`() {
             // Given - Start in idle with preparation disabled
             var state = TimerDisplayState.Initial.copy(selectedMinutes = 1)
             val settings = defaultSettings.copy(preparationTimeEnabled = false)
@@ -708,13 +979,23 @@ class TimerReducerTest {
                 )
             state = startState
 
-            // Then - Should go directly to Running, not Preparation
-            assertEquals(TimerState.Running, state.timerState)
+            // Then - Should go directly to StartGong, not Preparation
+            assertEquals(TimerState.StartGong, state.timerState)
             assertEquals(0, state.remainingPreparationSeconds)
             assertTrue(startEffects.any { it is TimerEffect.PlayStartGong })
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
 
-            // When - Timer completed (no PreparationFinished needed)
+            // When - Start gong finished → Running
+            val (runningState, _) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.StartGongFinished,
+                    settings
+                )
+            state = runningState
+            assertEquals(TimerState.Running, state.timerState)
+
+            // When - Timer completed
             val (completedState, completedEffects) =
                 TimerReducer.reduce(
                     state,
@@ -725,6 +1006,73 @@ class TimerReducerTest {
             // Then
             assertEquals(TimerState.Completed, completedState.timerState)
             assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
+        }
+
+        @Test
+        fun `full cycle with introduction`() {
+            Introduction.languageOverride = "de"
+            try {
+                // Given - Start with introduction configured
+                var state = TimerDisplayState.Initial.copy(selectedMinutes = 3)
+                val settings = defaultSettings.copy(introductionId = "breath")
+
+                // When - Start
+                val (startState, _) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.StartPressed,
+                        settings
+                    )
+                state = startState
+                assertEquals(TimerState.Preparation, state.timerState)
+
+                // When - Preparation finished → StartGong
+                val (startGongState, _) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.PreparationFinished,
+                        settings
+                    )
+                state = startGongState
+                assertEquals(TimerState.StartGong, state.timerState)
+
+                // When - Start gong finished → Introduction (because introduction is configured)
+                val (introState, introEffects) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.StartGongFinished,
+                        settings
+                    )
+                state = introState
+                assertEquals(TimerState.Introduction, state.timerState)
+                assertTrue(introEffects.any { it is TimerEffect.StartIntroductionPhase })
+                assertTrue(introEffects.any { it is TimerEffect.PlayIntroduction })
+
+                // When - Introduction finished → Running
+                val (runningState, runningEffects) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.IntroductionFinished,
+                        settings
+                    )
+                state = runningState
+                assertEquals(TimerState.Running, state.timerState)
+                assertTrue(runningEffects.any { it is TimerEffect.StopIntroduction })
+                assertTrue(runningEffects.any { it is TimerEffect.EndIntroductionPhase })
+                assertTrue(runningEffects.any { it is TimerEffect.StartBackgroundAudio })
+
+                // When - Timer completed
+                val (completedState, completedEffects) =
+                    TimerReducer.reduce(
+                        state,
+                        TimerAction.TimerCompleted,
+                        settings
+                    )
+                assertEquals(TimerState.Completed, completedState.timerState)
+                assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
+            } finally {
+                Introduction.languageOverride = null
+            }
         }
     }
 }

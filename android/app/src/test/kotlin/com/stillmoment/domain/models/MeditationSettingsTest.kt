@@ -418,6 +418,11 @@ class MeditationSettingsTest {
         assertEquals("interval_from_end", MeditationSettingsKeys.LEGACY_INTERVAL_FROM_END)
     }
 
+    @Test
+    fun `INTRODUCTION_ID key has expected value`() {
+        assertEquals("introductionId", MeditationSettingsKeys.INTRODUCTION_ID)
+    }
+
     // MARK: - Interval Gong Volume Tests
 
     @Test
@@ -489,5 +494,72 @@ class MeditationSettingsTest {
         assertTrue(IntervalMode.REPEATING.isRepeating)
         assertFalse(IntervalMode.AFTER_START.isRepeating)
         assertFalse(IntervalMode.BEFORE_END.isRepeating)
+    }
+
+    // MARK: - Introduction Tests
+
+    @Test
+    fun `default introductionId is null`() {
+        assertEquals(null, MeditationSettings.Default.introductionId)
+        assertEquals(null, MeditationSettings().introductionId)
+    }
+
+    @Test
+    fun `minimumDuration without introduction returns 1`() {
+        assertEquals(1, MeditationSettings.minimumDuration(null))
+    }
+
+    @Test
+    fun `minimumDuration with breath introduction returns 3`() {
+        // breath: 95s → ceil(95/60) + 1 = ceil(1.583) + 1 = 2 + 1 = 3
+        assertEquals(3, MeditationSettings.minimumDuration("breath"))
+    }
+
+    @Test
+    fun `minimumDuration with unknown introduction returns 1`() {
+        assertEquals(1, MeditationSettings.minimumDuration("nonexistent"))
+    }
+
+    @Test
+    fun `validateDuration with introduction enforces minimum`() {
+        // breath min = 3 → requesting 1 should clamp to 3
+        assertEquals(3, MeditationSettings.validateDuration(1, "breath"))
+        assertEquals(3, MeditationSettings.validateDuration(2, "breath"))
+        assertEquals(3, MeditationSettings.validateDuration(3, "breath"))
+        assertEquals(10, MeditationSettings.validateDuration(10, "breath"))
+    }
+
+    @Test
+    fun `validateDuration without introduction allows 1`() {
+        assertEquals(1, MeditationSettings.validateDuration(1, null))
+    }
+
+    @Test
+    fun `create with introductionId`() {
+        val settings = MeditationSettings.create(introductionId = "breath")
+        assertEquals("breath", settings.introductionId)
+    }
+
+    @Test
+    fun `create with introductionId enforces minimum duration`() {
+        // breath min = 3 → duration 1 should be clamped to 3
+        val settings = MeditationSettings.create(durationMinutes = 1, introductionId = "breath")
+        assertEquals(3, settings.durationMinutes)
+    }
+
+    @Test
+    fun `withDurationMinutes respects introduction minimum`() {
+        val settings = MeditationSettings(introductionId = "breath")
+        val updated = settings.withDurationMinutes(1)
+        assertEquals(3, updated.durationMinutes)
+    }
+
+    @Test
+    fun `minimumDurationMinutes computed property`() {
+        val settingsNoIntro = MeditationSettings()
+        assertEquals(1, settingsNoIntro.minimumDurationMinutes)
+
+        val settingsWithIntro = MeditationSettings(introductionId = "breath")
+        assertEquals(3, settingsWithIntro.minimumDurationMinutes)
     }
 }

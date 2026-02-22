@@ -563,6 +563,32 @@ final class AudioServiceTests: XCTestCase {
         self.sut.stop()
     }
 
+    // MARK: - Delegate Robustness Tests
+
+    func testGongCompletionPublisher_EmitsOnPlayback() throws {
+        // Given
+        try self.sut.configureAudioSession()
+
+        let expectation = expectation(description: "Gong completion")
+        var cancellable: AnyCancellable?
+
+        cancellable = self.sut.gongCompletionPublisher
+            .sink {
+                expectation.fulfill()
+                _ = cancellable // retain
+            }
+
+        // When - Play a very short gong
+        try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
+
+        // Then - Should eventually complete (timeout is the failure case)
+        wait(for: [expectation], timeout: 15.0)
+        cancellable?.cancel()
+        self.sut.stop()
+    }
+
+    // MARK: - Background Preview Tests (existing)
+
     func testBackgroundPreviewFadeOut_AfterDuration_StopsAutomatically() async throws {
         // Given
         try self.sut.configureAudioSession()

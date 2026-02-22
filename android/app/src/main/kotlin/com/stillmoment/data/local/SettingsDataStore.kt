@@ -13,6 +13,7 @@ import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.IntervalMode
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.repositories.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -55,6 +56,7 @@ constructor(
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
+        val INTRODUCTION_ID = stringPreferencesKey("introduction_id")
         val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
 
         // Legacy keys kept for migration
@@ -86,6 +88,16 @@ constructor(
     override val settingsFlow: Flow<MeditationSettings> =
         context.dataStore.data
             .map { preferences ->
+                // If saved introductionId is not available for current language, fall back to null
+                val savedIntroId = preferences[Keys.INTRODUCTION_ID]
+                val introductionId = if (savedIntroId != null &&
+                    Introduction.isAvailableForCurrentLanguage(savedIntroId)
+                ) {
+                    savedIntroId
+                } else {
+                    null
+                }
+
                 MeditationSettings.create(
                     intervalGongsEnabled =
                     preferences[Keys.INTERVAL_GONGS_ENABLED]
@@ -120,7 +132,8 @@ constructor(
                         ?: MeditationSettings.Default.gongSoundId,
                     gongVolume =
                     preferences[Keys.GONG_VOLUME]
-                        ?: MeditationSettings.Default.gongVolume
+                        ?: MeditationSettings.Default.gongVolume,
+                    introductionId = introductionId
                 )
             }
 
@@ -142,6 +155,11 @@ constructor(
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
             preferences[Keys.GONG_SOUND_ID] = settings.gongSoundId
             preferences[Keys.GONG_VOLUME] = settings.gongVolume
+            if (settings.introductionId != null) {
+                preferences[Keys.INTRODUCTION_ID] = settings.introductionId
+            } else {
+                preferences.remove(Keys.INTRODUCTION_ID)
+            }
         }
     }
 

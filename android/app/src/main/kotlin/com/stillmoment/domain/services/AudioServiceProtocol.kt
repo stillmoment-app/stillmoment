@@ -1,5 +1,7 @@
 package com.stillmoment.domain.services
 
+import kotlinx.coroutines.flow.SharedFlow
+
 /**
  * Protocol for timer audio service.
  *
@@ -10,8 +12,17 @@ package com.stillmoment.domain.services
  * Used by TimerViewModel for preview playback in the settings sheet.
  * Foreground service audio (gongs during timer, background audio) flows
  * through TimerForegroundServiceProtocol instead.
+ *
+ * Completion flows are shared between the foreground service and ViewModel
+ * (AudioService is a singleton injected into both).
  */
 interface AudioServiceProtocol {
+    /** Emits when a start/completion gong finishes playing */
+    val gongCompletionFlow: SharedFlow<Unit>
+
+    /** Emits when introduction audio finishes playing */
+    val introductionCompletionFlow: SharedFlow<Unit>
+
     /**
      * Play a gong sound preview. Automatically stops any previous preview.
      * Uses a separate player to avoid interfering with timer playback.

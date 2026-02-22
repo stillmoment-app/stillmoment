@@ -69,6 +69,7 @@ import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.IntervalMode
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -76,6 +77,8 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Settings Bottom Sheet for configuring meditation options.
@@ -127,6 +130,13 @@ fun SettingsSheet(
                 onGongSoundPreview = onGongSoundPreview,
                 itemSpacing = itemSpacing
             )
+            if (Introduction.hasAvailableIntroductions) {
+                Spacer(modifier = Modifier.height(sectionSpacing))
+                IntroductionSection(
+                    settings = settings,
+                    onSettingsChange = onSettingsChange
+                )
+            }
             Spacer(modifier = Modifier.height(sectionSpacing))
             IntervalGongsSection(
                 settings = settings,
@@ -551,6 +561,89 @@ private fun GongSoundDropdown(
                         onSettingsChange(settings.copy(gongSoundId = gongSound.id))
                         onGongSoundPreview(gongSound.id)
                         gongSoundExpanded = false
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+
+// MARK: - Introduction Section
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IntroductionSection(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val available = Introduction.availableForCurrentLanguage().toImmutableList()
+    val noneName = stringResource(R.string.settings_introduction_none)
+
+    val selectedName = settings.introductionId?.let { id ->
+        Introduction.find(id)?.let { "${it.localizedName} (${it.formattedDuration})" }
+    } ?: noneName
+
+    Column {
+        SectionTitle(text = stringResource(R.string.settings_introduction))
+
+        SettingsCard {
+            IntroductionDropdown(
+                selectedName = selectedName,
+                expanded = expanded,
+                onExpandedChange = { expanded = it },
+                available = available,
+                settings = settings,
+                onSettingsChange = onSettingsChange,
+                onDismiss = { expanded = false }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun IntroductionDropdown(
+    selectedName: String,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    available: ImmutableList<Introduction>,
+    settings: MeditationSettings,
+    onSettingsChange: (MeditationSettings) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val introPickerDescription = stringResource(R.string.accessibility_introduction_picker)
+
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
+        OutlinedTextField(
+            value = selectedName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.settings_introduction)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            shape = DropdownShape,
+            colors = dropdownTextFieldColors(),
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+                .semantics { contentDescription = introPickerDescription }
+        )
+
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.settings_introduction_none)) },
+                onClick = {
+                    onSettingsChange(settings.copy(introductionId = null))
+                    onDismiss()
+                },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+            )
+            available.forEach { intro ->
+                DropdownMenuItem(
+                    text = { Text("${intro.localizedName} (${intro.formattedDuration})") },
+                    onClick = {
+                        val minDuration = MeditationSettings.minimumDuration(intro.id)
+                        val newDuration = maxOf(settings.durationMinutes, minDuration)
+                        onSettingsChange(settings.copy(introductionId = intro.id, durationMinutes = newDuration))
+                        onDismiss()
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )

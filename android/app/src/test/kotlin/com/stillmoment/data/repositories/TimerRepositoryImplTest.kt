@@ -47,13 +47,13 @@ class TimerRepositoryImplTest {
     }
 
     @Test
-    fun `start with zero preparation time goes directly to running`() = runTest {
+    fun `start with zero preparation time goes directly to start gong`() = runTest {
         // When
         sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
 
-        // Then - Should be in Running state immediately, not Preparation
+        // Then - Should be in StartGong state immediately (gong plays, then Running)
         val timer = sut.timerFlow.first()
-        assertEquals(TimerState.Running, timer.state)
+        assertEquals(TimerState.StartGong, timer.state)
         assertEquals(0, timer.remainingPreparationSeconds)
     }
 
@@ -128,7 +128,7 @@ class TimerRepositoryImplTest {
     }
 
     @Test
-    fun `tick transitions to running after countdown completes`() = runTest {
+    fun `tick transitions to start gong after countdown completes`() = runTest {
         // Given
         sut.start(durationMinutes = 10)
 
@@ -136,8 +136,8 @@ class TimerRepositoryImplTest {
         repeat(15) { sut.tick() }
         val result = sut.tick() // 16th tick
 
-        // Then
-        assertEquals(TimerState.Running, result?.state)
+        // Then — preparation → StartGong (gong plays, then Running via event)
+        assertEquals(TimerState.StartGong, result?.state)
         assertEquals(0, result?.remainingPreparationSeconds)
     }
 
@@ -175,5 +175,86 @@ class TimerRepositoryImplTest {
         // Then
         val updatedCountdown = sut.timerFlow.first().remainingPreparationSeconds
         assertEquals(initialCountdown - 1, updatedCountdown)
+    }
+
+    // MARK: - Introduction Tests
+
+    @Test
+    fun `start with introductionDurationSeconds stores value in timer`() = runTest {
+        // When
+        sut.start(durationMinutes = 10, introductionDurationSeconds = 95)
+
+        // Then
+        val timer = sut.timerFlow.first()
+        assertEquals(95, timer.introductionDurationSeconds)
+    }
+
+    @Test
+    fun `startIntroduction transitions from StartGong to Introduction`() = runTest {
+        // Given — timer in StartGong state (preparation disabled)
+        sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
+        assertEquals(TimerState.StartGong, sut.currentTimer?.state)
+
+        // When
+        sut.startIntroduction()
+
+        // Then
+        val timer = sut.timerFlow.first()
+        assertEquals(TimerState.Introduction, timer.state)
+    }
+
+    @Test
+    fun `startIntroduction does nothing when no timer exists`() {
+        // Given
+        assertNull(sut.currentTimer)
+
+        // When
+        sut.startIntroduction()
+
+        // Then
+        assertNull(sut.currentTimer)
+    }
+
+    @Test
+    fun `endIntroduction transitions from Introduction to Running`() = runTest {
+        // Given — timer in Introduction state
+        sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
+        sut.startIntroduction()
+        assertEquals(TimerState.Introduction, sut.currentTimer?.state)
+
+        // When
+        sut.endIntroduction()
+
+        // Then
+        val timer = sut.timerFlow.first()
+        assertEquals(TimerState.Running, timer.state)
+    }
+
+    @Test
+    fun `endIntroduction sets silentPhaseStartRemaining`() = runTest {
+        // Given — timer in Introduction state, tick a few times to consume time
+        sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
+        sut.startIntroduction()
+        repeat(5) { sut.tick() }
+        val remainingBeforeEnd = sut.currentTimer?.remainingSeconds
+
+        // When
+        sut.endIntroduction()
+
+        // Then
+        val timer = sut.timerFlow.first()
+        assertEquals(remainingBeforeEnd, timer.silentPhaseStartRemaining)
+    }
+
+    @Test
+    fun `endIntroduction does nothing when no timer exists`() {
+        // Given
+        assertNull(sut.currentTimer)
+
+        // When
+        sut.endIntroduction()
+
+        // Then
+        assertNull(sut.currentTimer)
     }
 }

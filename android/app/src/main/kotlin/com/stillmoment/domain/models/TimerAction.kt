@@ -30,8 +30,14 @@ sealed class TimerAction {
         val state: TimerState
     ) : TimerAction()
 
-    /** Preparation phase finished, transitioning to running */
+    /** Preparation phase finished, transitioning to start gong */
     data object PreparationFinished : TimerAction()
+
+    /** Start gong audio finished playing */
+    data object StartGongFinished : TimerAction()
+
+    /** Introduction audio finished playing */
+    data object IntroductionFinished : TimerAction()
 
     /** Timer completed (reached zero) */
     data object TimerCompleted : TimerAction()

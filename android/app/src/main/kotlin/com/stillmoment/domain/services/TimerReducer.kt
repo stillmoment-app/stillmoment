@@ -1,5 +1,6 @@
 package com.stillmoment.domain.services
 
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerDisplayState
@@ -30,11 +31,13 @@ object TimerReducer {
         settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         return when (action) {
-            is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes)
+            is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes, settings)
             is TimerAction.StartPressed -> reduceStartPressed(state, settings)
             is TimerAction.ResetPressed -> reduceResetPressed(state)
             is TimerAction.Tick -> reduceTick(state, action)
             is TimerAction.PreparationFinished -> reducePreparationFinished(state, settings)
+            is TimerAction.StartGongFinished -> reduceStartGongFinished(state, settings)
+            is TimerAction.IntroductionFinished -> reduceIntroductionFinished(state, settings)
             is TimerAction.TimerCompleted -> reduceTimerCompleted(state, settings)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(state, settings)
             is TimerAction.IntervalGongPlayed -> reduceIntervalGongPlayed(state)
@@ -45,11 +48,12 @@ object TimerReducer {
 
     private fun reduceSelectDuration(
         state: TimerDisplayState,
-        minutes: Int
+        minutes: Int,
+        settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState =
             state.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes)
+                selectedMinutes = MeditationSettings.validateDuration(minutes, settings.introductionId)
             )
         return newState to emptyList()
     }
@@ -71,11 +75,14 @@ object TimerReducer {
             0
         }
 
-        // If no preparation time, go directly to Running state
+        // Determine introduction duration
+        val introDuration = introductionDurationSeconds(settings)
+
+        // If no preparation time, go directly to StartGong state (gong plays immediately)
         val initialState = if (preparationTime > 0) {
             TimerState.Preparation
         } else {
-            TimerState.Running
+            TimerState.StartGong
         }
 
         // Initialize timer seconds immediately so UI shows correct time from the start
@@ -96,15 +103,18 @@ object TimerReducer {
                 durationMinutes = state.selectedMinutes
             )
 
-        // Build effects - add start gong immediately if no preparation time
+        // Background audio never starts here. It starts when the start gong finishes:
+        // - Without introduction: in reduceStartGongFinished
+        // - With introduction: in reduceIntroductionFinished
+        // Always use "silent" for foreground service start — background audio is updated later
         val effects = mutableListOf(
             TimerEffect.StartForegroundService(
-                settings.backgroundSoundId,
+                "silent",
                 settings.backgroundSoundVolume,
                 settings.gongSoundId,
                 settings.gongVolume
             ),
-            TimerEffect.StartTimer(state.selectedMinutes, preparationTime),
+            TimerEffect.StartTimer(state.selectedMinutes, preparationTime, introDuration),
             TimerEffect.SaveSettings(updatedSettings)
         )
 
@@ -131,11 +141,13 @@ object TimerReducer {
                 intervalGongPlayedForCurrentInterval = false
             )
 
-        val effects =
-            listOf(
-                TimerEffect.StopForegroundService,
-                TimerEffect.ResetTimer
-            )
+        val effects = mutableListOf<TimerEffect>()
+        // Stop introduction if it was playing
+        if (state.timerState == TimerState.Introduction) {
+            effects.add(TimerEffect.StopIntroduction)
+        }
+        effects.add(TimerEffect.StopForegroundService)
+        effects.add(TimerEffect.ResetTimer)
 
         return newState to effects
     }
@@ -161,8 +173,50 @@ object TimerReducer {
         state: TimerDisplayState,
         settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
-        val newState = state.copy(timerState = TimerState.Running)
+        val newState = state.copy(timerState = TimerState.StartGong)
+        // Play start gong. Background audio decision is deferred to startGongFinished.
         return newState to listOf(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
+    }
+
+    private fun reduceStartGongFinished(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ): Pair<TimerDisplayState, List<TimerEffect>> {
+        if (state.timerState != TimerState.StartGong) {
+            return state to emptyList()
+        }
+
+        val introId = settings.introductionId
+        return if (introId != null && Introduction.isAvailableForCurrentLanguage(introId)) {
+            // Introduction configured -> transition to Introduction, play audio
+            // StartIntroductionPhase syncs the timer model state so ticks report Introduction
+            val newState = state.copy(timerState = TimerState.Introduction)
+            newState to listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(introId))
+        } else {
+            // No introduction -> transition directly to Running with background audio
+            val newState = state.copy(timerState = TimerState.Running)
+            newState to listOf(
+                TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
+            )
+        }
+    }
+
+    private fun reduceIntroductionFinished(
+        state: TimerDisplayState,
+        settings: MeditationSettings
+    ): Pair<TimerDisplayState, List<TimerEffect>> {
+        if (state.timerState != TimerState.Introduction) {
+            return state to emptyList()
+        }
+
+        val newState = state.copy(timerState = TimerState.Running)
+        val effects = listOf(
+            TimerEffect.StopIntroduction,
+            TimerEffect.EndIntroductionPhase,
+            TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
+        )
+
+        return newState to effects
     }
 
     private fun reduceTimerCompleted(
@@ -174,11 +228,16 @@ object TimerReducer {
                 timerState = TimerState.Completed,
                 progress = 1.0f
             )
-        val effects =
-            listOf(
-                TimerEffect.PlayCompletionSound(settings.gongSoundId, settings.gongVolume),
-                TimerEffect.StopForegroundService
-            )
+
+        val effects = mutableListOf<TimerEffect>(
+            TimerEffect.PlayCompletionSound(settings.gongSoundId, settings.gongVolume)
+        )
+        // Stop introduction if it was still playing (timer expired during introduction)
+        if (state.timerState == TimerState.Introduction) {
+            effects.add(TimerEffect.StopIntroduction)
+        }
+        effects.add(TimerEffect.StopForegroundService)
+
         return newState to effects
     }
 
@@ -200,5 +259,14 @@ object TimerReducer {
     private fun reduceIntervalGongPlayed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
         val newState = state.copy(intervalGongPlayedForCurrentInterval = false)
         return newState to emptyList()
+    }
+
+    // MARK: - Helpers
+
+    /** Returns the introduction duration in seconds, or 0 if no introduction is configured. */
+    private fun introductionDurationSeconds(settings: MeditationSettings): Int {
+        val introId = settings.introductionId ?: return 0
+        if (!Introduction.isAvailableForCurrentLanguage(introId)) return 0
+        return Introduction.find(introId)?.durationSeconds ?: 0
     }
 }

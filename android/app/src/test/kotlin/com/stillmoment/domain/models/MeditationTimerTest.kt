@@ -130,7 +130,7 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `tick transitions from countdown to running when countdown reaches 0`() {
+    fun `tick transitions from countdown to start gong when countdown reaches 0`() {
         // Given
         val timer =
             MeditationTimer.create(10)
@@ -141,7 +141,7 @@ class MeditationTimerTest {
 
         // Then
         assertEquals(0, ticked.remainingPreparationSeconds)
-        assertEquals(TimerState.Running, ticked.state)
+        assertEquals(TimerState.StartGong, ticked.state)
     }
 
     @Test
@@ -401,10 +401,10 @@ class MeditationTimerTest {
         // When: Tick 3 times
         timer = timer.tick() // 2
         timer = timer.tick() // 1
-        timer = timer.tick() // 0 -> Running
+        timer = timer.tick() // 0 -> StartGong
 
-        // Then: Should be running
-        assertEquals(TimerState.Running, timer.state)
+        // Then: Should be in StartGong (waiting for gong to finish)
+        assertEquals(TimerState.StartGong, timer.state)
         assertEquals(0, timer.remainingPreparationSeconds)
         assertEquals(600, timer.remainingSeconds)
     }
@@ -429,7 +429,7 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `tick preserves state when idle but decrements remaining`() {
+    fun `tick preserves state when idle and does not decrement`() {
         // Given
         val timer = MeditationTimer.create(10)
         assertEquals(TimerState.Idle, timer.state)
@@ -437,10 +437,9 @@ class MeditationTimerTest {
         // When
         val ticked = timer.tick()
 
-        // Then: State preserved, but remaining seconds decremented
-        // Note: ViewModel only calls tick() during Countdown/Running states
+        // Then: Idle returns same instance (no decrement)
         assertEquals(TimerState.Idle, ticked.state)
-        assertEquals(599, ticked.remainingSeconds)
+        assertEquals(600, ticked.remainingSeconds)
     }
 
     @Test
@@ -486,5 +485,120 @@ class MeditationTimerTest {
             .copy(state = TimerState.Running, remainingSeconds = 300)
         // Default parameter: mode=REPEATING → repeating-from-start mode
         assertTrue(timer.shouldPlayIntervalGong(5))
+    }
+
+    // MARK: - StartGong State Tests
+
+    @Test
+    fun `tick during StartGong decrements remaining seconds`() {
+        val timer = MeditationTimer.create(10).copy(state = TimerState.StartGong)
+        val ticked = timer.tick()
+        assertEquals(599, ticked.remainingSeconds)
+        assertEquals(TimerState.StartGong, ticked.state)
+    }
+
+    @Test
+    fun `tick during StartGong transitions to completed at zero`() {
+        val timer = MeditationTimer.create(1)
+            .copy(state = TimerState.StartGong, remainingSeconds = 1)
+        val ticked = timer.tick()
+        assertEquals(0, ticked.remainingSeconds)
+        assertEquals(TimerState.Completed, ticked.state)
+    }
+
+    // MARK: - Introduction Tests
+
+    @Test
+    fun `create timer with introductionDurationSeconds`() {
+        val timer = MeditationTimer.create(10, introductionDurationSeconds = 95)
+        assertEquals(95, timer.introductionDurationSeconds)
+        assertNull(timer.silentPhaseStartRemaining)
+    }
+
+    @Test
+    fun `startIntroduction transitions to Introduction state`() {
+        val timer = MeditationTimer.create(10).copy(state = TimerState.StartGong)
+        val intro = timer.startIntroduction()
+        assertEquals(TimerState.Introduction, intro.state)
+    }
+
+    @Test
+    fun `tick during Introduction decrements remaining seconds`() {
+        val timer = MeditationTimer.create(10)
+            .copy(state = TimerState.Introduction, remainingSeconds = 500)
+        val ticked = timer.tick()
+        assertEquals(499, ticked.remainingSeconds)
+        assertEquals(TimerState.Introduction, ticked.state)
+    }
+
+    @Test
+    fun `tick during Introduction transitions to completed at zero`() {
+        val timer = MeditationTimer.create(1)
+            .copy(state = TimerState.Introduction, remainingSeconds = 1)
+        val ticked = timer.tick()
+        assertEquals(0, ticked.remainingSeconds)
+        assertEquals(TimerState.Completed, ticked.state)
+    }
+
+    @Test
+    fun `endIntroduction transitions to Running and records silentPhaseStartRemaining`() {
+        val timer = MeditationTimer.create(10)
+            .copy(state = TimerState.Introduction, remainingSeconds = 505)
+        val running = timer.endIntroduction()
+        assertEquals(TimerState.Running, running.state)
+        assertEquals(505, running.silentPhaseStartRemaining)
+    }
+
+    @Test
+    fun `reset clears silentPhaseStartRemaining`() {
+        val timer = MeditationTimer.create(10)
+            .copy(
+                state = TimerState.Running,
+                remainingSeconds = 400,
+                silentPhaseStartRemaining = 505
+            )
+        val resetTimer = timer.reset()
+        assertNull(resetTimer.silentPhaseStartRemaining)
+    }
+
+    // MARK: - Interval Gong with Introduction (effectiveStartRemaining)
+
+    @Test
+    fun `repeating interval uses effectiveStartRemaining after introduction`() {
+        // Given: 10 min timer, introduction ended at 505s remaining
+        // 5 min interval → first gong at 505 - 300 = 205s remaining
+        val timer = MeditationTimer.create(10)
+            .copy(
+                state = TimerState.Running,
+                remainingSeconds = 205,
+                silentPhaseStartRemaining = 505
+            )
+        assertTrue(timer.shouldPlayIntervalGong(5, mode = IntervalMode.REPEATING))
+    }
+
+    @Test
+    fun `repeating interval does not trigger early with introduction`() {
+        // Given: 10 min timer, introduction ended at 505s remaining
+        // 5 min interval → first gong at 205s, currently at 400s (not yet)
+        val timer = MeditationTimer.create(10)
+            .copy(
+                state = TimerState.Running,
+                remainingSeconds = 400,
+                silentPhaseStartRemaining = 505
+            )
+        assertFalse(timer.shouldPlayIntervalGong(5, mode = IntervalMode.REPEATING))
+    }
+
+    @Test
+    fun `after start interval uses effectiveStartRemaining after introduction`() {
+        // Given: 10 min timer, introduction ended at 505s remaining
+        // 3 min after start → at 505 - 180 = 325s remaining
+        val timer = MeditationTimer.create(10)
+            .copy(
+                state = TimerState.Running,
+                remainingSeconds = 325,
+                silentPhaseStartRemaining = 505
+            )
+        assertTrue(timer.shouldPlayIntervalGong(3, mode = IntervalMode.AFTER_START))
     }
 }

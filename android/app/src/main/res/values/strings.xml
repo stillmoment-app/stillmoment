@@ -52,6 +52,11 @@
     <string name="settings_preparation_description">Time to settle in before meditation</string>
     <string name="settings_preparation_duration">Duration</string>
 
+    <!-- Introduction -->
+    <string name="settings_introduction">Introduction</string>
+    <string name="settings_introduction_none">None</string>
+    <string name="accessibility_introduction_picker">Select introduction</string>
+
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
     <string name="sound_silent_description">Meditate in silence.</string>

@@ -34,6 +34,18 @@ constructor(
         TimerForegroundService.playIntervalGong(context, gongSoundId, gongVolume)
     }
 
+    override fun playIntroduction(introductionId: String) {
+        TimerForegroundService.playIntroduction(context, introductionId)
+    }
+
+    override fun stopIntroduction() {
+        TimerForegroundService.stopIntroduction(context)
+    }
+
+    override fun updateBackgroundAudio(soundId: String, soundVolume: Float) {
+        TimerForegroundService.updateBackgroundAudio(context, soundId, soundVolume)
+    }
+
     override fun pauseAudio() {
         TimerForegroundService.pauseAudio(context)
     }

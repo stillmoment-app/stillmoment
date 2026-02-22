@@ -22,8 +22,9 @@ interface TimerRepository {
      *
      * @param durationMinutes Duration in minutes (1-60)
      * @param preparationTimeSeconds Duration of preparation phase in seconds (0 to skip)
+     * @param introductionDurationSeconds Duration of introduction audio in seconds (0 = no introduction)
      */
-    suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int = 15)
+    suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int = 15, introductionDurationSeconds: Int = 0)
 
     /**
      * Resets the timer to idle state.
@@ -52,4 +53,16 @@ interface TimerRepository {
      * Prevents duplicate gongs at the same interval.
      */
     fun markIntervalGongPlayed()
+
+    /**
+     * Starts the introduction phase, transitioning the timer model from StartGong to Introduction.
+     * Syncs the timer model state with the reducer's display state.
+     */
+    fun startIntroduction()
+
+    /**
+     * Ends the introduction phase, transitioning from Introduction to Running.
+     * Sets silentPhaseStartRemaining for interval gong calculations.
+     */
+    fun endIntroduction()
 }

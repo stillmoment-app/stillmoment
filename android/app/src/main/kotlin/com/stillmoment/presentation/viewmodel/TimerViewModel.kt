@@ -81,18 +81,36 @@ constructor(
     private var timerJob: Job? = null
     private var previousState: TimerState = TimerState.Idle
 
+    /** Stores duration before introduction auto-clamped, restored when introduction is disabled. */
+    private var minutesBeforeIntroduction: Int? = null
+
     init {
         // Load initial settings synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
         val initialSettings = runBlocking { settingsRepository.getSettings() }
         val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
         _uiState.value = TimerUiState(
-            displayState = TimerDisplayState.withDuration(initialSettings.durationMinutes),
+            displayState = TimerDisplayState.withDuration(
+                initialSettings.durationMinutes,
+                initialSettings.introductionId
+            ),
             settings = initialSettings,
             showSettingsHint = !hasSeenHint
         )
         // Continue collecting for future changes (background sound changes, etc.)
         loadSettings()
+
+        // Subscribe to audio completion flows
+        viewModelScope.launch {
+            audioService.gongCompletionFlow.collect {
+                dispatch(TimerAction.StartGongFinished)
+            }
+        }
+        viewModelScope.launch {
+            audioService.introductionCompletionFlow.collect {
+                dispatch(TimerAction.IntroductionFinished)
+            }
+        }
     }
 
     // MARK: - Action Dispatch (Unidirectional Data Flow)
@@ -141,9 +159,28 @@ constructor(
             is TimerEffect.PlayCompletionSound -> {
                 foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
             }
+            is TimerEffect.StartIntroductionPhase -> {
+                timerRepository.startIntroduction()
+            }
+            is TimerEffect.PlayIntroduction -> {
+                foregroundService.playIntroduction(effect.introductionId)
+            }
+            is TimerEffect.StopIntroduction -> {
+                foregroundService.stopIntroduction()
+            }
+            is TimerEffect.EndIntroductionPhase -> {
+                timerRepository.endIntroduction()
+            }
+            is TimerEffect.StartBackgroundAudio -> {
+                foregroundService.updateBackgroundAudio(effect.soundId, effect.soundVolume)
+            }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
-                    timerRepository.start(effect.durationMinutes, effect.preparationTimeSeconds)
+                    timerRepository.start(
+                        effect.durationMinutes,
+                        effect.preparationTimeSeconds,
+                        effect.introductionDurationSeconds
+                    )
                 }
                 previousState = TimerState.Idle
                 startTimerLoop()
@@ -249,7 +286,25 @@ constructor(
     }
 
     fun updateSettings(settings: MeditationSettings) {
-        _uiState.update { it.copy(settings = settings) }
+        val oldSettings = _uiState.value.settings
+        var updatedSettings = settings
+
+        // Track introduction changes for duration restoration
+        if (oldSettings.introductionId == null && settings.introductionId != null) {
+            // Introduction enabled — save pre-clamp duration if clamping occurred
+            val minimum = MeditationSettings.minimumDuration(settings.introductionId)
+            if (oldSettings.durationMinutes < minimum) {
+                minutesBeforeIntroduction = oldSettings.durationMinutes
+            }
+        } else if (oldSettings.introductionId != null && settings.introductionId == null) {
+            // Introduction disabled — restore pre-introduction duration
+            minutesBeforeIntroduction?.let { restored ->
+                updatedSettings = settings.copy(durationMinutes = restored)
+                minutesBeforeIntroduction = null
+            }
+        }
+
+        _uiState.update { it.copy(settings = updatedSettings) }
         saveSettings()
     }
 
@@ -298,19 +353,27 @@ constructor(
             return false
         }
 
-        // Only continue loop if running or preparation
-        if (updatedTimer.state != TimerState.Running && updatedTimer.state != TimerState.Preparation) {
+        // Continue loop for all active states
+        val activeStates = setOf(
+            TimerState.Preparation,
+            TimerState.StartGong,
+            TimerState.Introduction,
+            TimerState.Running
+        )
+        if (updatedTimer.state !in activeStates) {
             return false
         }
 
-        // Check for interval gong
-        checkIntervalGong(updatedTimer)
+        // Only check interval gongs in Running state
+        if (updatedTimer.state == TimerState.Running) {
+            checkIntervalGong(updatedTimer)
+        }
         return true
     }
 
     private fun handleStateTransition(oldState: TimerState, newState: TimerState) {
-        // Preparation → Running: Dispatch preparation finished action
-        if (oldState == TimerState.Preparation && newState == TimerState.Running) {
+        // Preparation → StartGong: Dispatch preparation finished action
+        if (oldState == TimerState.Preparation && newState == TimerState.StartGong) {
             dispatch(TimerAction.PreparationFinished)
         }
     }

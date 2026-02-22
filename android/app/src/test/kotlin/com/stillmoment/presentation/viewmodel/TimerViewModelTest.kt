@@ -12,7 +12,9 @@ import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -440,6 +442,89 @@ class TimerViewModelTest {
     }
 
     // ============================================================
+    // MARK: - Introduction Duration Restoration Tests
+    // ============================================================
+
+    @Nested
+    inner class IntroductionDurationRestoration {
+        private val testDispatcher = StandardTestDispatcher()
+        private lateinit var fakeSettingsRepository: FakeSettingsRepository
+        private lateinit var fakeTimerRepository: FakeTimerRepository
+        private lateinit var fakeAudioService: FakeAudioService
+        private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var mockApplication: Application
+
+        @BeforeEach
+        fun setUp() {
+            Dispatchers.setMain(testDispatcher)
+            fakeSettingsRepository = FakeSettingsRepository()
+            fakeTimerRepository = FakeTimerRepository()
+            fakeAudioService = FakeAudioService()
+            fakeForegroundService = FakeTimerForegroundService()
+            mockApplication = mock()
+        }
+
+        @AfterEach
+        fun tearDown() {
+            Dispatchers.resetMain()
+        }
+
+        private fun createViewModel(): TimerViewModel {
+            return TimerViewModel(
+                application = mockApplication,
+                settingsRepository = fakeSettingsRepository,
+                timerRepository = fakeTimerRepository,
+                audioService = fakeAudioService,
+                foregroundService = fakeForegroundService
+            )
+        }
+
+        @Test
+        fun `disabling introduction restores pre-introduction duration`() = runTest {
+            // Given - User has 1 minute selected
+            val initialSettings = MeditationSettings(durationMinutes = 1)
+            fakeSettingsRepository.updateSettings(initialSettings)
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            assertEquals(1, viewModel.uiState.value.selectedMinutes)
+
+            // When - Enable introduction (clamps to 3 min)
+            viewModel.updateSettings(initialSettings.copy(introductionId = "breath", durationMinutes = 3))
+            advanceUntilIdle()
+            assertEquals(3, viewModel.uiState.value.selectedMinutes)
+
+            // When - Disable introduction
+            viewModel.updateSettings(viewModel.uiState.value.settings.copy(introductionId = null))
+            advanceUntilIdle()
+
+            // Then - Duration should restore to pre-introduction value
+            assertEquals(1, viewModel.uiState.value.selectedMinutes, "Should restore to pre-introduction duration")
+        }
+
+        @Test
+        fun `disabling introduction does not restore when duration was above minimum`() = runTest {
+            // Given - User has 10 minutes selected (above the 3-minute minimum)
+            val initialSettings = MeditationSettings(durationMinutes = 10)
+            fakeSettingsRepository.updateSettings(initialSettings)
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            assertEquals(10, viewModel.uiState.value.selectedMinutes)
+
+            // When - Enable introduction (10 > 3, no clamping)
+            viewModel.updateSettings(initialSettings.copy(introductionId = "breath", durationMinutes = 10))
+            advanceUntilIdle()
+            assertEquals(10, viewModel.uiState.value.selectedMinutes)
+
+            // When - Disable introduction
+            viewModel.updateSettings(viewModel.uiState.value.settings.copy(introductionId = null))
+            advanceUntilIdle()
+
+            // Then - Duration should stay at 10
+            assertEquals(10, viewModel.uiState.value.selectedMinutes, "Should stay at 10 when no clamping occurred")
+        }
+    }
+
+    // ============================================================
     // MARK: - ViewModel Audio Preview Tests
     // ============================================================
 
@@ -646,6 +731,9 @@ class FakeAudioService : AudioServiceProtocol {
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
 
+    override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
+    override val introductionCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
+
     override fun playGongPreview(soundId: String, volume: Float) {
         lastGongPreviewSoundId = soundId
         lastGongPreviewVolume = volume
@@ -689,6 +777,10 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
     var lastGongVolume: Float? = null
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
+    var lastIntroductionId: String? = null
+    var introductionStopped = false
+    var lastBackgroundAudioSoundId: String? = null
+    var lastBackgroundAudioVolume: Float? = null
     var audioPaused = false
     var audioResumed = false
 
@@ -712,6 +804,19 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
     override fun playIntervalGong(gongSoundId: String, gongVolume: Float) {
         lastIntervalGongSoundId = gongSoundId
         lastIntervalGongVolume = gongVolume
+    }
+
+    override fun playIntroduction(introductionId: String) {
+        lastIntroductionId = introductionId
+    }
+
+    override fun stopIntroduction() {
+        introductionStopped = true
+    }
+
+    override fun updateBackgroundAudio(soundId: String, soundVolume: Float) {
+        lastBackgroundAudioSoundId = soundId
+        lastBackgroundAudioVolume = soundVolume
     }
 
     override fun pauseAudio() {
@@ -763,7 +868,7 @@ class FakeTimerRepository : TimerRepository {
     override val timerFlow: Flow<MeditationTimer> =
         _timer.filterNotNull()
 
-    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int) {
+    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int, introductionDurationSeconds: Int) {
         // no-op for tests
     }
 
@@ -778,6 +883,14 @@ class FakeTimerRepository : TimerRepository {
     override fun tick(): MeditationTimer? = null
 
     override fun markIntervalGongPlayed() {
+        // no-op for tests
+    }
+
+    override fun startIntroduction() {
+        // no-op for tests
+    }
+
+    override fun endIntroduction() {
         // no-op for tests
     }
 }

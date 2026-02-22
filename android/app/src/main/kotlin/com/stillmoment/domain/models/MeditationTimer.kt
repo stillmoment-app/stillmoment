@@ -11,6 +11,8 @@ package com.stillmoment.domain.models
  * @property state Current state of the timer
  * @property remainingPreparationSeconds Remaining preparation seconds (preparationTimeSeconds→0 before timer starts)
  * @property preparationTimeSeconds Duration of preparation in seconds (configured at initialization)
+ * @property introductionDurationSeconds Duration of introduction audio in seconds (0 = no introduction)
+ * @property silentPhaseStartRemaining Remaining seconds when silent meditation phase started (after introduction)
  * @property lastIntervalGongAt Remaining seconds when last interval gong was played
  */
 data class MeditationTimer(
@@ -19,6 +21,8 @@ data class MeditationTimer(
     val state: TimerState,
     val remainingPreparationSeconds: Int = 0,
     val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME,
+    val introductionDurationSeconds: Int = 0,
+    val silentPhaseStartRemaining: Int? = null,
     val lastIntervalGongAt: Int? = null
 ) {
     init {
@@ -46,20 +50,43 @@ data class MeditationTimer(
 
     /**
      * Returns a copy with updated remaining seconds (tick).
-     * Handles both preparation phase and regular timer phase.
+     * Handles preparation, start gong, introduction, and running phases.
      */
     fun tick(): MeditationTimer {
-        // Handle preparation phase
-        if (state == TimerState.Preparation) {
-            val newPreparation = maxOf(0, remainingPreparationSeconds - 1)
-            val newState = if (newPreparation <= 0) TimerState.Running else TimerState.Preparation
-            return copy(
-                remainingPreparationSeconds = newPreparation,
-                state = newState
-            )
+        return when (state) {
+            TimerState.Preparation -> tickPreparation()
+            TimerState.StartGong -> tickRunning()
+            TimerState.Introduction -> tickIntroduction()
+            TimerState.Running -> tickRunning()
+            TimerState.Idle, TimerState.Completed -> this
         }
+    }
 
-        // Handle regular timer
+    /** Ticks the preparation countdown. Transitions to StartGong when preparation finishes. */
+    private fun tickPreparation(): MeditationTimer {
+        val newPreparation = maxOf(0, remainingPreparationSeconds - 1)
+        val newState = if (newPreparation <= 0) TimerState.StartGong else TimerState.Preparation
+        return copy(
+            remainingPreparationSeconds = newPreparation,
+            state = newState
+        )
+    }
+
+    /**
+     * Ticks the introduction phase (meditation timer decrements, never auto-transitions to running).
+     * The transition to Running is event-driven via endIntroduction().
+     */
+    private fun tickIntroduction(): MeditationTimer {
+        val newRemaining = maxOf(0, remainingSeconds - 1)
+        val newState = if (newRemaining <= 0) TimerState.Completed else TimerState.Introduction
+        return copy(
+            remainingSeconds = newRemaining,
+            state = newState
+        )
+    }
+
+    /** Ticks the main meditation timer (used for StartGong and Running states). */
+    private fun tickRunning(): MeditationTimer {
         val newRemaining = maxOf(0, remainingSeconds - 1)
         val newState = if (newRemaining <= 0) TimerState.Completed else state
         return copy(
@@ -79,6 +106,26 @@ data class MeditationTimer(
             state = TimerState.Preparation,
             remainingPreparationSeconds = preparationTimeSeconds,
             lastIntervalGongAt = null
+        )
+    }
+
+    /**
+     * Returns a copy transitioned to Introduction state.
+     * Called when start gong finishes and an introduction is configured.
+     */
+    fun startIntroduction(): MeditationTimer {
+        return copy(state = TimerState.Introduction)
+    }
+
+    /**
+     * Returns a copy transitioned from Introduction to Running.
+     * Called when the introduction audio finishes playing (event-driven).
+     * Sets silentPhaseStartRemaining to current remaining seconds for interval gong calculations.
+     */
+    fun endIntroduction(): MeditationTimer {
+        return copy(
+            state = TimerState.Running,
+            silentPhaseStartRemaining = remainingSeconds
         )
     }
 
@@ -114,35 +161,39 @@ data class MeditationTimer(
         // 5-second protection: no gong in final 5 seconds to avoid collision with end gong
         if (remainingSeconds <= END_GONG_PROTECTION_SECONDS) return false
 
-        val elapsed = totalSeconds - remainingSeconds
-
         return when (mode) {
-            IntervalMode.REPEATING -> shouldPlayRepeatingFromStart(elapsed, intervalSeconds)
-            IntervalMode.AFTER_START -> shouldPlaySingleFromStart(elapsed, intervalSeconds)
-            IntervalMode.BEFORE_END -> shouldPlaySingleFromEnd(elapsed, intervalSeconds)
+            IntervalMode.REPEATING -> shouldPlayRepeatingFromStart(intervalSeconds)
+            IntervalMode.AFTER_START -> shouldPlaySingleFromStart(intervalSeconds)
+            IntervalMode.BEFORE_END -> shouldPlaySingleFromEnd(intervalSeconds)
         }
     }
 
-    private fun shouldPlaySingleFromEnd(elapsed: Int, intervalSeconds: Int): Boolean {
-        val targetElapsed = totalSeconds - intervalSeconds
-        if (targetElapsed <= 0) return false
+    /**
+     * The effective start point for interval calculations.
+     * Uses silentPhaseStartRemaining when introduction was played, otherwise totalSeconds.
+     */
+    private val effectiveStartRemaining: Int
+        get() = silentPhaseStartRemaining ?: totalSeconds
 
+    private fun shouldPlaySingleFromEnd(intervalSeconds: Int): Boolean {
         // Already played?
         if (lastIntervalGongAt != null) return false
 
-        return elapsed >= targetElapsed
+        return remainingSeconds <= intervalSeconds
     }
 
-    private fun shouldPlaySingleFromStart(elapsed: Int, intervalSeconds: Int): Boolean {
+    private fun shouldPlaySingleFromStart(intervalSeconds: Int): Boolean {
         // Already played?
         if (lastIntervalGongAt != null) return false
 
+        val elapsed = effectiveStartRemaining - remainingSeconds
         return elapsed >= intervalSeconds
     }
 
-    private fun shouldPlayRepeatingFromStart(elapsed: Int, intervalSeconds: Int): Boolean {
+    private fun shouldPlayRepeatingFromStart(intervalSeconds: Int): Boolean {
         // First gong not yet played
         if (lastIntervalGongAt == null) {
+            val elapsed = effectiveStartRemaining - remainingSeconds
             return elapsed >= intervalSeconds
         }
 
@@ -157,6 +208,7 @@ data class MeditationTimer(
             remainingSeconds = durationMinutes * 60,
             state = TimerState.Idle,
             remainingPreparationSeconds = 0,
+            silentPhaseStartRemaining = null,
             lastIntervalGongAt = null
         )
     }
@@ -175,16 +227,23 @@ data class MeditationTimer(
          *
          * @param durationMinutes Duration in minutes (1-60)
          * @param preparationTimeSeconds Duration of preparation in seconds (default: 15). Use 0 to skip preparation.
+         * @param introductionDurationSeconds Duration of introduction audio in seconds (default: 0 = no introduction)
          * @return A new MeditationTimer instance
          * @throws IllegalArgumentException if duration is not between 1 and 60 minutes
          */
-        fun create(durationMinutes: Int, preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME): MeditationTimer {
+        fun create(
+            durationMinutes: Int,
+            preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME,
+            introductionDurationSeconds: Int = 0
+        ): MeditationTimer {
             return MeditationTimer(
                 durationMinutes = durationMinutes,
                 remainingSeconds = durationMinutes * 60,
                 state = TimerState.Idle,
                 remainingPreparationSeconds = 0,
                 preparationTimeSeconds = preparationTimeSeconds,
+                introductionDurationSeconds = introductionDurationSeconds,
+                silentPhaseStartRemaining = null,
                 lastIntervalGongAt = null
             )
         }

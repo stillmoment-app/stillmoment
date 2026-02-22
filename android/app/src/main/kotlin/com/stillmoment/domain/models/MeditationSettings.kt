@@ -27,7 +27,8 @@ data class MeditationSettings(
     val preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
     val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
     val gongSoundId: String = DEFAULT_GONG_SOUND_ID,
-    val gongVolume: Float = DEFAULT_GONG_VOLUME
+    val gongVolume: Float = DEFAULT_GONG_VOLUME,
+    val introductionId: String? = null
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -68,9 +69,21 @@ data class MeditationSettings(
 
         /**
          * Validates and clamps duration to valid range (1-60 minutes).
+         * When an introductionId is provided, enforces a minimum based on introduction duration.
          */
-        fun validateDuration(minutes: Int): Int {
-            return minutes.coerceIn(1, 60)
+        fun validateDuration(minutes: Int, introductionId: String? = null): Int {
+            val min = minimumDuration(introductionId)
+            return minutes.coerceIn(min, 60)
+        }
+
+        /**
+         * Returns the minimum meditation duration in minutes for a given introduction.
+         * Formula: ceil(introDuration / 60) + 1 — ensures at least 1 minute of silent meditation.
+         */
+        fun minimumDuration(introductionId: String? = null): Int {
+            if (introductionId == null) return 1
+            val intro = Introduction.find(introductionId) ?: return 1
+            return kotlin.math.ceil(intro.durationSeconds / 60.0).toInt() + 1
         }
 
         /**
@@ -117,7 +130,8 @@ data class MeditationSettings(
             preparationTimeEnabled: Boolean = DEFAULT_PREPARATION_TIME_ENABLED,
             preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
             gongSoundId: String = DEFAULT_GONG_SOUND_ID,
-            gongVolume: Float = DEFAULT_GONG_VOLUME
+            gongVolume: Float = DEFAULT_GONG_VOLUME,
+            introductionId: String? = null
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
@@ -127,11 +141,12 @@ data class MeditationSettings(
                 intervalGongVolume = validateVolume(intervalGongVolume),
                 backgroundSoundId = backgroundSoundId,
                 backgroundSoundVolume = validateVolume(backgroundSoundVolume),
-                durationMinutes = validateDuration(durationMinutes),
+                durationMinutes = validateDuration(durationMinutes, introductionId),
                 preparationTimeEnabled = preparationTimeEnabled,
                 preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds),
                 gongSoundId = gongSoundId,
-                gongVolume = validateVolume(gongVolume)
+                gongVolume = validateVolume(gongVolume),
+                introductionId = introductionId
             )
         }
     }
@@ -144,10 +159,16 @@ data class MeditationSettings(
     }
 
     /**
-     * Returns a copy with validated duration minutes.
+     * Returns the minimum duration in minutes based on the current introduction setting.
+     */
+    val minimumDurationMinutes: Int
+        get() = minimumDuration(introductionId)
+
+    /**
+     * Returns a copy with validated duration minutes (respects introduction minimum).
      */
     fun withDurationMinutes(minutes: Int): MeditationSettings {
-        return copy(durationMinutes = validateDuration(minutes))
+        return copy(durationMinutes = validateDuration(minutes, introductionId))
     }
 
     /**
@@ -175,6 +196,7 @@ object MeditationSettingsKeys {
     const val PREPARATION_TIME_SECONDS = "preparationTimeSeconds"
     const val GONG_SOUND_ID = "gongSoundId"
     const val GONG_VOLUME = "gongVolume"
+    const val INTRODUCTION_ID = "introductionId"
 
     // Legacy keys for migration
     const val LEGACY_BACKGROUND_AUDIO_MODE = "backgroundAudioMode"

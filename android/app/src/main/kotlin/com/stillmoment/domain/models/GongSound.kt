@@ -1,6 +1,5 @@
 package com.stillmoment.domain.models
 
-import com.stillmoment.R
 import java.util.Locale
 
 /**
@@ -15,13 +14,13 @@ import java.util.Locale
  * @property id Unique identifier for the sound (used for persistence)
  * @property nameEnglish English display name
  * @property nameGerman German display name
- * @property rawResId Raw resource ID for the audio file
+ * @property rawResourceName Raw resource name for the audio file (e.g., "gong_temple_bell")
  */
 data class GongSound(
     val id: String,
     val nameEnglish: String,
     val nameGerman: String,
-    val rawResId: Int
+    val rawResourceName: String
 ) {
     /**
      * Returns the localized name based on current device locale.
@@ -45,25 +44,25 @@ data class GongSound(
                 id = "temple-bell",
                 nameEnglish = "Temple Bell",
                 nameGerman = "Tempelglocke",
-                rawResId = R.raw.gong_temple_bell
+                rawResourceName = "gong_temple_bell"
             ),
             GongSound(
                 id = "classic-bowl",
                 nameEnglish = "Classic Bowl",
                 nameGerman = "Klassisch",
-                rawResId = R.raw.gong_classic_bowl
+                rawResourceName = "gong_classic_bowl"
             ),
             GongSound(
                 id = "deep-resonance",
                 nameEnglish = "Deep Resonance",
                 nameGerman = "Tiefe Resonanz",
-                rawResId = R.raw.gong_deep_resonance
+                rawResourceName = "gong_deep_resonance"
             ),
             GongSound(
                 id = "clear-strike",
                 nameEnglish = "Clear Strike",
                 nameGerman = "Klarer Anschlag",
-                rawResId = R.raw.gong_clear_strike
+                rawResourceName = "gong_clear_strike"
             )
         )
 
@@ -73,7 +72,7 @@ data class GongSound(
                 id = SOFT_INTERVAL_SOUND_ID,
                 nameEnglish = "Soft Interval Tone",
                 nameGerman = "Sanfter Intervallton",
-                rawResId = R.raw.interval
+                rawResourceName = "interval"
             )
         ) + allSounds
 

@@ -183,6 +183,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-061](android/android-061-timer-settings-repository.md) | Timer Settings Repository Abstraktion | 2-Architektur | [x] | shared-024 |
 | [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [x] | shared-024 |
 | [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [x] | - |
+| [android-064](android/android-064-test-output-summary.md) | Test-Output strukturierte Zusammenfassung | 5-QA | [ ] | - |
 
 ---
 
