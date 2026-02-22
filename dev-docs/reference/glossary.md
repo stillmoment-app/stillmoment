@@ -214,6 +214,7 @@ Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed pr
 | Property | Beschreibung |
 |----------|--------------|
 | `isPreparation` | In Vorbereitung? |
+| `isActive` | Session aktiv? (Preparation bis EndGong, exkl. Idle und Completed) |
 | `canStart` | Start moeglich? |
 | `isRunning` | Timer laeuft? |
 | `formattedTime` | Formatierte Anzeige (MM:SS) |

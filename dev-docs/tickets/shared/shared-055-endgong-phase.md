@@ -25,7 +25,7 @@ Aktuell zeigt die UI "Meditation beendet" waehrend der Gong noch spielt. Auf And
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-059    |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

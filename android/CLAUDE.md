@@ -102,7 +102,10 @@ State machines and union types use `sealed class`:
 sealed class TimerState {
     data object Idle : TimerState()
     data object Preparation : TimerState()
+    data object StartGong : TimerState()
+    data object Introduction : TimerState()
     data object Running : TimerState()
+    data object EndGong : TimerState()
     data object Completed : TimerState()
 }
 ```
@@ -129,7 +132,7 @@ data class MeditationTimer(
 
     fun tick(): MeditationTimer {
         val newRemaining = maxOf(0, remainingSeconds - 1)
-        val newState = if (newRemaining <= 0) TimerState.Completed else state
+        val newState = if (newRemaining <= 0) TimerState.EndGong else state
         return copy(remainingSeconds = newRemaining, state = newState)
     }
 

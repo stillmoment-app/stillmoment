@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed (iOS)
+### Changed (iOS & Android)
 - **EndGong-Phase im Timer-Zustandsautomaten** - Wenn der Timer 0 erreicht, wechselt er in `.endGong` statt direkt nach `.completed`
   - Completion-Gong spielt vollstaendig aus bevor die "Meditation beendet"-Ansicht erscheint
-  - Audio-Session bleibt waehrend des End-Gongs aktiv (Keep-Alive)
+  - iOS: Audio-Session bleibt waehrend des End-Gongs aktiv (Keep-Alive)
+  - Android: Foreground Service bleibt waehrend des End-Gongs aktiv (Notification sichtbar)
   - Neuer Zustand `.endGong` und neue Action `.endGongFinished` (Audio-Callback)
+  - Neues Computed Property `isActive` auf `TimerDisplayState` (schliesst EndGong ein)
   - Ticket: shared-055
 
 ### Changed (iOS & Android)
