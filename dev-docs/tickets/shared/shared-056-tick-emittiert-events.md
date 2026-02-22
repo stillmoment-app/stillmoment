@@ -70,7 +70,6 @@ enum TimerEvent: Equatable {
 - [ ] Unit Tests: Intervall-Modi (repeating, afterStart, beforeEnd) korrekt
 - [ ] Unit Tests: 5-Sekunden-Schutz am Ende (kein Intervall-Gong in letzten 5 Sekunden)
 - [ ] Unit Tests: Vollstaendiger Session-Durchlauf (start -> preparation -> running -> completed) emittiert korrekte Event-Sequenz
-- [ ] Unit Tests: Timer bei gesperrtem Bildschirm — Events werden korrekt emittiert auch wenn App im Background (Keep-Alive + System-Timer aktiv)
 - [ ] Bestehende MeditationTimer-Tests erweitert um Event-Assertions
 - [ ] Tests sind fachlich formuliert (Domaen-Sprache, nicht technisch)
 
@@ -91,6 +90,8 @@ enum TimerEvent: Equatable {
 5. Timer bis 00:00 laufen lassen
 6. Erwartung: Completion-Gong spielt (wie bisher)
 7. Verhalten identisch zum bisherigen — die Aenderung ist rein intern
+8. Bildschirm sperren waehrend Timer laeuft
+9. Erwartung: Events werden korrekt emittiert auch wenn App im Background (Keep-Alive + System-Timer aktiv)
 
 ---
 
