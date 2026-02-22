@@ -32,7 +32,7 @@ Keep-Alive wird heute durch verstreute `startKeepAliveAudio()`/`stopKeepAliveAud
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
