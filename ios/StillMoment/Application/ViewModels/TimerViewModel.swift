@@ -400,6 +400,8 @@ final class TimerViewModel: ObservableObject {
             self.dispatch(.startGongFinished)
         case .endGong:
             self.dispatch(.endGongFinished)
+        case .running:
+            break // Interval gong completed — no state transition needed
         default:
             Logger.viewModel.debug(
                 "Gong completion received in unexpected state",
