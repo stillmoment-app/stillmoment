@@ -116,16 +116,6 @@ final class TimerViewModel: ObservableObject {
         self.displayState.formattedTime
     }
 
-    /// Get current running affirmation
-    var currentRunningAffirmation: String {
-        self.runningAffirmations[self.displayState.currentAffirmationIndex % self.runningAffirmations.count]
-    }
-
-    /// Get current preparation affirmation
-    var currentPreparationAffirmation: String {
-        self.preparationAffirmations[self.displayState.currentAffirmationIndex % self.preparationAffirmations.count]
-    }
-
     // MARK: - Action Dispatch
 
     /// Dispatches an action to the reducer and executes resulting effects
@@ -163,26 +153,8 @@ final class TimerViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
 
-    /// Affirmations for running state
-    private var runningAffirmations: [String] {
-        [
-            NSLocalizedString("affirmation.running.1", comment: ""),
-            NSLocalizedString("affirmation.running.2", comment: ""),
-            NSLocalizedString("affirmation.running.3", comment: ""),
-            NSLocalizedString("affirmation.running.4", comment: ""),
-            NSLocalizedString("affirmation.running.5", comment: "")
-        ]
-    }
-
-    /// Affirmations for preparation state
-    private var preparationAffirmations: [String] {
-        [
-            NSLocalizedString("affirmation.preparation.1", comment: ""),
-            NSLocalizedString("affirmation.preparation.2", comment: ""),
-            NSLocalizedString("affirmation.preparation.3", comment: ""),
-            NSLocalizedString("affirmation.preparation.4", comment: "")
-        ]
-    }
+    /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
+    private var minutesBeforeIntroduction: Int?
 
     // MARK: - Effect Execution
 
@@ -374,15 +346,23 @@ final class TimerViewModel: ObservableObject {
             }
             .store(in: &self.cancellables)
 
-        // Enforce minimum duration when introduction changes
+        // Enforce minimum duration when introduction changes, restore when disabled.
+        // Updates displayState directly (not via reducer) because @Published willSet
+        // means self.settings is still stale when the sink runs.
         self.$settings
-            .map { MeditationSettings.minimumDuration(for: $0.introductionId) }
+            .map(\.introductionId)
             .removeDuplicates()
-            .sink { [weak self] minimum in
-                guard let self, self.displayState.selectedMinutes < minimum else {
-                    return
+            .sink { [weak self] introductionId in
+                guard let self
+                else { return }
+                let minimum = MeditationSettings.minimumDuration(for: introductionId)
+                if introductionId != nil, self.displayState.selectedMinutes < minimum {
+                    self.minutesBeforeIntroduction = self.displayState.selectedMinutes
+                    self.displayState.selectedMinutes = minimum
+                } else if introductionId == nil, let restored = self.minutesBeforeIntroduction {
+                    self.displayState.selectedMinutes = restored
+                    self.minutesBeforeIntroduction = nil
                 }
-                self.dispatch(.selectDuration(minutes: minimum))
             }
             .store(in: &self.cancellables)
     }

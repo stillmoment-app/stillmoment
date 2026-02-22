@@ -460,6 +460,43 @@ final class TimerViewModelSettingsTests: XCTestCase {
         )
     }
 
+    // MARK: - Introduction Duration Restoration
+
+    func testDisablingIntroduction_restoresPreIntroductionDuration() {
+        // Given - User selects 1 minute
+        self.sut.selectedMinutes = 1
+        XCTAssertEqual(self.sut.selectedMinutes, 1)
+
+        // When - Enable introduction (requires minimum 3 minutes)
+        self.sut.settings.introductionId = "breath"
+
+        // Then - Duration should be clamped to minimum
+        XCTAssertEqual(self.sut.selectedMinutes, 3, "Should clamp to introduction minimum")
+
+        // When - Disable introduction
+        self.sut.settings.introductionId = nil
+
+        // Then - Duration should restore to the pre-introduction value
+        XCTAssertEqual(self.sut.selectedMinutes, 1, "Should restore to pre-introduction duration")
+    }
+
+    func testDisablingIntroduction_noRestoreWhenDurationWasAboveMinimum() {
+        // Given - User selects 10 minutes (already above the 3-minute minimum)
+        self.sut.selectedMinutes = 10
+
+        // When - Enable introduction
+        self.sut.settings.introductionId = "breath"
+
+        // Then - Duration should stay at 10 (already above minimum)
+        XCTAssertEqual(self.sut.selectedMinutes, 10, "Should not change when already above minimum")
+
+        // When - Disable introduction
+        self.sut.settings.introductionId = nil
+
+        // Then - Duration should still be 10
+        XCTAssertEqual(self.sut.selectedMinutes, 10, "Should stay at 10 when no clamping occurred")
+    }
+
     // MARK: - Settings Hint Persistence (Onboarding)
 
     // Note: hasSeenSettingsHint is @AppStorage in the View (Presentation Layer)
