@@ -37,9 +37,6 @@ Nach Ablauf des Meditationstimers zeigt der Ring das Wort "Danke" statt "00:00".
 - [ ] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
-### Android-spezifisch
-- [ ] Kein automatisches Zuruecknavigieren nach Timer-Completion (aktuell navigiert Android nach ~3s automatisch zurueck - soll stattdessen stehen bleiben wie iOS)
-
 ### Tests
 - [ ] Unit Tests iOS (Reducer/ViewModel: Completed-State produziert korrekte Display-Werte)
 - [ ] Unit Tests Android (Reducer/ViewModel: Completed-State produziert korrekte Display-Werte)
