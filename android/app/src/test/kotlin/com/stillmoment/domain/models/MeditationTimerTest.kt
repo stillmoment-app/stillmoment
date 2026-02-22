@@ -158,7 +158,7 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `tick transitions to completed when remaining seconds reach 0`() {
+    fun `tick transitions to endGong when remaining seconds reach 0`() {
         // Given
         val timer =
             MeditationTimer.create(1)
@@ -169,7 +169,7 @@ class MeditationTimerTest {
 
         // Then
         assertEquals(0, ticked.remainingSeconds)
-        assertEquals(TimerState.Completed, ticked.state)
+        assertEquals(TimerState.EndGong, ticked.state)
     }
 
     @Test
@@ -410,8 +410,8 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `full timer lifecycle simulation`() {
-        // Given: 1 min timer with no countdown
+    fun `full timer lifecycle ends in endGong phase`() {
+        // Given: 1 min timer, no preparation
         var timer =
             MeditationTimer.create(1, preparationTimeSeconds = 0)
                 .copy(state = TimerState.Running)
@@ -421,8 +421,8 @@ class MeditationTimerTest {
             timer = timer.tick()
         }
 
-        // Then: Should be completed
-        assertEquals(TimerState.Completed, timer.state)
+        // Then: Should be in EndGong (gong must finish before Completed)
+        assertEquals(TimerState.EndGong, timer.state)
         assertEquals(0, timer.remainingSeconds)
         assertEquals(1.0f, timer.progress, 0.001f)
         assertTrue(timer.isCompleted)
@@ -498,12 +498,12 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `tick during StartGong transitions to completed at zero`() {
+    fun `tick during StartGong transitions to endGong at zero`() {
         val timer = MeditationTimer.create(1)
             .copy(state = TimerState.StartGong, remainingSeconds = 1)
         val ticked = timer.tick()
         assertEquals(0, ticked.remainingSeconds)
-        assertEquals(TimerState.Completed, ticked.state)
+        assertEquals(TimerState.EndGong, ticked.state)
     }
 
     // MARK: - Introduction Tests
@@ -532,12 +532,12 @@ class MeditationTimerTest {
     }
 
     @Test
-    fun `tick during Introduction transitions to completed at zero`() {
+    fun `tick during Introduction transitions to endGong at zero`() {
         val timer = MeditationTimer.create(1)
             .copy(state = TimerState.Introduction, remainingSeconds = 1)
         val ticked = timer.tick()
         assertEquals(0, ticked.remainingSeconds)
-        assertEquals(TimerState.Completed, ticked.state)
+        assertEquals(TimerState.EndGong, ticked.state)
     }
 
     @Test

@@ -672,7 +672,7 @@ class TimerReducerTest {
     @Nested
     inner class TimerCompleted {
         @Test
-        fun `transitions to completed and plays completion sound`() {
+        fun `transitions to endGong and plays completion sound`() {
             // Given
             val state =
                 TimerDisplayState.Initial.copy(
@@ -688,11 +688,12 @@ class TimerReducerTest {
                     defaultSettings
                 )
 
-            // Then
-            assertEquals(TimerState.Completed, newState.timerState)
+            // Then — enters endGong phase, NOT completed (gong must finish first)
+            assertEquals(TimerState.EndGong, newState.timerState)
             assertEquals(1.0f, newState.progress)
             assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
-            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+            // Foreground service stays active during endGong
+            assertFalse(effects.contains(TimerEffect.StopForegroundService))
         }
 
         @Test
@@ -708,11 +709,12 @@ class TimerReducerTest {
                     defaultSettings
                 )
 
-            // Then — should complete, stop introduction, play completion sound
-            assertEquals(TimerState.Completed, newState.timerState)
+            // Then — enters endGong, stops introduction, plays completion sound
+            assertEquals(TimerState.EndGong, newState.timerState)
             assertTrue(effects.any { it is TimerEffect.StopIntroduction })
             assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
-            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+            // Foreground service stays active during endGong
+            assertFalse(effects.contains(TimerEffect.StopForegroundService))
         }
 
         @Test
@@ -750,6 +752,95 @@ class TimerReducerTest {
             // Then
             val completionEffect = effects.filterIsInstance<TimerEffect.PlayCompletionSound>().first()
             assertEquals("deep-resonance", completionEffect.gongSoundId)
+        }
+    }
+
+    // MARK: - EndGongFinished Tests
+
+    @Nested
+    inner class EndGongFinished {
+        @Test
+        fun `transitions from endGong to completed and stops foreground service`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(
+                timerState = TimerState.EndGong,
+                progress = 1.0f
+            )
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.EndGongFinished,
+                    defaultSettings
+                )
+
+            // Then
+            assertEquals(TimerState.Completed, newState.timerState)
+            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+        }
+
+        @Test
+        fun `does nothing when not in endGong state`() {
+            // Given — in Running, not EndGong
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Running)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.EndGongFinished,
+                    defaultSettings
+                )
+
+            // Then — no-op
+            assertEquals(state, newState)
+            assertTrue(effects.isEmpty())
+        }
+
+        @Test
+        fun `does nothing when already completed`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(timerState = TimerState.Completed)
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.EndGongFinished,
+                    defaultSettings
+                )
+
+            // Then — no-op
+            assertEquals(state, newState)
+            assertTrue(effects.isEmpty())
+        }
+    }
+
+    // MARK: - Reset from EndGong Tests
+
+    @Nested
+    inner class ResetFromEndGong {
+        @Test
+        fun `reset from endGong returns to idle`() {
+            // Given
+            val state = TimerDisplayState.Initial.copy(
+                timerState = TimerState.EndGong,
+                progress = 1.0f
+            )
+
+            // When
+            val (newState, effects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.ResetPressed,
+                    defaultSettings
+                )
+
+            // Then
+            assertEquals(TimerState.Idle, newState.timerState)
+            assertTrue(effects.contains(TimerEffect.StopForegroundService))
+            assertTrue(effects.contains(TimerEffect.ResetTimer))
         }
     }
 
@@ -884,6 +975,7 @@ class TimerReducerTest {
     // MARK: - Integration Tests
 
     @Nested
+    @Suppress("LongMethod") // Integration tests trace complete state machine flows
     inner class Integration {
         @Test
         fun `full meditation cycle produces correct state transitions`() {
@@ -938,18 +1030,32 @@ class TimerReducerTest {
             assertEquals(TimerState.Running, state.timerState)
             assertTrue(runningEffects.any { it is TimerEffect.StartBackgroundAudio })
 
-            // When - Timer completed
-            val (completedState, completedEffects) =
+            // When - Timer completed → EndGong (gong plays)
+            val (endGongState, endGongEffects) =
                 TimerReducer.reduce(
                     state,
                     TimerAction.TimerCompleted,
+                    settings
+                )
+            state = endGongState
+
+            // Then — endGong phase, not completed yet
+            assertEquals(TimerState.EndGong, state.timerState)
+            assertTrue(endGongEffects.any { it is TimerEffect.PlayCompletionSound })
+            assertFalse(endGongEffects.contains(TimerEffect.StopForegroundService))
+
+            // When - End gong finished → Completed
+            val (completedState, completedEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.EndGongFinished,
                     settings
                 )
             state = completedState
 
             // Then
             assertEquals(TimerState.Completed, state.timerState)
-            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
+            assertTrue(completedEffects.contains(TimerEffect.StopForegroundService))
 
             // When - Reset
             val (resetState, resetEffects) =
@@ -995,17 +1101,29 @@ class TimerReducerTest {
             state = runningState
             assertEquals(TimerState.Running, state.timerState)
 
-            // When - Timer completed
-            val (completedState, completedEffects) =
+            // When - Timer completed → EndGong
+            val (endGongState, endGongEffects) =
                 TimerReducer.reduce(
                     state,
                     TimerAction.TimerCompleted,
                     settings
                 )
 
+            // Then — endGong, not completed
+            assertEquals(TimerState.EndGong, endGongState.timerState)
+            assertTrue(endGongEffects.any { it is TimerEffect.PlayCompletionSound })
+
+            // When - End gong finished → Completed
+            val (completedState, completedEffects) =
+                TimerReducer.reduce(
+                    endGongState,
+                    TimerAction.EndGongFinished,
+                    settings
+                )
+
             // Then
             assertEquals(TimerState.Completed, completedState.timerState)
-            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
+            assertTrue(completedEffects.contains(TimerEffect.StopForegroundService))
         }
 
         @Test
@@ -1061,15 +1179,25 @@ class TimerReducerTest {
                 assertTrue(runningEffects.any { it is TimerEffect.EndIntroductionPhase })
                 assertTrue(runningEffects.any { it is TimerEffect.StartBackgroundAudio })
 
-                // When - Timer completed
-                val (completedState, completedEffects) =
+                // When - Timer completed → EndGong
+                val (endGongState, endGongEffects) =
                     TimerReducer.reduce(
                         state,
                         TimerAction.TimerCompleted,
                         settings
                     )
+                assertEquals(TimerState.EndGong, endGongState.timerState)
+                assertTrue(endGongEffects.any { it is TimerEffect.PlayCompletionSound })
+
+                // When - End gong finished → Completed
+                val (completedState, completedEffects) =
+                    TimerReducer.reduce(
+                        endGongState,
+                        TimerAction.EndGongFinished,
+                        settings
+                    )
                 assertEquals(TimerState.Completed, completedState.timerState)
-                assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
+                assertTrue(completedEffects.contains(TimerEffect.StopForegroundService))
             } finally {
                 Introduction.languageOverride = null
             }

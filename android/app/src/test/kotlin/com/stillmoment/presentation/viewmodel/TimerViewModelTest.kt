@@ -153,6 +153,48 @@ class TimerViewModelTest {
         assertFalse(completedState.isPreparation)
     }
 
+    // MARK: - isActive Tests
+
+    @Test
+    fun `isActive is true during preparation`() {
+        val state = TimerUiState(
+            displayState = TimerDisplayState(timerState = TimerState.Preparation)
+        )
+        assertTrue(state.displayState.isActive)
+    }
+
+    @Test
+    fun `isActive is true during running`() {
+        val state = TimerUiState(
+            displayState = TimerDisplayState(timerState = TimerState.Running)
+        )
+        assertTrue(state.displayState.isActive)
+    }
+
+    @Test
+    fun `isActive is true during endGong`() {
+        val state = TimerUiState(
+            displayState = TimerDisplayState(timerState = TimerState.EndGong)
+        )
+        assertTrue(state.displayState.isActive)
+    }
+
+    @Test
+    fun `isActive is false when idle`() {
+        val state = TimerUiState(
+            displayState = TimerDisplayState(timerState = TimerState.Idle)
+        )
+        assertFalse(state.displayState.isActive)
+    }
+
+    @Test
+    fun `isActive is false when completed`() {
+        val state = TimerUiState(
+            displayState = TimerDisplayState(timerState = TimerState.Completed)
+        )
+        assertFalse(state.displayState.isActive)
+    }
+
     // MARK: - formattedTime Tests
 
     @Test
