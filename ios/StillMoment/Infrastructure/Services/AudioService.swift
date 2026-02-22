@@ -283,6 +283,7 @@ final class AudioService: AudioServiceProtocol {
         // Keep-alive is managed by activateTimerSession/deactivateTimerSession.
         // stop() does NOT touch keep-alive — it may still be needed if timer is active.
         // Release audio session when stopping all audio
+        self.timerSessionActive = false
         self.coordinator.releaseAudioSession(for: .timer)
     }
 
