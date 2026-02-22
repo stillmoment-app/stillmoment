@@ -192,12 +192,17 @@ constructor(
             stopGongPreview()
             stopBackgroundPreview()
 
-            coordinator.requestAudioSession(AudioSource.PREVIEW)
-
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)
             val clampedVolume = volume.coerceIn(0f, 1f)
-            previewPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+            val player = mediaPlayerFactory.createFromResource(resourceId)
+            if (player == null) {
+                logger.e(TAG, "Failed to create player for gong preview: ${gongSound.id}")
+                return
+            }
+
+            coordinator.requestAudioSession(AudioSource.PREVIEW)
+            previewPlayer = player.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
@@ -303,10 +308,15 @@ constructor(
             return
         }
 
-        coordinator.requestAudioSession(AudioSource.PREVIEW)
-
         try {
-            backgroundPreviewPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+            val player = mediaPlayerFactory.createFromResource(resourceId)
+            if (player == null) {
+                logger.e(TAG, "Failed to create player for background preview: $soundId")
+                return
+            }
+
+            coordinator.requestAudioSession(AudioSource.PREVIEW)
+            backgroundPreviewPlayer = player.apply {
                 setVolume(volume, volume)
                 setOnCompletionListener {
                     release()
