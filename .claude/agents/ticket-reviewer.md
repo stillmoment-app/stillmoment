@@ -38,9 +38,14 @@ Nutze `/review-localization` um Uebersetzungen, ungenutzte Keys und Cross-Platfo
 
 ### 5. Statische Pruefungen ausfuehren
 ```bash
+# Zuerst verfuegbare Targets pruefen:
+cd <platform> && make help
+# Dann ausfuehren:
 cd <platform> && make check
-cd <platform> && make test-unit
+cd <platform> && make test-unit   # iOS
+cd <platform> && make test        # Android (kein test-unit Target)
 ```
+**WICHTIG:** Nicht blind `make test-unit` UND `make test` ausfuehren. Erst `make help` lesen, dann das richtige Target waehlen. Auf Android gibt es nur `make test`.
 
 ### 6. Ergebnisse klassifizieren
 
@@ -48,7 +53,7 @@ Uebersetze alle Findings in BLOCKER oder DISCUSSION:
 
 **BLOCKER** (fuehrt zu FAIL):
 - Skill-Findings unter "Muss gefixt werden"
-- `make check` oder `make test-unit` schlaegt fehl
+- `make check` oder Tests (`make test-unit` / `make test`) schlagen fehl
 - Akzeptanzkriterien nicht erfuellt
 
 **DISCUSSION** (fuehrt NICHT zu FAIL):
@@ -70,7 +75,7 @@ Du bekommst einen Pfad zu einer Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md
 Verdict: PASS
 
 make check: OK
-make test-unit: OK
+make test(-unit): OK
 
 DISCUSSION:
 <!-- DISCUSSION_START -->
@@ -88,7 +93,7 @@ Summary:
 Verdict: FAIL
 
 make check: OK/FAIL
-make test-unit: OK/FAIL
+make test(-unit): OK/FAIL
 
 BLOCKER:
 - datei:zeile - Beschreibung des Problems
