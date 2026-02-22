@@ -165,14 +165,14 @@ object TimerReducer {
 
 **Pfade:**
 - Voll: idle → preparation → startGong → introduction → running → completed
-- Ohne Einleitung: idle → preparation → startGong → running → completed
+- Ohne Einstimmung: idle → preparation → startGong → running → completed
 - Ohne Vorbereitung: idle → startGong → introduction → running → completed
 - Minimal: idle → startGong → running → completed
-- Start-Gong spielt im `startGong`-State; Einleitung wartet auf `startGongFinished` Action
-- Einleitungs-Audio startet erst nach dem Start-Gong (sequenziell via `startGongFinished` Action)
-- Einleitung zaehlt zur Gesamtmeditationszeit (Countdown laeuft bereits)
+- Start-Gong spielt im `startGong`-State; Einstimmung wartet auf `startGongFinished` Action
+- Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via `startGongFinished` Action)
+- Einstimmung zaehlt zur Gesamtmeditationszeit (Countdown laeuft bereits)
 - Hintergrund-Audio und Intervall-Gongs starten erst beim Uebergang zu running
-- Wenn Timer waehrend der Einleitung ablaeuft: introduction → completed (Einleitung wird abgeschnitten)
+- Wenn Timer waehrend der Einstimmung ablaeuft: introduction → completed (Einstimmung wird abgeschnitten)
 
 ### Intervall-Gong-Zyklus
 
