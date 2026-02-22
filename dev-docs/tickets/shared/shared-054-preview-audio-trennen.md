@@ -1,21 +1,27 @@
 # Ticket shared-054: Preview-Audio von Timer-Lifecycle trennen
 
 **Status**: [ ] TODO
-**Prioritaet**: HOCH
-**Aufwand**: iOS ~2h | Android ~1h
+**Prioritaet**: MITTEL
+**Aufwand**: iOS ~1h | Android ~1h
 **Phase**: 2-Architektur
 
 ---
 
 ## Was
 
-Neuer `AudioSource.preview`-Typ. Preview-Methoden (Gong-Vorhoeren, Hintergrund-Vorhoeren) registrieren sich als `.preview`, nicht als `.timer`. Keep-Alive-Audio ist an den `.timer`-Lifecycle gebunden und wird bei Preview nicht gestartet.
+Neuer `AudioSource.preview`-Typ. Preview-Methoden (Gong-Vorhoeren, Hintergrund-Vorhoeren) registrieren sich als `.preview`, nicht als `.timer`. Preview bekommt eigene Identitaet im AudioSessionCoordinator.
 
 ## Warum
 
-Aktuell teilen Preview und Timer denselben Audio-Pfad (`configureAudioSession()`). Das startet Keep-Alive-Audio auch bei Previews — ein Bug. Es gibt kein Konzept fuer "Audio-Lifecycle" das Preview von Timer trennt.
+Nach shared-059 (Keep-Alive-Invariante) startet Keep-Alive nur noch ueber `activateTimerSession()` — der urspruengliche Bug (Preview startet Keep-Alive) ist damit geloest.
 
-**Bezug:** `dev-docs/architecture/meditation-session-aggregate.md` (Abschnitt 7), `dev-docs/architecture/timer-incremental-refactoring.md` (Schritt 4)
+Es bleiben drei Probleme, weil Preview-Methoden weiterhin `requestAudioSession(for: .timer)` aufrufen:
+
+1. **Falsches Conflict-Handling:** Wenn ein User waehrend einer gefuehrten Meditation einen Gong vorhoert, feuert der `.timer`-Conflict-Handler und koennte die Guided Meditation stoppen.
+2. **Session-Lifecycle-Leck:** Preview ruft `requestAudioSession(for: .timer)` auf, aber nie `releaseAudioSession(for: .timer)`. Die Session bleibt als "Timer aktiv" registriert, obwohl kein Timer laeuft.
+3. **Irreführende Semantik:** Wer den Code liest, sieht `.timer` bei einem Preview und muss sich fragen warum.
+
+**Bezug:** `dev-docs/architecture/timer-incremental-refactoring.md` (Schritt 4)
 
 ---
 
@@ -23,7 +29,7 @@ Aktuell teilen Preview und Timer denselben Audio-Pfad (`configureAudioSession()`
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [ ]    | shared-059    |
 | Android   | [ ]    | -             |
 
 ---
@@ -32,14 +38,15 @@ Aktuell teilen Preview und Timer denselben Audio-Pfad (`configureAudioSession()`
 
 ### Feature (beide Plattformen)
 - [ ] `AudioSource.preview` existiert als neuer Enum-Case
-- [ ] Preview-Methoden (`playGongPreview`, `playBackgroundPreview`) nutzen `.preview` statt `.timer`
-- [ ] Preview startet KEIN Keep-Alive-Audio
-- [ ] Timer-Start startet weiterhin Keep-Alive-Audio (unveraendert)
-- [ ] Preview und Timer koennen nicht gleichzeitig laufen (Preview stoppt bei Timer-Start)
+- [ ] Preview-Methoden (`playGongPreview`, `playBackgroundPreview`) nutzen `requestAudioSession(for: .preview)` statt `.timer`
+- [ ] Preview gibt Audio-Session nach Abschluss wieder frei (`releaseAudioSession(for: .preview)`)
+- [ ] Preview loest keinen Conflict-Handler fuer `.timer` oder `.guidedMeditation` aus
+- [ ] Timer-Start ist von Preview unbeeinflusst (Preview stoppt bei Timer-Start)
 
 ### Tests
-- [ ] Unit Tests iOS: Preview registriert sich als `.preview`, nicht `.timer`
-- [ ] Unit Tests iOS: Keep-Alive wird bei Preview nicht gestartet
+- [ ] Unit Tests: Preview registriert sich als `.preview`, nicht `.timer`
+- [ ] Unit Tests: Preview loest keinen Timer-Conflict-Handler aus
+- [ ] Unit Tests: Preview gibt Audio-Session nach Abschluss frei
 - [ ] Unit Tests Android: Saubere Audio-Session-Trennung bei Preview
 
 ### Dokumentation
@@ -52,15 +59,16 @@ Aktuell teilen Preview und Timer denselben Audio-Pfad (`configureAudioSession()`
 ## Manueller Test
 
 1. Settings oeffnen, Gong-Preview abspielen
-2. Erwartung: Gong spielt, kein Keep-Alive-Audio im Hintergrund
-3. Timer starten
-4. Erwartung: Keep-Alive-Audio laeuft (unveraendertes Verhalten)
+2. Erwartung: Gong spielt, kein Einfluss auf Timer-Session
+3. Timer starten waehrend Preview laeuft
+4. Erwartung: Preview stoppt, Timer laeuft normal
 5. Identisch auf iOS und Android
 
 ---
 
 ## Hinweise
 
-- Vollstaendig unabhaengig von den anderen Timer-Refactoring-Tickets (shared-055, shared-056, shared-057)
+- Abhaengig von shared-059 (iOS): Preview-Methoden rufen aktuell `configureAudioSession()` auf, das nach shared-059 bereinigt wird
+- Vollstaendig unabhaengig von shared-055, shared-056, shared-057
 - Android hat kein Keep-Alive-Problem (Foreground Service), aber die saubere Trennung ist trotzdem sinnvoll fuer konsistente Audio-Session-Verwaltung
-- AudioSessionCoordinator-Logik bleibt unveraendert, nur neuer Enum-Case
+- AudioSessionCoordinator-Logik bleibt weitgehend unveraendert, nur neuer Enum-Case und ggf. angepasste Conflict-Regeln
