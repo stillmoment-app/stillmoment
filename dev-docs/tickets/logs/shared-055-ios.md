@@ -22,3 +22,26 @@ Challenges:
 
 Summary:
 Added .endGong as new TimerState between running and completed. When the meditation timer reaches zero, it enters endGong (completion gong playing) instead of immediately showing the completed screen. The transition to completed is event-driven via the audio callback (endGongFinished action). All 682 tests pass, 15 new endGong-specific tests added across 3 test files. Updated CHANGELOG and glossary with new state and action.
+
+---
+
+## REVIEW 1
+Verdict: PASS
+
+make check: OK
+make test-unit: OK (682/682)
+
+DISCUSSION:
+<!-- DISCUSSION_START -->
+- ios/StillMoment/Application/ViewModels/TimerViewModel.swift:380 — `handleGongCompletion()` default-Branch loggt "Gong completion received in unexpected state". Da `gongCompletionPublisher` fuer ALLE Gong-Typen feuert (Start-, Intervall-, End-Gong), ist das Feuern waehrend `.running` bei Intervall-Gongs kein unerwarteter Zustand — es ist Normalfall. Die Log-Message ist leicht irrefuehrend beim Debugging. Kein Bug, nur Kosmetik.
+<!-- DISCUSSION_END -->
+
+Summary:
+Saubere Umsetzung. Der neue `.endGong`-State ist korrekt in alle Layer integriert: Domain-Model (tick-Transitions), Reducer (timerCompleted→endGong, endGongFinished→completed), ViewModel (state-basiertes Routing der gongCompletionPublisher-Callbacks), TimerService (stopSystemTimer bei endGong), View (endGong=running, kein Completed-Screen). Keep-Alive bleibt waehrend endGong aktiv (kein `deactivateTimerSession` in timerCompleted-Effects). 15 neue Tests decken alle Akzeptanzkriterien ab (State-Transitions, No-Op in falscher Phase, Reset aus endGong, isRunning schliesst endGong ein, Integration). Beide Architektur-Docs (meditation-session-aggregate.md, timer-incremental-refactoring.md) hatten endGong bereits als Design vordokumentiert — kein Update noetig. Glossar und CHANGELOG korrekt aktualisiert.
+
+---
+
+## CLOSE
+Status: DONE
+Commits:
+- 95b6114 docs: #shared-055 Close ticket (iOS)

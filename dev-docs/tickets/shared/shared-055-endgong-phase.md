@@ -1,6 +1,6 @@
 # Ticket shared-055: endGong als eigene Phase
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3h | Android ~3h
 **Phase**: 2-Architektur
@@ -24,7 +24,7 @@ Aktuell zeigt die UI "Meditation beendet" waehrend der Gong noch spielt. Auf And
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-059    |
+| iOS       | [x]    | shared-059    |
 | Android   | [ ]    | -             |
 
 ---
