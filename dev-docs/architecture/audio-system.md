@@ -44,9 +44,10 @@ Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`
 
 - Background Mode in `Info.plist` (`UIBackgroundModes: audio`)
 - Audio Session: `.playback` Kategorie ohne `.mixWithOthers`
-- **Keep-Alive**: `configureAudioSession()` startet intern einen stillen Audio-Loop (`silence.mp3`), der die Audio-Session waehrend Preparation, Start-Gong und Introduction am Leben haelt (siehe ADR-004)
-- Hintergrund-Audio (`startBackgroundAudio`) ersetzt den Keep-Alive-Loop beim Uebergang zu Running
-- Bei Timer-Ende oder Reset wird alles gestoppt (inkl. Keep-Alive)
+- **Keep-Alive (Always-On)**: `activateTimerSession()` startet Audio-Session + stillen Audio-Loop (`silence.mp3`). Keep-Alive laeuft durchgehend von Timer-Start bis Timer-Ende — wird NICHT bei Audio-Transitions gestoppt. `deactivateTimerSession()` ist die einzige Stelle die Keep-Alive beendet (siehe ADR-004, shared-059)
+- Hintergrund-Audio (`startBackgroundAudio`) laeuft parallel zum Keep-Alive (stoert sich nicht)
+- Bei Timer-Ende oder Reset: `deactivateTimerSession()` stoppt Keep-Alive und gibt Audio-Session frei
+- Nach Audio-Unterbrechung (Anruf): Keep-Alive wird im Interruption-Handler neu gestartet falls Timer aktiv
 
 ---
 
@@ -79,7 +80,9 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 
 | TimerEffect | Audio-Aktion |
 |-------------|--------------|
-| `configureAudioSession` | Audio Session aktivieren |
+| `activateTimerSession` | Audio Session + Keep-Alive starten (Timer-Start) |
+| `deactivateTimerSession` | Keep-Alive stoppen + Audio Session freigeben (Timer-Ende/Reset) |
+| `configureAudioSession` | Audio Session aktivieren (nur fuer Nicht-Timer-Pfade: Previews) |
 | `playStartGong` | Start-Gong abspielen |
 | `playIntroduction(introductionId:)` | Einleitungs-Audio starten (haelt Audio-Session aktiv) |
 | `stopIntroduction` | Einleitungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einleitung) |
@@ -118,12 +121,12 @@ Die Einleitung ist eine eigene Phase in der Timer State Machine (`TimerState.int
 ### Ablauf
 
 ```
-Keep-Alive Audio: ═══════════════════════════════════════╗
-                                                         ║ (ersetzt durch Background Audio)
+Keep-Alive Audio: ════════════════════════════════════════════════════════════════
+                  (Always-On: laeuft durchgehend von activateTimerSession bis deactivateTimerSession)
 Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Background Audio + Running
      │              │                         │                       │
      │              │                         │                       └─ Intervall-Gongs zaehlen ab hier
-     │              │                         └─ Audio-Session aktiv via Einleitungs-Audio + Keep-Alive
+     │              │                         └─ Audio-Session aktiv via Keep-Alive (parallel)
      │              └─ Gong spielt beim Uebergang preparation→introduction
      │                 Einleitung wartet auf Gong-Ende (startGongFinished Action)
      └─ Audio-Session aktiv via Keep-Alive Audio
@@ -158,15 +161,24 @@ Einleitungen sind App-Bundle-Assets (nicht user-importierbar). Registry in `Intr
 
 Waehrend Preparation, Start-Gong-Uebergang und Introduction→Running-Uebergang laeuft kein hoerbarer Audio-Stream. iOS suspendiert die App wenn keine aktive Audio-Wiedergabe vorhanden ist.
 
-### Loesung
+### Loesung (Always-On, seit shared-059)
 
-AudioService spielt intern `silence.mp3` in einer Schleife sobald `configureAudioSession()` aufgerufen wird. Dieser Keep-Alive-Loop wird automatisch durch den echten Background-Sound ersetzt wenn `startBackgroundAudio()` aufgerufen wird.
+Keep-Alive laeuft **durchgehend** von Timer-Start bis Timer-Ende. Zwei Methoden statt verstreuter Aufrufe:
 
-**Wichtig:** Der Reducer weiss nichts vom Keep-Alive. Er emittiert dieselben Effects wie bisher. Das Keep-Alive ist ein reines Infrastructure-Detail.
+```
+activateTimerSession()   → Audio-Session + Keep-Alive AN (Timer-Start)
+deactivateTimerSession() → Keep-Alive AUS + Audio-Session freigeben (Timer-Ende/Reset)
+```
+
+Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt. Die lautlose Datei (`silence.mp3`, Volume 0.01) stoert kein anderes Audio.
+
+**Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed` und `.timerCompleted`. Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
+
+**Audio-Unterbrechung:** Im Interruption-Handler wird Keep-Alive neu gestartet falls `timerSessionActive == true` und `.shouldResume` gesetzt ist.
 
 ### Analogie zu Guided Meditations
 
-Das gleiche Pattern existiert bereits fuer Guided Meditations:
+Das gleiche Pattern existiert fuer Guided Meditations:
 - `AudioPlayerService.startSilentBackgroundAudio()` waehrend Vorbereitungs-Countdown
 - `stopSilentBackgroundAudio()` vor MP3-Playback-Start
 
@@ -411,4 +423,4 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 ---
 
 **Zuletzt aktualisiert**: 2026-02-22
-**Version**: 2.4
+**Version**: 2.5

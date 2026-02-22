@@ -140,7 +140,7 @@ final class TimerReducerTests: XCTestCase {
         expectedSettings.durationMinutes = 10
 
         XCTAssertEqual(effects.count, 3)
-        XCTAssertEqual(effects[0], .configureAudioSession)
+        XCTAssertEqual(effects[0], .activateTimerSession)
         XCTAssertEqual(effects[1], .startTimer(durationMinutes: 10))
         XCTAssertEqual(effects[2], .saveSettings(expectedSettings))
     }
@@ -302,7 +302,7 @@ final class TimerReducerTests: XCTestCase {
         // Then
         XCTAssertEqual(newState.timerState, .completed)
         XCTAssertEqual(newState.progress, 1.0)
-        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
+        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio, .deactivateTimerSession])
     }
 
     // MARK: - IntervalGong Tests

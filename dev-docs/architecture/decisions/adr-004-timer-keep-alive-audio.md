@@ -25,51 +25,53 @@ Das Guided-Meditation-Modul loest dasselbe Problem bereits mit `AudioPlayerServi
 
 Keep-Alive Audio wird als **internes Implementierungsdetail** der AudioService gehandhabt:
 
-1. `AudioService.configureAudioSession()` startet intern einen stillen Audio-Loop (`silence.mp3`) der die Audio-Session am Leben haelt
-2. `AudioService.startBackgroundAudio()` ersetzt den Keep-Alive-Loop durch den echten Background-Sound
-3. `AudioService.stopBackgroundAudio()` und `stop()` beenden auch den Keep-Alive-Loop
-4. Der Reducer emittiert keine Keep-Alive-bezogenen Effects — er drueckt nur fachliche Intention aus
+1. `AudioService.activateTimerSession()` startet Audio-Session + stillen Audio-Loop (`silence.mp3`)
+2. Keep-Alive laeuft **durchgehend** — wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt
+3. `AudioService.deactivateTimerSession()` ist die **einzige** Stelle die Keep-Alive beendet
+4. Der Reducer emittiert `activateTimerSession` bei Start und `deactivateTimerSession` bei Reset/Completion
 
 ```
-Reducer:  configureAudioSession    startBackgroundAudio    stopBackgroundAudio
+Reducer:  activateTimerSession    startBackgroundAudio    deactivateTimerSession
               │                         │                       │
 AudioService: │                         │                       │
               ▼                         ▼                       ▼
-         Session aktivieren      Keep-Alive stoppen        Alles stoppen
-         Keep-Alive starten      Echtes Audio starten
+         Session aktivieren      Echtes Audio starten     Keep-Alive stoppen
+         Keep-Alive starten      (Keep-Alive laeuft       Session freigeben
+                                  parallel weiter)
 ```
 
 ### Audio-Player-Architektur
 
-Drei unabhaengige AVAudioPlayer-Instanzen fuer drei unabhaengige Audio-Streams:
+Vier unabhaengige AVAudioPlayer-Instanzen:
 
 | Player | Lebenszyklus | Zweck |
 |--------|-------------|-------|
-| `keepAlivePlayer` | configureAudioSession → startBackgroundAudio | Haelt Audio-Session aktiv (Infrastructure) |
+| `keepAlivePlayer` | activateTimerSession → deactivateTimerSession | Haelt Audio-Session aktiv (Always-On) |
 | `audioPlayer` | playGong → delegate fires | Start-Gong, Intervall-Gongs, Completion-Gong |
 | `introductionPlayer` | playIntroduction → delegate fires | Gefuehrte Einleitung |
 | `backgroundAudioPlayer` | startBackgroundAudio → stopBackgroundAudio | Hoerbarer Background-Sound |
 
-Keep-Alive und Background-Audio sind **sequenziell** (nie gleichzeitig). Gong und Introduction spielen **parallel** zum jeweils aktiven Background-Player.
+Keep-Alive und Background-Audio laufen **parallel** (nicht sequenziell). Die lautlose Datei bei Volume 0.01 stoert kein anderes Audio. Gong und Introduction spielen ebenfalls parallel.
 
 ## Konsequenzen
 
 ### Positiv
 
-- **Reducer bleibt rein**: Kein iOS-spezifisches Wissen im Domain-Layer
-- **Erweiterbar**: Neue Timer-Phasen brauchen keine Keep-Alive-Logik — sie sind automatisch abgedeckt
-- **Konsistent**: Gleiches Pattern wie Guided-Meditation-Countdown
-- **Testbar**: Keep-Alive ist ein Implementierungsdetail das in AudioService-Tests geprueft wird, Reducer-Tests bleiben unveraendert
+- **Keine Luecken**: Keep-Alive laeuft durch — egal welche Audio-Transitions passieren
+- **Einfacher**: Zwei Methoden statt 6 Start-Stellen und 4 Stop-Stellen
+- **Erweiterbar**: Neue Timer-Phasen/Audio-Features brauchen keine Keep-Alive-Koordination
+- **Interruption-safe**: Keep-Alive wird nach Audio-Unterbrechung automatisch neu gestartet
+- **Reducer bleibt rein**: Session-Grenzen als Effects, kein iOS-spezifisches Wissen
 
 ### Negativ
 
-- **Implizites Verhalten**: `configureAudioSession()` hat jetzt einen Seiteneffekt (Keep-Alive starten) der nicht am API-Namen erkennbar ist
+- **Zwei Audio-Streams gleichzeitig**: Keep-Alive und Background-Audio laufen parallel (minimal, da Volume 0.01)
 
 ### Mitigationen
 
-- Dokumentation in AudioService (Docstring auf `configureAudioSession`)
-- Logging bei Keep-Alive-Start/Stop
-- AudioService-Tests pruefen das Keep-Alive-Verhalten explizit
+- Dokumentation in AudioService (Docstrings auf `activateTimerSession`/`deactivateTimerSession`)
+- Logging bei Keep-Alive-Start/Stop/Resume
+- AudioService-Tests pruefen das Always-On-Verhalten explizit
 
 ## Alternativen (verworfen)
 

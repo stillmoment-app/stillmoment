@@ -161,6 +161,8 @@ final class MockAudioService: AudioServiceProtocol {
     }
 
     var configureAudioSessionCalled = false
+    var activateTimerSessionCalled = false
+    var deactivateTimerSessionCalled = false
     var startBackgroundAudioCalled = false
     var stopBackgroundAudioCalled = false
     var playStartGongCalled = false
@@ -200,6 +202,19 @@ final class MockAudioService: AudioServiceProtocol {
         if self.shouldThrowOnConfigure {
             throw AudioServiceError.sessionConfigurationFailed
         }
+    }
+
+    func activateTimerSession() throws {
+        self.activateTimerSessionCalled = true
+        self.audioCallOrder.append("activateTimerSession")
+        if self.shouldThrowOnConfigure {
+            throw AudioServiceError.sessionConfigurationFailed
+        }
+    }
+
+    func deactivateTimerSession() {
+        self.deactivateTimerSessionCalled = true
+        self.audioCallOrder.append("deactivateTimerSession")
     }
 
     func startBackgroundAudio(soundId: String, volume: Float) throws {

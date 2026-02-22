@@ -21,6 +21,15 @@ protocol AudioServiceProtocol {
     /// Configures the audio session for background-capable playback
     func configureAudioSession() throws
 
+    /// Activates a timer session: configures audio session and starts keep-alive audio.
+    /// Keep-alive runs continuously until `deactivateTimerSession()` is called.
+    /// Call once at timer start — never stop/restart keep-alive during the session.
+    func activateTimerSession() throws
+
+    /// Deactivates the timer session: stops keep-alive audio and releases the audio session.
+    /// This is the ONLY place where keep-alive is stopped.
+    func deactivateTimerSession()
+
     /// Starts background audio to keep app active
     /// - Parameters:
     ///   - soundId: ID of the background sound to play (references BackgroundSound.id)

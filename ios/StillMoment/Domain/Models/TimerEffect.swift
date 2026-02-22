@@ -17,6 +17,12 @@ enum TimerEffect: Equatable {
     /// Configure the audio session for playback
     case configureAudioSession
 
+    /// Activate the timer session (audio session + always-on keep-alive)
+    case activateTimerSession
+
+    /// Deactivate the timer session (stop keep-alive + release audio session)
+    case deactivateTimerSession
+
     /// Start background audio with the given sound ID and volume
     case startBackgroundAudio(soundId: String, volume: Float)
 

@@ -306,7 +306,7 @@ final class TimerReducerIntroductionTests: XCTestCase {
 
         // Then - No stopIntroduction effect
         XCTAssertFalse(effects.contains(.stopIntroduction))
-        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
+        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio, .deactivateTimerSession])
     }
 
     // MARK: - ResetPressed with Introduction
@@ -346,7 +346,7 @@ final class TimerReducerIntroductionTests: XCTestCase {
         // Then
         XCTAssertEqual(newState.timerState, .idle)
         XCTAssertFalse(effects.contains(.stopIntroduction))
-        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer])
+        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
     }
 
     func testResetPressed_fromIntroduction_resetsAllState() {

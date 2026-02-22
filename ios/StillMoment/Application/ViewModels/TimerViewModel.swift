@@ -44,8 +44,9 @@ final class TimerViewModel: ObservableObject {
 
     // MARK: - Published State
 
-    /// The complete display state managed by the reducer
-    @Published private(set) var displayState: TimerDisplayState = .initial
+    /// The complete display state managed by the reducer.
+    /// Internal setter for cross-file extension access (TimerViewModel+Preview).
+    @Published var displayState: TimerDisplayState = .initial
 
     /// Meditation settings (interval gongs, background sound, etc.)
     @Published var settings: MeditationSettings = .default
@@ -147,9 +148,9 @@ final class TimerViewModel: ObservableObject {
     // MARK: Private
 
     private let timerService: TimerServiceProtocol
-    private let audioService: AudioServiceProtocol
+    let audioService: AudioServiceProtocol
     private let settingsRepository: TimerSettingsRepository
-    private let soundRepository: BackgroundSoundRepositoryProtocol
+    let soundRepository: BackgroundSoundRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
     private var previousState: TimerState = .idle
 
@@ -167,7 +168,10 @@ final class TimerViewModel: ObservableObject {
     private func executeEffect(_ effect: TimerEffect) {
         Logger.viewModel.debug("Executing effect: \(String(describing: effect))")
 
-        if self.executeAudioEffect(effect) {
+        if self.executeAudioSessionEffect(effect) {
+            return
+        }
+        if self.executeAudioPlaybackEffect(effect) {
             return
         }
         if self.executeTimerEffect(effect) {
@@ -178,10 +182,22 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func executeAudioEffect(_ effect: TimerEffect) -> Bool {
+    private func executeAudioSessionEffect(_ effect: TimerEffect) -> Bool {
         switch effect {
         case .configureAudioSession:
             self.executeConfigureAudioSession()
+        case .activateTimerSession:
+            self.executeActivateTimerSession()
+        case .deactivateTimerSession:
+            self.audioService.deactivateTimerSession()
+        default:
+            return false
+        }
+        return true
+    }
+
+    private func executeAudioPlaybackEffect(_ effect: TimerEffect) -> Bool {
+        switch effect {
         case let .startBackgroundAudio(soundId, volume):
             self.executeStartBackgroundAudio(soundId: soundId, volume: volume)
         case .stopBackgroundAudio:
@@ -234,6 +250,16 @@ final class TimerViewModel: ObservableObject {
             Logger.viewModel.info("Audio session configured for timer")
         } catch {
             Logger.viewModel.error("Failed to configure audio session", error: error)
+            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
+        }
+    }
+
+    private func executeActivateTimerSession() {
+        do {
+            try self.audioService.activateTimerSession()
+            Logger.viewModel.info("Timer session activated (audio session + keep-alive)")
+        } catch {
+            Logger.viewModel.error("Failed to activate timer session", error: error)
             self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
         }
     }
@@ -437,91 +463,5 @@ extension TimerViewModel {
     }
 }
 
-// MARK: - Audio Preview (for Settings UI)
-
-extension TimerViewModel {
-    /// All available background sounds from the repository
-    var availableBackgroundSounds: [BackgroundSound] {
-        self.soundRepository.availableSounds
-    }
-
-    /// Introductions available for the current device language
-    var availableIntroductions: [Introduction] {
-        Introduction.availableForCurrentLanguage()
-    }
-
-    /// Plays a gong sound preview when user changes gong selection in settings
-    func playGongPreview(soundId: String, volume: Float) {
-        do {
-            try self.audioService.playGongPreview(soundId: soundId, volume: volume)
-        } catch {
-            Logger.audio.error("Failed to play gong preview", error: error, metadata: ["soundId": soundId])
-        }
-    }
-
-    /// Plays an interval gong preview when user changes interval sound or adjusts volume in settings
-    func playIntervalGongPreview(soundId: String, volume: Float) {
-        do {
-            try self.audioService.playGongPreview(soundId: soundId, volume: volume)
-        } catch {
-            Logger.audio.error("Failed to play interval gong preview", error: error)
-        }
-    }
-
-    /// Plays a background sound preview when user changes background sound in settings
-    func playBackgroundPreview(soundId: String, volume: Float) {
-        do {
-            try self.audioService.playBackgroundPreview(soundId: soundId, volume: volume)
-        } catch {
-            Logger.audio.error("Failed to play background preview", error: error, metadata: ["soundId": soundId])
-        }
-    }
-
-    /// Stops all active audio previews (called on settings dismiss)
-    func stopAllPreviews() {
-        self.audioService.stopGongPreview()
-        self.audioService.stopBackgroundPreview()
-    }
-}
-
-// MARK: - Preview Support
-
-extension TimerViewModel {
-    /// Creates a view model with mocked services for previews
-    static func preview(state: TimerState = .idle) -> TimerViewModel {
-        let viewModel = TimerViewModel()
-
-        // Directly modify displayState for preview
-        var newState = viewModel.displayState
-        newState.timerState = state
-
-        switch state {
-        case .idle:
-            newState.remainingSeconds = 0
-            newState.totalSeconds = 600
-        case .preparation:
-            newState.remainingSeconds = 600
-            newState.totalSeconds = 600
-            newState.remainingPreparationSeconds = 10
-        case .startGong:
-            newState.remainingSeconds = 597
-            newState.totalSeconds = 600
-            newState.progress = 0.005
-        case .introduction:
-            newState.remainingSeconds = 505
-            newState.totalSeconds = 600
-            newState.progress = 0.158
-        case .running:
-            newState.remainingSeconds = 300
-            newState.totalSeconds = 600
-            newState.progress = 0.5
-        case .completed:
-            newState.remainingSeconds = 0
-            newState.totalSeconds = 600
-            newState.progress = 1.0
-        }
-
-        viewModel.displayState = newState
-        return viewModel
-    }
-}
+// Audio Preview and SwiftUI Preview support: see TimerViewModel+Preview.swift
+// (access level widened for cross-file extension use)

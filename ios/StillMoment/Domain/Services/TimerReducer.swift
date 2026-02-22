@@ -91,7 +91,7 @@ enum TimerReducer {
         // - Without introduction: in reduceStartGongFinished
         // - With introduction: in reduceIntroductionFinished
         var effects: [TimerEffect] = [
-            .configureAudioSession
+            .activateTimerSession
         ]
 
         effects.append(.startTimer(durationMinutes: state.selectedMinutes))
@@ -120,7 +120,7 @@ enum TimerReducer {
         if state.timerState == .introduction {
             effects.append(.stopIntroduction)
         }
-        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer])
+        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
 
         return (newState, effects)
     }
@@ -198,7 +198,7 @@ enum TimerReducer {
         if state.timerState == .introduction {
             effects.append(.stopIntroduction)
         }
-        effects.append(.stopBackgroundAudio)
+        effects.append(contentsOf: [.stopBackgroundAudio, .deactivateTimerSession])
 
         return (newState, effects)
     }

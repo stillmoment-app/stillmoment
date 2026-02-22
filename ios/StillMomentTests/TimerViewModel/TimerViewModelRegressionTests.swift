@@ -76,18 +76,18 @@ final class TimerViewModelRegressionTests: XCTestCase {
             "Background audio must start when start gong finishes"
         )
 
-        // Critical: Verify audio session was configured before background audio starts
-        let configureIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "configureAudioSession")
+        // Critical: Verify timer session was activated before background audio starts
+        let activateIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "activateTimerSession")
         let startBackgroundIndex = self.mockAudioService.audioCallOrder.firstIndex(of: "startBackgroundAudio")
 
-        XCTAssertNotNil(configureIndex, "Audio session must be configured")
+        XCTAssertNotNil(activateIndex, "Timer session must be activated")
         XCTAssertNotNil(startBackgroundIndex, "Background audio must be started")
 
-        if let configIdx = configureIndex, let startIdx = startBackgroundIndex {
+        if let activateIdx = activateIndex, let startIdx = startBackgroundIndex {
             XCTAssertLessThan(
-                configIdx,
+                activateIdx,
                 startIdx,
-                "Audio session must be configured BEFORE background audio starts"
+                "Timer session must be activated BEFORE background audio starts"
             )
         }
     }

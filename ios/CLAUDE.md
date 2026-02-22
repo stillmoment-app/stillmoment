@@ -30,7 +30,8 @@ Every service is a protocol in Domain, implemented in Infrastructure:
 ```swift
 // Domain/
 protocol AudioServiceProtocol {
-    func configureAudioSession() throws
+    func activateTimerSession() throws
+    func deactivateTimerSession()
     func playStartGong(soundId: String, volume: Float) throws
 }
 
@@ -147,7 +148,8 @@ Side effects are data, not hidden calls:
 
 ```swift
 enum TimerEffect: Equatable {
-    case configureAudioSession
+    case activateTimerSession
+    case deactivateTimerSession
     case playStartGong
     case startTimer(durationMinutes: Int)
     case saveSettings(MeditationSettings)

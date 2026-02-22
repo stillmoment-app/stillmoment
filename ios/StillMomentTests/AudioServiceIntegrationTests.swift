@@ -52,8 +52,8 @@ final class AudioServiceIntegrationTests: XCTestCase {
         // Given - Fresh service
         let service = AudioService()
 
-        // When - Simulate full meditation cycle
-        try service.configureAudioSession()
+        // When - Simulate full meditation cycle with always-on keep-alive
+        try service.activateTimerSession()
         try service.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
 
         // Wait briefly
@@ -94,7 +94,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
         }
         await fulfillment(of: [completionExpectation], timeout: 0.5)
 
-        // Then - Clean stop
-        service.stop()
+        // Then - Clean deactivation
+        service.deactivateTimerSession()
     }
 }

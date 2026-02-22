@@ -34,7 +34,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         XCTAssertEqual(newState.remainingSeconds, 0)
         XCTAssertEqual(newState.totalSeconds, 0)
         XCTAssertEqual(newState.progress, 0.0)
-        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer])
+        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
     }
 
     func testResetPressed_transitionsTimerFromCompletedToIdle() {

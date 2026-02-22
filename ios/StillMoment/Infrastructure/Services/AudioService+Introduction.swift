@@ -19,7 +19,8 @@ extension AudioService {
     func playIntroduction(filename: String) throws {
         Logger.audio.info("Playing introduction audio", metadata: ["filename": filename])
 
-        try self.configureAudioSession() // Ensure session is active
+        // Audio session is already active via activateTimerSession().
+        // Keep-alive runs in parallel — no coordination needed.
 
         // Parse filename and find in IntroductionAudio directory
         let (name, ext) = self.parseFilename(filename)

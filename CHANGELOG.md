@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (iOS)
+- **Keep-Alive strukturell abgesichert** - Lautlose Audio-Datei laeuft jetzt durchgehend von Timer-Start bis Timer-Ende
+  - Neue API: `activateTimerSession()` / `deactivateTimerSession()` statt verstreuter Start/Stop-Aufrufe
+  - Keep-Alive wird nicht mehr bei Audio-Transitions gestoppt/gestartet (Always-On)
+  - Nach Audio-Unterbrechung (Anruf, Siri): Keep-Alive wird automatisch neu gestartet
+  - Verhindert App-Suspension bei Audio-Transitions (bekannte Bugs Nov 2025 - Feb 2026)
+  - Ticket: shared-059
+
 ### Added (iOS & Android)
 - **Optionale Einleitung fuer Meditationstimer** - Gefuehrte Einleitung (z.B. Atemuebung) vor der stillen Meditation
   - Neue Section "Einleitung" in den Timer-Einstellungen (zwischen Gong und Intervallklaenge)

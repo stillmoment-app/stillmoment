@@ -55,6 +55,7 @@ final class AudioService: AudioServiceProtocol {
         self.backgroundPreviewTimer = nil
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
+        self.timerSessionActive = false
         self.keepAlivePlayer?.stop()
         self.keepAlivePlayer = nil
         self.stopBackgroundAudio()
@@ -81,15 +82,39 @@ final class AudioService: AudioServiceProtocol {
         self.startKeepAliveAudio()
     }
 
+    /// Activates a timer session: configures audio session and starts always-on keep-alive.
+    ///
+    /// Keep-alive runs continuously from timer start to timer end. It is NOT stopped when
+    /// background audio, introduction, or gongs play — the silent audio at volume 0.01
+    /// does not interfere with other audio players.
+    ///
+    /// Call once at timer start. The only counterpart is `deactivateTimerSession()`.
+    func activateTimerSession() throws {
+        _ = try self.coordinator.requestAudioSession(for: .timer)
+        self.timerSessionActive = true
+        self.startKeepAliveAudio()
+        Logger.audio.info("Timer session activated (always-on keep-alive)")
+    }
+
+    /// Deactivates the timer session: stops keep-alive and releases the audio session.
+    ///
+    /// This is the ONLY place where keep-alive is stopped during a timer lifecycle.
+    func deactivateTimerSession() {
+        self.timerSessionActive = false
+        self.stopKeepAliveAudio()
+        self.coordinator.releaseAudioSession(for: .timer)
+        Logger.audio.info("Timer session deactivated")
+    }
+
     func playStartGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing start gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
-        try self.configureAudioSession() // Ensure session is active
+        // Audio session is already active via activateTimerSession()
         try self.playGongSound(soundId: soundId, volume: volume)
     }
 
     func playIntervalGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing interval gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
-        try self.configureAudioSession() // Ensure session is active
+        // Audio session is already active via activateTimerSession()
         try self.playGongSound(soundId: soundId, volume: volume)
     }
 
@@ -187,8 +212,8 @@ final class AudioService: AudioServiceProtocol {
     func startBackgroundAudio(soundId: String, volume: Float) throws {
         Logger.audio.info("Starting background audio", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
-        try self.configureAudioSession() // Ensure session is active (keep-alive guard: already running → no-op)
-        self.stopKeepAliveAudio() // Replace keep-alive with real background audio
+        // Keep-alive runs in parallel — no need to stop it. The silent audio at 0.01 volume
+        // does not interfere with background audio. See shared-059.
 
         // Get sound from repository
         guard let sound = self.soundRepository.getSound(byId: soundId) else {
@@ -233,8 +258,6 @@ final class AudioService: AudioServiceProtocol {
     }
 
     func stopBackgroundAudio() {
-        self.stopKeepAliveAudio()
-
         guard self.backgroundAudioPlayer != nil else {
             return
         }
@@ -242,12 +265,11 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping background audio")
         self.backgroundAudioPlayer?.stop()
         self.backgroundAudioPlayer = nil
-        self.deactivateAudioSessionIfIdle()
     }
 
     func playCompletionSound(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing completion sound", metadata: ["soundId": soundId, "volume": "\(volume)"])
-        try self.configureAudioSession() // Ensure session is active
+        // Audio session is still active — deactivateTimerSession() is called after completion
         try self.playGongSound(soundId: soundId, volume: volume)
     }
 
@@ -255,10 +277,11 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping all audio playback")
         self.audioPlayer?.stop()
         self.audioPlayer = nil
-        self.stopKeepAliveAudio()
         self.stopIntroduction()
         self.stopBackgroundAudio()
 
+        // Keep-alive is managed by activateTimerSession/deactivateTimerSession.
+        // stop() does NOT touch keep-alive — it may still be needed if timer is active.
         // Release audio session when stopping all audio
         self.coordinator.releaseAudioSession(for: .timer)
     }
@@ -283,13 +306,16 @@ final class AudioService: AudioServiceProtocol {
     /// Target volume for background audio (stored for fade resume)
     private var targetVolume: Float = 0.15
 
+    /// Whether a timer session is currently active (for interruption recovery)
+    private var timerSessionActive = false
+
     // MARK: - Keep-Alive Audio
 
-    /// Starts a silent audio loop to keep the audio session alive during phases
-    /// without audible audio (Preparation, Start-Gong→Introduction transition).
-    /// No-op if keep-alive or background audio is already playing.
+    /// Starts a silent audio loop to keep the audio session alive.
+    /// Runs continuously from activateTimerSession() to deactivateTimerSession().
+    /// No-op if keep-alive is already playing.
     private func startKeepAliveAudio() {
-        guard self.keepAlivePlayer == nil, self.backgroundAudioPlayer == nil else {
+        guard self.keepAlivePlayer == nil else {
             return
         }
 
@@ -311,6 +337,19 @@ final class AudioService: AudioServiceProtocol {
             Logger.audio.debug("Keep-alive audio started")
         } catch {
             Logger.audio.error("Failed to start keep-alive audio", error: error)
+        }
+    }
+
+    /// Restarts keep-alive after an audio interruption (e.g., phone call).
+    /// iOS pauses AVAudioPlayers during interruption — we need to resume the keep-alive
+    /// to prevent app suspension if the timer is still active.
+    private func restartKeepAliveAfterInterruption() {
+        if let player = self.keepAlivePlayer, !player.isPlaying {
+            player.play()
+            Logger.audio.info("Keep-alive resumed after interruption")
+        } else if self.keepAlivePlayer == nil {
+            self.startKeepAliveAudio()
+            Logger.audio.info("Keep-alive restarted after interruption")
         }
     }
 
@@ -367,7 +406,11 @@ final class AudioService: AudioServiceProtocol {
             let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
 
             if options.contains(.shouldResume) {
-                Logger.audio.info("Audio interruption ended, can resume if needed")
+                Logger.audio.info("Audio interruption ended, resuming")
+                // Restart keep-alive if timer session is still active
+                if self.timerSessionActive {
+                    self.restartKeepAliveAfterInterruption()
+                }
             } else {
                 Logger.audio.info("Audio interruption ended without resume option")
             }
@@ -447,19 +490,6 @@ final class AudioService: AudioServiceProtocol {
         }
     }
 
-    /// Deactivates audio session if no audio is currently playing
-    private func deactivateAudioSessionIfIdle() {
-        // Only deactivate if all players are nil or not playing
-        let backgroundPlaying = self.backgroundAudioPlayer?.isPlaying ?? false
-        let gongPlaying = self.audioPlayer?.isPlaying ?? false
-        let introPlaying = self.introductionPlayer?.isPlaying ?? false
-        let keepAlivePlaying = self.keepAlivePlayer?.isPlaying ?? false
-
-        if !backgroundPlaying, !gongPlaying, !introPlaying, !keepAlivePlaying {
-            self.coordinator.releaseAudioSession(for: .timer)
-        }
-    }
-
     /// Registers conflict handler to stop audio when another source becomes active
     private func registerConflictHandler() {
         self.coordinator.registerConflictHandler(for: .timer) { [weak self] in
@@ -468,6 +498,7 @@ final class AudioService: AudioServiceProtocol {
             }
 
             Logger.audio.info("Timer audio stopping - another source became active")
+            self.timerSessionActive = false
             self.audioPlayer?.stop()
             self.introductionPlayer?.stop()
             self.backgroundAudioPlayer?.stop()
