@@ -19,7 +19,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         timer = timer.startPreparation()
 
         // Tick once to finish preparation (1 second)
-        let ticked = timer.tick()
+        let (ticked, _) = timer.tick()
 
         XCTAssertEqual(ticked.state, .startGong)
         XCTAssertEqual(ticked.remainingSeconds, 600) // Main timer unchanged during last prep tick
@@ -36,7 +36,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         XCTAssertEqual(timer.remainingSeconds, 600)
 
-        let ticked = timer.tick()
+        let (ticked, _) = timer.tick()
 
         XCTAssertEqual(ticked.state, .startGong)
         XCTAssertEqual(ticked.remainingSeconds, 599)
@@ -50,9 +50,9 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         timer = timer.withState(.startGong)
 
         // Tick 3 times during gong period
-        timer = timer.tick() // 599
-        timer = timer.tick() // 598
-        timer = timer.tick() // 597
+        (timer, _) = timer.tick() // 599
+        (timer, _) = timer.tick() // 598
+        (timer, _) = timer.tick() // 597
 
         XCTAssertEqual(timer.state, .startGong)
         XCTAssertEqual(timer.remainingSeconds, 597)
@@ -69,7 +69,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick many times - should stay in introduction (event-driven transition)
         for _ in 0..<55 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         XCTAssertEqual(timer.state, .introduction)
@@ -83,7 +83,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         )
         timer = timer.withState(.introduction)
 
-        let ticked = timer.tick()
+        let (ticked, _) = timer.tick()
 
         XCTAssertEqual(ticked.state, .introduction)
         XCTAssertEqual(ticked.remainingSeconds, 599)
@@ -100,7 +100,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick 60 times (timer duration)
         for _ in 0..<60 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         XCTAssertEqual(timer.state, .endGong)
@@ -117,9 +117,9 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         timer = timer.withState(.introduction)
 
         // Simulate some ticks during introduction
-        timer = timer.tick() // 599
-        timer = timer.tick() // 598
-        timer = timer.tick() // 597
+        (timer, _) = timer.tick() // 599
+        (timer, _) = timer.tick() // 598
+        (timer, _) = timer.tick() // 597
 
         let ended = timer.endIntroduction()
 
@@ -136,7 +136,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick 95 times during introduction
         for _ in 0..<95 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         let ended = timer.endIntroduction()
@@ -159,7 +159,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick 30 times through introduction
         for _ in 0..<30 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // End introduction via event callback
@@ -177,15 +177,15 @@ final class MeditationTimerIntroductionTests: XCTestCase {
             preparationTimeSeconds: 1
         )
         timer = timer.startPreparation()
-        timer = timer.tick() // prep → startGong
+        (timer, _) = timer.tick() // prep → startGong
 
         XCTAssertEqual(timer.state, .startGong)
         XCTAssertEqual(timer.remainingSeconds, 600)
 
         // Tick 3 times during gong period
-        timer = timer.tick() // 599
-        timer = timer.tick() // 598
-        timer = timer.tick() // 597
+        (timer, _) = timer.tick() // 599
+        (timer, _) = timer.tick() // 598
+        (timer, _) = timer.tick() // 597
 
         XCTAssertEqual(timer.state, .startGong)
         XCTAssertEqual(timer.remainingSeconds, 597)
@@ -203,7 +203,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick 95 times during introduction, then end it
         for _ in 0..<95 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         timer = timer.endIntroduction()
 
@@ -216,7 +216,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         // Tick until 5 minutes elapsed in silent phase
         let silentElapsed = 5 * 60
         for _ in 0..<silentElapsed {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Now interval gong should trigger (5 min after silent phase start)
@@ -238,7 +238,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
 
         // Tick 5 minutes
         for _ in 0..<(5 * 60) {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Interval gong should trigger at 5 min

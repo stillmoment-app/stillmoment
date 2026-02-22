@@ -67,7 +67,7 @@ final class MeditationTimerTests: XCTestCase {
         timer = timer.withState(.running)
 
         // When
-        let tickedTimer = timer.tick()
+        let (tickedTimer, _) = timer.tick()
 
         // Then
         XCTAssertEqual(tickedTimer.remainingSeconds, 59)
@@ -81,7 +81,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Tick down to 1 second
         for _ in 0..<59 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should still be running
@@ -89,7 +89,7 @@ final class MeditationTimerTests: XCTestCase {
         XCTAssertEqual(timer.state, .running)
 
         // When - Final tick
-        timer = timer.tick()
+        (timer, _) = timer.tick()
 
         // Then - Should be in endGong (waiting for completion gong to finish)
         XCTAssertEqual(timer.remainingSeconds, 0)
@@ -107,13 +107,13 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Half time elapsed
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         XCTAssertEqual(timer.progress, 0.5, accuracy: 0.001)
 
         // When - Complete
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         XCTAssertEqual(timer.progress, 1.0, accuracy: 0.001)
     }
@@ -138,7 +138,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // Tick a few times
         for _ in 0..<100 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // When
@@ -198,7 +198,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Only 4 minutes elapsed (240 seconds)
         for _ in 0..<240 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should not play yet (need 5 minutes = 300 seconds)
@@ -212,7 +212,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Exactly 5 minutes elapsed (300 seconds)
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should play
@@ -226,7 +226,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - 6 minutes elapsed (360 seconds)
         for _ in 0..<360 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should still play (missed interval, play now)
@@ -240,7 +240,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Tick to completion
         for _ in 0..<60 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should not play (remainingSeconds = 0)
@@ -254,7 +254,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Tick for 5 minutes and mark gong played
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         timer = timer.markIntervalGongPlayed()
 
@@ -271,13 +271,13 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - First interval at 5 minutes
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         timer = timer.markIntervalGongPlayed()
 
         // When - Only 2 more minutes passed (120 seconds)
         for _ in 0..<120 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should not play yet (need 5 minutes since last gong)
@@ -291,13 +291,13 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - First interval at 5 minutes
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         timer = timer.markIntervalGongPlayed()
 
         // When - Exactly 5 more minutes passed (300 seconds)
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should play second interval
@@ -311,7 +311,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Reach first interval (3 minutes = 180 seconds)
         for _ in 0..<180 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should play first gong
@@ -320,7 +320,7 @@ final class MeditationTimerTests: XCTestCase {
         // When - Mark played and continue to 6 minutes
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<180 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should play second gong
@@ -329,7 +329,7 @@ final class MeditationTimerTests: XCTestCase {
         // When - Mark played and continue to 9 minutes
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<180 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should play third gong
@@ -343,7 +343,7 @@ final class MeditationTimerTests: XCTestCase {
 
         // When - Run entire timer
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - Should never play (interval never reached)

@@ -15,7 +15,11 @@ final class AudioServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService()
+        self.sut = AudioService(
+            coordinator: AudioSessionCoordinator.shared,
+            backgroundPreviewDuration: 0.05,
+            fadeOutDuration: 0.05
+        )
     }
 
     override func tearDown() {
@@ -565,10 +569,8 @@ final class AudioServiceTests: XCTestCase {
 
     // MARK: - Delegate Robustness Tests
 
-    func testGongCompletionPublisher_EmitsOnPlayback() throws {
+    func testGongCompletionPublisher_EmitsOnPlayback() {
         // Given
-        try self.sut.configureAudioSession()
-
         let expectation = expectation(description: "Gong completion")
         var cancellable: AnyCancellable?
 
@@ -578,13 +580,12 @@ final class AudioServiceTests: XCTestCase {
                 _ = cancellable // retain
             }
 
-        // When - Play a very short gong
-        try self.sut.playStartGong(soundId: GongSound.defaultSoundId, volume: 1.0)
+        // When - Simulate delegate callback directly (no real audio needed)
+        self.sut.gongPlayerDelegate.onFinish()
 
-        // Then - Should eventually complete (timeout is the failure case)
-        wait(for: [expectation], timeout: 15.0)
+        // Then
+        wait(for: [expectation], timeout: 1.0)
         cancellable?.cancel()
-        self.sut.stop()
     }
 
     // MARK: - Background Preview Tests (existing)
@@ -594,12 +595,12 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
         try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
 
-        // When - Wait for preview duration + fade out (3s + 0.5s + buffer)
+        // When - Wait for preview duration + fade out (0.05s + 0.05s + buffer)
         let expectation = expectation(description: "Wait for fade out")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             expectation.fulfill()
         }
-        await fulfillment(of: [expectation], timeout: 5.0)
+        await fulfillment(of: [expectation], timeout: 0.5)
 
         // Then - Should have stopped automatically (no crash when calling stop again)
         self.sut.stopBackgroundPreview()

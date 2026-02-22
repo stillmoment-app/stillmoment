@@ -161,20 +161,20 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(newState.currentAffirmationIndex, 0)
     }
 
-    func testStartPressed_resetsIntervalGongFlag() {
+    func testStartPressed_producesStartTimerEffect() {
         // Given
         var state = TimerDisplayState.initial
-        state.intervalGongPlayedForCurrentInterval = true
+        state.selectedMinutes = 10
 
         // When
-        let (newState, _) = TimerReducer.reduce(
+        let (_, effects) = TimerReducer.reduce(
             state: state,
             action: .startPressed,
             settings: self.defaultSettings
         )
 
         // Then
-        XCTAssertFalse(newState.intervalGongPlayedForCurrentInterval)
+        XCTAssertTrue(effects.contains(.startTimer(durationMinutes: 10)))
     }
 
     func testStartPressed_withZeroMinutes_doesNotTransition() {
@@ -311,11 +311,10 @@ final class TimerReducerTests: XCTestCase {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
-        state.intervalGongPlayedForCurrentInterval = false
         let settings = MeditationSettings(intervalGongsEnabled: true, intervalGongVolume: 0.6)
 
         // When
-        let (newState, effects) = TimerReducer.reduce(
+        let (_, effects) = TimerReducer.reduce(
             state: state,
             action: .intervalGongTriggered,
             settings: settings
@@ -323,7 +322,6 @@ final class TimerReducerTests: XCTestCase {
 
         // Then
         XCTAssertEqual(effects, [.playIntervalGong(soundId: GongSound.defaultIntervalSoundId, volume: 0.6)])
-        XCTAssertTrue(newState.intervalGongPlayedForCurrentInterval)
     }
 
     func testIntervalGongTriggered_whenDisabled_doesNotPlayGong() {
@@ -342,40 +340,5 @@ final class TimerReducerTests: XCTestCase {
         // Then
         XCTAssertTrue(effects.isEmpty)
         XCTAssertEqual(newState, state)
-    }
-
-    func testIntervalGongTriggered_whenAlreadyPlayed_doesNotPlayAgain() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-        state.intervalGongPlayedForCurrentInterval = true
-        let settings = MeditationSettings(intervalGongsEnabled: true)
-
-        // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
-            action: .intervalGongTriggered,
-            settings: settings
-        )
-
-        // Then
-        XCTAssertTrue(effects.isEmpty)
-    }
-
-    func testIntervalGongPlayed_resetsFlag() {
-        // Given
-        var state = TimerDisplayState.initial
-        state.intervalGongPlayedForCurrentInterval = true
-
-        // When
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
-            action: .intervalGongPlayed,
-            settings: self.defaultSettings
-        )
-
-        // Then
-        XCTAssertFalse(newState.intervalGongPlayedForCurrentInterval)
-        XCTAssertTrue(effects.isEmpty)
     }
 }

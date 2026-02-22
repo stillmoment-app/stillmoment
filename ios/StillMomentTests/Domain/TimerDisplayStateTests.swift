@@ -111,7 +111,6 @@ final class TimerDisplayStateTests: XCTestCase {
         XCTAssertEqual(state.remainingPreparationSeconds, 0)
         XCTAssertEqual(state.progress, 0.0)
         XCTAssertEqual(state.currentAffirmationIndex, 0)
-        XCTAssertFalse(state.intervalGongPlayedForCurrentInterval)
     }
 
     func testWithDuration_setsValidMinutes() {

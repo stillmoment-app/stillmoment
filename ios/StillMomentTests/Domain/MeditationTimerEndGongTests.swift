@@ -19,12 +19,12 @@ final class MeditationTimerEndGongTests: XCTestCase {
         var timer = try MeditationTimer(durationMinutes: 1)
         timer = timer.withState(.running)
         for _ in 0..<59 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
         XCTAssertEqual(timer.remainingSeconds, 1)
 
         // When - Final tick
-        timer = timer.tick()
+        (timer, _) = timer.tick()
 
         // Then - Should be in endGong, NOT completed
         XCTAssertEqual(timer.state, .endGong)
@@ -36,11 +36,11 @@ final class MeditationTimerEndGongTests: XCTestCase {
         var timer = try MeditationTimer(durationMinutes: 1)
         timer = timer.withState(.startGong)
         for _ in 0..<59 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // When - Final tick
-        timer = timer.tick()
+        (timer, _) = timer.tick()
 
         // Then
         XCTAssertEqual(timer.state, .endGong)
@@ -52,11 +52,11 @@ final class MeditationTimerEndGongTests: XCTestCase {
         var timer = try MeditationTimer(durationMinutes: 1)
         timer = timer.withState(.introduction)
         for _ in 0..<59 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // When - Final tick
-        timer = timer.tick()
+        (timer, _) = timer.tick()
 
         // Then
         XCTAssertEqual(timer.state, .endGong)
@@ -71,7 +71,7 @@ final class MeditationTimerEndGongTests: XCTestCase {
         timer = timer.withState(.endGong)
 
         // When
-        let ticked = timer.tick()
+        let (ticked, _) = timer.tick()
 
         // Then - Should remain in endGong, no change
         XCTAssertEqual(ticked.state, .endGong)
@@ -85,7 +85,7 @@ final class MeditationTimerEndGongTests: XCTestCase {
         var timer = try MeditationTimer(durationMinutes: 1)
         timer = timer.withState(.running)
         for _ in 0..<60 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then - isCompleted checks remainingSeconds, should be true

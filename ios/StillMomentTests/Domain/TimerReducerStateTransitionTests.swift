@@ -92,10 +92,10 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         XCTAssertFalse(effects.isEmpty)
     }
 
-    func testResetPressed_resetsIntervalGongFlag() {
+    func testResetPressed_resetsPreparationSeconds() {
         var state = TimerDisplayState.initial
         state.timerState = .running
-        state.intervalGongPlayedForCurrentInterval = true
+        state.remainingPreparationSeconds = 5
 
         let (newState, _) = TimerReducer.reduce(
             state: state,
@@ -103,6 +103,6 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        XCTAssertFalse(newState.intervalGongPlayedForCurrentInterval)
+        XCTAssertEqual(newState.remainingPreparationSeconds, 0)
     }
 }

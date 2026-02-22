@@ -146,7 +146,9 @@ final class TimerViewModelRegressionTests: XCTestCase {
     func testIntervalGongPlaysMultipleTimes_NotJustOnce() {
         // CRITICAL: This test prevents the interval-gong-single-play bug (ios-028)
         // Interval gong MUST play at EVERY interval, not just the first one
-        // Without this fix, users only hear one interval gong during their meditation
+        // With shared-056, interval detection moved into tick() which emits TimerEvent.intervalGongDue.
+        // The ViewModel dispatches .intervalGongTriggered for each event, and tick() internally
+        // marks lastIntervalGongAt to enable detection of the next interval.
 
         // Given - Enable interval gongs (3 minute intervals for a 10 minute timer)
         self.sut.settings.intervalGongsEnabled = true
@@ -169,15 +171,16 @@ final class TimerViewModelRegressionTests: XCTestCase {
                 "First interval gong should play at 3 minutes"
             )
 
-            // Verify markIntervalGongPlayed was called (this is the key fix)
-            XCTAssertTrue(
-                self.mockTimerService.markIntervalGongPlayedCalled,
-                "markIntervalGongPlayed must be called after playing gong to enable next interval detection"
-            )
-
             // When - Continue timer to second interval at 6 minutes (180 more seconds)
-            // The timer should now have lastIntervalGongAt set from the first gong
-            self.mockTimerService.continueTimer(additionalSeconds: 180)
+            // tick() internally detects the interval and emits .intervalGongDue
+            let intervalSettings = IntervalSettings(
+                intervalMinutes: 3,
+                mode: self.sut.settings.intervalMode
+            )
+            self.mockTimerService.continueTimer(
+                additionalSeconds: 180,
+                intervalSettings: intervalSettings
+            )
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 // Then - Second interval gong should have played
@@ -188,15 +191,8 @@ final class TimerViewModelRegressionTests: XCTestCase {
                     """
                     CRITICAL: Interval gong must play at EVERY interval, not just the first.
                     Expected 2 interval gongs (at 3 min and 6 min), but only got \(secondGongCount).
-                    Bug: lastIntervalGongAt is not being updated after playing gong.
+                    Bug: tick() must internally mark lastIntervalGongAt and emit .intervalGongDue events.
                     """
-                )
-
-                // Verify markIntervalGongPlayed was called twice
-                XCTAssertEqual(
-                    self.mockTimerService.markIntervalGongPlayedCount,
-                    2,
-                    "markIntervalGongPlayed should be called after each gong"
                 )
 
                 expectation.fulfill()

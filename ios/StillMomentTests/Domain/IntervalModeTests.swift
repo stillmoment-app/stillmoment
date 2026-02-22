@@ -49,7 +49,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: 5 minutes elapsed (300 seconds)
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should play first gong
@@ -58,7 +58,7 @@ final class IntervalModeTests: XCTestCase {
         // When: mark played, advance to 10 minutes
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should play second gong
@@ -67,7 +67,7 @@ final class IntervalModeTests: XCTestCase {
         // When: mark played, advance to 15 minutes
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should play third gong
@@ -81,7 +81,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: only 4 minutes elapsed
         for _ in 0..<240 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong yet
@@ -97,7 +97,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: 5 minutes elapsed
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should play
@@ -106,7 +106,7 @@ final class IntervalModeTests: XCTestCase {
         // When: mark played, advance 5 more minutes
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<300 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should NOT play again
@@ -120,7 +120,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: only 4 minutes elapsed
         for _ in 0..<240 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong
@@ -136,7 +136,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: 15 minutes elapsed (remaining = 300 seconds = 5 min)
         for _ in 0..<900 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should play (remaining <= intervalSeconds)
@@ -145,7 +145,7 @@ final class IntervalModeTests: XCTestCase {
         // When: mark played, advance more
         timer = timer.markIntervalGongPlayed()
         for _ in 0..<60 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: should NOT play again
@@ -159,7 +159,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: only 14 minutes elapsed (remaining = 360 sec > 300 sec)
         for _ in 0..<840 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong yet (6 min remaining > 5 min interval)
@@ -175,7 +175,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: tick to exactly 5 seconds remaining
         for _ in 0..<55 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: remaining = 5, should NOT play (5-second protection)
@@ -190,7 +190,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: tick to 5 seconds remaining
         for _ in 0..<55 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: would normally trigger but 5-second protection prevents it
@@ -205,7 +205,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: 114 seconds elapsed (6 remaining)
         for _ in 0..<114 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: remaining = 6, should be allowed for beforeEnd (6 > 5 protection threshold)
@@ -222,7 +222,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: only 10 seconds elapsed (remaining = 290, well above 5-second protection)
         for _ in 0..<10 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong for any mode — interval >= meditation should never trigger
@@ -238,7 +238,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: 295 seconds elapsed (remaining = 5)
         for _ in 0..<295 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong for any mode
@@ -254,7 +254,7 @@ final class IntervalModeTests: XCTestCase {
 
         // When: only a few seconds elapsed
         for _ in 0..<10 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         // Then: no gong for any mode — interval >= meditation should never trigger
@@ -390,7 +390,6 @@ final class IntervalModeTests: XCTestCase {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
-        state.intervalGongPlayedForCurrentInterval = false
         let settings = MeditationSettings(
             intervalGongsEnabled: true,
             intervalSoundId: "classic-bowl",

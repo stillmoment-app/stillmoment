@@ -17,15 +17,17 @@ final class MockTimerService: TimerServiceProtocol {
 
     var lastStartDuration: Int?
     var lastStartPreparationTime: Int?
+    var lastStartIntervalSettings: IntervalSettings?
 
-    var timerPublisher: AnyPublisher<MeditationTimer, Never> {
+    var timerPublisher: AnyPublisher<(MeditationTimer, [TimerEvent]), Never> {
         self.subject.eraseToAnyPublisher()
     }
 
-    func start(durationMinutes: Int, preparationTimeSeconds: Int) {
+    func start(durationMinutes: Int, preparationTimeSeconds: Int, intervalSettings: IntervalSettings?) {
         self.startCalled = true
         self.lastStartDuration = durationMinutes
         self.lastStartPreparationTime = preparationTimeSeconds
+        self.lastStartIntervalSettings = intervalSettings
 
         guard let timer = try? MeditationTimer(
             durationMinutes: durationMinutes,
@@ -33,7 +35,7 @@ final class MockTimerService: TimerServiceProtocol {
         ) else {
             return
         }
-        self.subject.send(timer.withState(.startGong))
+        self.subject.send((timer.withState(.startGong), []))
     }
 
     func reset() {
@@ -52,7 +54,7 @@ final class MockTimerService: TimerServiceProtocol {
             return
         }
         // Create a timer with custom remaining seconds (simplified for testing)
-        self.subject.send(timer.withState(state))
+        self.subject.send((timer.withState(state), []))
     }
 
     func simulateCompletion() {
@@ -65,12 +67,14 @@ final class MockTimerService: TimerServiceProtocol {
         timer = timer.withState(.running)
         // Tick to endGong (timer reaches zero → .endGong state)
         for _ in 0..<60 {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
-        self.subject.send(timer)
+        self.subject.send((timer, [.meditationCompleted]))
     }
 
-    /// Simulates a running timer that has reached an interval gong point
+    /// Simulates a running timer that has reached an interval gong point.
+    /// The mock sends the timer with an `.intervalGongDue` event, mirroring
+    /// how the real TimerService emits events from `tick()`.
     /// - Parameters:
     ///   - durationMinutes: Total timer duration in minutes
     ///   - elapsedSeconds: Number of seconds elapsed (to calculate remainingSeconds)
@@ -90,46 +94,38 @@ final class MockTimerService: TimerServiceProtocol {
 
         // Tick elapsed time in running state
         for _ in 0..<elapsedSeconds {
-            timer = timer.tick()
+            (timer, _) = timer.tick()
         }
 
         self.currentTimerForTest = timer
-        self.subject.send(timer)
+        // Emit intervalGongDue event — in the real system, tick() detects and emits this
+        self.subject.send((timer, [.intervalGongDue]))
     }
 
-    /// Continues the current timer by ticking additional seconds
-    /// This preserves the lastIntervalGongAt from previous markIntervalGongPlayed calls
-    /// - Parameter additionalSeconds: Number of additional seconds to tick
-    func continueTimer(additionalSeconds: Int) {
+    /// Continues the current timer by ticking additional seconds.
+    /// Emits `.intervalGongDue` if the timer's `shouldPlayIntervalGong` returns true
+    /// for the configured interval settings.
+    /// - Parameters:
+    ///   - additionalSeconds: Number of additional seconds to tick
+    ///   - intervalSettings: Interval configuration to check gong conditions
+    func continueTimer(additionalSeconds: Int, intervalSettings: IntervalSettings? = nil) {
         guard var timer = currentTimerForTest else {
             return
         }
 
+        var events: [TimerEvent] = []
         for _ in 0..<additionalSeconds {
-            timer = timer.tick()
+            let (ticked, tickEvents) = timer.tick(intervalSettings: intervalSettings)
+            timer = ticked
+            events.append(contentsOf: tickEvents)
         }
 
         self.currentTimerForTest = timer
-        self.subject.send(timer)
+        self.subject.send((timer, events))
     }
 
     /// Returns the current test timer (for verification)
     var currentTimerForTest: MeditationTimer?
-
-    /// Marks interval gong as played on the current timer and emits update
-    func markIntervalGongPlayed() {
-        self.markIntervalGongPlayedCalled = true
-        self.markIntervalGongPlayedCount += 1
-        guard let timer = currentTimerForTest else {
-            return
-        }
-        let updatedTimer = timer.markIntervalGongPlayed()
-        self.currentTimerForTest = updatedTimer
-        self.subject.send(updatedTimer)
-    }
-
-    var markIntervalGongPlayedCalled = false
-    var markIntervalGongPlayedCount = 0
 
     var endIntroductionPhaseCalled = false
 
@@ -140,12 +136,12 @@ final class MockTimerService: TimerServiceProtocol {
         }
         let updatedTimer = timer.endIntroduction()
         self.currentTimerForTest = updatedTimer
-        self.subject.send(updatedTimer)
+        self.subject.send((updatedTimer, []))
     }
 
     // MARK: Private
 
-    private let subject = PassthroughSubject<MeditationTimer, Never>()
+    private let subject = PassthroughSubject<(MeditationTimer, [TimerEvent]), Never>()
 }
 
 final class MockAudioService: AudioServiceProtocol {
