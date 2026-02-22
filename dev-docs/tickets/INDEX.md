@@ -82,7 +82,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-056](shared/shared-056-tick-emittiert-events.md) | tick() emittiert Domain Events | 2-Architektur | [ ] | [ ] |
 | [shared-057](shared/shared-057-display-state-eliminieren.md) | TimerDisplayState eliminieren | 2-Architektur | [ ] | shared-056 |
 | [shared-058](shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [ ] | shared-057 |
-| [shared-059](shared/shared-059-keep-alive-invariante.md) | Keep-Alive strukturell absichern | 2-Architektur | [ ] | [ ] |
+| [shared-059](shared/shared-059-keep-alive-invariante.md) | Keep-Alive strukturell absichern | 2-Architektur | [x] | [ ] |
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
 | [shared-061](shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [ ] | [ ] |
 | [shared-062](shared/shared-062-praxis-datenmodell.md) | Praxis-Datenmodell und Persistenz | 2-Architektur | [ ] | [ ] |

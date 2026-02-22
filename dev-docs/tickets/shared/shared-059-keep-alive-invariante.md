@@ -1,6 +1,6 @@
 # Ticket shared-059: Keep-Alive strukturell absichern (Always-On waehrend Timer-Session)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~1-2h | Android ~1h (nur Konzept-Uebernahme)
 **Phase**: 2-Architektur
@@ -31,7 +31,7 @@ Keep-Alive wird heute durch verstreute `startKeepAliveAudio()`/`stopKeepAliveAud
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
