@@ -13,7 +13,9 @@ import OSLog
 final class TimerService: TimerServiceProtocol {
     // MARK: Lifecycle
 
-    init() {}
+    init(clock: ClockProtocol = SystemClock()) {
+        self.clock = clock
+    }
 
     // MARK: - Deinit
 
@@ -23,15 +25,13 @@ final class TimerService: TimerServiceProtocol {
 
     // MARK: Internal
 
-    var timerPublisher: AnyPublisher<MeditationTimer, Never> {
-        self.timerSubject
-            .compactMap { $0 }
-            .eraseToAnyPublisher()
+    var timerPublisher: AnyPublisher<(MeditationTimer, [TimerEvent]), Never> {
+        self.timerSubject.eraseToAnyPublisher()
     }
 
     // MARK: - Public Methods
 
-    func start(durationMinutes: Int, preparationTimeSeconds: Int) {
+    func start(durationMinutes: Int, preparationTimeSeconds: Int, intervalSettings: IntervalSettings?) {
         Logger.timer.info("Starting timer", metadata: [
             "duration": durationMinutes,
             "preparationTime": preparationTimeSeconds
@@ -44,6 +44,8 @@ final class TimerService: TimerServiceProtocol {
                 preparationTimeSeconds: preparationTimeSeconds
             )
 
+            self.intervalSettings = intervalSettings
+
             if preparationTimeSeconds > 0 {
                 // Start with preparation phase
                 self.currentTimer = newTimer.startPreparation()
@@ -54,7 +56,9 @@ final class TimerService: TimerServiceProtocol {
                 Logger.timer.info("Timer started directly with start gong (no preparation)")
             }
 
-            self.timerSubject.send(self.currentTimer)
+            if let timer = self.currentTimer {
+                self.timerSubject.send((timer, []))
+            }
             self.startSystemTimer()
         } catch {
             Logger.timer.error("Failed to start timer", error: error, metadata: ["duration": durationMinutes])
@@ -71,26 +75,14 @@ final class TimerService: TimerServiceProtocol {
         self.stopSystemTimer()
         let resetTimer = timer.reset()
         self.currentTimer = resetTimer
-        self.timerSubject.send(self.currentTimer)
+        self.timerSubject.send((resetTimer, []))
     }
 
     func stop() {
         Logger.timer.debug("Stopping timer")
         self.stopSystemTimer()
         self.currentTimer = nil
-        self.timerSubject.send(nil)
-    }
-
-    func markIntervalGongPlayed() {
-        guard let timer = self.currentTimer else {
-            Logger.timer.warning("Attempted to mark interval gong when no timer exists")
-            return
-        }
-
-        Logger.timer.debug("Marking interval gong played", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.markIntervalGongPlayed()
-        self.currentTimer = updatedTimer
-        self.timerSubject.send(updatedTimer)
+        self.intervalSettings = nil
     }
 
     func endIntroductionPhase() {
@@ -102,25 +94,25 @@ final class TimerService: TimerServiceProtocol {
         Logger.timer.info("Ending introduction phase", metadata: ["remaining": timer.remainingSeconds])
         let updatedTimer = timer.endIntroduction()
         self.currentTimer = updatedTimer
-        self.timerSubject.send(updatedTimer)
+        self.timerSubject.send((updatedTimer, []))
     }
 
     // MARK: Private
 
-    private let timerSubject = CurrentValueSubject<MeditationTimer?, Never>(nil)
+    private let clock: ClockProtocol
+    private let timerSubject = PassthroughSubject<(MeditationTimer, [TimerEvent]), Never>()
     private var systemTimer: AnyCancellable?
     private var currentTimer: MeditationTimer?
+    private var intervalSettings: IntervalSettings?
 
     // MARK: - Private Methods
 
     private func startSystemTimer() {
         self.stopSystemTimer() // Ensure no duplicate timers
 
-        self.systemTimer = Timer.publish(every: 1.0, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.tick()
-            }
+        self.systemTimer = self.clock.schedule(interval: 1.0) { [weak self] in
+            self?.tick()
+        }
     }
 
     private func stopSystemTimer() {
@@ -140,9 +132,9 @@ final class TimerService: TimerServiceProtocol {
             return
         }
 
-        let updatedTimer = timer.tick()
+        let (updatedTimer, events) = timer.tick(intervalSettings: self.intervalSettings)
         self.currentTimer = updatedTimer
-        self.timerSubject.send(updatedTimer)
+        self.timerSubject.send((updatedTimer, events))
 
         // Log state transitions
         if timer.state == .preparation, updatedTimer.state == .startGong {

@@ -152,7 +152,6 @@ final class TimerViewModel: ObservableObject {
     private let settingsRepository: TimerSettingsRepository
     let soundRepository: BackgroundSoundRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
-    private var previousState: TimerState = .idle
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
     private var minutesBeforeIntroduction: Int?
@@ -306,10 +305,6 @@ final class TimerViewModel: ObservableObject {
     private func executePlayIntervalGong(soundId: String, volume: Float) {
         do {
             try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
-            // Mark gong played on timer to enable detection of next interval
-            self.timerService.markIntervalGongPlayed()
-            // Reset the UI flag to allow next interval detection
-            self.dispatch(.intervalGongPlayed)
         } catch {
             Logger.viewModel.error("Failed to play interval gong", error: error)
             self.errorMessage = "Failed to play interval sound: \(error.localizedDescription)"
@@ -337,9 +332,18 @@ final class TimerViewModel: ObservableObject {
             ? self.settings.preparationTimeSeconds
             : 0
 
+        // Build interval settings from current meditation settings (nil when disabled)
+        let intervalSettings: IntervalSettings? = self.settings.intervalGongsEnabled
+            ? IntervalSettings(
+                intervalMinutes: self.settings.intervalMinutes,
+                mode: self.settings.intervalMode
+            )
+            : nil
+
         self.timerService.start(
             durationMinutes: durationMinutes,
-            preparationTimeSeconds: preparationTime
+            preparationTimeSeconds: preparationTime,
+            intervalSettings: intervalSettings
         )
     }
 
@@ -353,8 +357,8 @@ final class TimerViewModel: ObservableObject {
     private func setupBindings() {
         self.timerService.timerPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] timer in
-                self?.handleTimerUpdate(timer)
+            .sink { [weak self] timer, events in
+                self?.handleTimerUpdate(timer, events: events)
             }
             .store(in: &self.cancellables)
 
@@ -410,7 +414,7 @@ final class TimerViewModel: ObservableObject {
         }
     }
 
-    private func handleTimerUpdate(_ timer: MeditationTimer) {
+    private func handleTimerUpdate(_ timer: MeditationTimer, events: [TimerEvent]) {
         // Dispatch tick action with timer values
         self.dispatch(.tick(
             remainingSeconds: timer.remainingSeconds,
@@ -420,53 +424,26 @@ final class TimerViewModel: ObservableObject {
             state: timer.state
         ))
 
-        // Detect state transitions for effects
-        self.handleStateTransition(from: self.previousState, to: timer.state, timer: timer)
-        self.previousState = timer.state
+        // Process domain events emitted by tick()
+        self.processTimerEvents(events)
     }
 
-    private func handleStateTransition(
-        from oldState: TimerState,
-        to newState: TimerState,
-        timer: MeditationTimer
-    ) {
-        self.handlePhaseTransitions(from: oldState, to: newState)
-        self.checkIntervalGongs(state: newState, timer: timer)
-    }
+    /// Processes domain events from `MeditationTimer.tick()` and dispatches corresponding actions
+    private func processTimerEvents(_ events: [TimerEvent]) {
+        for event in events {
+            switch event {
+            case .preparationCompleted:
+                Logger.viewModel.info("Meditation starting, dispatching preparationFinished")
+                self.dispatch(.preparationFinished)
 
-    /// Dispatches actions for phase transitions in the meditation lifecycle.
-    /// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
-    private func handlePhaseTransitions(from oldState: TimerState, to newState: TimerState) {
-        // Preparation/idle → startGong: play start gong
-        if oldState == .preparation || oldState == .idle,
-           newState == .startGong {
-            Logger.viewModel.info("Meditation starting, dispatching preparationFinished")
-            self.dispatch(.preparationFinished)
-        }
+            case .meditationCompleted:
+                Logger.viewModel.info("Timer reached zero, dispatching timerCompleted for endGong phase")
+                self.dispatch(.timerCompleted)
 
-        // Timer reached zero (any active state → endGong): enter endGong phase
-        if oldState != .endGong, oldState != .completed, newState == .endGong {
-            Logger.viewModel.info("Timer reached zero, dispatching timerCompleted for endGong phase")
-            self.dispatch(.timerCompleted)
-        }
-    }
-
-    /// Checks if an interval gong should be played (only during silent meditation phase)
-    private func checkIntervalGongs(state: TimerState, timer: MeditationTimer) {
-        guard state == .running, self.settings.intervalGongsEnabled else {
-            return
-        }
-
-        if timer.shouldPlayIntervalGong(
-            intervalMinutes: self.settings.intervalMinutes,
-            mode: self.settings.intervalMode
-        ) {
-            Logger.viewModel.info("Interval gong triggered", metadata: [
-                "interval": self.settings.intervalMinutes,
-                "mode": self.settings.intervalMode.rawValue,
-                "remaining": timer.remainingSeconds
-            ])
-            self.dispatch(.intervalGongTriggered)
+            case .intervalGongDue:
+                Logger.viewModel.info("Interval gong triggered via domain event")
+                self.dispatch(.intervalGongTriggered)
+            }
         }
     }
 }

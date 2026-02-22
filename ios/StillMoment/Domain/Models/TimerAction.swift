@@ -50,9 +50,6 @@ enum TimerAction: Equatable {
     /// Completion gong finished playing (audio callback), transitioning to completed
     case endGongFinished
 
-    /// Interval gong should be played
+    /// Interval gong should be played (emitted by tick() via TimerEvent.intervalGongDue)
     case intervalGongTriggered
-
-    /// Mark that interval gong was played (prevents duplicate plays)
-    case intervalGongPlayed
 }

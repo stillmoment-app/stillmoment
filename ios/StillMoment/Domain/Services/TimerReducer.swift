@@ -44,9 +44,8 @@ enum TimerReducer {
             self.reduceTimerCompleted(state: state, settings: settings)
         case .endGongFinished:
             self.reduceEndGongFinished(state: state)
-        case .intervalGongTriggered,
-             .intervalGongPlayed:
-            self.reduceIntervalGong(state: state, action: action, settings: settings)
+        case .intervalGongTriggered:
+            self.reduceIntervalGong(state: state, settings: settings)
         }
     }
 
@@ -97,7 +96,6 @@ enum TimerReducer {
 
         var newState = state
         newState.currentAffirmationIndex = (state.currentAffirmationIndex + 1) % 5
-        newState.intervalGongPlayedForCurrentInterval = false
 
         var updatedSettings = settings
         updatedSettings.durationMinutes = state.selectedMinutes
@@ -129,7 +127,6 @@ enum TimerReducer {
         newState.totalSeconds = 0
         newState.remainingPreparationSeconds = 0
         newState.progress = 0.0
-        newState.intervalGongPlayedForCurrentInterval = false
 
         var effects: [TimerEffect] = []
         if state.timerState == .introduction {
@@ -234,33 +231,20 @@ enum TimerReducer {
 
     // MARK: - Interval Gong Actions
 
+    /// Handles interval gong triggered by tick() domain event.
+    /// Deduplication is handled by MeditationTimer.tick() via lastIntervalGongAt.
     private static func reduceIntervalGong(
         state: TimerDisplayState,
-        action: TimerAction,
         settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
-        switch action {
-        case .intervalGongTriggered:
-            guard settings.intervalGongsEnabled,
-                  !state.intervalGongPlayedForCurrentInterval else {
-                return (state, [])
-            }
-            var newState = state
-            newState.intervalGongPlayedForCurrentInterval = true
-            let effect = TimerEffect.playIntervalGong(
-                soundId: settings.intervalSoundId,
-                volume: settings.intervalGongVolume
-            )
-            return (newState, [effect])
-
-        case .intervalGongPlayed:
-            var newState = state
-            newState.intervalGongPlayedForCurrentInterval = false
-            return (newState, [])
-
-        default:
+        guard settings.intervalGongsEnabled else {
             return (state, [])
         }
+        let effect = TimerEffect.playIntervalGong(
+            soundId: settings.intervalSoundId,
+            volume: settings.intervalGongVolume
+        )
+        return (state, [effect])
     }
 
     // MARK: - Helpers

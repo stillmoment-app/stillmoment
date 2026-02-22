@@ -18,10 +18,14 @@ final class AudioService: AudioServiceProtocol {
 
     init(
         coordinator: AudioSessionCoordinatorProtocol,
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
+        backgroundPreviewDuration: TimeInterval = 3.0,
+        fadeOutDuration: TimeInterval = 0.5
     ) {
         self.coordinator = coordinator
         self.soundRepository = soundRepository
+        self.backgroundPreviewDuration = backgroundPreviewDuration
+        self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
             gongCompletionSubject.send()
         }
@@ -36,12 +40,6 @@ final class AudioService: AudioServiceProtocol {
 
     /// Duration for fade in effect (10 seconds for smooth meditation experience after start gong)
     private static let fadeInDuration: TimeInterval = 10.0
-
-    /// Duration for background preview before fade-out starts
-    private static let backgroundPreviewDuration: TimeInterval = 3.0
-
-    /// Duration for fade-out effect
-    private static let fadeOutDuration: TimeInterval = 0.5
 
     convenience init() {
         self.init(coordinator: AudioSessionCoordinator.shared)
@@ -180,7 +178,7 @@ final class AudioService: AudioServiceProtocol {
             // Schedule fade-out after preview duration
             // Note: Timer must be created on main thread for RunLoop.main
             self.backgroundPreviewTimer = Timer.scheduledTimer(
-                withTimeInterval: Self.backgroundPreviewDuration,
+                withTimeInterval: self.backgroundPreviewDuration,
                 repeats: false
             ) { [weak self] _ in
                 self?.fadeOutBackgroundPreview()
@@ -293,9 +291,11 @@ final class AudioService: AudioServiceProtocol {
 
     private let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
+    private let backgroundPreviewDuration: TimeInterval
+    private let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
     let introductionCompletionSubject = PassthroughSubject<Void, Never>()
-    private let gongPlayerDelegate: GongPlayerDelegate
+    let gongPlayerDelegate: GongPlayerDelegate
     let introductionPlayerDelegate: IntroductionPlayerDelegate
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
@@ -483,10 +483,10 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Fading out background preview")
 
         // Use AVAudioPlayer's built-in fade
-        player.setVolume(0, fadeDuration: Self.fadeOutDuration)
+        player.setVolume(0, fadeDuration: self.fadeOutDuration)
 
         // Stop and clean up after fade completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.fadeOutDuration) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + self.fadeOutDuration) { [weak self] in
             self?.cleanupPreviewPlayers()
             self?.coordinator.releaseAudioSession(for: .preview)
             Logger.audio.debug("Background preview fade-out complete")
@@ -554,7 +554,7 @@ private extension AudioService {
 /// Used to sequence introduction audio after the start gong completes.
 /// Always fires onFinish — even on interruption (successfully: false) — to prevent
 /// the state machine from getting stuck in `.startGong`.
-private class GongPlayerDelegate: NSObject, AVAudioPlayerDelegate {
+class GongPlayerDelegate: NSObject, AVAudioPlayerDelegate {
     let onFinish: () -> Void
 
     init(onFinish: @escaping () -> Void) {

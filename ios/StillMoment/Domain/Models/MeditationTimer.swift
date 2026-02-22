@@ -108,22 +108,54 @@ struct MeditationTimer: Equatable {
         self.remainingSeconds <= 0
     }
 
-    /// Returns a copy with updated remaining seconds
-    func tick() -> MeditationTimer {
+    /// Returns a copy with updated remaining seconds and any domain events that occurred.
+    ///
+    /// - Parameter intervalSettings: Optional interval gong configuration. When provided,
+    ///   `tick()` checks if an interval gong is due and emits `.intervalGongDue`.
+    ///   When `nil`, no interval gong detection occurs.
+    /// - Returns: Tuple of (updated timer, events that occurred during this tick)
+    func tick(intervalSettings: IntervalSettings? = nil) -> (MeditationTimer, [TimerEvent]) {
         switch self.state {
         case .preparation:
-            self.tickPreparation()
+            let newTimer = self.tickPreparation()
+            let events: [TimerEvent] = newTimer.state == .startGong ? [.preparationCompleted] : []
+            return (newTimer, events)
         case .startGong:
-            self.tickRunning()
+            let newTimer = self.tickRunning()
+            let events: [TimerEvent] = newTimer.state == .endGong ? [.meditationCompleted] : []
+            return (newTimer, events)
         case .introduction:
-            self.tickIntroduction()
+            let newTimer = self.tickIntroduction()
+            let events: [TimerEvent] = newTimer.state == .endGong ? [.meditationCompleted] : []
+            return (newTimer, events)
         case .running:
-            self.tickRunning()
+            return self.tickRunningWithEvents(intervalSettings: intervalSettings)
         case .idle,
              .endGong,
              .completed:
-            self
+            return (self, [])
         }
+    }
+
+    /// Ticks the running state with interval gong detection and event emission
+    private func tickRunningWithEvents(
+        intervalSettings: IntervalSettings?
+    ) -> (MeditationTimer, [TimerEvent]) {
+        let ticked = self.tickRunning()
+
+        if ticked.state == .endGong {
+            return (ticked, [.meditationCompleted])
+        }
+
+        if let settings = intervalSettings,
+           ticked.shouldPlayIntervalGong(
+               intervalMinutes: settings.intervalMinutes,
+               mode: settings.mode
+           ) {
+            return (ticked.markIntervalGongPlayed(), [.intervalGongDue])
+        }
+
+        return (ticked, [])
     }
 
     /// Ticks the preparation countdown.

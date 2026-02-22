@@ -36,9 +36,6 @@ struct TimerDisplayState: Equatable {
     /// Current affirmation index (rotates between sessions)
     var currentAffirmationIndex: Int
 
-    /// Whether an interval gong was already played for current interval
-    var intervalGongPlayedForCurrentInterval: Bool
-
     // MARK: - Computed Properties (Pure, Testable)
 
     /// Whether currently in preparation phase
@@ -79,8 +76,7 @@ struct TimerDisplayState: Equatable {
         totalSeconds: 0,
         remainingPreparationSeconds: 0,
         progress: 0.0,
-        currentAffirmationIndex: 0,
-        intervalGongPlayedForCurrentInterval: false
+        currentAffirmationIndex: 0
     )
 
     /// Creates a state with custom selected minutes (for loading from settings)
