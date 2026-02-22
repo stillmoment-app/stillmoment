@@ -15,11 +15,12 @@ Neuer `AudioSource.preview`-Typ. Preview-Methoden (Gong-Vorhoeren, Hintergrund-V
 
 Nach shared-059 (Keep-Alive-Invariante) startet Keep-Alive nur noch ueber `activateTimerSession()` — der urspruengliche Bug (Preview startet Keep-Alive) ist damit geloest.
 
-Es bleiben drei Probleme, weil Preview-Methoden weiterhin `requestAudioSession(for: .timer)` aufrufen:
+Es bleiben zwei Probleme, weil Preview-Methoden weiterhin `requestAudioSession(for: .timer)` aufrufen:
 
-1. **Falsches Conflict-Handling:** Wenn ein User waehrend einer gefuehrten Meditation einen Gong vorhoert, feuert der `.timer`-Conflict-Handler und koennte die Guided Meditation stoppen.
-2. **Session-Lifecycle-Leck:** Preview ruft `requestAudioSession(for: .timer)` auf, aber nie `releaseAudioSession(for: .timer)`. Die Session bleibt als "Timer aktiv" registriert, obwohl kein Timer laeuft.
-3. **Irreführende Semantik:** Wer den Code liest, sieht `.timer` bei einem Preview und muss sich fragen warum.
+1. **Session-Lifecycle-Leck:** Preview ruft `requestAudioSession(for: .timer)` auf, aber nie `releaseAudioSession(for: .timer)`. Die Session bleibt als "Timer aktiv" registriert, obwohl kein Timer laeuft.
+2. **Irrefuehrende Semantik:** Wer den Code liest, sieht `.timer` bei einem Preview und muss sich fragen warum.
+
+Preview→Preview-Abbruch (Gong→Gong, Gong→Background etc.) funktioniert bereits korrekt — jede Preview-Methode stoppt zuerst alle laufenden Previews. Das passiert direkt im AudioService, nicht ueber den Coordinator.
 
 **Bezug:** `dev-docs/architecture/timer-incremental-refactoring.md` (Schritt 4)
 
@@ -40,12 +41,11 @@ Es bleiben drei Probleme, weil Preview-Methoden weiterhin `requestAudioSession(f
 - [ ] `AudioSource.preview` existiert als neuer Enum-Case
 - [ ] Preview-Methoden (`playGongPreview`, `playBackgroundPreview`) nutzen `requestAudioSession(for: .preview)` statt `.timer`
 - [ ] Preview gibt Audio-Session nach Abschluss wieder frei (`releaseAudioSession(for: .preview)`)
-- [ ] Preview loest keinen Conflict-Handler fuer `.timer` oder `.guidedMeditation` aus
 - [ ] Timer-Start ist von Preview unbeeinflusst (Preview stoppt bei Timer-Start)
+- [ ] Preview→Preview-Abbruch funktioniert weiterhin (bestehendes Verhalten, keine Regression)
 
 ### Tests
 - [ ] Unit Tests: Preview registriert sich als `.preview`, nicht `.timer`
-- [ ] Unit Tests: Preview loest keinen Timer-Conflict-Handler aus
 - [ ] Unit Tests: Preview gibt Audio-Session nach Abschluss frei
 - [ ] Unit Tests Android: Saubere Audio-Session-Trennung bei Preview
 
@@ -71,4 +71,5 @@ Es bleiben drei Probleme, weil Preview-Methoden weiterhin `requestAudioSession(f
 - Abhaengig von shared-059 (iOS): Preview-Methoden rufen aktuell `configureAudioSession()` auf, das nach shared-059 bereinigt wird
 - Vollstaendig unabhaengig von shared-055, shared-056, shared-057
 - Android hat kein Keep-Alive-Problem (Foreground Service), aber die saubere Trennung ist trotzdem sinnvoll fuer konsistente Audio-Session-Verwaltung
-- AudioSessionCoordinator-Logik bleibt weitgehend unveraendert, nur neuer Enum-Case und ggf. angepasste Conflict-Regeln
+- AudioSessionCoordinator-Logik bleibt weitgehend unveraendert, nur neuer Enum-Case
+- Preview→Preview-Abbruch braucht kein Coordinator-Conflict-Handling — das ist bereits direkt im AudioService geloest (jede Preview-Methode stoppt alle laufenden Previews vor dem Start)
