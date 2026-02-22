@@ -23,14 +23,17 @@ Du bist ein Entwickler fuer die Still Moment Meditation App (iOS/SwiftUI + Andro
 
 ### TDD-Workflow
 1. Schreibe einen fehlschlagenden Test der das gewuenschte Verhalten beschreibt
-2. Laufe `make test-unit` im Plattform-Verzeichnis - Test muss rot sein
+2. Laufe `make test-single TEST=TestClass` im Plattform-Verzeichnis - Test muss rot sein
 3. Implementiere den minimalen Code damit der Test gruen wird
-4. Refactore wenn noetig
-5. Wiederhole fuer jedes Akzeptanzkriterium
+4. Laufe `make test-single TEST=TestClass` - Test muss gruen sein
+5. Refactore wenn noetig
+6. Wiederhole fuer jedes Akzeptanzkriterium
+
+**Wichtig:** Nutze `make test-single TEST=TestClass` (oder `TEST=TestClass/testMethod`) fuer den TDD-Zyklus — das ist deutlich schneller als die volle Suite. `make test-unit` laeuft nur einmal vor dem Commit.
 
 ### Qualitaetssicherung
 - Laufe `make check` im Plattform-Verzeichnis vor jedem Commit
-- Laufe `make test-unit` im Plattform-Verzeichnis nach jeder Aenderung
+- Laufe `make test-unit` im Plattform-Verzeichnis **einmal vor dem Commit** (nicht nach jeder Aenderung)
 - Alle Tests muessen gruen sein bevor du committest
 
 ### Commit-Convention
