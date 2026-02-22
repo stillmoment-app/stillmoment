@@ -145,7 +145,6 @@ class TimerReducerTest {
             // Then - State transitions to Countdown
             assertEquals(TimerState.Preparation, newState.timerState)
             assertEquals(15, newState.remainingPreparationSeconds)
-            assertFalse(newState.intervalGongPlayedForCurrentInterval)
             assertEquals(1, newState.currentAffirmationIndex) // Rotated from 0
 
             // Verify effects — foreground service always starts with "silent" (background audio starts later)
@@ -191,27 +190,6 @@ class TimerReducerTest {
 
             // Then
             assertEquals(0, newState.currentAffirmationIndex) // 4 + 1 = 5, 5 % 5 = 0
-        }
-
-        @Test
-        fun `resets intervalGongPlayedForCurrentInterval`() {
-            // Given
-            val state =
-                TimerDisplayState.Initial.copy(
-                    selectedMinutes = 10,
-                    intervalGongPlayedForCurrentInterval = true
-                )
-
-            // When
-            val (newState, _) =
-                TimerReducer.reduce(
-                    state,
-                    TimerAction.StartPressed,
-                    defaultSettings
-                )
-
-            // Then
-            assertFalse(newState.intervalGongPlayedForCurrentInterval)
         }
 
         @Test
@@ -330,8 +308,7 @@ class TimerReducerTest {
                     remainingSeconds = 300,
                     totalSeconds = 600,
                     remainingPreparationSeconds = 0,
-                    progress = 0.5f,
-                    intervalGongPlayedForCurrentInterval = true
+                    progress = 0.5f
                 )
 
             // When
@@ -348,7 +325,6 @@ class TimerReducerTest {
             assertEquals(0, newState.totalSeconds)
             assertEquals(0, newState.remainingPreparationSeconds)
             assertEquals(0f, newState.progress)
-            assertFalse(newState.intervalGongPlayedForCurrentInterval)
 
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
             assertTrue(effects.contains(TimerEffect.ResetTimer))
@@ -849,17 +825,16 @@ class TimerReducerTest {
     @Nested
     inner class IntervalGongTriggered {
         @Test
-        fun `plays interval gong when enabled and not yet played`() {
+        fun `plays interval gong when enabled`() {
             // Given
             val state =
                 TimerDisplayState.Initial.copy(
-                    timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = false
+                    timerState = TimerState.Running
                 )
             val settings = defaultSettings.copy(intervalGongsEnabled = true)
 
             // When
-            val (newState, effects) =
+            val (_, effects) =
                 TimerReducer.reduce(
                     state,
                     TimerAction.IntervalGongTriggered,
@@ -867,7 +842,6 @@ class TimerReducerTest {
                 )
 
             // Then
-            assertTrue(newState.intervalGongPlayedForCurrentInterval)
             assertTrue(effects.any { it is TimerEffect.PlayIntervalGong })
             val intervalEffect = effects.filterIsInstance<TimerEffect.PlayIntervalGong>().first()
             assertEquals(settings.intervalGongVolume, intervalEffect.gongVolume)
@@ -878,8 +852,7 @@ class TimerReducerTest {
             // Given
             val state =
                 TimerDisplayState.Initial.copy(
-                    timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = false
+                    timerState = TimerState.Running
                 )
             val settings = defaultSettings.copy(
                 intervalGongsEnabled = true,
@@ -904,8 +877,7 @@ class TimerReducerTest {
             // Given
             val state =
                 TimerDisplayState.Initial.copy(
-                    timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = false
+                    timerState = TimerState.Running
                 )
             val settings = defaultSettings.copy(intervalGongsEnabled = false)
 
@@ -919,55 +891,6 @@ class TimerReducerTest {
 
             // Then
             assertEquals(state, newState)
-            assertTrue(effects.isEmpty())
-        }
-
-        @Test
-        fun `does nothing when already played for current interval`() {
-            // Given
-            val state =
-                TimerDisplayState.Initial.copy(
-                    timerState = TimerState.Running,
-                    intervalGongPlayedForCurrentInterval = true
-                )
-            val settings = defaultSettings.copy(intervalGongsEnabled = true)
-
-            // When
-            val (newState, effects) =
-                TimerReducer.reduce(
-                    state,
-                    TimerAction.IntervalGongTriggered,
-                    settings
-                )
-
-            // Then
-            assertEquals(state, newState)
-            assertTrue(effects.isEmpty())
-        }
-    }
-
-    // MARK: - IntervalGongPlayed Tests
-
-    @Nested
-    inner class IntervalGongPlayed {
-        @Test
-        fun `resets intervalGongPlayedForCurrentInterval`() {
-            // Given
-            val state =
-                TimerDisplayState.Initial.copy(
-                    intervalGongPlayedForCurrentInterval = true
-                )
-
-            // When
-            val (newState, effects) =
-                TimerReducer.reduce(
-                    state,
-                    TimerAction.IntervalGongPlayed,
-                    defaultSettings
-                )
-
-            // Then
-            assertFalse(newState.intervalGongPlayedForCurrentInterval)
             assertTrue(effects.isEmpty())
         }
     }

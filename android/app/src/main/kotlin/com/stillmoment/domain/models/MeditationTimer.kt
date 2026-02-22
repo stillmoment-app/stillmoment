@@ -49,17 +49,62 @@ data class MeditationTimer(
         get() = remainingSeconds <= 0
 
     /**
-     * Returns a copy with updated remaining seconds (tick).
-     * Handles preparation, start gong, introduction, and running phases.
+     * Returns a copy with updated remaining seconds and any domain events that occurred.
+     *
+     * @param intervalSettings Optional interval gong configuration. When provided,
+     *   `tick()` checks if an interval gong is due and emits [TimerEvent.IntervalGongDue].
+     *   When `null`, no interval gong detection occurs.
+     * @return Pair of (updated timer, events that occurred during this tick)
      */
-    fun tick(): MeditationTimer {
+    fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>> {
         return when (state) {
-            TimerState.Preparation -> tickPreparation()
-            TimerState.StartGong -> tickRunning()
-            TimerState.Introduction -> tickIntroduction()
-            TimerState.Running -> tickRunning()
-            TimerState.Idle, TimerState.EndGong, TimerState.Completed -> this
+            TimerState.Preparation -> {
+                val newTimer = tickPreparation()
+                val events = if (newTimer.state == TimerState.StartGong) {
+                    listOf(TimerEvent.PreparationCompleted)
+                } else {
+                    emptyList()
+                }
+                newTimer to events
+            }
+            TimerState.StartGong -> {
+                val newTimer = tickRunning()
+                val events = if (newTimer.state == TimerState.EndGong) {
+                    listOf(TimerEvent.MeditationCompleted)
+                } else {
+                    emptyList()
+                }
+                newTimer to events
+            }
+            TimerState.Introduction -> {
+                val newTimer = tickIntroduction()
+                val events = if (newTimer.state == TimerState.EndGong) {
+                    listOf(TimerEvent.MeditationCompleted)
+                } else {
+                    emptyList()
+                }
+                newTimer to events
+            }
+            TimerState.Running -> tickRunningWithEvents(intervalSettings)
+            TimerState.Idle, TimerState.EndGong, TimerState.Completed -> this to emptyList()
         }
+    }
+
+    /** Ticks the running state with interval gong detection and event emission */
+    private fun tickRunningWithEvents(intervalSettings: IntervalSettings?): Pair<MeditationTimer, List<TimerEvent>> {
+        val ticked = tickRunning()
+
+        if (ticked.state == TimerState.EndGong) {
+            return ticked to listOf(TimerEvent.MeditationCompleted)
+        }
+
+        if (intervalSettings != null &&
+            ticked.shouldPlayIntervalGong(intervalSettings.intervalMinutes, intervalSettings.mode)
+        ) {
+            return ticked.markIntervalGongPlayed() to listOf(TimerEvent.IntervalGongDue)
+        }
+
+        return ticked to emptyList()
     }
 
     /** Ticks the preparation countdown. Transitions to StartGong when preparation finishes. */

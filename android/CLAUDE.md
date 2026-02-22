@@ -130,14 +130,13 @@ data class MeditationTimer(
         }
     }
 
-    fun tick(): MeditationTimer {
+    fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>> {
+        // Returns (newTimer, events) — events are domain events emitted during this tick
         val newRemaining = maxOf(0, remainingSeconds - 1)
         val newState = if (newRemaining <= 0) TimerState.EndGong else state
-        return copy(remainingSeconds = newRemaining, state = newState)
+        val events = if (newState == TimerState.EndGong) listOf(TimerEvent.MeditationCompleted) else emptyList()
+        return copy(remainingSeconds = newRemaining, state = newState) to events
     }
-
-    fun markIntervalGongPlayed(): MeditationTimer =
-        copy(lastIntervalGongAt = remainingSeconds)
 }
 ```
 

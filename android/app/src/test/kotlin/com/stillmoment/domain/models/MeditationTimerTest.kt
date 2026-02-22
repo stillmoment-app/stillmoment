@@ -121,7 +121,7 @@ class MeditationTimerTest {
         assertEquals(15, timer.remainingPreparationSeconds)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then
         assertEquals(14, ticked.remainingPreparationSeconds)
@@ -137,7 +137,7 @@ class MeditationTimerTest {
                 .copy(state = TimerState.Preparation, remainingPreparationSeconds = 1)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then
         assertEquals(0, ticked.remainingPreparationSeconds)
@@ -150,7 +150,7 @@ class MeditationTimerTest {
         val timer = MeditationTimer.create(10).copy(state = TimerState.Running)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then
         assertEquals(599, ticked.remainingSeconds)
@@ -165,7 +165,7 @@ class MeditationTimerTest {
                 .copy(state = TimerState.Running, remainingSeconds = 1)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then
         assertEquals(0, ticked.remainingSeconds)
@@ -180,7 +180,7 @@ class MeditationTimerTest {
                 .copy(state = TimerState.Running, remainingSeconds = 0)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then
         assertEquals(0, ticked.remainingSeconds)
@@ -399,9 +399,9 @@ class MeditationTimerTest {
         assertEquals(3, timer.remainingPreparationSeconds)
 
         // When: Tick 3 times
-        timer = timer.tick() // 2
-        timer = timer.tick() // 1
-        timer = timer.tick() // 0 -> StartGong
+        timer = timer.tick().first // 2
+        timer = timer.tick().first // 1
+        timer = timer.tick().first // 0 -> StartGong
 
         // Then: Should be in StartGong (waiting for gong to finish)
         assertEquals(TimerState.StartGong, timer.state)
@@ -418,7 +418,7 @@ class MeditationTimerTest {
 
         // When: Tick 60 times (1 minute)
         repeat(60) {
-            timer = timer.tick()
+            timer = timer.tick().first
         }
 
         // Then: Should be in EndGong (gong must finish before Completed)
@@ -435,7 +435,7 @@ class MeditationTimerTest {
         assertEquals(TimerState.Idle, timer.state)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then: Idle returns same instance (no decrement)
         assertEquals(TimerState.Idle, ticked.state)
@@ -450,7 +450,7 @@ class MeditationTimerTest {
                 .copy(state = TimerState.Completed, remainingSeconds = 0)
 
         // When
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
 
         // Then: Completed state preserved, remaining stays at 0 (maxOf prevents negative)
         assertEquals(TimerState.Completed, ticked.state)
@@ -459,19 +459,18 @@ class MeditationTimerTest {
 
     @Test
     fun `repeating full simulation 5min timer 2min interval`() {
-        // 5 min timer, 2 min interval, repeating
-        // Expected gongs: at elapsed=120 (remaining=180) and elapsed=240 (remaining=60 → protected)
-        // So only at elapsed=120
+        // 5 min timer, 2 min interval, repeating — now via tick(intervalSettings)
         var timer = MeditationTimer.create(5)
             .copy(state = TimerState.Running)
+        val intervalSettings = IntervalSettings(intervalMinutes = 2, mode = IntervalMode.REPEATING)
         val gongTimes = mutableListOf<Int>()
 
         // Simulate 295 ticks (leave 5s for end protection)
         repeat(295) {
-            timer = timer.tick()
-            if (timer.shouldPlayIntervalGong(2, mode = IntervalMode.REPEATING)) {
+            val (ticked, events) = timer.tick(intervalSettings)
+            timer = ticked
+            if (events.contains(TimerEvent.IntervalGongDue)) {
                 gongTimes.add(timer.totalSeconds - timer.remainingSeconds)
-                timer = timer.markIntervalGongPlayed()
             }
         }
 
@@ -492,7 +491,7 @@ class MeditationTimerTest {
     @Test
     fun `tick during StartGong decrements remaining seconds`() {
         val timer = MeditationTimer.create(10).copy(state = TimerState.StartGong)
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
         assertEquals(599, ticked.remainingSeconds)
         assertEquals(TimerState.StartGong, ticked.state)
     }
@@ -501,7 +500,7 @@ class MeditationTimerTest {
     fun `tick during StartGong transitions to endGong at zero`() {
         val timer = MeditationTimer.create(1)
             .copy(state = TimerState.StartGong, remainingSeconds = 1)
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
         assertEquals(0, ticked.remainingSeconds)
         assertEquals(TimerState.EndGong, ticked.state)
     }
@@ -526,7 +525,7 @@ class MeditationTimerTest {
     fun `tick during Introduction decrements remaining seconds`() {
         val timer = MeditationTimer.create(10)
             .copy(state = TimerState.Introduction, remainingSeconds = 500)
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
         assertEquals(499, ticked.remainingSeconds)
         assertEquals(TimerState.Introduction, ticked.state)
     }
@@ -535,7 +534,7 @@ class MeditationTimerTest {
     fun `tick during Introduction transitions to endGong at zero`() {
         val timer = MeditationTimer.create(1)
             .copy(state = TimerState.Introduction, remainingSeconds = 1)
-        val ticked = timer.tick()
+        val (ticked, _) = timer.tick()
         assertEquals(0, ticked.remainingSeconds)
         assertEquals(TimerState.EndGong, ticked.state)
     }

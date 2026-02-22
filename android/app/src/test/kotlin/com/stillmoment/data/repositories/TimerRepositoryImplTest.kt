@@ -1,5 +1,6 @@
 package com.stillmoment.data.repositories
 
+import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -55,6 +56,28 @@ class TimerRepositoryImplTest {
         val timer = sut.timerFlow.first()
         assertEquals(TimerState.StartGong, timer.state)
         assertEquals(0, timer.remainingPreparationSeconds)
+    }
+
+    @Test
+    fun `start without preparation emits preparationCompleted`() = runTest {
+        // Given — user starts timer without preparation time
+
+        // When
+        val events = sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
+
+        // Then — preparation is immediately complete, so start gong flow can begin
+        assertEquals(listOf(TimerEvent.PreparationCompleted), events)
+    }
+
+    @Test
+    fun `start with preparation does not emit preparationCompleted`() = runTest {
+        // Given — user starts timer with preparation time
+
+        // When
+        val events = sut.start(durationMinutes = 10, preparationTimeSeconds = 15)
+
+        // Then — preparation not yet complete, event comes later via tick()
+        assertEquals(emptyList<TimerEvent>(), events)
     }
 
     // MARK: - Reset Tests
@@ -123,8 +146,10 @@ class TimerRepositoryImplTest {
         val result = sut.tick()
 
         // Then
-        assertEquals(14, result?.remainingPreparationSeconds)
-        assertEquals(TimerState.Preparation, result?.state)
+        val (timer, events) = result!!
+        assertEquals(14, timer.remainingPreparationSeconds)
+        assertEquals(TimerState.Preparation, timer.state)
+        assertEquals(emptyList<TimerEvent>(), events)
     }
 
     @Test
@@ -132,13 +157,15 @@ class TimerRepositoryImplTest {
         // Given
         sut.start(durationMinutes = 10)
 
-        // When - tick through entire countdown
-        repeat(15) { sut.tick() }
-        val result = sut.tick() // 16th tick
+        // When - tick through countdown (15→1), then final tick (1→0)
+        repeat(14) { sut.tick() }
+        val result = sut.tick() // 15th tick: 1→0 transitions to StartGong
 
         // Then — preparation → StartGong (gong plays, then Running via event)
-        assertEquals(TimerState.StartGong, result?.state)
-        assertEquals(0, result?.remainingPreparationSeconds)
+        val (timer, events) = result!!
+        assertEquals(TimerState.StartGong, timer.state)
+        assertEquals(0, timer.remainingPreparationSeconds)
+        assertEquals(listOf(TimerEvent.PreparationCompleted), events)
     }
 
     @Test
@@ -147,11 +174,12 @@ class TimerRepositoryImplTest {
         sut.start(durationMinutes = 1) // 60 seconds
         repeat(15) { sut.tick() } // Complete countdown (15 ticks: 15→0)
 
-        // When - first tick in Running phase
+        // When - first tick in Running phase (now in StartGong state)
         val result = sut.tick()
 
         // Then
-        assertEquals(59, result?.remainingSeconds)
+        val (timer, _) = result!!
+        assertEquals(59, timer.remainingSeconds)
     }
 
     @Test

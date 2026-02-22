@@ -41,7 +41,6 @@ object TimerReducer {
             is TimerAction.TimerCompleted -> reduceTimerCompleted(state, settings)
             is TimerAction.EndGongFinished -> reduceEndGongFinished(state)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(state, settings)
-            is TimerAction.IntervalGongPlayed -> reduceIntervalGongPlayed(state)
         }
     }
 
@@ -95,8 +94,7 @@ object TimerReducer {
                 remainingSeconds = totalSeconds,
                 totalSeconds = totalSeconds,
                 remainingPreparationSeconds = preparationTime,
-                currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT,
-                intervalGongPlayedForCurrentInterval = false
+                currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT
             )
 
         val updatedSettings =
@@ -138,8 +136,7 @@ object TimerReducer {
                 remainingSeconds = 0,
                 totalSeconds = 0,
                 remainingPreparationSeconds = 0,
-                progress = 0f,
-                intervalGongPlayedForCurrentInterval = false
+                progress = 0f
             )
 
         val effects = mutableListOf<TimerEffect>()
@@ -256,18 +253,12 @@ object TimerReducer {
         state: TimerDisplayState,
         settings: MeditationSettings
     ): Pair<TimerDisplayState, List<TimerEffect>> {
-        if (!settings.intervalGongsEnabled || state.intervalGongPlayedForCurrentInterval) {
+        if (!settings.intervalGongsEnabled) {
             return state to emptyList()
         }
-        val newState = state.copy(intervalGongPlayedForCurrentInterval = true)
-        return newState to listOf(
+        return state to listOf(
             TimerEffect.PlayIntervalGong(settings.intervalSoundId, settings.intervalGongVolume)
         )
-    }
-
-    private fun reduceIntervalGongPlayed(state: TimerDisplayState): Pair<TimerDisplayState, List<TimerEffect>> {
-        val newState = state.copy(intervalGongPlayedForCurrentInterval = false)
-        return newState to emptyList()
     }
 
     // MARK: - Helpers

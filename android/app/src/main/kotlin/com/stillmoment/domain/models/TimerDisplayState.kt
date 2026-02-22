@@ -23,9 +23,7 @@ data class TimerDisplayState(
     /** Progress value (0.0 - 1.0) */
     val progress: Float = 0f,
     /** Current affirmation index (rotates between sessions) */
-    val currentAffirmationIndex: Int = 0,
-    /** Whether an interval gong was already played for current interval */
-    val intervalGongPlayedForCurrentInterval: Boolean = false
+    val currentAffirmationIndex: Int = 0
 ) {
     // MARK: - Computed Properties (Pure, Testable)
 

@@ -1,9 +1,11 @@
 package com.stillmoment.presentation.viewmodel
 
 import android.app.Application
+import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerDisplayState
+import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
@@ -910,8 +912,13 @@ class FakeTimerRepository : TimerRepository {
     override val timerFlow: Flow<MeditationTimer> =
         _timer.filterNotNull()
 
-    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int, introductionDurationSeconds: Int) {
+    override suspend fun start(
+        durationMinutes: Int,
+        preparationTimeSeconds: Int,
+        introductionDurationSeconds: Int
+    ): List<TimerEvent> {
         // no-op for tests
+        return emptyList()
     }
 
     override suspend fun reset() {
@@ -922,11 +929,7 @@ class FakeTimerRepository : TimerRepository {
         // no-op for tests
     }
 
-    override fun tick(): MeditationTimer? = null
-
-    override fun markIntervalGongPlayed() {
-        // no-op for tests
-    }
+    override fun tick(intervalSettings: IntervalSettings?): Pair<MeditationTimer, List<TimerEvent>>? = null
 
     override fun startIntroduction() {
         // no-op for tests

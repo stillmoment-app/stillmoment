@@ -3,11 +3,12 @@ package com.stillmoment.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
-import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
+import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
@@ -63,6 +64,10 @@ data class TimerUiState(
  *
  * Uses Unidirectional Data Flow (UDF) with TimerReducer for pure state transitions
  * and effect handling for side effects (audio, persistence, foreground service).
+ *
+ * Timer events (preparation completed, meditation completed, interval gong due) are
+ * emitted by `MeditationTimer.tick()` as domain events instead of being detected
+ * via previousState comparison.
  */
 @Suppress("TooManyFunctions") // ViewModel naturally has many user-facing action methods
 @HiltViewModel
@@ -79,7 +84,6 @@ constructor(
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
 
     private var timerJob: Job? = null
-    private var previousState: TimerState = TimerState.Idle
 
     /** Stores duration before introduction auto-clamped, restored when introduction is disabled. */
     private var minutesBeforeIntroduction: Int? = null
@@ -176,18 +180,17 @@ constructor(
             }
             is TimerEffect.StartTimer -> {
                 viewModelScope.launch {
-                    timerRepository.start(
+                    val initialEvents = timerRepository.start(
                         effect.durationMinutes,
                         effect.preparationTimeSeconds,
                         effect.introductionDurationSeconds
                     )
+                    processTimerEvents(initialEvents)
                 }
-                previousState = TimerState.Idle
                 startTimerLoop()
             }
             is TimerEffect.ResetTimer -> {
                 timerJob?.cancel()
-                previousState = TimerState.Idle
                 viewModelScope.launch { timerRepository.reset() }
             }
             is TimerEffect.SaveSettings ->
@@ -327,10 +330,25 @@ constructor(
     }
 
     /**
+     * Builds interval settings from current meditation settings.
+     * Returns null when interval gongs are disabled (tick() skips interval detection).
+     */
+    private fun buildIntervalSettings(): IntervalSettings? {
+        val settings = _uiState.value.settings
+        if (!settings.intervalGongsEnabled) return null
+        return IntervalSettings(
+            intervalMinutes = settings.intervalMinutes,
+            mode = settings.intervalMode
+        )
+    }
+
+    /**
      * Processes a single timer tick. Returns true if loop should continue.
+     *
+     * Domain events from tick() are processed directly — no previousState comparison needed.
      */
     private fun processTimerTick(): Boolean {
-        val updatedTimer = timerRepository.tick() ?: return false
+        val (updatedTimer, events) = timerRepository.tick(buildIntervalSettings()) ?: return false
 
         // Dispatch tick action to update display state
         dispatch(
@@ -343,13 +361,11 @@ constructor(
             )
         )
 
-        // Handle state transitions
-        handleStateTransition(previousState, updatedTimer.state)
-        previousState = updatedTimer.state
+        // Process domain events emitted by tick()
+        processTimerEvents(events)
 
-        // Check for completion
+        // Check if timer completed (events already dispatched TimerCompleted)
         if (updatedTimer.isCompleted) {
-            onTimerCompleted()
             return false
         }
 
@@ -360,28 +376,23 @@ constructor(
             TimerState.Introduction,
             TimerState.Running
         )
-        if (updatedTimer.state !in activeStates) {
-            return false
-        }
-
-        // Only check interval gongs in Running state
-        if (updatedTimer.state == TimerState.Running) {
-            checkIntervalGong(updatedTimer)
-        }
-        return true
+        return updatedTimer.state in activeStates
     }
 
-    private fun handleStateTransition(oldState: TimerState, newState: TimerState) {
-        // Preparation → StartGong: Dispatch preparation finished action
-        if (oldState == TimerState.Preparation && newState == TimerState.StartGong) {
-            dispatch(TimerAction.PreparationFinished)
+    /**
+     * Processes domain events from [MeditationTimer.tick] and dispatches corresponding actions.
+     */
+    private fun processTimerEvents(events: List<TimerEvent>) {
+        for (event in events) {
+            when (event) {
+                TimerEvent.PreparationCompleted -> dispatch(TimerAction.PreparationFinished)
+                TimerEvent.MeditationCompleted -> {
+                    timerJob?.cancel()
+                    dispatch(TimerAction.TimerCompleted)
+                }
+                TimerEvent.IntervalGongDue -> dispatch(TimerAction.IntervalGongTriggered)
+            }
         }
-    }
-
-    private fun onTimerCompleted() {
-        timerJob?.cancel()
-        dispatch(TimerAction.TimerCompleted)
-        // Foreground service stays active — stopped by EndGongFinished via reducer
     }
 
     /**
@@ -394,22 +405,6 @@ constructor(
         when (_uiState.value.timerState) {
             TimerState.EndGong -> dispatch(TimerAction.EndGongFinished)
             else -> dispatch(TimerAction.StartGongFinished)
-        }
-    }
-
-    private fun checkIntervalGong(timer: MeditationTimer) {
-        val settings = _uiState.value.settings
-        if (!settings.intervalGongsEnabled) return
-
-        if (timer.shouldPlayIntervalGong(
-                intervalMinutes = settings.intervalMinutes,
-                mode = settings.intervalMode
-            )
-        ) {
-            timerRepository.markIntervalGongPlayed()
-            dispatch(TimerAction.IntervalGongTriggered)
-            // Mark as played for next interval
-            dispatch(TimerAction.IntervalGongPlayed)
         }
     }
 

@@ -21,7 +21,7 @@ class MeditationTimerEndGongTest {
                 .copy(state = TimerState.Running, remainingSeconds = 1)
 
             // When: Timer ticks
-            val ticked = timer.tick()
+            val (ticked, _) = timer.tick()
 
             // Then: Transitions to EndGong (not Completed)
             assertEquals(0, ticked.remainingSeconds)
@@ -35,7 +35,7 @@ class MeditationTimerEndGongTest {
                 .copy(state = TimerState.StartGong, remainingSeconds = 1)
 
             // When: Timer ticks
-            val ticked = timer.tick()
+            val (ticked, _) = timer.tick()
 
             // Then: Transitions to EndGong
             assertEquals(0, ticked.remainingSeconds)
@@ -49,7 +49,7 @@ class MeditationTimerEndGongTest {
                 .copy(state = TimerState.Introduction, remainingSeconds = 1)
 
             // When: Timer ticks
-            val ticked = timer.tick()
+            val (ticked, _) = timer.tick()
 
             // Then: Transitions to EndGong
             assertEquals(0, ticked.remainingSeconds)
@@ -66,7 +66,7 @@ class MeditationTimerEndGongTest {
                 .copy(state = TimerState.EndGong, remainingSeconds = 0)
 
             // When: Timer ticks (should be no-op)
-            val ticked = timer.tick()
+            val (ticked, _) = timer.tick()
 
             // Then: State unchanged
             assertEquals(TimerState.EndGong, ticked.state)
@@ -118,7 +118,8 @@ class MeditationTimerEndGongTest {
 
             // When: Tick 60 times
             repeat(60) {
-                timer = timer.tick()
+                val (ticked, _) = timer.tick()
+                timer = ticked
             }
 
             // Then: Should be in EndGong (not Completed)

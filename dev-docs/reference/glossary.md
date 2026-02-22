@@ -136,7 +136,7 @@ Domain Events, die von `MeditationTimer.tick()` emittiert werden. Druecken aus, 
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/TimerEvent.swift`
-- Android: (geplant)
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/TimerEvent.kt`
 
 **Siehe auch:** `MeditationTimer.tick()`, `IntervalSettings`
 
@@ -159,7 +159,7 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/IntervalSettings.swift`
-- Android: (geplant)
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/IntervalSettings.kt`
 
 **Siehe auch:** `IntervalMode`, `MeditationSettings.intervalMinutes`
 

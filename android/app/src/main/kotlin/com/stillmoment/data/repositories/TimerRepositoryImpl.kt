@@ -1,6 +1,8 @@
 package com.stillmoment.data.repositories
 
+import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.TimerRepository
 import javax.inject.Inject
@@ -32,7 +34,11 @@ constructor() : TimerRepository {
     var currentTimer: MeditationTimer? = null
         private set
 
-    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int, introductionDurationSeconds: Int) {
+    override suspend fun start(
+        durationMinutes: Int,
+        preparationTimeSeconds: Int,
+        introductionDurationSeconds: Int
+    ): List<TimerEvent> {
         val timer =
             MeditationTimer.create(
                 durationMinutes = durationMinutes,
@@ -49,6 +55,7 @@ constructor() : TimerRepository {
 
         currentTimer = timer
         _timer.value = timer
+        return if (preparationTimeSeconds <= 0) listOf(TimerEvent.PreparationCompleted) else emptyList()
     }
 
     override suspend fun reset() {
@@ -65,24 +72,17 @@ constructor() : TimerRepository {
     }
 
     /**
-     * Advances the timer by one second.
+     * Advances the timer by one second and returns the updated timer with any domain events.
      *
-     * Handles both countdown phase and regular timer phase.
-     * Returns the updated timer or null if no timer exists.
+     * @param intervalSettings Optional interval gong configuration for interval gong detection.
+     * @return Pair of (updated timer, events) or null if no timer exists.
      */
-    override fun tick(): MeditationTimer? {
-        currentTimer = currentTimer?.tick()
-        _timer.value = currentTimer
-        return currentTimer
-    }
-
-    /**
-     * Marks that an interval gong was played at the current time.
-     * Prevents duplicate gongs at the same interval.
-     */
-    override fun markIntervalGongPlayed() {
-        currentTimer = currentTimer?.markIntervalGongPlayed()
-        _timer.value = currentTimer
+    override fun tick(intervalSettings: IntervalSettings?): Pair<MeditationTimer, List<TimerEvent>>? {
+        val timer = currentTimer ?: return null
+        val (updatedTimer, events) = timer.tick(intervalSettings)
+        currentTimer = updatedTimer
+        _timer.value = updatedTimer
+        return updatedTimer to events
     }
 
     override fun startIntroduction() {

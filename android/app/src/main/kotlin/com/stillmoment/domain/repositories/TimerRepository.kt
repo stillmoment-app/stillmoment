@@ -1,6 +1,8 @@
 package com.stillmoment.domain.repositories
 
+import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.TimerEvent
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,7 +26,11 @@ interface TimerRepository {
      * @param preparationTimeSeconds Duration of preparation phase in seconds (0 to skip)
      * @param introductionDurationSeconds Duration of introduction audio in seconds (0 = no introduction)
      */
-    suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int = 15, introductionDurationSeconds: Int = 0)
+    suspend fun start(
+        durationMinutes: Int,
+        preparationTimeSeconds: Int = 15,
+        introductionDurationSeconds: Int = 0
+    ): List<TimerEvent>
 
     /**
      * Resets the timer to idle state.
@@ -41,18 +47,13 @@ interface TimerRepository {
     suspend fun setDuration(durationMinutes: Int)
 
     /**
-     * Advances the timer by one second.
+     * Advances the timer by one second and returns the updated timer with any domain events.
      *
-     * Handles both countdown phase and regular timer phase.
-     * Returns the updated timer or null if no timer exists.
+     * @param intervalSettings Optional interval gong configuration. When provided,
+     *   tick() checks if an interval gong is due and emits [TimerEvent.IntervalGongDue].
+     * @return Pair of (updated timer, events) or null if no timer exists.
      */
-    fun tick(): MeditationTimer?
-
-    /**
-     * Marks that an interval gong was played at the current time.
-     * Prevents duplicate gongs at the same interval.
-     */
-    fun markIntervalGongPlayed()
+    fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>>?
 
     /**
      * Starts the introduction phase, transitioning the timer model from StartGong to Introduction.

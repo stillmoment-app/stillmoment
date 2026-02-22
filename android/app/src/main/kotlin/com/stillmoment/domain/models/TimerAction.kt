@@ -45,9 +45,6 @@ sealed class TimerAction {
     /** Completion gong finished playing (audio callback), transitioning to completed */
     data object EndGongFinished : TimerAction()
 
-    /** Interval gong should be played */
+    /** Interval gong should be played (emitted by tick() via TimerEvent.IntervalGongDue) */
     data object IntervalGongTriggered : TimerAction()
-
-    /** Mark that interval gong was played (prevents duplicate plays) */
-    data object IntervalGongPlayed : TimerAction()
 }

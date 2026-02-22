@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed (iOS)
+### Changed (iOS & Android)
 - **tick() emittiert Domain Events** - `MeditationTimer.tick()` gibt jetzt `(MeditationTimer, [TimerEvent])` zurueck statt nur `MeditationTimer`
   - Neues `TimerEvent`-Enum: `.preparationCompleted`, `.meditationCompleted`, `.intervalGongDue`
-  - Neues `IntervalSettings`-Struct fuer Intervall-Gong-Konfiguration an tick()
+  - Neues `IntervalSettings`-Struct/Data Class fuer Intervall-Gong-Konfiguration an tick()
   - Intervall-Gong-Erkennung ins Domain-Modell verschoben (vorher im ViewModel)
-  - ViewModel: `previousState`, `handlePhaseTransitions()`, `checkIntervalGongs()` entfernt
+  - ViewModel: `previousState`, `handlePhaseTransitions()`/`handleStateTransition()`, `checkIntervalGongs()`/`checkIntervalGong()` entfernt
   - `intervalGongPlayedForCurrentInterval` aus TimerDisplayState entfernt
-  - `.intervalGongPlayed` Action entfernt, `markIntervalGongPlayed()` aus TimerServiceProtocol entfernt
+  - `.intervalGongPlayed` Action entfernt, `markIntervalGongPlayed()` aus TimerServiceProtocol/TimerRepository entfernt
   - Ticket: shared-056
 
 ### Changed (iOS & Android)
