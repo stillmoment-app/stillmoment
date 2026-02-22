@@ -157,7 +157,8 @@ struct TimerView: View {
             self.viewModel.currentPreparationAffirmation
         case .startGong,
              .introduction,
-             .running:
+             .running,
+             .endGong:
             self.viewModel.currentRunningAffirmation
         case .completed:
             NSLocalizedString("state.completed", comment: "")
@@ -199,7 +200,8 @@ struct TimerView: View {
             NSLocalizedString("accessibility.timerState.preparation", comment: "")
         case .startGong,
              .introduction,
-             .running:
+             .running,
+             .endGong:
             NSLocalizedString("accessibility.timerState.running", comment: "")
         case .completed:
             NSLocalizedString("accessibility.timerState.completed", comment: "")

@@ -9,7 +9,7 @@ import Foundation
 
 /// Represents the current state of the meditation timer
 ///
-/// State machine: idle → preparation → startGong → [introduction →] running → completed
+/// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
 /// Preparation is optional. Introduction is optional, entered only when the introduction audio
 /// actually starts (after the start gong finishes).
 /// Each state has exactly one meaning. Each transition has exactly one trigger.
@@ -31,6 +31,11 @@ enum TimerState: Equatable {
 
     /// Timer is in silent meditation phase (countdown running)
     case running
+
+    /// Completion gong is playing after timer reached zero.
+    /// Timer shows 00:00, ring is full. Entered when timer reaches 0.
+    /// Exited when the completion gong finishes (event-driven via audio callback).
+    case endGong
 
     /// Timer has completed the meditation
     case completed

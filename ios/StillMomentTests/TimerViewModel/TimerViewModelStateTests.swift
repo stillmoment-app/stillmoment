@@ -59,22 +59,31 @@ final class TimerViewModelStateTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 
-    func testCompletionTriggersSound() {
+    func testCompletionTriggersEndGongPhase() {
         // Given
         let expectation = expectation(description: "Sound plays on completion")
 
-        // When
+        // When - Timer reaches zero
         self.mockTimerService.simulateCompletion()
 
-        // Wait for sound to be triggered
+        // Wait for endGong phase
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            // Then
+            // Then - Should be in endGong (gong is playing), not completed yet
             XCTAssertTrue(self.mockAudioService.playCompletionSoundCalled)
-            XCTAssertEqual(self.sut.timerState, .completed)
-            expectation.fulfill()
+            XCTAssertEqual(self.sut.timerState, .endGong)
+
+            // When - Gong finishes (audio callback)
+            self.mockAudioService.gongCompletionSubject.send()
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                // Then - Now should be completed
+                XCTAssertEqual(self.sut.timerState, .completed)
+                XCTAssertTrue(self.mockAudioService.deactivateTimerSessionCalled)
+                expectation.fulfill()
+            }
         }
 
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 2.0)
     }
 
     // MARK: - Affirmations

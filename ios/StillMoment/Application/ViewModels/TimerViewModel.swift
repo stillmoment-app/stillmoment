@@ -361,7 +361,7 @@ final class TimerViewModel: ObservableObject {
         self.audioService.gongCompletionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.dispatch(.startGongFinished)
+                self?.handleGongCompletion()
             }
             .store(in: &self.cancellables)
 
@@ -393,6 +393,21 @@ final class TimerViewModel: ObservableObject {
             .store(in: &self.cancellables)
     }
 
+    /// Routes gong completion audio callbacks to the appropriate action based on current state
+    private func handleGongCompletion() {
+        switch self.displayState.timerState {
+        case .startGong:
+            self.dispatch(.startGongFinished)
+        case .endGong:
+            self.dispatch(.endGongFinished)
+        default:
+            Logger.viewModel.debug(
+                "Gong completion received in unexpected state",
+                metadata: ["state": String(describing: self.displayState.timerState)]
+            )
+        }
+    }
+
     private func handleTimerUpdate(_ timer: MeditationTimer) {
         // Dispatch tick action with timer values
         self.dispatch(.tick(
@@ -418,7 +433,7 @@ final class TimerViewModel: ObservableObject {
     }
 
     /// Dispatches actions for phase transitions in the meditation lifecycle.
-    /// State machine: idle → preparation → startGong → [introduction →] running → completed
+    /// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
     private func handlePhaseTransitions(from oldState: TimerState, to newState: TimerState) {
         // Preparation/idle → startGong: play start gong
         if oldState == .preparation || oldState == .idle,
@@ -427,9 +442,9 @@ final class TimerViewModel: ObservableObject {
             self.dispatch(.preparationFinished)
         }
 
-        // Timer completed (any active state → completed)
-        if oldState != .completed, newState == .completed {
-            Logger.viewModel.info("Timer completed, dispatching timerCompleted")
+        // Timer reached zero (any active state → endGong): enter endGong phase
+        if oldState != .endGong, oldState != .completed, newState == .endGong {
+            Logger.viewModel.info("Timer reached zero, dispatching timerCompleted for endGong phase")
             self.dispatch(.timerCompleted)
         }
     }

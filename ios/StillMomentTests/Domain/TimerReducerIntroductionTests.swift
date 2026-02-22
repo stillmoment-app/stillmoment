@@ -284,12 +284,13 @@ final class TimerReducerIntroductionTests: XCTestCase {
             settings: settings
         )
 
-        // Then
-        XCTAssertEqual(newState.timerState, .completed)
+        // Then - Transitions to endGong (not completed), keeps session active
+        XCTAssertEqual(newState.timerState, .endGong)
         XCTAssertEqual(newState.progress, 1.0)
         XCTAssertTrue(effects.contains(.playCompletionSound))
         XCTAssertTrue(effects.contains(.stopIntroduction))
         XCTAssertTrue(effects.contains(.stopBackgroundAudio))
+        XCTAssertFalse(effects.contains(.deactivateTimerSession))
     }
 
     func testTimerCompleted_fromRunning_doesNotStopIntroduction() {
@@ -304,9 +305,9 @@ final class TimerReducerIntroductionTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then - No stopIntroduction effect
+        // Then - No stopIntroduction effect, no deactivation (endGong phase keeps session active)
         XCTAssertFalse(effects.contains(.stopIntroduction))
-        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio, .deactivateTimerSession])
+        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
     }
 
     // MARK: - ResetPressed with Introduction

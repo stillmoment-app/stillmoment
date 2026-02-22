@@ -52,27 +52,29 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 | `startGong` | Start-Gong spielt, Meditation-Countdown laeuft bereits |
 | `introduction` | Einstimmungs-Audio spielt (z.B. Atemuebung), Meditation-Countdown laeuft bereits |
 | `running` | Timer laeuft, stille Meditationsphase aktiv |
+| `endGong` | Timer bei 0, Completion-Gong spielt. Ring voll, 00:00 angezeigt. Wechsel zu `completed` erst nach Audio-Callback (`endGongFinished`). |
 | `completed` | Timer abgelaufen, Meditation beendet |
 
 **State Machine:**
 
 ```
-idle --> preparation --> startGong --> introduction --> running --> completed
+idle --> preparation --> startGong --> introduction --> running --> endGong --> completed
   |                        |              |               ^
   |                        |              +---------------+
   |                        |              (no attunement)
   +------------------------+--------------+
 
 Pfade:
-- Voll: idle → preparation → startGong → introduction → running → completed
-- Ohne Einstimmung: idle → preparation → startGong → running → completed
-- Ohne Vorbereitung: idle → startGong → introduction → running → completed
-- Minimal: idle → startGong → running → completed
+- Voll: idle → preparation → startGong → introduction → running → endGong → completed
+- Ohne Einstimmung: idle → preparation → startGong → running → endGong → completed
+- Ohne Vorbereitung: idle → startGong → introduction → running → endGong → completed
+- Minimal: idle → startGong → running → endGong → completed
 - Start-Gong spielt im startGong-State; Einstimmung wartet auf startGongFinished
 - Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via startGongFinished)
 - Hintergrund-Audio startet erst beim Uebergang zu running (nach Einstimmung)
 - Einstimmungs-Timer zaehlt zur Gesamtmeditationszeit
-- Running kann nur zu Completed (Timer abgelaufen) oder Idle (Close gedrueckt) wechseln
+- Running wechselt zu endGong (Timer bei 0), endGong wechselt zu completed (Audio-Callback)
+- endGong: Completion-Gong spielt, UI zeigt 00:00 mit vollem Ring, Keep-Alive bleibt aktiv
 ```
 
 **Datei-Referenzen:**
@@ -102,7 +104,8 @@ Pfade:
 | `preparationFinished` | Vorbereitung abgeschlossen |
 | `startGongFinished` | Start-Gong fertig abgespielt, Einstimmungs-Audio kann starten |
 | `introductionFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
-| `timerCompleted` | Timer bei 0 angekommen |
+| `timerCompleted` | Timer bei 0 angekommen, wechselt zu endGong-Phase |
+| `endGongFinished` | Completion-Gong fertig abgespielt (Audio-Callback), wechselt zu completed |
 | `intervalGongTriggered` | Intervall-Gong soll spielen |
 | `intervalGongPlayed` | Intervall-Gong wurde gespielt |
 
@@ -123,7 +126,7 @@ Pfade:
 
 | Kategorie | Effects |
 |-----------|---------|
-| Audio Session | `configureAudioSession` |
+| Session Lifecycle | `activateTimerSession`, `deactivateTimerSession` |
 | Background Audio | `startBackgroundAudio(soundId:)`, `stopBackgroundAudio` |
 | Sound Effects | `playStartGong`, `playIntroduction(introductionId:)`, `stopIntroduction`, `playIntervalGong`, `playCompletionSound` |
 | Timer Service | `startTimer(durationMinutes:)`, `resetTimer` |
@@ -636,7 +639,7 @@ idle --> preparation --> finished --> (MP3 playback)
 |---------|----------|------------|
 | `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
 | `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
-| `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted` | System-Event |
+| `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted`, `endGongFinished` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event |
 | `nounVerbPlayed` | `intervalGongPlayed` | Bestaetigung |
 

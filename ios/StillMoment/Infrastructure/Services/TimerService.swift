@@ -156,8 +156,11 @@ final class TimerService: TimerServiceProtocol {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])
         }
 
-        // Stop system timer when completed
-        if updatedTimer.state == .completed {
+        // Stop system timer when entering endGong (waiting for audio callback) or completed
+        if updatedTimer.state == .endGong {
+            Logger.timer.info("Timer reached zero, entering endGong phase")
+            self.stopSystemTimer()
+        } else if updatedTimer.state == .completed {
             Logger.timer.info("Timer completed")
             self.stopSystemTimer()
         }

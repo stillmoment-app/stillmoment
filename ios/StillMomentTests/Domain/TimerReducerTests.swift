@@ -286,7 +286,7 @@ final class TimerReducerTests: XCTestCase {
 
     // MARK: - TimerCompleted State Transitions
 
-    func testTimerCompleted_transitionsTimerFromRunningToCompleted() {
+    func testTimerCompleted_transitionsTimerFromRunningToEndGong() {
         // Given
         var state = TimerDisplayState.initial
         state.timerState = .running
@@ -299,10 +299,10 @@ final class TimerReducerTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        // Then
-        XCTAssertEqual(newState.timerState, .completed)
+        // Then - Transitions to endGong, not completed (completion gong must finish first)
+        XCTAssertEqual(newState.timerState, .endGong)
         XCTAssertEqual(newState.progress, 1.0)
-        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio, .deactivateTimerSession])
+        XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
     }
 
     // MARK: - IntervalGong Tests

@@ -44,8 +44,11 @@ enum TimerAction: Equatable {
     /// Introduction audio finished, transitioning to silent meditation
     case introductionFinished
 
-    /// Timer completed (reached zero)
+    /// Timer reached zero, entering endGong phase
     case timerCompleted
+
+    /// Completion gong finished playing (audio callback), transitioning to completed
+    case endGongFinished
 
     /// Interval gong should be played
     case intervalGongTriggered

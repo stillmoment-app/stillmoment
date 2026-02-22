@@ -23,7 +23,7 @@ enum MeditationTimerError: Error, LocalizedError {
 
 /// Domain model representing a meditation timer session
 ///
-/// State machine: idle → preparation → startGong → [introduction →] running → completed
+/// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
 /// Preparation and introduction are optional phases.
 /// The introduction phase is event-driven (audio callback), not countdown-driven.
 struct MeditationTimer: Equatable {
@@ -120,6 +120,7 @@ struct MeditationTimer: Equatable {
         case .running:
             self.tickRunning()
         case .idle,
+             .endGong,
              .completed:
             self
         }
@@ -145,7 +146,7 @@ struct MeditationTimer: Equatable {
     /// The transition to `.running` is event-driven via `endIntroduction()`.
     private func tickIntroduction() -> MeditationTimer {
         let newRemaining = max(0, self.remainingSeconds - 1)
-        let newState: TimerState = newRemaining <= 0 ? .completed : .introduction
+        let newState: TimerState = newRemaining <= 0 ? .endGong : .introduction
         return MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: newRemaining,
@@ -160,7 +161,7 @@ struct MeditationTimer: Equatable {
     /// Ticks the main meditation timer (used for .startGong and .running states)
     private func tickRunning() -> MeditationTimer {
         let newRemaining = max(0, self.remainingSeconds - 1)
-        let newState: TimerState = newRemaining <= 0 ? .completed : self.state
+        let newState: TimerState = newRemaining <= 0 ? .endGong : self.state
         return MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: newRemaining,

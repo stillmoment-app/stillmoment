@@ -62,13 +62,12 @@ final class MockTimerService: TimerServiceProtocol {
         ) else {
             return
         }
-        timer = timer.withState(.completed)
-        var completedTimer = timer
-        // Tick to completion
+        timer = timer.withState(.running)
+        // Tick to endGong (timer reaches zero → .endGong state)
         for _ in 0..<60 {
-            completedTimer = completedTimer.tick()
+            timer = timer.tick()
         }
-        self.subject.send(completedTimer)
+        self.subject.send(timer)
     }
 
     /// Simulates a running timer that has reached an interval gong point

@@ -80,14 +80,23 @@ final class TimerReducerIntegrationTests: XCTestCase {
             return false
         })
 
-        // running → completed
-        let (afterCompleted, completedEffects) = TimerReducer.reduce(
+        // running → endGong (completion gong plays)
+        let (afterEndGong, endGongEffects) = TimerReducer.reduce(
             state: afterRunning,
             action: .timerCompleted,
             settings: self.defaultSettings
         )
+        XCTAssertEqual(afterEndGong.timerState, .endGong)
+        XCTAssertTrue(endGongEffects.contains(.playCompletionSound))
+
+        // endGong → completed (gong finished)
+        let (afterCompleted, completedEffects) = TimerReducer.reduce(
+            state: afterEndGong,
+            action: .endGongFinished,
+            settings: self.defaultSettings
+        )
         XCTAssertEqual(afterCompleted.timerState, .completed)
-        XCTAssertTrue(completedEffects.contains(.playCompletionSound))
+        XCTAssertTrue(completedEffects.contains(.deactivateTimerSession))
     }
 
     func testMeditationCycle_completed_to_idle() {

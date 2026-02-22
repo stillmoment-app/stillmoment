@@ -103,7 +103,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
             timer = timer.tick()
         }
 
-        XCTAssertEqual(timer.state, .completed)
+        XCTAssertEqual(timer.state, .endGong)
         XCTAssertEqual(timer.remainingSeconds, 0)
     }
 

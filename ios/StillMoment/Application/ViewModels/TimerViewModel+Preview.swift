@@ -84,6 +84,10 @@ extension TimerViewModel {
             newState.remainingSeconds = 300
             newState.totalSeconds = 600
             newState.progress = 0.5
+        case .endGong:
+            newState.remainingSeconds = 0
+            newState.totalSeconds = 600
+            newState.progress = 1.0
         case .completed:
             newState.remainingSeconds = 0
             newState.totalSeconds = 600

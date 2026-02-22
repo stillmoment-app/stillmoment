@@ -52,10 +52,11 @@ struct TimerDisplayState: Equatable {
     }
 
     /// Whether the timer is actively running (for UI display)
-    /// Returns true during start gong, introduction and silent meditation phases
-    /// (no visual difference between these phases per design)
+    /// Returns true during start gong, introduction, silent meditation and endGong phases
+    /// (no visual difference between these phases per design — ring full, 00:00 during endGong)
     var isRunning: Bool {
-        self.timerState == .running || self.timerState == .introduction || self.timerState == .startGong
+        self.timerState == .running || self.timerState == .introduction
+            || self.timerState == .startGong || self.timerState == .endGong
     }
 
     /// Formatted time string (MM:SS or preparation seconds)

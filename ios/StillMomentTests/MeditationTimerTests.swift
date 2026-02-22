@@ -91,9 +91,9 @@ final class MeditationTimerTests: XCTestCase {
         // When - Final tick
         timer = timer.tick()
 
-        // Then - Should be completed
+        // Then - Should be in endGong (waiting for completion gong to finish)
         XCTAssertEqual(timer.remainingSeconds, 0)
-        XCTAssertEqual(timer.state, .completed)
+        XCTAssertEqual(timer.state, .endGong)
         XCTAssertTrue(timer.isCompleted)
     }
 

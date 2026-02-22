@@ -27,31 +27,26 @@ enum TimerReducer {
     ) -> (TimerDisplayState, [TimerEffect]) {
         switch action {
         case let .selectDuration(minutes):
-            return self.reduceSelectDuration(state: state, minutes: minutes, settings: settings)
+            self.reduceSelectDuration(state: state, minutes: minutes, settings: settings)
         case .startPressed:
-            return self.reduceStartPressed(state: state, settings: settings)
+            self.reduceStartPressed(state: state, settings: settings)
         case .resetPressed:
-            return self.reduceResetPressed(state: state, settings: settings)
+            self.reduceResetPressed(state: state, settings: settings)
         case let .tick(remainingSeconds, totalSeconds, remainingPreparationSeconds, progress, timerState):
-            var newState = state
-            newState.remainingSeconds = remainingSeconds
-            newState.totalSeconds = totalSeconds
-            newState.remainingPreparationSeconds = remainingPreparationSeconds
-            newState.progress = progress
-            newState.timerState = timerState
-            return (newState, [])
+            self.reduceTick(state, remainingSeconds, totalSeconds, remainingPreparationSeconds, progress, timerState)
         case .preparationFinished:
-            return self.reducePreparationFinished(state: state, settings: settings)
+            self.reducePreparationFinished(state: state, settings: settings)
         case .startGongFinished:
-            return self.reduceStartGongFinished(state: state, settings: settings)
+            self.reduceStartGongFinished(state: state, settings: settings)
         case .introductionFinished:
-            return self.reduceIntroductionFinished(state: state, settings: settings)
+            self.reduceIntroductionFinished(state: state, settings: settings)
         case .timerCompleted:
-            return self.reduceTimerCompleted(state: state, settings: settings)
-        case .intervalGongTriggered:
-            return self.reduceIntervalGongTriggered(state: state, settings: settings)
-        case .intervalGongPlayed:
-            return self.reduceIntervalGongPlayed(state: state)
+            self.reduceTimerCompleted(state: state, settings: settings)
+        case .endGongFinished:
+            self.reduceEndGongFinished(state: state)
+        case .intervalGongTriggered,
+             .intervalGongPlayed:
+            self.reduceIntervalGong(state: state, action: action, settings: settings)
         }
     }
 
@@ -67,6 +62,26 @@ enum TimerReducer {
             minutes,
             introductionId: settings.introductionId
         )
+        return (newState, [])
+    }
+
+    // MARK: - Tick
+
+    // swiftlint:disable:next function_parameter_count
+    private static func reduceTick(
+        _ state: TimerDisplayState,
+        _ remainingSeconds: Int,
+        _ totalSeconds: Int,
+        _ remainingPreparationSeconds: Int,
+        _ progress: Double,
+        _ timerState: TimerState
+    ) -> (TimerDisplayState, [TimerEffect]) {
+        var newState = state
+        newState.remainingSeconds = remainingSeconds
+        newState.totalSeconds = totalSeconds
+        newState.remainingPreparationSeconds = remainingPreparationSeconds
+        newState.progress = progress
+        newState.timerState = timerState
         return (newState, [])
     }
 
@@ -190,7 +205,7 @@ enum TimerReducer {
         settings: MeditationSettings
     ) -> (TimerDisplayState, [TimerEffect]) {
         var newState = state
-        newState.timerState = .completed
+        newState.timerState = .endGong
         newState.progress = 1.0
 
         var effects: [TimerEffect] = [.playCompletionSound]
@@ -198,36 +213,54 @@ enum TimerReducer {
         if state.timerState == .introduction {
             effects.append(.stopIntroduction)
         }
-        effects.append(contentsOf: [.stopBackgroundAudio, .deactivateTimerSession])
+        effects.append(.stopBackgroundAudio)
+        // Keep-alive stays active during endGong — deactivation happens in reduceEndGongFinished
 
         return (newState, effects)
     }
 
-    // MARK: - Interval Gong Actions
-
-    private static func reduceIntervalGongTriggered(
-        state: TimerDisplayState,
-        settings: MeditationSettings
-    ) -> (TimerDisplayState, [TimerEffect]) {
-        guard settings.intervalGongsEnabled,
-              !state.intervalGongPlayedForCurrentInterval else {
-            return (state, [])
-        }
-        var newState = state
-        newState.intervalGongPlayedForCurrentInterval = true
-        let effect = TimerEffect.playIntervalGong(
-            soundId: settings.intervalSoundId,
-            volume: settings.intervalGongVolume
-        )
-        return (newState, [effect])
-    }
-
-    private static func reduceIntervalGongPlayed(
+    private static func reduceEndGongFinished(
         state: TimerDisplayState
     ) -> (TimerDisplayState, [TimerEffect]) {
+        guard state.timerState == .endGong else {
+            return (state, [])
+        }
+
         var newState = state
-        newState.intervalGongPlayedForCurrentInterval = false
-        return (newState, [])
+        newState.timerState = .completed
+
+        return (newState, [.deactivateTimerSession])
+    }
+
+    // MARK: - Interval Gong Actions
+
+    private static func reduceIntervalGong(
+        state: TimerDisplayState,
+        action: TimerAction,
+        settings: MeditationSettings
+    ) -> (TimerDisplayState, [TimerEffect]) {
+        switch action {
+        case .intervalGongTriggered:
+            guard settings.intervalGongsEnabled,
+                  !state.intervalGongPlayedForCurrentInterval else {
+                return (state, [])
+            }
+            var newState = state
+            newState.intervalGongPlayedForCurrentInterval = true
+            let effect = TimerEffect.playIntervalGong(
+                soundId: settings.intervalSoundId,
+                volume: settings.intervalGongVolume
+            )
+            return (newState, [effect])
+
+        case .intervalGongPlayed:
+            var newState = state
+            newState.intervalGongPlayedForCurrentInterval = false
+            return (newState, [])
+
+        default:
+            return (state, [])
+        }
     }
 
     // MARK: - Helpers
