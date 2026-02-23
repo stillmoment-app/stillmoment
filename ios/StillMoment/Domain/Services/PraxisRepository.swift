@@ -8,7 +8,7 @@
 import Foundation
 
 /// Errors thrown by PraxisRepository operations
-enum PraxisRepositoryError: Error, LocalizedError {
+enum PraxisRepositoryError: Error, LocalizedError, Equatable {
     /// Thrown when attempting to delete the last remaining Praxis
     case cannotDeleteLastPraxis
     /// Thrown when a Praxis with the given ID is not found
