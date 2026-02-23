@@ -276,6 +276,6 @@ final class TimerReducerIntroductionTests: XCTestCase {
 
         // Then
         XCTAssertFalse(effects.contains(.stopIntroduction))
-        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
+        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
     }
 }

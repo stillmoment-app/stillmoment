@@ -25,7 +25,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
+        XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
     }
 
     func testResetPressed_fromCompleted_producesResetEffects() {

@@ -7,15 +7,12 @@
 
 import Foundation
 
-/// Side effects that the timer reducer can produce
+/// Effects that the timer reducer can produce
 ///
-/// These effects are returned by the reducer alongside the new state.
-/// The ViewModel's effect handler executes them, keeping the reducer pure.
+/// Includes both side effects (audio, persistence) and state transitions.
+/// The ViewModel's effect handler executes them sequentially, keeping the reducer pure.
 enum TimerEffect: Equatable {
     // MARK: - Audio Session Effects
-
-    /// Configure the audio session for playback
-    case configureAudioSession
 
     /// Activate the timer session (audio session + always-on keep-alive)
     case activateTimerSession
@@ -59,6 +56,14 @@ enum TimerEffect: Equatable {
 
     /// End the introduction phase (transition timer from .introduction to .running)
     case endIntroductionPhase
+
+    // MARK: - State Transition Effects
+
+    /// Transition timer to completed state (endGong → completed)
+    case transitionToCompleted
+
+    /// Clear the timer, returning to idle (timer = nil)
+    case clearTimer
 
     // MARK: - Persistence Effects
 

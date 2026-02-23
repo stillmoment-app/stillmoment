@@ -130,14 +130,6 @@ final class TimerViewModel: ObservableObject {
         )
 
         self.executeEffects(effects)
-
-        // State transitions managed by ViewModel (not domain)
-        if case .endGongFinished = action {
-            self.timer = self.timer?.withState(.completed)
-        }
-        if case .resetPressed = action {
-            self.timer = nil
-        }
     }
 
     // MARK: - Public Methods
@@ -190,8 +182,6 @@ final class TimerViewModel: ObservableObject {
 
     private func executeAudioSessionEffect(_ effect: TimerEffect) -> Bool {
         switch effect {
-        case .configureAudioSession:
-            self.executeConfigureAudioSession()
         case .activateTimerSession:
             self.executeActivateTimerSession()
         case .deactivateTimerSession:
@@ -234,6 +224,10 @@ final class TimerViewModel: ObservableObject {
             self.timerService.beginIntroductionPhase()
         case .endIntroductionPhase:
             self.timerService.endIntroductionPhase()
+        case .transitionToCompleted:
+            self.timer = self.timer?.withState(.completed)
+        case .clearTimer:
+            self.timer = nil
         default:
             return false
         }
@@ -251,16 +245,6 @@ final class TimerViewModel: ObservableObject {
     }
 
     // MARK: - Audio Effect Handlers
-
-    private func executeConfigureAudioSession() {
-        do {
-            try self.audioService.configureAudioSession()
-            Logger.viewModel.info("Audio session configured for timer")
-        } catch {
-            Logger.viewModel.error("Failed to configure audio session", error: error)
-            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
-        }
-    }
 
     private func executeActivateTimerSession() {
         do {

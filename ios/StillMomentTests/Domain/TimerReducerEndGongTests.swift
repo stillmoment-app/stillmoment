@@ -50,7 +50,7 @@ final class TimerReducerEndGongTests: XCTestCase {
 
     // MARK: - endGongFinished action
 
-    func testEndGongFinished_deactivatesTimerSession() {
+    func testEndGongFinished_transitionsToCompletedAndDeactivates() {
         // When
         let effects = TimerReducer.reduce(
             action: .endGongFinished,
@@ -60,9 +60,7 @@ final class TimerReducerEndGongTests: XCTestCase {
         )
 
         // Then
-        XCTAssertTrue(effects.contains(.deactivateTimerSession))
-        // Should NOT play any more sounds
-        XCTAssertFalse(effects.contains(.playCompletionSound))
+        XCTAssertEqual(effects, [.transitionToCompleted, .deactivateTimerSession])
     }
 
     func testEndGongFinished_inWrongPhase_isNoOp() {
@@ -110,7 +108,8 @@ final class TimerReducerEndGongTests: XCTestCase {
             settings: self.defaultSettings
         )
 
-        XCTAssertTrue(effects.contains(.deactivateTimerSession))
         XCTAssertTrue(effects.contains(.resetTimer))
+        XCTAssertTrue(effects.contains(.clearTimer))
+        XCTAssertTrue(effects.contains(.deactivateTimerSession))
     }
 }

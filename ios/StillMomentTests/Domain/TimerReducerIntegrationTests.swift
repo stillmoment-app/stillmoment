@@ -79,6 +79,7 @@ final class TimerReducerIntegrationTests: XCTestCase {
             selectedMinutes: 10,
             settings: self.defaultSettings
         )
+        XCTAssertTrue(completedEffects.contains(.transitionToCompleted))
         XCTAssertTrue(completedEffects.contains(.deactivateTimerSession))
     }
 

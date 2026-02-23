@@ -104,10 +104,10 @@ Jeder Schritt ist einzeln implementierbar, testbar und deployfaehig.
 Kein Schritt haengt von einem anderen ab (Reihenfolge ist empfohlen, nicht zwingend).
 
 ```
-  Schritt 1: tick() emittiert Events          <- loest P1 (Hauptproblem)
-  Schritt 2: TimerDisplayState eliminieren     <- loest P2
-  Schritt 3: endGong-Phase einfuehren          <- neues Feature
-  Schritt 4: Preview-Audio trennen             <- loest P3
+  Schritt 1: tick() emittiert Events          <- loest P1 (erledigt: shared-056)
+  Schritt 2: TimerDisplayState eliminieren     <- loest P2 (erledigt: shared-057 iOS)
+  Schritt 3: endGong-Phase einfuehren          <- neues Feature (erledigt: shared-055)
+  Schritt 4: Preview-Audio trennen             <- loest P3 (erledigt: shared-054)
   Schritt 5: Keep-Alive strukturell absichern  <- loest P4 (Fragilitaet)
 ```
 

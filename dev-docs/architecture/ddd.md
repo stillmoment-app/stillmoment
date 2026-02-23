@@ -120,22 +120,26 @@ Zustandsänderungen erfolgen über eine **pure function**.
 ### Struktur
 
 ```
-Action + State + Settings → (NewState, [Effects])
+Action + TimerState + Settings → [Effects]
 ```
+
+Der Reducer ist ein reiner Effect Mapper — er gibt keinen neuen State zurueck.
+State-Transitions sind als Effects modelliert (z.B. `transitionToCompleted`, `clearTimer`).
 
 ```swift
 // iOS
 enum TimerReducer {
     static func reduce(
-        state: TimerDisplayState,
         action: TimerAction,
+        timerState: TimerState,
+        selectedMinutes: Int,
         settings: MeditationSettings
-    ) -> (TimerDisplayState, [TimerEffect])
+    ) -> [TimerEffect]
 }
 ```
 
 ```kotlin
-// Android
+// Android (nutzt noch TimerDisplayState — Migration als shared-057 geplant)
 object TimerReducer {
     fun reduce(
         state: TimerDisplayState,
@@ -152,27 +156,29 @@ object TimerReducer {
 │ Idle │──────────────►│ Preparation │──────────────►│ StartGong │─────────────────►│ Introduction │───────────────►│ Running │
 └──────┘               └─────────────┘               └───────────┘                   └──────────────┘                └─────────┘
     ▲                       │                              │                                │                           │
-    │                       │  (no preparation)            │  (no introduction)             │  (timer expired)          │
+    │                       │  (no preparation)            │  (no introduction)             │                           │
     │                       └──►┐                          └───────────────────────────────►┐                           │
     │                            │                                                          │                           │
-    │                  closePressed                                                         │                           │
-    │◄─────────────────────────────────────────────────────────────────────────────────────┤                           │
-    │                                                                                       │  timerCompleted           │
-    │                  ┌───────────┐                                                         │                           │
-    └──────────────────│ Completed │◄───────────────────────────────────────────────────────┘◄──────────────────────────┘
-                       └───────────┘
+    │                  resetPressed                                                         │  timerCompleted           │
+    │◄──────────────── (from any non-idle state) ─────────────────────────────────────────┤                           │
+    │                                                                                       │                           │
+    │                  ┌───────────┐  endGongFinished  ┌─────────┐                          │                           │
+    └──────────────────│ Completed │◄─────────────────│ EndGong │◄─────────────────────────┘◄──────────────────────────┘
+                       └───────────┘                   └─────────┘
 ```
 
 **Pfade:**
-- Voll: idle → preparation → startGong → introduction → running → completed
-- Ohne Einstimmung: idle → preparation → startGong → running → completed
-- Ohne Vorbereitung: idle → startGong → introduction → running → completed
-- Minimal: idle → startGong → running → completed
+- Voll: idle → preparation → startGong → introduction → running → endGong → completed
+- Ohne Einstimmung: idle → preparation → startGong → running → endGong → completed
+- Ohne Vorbereitung: idle → startGong → introduction → running → endGong → completed
+- Minimal: idle → startGong → running → endGong → completed
 - Start-Gong spielt im `startGong`-State; Einstimmung wartet auf `startGongFinished` Action
 - Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via `startGongFinished` Action)
 - Einstimmung zaehlt zur Gesamtmeditationszeit (Countdown laeuft bereits)
 - Hintergrund-Audio und Intervall-Gongs starten erst beim Uebergang zu running
-- Wenn Timer waehrend der Einstimmung ablaeuft: introduction → completed (Einstimmung wird abgeschnitten)
+- Running wechselt zu endGong (Timer bei 0), endGong wechselt zu completed (Audio-Callback)
+- endGong: Completion-Gong spielt, UI zeigt 00:00 mit vollem Ring, Keep-Alive bleibt aktiv
+- Wenn Timer waehrend der Einstimmung ablaeuft: introduction → endGong → completed (Einstimmung wird abgeschnitten)
 
 ### Intervall-Gong-Zyklus
 

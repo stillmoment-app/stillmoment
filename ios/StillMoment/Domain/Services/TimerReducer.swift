@@ -84,7 +84,7 @@ enum TimerReducer {
         if timerState == .introduction {
             effects.append(.stopIntroduction)
         }
-        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
+        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
 
         return effects
     }
@@ -154,7 +154,7 @@ enum TimerReducer {
             return []
         }
 
-        return [.deactivateTimerSession]
+        return [.transitionToCompleted, .deactivateTimerSession]
     }
 
     // MARK: - Interval Gong Actions

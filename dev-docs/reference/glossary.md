@@ -172,9 +172,10 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 | Kategorie | Effects |
 |-----------|---------|
 | Session Lifecycle | `activateTimerSession`, `deactivateTimerSession` |
-| Background Audio | `startBackgroundAudio(soundId:)`, `stopBackgroundAudio` |
-| Sound Effects | `playStartGong`, `playIntroduction(introductionId:)`, `stopIntroduction`, `playIntervalGong`, `playCompletionSound` |
-| Timer Service | `startTimer(durationMinutes:)`, `resetTimer` |
+| Background Audio | `startBackgroundAudio(soundId:volume:)`, `stopBackgroundAudio` |
+| Sound Effects | `playStartGong`, `playIntroduction(introductionId:)`, `stopIntroduction`, `playIntervalGong(soundId:volume:)`, `playCompletionSound` |
+| Timer Service | `startTimer(durationMinutes:)`, `resetTimer`, `beginIntroductionPhase`, `endIntroductionPhase` |
+| State Transitions | `transitionToCompleted`, `clearTimer` |
 | Persistence | `saveSettings(MeditationSettings)` |
 
 **Datei-Referenzen:**
