@@ -52,7 +52,6 @@ struct GuidedMeditationPlayerView: View {
 
                 if self.viewModel.isCompleted {
                     MeditationCompletionView {
-                        self.viewModel.cleanup()
                         self.dismiss()
                     }
                     .transition(.asymmetric(
@@ -182,7 +181,6 @@ struct GuidedMeditationPlayerView: View {
             ToolbarItem(placement: .navigationBarLeading) {
                 if !self.viewModel.isCompleted {
                     Button {
-                        self.viewModel.cleanup()
                         self.dismiss()
                     } label: {
                         Image(systemName: "xmark")
