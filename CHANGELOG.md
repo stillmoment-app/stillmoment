@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (iOS)
+- **Geführte Meditation Abschluss-Screen** - Nach natürlichem Audio-Ende erscheint ein Completion-Screen statt der Player-Controls (Ticket: shared-053)
+  - Herz-Icon (gefüllt, Indigo-Ton) in kreisförmigem Container als visuelles Zentrum
+  - Headline "Vielen Dank" (DE) / "Thank you" (EN), zentriert
+  - Untertitel "Schön, dass du dir diese Zeit genommen hast." (DE/EN)
+  - Einziger Button "Zurück" – schliesst den Player, kehrt zur Bibliothek zurück
+  - Slide-in-from-Bottom Animation mit Fade-in beim Übergang
+  - Player-Controls, Slider, Zeitanzeige und X-Button im Completion-Zustand ausgeblendet
+  - Kein Meditationstitel im Completion-Zustand (Stille nach der Praxis)
+  - Bei manuellem Schliessen (X-Button während Playback) kein Completion-Screen
+  - Visuell konsistent mit Timer-Completion-Screen (shared-052)
+  - Lokalisiert (DE + EN)
 - **Praxis-Datenmodell** - Neues Domain-Modell für benannte, speicherbare Timer-Konfigurationen (Ticket: shared-062)
   - `Praxis`: Immutables Value Object mit UUID, Name und allen Timer-Feldern (1:1 zu MeditationSettings)
   - `PraxisRepository`-Protokoll: CRUD-Operationen, aktive Praxis-ID, Mindestens-eine-Praxis-Invariante
