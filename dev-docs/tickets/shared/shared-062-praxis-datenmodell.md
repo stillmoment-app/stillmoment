@@ -46,8 +46,8 @@ Aktuell gibt es nur eine einzige globale Timer-Konfiguration. Mit dem Praxis-Mod
 - [ ] Unit Tests Android: Domain-Model, Repository, Migration
 
 ### Dokumentation
-- [ ] CHANGELOG.md
-- [ ] GLOSSARY.md (neuer Begriff: "Praxis")
+- [x] CHANGELOG.md
+- [x] GLOSSARY.md (neuer Begriff: "Praxis")
 
 ---
 
