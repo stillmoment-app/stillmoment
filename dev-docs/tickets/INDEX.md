@@ -84,7 +84,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-058](shared/shared-058-entscheidungspunkt-aggregate.md) | Entscheidungspunkt Aggregate | 2-Architektur | [ ] | shared-057 |
 | [shared-059](shared/shared-059-keep-alive-invariante.md) | Keep-Alive strukturell absichern | 2-Architektur | [x] | [x] |
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
-| [shared-061](shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [ ] | [ ] |
+| [shared-061](shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [x] | [ ] |
 | [shared-062](shared/shared-062-praxis-datenmodell.md) | Praxis-Datenmodell und Persistenz | 2-Architektur | [ ] | [ ] |
 | [shared-063](shared/shared-063-praxis-auswahl.md) | Praxis-Auswahl (Pill-Button & Bottom Sheet) | 3-Feature | [ ] | [ ] |
 | [shared-064](shared/shared-064-praxis-editor.md) | Praxis-Editor und Settings-Abloesung | 3-Feature | [ ] | [ ] |

@@ -22,7 +22,7 @@ Das Timer-Settings-Sheet ist aktuell ueberladen mit Timer-Konfiguration UND App-
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -30,22 +30,22 @@ Das Timer-Settings-Sheet ist aktuell ueberladen mit Timer-Konfiguration UND App-
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen
-- [ ] Icons: Timer und Bibliothek bleiben wie bisher. Einstellungen-Tab: `gearshape` (iOS) / `Icons.Outlined.Settings` (Android) — bewusst unterschiedlich vom Inline-Settings-Icon (`slider.horizontal.3` / `Icons.Filled.Tune`), um App-Einstellungen von Timer-Tuning zu unterscheiden
-- [ ] Einstellungen-Screen mit Sektion "Erscheinungsbild": Theme-Auswahl und Appearance-Mode (System/Hell/Dunkel)
-- [ ] Einstellungen-Screen mit Sektion "Info & Rechtliches": Sound Attributions, Datenschutz, App-Version
-- [ ] Theme/Appearance aus Timer-Settings-Sheet entfernt (lebt nur noch im Einstellungen-Tab)
-- [ ] Tab-Auswahl wird persistiert (letzter Tab bei Neustart wiederhergestellt)
-- [ ] Timer-Settings-Sheet funktioniert weiterhin fuer Timer-spezifische Settings (Gong, Background, etc.)
-- [ ] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen
+- [x] Icons: Timer und Bibliothek bleiben wie bisher. Einstellungen-Tab: `gearshape` (iOS) / `Icons.Outlined.Settings` (Android) — bewusst unterschiedlich vom Inline-Settings-Icon (`slider.horizontal.3` / `Icons.Filled.Tune`), um App-Einstellungen von Timer-Tuning zu unterscheiden
+- [x] Einstellungen-Screen mit Sektion "Erscheinungsbild": Theme-Auswahl und Appearance-Mode (System/Hell/Dunkel)
+- [x] Einstellungen-Screen mit Sektion "Info & Rechtliches": Sound Attributions, Datenschutz, App-Version
+- [x] Theme/Appearance aus Timer-Settings-Sheet entfernt (lebt nur noch im Einstellungen-Tab)
+- [x] Tab-Auswahl wird persistiert (letzter Tab bei Neustart wiederhergestellt)
+- [x] Timer-Settings-Sheet funktioniert weiterhin fuer Timer-spezifische Settings (Gong, Background, etc.)
+- [x] Lokalisiert (DE + EN)
+- [ ] Visuell konsistent zwischen iOS und Android (iOS done, Android pending)
 
 ### Tests
-- [ ] Unit Tests iOS
+- [x] Unit Tests iOS
 - [ ] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
