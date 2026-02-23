@@ -223,6 +223,8 @@ final class TimerViewModel: ObservableObject {
             self.executeStartTimer(durationMinutes: durationMinutes)
         case .resetTimer:
             self.timerService.reset()
+        case .beginIntroductionPhase:
+            self.timerService.beginIntroductionPhase()
         case .endIntroductionPhase:
             self.timerService.endIntroductionPhase()
         default:

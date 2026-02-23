@@ -135,7 +135,7 @@ final class TimerReducerIntroductionTests: XCTestCase {
 
         // Then - Transition to introduction and play audio
         XCTAssertEqual(newState.timerState, .introduction)
-        XCTAssertEqual(effects, [.playIntroduction(introductionId: "breath")])
+        XCTAssertEqual(effects, [.beginIntroductionPhase, .playIntroduction(introductionId: "breath")])
     }
 
     func testStartGongFinished_withoutIntroduction_transitionsToRunning() {

@@ -95,6 +95,42 @@ final class TimerServiceTests: XCTestCase {
         XCTAssertLessThan(receivedTimers[1].remainingSeconds, receivedTimers[0].remainingSeconds)
     }
 
+    func testStartWithoutPreparation_emitsPreparationCompleted() {
+        // Given — user starts timer without preparation time
+        var receivedEvents: [TimerEvent] = []
+
+        self.sut.timerPublisher
+            .first()
+            .sink { _, events in
+                receivedEvents = events
+            }
+            .store(in: &self.cancellables)
+
+        // When
+        self.sut.start(durationMinutes: 5, preparationTimeSeconds: 0, intervalSettings: nil)
+
+        // Then — preparation is immediately complete, so start gong flow can begin
+        XCTAssertEqual(receivedEvents, [.preparationCompleted])
+    }
+
+    func testStartWithPreparation_doesNotEmitPreparationCompleted() {
+        // Given — user starts timer with preparation time
+        var receivedEvents: [TimerEvent] = []
+
+        self.sut.timerPublisher
+            .first()
+            .sink { _, events in
+                receivedEvents = events
+            }
+            .store(in: &self.cancellables)
+
+        // When
+        self.sut.start(durationMinutes: 5, preparationTimeSeconds: 15, intervalSettings: nil)
+
+        // Then — preparation not yet complete, event comes later via tick()
+        XCTAssertEqual(receivedEvents, [])
+    }
+
     func testStopTimer() {
         // Given
         var received = false

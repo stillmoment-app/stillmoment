@@ -162,7 +162,7 @@ enum TimerReducer {
            let introId = settings.introductionId {
             // Introduction configured → transition to .introduction and play audio
             newState.timerState = .introduction
-            return (newState, [.playIntroduction(introductionId: introId)])
+            return (newState, [.beginIntroductionPhase, .playIntroduction(introductionId: introId)])
         } else {
             // No introduction → transition directly to .running with background audio
             newState.timerState = .running

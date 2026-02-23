@@ -54,6 +54,9 @@ enum TimerEffect: Equatable {
     /// Reset the timer
     case resetTimer
 
+    /// Begin the introduction phase (transition timer from .startGong to .introduction)
+    case beginIntroductionPhase
+
     /// End the introduction phase (transition timer from .introduction to .running)
     case endIntroductionPhase
 

@@ -201,4 +201,40 @@ final class TimerViewModelRegressionTests: XCTestCase {
 
         wait(for: [expectation], timeout: 2.0)
     }
+
+    // MARK: - Introduction Background Audio Bug
+
+    func testBackgroundAudioStartsAfterIntroductionFinishes() {
+        // CRITICAL: Regression test for the introduction→background-audio bug.
+        // After Einstimmung finishes, Klangkulisse MUST start.
+        // Bug: domain timer stayed in .startGong during introduction, so the
+        // .introduction guard in reduceIntroductionFinished failed → no audio.
+
+        // Given - Introduction configured (German locale required)
+        Introduction.languageOverride = "de"
+        defer { Introduction.languageOverride = nil }
+
+        self.sut.settings.introductionId = "breath"
+        self.sut.selectedMinutes = 5
+
+        // When - Start timer (emits .startGong tick via mock)
+        self.sut.startTimer()
+
+        // When - Start gong finishes → triggers beginIntroductionPhase + playIntroduction
+        // beginIntroductionPhase syncs domain timer to .introduction
+        self.sut.dispatch(.startGongFinished)
+
+        // When - Introduction audio finishes → triggers endIntroductionPhase + startBackgroundAudio
+        self.sut.dispatch(.introductionFinished)
+
+        // Then - Background audio MUST have started
+        XCTAssertTrue(
+            self.mockAudioService.startBackgroundAudioCalled,
+            """
+            CRITICAL: Background audio must start after introduction finishes.
+            Bug: domain timer was stuck in .startGong during introduction, causing
+            reduceIntroductionFinished's guard to fail and skip all effects.
+            """
+        )
+    }
 }

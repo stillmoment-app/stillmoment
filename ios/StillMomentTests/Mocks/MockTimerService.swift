@@ -35,7 +35,9 @@ final class MockTimerService: TimerServiceProtocol {
         ) else {
             return
         }
-        self.subject.send((timer.withState(.startGong), []))
+        let startGongTimer = timer.withState(.startGong)
+        self.currentTimerForTest = startGongTimer
+        self.subject.send((startGongTimer, []))
     }
 
     func reset() {
@@ -126,6 +128,18 @@ final class MockTimerService: TimerServiceProtocol {
 
     /// Returns the current test timer (for verification)
     var currentTimerForTest: MeditationTimer?
+
+    var beginIntroductionPhaseCalled = false
+
+    func beginIntroductionPhase() {
+        self.beginIntroductionPhaseCalled = true
+        guard let timer = currentTimerForTest else {
+            return
+        }
+        let updatedTimer = timer.withState(.introduction)
+        self.currentTimerForTest = updatedTimer
+        self.subject.send((updatedTimer, []))
+    }
 
     var endIntroductionPhaseCalled = false
 

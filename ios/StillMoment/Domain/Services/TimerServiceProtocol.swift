@@ -27,6 +27,12 @@ protocol TimerServiceProtocol {
     /// Stops and cleans up the timer
     func stop()
 
+    /// Begins the introduction phase, transitioning the timer from .startGong to .introduction.
+    /// Called when the start gong finishes and an introduction is configured.
+    /// Keeps the domain timer in sync with the display state so that periodic ticks
+    /// deliver .introduction state (not stale .startGong state).
+    func beginIntroductionPhase()
+
     /// Ends the introduction phase, transitioning the timer from .introduction to .running.
     /// Called when the introduction audio finishes playing (event-driven).
     func endIntroductionPhase()

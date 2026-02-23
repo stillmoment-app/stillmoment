@@ -57,7 +57,8 @@ final class TimerService: TimerServiceProtocol {
             }
 
             if let timer = self.currentTimer {
-                self.timerSubject.send((timer, []))
+                let initialEvents: [TimerEvent] = preparationTimeSeconds > 0 ? [] : [.preparationCompleted]
+                self.timerSubject.send((timer, initialEvents))
             }
             self.startSystemTimer()
         } catch {
@@ -83,6 +84,18 @@ final class TimerService: TimerServiceProtocol {
         self.stopSystemTimer()
         self.currentTimer = nil
         self.intervalSettings = nil
+    }
+
+    func beginIntroductionPhase() {
+        guard let timer = self.currentTimer else {
+            Logger.timer.warning("Attempted to begin introduction when no timer exists")
+            return
+        }
+
+        Logger.timer.info("Beginning introduction phase", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.withState(.introduction)
+        self.currentTimer = updatedTimer
+        self.timerSubject.send((updatedTimer, []))
     }
 
     func endIntroductionPhase() {
