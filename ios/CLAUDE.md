@@ -13,7 +13,8 @@ All ViewModels are `@MainActor final class`:
 ```swift
 @MainActor
 final class TimerViewModel: ObservableObject {
-    @Published private(set) var displayState: TimerDisplayState = .initial
+    @Published var timer: MeditationTimer?
+    @Published var selectedMinutes: Int = 10
     @Published var settings: MeditationSettings = .default
 
     init(
@@ -130,17 +131,20 @@ func withLocalFilePath(_ path: String) -> GuidedMeditation {
 
 ### Reducer Pattern
 
-Pure function: `(State, Action, Settings) -> (State, [Effect])`:
+Pure effect mapper: `(Action, TimerState, Settings) -> [Effect]`:
 
 ```swift
 enum TimerReducer {
     static func reduce(
-        state: TimerDisplayState,
         action: TimerAction,
+        timerState: TimerState,
+        selectedMinutes: Int,
         settings: MeditationSettings
-    ) -> (TimerDisplayState, [TimerEffect]) { ... }
+    ) -> [TimerEffect] { ... }
 }
 ```
+
+No intermediate display state — the ViewModel holds `MeditationTimer?` directly and forwards computed properties (`timerState`, `remainingSeconds`, `progress`, etc.).
 
 ### Explicit Effects
 
@@ -160,11 +164,13 @@ ViewModel executes effects after reducing:
 
 ```swift
 func dispatch(_ action: TimerAction) {
-    let (newState, effects) = TimerReducer.reduce(
-        state: displayState, action: action, settings: settings
+    let effects = TimerReducer.reduce(
+        action: action,
+        timerState: self.timer?.state ?? .idle,
+        selectedMinutes: self.selectedMinutes,
+        settings: self.settings
     )
-    displayState = newState
-    effects.forEach { executeEffect($0) }
+    self.executeEffects(effects)
 }
 ```
 

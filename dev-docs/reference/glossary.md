@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-02-22
+Last Updated: 2026-02-23
 -->
 
 ## Quick Reference
@@ -29,7 +29,6 @@ Last Updated: 2026-02-22
 | `MeditationSettings` | Value Object | Timer | Benutzereinstellungen |
 | `MeditationTimer` | Value Object | Timer | Zentrales Timer-Modell |
 | `TimerAction` | Enum | Timer | Benutzer-Aktionen und System-Events |
-| `TimerDisplayState` | Value Object | Timer | Aggregierter UI-Zustand |
 | `TimerEffect` | Enum | Timer | Side Effects des Reducers |
 | `TimerEvent` | Enum | Timer | Domain Events aus tick() (preparationCompleted, meditationCompleted, intervalGongDue) |
 | `TimerState` | Enum | Timer | Zustandsautomat (Idle/Running/etc.) |
@@ -94,7 +93,6 @@ Pfade:
 
 | Action | Beschreibung |
 |--------|--------------|
-| `selectDuration(minutes:)` | Dauer gewaehlt |
 | `startPressed` | Start-Button gedrueckt |
 | `resetPressed` | Reset-Button gedrueckt |
 
@@ -102,7 +100,6 @@ Pfade:
 
 | Event | Beschreibung |
 |-------|--------------|
-| `tick(...)` | Timer-Tick mit aktualisierten Werten |
 | `preparationFinished` | Vorbereitung abgeschlossen |
 | `startGongFinished` | Start-Gong fertig abgespielt, Einstimmungs-Audio kann starten |
 | `introductionFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
@@ -233,46 +230,6 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/MeditationTimer.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/MeditationTimer.kt`
-
----
-
-### TimerDisplayState
-
-**Typ:** Value Object
-**Pattern:** Aggregated View State
-
-**Beschreibung:**
-Aggregiert alle UI-relevanten Daten fuer die Timer-Ansicht. Enthaelt computed properties fuer UI-Logik.
-
-**Properties:**
-
-| Property | Typ | Beschreibung |
-|----------|-----|--------------|
-| `timerState` | TimerState | Aktueller Zustand |
-| `selectedMinutes` | Int | Gewaehlte Dauer |
-| `remainingSeconds` | Int | Verbleibende Zeit |
-| `totalSeconds` | Int | Gesamtzeit |
-| `remainingPreparationSeconds` | Int | Verbleibende Vorbereitungszeit |
-| `progress` | Double | Fortschritt 0.0-1.0 |
-| `currentAffirmationIndex` | Int | Aktuelle Affirmation |
-
-**Computed Properties:**
-
-| Property | Beschreibung |
-|----------|--------------|
-| `isPreparation` | In Vorbereitung? |
-| `isActive` | Session aktiv? (Preparation bis EndGong, exkl. Idle und Completed) |
-| `canStart` | Start moeglich? |
-| `isRunning` | Timer laeuft? |
-| `formattedTime` | Formatierte Anzeige (MM:SS) |
-
-**Factory:**
-- `TimerDisplayState.initial` - Startzustand
-- `TimerDisplayState.withDuration(minutes:)` - Mit gespeicherter Dauer
-
-**Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Models/TimerDisplayState.swift`
-- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/TimerDisplayState.kt`
 
 ---
 
@@ -686,7 +643,6 @@ idle --> preparation --> finished --> (MP3 playback)
 | Pattern | Beispiel | Verwendung |
 |---------|----------|------------|
 | `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
-| `verb(param:)` | `selectDuration(minutes:)` | Benutzer-Auswahl |
 | `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted`, `endGongFinished` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event (von TimerEvent ausgeloest) |
 

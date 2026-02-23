@@ -208,7 +208,7 @@ StillMomentUITests/
     | dispatcht Actions an Reducer basierend auf Events
     v
   TimerReducer
-    -> (TimerDisplayState, [TimerEffect])
+    -> [TimerEffect]
     -> ViewModel fuehrt Effects aus (Audio, Persistence)
 ```
 
@@ -287,4 +287,4 @@ Vollstaendige Uebersicht: [`dev-docs/README.md`](../README.md)
 
 ---
 
-**Last Updated**: 2026-02-22
+**Last Updated**: 2026-02-23
