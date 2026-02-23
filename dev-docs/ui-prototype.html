@@ -21,15 +21,20 @@ import {
   Bell,
   Wind,
   Pause,
-  MoreHorizontal
+  MoreHorizontal,
+  RotateCcw,
+  RotateCw,
+  Heart
 } from 'lucide-react';
 
 export default function MeditationAppMockup() {
   const [activeTab, setActiveTab] = useState('timer');
   const [activeOverlay, setActiveOverlay] = useState(null);
   const [selectedPreset, setSelectedPreset] = useState('Standard');
-  const [isRunning, setIsRunning] = useState(false);
-  const [openContextMenu, setOpenContextMenu] = useState(null); // NEU: Steuert das ... Menü
+  const [openContextMenu, setOpenContextMenu] = useState(null);
+
+  // --- States für Timer (Idle, Running, Completed) ---
+  const [timerState, setTimerState] = useState('idle'); // 'idle' | 'running' | 'completed'
 
   // --- States für Einstimmungen (CRUD) ---
   const [selectedIntro, setSelectedIntro] = useState('Keine');
@@ -41,10 +46,14 @@ export default function MeditationAppMockup() {
   const [selectedBackground, setSelectedBackground] = useState('Stille');
   const [customBackgrounds, setCustomBackgrounds] = useState([]);
 
+  // --- States für Player & Library ---
+  const [playerState, setPlayerState] = useState('playing'); // 'playing' | 'completed'
+  const [currentMeditation, setCurrentMeditation] = useState(null);
+
   // --- UI Components ---
 
   const TabBar = () => (
-    <div className={`absolute bottom-0 w-full bg-[#0a0b10]/90 backdrop-blur-md border-t border-white/10 pb-6 pt-3 px-6 flex justify-around items-center z-10 transition-transform duration-500 ${isRunning ? 'translate-y-full' : 'translate-y-0'}`}>
+    <div className={`absolute bottom-0 w-full bg-[#0a0b10]/90 backdrop-blur-md border-t border-white/10 pb-6 pt-3 px-6 flex justify-around items-center z-10 transition-transform duration-500 ${(timerState !== 'idle') || activeOverlay === 'player' ? 'translate-y-full' : 'translate-y-0'}`}>
       <button
         onClick={() => setActiveTab('timer')}
         className={`flex flex-col items-center gap-1 ${activeTab === 'timer' ? 'text-indigo-400' : 'text-slate-500'}`}
@@ -76,30 +85,85 @@ export default function MeditationAppMockup() {
   );
 
   const RunningTimerScreen = () => (
-    <div className={`absolute inset-0 bg-[#0a0b10] z-0 flex flex-col items-center justify-center transition-opacity duration-700 ${isRunning ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-      <div className="absolute top-12 left-6">
-        <button onClick={() => setIsRunning(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors">
-          <X size={24} />
-        </button>
+    <div className={`absolute inset-0 bg-[#0a0b10] z-0 flex flex-col transition-opacity duration-700 ${timerState !== 'idle' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+
+      {/* State 1: Running (Der eigentliche Timer) */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-700 ${timerState === 'running' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute top-12 left-6">
+          <button onClick={() => setTimerState('idle')} className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors">
+            <X size={24} />
+          </button>
+        </div>
+
+        <h1 className="text-xl font-medium text-white mb-12">Schön, dass du da bist</h1>
+
+        <div className="relative w-64 h-64 flex items-center justify-center mb-12">
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+            <circle cx="128" cy="128" r="120" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="transparent" />
+            <circle
+              cx="128"
+              cy="128"
+              r="120"
+              stroke="#6366f1"
+              strokeWidth="8"
+              fill="transparent"
+              strokeDasharray="753.6"
+              strokeDashoffset="527.5"
+              className="transition-all duration-1000 ease-in-out"
+            />
+          </svg>
+
+          {/* Glow indicator */}
+          <div className="absolute top-[4px] w-3 h-3 bg-indigo-300 rounded-full shadow-[0_0_10px_#6366f1]"></div>
+
+          {/* Text im Ring (Zeitanzeige) */}
+          <div className="flex items-center justify-center">
+            <span className="text-6xl font-light text-white tracking-wider">08:42</span>
+          </div>
+        </div>
+
+        {/* Text unter dem Ring */}
+        <div className="h-6 mb-12 flex items-center justify-center">
+          <p className="text-slate-400">Alles darf sein</p>
+        </div>
+
+        {/* Demo-Trigger für den Abschluss */}
+        <div className="absolute bottom-12 text-center animate-in fade-in delay-500 duration-1000">
+          <button
+            onClick={() => setTimerState('completed')}
+            className="text-xs text-slate-500 hover:text-indigo-400 transition-colors bg-white/5 px-4 py-2 rounded-full"
+          >
+            ✨ Demo: Timer beenden
+          </button>
+        </div>
       </div>
 
-      <h1 className="text-xl font-medium text-white mb-12">Schön, dass du da bist</h1>
+      {/* State 2: Completed (Konsistenter Abschluss Screen) */}
+      <div className={`absolute inset-0 flex flex-col transition-opacity duration-1000 ${timerState === 'completed' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center animate-in slide-in-from-bottom-4 duration-700">
+          <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-400 mb-8">
+            <Heart size={40} fill="currentColor" className="opacity-80" />
+          </div>
 
-      <div className="relative w-64 h-64 flex items-center justify-center mb-12">
-        <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-          <circle cx="128" cy="128" r="120" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="transparent" />
-          <circle cx="128" cy="128" r="120" stroke="#6366f1" strokeWidth="8" fill="transparent" strokeDasharray="753.6" strokeDashoffset="527.5" className="transition-all duration-1000 ease-linear" />
-        </svg>
-        <div className="absolute top-[4px] w-3 h-3 bg-indigo-300 rounded-full shadow-[0_0_10px_#6366f1]"></div>
-        <span className="text-6xl font-light text-white tracking-wider">08:42</span>
+          <h2 className="text-4xl font-medium text-white mb-4 tracking-tight">Vielen Dank</h2>
+          <p className="text-slate-400 text-lg mb-16 px-4">
+            Schön, dass du dir diese Zeit genommen hast.
+          </p>
+
+          <button
+            onClick={() => setTimerState('idle')}
+            className="w-full max-w-[280px] bg-white/10 hover:bg-white/15 border border-white/5 text-white rounded-2xl py-4 px-6 text-lg font-medium transition-all transform hover:-translate-y-1"
+          >
+            Zurück
+          </button>
+        </div>
       </div>
 
-      <p className="text-slate-400 mb-12">Alles darf sein</p>
     </div>
   );
 
   const TimerIdleScreen = () => (
-    <div className={`flex flex-col items-center justify-between h-full pt-12 pb-28 px-6 transition-opacity duration-500 ${isRunning ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+    <div className={`flex flex-col items-center justify-between h-full pt-12 pb-28 px-6 transition-opacity duration-500 ${timerState !== 'idle' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <button
         onClick={() => setActiveOverlay('presets')}
         className="bg-white/5 hover:bg-white/10 transition-colors border border-white/10 rounded-full px-5 py-2 flex items-center gap-2 text-sm text-slate-200"
@@ -130,7 +194,7 @@ export default function MeditationAppMockup() {
       </div>
 
       <button
-        onClick={() => setIsRunning(true)}
+        onClick={() => setTimerState('running')}
         className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full py-4 px-12 flex items-center gap-3 text-lg font-medium shadow-[0_0_30px_rgba(99,102,241,0.3)] transition-all transform hover:scale-105"
       >
         <Play size={20} fill="currentColor" />
@@ -138,6 +202,166 @@ export default function MeditationAppMockup() {
       </button>
     </div>
   );
+
+  const LibraryScreen = () => {
+    const handlePlay = (meditation) => {
+      setCurrentMeditation(meditation);
+      setPlayerState('playing');
+      setActiveOverlay('player');
+    };
+
+    return (
+      <div className="flex flex-col h-full pt-16 pb-28 px-6 overflow-y-auto">
+        <div className="flex justify-between items-center mb-8">
+          <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300">
+            <Plus size={20} />
+          </button>
+          <h1 className="text-lg font-medium text-white">Geführte Meditationen</h1>
+          <div className="w-10"></div> {/* Spacer für Zentrierung */}
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-sm font-medium text-slate-300 mb-3 ml-2">Jon Salzberg</h2>
+            <div
+              className="bg-[#151720] rounded-2xl p-4 flex items-center gap-4 cursor-pointer border border-transparent hover:border-white/10 transition-colors"
+              onClick={() => handlePlay({ title: 'Present Moment Awareness', author: 'Jon Salzberg', duration: '25:48' })}
+            >
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300">
+                <Play size={16} fill="currentColor" className="ml-0.5" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-medium text-base">Present Moment Awareness</p>
+                <p className="text-sm text-slate-400 mt-0.5">25:48</p>
+              </div>
+              <MoreHorizontal size={20} className="text-slate-500" />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-sm font-medium text-slate-300 mb-3 ml-2">Sarah Kornfield</h2>
+            <div className="bg-[#151720] rounded-2xl overflow-hidden">
+              <div
+                className="p-4 flex items-center gap-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors"
+                onClick={() => handlePlay({ title: 'Body Scan for Beginners', author: 'Sarah Kornfield', duration: '15:42' })}
+              >
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300">
+                  <Play size={16} fill="currentColor" className="ml-0.5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-medium text-base">Body Scan for Beginners</p>
+                  <p className="text-sm text-slate-400 mt-0.5">15:42</p>
+                </div>
+                <MoreHorizontal size={20} className="text-slate-500" />
+              </div>
+              <div
+                className="p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-colors"
+                onClick={() => handlePlay({ title: 'Mindful Breathing', author: 'Sarah Kornfield', duration: '7:33' })}
+              >
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300">
+                  <Play size={16} fill="currentColor" className="ml-0.5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-medium text-base">Mindful Breathing</p>
+                  <p className="text-sm text-slate-400 mt-0.5">7:33</p>
+                </div>
+                <MoreHorizontal size={20} className="text-slate-500" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const PlayerOverlay = () => {
+    if (!currentMeditation) return null;
+
+    return (
+      <div className={`absolute inset-0 bg-[#0a0b10] z-50 flex flex-col transition-transform duration-500 ${activeOverlay === 'player' ? 'translate-y-0' : 'translate-y-full'}`}>
+
+        {/* State 1: Playing (Standard Player View) */}
+        <div className={`absolute inset-0 flex flex-col transition-opacity duration-700 ${playerState === 'playing' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          {/* Header mit X (Nur im Playing-State sichtbar) */}
+          <div className="pt-12 px-6 flex justify-start">
+            <button
+              onClick={() => setActiveOverlay(null)}
+              className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center px-8 pb-20">
+            <div className="text-center mb-12">
+              <p className="text-indigo-400 font-medium mb-2">{currentMeditation.author}</p>
+              <h2 className="text-3xl font-medium text-white leading-tight">{currentMeditation.title}</h2>
+            </div>
+
+            {/* Slider & Zeit */}
+            <div className="mb-10 w-full">
+              <div className="w-full h-1.5 bg-white/10 rounded-full mb-3 relative">
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-slate-300 rounded-full"></div>
+                <div className="absolute left-1/3 top-1/2 transform -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-lg"></div>
+              </div>
+              <div className="flex justify-between text-xs text-slate-400 font-medium">
+                <span>08:14</span>
+                <span>{currentMeditation.duration}</span>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-10 mb-8">
+              <button className="text-indigo-300 hover:text-white transition-colors">
+                <RotateCcw size={28} />
+              </button>
+              <button className="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center text-white hover:bg-indigo-400 transition-colors shadow-[0_0_30px_rgba(99,102,241,0.3)] transform hover:scale-105">
+                <Pause size={32} fill="currentColor" />
+              </button>
+              <button className="text-indigo-300 hover:text-white transition-colors">
+                <RotateCw size={28} />
+              </button>
+            </div>
+
+            {/* Demo-Trigger für Ticket shared-053 */}
+            <div className="text-center mt-4">
+              <button
+                onClick={() => setPlayerState('completed')}
+                className="text-xs text-slate-500 hover:text-indigo-400 transition-colors bg-white/5 px-4 py-2 rounded-full"
+              >
+                ✨ Demo: An das Ende springen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* State 2: Completed (Ticket shared-053) */}
+        <div className={`absolute inset-0 flex flex-col transition-opacity duration-1000 ${playerState === 'completed' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <div className="flex-1 flex flex-col items-center justify-center px-8 text-center animate-in slide-in-from-bottom-4 duration-700">
+            <div className="w-20 h-20 bg-indigo-500/10 rounded-full flex items-center justify-center text-indigo-400 mb-8">
+              <Heart size={40} fill="currentColor" className="opacity-80" />
+            </div>
+
+            <h2 className="text-4xl font-medium text-white mb-4 tracking-tight">Vielen Dank</h2>
+            <p className="text-slate-400 text-lg mb-16 px-4">
+              Schön, dass du dir diese Zeit genommen hast.
+            </p>
+
+            <button
+              onClick={() => {
+                setActiveOverlay(null);
+                setTimeout(() => setPlayerState('playing'), 500); // Reset for next time
+              }}
+              className="w-full max-w-[280px] bg-white/10 hover:bg-white/15 border border-white/5 text-white rounded-2xl py-4 px-6 text-lg font-medium transition-all transform hover:-translate-y-1"
+            >
+              Zurück
+            </button>
+          </div>
+        </div>
+
+      </div>
+    );
+  };
 
   const PresetsBottomSheet = () => (
     <div className={`absolute inset-0 z-20 flex flex-col justify-end transition-opacity duration-300 ${activeOverlay === 'presets' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
@@ -334,7 +558,6 @@ export default function MeditationAppMockup() {
           </div>
         </div>
 
-        {/* Delete Preset (Optional, kann man jetzt überlegen zu entfernen, da es im Menü ist) */}
         <button className="w-full py-4 text-red-400 font-medium hover:bg-white/5 rounded-2xl transition-colors">
           Praxis löschen
         </button>
@@ -591,16 +814,6 @@ export default function MeditationAppMockup() {
     );
   };
 
-  const PlaceholderScreen = ({ title, icon: Icon, description }) => (
-    <div className="flex flex-col items-center justify-center h-full px-6 text-center">
-      <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-slate-500 mb-6">
-        <Icon size={40} />
-      </div>
-      <h2 className="text-2xl font-medium text-white mb-2">{title}</h2>
-      <p className="text-slate-400">{description}</p>
-    </div>
-  );
-
   return (
     <div className="w-full max-w-sm mx-auto h-[800px] max-h-screen bg-[#0a0b10] relative overflow-hidden font-sans rounded-[40px] border-[8px] border-black shadow-2xl flex flex-col">
       <div className="h-12 w-full flex justify-between items-center px-8 pt-2 absolute top-0 z-50 pointer-events-none">
@@ -620,7 +833,7 @@ export default function MeditationAppMockup() {
             <RunningTimerScreen />
           </>
         )}
-        {activeTab === 'library' && <PlaceholderScreen title="Bibliothek" icon={ListMusic} description="Hier bleiben deine geführten Meditationen, strikt getrennt vom Timer." />}
+        {activeTab === 'library' && <LibraryScreen />}
         {activeTab === 'settings' && <SettingsScreen />}
       </div>
 
@@ -630,6 +843,7 @@ export default function MeditationAppMockup() {
       <EditPresetScreen />
       <SelectIntroScreen />
       <SelectBackgroundScreen />
+      <PlayerOverlay />
 
       <style dangerouslySetInnerHTML={{__html: `
         .mask-image-fade {

@@ -345,7 +345,6 @@ CRUD-Protokoll fuer Praxis-Persistenz. Implementierungen verbergen den Speicherm
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Services/PraxisRepository.swift`
-- iOS (Impl): `ios/StillMoment/Infrastructure/Services/UserDefaultsPraxisRepository.swift`
 
 ---
 

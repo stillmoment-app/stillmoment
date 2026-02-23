@@ -11,9 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Praxis-Datenmodell** - Neues Domain-Modell für benannte, speicherbare Timer-Konfigurationen (Ticket: shared-062)
   - `Praxis`: Immutables Value Object mit UUID, Name und allen Timer-Feldern (1:1 zu MeditationSettings)
   - `PraxisRepository`-Protokoll: CRUD-Operationen, aktive Praxis-ID, Mindestens-eine-Praxis-Invariante
-  - `UserDefaultsPraxisRepository`: JSON-kodierte Persistenz in UserDefaults
-  - Erstinstallation: Automatische "Standard"-Praxis mit Default-Werten
-  - Migration: Bestehende MeditationSettings werden beim ersten Start in "Standard"-Praxis übernommen
+  - Migration-Initializer: `Praxis(migratingFrom: MeditationSettings)` für spätere Settings-Migration
   - `shortDescription`: Berechnete Kurzbeschreibung (z.B. "10 Min · Stille · Tempelglocke · 15s Vorbereitung")
 - **Einstellungen-Tab** - Neuer dritter Tab mit App-weiten Einstellungen (Ticket: shared-061)
   - Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen (`gearshape`-Icon)
