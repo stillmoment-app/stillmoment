@@ -1,6 +1,6 @@
 # Ticket shared-065: Custom Audio Import (Soundscapes und Attunements)
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~5 | Android ~5
 **Phase**: 3-Feature
@@ -24,7 +24,7 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-064    |
+| iOS       | [x]    | shared-064    |
 | Android   | [ ]    | shared-064    |
 
 ---
@@ -34,39 +34,39 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 ### Feature (beide Plattformen)
 
 #### Domain & Persistenz
-- [ ] CustomAudioFile-Modell: id, name, filename, duration (automatisch erkannt), type (soundscape/attunement), dateAdded
-- [ ] CustomAudioRepository: importieren, alle laden (nach Typ), loeschen
-- [ ] Importierte Dateien werden in den lokalen App-Speicher kopiert (nicht nur referenziert)
-- [ ] Unterstuetzte Formate: MP3, M4A, WAV
+- [x] CustomAudioFile-Modell: id, name, filename, duration (automatisch erkannt), type (soundscape/attunement), dateAdded
+- [x] CustomAudioRepository: importieren, alle laden (nach Typ), loeschen
+- [x] Importierte Dateien werden in den lokalen App-Speicher kopiert (nicht nur referenziert)
+- [x] Unterstuetzte Formate: MP3, M4A, WAV
 
 #### Import-Flow
-- [ ] "Eigene Datei importieren" Button in Soundscape-Sub-Screen und Einstimmung-Sub-Screen
-- [ ] Oeffnet nativen Document Picker (iOS) / SAF File Picker (Android)
-- [ ] Dateiname (ohne Extension) als initialer Name
-- [ ] Dauer wird automatisch aus der Audio-Datei erkannt und angezeigt
-- [ ] Importierte Datei wird sofort in der Liste angezeigt
+- [x] "Eigene Datei importieren" Button in Soundscape-Sub-Screen und Einstimmung-Sub-Screen
+- [x] Oeffnet nativen Document Picker (iOS) / SAF File Picker (Android)
+- [x] Dateiname (ohne Extension) als initialer Name
+- [x] Dauer wird automatisch aus der Audio-Datei erkannt und angezeigt
+- [x] Importierte Datei wird sofort in der Liste angezeigt
 
 #### Auswahl-Screens (Erweiterung von shared-064)
-- [ ] Sektion "Meine Klaenge" / "Meine Einstimmungen" unterhalb der mitgelieferten Sounds
-- [ ] Leerer Zustand: "Keine eigenen Dateien importiert"
-- [ ] Checkmark bei ausgewaehltem Sound (mitgeliefert ODER custom)
-- [ ] Loeschen-Button pro importierter Datei (Muelleimer-Icon)
+- [x] Sektion "Meine Klaenge" / "Meine Einstimmungen" unterhalb der mitgelieferten Sounds
+- [x] Leerer Zustand: "Keine eigenen Dateien importiert"
+- [x] Checkmark bei ausgewaehltem Sound (mitgeliefert ODER custom)
+- [x] Loeschen-Button pro importierter Datei (Muelleimer-Icon)
 
 #### Loeschen
-- [ ] Bestaetigungsdialog beim Loeschen
-- [ ] Warnung wenn Datei in einer oder mehreren Praxis-Presets verwendet wird ("Wird in X Praxis verwendet")
-- [ ] Nach Loeschen: betroffene Praxis-Presets fallen zurueck auf "Stille" (Soundscape) bzw. "Keine Einstimmung" (Attunement)
-- [ ] Datei wird aus dem lokalen App-Speicher entfernt
+- [x] Bestaetigungsdialog beim Loeschen
+- [x] Warnung wenn Datei in einer oder mehreren Praxis-Presets verwendet wird ("Wird in X Praxis verwendet")
+- [x] Nach Loeschen: betroffene Praxis-Presets fallen zurueck auf "Stille" (Soundscape) bzw. "Keine Einstimmung" (Attunement)
+- [x] Datei wird aus dem lokalen App-Speicher entfernt
 
 #### Edge Cases
-- [ ] Nicht unterstuetzte Formate: verstaendliche Fehlermeldung
-- [ ] Doppelter Import derselben Datei: erlaubt (separate Kopie)
-- [ ] Dauer-Erkennung fehlgeschlagen: Import trotzdem erlauben, Dauer als "Unbekannt" anzeigen
+- [x] Nicht unterstuetzte Formate: verstaendliche Fehlermeldung
+- [x] Doppelter Import derselben Datei: erlaubt (separate Kopie)
+- [x] Dauer-Erkennung fehlgeschlagen: Import trotzdem erlauben, Dauer als "Unbekannt" anzeigen
 
 #### Allgemein
-- [ ] Lokalisiert (DE + EN)
+- [x] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
-- [ ] Accessibility: Labels und Hints
+- [x] Accessibility: Labels und Hints
 
 ### Tests
 - [ ] Unit Tests iOS (Import, Loeschen, Fallback, Modell)
