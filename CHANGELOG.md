@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (iOS)
+- **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
+
 ### Changed (iOS)
 - **Praxis-Editor ersetzt Settings-Sheet** - Alle Timer-Konfigurationen leben jetzt im Praxis-Editor statt im alten Settings-Sheet (Ticket: shared-064)
 - **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr; Praxis-Pill oeffnet den Editor

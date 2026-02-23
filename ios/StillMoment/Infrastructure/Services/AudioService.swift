@@ -44,7 +44,10 @@ final class AudioService: AudioServiceProtocol {
     private static let fadeInDuration: TimeInterval = 10.0
 
     convenience init() {
-        self.init(coordinator: AudioSessionCoordinator.shared)
+        self.init(
+            coordinator: AudioSessionCoordinator.shared,
+            customAudioRepository: CustomAudioRepository()
+        )
     }
 
     // MARK: - Deinit
