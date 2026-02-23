@@ -14,6 +14,7 @@
 
 "button.start" = "Start";
 "button.done" = "Done";
+"button.back" = "Back";
 
 // MARK: - Common UI Elements
 
@@ -243,6 +244,11 @@
 "guided_meditations.preparation.seconds" = "%ds";
 "guided_meditations.player.preparationTime" = "Preparation time";
 "guided_meditations.player.countdown" = "%d seconds until meditation starts";
+
+// MARK: - Player Completion
+
+"guided_meditations.player.completion.headline" = "Thank you";
+"guided_meditations.player.completion.subtitle" = "Thank you for taking this time.";
 
 "accessibility.guidedMeditations.hint" = "Open guided meditations library";
 
