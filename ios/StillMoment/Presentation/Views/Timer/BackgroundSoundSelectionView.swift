@@ -31,6 +31,7 @@ struct BackgroundSoundSelectionView: View {
                 if self.viewModel.backgroundSoundId != "silent" {
                     self.volumeSection
                 }
+                self.mySoundsSection
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
@@ -45,6 +46,37 @@ struct BackgroundSoundSelectionView: View {
         .onDisappear {
             self.viewModel.stopAllPreviews()
         }
+        .sheet(isPresented: self.$showImportPicker) {
+            DocumentPicker { url in
+                self.viewModel.importCustomAudio(from: url, type: .soundscape)
+            }
+        }
+        .alert(
+            Text("custom.audio.delete.confirm.title", bundle: .main),
+            isPresented: self.$showDeleteConfirmation,
+            presenting: self.fileToDelete
+        ) { file in
+            Button(
+                NSLocalizedString("custom.audio.delete.confirm.button", comment: ""),
+                role: .destructive
+            ) {
+                self.viewModel.deleteCustomAudio(file)
+            }
+            Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
+        } message: { file in
+            let count = self.viewModel.usageCount(for: file)
+            let warning: String = if count == 1 {
+                NSLocalizedString("custom.audio.delete.warning.single", comment: "")
+            } else if count > 1 {
+                String(
+                    format: NSLocalizedString("custom.audio.delete.warning.multiple", comment: ""),
+                    count
+                )
+            } else {
+                NSLocalizedString("custom.audio.delete.confirm.message", comment: "")
+            }
+            Text(warning)
+        }
     }
 
     // MARK: Private
@@ -52,6 +84,9 @@ struct BackgroundSoundSelectionView: View {
     @Environment(\.themeColors)
     private var theme
     @ObservedObject private var viewModel: PraxisEditorViewModel
+    @State private var showImportPicker = false
+    @State private var fileToDelete: CustomAudioFile?
+    @State private var showDeleteConfirmation = false
 
     private var soundsSection: some View {
         Section {
@@ -61,6 +96,81 @@ struct BackgroundSoundSelectionView: View {
                 self.soundRow(for: sound)
             }
         }
+    }
+
+    private var mySoundsSection: some View {
+        Section {
+            Button {
+                self.showImportPicker = true
+            } label: {
+                Label(
+                    NSLocalizedString("custom.audio.import.button", comment: ""),
+                    systemImage: "plus.circle"
+                )
+                .themeFont(.settingsLabel)
+            }
+            .cardRowBackground()
+            .accessibilityLabel(
+                NSLocalizedString(
+                    "custom.audio.accessibility.importButton.soundscape",
+                    comment: ""
+                )
+            )
+
+            if self.viewModel.customSoundscapes.isEmpty {
+                Text("custom.audio.empty.sounds", bundle: .main)
+                    .themeFont(.settingsDescription)
+                    .foregroundColor(self.theme.textSecondary)
+                    .cardRowBackground()
+            } else {
+                ForEach(self.viewModel.customSoundscapes) { file in
+                    self.customSoundRow(for: file)
+                }
+            }
+        } header: {
+            Text("custom.audio.section.mySounds", bundle: .main)
+                .foregroundColor(self.theme.textSecondary)
+        }
+    }
+
+    private func customSoundRow(for file: CustomAudioFile) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(file.name)
+                    .themeFont(.settingsLabel)
+                Text(file.formattedDuration)
+                    .themeFont(.settingsDescription)
+                    .foregroundColor(self.theme.textSecondary)
+            }
+            Spacer()
+            if self.viewModel.backgroundSoundId == file.id.uuidString {
+                Image(systemName: "checkmark")
+                    .foregroundColor(self.theme.interactive)
+            }
+            Button {
+                self.fileToDelete = file
+                self.showDeleteConfirmation = true
+            } label: {
+                Image(systemName: "trash")
+                    .foregroundColor(self.theme.textSecondary)
+            }
+            .accessibilityLabel(
+                String(
+                    format: NSLocalizedString(
+                        "custom.audio.accessibility.delete",
+                        comment: ""
+                    ),
+                    file.name
+                )
+            )
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            self.viewModel.backgroundSoundId = file.id.uuidString
+            self.viewModel.stopAllPreviews()
+        }
+        .cardRowBackground()
+        .accessibilityIdentifier("praxis.background.custom.\(file.id.uuidString)")
     }
 
     private var silenceRow: some View {
