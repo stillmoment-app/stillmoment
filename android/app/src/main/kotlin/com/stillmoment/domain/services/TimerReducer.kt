@@ -117,10 +117,9 @@ object TimerReducer {
             TimerEffect.SaveSettings(updatedSettings)
         )
 
-        // Play start gong immediately if skipping preparation
-        if (preparationTime <= 0) {
-            effects.add(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
-        }
+        // Note: start gong is played via PreparationCompleted event from start() when no preparation,
+        // or via tick() → PreparationCompleted → PreparationFinished → reducePreparationFinished
+        // when preparation is enabled. Never directly from startPressed.
 
         return newState to effects
     }

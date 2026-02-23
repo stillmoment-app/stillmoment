@@ -236,28 +236,6 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `passes gongSoundId to PlayStartGong when preparation disabled`() {
-            // Given
-            val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
-            val settings = defaultSettings.copy(
-                preparationTimeEnabled = false,
-                gongSoundId = "warm-zen"
-            )
-
-            // When
-            val (_, effects) =
-                TimerReducer.reduce(
-                    state,
-                    TimerAction.StartPressed,
-                    settings
-                )
-
-            // Then
-            val gongEffect = effects.filterIsInstance<TimerEffect.PlayStartGong>().first()
-            assertEquals("warm-zen", gongEffect.gongSoundId)
-        }
-
-        @Test
         fun `skips preparation and goes directly to start gong when disabled`() {
             // Given
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
@@ -277,8 +255,9 @@ class TimerReducerTest {
         }
 
         @Test
-        fun `plays start gong immediately when preparation disabled`() {
-            // Given
+        fun `does not play start gong directly when preparation disabled`() {
+            // Given - Preparation disabled: gong arrives via PreparationCompleted event
+            // from start(), not directly from StartPressed. This prevents double-gong.
             val state = TimerDisplayState.Initial.copy(selectedMinutes = 10)
             val settings = defaultSettings.copy(preparationTimeEnabled = false)
 
@@ -290,8 +269,8 @@ class TimerReducerTest {
                     settings
                 )
 
-            // Then - PlayStartGong should be in effects (immediate, not after PreparationFinished)
-            assertTrue(effects.any { it is TimerEffect.PlayStartGong })
+            // Then - No PlayStartGong here; gong plays via PreparationFinished (see PreparationFinished tests)
+            assertFalse(effects.any { it is TimerEffect.PlayStartGong })
         }
     }
 
@@ -1008,11 +987,22 @@ class TimerReducerTest {
                 )
             state = startState
 
-            // Then - Should go directly to StartGong, not Preparation
+            // Then - Should go directly to StartGong, no PlayStartGong yet
             assertEquals(TimerState.StartGong, state.timerState)
             assertEquals(0, state.remainingPreparationSeconds)
-            assertTrue(startEffects.any { it is TimerEffect.PlayStartGong })
+            assertFalse(startEffects.any { it is TimerEffect.PlayStartGong })
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
+
+            // When - PreparationCompleted event from start() → PreparationFinished → plays gong
+            val (afterPrepState, afterPrepEffects) =
+                TimerReducer.reduce(
+                    state,
+                    TimerAction.PreparationFinished,
+                    settings
+                )
+            state = afterPrepState
+            assertEquals(TimerState.StartGong, state.timerState)
+            assertTrue(afterPrepEffects.any { it is TimerEffect.PlayStartGong })
 
             // When - Start gong finished → Running
             val (runningState, _) =
