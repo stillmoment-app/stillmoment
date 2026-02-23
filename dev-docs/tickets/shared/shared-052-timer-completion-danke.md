@@ -1,19 +1,19 @@
-# Ticket shared-052: Timer Completion "Danke"
+# Ticket shared-052: Timer Completion Screen
 
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
-**Aufwand**: iOS ~1h | Android ~1h
+**Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 4-Polish
 
 ---
 
 ## Was
 
-Nach Ablauf des Meditationstimers zeigt der Ring das Wort "Danke" statt "00:00". Der Statustext unterhalb des Rings entfaellt komplett. Der Screen bleibt stehen, bis der User ihn manuell schliesst.
+Nach Ablauf des Meditationstimers ersetzt ein dedizierter Completion-Screen den laufenden Timer. Der Screen zeigt ein Herz-Icon, die Headline "Vielen Dank" und einen sanften Untertitel. Ein einzelner "Zurück"-Button schliesst den Screen. Tab-Bar bleibt ausgeblendet (wie im laufenden Timer).
 
 ## Warum
 
-"00:00" ist eine tote Information - sie sagt dem User nichts Sinnvolles. "Danke" wuerdigt die Praxis ohne Achievement-Framing (kein Checkmark, kein "geschafft!", keine Stats). Es passt zur App-Philosophie: warmherzig, unaufdringlich, still. Kein Text darunter laesst den Bildschirm atmen - maximale Stille nach der Meditation.
+"00:00" im Ring ist ein toter Zustand - er sagt nichts Sinnvolles. Ein vollständiger Completion-Screen schafft einen bewussten Abschlussmoment: warmherzig, unaufdringlich, still. Das Herz-Icon wuerdigt die Praxis ohne Achievement-Framing (kein Checkmark, keine Stats, kein "Geschafft!"). Der Screen "atmet" - viel Weissraum, wenig Text. Konsistent mit shared-053 (Guided Meditation Completion): beide Features teilen dieselbe visuelle Sprache.
 
 ---
 
@@ -29,17 +29,21 @@ Nach Ablauf des Meditationstimers zeigt der Ring das Wort "Danke" statt "00:00".
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Timer-Ring zeigt nach Ablauf "Danke" (DE) / "Thank you" (EN) statt "00:00"
-- [ ] Kein Statustext unterhalb des Rings im Completed-State (kein "Meditation abgeschlossen", keine Affirmation, nichts)
-- [ ] Ring bleibt voll (progress 100%), gleiche Farbe wie im Running-State
-- [ ] Screen bleibt stehen bis User manuell schliesst (X-Button)
-- [ ] Abschluss-Gong spielt weiterhin wie bisher
+- [ ] Nach Timer-Ablauf wechselt die View in den Completion-Zustand (vollständige Bildschirmübernahme, kein Ring mehr sichtbar)
+- [ ] Übergang: Fade-in mit Slide-in-from-Bottom Animation
+- [ ] Herz-Icon (gefüllt, Indigo-Ton) in kreisförmigem Container als visuelles Zentrum
+- [ ] Headline "Vielen Dank" (DE) / "Thank you" (EN) – gross, leicht, zentriert
+- [ ] Untertitel "Schön, dass du dir diese Zeit genommen hast." (DE) / passende EN-Übersetzung
+- [ ] Einziger Button: "Zurück" – navigiert zurück zum Timer Idle Screen
+- [ ] Kein X-Button, kein Close-Icon im Completion-Zustand
+- [ ] Tab-Bar bleibt ausgeblendet (identisch zum laufenden Timer)
+- [ ] Abschluss-Gong spielt weiterhin wie bisher (Trigger unverändert)
 - [ ] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS (Reducer/ViewModel: Completed-State produziert korrekte Display-Werte)
-- [ ] Unit Tests Android (Reducer/ViewModel: Completed-State produziert korrekte Display-Werte)
+- [ ] Unit Tests iOS (Reducer/ViewModel: Completed-State wird korrekt produziert)
+- [ ] Unit Tests Android (Reducer/ViewModel: Completed-State wird korrekt produziert)
 
 ### Dokumentation
 - [ ] CHANGELOG.md
@@ -49,14 +53,16 @@ Nach Ablauf des Meditationstimers zeigt der Ring das Wort "Danke" statt "00:00".
 ## Manueller Test
 
 1. Timer auf beliebige Dauer stellen und starten
-2. Warten bis Timer ablaeuft und Abschluss-Gong spielt
-3. Erwartung: Ring ist voll, zeigt "Danke" in der Mitte, kein Text darunter
-4. Screen bleibt stehen bis X getippt wird
-5. Identisch auf iOS und Android
+2. Warten bis Timer abläuft und Abschluss-Gong spielt
+3. Erwartung: Completion-Screen erscheint mit Slide-in-Animation – Herz-Icon, "Vielen Dank", Untertitel, "Zurück"-Button
+4. Kein Ring, keine Timer-Anzeige, kein X-Button, keine Tab-Bar sichtbar
+5. "Zurück" tippen → Timer Idle Screen
+6. Identisch auf iOS und Android
 
 ---
 
 ## Hinweise
 
-- Reine Presentation-Aenderung. Kein neuer Timer-State noetig - der bestehende Completed-State wird nur anders dargestellt.
-- Die Schriftgroesse von "Danke"/"Thank you" sollte zum Ring passen (aehnlich prominent wie die Zeitanzeige im Running-State, aber nicht zwingend gleiche Groesse).
+- Referenz-Design: Prototype `dev-docs/ui-prototype.html`, `RunningTimerScreen` → State 2 "Completed"
+- Konsistenz mit shared-053: Beide Completion-Screens teilen identische visuelle Sprache (selbes Icon, selbe Texte, selber Button-Stil)
+- Reine Presentation-Aenderung. Kein neuer Domain-State noetig – der bestehende Completed-State wird nur anders dargestellt.
