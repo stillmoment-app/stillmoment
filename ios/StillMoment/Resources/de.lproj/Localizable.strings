@@ -243,3 +243,35 @@
 "error.unsupportedFormat" = "Dieses Dateiformat wird nicht unterstützt";
 "error.fileOpenImportFailed" = "Die Datei konnte nicht importiert werden";
 "error.alreadyImported" = "Diese Meditation ist bereits in deiner Bibliothek";
+
+// MARK: - Praxis
+
+"praxis.default.name" = "Standard";
+"praxis.description.duration" = "%d min";
+"praxis.description.silent" = "Stille";
+"praxis.description.preparation" = "%ds Vorbereitung";
+
+// Pill Button
+"praxis.pill.label" = "Praxis: %@";
+
+// Sheet
+"praxis.sheet.title" = "Praxis";
+"praxis.create.button" = "Neue Praxis";
+
+// Context Menu
+"praxis.edit.label" = "Bearbeiten";
+"praxis.delete.label" = "Löschen";
+
+// Delete Confirmation Alert
+"praxis.delete.title" = "Praxis löschen";
+"praxis.delete.message" = "\"%@\" löschen? Dies kann nicht rückgängig gemacht werden.";
+"praxis.delete.confirm" = "Löschen";
+
+// Accessibility
+"accessibility.praxis.pill" = "Praxis: %@. Tippen zum Wechseln.";
+"accessibility.praxis.pill.hint" = "Öffnet die Praxis-Auswahl";
+"accessibility.praxis.row" = "Praxis %@";
+"accessibility.praxis.overflow" = "Optionen für Praxis %@";
+"accessibility.praxis.active" = "Aktiv";
+"accessibility.praxis.create" = "Neue Praxis erstellen";
+"accessibility.praxis.create.hint" = "Erstellt eine neue Praxis mit Standardeinstellungen";

@@ -243,3 +243,35 @@
 "error.unsupportedFormat" = "This file format is not supported";
 "error.fileOpenImportFailed" = "The file could not be imported";
 "error.alreadyImported" = "This meditation is already in your library";
+
+// MARK: - Praxis
+
+"praxis.default.name" = "Standard";
+"praxis.description.duration" = "%d min";
+"praxis.description.silent" = "Silence";
+"praxis.description.preparation" = "%ds preparation";
+
+// Pill Button
+"praxis.pill.label" = "Practice: %@";
+
+// Sheet
+"praxis.sheet.title" = "Practice";
+"praxis.create.button" = "New Practice";
+
+// Context Menu
+"praxis.edit.label" = "Edit";
+"praxis.delete.label" = "Delete";
+
+// Delete Confirmation Alert
+"praxis.delete.title" = "Delete Practice";
+"praxis.delete.message" = "Delete \"%@\"? This cannot be undone.";
+"praxis.delete.confirm" = "Delete";
+
+// Accessibility
+"accessibility.praxis.pill" = "Practice: %@. Tap to switch practice.";
+"accessibility.praxis.pill.hint" = "Opens practice selection";
+"accessibility.praxis.row" = "Practice %@";
+"accessibility.praxis.overflow" = "Options for practice %@";
+"accessibility.praxis.active" = "Active";
+"accessibility.praxis.create" = "Create new practice";
+"accessibility.praxis.create.hint" = "Creates a new practice with default settings";
