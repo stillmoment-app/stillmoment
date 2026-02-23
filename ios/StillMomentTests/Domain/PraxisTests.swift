@@ -214,4 +214,45 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.gongVolume, 0.8, accuracy: 0.001)
         XCTAssertNil(praxis.introductionId)
     }
+
+    // MARK: - toMeditationSettings
+
+    func testToMeditationSettings_preservesAllFields() {
+        // Given
+        let praxis = Praxis(
+            id: UUID(),
+            name: "Test",
+            durationMinutes: 25,
+            preparationTimeEnabled: false,
+            preparationTimeSeconds: 10,
+            startGongSoundId: "classic-bowl",
+            gongVolume: 0.8,
+            introductionId: nil,
+            intervalGongsEnabled: true,
+            intervalMinutes: 10,
+            intervalMode: .afterStart,
+            intervalSoundId: "temple-bell",
+            intervalGongVolume: 0.6,
+            backgroundSoundId: "forest",
+            backgroundSoundVolume: 0.3
+        )
+
+        // When
+        let settings = praxis.toMeditationSettings()
+
+        // Then
+        XCTAssertEqual(settings.durationMinutes, 25)
+        XCTAssertFalse(settings.preparationTimeEnabled)
+        XCTAssertEqual(settings.preparationTimeSeconds, 10)
+        XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
+        XCTAssertEqual(settings.gongVolume, 0.8, accuracy: 0.001)
+        XCTAssertNil(settings.introductionId)
+        XCTAssertTrue(settings.intervalGongsEnabled)
+        XCTAssertEqual(settings.intervalMinutes, 10)
+        XCTAssertEqual(settings.intervalMode, .afterStart)
+        XCTAssertEqual(settings.intervalSoundId, "temple-bell")
+        XCTAssertEqual(settings.intervalGongVolume, 0.6, accuracy: 0.001)
+        XCTAssertEqual(settings.backgroundSoundId, "forest")
+        XCTAssertEqual(settings.backgroundSoundVolume, 0.3, accuracy: 0.001)
+    }
 }

@@ -174,3 +174,27 @@ extension Praxis {
         )
     }
 }
+
+// MARK: - Conversion to MeditationSettings
+
+extension Praxis {
+    /// Converts this Praxis to a MeditationSettings instance.
+    /// Used when a Praxis is selected and its configuration is applied to the timer.
+    func toMeditationSettings() -> MeditationSettings {
+        MeditationSettings(
+            intervalGongsEnabled: self.intervalGongsEnabled,
+            intervalMinutes: self.intervalMinutes,
+            intervalMode: self.intervalMode,
+            intervalSoundId: self.intervalSoundId,
+            intervalGongVolume: self.intervalGongVolume,
+            backgroundSoundId: self.backgroundSoundId,
+            backgroundSoundVolume: self.backgroundSoundVolume,
+            durationMinutes: self.durationMinutes,
+            preparationTimeEnabled: self.preparationTimeEnabled,
+            preparationTimeSeconds: self.preparationTimeSeconds,
+            startGongSoundId: self.startGongSoundId,
+            gongVolume: self.gongVolume,
+            introductionId: self.introductionId
+        )
+    }
+}
