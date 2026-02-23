@@ -1,6 +1,6 @@
 # Ticket shared-053: Guided Meditation Completion Screen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 4-Polish
