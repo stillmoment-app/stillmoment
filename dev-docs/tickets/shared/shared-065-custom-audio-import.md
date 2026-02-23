@@ -69,12 +69,12 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 - [x] Accessibility: Labels und Hints
 
 ### Tests
-- [ ] Unit Tests iOS (Import, Loeschen, Fallback, Modell)
+- [x] Unit Tests iOS (Import, Loeschen, Fallback, Modell)
 - [ ] Unit Tests Android (Import, Loeschen, Fallback, Modell)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
-- [ ] Audio-System Doku aktualisieren
+- [x] CHANGELOG.md
+- [x] Audio-System Doku aktualisieren
 
 ---
 

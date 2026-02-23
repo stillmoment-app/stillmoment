@@ -392,6 +392,60 @@ Alle Audio-relevanten Properties sind in `MeditationSettings` definiert — sieh
 - Jeder Sound: id, filename, lokalisierter Name, iconName, volume
 - Legacy-Migration: `BackgroundAudioMode` enum → Sound IDs
 
+### Custom Audio Import (seit shared-065)
+
+User koennen eigene Audio-Dateien als Soundscapes (Hintergrundklaenge) und Attunements (Einstimmungen) importieren.
+
+#### Domain-Modell
+
+| Typ | Beschreibung |
+|-----|--------------|
+| `CustomAudioFile` | Immutables Value Object: id, name, filename, duration?, type, dateAdded |
+| `CustomAudioType` | `.soundscape` (Loop waehrend Meditation) oder `.attunement` (einmalig nach Start-Gong) |
+| `CustomAudioError` | `.unsupportedFormat`, `.fileCopyFailed`, `.persistenceFailed`, `.fileNotFound` |
+
+#### Unterstuetzte Formate
+
+MP3, M4A, WAV. Andere Formate werden mit verstaendlicher Fehlermeldung abgelehnt.
+
+#### Speicher-Architektur
+
+```
+Application Support/
+  CustomAudio/
+    soundscapes/   → UUID-basierte Dateinamen (z.B. "3A9F...mp3")
+    attunements/   → UUID-basierte Dateinamen
+```
+
+Metadaten werden in UserDefaults als JSON-Array persistiert (Keys: `customAudioFiles_soundscape`, `customAudioFiles_attunement`).
+
+#### Import-Flow
+
+1. User waehlt Datei via Document Picker (iOS) / SAF (Android)
+2. `CustomAudioRepository.importFile(from:type:)`:
+   - Validiert Format (Extension)
+   - Kopiert Datei in App-lokalen Speicher (UUID-basierter Dateiname)
+   - Erkennt Dauer via AVURLAsset (nil bei Fehler)
+   - Erstellt `CustomAudioFile` mit Dateiname (ohne Extension) als Name
+   - Persistiert Metadaten in UserDefaults
+3. Datei erscheint sofort in der UI-Liste
+
+#### Loeschen mit Praxis-Fallback
+
+Beim Loeschen einer Custom Audio Datei:
+1. Bestaetigungsdialog zeigt Anzahl betroffener Praxis-Presets
+2. `CustomAudioRepository.delete(id:)` entfernt Datei und Metadaten
+3. `PraxisEditorViewModel` setzt betroffene Praxis-Presets auf Defaults zurueck:
+   - Soundscape → "silent" (Stille)
+   - Attunement → nil (Keine Einstimmung)
+
+#### Integration in Audio-Pipeline
+
+Custom Soundscapes und Attunements nutzen die bestehende Audio-Pipeline:
+- Soundscapes: `AudioService.startBackgroundAudio(soundId:volume:)` mit UUID-String als soundId. `resolveBackgroundSoundURL` prueft erst Built-in Sounds, dann Custom Audio Files via UUID-Lookup im `CustomAudioRepository`
+- Attunements: `AudioService.playIntroduction(filename:)` mit Dateiname aus `CustomAudioFile.filename`
+- Kein neuer AudioSource-Wert noetig — Custom Audio laeuft unter `.timer`
+
 ---
 
 ## Testing
@@ -437,5 +491,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-02-22
-**Version**: 2.5
+**Zuletzt aktualisiert**: 2026-02-23
+**Version**: 2.6

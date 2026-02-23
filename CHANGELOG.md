@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr; Praxis-Pill oeffnet den Editor
 
 ### Added (iOS)
+- **Custom Audio Import** - Eigene Audio-Dateien (MP3, M4A, WAV) als Soundscapes und Einstimmungen importieren (Ticket: shared-065)
+  - "Eigene Datei importieren" in Soundscape- und Einstimmungs-Subscreens
+  - Sektion "Meine Klaenge" / "Meine Einstimmungen" mit Auswahl und Loeschen
+  - Bestaetigungsdialog mit Praxis-Verwendungswarnung beim Loeschen
+  - Betroffene Praxis-Presets fallen nach Loeschen auf Stille/Keine Einstimmung zurueck
+  - Dauer-Erkennung automatisch; bei Fehler "Unbekannt"
 - **Fullscreen Praxis-Editor** - Neuer Editor mit Sektionen fuer Vorbereitung, Audio und Gongs (Ticket: shared-064)
   - Einleitungs-, Hintergrund-Sound-, Gong- und Intervall-Gong-Subscreens im Praxis-Editor
 - **Praxis-Auswahl auf Timer Screen** - Pill-Button zeigt aktive Praxis und öffnet Auswahl-Sheet mit allen gespeicherten Praxis-Presets (Ticket: shared-063)
