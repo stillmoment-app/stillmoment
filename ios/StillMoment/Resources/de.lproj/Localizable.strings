@@ -272,3 +272,10 @@
 "error.unsupportedFormat" = "Dieses Dateiformat wird nicht unterstützt";
 "error.fileOpenImportFailed" = "Die Datei konnte nicht importiert werden";
 "error.alreadyImported" = "Diese Meditation ist bereits in deiner Bibliothek";
+
+// MARK: - Praxis
+
+"praxis.default.name" = "Standard";
+"praxis.description.duration" = "%d Min";
+"praxis.description.silent" = "Stille";
+"praxis.description.preparation" = "%ds Vorbereitung";

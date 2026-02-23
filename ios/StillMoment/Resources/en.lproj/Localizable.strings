@@ -272,3 +272,10 @@
 "error.unsupportedFormat" = "This file format is not supported";
 "error.fileOpenImportFailed" = "The file could not be imported";
 "error.alreadyImported" = "This meditation is already in your library";
+
+// MARK: - Praxis
+
+"praxis.default.name" = "Standard";
+"praxis.description.duration" = "%d min";
+"praxis.description.silent" = "Silence";
+"praxis.description.preparation" = "%ds preparation";
