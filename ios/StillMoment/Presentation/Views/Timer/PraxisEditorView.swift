@@ -70,7 +70,6 @@ struct PraxisEditorView: View {
             Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
             Button(NSLocalizedString("praxis.editor.delete.confirm", comment: ""), role: .destructive) {
                 self.viewModel.confirmDelete()
-                self.dismiss()
             }
         } message: {
             Text("praxis.editor.delete.message", bundle: .main)
