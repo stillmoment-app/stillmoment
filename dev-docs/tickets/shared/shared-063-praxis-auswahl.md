@@ -1,6 +1,6 @@
 # Ticket shared-063: Praxis-Auswahl (Pill-Button & Bottom Sheet)
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4 | Android ~4
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ User soll schnell zwischen vordefinierten Timer-Konfigurationen wechseln koennen
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-062    |
+| iOS       | [x]    | shared-062    |
 | Android   | [ ]    | shared-062    |
 
 ---
@@ -30,27 +30,27 @@ User soll schnell zwischen vordefinierten Timer-Konfigurationen wechseln koennen
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Pill-Button oben auf dem Timer Screen zeigt "Praxis: [Name der aktiven Praxis]"
-- [ ] Tap auf Pill oeffnet Bottom Sheet mit Liste aller gespeicherten Praxis-Presets
-- [ ] Jeder Eintrag zeigt Name und Kurzbeschreibung (aus Praxis-Modell)
-- [ ] Aktive Praxis ist mit Checkmark markiert
-- [ ] Kontextmenue (...) pro Eintrag mit "Bearbeiten" und "Loeschen"
-- [ ] "Loeschen" in Rot, mit Bestaetigungsdialog
-- [ ] Letzte Praxis kann nicht geloescht werden
-- [ ] "Neue Praxis erstellen" Button am Ende der Liste (gestrichelte Umrandung)
-- [ ] Auswahl einer Praxis laedt deren Konfiguration und schliesst das Sheet
-- [ ] "Bearbeiten" oeffnet den Praxis-Editor (shared-064) — solange dieser nicht existiert, oeffnet es das bestehende Timer-Settings-Sheet als Ueberbrueckung
-- [ ] "Neue Praxis erstellen" legt eine Praxis mit Default-Werten an und oeffnet den Editor
-- [ ] Pill-Button wird bei laufender Meditation ausgeblendet (zusammen mit Zen-Modus shared-066)
-- [ ] Lokalisiert (DE + EN)
+- [x] Pill-Button oben auf dem Timer Screen zeigt "Praxis: [Name der aktiven Praxis]"
+- [x] Tap auf Pill oeffnet Bottom Sheet mit Liste aller gespeicherten Praxis-Presets
+- [x] Jeder Eintrag zeigt Name und Kurzbeschreibung (aus Praxis-Modell)
+- [x] Aktive Praxis ist mit Checkmark markiert
+- [x] Kontextmenue (...) pro Eintrag mit "Bearbeiten" und "Loeschen"
+- [x] "Loeschen" in Rot, mit Bestaetigungsdialog
+- [x] Letzte Praxis kann nicht geloescht werden
+- [x] "Neue Praxis erstellen" Button am Ende der Liste (gestrichelte Umrandung)
+- [x] Auswahl einer Praxis laedt deren Konfiguration und schliesst das Sheet
+- [x] "Bearbeiten" oeffnet den Praxis-Editor (shared-064) — solange dieser nicht existiert, oeffnet es das bestehende Timer-Settings-Sheet als Ueberbrueckung
+- [x] "Neue Praxis erstellen" legt eine Praxis mit Default-Werten an und oeffnet den Editor
+- [x] Pill-Button wird bei laufender Meditation ausgeblendet (zusammen mit Zen-Modus shared-066)
+- [x] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS
+- [x] Unit Tests iOS
 - [ ] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
