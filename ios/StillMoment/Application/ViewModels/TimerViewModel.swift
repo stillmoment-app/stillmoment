@@ -25,13 +25,15 @@ final class TimerViewModel: ObservableObject {
         audioService: AudioServiceProtocol = AudioService(),
         settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository(),
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
-        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository()
+        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
+        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository()
     ) {
         self.timerService = timerService
         self.audioService = audioService
         self.settingsRepository = settingsRepository
         self.soundRepository = soundRepository
         self.praxisRepository = praxisRepository
+        self.customAudioRepository = customAudioRepository
 
         self.settings = settingsRepository.load()
         // Initialize selected minutes from saved duration (clamped to minimum for introduction)
@@ -177,6 +179,7 @@ final class TimerViewModel: ObservableObject {
     private let settingsRepository: TimerSettingsRepository
     let soundRepository: BackgroundSoundRepositoryProtocol
     private let praxisRepository: PraxisRepository
+    private let customAudioRepository: CustomAudioRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
@@ -280,107 +283,6 @@ final class TimerViewModel: ObservableObject {
         return true
     }
 
-    // MARK: - Audio Effect Handlers
-
-    private func executeActivateTimerSession() {
-        do {
-            try self.audioService.activateTimerSession()
-            Logger.viewModel.info("Timer session activated (audio session + keep-alive)")
-        } catch {
-            Logger.viewModel.error("Failed to activate timer session", error: error)
-            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
-        }
-    }
-
-    private func executeStartBackgroundAudio(soundId: String, volume: Float) {
-        do {
-            try self.audioService.startBackgroundAudio(soundId: soundId, volume: volume)
-        } catch {
-            Logger.viewModel.error("Failed to start background audio", error: error)
-            self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
-        }
-    }
-
-    private func executePlayStartGong() {
-        do {
-            try self.audioService.playStartGong(
-                soundId: self.settings.startGongSoundId,
-                volume: self.settings.gongVolume
-            )
-        } catch {
-            Logger.viewModel.error("Failed to play start gong", error: error)
-            self.errorMessage = "Failed to play start sound: \(error.localizedDescription)"
-        }
-    }
-
-    private func executePlayIntroduction(introductionId: String) {
-        guard let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) else {
-            Logger.viewModel.error(
-                "Introduction audio not available",
-                metadata: ["introductionId": introductionId, "language": Introduction.currentLanguage]
-            )
-            return
-        }
-
-        do {
-            try self.audioService.playIntroduction(filename: filename)
-            Logger.viewModel.info("Introduction audio started", metadata: ["introductionId": introductionId])
-        } catch {
-            Logger.viewModel.error("Failed to play introduction audio", error: error)
-            self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
-        }
-    }
-
-    private func executePlayIntervalGong(soundId: String, volume: Float) {
-        do {
-            try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
-        } catch {
-            Logger.viewModel.error("Failed to play interval gong", error: error)
-            self.errorMessage = "Failed to play interval sound: \(error.localizedDescription)"
-        }
-    }
-
-    private func executePlayCompletionSound() {
-        do {
-            try self.audioService.playCompletionSound(
-                soundId: self.settings.startGongSoundId,
-                volume: self.settings.gongVolume
-            )
-        } catch {
-            Logger.viewModel.error("Failed to play completion sound", error: error)
-            self.errorMessage = "Failed to play sound: \(error.localizedDescription)"
-        }
-    }
-
-    // MARK: - Timer Effect Handlers
-
-    private func executeStartTimer(durationMinutes: Int) {
-        self.settings.durationMinutes = durationMinutes
-        // Use preparation time from settings, or 0 if disabled
-        let preparationTime = self.settings.preparationTimeEnabled
-            ? self.settings.preparationTimeSeconds
-            : 0
-
-        // Build interval settings from current meditation settings (nil when disabled)
-        let intervalSettings: IntervalSettings? = self.settings.intervalGongsEnabled
-            ? IntervalSettings(
-                intervalMinutes: self.settings.intervalMinutes,
-                mode: self.settings.intervalMode
-            )
-            : nil
-
-        self.timerService.start(
-            durationMinutes: durationMinutes,
-            preparationTimeSeconds: preparationTime,
-            intervalSettings: intervalSettings
-        )
-    }
-
-    private func executeSaveSettings(_ settings: MeditationSettings) {
-        self.settings = settings
-        self.settingsRepository.save(settings)
-    }
-
     // MARK: - Bindings
 
     private func setupBindings() {
@@ -466,6 +368,135 @@ final class TimerViewModel: ObservableObject {
                 self.dispatch(.intervalGongTriggered)
             }
         }
+    }
+}
+
+// MARK: - Audio Effect Handlers
+
+private extension TimerViewModel {
+    func executeActivateTimerSession() {
+        do {
+            try self.audioService.activateTimerSession()
+            Logger.viewModel.info("Timer session activated (audio session + keep-alive)")
+        } catch {
+            Logger.viewModel.error("Failed to activate timer session", error: error)
+            self.errorMessage = "Failed to prepare audio: \(error.localizedDescription)"
+        }
+    }
+
+    func executeStartBackgroundAudio(soundId: String, volume: Float) {
+        do {
+            try self.audioService.startBackgroundAudio(soundId: soundId, volume: volume)
+        } catch {
+            Logger.viewModel.error("Failed to start background audio", error: error)
+            self.errorMessage = "Failed to start background audio: \(error.localizedDescription)"
+        }
+    }
+
+    func executePlayStartGong() {
+        do {
+            try self.audioService.playStartGong(
+                soundId: self.settings.startGongSoundId,
+                volume: self.settings.gongVolume
+            )
+        } catch {
+            Logger.viewModel.error("Failed to play start gong", error: error)
+            self.errorMessage = "Failed to play start sound: \(error.localizedDescription)"
+        }
+    }
+
+    func executePlayIntroduction(introductionId: String) {
+        // Try built-in introduction first
+        if let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) {
+            do {
+                try self.audioService.playIntroduction(filename: filename)
+                Logger.viewModel.info(
+                    "Introduction audio started",
+                    metadata: ["introductionId": introductionId]
+                )
+            } catch {
+                Logger.viewModel.error("Failed to play introduction audio", error: error)
+                self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
+            }
+            return
+        }
+
+        // Try custom attunement (UUID-based ID)
+        if let uuid = UUID(uuidString: introductionId),
+           let customFile = self.customAudioRepository.findFile(byId: uuid),
+           let fileURL = self.customAudioRepository.fileURL(for: customFile) {
+            do {
+                try self.audioService.playIntroduction(filename: fileURL.path)
+                Logger.viewModel.info(
+                    "Custom attunement started",
+                    metadata: ["id": introductionId]
+                )
+            } catch {
+                Logger.viewModel.error("Failed to play custom attunement", error: error)
+                self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
+            }
+            return
+        }
+
+        Logger.viewModel.error(
+            "Introduction audio not available",
+            metadata: [
+                "introductionId": introductionId,
+                "language": Introduction.currentLanguage
+            ]
+        )
+    }
+
+    func executePlayIntervalGong(soundId: String, volume: Float) {
+        do {
+            try self.audioService.playIntervalGong(soundId: soundId, volume: volume)
+        } catch {
+            Logger.viewModel.error("Failed to play interval gong", error: error)
+            self.errorMessage = "Failed to play interval sound: \(error.localizedDescription)"
+        }
+    }
+
+    func executePlayCompletionSound() {
+        do {
+            try self.audioService.playCompletionSound(
+                soundId: self.settings.startGongSoundId,
+                volume: self.settings.gongVolume
+            )
+        } catch {
+            Logger.viewModel.error("Failed to play completion sound", error: error)
+            self.errorMessage = "Failed to play sound: \(error.localizedDescription)"
+        }
+    }
+}
+
+// MARK: - Timer Effect Handlers
+
+private extension TimerViewModel {
+    func executeStartTimer(durationMinutes: Int) {
+        self.settings.durationMinutes = durationMinutes
+        // Use preparation time from settings, or 0 if disabled
+        let preparationTime = self.settings.preparationTimeEnabled
+            ? self.settings.preparationTimeSeconds
+            : 0
+
+        // Build interval settings from current meditation settings (nil when disabled)
+        let intervalSettings: IntervalSettings? = self.settings.intervalGongsEnabled
+            ? IntervalSettings(
+                intervalMinutes: self.settings.intervalMinutes,
+                mode: self.settings.intervalMode
+            )
+            : nil
+
+        self.timerService.start(
+            durationMinutes: durationMinutes,
+            preparationTimeSeconds: preparationTime,
+            intervalSettings: intervalSettings
+        )
+    }
+
+    func executeSaveSettings(_ settings: MeditationSettings) {
+        self.settings = settings
+        self.settingsRepository.save(settings)
     }
 }
 

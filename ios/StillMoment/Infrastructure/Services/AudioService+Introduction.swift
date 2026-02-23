@@ -22,15 +22,34 @@ extension AudioService {
         // Audio session is already active via activateTimerSession().
         // Keep-alive runs in parallel — no coordination needed.
 
-        // Parse filename and find in IntroductionAudio directory
-        let (name, ext) = self.parseFilename(filename)
-        guard let soundURL = Bundle.main.url(
-            forResource: name,
-            withExtension: ext,
-            subdirectory: "IntroductionAudio"
-        ) else {
-            Logger.audio.error("Introduction audio file not found", metadata: ["filename": filename])
-            throw AudioServiceError.soundFileNotFound
+        // Resolve sound URL: absolute path (custom attunement) or bundle resource
+        let soundURL: URL
+        if filename.hasPrefix("/") {
+            // Absolute path: custom attunement from app storage
+            let url = URL(fileURLWithPath: filename)
+            guard FileManager.default.fileExists(atPath: filename) else {
+                Logger.audio.error(
+                    "Custom introduction audio file not found",
+                    metadata: ["path": filename]
+                )
+                throw AudioServiceError.soundFileNotFound
+            }
+            soundURL = url
+        } else {
+            // Bundle resource: built-in introduction
+            let (name, ext) = self.parseFilename(filename)
+            guard let url = Bundle.main.url(
+                forResource: name,
+                withExtension: ext,
+                subdirectory: "IntroductionAudio"
+            ) else {
+                Logger.audio.error(
+                    "Introduction audio file not found",
+                    metadata: ["filename": filename]
+                )
+                throw AudioServiceError.soundFileNotFound
+            }
+            soundURL = url
         }
 
         do {

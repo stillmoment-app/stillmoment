@@ -19,11 +19,13 @@ final class AudioService: AudioServiceProtocol {
     init(
         coordinator: AudioSessionCoordinatorProtocol,
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
+        customAudioRepository: CustomAudioRepositoryProtocol? = nil,
         backgroundPreviewDuration: TimeInterval = 3.0,
         fadeOutDuration: TimeInterval = 0.5
     ) {
         self.coordinator = coordinator
         self.soundRepository = soundRepository
+        self.customAudioRepository = customAudioRepository
         self.backgroundPreviewDuration = backgroundPreviewDuration
         self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
@@ -151,23 +153,7 @@ final class AudioService: AudioServiceProtocol {
         }
 
         _ = try self.coordinator.requestAudioSession(for: .preview)
-
-        // Get sound from repository
-        guard let sound = self.soundRepository.getSound(byId: soundId) else {
-            Logger.audio.error("Background sound not found for preview", metadata: ["soundId": soundId])
-            throw AudioServiceError.soundFileNotFound
-        }
-
-        // Get file URL from bundle
-        let (name, ext) = self.parseFilename(sound.filename)
-        guard let soundURL = Bundle.main.url(
-            forResource: name,
-            withExtension: ext,
-            subdirectory: "BackgroundAudio"
-        ) else {
-            Logger.audio.error("Background audio file not found for preview", metadata: ["filename": sound.filename])
-            throw AudioServiceError.soundFileNotFound
-        }
+        let soundURL = try self.resolveBackgroundSoundURL(soundId: soundId)
 
         do {
             self.backgroundPreviewPlayer = try AVAudioPlayer(contentsOf: soundURL)
@@ -186,8 +172,10 @@ final class AudioService: AudioServiceProtocol {
 
             Logger.audio.info(
                 "Background preview started",
-                metadata: ["sound": sound.name, "volume": "\(volume)"]
+                metadata: ["file": soundURL.lastPathComponent, "volume": "\(volume)"]
             )
+        } catch let error as AudioServiceError {
+            throw error
         } catch {
             Logger.audio.error("Failed to play background preview", error: error)
             throw AudioServiceError.playbackFailed
@@ -215,46 +203,8 @@ final class AudioService: AudioServiceProtocol {
         // Keep-alive runs in parallel — no need to stop it. The silent audio at 0.01 volume
         // does not interfere with background audio. See shared-059.
 
-        // Get sound from repository
-        guard let sound = self.soundRepository.getSound(byId: soundId) else {
-            Logger.audio.error("Background sound not found", metadata: ["soundId": soundId])
-            throw AudioServiceError.soundFileNotFound
-        }
-
-        // Get file URL from bundle
-        let (name, ext) = self.parseFilename(sound.filename)
-        guard let soundURL = Bundle.main.url(
-            forResource: name,
-            withExtension: ext,
-            subdirectory: "BackgroundAudio"
-        ) else {
-            Logger.audio.error("Background audio file not found in bundle", metadata: ["filename": sound.filename])
-            throw AudioServiceError.soundFileNotFound
-        }
-
-        do {
-            self.backgroundAudioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-            self.backgroundAudioPlayer?.numberOfLoops = -1 // Loop indefinitely
-
-            // Store target volume for resume and start at 0 for fade in
-            // Use the volume parameter from settings instead of sound.volume
-            self.targetVolume = volume
-            self.backgroundAudioPlayer?.volume = 0
-
-            self.backgroundAudioPlayer?.prepareToPlay()
-            self.backgroundAudioPlayer?.play()
-
-            // Fade in to target volume
-            self.backgroundAudioPlayer?.setVolume(self.targetVolume, fadeDuration: Self.fadeInDuration)
-
-            Logger.audio.info(
-                "Background audio started with fade in",
-                metadata: ["sound": sound.name, "targetVolume": "\(volume)"]
-            )
-        } catch {
-            Logger.audio.error("Failed to start background audio", error: error)
-            throw AudioServiceError.playbackFailed
-        }
+        let soundURL = try self.resolveBackgroundSoundURL(soundId: soundId)
+        try self.startBackgroundAudioPlayer(url: soundURL, volume: volume)
     }
 
     func stopBackgroundAudio() {
@@ -291,6 +241,7 @@ final class AudioService: AudioServiceProtocol {
 
     private let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
+    private let customAudioRepository: CustomAudioRepositoryProtocol?
     private let backgroundPreviewDuration: TimeInterval
     private let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
@@ -312,12 +263,23 @@ final class AudioService: AudioServiceProtocol {
     /// Whether a timer session is currently active (for interruption recovery)
     private var timerSessionActive = false
 
-    // MARK: - Keep-Alive Audio
+    // MARK: - Private Methods
 
-    /// Starts a silent audio loop to keep the audio session alive.
-    /// Runs continuously from activateTimerSession() to deactivateTimerSession().
-    /// No-op if keep-alive is already playing.
-    private func startKeepAliveAudio() {
+    /// Parses a filename into name and extension components
+    /// - Parameter filename: The full filename (e.g., "forest_ambience.mp3")
+    /// - Returns: Tuple of (name, extension) where extension may be nil
+    func parseFilename(_ filename: String) -> (name: String, ext: String?) {
+        let components = filename.components(separatedBy: ".")
+        let name = components.first ?? filename
+        let ext = components.count > 1 ? components.last : nil
+        return (name, ext)
+    }
+}
+
+// MARK: - Keep-Alive Audio
+
+private extension AudioService {
+    func startKeepAliveAudio() {
         guard self.keepAlivePlayer == nil else {
             return
         }
@@ -343,10 +305,7 @@ final class AudioService: AudioServiceProtocol {
         }
     }
 
-    /// Restarts keep-alive after an audio interruption (e.g., phone call).
-    /// iOS pauses AVAudioPlayers during interruption — we need to resume the keep-alive
-    /// to prevent app suspension if the timer is still active.
-    private func restartKeepAliveAfterInterruption() {
+    func restartKeepAliveAfterInterruption() {
         if let player = self.keepAlivePlayer, !player.isPlaying {
             player.play()
             Logger.audio.info("Keep-alive resumed after interruption")
@@ -356,8 +315,7 @@ final class AudioService: AudioServiceProtocol {
         }
     }
 
-    /// Stops the silent keep-alive audio loop.
-    private func stopKeepAliveAudio() {
+    func stopKeepAliveAudio() {
         guard self.keepAlivePlayer != nil else {
             return
         }
@@ -365,21 +323,75 @@ final class AudioService: AudioServiceProtocol {
         self.keepAlivePlayer = nil
         Logger.audio.debug("Keep-alive audio stopped")
     }
+}
 
-    // MARK: - Private Methods
+// MARK: - Background Audio Helpers
 
-    /// Parses a filename into name and extension components
-    /// - Parameter filename: The full filename (e.g., "forest_ambience.mp3")
-    /// - Returns: Tuple of (name, extension) where extension may be nil
-    func parseFilename(_ filename: String) -> (name: String, ext: String?) {
-        let components = filename.components(separatedBy: ".")
-        let name = components.first ?? filename
-        let ext = components.count > 1 ? components.last : nil
-        return (name, ext)
+private extension AudioService {
+    /// Sets up and starts the background audio player with fade-in effect
+    func startBackgroundAudioPlayer(url: URL, volume: Float) throws {
+        do {
+            self.backgroundAudioPlayer = try AVAudioPlayer(contentsOf: url)
+            self.backgroundAudioPlayer?.numberOfLoops = -1 // Loop indefinitely
+
+            // Store target volume for resume and start at 0 for fade in
+            self.targetVolume = volume
+            self.backgroundAudioPlayer?.volume = 0
+
+            self.backgroundAudioPlayer?.prepareToPlay()
+            self.backgroundAudioPlayer?.play()
+
+            // Fade in to target volume
+            self.backgroundAudioPlayer?.setVolume(
+                self.targetVolume,
+                fadeDuration: Self.fadeInDuration
+            )
+
+            Logger.audio.info(
+                "Background audio started with fade in",
+                metadata: ["file": url.lastPathComponent, "targetVolume": "\(volume)"]
+            )
+        } catch {
+            Logger.audio.error("Failed to start background audio", error: error)
+            throw AudioServiceError.playbackFailed
+        }
     }
 
-    private func setupAudioInterruptionHandling() {
-        // Handle audio session interruptions (e.g., phone call) using Combine
+    /// Resolves a background sound URL by ID: tries built-in sounds, then custom audio files.
+    func resolveBackgroundSoundURL(soundId: String) throws -> URL {
+        // Try built-in sound first
+        if let sound = self.soundRepository.getSound(byId: soundId) {
+            let (name, ext) = self.parseFilename(sound.filename)
+            guard let url = Bundle.main.url(
+                forResource: name,
+                withExtension: ext,
+                subdirectory: "BackgroundAudio"
+            ) else {
+                Logger.audio.error(
+                    "Background audio file not found in bundle",
+                    metadata: ["filename": sound.filename]
+                )
+                throw AudioServiceError.soundFileNotFound
+            }
+            return url
+        }
+
+        // Try custom audio file if soundId is a UUID
+        if let uuid = UUID(uuidString: soundId),
+           let customFile = self.customAudioRepository?.findFile(byId: uuid),
+           let url = self.customAudioRepository?.fileURL(for: customFile) {
+            return url
+        }
+
+        Logger.audio.error("Background sound not found", metadata: ["soundId": soundId])
+        throw AudioServiceError.soundFileNotFound
+    }
+}
+
+// MARK: - Audio Interruption Handling
+
+private extension AudioService {
+    func setupAudioInterruptionHandling() {
         NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
             .sink { [weak self] notification in
                 self?.handleAudioInterruption(notification)
@@ -389,7 +401,7 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Audio interruption handling configured")
     }
 
-    private func handleAudioInterruption(_ notification: Notification) {
+    func handleAudioInterruption(_ notification: Notification) {
         guard let userInfo = notification.userInfo,
               let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
               let type = AVAudioSession.InterruptionType(rawValue: typeValue)
@@ -400,7 +412,6 @@ final class AudioService: AudioServiceProtocol {
         switch type {
         case .began:
             Logger.audio.info("Audio interruption began")
-            // iOS automatically pauses audio, we just log it
 
         case .ended:
             guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
@@ -410,7 +421,6 @@ final class AudioService: AudioServiceProtocol {
 
             if options.contains(.shouldResume) {
                 Logger.audio.info("Audio interruption ended, resuming")
-                // Restart keep-alive if timer session is still active
                 if self.timerSessionActive {
                     self.restartKeepAliveAfterInterruption()
                 }
@@ -422,16 +432,13 @@ final class AudioService: AudioServiceProtocol {
             Logger.audio.warning("Unknown audio interruption type")
         }
     }
+}
 
-    /// Plays a gong sound by ID from GongSounds folder
-    /// - Parameters:
-    ///   - soundId: The GongSound ID to play
-    ///   - volume: Playback volume (0.0 to 1.0)
-    ///   - isPreview: If true, uses the preview player instead of main audio player
-    private func playGongSound(soundId: String, volume: Float, isPreview: Bool = false) throws {
+// MARK: - Gong Playback
+
+private extension AudioService {
+    func playGongSound(soundId: String, volume: Float, isPreview: Bool = false) throws {
         let gongSound = GongSound.findOrDefault(byId: soundId)
-
-        // Parse filename to get name and extension
         let (name, ext) = self.parseFilename(gongSound.filename)
 
         // Resolve URL: soft-interval tone is in root Resources, others in GongSounds/
@@ -474,18 +481,14 @@ final class AudioService: AudioServiceProtocol {
         }
     }
 
-    /// Fades out and stops the background preview player
-    private func fadeOutBackgroundPreview() {
+    func fadeOutBackgroundPreview() {
         guard let player = self.backgroundPreviewPlayer else {
             return
         }
 
         Logger.audio.debug("Fading out background preview")
-
-        // Use AVAudioPlayer's built-in fade
         player.setVolume(0, fadeDuration: self.fadeOutDuration)
 
-        // Stop and clean up after fade completes
         DispatchQueue.main.asyncAfter(deadline: .now() + self.fadeOutDuration) { [weak self] in
             self?.cleanupPreviewPlayers()
             self?.coordinator.releaseAudioSession(for: .preview)
@@ -545,40 +548,5 @@ private extension AudioService {
             Logger.audio.info("Preview audio stopping - another source became active")
             self.cleanupPreviewPlayers()
         }
-    }
-}
-
-// MARK: - GongPlayerDelegate
-
-/// AVAudioPlayerDelegate that notifies when a gong finishes playing.
-/// Used to sequence introduction audio after the start gong completes.
-/// Always fires onFinish — even on interruption (successfully: false) — to prevent
-/// the state machine from getting stuck in `.startGong`.
-class GongPlayerDelegate: NSObject, AVAudioPlayerDelegate {
-    let onFinish: () -> Void
-
-    init(onFinish: @escaping () -> Void) {
-        self.onFinish = onFinish
-    }
-
-    func audioPlayerDidFinishPlaying(_: AVAudioPlayer, successfully _: Bool) {
-        self.onFinish()
-    }
-}
-
-// MARK: - Future Enhancement: Custom Sound Support
-
-extension AudioService {
-    /// Loads a custom sound file from the app bundle
-    /// - Parameter filename: Name of the sound file (e.g., "tibetan-singing-bowl-55786-10s.mp3")
-    /// - Returns: URL to the sound file
-    func loadCustomSound(filename: String) -> URL? {
-        guard let url = Bundle.main.url(
-            forResource: filename,
-            withExtension: nil
-        ) else {
-            return nil
-        }
-        return url
     }
 }
