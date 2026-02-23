@@ -28,6 +28,8 @@ Last Updated: 2026-02-23
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
 | `MeditationSettings` | Value Object | Timer | Benutzereinstellungen |
 | `MeditationTimer` | Value Object | Timer | Zentrales Timer-Modell |
+| `Praxis` | Value Object | Timer | Benannte, speicherbare Timer-Konfiguration |
+| `PraxisRepository` | Protocol | Timer | CRUD-Protokoll fuer Praxis-Persistenz |
 | `TimerAction` | Enum | Timer | Benutzer-Aktionen und System-Events |
 | `TimerEffect` | Enum | Timer | Side Effects des Reducers |
 | `TimerEvent` | Enum | Timer | Domain Events aus tick() (preparationCompleted, meditationCompleted, intervalGongDue) |
@@ -263,6 +265,87 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/MeditationSettings.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/MeditationSettings.kt`
+
+---
+
+### Praxis
+
+**Typ:** Value Object (immutabel)
+**Pattern:** Configuration Object with Identity
+
+**Beschreibung:**
+Eine benannte, speicherbare Timer-Konfiguration. "Praxis" (meditierte Praxis) repraesentiert eine vollstaendige Sammlung von Timer-Einstellungen, die gespeichert, abgerufen und wiederverwendet werden kann. Mehrere Praxen ermoeglichen schnelles Umschalten zwischen verschiedenen Meditationskonfigurationen.
+
+Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern — keine neuen Konfigurationsoptionen.
+
+**Properties:**
+
+| Property | Typ | Beschreibung |
+|----------|-----|--------------|
+| `id` | UUID | Eindeutige ID |
+| `name` | String | Anzeigename (z.B. "Standard", "Morgenmeditation") |
+| `durationMinutes` | Int | Vorbelegte Dauer (1-60) — session-only anpassbar |
+| `preparationTimeEnabled` | Bool | Vorbereitungszeit aktiviert? |
+| `preparationTimeSeconds` | Int | Vorbereitungszeit (5, 10, 15, 20, 30, 45s) |
+| `startGongSoundId` | String | Gong-Ton ID fuer Start/Ende |
+| `gongVolume` | Float | Gong-Lautstaerke (0.0-1.0) |
+| `introductionId` | String? | Einstimmungs-ID (nil = keine) |
+| `intervalGongsEnabled` | Bool | Intervall-Gongs aktiviert? |
+| `intervalMinutes` | Int | Intervall in Minuten (1-60) |
+| `intervalMode` | IntervalMode | Intervallmodus |
+| `intervalSoundId` | String | Sound ID fuer Intervall-Gong |
+| `intervalGongVolume` | Float | Lautstaerke Intervall-Gong (0.0-1.0) |
+| `backgroundSoundId` | String | Hintergrund-Sound ID |
+| `backgroundSoundVolume` | Float | Hintergrund-Lautstaerke (0.0-1.0) |
+
+**Computed Properties:**
+
+| Property | Beschreibung |
+|----------|--------------|
+| `shortDescription` | Kurzbeschreibung (z.B. "10 Min · Stille · Tempelglocke · 15s Vorbereitung") |
+
+**Invarianten:**
+- Mindestens eine Praxis muss immer existieren (PraxisRepository verhindert Loeschen der letzten)
+- durationMinutes: 1...60
+- Alle Volumes: 0.0...1.0
+- Alle Aenderungen erzeugen neue Instanzen (immutabel)
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Models/Praxis.swift`
+
+**Siehe auch:** `MeditationSettings`, `PraxisRepository`
+
+---
+
+### PraxisRepository
+
+**Typ:** Protocol
+**Pattern:** Repository
+
+**Beschreibung:**
+CRUD-Protokoll fuer Praxis-Persistenz. Implementierungen verbergen den Speichermechanismus. Invariante: Mindestens eine Praxis muss immer existieren.
+
+**Methoden:**
+
+| Methode | Beschreibung |
+|---------|--------------|
+| `loadAll()` | Alle Praxen laden (erstellt Default bei Erstinstallation/Migration) |
+| `load(byId:)` | Praxis per ID laden |
+| `save(_:)` | Praxis speichern (erstellen oder aktualisieren) |
+| `delete(id:)` | Praxis loeschen (throws wenn letzte) |
+| `activePraxisId` | Aktive Praxis-ID (nil wenn nicht gesetzt) |
+| `setActivePraxisId(_:)` | Aktive Praxis-ID setzen |
+
+**Fehler:**
+
+| Fehler | Beschreibung |
+|--------|--------------|
+| `cannotDeleteLastPraxis` | Letzte Praxis kann nicht geloescht werden |
+| `praxisNotFound(UUID)` | Praxis mit dieser ID nicht gefunden |
+
+**Datei-Referenzen:**
+- iOS: `ios/StillMoment/Domain/Services/PraxisRepository.swift`
+- iOS (Impl): `ios/StillMoment/Infrastructure/Services/UserDefaultsPraxisRepository.swift`
 
 ---
 
