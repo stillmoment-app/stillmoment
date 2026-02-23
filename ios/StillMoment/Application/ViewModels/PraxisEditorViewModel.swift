@@ -21,6 +21,7 @@ final class PraxisEditorViewModel: ObservableObject {
         repository: PraxisRepository = UserDefaultsPraxisRepository(),
         audioService: AudioServiceProtocol = AudioService(),
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
+        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
         onSaved: @escaping (Praxis) -> Void,
         onDeleted: @escaping () -> Void
     ) {
@@ -28,6 +29,7 @@ final class PraxisEditorViewModel: ObservableObject {
         self.repository = repository
         self.audioService = audioService
         self.soundRepository = soundRepository
+        self.customAudioRepository = customAudioRepository
         self.onSaved = onSaved
         self.onDeleted = onDeleted
 
@@ -46,6 +48,8 @@ final class PraxisEditorViewModel: ObservableObject {
         self.intervalGongVolume = praxis.intervalGongVolume
         self.backgroundSoundId = praxis.backgroundSoundId
         self.backgroundSoundVolume = praxis.backgroundSoundVolume
+
+        self.loadCustomAudio()
     }
 
     // MARK: Internal
@@ -66,6 +70,10 @@ final class PraxisEditorViewModel: ObservableObject {
     @Published var intervalGongVolume: Float
     @Published var backgroundSoundId: String
     @Published var backgroundSoundVolume: Float
+    @Published var customSoundscapes: [CustomAudioFile] = []
+    @Published var customAttunements: [CustomAudioFile] = []
+    @Published var customAudioError: String?
+    @Published var isImportingAudio = false
     @Published var showDeleteConfirmation = false
     @Published var errorMessage: String?
 
@@ -168,12 +176,100 @@ final class PraxisEditorViewModel: ObservableObject {
         self.audioService.stopBackgroundPreview()
     }
 
+    // MARK: - Custom Audio
+
+    /// Loads custom soundscapes and attunements from the repository
+    func loadCustomAudio() {
+        self.customSoundscapes = self.customAudioRepository.loadAll(type: .soundscape)
+        self.customAttunements = self.customAudioRepository.loadAll(type: .attunement)
+    }
+
+    /// Imports a custom audio file of the given type.
+    /// On success the list is refreshed and the new file is selected.
+    func importCustomAudio(from url: URL, type: CustomAudioType) {
+        do {
+            let imported = try self.customAudioRepository.importFile(from: url, type: type)
+            self.loadCustomAudio()
+            // Auto-select the newly imported file
+            switch type {
+            case .soundscape:
+                self.backgroundSoundId = imported.id.uuidString
+            case .attunement:
+                self.introductionId = imported.id.uuidString
+            }
+            Logger.viewModel.info(
+                "Imported custom audio",
+                metadata: ["name": imported.name, "type": type.rawValue]
+            )
+        } catch {
+            self.customAudioError = error.localizedDescription
+            Logger.viewModel.error("Failed to import custom audio", error: error)
+        }
+    }
+
+    /// How many Praxis presets currently use the given custom audio file.
+    func usageCount(for file: CustomAudioFile) -> Int {
+        let allPraxes = self.repository.loadAll()
+        return allPraxes.filter { praxis in
+            switch file.type {
+            case .soundscape:
+                praxis.backgroundSoundId == file.id.uuidString
+            case .attunement:
+                praxis.introductionId == file.id.uuidString
+            }
+        }.count
+    }
+
+    /// Deletes a custom audio file, updating all affected Praxis presets to fallback values.
+    func deleteCustomAudio(_ file: CustomAudioFile) {
+        self.resetAffectedPraxes(for: file)
+        // Reset current editor selection if it references the deleted file
+        switch file.type {
+        case .soundscape:
+            if self.backgroundSoundId == file.id.uuidString {
+                self.backgroundSoundId = "silent"
+            }
+        case .attunement:
+            if self.introductionId == file.id.uuidString {
+                self.introductionId = nil
+            }
+        }
+        // Delete the file
+        do {
+            try self.customAudioRepository.delete(id: file.id)
+            self.loadCustomAudio()
+            Logger.viewModel.info("Deleted custom audio", metadata: ["name": file.name])
+        } catch {
+            self.customAudioError = error.localizedDescription
+            Logger.viewModel.error("Failed to delete custom audio", error: error)
+        }
+    }
+
     // MARK: Private
 
     private let praxisId: UUID
     private let repository: PraxisRepository
     private let audioService: AudioServiceProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
+    private let customAudioRepository: CustomAudioRepositoryProtocol
     private let onSaved: (Praxis) -> Void
     private let onDeleted: () -> Void
+
+    /// Updates all Praxis presets that reference the given custom audio file to fallback values.
+    private func resetAffectedPraxes(for file: CustomAudioFile) {
+        let fileIdString = file.id.uuidString
+        let allPraxes = self.repository.loadAll()
+        for praxis in allPraxes {
+            switch file.type {
+            case .soundscape:
+                if praxis.backgroundSoundId == fileIdString {
+                    self.repository.save(praxis.withBackgroundSoundId("silent"))
+                }
+            case .attunement:
+                if praxis.introductionId == fileIdString {
+                    self.repository.save(praxis.withIntroductionId(nil))
+                }
+            }
+        }
+    }
 }

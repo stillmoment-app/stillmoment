@@ -150,6 +150,52 @@ extension Praxis {
     )
 }
 
+// MARK: - Builder Methods
+
+extension Praxis {
+    /// Returns a new Praxis with the background sound replaced.
+    func withBackgroundSoundId(_ newId: String) -> Praxis {
+        Praxis(
+            id: self.id,
+            name: self.name,
+            durationMinutes: self.durationMinutes,
+            preparationTimeEnabled: self.preparationTimeEnabled,
+            preparationTimeSeconds: self.preparationTimeSeconds,
+            startGongSoundId: self.startGongSoundId,
+            gongVolume: self.gongVolume,
+            introductionId: self.introductionId,
+            intervalGongsEnabled: self.intervalGongsEnabled,
+            intervalMinutes: self.intervalMinutes,
+            intervalMode: self.intervalMode,
+            intervalSoundId: self.intervalSoundId,
+            intervalGongVolume: self.intervalGongVolume,
+            backgroundSoundId: newId,
+            backgroundSoundVolume: self.backgroundSoundVolume
+        )
+    }
+
+    /// Returns a new Praxis with the introduction replaced.
+    func withIntroductionId(_ newId: String?) -> Praxis {
+        Praxis(
+            id: self.id,
+            name: self.name,
+            durationMinutes: self.durationMinutes,
+            preparationTimeEnabled: self.preparationTimeEnabled,
+            preparationTimeSeconds: self.preparationTimeSeconds,
+            startGongSoundId: self.startGongSoundId,
+            gongVolume: self.gongVolume,
+            introductionId: newId,
+            intervalGongsEnabled: self.intervalGongsEnabled,
+            intervalMinutes: self.intervalMinutes,
+            intervalMode: self.intervalMode,
+            intervalSoundId: self.intervalSoundId,
+            intervalGongVolume: self.intervalGongVolume,
+            backgroundSoundId: self.backgroundSoundId,
+            backgroundSoundVolume: self.backgroundSoundVolume
+        )
+    }
+}
+
 // MARK: - Migration from MeditationSettings
 
 extension Praxis {
