@@ -343,6 +343,9 @@ CRUD-Protokoll fuer Praxis-Persistenz. Implementierungen verbergen den Speicherm
 | `cannotDeleteLastPraxis` | Letzte Praxis kann nicht geloescht werden |
 | `praxisNotFound(UUID)` | Praxis mit dieser ID nicht gefunden |
 
+**Implementierungen:**
+- iOS: `ios/StillMoment/Infrastructure/Services/UserDefaultsPraxisRepository.swift` (JSON in UserDefaults)
+
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Services/PraxisRepository.swift`
 

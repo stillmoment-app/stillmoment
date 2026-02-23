@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `PraxisRepository`-Protokoll: CRUD-Operationen, aktive Praxis-ID, Mindestens-eine-Praxis-Invariante
   - Migration-Initializer: `Praxis(migratingFrom: MeditationSettings)` für spätere Settings-Migration
   - `shortDescription`: Berechnete Kurzbeschreibung (z.B. "10 Min · Stille · Tempelglocke · 15s Vorbereitung")
+  - `UserDefaultsPraxisRepository`: JSON-basierte Persistenz in UserDefaults mit automatischer Migration bestehender MeditationSettings
 - **Einstellungen-Tab** - Neuer dritter Tab mit App-weiten Einstellungen (Ticket: shared-061)
   - Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen (`gearshape`-Icon)
   - Einstellungen-Tab: Sektion "Erscheinungsbild" (Theme, Darstellungsmodus)
