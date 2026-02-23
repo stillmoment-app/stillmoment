@@ -172,8 +172,8 @@ extension PraxisSelectionSheet {
 
     private var createNewPraxisButton: some View {
         Button {
-            self.viewModel.createNewPraxis()
-            self.onDismiss()
+            let newPraxis = self.viewModel.createNewPraxis()
+            self.onEdit(newPraxis)
         } label: {
             HStack {
                 Image(systemName: "plus")
