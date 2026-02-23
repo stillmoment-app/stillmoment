@@ -153,7 +153,7 @@ struct IntroductionSelectionView: View {
             }
         } header: {
             Text("custom.audio.section.myAttunements", bundle: .main)
-                .themeFont(.settingsHeader)
+                .foregroundColor(self.theme.textSecondary)
         }
     }
 
