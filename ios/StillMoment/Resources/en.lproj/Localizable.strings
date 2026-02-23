@@ -310,3 +310,40 @@
 "accessibility.praxis.active" = "Active";
 "accessibility.praxis.create" = "Create new practice";
 "accessibility.praxis.create.hint" = "Creates a new practice with default settings";
+
+// Error
+"praxis.delete.error.lastPraxis" = "Cannot delete the last practice";
+
+// MARK: - Praxis Editor
+
+"praxis.editor.title" = "Edit Praxis";
+"praxis.editor.name.label" = "Name";
+"praxis.editor.name.placeholder" = "Name";
+"praxis.editor.duration.label" = "Default Duration";
+"praxis.editor.section.preparation" = "Preparation";
+"praxis.editor.section.audio" = "Audio & Sounds";
+"praxis.editor.section.gongs" = "Gongs";
+"praxis.editor.introduction.row" = "Introduction";
+"praxis.editor.introduction.none" = "No Introduction";
+"praxis.editor.introduction.title" = "Introduction";
+"praxis.editor.background.row" = "Background Sound";
+"praxis.editor.background.title" = "Background Sound";
+"praxis.editor.background.silence" = "Silence";
+"praxis.editor.startGong.row" = "Start & End Gong";
+"praxis.editor.startGong.title" = "Start & End Gong";
+"praxis.editor.intervalGongs.row" = "Interval Gongs";
+"praxis.editor.intervalGongs.title" = "Interval Gongs";
+"praxis.editor.delete.button" = "Delete Praxis";
+"praxis.editor.delete.title" = "Delete Praxis?";
+"praxis.editor.delete.message" = "This praxis will be permanently deleted.";
+"praxis.editor.delete.confirm" = "Delete";
+"common.off" = "Off";
+"common.on" = "On";
+"accessibility.praxis.editor.cancel" = "Cancel";
+"accessibility.praxis.editor.cancel.hint" = "Discard changes and close";
+"accessibility.praxis.editor.done" = "Done";
+"accessibility.praxis.editor.done.hint" = "Save changes";
+"accessibility.praxis.editor.name" = "Praxis name";
+"accessibility.praxis.editor.name.hint" = "Enter a name for this praxis";
+"accessibility.praxis.editor.delete" = "Delete praxis";
+"accessibility.praxis.editor.delete.hint" = "Permanently delete this praxis";

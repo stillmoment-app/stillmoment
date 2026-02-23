@@ -310,3 +310,40 @@
 "accessibility.praxis.active" = "Aktiv";
 "accessibility.praxis.create" = "Neue Praxis erstellen";
 "accessibility.praxis.create.hint" = "Erstellt eine neue Praxis mit Standardeinstellungen";
+
+// Error
+"praxis.delete.error.lastPraxis" = "Die letzte Praxis kann nicht gelöscht werden";
+
+// MARK: - Praxis Editor
+
+"praxis.editor.title" = "Praxis bearbeiten";
+"praxis.editor.name.label" = "Name";
+"praxis.editor.name.placeholder" = "Name";
+"praxis.editor.duration.label" = "Standard-Dauer";
+"praxis.editor.section.preparation" = "Vorbereitung";
+"praxis.editor.section.audio" = "Audio & Klänge";
+"praxis.editor.section.gongs" = "Gongs";
+"praxis.editor.introduction.row" = "Einstimmung";
+"praxis.editor.introduction.none" = "Ohne Einstimmung";
+"praxis.editor.introduction.title" = "Einstimmung";
+"praxis.editor.background.row" = "Hintergrundklang";
+"praxis.editor.background.title" = "Hintergrundklang";
+"praxis.editor.background.silence" = "Stille";
+"praxis.editor.startGong.row" = "Start & Ende";
+"praxis.editor.startGong.title" = "Start & Ende";
+"praxis.editor.intervalGongs.row" = "Intervall-Gongs";
+"praxis.editor.intervalGongs.title" = "Intervall-Gongs";
+"praxis.editor.delete.button" = "Praxis löschen";
+"praxis.editor.delete.title" = "Praxis löschen?";
+"praxis.editor.delete.message" = "Diese Praxis wird dauerhaft gelöscht.";
+"praxis.editor.delete.confirm" = "Löschen";
+"common.off" = "Aus";
+"common.on" = "Ein";
+"accessibility.praxis.editor.cancel" = "Abbrechen";
+"accessibility.praxis.editor.cancel.hint" = "Änderungen verwerfen und schließen";
+"accessibility.praxis.editor.done" = "Fertig";
+"accessibility.praxis.editor.done.hint" = "Änderungen speichern";
+"accessibility.praxis.editor.name" = "Praxis-Name";
+"accessibility.praxis.editor.name.hint" = "Namen für diese Praxis eingeben";
+"accessibility.praxis.editor.delete" = "Praxis löschen";
+"accessibility.praxis.editor.delete.hint" = "Diese Praxis dauerhaft löschen";
