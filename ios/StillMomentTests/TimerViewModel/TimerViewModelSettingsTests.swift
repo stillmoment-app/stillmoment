@@ -217,6 +217,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         newViewModel.selectedMinutes = 1
         newViewModel.startTimer()
         newViewModel.dispatch(.preparationFinished)
+        newViewModel.timer = .stub(durationMinutes: 1, state: .startGong)
         newViewModel.dispatch(.startGongFinished)
 
         // Then - AudioService should be called but will throw error
@@ -284,6 +285,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         // When - Start timer and transition through startGong to running
         self.sut.startTimer()
         self.sut.dispatch(.preparationFinished)
+        self.sut.timer = .stub(durationMinutes: 5, state: .startGong)
         self.sut.dispatch(.startGongFinished)
 
         // Then - AudioService should receive the correct volume

@@ -67,13 +67,7 @@ final class TimerViewModelBasicTests: XCTestCase {
 
     func testResetTimer_whenRunning_callsService() {
         // Given - simulate running state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
+        self.sut.timer = .stub(remainingSeconds: 300, state: .running)
 
         // When
         self.sut.resetTimer()
@@ -82,17 +76,14 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertTrue(self.mockTimerService.resetCalled)
     }
 
-    // MARK: - Formatting (tested via dispatch)
+    // MARK: - Formatting (tested via MeditationTimer)
 
     func testFormattedTime_duringCountdown_showsSeconds() {
         // Given - preparation state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 600,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 12,
-            progress: 0.0,
-            state: .preparation
-        ))
+        self.sut.timer = .stub(
+            state: .preparation,
+            remainingPreparationSeconds: 12
+        )
 
         // Then
         XCTAssertEqual(self.sut.formattedTime, "12")
@@ -100,19 +91,13 @@ final class TimerViewModelBasicTests: XCTestCase {
 
     func testFormattedTime_duringRunning_showsMinutesSeconds() {
         // Given - running state with 2:05 remaining
-        self.sut.dispatch(.tick(
-            remainingSeconds: 125,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
+        self.sut.timer = .stub(remainingSeconds: 125, state: .running)
 
         // Then
         XCTAssertEqual(self.sut.formattedTime, "02:05")
     }
 
-    // MARK: - Control Conditions (via dispatch)
+    // MARK: - Control Conditions
 
     func testCanStart_whenIdleWithMinutes_returnsTrue() {
         // Given - initial idle state with default 10 minutes
@@ -121,13 +106,7 @@ final class TimerViewModelBasicTests: XCTestCase {
 
     func testCanStart_whenRunning_returnsFalse() {
         // Given - running state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
+        self.sut.timer = .stub(remainingSeconds: 300, state: .running)
 
         // Then
         XCTAssertFalse(self.sut.canStart)
@@ -135,13 +114,7 @@ final class TimerViewModelBasicTests: XCTestCase {
 
     func testIsRunning_whenRunning_returnsTrue() {
         // Given - running state
-        self.sut.dispatch(.tick(
-            remainingSeconds: 300,
-            totalSeconds: 600,
-            remainingPreparationSeconds: 0,
-            progress: 0.5,
-            state: .running
-        ))
+        self.sut.timer = .stub(remainingSeconds: 300, state: .running)
 
         // Then
         XCTAssertTrue(self.sut.isRunning)

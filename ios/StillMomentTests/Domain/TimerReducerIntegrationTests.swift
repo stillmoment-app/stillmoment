@@ -2,7 +2,7 @@
 //  TimerReducerIntegrationTests.swift
 //  Still Moment
 //
-//  Integration tests verifying complete meditation cycles through the TimerReducer.
+//  Integration tests verifying complete meditation effect chains through the TimerReducer.
 //
 
 import XCTest
@@ -26,53 +26,36 @@ final class TimerReducerIntegrationTests: XCTestCase {
 
     // MARK: - Full Cycle Tests
 
-    func testMeditationCycle_start_triggers_preparation() {
-        var state = TimerDisplayState.initial
-        state.selectedMinutes = 1
-
-        let (afterStart, startEffects) = TimerReducer.reduce(
-            state: state,
+    func testMeditationCycle_start_triggersTimerAndSessionEffects() {
+        let effects = TimerReducer.reduce(
             action: .startPressed,
+            timerState: .idle,
+            selectedMinutes: 1,
             settings: self.defaultSettings
         )
 
-        XCTAssertFalse(startEffects.isEmpty)
-        XCTAssertTrue(self.hasStartTimerEffect(startEffects))
-
-        let (afterCountdown, _) = TimerReducer.reduce(
-            state: afterStart,
-            action: .tick(
-                remainingSeconds: 60,
-                totalSeconds: 60,
-                remainingPreparationSeconds: 10,
-                progress: 0.0,
-                state: .preparation
-            ),
-            settings: self.defaultSettings
-        )
-        XCTAssertEqual(afterCountdown.timerState, .preparation)
+        XCTAssertFalse(effects.isEmpty)
+        XCTAssertTrue(self.hasStartTimerEffect(effects))
+        XCTAssertTrue(effects.contains(.activateTimerSession))
     }
 
     func testMeditationCycle_preparation_to_startGong_to_running_to_completed() {
-        var state = TimerDisplayState.initial
-        state.timerState = .preparation
-
         // preparation → startGong (plays start gong)
-        let (afterStartGong, preparationEffects) = TimerReducer.reduce(
-            state: state,
+        let preparationEffects = TimerReducer.reduce(
             action: .preparationFinished,
+            timerState: .preparation,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterStartGong.timerState, .startGong)
         XCTAssertTrue(preparationEffects.contains(.playStartGong))
 
         // startGong → running (gong finished, no introduction configured)
-        let (afterRunning, gongEffects) = TimerReducer.reduce(
-            state: afterStartGong,
+        let gongEffects = TimerReducer.reduce(
             action: .startGongFinished,
+            timerState: .startGong,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterRunning.timerState, .running)
         XCTAssertTrue(gongEffects.contains { effect in
             if case .startBackgroundAudio = effect {
                 return true
@@ -81,49 +64,43 @@ final class TimerReducerIntegrationTests: XCTestCase {
         })
 
         // running → endGong (completion gong plays)
-        let (afterEndGong, endGongEffects) = TimerReducer.reduce(
-            state: afterRunning,
+        let endGongEffects = TimerReducer.reduce(
             action: .timerCompleted,
+            timerState: .running,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterEndGong.timerState, .endGong)
         XCTAssertTrue(endGongEffects.contains(.playCompletionSound))
 
         // endGong → completed (gong finished)
-        let (afterCompleted, completedEffects) = TimerReducer.reduce(
-            state: afterEndGong,
+        let completedEffects = TimerReducer.reduce(
             action: .endGongFinished,
+            timerState: .endGong,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterCompleted.timerState, .completed)
         XCTAssertTrue(completedEffects.contains(.deactivateTimerSession))
     }
 
     func testMeditationCycle_completed_to_idle() {
-        var state = TimerDisplayState.initial
-        state.timerState = .completed
-
-        let (afterReset, resetEffects) = TimerReducer.reduce(
-            state: state,
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .completed,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterReset.timerState, .idle)
-        XCTAssertTrue(resetEffects.contains(.resetTimer))
+        XCTAssertTrue(effects.contains(.resetTimer))
     }
 
     // MARK: - Running to Idle (Close Button)
 
     func testRunningToIdle_viaReset() {
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-
-        let (afterReset, effects) = TimerReducer.reduce(
-            state: state,
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .running,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
-        XCTAssertEqual(afterReset.timerState, .idle)
         XCTAssertTrue(effects.contains(.stopBackgroundAudio))
         XCTAssertTrue(effects.contains(.resetTimer))
     }

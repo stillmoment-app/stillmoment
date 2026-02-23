@@ -13,9 +13,9 @@ import OSLog
 ///
 /// This ViewModel uses the Reducer pattern:
 /// 1. View dispatches actions
-/// 2. Reducer produces new state + effects
+/// 2. Reducer produces effects (pure function)
 /// 3. Effects are executed by the effect handler
-/// 4. State changes trigger view updates
+/// 4. MeditationTimer updates trigger view updates directly
 @MainActor
 final class TimerViewModel: ObservableObject {
     // MARK: Lifecycle
@@ -32,9 +32,9 @@ final class TimerViewModel: ObservableObject {
         self.soundRepository = soundRepository
 
         self.settings = settingsRepository.load()
-        // Initialize display state with saved duration (clamped to minimum for introduction)
-        self.displayState = TimerDisplayState.withDuration(
-            minutes: self.settings.durationMinutes,
+        // Initialize selected minutes from saved duration (clamped to minimum for introduction)
+        self.selectedMinutes = MeditationSettings.validateDuration(
+            self.settings.durationMinutes,
             introductionId: self.settings.introductionId
         )
         self.setupBindings()
@@ -44,9 +44,11 @@ final class TimerViewModel: ObservableObject {
 
     // MARK: - Published State
 
-    /// The complete display state managed by the reducer.
-    /// Internal setter for cross-file extension access (TimerViewModel+Preview).
-    @Published var displayState: TimerDisplayState = .initial
+    /// The meditation timer (nil when idle — no dummy object)
+    @Published var timer: MeditationTimer?
+
+    /// Selected duration in minutes (1-60), managed directly by the ViewModel
+    @Published var selectedMinutes: Int = 10
 
     /// Meditation settings (interval gongs, background sound, etc.)
     @Published var settings: MeditationSettings = .default
@@ -54,52 +56,44 @@ final class TimerViewModel: ObservableObject {
     /// Error message if any operation fails
     @Published var errorMessage: String?
 
-    // MARK: - Computed Properties (Forwarded from DisplayState)
+    /// Current affirmation index (rotates between sessions)
+    var currentAffirmationIndex: Int = 0
+
+    // MARK: - Computed Properties (Forwarded from MeditationTimer)
 
     /// Current timer state
     var timerState: TimerState {
-        self.displayState.timerState
-    }
-
-    /// Selected duration in minutes
-    var selectedMinutes: Int {
-        get { self.displayState.selectedMinutes }
-        set { self.dispatch(.selectDuration(minutes: newValue)) }
+        self.timer?.state ?? .idle
     }
 
     /// Remaining time in seconds
     var remainingSeconds: Int {
-        self.displayState.remainingSeconds
+        self.timer?.remainingSeconds ?? 0
     }
 
     /// Total duration in seconds
     var totalSeconds: Int {
-        self.displayState.totalSeconds
+        self.timer?.totalSeconds ?? 0
     }
 
     /// Progress value (0.0 - 1.0)
     var progress: Double {
-        self.displayState.progress
+        self.timer?.progress ?? 0.0
     }
 
     /// Remaining preparation seconds
     var remainingPreparationSeconds: Int {
-        self.displayState.remainingPreparationSeconds
-    }
-
-    /// Current affirmation index
-    var currentAffirmationIndex: Int {
-        self.displayState.currentAffirmationIndex
+        self.timer?.remainingPreparationSeconds ?? 0
     }
 
     /// Whether currently in preparation phase
     var isPreparation: Bool {
-        self.displayState.isPreparation
+        self.timer?.isPreparation ?? false
     }
 
     /// Returns true if timer can be started
     var canStart: Bool {
-        self.displayState.canStart
+        self.timer == nil && self.selectedMinutes > 0
     }
 
     /// Minimum duration in minutes based on current introduction setting
@@ -109,12 +103,12 @@ final class TimerViewModel: ObservableObject {
 
     /// Whether the timer is actively running
     var isRunning: Bool {
-        self.displayState.isRunning
+        self.timer?.isRunning ?? false
     }
 
     /// Formatted time string
     var formattedTime: String {
-        self.displayState.formattedTime
+        self.timer?.formattedTime ?? "00:00"
     }
 
     // MARK: - Action Dispatch
@@ -123,14 +117,27 @@ final class TimerViewModel: ObservableObject {
     func dispatch(_ action: TimerAction) {
         Logger.viewModel.debug("Dispatching action: \(String(describing: action))")
 
-        let (newState, effects) = TimerReducer.reduce(
-            state: self.displayState,
+        // Affirmation rotation (UI-only state, not part of domain)
+        if case .startPressed = action {
+            self.currentAffirmationIndex = (self.currentAffirmationIndex + 1) % 5
+        }
+
+        let effects = TimerReducer.reduce(
             action: action,
+            timerState: self.timer?.state ?? .idle,
+            selectedMinutes: self.selectedMinutes,
             settings: self.settings
         )
 
-        self.displayState = newState
         self.executeEffects(effects)
+
+        // State transitions managed by ViewModel (not domain)
+        if case .endGongFinished = action {
+            self.timer = self.timer?.withState(.completed)
+        }
+        if case .resetPressed = action {
+            self.timer = nil
+        }
     }
 
     // MARK: - Public Methods
@@ -379,8 +386,6 @@ final class TimerViewModel: ObservableObject {
             .store(in: &self.cancellables)
 
         // Enforce minimum duration when introduction changes, restore when disabled.
-        // Updates displayState directly (not via reducer) because @Published willSet
-        // means self.settings is still stale when the sink runs.
         self.$settings
             .map(\.introductionId)
             .removeDuplicates()
@@ -388,11 +393,11 @@ final class TimerViewModel: ObservableObject {
                 guard let self
                 else { return }
                 let minimum = MeditationSettings.minimumDuration(for: introductionId)
-                if introductionId != nil, self.displayState.selectedMinutes < minimum {
-                    self.minutesBeforeIntroduction = self.displayState.selectedMinutes
-                    self.displayState.selectedMinutes = minimum
+                if introductionId != nil, self.selectedMinutes < minimum {
+                    self.minutesBeforeIntroduction = self.selectedMinutes
+                    self.selectedMinutes = minimum
                 } else if introductionId == nil, let restored = self.minutesBeforeIntroduction {
-                    self.displayState.selectedMinutes = restored
+                    self.selectedMinutes = restored
                     self.minutesBeforeIntroduction = nil
                 }
             }
@@ -401,7 +406,7 @@ final class TimerViewModel: ObservableObject {
 
     /// Routes gong completion audio callbacks to the appropriate action based on current state
     private func handleGongCompletion() {
-        switch self.displayState.timerState {
+        switch self.timerState {
         case .startGong:
             self.dispatch(.startGongFinished)
         case .endGong:
@@ -411,20 +416,14 @@ final class TimerViewModel: ObservableObject {
         default:
             Logger.viewModel.debug(
                 "Gong completion received in unexpected state",
-                metadata: ["state": String(describing: self.displayState.timerState)]
+                metadata: ["state": String(describing: self.timerState)]
             )
         }
     }
 
     private func handleTimerUpdate(_ timer: MeditationTimer, events: [TimerEvent]) {
-        // Dispatch tick action with timer values
-        self.dispatch(.tick(
-            remainingSeconds: timer.remainingSeconds,
-            totalSeconds: timer.totalSeconds,
-            remainingPreparationSeconds: timer.remainingPreparationSeconds,
-            progress: timer.progress,
-            state: timer.state
-        ))
+        // Update timer directly — no .tick dispatch needed
+        self.timer = timer
 
         // Process domain events emitted by tick()
         self.processTimerEvents(events)

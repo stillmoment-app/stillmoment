@@ -2,7 +2,7 @@
 //  TimerReducerStateTransitionTests.swift
 //  Still Moment
 //
-//  Tests for ResetPressed state transitions.
+//  Tests for ResetPressed effect mapping.
 //
 
 import XCTest
@@ -15,94 +15,63 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         MeditationSettings.default
     }
 
-    // MARK: - ResetPressed State Transitions
+    // MARK: - ResetPressed Effect Mapping
 
-    func testResetPressed_transitionsTimerFromRunningToIdle() {
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-        state.remainingSeconds = 300
-        state.totalSeconds = 600
-        state.progress = 0.5
-
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
+    func testResetPressed_fromRunning_producesStopAndResetEffects() {
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .running,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .idle)
-        XCTAssertEqual(newState.remainingSeconds, 0)
-        XCTAssertEqual(newState.totalSeconds, 0)
-        XCTAssertEqual(newState.progress, 0.0)
         XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .deactivateTimerSession])
     }
 
-    func testResetPressed_transitionsTimerFromCompletedToIdle() {
-        var state = TimerDisplayState.initial
-        state.timerState = .completed
-
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
+    func testResetPressed_fromCompleted_producesResetEffects() {
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .completed,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .idle)
         XCTAssertFalse(effects.isEmpty)
+        XCTAssertTrue(effects.contains(.resetTimer))
     }
 
-    func testResetPressed_transitionsTimerFromPreparationToIdle() {
-        var state = TimerDisplayState.initial
-        state.timerState = .preparation
-
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
+    func testResetPressed_fromPreparation_producesResetEffects() {
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .preparation,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .idle)
         XCTAssertFalse(effects.isEmpty)
+        XCTAssertTrue(effects.contains(.resetTimer))
     }
 
-    func testResetPressed_fromIdle_doesNotTransition() {
-        let state = TimerDisplayState.initial
-
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
+    func testResetPressed_fromIdle_producesNoEffects() {
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .idle,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .idle)
         XCTAssertTrue(effects.isEmpty)
     }
 
-    func testResetPressed_fromStartGong_transitionsToIdle() {
-        var state = TimerDisplayState.initial
-        state.timerState = .startGong
-
-        let (newState, effects) = TimerReducer.reduce(
-            state: state,
+    func testResetPressed_fromStartGong_producesResetEffects() {
+        let effects = TimerReducer.reduce(
             action: .resetPressed,
+            timerState: .startGong,
+            selectedMinutes: 10,
             settings: self.defaultSettings
         )
 
-        XCTAssertEqual(newState.timerState, .idle)
         XCTAssertFalse(effects.isEmpty)
-    }
-
-    func testResetPressed_resetsPreparationSeconds() {
-        var state = TimerDisplayState.initial
-        state.timerState = .running
-        state.remainingPreparationSeconds = 5
-
-        let (newState, _) = TimerReducer.reduce(
-            state: state,
-            action: .resetPressed,
-            settings: self.defaultSettings
-        )
-
-        XCTAssertEqual(newState.remainingPreparationSeconds, 0)
+        XCTAssertTrue(effects.contains(.resetTimer))
     }
 }

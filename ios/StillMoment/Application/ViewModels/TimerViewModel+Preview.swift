@@ -61,40 +61,27 @@ extension TimerViewModel {
     static func preview(state: TimerState = .idle) -> TimerViewModel {
         let viewModel = TimerViewModel()
 
-        var newState = viewModel.displayState
-        newState.timerState = state
-
         switch state {
         case .idle:
-            newState.remainingSeconds = 0
-            newState.totalSeconds = 600
+            break // timer stays nil
         case .preparation:
-            newState.remainingSeconds = 600
-            newState.totalSeconds = 600
-            newState.remainingPreparationSeconds = 10
+            viewModel.timer = .stub(
+                remainingSeconds: 600,
+                state: .preparation,
+                remainingPreparationSeconds: 10
+            )
         case .startGong:
-            newState.remainingSeconds = 597
-            newState.totalSeconds = 600
-            newState.progress = 0.005
+            viewModel.timer = .stub(remainingSeconds: 597, state: .startGong)
         case .introduction:
-            newState.remainingSeconds = 505
-            newState.totalSeconds = 600
-            newState.progress = 0.158
+            viewModel.timer = .stub(remainingSeconds: 505, state: .introduction)
         case .running:
-            newState.remainingSeconds = 300
-            newState.totalSeconds = 600
-            newState.progress = 0.5
+            viewModel.timer = .stub(remainingSeconds: 300, state: .running)
         case .endGong:
-            newState.remainingSeconds = 0
-            newState.totalSeconds = 600
-            newState.progress = 1.0
+            viewModel.timer = .stub(remainingSeconds: 0, state: .endGong)
         case .completed:
-            newState.remainingSeconds = 0
-            newState.totalSeconds = 600
-            newState.progress = 1.0
+            viewModel.timer = .stub(remainingSeconds: 0, state: .completed)
         }
 
-        viewModel.displayState = newState
         return viewModel
     }
 }

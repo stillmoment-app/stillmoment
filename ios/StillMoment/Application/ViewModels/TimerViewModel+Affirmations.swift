@@ -10,12 +10,12 @@ import Foundation
 extension TimerViewModel {
     /// Get current running affirmation
     var currentRunningAffirmation: String {
-        self.runningAffirmations[self.displayState.currentAffirmationIndex % self.runningAffirmations.count]
+        self.runningAffirmations[self.currentAffirmationIndex % self.runningAffirmations.count]
     }
 
     /// Get current preparation affirmation
     var currentPreparationAffirmation: String {
-        self.preparationAffirmations[self.displayState.currentAffirmationIndex % self.preparationAffirmations.count]
+        self.preparationAffirmations[self.currentAffirmationIndex % self.preparationAffirmations.count]
     }
 
     // MARK: Private

@@ -59,6 +59,7 @@ final class TimerViewModelRegressionTests: XCTestCase {
         )
 
         // When - Preparation finishes → startGong state
+        self.sut.timer = .stub(durationMinutes: 1, state: .startGong)
         self.sut.dispatch(.preparationFinished)
 
         // Then - Background audio must NOT be started yet (still playing gong)
@@ -221,10 +222,13 @@ final class TimerViewModelRegressionTests: XCTestCase {
         self.sut.startTimer()
 
         // When - Start gong finishes → triggers beginIntroductionPhase + playIntroduction
-        // beginIntroductionPhase syncs domain timer to .introduction
+        // Set timer to startGong so reducer guard passes
+        self.sut.timer = .stub(durationMinutes: 5, state: .startGong)
         self.sut.dispatch(.startGongFinished)
 
         // When - Introduction audio finishes → triggers endIntroductionPhase + startBackgroundAudio
+        // Set timer to introduction so reducer guard passes
+        self.sut.timer = .stub(durationMinutes: 5, state: .introduction)
         self.sut.dispatch(.introductionFinished)
 
         // Then - Background audio MUST have started

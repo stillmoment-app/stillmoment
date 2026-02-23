@@ -388,8 +388,6 @@ final class IntervalModeTests: XCTestCase {
 
     func testReducer_intervalGongTriggered_includesSoundId() {
         // Given
-        var state = TimerDisplayState.initial
-        state.timerState = .running
         let settings = MeditationSettings(
             intervalGongsEnabled: true,
             intervalSoundId: "classic-bowl",
@@ -397,9 +395,10 @@ final class IntervalModeTests: XCTestCase {
         )
 
         // When
-        let (_, effects) = TimerReducer.reduce(
-            state: state,
+        let effects = TimerReducer.reduce(
             action: .intervalGongTriggered,
+            timerState: .running,
+            selectedMinutes: 10,
             settings: settings
         )
 

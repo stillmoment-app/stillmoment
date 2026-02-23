@@ -9,14 +9,11 @@ import Foundation
 
 /// All possible actions that can be dispatched to the timer reducer
 ///
-/// This enum defines the complete set of user interactions and system events
-/// that can affect the timer state. The reducer processes these actions
-/// to produce new state and effects.
+/// This enum defines the complete set of system events that can affect the timer.
+/// The reducer processes these actions to produce effects to execute.
+/// User actions (duration selection) are handled directly by the ViewModel.
 enum TimerAction: Equatable {
     // MARK: - User Actions
-
-    /// User selected a duration in minutes
-    case selectDuration(minutes: Int)
 
     /// User pressed the start button
     case startPressed
@@ -25,15 +22,6 @@ enum TimerAction: Equatable {
     case resetPressed
 
     // MARK: - System Events
-
-    /// Timer tick with updated values from TimerService
-    case tick(
-        remainingSeconds: Int,
-        totalSeconds: Int,
-        remainingPreparationSeconds: Int,
-        progress: Double,
-        state: TimerState
-    )
 
     /// Preparation phase finished, transitioning to introduction or running
     case preparationFinished
