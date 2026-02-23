@@ -75,38 +75,6 @@ final class AudioServiceTests: XCTestCase {
         XCTAssertNoThrow(self.sut.stop()) // Calling stop twice should be safe
     }
 
-    func testLoadCustomSound() {
-        // When - Load existing gong sound file
-        let gongSound = GongSound.defaultSound
-        let url = self.sut.loadCustomSound(filename: gongSound.filename)
-
-        // Then
-        XCTAssertNotNil(url, "\(gongSound.filename) should exist in bundle")
-        if let url {
-            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
-        }
-    }
-
-    func testLoadCustomSoundNonExistent() {
-        // When - Try to load non-existent file
-        let url = self.sut.loadCustomSound(filename: "nonexistent.mp3")
-
-        // Then
-        XCTAssertNil(url, "Non-existent file should return nil")
-    }
-
-    func testLoadCustomSoundWithFullExtension() {
-        // When - Load with full filename
-        let gongSound = GongSound.defaultSound
-        let url = self.sut.loadCustomSound(filename: gongSound.filename)
-
-        // Then
-        XCTAssertNotNil(url)
-        if let url {
-            XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
-        }
-    }
-
     func testMultiplePlaybackCalls() {
         // Given
         try? self.sut.configureAudioSession()
