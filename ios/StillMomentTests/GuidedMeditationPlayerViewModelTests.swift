@@ -473,6 +473,62 @@ extension GuidedMeditationPlayerViewModelTests {
         XCTAssertTrue(self.sut.isPlaying)
     }
 
+    func testIsCompletedWhenAudioFinishes() async {
+        // Given - Audio loaded and playing
+        await self.sut.loadAudio()
+        XCTAssertFalse(self.sut.isCompleted)
+
+        // When - Audio reaches end naturally
+        let expectation = self.expectation(description: "State updates to finished")
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .finished {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
+        self.mockPlayerService.state.send(.finished)
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        // Then - isCompleted reflects finished state
+        XCTAssertTrue(self.sut.isCompleted)
+    }
+
+    func testIsNotCompletedDuringPlayback() async {
+        // Given
+        await self.sut.loadAudio()
+
+        // When - Audio is playing
+        let expectation = self.expectation(description: "State updates to playing")
+        self.sut.$playbackState
+            .dropFirst()
+            .sink { state in
+                if state == .playing {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &self.cancellables)
+
+        self.mockPlayerService.state.send(.playing)
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        // Then - Not completed while playing
+        XCTAssertFalse(self.sut.isCompleted)
+    }
+
+    func testIsNotCompletedWhenPaused() async {
+        // Given
+        await self.sut.loadAudio()
+
+        // When - Audio is paused (not finished)
+        XCTAssertEqual(self.sut.playbackState, .paused)
+
+        // Then
+        XCTAssertFalse(self.sut.isCompleted)
+    }
+
     func testCleanup() {
         // When
         self.sut.cleanup()

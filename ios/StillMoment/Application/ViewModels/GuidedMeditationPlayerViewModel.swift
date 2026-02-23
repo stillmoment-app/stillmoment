@@ -92,6 +92,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playbackState == .playing
     }
 
+    /// Whether the guided meditation has completed naturally (audio reached end)
+    var isCompleted: Bool {
+        self.playbackState == .finished
+    }
+
     // MARK: - Preparation Countdown Properties
 
     /// Whether preparation countdown is currently active
