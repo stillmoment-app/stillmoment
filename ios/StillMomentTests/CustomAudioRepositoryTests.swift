@@ -112,6 +112,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         _ = try sut.importFile(from: url1, type: .soundscape)
 
         // Small delay to ensure different timestamps
+        Thread.sleep(forTimeInterval: 0.01)
         let url2 = try createTempAudioFile(name: "second.mp3")
         _ = try sut.importFile(from: url2, type: .soundscape)
 
