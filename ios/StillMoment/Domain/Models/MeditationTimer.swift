@@ -47,8 +47,8 @@ struct MeditationTimer: Equatable {
         self.lastIntervalGongAt = nil
     }
 
-    /// Private initializer for internal state updates
-    private init(
+    /// Internal initializer for state updates, tests, and stub factory
+    init(
         durationMinutes: Int,
         remainingSeconds: Int,
         state: TimerState,
@@ -351,3 +351,26 @@ struct MeditationTimer: Equatable {
         )
     }
 }
+
+// MARK: - Test Support
+
+#if DEBUG
+extension MeditationTimer {
+    /// Creates a MeditationTimer stub for tests and previews
+    static func stub(
+        durationMinutes: Int = 10,
+        remainingSeconds: Int? = nil,
+        state: TimerState = .idle,
+        remainingPreparationSeconds: Int = 0,
+        preparationTimeSeconds: Int = 15
+    ) -> MeditationTimer {
+        MeditationTimer(
+            durationMinutes: durationMinutes,
+            remainingSeconds: remainingSeconds ?? durationMinutes * 60,
+            state: state,
+            remainingPreparationSeconds: remainingPreparationSeconds,
+            preparationTimeSeconds: preparationTimeSeconds
+        )
+    }
+}
+#endif
