@@ -1,6 +1,6 @@
 # Ticket shared-056: tick() emittiert Domain Events
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4h | Android ~4h
 **Phase**: 2-Architektur
@@ -24,7 +24,7 @@ Aktuell entscheidet `tick()` State-Transitions (z.B. preparation -> startGong), 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
