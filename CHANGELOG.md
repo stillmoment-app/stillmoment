@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Einstellungen-Tab** - Neuer dritter Tab mit App-weiten Einstellungen (Ticket: shared-061)
+  - Tab-Bar zeigt 3 Tabs: Timer, Bibliothek, Einstellungen (`gearshape`-Icon)
+  - Einstellungen-Tab: Sektion "Erscheinungsbild" (Theme, Darstellungsmodus)
+  - Einstellungen-Tab: Sektion "Info & Rechtliches" (Klang-Nachweise, Datenschutz, App-Version)
+  - Theme und Darstellungsmodus aus Timer-Settings-Sheet entfernt (leben nur noch im Einstellungen-Tab)
+  - Klang-Nachweise: Statischer Screen mit Pixabay-Quellen aller Sounds
+  - Datenschutz: Link zur App-Website
+  - Tab-Auswahl wird persistiert (letzter Tab bei Neustart wiederhergestellt)
+
+### Changed (iOS)
+- **TimerDisplayState eliminiert** - Computed Properties (`formattedTime`, `isPreparation`, `isRunning`) als Extensions auf `MeditationTimer` statt eigener DisplayState-Struct
+  - ViewModel haelt direkt `MeditationTimer?` (nil = idle) statt `TimerDisplayState`
+  - Reducer vereinfacht zum reinen Effect Mapper: `(Action, TimerState, Settings) -> [TimerEffect]` (kein State-Return mehr)
+  - `.tick`-Action im Reducer entfaellt, kein Felder-Kopieren mehr
+  - State-Transitions (endGong→completed, reset→nil) als Effects modelliert — alle Entscheidungen zentral im Reducer
+  - `currentAffirmationIndex` und `errorMessage` verbleiben im ViewModel (UI-only State)
+  - Ticket: shared-057
+
 ### Changed (iOS & Android)
 - **tick() emittiert Domain Events** - `MeditationTimer.tick()` gibt jetzt `(MeditationTimer, [TimerEvent])` zurueck statt nur `MeditationTimer`
   - Neues `TimerEvent`-Enum: `.preparationCompleted`, `.meditationCompleted`, `.intervalGongDue`

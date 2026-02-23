@@ -12,6 +12,7 @@ import SwiftUI
 enum AppTab: String, CaseIterable {
     case timer
     case library
+    case settings
 }
 
 @main
@@ -65,6 +66,17 @@ struct StillMomentApp: App {
                     .tag(AppTab.library.rawValue)
                     .accessibilityIdentifier("tab.library")
                     .accessibilityLabel(Text("tab.library.accessibility"))
+
+                    // App Settings Tab
+                    NavigationStack {
+                        AppSettingsView()
+                    }
+                    .tabItem {
+                        Label("tab.settings", systemImage: "gearshape")
+                    }
+                    .tag(AppTab.settings.rawValue)
+                    .accessibilityIdentifier("tab.settings")
+                    .accessibilityLabel(Text("tab.settings.accessibility"))
                 }
             }
             .environmentObject(self.themeManager)

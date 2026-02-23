@@ -28,8 +28,10 @@
 
 "tab.timer" = "Timer";
 "tab.library" = "Library";
+"tab.settings" = "Settings";
 "tab.timer.accessibility" = "Timer for meditation";
 "tab.library.accessibility" = "Guided meditations library";
+"tab.settings.accessibility" = "App settings";
 
 // MARK: - State Messages
 
@@ -56,11 +58,6 @@
 "settings.title" = "Settings";
 "settings.backgroundAudio.title" = "Soundscape";
 "settings.backgroundAudio.sound" = "Sound";
-"settings.backgroundAudio.silent" = "Silent";
-"settings.backgroundAudio.whiteNoise" = "White Noise";
-"settings.backgroundAudio.footer.silent" = "Keeps the app gently active in the background. Almost silent, just present.";
-"settings.backgroundAudio.footer.whiteNoise" = "Soft ambient sound to help you settle into your practice.";
-
 "settings.backgroundAudio.volume" = "Volume";
 
 "settings.intervalGongs.title" = "Interval Gongs";
@@ -108,6 +105,22 @@
 
 "settings.startGong.title" = "Gong Sound";
 "settings.gongVolume.title" = "Volume";
+
+// MARK: - App Settings Tab
+
+"app.settings.info.header" = "Info & Legal";
+"app.settings.soundAttributions.title" = "Sound Attributions";
+"app.settings.soundAttributions.page.title" = "Sound Attributions";
+"app.settings.soundAttributions.gongs.header" = "Gong Sounds";
+"app.settings.soundAttributions.interval.header" = "Interval Sounds";
+"app.settings.soundAttributions.background.header" = "Background Sounds";
+"app.settings.soundAttributions.forest.name" = "Forest Ambience";
+"app.settings.soundAttributions.source" = "Pixabay";
+"app.settings.soundAttributions.license.footer" = "All sounds are from Pixabay, licensed under the Pixabay Content License. No attribution required.";
+"app.settings.privacy.title" = "Privacy Policy";
+"app.settings.version.label" = "Version";
+"accessibility.appSettings.soundAttributions.hint" = "Opens sound attribution details";
+"accessibility.appSettings.privacy.hint" = "Opens privacy policy in browser";
 
 // MARK: - Appearance Settings
 
@@ -160,9 +173,7 @@
 "accessibility.preparationTimeDuration.hint" = "Select the duration of preparation time in seconds";
 "accessibility.done" = "Done";
 "accessibility.done.hint" = "Save settings and close";
-"accessibility.backgroundVolume" = "Background volume";
 "accessibility.backgroundVolume.hint" = "Adjust the volume of background sounds";
-"accessibility.gongVolume" = "Gong volume";
 "accessibility.gongVolume.hint" = "Adjust the volume of gong sounds";
 "accessibility.intervalGongVolume.title" = "Interval gong volume";
 "accessibility.intervalGongVolume.hint" = "Adjust the volume of interval gong sounds";

@@ -10,8 +10,7 @@ import UIKit
 
 /// Reusable settings section for app-wide settings (theme and appearance selection).
 ///
-/// Embedded at the bottom of both Timer Settings and Library Settings
-/// to provide consistent access to general preferences from either tab.
+/// Used in the App Settings tab to provide theme and appearance controls.
 struct GeneralSettingsSection: View {
     @EnvironmentObject private var themeManager: ThemeManager
 

@@ -77,8 +77,6 @@ struct GuidedMeditationSettingsView: View {
                         Text("guided_meditations.settings.preparationTime.header", bundle: .main)
                             .foregroundColor(self.theme.textSecondary)
                     }
-
-                    GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
                 .navigationBarTitleDisplayMode(.inline)

@@ -17,14 +17,19 @@ final class AppTabTests: XCTestCase {
         XCTAssertEqual(AppTab.library.rawValue, "library")
     }
 
+    func testSettingsRawValue() {
+        XCTAssertEqual(AppTab.settings.rawValue, "settings")
+    }
+
     // MARK: - CaseIterable
 
-    func testAllCasesContainsBothTabs() {
+    func testAllCasesContainsAllThreeTabs() {
         let allCases = AppTab.allCases
 
-        XCTAssertEqual(allCases.count, 2)
+        XCTAssertEqual(allCases.count, 3)
         XCTAssertTrue(allCases.contains(.timer))
         XCTAssertTrue(allCases.contains(.library))
+        XCTAssertTrue(allCases.contains(.settings))
     }
 
     // MARK: - Raw Value Initialization (Default Case)
@@ -32,6 +37,7 @@ final class AppTabTests: XCTestCase {
     func testInitFromValidRawValue() {
         XCTAssertEqual(AppTab(rawValue: "timer"), .timer)
         XCTAssertEqual(AppTab(rawValue: "library"), .library)
+        XCTAssertEqual(AppTab(rawValue: "settings"), .settings)
     }
 
     func testInitFromInvalidRawValueReturnsNil() {
@@ -64,6 +70,11 @@ final class AppTabTests: XCTestCase {
             AppTab.library.rawValue,
             "library",
             "Library raw value must remain 'library' for backwards compatibility"
+        )
+        XCTAssertEqual(
+            AppTab.settings.rawValue,
+            "settings",
+            "Settings raw value must remain 'settings' for backwards compatibility"
         )
     }
 }

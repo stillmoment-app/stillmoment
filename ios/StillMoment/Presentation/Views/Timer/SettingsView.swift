@@ -50,8 +50,6 @@ struct SettingsView: View {
                     }
                     self.intervalGongsSection
                     self.backgroundAudioSection
-
-                    GeneralSettingsSection()
                 }
                 .scrollContentBackground(.hidden)
                 .navigationBarTitleDisplayMode(.inline)

@@ -28,8 +28,10 @@
 
 "tab.timer" = "Timer";
 "tab.library" = "Bibliothek";
+"tab.settings" = "Einstellungen";
 "tab.timer.accessibility" = "Timer für Meditation";
 "tab.library.accessibility" = "Bibliothek geführter Meditationen";
+"tab.settings.accessibility" = "App-Einstellungen";
 
 // MARK: - State Messages
 
@@ -56,11 +58,6 @@
 "settings.title" = "Einstellungen";
 "settings.backgroundAudio.title" = "Klangkulisse";
 "settings.backgroundAudio.sound" = "Klang";
-"settings.backgroundAudio.silent" = "Leise";
-"settings.backgroundAudio.whiteNoise" = "Weißes Rauschen";
-"settings.backgroundAudio.footer.silent" = "Hält die App sanft im Hintergrund aktiv. Fast unhörbar, einfach präsent.";
-"settings.backgroundAudio.footer.whiteNoise" = "Sanfter Umgebungsklang, der dir hilft, dich in deine Praxis einzufinden.";
-
 "settings.backgroundAudio.volume" = "Lautstärke";
 
 "settings.intervalGongs.title" = "Intervall-Gongs";
@@ -108,6 +105,22 @@
 
 "settings.startGong.title" = "Gong-Ton";
 "settings.gongVolume.title" = "Lautstärke";
+
+// MARK: - App Settings Tab
+
+"app.settings.info.header" = "Info & Rechtliches";
+"app.settings.soundAttributions.title" = "Klang-Nachweise";
+"app.settings.soundAttributions.page.title" = "Klang-Nachweise";
+"app.settings.soundAttributions.gongs.header" = "Gong-Klänge";
+"app.settings.soundAttributions.interval.header" = "Intervall-Klänge";
+"app.settings.soundAttributions.background.header" = "Hintergrund-Klänge";
+"app.settings.soundAttributions.forest.name" = "Waldatmosphäre";
+"app.settings.soundAttributions.source" = "Pixabay";
+"app.settings.soundAttributions.license.footer" = "Alle Klänge stammen von Pixabay und stehen unter der Pixabay Content License. Keine Attribution erforderlich.";
+"app.settings.privacy.title" = "Datenschutz";
+"app.settings.version.label" = "Version";
+"accessibility.appSettings.soundAttributions.hint" = "Öffnet Klang-Nachweise";
+"accessibility.appSettings.privacy.hint" = "Öffnet Datenschutzerklärung im Browser";
 
 // MARK: - Appearance Settings
 
@@ -160,9 +173,7 @@
 "accessibility.preparationTimeDuration.hint" = "Wähle die Dauer der Vorbereitungszeit in Sekunden";
 "accessibility.done" = "Fertig";
 "accessibility.done.hint" = "Einstellungen speichern und schließen";
-"accessibility.backgroundVolume" = "Hintergrund-Lautstärke";
 "accessibility.backgroundVolume.hint" = "Lautstärke der Hintergrundgeräusche anpassen";
-"accessibility.gongVolume" = "Gong-Lautstärke";
 "accessibility.gongVolume.hint" = "Lautstärke der Gong-Klänge anpassen";
 "accessibility.intervalGongVolume.title" = "Intervall-Gong-Lautstärke";
 "accessibility.intervalGongVolume.hint" = "Lautstärke des Intervall-Gongs anpassen";
