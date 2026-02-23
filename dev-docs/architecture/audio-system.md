@@ -370,6 +370,18 @@ Importierte Dateien werden in App-internen Speicher kopiert.
 
 ## Audio-bezogene Einstellungen
 
+### Konfigurationspfad (seit shared-064)
+
+Audio-Einstellungen werden ueber **Praxis**-Presets konfiguriert:
+
+```
+Praxis (Editor) → Praxis.toMeditationSettings() → MeditationSettings → TimerReducer → AudioService
+```
+
+Der User konfiguriert Gong-Sounds, Lautstaerken, Hintergrund-Audio und Intervall-Gongs im Praxis-Editor. Beim Starten einer Session konvertiert `TimerViewModel.applyPraxis(_:)` die aktive Praxis in `MeditationSettings`, die dann vom Reducer als Effects an den AudioService weitergegeben werden.
+
+Das globale Settings-Sheet wurde durch den Praxis-Editor ersetzt. `MeditationSettings` bleibt als internes Datenmodell erhalten — die Audio-Logik aendert sich nicht.
+
 Alle Audio-relevanten Properties sind in `MeditationSettings` definiert — siehe `../reference/glossary.md` fuer die vollstaendige Definition.
 
 **Intervall-Gong-Logik** (3 Modi, Guard Clauses, End-Protection) — siehe `ddd.md` (Flexible Intervall-Modi).

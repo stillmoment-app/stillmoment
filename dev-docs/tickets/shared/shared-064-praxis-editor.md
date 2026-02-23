@@ -65,7 +65,7 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 
 ### Dokumentation
 - [x] CHANGELOG.md
-- [ ] Audio-System Doku aktualisieren (neuer Konfigurationspfad)
+- [x] Audio-System Doku aktualisieren (neuer Konfigurationspfad)
 
 ---
 
