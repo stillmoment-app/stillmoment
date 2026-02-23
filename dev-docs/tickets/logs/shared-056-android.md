@@ -21,3 +21,12 @@ Challenges:
 
 Summary:
 Android-Implementation von shared-056: `MeditationTimer.tick()` gibt jetzt `Pair<MeditationTimer, List<TimerEvent>>` zurueck. Neues `TimerEvent` sealed class und `IntervalSettings` data class im Domain Layer. ViewModel verarbeitet Events direkt via `processTimerEvents()` statt Transitions ueber `previousState`-Vergleich zu erkennen. `previousState`, `handleStateTransition()`, `checkIntervalGong()`, `IntervalGongPlayed` Action und `intervalGongPlayedForCurrentInterval` Display-State-Flag entfernt. Neue Test-Klasse `MeditationTimerEventTest` mit 15 Tests fuer Event-Emission.
+
+## REVIEW
+Status: DONE
+Commits:
+- 2298df6 fix(android): #shared-056 remove double start-gong when preparation disabled
+
+Finding: Doppelter Start-Gong wenn Preparation deaktiviert.
+`reduceStartPressed` spielte `PlayStartGong` direkt UND `processTimerEvents([PreparationCompleted])` loeste `reducePreparationFinished` aus, welches den Gong nochmals spielte.
+Fix: `PlayStartGong` aus `reduceStartPressed` entfernt (konsistent mit iOS). Gong kommt jetzt ausschliesslich via Event-Flow. Zwei Tests angepasst.
