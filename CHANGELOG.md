@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (iOS)
+- **Praxis-Editor ersetzt Settings-Sheet** - Alle Timer-Konfigurationen leben jetzt im Praxis-Editor statt im alten Settings-Sheet (Ticket: shared-064)
+- **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr; Praxis-Pill oeffnet den Editor
+
 ### Added (iOS)
+- **Fullscreen Praxis-Editor** - Neuer Editor mit Sektionen fuer Vorbereitung, Audio und Gongs (Ticket: shared-064)
+  - Einleitungs-, Hintergrund-Sound-, Gong- und Intervall-Gong-Subscreens im Praxis-Editor
 - **Praxis-Auswahl auf Timer Screen** - Pill-Button zeigt aktive Praxis und öffnet Auswahl-Sheet mit allen gespeicherten Praxis-Presets (Ticket: shared-063)
   - Pill-Button "Praxis: [Name]" im Idle-Zustand oberhalb des Titels
   - Bottom Sheet mit allen Praxis-Presets, Checkmark bei aktiver Praxis

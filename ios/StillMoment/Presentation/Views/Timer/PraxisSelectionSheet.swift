@@ -13,12 +13,10 @@ struct PraxisSelectionSheet: View {
 
     init(
         viewModel: PraxisSelectionViewModel,
-        onDismiss: @escaping () -> Void,
-        onEdit: @escaping (Praxis) -> Void
+        onDismiss: @escaping () -> Void
     ) {
         self.viewModel = viewModel
         self.onDismiss = onDismiss
-        self.onEdit = onEdit
     }
 
     // MARK: Internal
@@ -53,6 +51,25 @@ struct PraxisSelectionSheet: View {
                     }
                     .foregroundColor(self.theme.interactive)
                     .accessibilityIdentifier("button.done")
+                }
+            }
+            .navigationDestination(isPresented: self.$showEditor) {
+                if let praxis = self.editingPraxis {
+                    PraxisEditorView(viewModel: PraxisEditorViewModel(
+                        praxis: praxis,
+                        onSaved: { [weak viewModel] savedPraxis in
+                            viewModel?.load()
+                            viewModel?.selectPraxis(savedPraxis)
+                            self.onDismiss()
+                        },
+                        onDeleted: { [weak viewModel] in
+                            viewModel?.load()
+                            if let active = viewModel?.activePraxis {
+                                viewModel?.selectPraxis(active)
+                            }
+                            self.onDismiss()
+                        }
+                    ))
                 }
             }
         }
@@ -98,9 +115,10 @@ struct PraxisSelectionSheet: View {
     @Environment(\.themeColors)
     private var theme
     @ObservedObject private var viewModel: PraxisSelectionViewModel
+    @State private var editingPraxis: Praxis?
+    @State private var showEditor = false
 
     private let onDismiss: () -> Void
-    private let onEdit: (Praxis) -> Void
 }
 
 // MARK: - Row Views
@@ -143,7 +161,8 @@ extension PraxisSelectionSheet {
     private func overflowMenu(for praxis: Praxis) -> some View {
         Menu {
             Button {
-                self.onEdit(praxis)
+                self.editingPraxis = praxis
+                self.showEditor = true
             } label: {
                 Label(
                     NSLocalizedString("praxis.edit.label", comment: ""),
@@ -173,7 +192,8 @@ extension PraxisSelectionSheet {
     private var createNewPraxisButton: some View {
         Button {
             let newPraxis = self.viewModel.createNewPraxis()
-            self.onEdit(newPraxis)
+            self.editingPraxis = newPraxis
+            self.showEditor = true
         } label: {
             HStack {
                 Image(systemName: "plus")
@@ -209,10 +229,8 @@ extension PraxisSelectionSheet {
     Text("Timer Screen")
         .sheet(isPresented: .constant(true)) {
             PraxisSelectionSheet(
-                viewModel: PraxisSelectionViewModel { _ in },
-                onDismiss: {},
-                onEdit: { _ in }
-            )
+                viewModel: PraxisSelectionViewModel { _ in }
+            ) {}
         }
 }
 #endif

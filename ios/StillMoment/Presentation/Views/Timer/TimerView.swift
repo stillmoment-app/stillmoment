@@ -96,72 +96,16 @@ struct TimerView: View {
                     .accessibilityHint("accessibility.endMeditation.hint")
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if self.viewModel.timerState == .idle {
-                    HStack(spacing: 8) {
-                        if !self.hasSeenSettingsHint {
-                            self.settingsHintTooltip
-                        }
-
-                        Button {
-                            self.hasSeenSettingsHint = true
-                            self.showSettings = true
-                        } label: {
-                            Image(systemName: "slider.horizontal.3")
-                                .foregroundColor(self.theme.textSecondary)
-                                .frame(minWidth: 44, minHeight: 44)
-                        }
-                        .accessibilityIdentifier("timer.button.settings")
-                        .accessibilityLabel("accessibility.settings")
-                        .accessibilityHint("accessibility.settings.hint")
-                    }
-                }
-            }
         }
-        .sheet(
-            isPresented: self.$showSettings,
-            onDismiss: {
-                self.viewModel.stopAllPreviews()
-                self.viewModel.saveSettings()
-            },
-            content: {
-                ThemeRootView {
-                    SettingsView(
-                        settings: self.$viewModel.settings,
-                        availableSounds: self.viewModel.availableBackgroundSounds,
-                        availableIntroductions: self.viewModel.availableIntroductions,
-                        onGongChanged: { soundId, volume in
-                            self.viewModel.playGongPreview(soundId: soundId, volume: volume)
-                        },
-                        onBackgroundChanged: { soundId, volume in
-                            self.viewModel.playBackgroundPreview(soundId: soundId, volume: volume)
-                        },
-                        onIntervalGongPreview: { soundId, volume in
-                            self.viewModel.playIntervalGongPreview(soundId: soundId, volume: volume)
-                        },
-                        onDismiss: {
-                            self.showSettings = false
-                        }
-                    )
-                }
-            }
-        )
         .sheet(isPresented: self.$showPraxisSheet) {
             ThemeRootView {
                 PraxisSelectionSheet(
                     viewModel: PraxisSelectionViewModel { [weak viewModel = self.viewModel] praxis in
                         viewModel?.applyPraxis(praxis)
-                    },
-                    onDismiss: {
-                        self.showPraxisSheet = false
-                    },
-                    onEdit: { _ in
-                        self.showPraxisSheet = false
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                            self.showSettings = true
-                        }
                     }
-                )
+                ) {
+                    self.showPraxisSheet = false
+                }
             }
         }
     }
@@ -171,10 +115,7 @@ struct TimerView: View {
     @Environment(\.themeColors)
     private var theme
     @StateObject private var viewModel: TimerViewModel
-    @State private var showSettings = false
     @State private var showPraxisSheet = false
-    @AppStorage("hasSeenSettingsHint")
-    private var hasSeenSettingsHint = false
 
     private var stateText: String {
         switch self.viewModel.timerState {
@@ -236,20 +177,6 @@ struct TimerView: View {
     }
 
     // MARK: - View Components
-
-    private var settingsHintTooltip: some View {
-        Text("settings.hint.text", bundle: .main)
-            .themeFont(.caption, color: \.textPrimary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(self.theme.accentBackground)
-                    .shadow(color: self.theme.textPrimary.opacity(0.1), radius: 4, x: 0, y: 2)
-            )
-            .accessibilityLabel("accessibility.settings.hint.tooltip")
-            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-    }
 
     private func minutePicker(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
