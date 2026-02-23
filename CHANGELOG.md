@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (iOS)
+- **Praxis-Auswahl auf Timer Screen** - Pill-Button zeigt aktive Praxis und öffnet Auswahl-Sheet mit allen gespeicherten Praxis-Presets (Ticket: shared-063)
+  - Pill-Button "Praxis: [Name]" im Idle-Zustand oberhalb des Titels
+  - Bottom Sheet mit allen Praxis-Presets, Checkmark bei aktiver Praxis
+  - Kontextmenü pro Eintrag (Bearbeiten, Löschen mit Bestätigung)
+  - "Neue Praxis erstellen" Button am Ende der Liste
+  - Auswahl lädt Konfiguration (Gong, Hintergrund, Dauer etc.) und schließt Sheet
+  - TimerViewModel: neue `applyPraxis()` Methode und `displayPraxisName` Computed Property
 - **Geführte Meditation Abschluss-Screen** - Nach natürlichem Audio-Ende erscheint ein Completion-Screen statt der Player-Controls (Ticket: shared-053)
   - Herz-Icon (gefüllt, Indigo-Ton) in kreisförmigem Container als visuelles Zentrum
   - Headline "Vielen Dank" (DE) / "Thank you" (EN), zentriert

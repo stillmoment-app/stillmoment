@@ -24,12 +24,14 @@ final class TimerViewModel: ObservableObject {
         timerService: TimerServiceProtocol = TimerService(),
         audioService: AudioServiceProtocol = AudioService(),
         settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository(),
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
+        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository()
     ) {
         self.timerService = timerService
         self.audioService = audioService
         self.settingsRepository = settingsRepository
         self.soundRepository = soundRepository
+        self.praxisRepository = praxisRepository
 
         self.settings = settingsRepository.load()
         // Initialize selected minutes from saved duration (clamped to minimum for introduction)
@@ -37,6 +39,7 @@ final class TimerViewModel: ObservableObject {
             self.settings.durationMinutes,
             introductionId: self.settings.introductionId
         )
+        self.activePraxisName = Self.resolveActivePraxisName(from: praxisRepository)
         self.setupBindings()
     }
 
@@ -55,6 +58,9 @@ final class TimerViewModel: ObservableObject {
 
     /// Error message if any operation fails
     @Published var errorMessage: String?
+
+    /// Name of the currently active Praxis (shown in pill button)
+    @Published var activePraxisName: String = ""
 
     /// Current affirmation index (rotates between sessions)
     var currentAffirmationIndex: Int = 0
@@ -144,16 +150,46 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.resetPressed)
     }
 
+    /// Display name for the active Praxis, with fallback for empty name
+    var displayPraxisName: String {
+        self.activePraxisName.isEmpty
+            ? NSLocalizedString("praxis.default.name", comment: "")
+            : self.activePraxisName
+    }
+
+    /// Applies a Praxis configuration: updates settings, selectedMinutes, and active praxis name
+    func applyPraxis(_ praxis: Praxis) {
+        let settings = praxis.toMeditationSettings()
+        self.settings = settings
+        self.selectedMinutes = MeditationSettings.validateDuration(
+            praxis.durationMinutes,
+            introductionId: praxis.introductionId
+        )
+        self.settingsRepository.save(settings)
+        self.activePraxisName = praxis.name
+        Logger.viewModel.info("Applied praxis", metadata: ["name": praxis.name])
+    }
+
     // MARK: Private
 
     private let timerService: TimerServiceProtocol
     let audioService: AudioServiceProtocol
     private let settingsRepository: TimerSettingsRepository
     let soundRepository: BackgroundSoundRepositoryProtocol
+    private let praxisRepository: PraxisRepository
     private var cancellables = Set<AnyCancellable>()
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
     private var minutesBeforeIntroduction: Int?
+
+    private static func resolveActivePraxisName(from repository: PraxisRepository) -> String {
+        let all = repository.loadAll()
+        if let id = repository.activePraxisId,
+           let praxis = all.first(where: { $0.id == id }) {
+            return praxis.name
+        }
+        return all.first?.name ?? ""
+    }
 
     // MARK: - Effect Execution
 

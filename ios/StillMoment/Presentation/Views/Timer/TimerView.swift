@@ -33,6 +33,14 @@ struct TimerView: View {
                     Spacer(minLength: 8)
                 }
 
+                // Praxis Pill (only in idle state)
+                if self.viewModel.timerState == .idle {
+                    PraxisPillButton(praxisName: self.viewModel.displayPraxisName) {
+                        self.showPraxisSheet = true
+                    }
+                    .padding(.bottom, 4)
+                }
+
                 // Title
                 Text("welcome.title", bundle: .main)
                     .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
@@ -138,6 +146,24 @@ struct TimerView: View {
                 }
             }
         )
+        .sheet(isPresented: self.$showPraxisSheet) {
+            ThemeRootView {
+                PraxisSelectionSheet(
+                    viewModel: PraxisSelectionViewModel { [weak viewModel = self.viewModel] praxis in
+                        viewModel?.applyPraxis(praxis)
+                    },
+                    onDismiss: {
+                        self.showPraxisSheet = false
+                    },
+                    onEdit: { _ in
+                        self.showPraxisSheet = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            self.showSettings = true
+                        }
+                    }
+                )
+            }
+        }
     }
 
     // MARK: Private
@@ -146,6 +172,7 @@ struct TimerView: View {
     private var theme
     @StateObject private var viewModel: TimerViewModel
     @State private var showSettings = false
+    @State private var showPraxisSheet = false
     @AppStorage("hasSeenSettingsHint")
     private var hasSeenSettingsHint = false
 
