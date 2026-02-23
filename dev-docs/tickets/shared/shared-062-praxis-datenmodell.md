@@ -1,6 +1,6 @@
 # Ticket shared-062: Praxis-Datenmodell und Persistenz
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4 | Android ~4
 **Phase**: 2-Architektur
@@ -22,7 +22,7 @@ Aktuell gibt es nur eine einzige globale Timer-Konfiguration. Mit dem Praxis-Mod
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-050    |
+| iOS       | [x]    | shared-050    |
 | Android   | [ ]    | shared-050    |
 
 ---
