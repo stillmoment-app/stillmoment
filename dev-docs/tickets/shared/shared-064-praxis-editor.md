@@ -1,6 +1,6 @@
 # Ticket shared-064: Praxis-Editor und Settings-Abloesung
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~6 | Android ~6
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-061, shared-063 |
+| iOS       | [x]    | shared-061, shared-063 |
 | Android   | [ ]    | shared-061, shared-063 |
 
 ---
@@ -32,39 +32,39 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 ### Feature (beide Plattformen)
 
 #### Editor-Struktur
-- [ ] Fullscreen-Navigation (Push, nicht Modal) mit Navigation-Bar: "Abbrechen" / Titel "Praxis bearbeiten" / "Fertig"
-- [ ] Textfeld fuer Praxis-Name (bearbeitbar)
-- [ ] Dauer-Picker (1-60 Minuten) — Standard-Dauer der Praxis, kann auf dem Timer Screen vor Start angepasst werden
-- [ ] Sektion "Vorbereitung" mit Sanduhr-Icon: Toggle an/aus + Dauer-Picker (5/10/15/20/30/45s)
-- [ ] Sektion "Audio & Klaenge" mit Wind-Icon: Row "Einstimmung" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Hintergrundklang" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
-- [ ] Sektion "Gongs" mit Glocken-Icon: Row "Start & Ende" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Intervall-Gongs" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
-- [ ] "Praxis loeschen" Button am Ende (Rot, mit Bestaetigungsdialog)
-- [ ] Sektions-Icons in gedaempfter Farbe (textSecondary / slate-400)
+- [x] Fullscreen-Navigation (Push, nicht Modal) mit Navigation-Bar: "Abbrechen" / Titel "Praxis bearbeiten" / "Fertig"
+- [x] Textfeld fuer Praxis-Name (bearbeitbar)
+- [x] Dauer-Picker (1-60 Minuten) — Standard-Dauer der Praxis, kann auf dem Timer Screen vor Start angepasst werden
+- [x] Sektion "Vorbereitung" mit Sanduhr-Icon: Toggle an/aus + Dauer-Picker (5/10/15/20/30/45s)
+- [x] Sektion "Audio & Klaenge" mit Wind-Icon: Row "Einstimmung" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Hintergrundklang" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
+- [x] Sektion "Gongs" mit Glocken-Icon: Row "Start & Ende" (zeigt aktuelle Auswahl, Chevron → Sub-Screen), Row "Intervall-Gongs" (zeigt aktuelle Auswahl, Chevron → Sub-Screen)
+- [x] "Praxis loeschen" Button am Ende (Rot, mit Bestaetigungsdialog)
+- [x] Sektions-Icons in gedaempfter Farbe (textSecondary / slate-400)
 
 #### Sub-Screens
-- [ ] Einstimmung: "Ohne Einstimmung", mitgelieferte Einstimmungen, Checkmark bei aktiver Auswahl
-- [ ] Hintergrundklang: "Stille (Kein Hintergrund)", mitgelieferte Klaenge, Volume-Slider, Checkmark bei aktiver Auswahl
-- [ ] Start & Ende Gong: Gong-Auswahl mit Checkmark, Volume-Slider, Vorhoer-Funktion
-- [ ] Intervall-Gongs: Toggle an/aus, Intervall-Dauer (Stepper), Modus (Repeating/After Start/Before End), Sound-Auswahl, Volume-Slider
+- [x] Einstimmung: "Ohne Einstimmung", mitgelieferte Einstimmungen, Checkmark bei aktiver Auswahl
+- [x] Hintergrundklang: "Stille (Kein Hintergrund)", mitgelieferte Klaenge, Volume-Slider, Checkmark bei aktiver Auswahl
+- [x] Start & Ende Gong: Gong-Auswahl mit Checkmark, Volume-Slider, Vorhoer-Funktion
+- [x] Intervall-Gongs: Toggle an/aus, Intervall-Dauer (Stepper), Modus (Repeating/After Start/Before End), Sound-Auswahl, Volume-Slider
 
 #### Settings-Abloesung
-- [ ] Timer-spezifische Settings (Vorbereitung, Gongs, Audio) aus altem Settings-Sheet entfernt
-- [ ] Settings-Zahnrad auf Timer Screen entfaellt — Praxis-Pill ist der Einstiegspunkt
-- [ ] Timer liest Konfiguration aus aktiver Praxis (statt aus globalem MeditationSettings)
-- [ ] "Fertig" speichert Aenderungen in der Praxis
-- [ ] "Abbrechen" verwirft Aenderungen
+- [x] Timer-spezifische Settings (Vorbereitung, Gongs, Audio) aus altem Settings-Sheet entfernt
+- [x] Settings-Zahnrad auf Timer Screen entfaellt — Praxis-Pill ist der Einstiegspunkt
+- [x] Timer liest Konfiguration aus aktiver Praxis (statt aus globalem MeditationSettings)
+- [x] "Fertig" speichert Aenderungen in der Praxis
+- [x] "Abbrechen" verwirft Aenderungen
 
 #### Allgemein
-- [ ] Lokalisiert (DE + EN)
+- [x] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
-- [ ] Accessibility: Labels und Hints auf allen interaktiven Elementen
+- [x] Accessibility: Labels und Hints auf allen interaktiven Elementen
 
 ### Tests
-- [ ] Unit Tests iOS (Editor-State, Speichern/Abbrechen, Validierung)
+- [x] Unit Tests iOS (Editor-State, Speichern/Abbrechen, Validierung)
 - [ ] Unit Tests Android (Editor-State, Speichern/Abbrechen, Validierung)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 - [ ] Audio-System Doku aktualisieren (neuer Konfigurationspfad)
 
 ---
