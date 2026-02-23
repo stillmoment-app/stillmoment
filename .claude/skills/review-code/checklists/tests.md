@@ -74,6 +74,11 @@ Bei jedem Feature aktiv pruefen:
 - Unerwartete Uebergaenge behandelt?
 - State nach Fehler korrekt?
 
+### Schicht-Nahtstellen (Event/Effect-Ketten)
+- Wenn Schicht A Events/Effects erzeugt und Schicht B darauf reagiert: Sind ALLE Einstiegspfade getestet?
+- Besonders bei optionalen Phasen (z.B. Preparation an/aus): Wird der Event-Vertrag eingehalten wenn eine Phase uebersprungen wird?
+- Prueffrage: "Wenn ich dieses Feature mit einer anderen Konfiguration starte — kommt die gleiche Event-Kette zustande?"
+
 ### Fehler-Recovery
 - Was passiert nach einem Fehler?
 - Kann der User weitermachen?
