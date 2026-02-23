@@ -347,3 +347,30 @@
 "accessibility.praxis.editor.name.hint" = "Namen für diese Praxis eingeben";
 "accessibility.praxis.editor.delete" = "Praxis löschen";
 "accessibility.praxis.editor.delete.hint" = "Diese Praxis dauerhaft löschen";
+
+// MARK: - Custom Audio Import (shared-065)
+
+"custom.audio.duration.unknown" = "Unbekannt";
+
+"custom.audio.section.mySounds" = "Meine Klänge";
+"custom.audio.section.myAttunements" = "Meine Einstimmungen";
+
+"custom.audio.import.button" = "Eigene Datei importieren";
+
+"custom.audio.empty.sounds" = "Keine eigenen Dateien importiert";
+"custom.audio.empty.attunements" = "Keine eigenen Dateien importiert";
+
+"custom.audio.delete.confirm.title" = "Datei löschen?";
+"custom.audio.delete.confirm.message" = "Diese Datei wird dauerhaft gelöscht.";
+"custom.audio.delete.confirm.button" = "Löschen";
+"custom.audio.delete.warning.single" = "Wird in 1 Praxis verwendet. Diese Praxis fällt auf Stille / Ohne Einstimmung zurück.";
+"custom.audio.delete.warning.multiple" = "Wird in %d Praxis verwendet. Diese Praxen fallen auf Stille / Ohne Einstimmung zurück.";
+
+"custom.audio.error.unsupportedFormat" = "Format nicht unterstützt: .%@. Unterstützt: MP3, M4A, WAV.";
+"custom.audio.error.fileCopyFailed" = "Datei konnte nicht importiert werden. Bitte erneut versuchen.";
+"custom.audio.error.persistenceFailed" = "Datei konnte nicht gespeichert werden. Bitte erneut versuchen.";
+"custom.audio.error.fileNotFound" = "Datei nicht gefunden.";
+
+"custom.audio.accessibility.importButton.soundscape" = "Eigenen Soundscape importieren";
+"custom.audio.accessibility.importButton.attunement" = "Eigene Einstimmung importieren";
+"custom.audio.accessibility.delete" = "%@ löschen";

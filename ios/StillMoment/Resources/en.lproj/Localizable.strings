@@ -347,3 +347,30 @@
 "accessibility.praxis.editor.name.hint" = "Enter a name for this praxis";
 "accessibility.praxis.editor.delete" = "Delete praxis";
 "accessibility.praxis.editor.delete.hint" = "Permanently delete this praxis";
+
+// MARK: - Custom Audio Import (shared-065)
+
+"custom.audio.duration.unknown" = "Unknown";
+
+"custom.audio.section.mySounds" = "My Sounds";
+"custom.audio.section.myAttunements" = "My Attunements";
+
+"custom.audio.import.button" = "Import own file";
+
+"custom.audio.empty.sounds" = "No custom files imported";
+"custom.audio.empty.attunements" = "No custom files imported";
+
+"custom.audio.delete.confirm.title" = "Delete file?";
+"custom.audio.delete.confirm.message" = "This file will be permanently deleted.";
+"custom.audio.delete.confirm.button" = "Delete";
+"custom.audio.delete.warning.single" = "Used in 1 practice. That practice will fall back to Silence / No Attunement.";
+"custom.audio.delete.warning.multiple" = "Used in %d practices. Those practices will fall back to Silence / No Attunement.";
+
+"custom.audio.error.unsupportedFormat" = "Unsupported format: .%@. Supported: MP3, M4A, WAV.";
+"custom.audio.error.fileCopyFailed" = "Could not import the file. Please try again.";
+"custom.audio.error.persistenceFailed" = "Could not save the file. Please try again.";
+"custom.audio.error.fileNotFound" = "File not found.";
+
+"custom.audio.accessibility.importButton.soundscape" = "Import own soundscape";
+"custom.audio.accessibility.importButton.attunement" = "Import own attunement";
+"custom.audio.accessibility.delete" = "Delete %@";
