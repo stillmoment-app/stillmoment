@@ -30,6 +30,7 @@ Die Guided-Meditations-Liste hat aktuell zwei konkurrierende Einstiegspunkte fü
 
 ### Feature (beide Plattformen)
 - [ ] In den globalen Settings gibt es eine neue Section "Geführte Meditationen" mit der Vorbereitungszeit (Toggle + Dauer-Picker)
+- [ ] Das Tab-Bar-Icon des globalen Settings-Tabs wird durch das Icon der Guided Meditations ersetzt
 - [ ] Die Vorbereitungszeit-Einstellung verhält sich identisch wie bisher (Aus / 5s / 10s / 15s / 20s / 30s / 45s)
 - [ ] Der Settings-Button in der Navigationsleiste der Meditationsliste ist entfernt
 - [ ] Der Import-Button (Plus) ist wieder rechtsbündig in der Navigationsleiste
