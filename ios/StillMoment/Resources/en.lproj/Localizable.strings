@@ -117,7 +117,6 @@
 "app.settings.soundAttributions.background.header" = "Background Sounds";
 "app.settings.soundAttributions.forest.name" = "Forest Ambience";
 "app.settings.soundAttributions.source" = "Pixabay";
-"app.settings.soundAttributions.license.footer" = "All sounds are from Pixabay, licensed under the Pixabay Content License. No attribution required.";
 "app.settings.privacy.title" = "Privacy Policy";
 "app.settings.version.label" = "Version";
 "accessibility.appSettings.soundAttributions.hint" = "Opens sound attribution details";

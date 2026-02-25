@@ -60,9 +60,6 @@ struct SoundAttributionsView: View {
         } header: {
             Text("app.settings.soundAttributions.gongs.header", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
-        } footer: {
-            Text("app.settings.soundAttributions.license.footer", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
         }
     }
 
