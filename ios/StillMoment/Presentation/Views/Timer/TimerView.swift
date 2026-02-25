@@ -74,7 +74,7 @@ struct TimerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                if self.viewModel.timerState != .idle {
+                if self.viewModel.timerState != .idle, self.viewModel.timerState != .completed {
                     Button {
                         self.viewModel.resetTimer()
                     } label: {
@@ -98,6 +98,19 @@ struct TimerView: View {
                 self.editorViewModel?.save()
             }
         }
+        .overlay {
+            if self.viewModel.timerState == .completed {
+                ZStack {
+                    self.theme.backgroundGradient
+                        .ignoresSafeArea()
+                    MeditationCompletionView {
+                        self.viewModel.resetTimer()
+                    }
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: self.viewModel.timerState == .completed)
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
     }

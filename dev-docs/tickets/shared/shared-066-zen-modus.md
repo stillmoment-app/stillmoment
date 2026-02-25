@@ -39,11 +39,11 @@ Waehrend der Meditation soll der Bildschirm so ruhig wie moeglich sein. Die Tab-
 - [ ] Waehrend Meditation nur sichtbar: Timer-Ring/Player, Zeit/Fortschritt, Affirmation/Titel, X-Button
 
 ### Tests
-- [ ] Unit Tests iOS (State-driven visibility)
+- [x] Unit Tests iOS (State-driven visibility)
 - [ ] Unit Tests Android (falls Aenderungen noetig)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
