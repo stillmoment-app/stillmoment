@@ -153,8 +153,13 @@ struct BackgroundSoundSelectionView: View {
     }
 
     private func customSoundRow(for file: CustomAudioFile) -> some View {
-        HStack {
+        let isSelected = self.viewModel.backgroundSoundId == file.id.uuidString
+        return HStack {
             HStack {
+                Image(systemName: "waveform")
+                    .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                    .frame(width: 24)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(file.name)
                         .themeFont(.settingsLabel)
@@ -163,10 +168,6 @@ struct BackgroundSoundSelectionView: View {
                         .foregroundColor(self.theme.textSecondary)
                 }
                 Spacer()
-                if self.viewModel.backgroundSoundId == file.id.uuidString {
-                    Image(systemName: "checkmark")
-                        .foregroundColor(self.theme.interactive)
-                }
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -176,51 +177,47 @@ struct BackgroundSoundSelectionView: View {
                     volume: self.viewModel.backgroundSoundVolume
                 )
             }
-            self.customSoundRenameButton(for: file)
-            self.customSoundDeleteButton(for: file)
+            self.overflowMenu(for: file)
         }
         .cardRowBackground()
         .accessibilityIdentifier("praxis.background.custom.\(file.id.uuidString)")
     }
 
-    private func customSoundRenameButton(for file: CustomAudioFile) -> some View {
-        Button {
-            self.fileToRename = file
-            self.renameText = file.name
-            self.showRenameAlert = true
+    private func overflowMenu(for file: CustomAudioFile) -> some View {
+        Menu {
+            Button {
+                self.fileToRename = file
+                self.renameText = file.name
+                self.showRenameAlert = true
+            } label: {
+                Label("guided_meditations.edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                self.fileToDelete = file
+                self.showDeleteConfirmation = true
+            } label: {
+                Label("custom.audio.delete.confirm.button", systemImage: "trash")
+            }
         } label: {
-            Image(systemName: "pencil")
-                .foregroundColor(self.theme.textSecondary)
+            Image(systemName: "ellipsis")
+                .foregroundColor(self.theme.interactive)
+                .frame(minWidth: 44, minHeight: 44)
         }
-        .accessibilityLabel(NSLocalizedString("custom.audio.accessibility.rename", comment: ""))
-        .accessibilityHint(NSLocalizedString("custom.audio.accessibility.rename.hint", comment: ""))
-    }
-
-    private func customSoundDeleteButton(for file: CustomAudioFile) -> some View {
-        Button {
-            self.fileToDelete = file
-            self.showDeleteConfirmation = true
-        } label: {
-            Image(systemName: "trash")
-                .foregroundColor(self.theme.textSecondary)
-        }
-        .accessibilityLabel(
-            String(
-                format: NSLocalizedString("custom.audio.accessibility.delete", comment: ""),
-                file.name
-            )
-        )
+        .accessibilityLabel("accessibility.library.overflow")
+        .accessibilityHint("accessibility.library.overflow.hint")
+        .accessibilityIdentifier("praxis.background.overflow.\(file.id.uuidString)")
     }
 
     private var silenceRow: some View {
-        HStack {
+        let isSelected = self.viewModel.backgroundSoundId == "silent"
+        return HStack {
+            Image(systemName: isSelected ? "speaker.slash.fill" : "speaker.slash")
+                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
             Text("praxis.editor.background.silence", bundle: .main)
                 .themeFont(.settingsLabel)
             Spacer()
-            if self.viewModel.backgroundSoundId == "silent" {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
@@ -232,14 +229,19 @@ struct BackgroundSoundSelectionView: View {
     }
 
     private func soundRow(for sound: BackgroundSound) -> some View {
-        HStack {
-            Label(sound.name, systemImage: sound.iconName)
+        let isSelected = self.viewModel.backgroundSoundId == sound.id
+        let baseIcon = sound.iconName.hasSuffix(".fill")
+            ? String(sound.iconName.dropLast(5))
+            : sound.iconName
+        let iconName = isSelected ? "\(baseIcon).fill" : baseIcon
+        return HStack {
+            Image(systemName: iconName)
+                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
+            Text(sound.name)
                 .themeFont(.settingsLabel)
             Spacer()
-            if self.viewModel.backgroundSoundId == sound.id {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
