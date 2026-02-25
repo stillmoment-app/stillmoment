@@ -163,18 +163,21 @@ companion object {
 
 ### Reducer Pattern
 
-Pure function: `(State, Action, Settings) -> Pair<State, List<Effect>>`:
+Pure effect mapper: `(Action, TimerState, Int, Settings) -> List<Effect>`.
+No intermediate display state — the ViewModel holds `MeditationTimer?` directly and forwards
+computed properties (timerState, remainingSeconds, progress, etc.).
 
 ```kotlin
 object TimerReducer {
     fun reduce(
-        state: TimerDisplayState,
         action: TimerAction,
+        timerState: TimerState,
+        selectedMinutes: Int,
         settings: MeditationSettings
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
+    ): List<TimerEffect> {
         return when (action) {
-            is TimerAction.SelectDuration -> reduceSelectDuration(state, action.minutes)
-            is TimerAction.StartPressed -> reduceStartPressed(state, settings)
+            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings)
+            is TimerAction.ResetPressed -> reduceResetPressed(timerState)
             ...
         }
     }
@@ -196,11 +199,13 @@ ViewModel dispatches and executes:
 
 ```kotlin
 private fun dispatch(action: TimerAction) {
-    val currentState = _uiState.value
-    val (newDisplayState, effects) = TimerReducer.reduce(
-        currentState.displayState, action, currentState.settings
+    val current = _uiState.value
+    val effects = TimerReducer.reduce(
+        action = action,
+        timerState = current.timerState,
+        selectedMinutes = current.selectedMinutes,
+        settings = current.settings
     )
-    _uiState.update { it.copy(displayState = newDisplayState) }
     effects.forEach { handleEffect(it) }
 }
 ```
@@ -273,16 +278,17 @@ class TimerReducerTest {
     private val defaultSettings = MeditationSettings.Default
 
     @Nested
-    inner class SelectDuration {
+    inner class StartPressed {
         @Test
-        fun `updates selectedMinutes with valid value`() {
-            val (newState, effects) = TimerReducer.reduce(
-                TimerDisplayState.Initial,
-                TimerAction.SelectDuration(20),
-                defaultSettings
+        fun `returns start effects when valid duration`() {
+            val effects = TimerReducer.reduce(
+                action = TimerAction.StartPressed,
+                timerState = TimerState.Idle,
+                selectedMinutes = 15,
+                settings = defaultSettings
             )
-            assertEquals(20, newState.selectedMinutes)
-            assertTrue(effects.isEmpty())
+            assertTrue(effects.any { it is TimerEffect.StartTimer })
+            assertTrue(effects.any { it is TimerEffect.SaveSettings })
         }
     }
 }

@@ -3,7 +3,6 @@ package com.stillmoment.domain.services
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerAction
-import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerState
 
@@ -24,7 +23,6 @@ object TimerReducer {
      * @param settings Current meditation settings (for effect parameters)
      * @return Effects to execute
      */
-    @Suppress("DEPRECATION")
     fun reduce(
         action: TimerAction,
         timerState: TimerState,
@@ -40,34 +38,7 @@ object TimerReducer {
             is TimerAction.TimerCompleted -> reduceTimerCompleted(timerState, settings)
             is TimerAction.EndGongFinished -> reduceEndGongFinished(timerState)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(settings)
-            // Deprecated actions return empty effects (ViewModel still uses these until B2)
-            is TimerAction.SelectDuration -> emptyList()
-            is TimerAction.Tick -> emptyList()
         }
-    }
-
-    /**
-     * Legacy reducer that returns state + effects.
-     * Kept for backward compatibility with the current ViewModel.
-     * B2 will remove this when the ViewModel is updated.
-     */
-    /**
-     * Legacy reducer that returns state + effects.
-     * Filters out new effects (TransitionToRunning, TransitionToCompleted) that the
-     * current ViewModel doesn't handle yet. B2 will remove this method entirely.
-     */
-    @Deprecated("Use reduce(action, timerState, selectedMinutes, settings) instead")
-    fun reduce(
-        state: TimerDisplayState,
-        action: TimerAction,
-        settings: MeditationSettings
-    ): Pair<TimerDisplayState, List<TimerEffect>> {
-        val effects = reduce(action, state.timerState, state.selectedMinutes, settings)
-        // Filter out effects the old ViewModel doesn't handle
-        val compatibleEffects = effects.filter { effect ->
-            effect !is TimerEffect.TransitionToRunning && effect !is TimerEffect.TransitionToCompleted
-        }
-        return state to compatibleEffects
     }
 
     // MARK: - Control Actions

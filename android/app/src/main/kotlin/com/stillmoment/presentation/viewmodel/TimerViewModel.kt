@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
+import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerAction
-import com.stillmoment.domain.models.TimerDisplayState
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
@@ -16,6 +16,7 @@ import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,11 +30,16 @@ import kotlinx.coroutines.runBlocking
 /**
  * UI State for the Timer Screen.
  *
- * Combines TimerDisplayState (pure timer logic) with UI-specific fields.
+ * Holds MeditationTimer directly and forwards computed properties.
+ * No intermediate display state — the ViewModel holds MeditationTimer? directly.
  */
 data class TimerUiState(
-    /** Timer display state (managed by reducer) */
-    val displayState: TimerDisplayState = TimerDisplayState.Initial,
+    /** Active meditation timer, null when idle */
+    val timer: MeditationTimer? = null,
+    /** Selected duration in minutes */
+    val selectedMinutes: Int = MeditationSettings.DEFAULT_DURATION_MINUTES,
+    /** Current affirmation index (rotates between sessions) */
+    val currentAffirmationIndex: Int = 0,
     /** Meditation settings */
     val settings: MeditationSettings = MeditationSettings.Default,
     /** Error message to show */
@@ -43,20 +49,22 @@ data class TimerUiState(
     /** Whether to show the settings hint tooltip (first-time onboarding) */
     val showSettingsHint: Boolean = false
 ) {
-    // Convenience accessors delegating to displayState
-    val timerState: TimerState get() = displayState.timerState
-    val selectedMinutes: Int get() = displayState.selectedMinutes
-    val remainingSeconds: Int get() = displayState.remainingSeconds
-    val totalSeconds: Int get() = displayState.totalSeconds
-    val progress: Float get() = displayState.progress
-    val remainingPreparationSeconds: Int get() = displayState.remainingPreparationSeconds
-    val currentAffirmationIndex: Int get() = displayState.currentAffirmationIndex
+    // Convenience accessors delegating to timer
+    val timerState: TimerState get() = timer?.state ?: TimerState.Idle
+    val remainingSeconds: Int get() = timer?.remainingSeconds ?: 0
+    val totalSeconds: Int get() = timer?.totalSeconds ?: 0
+    val progress: Float get() = timer?.progress ?: 0f
+    val remainingPreparationSeconds: Int get() = timer?.remainingPreparationSeconds ?: 0
 
-    // Computed properties from displayState
-    val isPreparation: Boolean get() = displayState.isPreparation
-    val canStart: Boolean get() = displayState.canStart
-    val canReset: Boolean get() = displayState.canReset
-    val formattedTime: String get() = displayState.formattedTime
+    // Computed properties
+    val isPreparation: Boolean get() = timer?.isPreparation ?: false
+    val canStart: Boolean get() = timerState == TimerState.Idle && selectedMinutes > 0
+    val canReset: Boolean get() = timer?.canReset ?: false
+    val formattedTime: String get() = timer?.formattedTime ?: formatDefaultTime()
+
+    private fun formatDefaultTime(): String {
+        return String.format(Locale.ROOT, "%02d:00", selectedMinutes)
+    }
 }
 
 /**
@@ -93,11 +101,13 @@ constructor(
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
         val initialSettings = runBlocking { settingsRepository.getSettings() }
         val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
+        val initialMinutes = MeditationSettings.validateDuration(
+            initialSettings.durationMinutes,
+            initialSettings.introductionId
+        )
         _uiState.value = TimerUiState(
-            displayState = TimerDisplayState.withDuration(
-                initialSettings.durationMinutes,
-                initialSettings.introductionId
-            ),
+            timer = null,
+            selectedMinutes = initialMinutes,
             settings = initialSettings,
             showSettingsHint = !hasSeenHint
         )
@@ -123,25 +133,20 @@ constructor(
      * Dispatches an action through the reducer and handles resulting effects.
      */
     private fun dispatch(action: TimerAction) {
-        val currentState = _uiState.value
-        val (newDisplayState, effects) =
-            TimerReducer.reduce(
-                currentState.displayState,
-                action,
-                currentState.settings
-            )
-
-        // Update state
-        _uiState.update { it.copy(displayState = newDisplayState) }
-
-        // Handle effects
+        val current = _uiState.value
+        val effects = TimerReducer.reduce(
+            action = action,
+            timerState = current.timerState,
+            selectedMinutes = current.selectedMinutes,
+            settings = current.settings
+        )
         effects.forEach { handleEffect(it) }
     }
 
     /**
      * Handles side effects produced by the reducer.
      */
-    @Suppress("CyclomaticComplexMethod") // B2 will rewrite handleEffect entirely
+    @Suppress("CyclomaticComplexMethod") // Effect handler covers all sealed class variants
     private fun handleEffect(effect: TimerEffect) {
         when (effect) {
             is TimerEffect.StartForegroundService -> {
@@ -152,67 +157,83 @@ constructor(
                     effect.gongVolume
                 )
             }
-            is TimerEffect.StopForegroundService -> {
-                foregroundService.stopService()
-            }
-            is TimerEffect.PlayStartGong -> {
-                foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
-            }
+            is TimerEffect.StopForegroundService -> foregroundService.stopService()
+            is TimerEffect.PlayStartGong -> foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
             is TimerEffect.PlayIntervalGong -> {
                 foregroundService.playIntervalGong(effect.gongSoundId, effect.gongVolume)
             }
-            is TimerEffect.PlayCompletionSound -> {
-                foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
-            }
-            is TimerEffect.StartIntroductionPhase -> {
-                timerRepository.startIntroduction()
-            }
-            is TimerEffect.PlayIntroduction -> {
-                foregroundService.playIntroduction(effect.introductionId)
-            }
-            is TimerEffect.StopIntroduction -> {
-                foregroundService.stopIntroduction()
-            }
-            is TimerEffect.EndIntroductionPhase -> {
-                timerRepository.endIntroduction()
-            }
+            is TimerEffect.PlayCompletionSound -> foregroundService.playGong(effect.gongSoundId, effect.gongVolume)
+            is TimerEffect.StartIntroductionPhase -> timerRepository.startIntroduction()
+            is TimerEffect.PlayIntroduction -> foregroundService.playIntroduction(effect.introductionId)
+            is TimerEffect.StopIntroduction -> foregroundService.stopIntroduction()
+            is TimerEffect.EndIntroductionPhase -> timerRepository.endIntroduction()
             is TimerEffect.StartBackgroundAudio -> {
                 foregroundService.updateBackgroundAudio(effect.soundId, effect.soundVolume)
             }
-            is TimerEffect.StartTimer -> {
-                viewModelScope.launch {
-                    val initialEvents = timerRepository.start(
-                        effect.durationMinutes,
-                        effect.preparationTimeSeconds,
-                        effect.introductionDurationSeconds
-                    )
-                    processTimerEvents(initialEvents)
-                }
-                startTimerLoop()
-            }
-            is TimerEffect.ResetTimer -> {
-                timerJob?.cancel()
-                viewModelScope.launch { timerRepository.reset() }
-            }
+            is TimerEffect.StartTimer -> handleStartTimer(effect)
+            is TimerEffect.ResetTimer -> handleResetTimer()
+            is TimerEffect.TransitionToRunning -> handleTransitionToRunning()
+            is TimerEffect.TransitionToCompleted -> handleTransitionToCompleted()
             is TimerEffect.SaveSettings ->
                 viewModelScope.launch { settingsRepository.updateSettings(effect.settings) }
-            // New effects added in shared-057 B1 — handled by B2 ViewModel rewrite
-            else -> { /* TransitionToRunning, TransitionToCompleted — no-op until B2 */ }
+        }
+    }
+
+    private fun handleStartTimer(effect: TimerEffect.StartTimer) {
+        viewModelScope.launch {
+            val initialEvents = timerRepository.start(
+                effect.durationMinutes,
+                effect.preparationTimeSeconds,
+                effect.introductionDurationSeconds
+            )
+            // Get the timer that was just initialized via a no-op tick
+            val result = timerRepository.tick(null)
+            if (result != null) {
+                _uiState.update { it.copy(timer = result.first) }
+            }
+            processTimerEvents(initialEvents)
+        }
+        startTimerLoop()
+    }
+
+    private fun handleResetTimer() {
+        timerJob?.cancel()
+        viewModelScope.launch {
+            timerRepository.reset()
+            _uiState.update { it.copy(timer = null) }
+        }
+    }
+
+    private fun handleTransitionToRunning() {
+        timerRepository.startRunning()
+        _uiState.update { state ->
+            state.copy(timer = state.timer?.withState(TimerState.Running))
+        }
+    }
+
+    private fun handleTransitionToCompleted() {
+        timerRepository.completeTimer()
+        _uiState.update { state ->
+            state.copy(timer = state.timer?.withState(TimerState.Completed))
         }
     }
 
     // MARK: - Public Methods (User Actions)
 
     fun setSelectedMinutes(minutes: Int) {
-        dispatch(TimerAction.SelectDuration(minutes))
-        // Also update settings for persistence
-        _uiState.update {
-            it.copy(settings = it.settings.withDurationMinutes(minutes))
+        _uiState.update { state ->
+            state.copy(
+                selectedMinutes = MeditationSettings.validateDuration(minutes, state.settings.introductionId),
+                settings = state.settings.withDurationMinutes(minutes)
+            )
         }
         saveSettings()
     }
 
     fun startTimer() {
+        _uiState.update { state ->
+            state.copy(currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT)
+        }
         dispatch(TimerAction.StartPressed)
     }
 
@@ -311,6 +332,10 @@ constructor(
         }
 
         _uiState.update { it.copy(settings = updatedSettings) }
+        // Sync selectedMinutes if idle
+        if (_uiState.value.timerState == TimerState.Idle) {
+            _uiState.update { it.copy(selectedMinutes = updatedSettings.durationMinutes) }
+        }
         saveSettings()
     }
 
@@ -353,26 +378,14 @@ constructor(
     private fun processTimerTick(): Boolean {
         val (updatedTimer, events) = timerRepository.tick(buildIntervalSettings()) ?: return false
 
-        // Dispatch tick action to update display state
-        dispatch(
-            TimerAction.Tick(
-                remainingSeconds = updatedTimer.remainingSeconds,
-                totalSeconds = updatedTimer.totalSeconds,
-                remainingPreparationSeconds = updatedTimer.remainingPreparationSeconds,
-                progress = updatedTimer.progress,
-                state = updatedTimer.state
-            )
-        )
+        // Update timer directly — no dispatch needed
+        _uiState.update { it.copy(timer = updatedTimer) }
 
         // Process domain events emitted by tick()
         processTimerEvents(events)
 
-        // Check if timer completed (events already dispatched TimerCompleted)
-        if (updatedTimer.isCompleted) {
-            return false
-        }
+        if (updatedTimer.isCompleted) return false
 
-        // Continue loop for all active states (EndGong does not tick, handled by audio callback)
         val activeStates = setOf(
             TimerState.Preparation,
             TimerState.StartGong,
@@ -401,8 +414,8 @@ constructor(
     /**
      * Handles gong audio completion callback.
      * Dispatches the appropriate action based on current timer state:
-     * - StartGong → StartGongFinished (start gong finished, proceed to next phase)
-     * - EndGong → EndGongFinished (completion gong finished, meditation complete)
+     * - StartGong -> StartGongFinished (start gong finished, proceed to next phase)
+     * - EndGong -> EndGongFinished (completion gong finished, meditation complete)
      */
     private fun onGongCompleted() {
         when (_uiState.value.timerState) {
@@ -415,16 +428,12 @@ constructor(
         viewModelScope.launch {
             settingsRepository.settingsFlow.collect { settings ->
                 _uiState.update { state ->
-                    val newDisplayState =
-                        if (state.timerState == TimerState.Idle) {
-                            state.displayState.copy(selectedMinutes = settings.durationMinutes)
-                        } else {
-                            state.displayState
-                        }
-                    state.copy(
-                        displayState = newDisplayState,
-                        settings = settings
-                    )
+                    val newMinutes = if (state.timerState == TimerState.Idle) {
+                        settings.durationMinutes
+                    } else {
+                        state.selectedMinutes
+                    }
+                    state.copy(settings = settings, selectedMinutes = newMinutes)
                 }
             }
         }
@@ -442,5 +451,7 @@ constructor(
         // Don't stop service here - let it run if timer is active
     }
 
-    companion object
+    companion object {
+        private const val AFFIRMATION_COUNT = 5
+    }
 }

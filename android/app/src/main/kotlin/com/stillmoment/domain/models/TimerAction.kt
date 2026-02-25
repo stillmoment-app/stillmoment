@@ -5,14 +5,10 @@ package com.stillmoment.domain.models
  *
  * This sealed class defines the complete set of user interactions and system events
  * that can affect the timer state. The reducer processes these actions
- * to produce new state and effects.
+ * to produce effects.
  */
 sealed class TimerAction {
     // MARK: - User Actions
-
-    /** User selected a duration in minutes */
-    @Deprecated("Duration selection is now a direct ViewModel operation, not a reducer action")
-    data class SelectDuration(val minutes: Int) : TimerAction()
 
     /** User pressed the start button */
     data object StartPressed : TimerAction()
@@ -21,16 +17,6 @@ sealed class TimerAction {
     data object ResetPressed : TimerAction()
 
     // MARK: - System Events
-
-    /** Timer tick with updated values from TimerRepository */
-    @Deprecated("ViewModel will update timer directly from repository.tick()")
-    data class Tick(
-        val remainingSeconds: Int,
-        val totalSeconds: Int,
-        val remainingPreparationSeconds: Int,
-        val progress: Float,
-        val state: TimerState
-    ) : TimerAction()
 
     /** Preparation phase finished, transitioning to start gong */
     data object PreparationFinished : TimerAction()
