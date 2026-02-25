@@ -21,7 +21,7 @@ Nach Ablauf des Meditationstimers ersetzt ein dedizierter Completion-Screen den 
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---

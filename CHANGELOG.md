@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr
 
 ### Added (iOS)
+- **Timer Completion Screen** – Nach Ablauf des Meditationstimers erscheint ein warmherziger Danke-Screen mit Herz-Icon statt der leeren 00:00-Anzeige, sanfter Slide-in-Animation und "Zurueck"-Button (Ticket: shared-052)
 - **Zen-Modus** – Tab-Bar wird bei laufender Meditation fliessend ausgeblendet (Timer und Geführte Meditationen), maximale Immersion ohne ablenkende UI-Elemente (Ticket: shared-066)
 - **Custom Audio Import** - Eigene Audio-Dateien (MP3, M4A, WAV) als Soundscapes und Einstimmungen importieren (Ticket: shared-065)
   - "Eigene Datei importieren" in Soundscape- und Einstimmungs-Subscreens
