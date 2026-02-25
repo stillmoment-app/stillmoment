@@ -109,8 +109,6 @@ struct BackgroundSoundSelectionView: View {
 
     private var soundsSection: some View {
         Section {
-            self.silenceRow
-
             ForEach(self.viewModel.availableBackgroundSounds) { sound in
                 self.soundRow(for: sound)
             }
@@ -206,26 +204,6 @@ struct BackgroundSoundSelectionView: View {
         .accessibilityLabel("accessibility.library.overflow")
         .accessibilityHint("accessibility.library.overflow.hint")
         .accessibilityIdentifier("praxis.background.overflow.\(file.id.uuidString)")
-    }
-
-    private var silenceRow: some View {
-        let isSelected = self.viewModel.backgroundSoundId == "silent"
-        return HStack {
-            Image(systemName: isSelected ? "speaker.slash.fill" : "speaker.slash")
-                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
-                .frame(width: 24)
-                .accessibilityHidden(true)
-            Text("praxis.editor.background.silence", bundle: .main)
-                .themeFont(.settingsLabel)
-            Spacer()
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            self.viewModel.backgroundSoundId = "silent"
-            self.viewModel.stopAllPreviews()
-        }
-        .cardRowBackground()
-        .accessibilityIdentifier("praxis.background.silent")
     }
 
     private func soundRow(for sound: BackgroundSound) -> some View {
