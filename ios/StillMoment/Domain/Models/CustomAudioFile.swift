@@ -43,6 +43,20 @@ struct CustomAudioFile: Identifiable, Codable, Equatable {
     /// When the file was imported
     let dateAdded: Date
 
+    // MARK: - Builders
+
+    /// Returns a copy of this file with a new display name.
+    func withName(_ newName: String) -> CustomAudioFile {
+        CustomAudioFile(
+            id: self.id,
+            name: newName,
+            filename: self.filename,
+            duration: self.duration,
+            type: self.type,
+            dateAdded: self.dateAdded
+        )
+    }
+
     // MARK: - Computed
 
     /// Human-readable duration string (e.g. "3:45") or localized "Unknown"

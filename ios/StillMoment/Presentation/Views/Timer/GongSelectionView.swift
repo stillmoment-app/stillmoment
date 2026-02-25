@@ -99,11 +99,7 @@ struct GongSelectionView: View {
 @available(iOS 17.0, *)
 #Preview("Gong Selection") {
     NavigationStack {
-        GongSelectionView(viewModel: PraxisEditorViewModel(
-            praxis: .default,
-            onSaved: { _ in },
-            onDeleted: {}
-        ))
+        GongSelectionView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
     }
 }
 #endif

@@ -33,14 +33,6 @@ struct TimerView: View {
                     Spacer(minLength: 8)
                 }
 
-                // Praxis Pill (only in idle state)
-                if self.viewModel.timerState == .idle {
-                    PraxisPillButton(praxisName: self.viewModel.displayPraxisName) {
-                        self.showPraxisSheet = true
-                    }
-                    .padding(.bottom, 4)
-                }
-
                 // Title
                 Text("welcome.title", bundle: .main)
                     .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
@@ -56,8 +48,7 @@ struct TimerView: View {
                     self.timerDisplay(geometry: geometry)
                 }
 
-                Spacer(minLength: 24)
-                    .frame(maxHeight: isCompactHeight ? 40 : 60)
+                Spacer(minLength: 16)
 
                 // Control Buttons
                 self.controlButtons
@@ -97,15 +88,14 @@ struct TimerView: View {
                 }
             }
         }
-        .sheet(isPresented: self.$showPraxisSheet) {
-            ThemeRootView {
-                PraxisSelectionSheet(
-                    viewModel: PraxisSelectionViewModel { [weak viewModel = self.viewModel] praxis in
-                        viewModel?.applyPraxis(praxis)
-                    }
-                ) {
-                    self.showPraxisSheet = false
-                }
+        .navigationDestination(isPresented: self.$navigateToEditor) {
+            if let vm = self.editorViewModel {
+                PraxisEditorView(viewModel: vm)
+            }
+        }
+        .onChange(of: self.navigateToEditor) { isPresented in
+            if !isPresented {
+                self.editorViewModel?.save()
             }
         }
     }
@@ -115,7 +105,8 @@ struct TimerView: View {
     @Environment(\.themeColors)
     private var theme
     @StateObject private var viewModel: TimerViewModel
-    @State private var showPraxisSheet = false
+    @State private var navigateToEditor = false
+    @State private var editorViewModel: PraxisEditorViewModel?
 
     private var stateText: String {
         switch self.viewModel.timerState {
@@ -199,10 +190,7 @@ struct TimerView: View {
 
             self.durationWheel(isCompact: isCompactHeight)
 
-            Text("duration.footer", bundle: .main)
-                .themeFont(.bodySecondary, size: isCompactHeight ? 14 : nil)
-                .italic()
-                .padding(.horizontal)
+            self.configurationPillsRow
                 .padding(.top, isCompactHeight ? 8 : 16)
         }
     }
@@ -222,6 +210,63 @@ struct TimerView: View {
         .accessibilityIdentifier("timer.picker.minutes")
         .accessibilityLabel("accessibility.durationPicker")
         .accessibilityHint("accessibility.durationPicker.hint")
+    }
+
+    private var configurationPillsRow: some View {
+        Button {
+            // Capture current wheel selection into the praxis so the editor preserves it on save
+            let praxisForEditor = self.viewModel.currentPraxis
+                .withDurationMinutes(self.viewModel.selectedMinutes)
+            self
+                .editorViewModel =
+                PraxisEditorViewModel(praxis: praxisForEditor) { [weak viewModel = self.viewModel] savedPraxis in
+                    viewModel?.updateFromPraxis(savedPraxis)
+                }
+            self.navigateToEditor = true
+        } label: {
+            VStack(spacing: 8) {
+                // Row 1: always-visible base settings
+                HStack(spacing: 8) {
+                    if let label = self.viewModel.preparationPillLabel {
+                        self.settingPill(icon: "hourglass", label: label)
+                    }
+                    self.settingPill(icon: "bell", label: self.viewModel.gongPillLabel)
+                    self.settingPill(icon: "wind", label: self.viewModel.backgroundPillLabel)
+                }
+
+                // Row 2: optional settings (only when active)
+                let hasExtras = self.viewModel.introductionPillLabel != nil
+                    || self.viewModel.intervalPillLabel != nil
+                if hasExtras {
+                    HStack(spacing: 8) {
+                        if let label = self.viewModel.introductionPillLabel {
+                            self.settingPill(icon: "headphones", label: label)
+                        }
+                        if let label = self.viewModel.intervalPillLabel {
+                            self.settingPill(icon: "arrow.clockwise", label: label)
+                        }
+                    }
+                }
+            }
+        }
+        .accessibilityLabel(NSLocalizedString("accessibility.timer.configuration.label", comment: ""))
+        .accessibilityHint(NSLocalizedString("accessibility.timer.configuration.hint", comment: ""))
+        .accessibilityIdentifier("timer.button.configuration")
+    }
+
+    private func settingPill(icon: String, label: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .accessibilityHidden(true)
+            Text(label)
+                .themeFont(.caption)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Capsule().fill(self.theme.accentBackground))
+        .overlay(Capsule().strokeBorder(self.theme.textSecondary.opacity(0.2), lineWidth: 0.5))
+        .foregroundColor(self.theme.textSecondary)
     }
 
     private func timerDisplay(geometry: GeometryProxy) -> some View {

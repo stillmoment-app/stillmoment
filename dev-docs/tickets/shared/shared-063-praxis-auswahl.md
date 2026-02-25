@@ -1,12 +1,16 @@
 # Ticket shared-063: Praxis-Auswahl (Pill-Button & Bottom Sheet)
 
-**Status**: [~] IN PROGRESS
+**Status**: [-] WONTFIX
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4 | Android ~4
 **Phase**: 3-Feature
 **Ursprung**: shared-051 (aufgeteilt)
 
 ---
+
+## WONTFIX
+
+Vereinfachung auf Einzelkonfiguration macht Auswahl-UI ueberfluessig. Stattdessen: tappbare Konfigurationsbeschreibung direkt auf dem Timer Screen (shared-068).
 
 ## Was
 

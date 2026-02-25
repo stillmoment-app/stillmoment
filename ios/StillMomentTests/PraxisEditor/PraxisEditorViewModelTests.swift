@@ -19,7 +19,6 @@ final class PraxisEditorViewModelTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockSoundRepository: MockBackgroundSoundRepository!
     var savedPraxis: Praxis?
-    var onDeletedCalled = false
 
     // swiftlint:disable:next implicitly_unwrapped_optional
     var testPraxis: Praxis!
@@ -30,10 +29,8 @@ final class PraxisEditorViewModelTests: XCTestCase {
         self.mockAudioService = MockAudioService()
         self.mockSoundRepository = MockBackgroundSoundRepository()
         self.savedPraxis = nil
-        self.onDeletedCalled = false
 
         self.testPraxis = Praxis(
-            name: "Morning Calm",
             durationMinutes: 20,
             preparationTimeEnabled: true,
             preparationTimeSeconds: 10,
@@ -49,9 +46,7 @@ final class PraxisEditorViewModelTests: XCTestCase {
             backgroundSoundVolume: 0.3
         )
 
-        // Ensure the mock repository has this praxis stored
-        self.mockRepository.praxes = [self.testPraxis]
-
+        self.mockRepository.currentPraxis = self.testPraxis
         self.sut = self.createSUT(praxis: self.testPraxis)
     }
 
@@ -72,36 +67,29 @@ final class PraxisEditorViewModelTests: XCTestCase {
             praxis: praxis,
             repository: self.mockRepository,
             audioService: self.mockAudioService,
-            soundRepository: self.mockSoundRepository,
-            onSaved: { [weak self] praxis in
-                self?.savedPraxis = praxis
-            },
-            onDeleted: { [weak self] in
-                self?.onDeletedCalled = true
-            }
-        )
+            soundRepository: self.mockSoundRepository
+        ) { [weak self] praxis in
+            self?.savedPraxis = praxis
+        }
     }
 
     // MARK: - Save
 
     func testSave_persistsUpdatedPraxis() {
         // Given
-        self.sut.name = "Evening Calm"
         self.sut.durationMinutes = 30
 
         // When
         self.sut.save()
 
         // Then
-        let persisted = self.mockRepository.praxes.first { $0.id == self.testPraxis.id }
-        XCTAssertEqual(persisted?.name, "Evening Calm")
-        XCTAssertEqual(persisted?.durationMinutes, 30)
+        XCTAssertEqual(self.mockRepository.savedPraxis?.durationMinutes, 30)
+        XCTAssertEqual(self.mockRepository.savedPraxis?.id, self.testPraxis.id)
     }
 
     func testSave_preservesOriginalId() {
         // Given
         let originalId = self.testPraxis.id
-        self.sut.name = "Renamed"
 
         // When
         self.sut.save()
@@ -112,7 +100,6 @@ final class PraxisEditorViewModelTests: XCTestCase {
 
     func testSave_callsOnSavedWithUpdatedPraxis() {
         // Given
-        self.sut.name = "Updated Name"
         self.sut.durationMinutes = 15
         self.sut.backgroundSoundId = "rain"
 
@@ -121,79 +108,8 @@ final class PraxisEditorViewModelTests: XCTestCase {
 
         // Then
         XCTAssertNotNil(self.savedPraxis)
-        XCTAssertEqual(self.savedPraxis?.name, "Updated Name")
         XCTAssertEqual(self.savedPraxis?.durationMinutes, 15)
         XCTAssertEqual(self.savedPraxis?.backgroundSoundId, "rain")
-    }
-
-    // MARK: - canSave
-
-    func testCanSave_falseForEmptyName() {
-        // Given
-        self.sut.name = ""
-
-        // Then
-        XCTAssertFalse(self.sut.canSave)
-    }
-
-    func testCanSave_falseForWhitespaceName() {
-        // Given
-        self.sut.name = "   "
-
-        // Then
-        XCTAssertFalse(self.sut.canSave)
-    }
-
-    func testCanSave_trueForNonEmptyName() {
-        // Given
-        self.sut.name = "My Meditation"
-
-        // Then
-        XCTAssertTrue(self.sut.canSave)
-    }
-
-    // MARK: - Delete
-
-    func testConfirmDelete_callsOnDeletedCallback() {
-        // Given: repository has two praxes so deletion is allowed
-        let secondPraxis = Praxis(name: "Second")
-        self.mockRepository.praxes = [self.testPraxis, secondPraxis]
-
-        // When
-        self.sut.confirmDelete()
-
-        // Then
-        XCTAssertTrue(self.onDeletedCalled)
-    }
-
-    func testConfirmDelete_whenLastPraxis_setsErrorMessage() {
-        // Given: only one praxis in repository
-        self.mockRepository.praxes = [self.testPraxis]
-
-        // When
-        self.sut.confirmDelete()
-
-        // Then
-        XCTAssertNotNil(self.sut.errorMessage)
-    }
-
-    func testConfirmDelete_whenLastPraxis_doesNotCallOnDeleted() {
-        // Given: only one praxis in repository
-        self.mockRepository.praxes = [self.testPraxis]
-
-        // When
-        self.sut.confirmDelete()
-
-        // Then
-        XCTAssertFalse(self.onDeletedCalled)
-    }
-
-    func testRequestDelete_setsShowDeleteConfirmation() {
-        // When
-        self.sut.requestDelete()
-
-        // Then
-        XCTAssertTrue(self.sut.showDeleteConfirmation)
     }
 
     // MARK: - Audio Preview

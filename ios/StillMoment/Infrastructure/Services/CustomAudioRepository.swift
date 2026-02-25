@@ -139,6 +139,16 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         return allAttunements.first { $0.id == id }
     }
 
+    func update(_ file: CustomAudioFile) throws {
+        var files = self.loadAll(type: file.type)
+        guard let index = files.firstIndex(where: { $0.id == file.id }) else {
+            throw CustomAudioError.fileNotFound(file.id)
+        }
+        files[index] = file
+        try self.saveFiles(files, type: file.type)
+        Logger.infrastructure.info("Updated custom audio: \(file.name)")
+    }
+
     // MARK: Private
 
     private let userDefaults: UserDefaults

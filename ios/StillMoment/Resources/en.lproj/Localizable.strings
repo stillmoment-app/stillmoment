@@ -7,7 +7,6 @@
 
 "welcome.title" = "Lovely to see you";
 "duration.question" = "How much time do you want to gift yourself?";
-"duration.footer" = "You deserve this pause";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -183,6 +182,8 @@
 "accessibility.endMeditation" = "End meditation";
 "accessibility.endMeditation.hint" = "Ends meditation and returns to timer selection";
 "accessibility.backToLibrary" = "Back to library";
+"accessibility.timer.configuration.label" = "Current configuration";
+"accessibility.timer.configuration.hint" = "Opens configuration editor";
 
 // MARK: - Time Units
 
@@ -281,45 +282,16 @@
 
 // MARK: - Praxis
 
-"praxis.default.name" = "Standard";
 "praxis.description.duration" = "%d min";
 "praxis.description.silent" = "Silence";
 "praxis.description.preparation" = "%ds preparation";
-
-// Pill Button
-"praxis.pill.label" = "Practice: %@";
-
-// Sheet
-"praxis.sheet.title" = "Practice";
-"praxis.create.button" = "New Practice";
-
-// Context Menu
-"praxis.edit.label" = "Edit";
-"praxis.delete.label" = "Delete";
-
-// Delete Confirmation Alert
-"praxis.delete.title" = "Delete Practice";
-"praxis.delete.message" = "Delete \"%@\"? This cannot be undone.";
-"praxis.delete.confirm" = "Delete";
-
-// Accessibility
-"accessibility.praxis.pill" = "Practice: %@. Tap to switch practice.";
-"accessibility.praxis.pill.hint" = "Opens practice selection";
-"accessibility.praxis.row" = "Practice %@";
-"accessibility.praxis.overflow" = "Options for practice %@";
-"accessibility.praxis.active" = "Active";
-"accessibility.praxis.create" = "Create new practice";
-"accessibility.praxis.create.hint" = "Creates a new practice with default settings";
-
-// Error
-"praxis.delete.error.lastPraxis" = "Cannot delete the last practice";
+"praxis.description.noIntervalGongs" = "No Interval Gong";
+"praxis.pill.preparation" = "%ds";
 
 // MARK: - Praxis Editor
 
-"praxis.editor.title" = "Edit Praxis";
-"praxis.editor.name.label" = "Name";
-"praxis.editor.name.placeholder" = "Name";
-"praxis.editor.duration.label" = "Default Duration";
+"praxis.editor.title" = "Configuration";
+"praxis.editor.duration.label" = "Duration";
 "praxis.editor.section.preparation" = "Preparation";
 "praxis.editor.section.audio" = "Audio & Sounds";
 "praxis.editor.section.gongs" = "Gongs";
@@ -333,20 +305,12 @@
 "praxis.editor.startGong.title" = "Start & End Gong";
 "praxis.editor.intervalGongs.row" = "Interval Gongs";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
-"praxis.editor.delete.button" = "Delete Praxis";
-"praxis.editor.delete.title" = "Delete Praxis?";
-"praxis.editor.delete.message" = "This praxis will be permanently deleted.";
-"praxis.editor.delete.confirm" = "Delete";
 "common.off" = "Off";
 "common.on" = "On";
 "accessibility.praxis.editor.cancel" = "Cancel";
 "accessibility.praxis.editor.cancel.hint" = "Discard changes and close";
 "accessibility.praxis.editor.done" = "Done";
 "accessibility.praxis.editor.done.hint" = "Save changes";
-"accessibility.praxis.editor.name" = "Praxis name";
-"accessibility.praxis.editor.name.hint" = "Enter a name for this praxis";
-"accessibility.praxis.editor.delete" = "Delete praxis";
-"accessibility.praxis.editor.delete.hint" = "Permanently delete this praxis";
 
 // MARK: - Custom Audio Import (shared-065)
 
@@ -374,3 +338,9 @@
 "custom.audio.accessibility.importButton.soundscape" = "Import own soundscape";
 "custom.audio.accessibility.importButton.attunement" = "Import own attunement";
 "custom.audio.accessibility.delete" = "Delete %@";
+"custom.audio.accessibility.rename" = "Edit name";
+"custom.audio.accessibility.rename.hint" = "Opens rename dialog";
+
+"custom.audio.rename.title" = "Edit Name";
+"custom.audio.rename.placeholder" = "Name";
+"custom.audio.rename.message" = "Enter a new name for this sound.";

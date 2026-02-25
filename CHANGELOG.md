@@ -11,8 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
 
 ### Changed (iOS)
+- **Praxis vereinfacht zu Einzelkonfiguration** - Kein Pill-Button, kein Auswahl-Sheet, keine benannten Presets mehr; stattdessen zeigt der Timer-Screen unter dem Duration-Picker tappbare Konfigurationspills, die direkt in den Editor fuehren (Ticket: shared-068)
+  - Konfigurationspills zeigen: Vorbereitung, Start-Gong, Hintergrundklang, Einstimmung (falls aktiv), Intervall-Gong-Status
+  - Antippen oeffnet den Praxis-Editor via Push-Navigation (kein Sheet)
+  - Editor ohne Name-Feld und ohne Loeschen-Button
+  - PraxisRepository vereinfacht auf `load()`/`save()`, Migration aus altem Multi-Praxis-Format erhalten
 - **Praxis-Editor ersetzt Settings-Sheet** - Alle Timer-Konfigurationen leben jetzt im Praxis-Editor statt im alten Settings-Sheet (Ticket: shared-064)
-- **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr; Praxis-Pill oeffnet den Editor
+- **Settings-Gear-Button entfernt** - Timer-Screen zeigt keinen Zahnrad-Button mehr
 
 ### Added (iOS)
 - **Custom Audio Import** - Eigene Audio-Dateien (MP3, M4A, WAV) als Soundscapes und Einstimmungen importieren (Ticket: shared-065)

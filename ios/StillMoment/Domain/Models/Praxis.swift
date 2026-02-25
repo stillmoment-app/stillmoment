@@ -2,23 +2,21 @@
 //  Praxis.swift
 //  Still Moment
 //
-//  Domain - Praxis Model (named, saveable timer configuration)
+//  Domain - Praxis Model (saveable timer configuration)
 //
 
 import Foundation
 
-/// A named, saveable timer configuration.
+/// A saveable timer configuration.
 ///
 /// "Praxis" (practice) represents a complete set of meditation timer settings
-/// that can be stored, recalled, and reused. Multiple Praxes allow users to
-/// quickly switch between different meditation configurations.
+/// that can be stored and recalled. There is exactly one active Praxis at a time.
 ///
 /// Praxis is an immutable value object — all state changes produce new instances.
 struct Praxis: Codable, Equatable, Identifiable {
     // MARK: - Properties
 
     let id: UUID
-    let name: String
 
     // Timer configuration (1:1 with MeditationSettings fields)
     let durationMinutes: Int
@@ -39,7 +37,6 @@ struct Praxis: Codable, Equatable, Identifiable {
 
     init(
         id: UUID = UUID(),
-        name: String,
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
         preparationTimeSeconds: Int = 15,
@@ -55,7 +52,6 @@ struct Praxis: Codable, Equatable, Identifiable {
         backgroundSoundVolume: Float = 0.15
     ) {
         self.id = id
-        self.name = name
         self.durationMinutes = Self.validateDuration(durationMinutes)
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
@@ -90,50 +86,14 @@ struct Praxis: Codable, Equatable, Identifiable {
     static func validateVolume(_ volume: Float) -> Float {
         min(max(volume, 0.0), 1.0)
     }
-
-    // MARK: - Short Description
-
-    /// A short, human-readable summary of the key configuration.
-    /// Example (DE): "10 Min · Stille · Tempelglocke · 15s Vorbereitung"
-    /// Example (EN): "10 min · Silence · Temple Bell · 15s preparation"
-    var shortDescription: String {
-        var parts: [String] = []
-
-        // Duration
-        parts.append(String(
-            format: NSLocalizedString("praxis.description.duration", comment: ""),
-            self.durationMinutes
-        ))
-
-        // Background sound (only show "Silence" label for silent, other sounds shown elsewhere)
-        if self.backgroundSoundId == "silent" {
-            parts.append(NSLocalizedString("praxis.description.silent", comment: ""))
-        }
-
-        // Start gong name
-        if let gong = GongSound.find(byId: startGongSoundId) {
-            parts.append(gong.name)
-        }
-
-        // Preparation time
-        if self.preparationTimeEnabled {
-            parts.append(String(
-                format: NSLocalizedString("praxis.description.preparation", comment: ""),
-                self.preparationTimeSeconds
-            ))
-        }
-
-        return parts.joined(separator: " · ")
-    }
 }
 
 // MARK: - Default Praxis
 
 extension Praxis {
-    /// Default "Standard" Praxis with factory defaults.
+    /// Default Praxis with factory defaults.
     static let `default` = Praxis(
         id: UUID(),
-        name: NSLocalizedString("praxis.default.name", comment: ""),
         durationMinutes: 10,
         preparationTimeEnabled: true,
         preparationTimeSeconds: 15,
@@ -157,7 +117,6 @@ extension Praxis {
     func withBackgroundSoundId(_ newId: String) -> Praxis {
         Praxis(
             id: self.id,
-            name: self.name,
             durationMinutes: self.durationMinutes,
             preparationTimeEnabled: self.preparationTimeEnabled,
             preparationTimeSeconds: self.preparationTimeSeconds,
@@ -174,11 +133,30 @@ extension Praxis {
         )
     }
 
+    /// Returns a new Praxis with the duration replaced.
+    func withDurationMinutes(_ minutes: Int) -> Praxis {
+        Praxis(
+            id: self.id,
+            durationMinutes: minutes,
+            preparationTimeEnabled: self.preparationTimeEnabled,
+            preparationTimeSeconds: self.preparationTimeSeconds,
+            startGongSoundId: self.startGongSoundId,
+            gongVolume: self.gongVolume,
+            introductionId: self.introductionId,
+            intervalGongsEnabled: self.intervalGongsEnabled,
+            intervalMinutes: self.intervalMinutes,
+            intervalMode: self.intervalMode,
+            intervalSoundId: self.intervalSoundId,
+            intervalGongVolume: self.intervalGongVolume,
+            backgroundSoundId: self.backgroundSoundId,
+            backgroundSoundVolume: self.backgroundSoundVolume
+        )
+    }
+
     /// Returns a new Praxis with the introduction replaced.
     func withIntroductionId(_ newId: String?) -> Praxis {
         Praxis(
             id: self.id,
-            name: self.name,
             durationMinutes: self.durationMinutes,
             preparationTimeEnabled: self.preparationTimeEnabled,
             preparationTimeSeconds: self.preparationTimeSeconds,
@@ -203,7 +181,6 @@ extension Praxis {
     init(migratingFrom settings: MeditationSettings, id: UUID = UUID()) {
         self.init(
             id: id,
-            name: NSLocalizedString("praxis.default.name", comment: ""),
             durationMinutes: settings.durationMinutes,
             preparationTimeEnabled: settings.preparationTimeEnabled,
             preparationTimeSeconds: settings.preparationTimeSeconds,

@@ -77,6 +77,22 @@ struct BackgroundSoundSelectionView: View {
             }
             Text(warning)
         }
+        .alert(
+            NSLocalizedString("custom.audio.rename.title", comment: ""),
+            isPresented: self.$showRenameAlert,
+            presenting: self.fileToRename
+        ) { file in
+            TextField(
+                NSLocalizedString("custom.audio.rename.placeholder", comment: ""),
+                text: self.$renameText
+            )
+            Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
+            Button(NSLocalizedString("common.save", comment: "")) {
+                self.viewModel.renameCustomAudio(file, newName: self.renameText)
+            }
+        } message: { _ in
+            Text("custom.audio.rename.message", bundle: .main)
+        }
     }
 
     // MARK: Private
@@ -87,6 +103,9 @@ struct BackgroundSoundSelectionView: View {
     @State private var showImportPicker = false
     @State private var fileToDelete: CustomAudioFile?
     @State private var showDeleteConfirmation = false
+    @State private var fileToRename: CustomAudioFile?
+    @State private var renameText: String = ""
+    @State private var showRenameAlert = false
 
     private var soundsSection: some View {
         Section {
@@ -135,42 +154,62 @@ struct BackgroundSoundSelectionView: View {
 
     private func customSoundRow(for file: CustomAudioFile) -> some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(file.name)
-                    .themeFont(.settingsLabel)
-                Text(file.formattedDuration)
-                    .themeFont(.settingsDescription)
-                    .foregroundColor(self.theme.textSecondary)
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(file.name)
+                        .themeFont(.settingsLabel)
+                    Text(file.formattedDuration)
+                        .themeFont(.settingsDescription)
+                        .foregroundColor(self.theme.textSecondary)
+                }
+                Spacer()
+                if self.viewModel.backgroundSoundId == file.id.uuidString {
+                    Image(systemName: "checkmark")
+                        .foregroundColor(self.theme.interactive)
+                }
             }
-            Spacer()
-            if self.viewModel.backgroundSoundId == file.id.uuidString {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-            }
-            Button {
-                self.fileToDelete = file
-                self.showDeleteConfirmation = true
-            } label: {
-                Image(systemName: "trash")
-                    .foregroundColor(self.theme.textSecondary)
-            }
-            .accessibilityLabel(
-                String(
-                    format: NSLocalizedString(
-                        "custom.audio.accessibility.delete",
-                        comment: ""
-                    ),
-                    file.name
+            .contentShape(Rectangle())
+            .onTapGesture {
+                self.viewModel.backgroundSoundId = file.id.uuidString
+                self.viewModel.playBackgroundPreview(
+                    soundId: file.id.uuidString,
+                    volume: self.viewModel.backgroundSoundVolume
                 )
-            )
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            self.viewModel.backgroundSoundId = file.id.uuidString
-            self.viewModel.stopAllPreviews()
+            }
+            self.customSoundRenameButton(for: file)
+            self.customSoundDeleteButton(for: file)
         }
         .cardRowBackground()
         .accessibilityIdentifier("praxis.background.custom.\(file.id.uuidString)")
+    }
+
+    private func customSoundRenameButton(for file: CustomAudioFile) -> some View {
+        Button {
+            self.fileToRename = file
+            self.renameText = file.name
+            self.showRenameAlert = true
+        } label: {
+            Image(systemName: "pencil")
+                .foregroundColor(self.theme.textSecondary)
+        }
+        .accessibilityLabel(NSLocalizedString("custom.audio.accessibility.rename", comment: ""))
+        .accessibilityHint(NSLocalizedString("custom.audio.accessibility.rename.hint", comment: ""))
+    }
+
+    private func customSoundDeleteButton(for file: CustomAudioFile) -> some View {
+        Button {
+            self.fileToDelete = file
+            self.showDeleteConfirmation = true
+        } label: {
+            Image(systemName: "trash")
+                .foregroundColor(self.theme.textSecondary)
+        }
+        .accessibilityLabel(
+            String(
+                format: NSLocalizedString("custom.audio.accessibility.delete", comment: ""),
+                file.name
+            )
+        )
     }
 
     private var silenceRow: some View {
@@ -237,11 +276,7 @@ struct BackgroundSoundSelectionView: View {
 @available(iOS 17.0, *)
 #Preview("Background Sound Selection") {
     NavigationStack {
-        BackgroundSoundSelectionView(viewModel: PraxisEditorViewModel(
-            praxis: .default,
-            onSaved: { _ in },
-            onDeleted: {}
-        ))
+        BackgroundSoundSelectionView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
     }
 }
 #endif

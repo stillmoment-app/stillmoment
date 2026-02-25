@@ -50,65 +50,64 @@ final class PraxisTests: XCTestCase {
 
     func testEquality_sameIdSameFields_areEqual() {
         let id = UUID()
-        let praxisA = Praxis(id: id, name: "Test", durationMinutes: 10)
-        let praxisB = Praxis(id: id, name: "Test", durationMinutes: 10)
+        let praxisA = Praxis(id: id, durationMinutes: 10)
+        let praxisB = Praxis(id: id, durationMinutes: 10)
         XCTAssertEqual(praxisA, praxisB)
     }
 
     func testEquality_differentId_areNotEqual() {
-        let praxisA = Praxis(id: UUID(), name: "Test", durationMinutes: 10)
-        let praxisB = Praxis(id: UUID(), name: "Test", durationMinutes: 10)
+        let praxisA = Praxis(id: UUID(), durationMinutes: 10)
+        let praxisB = Praxis(id: UUID(), durationMinutes: 10)
         XCTAssertNotEqual(praxisA, praxisB)
     }
 
-    func testEquality_sameIdDifferentName_areNotEqual() {
+    func testEquality_sameIdDifferentDuration_areNotEqual() {
         let id = UUID()
-        let praxisA = Praxis(id: id, name: "Morning", durationMinutes: 10)
-        let praxisB = Praxis(id: id, name: "Evening", durationMinutes: 10)
+        let praxisA = Praxis(id: id, durationMinutes: 10)
+        let praxisB = Praxis(id: id, durationMinutes: 20)
         XCTAssertNotEqual(praxisA, praxisB)
     }
 
     // MARK: - Validation
 
     func testValidation_durationBelow1_clampedTo1() {
-        let praxis = Praxis(name: "Test", durationMinutes: 0)
+        let praxis = Praxis(durationMinutes: 0)
         XCTAssertEqual(praxis.durationMinutes, 1)
     }
 
     func testValidation_durationAbove60_clampedTo60() {
-        let praxis = Praxis(name: "Test", durationMinutes: 90)
+        let praxis = Praxis(durationMinutes: 90)
         XCTAssertEqual(praxis.durationMinutes, 60)
     }
 
     func testValidation_intervalBelow1_clampedTo1() {
-        let praxis = Praxis(name: "Test", intervalMinutes: 0)
+        let praxis = Praxis(intervalMinutes: 0)
         XCTAssertEqual(praxis.intervalMinutes, 1)
     }
 
     func testValidation_intervalAbove60_clampedTo60() {
-        let praxis = Praxis(name: "Test", intervalMinutes: 120)
+        let praxis = Praxis(intervalMinutes: 120)
         XCTAssertEqual(praxis.intervalMinutes, 60)
     }
 
     func testValidation_volumeBelow0_clampedTo0() {
-        let praxis = Praxis(name: "Test", gongVolume: -0.5)
+        let praxis = Praxis(gongVolume: -0.5)
         XCTAssertEqual(praxis.gongVolume, 0.0, accuracy: 0.001)
     }
 
     func testValidation_volumeAbove1_clampedTo1() {
-        let praxis = Praxis(name: "Test", gongVolume: 1.5)
+        let praxis = Praxis(gongVolume: 1.5)
         XCTAssertEqual(praxis.gongVolume, 1.0, accuracy: 0.001)
     }
 
     func testValidation_invalidPreparationTime_snappedToNearest() {
         // 7 is closest to 5 (distance 2) and 10 (distance 3), so snaps to 5
-        let praxis = Praxis(name: "Test", preparationTimeSeconds: 7)
+        let praxis = Praxis(preparationTimeSeconds: 7)
         XCTAssertEqual(praxis.preparationTimeSeconds, 5)
     }
 
     func testValidation_allVolumesClamped() {
         let praxis = Praxis(
-            name: "Test",
             gongVolume: 2.0,
             intervalGongVolume: -1.0,
             backgroundSoundVolume: 1.5
@@ -116,53 +115,6 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.gongVolume, 1.0, accuracy: 0.001)
         XCTAssertEqual(praxis.intervalGongVolume, 0.0, accuracy: 0.001)
         XCTAssertEqual(praxis.backgroundSoundVolume, 1.0, accuracy: 0.001)
-    }
-
-    // MARK: - Short Description
-
-    func testShortDescription_includesDurationNumber() {
-        let praxis = Praxis(name: "Test", durationMinutes: 20)
-        XCTAssertTrue(praxis.shortDescription.contains("20"))
-    }
-
-    func testShortDescription_silentBackground_includesSilenceLabel() {
-        // Given: silent background
-        let praxis = Praxis(name: "Test", backgroundSoundId: "silent")
-
-        // Then: shortDescription contains separator between multiple parts
-        let desc = praxis.shortDescription
-        XCTAssertTrue(desc.contains("·"), "shortDescription should have separator")
-        let partsCount = desc.components(separatedBy: " · ").count
-        XCTAssertGreaterThan(partsCount, 1)
-    }
-
-    func testShortDescription_nonSilentBackground_doesNotIncludeSilenceLabel() {
-        let silent = Praxis(name: "Test", backgroundSoundId: "silent")
-        let forest = Praxis(name: "Test", backgroundSoundId: "forest")
-        // forest has fewer parts (no silence label)
-        let silentParts = silent.shortDescription.components(separatedBy: " · ").count
-        let forestParts = forest.shortDescription.components(separatedBy: " · ").count
-        XCTAssertGreaterThan(silentParts, forestParts)
-    }
-
-    func testShortDescription_withPreparationEnabled_includesMoreParts() {
-        let withPrep = Praxis(name: "Test", preparationTimeEnabled: true, preparationTimeSeconds: 15)
-        let withoutPrep = Praxis(name: "Test", preparationTimeEnabled: false)
-        let withParts = withPrep.shortDescription.components(separatedBy: " · ").count
-        let withoutParts = withoutPrep.shortDescription.components(separatedBy: " · ").count
-        XCTAssertGreaterThan(withParts, withoutParts)
-    }
-
-    func testShortDescription_preparationSeconds_includesNumber() {
-        let praxis = Praxis(name: "Test", preparationTimeEnabled: true, preparationTimeSeconds: 20)
-        XCTAssertTrue(praxis.shortDescription.contains("20"))
-    }
-
-    func testShortDescription_validGongId_includesGongName() {
-        let praxis = Praxis(name: "Test", startGongSoundId: GongSound.defaultSoundId)
-        let gongName = GongSound.find(byId: GongSound.defaultSoundId)?.name ?? ""
-        XCTAssertFalse(gongName.isEmpty)
-        XCTAssertTrue(praxis.shortDescription.contains(gongName))
     }
 
     // MARK: - Migration from MeditationSettings
@@ -221,7 +173,6 @@ final class PraxisTests: XCTestCase {
         // Given
         let praxis = Praxis(
             id: UUID(),
-            name: "Test",
             durationMinutes: 25,
             preparationTimeEnabled: false,
             preparationTimeSeconds: 10,
@@ -254,5 +205,46 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(settings.intervalGongVolume, 0.6, accuracy: 0.001)
         XCTAssertEqual(settings.backgroundSoundId, "forest")
         XCTAssertEqual(settings.backgroundSoundVolume, 0.3, accuracy: 0.001)
+    }
+
+    // MARK: - Builder Methods
+
+    func testWithBackgroundSoundId_replacesId_preservesOtherFields() {
+        // Given
+        let original = Praxis(durationMinutes: 20, backgroundSoundId: "forest")
+
+        // When
+        let updated = original.withBackgroundSoundId("rain")
+
+        // Then
+        XCTAssertEqual(updated.backgroundSoundId, "rain")
+        XCTAssertEqual(updated.durationMinutes, 20)
+        XCTAssertEqual(updated.id, original.id)
+    }
+
+    func testWithDurationMinutes_replacesDuration_preservesOtherFields() {
+        // Given
+        let original = Praxis(durationMinutes: 10, backgroundSoundId: "forest")
+
+        // When
+        let updated = original.withDurationMinutes(25)
+
+        // Then
+        XCTAssertEqual(updated.durationMinutes, 25)
+        XCTAssertEqual(updated.backgroundSoundId, "forest")
+        XCTAssertEqual(updated.id, original.id)
+    }
+
+    func testWithIntroductionId_setsId_preservesOtherFields() {
+        // Given
+        let original = Praxis(durationMinutes: 15, introductionId: nil)
+
+        // When
+        let updated = original.withIntroductionId("breath")
+
+        // Then
+        XCTAssertEqual(updated.introductionId, "breath")
+        XCTAssertEqual(updated.durationMinutes, 15)
+        XCTAssertEqual(updated.id, original.id)
     }
 }

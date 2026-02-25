@@ -35,13 +35,15 @@ final class TimerViewModel: ObservableObject {
         self.praxisRepository = praxisRepository
         self.customAudioRepository = customAudioRepository
 
-        self.settings = settingsRepository.load()
-        // Initialize selected minutes from saved duration (clamped to minimum for introduction)
+        // Load current Praxis and apply its configuration
+        let praxis = praxisRepository.load()
+        self.currentPraxis = praxis
+        self.settings = praxis.toMeditationSettings()
+        // Initialize selected minutes from Praxis duration (clamped to minimum for introduction)
         self.selectedMinutes = MeditationSettings.validateDuration(
-            self.settings.durationMinutes,
-            introductionId: self.settings.introductionId
+            praxis.durationMinutes,
+            introductionId: praxis.introductionId
         )
-        self.activePraxisName = Self.resolveActivePraxisName(from: praxisRepository)
         self.setupBindings()
     }
 
@@ -61,8 +63,8 @@ final class TimerViewModel: ObservableObject {
     /// Error message if any operation fails
     @Published var errorMessage: String?
 
-    /// Name of the currently active Praxis (shown in pill button)
-    @Published var activePraxisName: String = ""
+    /// The current Praxis configuration (single config, loaded from repository on init)
+    @Published var currentPraxis: Praxis = .default
 
     /// Current affirmation index (rotates between sessions)
     var currentAffirmationIndex: Int = 0
@@ -152,15 +154,10 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.resetPressed)
     }
 
-    /// Display name for the active Praxis, with fallback for empty name
-    var displayPraxisName: String {
-        self.activePraxisName.isEmpty
-            ? NSLocalizedString("praxis.default.name", comment: "")
-            : self.activePraxisName
-    }
-
-    /// Applies a Praxis configuration: updates settings, selectedMinutes, and active praxis name
-    func applyPraxis(_ praxis: Praxis) {
+    /// Applies a Praxis configuration: updates currentPraxis, settings, and selectedMinutes.
+    /// Called by the PraxisEditorView's onSaved callback.
+    func updateFromPraxis(_ praxis: Praxis) {
+        self.currentPraxis = praxis
         let settings = praxis.toMeditationSettings()
         self.settings = settings
         self.selectedMinutes = MeditationSettings.validateDuration(
@@ -168,8 +165,7 @@ final class TimerViewModel: ObservableObject {
             introductionId: praxis.introductionId
         )
         self.settingsRepository.save(settings)
-        self.activePraxisName = praxis.name
-        Logger.viewModel.info("Applied praxis", metadata: ["name": praxis.name])
+        Logger.viewModel.info("Updated from praxis")
     }
 
     // MARK: Private
@@ -179,20 +175,11 @@ final class TimerViewModel: ObservableObject {
     private let settingsRepository: TimerSettingsRepository
     let soundRepository: BackgroundSoundRepositoryProtocol
     private let praxisRepository: PraxisRepository
-    private let customAudioRepository: CustomAudioRepositoryProtocol
+    let customAudioRepository: CustomAudioRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
     private var minutesBeforeIntroduction: Int?
-
-    private static func resolveActivePraxisName(from repository: PraxisRepository) -> String {
-        let all = repository.loadAll()
-        if let id = repository.activePraxisId,
-           let praxis = all.first(where: { $0.id == id }) {
-            return praxis.name
-        }
-        return all.first?.name ?? ""
-    }
 
     // MARK: - Effect Execution
 
@@ -474,6 +461,10 @@ private extension TimerViewModel {
 private extension TimerViewModel {
     func executeStartTimer(durationMinutes: Int) {
         self.settings.durationMinutes = durationMinutes
+        // Persist the selected duration so the next launch restores it
+        let updatedPraxis = self.currentPraxis.withDurationMinutes(durationMinutes)
+        self.currentPraxis = updatedPraxis
+        self.praxisRepository.save(updatedPraxis)
         // Use preparation time from settings, or 0 if disabled
         let preparationTime = self.settings.preparationTimeEnabled
             ? self.settings.preparationTimeSeconds
@@ -510,4 +501,5 @@ extension TimerViewModel {
 }
 
 // Audio Preview and SwiftUI Preview support: see TimerViewModel+Preview.swift
+// Configuration description labels: see TimerViewModel+ConfigurationDescription.swift
 // (access level widened for cross-file extension use)

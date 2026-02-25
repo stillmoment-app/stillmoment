@@ -118,3 +118,12 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 - Soundscapes und Einstimmungen (Attunements) getrennt speichern (verschiedene Verzeichnisse / Typen), auch wenn das Modell aehnlich ist.
 - Vorhoer-Funktion fuer Custom Sounds ist bewusst NICHT Teil dieses Tickets — kann als Follow-up ergaenzt werden.
 - Umbenennen von Custom Sounds ist bewusst NICHT Teil dieses Tickets — reduziert Komplexitaet. Dateiname ist der initiale Name.
+
+### Hinweis fuer Android-Implementierung
+
+**shared-069 (Sound-Auswahl UX-Konsistenz)** definiert das Ziel-UX-Pattern fuer die Auswahllisten. Android soll dieses direkt beim Erstimplementieren umsetzen — nicht erst das iOS-Ist-Pattern kopieren und danach nochmal anfassen:
+
+- **Kein direktes Pencil/Trash-Icon** in der Row — stattdessen Overflow-Menü (3 Punkte, rechts) mit "Bearbeiten" und "Loeschen"
+- **Generisches Icon links** fuer Custom-Audio-Rows: `waveform`-aequivalent (Android: `Icons.Default.Graphic Equalizer` o.ä.)
+- **Icon-Farbe** wechselt bei Auswahl von sekundaer → interaktiv (filled-Variante)
+- **Preview bei Einstimmungs-Rows**: Tap spielt Hoerprobe ab (analog zu Hintergrundklaengen)

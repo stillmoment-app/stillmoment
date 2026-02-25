@@ -43,10 +43,8 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             repository: repo,
             audioService: MockAudioService(),
             soundRepository: MockBackgroundSoundRepository(),
-            customAudioRepository: audioRepo,
-            onSaved: { _ in },
-            onDeleted: {}
-        )
+            customAudioRepository: audioRepo
+        ) { _ in }
     }
 
     // MARK: - importCustomAudio
@@ -117,10 +115,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             return XCTFail("mockCustomAudioRepo not initialized")
         }
         mockRepo.stubbedSoundscapes = [file]
-        let praxis = Praxis(
-            name: "Test",
-            backgroundSoundId: file.id.uuidString
-        )
+        let praxis = Praxis(backgroundSoundId: file.id.uuidString)
         let sut = self.createSUT(praxis: praxis)
         sut.backgroundSoundId = file.id.uuidString
 
@@ -146,8 +141,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             return XCTFail("mockCustomAudioRepo not initialized")
         }
         mockRepo.stubbedAttunements = [file]
-        let praxis = Praxis(name: "Test")
-        let sut = self.createSUT(praxis: praxis)
+        let sut = self.createSUT()
         sut.introductionId = file.id.uuidString
 
         // When
@@ -184,7 +178,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
 
     // MARK: - usageCount
 
-    func testUsageCount_soundscape_countsPraxesUsingIt() {
+    func testUsageCount_soundscape_countsCurrentPraxisUsingIt() {
         // Given
         let file = CustomAudioFile(
             id: UUID(),
@@ -194,11 +188,11 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             type: .soundscape,
             dateAdded: Date()
         )
-        let praxis = Praxis(name: "Test", backgroundSoundId: file.id.uuidString)
+        let praxis = Praxis(backgroundSoundId: file.id.uuidString)
         guard let mockPraxisRepo = self.mockPraxisRepo else {
             return XCTFail("mockPraxisRepo not initialized")
         }
-        mockPraxisRepo.praxes = [praxis]
+        mockPraxisRepo.currentPraxis = praxis
         let sut = self.createSUT(praxis: praxis)
 
         // When
@@ -208,7 +202,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         XCTAssertEqual(count, 1)
     }
 
-    func testUsageCount_attunement_countsPraxesUsingIt() {
+    func testUsageCount_attunement_countsCurrentPraxisUsingIt() {
         // Given
         let file = CustomAudioFile(
             id: UUID(),
@@ -218,11 +212,11 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             type: .attunement,
             dateAdded: Date()
         )
-        let praxis = Praxis(name: "Test", introductionId: file.id.uuidString)
+        let praxis = Praxis(introductionId: file.id.uuidString)
         guard let mockPraxisRepo = self.mockPraxisRepo else {
             return XCTFail("mockPraxisRepo not initialized")
         }
-        mockPraxisRepo.praxes = [praxis]
+        mockPraxisRepo.currentPraxis = praxis
         let sut = self.createSUT(praxis: praxis)
 
         // When
@@ -245,7 +239,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         guard let mockPraxisRepo = self.mockPraxisRepo else {
             return XCTFail("mockPraxisRepo not initialized")
         }
-        mockPraxisRepo.praxes = [Praxis(name: "Default")]
+        mockPraxisRepo.currentPraxis = .default
         let sut = self.createSUT()
 
         // When
@@ -253,6 +247,148 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
 
         // Then
         XCTAssertEqual(count, 0)
+    }
+
+    // MARK: - renameCustomAudio
+
+    func testRenameCustomAudio_updatesList() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Old Name",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        let sut = self.createSUT()
+
+        // When
+        sut.renameCustomAudio(file, newName: "New Name")
+
+        // Then — mock was called with updated file
+        XCTAssertEqual(mockRepo.updatedFiles.first?.name, "New Name")
+        XCTAssertEqual(mockRepo.updatedFiles.first?.id, file.id)
+    }
+
+    func testRenameCustomAudio_refreshesPublishedList() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Before",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        let sut = self.createSUT()
+
+        // When — mock updates the stub in-place (MockCustomAudioRepository.update does this)
+        sut.renameCustomAudio(file, newName: "After")
+
+        // Then — customSoundscapes reflects the rename
+        XCTAssertEqual(sut.customSoundscapes.first?.name, "After")
+    }
+
+    func testRenameCustomAudio_ignoresEmptyName() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Original",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        let sut = self.createSUT()
+
+        // When — empty string
+        sut.renameCustomAudio(file, newName: "")
+
+        // Then — update was never called
+        XCTAssertTrue(mockRepo.updatedFiles.isEmpty)
+    }
+
+    func testRenameCustomAudio_ignoresWhitespaceOnlyName() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Original",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        let sut = self.createSUT()
+
+        // When — whitespace only
+        sut.renameCustomAudio(file, newName: "   ")
+
+        // Then — update was never called
+        XCTAssertTrue(mockRepo.updatedFiles.isEmpty)
+    }
+
+    func testRenameCustomAudio_trimsWhitespace() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Name",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        let sut = self.createSUT()
+
+        // When — name with surrounding whitespace
+        sut.renameCustomAudio(file, newName: "  Trimmed  ")
+
+        // Then — stored name is trimmed
+        XCTAssertEqual(mockRepo.updatedFiles.first?.name, "Trimmed")
+    }
+
+    func testRenameCustomAudio_error_setsCustomAudioError() {
+        // Given
+        let file = CustomAudioFile(
+            id: UUID(),
+            name: "Name",
+            filename: "sound.mp3",
+            duration: 60,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        mockRepo.stubbedSoundscapes = [file]
+        mockRepo.shouldThrowOnUpdate = CustomAudioError.fileNotFound(file.id)
+        let sut = self.createSUT()
+
+        // When
+        sut.renameCustomAudio(file, newName: "New")
+
+        // Then
+        XCTAssertNotNil(sut.customAudioError)
     }
 
     // MARK: - loadCustomAudio

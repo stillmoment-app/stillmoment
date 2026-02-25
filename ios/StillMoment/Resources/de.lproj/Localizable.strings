@@ -7,7 +7,6 @@
 
 "welcome.title" = "Schön, dass du da bist";
 "duration.question" = "Wie viel Zeit schenkst du dir?";
-"duration.footer" = "Du verdienst diese Pause";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -183,6 +182,8 @@
 "accessibility.endMeditation" = "Meditation beenden";
 "accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
 "accessibility.backToLibrary" = "Zurück zur Bibliothek";
+"accessibility.timer.configuration.label" = "Aktuelle Konfiguration";
+"accessibility.timer.configuration.hint" = "Öffnet den Konfigurationseditor";
 
 // MARK: - Time Units
 
@@ -281,45 +282,16 @@
 
 // MARK: - Praxis
 
-"praxis.default.name" = "Standard";
 "praxis.description.duration" = "%d Min";
 "praxis.description.silent" = "Stille";
 "praxis.description.preparation" = "%ds Vorbereitung";
-
-// Pill Button
-"praxis.pill.label" = "Praxis: %@";
-
-// Sheet
-"praxis.sheet.title" = "Praxis";
-"praxis.create.button" = "Neue Praxis";
-
-// Context Menu
-"praxis.edit.label" = "Bearbeiten";
-"praxis.delete.label" = "Löschen";
-
-// Delete Confirmation Alert
-"praxis.delete.title" = "Praxis löschen";
-"praxis.delete.message" = "\"%@\" löschen? Dies kann nicht rückgängig gemacht werden.";
-"praxis.delete.confirm" = "Löschen";
-
-// Accessibility
-"accessibility.praxis.pill" = "Praxis: %@. Tippen zum Wechseln.";
-"accessibility.praxis.pill.hint" = "Öffnet die Praxis-Auswahl";
-"accessibility.praxis.row" = "Praxis %@";
-"accessibility.praxis.overflow" = "Optionen für Praxis %@";
-"accessibility.praxis.active" = "Aktiv";
-"accessibility.praxis.create" = "Neue Praxis erstellen";
-"accessibility.praxis.create.hint" = "Erstellt eine neue Praxis mit Standardeinstellungen";
-
-// Error
-"praxis.delete.error.lastPraxis" = "Die letzte Praxis kann nicht gelöscht werden";
+"praxis.description.noIntervalGongs" = "Kein Intervallton";
+"praxis.pill.preparation" = "%ds";
 
 // MARK: - Praxis Editor
 
-"praxis.editor.title" = "Praxis bearbeiten";
-"praxis.editor.name.label" = "Name";
-"praxis.editor.name.placeholder" = "Name";
-"praxis.editor.duration.label" = "Standard-Dauer";
+"praxis.editor.title" = "Konfiguration";
+"praxis.editor.duration.label" = "Dauer";
 "praxis.editor.section.preparation" = "Vorbereitung";
 "praxis.editor.section.audio" = "Audio & Klänge";
 "praxis.editor.section.gongs" = "Gongs";
@@ -333,20 +305,12 @@
 "praxis.editor.startGong.title" = "Start & Ende";
 "praxis.editor.intervalGongs.row" = "Intervall-Gongs";
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
-"praxis.editor.delete.button" = "Praxis löschen";
-"praxis.editor.delete.title" = "Praxis löschen?";
-"praxis.editor.delete.message" = "Diese Praxis wird dauerhaft gelöscht.";
-"praxis.editor.delete.confirm" = "Löschen";
 "common.off" = "Aus";
 "common.on" = "Ein";
 "accessibility.praxis.editor.cancel" = "Abbrechen";
 "accessibility.praxis.editor.cancel.hint" = "Änderungen verwerfen und schließen";
 "accessibility.praxis.editor.done" = "Fertig";
 "accessibility.praxis.editor.done.hint" = "Änderungen speichern";
-"accessibility.praxis.editor.name" = "Praxis-Name";
-"accessibility.praxis.editor.name.hint" = "Namen für diese Praxis eingeben";
-"accessibility.praxis.editor.delete" = "Praxis löschen";
-"accessibility.praxis.editor.delete.hint" = "Diese Praxis dauerhaft löschen";
 
 // MARK: - Custom Audio Import (shared-065)
 
@@ -364,7 +328,7 @@
 "custom.audio.delete.confirm.message" = "Diese Datei wird dauerhaft gelöscht.";
 "custom.audio.delete.confirm.button" = "Löschen";
 "custom.audio.delete.warning.single" = "Wird in 1 Praxis verwendet. Diese Praxis fällt auf Stille / Ohne Einstimmung zurück.";
-"custom.audio.delete.warning.multiple" = "Wird in %d Praxis verwendet. Diese Praxen fallen auf Stille / Ohne Einstimmung zurück.";
+"custom.audio.delete.warning.multiple" = "Wird in %d Praxen verwendet. Diese Praxen fallen auf Stille / Ohne Einstimmung zurück.";
 
 "custom.audio.error.unsupportedFormat" = "Format nicht unterstützt: .%@. Unterstützt: MP3, M4A, WAV.";
 "custom.audio.error.fileCopyFailed" = "Datei konnte nicht importiert werden. Bitte erneut versuchen.";
@@ -374,3 +338,9 @@
 "custom.audio.accessibility.importButton.soundscape" = "Eigenen Soundscape importieren";
 "custom.audio.accessibility.importButton.attunement" = "Eigene Einstimmung importieren";
 "custom.audio.accessibility.delete" = "%@ löschen";
+"custom.audio.accessibility.rename" = "Name bearbeiten";
+"custom.audio.accessibility.rename.hint" = "Öffnet Dialog zur Umbenennung";
+
+"custom.audio.rename.title" = "Name bearbeiten";
+"custom.audio.rename.placeholder" = "Name";
+"custom.audio.rename.message" = "Gib dem Klang einen neuen Namen.";

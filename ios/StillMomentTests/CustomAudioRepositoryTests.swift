@@ -412,6 +412,87 @@ final class CustomAudioRepositoryTests: XCTestCase {
         XCTAssertNil(fileURL)
     }
 
+    // MARK: - update
+
+    func testUpdate_changesName() throws {
+        guard let sut else {
+            return XCTFail("sut not initialized")
+        }
+
+        // Given
+        let url = try createTempAudioFile(name: "original.mp3")
+        let imported = try sut.importFile(from: url, type: .soundscape)
+
+        // When
+        let renamed = imported.withName("New Name")
+        try sut.update(renamed)
+
+        // Then
+        let loaded = sut.loadAll(type: .soundscape)
+        XCTAssertEqual(loaded.first?.name, "New Name")
+    }
+
+    func testUpdate_preservesFilename() throws {
+        guard let sut else {
+            return XCTFail("sut not initialized")
+        }
+
+        // Given
+        let url = try createTempAudioFile(name: "myfile.mp3")
+        let imported = try sut.importFile(from: url, type: .soundscape)
+        let originalFilename = imported.filename
+
+        // When
+        try sut.update(imported.withName("Different Name"))
+
+        // Then — filename (disk path) is unchanged
+        let loaded = try XCTUnwrap(sut.loadAll(type: .soundscape).first)
+        XCTAssertEqual(loaded.filename, originalFilename)
+    }
+
+    func testUpdate_unknownId_throwsFileNotFound() {
+        guard let sut else {
+            return XCTFail("sut not initialized")
+        }
+
+        // Given — a file that was never imported
+        let unknown = CustomAudioFile(
+            id: UUID(),
+            name: "Ghost",
+            filename: "ghost.mp3",
+            duration: nil,
+            type: .soundscape,
+            dateAdded: Date()
+        )
+
+        // When / Then
+        XCTAssertThrowsError(try sut.update(unknown)) { error in
+            guard case CustomAudioError.fileNotFound = error else {
+                return XCTFail("Expected fileNotFound, got \(error)")
+            }
+        }
+    }
+
+    func testUpdate_persistsAcrossRepositoryInstances() throws {
+        guard let sut, let testDefaults else {
+            return XCTFail("sut not initialized")
+        }
+
+        // Given
+        let url = try createTempAudioFile(name: "before.mp3")
+        let imported = try sut.importFile(from: url, type: .soundscape)
+        try sut.update(imported.withName("After"))
+
+        // When — fresh repository with same UserDefaults
+        let repo2 = CustomAudioRepository(
+            userDefaults: testDefaults,
+            fileManager: .default
+        )
+
+        // Then
+        XCTAssertEqual(repo2.loadAll(type: .soundscape).first?.name, "After")
+    }
+
     // MARK: - CustomAudioError
 
     func testUnsupportedFormatError_hasLocalizedDescription() {

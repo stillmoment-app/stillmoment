@@ -13,6 +13,7 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
 
     var importedFiles: [(URL, CustomAudioType)] = []
     var deletedIds: [UUID] = []
+    var updatedFiles: [CustomAudioFile] = []
 
     // MARK: - Configurable returns
 
@@ -22,6 +23,7 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     var stubbedFileURL: URL?
     var shouldThrowOnImport: Error?
     var shouldThrowOnDelete: Error?
+    var shouldThrowOnUpdate: Error?
 
     // MARK: - Protocol
 
@@ -62,5 +64,15 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     func findFile(byId id: UUID) -> CustomAudioFile? {
         self.stubbedFindResult
             ?? (self.stubbedSoundscapes + self.stubbedAttunements).first { $0.id == id }
+    }
+
+    func update(_ file: CustomAudioFile) throws {
+        if let error = self.shouldThrowOnUpdate { throw error }
+        self.updatedFiles.append(file)
+        if let index = self.stubbedSoundscapes.firstIndex(where: { $0.id == file.id }) {
+            self.stubbedSoundscapes[index] = file
+        } else if let index = self.stubbedAttunements.firstIndex(where: { $0.id == file.id }) {
+            self.stubbedAttunements[index] = file
+        }
     }
 }

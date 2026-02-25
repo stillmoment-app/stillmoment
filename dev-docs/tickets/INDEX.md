@@ -86,11 +86,14 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-060](shared/shared-060-domain-bounded-contexts.md) | Domain-Layer Bounded Contexts | 2-Architektur | [ ] | [ ] |
 | [shared-061](shared/shared-061-einstellungen-tab.md) | Einstellungen-Tab und 3-Tab-Navigation | 2-Architektur | [x] | [ ] |
 | [shared-062](shared/shared-062-praxis-datenmodell.md) | Praxis-Datenmodell und Persistenz | 2-Architektur | [x] | [ ] |
-| [shared-063](shared/shared-063-praxis-auswahl.md) | Praxis-Auswahl (Pill-Button & Bottom Sheet) | 3-Feature | [x] | [ ] |
+| [shared-063](shared/shared-063-praxis-auswahl.md) | ~~Praxis-Auswahl (Pill-Button & Bottom Sheet)~~ WONTFIX | 3-Feature | — | — |
 | [shared-064](shared/shared-064-praxis-editor.md) | Praxis-Editor und Settings-Abloesung | 3-Feature | [x] | [ ] |
 | [shared-065](shared/shared-065-custom-audio-import.md) | Custom Audio Import | 3-Feature | [x] | [ ] |
 | [shared-066](shared/shared-066-zen-modus.md) | Zen-Modus (Tab-Bar ausblenden) | 4-Polish | [ ] | [ ] |
+| [shared-068](shared/shared-068-praxis-vereinfachen.md) | Praxis vereinfachen – Einzelkonfiguration | 2-Architektur | [x] | [ ] |
 | [shared-067](shared/shared-067-rename-introduction-attunement.md) | Code-Rename Introduction → Attunement | 4-Polish | [ ] | [ ] |
+| [shared-069](shared/shared-069-sound-selection-ux-konsistenz.md) | Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor) | 4-Polish | [ ] | [ ] |
+| [shared-070](shared/shared-070-guided-settings-in-globale-settings.md) | Guided-Meditation-Einstellungen in globale Settings | 4-Polish | [ ] | [ ] |
 
 ---
 

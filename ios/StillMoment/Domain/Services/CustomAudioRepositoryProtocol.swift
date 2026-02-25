@@ -65,4 +65,10 @@ protocol CustomAudioRepositoryProtocol {
 
     /// Finds a custom audio file by ID across all types, or nil if not found.
     func findFile(byId id: UUID) -> CustomAudioFile?
+
+    /// Updates an existing custom audio file's metadata (e.g. display name).
+    ///
+    /// Only metadata is updated — the file on disk is not moved or renamed.
+    /// - Throws: `CustomAudioError.fileNotFound` if no file exists with the given ID.
+    func update(_ file: CustomAudioFile) throws
 }
