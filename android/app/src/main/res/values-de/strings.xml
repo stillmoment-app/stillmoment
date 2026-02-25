@@ -18,6 +18,7 @@
     <!-- Buttons -->
     <string name="button_start">Start</string>
     <string name="button_done">Fertig</string>
+    <string name="button_back">Zurück</string>
 
     <!-- Tabs -->
     <string name="tab_timer">Timer</string>
