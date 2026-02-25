@@ -72,7 +72,7 @@ struct StillMomentApp: App {
                         AppSettingsView()
                     }
                     .tabItem {
-                        Label("tab.settings", systemImage: "music.note.list")
+                        Label("tab.settings", systemImage: "slider.horizontal.3")
                     }
                     .tag(AppTab.settings.rawValue)
                     .accessibilityIdentifier("tab.settings")
