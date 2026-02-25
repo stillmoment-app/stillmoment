@@ -65,7 +65,7 @@ struct GuidedMeditationsListView: View {
                 Text("guided_meditations.title", bundle: .main)
                     .themeFont(.inlineNavigationTitle)
             }
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     self.viewModel.showDocumentPicker()
                 } label: {
@@ -76,18 +76,6 @@ struct GuidedMeditationsListView: View {
                 .accessibilityLabel("guided_meditations.add")
                 .accessibilityHint("accessibility.library.add.hint")
                 .accessibilityIdentifier("library.button.add")
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    self.showingSettings = true
-                } label: {
-                    Image(systemName: "slider.horizontal.3")
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .foregroundColor(self.theme.textSecondary)
-                .accessibilityLabel("guided_meditations.settings")
-                .accessibilityHint("accessibility.library.settings.hint")
-                .accessibilityIdentifier("library.button.settings")
             }
         }
         .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
@@ -120,15 +108,6 @@ struct GuidedMeditationsListView: View {
                 preparationTimeSeconds: self.settings.preparationTimeSeconds,
                 meditationService: self.meditationService
             )
-        }
-        .sheet(isPresented: self.$showingSettings) {
-            ThemeRootView {
-                GuidedMeditationSettingsView(settings: self.settings) { updatedSettings in
-                    self.settingsRepository.save(updatedSettings)
-                    self.settings = updatedSettings
-                    self.showingSettings = false
-                }
-            }
         }
         .alert(
             NSLocalizedString("common.error", comment: ""),
@@ -167,6 +146,7 @@ struct GuidedMeditationsListView: View {
         }
         .onAppear {
             self.viewModel.loadMeditations()
+            self.settings = self.settingsRepository.load()
         }
         .onChange(of: self.fileOpenHandler.importedMeditation) { newMeditation in
             guard let meditation = newMeditation else {
@@ -188,7 +168,6 @@ struct GuidedMeditationsListView: View {
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var meditationToDelete: GuidedMeditation?
-    @State private var showingSettings = false
     @State private var settings: GuidedMeditationSettings
 
     private let meditationService: GuidedMeditationServiceProtocol

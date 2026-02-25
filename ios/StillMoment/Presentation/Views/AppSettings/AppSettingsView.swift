@@ -24,6 +24,7 @@ struct AppSettingsView: View {
 
             Form {
                 GeneralSettingsSection()
+                GuidedMeditationSettingsSection()
                 self.infoSection
             }
             .scrollContentBackground(.hidden)

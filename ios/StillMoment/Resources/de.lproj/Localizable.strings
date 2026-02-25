@@ -108,6 +108,7 @@
 
 // MARK: - App Settings Tab
 
+"app.settings.guidedMeditations.header" = "Geführte Meditationen";
 "app.settings.info.header" = "Info & Rechtliches";
 "app.settings.soundAttributions.title" = "Klang-Nachweise";
 "app.settings.soundAttributions.page.title" = "Klang-Nachweise";
