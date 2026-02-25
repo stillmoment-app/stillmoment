@@ -1,5 +1,7 @@
 package com.stillmoment.domain.models
 
+import java.util.Locale
+
 /**
  * Domain model representing a meditation timer session.
  *
@@ -47,6 +49,39 @@ data class MeditationTimer(
     /** Checks if timer has completed */
     val isCompleted: Boolean
         get() = remainingSeconds <= 0
+
+    // MARK: - Computed Properties (Display)
+
+    /** Whether currently in preparation phase */
+    val isPreparation: Boolean
+        get() = state == TimerState.Preparation
+
+    /** Whether the session is active (all states between Preparation and EndGong, inclusive) */
+    val isActive: Boolean
+        get() = state != TimerState.Idle && state != TimerState.Completed
+
+    /** Whether the timer is in the main running phase */
+    val isRunning: Boolean
+        get() = state == TimerState.Running
+
+    /** Whether the timer can be reset (not idle) */
+    val canReset: Boolean
+        get() = state != TimerState.Idle
+
+    /** Whether the timer is in idle state (ready to start) */
+    val canStart: Boolean
+        get() = state == TimerState.Idle
+
+    /** Formatted time string: preparation seconds as integer, or MM:SS for other phases */
+    val formattedTime: String
+        get() =
+            if (isPreparation) {
+                "$remainingPreparationSeconds"
+            } else {
+                val minutes = remainingSeconds / 60
+                val seconds = remainingSeconds % 60
+                String.format(Locale.ROOT, "%02d:%02d", minutes, seconds)
+            }
 
     /**
      * Returns a copy with updated remaining seconds and any domain events that occurred.

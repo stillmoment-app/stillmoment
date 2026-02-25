@@ -1,6 +1,7 @@
 package com.stillmoment.domain.models
 
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -599,5 +600,123 @@ class MeditationTimerTest {
                 silentPhaseStartRemaining = 505
             )
         assertTrue(timer.shouldPlayIntervalGong(3, mode = IntervalMode.AFTER_START))
+    }
+
+    // MARK: - Computed Properties (Display)
+
+    @Nested
+    inner class ComputedProperties {
+        @Test
+        fun `isPreparation is true when state is Preparation`() {
+            val timer = MeditationTimer.create(10)
+                .startPreparation()
+            assertTrue(timer.isPreparation)
+        }
+
+        @Test
+        fun `isPreparation is false when state is Running`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertFalse(timer.isPreparation)
+        }
+
+        @Test
+        fun `isActive is true when state is Running`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertTrue(timer.isActive)
+        }
+
+        @Test
+        fun `isActive is true when state is Preparation`() {
+            val timer = MeditationTimer.create(10)
+                .startPreparation()
+            assertTrue(timer.isActive)
+        }
+
+        @Test
+        fun `isActive is true when state is EndGong`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.EndGong, remainingSeconds = 0)
+            assertTrue(timer.isActive)
+        }
+
+        @Test
+        fun `isActive is false when state is Idle`() {
+            val timer = MeditationTimer.create(10)
+            assertFalse(timer.isActive)
+        }
+
+        @Test
+        fun `isActive is false when state is Completed`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.Completed, remainingSeconds = 0)
+            assertFalse(timer.isActive)
+        }
+
+        @Test
+        fun `isRunning is true only when state is Running`() {
+            val running = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertTrue(running.isRunning)
+
+            val idle = MeditationTimer.create(10)
+            assertFalse(idle.isRunning)
+
+            val preparation = MeditationTimer.create(10).startPreparation()
+            assertFalse(preparation.isRunning)
+        }
+
+        @Test
+        fun `canReset is false when Idle, true for all other states`() {
+            val idle = MeditationTimer.create(10)
+            assertFalse(idle.canReset)
+
+            val running = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertTrue(running.canReset)
+
+            val completed = MeditationTimer.create(10)
+                .copy(state = TimerState.Completed, remainingSeconds = 0)
+            assertTrue(completed.canReset)
+
+            val preparation = MeditationTimer.create(10).startPreparation()
+            assertTrue(preparation.canReset)
+        }
+
+        @Test
+        fun `canStart is true only when Idle`() {
+            val idle = MeditationTimer.create(10)
+            assertTrue(idle.canStart)
+
+            val running = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertFalse(running.canStart)
+
+            val completed = MeditationTimer.create(10)
+                .copy(state = TimerState.Completed, remainingSeconds = 0)
+            assertFalse(completed.canStart)
+        }
+
+        @Test
+        fun `formattedTime shows preparation seconds when in preparation`() {
+            val timer = MeditationTimer.create(10)
+                .startPreparation()
+            assertEquals("15", timer.formattedTime)
+        }
+
+        @Test
+        fun `formattedTime shows MM-SS format when running`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.Running)
+            assertEquals("10:00", timer.formattedTime)
+        }
+
+        @Test
+        fun `formattedTime shows 00-00 for a completed timer`() {
+            val timer = MeditationTimer.create(10)
+                .copy(state = TimerState.Completed, remainingSeconds = 0)
+            assertEquals("00:00", timer.formattedTime)
+        }
     }
 }
