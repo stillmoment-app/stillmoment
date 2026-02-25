@@ -117,8 +117,9 @@ final class TimerViewModel: ObservableObject {
     }
 
     /// Whether Zen Mode is active: tab bar and distracting UI should be hidden during meditation
+    /// Includes the completion screen — tab bar stays hidden until user taps "Back"
     var isZenMode: Bool {
-        self.timerState != .idle && self.timerState != .completed
+        self.timerState != .idle
     }
 
     /// Formatted time string

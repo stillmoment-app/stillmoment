@@ -111,11 +111,11 @@ final class TimerViewModelZenModeTests: XCTestCase {
         XCTAssertFalse(self.sut.isZenMode, "Tab bar must return when meditation is cancelled")
     }
 
-    func testZenModeIsInactiveWhenCompleted() {
+    func testZenModeIsActiveWhenCompleted() {
         // Given: timer reaches completed state
         self.sut.timer = .stub(remainingSeconds: 0, state: .completed)
 
-        // Then: tab bar must return after meditation ends
-        XCTAssertFalse(self.sut.isZenMode, "Tab bar must return after meditation completes")
+        // Then: tab bar must stay hidden during the completion screen
+        XCTAssertTrue(self.sut.isZenMode, "Tab bar must remain hidden during completion screen")
     }
 }
