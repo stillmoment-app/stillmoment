@@ -141,6 +141,11 @@
     <!-- Timer Focus Mode -->
     <string name="accessibility_close_focus">Schließen und Meditation beenden</string>
 
+    <!-- Timer Completion -->
+    <string name="completion_headline">Vielen Dank</string>
+    <string name="completion_subtitle">Schön, dass du dir diese Zeit genommen hast.</string>
+    <string name="accessibility_back_to_timer">Zurück zum Timer</string>
+
     <!-- Settings Accessibility -->
     <string name="accessibility_done_button">Einstellungen speichern und schließen</string>
     <string name="accessibility_interval_enabled">Intervall-Gongs aktiviert, alle %d Minuten</string>
