@@ -103,9 +103,10 @@ struct TimerView: View {
                 ZStack {
                     self.theme.backgroundGradient
                         .ignoresSafeArea()
-                    MeditationCompletionView {
-                        self.viewModel.resetTimer()
-                    }
+                    MeditationCompletionView(
+                        onBack: { self.viewModel.resetTimer() },
+                        backAccessibilityLabel: NSLocalizedString("accessibility.backToTimer", comment: "")
+                    )
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }

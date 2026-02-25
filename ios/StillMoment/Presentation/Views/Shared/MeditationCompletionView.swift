@@ -14,8 +14,12 @@ import SwiftUI
 struct MeditationCompletionView: View {
     // MARK: Lifecycle
 
-    init(onBack: @escaping () -> Void) {
+    init(onBack: @escaping () -> Void, backAccessibilityLabel: String? = nil) {
         self.onBack = onBack
+        self.backAccessibilityLabel = backAccessibilityLabel ?? NSLocalizedString(
+            "accessibility.backToLibrary",
+            comment: ""
+        )
     }
 
     // MARK: Internal
@@ -62,7 +66,7 @@ struct MeditationCompletionView: View {
                 }
                 .warmPrimaryButton()
                 .accessibilityIdentifier("completion.button.back")
-                .accessibilityLabel(NSLocalizedString("accessibility.backToLibrary", comment: ""))
+                .accessibilityLabel(self.backAccessibilityLabel)
 
                 Spacer()
             }
@@ -74,6 +78,7 @@ struct MeditationCompletionView: View {
     // MARK: Private
 
     private let onBack: () -> Void
+    private let backAccessibilityLabel: String
 
     @Environment(\.themeColors)
     private var theme

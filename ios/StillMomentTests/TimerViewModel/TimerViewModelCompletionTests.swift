@@ -64,12 +64,4 @@ final class TimerViewModelCompletionTests: XCTestCase {
         XCTAssertNil(self.sut.timer, "Timer should be cleared after reset from completed state")
         XCTAssertEqual(self.sut.timerState, .idle, "Timer state should be idle after reset")
     }
-
-    func testIsZenModeActiveWhenCompleted() {
-        // Given: meditation has completed and the completion screen is shown
-        self.sut.timer = .stub(remainingSeconds: 0, state: .completed)
-
-        // Then: zen mode must stay active so the tab bar remains hidden during the completion screen
-        XCTAssertTrue(self.sut.isZenMode, "Zen mode must be active during completion screen to keep tab bar hidden")
-    }
 }

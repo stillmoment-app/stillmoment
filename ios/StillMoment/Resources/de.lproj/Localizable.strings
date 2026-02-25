@@ -182,6 +182,7 @@
 "accessibility.endMeditation" = "Meditation beenden";
 "accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
 "accessibility.backToLibrary" = "Zurück zu Meditationen";
+"accessibility.backToTimer" = "Zurück zum Timer";
 "accessibility.timer.configuration.label" = "Aktuelle Konfiguration";
 "accessibility.timer.configuration.hint" = "Öffnet den Konfigurationseditor";
 
