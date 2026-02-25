@@ -137,10 +137,24 @@ final class PraxisEditorViewModel: ObservableObject {
         }
     }
 
+    /// Plays a preview of an introduction or custom attunement
+    func playIntroductionPreview(introductionId: String) {
+        do {
+            try self.audioService.playIntroductionPreview(introductionId: introductionId)
+        } catch {
+            Logger.audio.error(
+                "Failed to play introduction preview",
+                error: error,
+                metadata: ["introductionId": introductionId]
+            )
+        }
+    }
+
     /// Stops all active audio previews
     func stopAllPreviews() {
         self.audioService.stopGongPreview()
         self.audioService.stopBackgroundPreview()
+        self.audioService.stopIntroductionPreview()
     }
 
     // MARK: - Custom Audio
