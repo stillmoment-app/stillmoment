@@ -98,6 +98,8 @@ struct TimerView: View {
                 self.editorViewModel?.save()
             }
         }
+        .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
+        .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
     }
 
     // MARK: Private
@@ -107,6 +109,10 @@ struct TimerView: View {
     @StateObject private var viewModel: TimerViewModel
     @State private var navigateToEditor = false
     @State private var editorViewModel: PraxisEditorViewModel?
+
+    private var isZenMode: Bool {
+        self.viewModel.isZenMode
+    }
 
     private var stateText: String {
         switch self.viewModel.timerState {
