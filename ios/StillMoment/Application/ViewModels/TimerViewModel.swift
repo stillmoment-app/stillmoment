@@ -337,7 +337,13 @@ final class TimerViewModel: ObservableObject {
     }
 
     private func handleTimerUpdate(_ timer: MeditationTimer, events: [TimerEvent]) {
-        // Update timer directly — no .tick dispatch needed
+        // Ignore idle-state timers: TimerService.reset() publishes an idle timer asynchronously
+        // via receive(on: DispatchQueue.main), which can arrive after .clearTimer already set
+        // self.timer = nil, re-introducing the timer and hiding the Start button.
+        guard timer.state != .idle else {
+            return
+        }
+
         self.timer = timer
 
         // Process domain events emitted by tick()

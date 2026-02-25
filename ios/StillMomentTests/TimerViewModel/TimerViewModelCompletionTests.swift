@@ -64,4 +64,24 @@ final class TimerViewModelCompletionTests: XCTestCase {
         XCTAssertNil(self.sut.timer, "Timer should be cleared after reset from completed state")
         XCTAssertEqual(self.sut.timerState, .idle, "Timer state should be idle after reset")
     }
+
+    // MARK: - Regression: Idle timer publish after reset must not restore timer
+
+    func testIdleTimerPublishAfterClearIsIgnored() {
+        // Regression for: after tapping "Back" on completion screen, Start button was missing.
+        // Root cause: TimerService.reset() publishes an idle MeditationTimer asynchronously via
+        // receive(on: DispatchQueue.main). If this delivery arrives after .clearTimer sets
+        // self.timer = nil, handleTimerUpdate would re-assign a non-nil timer, hiding the Start button.
+
+        // Given: timer has been cleared (post .clearTimer effect)
+        self.sut.timer = nil
+
+        // When: the deferred idle-timer publish from reset() arrives
+        self.mockTimerService.simulateTick(remainingSeconds: 300, state: .idle)
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+
+        // Then: timer stays nil — start button remains visible
+        XCTAssertNil(self.sut.timer, "Idle timer update from reset() must not restore a cleared timer")
+        XCTAssertTrue(self.sut.canStart, "Start button must be visible after returning from completion screen")
+    }
 }
