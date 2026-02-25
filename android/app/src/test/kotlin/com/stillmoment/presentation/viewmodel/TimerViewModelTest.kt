@@ -938,4 +938,12 @@ class FakeTimerRepository : TimerRepository {
     override fun endIntroduction() {
         // no-op for tests
     }
+
+    override fun startRunning() {
+        // no-op for tests
+    }
+
+    override fun completeTimer() {
+        // no-op for tests
+    }
 }

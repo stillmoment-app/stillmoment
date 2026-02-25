@@ -66,4 +66,16 @@ interface TimerRepository {
      * Sets silentPhaseStartRemaining for interval gong calculations.
      */
     fun endIntroduction()
+
+    /**
+     * Transitions the timer from StartGong to Running state.
+     * Called when start gong finishes and no introduction is configured.
+     */
+    fun startRunning()
+
+    /**
+     * Transitions the timer from EndGong to Completed state.
+     * Called when the completion gong finishes playing.
+     */
+    fun completeTimer()
 }

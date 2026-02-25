@@ -141,6 +141,7 @@ constructor(
     /**
      * Handles side effects produced by the reducer.
      */
+    @Suppress("CyclomaticComplexMethod") // B2 will rewrite handleEffect entirely
     private fun handleEffect(effect: TimerEffect) {
         when (effect) {
             is TimerEffect.StartForegroundService -> {
@@ -195,6 +196,8 @@ constructor(
             }
             is TimerEffect.SaveSettings ->
                 viewModelScope.launch { settingsRepository.updateSettings(effect.settings) }
+            // New effects added in shared-057 B1 — handled by B2 ViewModel rewrite
+            else -> { /* TransitionToRunning, TransitionToCompleted — no-op until B2 */ }
         }
     }
 

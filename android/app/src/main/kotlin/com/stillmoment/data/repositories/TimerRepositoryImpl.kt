@@ -94,4 +94,14 @@ constructor() : TimerRepository {
         currentTimer = currentTimer?.endIntroduction()
         _timer.value = currentTimer
     }
+
+    override fun startRunning() {
+        currentTimer = currentTimer?.withState(TimerState.Running)
+        _timer.value = currentTimer
+    }
+
+    override fun completeTimer() {
+        currentTimer = currentTimer?.withState(TimerState.Completed)
+        _timer.value = currentTimer
+    }
 }

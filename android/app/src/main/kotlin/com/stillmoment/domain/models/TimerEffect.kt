@@ -64,6 +64,12 @@ sealed class TimerEffect {
     /** Reset the timer */
     data object ResetTimer : TimerEffect()
 
+    /** Transitions timer from StartGong to Running state (no introduction path) */
+    data object TransitionToRunning : TimerEffect()
+
+    /** Transitions timer from EndGong to Completed state */
+    data object TransitionToCompleted : TimerEffect()
+
     // MARK: - Persistence Effects
 
     /** Save settings to DataStore */

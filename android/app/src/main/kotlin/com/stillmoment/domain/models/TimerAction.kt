@@ -11,6 +11,7 @@ sealed class TimerAction {
     // MARK: - User Actions
 
     /** User selected a duration in minutes */
+    @Deprecated("Duration selection is now a direct ViewModel operation, not a reducer action")
     data class SelectDuration(val minutes: Int) : TimerAction()
 
     /** User pressed the start button */
@@ -22,6 +23,7 @@ sealed class TimerAction {
     // MARK: - System Events
 
     /** Timer tick with updated values from TimerRepository */
+    @Deprecated("ViewModel will update timer directly from repository.tick()")
     data class Tick(
         val remainingSeconds: Int,
         val totalSeconds: Int,
