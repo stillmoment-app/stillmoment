@@ -45,6 +45,9 @@ struct IntroductionSelectionView: View {
                     .themeFont(.inlineNavigationTitle)
             }
         }
+        .onDisappear {
+            self.viewModel.stopAllPreviews()
+        }
         .sheet(isPresented: self.$showImportPicker) {
             DocumentPicker { url in
                 self.viewModel.importCustomAudio(from: url, type: .attunement)
@@ -104,25 +107,32 @@ struct IntroductionSelectionView: View {
     @State private var showRenameAlert = false
 
     private var noneRow: some View {
-        HStack {
+        let isSelected = self.viewModel.introductionId == nil
+        return HStack {
+            Image(systemName: isSelected ? "minus.circle.fill" : "minus.circle")
+                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
             Text("praxis.editor.introduction.none", bundle: .main)
                 .themeFont(.settingsLabel)
             Spacer()
-            if self.viewModel.introductionId == nil {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
             self.viewModel.introductionId = nil
+            self.viewModel.stopAllPreviews()
         }
         .cardRowBackground()
         .accessibilityIdentifier("praxis.introduction.none")
     }
 
     private func introductionRow(for intro: Introduction) -> some View {
-        HStack {
+        let isSelected = self.viewModel.introductionId == intro.id
+        return HStack {
+            Image(systemName: "waveform")
+                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(intro.name)
                     .themeFont(.settingsLabel)
@@ -131,14 +141,11 @@ struct IntroductionSelectionView: View {
                     .foregroundColor(self.theme.textSecondary)
             }
             Spacer()
-            if self.viewModel.introductionId == intro.id {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
             self.viewModel.introductionId = intro.id
+            self.viewModel.playIntroductionPreview(introductionId: intro.id)
         }
         .cardRowBackground()
         .accessibilityIdentifier("praxis.introduction.\(intro.id)")
@@ -177,8 +184,13 @@ struct IntroductionSelectionView: View {
     }
 
     private func customAttunementRow(for file: CustomAudioFile) -> some View {
-        HStack {
+        let isSelected = self.viewModel.introductionId == file.id.uuidString
+        return HStack {
             HStack {
+                Image(systemName: "waveform")
+                    .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
+                    .frame(width: 24)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(file.name)
                         .themeFont(.settingsLabel)
@@ -187,49 +199,41 @@ struct IntroductionSelectionView: View {
                         .foregroundColor(self.theme.textSecondary)
                 }
                 Spacer()
-                if self.viewModel.introductionId == file.id.uuidString {
-                    Image(systemName: "checkmark")
-                        .foregroundColor(self.theme.interactive)
-                }
             }
             .contentShape(Rectangle())
             .onTapGesture {
                 self.viewModel.introductionId = file.id.uuidString
+                self.viewModel.playIntroductionPreview(introductionId: file.id.uuidString)
             }
-            self.customAttunementRenameButton(for: file)
-            self.customAttunementDeleteButton(for: file)
+            self.overflowMenu(for: file)
         }
         .cardRowBackground()
         .accessibilityIdentifier("praxis.introduction.custom.\(file.id.uuidString)")
     }
 
-    private func customAttunementRenameButton(for file: CustomAudioFile) -> some View {
-        Button {
-            self.fileToRename = file
-            self.renameText = file.name
-            self.showRenameAlert = true
+    private func overflowMenu(for file: CustomAudioFile) -> some View {
+        Menu {
+            Button {
+                self.fileToRename = file
+                self.renameText = file.name
+                self.showRenameAlert = true
+            } label: {
+                Label("guided_meditations.edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                self.fileToDelete = file
+                self.showDeleteConfirmation = true
+            } label: {
+                Label("custom.audio.delete.confirm.button", systemImage: "trash")
+            }
         } label: {
-            Image(systemName: "pencil")
-                .foregroundColor(self.theme.textSecondary)
+            Image(systemName: "ellipsis")
+                .foregroundColor(self.theme.interactive)
+                .frame(minWidth: 44, minHeight: 44)
         }
-        .accessibilityLabel(NSLocalizedString("custom.audio.accessibility.rename", comment: ""))
-        .accessibilityHint(NSLocalizedString("custom.audio.accessibility.rename.hint", comment: ""))
-    }
-
-    private func customAttunementDeleteButton(for file: CustomAudioFile) -> some View {
-        Button {
-            self.fileToDelete = file
-            self.showDeleteConfirmation = true
-        } label: {
-            Image(systemName: "trash")
-                .foregroundColor(self.theme.textSecondary)
-        }
-        .accessibilityLabel(
-            String(
-                format: NSLocalizedString("custom.audio.accessibility.delete", comment: ""),
-                file.name
-            )
-        )
+        .accessibilityLabel("accessibility.library.overflow")
+        .accessibilityHint("accessibility.library.overflow.hint")
+        .accessibilityIdentifier("praxis.introduction.overflow.\(file.id.uuidString)")
     }
 }
 
