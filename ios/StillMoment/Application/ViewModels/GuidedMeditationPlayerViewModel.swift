@@ -107,6 +107,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         return false
     }
 
+    /// Whether Zen Mode is active: tab bar should be hidden during active session
+    ///
+    /// Active when preparation countdown is running or meditation is playing.
+    /// Returns to visible when paused, stopped, or completed.
+    var isZenMode: Bool {
+        self.isPreparing || self.isPlaying
+    }
+
     /// Remaining countdown seconds (for UI)
     var remainingCountdownSeconds: Int {
         if case let .active(countdown) = countdownState {

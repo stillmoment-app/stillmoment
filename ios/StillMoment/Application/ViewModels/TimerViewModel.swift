@@ -116,6 +116,11 @@ final class TimerViewModel: ObservableObject {
         self.timer?.isRunning ?? false
     }
 
+    /// Whether Zen Mode is active: tab bar and distracting UI should be hidden during meditation
+    var isZenMode: Bool {
+        self.timerState != .idle && self.timerState != .completed
+    }
+
     /// Formatted time string
     var formattedTime: String {
         self.timer?.formattedTime ?? "00:00"

@@ -212,6 +212,8 @@ struct GuidedMeditationPlayerView: View {
         .onDisappear {
             self.viewModel.cleanup()
         }
+        .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
+        .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
     }
 
     // MARK: Private
@@ -221,6 +223,10 @@ struct GuidedMeditationPlayerView: View {
     @Environment(\.themeColors)
     private var theme
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
+
+    private var isZenMode: Bool {
+        self.viewModel.isZenMode
+    }
 
     // MARK: - Countdown View
 
