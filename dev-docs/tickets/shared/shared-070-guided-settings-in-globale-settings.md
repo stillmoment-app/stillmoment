@@ -1,6 +1,6 @@
 # Ticket shared-070: Guided-Meditation-Einstellungen in globale Settings
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 4-Polish
@@ -21,7 +21,7 @@ Die Guided-Meditations-Liste hat aktuell zwei konkurrierende Einstiegspunkte fü
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -29,20 +29,20 @@ Die Guided-Meditations-Liste hat aktuell zwei konkurrierende Einstiegspunkte fü
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] In den globalen Settings gibt es eine neue Section "Geführte Meditationen" mit der Vorbereitungszeit (Toggle + Dauer-Picker)
-- [ ] Das Tab-Bar-Icon des globalen Settings-Tabs wird durch das Icon der Guided Meditations ersetzt
-- [ ] Die Vorbereitungszeit-Einstellung verhält sich identisch wie bisher (Aus / 5s / 10s / 15s / 20s / 30s / 45s)
-- [ ] Der Settings-Button in der Navigationsleiste der Meditationsliste ist entfernt
-- [ ] Der Import-Button (Plus) ist wieder rechtsbündig in der Navigationsleiste
-- [ ] Das bisherige GuidedMeditationSettingsView / entsprechende Sheet ist entfernt
-- [ ] Lokalisiert (DE + EN)
+- [x] In den globalen Settings gibt es eine neue Section "Geführte Meditationen" mit der Vorbereitungszeit (Toggle + Dauer-Picker)
+- [x] Das Tab-Bar-Icon des globalen Settings-Tabs wird durch das Icon der Guided Meditations ersetzt
+- [x] Die Vorbereitungszeit-Einstellung verhält sich identisch wie bisher (Aus / 5s / 10s / 15s / 20s / 30s / 45s)
+- [x] Der Settings-Button in der Navigationsleiste der Meditationsliste ist entfernt
+- [x] Der Import-Button (Plus) ist wieder rechtsbündig in der Navigationsleiste
+- [x] Das bisherige GuidedMeditationSettingsView / entsprechende Sheet ist entfernt
+- [x] Lokalisiert (DE + EN)
 
 ### Tests
-- [ ] Unit Tests iOS (Settings-Persistenz)
+- [x] Unit Tests iOS (Settings-Persistenz)
 - [ ] Unit Tests Android (Settings-Persistenz)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
