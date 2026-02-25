@@ -1,6 +1,6 @@
 # Ticket shared-069: Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor)
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2d | Android ~1d (nach shared-065 Android)
 **Phase**: 4-Polish
@@ -21,7 +21,7 @@ Die bisherige Darstellung von Pencil- und Trash-Icons direkt in der Row ist visu
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | shared-065 Android |
 
 ---
@@ -38,7 +38,7 @@ Die bisherige Darstellung von Pencil- und Trash-Icons direkt in der Row ist visu
   - Custom Sounds (Klanglandschaften + Einstimmungen): generisches `waveform`-Icon
   - Stille/Keine-Einstimmung-Row: passendes Icon (z.B. `speaker.slash` / `minus.circle`)
 - [ ] Icon-Farbe wechselt bei Auswahl von `textSecondary` → `interactive`, Icon wechselt zur filled-Variante
-- [ ] Tap auf eine Einstimmungs-Row spielt eine Hörprobe ab (analog zu Hintergrundklängen)
+- [ ] Tap auf eine Einstimmungs-Row spielt eine Hörprobe ab — gilt für eingebaute UND custom Einstimmungen (analog zu Hintergrundklängen)
 - [ ] Lokalisiert (DE + EN) — Menü-Aktionen bereits vorhanden, ggf. prüfen
 - [ ] Accessibility-Labels auf dem Overflow-Menü (analog zu GuidedMeditationsListView)
 
@@ -60,9 +60,10 @@ Die bisherige Darstellung von Pencil- und Trash-Icons direkt in der Row ist visu
 3. Einen Custom Sound antippen → Icon wird farbig, Hörprobe startet
 4. Drei-Punkte-Menü eines Custom Sounds tippen → "Bearbeiten" und "Löschen" erscheinen
 5. Zurück → Praxis-Editor → Einstimmung antippen
-6. Eine Custom-Einstimmung antippen → Hörprobe startet (neu!)
-7. Drei-Punkte-Menü → "Bearbeiten" und "Löschen" erscheinen
-8. Erwartung: Identisches Verhalten auf beiden Plattformen
+6. Einen eingebauten Attunement-Sound antippen → Hörprobe startet (neu!)
+7. Eine Custom-Einstimmung antippen → Hörprobe startet (neu!)
+8. Drei-Punkte-Menü einer Custom-Einstimmung tippen → "Bearbeiten" und "Löschen" erscheinen
+9. Erwartung: Identisches Verhalten auf beiden Plattformen
 
 ---
 

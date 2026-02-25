@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
 
 ### Changed (iOS)
+- **Sound-Auswahl UX-Konsistenz** - Hintergrundklang- und Einstimmungs-Listen mit Overflow-Menue (3 Punkte) fuer Custom Audio, permanenten Icons links mit farblicher Hervorhebung bei Auswahl, und Hoerprobe fuer Einstimmungen beim Antippen (Ticket: shared-069)
+- **Guided-Meditation-Einstellungen in globale Settings verschoben** - Vorbereitungszeit ist jetzt im Settings-Tab unter "Geführte Meditationen" konfigurierbar (Ticket: shared-070)
+  - Settings-Button in der Bibliotheks-Navigationsleiste entfernt
+  - Import-Button (Plus) rechtsbündig in der Navigationsleiste
+  - Settings-Tab-Icon durch Guided-Meditations-Icon (`music.note.list`) ersetzt
 - **Tab "Bibliothek" umbenannt zu "Meditationen"** - Tab-Label und Accessibility-Label aktualisiert, Icon von `music.note.list` auf `waveform` geaendert (Ticket: shared-071)
 - **Praxis vereinfacht zu Einzelkonfiguration** - Kein Pill-Button, kein Auswahl-Sheet, keine benannten Presets mehr; stattdessen zeigt der Timer-Screen unter dem Duration-Picker tappbare Konfigurationspills, die direkt in den Editor fuehren (Ticket: shared-068)
   - Konfigurationspills zeigen: Vorbereitung, Start-Gong, Hintergrundklang, Einstimmung (falls aktiv), Intervall-Gong-Status

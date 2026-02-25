@@ -92,7 +92,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-066](shared/shared-066-zen-modus.md) | Zen-Modus (Tab-Bar ausblenden) | 4-Polish | [ ] | [ ] |
 | [shared-068](shared/shared-068-praxis-vereinfachen.md) | Praxis vereinfachen – Einzelkonfiguration | 2-Architektur | [x] | [ ] |
 | [shared-067](shared/shared-067-rename-introduction-attunement.md) | Code-Rename Introduction → Attunement | 4-Polish | [ ] | [ ] |
-| [shared-069](shared/shared-069-sound-selection-ux-konsistenz.md) | Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor) | 4-Polish | [ ] | [ ] |
+| [shared-069](shared/shared-069-sound-selection-ux-konsistenz.md) | Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor) | 4-Polish | [x] | [ ] |
 | [shared-070](shared/shared-070-guided-settings-in-globale-settings.md) | Guided-Meditation-Einstellungen in globale Settings | 4-Polish | [ ] | [ ] |
 | [shared-071](shared/shared-071-tab-bibliothek-rename-meditationen.md) | Tab "Bibliothek" → "Meditationen" + Icon waveform | 4-Polish | [x] | [ ] |
 
