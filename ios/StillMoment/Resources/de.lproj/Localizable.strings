@@ -27,10 +27,10 @@
 // MARK: - Tab Bar
 
 "tab.timer" = "Timer";
-"tab.library" = "Bibliothek";
+"tab.library" = "Meditationen";
 "tab.settings" = "Einstellungen";
 "tab.timer.accessibility" = "Timer für Meditation";
-"tab.library.accessibility" = "Bibliothek geführter Meditationen";
+"tab.library.accessibility" = "Meditationen";
 "tab.settings.accessibility" = "App-Einstellungen";
 
 // MARK: - State Messages
@@ -181,7 +181,7 @@
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
 "accessibility.endMeditation" = "Meditation beenden";
 "accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
-"accessibility.backToLibrary" = "Zurück zur Bibliothek";
+"accessibility.backToLibrary" = "Zurück zu Meditationen";
 "accessibility.timer.configuration.label" = "Aktuelle Konfiguration";
 "accessibility.timer.configuration.hint" = "Öffnet den Konfigurationseditor";
 

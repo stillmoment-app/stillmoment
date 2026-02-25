@@ -61,7 +61,7 @@ struct StillMomentApp: App {
                         GuidedMeditationsListView()
                     }
                     .tabItem {
-                        Label("tab.library", systemImage: "music.note.list")
+                        Label("tab.library", systemImage: "waveform")
                     }
                     .tag(AppTab.library.rawValue)
                     .accessibilityIdentifier("tab.library")
@@ -72,7 +72,7 @@ struct StillMomentApp: App {
                         AppSettingsView()
                     }
                     .tabItem {
-                        Label("tab.settings", systemImage: "gearshape")
+                        Label("tab.settings", systemImage: "music.note.list")
                     }
                     .tag(AppTab.settings.rawValue)
                     .accessibilityIdentifier("tab.settings")
