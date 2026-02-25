@@ -133,6 +133,69 @@ final class AudioServicePreviewSessionTests: XCTestCase {
         )
     }
 
+    // MARK: - Introduction Preview Requests .preview Source
+
+    func testPlayIntroductionPreviewRequestsPreviewSession() throws {
+        // Given — set language to German (breath is available in "de")
+        Introduction.languageOverride = "de"
+        defer { Introduction.languageOverride = nil }
+
+        // When
+        try self.sut.playIntroductionPreview(introductionId: "breath")
+
+        // Then — preview should register as .preview, not .timer
+        XCTAssertTrue(
+            self.mockCoordinator.requestedSources.contains(.preview),
+            "Introduction preview should request .preview audio session"
+        )
+        XCTAssertFalse(
+            self.mockCoordinator.requestedSources.contains(.timer),
+            "Introduction preview should NOT request .timer audio session"
+        )
+
+        // Clean up
+        self.sut.stopIntroductionPreview()
+    }
+
+    func testStopIntroductionPreviewReleasesPreviewSession() throws {
+        // Given — introduction preview is playing
+        Introduction.languageOverride = "de"
+        defer { Introduction.languageOverride = nil }
+        try self.sut.playIntroductionPreview(introductionId: "breath")
+        self.mockCoordinator.releasedSources.removeAll()
+
+        // When
+        self.sut.stopIntroductionPreview()
+
+        // Then — session is released for .preview
+        XCTAssertTrue(
+            self.mockCoordinator.releasedSources.contains(.preview),
+            "Stopping introduction preview should release .preview audio session"
+        )
+    }
+
+    func testStopIntroductionPreviewWhenNotPlaying_DoesNotRelease() {
+        // When — stop without play
+        self.sut.stopIntroductionPreview()
+
+        // Then — no release call (guard early return)
+        XCTAssertTrue(
+            self.mockCoordinator.releasedSources.isEmpty,
+            "Stopping introduction preview when not playing should not release session"
+        )
+    }
+
+    func testPlayIntroductionPreviewThrowsForUnknownId() {
+        // Given — an ID that does not exist
+        Introduction.languageOverride = "de"
+        defer { Introduction.languageOverride = nil }
+
+        // When/Then — should throw soundFileNotFound
+        XCTAssertThrowsError(try self.sut.playIntroductionPreview(introductionId: "nonexistent")) { error in
+            XCTAssertEqual(error as? AudioServiceError, .soundFileNotFound)
+        }
+    }
+
     // MARK: - Preview→Preview Reuse (Same Source, No Conflict)
 
     func testSecondPreviewReusesPreviewSession() throws {

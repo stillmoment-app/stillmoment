@@ -74,6 +74,79 @@ extension AudioService {
         self.introductionPlayer?.stop()
         self.introductionPlayer = nil
     }
+
+    func playIntroductionPreview(introductionId: String) throws {
+        Logger.audio.info("Playing introduction preview", metadata: ["introductionId": introductionId])
+
+        // Stop any previous previews (mutual exclusion)
+        self.stopIntroductionPreview()
+        self.stopGongPreview()
+        self.stopBackgroundPreview()
+
+        _ = try self.coordinator.requestAudioSession(for: .preview)
+
+        let soundURL = try self.resolveIntroductionPreviewURL(introductionId: introductionId)
+
+        do {
+            self.introductionPreviewPlayer = try AVAudioPlayer(contentsOf: soundURL)
+            self.introductionPreviewPlayer?.volume = 0.9
+            self.introductionPreviewPlayer?.prepareToPlay()
+            self.introductionPreviewPlayer?.play()
+            Logger.audio.info(
+                "Introduction preview started",
+                metadata: ["file": soundURL.lastPathComponent]
+            )
+        } catch {
+            Logger.audio.error("Failed to play introduction preview", error: error)
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopIntroductionPreview() {
+        guard self.introductionPreviewPlayer != nil else {
+            return
+        }
+        Logger.audio.debug("Stopping introduction preview")
+        self.introductionPreviewPlayer?.stop()
+        self.introductionPreviewPlayer = nil
+        self.coordinator.releaseAudioSession(for: .preview)
+    }
+}
+
+// MARK: - Introduction Preview URL Resolution
+
+private extension AudioService {
+    func resolveIntroductionPreviewURL(introductionId: String) throws -> URL {
+        // Try custom attunement (UUID-based ID)
+        if let uuid = UUID(uuidString: introductionId),
+           let customFile = self.customAudioRepository?.findFile(byId: uuid),
+           let url = self.customAudioRepository?.fileURL(for: customFile) {
+            return url
+        }
+
+        // Try built-in introduction
+        guard let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) else {
+            Logger.audio.error(
+                "Introduction not found or not available in current language",
+                metadata: ["introductionId": introductionId]
+            )
+            throw AudioServiceError.soundFileNotFound
+        }
+
+        let (name, ext) = self.parseFilename(filename)
+        guard let url = Bundle.main.url(
+            forResource: name,
+            withExtension: ext,
+            subdirectory: "IntroductionAudio"
+        ) else {
+            Logger.audio.error(
+                "Introduction audio file not found in bundle",
+                metadata: ["filename": filename]
+            )
+            throw AudioServiceError.soundFileNotFound
+        }
+        return url
+    }
 }
 
 // MARK: - IntroductionPlayerDelegate

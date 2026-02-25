@@ -54,10 +54,7 @@ final class AudioService: AudioServiceProtocol {
 
     deinit {
         self.cancellables.removeAll()
-        self.backgroundPreviewTimer?.invalidate()
-        self.backgroundPreviewTimer = nil
-        self.backgroundPreviewPlayer?.stop()
-        self.backgroundPreviewPlayer = nil
+        self.cleanupPreviewPlayers()
         self.timerSessionActive = false
         self.keepAlivePlayer?.stop()
         self.keepAlivePlayer = nil
@@ -242,9 +239,9 @@ final class AudioService: AudioServiceProtocol {
 
     // MARK: Private
 
-    private let coordinator: AudioSessionCoordinatorProtocol
+    let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
-    private let customAudioRepository: CustomAudioRepositoryProtocol?
+    let customAudioRepository: CustomAudioRepositoryProtocol?
     private let backgroundPreviewDuration: TimeInterval
     private let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
@@ -257,6 +254,7 @@ final class AudioService: AudioServiceProtocol {
     private var keepAlivePlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
+    var introductionPreviewPlayer: AVAudioPlayer?
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
 
@@ -512,6 +510,8 @@ private extension AudioService {
         self.backgroundPreviewTimer = nil
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
+        self.introductionPreviewPlayer?.stop()
+        self.introductionPreviewPlayer = nil
     }
 
     /// Cleans up all timer players (including keep-alive) without releasing the audio session.

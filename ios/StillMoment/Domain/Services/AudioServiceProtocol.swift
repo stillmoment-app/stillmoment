@@ -82,6 +82,14 @@ protocol AudioServiceProtocol {
     /// Stops any currently playing background preview
     func stopBackgroundPreview()
 
+    /// Plays a preview of an introduction/attunement sound
+    /// - Parameter introductionId: Either a built-in Introduction ID (e.g. "breath") or a UUID string for a custom
+    /// attunement
+    func playIntroductionPreview(introductionId: String) throws
+
+    /// Stops any currently playing introduction preview
+    func stopIntroductionPreview()
+
     /// Stops any currently playing sound
     func stop()
 }
