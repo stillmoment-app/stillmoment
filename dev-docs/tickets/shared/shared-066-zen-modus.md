@@ -1,6 +1,6 @@
 # Ticket shared-066: Zen-Modus (Tab-Bar bei Meditation ausblenden)
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS done)
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~3 | Android ~1
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Waehrend der Meditation soll der Bildschirm so ruhig wie moeglich sein. Die Tab-
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-061    |
+| iOS       | [x]    | shared-061    |
 | Android   | [ ]    | shared-061    |
 
 ---
