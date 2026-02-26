@@ -2,11 +2,13 @@ package com.stillmoment.infrastructure.di
 
 import android.content.Context
 import com.stillmoment.data.local.GuidedMeditationSettingsDataStore
+import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.data.repositories.GuidedMeditationRepositoryImpl
 import com.stillmoment.data.repositories.TimerRepositoryImpl
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
@@ -38,6 +40,7 @@ import javax.inject.Singleton
  * Hilt module providing app-wide dependencies.
  * Binds repositories and services for dependency injection.
  */
+@Suppress("TooManyFunctions") // DI module: one @Provides per binding is expected
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -51,6 +54,12 @@ object AppModule {
     @Singleton
     fun provideSettingsRepository(settingsDataStore: SettingsDataStore): SettingsRepository {
         return settingsDataStore
+    }
+
+    @Provides
+    @Singleton
+    fun providePraxisRepository(impl: PraxisDataStore): PraxisRepository {
+        return impl
     }
 
     @Provides
