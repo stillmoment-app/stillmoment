@@ -8,7 +8,8 @@ package com.stillmoment.domain.models
  */
 enum class AppTab(val route: String) {
     TIMER("timerGraph"),
-    LIBRARY("library");
+    LIBRARY("library"),
+    SETTINGS("settings");
 
     companion object {
         /** Default tab shown on first app launch */
