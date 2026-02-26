@@ -518,7 +518,7 @@ class AudioServiceTest {
         sut.startBackgroundAudio("forest")
 
         // Then
-        verify(mockVolumeAnimator).animate(eq(0f), eq(0.15f), eq(3000L), any())
+        verify(mockVolumeAnimator).animate(eq(0f), eq(0.15f), eq(10000L), any())
     }
 
     @Test

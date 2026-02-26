@@ -81,8 +81,8 @@ constructor(
     companion object {
         private const val TAG = "AudioService"
 
-        /** Duration for fade in effect (3 seconds for smooth meditation experience) */
-        private const val FADE_IN_DURATION_MS = 3000L
+        /** Duration for fade in effect (10 seconds for smooth meditation experience) */
+        private const val FADE_IN_DURATION_MS = 10000L
 
         /** Duration for background preview before fade-out starts */
         private const val BACKGROUND_PREVIEW_DURATION_MS = 3000L
