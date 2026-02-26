@@ -1,6 +1,6 @@
 # Ticket shared-061: Einstellungen-Tab und 3-Tab-Navigation
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3 | Android ~3
 **Phase**: 2-Architektur
@@ -23,7 +23,7 @@ Das Timer-Settings-Sheet ist aktuell ueberladen mit Timer-Konfiguration UND App-
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
@@ -38,11 +38,11 @@ Das Timer-Settings-Sheet ist aktuell ueberladen mit Timer-Konfiguration UND App-
 - [x] Tab-Auswahl wird persistiert (letzter Tab bei Neustart wiederhergestellt)
 - [x] Timer-Settings-Sheet funktioniert weiterhin fuer Timer-spezifische Settings (Gong, Background, etc.)
 - [x] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android (iOS done, Android pending)
+- [x] Visuell konsistent zwischen iOS und Android (iOS done, Android pending)
 
 ### Tests
 - [x] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests Android
 
 ### Dokumentation
 - [x] CHANGELOG.md
