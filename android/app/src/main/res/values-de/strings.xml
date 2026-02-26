@@ -254,10 +254,6 @@
     <string name="common_on">Ein</string>
 
     <!-- Praxis Editor Accessibility -->
-    <string name="accessibility_praxis_editor_cancel">Abbrechen</string>
-    <string name="accessibility_praxis_editor_cancel_hint">Änderungen verwerfen und schließen</string>
-    <string name="accessibility_praxis_editor_done">Fertig</string>
-    <string name="accessibility_praxis_editor_done_hint">Änderungen speichern</string>
     <string name="accessibility_praxis_editor_name">Praxisname</string>
     <string name="accessibility_praxis_editor_introduction">Einstimmung auswählen</string>
     <string name="accessibility_praxis_editor_background">Hintergrundklang auswählen</string>

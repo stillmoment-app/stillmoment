@@ -254,10 +254,6 @@
     <string name="common_on">On</string>
 
     <!-- Praxis Editor Accessibility -->
-    <string name="accessibility_praxis_editor_cancel">Cancel</string>
-    <string name="accessibility_praxis_editor_cancel_hint">Discard changes and close</string>
-    <string name="accessibility_praxis_editor_done">Done</string>
-    <string name="accessibility_praxis_editor_done_hint">Save changes</string>
     <string name="accessibility_praxis_editor_name">Practice name</string>
     <string name="accessibility_praxis_editor_introduction">Select introduction</string>
     <string name="accessibility_praxis_editor_background">Select background sound</string>
