@@ -59,7 +59,7 @@ The implementation is correct and complete. All acceptance criteria are satisfie
 ## FIX 1
 Status: DONE
 Commits:
-- <pending> fix(android): #shared-053 use play() instead of resume() in togglePlayPause after completion
+- 49fd70b fix(android): #shared-053 use play() instead of resume() in togglePlayPause after completion
 
 Challenges:
 <!-- CHALLENGES_START -->
