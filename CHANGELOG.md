@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (Android)
 - **Timer Completion Screen** - Nach Ablauf des Meditationstimers erscheint ein warmherziger Danke-Screen mit Herz-Icon, sanfter Slide-in-Animation und "Zurueck"-Button statt der leeren 00:00-Anzeige (Ticket: shared-052)
+- **Geführte Meditation Abschluss-Screen** – Nach natürlichem Audio-Ende erscheint ein Completion-Screen: Herz-Icon, "Vielen Dank", Untertitel, "Zurück"-Button mit Slide-in-Animation. Player-Controls, Slider und X-Button im Completion-Zustand ausgeblendet. Visuell konsistent mit Timer-Completion-Screen (Ticket: shared-053)
 
 ### Changed (iOS & Android)
 - **tick() emittiert Domain Events** - `MeditationTimer.tick()` gibt jetzt `(MeditationTimer, [TimerEvent])` zurueck statt nur `MeditationTimer`
