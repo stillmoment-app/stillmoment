@@ -121,16 +121,6 @@ class PraxisEditorViewModelTest {
     @Nested
     inner class SetterMethods {
         @Test
-        fun `setDurationMinutes updates state`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setDurationMinutes(30)
-
-            assertEquals(30, viewModel.uiState.value.durationMinutes)
-        }
-
-        @Test
         fun `setPreparationEnabled updates state`() = runTest {
             val viewModel = createViewModel()
             advanceUntilIdle()
@@ -267,26 +257,6 @@ class PraxisEditorViewModelTest {
     @Nested
     inner class Validation {
         @Test
-        fun `setDurationMinutes coerces to minimum 1`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setDurationMinutes(0)
-
-            assertEquals(1, viewModel.uiState.value.durationMinutes)
-        }
-
-        @Test
-        fun `setDurationMinutes coerces to maximum 60`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setDurationMinutes(100)
-
-            assertEquals(60, viewModel.uiState.value.durationMinutes)
-        }
-
-        @Test
         fun `setIntervalMinutes coerces to minimum 1`() = runTest {
             val viewModel = createViewModel()
             advanceUntilIdle()
@@ -359,10 +329,10 @@ class PraxisEditorViewModelTest {
     inner class Save {
         @Test
         fun `save returns Praxis with all edited fields`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 45)
             val viewModel = createViewModel()
             advanceUntilIdle()
 
-            viewModel.setDurationMinutes(45)
             viewModel.setPreparationEnabled(false)
             viewModel.setPreparationSeconds(30)
             viewModel.setGongSoundId("clear-strike")
@@ -394,22 +364,11 @@ class PraxisEditorViewModelTest {
         }
 
         @Test
-        fun `save validates duration coerces to 1-60`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setDurationMinutes(0)
-            val saved = viewModel.save()
-
-            assertEquals(1, saved.durationMinutes)
-        }
-
-        @Test
         fun `save persists via repository`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 20)
             val viewModel = createViewModel()
             advanceUntilIdle()
 
-            viewModel.setDurationMinutes(20)
             viewModel.save()
             advanceUntilIdle()
 
