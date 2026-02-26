@@ -79,6 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-057
 
 ### Changed (Android)
+- **PraxisEditor Auto-Save** - Änderungen werden beim Zurücknavigieren automatisch gespeichert, ohne explizite Abbrechen/Fertig-Buttons (Ticket: android-073)
+  - TopAppBar zeigt Zurück-Pfeil statt Cancel/Done-Buttons
+  - System-Back und Zurück-Pfeil speichern Änderungen implizit (iOS Settings-Pattern)
 - **Dauer-Picker aus PraxisEditor entfernt** - Die Dauer wird nur noch auf dem Timer-Hauptscreen eingestellt, nicht mehr redundant im Editor (Ticket: android-065)
 - **Sound-Auswahl UX-Konsistenz** - Hintergrundklang- und Einstimmungs-Listen mit Overflow-Menue (3 Punkte) fuer Custom Audio, permanenten Icons links mit farblicher Hervorhebung bei Auswahl, und Hoerprobe fuer Einstimmungen beim Antippen (Ticket: shared-069)
 - **Guided-Meditation-Einstellungen in globale Settings verschoben** - Vorbereitungszeit ist jetzt im Settings-Tab unter "Geführte Meditationen" konfigurierbar (Ticket: shared-070)
