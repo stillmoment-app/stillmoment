@@ -25,7 +25,7 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-064    |
-| Android   | [ ]    | shared-064    |
+| Android   | [~]    | shared-064    |
 
 ---
 
