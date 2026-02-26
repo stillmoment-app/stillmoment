@@ -30,26 +30,26 @@ Die bisherige Darstellung von Pencil- und Trash-Icons direkt in der Row ist visu
 
 ### Feature (beide Plattformen)
 
-- [ ] Custom-Audio-Rows haben kein direktes Pencil/Trash-Icon mehr
-- [ ] Custom-Audio-Rows zeigen rechts ein Overflow-Menü (3 Punkte / `ellipsis`) mit den Aktionen "Bearbeiten" und "Löschen"
-- [ ] Eingebaute Sound-Rows und Stille/Keine-Row haben kein Overflow-Menü
-- [ ] Alle Sound-Rows haben ein permanentes Icon links:
+- [x] Custom-Audio-Rows haben kein direktes Pencil/Trash-Icon mehr
+- [x] Custom-Audio-Rows zeigen rechts ein Overflow-Menü (3 Punkte / `ellipsis`) mit den Aktionen "Bearbeiten" und "Löschen"
+- [x] Eingebaute Sound-Rows und Stille/Keine-Row haben kein Overflow-Menü
+- [x] Alle Sound-Rows haben ein permanentes Icon links:
   - Eingebaute Sounds: ihr bestehendes `iconName`
   - Custom Sounds (Klanglandschaften + Einstimmungen): generisches `waveform`-Icon
   - Stille/Keine-Einstimmung-Row: passendes Icon (z.B. `speaker.slash` / `minus.circle`)
-- [ ] Icon-Farbe wechselt bei Auswahl von `textSecondary` → `interactive`, Icon wechselt zur filled-Variante
-- [ ] Tap auf eine Einstimmungs-Row spielt eine Hörprobe ab — gilt für eingebaute UND custom Einstimmungen (analog zu Hintergrundklängen)
-- [ ] Lokalisiert (DE + EN) — Menü-Aktionen bereits vorhanden, ggf. prüfen
-- [ ] Accessibility-Labels auf dem Overflow-Menü (analog zu GuidedMeditationsListView)
+- [x] Icon-Farbe wechselt bei Auswahl von `textSecondary` → `interactive`, Icon wechselt zur filled-Variante
+- [x] Tap auf eine Einstimmungs-Row spielt eine Hörprobe ab — gilt für eingebaute UND custom Einstimmungen (analog zu Hintergrundklängen)
+- [x] Lokalisiert (DE + EN) — Menü-Aktionen bereits vorhanden, ggf. prüfen
+- [x] Accessibility-Labels auf dem Overflow-Menü (analog zu GuidedMeditationsListView)
 
 ### Tests
 
-- [ ] Unit Tests iOS: ViewModel-seitig keine Änderungen erwartet — reine View-Änderung
-- [ ] Unit Tests Android: analog
+- [x] Unit Tests iOS: ViewModel-seitig keine Änderungen erwartet — reine View-Änderung
+- [x] Unit Tests Android: analog
 
 ### Dokumentation
 
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
