@@ -1,6 +1,6 @@
 # Ticket shared-065: Custom Audio Import (Soundscapes und Attunements)
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~5 | Android ~5
 **Phase**: 3-Feature
@@ -25,7 +25,7 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-064    |
-| Android   | [~]    | shared-064    |
+| Android   | [x]    | shared-064    |
 
 ---
 
@@ -65,12 +65,12 @@ Die App soll mit eigenen MP3s personalisierbar sein — nicht nur gefuehrte Medi
 
 #### Allgemein
 - [x] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Visuell konsistent zwischen iOS und Android
 - [x] Accessibility: Labels und Hints
 
 ### Tests
 - [x] Unit Tests iOS (Import, Loeschen, Fallback, Modell)
-- [ ] Unit Tests Android (Import, Loeschen, Fallback, Modell)
+- [x] Unit Tests Android (Import, Loeschen, Fallback, Modell)
 
 ### Dokumentation
 - [x] CHANGELOG.md
