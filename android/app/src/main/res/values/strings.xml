@@ -6,7 +6,6 @@
     <!-- Main Screen -->
     <string name="welcome_title">Lovely to see you</string>
     <string name="duration_question">How much time do you want to gift yourself?</string>
-    <string name="duration_footer">You deserve this pause</string>
 
     <!-- Common -->
     <string name="common_cancel">Cancel</string>

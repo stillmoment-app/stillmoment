@@ -36,7 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -190,15 +189,6 @@ private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, m
             range = 1..60,
             visibleItems = visibleItems,
             modifier = Modifier.height(pickerHeight)
-        )
-
-        Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
-
-        // Footer
-        Text(
-            text = stringResource(R.string.duration_footer),
-            style = TypographyRole.Caption.textStyle().copy(fontStyle = FontStyle.Italic),
-            color = TypographyRole.Caption.textColor()
         )
     }
 }

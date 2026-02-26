@@ -6,7 +6,6 @@
     <!-- Main Screen -->
     <string name="welcome_title">Schön, dass du da bist</string>
     <string name="duration_question">Wie viel Zeit schenkst du dir?</string>
-    <string name="duration_footer">Du verdienst diese Pause</string>
 
     <!-- Common -->
     <string name="common_cancel">Abbrechen</string>
