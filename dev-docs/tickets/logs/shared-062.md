@@ -66,6 +66,21 @@ Android infrastructure layer for Praxis persistence implemented: `PraxisDataStor
 
 ---
 
+## FIX 1
+Status: DONE
+Commits:
+- b4e9a96 fix(android): #shared-062 move shortDescription to presentation layer, add @Serializable to IntervalMode
+
+Challenges:
+<!-- CHALLENGES_START -->
+- keine
+<!-- CHALLENGES_END -->
+
+Summary:
+Fixed architecture violation: removed Android imports (Context, R) from domain model Praxis.kt and moved shortDescription(context) to PraxisExtensions.kt in the presentation layer. Added missing @Serializable to IntervalMode enum. Replaced Swift-style MARK comments with Kotlin region markers in Praxis.kt.
+
+---
+
 ## CLOSE
 Status: DONE
 Commits:
