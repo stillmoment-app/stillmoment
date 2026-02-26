@@ -1,6 +1,6 @@
 # Ticket shared-057: TimerDisplayState eliminieren
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~3h | Android ~3h
 **Phase**: 2-Architektur
@@ -25,7 +25,7 @@ TimerDisplayState dupliziert fast alle Felder von MeditationTimer. Jede Sekunde 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-056    |
-| Android   | [ ]    | shared-056    |
+| Android   | [x]    | shared-056    |
 
 ---
 

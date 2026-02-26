@@ -78,6 +78,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `currentAffirmationIndex` und `errorMessage` verbleiben im ViewModel (UI-only State)
   - Ticket: shared-057
 
+### Changed (Android)
+- **TimerDisplayState eliminiert** - ViewModel haelt direkt `MeditationTimer?` statt `TimerDisplayState` Data Class
+  - Reducer vereinfacht zum reinen Effect Mapper: `(Action, TimerState, Int, Settings) -> List<TimerEffect>` (kein State-Return mehr)
+  - `.tick`-Action und `.selectDuration`-Action aus Reducer entfernt, kein Felder-Kopieren mehr
+  - State-Transitions (StartGong->Running, EndGong->Completed) als Effects modelliert
+  - `currentAffirmationIndex` und `errorMessage` verbleiben im ViewModel (UI-only State)
+  - Ticket: shared-057
+
 ### Added (Android)
 - **Timer Completion Screen** - Nach Ablauf des Meditationstimers erscheint ein warmherziger Danke-Screen mit Herz-Icon, sanfter Slide-in-Animation und "Zurueck"-Button statt der leeren 00:00-Anzeige (Ticket: shared-052)
 
