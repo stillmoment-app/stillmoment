@@ -82,6 +82,7 @@
     <string name="affirmation_preparation_2">Atme tief durch...</string>
     <string name="affirmation_preparation_3">Bereite dich sanft vor...</string>
     <string name="affirmation_preparation_4">Gleich ist Zeit für dich...</string>
+    <string name="affirmation_preparation_5">Begrüße diese Stille...</string>
 
     <!-- Affirmations - Running -->
     <string name="affirmation_running_1">Atme sanft</string>

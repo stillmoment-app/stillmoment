@@ -82,6 +82,7 @@
     <string name="affirmation_preparation_2">Take a deep breath...</string>
     <string name="affirmation_preparation_3">Prepare gently...</string>
     <string name="affirmation_preparation_4">Time for you soon...</string>
+    <string name="affirmation_preparation_5">Welcome this stillness...</string>
 
     <!-- Affirmations - Running -->
     <string name="affirmation_running_1">Breathe softly</string>

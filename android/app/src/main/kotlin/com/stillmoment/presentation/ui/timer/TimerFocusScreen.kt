@@ -69,7 +69,8 @@ private val preparationAffirmations = intArrayOf(
     R.string.affirmation_preparation_1,
     R.string.affirmation_preparation_2,
     R.string.affirmation_preparation_3,
-    R.string.affirmation_preparation_4
+    R.string.affirmation_preparation_4,
+    R.string.affirmation_preparation_5
 )
 
 /** Affirmation resource IDs for running phase */
