@@ -83,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Guided-Meditation-Einstellungen in globale Settings verschoben** - Vorbereitungszeit ist jetzt im Settings-Tab unter "Geführte Meditationen" konfigurierbar (Ticket: shared-070)
   - Settings-Button in der Bibliotheks-Navigationsleiste entfernt
   - Import-Button (Plus) rechtsbündig in der Navigationsleiste
+- **Tab "Bibliothek" umbenannt zu "Meditationen"** - Tab-Label aktualisiert, Icon von `LibraryMusic` auf `GraphicEq` (Waveform) geaendert (Ticket: shared-071)
 - **Zen-Modus** - Bottom Navigation Bar gleitet bei laufender Meditation fliessend nach unten aus dem Bildschirm (350ms EaseInOut-Animation statt abruptem Ein-/Ausblenden) (Ticket: shared-066)
 - **TimerDisplayState eliminiert** - ViewModel haelt direkt `MeditationTimer?` statt `TimerDisplayState` Data Class
   - Reducer vereinfacht zum reinen Effect Mapper: `(Action, TimerState, Int, Settings) -> List<TimerEffect>` (kein State-Return mehr)
