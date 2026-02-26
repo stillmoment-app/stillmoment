@@ -206,7 +206,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [x] | - |
 | [android-064](android/android-064-test-output-summary.md) | Test-Output strukturierte Zusammenfassung | 5-QA | [ ] | - |
 | [android-065](android/android-065-dauer-aus-praxis-editor-entfernen.md) | Dauer-Picker aus PraxisEditor entfernen | 4-Polish | [x] | - |
-| [android-066](android/android-066-footer-text-entfernen.md) | Footer-Text "Du verdienst diese Pause" entfernen | 4-Polish | [ ] | - |
+| [android-066](android/android-066-footer-text-entfernen.md) | Footer-Text "Du verdienst diese Pause" entfernen | 4-Polish | [x] | - |
 | [android-067](android/android-067-pills-emoji-icons-ersetzen.md) | Konfigurations-Pills: Emoji durch monochrome Icons | 4-Polish | [ ] | - |
 | [android-068](android/android-068-completion-screen-back-button.md) | Abschluss-Screen: Auto-Navigation → expliziter Button | 4-Polish | [ ] | - |
 | [android-069](android/android-069-timer-regressions-tests.md) | Timer-Regressions-Tests implementieren | 5-QA | [ ] | - |
