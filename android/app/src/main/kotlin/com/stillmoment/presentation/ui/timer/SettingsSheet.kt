@@ -65,6 +65,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Introduction
@@ -408,11 +409,7 @@ private fun BackgroundSoundDropdown(
         expanded = expanded,
         onExpandedChange = onExpandedChange
     ) {
-        val selectedSoundName = when (settings.backgroundSoundId) {
-            "silent" -> stringResource(R.string.sound_silent)
-            "forest" -> stringResource(R.string.sound_forest)
-            else -> stringResource(R.string.sound_silent)
-        }
+        val selectedSoundName = BackgroundSound.findOrDefault(settings.backgroundSoundId).localizedName
 
         OutlinedTextField(
             value = selectedSoundName,
@@ -431,24 +428,17 @@ private fun BackgroundSoundDropdown(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
-            BackgroundSoundMenuItem(
-                title = stringResource(R.string.sound_silent),
-                description = stringResource(R.string.sound_silent_description),
-                onClick = {
-                    onSettingsChange(settings.copy(backgroundSoundId = "silent"))
-                    onBackgroundSoundPreview("silent")
-                    onExpandedChange(false)
-                }
-            )
-            BackgroundSoundMenuItem(
-                title = stringResource(R.string.sound_forest),
-                description = stringResource(R.string.sound_forest_description),
-                onClick = {
-                    onSettingsChange(settings.copy(backgroundSoundId = "forest"))
-                    onBackgroundSoundPreview("forest")
-                    onExpandedChange(false)
-                }
-            )
+            BackgroundSound.allSounds.forEach { sound ->
+                BackgroundSoundMenuItem(
+                    title = sound.localizedName,
+                    description = sound.localizedDescription,
+                    onClick = {
+                        onSettingsChange(settings.copy(backgroundSoundId = sound.id))
+                        onBackgroundSoundPreview(sound.id)
+                        onExpandedChange(false)
+                    }
+                )
+            }
         }
     }
 }

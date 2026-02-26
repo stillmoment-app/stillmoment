@@ -2,6 +2,7 @@ package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.repositories.CustomAudioRepository
@@ -117,14 +118,15 @@ constructor(
         }
 
         /**
-         * Maps a background sound ID to its resource ID.
-         * @param soundId The sound identifier ("silent" or "forest")
+         * Maps a background sound ID to its resource ID via the BackgroundSound domain model.
+         * @param soundId The sound identifier (e.g., "silent" or "forest")
          * @return Resource ID or null for silent/unknown sounds
          */
-        fun getBackgroundSoundResourceId(soundId: String): Int? = when (soundId) {
-            "forest" -> R.raw.forest_ambience
-            "silent" -> null
-            else -> null
+        fun getBackgroundSoundResourceId(soundId: String): Int? {
+            val sound = BackgroundSound.findOrDefault(soundId)
+            if (sound.isSilent) return null
+            val resourceId = resolveRawResourceId(sound.rawResourceName)
+            return if (resourceId != 0) resourceId else null
         }
     }
 

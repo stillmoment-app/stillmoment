@@ -60,6 +60,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
@@ -73,20 +74,11 @@ import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-/**
- * Background sound option with id, display name resource, and icon.
- */
-private data class BackgroundSoundOption(
-    val id: String,
-    val nameResId: Int,
-    val iconVector: ImageVector
-)
-
-/** Available background sounds matching SettingsSheet.kt options. */
-private val backgroundSoundOptions = listOf(
-    BackgroundSoundOption("silent", R.string.praxis_editor_background_silence, Icons.AutoMirrored.Filled.VolumeOff),
-    BackgroundSoundOption("forest", R.string.sound_forest, Icons.Filled.Forest)
-)
+/** Maps a background sound ID to its Compose icon vector. */
+private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId) {
+    "forest" -> Icons.Filled.Forest
+    else -> Icons.AutoMirrored.Filled.VolumeOff
+}
 
 /**
  * Sub-screen for selecting a background sound.
@@ -285,7 +277,7 @@ private fun BackgroundSoundSelectionCard(
         border = BorderStroke(0.5.dp, colors.cardBorder)
     ) {
         Column {
-            backgroundSoundOptions.forEachIndexed { index, option ->
+            BackgroundSound.allSounds.forEachIndexed { index, sound ->
                 if (index > 0) {
                     HorizontalDivider(
                         color = colors.cardBorder,
@@ -295,10 +287,10 @@ private fun BackgroundSoundSelectionCard(
                 }
 
                 BackgroundSoundRow(
-                    name = stringResource(option.nameResId),
-                    isSelected = selectedSoundId == option.id,
-                    iconVector = option.iconVector,
-                    onClick = { onSelectSound(option.id) }
+                    name = sound.localizedName,
+                    isSelected = selectedSoundId == sound.id,
+                    iconVector = iconForBackgroundSound(sound.id),
+                    onClick = { onSelectSound(sound.id) }
                 )
             }
         }
