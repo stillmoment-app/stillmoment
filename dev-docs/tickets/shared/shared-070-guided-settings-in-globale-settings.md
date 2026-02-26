@@ -39,7 +39,7 @@ Die Guided-Meditations-Liste hat aktuell zwei konkurrierende Einstiegspunkte fü
 
 ### Tests
 - [x] Unit Tests iOS (Settings-Persistenz)
-- [ ] Unit Tests Android (Settings-Persistenz)
+- [x] Unit Tests Android (Settings-Persistenz)
 
 ### Dokumentation
 - [x] CHANGELOG.md
