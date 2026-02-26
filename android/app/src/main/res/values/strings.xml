@@ -229,4 +229,45 @@
     <string name="praxis_description_duration">%d min</string>
     <string name="praxis_description_silent">Silence</string>
     <string name="praxis_description_preparation">%ds preparation</string>
+    <string name="praxis_description_no_interval_gongs">No Interval Gong</string>
+    <string name="praxis_pill_preparation">%ds</string>
+
+    <!-- Praxis Editor -->
+    <string name="praxis_editor_title">Configuration</string>
+    <string name="praxis_editor_duration_label">Duration</string>
+    <string name="praxis_editor_section_preparation">Preparation</string>
+    <string name="praxis_editor_section_audio">Audio &amp; Sounds</string>
+    <string name="praxis_editor_section_gongs">Gongs</string>
+    <string name="praxis_editor_introduction_row">Introduction</string>
+    <string name="praxis_editor_introduction_none">No Introduction</string>
+    <string name="praxis_editor_introduction_title">Introduction</string>
+    <string name="praxis_editor_background_row">Background Sound</string>
+    <string name="praxis_editor_background_title">Background Sound</string>
+    <string name="praxis_editor_background_silence">Silence</string>
+    <string name="praxis_editor_start_gong_row">Start &amp; End Gong</string>
+    <string name="praxis_editor_start_gong_title">Start &amp; End Gong</string>
+    <string name="praxis_editor_interval_gongs_row">Interval Gongs</string>
+    <string name="praxis_editor_interval_gongs_title">Interval Gongs</string>
+    <string name="praxis_editor_delete_practice">Delete Practice</string>
+    <string name="praxis_editor_delete_confirm_title">Delete Practice?</string>
+    <string name="praxis_editor_delete_confirm_message">This practice will be permanently deleted.</string>
+    <string name="praxis_editor_delete_confirm_button">Delete</string>
+
+    <!-- Praxis Editor Common -->
+    <string name="common_off">Off</string>
+    <string name="common_on">On</string>
+
+    <!-- Praxis Editor Accessibility -->
+    <string name="accessibility_praxis_editor_cancel">Cancel</string>
+    <string name="accessibility_praxis_editor_cancel_hint">Discard changes and close</string>
+    <string name="accessibility_praxis_editor_done">Done</string>
+    <string name="accessibility_praxis_editor_done_hint">Save changes</string>
+    <string name="accessibility_praxis_editor_name">Practice name</string>
+    <string name="accessibility_praxis_editor_delete">Delete practice</string>
+    <string name="accessibility_praxis_editor_introduction">Select introduction</string>
+    <string name="accessibility_praxis_editor_background">Select background sound</string>
+    <string name="accessibility_praxis_editor_start_gong">Select start and end gong</string>
+    <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>
+    <string name="accessibility_praxis_editor_preparation_toggle">Preparation time toggle</string>
+    <string name="accessibility_praxis_editor_preparation_duration">Preparation duration</string>
 </resources>

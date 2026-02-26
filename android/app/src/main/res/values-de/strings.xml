@@ -229,4 +229,45 @@
     <string name="praxis_description_duration">%d Min</string>
     <string name="praxis_description_silent">Stille</string>
     <string name="praxis_description_preparation">%ds Vorbereitung</string>
+    <string name="praxis_description_no_interval_gongs">Kein Intervallton</string>
+    <string name="praxis_pill_preparation">%ds</string>
+
+    <!-- Praxis Editor -->
+    <string name="praxis_editor_title">Konfiguration</string>
+    <string name="praxis_editor_duration_label">Dauer</string>
+    <string name="praxis_editor_section_preparation">Vorbereitung</string>
+    <string name="praxis_editor_section_audio">Audio &amp; Klänge</string>
+    <string name="praxis_editor_section_gongs">Gongs</string>
+    <string name="praxis_editor_introduction_row">Einstimmung</string>
+    <string name="praxis_editor_introduction_none">Ohne Einstimmung</string>
+    <string name="praxis_editor_introduction_title">Einstimmung</string>
+    <string name="praxis_editor_background_row">Hintergrundklang</string>
+    <string name="praxis_editor_background_title">Hintergrundklang</string>
+    <string name="praxis_editor_background_silence">Stille</string>
+    <string name="praxis_editor_start_gong_row">Start &amp; Ende</string>
+    <string name="praxis_editor_start_gong_title">Start &amp; Ende</string>
+    <string name="praxis_editor_interval_gongs_row">Intervall-Gongs</string>
+    <string name="praxis_editor_interval_gongs_title">Intervall-Gongs</string>
+    <string name="praxis_editor_delete_practice">Praxis löschen</string>
+    <string name="praxis_editor_delete_confirm_title">Praxis löschen?</string>
+    <string name="praxis_editor_delete_confirm_message">Diese Praxis wird dauerhaft gelöscht.</string>
+    <string name="praxis_editor_delete_confirm_button">Löschen</string>
+
+    <!-- Praxis Editor Common -->
+    <string name="common_off">Aus</string>
+    <string name="common_on">Ein</string>
+
+    <!-- Praxis Editor Accessibility -->
+    <string name="accessibility_praxis_editor_cancel">Abbrechen</string>
+    <string name="accessibility_praxis_editor_cancel_hint">Änderungen verwerfen und schließen</string>
+    <string name="accessibility_praxis_editor_done">Fertig</string>
+    <string name="accessibility_praxis_editor_done_hint">Änderungen speichern</string>
+    <string name="accessibility_praxis_editor_name">Praxisname</string>
+    <string name="accessibility_praxis_editor_delete">Praxis löschen</string>
+    <string name="accessibility_praxis_editor_introduction">Einstimmung auswählen</string>
+    <string name="accessibility_praxis_editor_background">Hintergrundklang auswählen</string>
+    <string name="accessibility_praxis_editor_start_gong">Start- und Ende-Gong auswählen</string>
+    <string name="accessibility_praxis_editor_interval_gongs">Intervall-Gongs konfigurieren</string>
+    <string name="accessibility_praxis_editor_preparation_toggle">Vorbereitungszeit Schalter</string>
+    <string name="accessibility_praxis_editor_preparation_duration">Vorbereitungsdauer</string>
 </resources>
