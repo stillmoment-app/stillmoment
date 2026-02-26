@@ -4,8 +4,10 @@ import android.content.Context
 import com.stillmoment.data.local.GuidedMeditationSettingsDataStore
 import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.data.repositories.CustomAudioRepositoryImpl
 import com.stillmoment.data.repositories.GuidedMeditationRepositoryImpl
 import com.stillmoment.data.repositories.TimerRepositoryImpl
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -131,6 +133,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideTimerForegroundService(impl: TimerForegroundServiceWrapper): TimerForegroundServiceProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideCustomAudioRepository(impl: CustomAudioRepositoryImpl): CustomAudioRepository {
         return impl
     }
 }

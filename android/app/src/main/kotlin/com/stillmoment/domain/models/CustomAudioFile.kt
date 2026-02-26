@@ -1,5 +1,6 @@
 package com.stillmoment.domain.models
 
+import java.util.Locale
 import java.util.UUID
 import kotlinx.serialization.Serializable
 
@@ -37,6 +38,6 @@ data class CustomAudioFile(
             val totalSeconds = (ms / 1000).toInt()
             val minutes = totalSeconds / 60
             val seconds = totalSeconds % 60
-            return String.format("%d:%02d", minutes, seconds)
+            return String.format(Locale.US, "%d:%02d", minutes, seconds)
         }
 }
