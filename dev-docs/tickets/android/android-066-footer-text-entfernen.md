@@ -21,13 +21,13 @@ Der Text ist wertend und wirbt. Das widerspricht der Still-Moment-Philosophie: "
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] `Text`-Element mit `stringResource(R.string.duration_footer)` aus `TimerScreen.kt` entfernt (Zeile ~197-202)
-- [ ] Zugehoeriger `Spacer` vor dem Text ebenfalls entfernt
-- [ ] String-Ressource `duration_footer` aus `values/strings.xml` und `values-de/strings.xml` entfernt
-- [ ] Kein unerklärter Leerraum an der Stelle des entfernten Textes
+- [x] `Text`-Element mit `stringResource(R.string.duration_footer)` aus `TimerScreen.kt` entfernt (Zeile ~197-202)
+- [x] Zugehoeriger `Spacer` vor dem Text ebenfalls entfernt
+- [x] String-Ressource `duration_footer` aus `values/strings.xml` und `values-de/strings.xml` entfernt
+- [x] Kein unerklärter Leerraum an der Stelle des entfernten Textes
 
 ### Tests
-- [ ] `make test` gruen
+- [x] `make test` gruen
 
 ### Dokumentation
 - [ ] Keine
