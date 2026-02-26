@@ -1,6 +1,6 @@
 # Ticket shared-070: Guided-Meditation-Einstellungen in globale Settings
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Die Guided-Meditations-Liste hat aktuell zwei konkurrierende Einstiegspunkte fü
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
