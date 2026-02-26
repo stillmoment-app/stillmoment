@@ -13,6 +13,9 @@ import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -44,6 +47,9 @@ constructor(
     private val settingsDataStore: SettingsDataStore,
     private val logger: LoggerProtocol
 ) : PraxisRepository {
+    private val _praxisState = MutableStateFlow<Praxis?>(null)
+    override val praxisFlow: Flow<Praxis> = _praxisState.filterNotNull()
+
     private object Keys {
         val CURRENT_PRAXIS = stringPreferencesKey("current_praxis")
     }
@@ -55,6 +61,7 @@ constructor(
         if (json != null) {
             val decoded = decodeOrNull(json)
             if (decoded != null) {
+                _praxisState.value = decoded
                 return decoded
             }
             logger.e(TAG, "Failed to decode stored praxis, re-migrating")
@@ -68,6 +75,7 @@ constructor(
         context.praxisDataStore.edit { prefs ->
             prefs[Keys.CURRENT_PRAXIS] = json
         }
+        _praxisState.value = praxis
         logger.d(TAG, "Saved praxis id=${praxis.id}")
     }
 

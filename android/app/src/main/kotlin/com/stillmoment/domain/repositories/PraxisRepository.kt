@@ -1,14 +1,21 @@
 package com.stillmoment.domain.repositories
 
 import com.stillmoment.domain.models.Praxis
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing the user's Praxis (timer configuration).
  *
- * Currently supports a single-praxis model: one active Praxis at a time.
- * Future tickets (shared-063/064) will extend this to multi-praxis CRUD.
+ * Supports a single-praxis model: one active Praxis at a time.
  */
 interface PraxisRepository {
+    /**
+     * Observable flow of the current Praxis.
+     * Emits whenever the Praxis is loaded or saved.
+     * Only emits non-null values (skips the initial unloaded state).
+     */
+    val praxisFlow: Flow<Praxis>
+
     /**
      * Loads the current Praxis.
      * Returns a default Praxis if none has been saved yet.
