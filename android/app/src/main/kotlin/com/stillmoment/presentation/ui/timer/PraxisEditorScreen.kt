@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.HourglassEmpty
@@ -29,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -37,7 +40,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -85,8 +87,7 @@ private val DropdownShape = RoundedCornerShape(12.dp)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PraxisEditorScreen(
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
+    onNavigateBack: () -> Unit,
     onNavigateToIntroduction: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
@@ -102,12 +103,17 @@ fun PraxisEditorScreen(
         }
     }
 
+    BackHandler {
+        viewModel.save()
+        onNavigateBack()
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
-            EditorTopAppBar(onCancel = onCancel, onSave = {
+            EditorTopAppBar(onBack = {
                 viewModel.save()
-                onSave()
+                onNavigateBack()
             })
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -173,10 +179,7 @@ private fun EditorContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditorTopAppBar(onCancel: () -> Unit, onSave: () -> Unit) {
-    val cancelDescription = stringResource(R.string.accessibility_praxis_editor_cancel)
-    val doneDescription = stringResource(R.string.accessibility_praxis_editor_done)
-
+private fun EditorTopAppBar(onBack: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -186,28 +189,14 @@ private fun EditorTopAppBar(onCancel: () -> Unit, onSave: () -> Unit) {
             )
         },
         navigationIcon = {
-            TextButton(
-                onClick = onCancel,
-                modifier = Modifier
-                    .testTag("praxisEditor.button.cancel")
-                    .semantics { contentDescription = cancelDescription }
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.testTag("praxisEditor.button.back")
             ) {
-                Text(
-                    text = stringResource(R.string.common_cancel),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        },
-        actions = {
-            TextButton(
-                onClick = onSave,
-                modifier = Modifier
-                    .testTag("praxisEditor.button.done")
-                    .semantics { contentDescription = doneDescription }
-            ) {
-                Text(
-                    text = stringResource(R.string.button_done),
-                    color = MaterialTheme.colorScheme.primary
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.button_back),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },

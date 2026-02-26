@@ -401,8 +401,7 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
         val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
 
         PraxisEditorScreen(
-            onCancel = { navController.popBackStack() },
-            onSave = {
+            onNavigateBack = {
                 timerViewModel.refreshFromPraxis()
                 navController.popBackStack(Screen.Timer.route, false)
             },
