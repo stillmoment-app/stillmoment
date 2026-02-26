@@ -274,4 +274,20 @@
     <!-- Configuration Pills -->
     <string name="accessibility_configuration_pills">Current configuration</string>
     <string name="accessibility_configuration_pills_hint">Opens configuration editor</string>
+
+    <!-- Custom Audio Import -->
+    <string name="custom_audio_section_my_sounds">My Sounds</string>
+    <string name="custom_audio_section_my_attunements">My Attunements</string>
+    <string name="custom_audio_import_button">Import Audio File</string>
+    <string name="custom_audio_empty_sounds">No custom sounds imported yet</string>
+    <string name="custom_audio_empty_attunements">No custom attunements imported yet</string>
+    <string name="custom_audio_delete_title">Delete Audio File</string>
+    <string name="custom_audio_delete_message">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="custom_audio_delete_warning_praxis">Used in the current practice</string>
+    <string name="custom_audio_duration_unknown">Unknown</string>
+    <string name="custom_audio_error_unsupported_format">This file format is not supported. Only MP3, M4A and WAV files can be imported.</string>
+    <string name="custom_audio_error_import_failed">The audio file could not be imported. Please try again.</string>
+    <string name="accessibility_custom_audio_overflow">More options for %1$s</string>
+    <string name="accessibility_import_custom_audio">Import audio file</string>
+    <string name="accessibility_custom_audio_item">%1$s, duration %2$s</string>
 </resources>

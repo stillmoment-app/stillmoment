@@ -274,4 +274,20 @@
     <!-- Configuration Pills -->
     <string name="accessibility_configuration_pills">Aktuelle Konfiguration</string>
     <string name="accessibility_configuration_pills_hint">Öffnet den Konfigurationseditor</string>
+
+    <!-- Custom Audio Import -->
+    <string name="custom_audio_section_my_sounds">Meine Klaenge</string>
+    <string name="custom_audio_section_my_attunements">Meine Einstimmungen</string>
+    <string name="custom_audio_import_button">Audiodatei importieren</string>
+    <string name="custom_audio_empty_sounds">Noch keine eigenen Klaenge importiert</string>
+    <string name="custom_audio_empty_attunements">Noch keine eigenen Einstimmungen importiert</string>
+    <string name="custom_audio_delete_title">Audiodatei loeschen</string>
+    <string name="custom_audio_delete_message">Moechtest du \"%1$s\" wirklich loeschen?</string>
+    <string name="custom_audio_delete_warning_praxis">Wird in der aktuellen Praxis verwendet</string>
+    <string name="custom_audio_duration_unknown">Unbekannt</string>
+    <string name="custom_audio_error_unsupported_format">Dieses Dateiformat wird nicht unterstuetzt. Nur MP3-, M4A- und WAV-Dateien koennen importiert werden.</string>
+    <string name="custom_audio_error_import_failed">Die Audiodatei konnte nicht importiert werden. Bitte versuche es erneut.</string>
+    <string name="accessibility_custom_audio_overflow">Weitere Optionen fuer %1$s</string>
+    <string name="accessibility_import_custom_audio">Audiodatei importieren</string>
+    <string name="accessibility_custom_audio_item">%1$s, Dauer %2$s</string>
 </resources>
