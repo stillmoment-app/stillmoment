@@ -1,6 +1,6 @@
 # Ticket shared-071: Tab "Bibliothek" → "Meditationen" + Icon waveform
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~0.5h | Android ~0.5h
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Den Tab-Bezeichner "Bibliothek" (EN: "Library") umbenennen zu "Meditationen" (EN
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
