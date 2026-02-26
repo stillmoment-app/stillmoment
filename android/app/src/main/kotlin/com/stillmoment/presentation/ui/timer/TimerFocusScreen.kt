@@ -193,20 +193,23 @@ private fun FocusScreenLayout(uiState: TimerUiState, onBack: () -> Unit, modifie
             )
         }
 
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = TopAppBarHeight).padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = stringResource(R.string.welcome_title),
-                style = TypographyRole.ScreenTitle.textStyle(),
-                color = TypographyRole.ScreenTitle.textColor(),
-                modifier = Modifier.semantics { heading() }
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            FocusTimerDisplay(uiState = uiState)
-            Spacer(modifier = Modifier.weight(1f))
+        // Hide timer content from accessibility tree when completion overlay is visible
+        if (uiState.timerState != TimerState.Completed) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(top = TopAppBarHeight).padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = stringResource(R.string.welcome_title),
+                    style = TypographyRole.ScreenTitle.textStyle(),
+                    color = TypographyRole.ScreenTitle.textColor(),
+                    modifier = Modifier.semantics { heading() }
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                FocusTimerDisplay(uiState = uiState)
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }
