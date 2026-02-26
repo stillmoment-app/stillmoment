@@ -405,7 +405,6 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
             onNavigateToBackground = { navController.navigate(Screen.SelectBackground.route) },
             onNavigateToGong = { navController.navigate(Screen.SelectGong.route) },
             onNavigateToIntervalGongs = { navController.navigate(Screen.IntervalGongs.route) },
-            onDeleteConfirm = { navController.popBackStack(Screen.Timer.route, false) },
             viewModel = editorViewModel
         )
     }

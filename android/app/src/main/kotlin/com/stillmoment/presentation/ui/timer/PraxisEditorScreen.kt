@@ -21,7 +21,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -92,7 +91,6 @@ fun PraxisEditorScreen(
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
-    onDeleteConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PraxisEditorViewModel = hiltViewModel()
 ) {
@@ -123,7 +121,6 @@ fun PraxisEditorScreen(
             onNavigateToBackground = onNavigateToBackground,
             onNavigateToGong = onNavigateToGong,
             onNavigateToIntervalGongs = onNavigateToIntervalGongs,
-            onDeleteConfirm = onDeleteConfirm,
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -140,7 +137,6 @@ private fun EditorContent(
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
-    onDeleteConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -174,8 +170,6 @@ private fun EditorContent(
             onNavigateToGong = onNavigateToGong,
             onNavigateToIntervalGongs = onNavigateToIntervalGongs
         )
-        Spacer(modifier = Modifier.height(SectionSpacing))
-        DeletePracticeButton(onDeleteConfirm = onDeleteConfirm)
     }
 }
 
@@ -483,74 +477,6 @@ private fun GongsSection(
             )
         }
     }
-}
-
-// endregion
-
-// region Delete Practice
-
-@Composable
-private fun DeletePracticeButton(onDeleteConfirm: () -> Unit) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    val deleteDescription = stringResource(R.string.accessibility_praxis_editor_delete)
-
-    TextButton(
-        onClick = { showDeleteDialog = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("praxisEditor.button.delete")
-            .semantics { contentDescription = deleteDescription }
-    ) {
-        Text(
-            text = stringResource(R.string.praxis_editor_delete_practice),
-            color = MaterialTheme.colorScheme.error,
-            style = TypographyRole.SettingsLabel.textStyle()
-        )
-    }
-
-    if (showDeleteDialog) {
-        DeleteConfirmationDialog(onConfirm = {
-            showDeleteDialog = false
-            onDeleteConfirm()
-        }, onDismiss = { showDeleteDialog = false })
-    }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = stringResource(R.string.praxis_editor_delete_confirm_title),
-                style = TypographyRole.SectionTitle.textStyle(),
-                color = TypographyRole.SectionTitle.textColor()
-            )
-        },
-        text = {
-            Text(
-                text = stringResource(R.string.praxis_editor_delete_confirm_message),
-                style = TypographyRole.BodyPrimary.textStyle(),
-                color = TypographyRole.BodyPrimary.textColor()
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(R.string.praxis_editor_delete_confirm_button),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(R.string.common_cancel),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-    )
 }
 
 // endregion

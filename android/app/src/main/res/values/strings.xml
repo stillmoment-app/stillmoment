@@ -249,10 +249,6 @@
     <string name="praxis_editor_start_gong_title">Start &amp; End Gong</string>
     <string name="praxis_editor_interval_gongs_row">Interval Gongs</string>
     <string name="praxis_editor_interval_gongs_title">Interval Gongs</string>
-    <string name="praxis_editor_delete_practice">Delete Practice</string>
-    <string name="praxis_editor_delete_confirm_title">Delete Practice?</string>
-    <string name="praxis_editor_delete_confirm_message">This practice will be permanently deleted.</string>
-    <string name="praxis_editor_delete_confirm_button">Delete</string>
 
     <!-- Praxis Editor Common -->
     <string name="common_off">Off</string>
@@ -264,7 +260,6 @@
     <string name="accessibility_praxis_editor_done">Done</string>
     <string name="accessibility_praxis_editor_done_hint">Save changes</string>
     <string name="accessibility_praxis_editor_name">Practice name</string>
-    <string name="accessibility_praxis_editor_delete">Delete practice</string>
     <string name="accessibility_praxis_editor_introduction">Select introduction</string>
     <string name="accessibility_praxis_editor_background">Select background sound</string>
     <string name="accessibility_praxis_editor_start_gong">Select start and end gong</string>
