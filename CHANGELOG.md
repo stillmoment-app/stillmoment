@@ -79,6 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-057
 
 ### Changed (Android)
+- **Sound-Auswahl UX-Konsistenz** - Hintergrundklang- und Einstimmungs-Listen mit Overflow-Menue (3 Punkte) fuer Custom Audio, permanenten Icons links mit farblicher Hervorhebung bei Auswahl, und Hoerprobe fuer Einstimmungen beim Antippen (Ticket: shared-069)
 - **Zen-Modus** - Bottom Navigation Bar gleitet bei laufender Meditation fliessend nach unten aus dem Bildschirm (350ms EaseInOut-Animation statt abruptem Ein-/Ausblenden) (Ticket: shared-066)
 - **TimerDisplayState eliminiert** - ViewModel haelt direkt `MeditationTimer?` statt `TimerDisplayState` Data Class
   - Reducer vereinfacht zum reinen Effect Mapper: `(Action, TimerState, Int, Settings) -> List<TimerEffect>` (kein State-Return mehr)

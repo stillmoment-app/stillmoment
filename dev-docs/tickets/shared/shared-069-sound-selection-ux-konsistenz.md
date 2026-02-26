@@ -1,6 +1,6 @@
 # Ticket shared-069: Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor)
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2d | Android ~1d (nach shared-065 Android)
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Die bisherige Darstellung von Pencil- und Trash-Icons direkt in der Row ist visu
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | shared-065 Android |
+| Android   | [x]    | shared-065 Android |
 
 ---
 
