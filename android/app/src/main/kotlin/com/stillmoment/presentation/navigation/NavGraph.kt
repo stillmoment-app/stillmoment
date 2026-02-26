@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.LibraryMusic
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -62,6 +64,8 @@ import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
+import com.stillmoment.presentation.ui.settings.AppSettingsScreen
+import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
@@ -87,6 +91,13 @@ sealed class Screen(val route: String) {
     data object TimerFocus : Screen("timerFocus")
 
     data object Library : Screen(AppTab.LIBRARY.route)
+
+    /** Parent route for settings-related screens (for tab hierarchy matching) */
+    data object SettingsGraph : Screen(AppTab.SETTINGS.route)
+
+    data object Settings : Screen("settingsHome")
+
+    data object SoundAttributions : Screen("soundAttributions")
 
     data object Player : Screen("player/{meditationJson}") {
         fun createRoute(meditation: GuidedMeditation): String {
@@ -134,12 +145,20 @@ private val tabs = persistentListOf(
         selectedIcon = Icons.Filled.LibraryMusic,
         unselectedIcon = Icons.Outlined.LibraryMusic,
         accessibilityResId = R.string.accessibility_tab_library
+    ),
+    TabItem(
+        tab = AppTab.SETTINGS,
+        screen = Screen.SettingsGraph,
+        labelResId = R.string.tab_settings,
+        selectedIcon = Icons.Filled.Settings,
+        unselectedIcon = Icons.Outlined.Settings,
+        accessibilityResId = R.string.accessibility_tab_settings
     )
 )
 
 /**
  * Main navigation host for Still Moment.
- * Features TabView navigation with Timer and Library tabs.
+ * Features TabView navigation with Timer, Library, and Settings tabs.
  * Remembers the last selected tab across app restarts.
  */
 @Composable
@@ -210,7 +229,7 @@ private fun NavHostScaffold(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val showBottomBar = currentDestination?.route?.let { route ->
-        !route.startsWith("player") && route != Screen.TimerFocus.route
+        !route.startsWith("player") && route != Screen.TimerFocus.route && route != Screen.SoundAttributions.route
     } != false
 
     Scaffold(
@@ -265,6 +284,21 @@ private fun StillMomentNavContent(
                 selectedAppearanceMode = settingsState.selectedAppearanceMode,
                 onAppearanceModeChange = settingsState.onAppearanceModeChange
             )
+        }
+
+        navigation(startDestination = Screen.Settings.route, route = Screen.SettingsGraph.route) {
+            composable(Screen.Settings.route) {
+                AppSettingsScreen(
+                    selectedTheme = settingsState.selectedTheme,
+                    onThemeChange = settingsState.onThemeChange,
+                    selectedAppearanceMode = settingsState.selectedAppearanceMode,
+                    onAppearanceModeChange = settingsState.onAppearanceModeChange,
+                    onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) }
+                )
+            }
+            composable(Screen.SoundAttributions.route) {
+                SoundAttributionsScreen(onBack = { navController.popBackStack() })
+            }
         }
 
         playerComposable(navController)
