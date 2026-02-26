@@ -1,9 +1,13 @@
 package com.stillmoment.presentation.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +38,10 @@ data class PraxisEditorUiState(
     val intervalSoundId: String = Praxis.DEFAULT_INTERVAL_SOUND_ID,
     val intervalGongVolume: Float = Praxis.DEFAULT_INTERVAL_GONG_VOLUME,
     val backgroundSoundId: String = Praxis.DEFAULT_BACKGROUND_SOUND_ID,
-    val backgroundSoundVolume: Float = Praxis.DEFAULT_BACKGROUND_SOUND_VOLUME
+    val backgroundSoundVolume: Float = Praxis.DEFAULT_BACKGROUND_SOUND_VOLUME,
+    val customSoundscapes: List<CustomAudioFile> = emptyList(),
+    val customAttunements: List<CustomAudioFile> = emptyList(),
+    val customAudioError: String? = null
 )
 
 /**
@@ -50,7 +57,8 @@ class PraxisEditorViewModel
 @Inject
 constructor(
     private val praxisRepository: PraxisRepository,
-    private val audioService: AudioServiceProtocol
+    private val audioService: AudioServiceProtocol,
+    private val customAudioRepository: CustomAudioRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PraxisEditorUiState())
     val uiState: StateFlow<PraxisEditorUiState> = _uiState.asStateFlow()
@@ -78,6 +86,16 @@ constructor(
                 backgroundSoundId = praxis.backgroundSoundId,
                 backgroundSoundVolume = praxis.backgroundSoundVolume
             )
+        }
+        viewModelScope.launch {
+            customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE).collect { files ->
+                _uiState.update { it.copy(customSoundscapes = files) }
+            }
+        }
+        viewModelScope.launch {
+            customAudioRepository.filesFlow(CustomAudioType.ATTUNEMENT).collect { files ->
+                _uiState.update { it.copy(customAttunements = files) }
+            }
         }
     }
 
@@ -194,5 +212,50 @@ constructor(
     fun stopPreviews() {
         audioService.stopGongPreview()
         audioService.stopBackgroundPreview()
+    }
+
+    // MARK: - Custom Audio
+
+    /**
+     * Imports a custom audio file from the given URI.
+     * Sets customAudioError on failure.
+     */
+    fun importCustomAudio(uri: Uri, type: CustomAudioType) {
+        viewModelScope.launch {
+            val result = customAudioRepository.importFile(uri, type)
+            result.onFailure { error ->
+                _uiState.update { it.copy(customAudioError = error.message) }
+            }
+        }
+    }
+
+    /**
+     * Deletes a custom audio file by ID.
+     * If the current praxis uses the deleted file, resets to the appropriate default.
+     */
+    fun deleteCustomAudio(id: String) {
+        viewModelScope.launch {
+            val current = _uiState.value
+            customAudioRepository.delete(id)
+
+            // Reset backgroundSoundId if it references the deleted file
+            if (current.backgroundSoundId == id) {
+                _uiState.update { it.copy(backgroundSoundId = Praxis.DEFAULT_BACKGROUND_SOUND_ID) }
+                save()
+            }
+
+            // Reset introductionId if it references the deleted file
+            if (current.introductionId == id) {
+                _uiState.update { it.copy(introductionId = null) }
+                save()
+            }
+        }
+    }
+
+    /**
+     * Clears any custom audio error message.
+     */
+    fun clearCustomAudioError() {
+        _uiState.update { it.copy(customAudioError = null) }
     }
 }
