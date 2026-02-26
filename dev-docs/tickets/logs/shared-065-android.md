@@ -35,6 +35,22 @@ Added "My Sounds" section to SelectBackgroundSoundScreen and "My Attunements" se
 
 ---
 
+## IMPLEMENT (Tests)
+Status: DONE
+Commits:
+- 2563173 test(android): #shared-065 add unit tests for CustomAudioFile and custom audio ViewModel methods
+
+Challenges:
+<!-- CHALLENGES_START -->
+- `Uri.parse()` returns null in pure JUnit (no Robolectric) because Android's Uri class is stubbed. Must use `mock<Uri>()` from mockito-kotlin instead, matching the pattern used in GuidedMeditationsListViewModelTest.
+- FakeCustomAudioRepository, FakePraxisRepository, and FakeAudioService are defined as top-level classes in their respective test files but accessible across files in the same package -- no need to duplicate or extract shared test helpers.
+<!-- CHALLENGES_END -->
+
+Summary:
+Added CustomAudioFileTest (10 tests covering formattedDuration, type distinction, identity/equality) and PraxisEditorViewModelCustomAudioTest (9 tests covering import, delete with praxis reset, and error handling).
+
+---
+
 ## CLOSE
 Status: DONE
 Commits:

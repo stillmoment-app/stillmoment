@@ -93,6 +93,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Einleitungs-, Hintergrund-Sound-, Gong- und Intervall-Gong-Subscreens
   - Settings-Zahnrad auf Timer-Screen durch Konfigurationspills ersetzt
   - TimerViewModel laedt Konfiguration aus PraxisRepository statt SettingsRepository
+- **Custom Audio Import** - Eigene Audio-Dateien (MP3, M4A, WAV) als Soundscapes und Einstimmungen importieren (Ticket: shared-065)
+  - "Eigene Datei importieren" in Soundscape- und Einstimmungs-Subscreens via SAF File Picker
+  - Sektion "Meine Klaenge" / "Meine Einstimmungen" mit Auswahl und Loeschen
+  - Overflow-Menue (3 Punkte) pro Custom-Audio-Eintrag mit Loeschen-Option
+  - Bestaetigungsdialog mit Praxis-Verwendungswarnung beim Loeschen
+  - Betroffene Praxis faellt nach Loeschen auf Stille/Keine Einstimmung zurueck
+  - Dauer-Erkennung automatisch via MediaMetadataRetriever; bei Fehler "Unbekannt"
+  - AudioService: `startBackgroundAudioFromFile()` und `playIntroductionFromFile()` fuer Custom-Audio-Wiedergabe
 
 ### Changed (iOS & Android)
 - **tick() emittiert Domain Events** - `MeditationTimer.tick()` gibt jetzt `(MeditationTimer, [TimerEvent])` zurueck statt nur `MeditationTimer`
