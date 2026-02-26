@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.automirrored.outlined.QueueMusic
-import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.outlined.LibraryMusic
+import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -166,8 +166,8 @@ private val tabs = persistentListOf(
         tab = AppTab.LIBRARY,
         screen = Screen.Library,
         labelResId = R.string.tab_library,
-        selectedIcon = Icons.Filled.LibraryMusic,
-        unselectedIcon = Icons.Outlined.LibraryMusic,
+        selectedIcon = Icons.Filled.GraphicEq,
+        unselectedIcon = Icons.Outlined.GraphicEq,
         accessibilityResId = R.string.accessibility_tab_library
     ),
     TabItem(
