@@ -207,11 +207,19 @@ constructor(
     }
 
     /**
-     * Stops all active audio previews (gong and background).
+     * Plays an introduction audio preview using the current introduction.
+     */
+    fun playIntroductionPreview(introductionId: String) {
+        audioService.playIntroductionPreview(introductionId)
+    }
+
+    /**
+     * Stops all active audio previews (gong, background, and introduction).
      */
     fun stopPreviews() {
         audioService.stopGongPreview()
         audioService.stopBackgroundPreview()
+        audioService.stopIntroductionPreview()
     }
 
     // MARK: - Custom Audio
@@ -249,6 +257,15 @@ constructor(
                 _uiState.update { it.copy(introductionId = null) }
                 save()
             }
+        }
+    }
+
+    /**
+     * Renames a custom audio file.
+     */
+    fun renameCustomAudio(id: String, newName: String) {
+        viewModelScope.launch {
+            customAudioRepository.rename(id, newName)
         }
     }
 
