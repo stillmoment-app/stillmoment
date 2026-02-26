@@ -73,7 +73,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [x] |
 | [shared-048](shared/shared-048-timer-remove-pause.md) | Timer Pause-Button entfernen | 4-Polish | [x] | [x] |
 | [shared-049](shared/shared-049-flexible-interval-gongs.md) | Flexible Intervallklaenge | 3-Feature | [x] | [x] |
-| [shared-050](shared/shared-050-optionale-einleitung-timer.md) | Optionale Einleitung Meditationstimer | 3-Feature | [x] | [ ] |
+| [shared-050](shared/shared-050-optionale-einleitung-timer.md) | Optionale Einleitung Meditationstimer | 3-Feature | [x] | [x] |
 | [shared-051](shared/shared-051-timer-presets-custom-audio.md) | ~~Meditation Timer Presets & Custom Audio~~ (aufgeteilt in 061-066) | 3-Feature | [x] SPLIT | [x] SPLIT |
 | [shared-052](shared/shared-052-timer-completion-danke.md) | Timer Completion "Danke" | 4-Polish | [x] | [x] |
 | [shared-053](shared/shared-053-guided-meditation-completion.md) | Guided Meditation Completion Screen | 4-Polish | [x] | [x] |
@@ -136,6 +136,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-036](ios/ios-036-toggle-slider-theme-visibility.md) | Toggle/Slider Controls Theme-Sichtbarkeit | 4-Polish | [x] | - |
 | [ios-037](ios/ios-037-slow-test-time-injection.md) | Langsame Tests Time-Injection | 5-QA | [x] | - |
 | [ios-038](ios/ios-038-tabbar-active-tab-visibility.md) | Tab-Bar aktiver Tab schlecht erkennbar (iOS 18) | 4-Polish | [ ] | - |
+| [ios-039](ios/ios-039-gong-preview-explizit.md) | Gong-Vorschau: Automatisch → Expliziter Preview-Button | 4-Polish | [ ] | - |
 
 ---
 
@@ -204,6 +205,14 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-062](android/android-062-timer-service-abstractions.md) | Timer Service Abstraktionen | 2-Architektur | [x] | shared-024 |
 | [android-063](android/android-063-semantic-colors-in-views.md) | Semantische Farben in Views konsumieren | 4-Polish | [x] | - |
 | [android-064](android/android-064-test-output-summary.md) | Test-Output strukturierte Zusammenfassung | 5-QA | [ ] | - |
+| [android-065](android/android-065-dauer-aus-praxis-editor-entfernen.md) | Dauer-Picker aus PraxisEditor entfernen | 4-Polish | [x] | - |
+| [android-066](android/android-066-footer-text-entfernen.md) | Footer-Text "Du verdienst diese Pause" entfernen | 4-Polish | [ ] | - |
+| [android-067](android/android-067-pills-emoji-icons-ersetzen.md) | Konfigurations-Pills: Emoji durch monochrome Icons | 4-Polish | [ ] | - |
+| [android-068](android/android-068-completion-screen-back-button.md) | Abschluss-Screen: Auto-Navigation → expliziter Button | 4-Polish | [ ] | - |
+| [android-069](android/android-069-timer-regressions-tests.md) | Timer-Regressions-Tests implementieren | 5-QA | [ ] | - |
+| [android-070](android/android-070-sound-lokalisierung-aus-domain.md) | Sound-Lokalisierung aus Domain-Modellen auslagern | 3-Refactor | [ ] | - |
+| [android-071](android/android-071-preparation-affirmation-fuenfte.md) | Vorbereitungs-Phase: 5. Affirmation | 4-Polish | [ ] | - |
+| [android-072](android/android-072-background-sound-library.md) | Background Sound Library erweitern | 2-Features | [ ] | - |
 
 ---
 
