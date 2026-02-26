@@ -100,6 +100,13 @@ constructor(
 
     override suspend fun findFile(id: String): CustomAudioFile? = dataStore.findFile(id)
 
+    override suspend fun rename(id: String, newName: String) {
+        withContext(Dispatchers.IO) {
+            dataStore.renameFile(id, newName)
+            Log.d(TAG, "Renamed custom audio file: $id -> $newName")
+        }
+    }
+
     /**
      * Copies a file from a SAF content URI to app-internal storage.
      * Files are stored in type-specific subdirectories under custom_audio/.

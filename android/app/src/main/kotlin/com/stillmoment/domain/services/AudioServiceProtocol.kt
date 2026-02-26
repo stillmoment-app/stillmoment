@@ -58,4 +58,17 @@ interface AudioServiceProtocol {
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
     fun stopBackgroundPreview()
+
+    /**
+     * Play an introduction audio preview (attunement or built-in introduction).
+     * Automatically stops any previous preview.
+     *
+     * @param introductionId ID of the introduction to preview
+     */
+    fun playIntroductionPreview(introductionId: String)
+
+    /**
+     * Stop the current introduction preview. Idempotent - safe to call even if no preview is playing.
+     */
+    fun stopIntroductionPreview()
 }

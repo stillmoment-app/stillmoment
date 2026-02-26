@@ -54,4 +54,12 @@ interface CustomAudioRepository {
      * Finds a custom audio file by ID across all types, or null if not found.
      */
     suspend fun findFile(id: String): CustomAudioFile?
+
+    /**
+     * Renames a custom audio file.
+     *
+     * @param id The ID of the audio file to rename
+     * @param newName The new display name
+     */
+    suspend fun rename(id: String, newName: String)
 }

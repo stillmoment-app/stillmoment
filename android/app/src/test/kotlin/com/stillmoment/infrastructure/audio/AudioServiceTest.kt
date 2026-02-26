@@ -1,6 +1,7 @@
 package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.domain.models.AudioSource
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
@@ -37,6 +38,7 @@ class AudioServiceTest {
     private lateinit var mockVolumeAnimator: VolumeAnimatorProtocol
     private lateinit var mockMediaPlayer: MediaPlayerProtocol
     private lateinit var mockLogger: LoggerProtocol
+    private lateinit var mockCustomAudioRepository: CustomAudioRepository
 
     private lateinit var capturedConflictHandler: () -> Unit
     private lateinit var capturedPauseHandler: () -> Unit
@@ -50,6 +52,7 @@ class AudioServiceTest {
         mockVolumeAnimator = mock()
         mockMediaPlayer = mock()
         mockLogger = mock()
+        mockCustomAudioRepository = mock()
 
         // Capture handlers during registration
         val conflictCaptor = argumentCaptor<() -> Unit>()
@@ -58,7 +61,13 @@ class AudioServiceTest {
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
         whenever(mockMediaPlayerFactory.createFromResource(any())).thenReturn(mockMediaPlayer)
 
-        sut = AudioService(mockCoordinator, mockMediaPlayerFactory, mockVolumeAnimator, mockLogger)
+        sut = AudioService(
+            mockCoordinator,
+            mockMediaPlayerFactory,
+            mockVolumeAnimator,
+            mockLogger,
+            mockCustomAudioRepository
+        )
 
         // Capture the registered handlers
         val previewConflictCaptor = argumentCaptor<() -> Unit>()

@@ -558,4 +558,10 @@ class FakeCustomAudioRepository : CustomAudioRepository {
     override suspend fun findFile(id: String): CustomAudioFile? {
         return _files.value.find { it.id == id }
     }
+
+    override suspend fun rename(id: String, newName: String) {
+        _files.value = _files.value.map { file ->
+            if (file.id == id) file.copy(name = newName) else file
+        }
+    }
 }

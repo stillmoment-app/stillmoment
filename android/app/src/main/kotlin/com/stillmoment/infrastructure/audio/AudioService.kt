@@ -3,6 +3,8 @@ package com.stillmoment.infrastructure.audio
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GongSound
+import com.stillmoment.domain.models.Introduction
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
@@ -36,7 +38,8 @@ constructor(
     private val coordinator: AudioSessionCoordinatorProtocol,
     private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
     private val volumeAnimator: VolumeAnimatorProtocol,
-    private val logger: LoggerProtocol
+    private val logger: LoggerProtocol,
+    private val customAudioRepository: CustomAudioRepository
 ) : AudioServiceProtocol {
     init {
         // Register conflict handler to stop background audio when another source takes over
@@ -63,6 +66,7 @@ constructor(
     private var backgroundPlayer: MediaPlayerProtocol? = null
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
+    private var introductionPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
@@ -434,6 +438,130 @@ constructor(
         }
     }
 
+    // MARK: - Introduction Preview
+
+    /**
+     * Play an introduction audio preview (attunement or built-in introduction).
+     * Automatically stops any previous preview.
+     *
+     * Resolves the introductionId: if it matches a built-in Introduction, plays from resources;
+     * otherwise treats it as a custom audio UUID and resolves via CustomAudioRepository.
+     *
+     * @param introductionId ID of the introduction to preview
+     */
+    override fun playIntroductionPreview(introductionId: String) {
+        // Stop any previous previews (mutual exclusion)
+        stopIntroductionPreview()
+        stopGongPreview()
+        stopBackgroundPreview()
+
+        val introduction = Introduction.find(introductionId)
+        if (introduction != null) {
+            playBuiltInIntroductionPreview(introduction)
+        } else {
+            playCustomIntroductionPreview(introductionId)
+        }
+    }
+
+    /**
+     * Play a built-in introduction preview from raw resources.
+     */
+    private fun playBuiltInIntroductionPreview(introduction: Introduction) {
+        val resourceName = introduction.audioFilename(Introduction.currentLanguage)
+        if (resourceName == null) {
+            logger.d(TAG, "No audio available for introduction ${introduction.id} in ${Introduction.currentLanguage}")
+            return
+        }
+        val resourceId = resolveRawResourceId(resourceName)
+        if (resourceId == 0) {
+            logger.e(TAG, "Unknown introduction resource: $resourceName")
+            return
+        }
+        try {
+            val player = mediaPlayerFactory.createFromResource(resourceId)
+            if (player == null) {
+                logger.e(TAG, "Failed to create player for introduction preview: ${introduction.id}")
+                return
+            }
+            coordinator.requestAudioSession(AudioSource.PREVIEW)
+            introductionPreviewPlayer = player.apply {
+                setVolume(INTRODUCTION_VOLUME, INTRODUCTION_VOLUME)
+                setOnCompletionListener {
+                    release()
+                    introductionPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                }
+                start()
+            }
+            logger.d(TAG, "Playing built-in introduction preview: ${introduction.id}")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play introduction preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Play a custom introduction preview from a local file path.
+     * Resolves the file path asynchronously via CustomAudioRepository.
+     */
+    private fun playCustomIntroductionPreview(introductionId: String) {
+        mainScope.launch {
+            try {
+                val filePath = customAudioRepository.getFilePath(introductionId)
+                if (filePath == null) {
+                    logger.w(TAG, "Custom introduction not found: $introductionId")
+                    return@launch
+                }
+                coordinator.requestAudioSession(AudioSource.PREVIEW)
+                val player = mediaPlayerFactory.create()
+                player.setDataSource(filePath)
+                player.setOnErrorListener { what, extra ->
+                    logger.e(TAG, "Introduction preview error: what=$what, extra=$extra")
+                    introductionPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                    false
+                }
+                player.setOnPreparedListener {
+                    player.setVolume(INTRODUCTION_VOLUME, INTRODUCTION_VOLUME)
+                    player.start()
+                    logger.d(TAG, "Playing custom introduction preview: $introductionId")
+                }
+                player.setOnCompletionListener {
+                    player.release()
+                    introductionPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                }
+                introductionPreviewPlayer = player
+                player.prepareAsync()
+            } catch (e: IllegalStateException) {
+                logger.e(
+                    TAG,
+                    "Failed to play custom introduction preview - invalid state: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Stop the current introduction preview. Idempotent - safe to call even if no preview is playing.
+     */
+    override fun stopIntroductionPreview() {
+        val hadPlayer = introductionPreviewPlayer != null
+        try {
+            introductionPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            introductionPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop introduction preview - invalid state: ${e.message}")
+        }
+        if (hadPlayer) {
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        }
+    }
+
     // MARK: - Background Audio
 
     /**
@@ -632,6 +760,18 @@ constructor(
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to cleanup background preview - invalid state: ${e.message}")
         }
+
+        try {
+            introductionPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            introductionPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to cleanup introduction preview - invalid state: ${e.message}")
+        }
     }
 
     // MARK: - Lifecycle
@@ -644,6 +784,7 @@ constructor(
         stopIntroduction()
         stopGongPreview()
         stopBackgroundPreview()
+        stopIntroductionPreview()
         stopBackgroundAudio()
         mainScope.cancel()
     }

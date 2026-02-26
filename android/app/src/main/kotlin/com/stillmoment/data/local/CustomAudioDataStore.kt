@@ -98,6 +98,22 @@ constructor(
         getAllFiles(preferences).find { it.id == id }
     }
 
+    /**
+     * Renames a custom audio file by updating its display name.
+     *
+     * @param id The ID of the file to rename
+     * @param newName The new display name
+     */
+    suspend fun renameFile(id: String, newName: String) {
+        context.customAudioDataStore.edit { preferences ->
+            val current = getAllFiles(preferences)
+            val updated = current.map { file ->
+                if (file.id == id) file.copy(name = newName) else file
+            }
+            preferences[Keys.FILES] = json.encodeToString(updated)
+        }
+    }
+
     private fun getAllFiles(preferences: Preferences): List<CustomAudioFile> {
         val jsonString = preferences[Keys.FILES] ?: "[]"
         return try {

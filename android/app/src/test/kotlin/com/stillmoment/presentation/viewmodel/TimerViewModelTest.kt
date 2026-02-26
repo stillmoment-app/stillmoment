@@ -799,6 +799,8 @@ class FakeAudioService : AudioServiceProtocol {
     var backgroundPreviewStopped = false
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
+    var lastIntroductionPreviewId: String? = null
+    var introductionPreviewStopped = false
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
     override val introductionCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
@@ -824,6 +826,14 @@ class FakeAudioService : AudioServiceProtocol {
 
     override fun stopBackgroundPreview() {
         backgroundPreviewStopped = true
+    }
+
+    override fun playIntroductionPreview(introductionId: String) {
+        lastIntroductionPreviewId = introductionId
+    }
+
+    override fun stopIntroductionPreview() {
+        introductionPreviewStopped = true
     }
 }
 
