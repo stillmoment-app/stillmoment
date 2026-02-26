@@ -23,7 +23,7 @@
 
     <!-- Tabs -->
     <string name="tab_timer">Timer</string>
-    <string name="tab_library">Library</string>
+    <string name="tab_library">Meditations</string>
 
     <!-- Timer States -->
     <string name="state_ready">Ready when you are</string>
@@ -136,7 +136,7 @@
 
     <!-- Tab Accessibility -->
     <string name="accessibility_tab_timer">Navigate to timer</string>
-    <string name="accessibility_tab_library">Navigate to library</string>
+    <string name="accessibility_tab_library">Navigate to meditations</string>
 
     <!-- Timer Focus Mode -->
     <string name="accessibility_close_focus">Close and end meditation</string>
