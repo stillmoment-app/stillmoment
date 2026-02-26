@@ -10,6 +10,7 @@
 
     <!-- Common -->
     <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
     <string name="common_save">Save</string>
     <string name="common_close">Close</string>
     <string name="common_delete">Delete</string>

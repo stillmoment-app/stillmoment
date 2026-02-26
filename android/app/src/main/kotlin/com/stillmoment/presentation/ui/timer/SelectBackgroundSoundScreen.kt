@@ -1,5 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,20 +21,32 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -42,6 +56,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -50,6 +66,8 @@ import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 /**
  * Background sound option with id and display name resource.
@@ -69,6 +87,7 @@ private val backgroundSoundOptions = listOf(
  * Sub-screen for selecting a background sound.
  *
  * Displays available background sounds with a volume slider when a non-silent sound is selected.
+ * Includes a "My Sounds" section for user-imported custom soundscapes.
  * Stops audio previews when leaving the screen via DisposableEffect.
  */
 @Composable
@@ -78,6 +97,14 @@ fun SelectBackgroundSoundScreen(
     viewModel: PraxisEditorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.importCustomAudio(it, CustomAudioType.SOUNDSCAPE) }
+    }
+
+    var fileToDelete by remember { mutableStateOf<CustomAudioFile?>(null) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -94,6 +121,7 @@ fun SelectBackgroundSoundScreen(
             BackgroundSoundContent(
                 selectedSoundId = uiState.backgroundSoundId,
                 volume = uiState.backgroundSoundVolume,
+                customSoundscapes = uiState.customSoundscapes.toImmutableList(),
                 onSelectSound = { soundId ->
                     viewModel.setBackgroundSoundId(soundId)
                     if (soundId != "silent") {
@@ -103,9 +131,30 @@ fun SelectBackgroundSoundScreen(
                 onVolumeChange = { viewModel.setBackgroundSoundVolume(it) },
                 onVolumeChangeFinish = {
                     viewModel.playBackgroundPreview(uiState.backgroundSoundId)
-                }
+                },
+                onDeleteCustomSound = { fileToDelete = it },
+                onImportClick = { filePickerLauncher.launch(arrayOf("audio/*")) }
             )
         }
+    }
+
+    fileToDelete?.let { file ->
+        CustomAudioDeleteDialog(
+            fileName = file.name,
+            isUsedInPraxis = uiState.backgroundSoundId == file.id,
+            onConfirm = {
+                viewModel.deleteCustomAudio(file.id)
+                fileToDelete = null
+            },
+            onDismiss = { fileToDelete = null }
+        )
+    }
+
+    uiState.customAudioError?.let { error ->
+        CustomAudioErrorDialog(
+            errorMessage = error,
+            onDismiss = { viewModel.clearCustomAudioError() }
+        )
     }
 }
 
@@ -125,13 +174,17 @@ private fun BackgroundSoundTopBar(onBack: () -> Unit) {
     )
 }
 
+@Suppress("LongParameterList") // Selection screen content needs sound, volume, and custom audio callbacks
 @Composable
 private fun BackgroundSoundContent(
     selectedSoundId: String,
     volume: Float,
+    customSoundscapes: ImmutableList<CustomAudioFile>,
     onSelectSound: (String) -> Unit,
     onVolumeChange: (Float) -> Unit,
     onVolumeChangeFinish: () -> Unit,
+    onDeleteCustomSound: (CustomAudioFile) -> Unit,
+    onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -155,6 +208,17 @@ private fun BackgroundSoundContent(
                     onVolumeChangeFinish = onVolumeChangeFinish
                 )
             }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            MySoundsSection(
+                customSoundscapes = customSoundscapes,
+                selectedSoundId = selectedSoundId,
+                onSelectSound = onSelectSound,
+                onDeleteClick = onDeleteCustomSound,
+                onImportClick = onImportClick
+            )
         }
     }
 }
@@ -225,6 +289,101 @@ private fun BackgroundSoundRow(name: String, isSelected: Boolean, onClick: () ->
     }
 }
 
+@Composable
+private fun MySoundsSection(
+    customSoundscapes: ImmutableList<CustomAudioFile>,
+    selectedSoundId: String,
+    onSelectSound: (String) -> Unit,
+    onDeleteClick: (CustomAudioFile) -> Unit,
+    onImportClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        MySoundsSectionHeader()
+
+        if (customSoundscapes.isEmpty()) {
+            MySoundsEmptyCard()
+        } else {
+            MySoundsCard(
+                customSoundscapes = customSoundscapes,
+                selectedSoundId = selectedSoundId,
+                onSelectSound = onSelectSound,
+                onDeleteClick = onDeleteClick
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        ImportAudioButton(onImportClick = onImportClick)
+    }
+}
+
+@Composable
+private fun MySoundsSectionHeader() {
+    Text(
+        text = stringResource(R.string.custom_audio_section_my_sounds),
+        style = TypographyRole.SettingsLabel.textStyle(),
+        color = TypographyRole.SettingsDescription.textColor(),
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+    )
+}
+
+@Composable
+private fun MySoundsEmptyCard() {
+    val colors = LocalStillMomentColors.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, colors.cardBorder)
+    ) {
+        Text(
+            text = stringResource(R.string.custom_audio_empty_sounds),
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor(),
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Composable
+private fun MySoundsCard(
+    customSoundscapes: ImmutableList<CustomAudioFile>,
+    selectedSoundId: String,
+    onSelectSound: (String) -> Unit,
+    onDeleteClick: (CustomAudioFile) -> Unit
+) {
+    val colors = LocalStillMomentColors.current
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, colors.cardBorder)
+    ) {
+        Column {
+            customSoundscapes.forEachIndexed { index, file ->
+                if (index > 0) {
+                    HorizontalDivider(
+                        color = colors.cardBorder,
+                        thickness = 0.5.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+                CustomAudioRow(
+                    file = file,
+                    isSelected = selectedSoundId == file.id,
+                    onSelect = { onSelectSound(file.id) },
+                    onDelete = { onDeleteClick(file) }
+                )
+            }
+        }
+    }
+}
+
 /**
  * Volume slider for background sound, matching the pattern from SettingsSheet.kt.
  */
@@ -281,6 +440,204 @@ private fun BackgroundVolumeSlider(
         }
     }
 }
+
+// region Shared Custom Audio Composables
+
+@Composable
+internal fun CustomAudioRow(
+    file: CustomAudioFile,
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val durationText = file.formattedDuration
+        ?: stringResource(R.string.custom_audio_duration_unknown)
+    val itemDescription = stringResource(R.string.accessibility_custom_audio_item, file.name, durationText)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = itemDescription }
+            .clickable(onClick = onSelect)
+            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+    ) {
+        CustomAudioRowIcon(isSelected = isSelected)
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        CustomAudioRowInfo(
+            name = file.name,
+            durationText = durationText,
+            modifier = Modifier.weight(1f)
+        )
+
+        CustomAudioRowOverflowMenu(
+            fileName = file.name,
+            onDelete = onDelete
+        )
+    }
+}
+
+@Composable
+private fun CustomAudioRowIcon(isSelected: Boolean) {
+    if (isSelected) {
+        Icon(
+            imageVector = Icons.Filled.Check,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+    } else {
+        Icon(
+            imageVector = Icons.Default.Audiotrack,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
+private fun CustomAudioRowInfo(name: String, durationText: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text(
+            text = name,
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor()
+        )
+        Text(
+            text = durationText,
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor()
+        )
+    }
+}
+
+@Composable
+private fun CustomAudioRowOverflowMenu(fileName: String, onDelete: () -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
+    val overflowDescription = stringResource(R.string.accessibility_custom_audio_overflow, fileName)
+
+    Box {
+        IconButton(
+            onClick = { showMenu = true },
+            modifier = Modifier.semantics {
+                contentDescription = overflowDescription
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false }
+        ) {
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(R.string.common_delete),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                },
+                onClick = {
+                    showMenu = false
+                    onDelete()
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ImportAudioButton(onImportClick: () -> Unit, modifier: Modifier = Modifier) {
+    val importDescription = stringResource(R.string.accessibility_import_custom_audio)
+
+    OutlinedButton(
+        onClick = onImportClick,
+        modifier = modifier.semantics { contentDescription = importDescription }
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = stringResource(R.string.custom_audio_import_button))
+    }
+}
+
+@Composable
+internal fun CustomAudioDeleteDialog(
+    fileName: String,
+    isUsedInPraxis: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.custom_audio_delete_title))
+        },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(R.string.custom_audio_delete_message, fileName)
+                )
+                if (isUsedInPraxis) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.custom_audio_delete_warning_praxis),
+                        color = MaterialTheme.colorScheme.error,
+                        style = TypographyRole.SettingsDescription.textStyle()
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = stringResource(R.string.common_delete),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+internal fun CustomAudioErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = null,
+        text = { Text(text = errorMessage) },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.common_ok))
+            }
+        }
+    )
+}
+
+// endregion
 
 // region Preview
 
