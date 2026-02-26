@@ -224,4 +224,9 @@
     <string name="sound_clear_strike">Klarer Anschlag</string>
     <string name="sound_soft_interval">Sanftes Intervall</string>
     <string name="sound_forest_attribution">Waldatmosphäre</string>
+
+    <!-- Praxis short description -->
+    <string name="praxis_description_duration">%d Min</string>
+    <string name="praxis_description_silent">Stille</string>
+    <string name="praxis_description_preparation">%ds Vorbereitung</string>
 </resources>
