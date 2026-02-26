@@ -71,6 +71,9 @@ IMPLEMENTER_TOOLS = SHARED_TOOLS + [
     "Edit", "Write",
     "Bash(git add:*)",
     "Bash(git commit:*)",
+]
+
+CLOSE_TOOLS = IMPLEMENTER_TOOLS + [
     "Skill(close-ticket)",
 ]
 
@@ -509,7 +512,7 @@ def phase_close(ticket_id: str, log_file: Path, branch: str) -> None:
         "--verbose",
         "--output-format", "stream-json",
         "--max-turns", str(MAX_TURNS_CLOSE),
-        "--allowedTools", build_tools_arg(IMPLEMENTER_TOOLS),
+        "--allowedTools", build_tools_arg(CLOSE_TOOLS),
     ]
     run_agent("CLOSE", cmd, log_file, branch)
 

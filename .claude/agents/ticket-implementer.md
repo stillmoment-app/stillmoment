@@ -139,6 +139,7 @@ Keine Challenges sind: normale Arbeitsschritte, erwartetes Verhalten, triviale T
 
 - **NICHT pushen** - nur lokale Commits
 - **NICHT INDEX.md aendern** - ausser beim Schliessen eines Tickets
+- **Ticket nur in der CLOSE-Phase schliessen** - `/close-ticket` nur aufrufen wenn der Prompt explizit danach fragt. In IMPLEMENT und FIX niemals aufrufen.
 - **Keine Force-Unwraps** - proper error handling
 - **Keine hardcoded Strings** - alles lokalisieren
 - **[weak self] in Closures** - Retain Cycles vermeiden
