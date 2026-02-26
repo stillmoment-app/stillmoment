@@ -15,14 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -30,7 +28,6 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +51,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
-import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -113,9 +109,6 @@ fun GuidedMeditationsListScreen(
         onDismissEditSheet = viewModel::hideEditSheet,
         onSaveMeditation = viewModel::updateMeditation,
         onClearError = viewModel::clearError,
-        onSettingsClick = viewModel::showSettingsSheet,
-        onDismissSettingsSheet = viewModel::hideSettingsSheet,
-        onSettingsChange = viewModel::updateSettings,
         modifier = modifier
     )
 }
@@ -132,16 +125,11 @@ internal fun GuidedMeditationsListScreenContent(
     onDismissEditSheet: () -> Unit,
     onSaveMeditation: (GuidedMeditation) -> Unit,
     onClearError: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onDismissSettingsSheet: () -> Unit,
-    onSettingsChange: (GuidedMeditationSettings) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
-    val settingsDescription = stringResource(R.string.accessibility_guided_settings_button)
     var meditationToDelete by remember { mutableStateOf<GuidedMeditation?>(null) }
-    val settingsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // rememberUpdatedState to safely use lambda in LaunchedEffect
     val currentOnClearError by rememberUpdatedState(onClearError)
@@ -160,7 +148,7 @@ internal fun GuidedMeditationsListScreenContent(
                 // Custom TopAppBar (compact, iOS-style)
                 StillMomentTopAppBar(
                     title = stringResource(R.string.guided_meditations_title),
-                    navigationIcon = {
+                    actions = {
                         IconButton(
                             onClick = onImportClick,
                             modifier =
@@ -170,21 +158,6 @@ internal fun GuidedMeditationsListScreenContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = onSettingsClick,
-                            modifier =
-                            Modifier.semantics {
-                                contentDescription = settingsDescription
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Tune,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -283,21 +256,6 @@ internal fun GuidedMeditationsListScreenContent(
             uiState.error?.let { error ->
                 snackbarHostState.showSnackbar(error)
                 currentOnClearError()
-            }
-        }
-
-        // Settings Sheet
-        if (uiState.showSettingsSheet) {
-            ModalBottomSheet(
-                onDismissRequest = onDismissSettingsSheet,
-                sheetState = settingsSheetState,
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                GuidedMeditationSettingsSheet(
-                    settings = uiState.settings,
-                    onSettingsChange = onSettingsChange,
-                    onDismiss = onDismissSettingsSheet
-                )
             }
         }
     }
