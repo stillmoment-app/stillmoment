@@ -78,6 +78,7 @@ import com.stillmoment.presentation.ui.timer.SelectGongScreen
 import com.stillmoment.presentation.ui.timer.SelectIntroductionScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
+import com.stillmoment.presentation.viewmodel.AppSettingsViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -324,11 +325,15 @@ private fun StillMomentNavContent(
 
         navigation(startDestination = Screen.Settings.route, route = Screen.SettingsGraph.route) {
             composable(Screen.Settings.route) {
+                val appSettingsViewModel: AppSettingsViewModel = hiltViewModel()
+                val appSettingsUiState by appSettingsViewModel.uiState.collectAsState()
                 AppSettingsScreen(
                     selectedTheme = settingsState.selectedTheme,
                     onThemeChange = settingsState.onThemeChange,
                     selectedAppearanceMode = settingsState.selectedAppearanceMode,
                     onAppearanceModeChange = settingsState.onAppearanceModeChange,
+                    guidedSettings = appSettingsUiState.guidedSettings,
+                    onGuidedSettingsChange = appSettingsViewModel::updateGuidedSettings,
                     onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) }
                 )
             }

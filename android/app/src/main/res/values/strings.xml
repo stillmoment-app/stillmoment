@@ -212,6 +212,7 @@
     <string name="app_settings_privacy">Privacy Policy</string>
     <string name="accessibility_app_settings_privacy">Open privacy policy</string>
     <string name="app_settings_version_label">Version</string>
+    <string name="app_settings_guided_meditations_header">Guided Meditations</string>
 
     <!-- Sound Attributions Screen -->
     <string name="sound_attributions_title">Sound Attributions</string>

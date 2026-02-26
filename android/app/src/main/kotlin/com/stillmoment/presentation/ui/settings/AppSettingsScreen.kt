@@ -36,6 +36,7 @@ import com.stillmoment.BuildConfig
 import com.stillmoment.R
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -57,6 +58,8 @@ fun AppSettingsScreen(
     onThemeChange: (ColorTheme) -> Unit,
     selectedAppearanceMode: AppearanceMode,
     onAppearanceModeChange: (AppearanceMode) -> Unit,
+    guidedSettings: GuidedMeditationSettings,
+    onGuidedSettingsChange: (GuidedMeditationSettings) -> Unit,
     onSoundAttributionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,6 +82,13 @@ fun AppSettingsScreen(
                     onThemeChange = onThemeChange,
                     selectedAppearanceMode = selectedAppearanceMode,
                     onAppearanceModeChange = onAppearanceModeChange
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                GuidedMeditationSettingsSection(
+                    settings = guidedSettings,
+                    onSettingsChange = onGuidedSettingsChange
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -232,6 +242,8 @@ private fun AppSettingsScreenPreview() {
             onThemeChange = {},
             selectedAppearanceMode = AppearanceMode.SYSTEM,
             onAppearanceModeChange = {},
+            guidedSettings = GuidedMeditationSettings.Default,
+            onGuidedSettingsChange = {},
             onSoundAttributionsClick = {}
         )
     }

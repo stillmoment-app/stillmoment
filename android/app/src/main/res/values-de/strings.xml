@@ -212,6 +212,7 @@
     <string name="app_settings_privacy">Datenschutz</string>
     <string name="accessibility_app_settings_privacy">Datenschutzerklärung öffnen</string>
     <string name="app_settings_version_label">Version</string>
+    <string name="app_settings_guided_meditations_header">Geführte Meditationen</string>
 
     <!-- Sound Attributions Screen -->
     <string name="sound_attributions_title">Klang-Nachweise</string>
