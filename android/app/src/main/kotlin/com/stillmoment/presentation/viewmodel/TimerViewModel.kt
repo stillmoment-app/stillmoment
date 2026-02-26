@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
-import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
@@ -18,7 +17,6 @@ import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,48 +26,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-
-/**
- * UI State for the Timer Screen.
- *
- * Holds MeditationTimer directly and forwards computed properties.
- * No intermediate display state — the ViewModel holds MeditationTimer? directly.
- */
-data class TimerUiState(
-    /** Active meditation timer, null when idle */
-    val timer: MeditationTimer? = null,
-    /** Selected duration in minutes */
-    val selectedMinutes: Int = MeditationSettings.DEFAULT_DURATION_MINUTES,
-    /** Current affirmation index (rotates between sessions) */
-    val currentAffirmationIndex: Int = 0,
-    /** Meditation settings */
-    val settings: MeditationSettings = MeditationSettings.Default,
-    /** Error message to show */
-    val errorMessage: String? = null,
-    /** Whether settings sheet is visible */
-    val showSettings: Boolean = false,
-    /** Whether to show the settings hint tooltip (first-time onboarding) */
-    val showSettingsHint: Boolean = false,
-    /** Current Praxis for configuration pills display */
-    val currentPraxis: Praxis = Praxis.Default
-) {
-    // Convenience accessors delegating to timer
-    val timerState: TimerState get() = timer?.state ?: TimerState.Idle
-    val remainingSeconds: Int get() = timer?.remainingSeconds ?: 0
-    val totalSeconds: Int get() = timer?.totalSeconds ?: 0
-    val progress: Float get() = timer?.progress ?: 0f
-    val remainingPreparationSeconds: Int get() = timer?.remainingPreparationSeconds ?: 0
-
-    // Computed properties
-    val isPreparation: Boolean get() = timer?.isPreparation ?: false
-    val canStart: Boolean get() = timerState == TimerState.Idle && selectedMinutes > 0
-    val canReset: Boolean get() = timer?.canReset ?: false
-    val formattedTime: String get() = timer?.formattedTime ?: formatDefaultTime()
-
-    private fun formatDefaultTime(): String {
-        return String.format(Locale.ROOT, "%02d:00", selectedMinutes)
-    }
-}
 
 /**
  * ViewModel managing timer state and user interactions.
@@ -273,6 +229,8 @@ constructor(
         _uiState.update { it.copy(showSettings = false) }
     }
 
+    // MARK: - Audio Preview
+
     /**
      * Play a gong sound preview. Automatically stops any previous preview.
      * Uses the current gong volume setting for preview playback.
@@ -320,6 +278,8 @@ constructor(
         audioService.stopBackgroundPreview()
     }
 
+    // MARK: - Settings Management
+
     fun updateSettings(settings: MeditationSettings) {
         val oldSettings = _uiState.value.settings
         var updatedSettings = settings
@@ -351,7 +311,7 @@ constructor(
         _uiState.update { it.copy(errorMessage = null) }
     }
 
-    // MARK: - Private Methods
+    // MARK: - Timer Loop
 
     private fun startTimerLoop() {
         timerJob?.cancel()
@@ -432,6 +392,8 @@ constructor(
         }
     }
 
+    // MARK: - Persistence
+
     private fun loadSettings() {
         viewModelScope.launch {
             settingsRepository.settingsFlow.collect { settings ->
@@ -484,6 +446,8 @@ constructor(
             settingsRepository.updateSettings(_uiState.value.settings)
         }
     }
+
+    // MARK: - Lifecycle
 
     override fun onCleared() {
         super.onCleared()

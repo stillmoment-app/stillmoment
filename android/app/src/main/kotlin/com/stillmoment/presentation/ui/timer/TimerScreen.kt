@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
@@ -286,13 +287,8 @@ private fun preparationPillLabel(praxis: Praxis): String? {
     return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
 }
 
-@Composable
 private fun backgroundPillLabel(praxis: Praxis): String {
-    return when (praxis.backgroundSoundId) {
-        "silent" -> stringResource(R.string.praxis_description_silent)
-        "forest" -> stringResource(R.string.sound_forest)
-        else -> stringResource(R.string.praxis_description_silent)
-    }
+    return BackgroundSound.findOrDefault(praxis.backgroundSoundId).localizedName
 }
 
 @Composable
