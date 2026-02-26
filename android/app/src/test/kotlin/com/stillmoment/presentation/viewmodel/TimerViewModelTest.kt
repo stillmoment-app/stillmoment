@@ -4,6 +4,7 @@ import android.app.Application
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.SettingsRepository
@@ -390,6 +391,7 @@ class TimerViewModelTest {
         private lateinit var fakeTimerRepository: FakeTimerRepository
         private lateinit var fakeAudioService: FakeAudioService
         private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var fakePraxisRepository: FakePraxisRepository
         private lateinit var mockApplication: Application
 
         @BeforeEach
@@ -399,6 +401,7 @@ class TimerViewModelTest {
             fakeTimerRepository = FakeTimerRepository()
             fakeAudioService = FakeAudioService()
             fakeForegroundService = FakeTimerForegroundService()
+            fakePraxisRepository = FakePraxisRepository()
             mockApplication = mock()
         }
 
@@ -413,7 +416,8 @@ class TimerViewModelTest {
                 settingsRepository = fakeSettingsRepository,
                 timerRepository = fakeTimerRepository,
                 audioService = fakeAudioService,
-                foregroundService = fakeForegroundService
+                foregroundService = fakeForegroundService,
+                praxisRepository = fakePraxisRepository
             )
         }
 
@@ -507,6 +511,7 @@ class TimerViewModelTest {
         private lateinit var fakeTimerRepository: FakeTimerRepository
         private lateinit var fakeAudioService: FakeAudioService
         private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var fakePraxisRepository: FakePraxisRepository
         private lateinit var mockApplication: Application
 
         @BeforeEach
@@ -516,6 +521,7 @@ class TimerViewModelTest {
             fakeTimerRepository = FakeTimerRepository()
             fakeAudioService = FakeAudioService()
             fakeForegroundService = FakeTimerForegroundService()
+            fakePraxisRepository = FakePraxisRepository()
             mockApplication = mock()
         }
 
@@ -530,7 +536,8 @@ class TimerViewModelTest {
                 settingsRepository = fakeSettingsRepository,
                 timerRepository = fakeTimerRepository,
                 audioService = fakeAudioService,
-                foregroundService = fakeForegroundService
+                foregroundService = fakeForegroundService,
+                praxisRepository = fakePraxisRepository
             )
         }
 
@@ -539,6 +546,7 @@ class TimerViewModelTest {
             // Given - User has 1 minute selected
             val initialSettings = MeditationSettings(durationMinutes = 1)
             fakeSettingsRepository.updateSettings(initialSettings)
+            fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 1)
             val viewModel = createViewModel()
             advanceUntilIdle()
             assertEquals(1, viewModel.uiState.value.selectedMinutes)
@@ -590,6 +598,7 @@ class TimerViewModelTest {
         private lateinit var fakeTimerRepository: FakeTimerRepository
         private lateinit var fakeAudioService: FakeAudioService
         private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var fakePraxisRepository: FakePraxisRepository
         private lateinit var mockApplication: Application
 
         @BeforeEach
@@ -599,6 +608,7 @@ class TimerViewModelTest {
             fakeTimerRepository = FakeTimerRepository()
             fakeAudioService = FakeAudioService()
             fakeForegroundService = FakeTimerForegroundService()
+            fakePraxisRepository = FakePraxisRepository()
             mockApplication = mock()
         }
 
@@ -613,7 +623,8 @@ class TimerViewModelTest {
                 settingsRepository = fakeSettingsRepository,
                 timerRepository = fakeTimerRepository,
                 audioService = fakeAudioService,
-                foregroundService = fakeForegroundService
+                foregroundService = fakeForegroundService,
+                praxisRepository = fakePraxisRepository
             )
         }
 
@@ -701,6 +712,7 @@ class TimerViewModelTest {
         private lateinit var fakeTimerRepository: FakeTimerRepository
         private lateinit var fakeAudioService: FakeAudioService
         private lateinit var fakeForegroundService: FakeTimerForegroundService
+        private lateinit var fakePraxisRepository: FakePraxisRepository
         private lateinit var mockApplication: Application
 
         @BeforeEach
@@ -710,6 +722,7 @@ class TimerViewModelTest {
             fakeTimerRepository = FakeTimerRepository()
             fakeAudioService = FakeAudioService()
             fakeForegroundService = FakeTimerForegroundService()
+            fakePraxisRepository = FakePraxisRepository()
             mockApplication = mock()
         }
 
@@ -724,7 +737,8 @@ class TimerViewModelTest {
                 settingsRepository = fakeSettingsRepository,
                 timerRepository = fakeTimerRepository,
                 audioService = fakeAudioService,
-                foregroundService = fakeForegroundService
+                foregroundService = fakeForegroundService,
+                praxisRepository = fakePraxisRepository
             )
         }
 

@@ -6,10 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -47,7 +49,9 @@ data class TimerUiState(
     /** Whether settings sheet is visible */
     val showSettings: Boolean = false,
     /** Whether to show the settings hint tooltip (first-time onboarding) */
-    val showSettingsHint: Boolean = false
+    val showSettingsHint: Boolean = false,
+    /** Current Praxis for configuration pills display */
+    val currentPraxis: Praxis = Praxis.Default
 ) {
     // Convenience accessors delegating to timer
     val timerState: TimerState get() = timer?.state ?: TimerState.Idle
@@ -86,7 +90,8 @@ constructor(
     private val settingsRepository: SettingsRepository,
     private val timerRepository: TimerRepository,
     private val audioService: AudioServiceProtocol,
-    private val foregroundService: TimerForegroundServiceProtocol
+    private val foregroundService: TimerForegroundServiceProtocol,
+    private val praxisRepository: PraxisRepository
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -97,9 +102,10 @@ constructor(
     private var minutesBeforeIntroduction: Int? = null
 
     init {
-        // Load initial settings synchronously (DataStore is fast)
+        // Load initial settings and praxis synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
-        val initialSettings = runBlocking { settingsRepository.getSettings() }
+        val initialPraxis = runBlocking { praxisRepository.load() }
+        val initialSettings = initialPraxis.toMeditationSettings()
         val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
         val initialMinutes = MeditationSettings.validateDuration(
             initialSettings.durationMinutes,
@@ -109,10 +115,13 @@ constructor(
             timer = null,
             selectedMinutes = initialMinutes,
             settings = initialSettings,
-            showSettingsHint = !hasSeenHint
+            showSettingsHint = !hasSeenHint,
+            currentPraxis = initialPraxis
         )
         // Continue collecting for future changes (background sound changes, etc.)
         loadSettings()
+        // Observe praxis changes and sync settings + pill labels
+        observePraxis()
 
         // Subscribe to audio completion flows
         viewModelScope.launch {
@@ -435,6 +444,38 @@ constructor(
                     state.copy(settings = settings, selectedMinutes = newMinutes)
                 }
             }
+        }
+    }
+
+    private fun observePraxis() {
+        viewModelScope.launch {
+            praxisRepository.praxisFlow.collect { praxis ->
+                val settings = praxis.toMeditationSettings()
+                _uiState.update { state ->
+                    val newMinutes = if (state.timerState == TimerState.Idle) {
+                        settings.durationMinutes
+                    } else {
+                        state.selectedMinutes
+                    }
+                    state.copy(
+                        settings = settings,
+                        selectedMinutes = newMinutes,
+                        currentPraxis = praxis
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Triggers a reload from PraxisRepository after editor saves.
+     * The praxisFlow observer automatically updates settings and pill labels.
+     */
+    fun refreshFromPraxis() {
+        viewModelScope.launch {
+            val praxis = praxisRepository.load()
+            val settings = praxis.toMeditationSettings()
+            settingsRepository.updateSettings(settings)
         }
     }
 
