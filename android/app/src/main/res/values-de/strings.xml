@@ -198,4 +198,30 @@
     <!-- Settings Hint -->
     <string name="settings_hint_text">Passe Klänge &amp; Gongs an</string>
     <string name="accessibility_settings_hint">Hinweis: Tippe hier, um Klänge und Gongs anzupassen</string>
+
+    <!-- Settings Tab -->
+    <string name="tab_settings">Einstellungen</string>
+    <string name="accessibility_tab_settings">Zu Einstellungen navigieren</string>
+
+    <!-- App Settings Screen -->
+    <string name="app_settings_title">Einstellungen</string>
+    <string name="app_settings_info_header">Info &amp; Rechtliches</string>
+    <string name="app_settings_sound_attributions">Klang-Nachweise</string>
+    <string name="accessibility_app_settings_sound_attributions">Klang-Nachweise öffnen</string>
+    <string name="app_settings_privacy">Datenschutz</string>
+    <string name="accessibility_app_settings_privacy">Datenschutzerklärung öffnen</string>
+    <string name="app_settings_version_label">Version</string>
+
+    <!-- Sound Attributions Screen -->
+    <string name="sound_attributions_title">Klang-Nachweise</string>
+    <string name="sound_attributions_gongs_header">Gong-Klänge</string>
+    <string name="sound_attributions_interval_header">Intervall-Klänge</string>
+    <string name="sound_attributions_background_header">Hintergrundklänge</string>
+    <string name="sound_attributions_source">Quelle</string>
+    <string name="sound_temple_bell">Tempelglocke</string>
+    <string name="sound_classic_bowl">Klassische Klangschale</string>
+    <string name="sound_deep_resonance">Tiefe Resonanz</string>
+    <string name="sound_clear_strike">Klarer Anschlag</string>
+    <string name="sound_soft_interval">Sanftes Intervall</string>
+    <string name="sound_forest_attribution">Waldatmosphäre</string>
 </resources>
