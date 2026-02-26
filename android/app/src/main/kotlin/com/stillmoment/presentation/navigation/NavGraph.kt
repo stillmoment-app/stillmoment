@@ -66,9 +66,15 @@ import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
+import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
+import com.stillmoment.presentation.ui.timer.PraxisEditorScreen
+import com.stillmoment.presentation.ui.timer.SelectBackgroundSoundScreen
+import com.stillmoment.presentation.ui.timer.SelectGongScreen
+import com.stillmoment.presentation.ui.timer.SelectIntroductionScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
+import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -98,6 +104,18 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settingsHome")
 
     data object SoundAttributions : Screen("soundAttributions")
+
+    data object PraxisEditorGraph : Screen("praxisEditorGraph")
+
+    data object PraxisEditor : Screen("praxisEditor")
+
+    data object SelectIntroduction : Screen("selectIntroduction")
+
+    data object SelectBackground : Screen("selectBackground")
+
+    data object SelectGong : Screen("selectGong")
+
+    data object IntervalGongs : Screen("intervalGongs")
 
     data object Player : Screen("player/{meditationJson}") {
         fun createRoute(meditation: GuidedMeditation): String {
@@ -229,7 +247,14 @@ private fun NavHostScaffold(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val showBottomBar = currentDestination?.route?.let { route ->
-        !route.startsWith("player") && route != Screen.TimerFocus.route && route != Screen.SoundAttributions.route
+        !route.startsWith("player") &&
+            route != Screen.TimerFocus.route &&
+            route != Screen.SoundAttributions.route &&
+            route != Screen.PraxisEditor.route &&
+            route != Screen.SelectIntroduction.route &&
+            route != Screen.SelectBackground.route &&
+            route != Screen.SelectGong.route &&
+            route != Screen.IntervalGongs.route
     } != false
 
     Scaffold(
@@ -311,6 +336,7 @@ private fun NavGraphBuilder.timerNavGraph(navController: NavHostController) {
 
             TimerScreen(
                 onNavigateToFocus = { navController.navigate(Screen.TimerFocus.route) },
+                onNavigateToEditor = { navController.navigate(Screen.PraxisEditor.route) },
                 viewModel = sharedViewModel
             )
         }
@@ -328,6 +354,75 @@ private fun NavGraphBuilder.timerNavGraph(navController: NavHostController) {
             val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
             TimerFocusScreen(onBack = { navController.popBackStack() }, viewModel = sharedViewModel)
         }
+
+        praxisEditorNavGraph(navController)
+    }
+}
+
+private fun NavGraphBuilder.praxisEditorNavGraph(navController: NavHostController) {
+    navigation(
+        startDestination = Screen.PraxisEditor.route,
+        route = Screen.PraxisEditorGraph.route
+    ) {
+        praxisEditorComposable(navController)
+        praxisEditorSubScreens(navController)
+    }
+}
+
+private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostController) {
+    composable(Screen.PraxisEditor.route) { backStackEntry ->
+        val parentEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(Screen.PraxisEditorGraph.route)
+        }
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(parentEntry)
+        val timerEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(Screen.TimerGraph.route)
+        }
+        val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
+
+        PraxisEditorScreen(
+            onCancel = { navController.popBackStack() },
+            onSave = {
+                timerViewModel.refreshFromPraxis()
+                navController.popBackStack(Screen.Timer.route, false)
+            },
+            onNavigateToIntroduction = { navController.navigate(Screen.SelectIntroduction.route) },
+            onNavigateToBackground = { navController.navigate(Screen.SelectBackground.route) },
+            onNavigateToGong = { navController.navigate(Screen.SelectGong.route) },
+            onNavigateToIntervalGongs = { navController.navigate(Screen.IntervalGongs.route) },
+            onDeleteConfirm = { navController.popBackStack(Screen.Timer.route, false) },
+            viewModel = editorViewModel
+        )
+    }
+}
+
+private fun NavGraphBuilder.praxisEditorSubScreens(navController: NavHostController) {
+    composable(Screen.SelectIntroduction.route) { backStackEntry ->
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
+            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        )
+        SelectIntroductionScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+    }
+
+    composable(Screen.SelectBackground.route) { backStackEntry ->
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
+            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        )
+        SelectBackgroundSoundScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+    }
+
+    composable(Screen.SelectGong.route) { backStackEntry ->
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
+            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        )
+        SelectGongScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+    }
+
+    composable(Screen.IntervalGongs.route) { backStackEntry ->
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
+            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        )
+        IntervalGongsEditorScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
     }
 }
 
