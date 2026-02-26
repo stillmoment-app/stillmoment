@@ -153,6 +153,7 @@ class PraxisEditorViewModelCustomAudioTest {
             advanceUntilIdle()
 
             assertEquals(Praxis.DEFAULT_BACKGROUND_SOUND_ID, viewModel.uiState.value.backgroundSoundId)
+            assertEquals(Praxis.DEFAULT_BACKGROUND_SOUND_ID, fakePraxisRepository.lastSavedPraxis?.backgroundSoundId)
         }
 
         @Test
@@ -183,6 +184,7 @@ class PraxisEditorViewModelCustomAudioTest {
             advanceUntilIdle()
 
             assertNull(viewModel.uiState.value.introductionId)
+            assertNull(fakePraxisRepository.lastSavedPraxis?.introductionId)
         }
 
         @Test
