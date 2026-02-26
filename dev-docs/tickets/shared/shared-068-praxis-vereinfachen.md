@@ -1,6 +1,6 @@
 # Ticket shared-068: Praxis vereinfachen – Einzelkonfiguration
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~3 | Android ~4
 **Phase**: 2-Architektur
@@ -23,7 +23,7 @@ Mehrere benannte Presets erhoehen die Komplexitaet ohne klaren Mehrwert fuer ein
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-062, shared-064 |
-| Android   | [ ]    | shared-062            |
+| Android   | [x]    | shared-062            |
 
 ---
 
@@ -44,11 +44,11 @@ Mehrere benannte Presets erhoehen die Komplexitaet ohne klaren Mehrwert fuer ein
 - [x] Domain-Modell Praxis ohne name-Feld (iOS)
 - [x] PraxisRepository vereinfacht auf load()/save() – kein CRUD fuer mehrere Presets (iOS)
 - [x] Lokalisiert (DE + EN) (iOS)
-- [ ] Visuell konsistent zwischen iOS und Android (ausstehend Android)
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
 - [x] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests Android
 
 ### Dokumentation
 - [x] CHANGELOG.md
