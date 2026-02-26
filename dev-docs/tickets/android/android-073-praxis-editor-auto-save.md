@@ -21,15 +21,15 @@ iOS speichert die Konfiguration implizit beim Verlassen des Screens (Settings-St
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Der TopAppBar des PraxisEditors zeigt einen Zurück-Pfeil statt "Abbrechen"/"Fertig"-Buttons
-- [ ] Beim Zurücknavigieren (System-Back oder Zurück-Pfeil) werden Änderungen automatisch gespeichert
-- [ ] Das Verhalten entspricht dem iOS-PraxisEditor (Zurück = Speichern)
+- [x] Der TopAppBar des PraxisEditors zeigt einen Zurück-Pfeil statt "Abbrechen"/"Fertig"-Buttons
+- [x] Beim Zurücknavigieren (System-Back oder Zurück-Pfeil) werden Änderungen automatisch gespeichert
+- [x] Das Verhalten entspricht dem iOS-PraxisEditor (Zurück = Speichern)
 
 ### Tests
-- [ ] Unit Tests prüfen, dass Save beim Verlassen des Screens ausgelöst wird
+- [x] Unit Tests prüfen, dass Save beim Verlassen des Screens ausgelöst wird
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
