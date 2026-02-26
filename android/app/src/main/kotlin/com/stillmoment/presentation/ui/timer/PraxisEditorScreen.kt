@@ -77,7 +77,7 @@ private val DropdownShape = RoundedCornerShape(12.dp)
  * Fullscreen editor for configuring a meditation Praxis.
  *
  * Replaces the old settings bottom sheet with a chronological layout:
- * Duration -> Preparation -> Audio & Sounds -> Gongs -> Delete.
+ * Duration -> Preparation -> Audio & Sounds -> Gongs.
  *
  * Navigation to sub-screens (Introduction, Background, Gong, Interval Gongs)
  * is handled via lambda callbacks -- no NavController dependency.
