@@ -37,15 +37,20 @@ Nutze `/review-code` fuer das Ticket. Der Skill prueft Wartbarkeit, Architektur,
 Nutze `/review-localization` um Uebersetzungen, ungenutzte Keys und Cross-Platform-Konsistenz zu pruefen.
 
 ### 5. Statische Pruefungen ausfuehren
+
+**iOS** (in `ios/`, timeout: 300000ms):
 ```bash
-# Zuerst verfuegbare Targets pruefen:
-cd <platform> && make help
-# Dann ausfuehren:
-cd <platform> && make check
-cd <platform> && make test-unit   # iOS
-cd <platform> && make test        # Android (kein test-unit Target)
+make check
+make test-unit-agent
 ```
-**WICHTIG:** Nicht blind `make test-unit` UND `make test` ausfuehren. Erst `make help` lesen, dann das richtige Target waehlen. Auf Android gibt es nur `make test`.
+
+**Android** (in `android/`, timeout: 300000ms):
+```bash
+make check
+make test
+```
+
+**WICHTIG:** Nicht blind `make test-unit-agent` UND `make test` ausfuehren. Plattform aus dem Ticket ableiten, dann das richtige Verzeichnis und Target waehlen.
 
 ### 6. Ergebnisse klassifizieren
 
