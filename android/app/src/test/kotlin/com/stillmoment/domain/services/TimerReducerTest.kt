@@ -446,6 +446,21 @@ class TimerReducerTest {
 
             assertTrue(effects.isEmpty())
         }
+
+        @Test
+        fun `does not produce reset timer on completion`() {
+            // android-068: completion must not auto-navigate — ResetTimer is the event
+            // that would cause timer=null -> Idle -> LaunchedEffect navigates back
+            val effects = TimerReducer.reduce(
+                action = TimerAction.EndGongFinished,
+                timerState = TimerState.EndGong,
+                selectedMinutes = 10,
+                settings = defaultSettings
+            )
+
+            assertFalse(effects.contains(TimerEffect.ResetTimer))
+            assertTrue(effects.any { it is TimerEffect.TransitionToCompleted })
+        }
     }
 
     // MARK: - Reset from EndGong Tests
