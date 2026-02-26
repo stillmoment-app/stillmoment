@@ -31,7 +31,7 @@ constructor() : TimerRepository {
      * Current timer instance. Exposed for tick operations.
      * Null when no timer is active.
      */
-    var currentTimer: MeditationTimer? = null
+    override var currentTimer: MeditationTimer? = null
         private set
 
     override suspend fun start(

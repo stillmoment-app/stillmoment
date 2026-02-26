@@ -923,6 +923,8 @@ class FakeTimerRepository : TimerRepository {
     override val timerFlow: Flow<MeditationTimer> =
         _timer.filterNotNull()
 
+    override val currentTimer: MeditationTimer? = null
+
     override suspend fun start(
         durationMinutes: Int,
         preparationTimeSeconds: Int,

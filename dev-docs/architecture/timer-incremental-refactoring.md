@@ -105,7 +105,7 @@ Kein Schritt haengt von einem anderen ab (Reihenfolge ist empfohlen, nicht zwing
 
 ```
   Schritt 1: tick() emittiert Events          <- loest P1 (erledigt: shared-056)
-  Schritt 2: TimerDisplayState eliminieren     <- loest P2 (erledigt: shared-057 iOS)
+  Schritt 2: TimerDisplayState eliminieren     <- loest P2 (erledigt: shared-057 iOS+Android)
   Schritt 3: endGong-Phase einfuehren          <- neues Feature (erledigt: shared-055)
   Schritt 4: Preview-Audio trennen             <- loest P3 (erledigt: shared-054)
   Schritt 5: Keep-Alive strukturell absichern  <- loest P4 (Fragilitaet)

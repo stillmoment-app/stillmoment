@@ -20,6 +20,12 @@ interface TimerRepository {
     val timerFlow: Flow<MeditationTimer>
 
     /**
+     * The current timer instance, or null when no timer is active.
+     * Read-only snapshot; use [tick] or other methods to advance state.
+     */
+    val currentTimer: MeditationTimer?
+
+    /**
      * Starts a new meditation session with the specified duration and preparation time.
      *
      * @param durationMinutes Duration in minutes (1-60)
@@ -56,8 +62,8 @@ interface TimerRepository {
     fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>>?
 
     /**
-     * Starts the introduction phase, transitioning the timer model from StartGong to Introduction.
-     * Syncs the timer model state with the reducer's display state.
+     * Transitions the timer from StartGong to Introduction state.
+     * Called when the start gong finishes and an introduction is configured.
      */
     fun startIntroduction()
 

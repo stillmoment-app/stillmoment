@@ -186,10 +186,9 @@ constructor(
                 effect.preparationTimeSeconds,
                 effect.introductionDurationSeconds
             )
-            // Get the timer that was just initialized via a no-op tick
-            val result = timerRepository.tick(null)
-            if (result != null) {
-                _uiState.update { it.copy(timer = result.first) }
+            // Read the initialized timer directly — no tick, no decrement
+            timerRepository.currentTimer?.let { initialTimer ->
+                _uiState.update { it.copy(timer = initialTimer) }
             }
             processTimerEvents(initialEvents)
         }
