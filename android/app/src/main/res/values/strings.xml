@@ -146,6 +146,7 @@
     <string name="completion_headline">Thank you</string>
     <string name="completion_subtitle">Thank you for taking this time for yourself.</string>
     <string name="accessibility_back_to_timer">Back to timer</string>
+    <string name="accessibility_back_to_library">Back to library</string>
 
     <!-- Settings Accessibility -->
     <string name="accessibility_done_button">Save and close settings</string>

@@ -1,5 +1,9 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,12 +15,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -40,14 +48,18 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,6 +75,8 @@ import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
+
+private const val COMPLETION_ANIMATION_DURATION_MS = 400
 
 /**
  * Full-screen player for guided meditation audio playback.
@@ -137,83 +151,90 @@ internal fun GuidedMeditationPlayerScreenContent(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Compact top bar (44dp like iOS)
-                StillMomentTopAppBar(
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onBack,
-                            modifier =
-                            Modifier.semantics {
-                                contentDescription = backDescription
+                // Compact top bar - hidden in completion state
+                if (!uiState.isCompleted) {
+                    StillMomentTopAppBar(
+                        navigationIcon = {
+                            IconButton(
+                                onClick = onBack,
+                                modifier =
+                                Modifier.semantics {
+                                    contentDescription = backDescription
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
-                    }
-                )
-
-                Column(
-                    modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(top = TopAppBarHeight)
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Top spacer - pushes content down
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Meditation Info Header
-                    MeditationInfoHeader(
-                        meditation = meditation
                     )
-
-                    // Middle spacer - separates header from controls
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Progress section - always visible (like iOS)
-                    ProgressSection(
-                        currentPosition = uiState.currentPosition,
-                        duration = uiState.duration,
-                        formattedPosition = uiState.formattedPosition,
-                        formattedRemaining = uiState.formattedRemaining,
-                        onSeek = onSeek
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    // Countdown OR playback buttons (like iOS)
-                    if (uiState.isPreparing) {
-                        PreparationCountdownDisplay(
-                            remainingSeconds = uiState.countdownRemainingSeconds,
-                            progress = uiState.countdownProgress.toFloat()
-                        )
-                    } else {
-                        PlaybackButtons(
-                            isPlaying = uiState.isPlaying,
-                            onPlayPause = onPlayPause,
-                            onSkipForward = onSkipForward,
-                            onSkipBackward = onSkipBackward
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Bottom spacer - pushes controls up
-                    Spacer(modifier = Modifier.weight(1f))
                 }
 
-                // Loading overlay (shown during initial audio load)
-                if (uiState.isLoading) {
+                // Player content - hidden in completion state
+                if (!uiState.isCompleted) {
+                    Column(
+                        modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(top = TopAppBarHeight)
+                            .padding(horizontal = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Top spacer - pushes content down
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        // Meditation Info Header
+                        MeditationInfoHeader(
+                            meditation = meditation
+                        )
+
+                        // Middle spacer - separates header from controls
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        // Progress section - always visible (like iOS)
+                        ProgressSection(
+                            currentPosition = uiState.currentPosition,
+                            duration = uiState.duration,
+                            formattedPosition = uiState.formattedPosition,
+                            formattedRemaining = uiState.formattedRemaining,
+                            onSeek = onSeek
+                        )
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // Countdown OR playback buttons (like iOS)
+                        if (uiState.isPreparing) {
+                            PreparationCountdownDisplay(
+                                remainingSeconds = uiState.countdownRemainingSeconds,
+                                progress = uiState.countdownProgress.toFloat()
+                            )
+                        } else {
+                            PlaybackButtons(
+                                isPlaying = uiState.isPlaying,
+                                onPlayPause = onPlayPause,
+                                onSkipForward = onSkipForward,
+                                onSkipBackward = onSkipBackward
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Bottom spacer - pushes controls up
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+
+                // Loading overlay (shown during initial audio load, not in completion state)
+                if (uiState.isLoading && !uiState.isCompleted) {
                     Box(
                         modifier =
                         Modifier
                             .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)),
+                            .background(
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
@@ -231,6 +252,21 @@ internal fun GuidedMeditationPlayerScreenContent(
                     currentOnClearError()
                 }
             }
+        }
+
+        // Completion overlay - slides in from bottom when audio ends naturally
+        AnimatedVisibility(
+            visible = uiState.isCompleted,
+            enter = fadeIn(animationSpec = tween(COMPLETION_ANIMATION_DURATION_MS)) +
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(COMPLETION_ANIMATION_DURATION_MS)
+                )
+        ) {
+            PlayerCompletionContent(
+                onBack = onBack,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
@@ -287,7 +323,8 @@ private fun ProgressSection(
     modifier: Modifier = Modifier
 ) {
     val seekSliderDescription = stringResource(R.string.accessibility_seek_slider)
-    val progressPercent = ((if (duration > 0) currentPosition.toFloat() / duration else 0f) * 100).toInt()
+    val progressPercent =
+        ((if (duration > 0) currentPosition.toFloat() / duration else 0f) * 100).toInt()
     val sliderStateDescription =
         stringResource(R.string.accessibility_player_progress, progressPercent)
 
@@ -468,6 +505,111 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
     }
 }
 
+/**
+ * Completion overlay shown when audio ends naturally.
+ * Visually identical to TimerCompletionContent (shared-052).
+ */
+@Composable
+private fun PlayerCompletionContent(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val configuration = LocalConfiguration.current
+    val isCompactHeight = configuration.screenHeightDp < 700
+
+    Box(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            CompletionHeartIcon(isCompactHeight = isCompactHeight)
+
+            Spacer(modifier = Modifier.height(if (isCompactHeight) 24.dp else 32.dp))
+
+            CompletionMessage(isCompactHeight = isCompactHeight)
+
+            Spacer(modifier = Modifier.height(if (isCompactHeight) 48.dp else 64.dp))
+
+            CompletionBackButton(onClick = onBack)
+
+            Spacer(modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun CompletionHeartIcon(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
+    val containerSize = if (isCompactHeight) 72.dp else 80.dp
+    val iconSize = if (isCompactHeight) 32.dp else 40.dp
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(containerSize)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Favorite,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            modifier = Modifier.size(iconSize)
+        )
+    }
+}
+
+@Composable
+private fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Text(
+            text = stringResource(R.string.completion_headline),
+            style = TypographyRole.ScreenTitle.textStyle(
+                sizeOverride = if (isCompactHeight) 32.sp else TextUnit.Unspecified
+            ),
+            color = TypographyRole.ScreenTitle.textColor(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.semantics { heading() }
+        )
+
+        Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 16.dp))
+
+        Text(
+            text = stringResource(R.string.completion_subtitle),
+            style = TypographyRole.BodySecondary.textStyle(
+                sizeOverride = if (isCompactHeight) 14.sp else TextUnit.Unspecified
+            ),
+            color = TypographyRole.BodySecondary.textColor(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun CompletionBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val backDescription = stringResource(R.string.accessibility_back_to_library)
+
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(52.dp)
+            .semantics { contentDescription = backDescription },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        shape = CircleShape
+    ) {
+        Text(
+            text = stringResource(R.string.button_back),
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
 // MARK: - Previews
 
 @Preview(name = "Phone", device = Devices.PIXEL_4, showBackground = true)
@@ -562,7 +704,45 @@ private fun GuidedMeditationPlayerScreenCountdownPreview() {
                 currentPosition = 0L,
                 progress = 0f,
                 isPlaying = false,
-                preparationCountdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
+                preparationCountdown = PreparationCountdown(
+                    totalSeconds = 15,
+                    remainingSeconds = 10
+                )
+            ),
+            onBack = {},
+            onPlayPause = {},
+            onSeek = {},
+            onSkipForward = {},
+            onSkipBackward = {},
+            onClearError = {}
+        )
+    }
+}
+
+@Preview(name = "Phone - Completed", device = Devices.PIXEL_4, showBackground = true)
+@Composable
+private fun GuidedMeditationPlayerScreenCompletedPreview() {
+    StillMomentTheme {
+        val meditation =
+            GuidedMeditation(
+                id = "4",
+                fileUri = "content://test",
+                fileName = "meditation.mp3",
+                duration = 1_200_000L,
+                teacher = "Tara Brach",
+                name = "Loving Kindness Meditation"
+            )
+
+        GuidedMeditationPlayerScreenContent(
+            meditation = meditation,
+            uiState =
+            PlayerUiState(
+                meditation = meditation,
+                duration = 1_200_000L,
+                currentPosition = 1_200_000L,
+                progress = 1f,
+                isPlaying = false,
+                isCompleted = true
             ),
             onBack = {},
             onPlayPause = {},
