@@ -1,6 +1,6 @@
 # Ticket shared-052: Timer Completion Screen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Nach Ablauf des Meditationstimers ersetzt ein dedizierter Completion-Screen den 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

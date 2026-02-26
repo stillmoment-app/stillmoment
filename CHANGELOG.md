@@ -78,6 +78,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `currentAffirmationIndex` und `errorMessage` verbleiben im ViewModel (UI-only State)
   - Ticket: shared-057
 
+### Added (Android)
+- **Timer Completion Screen** - Nach Ablauf des Meditationstimers erscheint ein warmherziger Danke-Screen mit Herz-Icon, sanfter Slide-in-Animation und "Zurueck"-Button statt der leeren 00:00-Anzeige (Ticket: shared-052)
+
 ### Changed (iOS & Android)
 - **tick() emittiert Domain Events** - `MeditationTimer.tick()` gibt jetzt `(MeditationTimer, [TimerEvent])` zurueck statt nur `MeditationTimer`
   - Neues `TimerEvent`-Enum: `.preparationCompleted`, `.meditationCompleted`, `.intervalGongDue`
