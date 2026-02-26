@@ -77,7 +77,7 @@ private val DropdownShape = RoundedCornerShape(12.dp)
  * Fullscreen editor for configuring a meditation Praxis.
  *
  * Replaces the old settings bottom sheet with a chronological layout:
- * Duration -> Preparation -> Audio & Sounds -> Gongs.
+ * Preparation -> Audio & Sounds -> Gongs.
  *
  * Navigation to sub-screens (Introduction, Background, Gong, Interval Gongs)
  * is handled via lambda callbacks -- no NavController dependency.
@@ -114,7 +114,6 @@ fun PraxisEditorScreen(
     ) { paddingValues ->
         EditorContent(
             uiState = uiState,
-            onDurationChange = viewModel::setDurationMinutes,
             onPreparationEnable = viewModel::setPreparationEnabled,
             onPreparationSecondsChange = viewModel::setPreparationSeconds,
             onNavigateToIntroduction = onNavigateToIntroduction,
@@ -130,7 +129,6 @@ fun PraxisEditorScreen(
 @Composable
 private fun EditorContent(
     uiState: PraxisEditorUiState,
-    onDurationChange: (Int) -> Unit,
     onPreparationEnable: (Boolean) -> Unit,
     onPreparationSecondsChange: (Int) -> Unit,
     onNavigateToIntroduction: () -> Unit,
@@ -146,8 +144,6 @@ private fun EditorContent(
             .padding(horizontal = 24.dp)
             .padding(bottom = 24.dp)
     ) {
-        DurationSection(durationMinutes = uiState.durationMinutes, onDurationChange = onDurationChange)
-        Spacer(modifier = Modifier.height(SectionSpacing))
         PreparationSection(
             preparationTimeEnabled = uiState.preparationTimeEnabled,
             preparationTimeSeconds = uiState.preparationTimeSeconds,
@@ -219,31 +215,6 @@ private fun EditorTopAppBar(onCancel: () -> Unit, onSave: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.background
         )
     )
-}
-
-// endregion
-
-// region Duration Section
-
-@Composable
-private fun DurationSection(durationMinutes: Int, onDurationChange: (Int) -> Unit) {
-    Column {
-        Text(
-            text = stringResource(R.string.praxis_editor_duration_label),
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor(),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        EditorCard {
-            WheelPicker(
-                selectedValue = durationMinutes,
-                onValueChange = onDurationChange,
-                range = 1..60,
-                modifier = Modifier.height(200.dp)
-            )
-        }
-    }
 }
 
 // endregion

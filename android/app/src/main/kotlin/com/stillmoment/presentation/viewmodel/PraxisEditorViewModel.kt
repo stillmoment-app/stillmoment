@@ -101,10 +101,6 @@ constructor(
 
     // MARK: - Setter Methods
 
-    fun setDurationMinutes(minutes: Int) {
-        _uiState.update { it.copy(durationMinutes = Praxis.validateDuration(minutes)) }
-    }
-
     fun setPreparationEnabled(enabled: Boolean) {
         _uiState.update { it.copy(preparationTimeEnabled = enabled) }
     }
