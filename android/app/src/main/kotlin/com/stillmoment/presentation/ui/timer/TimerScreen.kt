@@ -1,27 +1,31 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -39,7 +43,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
-import com.stillmoment.presentation.ui.components.SettingsHintTooltip
+import com.stillmoment.domain.models.GongSound
+import com.stillmoment.domain.models.Introduction
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -53,10 +59,10 @@ import com.stillmoment.presentation.viewmodel.TimerViewModel
  * Timer Screen - Main meditation timer view.
  * Displays duration picker in idle state. Navigates to focus mode when timer starts.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerScreen(
     onNavigateToFocus: () -> Unit,
+    onNavigateToEditor: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TimerViewModel = hiltViewModel()
 ) {
@@ -69,32 +75,19 @@ fun TimerScreen(
             viewModel.startTimer()
             onNavigateToFocus()
         },
-        onSettingsClick = viewModel::showSettings,
-        onSettingsDismiss = viewModel::hideSettings,
-        onSettingsChange = viewModel::updateSettings,
-        onGongSoundPreview = viewModel::playGongPreview,
-        onIntervalGongPreview = { soundId -> viewModel.playIntervalGongPreview(soundId) },
-        onBackgroundSoundPreview = viewModel::playBackgroundPreview,
+        onNavigateToEditor = onNavigateToEditor,
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimerScreenContent(
     uiState: TimerUiState,
     onMinutesChange: (Int) -> Unit,
     onStartClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onSettingsDismiss: () -> Unit,
-    onSettingsChange: (com.stillmoment.domain.models.MeditationSettings) -> Unit,
-    modifier: Modifier = Modifier,
-    onGongSoundPreview: (String) -> Unit = {},
-    onIntervalGongPreview: (String) -> Unit = {},
-    onBackgroundSoundPreview: (String) -> Unit = {}
+    onNavigateToEditor: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             containerColor = androidx.compose.ui.graphics.Color.Transparent
@@ -103,26 +96,9 @@ internal fun TimerScreenContent(
                 uiState = uiState,
                 onMinutesChange = onMinutesChange,
                 onStartClick = onStartClick,
-                onSettingsClick = onSettingsClick,
+                onNavigateToEditor = onNavigateToEditor,
                 modifier = Modifier.padding(paddingValues)
             )
-
-            if (uiState.showSettings) {
-                ModalBottomSheet(
-                    onDismissRequest = onSettingsDismiss,
-                    sheetState = sheetState,
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-                    SettingsSheet(
-                        settings = uiState.settings,
-                        onSettingsChange = onSettingsChange,
-                        onDismiss = onSettingsDismiss,
-                        onGongSoundPreview = onGongSoundPreview,
-                        onIntervalGongPreview = onIntervalGongPreview,
-                        onBackgroundSoundPreview = onBackgroundSoundPreview
-                    )
-                }
-            }
         }
     }
 }
@@ -132,33 +108,11 @@ private fun TimerScreenLayout(
     uiState: TimerUiState,
     onMinutesChange: (Int) -> Unit,
     onStartClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onNavigateToEditor: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        StillMomentTopAppBar(
-            actions = {
-                val settingsDescription = stringResource(R.string.accessibility_settings_button)
-                IconButton(
-                    onClick = onSettingsClick,
-                    modifier = Modifier.semantics { contentDescription = settingsDescription }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Tune,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        )
-
-        // Settings hint tooltip - positioned left of the settings icon
-        SettingsHintTooltip(
-            isVisible = uiState.showSettingsHint,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 56.dp)
-        )
+        StillMomentTopAppBar()
 
         Column(
             modifier = Modifier
@@ -176,6 +130,8 @@ private fun TimerScreenLayout(
             )
             Spacer(modifier = Modifier.height(24.dp))
             MinutePicker(selectedMinutes = uiState.selectedMinutes, onMinutesChange = onMinutesChange)
+            Spacer(modifier = Modifier.height(16.dp))
+            ConfigurationPills(uiState = uiState, onClick = onNavigateToEditor)
             Spacer(modifier = Modifier.weight(1f))
             StartButton(onClick = onStartClick)
             Spacer(modifier = Modifier.height(16.dp))
@@ -274,6 +230,112 @@ private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
+// MARK: - Configuration Pills
+
+/**
+ * Tappable row of pills showing the current meditation configuration.
+ * Matches the iOS configurationPillsRow pattern. Tapping opens the Praxis Editor.
+ *
+ * Row 1: Preparation (if enabled), Gong, Background
+ * Row 2: Introduction (if set), Interval (if enabled)
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
+    val pillsLabel = stringResource(R.string.accessibility_configuration_pills)
+    val pillsHint = stringResource(R.string.accessibility_configuration_pills_hint)
+    val praxis = uiState.currentPraxis
+
+    val preparationLabel = preparationPillLabel(praxis)
+    val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName
+    val backgroundLabel = backgroundPillLabel(praxis)
+    val introductionLabel = introductionPillLabel(praxis)
+    val intervalLabel = intervalPillLabel(praxis)
+
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier
+            .semantics {
+                contentDescription = "$pillsLabel. $pillsHint"
+            }
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                preparationLabel?.let { label ->
+                    SettingPill(icon = "\u23F3", label = label)
+                }
+                SettingPill(icon = "\uD83D\uDD14", label = gongLabel)
+                SettingPill(icon = "\uD83C\uDF2C\uFE0F", label = backgroundLabel)
+                introductionLabel?.let { label ->
+                    SettingPill(icon = "\uD83C\uDFA7", label = label)
+                }
+                intervalLabel?.let { label ->
+                    SettingPill(icon = "\uD83D\uDD01", label = label)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun preparationPillLabel(praxis: Praxis): String? {
+    if (!praxis.preparationTimeEnabled) return null
+    return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
+}
+
+@Composable
+private fun backgroundPillLabel(praxis: Praxis): String {
+    return when (praxis.backgroundSoundId) {
+        "silent" -> stringResource(R.string.praxis_description_silent)
+        "forest" -> stringResource(R.string.sound_forest)
+        else -> stringResource(R.string.praxis_description_silent)
+    }
+}
+
+@Composable
+private fun introductionPillLabel(praxis: Praxis): String? {
+    val introId = praxis.introductionId ?: return null
+    return Introduction.find(introId)?.localizedName
+}
+
+@Composable
+private fun intervalPillLabel(praxis: Praxis): String? {
+    if (!praxis.intervalGongsEnabled) return null
+    return stringResource(R.string.settings_interval_minutes_format, praxis.intervalMinutes)
+}
+
+@Composable
+private fun SettingPill(icon: String, label: String, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = icon,
+            style = MaterialTheme.typography.labelSmall
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = label,
+            style = TypographyRole.Caption.textStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 // MARK: - Previews
 
 @Preview(name = "Phone Small", widthDp = 360, heightDp = 640, showBackground = true)
@@ -286,9 +348,7 @@ private fun TimerScreenIdlePreview() {
             uiState = TimerUiState(),
             onMinutesChange = {},
             onStartClick = {},
-            onSettingsClick = {},
-            onSettingsDismiss = {},
-            onSettingsChange = {}
+            onNavigateToEditor = {}
         )
     }
 }

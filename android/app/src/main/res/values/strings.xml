@@ -270,4 +270,8 @@
     <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>
     <string name="accessibility_praxis_editor_preparation_toggle">Preparation time toggle</string>
     <string name="accessibility_praxis_editor_preparation_duration">Preparation duration</string>
+
+    <!-- Configuration Pills -->
+    <string name="accessibility_configuration_pills">Current configuration</string>
+    <string name="accessibility_configuration_pills_hint">Opens configuration editor</string>
 </resources>
