@@ -39,10 +39,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
-import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditationSettings
-import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
@@ -61,11 +58,7 @@ fun GuidedMeditationSettingsSheet(
     settings: GuidedMeditationSettings,
     onSettingsChange: (GuidedMeditationSettings) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-    selectedTheme: ColorTheme = ColorTheme.DEFAULT,
-    onThemeChange: (ColorTheme) -> Unit = {},
-    selectedAppearanceMode: AppearanceMode = AppearanceMode.DEFAULT,
-    onAppearanceModeChange: (AppearanceMode) -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -79,13 +72,6 @@ fun GuidedMeditationSettingsSheet(
         PreparationTimeSection(
             settings = settings,
             onSettingsChange = onSettingsChange
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        GeneralSettingsSection(
-            selectedTheme = selectedTheme,
-            onThemeChange = onThemeChange,
-            selectedAppearanceMode = selectedAppearanceMode,
-            onAppearanceModeChange = onAppearanceModeChange
         )
         Spacer(modifier = Modifier.height(16.dp))
     }

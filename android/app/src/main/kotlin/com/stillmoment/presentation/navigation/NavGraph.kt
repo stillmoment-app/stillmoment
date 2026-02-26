@@ -263,7 +263,7 @@ private fun StillMomentNavContent(
     onClearImportedMeditation: () -> Unit
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        timerNavGraph(navController, settingsState)
+        timerNavGraph(navController)
 
         composable(Screen.Library.route) {
             val importedMeditation by pendingImportedMeditation.collectAsState()
@@ -278,11 +278,7 @@ private fun StillMomentNavContent(
 
             GuidedMeditationsListScreen(
                 onMeditationClick = { navController.navigate(Screen.Player.createRoute(it)) },
-                viewModel = listViewModel,
-                selectedTheme = settingsState.selectedTheme,
-                onThemeChange = settingsState.onThemeChange,
-                selectedAppearanceMode = settingsState.selectedAppearanceMode,
-                onAppearanceModeChange = settingsState.onAppearanceModeChange
+                viewModel = listViewModel
             )
         }
 
@@ -305,7 +301,7 @@ private fun StillMomentNavContent(
     }
 }
 
-private fun NavGraphBuilder.timerNavGraph(navController: NavHostController, settingsState: SettingsSheetState) {
+private fun NavGraphBuilder.timerNavGraph(navController: NavHostController) {
     navigation(startDestination = Screen.Timer.route, route = Screen.TimerGraph.route) {
         composable(Screen.Timer.route) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
@@ -315,11 +311,7 @@ private fun NavGraphBuilder.timerNavGraph(navController: NavHostController, sett
 
             TimerScreen(
                 onNavigateToFocus = { navController.navigate(Screen.TimerFocus.route) },
-                viewModel = sharedViewModel,
-                selectedTheme = settingsState.selectedTheme,
-                onThemeChange = settingsState.onThemeChange,
-                selectedAppearanceMode = settingsState.selectedAppearanceMode,
-                onAppearanceModeChange = settingsState.onAppearanceModeChange
+                viewModel = sharedViewModel
             )
         }
 
