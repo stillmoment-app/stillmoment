@@ -280,6 +280,9 @@
     <string name="custom_audio_delete_title">Delete Audio File</string>
     <string name="custom_audio_delete_message">Are you sure you want to delete \"%1$s\"?</string>
     <string name="custom_audio_delete_warning_praxis">Used in the current practice</string>
+    <string name="custom_audio_rename_title">Rename Audio File</string>
+    <string name="custom_audio_rename_placeholder">New name</string>
+    <string name="custom_audio_rename_message">Enter a new name for this audio file.</string>
     <string name="custom_audio_duration_unknown">Unknown</string>
     <string name="custom_audio_error_unsupported_format">This file format is not supported. Only MP3, M4A and WAV files can be imported.</string>
     <string name="custom_audio_error_import_failed">The audio file could not be imported. Please try again.</string>

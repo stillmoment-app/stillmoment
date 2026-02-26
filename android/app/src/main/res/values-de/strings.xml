@@ -280,6 +280,9 @@
     <string name="custom_audio_delete_title">Audiodatei loeschen</string>
     <string name="custom_audio_delete_message">Moechtest du \"%1$s\" wirklich loeschen?</string>
     <string name="custom_audio_delete_warning_praxis">Wird in der aktuellen Praxis verwendet</string>
+    <string name="custom_audio_rename_title">Audiodatei umbenennen</string>
+    <string name="custom_audio_rename_placeholder">Neuer Name</string>
+    <string name="custom_audio_rename_message">Gib einen neuen Namen für diese Audiodatei ein.</string>
     <string name="custom_audio_duration_unknown">Unbekannt</string>
     <string name="custom_audio_error_unsupported_format">Dieses Dateiformat wird nicht unterstuetzt. Nur MP3-, M4A- und WAV-Dateien koennen importiert werden.</string>
     <string name="custom_audio_error_import_failed">Die Audiodatei konnte nicht importiert werden. Bitte versuche es erneut.</string>
