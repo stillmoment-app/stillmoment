@@ -301,7 +301,7 @@ constructor(
         } else if (_uiState.value.isCompleted) {
             // Restart from beginning if completed
             seekTo(0L)
-            resume()
+            play()
             _uiState.update { it.copy(isCompleted = false) }
         } else if (_uiState.value.currentPosition > 0) {
             resume()
