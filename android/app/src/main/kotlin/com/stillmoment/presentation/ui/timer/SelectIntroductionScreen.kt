@@ -18,7 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -27,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -59,8 +62,8 @@ import kotlinx.collections.immutable.toImmutableList
  *
  * Displays a list of available introductions with a "No Introduction" option.
  * Includes a "My Attunements" section for user-imported custom attunements.
- * Selecting a built-in item updates the ViewModel and navigates back immediately.
- * Selecting a custom attunement updates the ViewModel without navigating back.
+ * Tapping a built-in introduction plays a preview without navigating back.
+ * Stops audio previews when leaving the screen via DisposableEffect.
  */
 @Composable
 fun SelectIntroductionScreen(
@@ -77,6 +80,13 @@ fun SelectIntroductionScreen(
     }
 
     var fileToDelete by remember { mutableStateOf<CustomAudioFile?>(null) }
+    var fileToRename by remember { mutableStateOf<CustomAudioFile?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.stopPreviews()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         WarmGradientBackground()
@@ -89,12 +99,16 @@ fun SelectIntroductionScreen(
                 customAttunements = uiState.customAttunements.toImmutableList(),
                 onSelectBuiltIn = { id ->
                     viewModel.setIntroductionId(id)
-                    onBack()
+                    if (id != null) {
+                        viewModel.playIntroductionPreview(id)
+                    }
                 },
                 onSelectCustom = { id ->
                     viewModel.setIntroductionId(id)
+                    viewModel.playIntroductionPreview(id)
                 },
                 onDeleteCustomAttunement = { fileToDelete = it },
+                onRenameCustomAttunement = { fileToRename = it },
                 onImportClick = {
                     filePickerLauncher.launch(arrayOf("audio/*"))
                 }
@@ -102,22 +116,59 @@ fun SelectIntroductionScreen(
         }
     }
 
+    IntroductionDialogs(
+        fileToDelete = fileToDelete,
+        fileToRename = fileToRename,
+        introductionId = uiState.introductionId,
+        customAudioError = uiState.customAudioError,
+        onDeleteConfirm = { file ->
+            viewModel.deleteCustomAudio(file.id)
+            fileToDelete = null
+        },
+        onDeleteDismiss = { fileToDelete = null },
+        onRenameConfirm = { file, newName ->
+            viewModel.renameCustomAudio(file.id, newName)
+            fileToRename = null
+        },
+        onRenameDismiss = { fileToRename = null },
+        onErrorDismiss = { viewModel.clearCustomAudioError() }
+    )
+}
+
+@Suppress("LongParameterList") // Dialog host needs all dialog state and callbacks
+@Composable
+private fun IntroductionDialogs(
+    fileToDelete: CustomAudioFile?,
+    fileToRename: CustomAudioFile?,
+    introductionId: String?,
+    customAudioError: String?,
+    onDeleteConfirm: (CustomAudioFile) -> Unit,
+    onDeleteDismiss: () -> Unit,
+    onRenameConfirm: (CustomAudioFile, String) -> Unit,
+    onRenameDismiss: () -> Unit,
+    onErrorDismiss: () -> Unit
+) {
     fileToDelete?.let { file ->
         CustomAudioDeleteDialog(
             fileName = file.name,
-            isUsedInPraxis = uiState.introductionId == file.id,
-            onConfirm = {
-                viewModel.deleteCustomAudio(file.id)
-                fileToDelete = null
-            },
-            onDismiss = { fileToDelete = null }
+            isUsedInPraxis = introductionId == file.id,
+            onConfirm = { onDeleteConfirm(file) },
+            onDismiss = onDeleteDismiss
         )
     }
 
-    uiState.customAudioError?.let { error ->
+    fileToRename?.let { file ->
+        CustomAudioRenameDialog(
+            fileName = file.name,
+            onConfirm = { newName -> onRenameConfirm(file, newName) },
+            onDismiss = onRenameDismiss
+        )
+    }
+
+    customAudioError?.let { error ->
         CustomAudioErrorDialog(
             errorMessage = error,
-            onDismiss = { viewModel.clearCustomAudioError() }
+            onDismiss = onErrorDismiss
         )
     }
 }
@@ -145,6 +196,7 @@ private fun IntroductionContent(
     onSelectBuiltIn: (String?) -> Unit,
     onSelectCustom: (String) -> Unit,
     onDeleteCustomAttunement: (CustomAudioFile) -> Unit,
+    onRenameCustomAttunement: (CustomAudioFile) -> Unit,
     onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -167,6 +219,7 @@ private fun IntroductionContent(
                 selectedId = selectedId,
                 onSelectAttunement = onSelectCustom,
                 onDeleteClick = onDeleteCustomAttunement,
+                onRenameClick = onRenameCustomAttunement,
                 onImportClick = onImportClick
             )
         }
@@ -190,6 +243,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String?) -
                 label = stringResource(R.string.praxis_editor_introduction_none),
                 duration = null,
                 isSelected = selectedId == null,
+                iconVector = Icons.Default.RemoveCircle,
                 onClick = { onSelect(null) }
             )
 
@@ -204,6 +258,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String?) -
                     label = introduction.localizedName,
                     duration = introduction.formattedDuration,
                     isSelected = selectedId == introduction.id,
+                    iconVector = Icons.Default.Audiotrack,
                     onClick = { onSelect(introduction.id) }
                 )
             }
@@ -216,6 +271,7 @@ private fun IntroductionRow(
     label: String,
     duration: String?,
     isSelected: Boolean,
+    iconVector: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -233,16 +289,16 @@ private fun IntroductionRow(
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-        } else {
-            Spacer(modifier = Modifier.size(24.dp))
-        }
+        Icon(
+            imageVector = iconVector,
+            contentDescription = null,
+            tint = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(24.dp)
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -270,6 +326,7 @@ private fun MyAttunementsSection(
     selectedId: String?,
     onSelectAttunement: (String) -> Unit,
     onDeleteClick: (CustomAudioFile) -> Unit,
+    onRenameClick: (CustomAudioFile) -> Unit,
     onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -283,7 +340,8 @@ private fun MyAttunementsSection(
                 customAttunements = customAttunements,
                 selectedId = selectedId,
                 onSelectAttunement = onSelectAttunement,
-                onDeleteClick = onDeleteClick
+                onDeleteClick = onDeleteClick,
+                onRenameClick = onRenameClick
             )
         }
 
@@ -327,7 +385,8 @@ private fun MyAttunementsCard(
     customAttunements: ImmutableList<CustomAudioFile>,
     selectedId: String?,
     onSelectAttunement: (String) -> Unit,
-    onDeleteClick: (CustomAudioFile) -> Unit
+    onDeleteClick: (CustomAudioFile) -> Unit,
+    onRenameClick: (CustomAudioFile) -> Unit
 ) {
     val colors = LocalStillMomentColors.current
 
@@ -352,7 +411,8 @@ private fun MyAttunementsCard(
                     file = file,
                     isSelected = selectedId == file.id,
                     onSelect = { onSelectAttunement(file.id) },
-                    onDelete = { onDeleteClick(file) }
+                    onDelete = { onDeleteClick(file) },
+                    onRename = { onRenameClick(file) }
                 )
             }
         }

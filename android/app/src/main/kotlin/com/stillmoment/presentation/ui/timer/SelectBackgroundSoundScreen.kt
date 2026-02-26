@@ -20,11 +20,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Audiotrack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -36,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -49,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -70,17 +74,18 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 /**
- * Background sound option with id and display name resource.
+ * Background sound option with id, display name resource, and icon.
  */
 private data class BackgroundSoundOption(
     val id: String,
-    val nameResId: Int
+    val nameResId: Int,
+    val iconVector: ImageVector
 )
 
 /** Available background sounds matching SettingsSheet.kt options. */
 private val backgroundSoundOptions = listOf(
-    BackgroundSoundOption("silent", R.string.praxis_editor_background_silence),
-    BackgroundSoundOption("forest", R.string.sound_forest)
+    BackgroundSoundOption("silent", R.string.praxis_editor_background_silence, Icons.AutoMirrored.Filled.VolumeOff),
+    BackgroundSoundOption("forest", R.string.sound_forest, Icons.Filled.Forest)
 )
 
 /**
@@ -105,6 +110,7 @@ fun SelectBackgroundSoundScreen(
     }
 
     var fileToDelete by remember { mutableStateOf<CustomAudioFile?>(null) }
+    var fileToRename by remember { mutableStateOf<CustomAudioFile?>(null) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -133,27 +139,65 @@ fun SelectBackgroundSoundScreen(
                     viewModel.playBackgroundPreview(uiState.backgroundSoundId)
                 },
                 onDeleteCustomSound = { fileToDelete = it },
+                onRenameCustomSound = { fileToRename = it },
                 onImportClick = { filePickerLauncher.launch(arrayOf("audio/*")) }
             )
         }
     }
 
+    BackgroundSoundDialogs(
+        fileToDelete = fileToDelete,
+        fileToRename = fileToRename,
+        backgroundSoundId = uiState.backgroundSoundId,
+        customAudioError = uiState.customAudioError,
+        onDeleteConfirm = { file ->
+            viewModel.deleteCustomAudio(file.id)
+            fileToDelete = null
+        },
+        onDeleteDismiss = { fileToDelete = null },
+        onRenameConfirm = { file, newName ->
+            viewModel.renameCustomAudio(file.id, newName)
+            fileToRename = null
+        },
+        onRenameDismiss = { fileToRename = null },
+        onErrorDismiss = { viewModel.clearCustomAudioError() }
+    )
+}
+
+@Suppress("LongParameterList") // Dialog host needs all dialog state and callbacks
+@Composable
+private fun BackgroundSoundDialogs(
+    fileToDelete: CustomAudioFile?,
+    fileToRename: CustomAudioFile?,
+    backgroundSoundId: String,
+    customAudioError: String?,
+    onDeleteConfirm: (CustomAudioFile) -> Unit,
+    onDeleteDismiss: () -> Unit,
+    onRenameConfirm: (CustomAudioFile, String) -> Unit,
+    onRenameDismiss: () -> Unit,
+    onErrorDismiss: () -> Unit
+) {
     fileToDelete?.let { file ->
         CustomAudioDeleteDialog(
             fileName = file.name,
-            isUsedInPraxis = uiState.backgroundSoundId == file.id,
-            onConfirm = {
-                viewModel.deleteCustomAudio(file.id)
-                fileToDelete = null
-            },
-            onDismiss = { fileToDelete = null }
+            isUsedInPraxis = backgroundSoundId == file.id,
+            onConfirm = { onDeleteConfirm(file) },
+            onDismiss = onDeleteDismiss
         )
     }
 
-    uiState.customAudioError?.let { error ->
+    fileToRename?.let { file ->
+        CustomAudioRenameDialog(
+            fileName = file.name,
+            onConfirm = { newName -> onRenameConfirm(file, newName) },
+            onDismiss = onRenameDismiss
+        )
+    }
+
+    customAudioError?.let { error ->
         CustomAudioErrorDialog(
             errorMessage = error,
-            onDismiss = { viewModel.clearCustomAudioError() }
+            onDismiss = onErrorDismiss
         )
     }
 }
@@ -184,6 +228,7 @@ private fun BackgroundSoundContent(
     onVolumeChange: (Float) -> Unit,
     onVolumeChangeFinish: () -> Unit,
     onDeleteCustomSound: (CustomAudioFile) -> Unit,
+    onRenameCustomSound: (CustomAudioFile) -> Unit,
     onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -217,6 +262,7 @@ private fun BackgroundSoundContent(
                 selectedSoundId = selectedSoundId,
                 onSelectSound = onSelectSound,
                 onDeleteClick = onDeleteCustomSound,
+                onRenameClick = onRenameCustomSound,
                 onImportClick = onImportClick
             )
         }
@@ -251,6 +297,7 @@ private fun BackgroundSoundSelectionCard(
                 BackgroundSoundRow(
                     name = stringResource(option.nameResId),
                     isSelected = selectedSoundId == option.id,
+                    iconVector = option.iconVector,
                     onClick = { onSelectSound(option.id) }
                 )
             }
@@ -259,7 +306,13 @@ private fun BackgroundSoundSelectionCard(
 }
 
 @Composable
-private fun BackgroundSoundRow(name: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun BackgroundSoundRow(
+    name: String,
+    isSelected: Boolean,
+    iconVector: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -268,16 +321,16 @@ private fun BackgroundSoundRow(name: String, isSelected: Boolean, onClick: () ->
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-        } else {
-            Spacer(modifier = Modifier.size(24.dp))
-        }
+        Icon(
+            imageVector = iconVector,
+            contentDescription = null,
+            tint = if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier.size(24.dp)
+        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
@@ -295,6 +348,7 @@ private fun MySoundsSection(
     selectedSoundId: String,
     onSelectSound: (String) -> Unit,
     onDeleteClick: (CustomAudioFile) -> Unit,
+    onRenameClick: (CustomAudioFile) -> Unit,
     onImportClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -308,7 +362,8 @@ private fun MySoundsSection(
                 customSoundscapes = customSoundscapes,
                 selectedSoundId = selectedSoundId,
                 onSelectSound = onSelectSound,
-                onDeleteClick = onDeleteClick
+                onDeleteClick = onDeleteClick,
+                onRenameClick = onRenameClick
             )
         }
 
@@ -352,7 +407,8 @@ private fun MySoundsCard(
     customSoundscapes: ImmutableList<CustomAudioFile>,
     selectedSoundId: String,
     onSelectSound: (String) -> Unit,
-    onDeleteClick: (CustomAudioFile) -> Unit
+    onDeleteClick: (CustomAudioFile) -> Unit,
+    onRenameClick: (CustomAudioFile) -> Unit
 ) {
     val colors = LocalStillMomentColors.current
 
@@ -377,7 +433,8 @@ private fun MySoundsCard(
                     file = file,
                     isSelected = selectedSoundId == file.id,
                     onSelect = { onSelectSound(file.id) },
-                    onDelete = { onDeleteClick(file) }
+                    onDelete = { onDeleteClick(file) },
+                    onRename = { onRenameClick(file) }
                 )
             }
         }
@@ -449,6 +506,7 @@ internal fun CustomAudioRow(
     isSelected: Boolean,
     onSelect: () -> Unit,
     onDelete: () -> Unit,
+    onRename: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val durationText = file.formattedDuration
@@ -475,28 +533,24 @@ internal fun CustomAudioRow(
 
         CustomAudioRowOverflowMenu(
             fileName = file.name,
-            onDelete = onDelete
+            onDelete = onDelete,
+            onRename = onRename
         )
     }
 }
 
 @Composable
 private fun CustomAudioRowIcon(isSelected: Boolean) {
-    if (isSelected) {
-        Icon(
-            imageVector = Icons.Filled.Check,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
-        )
-    } else {
-        Icon(
-            imageVector = Icons.Default.Audiotrack,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
-    }
+    Icon(
+        imageVector = Icons.Default.Audiotrack,
+        contentDescription = null,
+        tint = if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
@@ -516,7 +570,7 @@ private fun CustomAudioRowInfo(name: String, durationText: String, modifier: Mod
 }
 
 @Composable
-private fun CustomAudioRowOverflowMenu(fileName: String, onDelete: () -> Unit) {
+private fun CustomAudioRowOverflowMenu(fileName: String, onDelete: () -> Unit, onRename: () -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
     val overflowDescription = stringResource(R.string.accessibility_custom_audio_overflow, fileName)
 
@@ -539,6 +593,19 @@ private fun CustomAudioRowOverflowMenu(fileName: String, onDelete: () -> Unit) {
             expanded = showMenu,
             onDismissRequest = { showMenu = false }
         ) {
+            DropdownMenuItem(
+                text = { Text(text = stringResource(R.string.common_edit)) },
+                onClick = {
+                    showMenu = false
+                    onRename()
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null
+                    )
+                }
+            )
             DropdownMenuItem(
                 text = {
                     Text(
@@ -613,6 +680,46 @@ internal fun CustomAudioDeleteDialog(
                     text = stringResource(R.string.common_delete),
                     color = MaterialTheme.colorScheme.error
                 )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+internal fun CustomAudioRenameDialog(fileName: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+    var newName by remember { mutableStateOf(fileName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.custom_audio_rename_title))
+        },
+        text = {
+            Column {
+                Text(text = stringResource(R.string.custom_audio_rename_message))
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    placeholder = {
+                        Text(text = stringResource(R.string.custom_audio_rename_placeholder))
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(newName.trim()) },
+                enabled = newName.isNotBlank()
+            ) {
+                Text(text = stringResource(R.string.common_save))
             }
         },
         dismissButton = {
