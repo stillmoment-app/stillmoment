@@ -13,9 +13,15 @@ import androidx.core.app.NotificationCompat
 import com.stillmoment.MainActivity
 import com.stillmoment.R
 import com.stillmoment.domain.models.Introduction
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * Foreground Service for timer background playback.
@@ -32,7 +38,12 @@ class TimerForegroundService : Service() {
     lateinit var audioService: AudioService
 
     @Inject
+    lateinit var customAudioRepository: CustomAudioRepository
+
+    @Inject
     lateinit var logger: LoggerProtocol
+
+    private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private var currentSoundId: String = "silent"
     private var currentSoundVolume: Float = DEFAULT_SOUND_VOLUME
@@ -89,8 +100,22 @@ class TimerForegroundService : Service() {
 
     private fun handlePlayIntroduction(intent: Intent) {
         val introductionId = intent.getStringExtra(EXTRA_INTRODUCTION_ID) ?: return
-        val resourceName = Introduction.audioFilenameForCurrentLanguage(introductionId) ?: return
-        audioService.playIntroduction(resourceName)
+        val introduction = Introduction.find(introductionId)
+        if (introduction != null) {
+            // Built-in introduction
+            val resourceName = introduction.audioFilename(Introduction.currentLanguage) ?: return
+            audioService.playIntroduction(resourceName)
+        } else {
+            // Custom introduction: resolve file path asynchronously
+            serviceScope.launch {
+                val filePath = customAudioRepository.getFilePath(introductionId)
+                if (filePath != null) {
+                    audioService.playIntroductionFromFile(filePath)
+                } else {
+                    logger.w(TAG, "Custom introduction not found: $introductionId, skipping")
+                }
+            }
+        }
     }
 
     private fun handleUpdateBackgroundAudio(intent: Intent) {
@@ -98,11 +123,12 @@ class TimerForegroundService : Service() {
         val soundVolume = intent.getFloatExtra(EXTRA_SOUND_VOLUME, currentSoundVolume)
         currentSoundId = soundId
         currentSoundVolume = soundVolume
-        audioService.startBackgroundAudio(soundId, soundVolume)
+        startBackgroundSound(soundId, soundVolume)
     }
 
     override fun onDestroy() {
         stopTimer()
+        serviceScope.cancel()
         super.onDestroy()
         logger.d(TAG, "Service destroyed")
     }
@@ -119,7 +145,7 @@ class TimerForegroundService : Service() {
             if (currentSoundId != soundId || currentSoundVolume != soundVolume) {
                 currentSoundId = soundId
                 currentSoundVolume = soundVolume
-                audioService.startBackgroundAudio(soundId, soundVolume)
+                startBackgroundSound(soundId, soundVolume)
             }
             return
         }
@@ -134,14 +160,34 @@ class TimerForegroundService : Service() {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
-        // Start background audio
-        audioService.startBackgroundAudio(soundId, soundVolume)
+        // Start background audio (built-in or custom)
+        startBackgroundSound(soundId, soundVolume)
 
         logger.d(
             TAG,
             "Timer started with sound: $soundId, volume: $soundVolume, " +
                 "gong: $gongSoundId, gongVolume: $gongVolume"
         )
+    }
+
+    /**
+     * Starts background sound playback, resolving custom audio IDs asynchronously.
+     * Built-in sounds (silent, forest) play immediately; custom sounds require file path lookup.
+     */
+    private fun startBackgroundSound(soundId: String, soundVolume: Float) {
+        if (AudioService.getBackgroundSoundResourceId(soundId) != null || soundId == "silent") {
+            audioService.startBackgroundAudio(soundId, soundVolume)
+        } else {
+            serviceScope.launch {
+                val filePath = customAudioRepository.getFilePath(soundId)
+                if (filePath != null) {
+                    audioService.startBackgroundAudioFromFile(filePath, soundVolume)
+                } else {
+                    logger.w(TAG, "Custom background audio not found: $soundId, falling back to silence")
+                    audioService.startBackgroundAudio("silent", soundVolume)
+                }
+            }
+        }
     }
 
     private fun stopTimer() {

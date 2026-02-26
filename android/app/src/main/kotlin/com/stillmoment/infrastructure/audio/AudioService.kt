@@ -271,6 +271,41 @@ constructor(
     }
 
     /**
+     * Play introduction audio from a local file path.
+     * Used for custom imported attunements.
+     *
+     * @param filePath Absolute path to the audio file
+     * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
+     */
+    fun playIntroductionFromFile(filePath: String, volume: Float = INTRODUCTION_VOLUME) {
+        try {
+            stopIntroduction()
+            val clampedVolume = volume.coerceIn(0f, 1f)
+            val player = mediaPlayerFactory.create()
+            player.setDataSource(filePath)
+            player.setOnErrorListener { what, extra ->
+                logger.e(TAG, "Introduction audio error: what=$what, extra=$extra")
+                introductionPlayer = null
+                false
+            }
+            player.setOnPreparedListener {
+                player.setVolume(clampedVolume, clampedVolume)
+                player.start()
+                logger.d(TAG, "Playing introduction from file: $filePath, volume: $clampedVolume")
+            }
+            player.setOnCompletionListener {
+                player.release()
+                introductionPlayer = null
+                _introductionCompletionFlow.tryEmit(Unit)
+            }
+            introductionPlayer = player
+            player.prepareAsync()
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play introduction from file - invalid state: ${e.message}")
+        }
+    }
+
+    /**
      * Stop introduction audio. Idempotent.
      */
     fun stopIntroduction() {
@@ -400,6 +435,44 @@ constructor(
     }
 
     // MARK: - Background Audio
+
+    /**
+     * Start background audio loop from a local file path with fade in.
+     * Used for custom imported soundscapes. Requests exclusive audio session before starting.
+     *
+     * @param filePath Absolute path to the audio file
+     * @param volume The playback volume (0.0 to 1.0), defaults to DEFAULT_AMBIENT_VOLUME
+     */
+    fun startBackgroundAudioFromFile(filePath: String, volume: Float = DEFAULT_AMBIENT_VOLUME) {
+        try {
+            if (!coordinator.requestAudioSession(AudioSource.TIMER)) {
+                logger.w(TAG, "Failed to acquire audio session for background audio from file")
+                return
+            }
+
+            stopBackgroundAudioInternal()
+            targetVolume = volume.coerceIn(0f, 1f)
+
+            val player = mediaPlayerFactory.create()
+            player.setDataSource(filePath)
+            player.isLooping = true
+            player.setVolume(0f, 0f)
+            player.setOnErrorListener { what, extra ->
+                logger.e(TAG, "Background audio error: what=$what, extra=$extra")
+                backgroundPlayer = null
+                false
+            }
+            player.setOnPreparedListener {
+                player.start()
+                fadeToVolume(targetVolume)
+                logger.d(TAG, "Started background audio from file: $filePath, volume: $targetVolume")
+            }
+            backgroundPlayer = player
+            player.prepareAsync()
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to start background audio from file - invalid state: ${e.message}")
+        }
+    }
 
     /**
      * Start background audio loop with fade in.
