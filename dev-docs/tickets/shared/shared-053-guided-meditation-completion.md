@@ -21,8 +21,8 @@ Nach Audio-Ende sind alle Player-Controls sinnlos. Der aktuelle Zustand ("pausie
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

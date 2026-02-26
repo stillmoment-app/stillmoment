@@ -17,6 +17,21 @@ Added `MeditationCompletionView` as a reusable completion screen in `Presentatio
 
 ---
 
+## IMPLEMENT (Android)
+Status: DONE
+Commits:
+- 03a7d7a feat(android): #shared-053 implement guided meditation completion screen
+
+Challenges:
+<!-- CHALLENGES_START -->
+- keine
+<!-- CHALLENGES_END -->
+
+Summary:
+Added completion overlay to GuidedMeditationPlayerScreen following the exact same pattern as TimerFocusScreen (shared-052). When uiState.isCompleted is true, player controls, top bar, and loading overlay are hidden, and an AnimatedVisibility completion overlay slides in from the bottom with PlayerCompletionContent (heart icon, headline, subtitle, back button). Added accessibility_back_to_library string in EN and DE. Existing ViewModel tests already covered isCompleted state.
+
+---
+
 ## CLOSE
 Status: DONE
 Commits:
