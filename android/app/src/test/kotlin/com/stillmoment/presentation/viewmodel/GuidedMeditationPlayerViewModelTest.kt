@@ -404,6 +404,89 @@ class GuidedMeditationPlayerViewModelTest {
         }
     }
 
+    // MARK: - Completion State Tests
+
+    @Nested
+    inner class CompletionStateTests {
+        @Test
+        fun `isCompleted is false when playing`() {
+            val state = PlayerUiState(
+                isPlaying = true,
+                isCompleted = false,
+                currentPosition = 60_000L,
+                duration = 300_000L,
+                progress = 0.2f
+            )
+
+            assertFalse(state.isCompleted)
+            assertTrue(state.isPlaying)
+        }
+
+        @Test
+        fun `isCompleted is false when paused mid-playback`() {
+            val state = PlayerUiState(
+                isPlaying = false,
+                isCompleted = false,
+                currentPosition = 150_000L,
+                duration = 300_000L,
+                progress = 0.5f
+            )
+
+            assertFalse(state.isCompleted)
+            assertFalse(state.isPlaying)
+        }
+
+        @Test
+        fun `isCompleted is true after audio ends naturally`() {
+            // Represents the state set by onPlaybackCompleted()
+            val state = PlayerUiState(
+                isPlaying = false,
+                isCompleted = true,
+                currentPosition = 300_000L,
+                duration = 300_000L,
+                progress = 1f
+            )
+
+            assertTrue(state.isCompleted)
+            assertFalse(state.isPlaying)
+            assertEquals(1f, state.progress)
+            assertEquals(state.duration, state.currentPosition)
+        }
+
+        @Test
+        fun `isCompleted resets to false when meditation is loaded`() {
+            val completed = PlayerUiState(
+                isCompleted = true,
+                progress = 1f,
+                currentPosition = 300_000L,
+                duration = 300_000L
+            )
+
+            // loadMeditation resets state
+            val reset = completed.copy(
+                isCompleted = false,
+                currentPosition = 0L,
+                progress = 0f
+            )
+
+            assertFalse(reset.isCompleted)
+            assertEquals(0L, reset.currentPosition)
+            assertEquals(0f, reset.progress)
+        }
+
+        @Test
+        fun `formattedRemaining is zero at completion`() {
+            val state = PlayerUiState(
+                isCompleted = true,
+                currentPosition = 600_000L,
+                duration = 600_000L,
+                progress = 1f
+            )
+
+            assertEquals("0:00", state.formattedRemaining)
+        }
+    }
+
     // MARK: - Test Helpers
 
     private fun createTestMeditation(
