@@ -1,6 +1,6 @@
 # Ticket shared-064: Praxis-Editor und Settings-Abloesung
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~6 | Android ~6
 **Phase**: 3-Feature
@@ -23,7 +23,7 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-061, shared-063 |
-| Android   | [ ]    | shared-061, shared-063 |
+| Android   | [x]    | shared-061, shared-063 |
 
 ---
 
@@ -61,7 +61,7 @@ Die Timer-Konfiguration wird durch die chronologische Anordnung intuitiver — d
 
 ### Tests
 - [x] Unit Tests iOS (Editor-State, Speichern/Abbrechen, Validierung)
-- [ ] Unit Tests Android (Editor-State, Speichern/Abbrechen, Validierung)
+- [x] Unit Tests Android (Editor-State, Speichern/Abbrechen, Validierung)
 
 ### Dokumentation
 - [x] CHANGELOG.md
