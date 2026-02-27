@@ -1,6 +1,6 @@
 # Ticket shared-050: Optionale Einleitung fuer Meditationstimer
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~M | Android ~M
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ Vor allem Einsteiger profitieren von einer kurzen gefuehrten Einfuehrung (z.B. A
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

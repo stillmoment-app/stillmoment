@@ -39,3 +39,20 @@ Challenges:
 
 Summary:
 Alle BackgroundSound.allSounds und BackgroundSound.findOrDefault Referenzen durch SoundCatalogRepository ersetzt. builtInSounds als State in PraxisEditorUiState und TimerUiState hinzugefuegt, durch ViewModel-Konstruktoren injiziert und in SelectBackgroundSoundScreen und TimerScreen Configuration Pills durchgereicht. FakeSoundCatalogRepository fuer Tests erstellt und in alle 11 betroffenen Test-Dateien integriert.
+
+---
+
+## REVIEW 1
+Verdict: PASS
+
+make check: OK
+make test: OK
+
+DISCUSSION:
+<!-- DISCUSSION_START -->
+- android/app/src/main/assets/sounds.json:1 - Die Android-JSON hat die neuen Sounds (rain, ocean, birds), die iOS-JSON hat noch nicht (iOS hat nur silent + forest). Das ist laut Ticket explizit gewollt ("mindestens dieselben wie iOS"), ist aber eine Cross-Platform-Divergenz. Wenn iOS erweitert wird, muss das in android-072 dokumentiert oder ein Folgeticket erstellt werden.
+- android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/SelectBackgroundSoundScreen.kt:78-84 - `iconForBackgroundSound()` bildet nur "forest" auf ein passendes Icon ab (`Icons.Filled.Forest`). Alle anderen nicht-stillen Sounds fallen auf `VolumeUp` zurück. Das ist funktional korrekt, aber semantisch schwach. Wenn irgendwann spezifische Icons fuer rain/ocean/birds hinzukommen, muss hier manuell erweitert werden.
+<!-- DISCUSSION_END -->
+
+Summary:
+Alle Akzeptanzkriterien sind erfuellt. sounds.json ist Single Source of Truth mit 5 Eintraegen. Das BackgroundSound.kt companion object ist auf `SILENT_ID` bereinigt (allSounds, nameEnglish, nameGerman entfernt). Die JSON-Struktur ist konform zu iOS (id, filename, name.en/de, description.en/de, volume), und die Sound-IDs sind rueckwaertskompatibel. Die `resolveRawResourceId`-Methode kennt alle 5 raw resources (forest_ambience, rain_ambience, ocean_waves, birds_chirping, silence). Das Dropdown zeigt alle Sounds via `builtInSounds` aus dem SoundCatalogRepository. Die Preview-Methode `playBackgroundPreview()` geht durch `getBackgroundSoundResourceId()` -> `soundCatalogRepository.findById()` -> `resolveRawResourceId()` und ist fuer alle Sounds verdrahtet. Die Unit-Tests decken alle drei Ticket-Anforderungen ab (>2 Eintraege, Pflichtfelder, SerializationException). make check und make test sind grueen.
