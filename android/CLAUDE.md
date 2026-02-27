@@ -254,6 +254,28 @@ class AndroidLogger @Inject constructor() : LoggerProtocol { ... }
 
 ---
 
+## Sound Localization Pattern
+
+Domain models (`BackgroundSound`, `GongSound`) hold `nameEnglish`/`nameGerman` as plain data — **no Locale logic in Domain**. Locale resolution happens in the Presentation layer via extension functions in `SoundExtensions.kt`:
+
+```kotlin
+// Presentation layer — SoundExtensions.kt
+fun GongSound.localizedName(language: String): String =
+    if (language == "de") nameGerman else nameEnglish
+
+// In Composables: resolve language once from LocalConfiguration
+val language = LocalConfiguration.current.locales[0].language
+Text(gongSound.localizedName(language))
+
+// In Context-based functions (e.g. PraxisExtensions.kt)
+val language = context.resources.configuration.locales[0].language
+val name = gongSound.localizedName(language)
+```
+
+**Never add `Locale.getDefault()` or `import java.util.Locale` to Domain models.**
+
+---
+
 ## AudioFocusManager
 
 Protocol-based audio focus with callback on focus loss:
