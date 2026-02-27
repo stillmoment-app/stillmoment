@@ -21,25 +21,25 @@ iOS und Android haben aktuell dieselben 2 Sounds — aber beide Plattformen soll
 ## Akzeptanzkriterien
 
 ### Architektur
-- [ ] `sounds.json` im Android-Assets-Verzeichnis als Single Source of Truth für den Sound-Katalog
-- [ ] `BackgroundSound.kt` companion object (`allSounds`, `nameEnglish`, `nameGerman`) entfernt — Daten kommen aus JSON
-- [ ] JSON-Struktur identisch zu iOS (`id`, `filename`, `name.en`, `name.de`, `description.en`, `description.de`, `volume`)
-- [ ] Gleiche Sound-IDs wie iOS (Kompatibilität mit gespeicherten Einstellungen)
+- [x] `sounds.json` im Android-Assets-Verzeichnis als Single Source of Truth für den Sound-Katalog
+- [x] `BackgroundSound.kt` companion object (`allSounds`, `nameEnglish`, `nameGerman`) entfernt — Daten kommen aus JSON
+- [x] JSON-Struktur identisch zu iOS (`id`, `filename`, `name.en`, `name.de`, `description.en`, `description.de`, `volume`)
+- [x] Gleiche Sound-IDs wie iOS (Kompatibilität mit gespeicherten Einstellungen)
 
 ### Feature
-- [ ] Mindestens dieselben Sounds wie iOS verfuegbar (Sounddateien aus iOS-Bundle uebernehmen oder neu beschaffen)
-- [ ] Background-Sound-Dropdown zeigt alle verfuegbaren Sounds
-- [ ] Ausgewaehlter Sound mit korrekter Datei verknuepft
-- [ ] 3-Sekunden-Preview funktioniert fuer alle neuen Sounds
-- [ ] Fade-in (10s) beim Meditationsstart funktioniert fuer alle neuen Sounds
+- [x] Mindestens dieselben Sounds wie iOS verfuegbar (Sounddateien aus iOS-Bundle uebernehmen oder neu beschaffen)
+- [x] Background-Sound-Dropdown zeigt alle verfuegbaren Sounds
+- [x] Ausgewaehlter Sound mit korrekter Datei verknuepft
+- [x] 3-Sekunden-Preview funktioniert fuer alle neuen Sounds
+- [x] Fade-in (10s) beim Meditationsstart funktioniert fuer alle neuen Sounds
 
 ### Tests
-- [ ] Unit-Test: Sound-Katalog hat mehr als 2 Eintraege
-- [ ] Unit-Test: JSON wird korrekt geparst (alle Pflichtfelder vorhanden)
-- [ ] `make test` gruen
+- [x] Unit-Test: Sound-Katalog hat mehr als 2 Eintraege
+- [x] Unit-Test: JSON wird korrekt geparst (alle Pflichtfelder vorhanden)
+- [x] `make test` gruen
 
 ### Dokumentation
-- [ ] `android/CLAUDE.md` hat keinen Abschnitt mehr, der das alte companion-object-Muster beschreibt (bereits erledigt)
+- [x] `android/CLAUDE.md` hat keinen Abschnitt mehr, der das alte companion-object-Muster beschreibt (bereits erledigt)
 
 ---
 
