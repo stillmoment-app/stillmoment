@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Forest
@@ -339,8 +340,21 @@ private fun BackgroundSoundRow(
         Text(
             text = name,
             style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor()
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier.weight(1f)
         )
+
+        if (isSelected) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.size(28.dp))
+        }
     }
 }
 
@@ -544,7 +558,7 @@ internal fun CustomAudioRow(
 @Composable
 private fun CustomAudioRowIcon(isSelected: Boolean) {
     Icon(
-        imageVector = Icons.Default.Audiotrack,
+        imageVector = if (isSelected) Icons.Default.Check else Icons.Default.Audiotrack,
         contentDescription = null,
         tint = if (isSelected) {
             MaterialTheme.colorScheme.primary

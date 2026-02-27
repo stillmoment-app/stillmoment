@@ -41,7 +41,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -76,6 +75,7 @@ import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import kotlinx.collections.immutable.ImmutableList
@@ -293,11 +293,7 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(preparationTimeEnabled = enabled))
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
+            colors = stillMomentSwitchColors(),
             modifier = Modifier
                 .testTag("settings.toggle.preparationTime")
                 .semantics {
@@ -760,11 +756,7 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onSettingsChange(settings.copy(intervalGongsEnabled = enabled))
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
+            colors = stillMomentSwitchColors(),
             modifier = Modifier
                 .testTag("settings.toggle.intervalGongs")
                 .semantics {

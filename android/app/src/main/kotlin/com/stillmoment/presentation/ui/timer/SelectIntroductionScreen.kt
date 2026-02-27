@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -316,6 +317,18 @@ private fun IntroductionRow(
                 style = TypographyRole.SettingsDescription.textStyle(),
                 color = TypographyRole.SettingsDescription.textColor()
             )
+        }
+
+        if (isSelected) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.size(28.dp))
         }
     }
 }

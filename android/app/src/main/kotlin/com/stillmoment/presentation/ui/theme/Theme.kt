@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -309,6 +311,19 @@ fun StillMomentTheme(
         )
     }
 }
+
+/**
+ * Consistent Switch colors across all themes.
+ * Uses primary/onPrimary for checked state (M3 convention) and
+ * onSurface/controlTrack for unchecked state to ensure contrast in dark mode.
+ */
+@Composable
+fun stillMomentSwitchColors(): SwitchColors = SwitchDefaults.colors(
+    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+    checkedTrackColor = MaterialTheme.colorScheme.primary,
+    uncheckedThumbColor = MaterialTheme.colorScheme.onSurface,
+    uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
+)
 
 /**
  * Warm gradient background matching iOS design.

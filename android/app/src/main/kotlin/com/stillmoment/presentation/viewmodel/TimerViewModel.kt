@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
@@ -433,14 +434,24 @@ constructor(
     }
 
     /**
-     * Triggers a reload from PraxisRepository after editor saves.
-     * The praxisFlow observer automatically updates settings and pill labels.
+     * Applies a just-saved Praxis directly to the UI state, bypassing the DataStore roundtrip.
+     *
+     * Called after PraxisEditor saves so the timer sees the new settings immediately,
+     * without racing against the async DataStore write.
      */
-    fun refreshFromPraxis() {
-        viewModelScope.launch {
-            val praxis = praxisRepository.load()
-            val settings = praxis.toMeditationSettings()
-            settingsRepository.updateSettings(settings)
+    fun applyPraxisUpdate(praxis: Praxis) {
+        val settings = praxis.toMeditationSettings()
+        _uiState.update { state ->
+            val newMinutes = if (state.timerState == TimerState.Idle) {
+                settings.durationMinutes
+            } else {
+                state.selectedMinutes
+            }
+            state.copy(
+                settings = settings,
+                selectedMinutes = newMinutes,
+                currentPraxis = praxis
+            )
         }
     }
 

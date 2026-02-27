@@ -38,7 +38,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -68,6 +67,7 @@ import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorUiState
@@ -271,11 +271,7 @@ private fun PreparationToggleRow(enabled: Boolean, onEnable: (Boolean) -> Unit) 
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onEnable(newValue)
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
+            colors = stillMomentSwitchColors(),
             modifier = Modifier
                 .testTag("praxisEditor.toggle.preparationTime")
                 .semantics {

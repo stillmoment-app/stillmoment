@@ -38,7 +38,6 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -68,6 +67,7 @@ import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorUiState
@@ -214,11 +214,7 @@ private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, mod
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onToggle(newEnabled)
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
+            colors = stillMomentSwitchColors(),
             modifier = Modifier
                 .testTag("intervalEditor.toggle")
                 .semantics {
