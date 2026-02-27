@@ -41,37 +41,5 @@ data class BackgroundSound(
     companion object {
         /** ID for the silent option (no audio). */
         const val SILENT_ID = "silent"
-
-        /** All available background sounds. */
-        val allSounds: List<BackgroundSound> = listOf(
-            BackgroundSound(
-                id = SILENT_ID,
-                nameEnglish = "Silence",
-                nameGerman = "Stille",
-                descriptionEnglish = "Meditate in silence.",
-                descriptionGerman = "Meditiere in Stille.",
-                rawResourceName = ""
-            ),
-            BackgroundSound(
-                id = "forest",
-                nameEnglish = "Forest Ambience",
-                nameGerman = "Waldatmosphäre",
-                descriptionEnglish = "Natural forest sounds",
-                descriptionGerman = "Natürliche Waldgeräusche",
-                rawResourceName = "forest_ambience"
-            )
-        )
-
-        /**
-         * Find a background sound by ID.
-         * @return The matching BackgroundSound or null if not found
-         */
-        fun find(id: String): BackgroundSound? = allSounds.find { it.id == id }
-
-        /**
-         * Find a background sound by ID, returning silent if not found.
-         * @return The matching BackgroundSound or the silent option if not found
-         */
-        fun findOrDefault(id: String): BackgroundSound = find(id) ?: allSounds.first()
     }
 }

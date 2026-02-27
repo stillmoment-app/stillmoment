@@ -1,10 +1,12 @@
 package com.stillmoment.presentation.viewmodel
 
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.repositories.SettingsRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
@@ -200,4 +202,35 @@ class FakeTimerRepository : TimerRepository {
     override fun completeTimer() {
         // no-op for tests
     }
+}
+
+/**
+ * Fake implementation of SoundCatalogRepository for testing.
+ * Returns a minimal catalog with silent and forest sounds by default.
+ */
+class FakeSoundCatalogRepository : SoundCatalogRepository {
+    private val defaultSounds = listOf(
+        BackgroundSound(
+            id = BackgroundSound.SILENT_ID,
+            nameEnglish = "Silence",
+            nameGerman = "Stille",
+            descriptionEnglish = "Meditate in silence.",
+            descriptionGerman = "Meditiere in Stille.",
+            rawResourceName = ""
+        ),
+        BackgroundSound(
+            id = "forest",
+            nameEnglish = "Forest Ambience",
+            nameGerman = "Waldatmosph\u00e4re",
+            descriptionEnglish = "Natural forest sounds",
+            descriptionGerman = "Nat\u00fcrliche Waldger\u00e4usche",
+            rawResourceName = "forest_ambience"
+        )
+    )
+
+    override fun getAllSounds(): List<BackgroundSound> = defaultSounds
+
+    override fun findById(id: String): BackgroundSound? = defaultSounds.find { it.id == id }
+
+    override fun findByIdOrDefault(id: String): BackgroundSound = findById(id) ?: defaultSounds.first()
 }

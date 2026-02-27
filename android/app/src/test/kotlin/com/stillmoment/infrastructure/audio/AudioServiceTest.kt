@@ -1,7 +1,9 @@
 package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.domain.models.AudioSource
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
@@ -39,6 +41,7 @@ class AudioServiceTest {
     private lateinit var mockMediaPlayer: MediaPlayerProtocol
     private lateinit var mockLogger: LoggerProtocol
     private lateinit var mockCustomAudioRepository: CustomAudioRepository
+    private lateinit var mockSoundCatalogRepository: SoundCatalogRepository
 
     private lateinit var capturedConflictHandler: () -> Unit
     private lateinit var capturedPauseHandler: () -> Unit
@@ -53,6 +56,7 @@ class AudioServiceTest {
         mockMediaPlayer = mock()
         mockLogger = mock()
         mockCustomAudioRepository = mock()
+        mockSoundCatalogRepository = mock()
 
         // Capture handlers during registration
         val conflictCaptor = argumentCaptor<() -> Unit>()
@@ -60,13 +64,24 @@ class AudioServiceTest {
 
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
         whenever(mockMediaPlayerFactory.createFromResource(any())).thenReturn(mockMediaPlayer)
+        whenever(mockSoundCatalogRepository.findById("forest")).thenReturn(
+            BackgroundSound(
+                id = "forest",
+                nameEnglish = "Forest Ambience",
+                nameGerman = "Waldatmosph\u00e4re",
+                descriptionEnglish = "Natural forest sounds",
+                descriptionGerman = "Nat\u00fcrliche Waldger\u00e4usche",
+                rawResourceName = "forest_ambience"
+            )
+        )
 
         sut = AudioService(
             mockCoordinator,
             mockMediaPlayerFactory,
             mockVolumeAnimator,
             mockLogger,
-            mockCustomAudioRepository
+            mockCustomAudioRepository,
+            mockSoundCatalogRepository
         )
 
         // Capture the registered handlers
@@ -447,26 +462,6 @@ class AudioServiceTest {
         // Then: Preview player was stopped
         verify(mockMediaPlayer).stop()
         verify(mockMediaPlayer).release()
-    }
-
-    // MARK: - Sound Resource ID Mapping Tests
-
-    @Test
-    fun `getBackgroundSoundResourceId returns resource for forest`() {
-        // When/Then
-        assertNotNull(AudioService.getBackgroundSoundResourceId("forest"))
-    }
-
-    @Test
-    fun `getBackgroundSoundResourceId returns null for silent`() {
-        // When/Then
-        assertNull(AudioService.getBackgroundSoundResourceId("silent"))
-    }
-
-    @Test
-    fun `getBackgroundSoundResourceId returns null for unknown sound`() {
-        // When/Then
-        assertNull(AudioService.getBackgroundSoundResourceId("nonexistent"))
     }
 
     // MARK: - Background Audio Tests

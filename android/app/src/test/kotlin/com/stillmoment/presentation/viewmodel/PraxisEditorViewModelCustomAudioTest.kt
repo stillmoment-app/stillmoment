@@ -30,6 +30,7 @@ class PraxisEditorViewModelCustomAudioTest {
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeAudioService: FakeAudioService
     private lateinit var fakeCustomAudioRepository: FakeCustomAudioRepository
+    private lateinit var fakeSoundCatalogRepository: FakeSoundCatalogRepository
 
     @BeforeEach
     fun setUp() {
@@ -37,6 +38,7 @@ class PraxisEditorViewModelCustomAudioTest {
         fakePraxisRepository = FakePraxisRepository()
         fakeAudioService = FakeAudioService()
         fakeCustomAudioRepository = FakeCustomAudioRepository()
+        fakeSoundCatalogRepository = FakeSoundCatalogRepository()
     }
 
     @AfterEach
@@ -48,7 +50,8 @@ class PraxisEditorViewModelCustomAudioTest {
         return PraxisEditorViewModel(
             praxisRepository = fakePraxisRepository,
             audioService = fakeAudioService,
-            customAudioRepository = fakeCustomAudioRepository
+            customAudioRepository = fakeCustomAudioRepository,
+            soundCatalogRepository = fakeSoundCatalogRepository
         )
     }
 

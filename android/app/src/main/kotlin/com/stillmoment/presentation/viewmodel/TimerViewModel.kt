@@ -12,6 +12,7 @@ import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SettingsRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
@@ -47,7 +48,8 @@ constructor(
     private val timerRepository: TimerRepository,
     private val audioService: AudioServiceProtocol,
     private val foregroundService: TimerForegroundServiceProtocol,
-    private val praxisRepository: PraxisRepository
+    private val praxisRepository: PraxisRepository,
+    private val soundCatalogRepository: SoundCatalogRepository
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -72,7 +74,8 @@ constructor(
             selectedMinutes = initialMinutes,
             settings = initialSettings,
             showSettingsHint = !hasSeenHint,
-            currentPraxis = initialPraxis
+            currentPraxis = initialPraxis,
+            builtInSounds = soundCatalogRepository.getAllSounds()
         )
         // Continue collecting for future changes (background sound changes, etc.)
         loadSettings()

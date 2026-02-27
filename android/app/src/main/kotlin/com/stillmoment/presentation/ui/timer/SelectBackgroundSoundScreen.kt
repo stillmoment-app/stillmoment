@@ -77,6 +77,9 @@ import kotlinx.collections.immutable.toImmutableList
 /** Maps a background sound ID to its Compose icon vector. */
 private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId) {
     "forest" -> Icons.Filled.Forest
+    "rain" -> Icons.AutoMirrored.Filled.VolumeUp
+    "ocean" -> Icons.AutoMirrored.Filled.VolumeUp
+    "birds" -> Icons.AutoMirrored.Filled.VolumeUp
     else -> Icons.AutoMirrored.Filled.VolumeOff
 }
 
@@ -119,6 +122,7 @@ fun SelectBackgroundSoundScreen(
             BackgroundSoundContent(
                 selectedSoundId = uiState.backgroundSoundId,
                 volume = uiState.backgroundSoundVolume,
+                builtInSounds = uiState.builtInSounds.toImmutableList(),
                 customSoundscapes = uiState.customSoundscapes.toImmutableList(),
                 onSelectSound = { soundId ->
                     viewModel.setBackgroundSoundId(soundId)
@@ -215,6 +219,7 @@ private fun BackgroundSoundTopBar(onBack: () -> Unit) {
 private fun BackgroundSoundContent(
     selectedSoundId: String,
     volume: Float,
+    builtInSounds: ImmutableList<BackgroundSound>,
     customSoundscapes: ImmutableList<CustomAudioFile>,
     onSelectSound: (String) -> Unit,
     onVolumeChange: (Float) -> Unit,
@@ -232,6 +237,7 @@ private fun BackgroundSoundContent(
         item {
             BackgroundSoundSelectionCard(
                 selectedSoundId = selectedSoundId,
+                sounds = builtInSounds,
                 onSelectSound = onSelectSound
             )
         }
@@ -264,6 +270,7 @@ private fun BackgroundSoundContent(
 @Composable
 private fun BackgroundSoundSelectionCard(
     selectedSoundId: String,
+    sounds: ImmutableList<BackgroundSound>,
     onSelectSound: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -277,7 +284,7 @@ private fun BackgroundSoundSelectionCard(
         border = BorderStroke(0.5.dp, colors.cardBorder)
     ) {
         Column {
-            BackgroundSound.allSounds.forEachIndexed { index, sound ->
+            sounds.forEachIndexed { index, sound ->
                 if (index > 0) {
                     HorizontalDivider(
                         color = colors.cardBorder,

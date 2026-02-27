@@ -129,7 +129,11 @@ private fun TimerScreenLayout(
                 modifier = Modifier.semantics { heading() }
             )
             Spacer(modifier = Modifier.height(24.dp))
-            MinutePicker(selectedMinutes = uiState.selectedMinutes, onMinutesChange = onMinutesChange)
+            MinutePicker(
+                selectedMinutes = uiState.selectedMinutes,
+                minimumMinutes = uiState.minimumDurationMinutes,
+                onMinutesChange = onMinutesChange,
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ConfigurationPills(uiState = uiState, onClick = onNavigateToEditor)
             Spacer(modifier = Modifier.weight(1f))
@@ -149,7 +153,12 @@ private fun TimerScreenLayout(
 }
 
 @Composable
-private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+private fun MinutePicker(
+    selectedMinutes: Int,
+    minimumMinutes: Int,
+    onMinutesChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     // Use screen height like iOS does with geometry.size.height
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isCompactHeight = configuration.screenHeightDp < 700
@@ -186,7 +195,7 @@ private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, m
         WheelPicker(
             selectedValue = selectedMinutes,
             onValueChange = onMinutesChange,
-            range = 1..60,
+            range = minimumMinutes..60,
             visibleItems = visibleItems,
             modifier = Modifier.height(pickerHeight)
         )
@@ -239,7 +248,7 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
 
     val preparationLabel = preparationPillLabel(praxis)
     val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName
-    val backgroundLabel = backgroundPillLabel(praxis)
+    val backgroundLabel = backgroundPillLabel(praxis, uiState.builtInSounds)
     val introductionLabel = introductionPillLabel(praxis)
     val intervalLabel = intervalPillLabel(praxis)
 
@@ -277,8 +286,9 @@ private fun preparationPillLabel(praxis: Praxis): String? {
     return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
 }
 
-private fun backgroundPillLabel(praxis: Praxis): String {
-    return BackgroundSound.findOrDefault(praxis.backgroundSoundId).localizedName
+private fun backgroundPillLabel(praxis: Praxis, builtInSounds: List<BackgroundSound>): String {
+    return builtInSounds.firstOrNull { it.id == praxis.backgroundSoundId }?.localizedName
+        ?: builtInSounds.firstOrNull()?.localizedName.orEmpty()
 }
 
 @Composable

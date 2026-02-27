@@ -3,12 +3,14 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -41,7 +43,8 @@ data class PraxisEditorUiState(
     val backgroundSoundVolume: Float = Praxis.DEFAULT_BACKGROUND_SOUND_VOLUME,
     val customSoundscapes: List<CustomAudioFile> = emptyList(),
     val customAttunements: List<CustomAudioFile> = emptyList(),
-    val customAudioError: String? = null
+    val customAudioError: String? = null,
+    val builtInSounds: List<BackgroundSound> = emptyList()
 )
 
 /**
@@ -58,7 +61,8 @@ class PraxisEditorViewModel
 constructor(
     private val praxisRepository: PraxisRepository,
     private val audioService: AudioServiceProtocol,
-    private val customAudioRepository: CustomAudioRepository
+    private val customAudioRepository: CustomAudioRepository,
+    private val soundCatalogRepository: SoundCatalogRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PraxisEditorUiState())
     val uiState: StateFlow<PraxisEditorUiState> = _uiState.asStateFlow()
@@ -86,6 +90,9 @@ constructor(
                 backgroundSoundId = praxis.backgroundSoundId,
                 backgroundSoundVolume = praxis.backgroundSoundVolume
             )
+        }
+        viewModelScope.launch {
+            _uiState.update { it.copy(builtInSounds = soundCatalogRepository.getAllSounds()) }
         }
         viewModelScope.launch {
             customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE).collect { files ->
