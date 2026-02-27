@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -252,11 +253,21 @@ private fun NavHostScaffold(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // Screens with their own inner Scaffold manage system-bar insets themselves.
+    // NavHostScaffold must NOT pass its padding to these screens, otherwise
+    // full-screen overlays (completion screens) cannot cover the navigation bar area,
+    // causing background colour bleed-through (green bar at the bottom).
+    // Rule: screens that have an inner Scaffold AND hide the bottom bar.
+    val screenManagesOwnInsets = currentDestination?.route?.let { route ->
+        route == Screen.TimerFocus.route ||
+            route == Screen.PraxisEditor.route ||
+            route.startsWith("player")
+    } == true
+
     val showBottomBar = currentDestination?.route?.let { route ->
-        !route.startsWith("player") &&
-            route != Screen.TimerFocus.route &&
+        !screenManagesOwnInsets &&
             route != Screen.SoundAttributions.route &&
-            route != Screen.PraxisEditor.route &&
             route != Screen.SelectIntroduction.route &&
             route != Screen.SelectBackground.route &&
             route != Screen.SelectGong.route &&
@@ -283,7 +294,7 @@ private fun NavHostScaffold(
         },
         containerColor = Color.Transparent
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Box(modifier = Modifier.fillMaxSize().padding(if (screenManagesOwnInsets) PaddingValues(0.dp) else padding)) {
             StillMomentNavContent(
                 navController,
                 startDestination,
@@ -401,8 +412,8 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
         val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
 
         PraxisEditorScreen(
-            onNavigateBack = {
-                timerViewModel.refreshFromPraxis()
+            onNavigateBack = { praxis ->
+                timerViewModel.applyPraxisUpdate(praxis)
                 navController.popBackStack(Screen.Timer.route, false)
             },
             onNavigateToIntroduction = { navController.navigate(Screen.SelectIntroduction.route) },

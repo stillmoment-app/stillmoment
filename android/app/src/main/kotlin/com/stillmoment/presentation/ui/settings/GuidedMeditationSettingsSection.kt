@@ -20,7 +20,6 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,6 +40,7 @@ import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 
@@ -127,11 +127,7 @@ private fun PreparationTimeToggleRow(
             onCheckedChange = { enabled ->
                 onSettingsChange(settings.withPreparationTimeEnabled(enabled))
             },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
-                uncheckedTrackColor = LocalStillMomentColors.current.controlTrack
-            ),
+            colors = stillMomentSwitchColors(),
             modifier = Modifier
                 .testTag("appSettings.guided.toggle.preparationTime")
                 .semantics {
