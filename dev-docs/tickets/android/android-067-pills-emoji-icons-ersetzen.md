@@ -21,22 +21,22 @@ Bunte Emojis wirken visuell unruhig und passen nicht zum meditativen Still-Momen
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] `SettingPill`-Signatur nimmt `ImageVector` statt `String` als Icon-Parameter
-- [ ] Alle 5 Pills nutzen Material-Icons (aus `androidx.compose.material.icons`):
-  - Vorbereitung (⏳) → z.B. `Icons.Default.Timer`
-  - Gong (🔔) → z.B. `Icons.Default.Notifications` oder `Icons.Outlined.MusicNote`
-  - Hintergrund-Sound (🌬️) → z.B. `Icons.Default.Air` oder `Icons.Outlined.Spa`
-  - Introduction (🎧) → z.B. `Icons.Outlined.Headphones` oder `Icons.AutoMirrored.Outlined.VolumeUp`
-  - Interval Gongs (🔁) → z.B. `Icons.Default.Repeat`
-- [ ] Icon-Farbe = `MaterialTheme.colorScheme.onSurfaceVariant` (identisch mit Pill-Text)
-- [ ] Icon-Groesse: 14dp (passend zur `Caption`-Schriftgroesse)
-- [ ] Kein Emoji-String mehr im Code
+- [x] `SettingPill`-Signatur nimmt `ImageVector` statt `String` als Icon-Parameter
+- [x] Alle 5 Pills nutzen Material-Icons (aus `androidx.compose.material.icons`):
+  - Vorbereitung (⏳) → `Icons.Outlined.HourglassEmpty`
+  - Gong (🔔) → `Icons.Outlined.Notifications`
+  - Hintergrund-Sound (🌬️) → `Icons.Outlined.Air`
+  - Introduction (🎧) → `Icons.Outlined.Headphones`
+  - Interval Gongs (🔁) → `Icons.Outlined.Repeat`
+- [x] Icon-Farbe = `MaterialTheme.colorScheme.onSurfaceVariant` (identisch mit Pill-Text)
+- [x] Icon-Groesse: 14dp (passend zur `Caption`-Schriftgroesse)
+- [x] Kein Emoji-String mehr im Code
 
 ### Tests
-- [ ] `make test` gruen
+- [x] `make test` gruen (848 Tests bestanden)
 
 ### Dokumentation
-- [ ] Keine
+- [x] Keine
 
 ---
 
