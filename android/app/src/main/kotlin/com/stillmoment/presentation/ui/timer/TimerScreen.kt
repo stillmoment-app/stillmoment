@@ -19,6 +19,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Air
+import androidx.compose.material.icons.outlined.Headphones
+import androidx.compose.material.icons.outlined.HourglassEmpty
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -268,15 +274,15 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 preparationLabel?.let { label ->
-                    SettingPill(icon = "\u23F3", label = label)
+                    SettingPill(icon = Icons.Outlined.HourglassEmpty, label = label)
                 }
-                SettingPill(icon = "\uD83D\uDD14", label = gongLabel)
-                SettingPill(icon = "\uD83C\uDF2C\uFE0F", label = backgroundLabel)
+                SettingPill(icon = Icons.Outlined.Notifications, label = gongLabel)
+                SettingPill(icon = Icons.Outlined.Air, label = backgroundLabel)
                 introductionLabel?.let { label ->
-                    SettingPill(icon = "\uD83C\uDFA7", label = label)
+                    SettingPill(icon = Icons.Outlined.Headphones, label = label)
                 }
                 intervalLabel?.let { label ->
-                    SettingPill(icon = "\uD83D\uDD01", label = label)
+                    SettingPill(icon = Icons.Outlined.Repeat, label = label)
                 }
             }
         }
@@ -307,7 +313,7 @@ private fun intervalPillLabel(praxis: Praxis): String? {
 }
 
 @Composable
-private fun SettingPill(icon: String, label: String, modifier: Modifier = Modifier) {
+private fun SettingPill(icon: ImageVector, label: String, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -322,9 +328,11 @@ private fun SettingPill(icon: String, label: String, modifier: Modifier = Modifi
             )
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
-        Text(
-            text = icon,
-            style = MaterialTheme.typography.labelSmall
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(14.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
