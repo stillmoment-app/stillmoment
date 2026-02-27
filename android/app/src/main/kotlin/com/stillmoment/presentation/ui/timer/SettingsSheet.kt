@@ -76,6 +76,7 @@ import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 /**
@@ -85,12 +86,14 @@ import kotlinx.collections.immutable.toImmutableList
  * Changes are persisted immediately via onSettingsChange callback.
  * Done button only dismisses the sheet.
  */
+@Suppress("LongParameterList")
 @Composable
 fun SettingsSheet(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    builtInSounds: ImmutableList<BackgroundSound> = persistentListOf(),
     onGongSoundPreview: (String) -> Unit = {},
     onIntervalGongPreview: (String) -> Unit = {},
     onBackgroundSoundPreview: (String) -> Unit = {}
@@ -142,7 +145,8 @@ fun SettingsSheet(
             BackgroundSoundSection(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
-                onBackgroundSoundPreview = onBackgroundSoundPreview
+                onBackgroundSoundPreview = onBackgroundSoundPreview,
+                builtInSounds = builtInSounds
             )
             Spacer(modifier = Modifier.height(itemSpacing))
         }
@@ -306,7 +310,8 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
 private fun BackgroundSoundSection(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
-    onBackgroundSoundPreview: (String) -> Unit
+    onBackgroundSoundPreview: (String) -> Unit,
+    builtInSounds: ImmutableList<BackgroundSound>
 ) {
     var backgroundSoundExpanded by remember { mutableStateOf(false) }
 
@@ -319,7 +324,8 @@ private fun BackgroundSoundSection(
                 onExpandedChange = { backgroundSoundExpanded = it },
                 settings = settings,
                 onSettingsChange = onSettingsChange,
-                onBackgroundSoundPreview = onBackgroundSoundPreview
+                onBackgroundSoundPreview = onBackgroundSoundPreview,
+                builtInSounds = builtInSounds
             )
 
             // Volume slider - only shown when a non-silent sound is selected
@@ -396,6 +402,7 @@ private fun VolumeSlider(
     }
 }
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BackgroundSoundDropdown(
@@ -403,13 +410,16 @@ private fun BackgroundSoundDropdown(
     onExpandedChange: (Boolean) -> Unit,
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
-    onBackgroundSoundPreview: (String) -> Unit
+    onBackgroundSoundPreview: (String) -> Unit,
+    builtInSounds: ImmutableList<BackgroundSound>
 ) {
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = onExpandedChange
     ) {
-        val selectedSoundName = BackgroundSound.findOrDefault(settings.backgroundSoundId).localizedName
+        val selectedSoundName = builtInSounds
+            .firstOrNull { it.id == settings.backgroundSoundId }?.localizedName
+            ?: builtInSounds.firstOrNull()?.localizedName.orEmpty()
 
         OutlinedTextField(
             value = selectedSoundName,
@@ -428,7 +438,7 @@ private fun BackgroundSoundDropdown(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
-            BackgroundSound.allSounds.forEach { sound ->
+            builtInSounds.forEach { sound ->
                 BackgroundSoundMenuItem(
                     title = sound.localizedName,
                     description = sound.localizedDescription,

@@ -97,6 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-057
 
 ### Added (Android)
+- **Background Sound Library erweitert** - Sound-Katalog von 2 auf 5+ Optionen erweitert (Wald, Regen, Ozean, Voegel), Architektur auf datengetriebenes JSON-Muster umgestellt analog zu iOS (Ticket: android-072)
 - **Timer Completion Screen** - Nach Ablauf des Meditationstimers erscheint ein warmherziger Danke-Screen mit Herz-Icon, sanfter Slide-in-Animation und "Zurueck"-Button statt der leeren 00:00-Anzeige (Ticket: shared-052)
 - **Geführte Meditation Abschluss-Screen** – Nach natürlichem Audio-Ende erscheint ein Completion-Screen: Herz-Icon, "Vielen Dank", Untertitel, "Zurück"-Button mit Slide-in-Animation. Player-Controls, Slider und X-Button im Completion-Zustand ausgeblendet. Visuell konsistent mit Timer-Completion-Screen (Ticket: shared-053)
 - **Fullscreen Praxis-Editor** - Neuer Editor mit Sektionen fuer Vorbereitung, Audio und Gongs (Ticket: shared-064)
