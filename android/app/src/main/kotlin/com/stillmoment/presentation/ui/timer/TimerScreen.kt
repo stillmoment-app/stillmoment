@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -48,6 +49,7 @@ import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -246,9 +248,10 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
     val pillsHint = stringResource(R.string.accessibility_configuration_pills_hint)
     val praxis = uiState.currentPraxis
 
+    val language = LocalConfiguration.current.locales[0].language
     val preparationLabel = preparationPillLabel(praxis)
-    val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName
-    val backgroundLabel = backgroundPillLabel(praxis, uiState.builtInSounds)
+    val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
+    val backgroundLabel = backgroundPillLabel(praxis, uiState.builtInSounds, language)
     val introductionLabel = introductionPillLabel(praxis)
     val intervalLabel = intervalPillLabel(praxis)
 
@@ -286,9 +289,9 @@ private fun preparationPillLabel(praxis: Praxis): String? {
     return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
 }
 
-private fun backgroundPillLabel(praxis: Praxis, builtInSounds: List<BackgroundSound>): String {
-    return builtInSounds.firstOrNull { it.id == praxis.backgroundSoundId }?.localizedName
-        ?: builtInSounds.firstOrNull()?.localizedName.orEmpty()
+private fun backgroundPillLabel(praxis: Praxis, builtInSounds: List<BackgroundSound>, language: String): String {
+    return builtInSounds.firstOrNull { it.id == praxis.backgroundSoundId }?.localizedName(language)
+        ?: builtInSounds.firstOrNull()?.localizedName(language).orEmpty()
 }
 
 @Composable

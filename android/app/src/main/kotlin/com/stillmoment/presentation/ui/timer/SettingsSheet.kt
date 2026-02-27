@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -70,6 +71,8 @@ import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
+import com.stillmoment.presentation.ui.localizedDescription
+import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
@@ -413,13 +416,15 @@ private fun BackgroundSoundDropdown(
     onBackgroundSoundPreview: (String) -> Unit,
     builtInSounds: ImmutableList<BackgroundSound>
 ) {
+    val language = LocalConfiguration.current.locales[0].language
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = onExpandedChange
     ) {
         val selectedSoundName = builtInSounds
-            .firstOrNull { it.id == settings.backgroundSoundId }?.localizedName
-            ?: builtInSounds.firstOrNull()?.localizedName.orEmpty()
+            .firstOrNull { it.id == settings.backgroundSoundId }?.localizedName(language)
+            ?: builtInSounds.firstOrNull()?.localizedName(language).orEmpty()
 
         OutlinedTextField(
             value = selectedSoundName,
@@ -440,8 +445,8 @@ private fun BackgroundSoundDropdown(
         ) {
             builtInSounds.forEach { sound ->
                 BackgroundSoundMenuItem(
-                    title = sound.localizedName,
-                    description = sound.localizedDescription,
+                    title = sound.localizedName(language),
+                    description = sound.localizedDescription(language),
                     onClick = {
                         onSettingsChange(settings.copy(backgroundSoundId = sound.id))
                         onBackgroundSoundPreview(sound.id)
@@ -515,6 +520,7 @@ private fun GongSoundDropdown(
 ) {
     var gongSoundExpanded by remember { mutableStateOf(false) }
     val gongSoundHint = stringResource(R.string.accessibility_gong_sound_hint)
+    val language = LocalConfiguration.current.locales[0].language
 
     ExposedDropdownMenuBox(
         expanded = gongSoundExpanded,
@@ -523,7 +529,7 @@ private fun GongSoundDropdown(
         val selectedGongSound = GongSound.findOrDefault(settings.gongSoundId)
 
         OutlinedTextField(
-            value = selectedGongSound.localizedName,
+            value = selectedGongSound.localizedName(language),
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.settings_gong_sound)) },
@@ -542,7 +548,7 @@ private fun GongSoundDropdown(
         ) {
             GongSound.allSounds.forEach { gongSound ->
                 DropdownMenuItem(
-                    text = { Text(gongSound.localizedName) },
+                    text = { Text(gongSound.localizedName(language)) },
                     onClick = {
                         onSettingsChange(settings.copy(gongSoundId = gongSound.id))
                         onGongSoundPreview(gongSound.id)
@@ -902,6 +908,7 @@ private fun IntervalSoundDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val soundHint = stringResource(R.string.accessibility_interval_sound_hint)
+    val language = LocalConfiguration.current.locales[0].language
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -910,7 +917,7 @@ private fun IntervalSoundDropdown(
         val selectedSound = GongSound.findOrDefault(settings.intervalSoundId)
 
         OutlinedTextField(
-            value = selectedSound.localizedName,
+            value = selectedSound.localizedName(language),
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.settings_interval_sound)) },
@@ -929,7 +936,7 @@ private fun IntervalSoundDropdown(
         ) {
             GongSound.allIntervalSounds.forEach { gongSound ->
                 DropdownMenuItem(
-                    text = { Text(gongSound.localizedName) },
+                    text = { Text(gongSound.localizedName(language)) },
                     onClick = {
                         onSettingsChange(settings.copy(intervalSoundId = gongSound.id))
                         onIntervalGongPreview(gongSound.id)
@@ -948,7 +955,8 @@ private fun IntervalSoundDropdown(
  */
 @Composable
 private fun IntervalDescription(settings: MeditationSettings) {
-    val soundName = GongSound.findOrDefault(settings.intervalSoundId).localizedName
+    val language = LocalConfiguration.current.locales[0].language
+    val soundName = GongSound.findOrDefault(settings.intervalSoundId).localizedName(language)
     val description = when (settings.intervalMode) {
         IntervalMode.REPEATING -> stringResource(
             R.string.settings_interval_desc_repeating,

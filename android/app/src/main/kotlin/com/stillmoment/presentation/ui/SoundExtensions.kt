@@ -1,36 +1,31 @@
 package com.stillmoment.presentation.ui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalConfiguration
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 
 /**
- * Returns the localized display name based on the current device locale.
- * Uses LocalConfiguration to track runtime locale changes.
+ * Returns the display name for the given language code.
+ * Resolves the correct language variant in the Presentation layer,
+ * keeping the Domain model free of Locale dependencies.
+ *
+ * @param language BCP 47 language code, e.g. "de" or "en"
  */
-@Composable
-fun BackgroundSound.localizedName(): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return if (locale.language == "de") nameGerman else nameEnglish
-}
+fun BackgroundSound.localizedName(language: String): String = if (language == "de") nameGerman else nameEnglish
 
 /**
- * Returns the localized display description based on the current device locale.
- * Uses LocalConfiguration to track runtime locale changes.
+ * Returns the display description for the given language code.
+ * Resolves the correct language variant in the Presentation layer.
+ *
+ * @param language BCP 47 language code, e.g. "de" or "en"
  */
-@Composable
-fun BackgroundSound.localizedDescription(): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return if (locale.language == "de") descriptionGerman else descriptionEnglish
-}
+fun BackgroundSound.localizedDescription(language: String): String =
+    if (language == "de") descriptionGerman else descriptionEnglish
 
 /**
- * Returns the localized display name based on the current device locale.
- * Uses LocalConfiguration to track runtime locale changes.
+ * Returns the display name for the given language code.
+ * Resolves the correct language variant in the Presentation layer,
+ * keeping the Domain model free of Locale dependencies.
+ *
+ * @param language BCP 47 language code, e.g. "de" or "en"
  */
-@Composable
-fun GongSound.localizedName(): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return if (locale.language == "de") nameGerman else nameEnglish
-}
+fun GongSound.localizedName(language: String): String = if (language == "de") nameGerman else nameEnglish

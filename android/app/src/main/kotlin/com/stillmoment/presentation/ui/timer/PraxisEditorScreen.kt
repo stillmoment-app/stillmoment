@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -64,6 +65,7 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
+import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
@@ -87,7 +89,7 @@ private val DropdownShape = RoundedCornerShape(12.dp)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PraxisEditorScreen(
-    onNavigateBack: () -> Unit,
+    onNavigateBack: (Praxis) -> Unit,
     onNavigateToIntroduction: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
@@ -104,16 +106,14 @@ fun PraxisEditorScreen(
     }
 
     BackHandler {
-        viewModel.save()
-        onNavigateBack()
+        onNavigateBack(viewModel.save())
     }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             EditorTopAppBar(onBack = {
-                viewModel.save()
-                onNavigateBack()
+                onNavigateBack(viewModel.save())
             })
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -402,10 +402,11 @@ private fun GongsSection(
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit
 ) {
-    val gongSummary = GongSound.findOrDefault(gongSoundId).localizedName
+    val language = LocalConfiguration.current.locales[0].language
+    val gongSummary = GongSound.findOrDefault(gongSoundId).localizedName(language)
 
     val intervalSummary = if (intervalGongsEnabled) {
-        val soundName = GongSound.findOrDefault(intervalSoundId).localizedName
+        val soundName = GongSound.findOrDefault(intervalSoundId).localizedName(language)
         stringResource(R.string.settings_interval_desc_repeating, intervalMinutes, soundName)
     } else {
         stringResource(R.string.common_off)

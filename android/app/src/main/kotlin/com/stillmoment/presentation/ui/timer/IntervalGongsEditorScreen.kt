@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -62,6 +63,7 @@ import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
@@ -446,8 +448,10 @@ private fun IntervalSoundRow(
     onPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedDescription = stringResource(R.string.accessibility_sound_selected, gongSound.localizedName)
-    val rowDescription = if (isSelected) selectedDescription else gongSound.localizedName
+    val language = LocalConfiguration.current.locales[0].language
+    val name = gongSound.localizedName(language)
+    val selectedDescription = stringResource(R.string.accessibility_sound_selected, name)
+    val rowDescription = if (isSelected) selectedDescription else name
 
     Row(
         modifier = modifier
@@ -471,7 +475,7 @@ private fun IntervalSoundRow(
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = gongSound.localizedName,
+            text = name,
             style = TypographyRole.SettingsLabel.textStyle(),
             color = TypographyRole.SettingsLabel.textColor(),
             modifier = Modifier.weight(1f)
@@ -485,7 +489,7 @@ private fun IntervalSoundRow(
         ) {
             Icon(
                 imageVector = Icons.Default.PlayArrow,
-                contentDescription = gongSound.localizedName,
+                contentDescription = name,
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -550,7 +554,8 @@ private fun IntervalDescriptionText(
     intervalSoundId: String,
     modifier: Modifier = Modifier
 ) {
-    val soundName = GongSound.findOrDefault(intervalSoundId).localizedName
+    val language = LocalConfiguration.current.locales[0].language
+    val soundName = GongSound.findOrDefault(intervalSoundId).localizedName(language)
     val description = when (intervalMode) {
         IntervalMode.REPEATING -> stringResource(
             R.string.settings_interval_desc_repeating,

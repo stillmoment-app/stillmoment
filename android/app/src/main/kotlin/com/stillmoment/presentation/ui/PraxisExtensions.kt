@@ -22,7 +22,8 @@ fun Praxis.shortDescription(context: Context): String {
         parts.add(context.getString(R.string.praxis_description_silent))
     }
 
-    val gongName = GongSound.findOrDefault(gongSoundId).localizedName
+    val language = context.resources.configuration.locales[0].language
+    val gongName = GongSound.findOrDefault(gongSoundId).localizedName(language)
     parts.add(gongName)
 
     if (preparationTimeEnabled) {

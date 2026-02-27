@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -45,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
+import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
@@ -174,8 +176,10 @@ private fun GongSoundRow(
     onPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedDescription = stringResource(R.string.accessibility_sound_selected, gongSound.localizedName)
-    val rowDescription = if (isSelected) selectedDescription else gongSound.localizedName
+    val language = LocalConfiguration.current.locales[0].language
+    val name = gongSound.localizedName(language)
+    val selectedDescription = stringResource(R.string.accessibility_sound_selected, name)
+    val rowDescription = if (isSelected) selectedDescription else name
 
     Row(
         modifier = modifier
@@ -199,7 +203,7 @@ private fun GongSoundRow(
         Spacer(modifier = Modifier.width(12.dp))
 
         Text(
-            text = gongSound.localizedName,
+            text = name,
             style = TypographyRole.SettingsLabel.textStyle(),
             color = TypographyRole.SettingsLabel.textColor(),
             modifier = Modifier.weight(1f)
@@ -213,7 +217,7 @@ private fun GongSoundRow(
         ) {
             Icon(
                 imageVector = Icons.Default.PlayArrow,
-                contentDescription = gongSound.localizedName,
+                contentDescription = name,
                 tint = MaterialTheme.colorScheme.primary
             )
         }
