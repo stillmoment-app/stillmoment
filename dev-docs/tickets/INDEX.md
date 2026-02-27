@@ -210,7 +210,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-067](android/android-067-pills-emoji-icons-ersetzen.md) | Konfigurations-Pills: Emoji durch monochrome Icons | 4-Polish | [ ] | - |
 | [android-068](android/android-068-completion-screen-back-button.md) | Abschluss-Screen: Auto-Navigation → expliziter Button | 4-Polish | [x] | - |
 | [android-069](android/android-069-timer-regressions-tests.md) | Timer-Regressions-Tests implementieren | 5-QA | [ ] | - |
-| [android-070](android/android-070-sound-lokalisierung-aus-domain.md) | Sound-Lokalisierung aus Domain-Modellen auslagern | 3-Refactor | [ ] | - |
+| [android-070](android/android-070-sound-lokalisierung-aus-domain.md) | Sound-Lokalisierung aus Domain-Modellen auslagern | 3-Refactor | [x] | - |
 | [android-071](android/android-071-preparation-affirmation-fuenfte.md) | Vorbereitungs-Phase: 5. Affirmation | 4-Polish | [x] | - |
 | [android-072](android/android-072-background-sound-library.md) | Background Sound Library erweitern | 2-Features | [x] | - |
 | [android-073](android/android-073-praxis-editor-auto-save.md) | PraxisEditor Auto-Save beim Zurücknavigieren | 4-Polish | [x] | - |
