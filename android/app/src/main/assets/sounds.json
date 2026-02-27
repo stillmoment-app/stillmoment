@@ -25,45 +25,6 @@
         "de": "Natürliche Waldgeräusche"
       },
       "volume": 0.15
-    },
-    {
-      "id": "rain",
-      "filename": "rain-ambience.mp3",
-      "name": {
-        "en": "Rain",
-        "de": "Regen"
-      },
-      "description": {
-        "en": "Gentle rain sounds",
-        "de": "Sanfte Regengeräusche"
-      },
-      "volume": 0.15
-    },
-    {
-      "id": "ocean",
-      "filename": "ocean-waves.mp3",
-      "name": {
-        "en": "Ocean Waves",
-        "de": "Meeresrauschen"
-      },
-      "description": {
-        "en": "Calming ocean waves",
-        "de": "Beruhigendes Meeresrauschen"
-      },
-      "volume": 0.15
-    },
-    {
-      "id": "birds",
-      "filename": "birds-chirping.mp3",
-      "name": {
-        "en": "Birds",
-        "de": "Vogelgezwitscher"
-      },
-      "description": {
-        "en": "Peaceful birds chirping",
-        "de": "Friedliches Vogelgezwitscher"
-      },
-      "volume": 0.15
     }
   ]
 }

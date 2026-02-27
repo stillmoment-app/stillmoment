@@ -114,9 +114,6 @@ constructor(
             "interval" -> R.raw.interval
             "intro_breath_de" -> R.raw.intro_breath_de
             "forest_ambience" -> R.raw.forest_ambience
-            "rain_ambience" -> R.raw.rain_ambience
-            "ocean_waves" -> R.raw.ocean_waves
-            "birds_chirping" -> R.raw.birds_chirping
             "silence" -> R.raw.silence
             else -> 0
         }
