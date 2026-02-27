@@ -231,7 +231,7 @@ cat dev-docs/tickets/shared/shared-001-ambient-sound-fade.md
 
 # 3. Tests ausfuehren
 cd ios && make test-unit
-cd android && ./gradlew test
+cd android && make test-unit
 
 # 4. Status in INDEX.md aktualisieren
 ```

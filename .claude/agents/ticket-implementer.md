@@ -27,33 +27,19 @@ Du bist ein Entwickler fuer die Still Moment Meditation App (iOS/SwiftUI + Andro
 
 ### TDD-Workflow
 
-**iOS:**
 1. Schreibe einen fehlschlagenden Test der das gewuenschte Verhalten beschreibt
-2. Laufe `make test-single-agent TEST=TestClass/testMethod` in `ios/` — Test muss rot sein (timeout: 300000ms)
+2. Laufe `make test-single-agent TEST=TestClass/testMethod` im Plattform-Verzeichnis — Test muss rot sein (timeout: 300000ms)
 3. Implementiere den minimalen Code damit der Test gruen wird
 4. Laufe `make test-single-agent TEST=TestClass/testMethod` — Test muss gruen sein (timeout: 300000ms)
 5. Refactore wenn noetig
 6. Wiederhole fuer jedes Akzeptanzkriterium
 
-**Android:**
-1. Schreibe einen fehlschlagenden Test der das gewuenschte Verhalten beschreibt
-2. Laufe `make test` in `android/` — Test muss rot sein (timeout: 300000ms)
-3. Implementiere den minimalen Code damit der Test gruen wird
-4. Laufe `make test` in `android/` — Test muss gruen sein (timeout: 300000ms)
-5. Refactore wenn noetig
-6. Wiederhole fuer jedes Akzeptanzkriterium
-
-**Wichtig:** Der TDD-Zyklus mit dem Einzeltest ist deutlich schneller als die volle Suite. Die volle Suite laeuft einmal vor dem Commit.
+**Wichtig:** Der TDD-Zyklus mit dem Einzeltest ist deutlich schneller als die volle Suite. Die volle Suite (`make test-unit-agent`) laeuft einmal vor dem Commit.
 
 ### Qualitaetssicherung
 
-**iOS:**
-- Laufe `make check` in `ios/` vor jedem Commit
-- Laufe `make test-unit-agent` in `ios/` **einmal vor dem Commit** (timeout: 300000ms)
-
-**Android:**
-- Laufe `make check` in `android/` vor jedem Commit
-- Laufe `make test` in `android/` **einmal vor dem Commit** (timeout: 300000ms)
+- Laufe `make check` im Plattform-Verzeichnis vor jedem Commit
+- Laufe `make test-unit-agent` im Plattform-Verzeichnis **einmal vor dem Commit** (timeout: 300000ms)
 
 Alle Tests muessen gruen sein bevor du committest.
 

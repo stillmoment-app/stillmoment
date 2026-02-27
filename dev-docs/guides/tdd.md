@@ -164,10 +164,10 @@ func testFormattedTime() async {
 - Creating pull request
 - Marking feature as complete
 
-**Run tests using:**
+**Run tests using (from `ios/` or `android/` directory):**
 ```bash
-make test-unit          # Fast unit tests (30-60s) - RECOMMENDED for TDD
-make test               # Full suite including UI tests (2-5min)
+make test-unit          # Fast unit tests - RECOMMENDED for TDD
+make test               # Full suite (with coverage on iOS)
 make test-single TEST=TestClass/testMethod  # Debug specific test
 ```
 

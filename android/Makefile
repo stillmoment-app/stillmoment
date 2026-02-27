@@ -1,4 +1,4 @@
-.PHONY: help format check test build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
+.PHONY: help format check test test-unit test-unit-agent test-single test-single-agent test-failures build clean screenshot-setup screenshots release release-dry release-production metadata release-prepare
 
 # Android SDK paths (auto-detect if ANDROID_HOME not set)
 ANDROID_HOME ?= $(HOME)/Library/Android/sdk
@@ -19,9 +19,24 @@ check: ## Run all code quality checks (ktlint, lint, detekt) - same as CI
 	@./gradlew ktlintCheck lint detekt
 	@echo "All checks passed!"
 
-test: ## Run unit tests
-	@echo "Running unit tests..."
+test: ## Run all tests (debug + release variants)
+	@echo "Running all tests..."
 	@./gradlew test
+
+test-unit: ## Run unit tests with summary
+	@./scripts/run-tests.sh
+
+test-unit-agent: ## Run unit tests with agent-optimized output
+	@./scripts/run-tests-agent.sh
+
+test-single: ## Run single test (usage: make test-single TEST=ClassName or ClassName/method)
+	@./scripts/run-tests.sh --single $(TEST)
+
+test-single-agent: ## Run single test with agent output (usage: make test-single-agent TEST=ClassName or ClassName/method)
+	@./scripts/run-tests-agent.sh --single $(TEST)
+
+test-failures: ## List failing tests from last run
+	@./scripts/list-test-failures.sh
 
 build: ## Build debug APK
 	@echo "Building debug APK..."

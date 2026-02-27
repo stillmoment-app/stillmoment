@@ -83,16 +83,12 @@ When implementing a feature: check how the other platform does it first.
 
 Both platforms use `make help` to show all available commands.
 
-**Daily workflow:**
+**Daily workflow (both platforms):**
 ```bash
-# iOS (from ios/ directory)
-make check              # Format + lint + localization
+# From ios/ or android/ directory
+make check              # Format + lint (+ localization on iOS)
 make test-unit          # Fast TDD loop
-make test               # Full suite with coverage
-
-# Android (from android/ directory)
-make check              # Format + lint
-make test               # Unit tests
+make test               # Full suite (with coverage on iOS)
 ```
 
 **Testing rules (Claude Code):**

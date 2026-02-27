@@ -271,6 +271,17 @@ interface AudioFocusManagerProtocol {
 
 ## Testing
 
+### Test Commands
+
+```bash
+make test-unit              # All unit tests, human-readable output
+make test-unit-agent        # All unit tests, agent-optimized output (<10 lines on success)
+make test-single TEST=Class # Single test class, human-readable
+make test-single-agent TEST=Class/method  # Single test, agent-optimized
+make test-failures          # Show failures from last run (no re-run)
+make test                   # Full suite (debug + release variants)
+```
+
 ### JUnit 5 with Nested Classes
 
 ```kotlin
@@ -312,26 +323,6 @@ fun `create timer with zero duration throws exception`() {
     }
 }
 ```
-
----
-
-## Cross-Platform Deviations (Conscious Decisions)
-
-### Sound Lists: Companion Object statt Repository
-
-`GongSound` und `BackgroundSound` verwenden einen statischen `companion object` mit einer
-hardcodierten `allSounds`-Liste — kein Repository-Interface, kein DataStore.
-
-**Warum bewusste Abweichung von iOS:**
-- iOS liest Sounds aus `sounds.json` via Repository, weil das deren Lokalisierungsmuster ist
-- Android bäckt Lokalisierung direkt ins Modell (`localizedName` liest `Locale.getDefault()`)
-- Beide Sound-Typen sind unveränderliches Domain-Wissen, keine User-Daten
-- Intern konsistent: `GongSound` und `BackgroundSound` nutzen dasselbe Pattern
-- Repository würde für 2 statische Einträge sinnlos Komplexität hinzufügen
-
-**Wann Repository sinnvoll wird:** Falls User eigene Hintergrundklänge zu `BackgroundSound`
-hinzufügen können sollen (aktuell: nur über `CustomAudioRepository` für benutzerdefinierte
-Dateien). Dann ist Migration von companion object → Repository der natürliche nächste Schritt.
 
 ---
 
