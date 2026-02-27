@@ -2,10 +2,10 @@ package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.R
 import com.stillmoment.domain.models.AudioSource
-import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
@@ -40,7 +40,8 @@ constructor(
     private val mediaPlayerFactory: MediaPlayerFactoryProtocol,
     private val volumeAnimator: VolumeAnimatorProtocol,
     private val logger: LoggerProtocol,
-    private val customAudioRepository: CustomAudioRepository
+    private val customAudioRepository: CustomAudioRepository,
+    private val soundCatalogRepository: SoundCatalogRepository
 ) : AudioServiceProtocol {
     init {
         // Register conflict handler to stop background audio when another source takes over
@@ -113,21 +114,24 @@ constructor(
             "interval" -> R.raw.interval
             "intro_breath_de" -> R.raw.intro_breath_de
             "forest_ambience" -> R.raw.forest_ambience
+            "rain_ambience" -> R.raw.rain_ambience
+            "ocean_waves" -> R.raw.ocean_waves
+            "birds_chirping" -> R.raw.birds_chirping
             "silence" -> R.raw.silence
             else -> 0
         }
+    }
 
-        /**
-         * Maps a background sound ID to its resource ID via the BackgroundSound domain model.
-         * @param soundId The sound identifier (e.g., "silent" or "forest")
-         * @return Resource ID or null for silent/unknown sounds
-         */
-        fun getBackgroundSoundResourceId(soundId: String): Int? {
-            val sound = BackgroundSound.findOrDefault(soundId)
-            if (sound.isSilent) return null
-            val resourceId = resolveRawResourceId(sound.rawResourceName)
-            return if (resourceId != 0) resourceId else null
-        }
+    /**
+     * Maps a background sound ID to its resource ID via the sound catalog.
+     * @param soundId The sound identifier (e.g., "silent", "forest", "rain")
+     * @return Resource ID or null for silent/unknown sounds
+     */
+    private fun getBackgroundSoundResourceId(soundId: String): Int? {
+        val sound = soundCatalogRepository.findById(soundId)
+        if (sound == null || sound.isSilent) return null
+        val resourceId = resolveRawResourceId(sound.rawResourceName)
+        return if (resourceId != 0) resourceId else null
     }
 
     // MARK: - Gong Playback

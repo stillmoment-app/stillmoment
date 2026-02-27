@@ -14,6 +14,7 @@ import com.stillmoment.MainActivity
 import com.stillmoment.R
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -39,6 +40,9 @@ class TimerForegroundService : Service() {
 
     @Inject
     lateinit var customAudioRepository: CustomAudioRepository
+
+    @Inject
+    lateinit var soundCatalogRepository: SoundCatalogRepository
 
     @Inject
     lateinit var logger: LoggerProtocol
@@ -175,7 +179,7 @@ class TimerForegroundService : Service() {
      * Built-in sounds (silent, forest) play immediately; custom sounds require file path lookup.
      */
     private fun startBackgroundSound(soundId: String, soundVolume: Float) {
-        if (AudioService.getBackgroundSoundResourceId(soundId) != null || soundId == "silent") {
+        if (soundCatalogRepository.findById(soundId) != null) {
             audioService.startBackgroundAudio(soundId, soundVolume)
         } else {
             serviceScope.launch {
