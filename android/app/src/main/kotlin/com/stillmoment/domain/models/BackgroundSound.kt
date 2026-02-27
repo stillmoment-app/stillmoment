@@ -1,7 +1,5 @@
 package com.stillmoment.domain.models
 
-import java.util.Locale
-
 /**
  * Represents an available background ambient sound for meditation timer.
  *
@@ -20,20 +18,6 @@ data class BackgroundSound(
     val descriptionGerman: String,
     val rawResourceName: String
 ) {
-    /** Returns the localized name based on current device locale. */
-    val localizedName: String
-        get() = when (Locale.getDefault().language) {
-            "de" -> nameGerman
-            else -> nameEnglish
-        }
-
-    /** Returns the localized description based on current device locale. */
-    val localizedDescription: String
-        get() = when (Locale.getDefault().language) {
-            "de" -> descriptionGerman
-            else -> descriptionEnglish
-        }
-
     /** True if this sound produces no audio output. */
     val isSilent: Boolean
         get() = rawResourceName.isEmpty()

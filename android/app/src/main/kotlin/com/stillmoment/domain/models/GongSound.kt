@@ -1,7 +1,5 @@
 package com.stillmoment.domain.models
 
-import java.util.Locale
-
 /**
  * Represents a configurable gong sound for meditation timer.
  *
@@ -22,15 +20,6 @@ data class GongSound(
     val nameGerman: String,
     val rawResourceName: String
 ) {
-    /**
-     * Returns the localized name based on current device locale.
-     */
-    val localizedName: String
-        get() = when (Locale.getDefault().language) {
-            "de" -> nameGerman
-            else -> nameEnglish
-        }
-
     companion object {
         /** Default gong sound ID */
         const val DEFAULT_SOUND_ID = "temple-bell"
