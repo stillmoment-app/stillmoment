@@ -88,11 +88,9 @@ constructor(
                 intervalSoundId = praxis.intervalSoundId,
                 intervalGongVolume = praxis.intervalGongVolume,
                 backgroundSoundId = praxis.backgroundSoundId,
-                backgroundSoundVolume = praxis.backgroundSoundVolume
+                backgroundSoundVolume = praxis.backgroundSoundVolume,
+                builtInSounds = soundCatalogRepository.getAllSounds()
             )
-        }
-        viewModelScope.launch {
-            _uiState.update { it.copy(builtInSounds = soundCatalogRepository.getAllSounds()) }
         }
         viewModelScope.launch {
             customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE).collect { files ->
