@@ -1,6 +1,6 @@
 # Ticket android-069: Timer-Regressions-Tests implementieren
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: Mittel
 **Abhaengigkeiten**: Keine
@@ -22,29 +22,29 @@ iOS hat 4 kritische Regressions-Tests die dokumentierte Bugs verhindern. Android
 
 ### Tests (mindestens diese 4 Szenarien)
 
-- [ ] **Audio-Reihenfolge beim Start**: Background-Audio startet NACH dem Start-Gong, nicht waehrend oder davor
+- [x] **Audio-Reihenfolge beim Start**: Background-Audio startet NACH dem Start-Gong, nicht waehrend oder davor
   - Szenario: Timer starten → Start-Gong spielt → erst dann startet Background-Audio
   - iOS-Referenz: `testBackgroundAudioStartsWhenMeditationBegins()`
 
-- [ ] **Completion-Gong vor Background-Audio-Stop**: Beim Timer-Ablauf spielt zuerst der End-Gong, DANN stoppt das Background-Audio
+- [x] **Completion-Gong vor Background-Audio-Stop**: Beim Timer-Ablauf spielt zuerst der End-Gong, DANN stoppt das Background-Audio
   - Szenario: Timer laeuft ab → End-Gong wird gespielt → danach erst `stopBackgroundAudio`-Effect
   - iOS-Referenz: `testCompletionGongPlaysBeforeBackgroundAudioStops()`
 
-- [ ] **Interval-Gong mehrfach**: Interval-Gong spielt in einer laengeren Meditation mehrfach (nicht nur einmal)
+- [x] **Interval-Gong mehrfach**: Interval-Gong spielt in einer laengeren Meditation mehrfach (nicht nur einmal)
   - Szenario: 10-Minuten-Timer, 3-Minuten-Interval → 3 Gongs (bei 3min, 6min, 9min)
   - iOS-Referenz: `testIntervalGongPlaysMultipleTimes_NotJustOnce()`
 
-- [ ] **Background-Audio nach Introduction**: Nach Ende der Introduction startet Background-Audio (nicht vorher)
+- [x] **Background-Audio nach Introduction**: Nach Ende der Introduction startet Background-Audio (nicht vorher)
   - Szenario: Timer mit Introduction → Introduction endet → Background-Audio startet
   - iOS-Referenz: `testBackgroundAudioStartsAfterIntroductionFinishes()`
 
 ### Allgemein
-- [ ] Tests laufen in `TimerViewModelRegressionTest.kt` (existierende Datei nutzen, nicht neue anlegen)
-- [ ] Fakes/Mocks: Vorhandene Test-Infrastruktur nutzen (keine neuen Fakes anlegen wenn vorhanden)
-- [ ] `make test` gruen
+- [x] Tests laufen in `TimerViewModelRegressionTest.kt` (existierende Datei nutzen, nicht neue anlegen)
+- [x] Fakes/Mocks: Vorhandene Test-Infrastruktur nutzen (keine neuen Fakes anlegen wenn vorhanden)
+- [x] `make test` gruen
 
 ### Dokumentation
-- [ ] Keine
+- [x] Keine
 
 ---
 
