@@ -325,7 +325,6 @@ header {
     background: var(--warm-sand);
     padding: 1.5rem;
     border-radius: 15px;
-    border-left: 4px solid var(--terracotta);
     margin: 1.5rem 0;
 }
 
