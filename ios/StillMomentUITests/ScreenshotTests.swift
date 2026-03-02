@@ -68,10 +68,10 @@ final class ScreenshotTests: XCTestCase {
     /// Navigate to Library tab
     private func navigateToLibraryTab() {
         // XCUITest finds tab buttons by their localized label text, not accessibility identifier
-        // "Library" (EN) or "Bibliothek" (DE)
-        var libraryTab = self.app.tabBars.buttons["Library"]
+        // "Meditations" (EN) or "Meditationen" (DE)
+        var libraryTab = self.app.tabBars.buttons["Meditations"]
         if !libraryTab.exists {
-            libraryTab = self.app.tabBars.buttons["Bibliothek"]
+            libraryTab = self.app.tabBars.buttons["Meditationen"]
         }
         XCTAssertTrue(libraryTab.waitForExistence(timeout: 10.0), "Library tab not found")
 
@@ -218,45 +218,25 @@ final class ScreenshotTests: XCTestCase {
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 5: Settings view with preparation time and interval gongs enabled
+    /// Screenshot 5: Praxis editor (configuration) view
     func testScreenshot05_settingsView() {
         // Navigate to Timer tab
         self.navigateToTimerTab()
 
-        // Tap the settings button (gear icon)
-        let settingsButton = self.app.buttons["timer.button.settings"]
-        XCTAssertTrue(settingsButton.waitForExistence(timeout: 3.0), "Settings button not found")
-        settingsButton.tap()
+        // Tap the configuration pills to push PraxisEditorView
+        let configButton = self.app.buttons["timer.button.configuration"]
+        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Settings button not found")
+        configButton.tap()
 
-        // Find preparation time toggle (wait for sheet to appear)
-        let preparationToggle = self.app.switches["settings.toggle.preparationTime"]
+        // Wait for PraxisEditorView to appear via navigation
+        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
         XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "Settings sheet did not appear")
 
         // Enable preparation time: tap if currently OFF
         if preparationToggle.value as? String == "0" {
             preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            // Wait for toggle animation
             _ = preparationToggle.waitForExistence(timeout: 1.0)
         }
-
-        // Find interval gongs toggle - may need to scroll
-        let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
-        if !intervalToggle.waitForExistence(timeout: 1.0) || !intervalToggle.isHittable {
-            self.app.swipeUp()
-        }
-        XCTAssertTrue(intervalToggle.waitForExistence(timeout: 3.0), "Interval gongs toggle not found")
-
-        // Enable interval gongs: tap if currently OFF
-        if intervalToggle.value as? String == "0" {
-            intervalToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            // Wait for toggle animation
-            _ = intervalToggle.waitForExistence(timeout: 1.0)
-        }
-
-        // Scroll back to top to show preparation time section
-        self.app.swipeDown()
-        // Wait for scroll to complete
-        _ = preparationToggle.waitForExistence(timeout: 2.0)
 
         // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
         snapshot("05_SettingsView", timeWaitingForIdle: 0)

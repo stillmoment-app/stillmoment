@@ -44,7 +44,7 @@ final class LibraryFlowUITests: XCTestCase {
     }
 
     private func libraryTab() -> XCUIElement {
-        self.app.tabBars.buttons["Library"]
+        self.app.tabBars.buttons["Meditations"]
     }
 
     /// Ensure we're on the Timer tab (app remembers last tab via @AppStorage)
@@ -144,55 +144,52 @@ final class LibraryFlowUITests: XCTestCase {
         }
     }
 
-    // MARK: - Flow Test 3: Settings Sheet
+    // MARK: - Flow Test 3: Configuration Editor
 
-    /// Tests Settings sheet flow from Timer view
+    /// Tests navigation to PraxisEditorView via configuration pills
     func testSettingsSheetFlow() {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Verify Settings button exists") { _ in
-            let settingsButton = self.app.buttons["timer.button.settings"]
-            XCTAssertTrue(settingsButton.waitForExistence(timeout: 2.0), "Settings button should exist")
+        XCTContext.runActivity(named: "Verify configuration pills exist") { _ in
+            let configButton = self.app.buttons["timer.button.configuration"]
+            XCTAssertTrue(configButton.waitForExistence(timeout: 2.0), "Settings button should exist")
         }
 
-        XCTContext.runActivity(named: "Open Settings sheet") { _ in
-            let settingsButton = self.app.buttons["timer.button.settings"]
-            settingsButton.tap()
+        XCTContext.runActivity(named: "Open PraxisEditorView") { _ in
+            let configButton = self.app.buttons["timer.button.configuration"]
+            configButton.tap()
 
-            // Settings sheet should appear - look for Done button
-            let doneButton = self.app.buttons["button.done"]
-            XCTAssertTrue(doneButton.waitForExistence(timeout: 3.0), "Done button should appear in Settings")
+            // PraxisEditorView should appear via navigation
+            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
+            XCTAssertTrue(preparationToggle.waitForExistence(timeout: 3.0), "Praxis editor should appear")
         }
 
-        XCTContext.runActivity(named: "Verify Settings UI elements") { _ in
-            // Background sound picker should exist
-            // Note: Picker accessibility is tricky, we check for the toggle instead
-            let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
-            XCTAssertTrue(intervalToggle.waitForExistence(timeout: 2.0), "Interval gongs toggle should exist")
+        XCTContext.runActivity(named: "Verify editor UI elements") { _ in
+            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
+            XCTAssertTrue(preparationToggle.waitForExistence(timeout: 2.0), "Preparation toggle should exist")
+
+            let intervalLink = self.app.buttons["praxis.editor.link.intervalGongs"]
+            XCTAssertTrue(intervalLink.waitForExistence(timeout: 2.0), "Interval gongs link should exist")
         }
 
-        XCTContext.runActivity(named: "Toggle interval gongs") { _ in
-            let intervalToggle = self.app.switches["settings.toggle.intervalGongs"]
-            if intervalToggle.exists {
-                // Toggle should be enabled and tappable
-                XCTAssertTrue(intervalToggle.isEnabled, "Toggle should be enabled")
-                intervalToggle.tap()
-
-                // Toggle should still exist after tap (basic interaction test)
-                XCTAssertTrue(intervalToggle.exists, "Toggle should still exist after tap")
+        XCTContext.runActivity(named: "Toggle preparation time") { _ in
+            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
+            if preparationToggle.exists {
+                XCTAssertTrue(preparationToggle.isEnabled, "Toggle should be enabled")
+                preparationToggle.tap()
+                XCTAssertTrue(preparationToggle.exists, "Toggle should still exist after tap")
             }
         }
 
-        XCTContext.runActivity(named: "Close Settings sheet") { _ in
-            let doneButton = self.app.buttons["button.done"]
-            doneButton.tap()
+        XCTContext.runActivity(named: "Navigate back to Timer") { _ in
+            self.app.navigationBars.buttons.firstMatch.tap()
 
-            // Settings should close, start button should be visible
+            // Timer should be visible again
             let startButton = self.app.buttons["timer.button.start"]
             XCTAssertTrue(
                 startButton.waitForExistence(timeout: 2.0),
-                "Start button should be visible after closing Settings"
+                "Start button should be visible after navigating back"
             )
         }
     }
