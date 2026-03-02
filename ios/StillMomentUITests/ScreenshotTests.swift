@@ -214,6 +214,11 @@ final class ScreenshotTests: XCTestCase {
         let progressSlider = self.app.sliders["player.slider.progress"]
         XCTAssertTrue(progressSlider.waitForExistence(timeout: 3.0), "Player progress slider should appear")
 
+        // Start playback so Zen Mode is active (tab bar hidden)
+        playButton.tap()
+        // Wait for playback state to settle (isPlaying = true → isZenMode = true)
+        Thread.sleep(forTimeInterval: 0.8)
+
         // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
     }
