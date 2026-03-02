@@ -56,7 +56,12 @@
     <!-- Introduction -->
     <string name="settings_introduction">Einleitung</string>
     <string name="settings_introduction_none">Keine</string>
+    <string name="settings_introduction_content">Inhalt</string>
     <string name="accessibility_introduction_picker">Einleitung auswählen</string>
+    <string name="accessibility_introduction_toggle">Einstimmung Schalter</string>
+    <string name="accessibility_introduction_enabled">Einstimmung aktiviert: %s</string>
+    <string name="accessibility_introduction_enabled_no_selection">Einstimmung aktiviert</string>
+    <string name="accessibility_introduction_disabled">Einstimmung deaktiviert</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Stille</string>

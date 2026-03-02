@@ -134,7 +134,8 @@ fun SettingsSheet(
                 Spacer(modifier = Modifier.height(sectionSpacing))
                 IntroductionSection(
                     settings = settings,
-                    onSettingsChange = onSettingsChange
+                    onSettingsChange = onSettingsChange,
+                    itemSpacing = itemSpacing
                 )
             }
             Spacer(modifier = Modifier.height(sectionSpacing))
@@ -561,51 +562,108 @@ private fun GongSoundDropdown(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntroductionSection(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+private fun IntroductionSection(
+    settings: MeditationSettings,
+    onSettingsChange: (MeditationSettings) -> Unit,
+    itemSpacing: Dp
+) {
     var expanded by remember { mutableStateOf(false) }
-    val available = Introduction.availableForCurrentLanguage().toImmutableList()
-    val noneName = stringResource(R.string.settings_introduction_none)
-
-    val selectedName = settings.introductionId?.let { id ->
-        Introduction.find(id)?.let { "${it.localizedName} (${it.formattedDuration})" }
-    } ?: noneName
 
     Column {
         SectionTitle(text = stringResource(R.string.settings_introduction))
 
         SettingsCard {
-            IntroductionDropdown(
-                selectedName = selectedName,
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
-                available = available,
+            IntroductionToggle(
                 settings = settings,
-                onSettingsChange = onSettingsChange,
-                onDismiss = { expanded = false }
+                onSettingsChange = onSettingsChange
             )
+
+            if (settings.introductionEnabled) {
+                Spacer(modifier = Modifier.height(itemSpacing))
+
+                IntroductionContentDropdown(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    settings = settings,
+                    onSettingsChange = onSettingsChange
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun IntroductionToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+    val introContentDescription = stringResource(R.string.accessibility_introduction_toggle)
+    val haptic = LocalHapticFeedback.current
+    val available = Introduction.availableForCurrentLanguage()
+
+    val introStateDescription = if (settings.introductionEnabled) {
+        val introName = settings.introductionId?.let { Introduction.find(it)?.localizedName }
+        if (introName != null) {
+            stringResource(R.string.accessibility_introduction_enabled, introName)
+        } else {
+            stringResource(R.string.accessibility_introduction_enabled_no_selection)
+        }
+    } else {
+        stringResource(R.string.accessibility_introduction_disabled)
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.settings_introduction),
+            style = TypographyRole.SettingsLabel.textStyle(),
+            color = TypographyRole.SettingsLabel.textColor(),
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Switch(
+            checked = settings.introductionEnabled,
+            onCheckedChange = { enabled ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                val newSettings = if (enabled && settings.introductionId == null) {
+                    val firstId = available.firstOrNull()?.id
+                    settings.copy(introductionEnabled = true, introductionId = firstId)
+                } else {
+                    settings.copy(introductionEnabled = enabled)
+                }
+                onSettingsChange(newSettings)
+            },
+            colors = stillMomentSwitchColors(),
+            modifier = Modifier
+                .testTag("settings.toggle.introduction")
+                .semantics {
+                    contentDescription = introContentDescription
+                    stateDescription = introStateDescription
+                }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntroductionDropdown(
-    selectedName: String,
+private fun IntroductionContentDropdown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    available: ImmutableList<Introduction>,
     settings: MeditationSettings,
-    onSettingsChange: (MeditationSettings) -> Unit,
-    onDismiss: () -> Unit
+    onSettingsChange: (MeditationSettings) -> Unit
 ) {
+    val available = Introduction.availableForCurrentLanguage().toImmutableList()
     val introPickerDescription = stringResource(R.string.accessibility_introduction_picker)
+
+    val selectedName = settings.introductionId?.let { id ->
+        Introduction.find(id)?.let { "${it.localizedName} (${it.formattedDuration})" }
+    } ?: available.firstOrNull()?.let { "${it.localizedName} (${it.formattedDuration})" }.orEmpty()
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
         OutlinedTextField(
             value = selectedName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.settings_introduction)) },
+            label = { Text(stringResource(R.string.settings_introduction_content)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = DropdownShape,
             colors = dropdownTextFieldColors(),
@@ -615,15 +673,7 @@ private fun IntroductionDropdown(
                 .semantics { contentDescription = introPickerDescription }
         )
 
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.settings_introduction_none)) },
-                onClick = {
-                    onSettingsChange(settings.copy(introductionId = null))
-                    onDismiss()
-                },
-                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-            )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }) {
             available.forEach { intro ->
                 DropdownMenuItem(
                     text = { Text("${intro.localizedName} (${intro.formattedDuration})") },
@@ -631,7 +681,7 @@ private fun IntroductionDropdown(
                         val minDuration = MeditationSettings.minimumDuration(intro.id, settings.introductionEnabled)
                         val newDuration = maxOf(settings.durationMinutes, minDuration)
                         onSettingsChange(settings.copy(introductionId = intro.id, durationMinutes = newDuration))
-                        onDismiss()
+                        onExpandedChange(false)
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )

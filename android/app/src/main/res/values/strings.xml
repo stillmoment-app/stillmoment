@@ -56,7 +56,12 @@
     <!-- Introduction -->
     <string name="settings_introduction">Introduction</string>
     <string name="settings_introduction_none">None</string>
+    <string name="settings_introduction_content">Content</string>
     <string name="accessibility_introduction_picker">Select introduction</string>
+    <string name="accessibility_introduction_toggle">Introduction toggle</string>
+    <string name="accessibility_introduction_enabled">Introduction enabled: %s</string>
+    <string name="accessibility_introduction_enabled_no_selection">Introduction enabled</string>
+    <string name="accessibility_introduction_disabled">Introduction disabled</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
