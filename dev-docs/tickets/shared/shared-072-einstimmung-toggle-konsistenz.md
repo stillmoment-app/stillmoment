@@ -1,6 +1,6 @@
 # Ticket shared-072: Einstimmung Toggle statt Picker-Option "Ohne Einstimmung"
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~S | Android ~S
 **Phase**: 4-Polish
@@ -10,6 +10,16 @@
 ## Was
 
 Die Einstimmungs-Einstellung im Timer soll statt eines Pickers mit "Keine" als erster Option ein Toggle (an/aus) und einen bedingten Inhalts-Picker (sichtbar nur wenn an) verwenden.
+
+**Wichtig – wo der Toggle hingehoert:**
+Der Toggle gehoert in den **Auswahl-Screen** (nicht in den Haupt-Editor-Screen).
+
+| Screen | Android | iOS |
+|--------|---------|-----|
+| Haupt-Editor (navigiert zum Auswahl-Screen) | `PraxisEditorScreen` | `PraxisEditorView` |
+| **Auswahl-Screen (Toggle gehoert hierhin)** | **`SelectIntroductionScreen`** | **`IntroductionSelectionView`** |
+
+Im Haupt-Editor-Screen bleibt die `NavigationRow` fuer "Einstimmung" bestehen. Ihre Summary zeigt "Ohne Einstimmung" wenn Toggle aus, sonst den Intro-Namen.
 
 ## Warum
 
@@ -43,19 +53,35 @@ EINSTIMMUNG
 ```
 
 #### Neu (Ziel)
+
+**Haupt-Editor-Screen** (PraxisEditorScreen / PraxisEditorView) — unveraendert:
 ```
-EINSTIMMUNG
+AUDIO
+┌─────────────────────────────────────────┐
+│ Einstimmung        Ohne Einstimmung  ›  │  ← NavigationRow (Summary = off)
+│ Einstimmung        Atemuebung (1:35) ›  │  ← NavigationRow (Summary = on)
+└─────────────────────────────────────────┘
+```
+
+**Auswahl-Screen** (SelectIntroductionScreen / IntroductionSelectionView) — hier ist der Toggle:
+```
 ┌─────────────────────────────────┐
-│ Einstimmung             [OFF]   │  ← Toggle aus
+│ Einstimmung             [OFF]   │  ← Toggle aus: nur diese Card sichtbar
 └─────────────────────────────────┘
 
-EINSTIMMUNG
 ┌─────────────────────────────────┐
 │ Einstimmung              [ON]   │  ← Toggle an
-├─────────────────────────────────┤
-│   Inhalt        Atemuebung   ▾ │  ← Inhalts-Picker erscheint
-│                       (1:35)    │
 └─────────────────────────────────┘
+┌─────────────────────────────────┐
+│ ♪  Atemuebung            1:35   │  ← Inhalts-Liste erscheint
+│ ─────────────────────────────── │
+│ ✓  Atemuebung 2          2:00   │
+└─────────────────────────────────┘
+  Meine Einstimmungen
+┌─────────────────────────────────┐
+│   (leer)                        │
+└─────────────────────────────────┘
+  [+ Importieren]
 ```
 
 #### Verhalten
@@ -69,7 +95,7 @@ EINSTIMMUNG
 
 ### Tests
 - [ ] Unit Tests iOS (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
-- [ ] Unit Tests Android (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
+- [x] Unit Tests Android (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
 
 ### Dokumentation
 - [ ] CHANGELOG.md
@@ -101,8 +127,9 @@ EINSTIMMUNG
 
 ## Hinweise
 
-- Analog zu Vorbereitungszeit (shared-023): Toggle ein/aus + bedingter Picker
-- Kein Domain-Aenderung noetig — nur UI-Schicht (Picker mit "Keine" vs. Toggle + bedingter Picker)
+- Toggle gehoert in den **Auswahl-Screen**, nicht in den Haupt-Editor-Screen (siehe "Was"-Abschnitt)
+- Analog zu Vorbereitungszeit (shared-023): Toggle ein/aus + bedingter Inhalt
+- Domain-Aenderung noetig: `introductionEnabled: Boolean` in den Settings/Praxis-Modellen — nur `null`-Check auf `introductionId` reicht nicht
 - Wenn shared-067 (Code-Rename) noch offen: Terms "Einstimmung" / "Attunement" verwenden
 - Abhaengigkeit von shared-067 gilt nur fuer die Benennung, nicht fuer die Logik
 

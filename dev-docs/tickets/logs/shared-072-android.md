@@ -60,6 +60,31 @@ IntroductionToggle Typography von SettingsLabel (17sp, TextPrimary) auf Settings
 
 ---
 
+## REVIEW 2
+Verdict: PASS
+
+make check: OK
+make test-unit: OK
+
+DISCUSSION:
+<!-- DISCUSSION_START -->
+- Drei Cleanup-Findings, alle behoben in FIX 3.
+<!-- DISCUSSION_END -->
+
+Summary:
+Alle FIX 1 und FIX 2 Änderungen korrekt. Drei Cleanup-Findings: (1) `settings_introduction_none`-String-Keys noch vorhanden — orphaned, da kein Kotlin-Code referenziert; (2) `onSelectBuiltIn: (String?) -> Unit` akzeptiert null, aber null wird nach Entfernung der "None"-Option nie übergeben — Dead Code; (3) KDoc in `SelectIntroductionScreen` noch veraltet ("No Introduction option"). Alle drei in FIX 3 behoben.
+
+---
+
+## FIX 3
+Status: DONE
+Commits: TBD
+
+Summary:
+Orphaned String-Keys `settings_introduction_none` aus values/strings.xml und values-de/strings.xml entfernt. `onSelectBuiltIn`-Callback von `(String?)` auf `(String)` geändert, null-Guard in der Lambda und in `IntroductionSelectionCard` entfernt. KDoc in `SelectIntroductionScreen` aktualisiert (Toggle statt "No Introduction option").
+
+---
+
 ## FIX 2
 Status: DONE
 Commits:

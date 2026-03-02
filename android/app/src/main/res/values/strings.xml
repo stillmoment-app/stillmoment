@@ -55,7 +55,6 @@
 
     <!-- Introduction -->
     <string name="settings_introduction">Introduction</string>
-    <string name="settings_introduction_none">None</string>
     <string name="settings_introduction_content">Content</string>
     <string name="accessibility_introduction_picker">Select introduction</string>
     <string name="accessibility_introduction_toggle">Introduction toggle</string>

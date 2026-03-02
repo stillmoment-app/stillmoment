@@ -66,10 +66,11 @@ import kotlinx.collections.immutable.toImmutableList
 /**
  * Sub-screen for selecting an introduction (attunement) audio.
  *
- * Displays a list of available introductions with a "No Introduction" option.
- * Includes a "My Attunements" section for user-imported custom attunements.
- * Tapping a built-in introduction plays a preview without navigating back.
- * Stops audio previews when leaving the screen via DisposableEffect.
+ * Shows a toggle to enable/disable the introduction, and when enabled,
+ * displays a list of available built-in introductions and a "My Attunements"
+ * section for user-imported custom attunements. Tapping a built-in introduction
+ * plays a preview without navigating back. Stops audio previews when leaving
+ * the screen via DisposableEffect.
  */
 @Composable
 fun SelectIntroductionScreen(
@@ -107,9 +108,7 @@ fun SelectIntroductionScreen(
                 customAttunements = uiState.customAttunements.toImmutableList(),
                 onSelectBuiltIn = { id ->
                     viewModel.setIntroductionId(id)
-                    if (id != null) {
-                        viewModel.playIntroductionPreview(id)
-                    }
+                    viewModel.playIntroductionPreview(id)
                 },
                 onSelectCustom = { id ->
                     viewModel.setIntroductionId(id)
@@ -204,7 +203,7 @@ private fun IntroductionContent(
     onIntroductionEnable: (Boolean) -> Unit,
     selectedId: String?,
     customAttunements: ImmutableList<CustomAudioFile>,
-    onSelectBuiltIn: (String?) -> Unit,
+    onSelectBuiltIn: (String) -> Unit,
     onSelectCustom: (String) -> Unit,
     onDeleteCustomAttunement: (CustomAudioFile) -> Unit,
     onRenameCustomAttunement: (CustomAudioFile) -> Unit,
@@ -297,7 +296,7 @@ private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit
 }
 
 @Composable
-private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String?) -> Unit, modifier: Modifier = Modifier) {
+private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val introductions = Introduction.allIntroductions
 
