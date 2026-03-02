@@ -69,7 +69,7 @@ data class Introduction(
                 nameEnglish = "Breathing Exercise",
                 nameGerman = "Atemübung",
                 durationSeconds = 95,
-                availableLanguages = listOf("de"),
+                availableLanguages = listOf("de", "en"),
                 filenamePattern = "intro_breath_{lang}"
             )
         )

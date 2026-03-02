@@ -113,6 +113,7 @@ constructor(
             "gong_clear_strike" -> R.raw.gong_clear_strike
             "interval" -> R.raw.interval
             "intro_breath_de" -> R.raw.intro_breath_de
+            "intro_breath_en" -> R.raw.intro_breath_en
             "forest_ambience" -> R.raw.forest_ambience
             "silence" -> R.raw.silence
             else -> 0

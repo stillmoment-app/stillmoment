@@ -44,7 +44,7 @@ class IntroductionTest {
 
         assertEquals("breath", breath.id)
         assertEquals(95, breath.durationSeconds)
-        assertEquals(listOf("de"), breath.availableLanguages)
+        assertEquals(listOf("de", "en"), breath.availableLanguages)
     }
 
     @Test
@@ -68,12 +68,13 @@ class IntroductionTest {
         }
 
         @Test
-        fun `availableForCurrentLanguage returns empty for English`() {
+        fun `availableForCurrentLanguage returns breath for English`() {
             Introduction.languageOverride = "en"
 
             val available = Introduction.availableForCurrentLanguage()
 
-            assertTrue(available.isEmpty())
+            assertEquals(1, available.size)
+            assertEquals("breath", available.first().id)
         }
 
         @Test
@@ -83,9 +84,9 @@ class IntroductionTest {
         }
 
         @Test
-        fun `hasAvailableIntroductions is false for English`() {
+        fun `hasAvailableIntroductions is true for English`() {
             Introduction.languageOverride = "en"
-            assertFalse(Introduction.hasAvailableIntroductions)
+            assertTrue(Introduction.hasAvailableIntroductions)
         }
 
         @Test
@@ -124,9 +125,9 @@ class IntroductionTest {
     }
 
     @Test
-    fun `isAvailableForCurrentLanguage returns false for breath in English`() {
+    fun `isAvailableForCurrentLanguage returns true for breath in English`() {
         Introduction.languageOverride = "en"
-        assertFalse(Introduction.isAvailableForCurrentLanguage("breath"))
+        assertTrue(Introduction.isAvailableForCurrentLanguage("breath"))
     }
 
     @Test
@@ -146,9 +147,9 @@ class IntroductionTest {
     }
 
     @Test
-    fun `audioFilenameForCurrentLanguage returns null for breath in English`() {
+    fun `audioFilenameForCurrentLanguage returns filename for breath in English`() {
         Introduction.languageOverride = "en"
-        assertNull(Introduction.audioFilenameForCurrentLanguage("breath"))
+        assertEquals("intro_breath_en", Introduction.audioFilenameForCurrentLanguage("breath"))
     }
 
     @Test

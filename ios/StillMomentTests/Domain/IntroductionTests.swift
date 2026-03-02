@@ -23,8 +23,8 @@ final class IntroductionTests: XCTestCase {
         XCTAssertTrue(Introduction.breath.availableLanguages.contains("de"))
     }
 
-    func testBreath_isNotAvailableInEnglish() {
-        XCTAssertFalse(Introduction.breath.availableLanguages.contains("en"))
+    func testBreath_isAvailableInEnglish() {
+        XCTAssertTrue(Introduction.breath.availableLanguages.contains("en"))
     }
 
     func testAllIntroductions_containsBreath() {
@@ -38,9 +38,9 @@ final class IntroductionTests: XCTestCase {
         XCTAssertEqual(filename, "intro-breath-de.mp3")
     }
 
-    func testAudioFilename_forUnavailableLanguage_returnsNil() {
+    func testAudioFilename_forEnglish_returnsFilename() {
         let filename = Introduction.breath.audioFilename(for: "en")
-        XCTAssertNil(filename)
+        XCTAssertEqual(filename, "intro-breath-en.mp3")
     }
 
     func testAudioFilename_forUnknownLanguage_returnsNil() {

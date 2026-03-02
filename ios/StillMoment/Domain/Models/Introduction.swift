@@ -60,7 +60,7 @@ extension Introduction {
         id: "breath",
         name: NSLocalizedString("introduction.breath.name", comment: ""),
         durationSeconds: 95, // 1:35
-        availableLanguages: ["de"],
+        availableLanguages: ["de", "en"],
         filenamePattern: "intro-breath-{lang}.mp3"
     )
 
