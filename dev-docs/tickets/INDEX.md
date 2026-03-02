@@ -137,7 +137,6 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-036](ios/ios-036-toggle-slider-theme-visibility.md) | Toggle/Slider Controls Theme-Sichtbarkeit | 4-Polish | [x] | - |
 | [ios-037](ios/ios-037-slow-test-time-injection.md) | Langsame Tests Time-Injection | 5-QA | [x] | - |
 | [ios-038](ios/ios-038-tabbar-active-tab-visibility.md) | Tab-Bar aktiver Tab schlecht erkennbar (iOS 18) | 4-Polish | [ ] | - |
-| [ios-039](ios/ios-039-gong-preview-explizit.md) | Gong-Vorschau: Automatisch → Expliziter Preview-Button | 4-Polish | [ ] | - |
 
 ---
 
