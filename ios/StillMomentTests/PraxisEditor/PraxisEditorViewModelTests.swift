@@ -152,4 +152,88 @@ final class PraxisEditorViewModelTests: XCTestCase {
         XCTAssertTrue(self.mockAudioService.stopGongPreviewCalled)
         XCTAssertTrue(self.mockAudioService.stopBackgroundPreviewCalled)
     }
+
+    // MARK: - Introduction Toggle
+
+    func testInit_introductionEnabledFromPraxis() {
+        // Given
+        let praxis = Praxis(introductionId: "breathing", introductionEnabled: true)
+
+        // When
+        let sut = self.createSUT(praxis: praxis)
+
+        // Then
+        XCTAssertTrue(sut.introductionEnabled)
+        XCTAssertEqual(sut.introductionId, "breathing")
+    }
+
+    func testInit_introductionDisabledByDefault() {
+        // Then — default testPraxis has no introduction
+        XCTAssertFalse(self.sut.introductionEnabled)
+    }
+
+    func testSetIntroductionEnabled_autoSelectsFirstWhenNilId() {
+        // Given — introductionId is nil (default)
+        XCTAssertNil(self.sut.introductionId)
+
+        // When
+        self.sut.setIntroductionEnabled(true)
+
+        // Then
+        XCTAssertTrue(self.sut.introductionEnabled)
+        let firstAvailable = self.sut.availableIntroductions.first?.id
+        XCTAssertEqual(self.sut.introductionId, firstAvailable)
+    }
+
+    func testSetIntroductionEnabled_preservesExistingSelection() {
+        // Given — introductionId already set
+        self.sut.introductionId = "custom-intro"
+        self.sut.introductionEnabled = false
+
+        // When
+        self.sut.setIntroductionEnabled(true)
+
+        // Then — keeps existing selection
+        XCTAssertTrue(self.sut.introductionEnabled)
+        XCTAssertEqual(self.sut.introductionId, "custom-intro")
+    }
+
+    func testSetIntroductionDisabled_preservesIntroductionId() {
+        // Given
+        self.sut.introductionId = "breathing"
+        self.sut.introductionEnabled = true
+
+        // When
+        self.sut.setIntroductionEnabled(false)
+
+        // Then — id preserved for re-enable
+        XCTAssertFalse(self.sut.introductionEnabled)
+        XCTAssertEqual(self.sut.introductionId, "breathing")
+    }
+
+    func testSave_persistsIntroductionEnabled() {
+        // Given
+        self.sut.introductionEnabled = true
+        self.sut.introductionId = "breathing"
+
+        // When
+        self.sut.save()
+
+        // Then
+        XCTAssertEqual(self.savedPraxis?.introductionEnabled, true)
+        XCTAssertEqual(self.savedPraxis?.introductionId, "breathing")
+    }
+
+    func testSave_persistsIntroductionDisabled() {
+        // Given
+        self.sut.introductionEnabled = false
+        self.sut.introductionId = "breathing"
+
+        // When
+        self.sut.save()
+
+        // Then
+        XCTAssertEqual(self.savedPraxis?.introductionEnabled, false)
+        XCTAssertEqual(self.savedPraxis?.introductionId, "breathing")
+    }
 }

@@ -176,10 +176,12 @@ struct PraxisEditorView: View {
     // MARK: - Label Helpers
 
     private var currentIntroductionLabel: String {
+        guard self.viewModel.introductionEnabled else {
+            return NSLocalizedString("praxis.editor.introduction.none", comment: "")
+        }
         guard let introId = self.viewModel.introductionId,
               let intro = self.viewModel.availableIntroductions.first(where: { $0.id == introId })
         else {
-            // Check custom attunements
             if let introId = self.viewModel.introductionId,
                let customFile = self.viewModel.customAttunements.first(where: { $0.id.uuidString == introId }) {
                 return customFile.name

@@ -38,6 +38,7 @@ final class PraxisEditorViewModel: ObservableObject {
         self.startGongSoundId = praxis.startGongSoundId
         self.gongVolume = praxis.gongVolume
         self.introductionId = praxis.introductionId
+        self.introductionEnabled = praxis.introductionEnabled
         self.intervalGongsEnabled = praxis.intervalGongsEnabled
         self.intervalMinutes = praxis.intervalMinutes
         self.intervalMode = praxis.intervalMode
@@ -59,6 +60,7 @@ final class PraxisEditorViewModel: ObservableObject {
     @Published var startGongSoundId: String
     @Published var gongVolume: Float
     @Published var introductionId: String?
+    @Published var introductionEnabled: Bool
     @Published var intervalGongsEnabled: Bool
     @Published var intervalMinutes: Int
     @Published var intervalMode: IntervalMode
@@ -95,6 +97,7 @@ final class PraxisEditorViewModel: ObservableObject {
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
             introductionId: self.introductionId,
+            introductionEnabled: self.introductionEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -157,6 +160,15 @@ final class PraxisEditorViewModel: ObservableObject {
         self.audioService.stopIntroductionPreview()
     }
 
+    /// Enables or disables the introduction toggle.
+    /// When enabling with no introduction selected, auto-selects the first available.
+    func setIntroductionEnabled(_ enabled: Bool) {
+        self.introductionEnabled = enabled
+        if enabled, self.introductionId == nil {
+            self.introductionId = self.availableIntroductions.first?.id
+        }
+    }
+
     // MARK: - Custom Audio
 
     /// Loads custom soundscapes and attunements from the repository
@@ -177,6 +189,7 @@ final class PraxisEditorViewModel: ObservableObject {
                 self.backgroundSoundId = imported.id.uuidString
             case .attunement:
                 self.introductionId = imported.id.uuidString
+                self.introductionEnabled = true
             }
             Logger.viewModel.info(
                 "Imported custom audio",
@@ -251,10 +264,11 @@ final class PraxisEditorViewModel: ObservableObject {
             }
         case .attunement:
             if praxis.introductionId == fileIdString {
-                self.repository.save(praxis.withIntroductionId(nil))
+                self.repository.save(praxis.withIntroductionId(nil).withIntroductionEnabled(false))
             }
             if self.introductionId == fileIdString {
                 self.introductionId = nil
+                self.introductionEnabled = false
             }
         }
     }

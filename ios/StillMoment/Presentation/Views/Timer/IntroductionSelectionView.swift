@@ -28,18 +28,22 @@ struct IntroductionSelectionView: View {
 
             VStack(spacing: 0) {
                 List {
-                    self.noneRow
+                    self.introductionToggleRow
 
-                    ForEach(self.viewModel.availableIntroductions) { intro in
-                        self.introductionRow(for: intro)
+                    if self.viewModel.introductionEnabled {
+                        ForEach(self.viewModel.availableIntroductions) { intro in
+                            self.introductionRow(for: intro)
+                        }
+
+                        self.myAttunementsSection
                     }
-
-                    self.myAttunementsSection
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
 
-                self.importButton
+                if self.viewModel.introductionEnabled {
+                    self.importButton
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -110,24 +114,17 @@ struct IntroductionSelectionView: View {
     @State private var renameText: String = ""
     @State private var showRenameAlert = false
 
-    private var noneRow: some View {
-        let isSelected = self.viewModel.introductionId == nil
-        return HStack {
-            Image(systemName: isSelected ? "minus.circle.fill" : "minus.circle")
-                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
-                .frame(width: 24)
-                .accessibilityHidden(true)
-            Text("praxis.editor.introduction.none", bundle: .main)
+    private var introductionToggleRow: some View {
+        Toggle(isOn: Binding(
+            get: { self.viewModel.introductionEnabled },
+            set: { self.viewModel.setIntroductionEnabled($0) }
+        )) {
+            Text("praxis.editor.introduction.row", bundle: .main)
                 .themeFont(.settingsLabel)
-            Spacer()
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            self.viewModel.introductionId = nil
-            self.viewModel.stopAllPreviews()
-        }
+        .themedToggle()
         .cardRowBackground()
-        .accessibilityIdentifier("praxis.introduction.none")
+        .accessibilityIdentifier("praxis.introduction.toggle")
     }
 
     private func introductionRow(for intro: Introduction) -> some View {
