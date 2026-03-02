@@ -44,10 +44,11 @@ Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`
 
 - Background Mode in `Info.plist` (`UIBackgroundModes: audio`)
 - Audio Session: `.playback` Kategorie ohne `.mixWithOthers`
-- **Keep-Alive (Always-On)**: `activateTimerSession()` startet Audio-Session + stillen Audio-Loop (`silence.mp3`). Keep-Alive laeuft durchgehend von Timer-Start bis Timer-Ende — wird NICHT bei Audio-Transitions gestoppt. `deactivateTimerSession()` ist die einzige Stelle die Keep-Alive beendet (siehe ADR-004, shared-059)
+- **Keep-Alive (Always-On)**: `activateTimerSession()` startet Audio-Session + stillen Audio-Loop (`silence.mp3`, Volume 0.05). Keep-Alive laeuft durchgehend von Timer-Start bis Timer-Ende — wird NICHT bei Audio-Transitions gestoppt. `deactivateTimerSession()` ist die einzige Stelle die Keep-Alive beendet (siehe ADR-004, shared-059)
 - Hintergrund-Audio (`startBackgroundAudio`) laeuft parallel zum Keep-Alive (stoert sich nicht)
 - Bei Timer-Ende oder Reset: `deactivateTimerSession()` stoppt Keep-Alive und gibt Audio-Session frei
-- Nach Audio-Unterbrechung (Anruf): Keep-Alive wird im Interruption-Handler neu gestartet falls Timer aktiv
+- Nach Audio-Unterbrechung (Anruf): Keep-Alive wird im Interruption-Handler neu gestartet falls `timerSessionActive == true` (unabhaengig von `.shouldResume`)
+- **`isKeepAliveActive: Bool`**: Diagnostics-Property (internal) — gibt `keepAlivePlayer?.isPlaying ?? false` zurueck. Wird in Unit Tests benutzt um sicherzustellen dass Keep-Alive nach `activateTimerSession()` wirklich spielt
 
 ---
 
@@ -173,7 +174,7 @@ activateTimerSession()   → Audio-Session + Keep-Alive AN (Timer-Start)
 deactivateTimerSession() → Keep-Alive AUS + Audio-Session freigeben (Timer-Ende/Reset)
 ```
 
-Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt. Die lautlose Datei (`silence.mp3`, Volume 0.01) stoert kein anderes Audio.
+Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt. Die lautlose Datei (`silence.mp3`, Volume 0.05) stoert kein anderes Audio.
 
 **Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed` und `.timerCompleted`. Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
 
@@ -293,7 +294,7 @@ Audio-Unterbrechungen (Anrufe, Alerts) via `AVAudioSession.interruptionNotificat
 | Event | Verhalten |
 |-------|-----------|
 | `.began` | Playback pausiert automatisch |
-| `.ended` mit `.shouldResume` | Playback setzt automatisch fort |
+| `.ended` | Keep-Alive wird neu gestartet wenn `timerSessionActive` (unabhaengig von `.shouldResume`) |
 
 ---
 
@@ -471,7 +472,8 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 **Physisches Geraet erforderlich** (iPhone 13 mini ist Zielgeraet):
 
-- [ ] Test mit gesperrtem Bildschirm: Background Audio funktioniert?
+- [ ] Test mit gesperrtem Bildschirm waehrend Vorbereitungszeit: App bleibt wach? (Regression fuer Bug aus 2026-03)
+- [ ] Test mit gesperrtem Bildschirm waehrend stiller Meditation: Background Audio funktioniert?
 - [ ] Test Tab-Wechsel waehrend Playback: Koordination funktioniert?
 - [ ] Test Telefonanruf-Unterbrechungen
 - [ ] Test Lock Screen Controls fuer Guided Meditations
@@ -491,5 +493,5 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ---
 
-**Zuletzt aktualisiert**: 2026-02-23
-**Version**: 2.6
+**Zuletzt aktualisiert**: 2026-03-02
+**Version**: 2.7

@@ -35,6 +35,32 @@ final class AudioServiceKeepAliveTests: XCTestCase {
         XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15))
     }
 
+    func testKeepAliveIsPlayingAfterActivation() throws {
+        // Regression: app was suspended when locking screen during preparation time.
+        // Root cause: keepAlivePlayer was assigned before play() was called — if play()
+        // returned false, the player was non-nil but silent, blocking all retries.
+        // During preparation, no gong or background audio plays: keep-alive is the sole
+        // mechanism that keeps iOS from suspending the app.
+
+        // When — a timer session begins (simulates timer start with preparation time)
+        try self.sut.activateTimerSession()
+
+        // Then — keep-alive player must be actively playing, not just assigned
+        XCTAssertTrue(self.sut.isKeepAliveActive, "Keep-alive must be playing after activateTimerSession()")
+    }
+
+    func testKeepAliveIsNotPlayingAfterDeactivation() throws {
+        // Given — timer session is active and keep-alive is playing
+        try self.sut.activateTimerSession()
+        XCTAssertTrue(self.sut.isKeepAliveActive)
+
+        // When — session ends
+        self.sut.deactivateTimerSession()
+
+        // Then — keep-alive must stop
+        XCTAssertFalse(self.sut.isKeepAliveActive, "Keep-alive must stop after deactivateTimerSession()")
+    }
+
     func testKeepAliveStopsWhenTimerSessionDeactivates() throws {
         // Given — timer session is active
         try self.sut.activateTimerSession()

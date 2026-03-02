@@ -251,7 +251,7 @@ final class AudioService: AudioServiceProtocol {
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
     var introductionPlayer: AVAudioPlayer?
-    private var keepAlivePlayer: AVAudioPlayer?
+    var keepAlivePlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
     var introductionPreviewPlayer: AVAudioPlayer?
@@ -262,7 +262,7 @@ final class AudioService: AudioServiceProtocol {
     private var targetVolume: Float = 0.15
 
     /// Whether a timer session is currently active (for interruption recovery)
-    private var timerSessionActive = false
+    var timerSessionActive = false
 
     // MARK: - Private Methods
 
@@ -274,55 +274,6 @@ final class AudioService: AudioServiceProtocol {
         let name = components.first ?? filename
         let ext = components.count > 1 ? components.last : nil
         return (name, ext)
-    }
-}
-
-// MARK: - Keep-Alive Audio
-
-private extension AudioService {
-    func startKeepAliveAudio() {
-        guard self.keepAlivePlayer == nil else {
-            return
-        }
-
-        guard let url = Bundle.main.url(
-            forResource: "silence",
-            withExtension: "mp3",
-            subdirectory: "BackgroundAudio"
-        ) else {
-            Logger.audio.warning("Keep-alive audio file not found")
-            return
-        }
-
-        do {
-            self.keepAlivePlayer = try AVAudioPlayer(contentsOf: url)
-            self.keepAlivePlayer?.numberOfLoops = -1
-            self.keepAlivePlayer?.volume = 0.01
-            self.keepAlivePlayer?.prepareToPlay()
-            self.keepAlivePlayer?.play()
-            Logger.audio.debug("Keep-alive audio started")
-        } catch {
-            Logger.audio.error("Failed to start keep-alive audio", error: error)
-        }
-    }
-
-    func restartKeepAliveAfterInterruption() {
-        if let player = self.keepAlivePlayer, !player.isPlaying {
-            player.play()
-            Logger.audio.info("Keep-alive resumed after interruption")
-        } else if self.keepAlivePlayer == nil {
-            self.startKeepAliveAudio()
-            Logger.audio.info("Keep-alive restarted after interruption")
-        }
-    }
-
-    func stopKeepAliveAudio() {
-        guard self.keepAlivePlayer != nil else {
-            return
-        }
-        self.keepAlivePlayer?.stop()
-        self.keepAlivePlayer = nil
-        Logger.audio.debug("Keep-alive audio stopped")
     }
 }
 
@@ -415,18 +366,18 @@ private extension AudioService {
             Logger.audio.info("Audio interruption began")
 
         case .ended:
-            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else {
-                return
-            }
+            // Note: AVAudioSessionInterruptionOptionKey may be absent on older iOS versions.
+            // We always attempt keep-alive recovery when a timer session is active —
+            // timerSessionActive is set to false by cleanupTimerPlayers() on full audio-focus loss
+            // (e.g., phone call), so the guard prevents spurious restarts after real takeovers.
+            let optionsValue = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
             let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
-
-            if options.contains(.shouldResume) {
-                Logger.audio.info("Audio interruption ended, resuming")
-                if self.timerSessionActive {
-                    self.restartKeepAliveAfterInterruption()
-                }
-            } else {
-                Logger.audio.info("Audio interruption ended without resume option")
+            Logger.audio.info(
+                "Audio interruption ended",
+                metadata: ["shouldResume": "\(options.contains(.shouldResume))"]
+            )
+            if self.timerSessionActive {
+                self.restartKeepAliveAfterInterruption()
             }
 
         @unknown default:
