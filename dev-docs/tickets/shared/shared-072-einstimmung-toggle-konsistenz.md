@@ -1,6 +1,6 @@
 # Ticket shared-072: Einstimmung Toggle statt Picker-Option "Ohne Einstimmung"
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~S | Android ~S
 **Phase**: 4-Polish
@@ -31,7 +31,7 @@ Vorbereitungszeit und Einstimmung sind beide optionale Timer-Phasen. Vorbereitun
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-067 (Rename) |
+| iOS       | [x]    | shared-067 (Rename) |
 | Android   | [x]    | shared-067 (Rename) |
 
 ---
@@ -85,20 +85,20 @@ AUDIO
 ```
 
 #### Verhalten
-- [ ] Einstimmungs-Section zeigt Toggle "Einstimmung" an/aus
-- [ ] Bei Toggle aus: kein Inhalts-Picker sichtbar, keine Einstimmung wird abgespielt
-- [ ] Bei Toggle an: Inhalts-Picker erscheint darunter (wie Dauer-Picker bei Vorbereitungszeit)
-- [ ] Default beim ersten Aktivieren: erste verfuegbare Einstimmung vorausgewaehlt
-- [ ] Benutzerauswahl bleibt gespeichert, auch wenn Toggle aus ist (beim Wiedereinschalten bleibt die letzte Auswahl erhalten)
-- [ ] Visuell konsistent mit dem Vorbereitungszeit-Pattern
-- [ ] Lokalisiert (DE + EN)
+- [x] Einstimmungs-Section zeigt Toggle "Einstimmung" an/aus
+- [x] Bei Toggle aus: kein Inhalts-Picker sichtbar, keine Einstimmung wird abgespielt
+- [x] Bei Toggle an: Inhalts-Picker erscheint darunter (wie Dauer-Picker bei Vorbereitungszeit)
+- [x] Default beim ersten Aktivieren: erste verfuegbare Einstimmung vorausgewaehlt
+- [x] Benutzerauswahl bleibt gespeichert, auch wenn Toggle aus ist (beim Wiedereinschalten bleibt die letzte Auswahl erhalten)
+- [x] Visuell konsistent mit dem Vorbereitungszeit-Pattern
+- [x] Lokalisiert (DE + EN)
 
 ### Tests
-- [ ] Unit Tests iOS (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
+- [x] Unit Tests iOS (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
 - [x] Unit Tests Android (Toggle-Status, persistierte Auswahl bleibt bei Toggle-Wechsel)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 

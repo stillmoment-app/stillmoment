@@ -95,7 +95,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-069](shared/shared-069-sound-selection-ux-konsistenz.md) | Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor) | 4-Polish | [x] | [x] |
 | [shared-070](shared/shared-070-guided-settings-in-globale-settings.md) | Guided-Meditation-Einstellungen in globale Settings | 4-Polish | [x] | [x] |
 | [shared-071](shared/shared-071-tab-bibliothek-rename-meditationen.md) | Tab "Bibliothek" → "Meditationen" + Icon waveform | 4-Polish | [x] | [x] |
-| [shared-072](shared/shared-072-einstimmung-toggle-konsistenz.md) | Einstimmung Toggle statt Picker-Option "Ohne Einstimmung" | 4-Polish | [ ] | [x] |
+| [shared-072](shared/shared-072-einstimmung-toggle-konsistenz.md) | Einstimmung Toggle statt Picker-Option "Ohne Einstimmung" | 4-Polish | [x] | [x] |
 
 ---
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
 
 ### Changed (iOS)
+- **Einstimmung Toggle statt Picker-Option** - Einstimmungs-Auswahl im Praxis-Editor nutzt jetzt ein Toggle-Pattern (an/aus) mit bedingter Liste statt einer Picker-Option "Ohne Einstimmung", konsistent mit dem Vorbereitungszeit-Muster (Ticket: shared-072)
 - **Sound-Auswahl UX-Konsistenz** - Hintergrundklang- und Einstimmungs-Listen mit Overflow-Menue (3 Punkte) fuer Custom Audio, permanenten Icons links mit farblicher Hervorhebung bei Auswahl, und Hoerprobe fuer Einstimmungen beim Antippen (Ticket: shared-069)
 - **Guided-Meditation-Einstellungen in globale Settings verschoben** - Vorbereitungszeit ist jetzt im Settings-Tab unter "Geführte Meditationen" konfigurierbar (Ticket: shared-070)
   - Settings-Button in der Bibliotheks-Navigationsleiste entfernt
