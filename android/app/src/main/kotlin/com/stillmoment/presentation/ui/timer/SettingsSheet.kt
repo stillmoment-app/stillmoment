@@ -615,8 +615,8 @@ private fun IntroductionToggle(settings: MeditationSettings, onSettingsChange: (
     ) {
         Text(
             text = stringResource(R.string.settings_introduction),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor(),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
