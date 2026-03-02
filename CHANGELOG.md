@@ -88,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Settings-Button in der Bibliotheks-Navigationsleiste entfernt
   - Import-Button (Plus) rechtsbündig in der Navigationsleiste
 - **Tab "Bibliothek" umbenannt zu "Meditationen"** - Tab-Label aktualisiert, Icon von `LibraryMusic` auf `GraphicEq` (Waveform) geaendert (Ticket: shared-071)
+- **Einstimmungs-Einstellung als Toggle** – Statt Picker mit "Keine"-Option zeigt die Einstimmungs-Sektion jetzt einen Toggle (an/aus) mit bedingtem Inhalts-Picker, konsistent mit dem Vorbereitungszeit-Pattern (Ticket: shared-072)
 - **Zen-Modus** - Bottom Navigation Bar gleitet bei laufender Meditation fliessend nach unten aus dem Bildschirm (350ms EaseInOut-Animation statt abruptem Ein-/Ausblenden) (Ticket: shared-066)
 - **TimerDisplayState eliminiert** - ViewModel haelt direkt `MeditationTimer?` statt `TimerDisplayState` Data Class
   - Reducer vereinfacht zum reinen Effect Mapper: `(Action, TimerState, Int, Settings) -> List<TimerEffect>` (kein State-Return mehr)
