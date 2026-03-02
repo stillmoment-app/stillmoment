@@ -49,7 +49,8 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
                 MeditationSettings.Keys.gongVolume,
                 default: MeditationSettings.defaultGongVolume
             ),
-            introductionId: self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId)
+            introductionId: self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId),
+            introductionEnabled: self.loadIntroductionEnabled()
         )
 
         self.logSettings(settings, action: "Loaded")
@@ -70,6 +71,7 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
         self.userDefaults.set(settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
         self.userDefaults.set(settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
         self.userDefaults.set(settings.introductionId, forKey: MeditationSettings.Keys.introductionId)
+        self.userDefaults.set(settings.introductionEnabled, forKey: MeditationSettings.Keys.introductionEnabled)
 
         self.logSettings(settings, action: "Saved")
     }
@@ -109,6 +111,16 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
             return .repeating
         }
         return IntervalMode(rawValue: rawValue) ?? .repeating
+    }
+
+    /// Loads introductionEnabled with migration support.
+    /// If the key doesn't exist yet (legacy data), defaults to `true` when introductionId is set.
+    private func loadIntroductionEnabled() -> Bool {
+        if self.userDefaults.object(forKey: MeditationSettings.Keys.introductionEnabled) != nil {
+            return self.userDefaults.bool(forKey: MeditationSettings.Keys.introductionEnabled)
+        }
+        // Legacy migration: if introductionId is set, the user had introduction enabled
+        return self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId) != nil
     }
 
     // MARK: - Legacy Migration

@@ -28,9 +28,14 @@ final class TimerReducerIntroductionTests: XCTestCase {
         MeditationSettings.default
     }
 
-    /// Settings with introduction configured
+    /// Settings with introduction configured and enabled
     private var settingsWithIntroduction: MeditationSettings {
-        MeditationSettings(introductionId: "breath")
+        MeditationSettings(introductionId: "breath", introductionEnabled: true)
+    }
+
+    /// Settings with introduction configured but disabled
+    private var settingsWithIntroductionDisabled: MeditationSettings {
+        MeditationSettings(introductionId: "breath", introductionEnabled: false)
     }
 
     // MARK: - StartPressed with Introduction
@@ -277,5 +282,25 @@ final class TimerReducerIntroductionTests: XCTestCase {
         // Then
         XCTAssertFalse(effects.contains(.stopIntroduction))
         XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
+    }
+
+    // MARK: - Introduction Disabled Behavior
+
+    func testStartGongFinished_withIntroductionDisabled_startsBackgroundAudio() {
+        // Given - Introduction is set but disabled
+        // When
+        let effects = TimerReducer.reduce(
+            action: .startGongFinished,
+            timerState: .startGong,
+            selectedMinutes: 10,
+            settings: self.settingsWithIntroductionDisabled
+        )
+
+        // Then - Should skip introduction and start background audio directly
+        XCTAssertFalse(effects.contains(.beginIntroductionPhase))
+        XCTAssertTrue(effects.contains(.startBackgroundAudio(
+            soundId: self.settingsWithIntroductionDisabled.backgroundSoundId,
+            volume: self.settingsWithIntroductionDisabled.backgroundSoundVolume
+        )))
     }
 }

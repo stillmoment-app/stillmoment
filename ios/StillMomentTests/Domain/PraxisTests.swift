@@ -46,6 +46,10 @@ final class PraxisTests: XCTestCase {
         XCTAssertNil(Praxis.default.introductionId)
     }
 
+    func testDefault_hasIntroductionDisabled() {
+        XCTAssertFalse(Praxis.default.introductionEnabled)
+    }
+
     // MARK: - Immutability (Value Object)
 
     func testEquality_sameIdSameFields_areEqual() {
@@ -246,5 +250,182 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(updated.introductionId, "breath")
         XCTAssertEqual(updated.durationMinutes, 15)
         XCTAssertEqual(updated.id, original.id)
+    }
+
+    func testWithIntroductionEnabled_setsEnabled_preservesOtherFields() {
+        // Given
+        let original = Praxis(durationMinutes: 15, introductionId: "breath", introductionEnabled: false)
+
+        // When
+        let updated = original.withIntroductionEnabled(true)
+
+        // Then
+        XCTAssertTrue(updated.introductionEnabled)
+        XCTAssertEqual(updated.introductionId, "breath")
+        XCTAssertEqual(updated.durationMinutes, 15)
+        XCTAssertEqual(updated.id, original.id)
+    }
+
+    func testWithBackgroundSoundId_preservesIntroductionEnabled() {
+        // Given
+        let original = Praxis(introductionEnabled: true)
+
+        // When
+        let updated = original.withBackgroundSoundId("rain")
+
+        // Then
+        XCTAssertTrue(updated.introductionEnabled)
+    }
+
+    func testWithDurationMinutes_preservesIntroductionEnabled() {
+        // Given
+        let original = Praxis(introductionEnabled: true)
+
+        // When
+        let updated = original.withDurationMinutes(25)
+
+        // Then
+        XCTAssertTrue(updated.introductionEnabled)
+    }
+
+    func testWithIntroductionId_preservesIntroductionEnabled() {
+        // Given
+        let original = Praxis(introductionEnabled: true)
+
+        // When
+        let updated = original.withIntroductionId("breath")
+
+        // Then
+        XCTAssertTrue(updated.introductionEnabled)
+    }
+
+    // MARK: - Codable Migration
+
+    func testDecode_legacyDataWithoutIntroductionEnabled_withIntroductionId_defaultsToTrue() throws {
+        // Given - Legacy JSON that has introductionId but no introductionEnabled key
+        let json = """
+            {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "durationMinutes": 10,
+                "preparationTimeEnabled": true,
+                "preparationTimeSeconds": 15,
+                "startGongSoundId": "temple-bell",
+                "gongVolume": 1.0,
+                "introductionId": "breath",
+                "intervalGongsEnabled": false,
+                "intervalMinutes": 5,
+                "intervalMode": "repeating",
+                "intervalSoundId": "soft-chime",
+                "intervalGongVolume": 0.75,
+                "backgroundSoundId": "silent",
+                "backgroundSoundVolume": 0.15
+            }
+            """
+        let data = Data(json.utf8)
+
+        // When
+        let praxis = try JSONDecoder().decode(Praxis.self, from: data)
+
+        // Then - introductionEnabled defaults to true because introductionId is non-nil
+        XCTAssertTrue(praxis.introductionEnabled)
+        XCTAssertEqual(praxis.introductionId, "breath")
+    }
+
+    func testDecode_legacyDataWithoutIntroductionEnabled_withoutIntroductionId_defaultsToFalse() throws {
+        // Given - Legacy JSON without introductionId and without introductionEnabled
+        let json = """
+            {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "durationMinutes": 10,
+                "preparationTimeEnabled": true,
+                "preparationTimeSeconds": 15,
+                "startGongSoundId": "temple-bell",
+                "gongVolume": 1.0,
+                "intervalGongsEnabled": false,
+                "intervalMinutes": 5,
+                "intervalMode": "repeating",
+                "intervalSoundId": "soft-chime",
+                "intervalGongVolume": 0.75,
+                "backgroundSoundId": "silent",
+                "backgroundSoundVolume": 0.15
+            }
+            """
+        let data = Data(json.utf8)
+
+        // When
+        let praxis = try JSONDecoder().decode(Praxis.self, from: data)
+
+        // Then - introductionEnabled defaults to false because introductionId is nil
+        XCTAssertFalse(praxis.introductionEnabled)
+        XCTAssertNil(praxis.introductionId)
+    }
+
+    func testDecode_newDataWithIntroductionEnabled_preservesValue() throws {
+        // Given - New JSON with explicit introductionEnabled
+        let json = """
+            {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "durationMinutes": 10,
+                "preparationTimeEnabled": true,
+                "preparationTimeSeconds": 15,
+                "startGongSoundId": "temple-bell",
+                "gongVolume": 1.0,
+                "introductionId": "breath",
+                "introductionEnabled": false,
+                "intervalGongsEnabled": false,
+                "intervalMinutes": 5,
+                "intervalMode": "repeating",
+                "intervalSoundId": "soft-chime",
+                "intervalGongVolume": 0.75,
+                "backgroundSoundId": "silent",
+                "backgroundSoundVolume": 0.15
+            }
+            """
+        let data = Data(json.utf8)
+
+        // When
+        let praxis = try JSONDecoder().decode(Praxis.self, from: data)
+
+        // Then - introductionEnabled is explicitly false, even though introductionId is set
+        XCTAssertFalse(praxis.introductionEnabled)
+        XCTAssertEqual(praxis.introductionId, "breath")
+    }
+
+    func testEncodeDecode_roundTrip_preservesIntroductionEnabled() throws {
+        // Given
+        let original = Praxis(introductionId: "breath", introductionEnabled: true)
+
+        // When
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(Praxis.self, from: data)
+
+        // Then
+        XCTAssertEqual(decoded.introductionEnabled, original.introductionEnabled)
+        XCTAssertEqual(decoded.introductionId, original.introductionId)
+    }
+
+    // MARK: - Migration preserves introductionEnabled
+
+    func testMigratingFromSettings_preservesIntroductionEnabled() {
+        // Given
+        let settings = MeditationSettings(introductionId: "breath", introductionEnabled: true)
+
+        // When
+        let praxis = Praxis(migratingFrom: settings)
+
+        // Then
+        XCTAssertTrue(praxis.introductionEnabled)
+        XCTAssertEqual(praxis.introductionId, "breath")
+    }
+
+    func testToMeditationSettings_preservesIntroductionEnabled() {
+        // Given
+        let praxis = Praxis(introductionId: "breath", introductionEnabled: true)
+
+        // When
+        let settings = praxis.toMeditationSettings()
+
+        // Then
+        XCTAssertTrue(settings.introductionEnabled)
     }
 }

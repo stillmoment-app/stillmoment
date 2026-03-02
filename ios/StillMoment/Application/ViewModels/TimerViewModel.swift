@@ -42,7 +42,8 @@ final class TimerViewModel: ObservableObject {
         // Initialize selected minutes from Praxis duration (clamped to minimum for introduction)
         self.selectedMinutes = MeditationSettings.validateDuration(
             praxis.durationMinutes,
-            introductionId: praxis.introductionId
+            introductionId: praxis.introductionId,
+            introductionEnabled: praxis.introductionEnabled
         )
         self.setupBindings()
     }
@@ -108,7 +109,10 @@ final class TimerViewModel: ObservableObject {
 
     /// Minimum duration in minutes based on current introduction setting
     var minimumDurationMinutes: Int {
-        MeditationSettings.minimumDuration(for: self.settings.introductionId)
+        MeditationSettings.minimumDuration(
+            for: self.settings.introductionId,
+            introductionEnabled: self.settings.introductionEnabled
+        )
     }
 
     /// Whether the timer is actively running
@@ -168,7 +172,8 @@ final class TimerViewModel: ObservableObject {
         self.settings = settings
         self.selectedMinutes = MeditationSettings.validateDuration(
             praxis.durationMinutes,
-            introductionId: praxis.introductionId
+            introductionId: praxis.introductionId,
+            introductionEnabled: praxis.introductionEnabled
         )
         self.settingsRepository.save(settings)
         Logger.viewModel.info("Updated from praxis")
@@ -307,7 +312,10 @@ final class TimerViewModel: ObservableObject {
             .sink { [weak self] introductionId in
                 guard let self
                 else { return }
-                let minimum = MeditationSettings.minimumDuration(for: introductionId)
+                let minimum = MeditationSettings.minimumDuration(
+                    for: introductionId,
+                    introductionEnabled: self.settings.introductionEnabled
+                )
                 if introductionId != nil, self.selectedMinutes < minimum {
                     self.minutesBeforeIntroduction = self.selectedMinutes
                     self.selectedMinutes = minimum

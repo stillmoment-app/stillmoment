@@ -175,9 +175,10 @@ enum TimerReducer {
 
     // MARK: - Helpers
 
-    /// Checks if an introduction is configured and available for the current language
+    /// Checks if an introduction is configured, enabled, and available for the current language
     private static func hasActiveIntroduction(settings: MeditationSettings) -> Bool {
-        guard let introId = settings.introductionId else {
+        guard settings.introductionEnabled,
+              let introId = settings.introductionId else {
             return false
         }
         return Introduction.isAvailableForCurrentLanguage(introId)

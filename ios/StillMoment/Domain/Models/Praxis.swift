@@ -25,6 +25,7 @@ struct Praxis: Codable, Equatable, Identifiable {
     let startGongSoundId: String
     let gongVolume: Float
     let introductionId: String?
+    let introductionEnabled: Bool
     let intervalGongsEnabled: Bool
     let intervalMinutes: Int
     let intervalMode: IntervalMode
@@ -35,6 +36,26 @@ struct Praxis: Codable, Equatable, Identifiable {
 
     // MARK: - Initialization
 
+    // MARK: - CodingKeys
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case durationMinutes
+        case preparationTimeEnabled
+        case preparationTimeSeconds
+        case startGongSoundId
+        case gongVolume
+        case introductionId
+        case introductionEnabled
+        case intervalGongsEnabled
+        case intervalMinutes
+        case intervalMode
+        case intervalSoundId
+        case intervalGongVolume
+        case backgroundSoundId
+        case backgroundSoundVolume
+    }
+
     init(
         id: UUID = UUID(),
         durationMinutes: Int = 10,
@@ -43,6 +64,7 @@ struct Praxis: Codable, Equatable, Identifiable {
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = 1.0,
         introductionId: String? = nil,
+        introductionEnabled: Bool = false,
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
         intervalMode: IntervalMode = .repeating,
@@ -58,6 +80,7 @@ struct Praxis: Codable, Equatable, Identifiable {
         self.startGongSoundId = startGongSoundId
         self.gongVolume = Self.validateVolume(gongVolume)
         self.introductionId = introductionId
+        self.introductionEnabled = introductionEnabled
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
         self.intervalMode = intervalMode
@@ -65,6 +88,32 @@ struct Praxis: Codable, Equatable, Identifiable {
         self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
+    }
+
+    // MARK: - Codable Migration
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.durationMinutes = try Self.validateDuration(container.decode(Int.self, forKey: .durationMinutes))
+        self.preparationTimeEnabled = try container.decode(Bool.self, forKey: .preparationTimeEnabled)
+        self.preparationTimeSeconds = try Self.validatePreparationTime(
+            container.decode(Int.self, forKey: .preparationTimeSeconds)
+        )
+        self.startGongSoundId = try container.decode(String.self, forKey: .startGongSoundId)
+        self.gongVolume = try Self.validateVolume(container.decode(Float.self, forKey: .gongVolume))
+        self.introductionId = try container.decodeIfPresent(String.self, forKey: .introductionId)
+        self.introductionEnabled = try container.decodeIfPresent(Bool.self, forKey: .introductionEnabled)
+            ?? (self.introductionId != nil)
+        self.intervalGongsEnabled = try container.decode(Bool.self, forKey: .intervalGongsEnabled)
+        self.intervalMinutes = try Self.validateInterval(container.decode(Int.self, forKey: .intervalMinutes))
+        self.intervalMode = try container.decode(IntervalMode.self, forKey: .intervalMode)
+        self.intervalSoundId = try container.decode(String.self, forKey: .intervalSoundId)
+        self.intervalGongVolume = try Self.validateVolume(container.decode(Float.self, forKey: .intervalGongVolume))
+        self.backgroundSoundId = try container.decode(String.self, forKey: .backgroundSoundId)
+        self.backgroundSoundVolume = try Self.validateVolume(
+            container.decode(Float.self, forKey: .backgroundSoundVolume)
+        )
     }
 
     // MARK: - Validation
@@ -100,6 +149,7 @@ extension Praxis {
         startGongSoundId: GongSound.defaultSoundId,
         gongVolume: 1.0,
         introductionId: nil,
+        introductionEnabled: false,
         intervalGongsEnabled: false,
         intervalMinutes: 5,
         intervalMode: .repeating,
@@ -123,6 +173,7 @@ extension Praxis {
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
             introductionId: self.introductionId,
+            introductionEnabled: self.introductionEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -143,6 +194,7 @@ extension Praxis {
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
             introductionId: self.introductionId,
+            introductionEnabled: self.introductionEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -163,6 +215,28 @@ extension Praxis {
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
             introductionId: newId,
+            introductionEnabled: self.introductionEnabled,
+            intervalGongsEnabled: self.intervalGongsEnabled,
+            intervalMinutes: self.intervalMinutes,
+            intervalMode: self.intervalMode,
+            intervalSoundId: self.intervalSoundId,
+            intervalGongVolume: self.intervalGongVolume,
+            backgroundSoundId: self.backgroundSoundId,
+            backgroundSoundVolume: self.backgroundSoundVolume
+        )
+    }
+
+    /// Returns a new Praxis with the introduction enabled/disabled.
+    func withIntroductionEnabled(_ enabled: Bool) -> Praxis {
+        Praxis(
+            id: self.id,
+            durationMinutes: self.durationMinutes,
+            preparationTimeEnabled: self.preparationTimeEnabled,
+            preparationTimeSeconds: self.preparationTimeSeconds,
+            startGongSoundId: self.startGongSoundId,
+            gongVolume: self.gongVolume,
+            introductionId: self.introductionId,
+            introductionEnabled: enabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -187,6 +261,7 @@ extension Praxis {
             startGongSoundId: settings.startGongSoundId,
             gongVolume: settings.gongVolume,
             introductionId: settings.introductionId,
+            introductionEnabled: settings.introductionEnabled,
             intervalGongsEnabled: settings.intervalGongsEnabled,
             intervalMinutes: settings.intervalMinutes,
             intervalMode: settings.intervalMode,
@@ -217,7 +292,8 @@ extension Praxis {
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
-            introductionId: self.introductionId
+            introductionId: self.introductionId,
+            introductionEnabled: self.introductionEnabled
         )
     }
 }
