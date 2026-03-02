@@ -130,6 +130,10 @@ private fun BackgroundSoundsSection(modifier: Modifier = Modifier) {
             SoundEntry(
                 stringResource(R.string.sound_forest_attribution),
                 "https://pixabay.com/sound-effects/nature-forest-ambience-296528/"
+            ),
+            SoundEntry(
+                stringResource(R.string.sound_cozy_rain_attribution),
+                "https://pixabay.com/sound-effects/dragon-studio-cozy-midnight-rain-02-448573/"
             )
         ),
         modifier = modifier

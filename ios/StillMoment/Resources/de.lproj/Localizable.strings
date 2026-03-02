@@ -116,6 +116,7 @@
 "app.settings.soundAttributions.interval.header" = "Intervall-Klänge";
 "app.settings.soundAttributions.background.header" = "Hintergrund-Klänge";
 "app.settings.soundAttributions.forest.name" = "Waldatmosphäre";
+"app.settings.soundAttributions.cozyRain.name" = "Regen";
 "app.settings.soundAttributions.source" = "Pixabay";
 "app.settings.privacy.title" = "Datenschutz";
 "app.settings.version.label" = "Version";

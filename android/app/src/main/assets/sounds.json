@@ -25,6 +25,19 @@
         "de": "Natürliche Waldgeräusche"
       },
       "volume": 0.15
+    },
+    {
+      "id": "cozy-rain",
+      "filename": "cozy-midnight-rain.mp3",
+      "name": {
+        "en": "Cozy Midnight Rain",
+        "de": "Regen"
+      },
+      "description": {
+        "en": "Gentle rain at midnight.",
+        "de": "Sanfter Regen zur Mitternacht."
+      },
+      "volume": 0.15
     }
   ]
 }

@@ -26,6 +26,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Unit tests for AudioService.
@@ -72,6 +73,16 @@ class AudioServiceTest {
                 descriptionEnglish = "Natural forest sounds",
                 descriptionGerman = "Nat\u00fcrliche Waldger\u00e4usche",
                 rawResourceName = "forest_ambience"
+            )
+        )
+        whenever(mockSoundCatalogRepository.findById("silent")).thenReturn(
+            BackgroundSound(
+                id = "silent",
+                nameEnglish = "Silence",
+                nameGerman = "Stille",
+                descriptionEnglish = "Meditate in silence.",
+                descriptionGerman = "Meditiere in Stille.",
+                rawResourceName = ""
             )
         )
 
@@ -447,6 +458,77 @@ class AudioServiceTest {
 
         // Then: Session is released since no preview is active after stop
         verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    // MARK: - Custom Background Preview Tests
+
+    @Test
+    fun `playBackgroundPreview with custom sound calls prepareAsync`() {
+        // Given: A sound ID not in the built-in catalog (custom imported file)
+        val customSoundId = "custom-uuid-123"
+        val mockCustomPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
+        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+
+        // When
+        sut.playBackgroundPreview(customSoundId, 0.3f)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        verify(mockCustomPlayer).setDataSource("/path/to/sound.mp3")
+        verify(mockCustomPlayer).prepareAsync()
+    }
+
+    @Test
+    fun `playBackgroundPreview with custom sound starts playback after prepared`() {
+        // Given
+        val customSoundId = "custom-uuid-123"
+        val mockCustomPlayer: MediaPlayerProtocol = mock()
+        val preparedListenerCaptor = argumentCaptor<() -> Unit>()
+        whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
+        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+
+        // When
+        sut.playBackgroundPreview(customSoundId, 0.3f)
+        testDispatcher.scheduler.advanceUntilIdle()
+        verify(mockCustomPlayer).setOnPreparedListener(preparedListenerCaptor.capture())
+        preparedListenerCaptor.firstValue.invoke()
+
+        // Then
+        verify(mockCustomPlayer).setVolume(0.3f, 0.3f)
+        verify(mockCustomPlayer).start()
+    }
+
+    @Test
+    fun `playBackgroundPreview with custom sound requests audio session as PREVIEW`() {
+        // Given
+        val customSoundId = "custom-uuid-123"
+        val mockCustomPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.create()).thenReturn(mockCustomPlayer)
+        wheneverBlocking { mockCustomAudioRepository.getFilePath(customSoundId) }.thenReturn("/path/to/sound.mp3")
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.playBackgroundPreview(customSoundId, 0.3f)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then
+        verify(mockCoordinator).requestAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `playBackgroundPreview with unknown custom sound id does not start player`() {
+        // Given: Custom audio file not found in repository
+        val unknownId = "unknown-uuid-456"
+        wheneverBlocking { mockCustomAudioRepository.getFilePath(unknownId) }.thenReturn(null)
+
+        // When
+        sut.playBackgroundPreview(unknownId, 0.3f)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then: No player created
+        verify(mockMediaPlayerFactory, never()).create()
+        verify(mockCoordinator, never()).requestAudioSession(AudioSource.PREVIEW)
     }
 
     @Test

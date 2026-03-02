@@ -81,6 +81,10 @@ struct SoundAttributionsView: View {
                 name: NSLocalizedString("app.settings.soundAttributions.forest.name", comment: ""),
                 url: URL(string: "https://pixabay.com/sound-effects/nature-forest-ambience-296528/")
             )
+            self.soundRow(
+                name: NSLocalizedString("app.settings.soundAttributions.cozyRain.name", comment: ""),
+                url: URL(string: "https://pixabay.com/sound-effects/dragon-studio-cozy-midnight-rain-02-448573/")
+            )
         } header: {
             Text("app.settings.soundAttributions.background.header", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)

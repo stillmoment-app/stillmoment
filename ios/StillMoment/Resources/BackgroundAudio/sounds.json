@@ -27,6 +27,20 @@
       },
       "iconName": "leaf.fill",
       "volume": 0.15
+    },
+    {
+      "id": "cozy-rain",
+      "filename": "cozy-midnight-rain.mp3",
+      "name": {
+        "en": "Cozy Midnight Rain",
+        "de": "Regen"
+      },
+      "description": {
+        "en": "Gentle rain at midnight.",
+        "de": "Sanfter Regen zur Mitternacht."
+      },
+      "iconName": "cloud.rain.fill",
+      "volume": 0.15
     }
   ]
 }

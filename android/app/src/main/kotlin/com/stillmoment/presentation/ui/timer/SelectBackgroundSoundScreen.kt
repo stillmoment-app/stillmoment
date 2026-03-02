@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -80,6 +81,7 @@ import kotlinx.collections.immutable.toImmutableList
 /** Maps a background sound ID to its Compose icon vector. */
 private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId) {
     "forest" -> Icons.Filled.Forest
+    "cozy-rain" -> Icons.Filled.WaterDrop
     "rain" -> Icons.AutoMirrored.Filled.VolumeUp
     "ocean" -> Icons.AutoMirrored.Filled.VolumeUp
     "birds" -> Icons.AutoMirrored.Filled.VolumeUp
@@ -129,9 +131,7 @@ fun SelectBackgroundSoundScreen(
                 customSoundscapes = uiState.customSoundscapes.toImmutableList(),
                 onSelectSound = { soundId ->
                     viewModel.setBackgroundSoundId(soundId)
-                    if (soundId != "silent") {
-                        viewModel.playBackgroundPreview(soundId)
-                    }
+                    viewModel.playBackgroundPreview(soundId)
                 },
                 onVolumeChange = { viewModel.setBackgroundSoundVolume(it) },
                 onVolumeChangeFinish = {
@@ -325,7 +325,7 @@ private fun BackgroundSoundRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Icon(
-            imageVector = iconVector,
+            imageVector = if (isSelected) Icons.Default.Check else iconVector,
             contentDescription = null,
             tint = if (isSelected) {
                 MaterialTheme.colorScheme.primary
@@ -343,18 +343,6 @@ private fun BackgroundSoundRow(
             color = TypographyRole.SettingsLabel.textColor(),
             modifier = Modifier.weight(1f)
         )
-
-        if (isSelected) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
-        } else {
-            Spacer(modifier = Modifier.size(28.dp))
-        }
     }
 }
 

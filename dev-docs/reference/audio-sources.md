@@ -49,6 +49,7 @@ Konfiguriert in `Resources/BackgroundAudio/sounds.json`.
 |---|---|---|---|
 | Silence | `silent` | `silence.mp3` / `silence.m4a` | Generiert (stille Audio-Datei fuer Background-Playback) |
 | Forest Ambience | `forest` | `forest-ambience.mp3` | [Pixabay 296528](https://pixabay.com/sound-effects/nature-forest-ambience-296528/) |
+| Cozy Midnight Rain | `cozy-rain` | `cozy-midnight-rain.mp3` | [Pixabay 448573](https://pixabay.com/sound-effects/dragon-studio-cozy-midnight-rain-02-448573/) |
 
 - iOS: `Resources/BackgroundAudio/`
 - Android: `res/raw/`

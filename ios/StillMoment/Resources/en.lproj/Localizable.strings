@@ -116,6 +116,7 @@
 "app.settings.soundAttributions.interval.header" = "Interval Sounds";
 "app.settings.soundAttributions.background.header" = "Background Sounds";
 "app.settings.soundAttributions.forest.name" = "Forest Ambience";
+"app.settings.soundAttributions.cozyRain.name" = "Cozy Midnight Rain";
 "app.settings.soundAttributions.source" = "Pixabay";
 "app.settings.privacy.title" = "Privacy Policy";
 "app.settings.version.label" = "Version";

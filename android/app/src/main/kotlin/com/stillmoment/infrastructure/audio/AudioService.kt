@@ -115,6 +115,7 @@ constructor(
             "intro_breath_de" -> R.raw.intro_breath_de
             "intro_breath_en" -> R.raw.intro_breath_en
             "forest_ambience" -> R.raw.forest_ambience
+            "cozy_midnight_rain" -> R.raw.cozy_midnight_rain
             "silence" -> R.raw.silence
             else -> 0
         }
@@ -347,7 +348,13 @@ constructor(
         // Get resource ID - returns null for silent/unknown sounds
         val resourceId = getBackgroundSoundResourceId(soundId)
         if (resourceId == null) {
-            logger.d(TAG, "Skipping preview for sound: $soundId")
+            // If sound is in the built-in catalog (e.g. silent), skip preview
+            if (soundCatalogRepository.findById(soundId) != null) {
+                logger.d(TAG, "Skipping preview for sound: $soundId")
+                return
+            }
+            // Not in catalog - treat as custom audio file
+            playCustomBackgroundPreview(soundId, volume)
             return
         }
 
@@ -404,6 +411,50 @@ constructor(
         }
         if (hadPlayer) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        }
+    }
+
+    /**
+     * Play a custom background sound preview from a local file path.
+     * Resolves the file path asynchronously via CustomAudioRepository.
+     */
+    private fun playCustomBackgroundPreview(soundId: String, volume: Float) {
+        mainScope.launch {
+            try {
+                val filePath = customAudioRepository.getFilePath(soundId)
+                if (filePath == null) {
+                    logger.w(TAG, "Custom background sound not found: $soundId")
+                    return@launch
+                }
+                coordinator.requestAudioSession(AudioSource.PREVIEW)
+                val player = mediaPlayerFactory.create()
+                player.setDataSource(filePath)
+                player.setOnErrorListener { what, extra ->
+                    logger.e(TAG, "Background preview error: what=$what, extra=$extra")
+                    backgroundPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                    false
+                }
+                player.setOnPreparedListener {
+                    player.setVolume(volume, volume)
+                    player.start()
+                    backgroundPreviewJob?.cancel()
+                    backgroundPreviewJob = mainScope.launch {
+                        delay(BACKGROUND_PREVIEW_DURATION_MS)
+                        fadeOutBackgroundPreview(volume)
+                    }
+                    logger.d(TAG, "Playing custom background preview: $soundId at volume $volume")
+                }
+                player.setOnCompletionListener {
+                    player.release()
+                    backgroundPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                }
+                backgroundPreviewPlayer = player
+                player.prepareAsync()
+            } catch (e: IllegalStateException) {
+                logger.e(TAG, "Failed to play custom background preview - invalid state: ${e.message}")
+            }
         }
     }
 
