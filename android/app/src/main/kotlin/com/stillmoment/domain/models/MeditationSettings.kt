@@ -81,15 +81,21 @@ data class MeditationSettings(
         }
 
         /**
-         * Returns the minimum meditation duration in minutes for a given introduction.
+         * Returns the minimum meditation duration in minutes for a given active introduction ID.
+         * [activeIntroductionId] is `null` when disabled or unset — callers use [MeditationSettings.activeIntroductionId].
          * Formula: ceil(introDuration / 60) + 1 — ensures at least 1 minute of silent meditation.
-         * When introductionEnabled is false, returns 1 regardless of introductionId.
+         */
+        fun minimumDuration(activeIntroductionId: String?): Int {
+            val intro = activeIntroductionId?.let { Introduction.find(it) } ?: return 1
+            return kotlin.math.ceil(intro.durationSeconds / 60.0).toInt() + 1
+        }
+
+        /**
+         * Backward-compatible overload used during init/validation where enabled and id are separate.
          */
         fun minimumDuration(introductionId: String? = null, introductionEnabled: Boolean = false): Int {
-            if (!introductionEnabled) return 1
-            if (introductionId == null) return 1
-            val intro = Introduction.find(introductionId) ?: return 1
-            return kotlin.math.ceil(intro.durationSeconds / 60.0).toInt() + 1
+            val activeId = if (introductionEnabled) introductionId else null
+            return minimumDuration(activeIntroductionId = activeId)
         }
 
         /**
@@ -167,10 +173,17 @@ data class MeditationSettings(
     }
 
     /**
+     * The effective introduction ID. `null` when disabled or no introduction is selected.
+     * Use this instead of checking [introductionEnabled] + [introductionId] manually.
+     */
+    val activeIntroductionId: String?
+        get() = if (introductionEnabled) introductionId else null
+
+    /**
      * Returns the minimum duration in minutes based on the current introduction setting.
      */
     val minimumDurationMinutes: Int
-        get() = minimumDuration(introductionId, introductionEnabled)
+        get() = minimumDuration(activeIntroductionId = activeIntroductionId)
 
     /**
      * Returns a copy with validated duration minutes (respects introduction minimum).

@@ -123,6 +123,15 @@ struct MeditationSettings: Codable, Equatable {
     /// Whether the introduction is enabled (separate from introductionId to preserve user's selection)
     var introductionEnabled: Bool
 
+    /// The effective introduction ID. `nil` when disabled or no introduction is selected.
+    /// Use this instead of checking `introductionEnabled` + `introductionId` manually.
+    var activeIntroductionId: String? {
+        guard self.introductionEnabled else {
+            return nil
+        }
+        return self.introductionId
+    }
+
     // MARK: - Validation
 
     /// Validates and clamps interval to valid range (1-60 minutes)
@@ -130,21 +139,26 @@ struct MeditationSettings: Codable, Equatable {
         min(max(minutes, 1), 60)
     }
 
-    /// Returns the minimum meditation duration in minutes for a given introduction.
-    /// When an introduction is selected and enabled, the minimum ensures at least 1 minute of silent meditation.
+    /// Returns the minimum meditation duration in minutes for a given active introduction ID.
+    /// `activeIntroductionId` is `nil` when disabled or unset — callers use `settings.activeIntroductionId`.
     /// Formula: ceil(introductionDurationSeconds / 60) + 1
-    static func minimumDuration(for introductionId: String?, introductionEnabled: Bool = false) -> Int {
-        guard introductionEnabled,
-              let introId = introductionId,
+    static func minimumDuration(activeIntroductionId: String?) -> Int {
+        guard let introId = activeIntroductionId,
               let intro = Introduction.find(byId: introId) else {
             return 1
         }
         return Int(ceil(Double(intro.durationSeconds) / 60.0)) + 1
     }
 
+    /// Backward-compatible overload used during init/validation where enabled+id are separate.
+    static func minimumDuration(for introductionId: String?, introductionEnabled: Bool = false) -> Int {
+        let activeId = introductionEnabled ? introductionId : nil
+        return Self.minimumDuration(activeIntroductionId: activeId)
+    }
+
     /// Minimum meditation duration in minutes based on current introduction setting
     var minimumDurationMinutes: Int {
-        Self.minimumDuration(for: self.introductionId, introductionEnabled: self.introductionEnabled)
+        Self.minimumDuration(activeIntroductionId: self.activeIntroductionId)
     }
 
     /// Validates and clamps duration to valid range (minimum-60 minutes).

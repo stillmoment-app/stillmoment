@@ -155,6 +155,13 @@ data class Praxis(
         }
     }
 
+    /**
+     * The effective introduction ID. `null` when disabled or no introduction is selected.
+     * Use this instead of checking [introductionEnabled] + [introductionId] manually.
+     */
+    val activeIntroductionId: String?
+        get() = if (introductionEnabled) introductionId else null
+
     // region Builder Methods
 
     /**

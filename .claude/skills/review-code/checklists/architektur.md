@@ -14,10 +14,14 @@ Folgt der Code den Projekt-Patterns? Sind Abhaengigkeiten korrekt?
 - ViewModel greift direkt auf Dateisystem/Netzwerk zu
 - Neue Abhaengigkeiten nicht ueber DI
 
-### Strukturelle Probleme
+### Single Responsibility
+- Klasse oder Funktion hat mehr als einen Grund sich zu aendern
 - God-Class (alles in einer Klasse die nicht zusammengehoert)
-- Feature Envy (Klasse arbeitet mehr mit fremden Daten als eigenen)
 - Falsche Verantwortlichkeiten (z.B. View macht Geschaeftslogik)
+
+### Dependency Direction
+- Abhaengigkeiten zeigen nach aussen statt nach innen (Domain ← Application ← Presentation)
+- Feature Envy (Klasse arbeitet mehr mit fremden Daten als eigenen — deutet auf falsche Heimat hin)
 
 ## Projekt-Architektur (Referenz)
 

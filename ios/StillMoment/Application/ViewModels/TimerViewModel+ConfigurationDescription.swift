@@ -31,9 +31,9 @@ extension TimerViewModel {
         self.resolveBackgroundSoundName(self.settings.backgroundSoundId)
     }
 
-    /// Label for the introduction pill. `nil` when no introduction is selected.
+    /// Label for the introduction pill. `nil` when introduction is disabled or no introduction is selected.
     var introductionPillLabel: String? {
-        guard let introId = self.settings.introductionId else {
+        guard let introId = self.settings.activeIntroductionId else {
             return nil
         }
         return self.resolveIntroductionName(introId)

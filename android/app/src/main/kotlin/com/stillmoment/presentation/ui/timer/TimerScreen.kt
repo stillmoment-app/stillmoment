@@ -302,8 +302,7 @@ private fun backgroundPillLabel(praxis: Praxis, builtInSounds: List<BackgroundSo
 
 @Composable
 private fun introductionPillLabel(praxis: Praxis): String? {
-    if (!praxis.introductionEnabled) return null
-    val introId = praxis.introductionId ?: return null
+    val introId = praxis.activeIntroductionId ?: return null
     return Introduction.find(introId)?.localizedName
 }
 
