@@ -19,6 +19,7 @@ import kotlinx.serialization.Serializable
  * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
  * @property gongVolume Volume for start/end gong sounds (0.0 to 1.0)
  * @property introductionId ID of the introduction audio (null = none)
+ * @property introductionEnabled Whether introduction audio is enabled
  * @property intervalGongsEnabled Whether interval gongs are enabled during meditation
  * @property intervalMinutes Interval in minutes between gongs (1-60)
  * @property intervalMode How interval gongs are triggered (REPEATING, AFTER_START, BEFORE_END)
@@ -36,6 +37,7 @@ data class Praxis(
     val gongSoundId: String = DEFAULT_GONG_SOUND_ID,
     val gongVolume: Float = DEFAULT_GONG_VOLUME,
     val introductionId: String? = null,
+    val introductionEnabled: Boolean = DEFAULT_INTRODUCTION_ENABLED,
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
     val intervalMode: IntervalMode = DEFAULT_INTERVAL_MODE,
@@ -54,6 +56,7 @@ data class Praxis(
         val DEFAULT_INTERVAL_MODE = IntervalMode.REPEATING
         const val DEFAULT_INTERVAL_SOUND_ID = GongSound.SOFT_INTERVAL_SOUND_ID
         const val DEFAULT_INTERVAL_GONG_VOLUME = 0.75f
+        const val DEFAULT_INTRODUCTION_ENABLED = false
         const val DEFAULT_BACKGROUND_SOUND_ID = "silent"
         const val DEFAULT_BACKGROUND_SOUND_VOLUME = 0.15f
 
@@ -97,6 +100,7 @@ data class Praxis(
             gongSoundId: String = DEFAULT_GONG_SOUND_ID,
             gongVolume: Float = DEFAULT_GONG_VOLUME,
             introductionId: String? = null,
+            introductionEnabled: Boolean = DEFAULT_INTRODUCTION_ENABLED,
             intervalGongsEnabled: Boolean = false,
             intervalMinutes: Int = DEFAULT_INTERVAL_MINUTES,
             intervalMode: IntervalMode = DEFAULT_INTERVAL_MODE,
@@ -113,6 +117,7 @@ data class Praxis(
                 gongSoundId = gongSoundId,
                 gongVolume = validateVolume(gongVolume),
                 introductionId = introductionId,
+                introductionEnabled = introductionEnabled,
                 intervalGongsEnabled = intervalGongsEnabled,
                 intervalMinutes = validateInterval(intervalMinutes),
                 intervalMode = intervalMode,
@@ -138,6 +143,7 @@ data class Praxis(
                 gongSoundId = settings.gongSoundId,
                 gongVolume = settings.gongVolume,
                 introductionId = settings.introductionId,
+                introductionEnabled = settings.introductionEnabled,
                 intervalGongsEnabled = settings.intervalGongsEnabled,
                 intervalMinutes = settings.intervalMinutes,
                 intervalMode = settings.intervalMode,
@@ -166,6 +172,11 @@ data class Praxis(
      */
     fun withIntroductionId(id: String?): Praxis = copy(introductionId = id)
 
+    /**
+     * Returns a new Praxis with the introduction enabled or disabled.
+     */
+    fun withIntroductionEnabled(enabled: Boolean): Praxis = copy(introductionEnabled = enabled)
+
     // endregion
 
     // region Conversion
@@ -188,7 +199,8 @@ data class Praxis(
             preparationTimeSeconds = preparationTimeSeconds,
             gongSoundId = gongSoundId,
             gongVolume = gongVolume,
-            introductionId = introductionId
+            introductionId = introductionId,
+            introductionEnabled = introductionEnabled
         )
     }
 

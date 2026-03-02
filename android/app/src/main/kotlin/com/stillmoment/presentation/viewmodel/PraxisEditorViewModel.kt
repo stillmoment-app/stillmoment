@@ -7,6 +7,7 @@ import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -34,6 +35,7 @@ data class PraxisEditorUiState(
     val gongSoundId: String = Praxis.DEFAULT_GONG_SOUND_ID,
     val gongVolume: Float = Praxis.DEFAULT_GONG_VOLUME,
     val introductionId: String? = null,
+    val introductionEnabled: Boolean = false,
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = Praxis.DEFAULT_INTERVAL_MINUTES,
     val intervalMode: IntervalMode = Praxis.DEFAULT_INTERVAL_MODE,
@@ -82,6 +84,7 @@ constructor(
                 gongSoundId = praxis.gongSoundId,
                 gongVolume = praxis.gongVolume,
                 introductionId = praxis.introductionId,
+                introductionEnabled = praxis.introductionEnabled,
                 intervalGongsEnabled = praxis.intervalGongsEnabled,
                 intervalMinutes = praxis.intervalMinutes,
                 intervalMode = praxis.intervalMode,
@@ -124,6 +127,17 @@ constructor(
 
     fun setIntroductionId(introductionId: String?) {
         _uiState.update { it.copy(introductionId = introductionId) }
+    }
+
+    fun setIntroductionEnabled(enabled: Boolean) {
+        val available = Introduction.availableForCurrentLanguage()
+        _uiState.update { state ->
+            if (enabled && state.introductionId == null) {
+                state.copy(introductionEnabled = true, introductionId = available.firstOrNull()?.id)
+            } else {
+                state.copy(introductionEnabled = enabled)
+            }
+        }
     }
 
     fun setIntervalGongsEnabled(enabled: Boolean) {
@@ -170,6 +184,7 @@ constructor(
             gongSoundId = state.gongSoundId,
             gongVolume = state.gongVolume,
             introductionId = state.introductionId,
+            introductionEnabled = state.introductionEnabled,
             intervalGongsEnabled = state.intervalGongsEnabled,
             intervalMinutes = state.intervalMinutes,
             intervalMode = state.intervalMode,
@@ -253,9 +268,9 @@ constructor(
                 save()
             }
 
-            // Reset introductionId if it references the deleted file
+            // Reset introductionId and disable if it references the deleted file
             if (current.introductionId == id) {
-                _uiState.update { it.copy(introductionId = null) }
+                _uiState.update { it.copy(introductionId = null, introductionEnabled = false) }
                 save()
             }
         }

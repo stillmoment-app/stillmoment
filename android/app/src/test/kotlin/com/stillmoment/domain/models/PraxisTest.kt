@@ -20,6 +20,7 @@ class PraxisTest {
         assertEquals(GongSound.DEFAULT_SOUND_ID, praxis.gongSoundId)
         assertEquals(1.0f, praxis.gongVolume)
         assertNull(praxis.introductionId)
+        assertFalse(praxis.introductionEnabled)
         assertFalse(praxis.intervalGongsEnabled)
         assertEquals(5, praxis.intervalMinutes)
         assertEquals(IntervalMode.REPEATING, praxis.intervalMode)
@@ -46,6 +47,7 @@ class PraxisTest {
         assertEquals(Praxis.Default.gongSoundId, praxis.gongSoundId)
         assertEquals(Praxis.Default.gongVolume, praxis.gongVolume)
         assertEquals(Praxis.Default.introductionId, praxis.introductionId)
+        assertEquals(Praxis.Default.introductionEnabled, praxis.introductionEnabled)
         assertEquals(Praxis.Default.intervalGongsEnabled, praxis.intervalGongsEnabled)
         assertEquals(Praxis.Default.intervalMinutes, praxis.intervalMinutes)
         assertEquals(Praxis.Default.intervalMode, praxis.intervalMode)
@@ -300,7 +302,8 @@ class PraxisTest {
                 preparationTimeSeconds = 30,
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
-                introductionId = "breath"
+                introductionId = "breath",
+                introductionEnabled = true
             )
 
             val praxis = Praxis.fromMeditationSettings(settings)
@@ -318,6 +321,7 @@ class PraxisTest {
             assertEquals("clear-strike", praxis.gongSoundId)
             assertEquals(0.8f, praxis.gongVolume)
             assertEquals("breath", praxis.introductionId)
+            assertTrue(praxis.introductionEnabled)
         }
 
         @Test
@@ -353,6 +357,7 @@ class PraxisTest {
                 gongSoundId = "deep-resonance",
                 gongVolume = 0.7f,
                 introductionId = "breath",
+                introductionEnabled = true,
                 intervalGongsEnabled = true,
                 intervalMinutes = 8,
                 intervalMode = IntervalMode.AFTER_START,
@@ -370,6 +375,7 @@ class PraxisTest {
             assertEquals(original.gongSoundId, settings.gongSoundId)
             assertEquals(original.gongVolume, settings.gongVolume)
             assertEquals(original.introductionId, settings.introductionId)
+            assertEquals(original.introductionEnabled, settings.introductionEnabled)
             assertEquals(original.intervalGongsEnabled, settings.intervalGongsEnabled)
             assertEquals(original.intervalMinutes, settings.intervalMinutes)
             assertEquals(original.intervalMode, settings.intervalMode)
@@ -394,7 +400,8 @@ class PraxisTest {
                 preparationTimeSeconds = 10,
                 gongSoundId = "classic-bowl",
                 gongVolume = 0.5f,
-                introductionId = null
+                introductionId = null,
+                introductionEnabled = false
             )
 
             val praxis = Praxis.fromMeditationSettings(originalSettings)
@@ -413,6 +420,7 @@ class PraxisTest {
             assertEquals(originalSettings.gongSoundId, roundTrippedSettings.gongSoundId)
             assertEquals(originalSettings.gongVolume, roundTrippedSettings.gongVolume)
             assertEquals(originalSettings.introductionId, roundTrippedSettings.introductionId)
+            assertEquals(originalSettings.introductionEnabled, roundTrippedSettings.introductionEnabled)
         }
     }
 
@@ -483,6 +491,31 @@ class PraxisTest {
             val updated = original.withIntroductionId(null)
 
             assertNull(updated.introductionId)
+        }
+
+        @Test
+        fun `withIntroductionEnabled preserves id and other fields`() {
+            val original = Praxis.create(
+                durationMinutes = 15,
+                introductionEnabled = false,
+                introductionId = "breath"
+            )
+
+            val updated = original.withIntroductionEnabled(true)
+
+            assertEquals(original.id, updated.id)
+            assertTrue(updated.introductionEnabled)
+            assertEquals(original.introductionId, updated.introductionId)
+            assertEquals(original.durationMinutes, updated.durationMinutes)
+        }
+
+        @Test
+        fun `withIntroductionEnabled can disable`() {
+            val original = Praxis.create(introductionEnabled = true)
+
+            val updated = original.withIntroductionEnabled(false)
+
+            assertFalse(updated.introductionEnabled)
         }
     }
 

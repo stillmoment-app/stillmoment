@@ -245,6 +245,7 @@
     <string name="praxis_editor_section_gongs">Gongs</string>
     <string name="praxis_editor_introduction_row">Introduction</string>
     <string name="praxis_editor_introduction_none">No Introduction</string>
+    <string name="praxis_editor_introduction_content_row">Content</string>
     <string name="praxis_editor_introduction_title">Introduction</string>
     <string name="praxis_editor_background_row">Background Sound</string>
     <string name="praxis_editor_background_title">Background Sound</string>
@@ -261,6 +262,7 @@
     <!-- Praxis Editor Accessibility -->
     <string name="accessibility_praxis_editor_name">Practice name</string>
     <string name="accessibility_praxis_editor_introduction">Select introduction</string>
+    <string name="accessibility_praxis_editor_introduction_toggle">Introduction toggle</string>
     <string name="accessibility_praxis_editor_background">Select background sound</string>
     <string name="accessibility_praxis_editor_start_gong">Select start and end gong</string>
     <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>

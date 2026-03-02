@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -240,20 +239,14 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String?) -
         border = BorderStroke(0.5.dp, colors.cardBorder)
     ) {
         Column {
-            IntroductionRow(
-                label = stringResource(R.string.praxis_editor_introduction_none),
-                duration = null,
-                isSelected = selectedId == null,
-                iconVector = Icons.Default.RemoveCircle,
-                onClick = { onSelect(null) }
-            )
-
-            introductions.forEach { introduction ->
-                HorizontalDivider(
-                    color = colors.cardBorder,
-                    thickness = 0.5.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+            introductions.forEachIndexed { index, introduction ->
+                if (index > 0) {
+                    HorizontalDivider(
+                        color = colors.cardBorder,
+                        thickness = 0.5.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
 
                 IntroductionRow(
                     label = introduction.localizedName,

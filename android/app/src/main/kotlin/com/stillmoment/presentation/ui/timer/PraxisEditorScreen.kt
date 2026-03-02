@@ -122,6 +122,7 @@ fun PraxisEditorScreen(
             uiState = uiState,
             onPreparationEnable = viewModel::setPreparationEnabled,
             onPreparationSecondsChange = viewModel::setPreparationSeconds,
+            onIntroductionEnable = viewModel::setIntroductionEnabled,
             onNavigateToIntroduction = onNavigateToIntroduction,
             onNavigateToBackground = onNavigateToBackground,
             onNavigateToGong = onNavigateToGong,
@@ -137,6 +138,7 @@ private fun EditorContent(
     uiState: PraxisEditorUiState,
     onPreparationEnable: (Boolean) -> Unit,
     onPreparationSecondsChange: (Int) -> Unit,
+    onIntroductionEnable: (Boolean) -> Unit,
     onNavigateToIntroduction: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
@@ -158,8 +160,10 @@ private fun EditorContent(
         )
         Spacer(modifier = Modifier.height(SectionSpacing))
         AudioSection(
+            introductionEnabled = uiState.introductionEnabled,
             introductionId = uiState.introductionId,
             backgroundSoundId = uiState.backgroundSoundId,
+            onIntroductionEnable = onIntroductionEnable,
             onNavigateToIntroduction = onNavigateToIntroduction,
             onNavigateToBackground = onNavigateToBackground
         )
@@ -332,16 +336,23 @@ private fun PreparationDurationDropdown(
 
 // region Audio & Sounds Section
 
+@Suppress("LongParameterList") // Audio section needs toggle + navigation callbacks
 @Composable
 private fun AudioSection(
+    introductionEnabled: Boolean,
     introductionId: String?,
     backgroundSoundId: String,
+    onIntroductionEnable: (Boolean) -> Unit,
     onNavigateToIntroduction: () -> Unit,
     onNavigateToBackground: () -> Unit
 ) {
-    val introductionSummary = introductionId?.let { id ->
-        Introduction.find(id)?.localizedName
-    } ?: stringResource(R.string.praxis_editor_introduction_none)
+    val introductionSummary = if (introductionEnabled) {
+        introductionId?.let { id ->
+            Introduction.find(id)?.localizedName
+        } ?: stringResource(R.string.praxis_editor_introduction_none)
+    } else {
+        ""
+    }
 
     val backgroundSummary = backgroundSoundSummary(backgroundSoundId)
 
@@ -352,13 +363,21 @@ private fun AudioSection(
         )
 
         EditorCard {
-            NavigationRow(
-                label = stringResource(R.string.praxis_editor_introduction_row),
-                summary = introductionSummary,
-                accessibilityDescription = stringResource(R.string.accessibility_praxis_editor_introduction),
-                testTag = "praxisEditor.row.introduction",
-                onClick = onNavigateToIntroduction
+            IntroductionToggleRow(
+                enabled = introductionEnabled,
+                onEnable = onIntroductionEnable
             )
+
+            if (introductionEnabled) {
+                Spacer(modifier = Modifier.height(ItemSpacing))
+                NavigationRow(
+                    label = stringResource(R.string.praxis_editor_introduction_content_row),
+                    summary = introductionSummary,
+                    accessibilityDescription = stringResource(R.string.accessibility_praxis_editor_introduction),
+                    testTag = "praxisEditor.row.introductionContent",
+                    onClick = onNavigateToIntroduction
+                )
+            }
 
             Spacer(modifier = Modifier.height(ItemSpacing))
 
@@ -370,6 +389,44 @@ private fun AudioSection(
                 onClick = onNavigateToBackground
             )
         }
+    }
+}
+
+@Composable
+private fun IntroductionToggleRow(enabled: Boolean, onEnable: (Boolean) -> Unit) {
+    val toggleDescription = stringResource(R.string.accessibility_praxis_editor_introduction_toggle)
+    val haptic = LocalHapticFeedback.current
+    val stateDesc = if (enabled) {
+        stringResource(R.string.accessibility_introduction_enabled_no_selection)
+    } else {
+        stringResource(R.string.accessibility_introduction_disabled)
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.praxis_editor_introduction_row),
+            style = TypographyRole.SettingsDescription.textStyle(),
+            color = TypographyRole.SettingsDescription.textColor(),
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Switch(
+            checked = enabled,
+            onCheckedChange = { newValue ->
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onEnable(newValue)
+            },
+            colors = stillMomentSwitchColors(),
+            modifier = Modifier
+                .testTag("praxisEditor.toggle.introduction")
+                .semantics {
+                    contentDescription = toggleDescription
+                    stateDescription = stateDesc
+                }
+        )
     }
 }
 

@@ -4,6 +4,7 @@ import android.net.Uri
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -89,6 +90,7 @@ class PraxisEditorViewModelTest {
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
                 introductionId = "breath",
+                introductionEnabled = true,
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 intervalMode = IntervalMode.BEFORE_END,
@@ -109,6 +111,7 @@ class PraxisEditorViewModelTest {
             assertEquals("clear-strike", state.gongSoundId)
             assertEquals(0.8f, state.gongVolume)
             assertEquals("breath", state.introductionId)
+            assertTrue(state.introductionEnabled)
             assertTrue(state.intervalGongsEnabled)
             assertEquals(10, state.intervalMinutes)
             assertEquals(IntervalMode.BEFORE_END, state.intervalMode)
@@ -182,6 +185,58 @@ class PraxisEditorViewModelTest {
             viewModel.setIntroductionId(null)
 
             assertNull(viewModel.uiState.value.introductionId)
+        }
+
+        @Test
+        fun `setIntroductionEnabled updates state`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.setIntroductionEnabled(true)
+
+            assertTrue(viewModel.uiState.value.introductionEnabled)
+        }
+
+        @Test
+        fun `setIntroductionEnabled selects first available introduction when none selected`() = runTest {
+            Introduction.languageOverride = "de"
+            try {
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+
+                viewModel.setIntroductionEnabled(true)
+
+                val available = Introduction.availableForCurrentLanguage()
+                assertEquals(available.firstOrNull()?.id, viewModel.uiState.value.introductionId)
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `setIntroductionEnabled preserves existing introduction selection`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(introductionId = "breath")
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.setIntroductionEnabled(true)
+
+            assertEquals("breath", viewModel.uiState.value.introductionId)
+        }
+
+        @Test
+        fun `setIntroductionEnabled false preserves introductionId for later reuse`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(
+                introductionId = "breath",
+                introductionEnabled = true
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.setIntroductionEnabled(false)
+
+            assertFalse(viewModel.uiState.value.introductionEnabled)
+            assertEquals("breath", viewModel.uiState.value.introductionId)
         }
 
         @Test
@@ -341,6 +396,7 @@ class PraxisEditorViewModelTest {
             viewModel.setGongSoundId("clear-strike")
             viewModel.setGongVolume(0.7f)
             viewModel.setIntroductionId("breath")
+            viewModel.setIntroductionEnabled(true)
             viewModel.setIntervalGongsEnabled(true)
             viewModel.setIntervalMinutes(15)
             viewModel.setIntervalMode(IntervalMode.AFTER_START)
@@ -357,6 +413,7 @@ class PraxisEditorViewModelTest {
             assertEquals("clear-strike", saved.gongSoundId)
             assertEquals(0.7f, saved.gongVolume)
             assertEquals("breath", saved.introductionId)
+            assertTrue(saved.introductionEnabled)
             assertTrue(saved.intervalGongsEnabled)
             assertEquals(15, saved.intervalMinutes)
             assertEquals(IntervalMode.AFTER_START, saved.intervalMode)
