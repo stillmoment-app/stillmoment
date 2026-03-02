@@ -211,13 +211,18 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: - Duration Detection
 
     private func detectDuration(at url: URL) -> TimeInterval? {
-        let asset = AVURLAsset(url: url)
-        let seconds = CMTimeGetSeconds(asset.duration)
-        guard seconds.isFinite, seconds > 0 else {
-            Logger.infrastructure.debug("Duration detection returned invalid value for: \(url.lastPathComponent)")
+        do {
+            let player = try AVAudioPlayer(contentsOf: url)
+            let duration = player.duration
+            guard duration.isFinite, duration > 0 else {
+                Logger.infrastructure.debug("Duration detection returned invalid value for: \(url.lastPathComponent)")
+                return nil
+            }
+            return duration
+        } catch {
+            Logger.infrastructure.debug("Duration detection failed for: \(url.lastPathComponent)")
             return nil
         }
-        return seconds
     }
 
     // MARK: - Persistence
