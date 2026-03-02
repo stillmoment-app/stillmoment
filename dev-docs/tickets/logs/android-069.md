@@ -20,4 +20,4 @@ Ported 4 iOS regression tests to Android. Tests verify TimerReducer effect order
 ## CLOSE
 Status: DONE
 Commits:
-- (see next commit)
+- 5e565c0 docs: #android-069 Close ticket
