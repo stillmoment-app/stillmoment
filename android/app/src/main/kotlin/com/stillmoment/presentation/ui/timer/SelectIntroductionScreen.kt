@@ -26,6 +26,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -37,9 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
@@ -51,6 +56,7 @@ import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
@@ -95,6 +101,8 @@ fun SelectIntroductionScreen(
             IntroductionTopBar(onBack = onBack)
 
             IntroductionContent(
+                introductionEnabled = uiState.introductionEnabled,
+                onIntroductionEnable = viewModel::setIntroductionEnabled,
                 selectedId = uiState.introductionId,
                 customAttunements = uiState.customAttunements.toImmutableList(),
                 onSelectBuiltIn = { id ->
@@ -189,8 +197,11 @@ private fun IntroductionTopBar(onBack: () -> Unit) {
     )
 }
 
+@Suppress("LongParameterList") // Content composable aggregates toggle + selection + custom audio callbacks
 @Composable
 private fun IntroductionContent(
+    introductionEnabled: Boolean,
+    onIntroductionEnable: (Boolean) -> Unit,
     selectedId: String?,
     customAttunements: ImmutableList<CustomAudioFile>,
     onSelectBuiltIn: (String?) -> Unit,
@@ -206,21 +217,80 @@ private fun IntroductionContent(
             .padding(top = 8.dp)
     ) {
         item {
-            IntroductionSelectionCard(
-                selectedId = selectedId,
-                onSelect = onSelectBuiltIn
+            IntroductionToggleCard(
+                enabled = introductionEnabled,
+                onEnable = onIntroductionEnable
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-            MyAttunementsSection(
-                customAttunements = customAttunements,
-                selectedId = selectedId,
-                onSelectAttunement = onSelectCustom,
-                onDeleteClick = onDeleteCustomAttunement,
-                onRenameClick = onRenameCustomAttunement,
-                onImportClick = onImportClick
+        if (introductionEnabled) {
+            item {
+                IntroductionSelectionCard(
+                    selectedId = selectedId,
+                    onSelect = onSelectBuiltIn
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                MyAttunementsSection(
+                    customAttunements = customAttunements,
+                    selectedId = selectedId,
+                    onSelectAttunement = onSelectCustom,
+                    onDeleteClick = onDeleteCustomAttunement,
+                    onRenameClick = onRenameCustomAttunement,
+                    onImportClick = onImportClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit) {
+    val colors = LocalStillMomentColors.current
+    val haptic = LocalHapticFeedback.current
+    val toggleDescription = stringResource(R.string.accessibility_praxis_editor_introduction_toggle)
+    val stateDesc = if (enabled) {
+        stringResource(R.string.accessibility_introduction_enabled_no_selection)
+    } else {
+        stringResource(R.string.accessibility_introduction_disabled)
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        border = BorderStroke(0.5.dp, colors.cardBorder)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.praxis_editor_introduction_row),
+                style = TypographyRole.SettingsDescription.textStyle(),
+                color = TypographyRole.SettingsDescription.textColor(),
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Switch(
+                checked = enabled,
+                onCheckedChange = { newValue ->
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onEnable(newValue)
+                },
+                colors = stillMomentSwitchColors(),
+                modifier = Modifier
+                    .testTag("selectIntroduction.toggle.enabled")
+                    .semantics {
+                        contentDescription = toggleDescription
+                        stateDescription = stateDesc
+                    }
             )
         }
     }
@@ -284,7 +354,7 @@ private fun IntroductionRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Icon(
-            imageVector = iconVector,
+            imageVector = if (isSelected) Icons.Default.Check else iconVector,
             contentDescription = null,
             tint = if (isSelected) {
                 MaterialTheme.colorScheme.primary
@@ -310,18 +380,6 @@ private fun IntroductionRow(
                 style = TypographyRole.SettingsDescription.textStyle(),
                 color = TypographyRole.SettingsDescription.textColor()
             )
-        }
-
-        if (isSelected) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
-        } else {
-            Spacer(modifier = Modifier.size(28.dp))
         }
     }
 }

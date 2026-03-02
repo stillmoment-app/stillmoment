@@ -68,6 +68,8 @@
     <string name="sound_silent_description">Meditate in silence.</string>
     <string name="sound_forest">Forest Ambience</string>
     <string name="sound_forest_description">Natural forest sounds</string>
+    <string name="sound_cozy_rain">Cozy Midnight Rain</string>
+    <string name="sound_cozy_rain_description">Gentle rain at midnight.</string>
 
     <!-- Time -->
     <string name="time_minutes">%d min</string>
@@ -229,6 +231,7 @@
     <string name="sound_clear_strike">Clear Strike</string>
     <string name="sound_soft_interval">Soft Interval</string>
     <string name="sound_forest_attribution">Forest Ambience</string>
+    <string name="sound_cozy_rain_attribution">Cozy Midnight Rain</string>
 
     <!-- Praxis short description -->
     <string name="praxis_description_duration">%d min</string>
@@ -245,7 +248,6 @@
     <string name="praxis_editor_section_gongs">Gongs</string>
     <string name="praxis_editor_introduction_row">Introduction</string>
     <string name="praxis_editor_introduction_none">No Introduction</string>
-    <string name="praxis_editor_introduction_content_row">Content</string>
     <string name="praxis_editor_introduction_title">Introduction</string>
     <string name="praxis_editor_background_row">Background Sound</string>
     <string name="praxis_editor_background_title">Background Sound</string>
