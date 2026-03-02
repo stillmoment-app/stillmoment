@@ -14,10 +14,24 @@ Kann ein anderer Entwickler diesen Code in 6 Monaten verstehen und aendern?
 - Keine klare Stelle fuer neue Funktionalitaet erkennbar
 - Enge Kopplung erschwert Anpassungen
 
+### DRY — Kein dupliziertes Wissen
+- Gleiche Logik an mehreren Stellen (nicht nur Code, auch Konzepte)
+- Mehrere Primitives die immer zusammen geprueft werden → fehlendes Konzept
+  (Beispiel: `enabled + id` statt `activeIntroductionId`)
+- Caller muss interne Repräsentation eines Objekts verstehen um zu entscheiden (Tell, Don't Ask)
+
+### Fail Fast
+- Validierung tief im System statt an der Eingabegrenze
+- Ungueltige Zustände werden durchgereicht statt sofort abgefangen
+
+### Explicit over Implicit
+- Versteckte Side Effects in scheinbar harmlosen Aufrufen
+- Magic Values oder undokumentierte Konventionen
+- Reihenfolge-Abhaengigkeiten die nicht aus dem Code ersichtlich sind
+
 ### Fehleranfaelligkeit
 - Leicht zu uebersehende Fallstricke
 - Implicit State der Bugs verursachen kann
-- Reihenfolge-Abhaengigkeiten die nicht offensichtlich sind
 
 ## iOS-spezifisch
 
