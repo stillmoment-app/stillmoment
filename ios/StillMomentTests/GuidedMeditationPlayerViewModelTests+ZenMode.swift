@@ -54,7 +54,7 @@ extension GuidedMeditationPlayerViewModelTests {
         XCTAssertFalse(self.sut.isZenMode, "Tab bar must return when playback is paused")
     }
 
-    func testZenModeIsInactiveWhenCompleted() async {
+    func testZenModeIsActiveWhenCompleted() async {
         // Given: simulate finished state
         let expectation = self.expectation(description: "State updates to finished")
         self.sut.$playbackState
@@ -69,7 +69,7 @@ extension GuidedMeditationPlayerViewModelTests {
         self.mockPlayerService.state.send(.finished)
         await fulfillment(of: [expectation], timeout: 1.0)
 
-        // Then: tab bar must return after meditation ends
-        XCTAssertFalse(self.sut.isZenMode, "Tab bar must return when meditation completes")
+        // Then: tab bar must stay hidden on the completion/thank-you screen
+        XCTAssertTrue(self.sut.isZenMode, "Tab bar must stay hidden during completion screen")
     }
 }
