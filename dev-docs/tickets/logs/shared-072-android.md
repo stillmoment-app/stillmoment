@@ -57,3 +57,18 @@ Challenges:
 
 Summary:
 IntroductionToggle Typography von SettingsLabel (17sp, TextPrimary) auf SettingsDescription (13sp, TextSecondary) geaendert, konsistent mit PreparationTimeToggle und IntervalGongsToggleRow. Adressiert DISCUSSION-Punkt 2 aus REVIEW 1.
+
+---
+
+## FIX 2
+Status: DONE
+Commits:
+- c4ecdd5 feat(android): #shared-072 add introduction toggle to PraxisEditorScreen, remove "Ohne Einstimmung" from SelectIntroductionScreen
+
+Challenges:
+<!-- CHALLENGES_START -->
+- strings.xml enthielt unveroffentlichte Aenderungen aus anderem Feature (cozy rain). Musste Staging sorgfaeltig nur auf die eigenen String-Aenderungen beschraenken, um keinen fremden Code mitzucommiten.
+<!-- CHALLENGES_END -->
+
+Summary:
+Toggle-Pattern aus SettingsSheet auf PraxisEditorScreen portiert. Praxis.kt um introductionEnabled-Feld erweitert (inkl. create(), fromMeditationSettings(), toMeditationSettings(), builder). PraxisEditorViewModel um setIntroductionEnabled() erweitert mit Auto-Select der ersten verfuegbaren Einstimmung. AudioSection im PraxisEditorScreen zeigt jetzt IntroductionToggleRow + bedingte NavigationRow statt einer einzelnen NavigationRow. "Ohne Einstimmung"-Zeile aus SelectIntroductionScreen entfernt. TimerScreen introductionPillLabel prueft nun auch introductionEnabled. 6 neue Tests (2 Domain, 4 ViewModel), alle 861 Tests gruen.
