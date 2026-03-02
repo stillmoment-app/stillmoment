@@ -26,15 +26,19 @@ struct BackgroundSoundSelectionView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            List {
-                self.soundsSection
-                if self.viewModel.backgroundSoundId != "silent" {
-                    self.volumeSection
+            VStack(spacing: 0) {
+                List {
+                    self.soundsSection
+                    if self.viewModel.backgroundSoundId != "silent" {
+                        self.volumeSection
+                    }
+                    self.mySoundsSection
                 }
-                self.mySoundsSection
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+
+                self.importButton
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -115,25 +119,19 @@ struct BackgroundSoundSelectionView: View {
         }
     }
 
+    private var importButton: some View {
+        ImportAudioButton(
+            accessibilityLabel: NSLocalizedString(
+                "custom.audio.accessibility.importButton.soundscape",
+                comment: ""
+            )
+        ) {
+            self.showImportPicker = true
+        }
+    }
+
     private var mySoundsSection: some View {
         Section {
-            Button {
-                self.showImportPicker = true
-            } label: {
-                Label(
-                    NSLocalizedString("custom.audio.import.button", comment: ""),
-                    systemImage: "plus.circle"
-                )
-                .themeFont(.settingsLabel)
-            }
-            .cardRowBackground()
-            .accessibilityLabel(
-                NSLocalizedString(
-                    "custom.audio.accessibility.importButton.soundscape",
-                    comment: ""
-                )
-            )
-
             if self.viewModel.customSoundscapes.isEmpty {
                 Text("custom.audio.empty.sounds", bundle: .main)
                     .themeFont(.settingsDescription)
@@ -154,7 +152,7 @@ struct BackgroundSoundSelectionView: View {
         let isSelected = self.viewModel.backgroundSoundId == file.id.uuidString
         return HStack {
             HStack {
-                Image(systemName: "waveform")
+                Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
                     .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
                     .frame(width: 24)
                     .accessibilityHidden(true)

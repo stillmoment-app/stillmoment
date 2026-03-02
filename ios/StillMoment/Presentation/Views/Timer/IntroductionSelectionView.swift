@@ -26,17 +26,21 @@ struct IntroductionSelectionView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            List {
-                self.noneRow
+            VStack(spacing: 0) {
+                List {
+                    self.noneRow
 
-                ForEach(self.viewModel.availableIntroductions) { intro in
-                    self.introductionRow(for: intro)
+                    ForEach(self.viewModel.availableIntroductions) { intro in
+                        self.introductionRow(for: intro)
+                    }
+
+                    self.myAttunementsSection
                 }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
 
-                self.myAttunementsSection
+                self.importButton
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -129,7 +133,7 @@ struct IntroductionSelectionView: View {
     private func introductionRow(for intro: Introduction) -> some View {
         let isSelected = self.viewModel.introductionId == intro.id
         return HStack {
-            Image(systemName: "waveform")
+            Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
                 .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
                 .frame(width: 24)
                 .accessibilityHidden(true)
@@ -151,22 +155,19 @@ struct IntroductionSelectionView: View {
         .accessibilityIdentifier("praxis.introduction.\(intro.id)")
     }
 
+    private var importButton: some View {
+        ImportAudioButton(
+            accessibilityLabel: NSLocalizedString(
+                "custom.audio.accessibility.importButton.attunement",
+                comment: ""
+            )
+        ) {
+            self.showImportPicker = true
+        }
+    }
+
     private var myAttunementsSection: some View {
         Section {
-            Button {
-                self.showImportPicker = true
-            } label: {
-                Label(
-                    NSLocalizedString("custom.audio.import.button", comment: ""),
-                    systemImage: "plus.circle"
-                )
-                .themeFont(.settingsLabel)
-            }
-            .cardRowBackground()
-            .accessibilityLabel(
-                NSLocalizedString("custom.audio.accessibility.importButton.attunement", comment: "")
-            )
-
             if self.viewModel.customAttunements.isEmpty {
                 Text("custom.audio.empty.attunements", bundle: .main)
                     .themeFont(.settingsDescription)
@@ -187,7 +188,7 @@ struct IntroductionSelectionView: View {
         let isSelected = self.viewModel.introductionId == file.id.uuidString
         return HStack {
             HStack {
-                Image(systemName: "waveform")
+                Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
                     .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
                     .frame(width: 24)
                     .accessibilityHidden(true)
