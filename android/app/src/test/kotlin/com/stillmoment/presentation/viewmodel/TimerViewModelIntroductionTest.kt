@@ -72,12 +72,19 @@ class TimerViewModelIntroductionTest {
         assertEquals(1, viewModel.uiState.value.selectedMinutes)
 
         // When - Enable introduction (clamps to 3 min)
-        viewModel.updateSettings(initialSettings.copy(introductionId = "breath", durationMinutes = 3))
+        viewModel.updateSettings(
+            initialSettings.copy(introductionId = "breath", introductionEnabled = true, durationMinutes = 3),
+        )
         advanceUntilIdle()
         assertEquals(3, viewModel.uiState.value.selectedMinutes)
 
         // When - Disable introduction
-        viewModel.updateSettings(viewModel.uiState.value.settings.copy(introductionId = null))
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(
+                introductionId = null,
+                introductionEnabled = false,
+            ),
+        )
         advanceUntilIdle()
 
         // Then - Duration should restore to pre-introduction value
@@ -94,12 +101,19 @@ class TimerViewModelIntroductionTest {
         assertEquals(10, viewModel.uiState.value.selectedMinutes)
 
         // When - Enable introduction (10 > 3, no clamping)
-        viewModel.updateSettings(initialSettings.copy(introductionId = "breath", durationMinutes = 10))
+        viewModel.updateSettings(
+            initialSettings.copy(introductionId = "breath", introductionEnabled = true, durationMinutes = 10),
+        )
         advanceUntilIdle()
         assertEquals(10, viewModel.uiState.value.selectedMinutes)
 
         // When - Disable introduction
-        viewModel.updateSettings(viewModel.uiState.value.settings.copy(introductionId = null))
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(
+                introductionId = null,
+                introductionEnabled = false,
+            ),
+        )
         advanceUntilIdle()
 
         // Then - Duration should stay at 10

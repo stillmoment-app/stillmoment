@@ -628,7 +628,7 @@ private fun IntroductionDropdown(
                 DropdownMenuItem(
                     text = { Text("${intro.localizedName} (${intro.formattedDuration})") },
                     onClick = {
-                        val minDuration = MeditationSettings.minimumDuration(intro.id)
+                        val minDuration = MeditationSettings.minimumDuration(intro.id, settings.introductionEnabled)
                         val newDuration = maxOf(settings.durationMinutes, minDuration)
                         onSettingsChange(settings.copy(introductionId = intro.id, durationMinutes = newDuration))
                         onDismiss()

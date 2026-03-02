@@ -256,8 +256,9 @@ class TimerViewModelRegressionTest {
             val settings = MeditationSettings(
                 durationMinutes = 5,
                 introductionId = "breath",
+                introductionEnabled = true,
                 backgroundSoundId = "forest",
-                backgroundSoundVolume = 0.3f
+                backgroundSoundVolume = 0.3f,
             )
 
             // Verify: StartGongFinished with introduction -> starts introduction, no background audio

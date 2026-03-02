@@ -105,7 +105,9 @@ object TimerReducer {
         }
 
         val introId = settings.introductionId
-        return if (introId != null && Introduction.isAvailableForCurrentLanguage(introId)) {
+        return if (settings.introductionEnabled && introId != null &&
+            Introduction.isAvailableForCurrentLanguage(introId)
+        ) {
             // Introduction configured -> play audio
             listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(introId))
         } else {
@@ -162,8 +164,9 @@ object TimerReducer {
 
     // MARK: - Helpers
 
-    /** Returns the introduction duration in seconds, or 0 if no introduction is configured. */
+    /** Returns the introduction duration in seconds, or 0 if no introduction is configured or disabled. */
     private fun introductionDurationSeconds(settings: MeditationSettings): Int {
+        if (!settings.introductionEnabled) return 0
         val introId = settings.introductionId ?: return 0
         if (!Introduction.isAvailableForCurrentLanguage(introId)) return 0
         return Introduction.find(introId)?.durationSeconds ?: 0

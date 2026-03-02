@@ -267,7 +267,7 @@ class TimerReducerTest {
                     action = TimerAction.StartGongFinished,
                     timerState = TimerState.StartGong,
                     selectedMinutes = 10,
-                    settings = defaultSettings.copy(introductionId = "breath")
+                    settings = defaultSettings.copy(introductionId = "breath", introductionEnabled = true)
                 )
 
                 assertTrue(effects.any { it is TimerEffect.StartIntroductionPhase })
@@ -653,7 +653,7 @@ class TimerReducerTest {
         fun `full cycle with introduction`() {
             Introduction.languageOverride = "de"
             try {
-                val settings = defaultSettings.copy(introductionId = "breath")
+                val settings = defaultSettings.copy(introductionId = "breath", introductionEnabled = true)
 
                 // Start
                 val startEffects = TimerReducer.reduce(

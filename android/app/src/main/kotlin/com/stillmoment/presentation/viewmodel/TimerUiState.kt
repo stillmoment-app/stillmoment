@@ -41,7 +41,8 @@ data class TimerUiState(
     val remainingPreparationSeconds: Int get() = timer?.remainingPreparationSeconds ?: 0
 
     // Computed properties
-    val minimumDurationMinutes: Int get() = MeditationSettings.minimumDuration(settings.introductionId)
+    val minimumDurationMinutes: Int
+        get() = MeditationSettings.minimumDuration(settings.introductionId, settings.introductionEnabled)
     val isPreparation: Boolean get() = timer?.isPreparation ?: false
     val canStart: Boolean get() = timerState == TimerState.Idle && selectedMinutes > 0
     val canReset: Boolean get() = timer?.canReset ?: false

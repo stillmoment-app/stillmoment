@@ -57,6 +57,7 @@ constructor(
         val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
         val INTRODUCTION_ID = stringPreferencesKey("introduction_id")
+        val INTRODUCTION_ENABLED = booleanPreferencesKey("introduction_enabled")
         val HAS_SEEN_SETTINGS_HINT = booleanPreferencesKey("has_seen_settings_hint")
 
         // Legacy keys kept for migration
@@ -98,6 +99,14 @@ constructor(
                     null
                 }
 
+                // If saved introductionId is unavailable for current language, disable introduction
+                val introductionEnabled = if (introductionId != null) {
+                    preferences[Keys.INTRODUCTION_ENABLED]
+                        ?: MeditationSettings.DEFAULT_INTRODUCTION_ENABLED
+                } else {
+                    false
+                }
+
                 MeditationSettings.create(
                     intervalGongsEnabled =
                     preferences[Keys.INTERVAL_GONGS_ENABLED]
@@ -133,7 +142,8 @@ constructor(
                     gongVolume =
                     preferences[Keys.GONG_VOLUME]
                         ?: MeditationSettings.Default.gongVolume,
-                    introductionId = introductionId
+                    introductionId = introductionId,
+                    introductionEnabled = introductionEnabled
                 )
             }
 
@@ -155,6 +165,7 @@ constructor(
             preferences[Keys.PREPARATION_TIME_SECONDS] = settings.preparationTimeSeconds
             preferences[Keys.GONG_SOUND_ID] = settings.gongSoundId
             preferences[Keys.GONG_VOLUME] = settings.gongVolume
+            preferences[Keys.INTRODUCTION_ENABLED] = settings.introductionEnabled
             if (settings.introductionId != null) {
                 preferences[Keys.INTRODUCTION_ID] = settings.introductionId
             } else {

@@ -512,7 +512,7 @@ class MeditationSettingsTest {
     @Test
     fun `minimumDuration with breath introduction returns 3`() {
         // breath: 95s → ceil(95/60) + 1 = ceil(1.583) + 1 = 2 + 1 = 3
-        assertEquals(3, MeditationSettings.minimumDuration("breath"))
+        assertEquals(3, MeditationSettings.minimumDuration("breath", introductionEnabled = true))
     }
 
     @Test
@@ -523,10 +523,10 @@ class MeditationSettingsTest {
     @Test
     fun `validateDuration with introduction enforces minimum`() {
         // breath min = 3 → requesting 1 should clamp to 3
-        assertEquals(3, MeditationSettings.validateDuration(1, "breath"))
-        assertEquals(3, MeditationSettings.validateDuration(2, "breath"))
-        assertEquals(3, MeditationSettings.validateDuration(3, "breath"))
-        assertEquals(10, MeditationSettings.validateDuration(10, "breath"))
+        assertEquals(3, MeditationSettings.validateDuration(1, "breath", introductionEnabled = true))
+        assertEquals(3, MeditationSettings.validateDuration(2, "breath", introductionEnabled = true))
+        assertEquals(3, MeditationSettings.validateDuration(3, "breath", introductionEnabled = true))
+        assertEquals(10, MeditationSettings.validateDuration(10, "breath", introductionEnabled = true))
     }
 
     @Test
@@ -543,13 +543,17 @@ class MeditationSettingsTest {
     @Test
     fun `create with introductionId enforces minimum duration`() {
         // breath min = 3 → duration 1 should be clamped to 3
-        val settings = MeditationSettings.create(durationMinutes = 1, introductionId = "breath")
+        val settings = MeditationSettings.create(
+            durationMinutes = 1,
+            introductionId = "breath",
+            introductionEnabled = true,
+        )
         assertEquals(3, settings.durationMinutes)
     }
 
     @Test
     fun `withDurationMinutes respects introduction minimum`() {
-        val settings = MeditationSettings(introductionId = "breath")
+        val settings = MeditationSettings(introductionId = "breath", introductionEnabled = true)
         val updated = settings.withDurationMinutes(1)
         assertEquals(3, updated.durationMinutes)
     }
@@ -559,7 +563,7 @@ class MeditationSettingsTest {
         val settingsNoIntro = MeditationSettings()
         assertEquals(1, settingsNoIntro.minimumDurationMinutes)
 
-        val settingsWithIntro = MeditationSettings(introductionId = "breath")
+        val settingsWithIntro = MeditationSettings(introductionId = "breath", introductionEnabled = true)
         assertEquals(3, settingsWithIntro.minimumDurationMinutes)
     }
 }

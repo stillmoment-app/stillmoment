@@ -68,7 +68,8 @@ constructor(
         val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
         val initialMinutes = MeditationSettings.validateDuration(
             initialSettings.durationMinutes,
-            initialSettings.introductionId
+            initialSettings.introductionId,
+            initialSettings.introductionEnabled,
         )
         _uiState.value = TimerUiState(
             timer = null,
@@ -191,7 +192,11 @@ constructor(
     fun setSelectedMinutes(minutes: Int) {
         _uiState.update { state ->
             state.copy(
-                selectedMinutes = MeditationSettings.validateDuration(minutes, state.settings.introductionId),
+                selectedMinutes = MeditationSettings.validateDuration(
+                    minutes,
+                    state.settings.introductionId,
+                    state.settings.introductionEnabled,
+                ),
                 settings = state.settings.withDurationMinutes(minutes)
             )
         }
@@ -291,7 +296,7 @@ constructor(
         // Track introduction changes for duration restoration
         if (oldSettings.introductionId == null && settings.introductionId != null) {
             // Introduction enabled — save pre-clamp duration if clamping occurred
-            val minimum = MeditationSettings.minimumDuration(settings.introductionId)
+            val minimum = MeditationSettings.minimumDuration(settings.introductionId, settings.introductionEnabled)
             if (oldSettings.durationMinutes < minimum) {
                 minutesBeforeIntroduction = oldSettings.durationMinutes
             }
