@@ -92,6 +92,74 @@ class TimerViewModelIntroductionTest {
     }
 
     @Test
+    fun `toggle off preserves introductionId selection`() = runTest {
+        // Given - ViewModel with introduction enabled
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(
+                introductionId = "breath",
+                introductionEnabled = true,
+                durationMinutes = 5
+            )
+        )
+        advanceUntilIdle()
+        assertEquals("breath", viewModel.uiState.value.settings.introductionId)
+        assertEquals(true, viewModel.uiState.value.settings.introductionEnabled)
+
+        // When - Toggle off (keep introductionId, only disable)
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(introductionEnabled = false)
+        )
+        advanceUntilIdle()
+
+        // Then - introductionId is still preserved, only introductionEnabled changed
+        assertEquals(false, viewModel.uiState.value.settings.introductionEnabled)
+        assertEquals(
+            "breath",
+            viewModel.uiState.value.settings.introductionId,
+            "Selection should be preserved when toggle is turned off"
+        )
+    }
+
+    @Test
+    fun `toggle on restores previous selection`() = runTest {
+        // Given - ViewModel with introduction previously selected but now disabled
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+        // First enable with a selection
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(
+                introductionId = "breath",
+                introductionEnabled = true,
+                durationMinutes = 5
+            )
+        )
+        advanceUntilIdle()
+        // Then disable (preserving the introductionId)
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(introductionEnabled = false)
+        )
+        advanceUntilIdle()
+        assertEquals(false, viewModel.uiState.value.settings.introductionEnabled)
+        assertEquals("breath", viewModel.uiState.value.settings.introductionId)
+
+        // When - Toggle on again
+        viewModel.updateSettings(
+            viewModel.uiState.value.settings.copy(introductionEnabled = true)
+        )
+        advanceUntilIdle()
+
+        // Then - introductionId is still "breath"
+        assertEquals(true, viewModel.uiState.value.settings.introductionEnabled)
+        assertEquals(
+            "breath",
+            viewModel.uiState.value.settings.introductionId,
+            "Selection should be restored when toggle is turned back on"
+        )
+    }
+
+    @Test
     fun `disabling introduction does not restore when duration was above minimum`() = runTest {
         // Given - User has 10 minutes selected (above the 3-minute minimum)
         val initialSettings = MeditationSettings(durationMinutes = 10)

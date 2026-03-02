@@ -282,6 +282,29 @@ class TimerReducerTest {
         }
 
         @Test
+        fun `transitions to running when introductionEnabled is false despite valid introductionId`() {
+            // Given - settings with valid introductionId but introductionEnabled = false
+            val settings = defaultSettings.copy(
+                introductionEnabled = false,
+                introductionId = "breath"
+            )
+
+            // When - StartGong finished
+            val effects = TimerReducer.reduce(
+                action = TimerAction.StartGongFinished,
+                timerState = TimerState.StartGong,
+                selectedMinutes = 5,
+                settings = settings
+            )
+
+            // Then - should transition to running (no introduction phase)
+            assertTrue(effects.any { it is TimerEffect.TransitionToRunning })
+            assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
+            assertFalse(effects.any { it is TimerEffect.StartIntroductionPhase })
+            assertFalse(effects.any { it is TimerEffect.PlayIntroduction })
+        }
+
+        @Test
         fun `does nothing when not in StartGong state`() {
             val effects = TimerReducer.reduce(
                 action = TimerAction.StartGongFinished,
