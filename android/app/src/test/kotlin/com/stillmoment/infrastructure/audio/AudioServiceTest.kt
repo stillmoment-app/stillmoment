@@ -10,6 +10,7 @@ import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -32,6 +33,7 @@ import org.mockito.kotlin.wheneverBlocking
  * Unit tests for AudioService.
  * Tests gong playback and background audio management.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class AudioServiceTest {
     private val testDispatcher = StandardTestDispatcher()
 
