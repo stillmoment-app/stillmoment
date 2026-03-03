@@ -93,21 +93,22 @@ final class AudioServiceIntroductionTests: XCTestCase {
                 let actualDuration = player.duration
                 let floorDuration = Int(floor(actualDuration))
                 let ceilDuration = Int(ceil(actualDuration))
+                let configuredDuration = intro.durationSeconds(for: language)
 
                 // Configured duration must be between floor and ceil of actual audio length.
                 // This ensures:
                 // 1. The introduction audio is never cut off (durationSeconds >= floor)
                 // 2. The configured duration is accurate (durationSeconds <= ceil)
                 XCTAssertGreaterThanOrEqual(
-                    intro.durationSeconds,
+                    configuredDuration,
                     floorDuration,
-                    "Introduction '\(intro.id)' (\(language)): configured \(intro.durationSeconds)s " +
+                    "Introduction '\(intro.id)' (\(language)): configured \(configuredDuration)s " +
                         "but audio is \(actualDuration)s (floor: \(floorDuration)s)"
                 )
                 XCTAssertLessThanOrEqual(
-                    intro.durationSeconds,
+                    configuredDuration,
                     ceilDuration,
-                    "Introduction '\(intro.id)' (\(language)): configured \(intro.durationSeconds)s " +
+                    "Introduction '\(intro.id)' (\(language)): configured \(configuredDuration)s " +
                         "but audio is \(actualDuration)s (ceil: \(ceilDuration)s)"
                 )
             }

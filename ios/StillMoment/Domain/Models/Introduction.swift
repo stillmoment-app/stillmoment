@@ -25,8 +25,8 @@ struct Introduction: Identifiable, Equatable {
     /// Localized display name (resolved via NSLocalizedString at creation time)
     let name: String
 
-    /// Duration of the introduction audio in seconds
-    let durationSeconds: Int
+    /// Duration of the introduction audio in seconds, per language
+    let durationByLanguage: [String: Int]
 
     /// Languages for which audio files are available
     let availableLanguages: [String]
@@ -44,7 +44,17 @@ struct Introduction: Identifiable, Equatable {
         return self.filenamePattern.replacingOccurrences(of: "{lang}", with: language)
     }
 
-    /// Formatted duration string (e.g., "1:35")
+    /// Maximum duration across all languages (used for minimum timer calculation)
+    var durationSeconds: Int {
+        self.durationByLanguage.values.max() ?? 0
+    }
+
+    /// Duration for a specific language, or max if language not found
+    func durationSeconds(for language: String) -> Int {
+        self.durationByLanguage[language] ?? self.durationSeconds
+    }
+
+    /// Formatted duration string (e.g., "1:35") — uses max duration across languages
     var formattedDuration: String {
         let minutes = self.durationSeconds / 60
         let seconds = self.durationSeconds % 60
@@ -59,7 +69,7 @@ extension Introduction {
     static let breath = Introduction(
         id: "breath",
         name: NSLocalizedString("introduction.breath.name", comment: ""),
-        durationSeconds: 95, // 1:35
+        durationByLanguage: ["de": 95, "en": 93],
         availableLanguages: ["de", "en"],
         filenamePattern: "intro-breath-{lang}.mp3"
     )
