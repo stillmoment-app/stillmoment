@@ -10,7 +10,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// A slider built entirely in SwiftUI, themed via `@Environment(\.themeColors)`.
 ///
@@ -58,7 +57,7 @@ struct ThemedSlider: View {
                     .onChanged { gesture in
                         if !self.isDragging {
                             self.isDragging = true
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            HapticFeedback.impact()
                         }
                         self.onEditingChanged?(true)
                         let newFraction = (gesture.location.x - Self.thumbSize / 2) / trackWidth

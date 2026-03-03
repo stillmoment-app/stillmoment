@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Editor for interval gong settings within the Praxis editor.
 ///
@@ -82,7 +81,7 @@ struct IntervalGongsEditorView: View {
             }
         }
         .onChange(of: self.viewModel.intervalMinutes) { _ in
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            HapticFeedback.impact()
         }
         .accessibilityIdentifier("praxis.editor.stepper.intervalMinutes")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalDuration", comment: ""))
@@ -107,7 +106,7 @@ struct IntervalGongsEditorView: View {
         }
         .pickerStyle(.segmented)
         .onChange(of: self.viewModel.intervalMode) { _ in
-            UISelectionFeedbackGenerator().selectionChanged()
+            HapticFeedback.selection()
         }
         .accessibilityIdentifier("praxis.editor.picker.intervalMode")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalMode", comment: ""))
@@ -127,7 +126,7 @@ struct IntervalGongsEditorView: View {
         }
         .pickerStyle(.menu)
         .onChange(of: self.viewModel.intervalSoundId) { newValue in
-            UISelectionFeedbackGenerator().selectionChanged()
+            HapticFeedback.selection()
             self.viewModel.playIntervalGongPreview(
                 soundId: newValue,
                 volume: self.viewModel.intervalGongVolume

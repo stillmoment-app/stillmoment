@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Settings view for configuring meditation session options
 ///
@@ -120,7 +119,7 @@ struct SettingsView: View {
                 .accessibilityLabel("accessibility.preparationTimeDuration")
                 .accessibilityHint("accessibility.preparationTimeDuration.hint")
                 .onChange(of: self.settings.preparationTimeSeconds) { _ in
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticFeedback.selection()
                 }
                 .cardRowBackground()
                 .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
@@ -146,7 +145,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
             .onChange(of: self.settings.startGongSoundId) { newValue in
-                UISelectionFeedbackGenerator().selectionChanged()
+                HapticFeedback.selection()
                 self.onGongChanged(newValue, self.settings.gongVolume)
             }
             .accessibilityIdentifier("settings.picker.startGongSound")
@@ -195,7 +194,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
             .onChange(of: self.settings.introductionId) { _ in
-                UISelectionFeedbackGenerator().selectionChanged()
+                HapticFeedback.selection()
             }
             .accessibilityIdentifier("settings.picker.introduction")
             .accessibilityLabel(NSLocalizedString("accessibility.introduction", comment: ""))
@@ -275,7 +274,7 @@ struct SettingsView: View {
             }
         }
         .onChange(of: self.settings.intervalMinutes) { _ in
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            HapticFeedback.impact()
         }
         .accessibilityIdentifier("settings.stepper.intervalMinutes")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalDuration", comment: ""))
@@ -302,7 +301,7 @@ struct SettingsView: View {
         }
         .pickerStyle(.segmented)
         .onChange(of: self.settings.intervalMode) { _ in
-            UISelectionFeedbackGenerator().selectionChanged()
+            HapticFeedback.selection()
         }
         .accessibilityIdentifier("settings.picker.intervalMode")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalMode", comment: ""))
@@ -324,7 +323,7 @@ struct SettingsView: View {
         }
         .pickerStyle(.menu)
         .onChange(of: self.settings.intervalSoundId) { newValue in
-            UISelectionFeedbackGenerator().selectionChanged()
+            HapticFeedback.selection()
             self.onIntervalGongPreview(newValue, self.settings.intervalGongVolume)
         }
         .accessibilityIdentifier("settings.picker.intervalSound")
@@ -363,7 +362,7 @@ struct SettingsView: View {
             }
             .pickerStyle(.menu)
             .onChange(of: self.settings.backgroundSoundId) { newValue in
-                UISelectionFeedbackGenerator().selectionChanged()
+                HapticFeedback.selection()
                 self.onBackgroundChanged(newValue, self.settings.backgroundSoundVolume)
             }
             .accessibilityIdentifier("settings.picker.backgroundSound")

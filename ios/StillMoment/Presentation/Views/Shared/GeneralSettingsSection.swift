@@ -30,7 +30,7 @@ struct GeneralSettingsSection: View {
             }
             .pickerStyle(.menu)
             .onChange(of: self.themeManager.selectedTheme) { _ in
-                UISelectionFeedbackGenerator().selectionChanged()
+                HapticFeedback.selection()
             }
             .accessibilityIdentifier("settings.picker.theme")
             .accessibilityLabel("settings.theme.title")
@@ -47,7 +47,7 @@ struct GeneralSettingsSection: View {
             }
             .pickerStyle(.menu)
             .onChange(of: self.themeManager.appearanceMode) { _ in
-                UISelectionFeedbackGenerator().selectionChanged()
+                HapticFeedback.selection()
             }
             .accessibilityIdentifier("settings.picker.appearance")
             .accessibilityLabel(

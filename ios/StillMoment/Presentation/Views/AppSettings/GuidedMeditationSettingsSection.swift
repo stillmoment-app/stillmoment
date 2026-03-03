@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Settings section for guided meditation preparation time.
 ///
@@ -58,7 +57,7 @@ struct GuidedMeditationSettingsSection: View {
                 .cardRowBackground()
                 .listRowInsets(EdgeInsets(top: 0, leading: 40, bottom: 0, trailing: 16))
                 .onChange(of: self.preparationTimeSeconds) { newValue in
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticFeedback.selection()
                     self.saveSettings(enabled: true, seconds: newValue)
                 }
             }
