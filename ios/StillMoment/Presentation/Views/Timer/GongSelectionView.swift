@@ -53,13 +53,15 @@ struct GongSelectionView: View {
     private var soundsSection: some View {
         Section {
             ForEach(GongSound.allSounds) { sound in
+                let isSelected = self.viewModel.startGongSoundId == sound.id
                 HStack {
                     Text(sound.name)
                         .themeFont(.settingsLabel)
                     Spacer()
-                    if self.viewModel.startGongSoundId == sound.id {
+                    if isSelected {
                         Image(systemName: "checkmark")
                             .foregroundColor(self.theme.interactive)
+                            .accessibilityHidden(true)
                     }
                 }
                 .contentShape(Rectangle())
@@ -71,6 +73,9 @@ struct GongSelectionView: View {
                     )
                 }
                 .cardRowBackground()
+                .accessibilityElement(children: .combine)
+                .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
+                .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
                 .accessibilityIdentifier("praxis.gong.\(sound.id)")
             }
         }

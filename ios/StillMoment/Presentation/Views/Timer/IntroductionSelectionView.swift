@@ -124,6 +124,7 @@ struct IntroductionSelectionView: View {
         }
         .themedToggle()
         .cardRowBackground()
+        .accessibilityHint(NSLocalizedString("accessibility.introduction.toggle.hint", comment: ""))
         .accessibilityIdentifier("praxis.introduction.toggle")
     }
 
@@ -149,6 +150,9 @@ struct IntroductionSelectionView: View {
             self.viewModel.playIntroductionPreview(introductionId: intro.id)
         }
         .cardRowBackground()
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityIdentifier("praxis.introduction.\(intro.id)")
     }
 
@@ -203,6 +207,9 @@ struct IntroductionSelectionView: View {
                 self.viewModel.introductionId = file.id.uuidString
                 self.viewModel.playIntroductionPreview(introductionId: file.id.uuidString)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
+            .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
             self.overflowMenu(for: file)
         }
         .cardRowBackground()

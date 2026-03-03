@@ -258,6 +258,8 @@
 "accessibility.library.import.hint" = "Opens file picker to import your first guided meditation";
 "accessibility.library.overflow" = "More options";
 "accessibility.library.overflow.hint" = "Opens menu with edit and delete options";
+"accessibility.sound.select.hint" = "Selects this sound and plays a preview";
+"accessibility.introduction.toggle.hint" = "Enables or disables introduction audio before meditation";
 
 // MARK: - Autocomplete
 

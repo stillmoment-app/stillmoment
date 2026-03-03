@@ -173,6 +173,9 @@ struct BackgroundSoundSelectionView: View {
                     volume: self.viewModel.backgroundSoundVolume
                 )
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
+            .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
             self.overflowMenu(for: file)
         }
         .cardRowBackground()
@@ -228,6 +231,9 @@ struct BackgroundSoundSelectionView: View {
             )
         }
         .cardRowBackground()
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityIdentifier("praxis.background.\(sound.id)")
     }
 
