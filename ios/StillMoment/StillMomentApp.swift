@@ -84,6 +84,18 @@ struct StillMomentApp: App {
             .onOpenURL { url in
                 self.handleFileOpen(url: url)
             }
+            .sheet(isPresented: self.$fileOpenHandler.showImportTypeSelection) {
+                self.handleImportDismissed()
+            } content: {
+                ThemeRootView {
+                    ImportTypeSelectionView(
+                        onTypeSelected: self.handleImportTypeSelection
+                    ) { self.fileOpenHandler.showImportTypeSelection = false }
+                }
+                .environmentObject(self.themeManager)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+            }
             .alert(
                 NSLocalizedString("common.error", comment: ""),
                 isPresented: Binding(
@@ -121,25 +133,48 @@ struct StillMomentApp: App {
     }
 
     /// Handles a file URL received via "Open with" (CFBundleDocumentTypes)
+    ///
+    /// Validates the file and shows the import type selection sheet.
+    /// The actual import happens when the user selects a type.
     private func handleFileOpen(url: URL) {
         Logger.guidedMeditation.info(
             "Received file open URL",
             metadata: ["file": url.lastPathComponent]
         )
+        self.fileOpenHandler.prepareImport(url: url)
+
+        // Show error if format is unsupported (prepareImport silently rejects)
+        if !self.fileOpenHandler.showImportTypeSelection {
+            self.fileOpenErrorMessage = FileOpenError.unsupportedFormat.localizedDescription
+        }
+    }
+
+    /// Handles the user's import type selection
+    private func handleImportTypeSelection(_ type: ImportAudioType) {
+        guard let url = self.fileOpenHandler.pendingImportURL
+        else { return }
+        self.fileOpenHandler.showImportTypeSelection = false
 
         Task {
-            let result = await self.fileOpenHandler.handleFileOpen(url: url)
+            let result = await self.fileOpenHandler.importFile(from: url, as: type)
+            self.fileOpenHandler.pendingImportURL = nil
 
             switch result {
-            case let .success(meditation):
-                // Switch to library tab so user sees the import
+            case .success(.guidedMeditation):
                 self.selectedTab = AppTab.library.rawValue
-                // Publish the imported meditation for the list view to show edit sheet
-                self.fileOpenHandler.importedMeditation = meditation
+
+            case .success(.customAudio):
+                // Navigate to Timer tab — TimerView reacts to pendingCustomAudioImport
+                self.selectedTab = AppTab.timer.rawValue
 
             case let .failure(error):
                 self.fileOpenErrorMessage = error.localizedDescription
             }
         }
+    }
+
+    /// Handles dismissal of the import type selection sheet
+    private func handleImportDismissed() {
+        self.fileOpenHandler.cancelPendingImport()
     }
 }

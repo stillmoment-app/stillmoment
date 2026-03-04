@@ -114,12 +114,32 @@ struct TimerView: View {
         .animation(.easeInOut(duration: 0.4), value: self.viewModel.timerState == .completed)
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
+        .onChange(of: self.fileOpenHandler.shouldStopMeditation) { shouldStop in
+            guard shouldStop
+            else { return }
+            self.viewModel.resetTimer()
+            self.fileOpenHandler.shouldStopMeditation = false
+        }
+        .onChange(of: self.fileOpenHandler.pendingCustomAudioImport) { pendingImport in
+            guard pendingImport != nil
+            else { return }
+            // Open PraxisEditor for navigation to the imported audio's selection screen
+            let praxisForEditor = self.viewModel.currentPraxis
+                .withDurationMinutes(self.viewModel.selectedMinutes)
+            self
+                .editorViewModel =
+                PraxisEditorViewModel(praxis: praxisForEditor) { [weak viewModel = self.viewModel] savedPraxis in
+                    viewModel?.updateFromPraxis(savedPraxis)
+                }
+            self.navigateToEditor = true
+        }
     }
 
     // MARK: Private
 
     @Environment(\.themeColors)
     private var theme
+    @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: TimerViewModel
     @State private var navigateToEditor = false
     @State private var editorViewModel: PraxisEditorViewModel?

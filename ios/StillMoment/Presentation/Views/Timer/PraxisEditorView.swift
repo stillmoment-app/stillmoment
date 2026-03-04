@@ -40,6 +40,23 @@ struct PraxisEditorView: View {
                 }
             }
             .onDisappear { self.viewModel.stopAllPreviews() }
+            .navigationDestination(isPresented: self.$navigateToIntroduction) {
+                IntroductionSelectionView(viewModel: self.viewModel)
+            }
+            .navigationDestination(isPresented: self.$navigateToBackground) {
+                BackgroundSoundSelectionView(viewModel: self.viewModel)
+            }
+            .onAppear {
+                // Auto-navigate to the correct sub-view after a custom audio import
+                if let pending = self.fileOpenHandler.pendingCustomAudioImport {
+                    switch pending.type {
+                    case .soundscape:
+                        self.navigateToBackground = true
+                    case .attunement:
+                        self.navigateToIntroduction = true
+                    }
+                }
+            }
         }
     }
 
@@ -47,7 +64,10 @@ struct PraxisEditorView: View {
 
     @Environment(\.themeColors)
     private var theme
+    @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @ObservedObject private var viewModel: PraxisEditorViewModel
+    @State private var navigateToIntroduction = false
+    @State private var navigateToBackground = false
 
     // MARK: - Preparation
 
@@ -91,8 +111,8 @@ struct PraxisEditorView: View {
 
     private var audioSection: some View {
         Section {
-            NavigationLink {
-                IntroductionSelectionView(viewModel: self.viewModel)
+            Button {
+                self.navigateToIntroduction = true
             } label: {
                 HStack {
                     Text("praxis.editor.introduction.row", bundle: .main)
@@ -101,13 +121,17 @@ struct PraxisEditorView: View {
                     Text(self.currentIntroductionLabel)
                         .themeFont(.settingsDescription)
                         .foregroundColor(self.theme.textSecondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(self.theme.textSecondary)
                 }
             }
+            .buttonStyle(.plain)
             .cardRowBackground()
             .accessibilityIdentifier("praxis.editor.link.introduction")
 
-            NavigationLink {
-                BackgroundSoundSelectionView(viewModel: self.viewModel)
+            Button {
+                self.navigateToBackground = true
             } label: {
                 HStack {
                     Text("praxis.editor.background.row", bundle: .main)
@@ -116,8 +140,12 @@ struct PraxisEditorView: View {
                     Text(self.currentBackgroundLabel)
                         .themeFont(.settingsDescription)
                         .foregroundColor(self.theme.textSecondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(self.theme.textSecondary)
                 }
             }
+            .buttonStyle(.plain)
             .cardRowBackground()
             .accessibilityIdentifier("praxis.editor.link.background")
         } header: {
