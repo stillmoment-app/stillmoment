@@ -26,7 +26,9 @@ final class TimerViewModel: ObservableObject {
         settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository(),
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
-        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository()
+        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
+        attunementResolver: AttunementResolverProtocol? = nil,
+        soundscapeResolver: SoundscapeResolverProtocol? = nil
     ) {
         self.timerService = timerService
         self.audioService = audioService
@@ -34,11 +36,18 @@ final class TimerViewModel: ObservableObject {
         self.soundRepository = soundRepository
         self.praxisRepository = praxisRepository
         self.customAudioRepository = customAudioRepository
+        self.attunementResolver = attunementResolver ?? AttunementResolver(
+            customAudioRepository: customAudioRepository
+        )
+        self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
+            soundRepository: soundRepository,
+            customAudioRepository: customAudioRepository
+        )
 
         // Load current Praxis and apply its configuration
         let praxis = praxisRepository.load()
         self.currentPraxis = praxis
-        let customIntroDuration = self.resolveCustomIntroDurationSeconds(introductionId: praxis.introductionId)
+        let customIntroDuration = self.resolveIntroDurationSeconds(introductionId: praxis.introductionId)
         self.settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
         self.selectedMinutes = self.settings.durationMinutes
         self.setupBindings()
@@ -139,7 +148,8 @@ final class TimerViewModel: ObservableObject {
             action: action,
             timerState: self.timer?.state ?? .idle,
             selectedMinutes: self.selectedMinutes,
-            settings: self.settings
+            settings: self.settings,
+            attunementResolver: self.attunementResolver
         )
 
         self.executeEffects(effects)
@@ -161,7 +171,7 @@ final class TimerViewModel: ObservableObject {
     /// Called by the PraxisEditorView's onSaved callback.
     func updateFromPraxis(_ praxis: Praxis) {
         self.currentPraxis = praxis
-        let customIntroDuration = self.resolveCustomIntroDurationSeconds(introductionId: praxis.introductionId)
+        let customIntroDuration = self.resolveIntroDurationSeconds(introductionId: praxis.introductionId)
         let settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
         self.settings = settings
         self.selectedMinutes = settings.durationMinutes
@@ -177,21 +187,20 @@ final class TimerViewModel: ObservableObject {
     let soundRepository: BackgroundSoundRepositoryProtocol
     private let praxisRepository: PraxisRepository
     let customAudioRepository: CustomAudioRepositoryProtocol
+    let attunementResolver: AttunementResolverProtocol
+    let soundscapeResolver: SoundscapeResolverProtocol
     private var cancellables = Set<AnyCancellable>()
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
     private var minutesBeforeIntroduction: Int?
 
-    /// Returns the custom attunement duration in seconds, or nil for built-in introductions.
-    private func resolveCustomIntroDurationSeconds(introductionId: String? = nil) -> Int? {
+    /// Returns the attunement duration in seconds via the resolver, or nil if not found.
+    func resolveIntroDurationSeconds(introductionId: String? = nil) -> Int? {
         let introId = introductionId ?? self.settings.introductionId
-        guard let introId,
-              let uuid = UUID(uuidString: introId),
-              let customFile = self.customAudioRepository.findFile(byId: uuid),
-              let duration = customFile.duration else {
+        guard let introId else {
             return nil
         }
-        return Int(duration)
+        return self.attunementResolver.resolve(id: introId)?.durationSeconds
     }
 
     // MARK: - Effect Execution
@@ -316,11 +325,11 @@ final class TimerViewModel: ObservableObject {
             .sink { [weak self] introductionId in
                 guard let self
                 else { return }
-                let customDuration = self.resolveCustomIntroDurationSeconds(introductionId: introductionId)
+                let introDuration = self.resolveIntroDurationSeconds(introductionId: introductionId)
                 let minimum = MeditationSettings.minimumDuration(
                     for: introductionId,
                     introductionEnabled: self.settings.introductionEnabled,
-                    customIntroDurationSeconds: customDuration
+                    introDurationSeconds: introDuration
                 )
                 if introductionId != nil, self.selectedMinutes < minimum {
                     self.minutesBeforeIntroduction = self.selectedMinutes
@@ -419,45 +428,17 @@ private extension TimerViewModel {
     }
 
     func executePlayIntroduction(introductionId: String) {
-        // Try built-in introduction first
-        if let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) {
-            do {
-                try self.audioService.playIntroduction(filename: filename)
-                Logger.viewModel.info(
-                    "Introduction audio started",
-                    metadata: ["introductionId": introductionId]
-                )
-            } catch {
-                Logger.viewModel.error("Failed to play introduction audio", error: error)
-                self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
-            }
-            return
+        do {
+            let url = try self.attunementResolver.resolveAudioURL(id: introductionId)
+            try self.audioService.playIntroduction(filename: url.path)
+            Logger.viewModel.info(
+                "Introduction audio started",
+                metadata: ["introductionId": introductionId]
+            )
+        } catch {
+            Logger.viewModel.error("Failed to play introduction audio", error: error)
+            self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
         }
-
-        // Try custom attunement (UUID-based ID)
-        if let uuid = UUID(uuidString: introductionId),
-           let customFile = self.customAudioRepository.findFile(byId: uuid),
-           let fileURL = self.customAudioRepository.fileURL(for: customFile) {
-            do {
-                try self.audioService.playIntroduction(filename: fileURL.path)
-                Logger.viewModel.info(
-                    "Custom attunement started",
-                    metadata: ["id": introductionId]
-                )
-            } catch {
-                Logger.viewModel.error("Failed to play custom attunement", error: error)
-                self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
-            }
-            return
-        }
-
-        Logger.viewModel.error(
-            "Introduction audio not available",
-            metadata: [
-                "introductionId": introductionId,
-                "language": Introduction.currentLanguage
-            ]
-        )
     }
 
     func executePlayIntervalGong(soundId: String, volume: Float) {

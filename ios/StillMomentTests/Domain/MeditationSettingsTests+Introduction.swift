@@ -143,7 +143,7 @@ extension MeditationSettingsTests {
         XCTAssertEqual(
             MeditationSettings.minimumDuration(
                 activeIntroductionId: "custom-uuid",
-                customIntroDurationSeconds: 331
+                introDurationSeconds: 331
             ),
             6
         )
@@ -154,7 +154,7 @@ extension MeditationSettingsTests {
         XCTAssertEqual(
             MeditationSettings.minimumDuration(
                 activeIntroductionId: "custom-uuid",
-                customIntroDurationSeconds: 61
+                introDurationSeconds: 61
             ),
             2
         )
@@ -165,7 +165,7 @@ extension MeditationSettingsTests {
         XCTAssertEqual(
             MeditationSettings.minimumDuration(
                 activeIntroductionId: nil,
-                customIntroDurationSeconds: 331
+                introDurationSeconds: 331
             ),
             1
         )
@@ -178,7 +178,7 @@ extension MeditationSettingsTests {
                 3,
                 introductionId: "custom-uuid",
                 introductionEnabled: true,
-                customIntroDurationSeconds: 331
+                introDurationSeconds: 331
             ),
             6
         )

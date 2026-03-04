@@ -25,7 +25,8 @@ enum TimerReducer {
         action: TimerAction,
         timerState: TimerState,
         selectedMinutes: Int,
-        settings: MeditationSettings
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol? = nil
     ) -> [TimerEffect] {
         switch action {
         case .startPressed:
@@ -39,7 +40,11 @@ enum TimerReducer {
         case .preparationFinished:
             self.reducePreparationFinished()
         case .startGongFinished:
-            self.reduceStartGongFinished(timerState: timerState, settings: settings)
+            self.reduceStartGongFinished(
+                timerState: timerState,
+                settings: settings,
+                attunementResolver: attunementResolver
+            )
         case .introductionFinished:
             self.reduceIntroductionFinished(timerState: timerState, settings: settings)
         case .timerCompleted:
@@ -98,13 +103,14 @@ enum TimerReducer {
 
     private static func reduceStartGongFinished(
         timerState: TimerState,
-        settings: MeditationSettings
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol?
     ) -> [TimerEffect] {
         guard timerState == .startGong else {
             return []
         }
 
-        if self.hasActiveIntroduction(settings: settings),
+        if self.hasActiveIntroduction(settings: settings, attunementResolver: attunementResolver),
            let introId = settings.introductionId {
             // Introduction configured → play audio
             return [.beginIntroductionPhase, .playIntroduction(introductionId: introId)]
@@ -175,12 +181,19 @@ enum TimerReducer {
 
     // MARK: - Helpers
 
-    /// Checks if an introduction is configured, enabled, and available for the current language
-    private static func hasActiveIntroduction(settings: MeditationSettings) -> Bool {
+    /// Checks if an introduction is configured, enabled, and available
+    private static func hasActiveIntroduction(
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol?
+    ) -> Bool {
         guard settings.introductionEnabled,
               let introId = settings.introductionId else {
             return false
         }
+        if let resolver = attunementResolver {
+            return resolver.resolve(id: introId) != nil
+        }
+        // Fallback for callers without resolver (backward compatibility)
         return Introduction.isAvailableForCurrentLanguage(introId)
     }
 }
