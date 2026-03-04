@@ -16,6 +16,10 @@ final class TimerReducerTests: XCTestCase {
         MeditationSettings.default
     }
 
+    private var emptyResolver: MockAttunementResolver {
+        MockAttunementResolver()
+    }
+
     // MARK: - StartPressed Tests
 
     func testStartPressed_producesCorrectEffects() {
@@ -32,7 +36,8 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: settings
+            settings: settings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then - Background audio is NOT started here; it starts in startGongFinished
@@ -51,7 +56,8 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -64,7 +70,8 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 0,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -79,7 +86,8 @@ final class TimerReducerTests: XCTestCase {
             action: .preparationFinished,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -92,7 +100,8 @@ final class TimerReducerTests: XCTestCase {
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -110,7 +119,8 @@ final class TimerReducerTests: XCTestCase {
             action: .timerCompleted,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -128,7 +138,8 @@ final class TimerReducerTests: XCTestCase {
             action: .intervalGongTriggered,
             timerState: .running,
             selectedMinutes: 10,
-            settings: settings
+            settings: settings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -144,7 +155,8 @@ final class TimerReducerTests: XCTestCase {
             action: .intervalGongTriggered,
             timerState: .running,
             selectedMinutes: 10,
-            settings: settings
+            settings: settings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then

@@ -26,7 +26,7 @@ enum TimerReducer {
         timerState: TimerState,
         selectedMinutes: Int,
         settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol? = nil
+        attunementResolver: AttunementResolverProtocol
     ) -> [TimerEffect] {
         switch action {
         case .startPressed:
@@ -104,7 +104,7 @@ enum TimerReducer {
     private static func reduceStartGongFinished(
         timerState: TimerState,
         settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol?
+        attunementResolver: AttunementResolverProtocol
     ) -> [TimerEffect] {
         guard timerState == .startGong else {
             return []
@@ -184,16 +184,12 @@ enum TimerReducer {
     /// Checks if an introduction is configured, enabled, and available
     private static func hasActiveIntroduction(
         settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol?
+        attunementResolver: AttunementResolverProtocol
     ) -> Bool {
         guard settings.introductionEnabled,
               let introId = settings.introductionId else {
             return false
         }
-        if let resolver = attunementResolver {
-            return resolver.resolve(id: introId) != nil
-        }
-        // Fallback for callers without resolver (backward compatibility)
-        return Introduction.isAvailableForCurrentLanguage(introId)
+        return attunementResolver.resolve(id: introId) != nil
     }
 }

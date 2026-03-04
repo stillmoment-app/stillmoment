@@ -9,23 +9,26 @@ import XCTest
 @testable import StillMoment
 
 final class TimerReducerIntroductionTests: XCTestCase {
-    // MARK: - Setup / Teardown
-
-    override func setUp() {
-        super.setUp()
-        // Force German locale so "breath" introduction is always available
-        Introduction.languageOverride = "de"
-    }
-
-    override func tearDown() {
-        Introduction.languageOverride = nil
-        super.tearDown()
-    }
-
     // MARK: - Test Helpers
 
     private var defaultSettings: MeditationSettings {
         MeditationSettings.default
+    }
+
+    /// Resolver that resolves "breath" to a valid attunement (for introduction tests)
+    private var breathResolver: MockAttunementResolver {
+        let resolver = MockAttunementResolver()
+        resolver.stubbedResolveResults["breath"] = ResolvedAttunement(
+            id: "breath",
+            displayName: "Breath",
+            durationSeconds: 120
+        )
+        return resolver
+    }
+
+    /// Resolver that resolves nothing (for non-introduction tests)
+    private var emptyResolver: MockAttunementResolver {
+        MockAttunementResolver()
     }
 
     /// Settings with introduction configured and enabled
@@ -46,7 +49,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then - Background audio is NOT started here; it starts in startGongFinished
@@ -65,7 +69,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then - No background audio yet (delayed until introduction finishes)
@@ -86,7 +91,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .preparationFinished,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -99,7 +105,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .preparationFinished,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -114,7 +121,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -127,7 +135,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -142,7 +151,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .completed,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -153,7 +163,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .introduction,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -164,7 +175,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -178,7 +190,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .introductionFinished,
             timerState: .introduction,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -203,7 +216,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .introductionFinished,
             timerState: .introduction,
             selectedMinutes: 10,
-            settings: settings
+            settings: settings,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -215,7 +229,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .introductionFinished,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -229,7 +244,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .timerCompleted,
             timerState: .introduction,
             selectedMinutes: 3,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -245,7 +261,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .timerCompleted,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -261,7 +278,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .resetPressed,
             timerState: .introduction,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction
+            settings: self.settingsWithIntroduction,
+            attunementResolver: self.breathResolver
         )
 
         // Then
@@ -276,7 +294,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .resetPressed,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
         )
 
         // Then
@@ -293,7 +312,8 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroductionDisabled
+            settings: self.settingsWithIntroductionDisabled,
+            attunementResolver: self.breathResolver
         )
 
         // Then - Should skip introduction and start background audio directly
