@@ -43,7 +43,7 @@ Aktuell werden geteilte Audio-Dateien immer als Gefuehrte Meditation importiert.
 
 ### Tests
 - [ ] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests Android
 
 ### Dokumentation
 - [ ] CHANGELOG.md
