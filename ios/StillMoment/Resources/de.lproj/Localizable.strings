@@ -344,3 +344,14 @@
 "custom.audio.rename.title" = "Name bearbeiten";
 "custom.audio.rename.placeholder" = "Name";
 "custom.audio.rename.message" = "Gib dem Klang einen neuen Namen.";
+
+// MARK: - Import Type Selection
+
+"import.type.title" = "Importieren als…";
+"import.type.guided" = "Geführte Meditation";
+"import.type.guided.description" = "Zur Meditationsbibliothek hinzufügen";
+"import.type.soundscape" = "Klangkulisse";
+"import.type.soundscape.description" = "Als Hintergrundklang verwenden";
+"import.type.attunement" = "Einstimmung";
+"import.type.attunement.description" = "Als Einstimmung verwenden";
+"import.type.cancel" = "Abbrechen";

@@ -344,3 +344,14 @@
 "custom.audio.rename.title" = "Edit Name";
 "custom.audio.rename.placeholder" = "Name";
 "custom.audio.rename.message" = "Enter a new name for this sound.";
+
+// MARK: - Import Type Selection
+
+"import.type.title" = "Import as…";
+"import.type.guided" = "Guided Meditation";
+"import.type.guided.description" = "Add to meditation library";
+"import.type.soundscape" = "Soundscape";
+"import.type.soundscape.description" = "Use as background sound";
+"import.type.attunement" = "Attunement";
+"import.type.attunement.description" = "Use as introduction";
+"import.type.cancel" = "Cancel";
