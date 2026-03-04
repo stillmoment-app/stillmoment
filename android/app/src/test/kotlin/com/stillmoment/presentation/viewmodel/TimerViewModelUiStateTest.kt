@@ -27,7 +27,6 @@ class TimerViewModelUiStateTest {
         assertEquals(0f, state.progress)
         assertNull(state.errorMessage)
         assertFalse(state.showSettings)
-        assertFalse(state.showSettingsHint)
     }
 
     @Test
@@ -312,46 +311,5 @@ class TimerViewModelUiStateTest {
         )
         assertFalse(running.canStart)
         assertTrue(running.canReset)
-    }
-
-    // MARK: - Settings Hint Pure Data Tests
-
-    @Test
-    fun `showSettingsHint default is false`() {
-        val state = TimerUiState()
-        assertFalse(state.showSettingsHint)
-    }
-
-    @Test
-    fun `showSettingsHint can be set to true`() {
-        val state = TimerUiState(showSettingsHint = true)
-        assertTrue(state.showSettingsHint)
-    }
-
-    @Test
-    fun `showSettingsHint can be toggled via copy`() {
-        val initial = TimerUiState(showSettingsHint = true)
-        assertTrue(initial.showSettingsHint)
-
-        val dismissed = initial.copy(showSettingsHint = false)
-        assertFalse(dismissed.showSettingsHint)
-    }
-
-    @Test
-    fun `showSettingsHint is independent of showSettings`() {
-        // Hint visible, settings closed
-        val hintVisible = TimerUiState(showSettingsHint = true, showSettings = false)
-        assertTrue(hintVisible.showSettingsHint)
-        assertFalse(hintVisible.showSettings)
-
-        // Both can be false
-        val bothHidden = TimerUiState(showSettingsHint = false, showSettings = false)
-        assertFalse(bothHidden.showSettingsHint)
-        assertFalse(bothHidden.showSettings)
-
-        // Settings open, hint hidden (typical after user taps settings)
-        val settingsOpen = TimerUiState(showSettingsHint = false, showSettings = true)
-        assertFalse(settingsOpen.showSettingsHint)
-        assertTrue(settingsOpen.showSettings)
     }
 }

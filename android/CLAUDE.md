@@ -16,9 +16,10 @@ class TimerViewModel
 @Inject
 constructor(
     application: Application,
-    private val settingsRepository: SettingsRepository,
     private val timerRepository: TimerRepository,
-    private val audioService: AudioService
+    private val audioService: AudioServiceProtocol,
+    private val foregroundService: TimerForegroundServiceProtocol,
+    private val praxisRepository: PraxisRepository
 ) : AndroidViewModel(application)
 ```
 
@@ -45,8 +46,12 @@ private fun handleEffect(effect: TimerEffect) {
                 timerRepository.start(effect.durationMinutes, effect.preparationTimeSeconds)
             }
         }
-        is TimerEffect.SaveSettings ->
-            viewModelScope.launch { settingsRepository.updateSettings(effect.settings) }
+        is TimerEffect.SaveSettings -> viewModelScope.launch {
+            val currentPraxis = _uiState.value.currentPraxis
+            praxisRepository.save(
+                currentPraxis.withDurationMinutes(effect.settings.durationMinutes)
+            )
+        }
     }
 }
 ```
