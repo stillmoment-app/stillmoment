@@ -5,11 +5,9 @@ import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalSettings
-import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.repositories.CustomAudioRepository
-import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -19,7 +17,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
@@ -136,29 +133,6 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
 
     override fun resumeAudio() {
         audioResumed = true
-    }
-}
-
-/**
- * Fake implementation of SettingsRepository for testing.
- * Tracks hasSeenSettingsHint state for verification.
- */
-class FakeSettingsRepository : SettingsRepository {
-    private val _settings = MutableStateFlow(MeditationSettings.Default)
-    var hasSeenHint = false
-
-    override val settingsFlow: Flow<MeditationSettings> = _settings
-
-    override suspend fun updateSettings(settings: MeditationSettings) {
-        _settings.value = settings
-    }
-
-    override suspend fun getSettings(): MeditationSettings = _settings.first()
-
-    override suspend fun getHasSeenSettingsHint(): Boolean = hasSeenHint
-
-    override suspend fun setHasSeenSettingsHint(seen: Boolean) {
-        hasSeenHint = seen
     }
 }
 

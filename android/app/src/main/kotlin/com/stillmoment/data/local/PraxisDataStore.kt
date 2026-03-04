@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.LoggerProtocol
@@ -44,7 +43,6 @@ class PraxisDataStore
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val settingsDataStore: SettingsDataStore,
     private val logger: LoggerProtocol
 ) : PraxisRepository {
     private val _praxisState = MutableStateFlow<Praxis?>(null)
@@ -80,19 +78,12 @@ constructor(
     }
 
     /**
-     * Attempts to migrate from existing MeditationSettings, or creates a fresh default Praxis.
+     * Creates a fresh default Praxis.
      * The result is saved to the praxis DataStore.
      */
     private suspend fun migrateOrDefault(): Praxis {
-        val settings = settingsDataStore.getSettings()
-        val praxis = if (settings != MeditationSettings.Default) {
-            Praxis.fromMeditationSettings(settings).also {
-                logger.d(TAG, "Migrated MeditationSettings to Praxis")
-            }
-        } else {
-            Praxis.Default.also {
-                logger.d(TAG, "Created default Praxis for fresh install")
-            }
+        val praxis = Praxis.Default.also {
+            logger.d(TAG, "Created default Praxis for fresh install")
         }
         save(praxis)
         return praxis

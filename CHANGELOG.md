@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Android)
+- **Custom Einstimmung im Timer** - Custom Einstimmung (Attunement) wurde als "No introduction" angezeigt, weil TimerViewModel parallel von SettingsDataStore und PraxisDataStore las und SettingsDataStore custom UUIDs herausfilterte. PraxisDataStore ist jetzt Single Source of Truth fuer Timer-Settings (Ticket: android-074)
+
 ### Fixed (iOS)
 - **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
 

@@ -1,7 +1,6 @@
 package com.stillmoment.presentation.viewmodel
 
 import android.app.Application
-import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.Praxis
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +23,6 @@ import org.mockito.kotlin.mock
 @OptIn(ExperimentalCoroutinesApi::class)
 class TimerViewModelIntroductionTest {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var fakeSettingsRepository: FakeSettingsRepository
     private lateinit var fakeTimerRepository: FakeTimerRepository
     private lateinit var fakeAudioService: FakeAudioService
     private lateinit var fakeForegroundService: FakeTimerForegroundService
@@ -36,7 +34,6 @@ class TimerViewModelIntroductionTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        fakeSettingsRepository = FakeSettingsRepository()
         fakeTimerRepository = FakeTimerRepository()
         fakeAudioService = FakeAudioService()
         fakeForegroundService = FakeTimerForegroundService()
@@ -54,7 +51,6 @@ class TimerViewModelIntroductionTest {
     private fun createViewModel(): TimerViewModel {
         return TimerViewModel(
             application = mockApplication,
-            settingsRepository = fakeSettingsRepository,
             timerRepository = fakeTimerRepository,
             audioService = fakeAudioService,
             foregroundService = fakeForegroundService,
@@ -67,8 +63,6 @@ class TimerViewModelIntroductionTest {
     @Test
     fun `disabling introduction restores pre-introduction duration`() = runTest {
         // Given - User has 1 minute selected
-        val initialSettings = MeditationSettings(durationMinutes = 1)
-        fakeSettingsRepository.updateSettings(initialSettings)
         fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 1)
         val viewModel = createViewModel()
         advanceUntilIdle()
@@ -76,7 +70,11 @@ class TimerViewModelIntroductionTest {
 
         // When - Enable introduction (clamps to 3 min)
         viewModel.updateSettings(
-            initialSettings.copy(introductionId = "breath", introductionEnabled = true, durationMinutes = 3),
+            viewModel.uiState.value.settings.copy(
+                introductionId = "breath",
+                introductionEnabled = true,
+                durationMinutes = 3
+            ),
         )
         advanceUntilIdle()
         assertEquals(3, viewModel.uiState.value.selectedMinutes)
@@ -165,15 +163,18 @@ class TimerViewModelIntroductionTest {
     @Test
     fun `disabling introduction does not restore when duration was above minimum`() = runTest {
         // Given - User has 10 minutes selected (above the 3-minute minimum)
-        val initialSettings = MeditationSettings(durationMinutes = 10)
-        fakeSettingsRepository.updateSettings(initialSettings)
+        fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 10)
         val viewModel = createViewModel()
         advanceUntilIdle()
         assertEquals(10, viewModel.uiState.value.selectedMinutes)
 
         // When - Enable introduction (10 > 3, no clamping)
         viewModel.updateSettings(
-            initialSettings.copy(introductionId = "breath", introductionEnabled = true, durationMinutes = 10),
+            viewModel.uiState.value.settings.copy(
+                introductionId = "breath",
+                introductionEnabled = true,
+                durationMinutes = 10
+            ),
         )
         advanceUntilIdle()
         assertEquals(10, viewModel.uiState.value.selectedMinutes)

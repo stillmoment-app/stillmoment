@@ -3,7 +3,6 @@ package com.stillmoment.infrastructure.di
 import android.content.Context
 import com.stillmoment.data.local.GuidedMeditationSettingsDataStore
 import com.stillmoment.data.local.PraxisDataStore
-import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.data.repositories.CustomAudioRepositoryImpl
 import com.stillmoment.data.repositories.GuidedMeditationRepositoryImpl
 import com.stillmoment.data.repositories.SoundCatalogRepositoryImpl
@@ -12,7 +11,6 @@ import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.repositories.PraxisRepository
-import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
@@ -52,12 +50,6 @@ object AppModule {
     @Singleton
     fun provideApplicationContext(@ApplicationContext context: Context): Context {
         return context
-    }
-
-    @Provides
-    @Singleton
-    fun provideSettingsRepository(settingsDataStore: SettingsDataStore): SettingsRepository {
-        return settingsDataStore
     }
 
     @Provides

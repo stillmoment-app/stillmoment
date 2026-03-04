@@ -23,7 +23,6 @@ import org.mockito.kotlin.mock
 @OptIn(ExperimentalCoroutinesApi::class)
 class TimerViewModelPreviewTest {
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var fakeSettingsRepository: FakeSettingsRepository
     private lateinit var fakeTimerRepository: FakeTimerRepository
     private lateinit var fakeAudioService: FakeAudioService
     private lateinit var fakeForegroundService: FakeTimerForegroundService
@@ -35,7 +34,6 @@ class TimerViewModelPreviewTest {
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        fakeSettingsRepository = FakeSettingsRepository()
         fakeTimerRepository = FakeTimerRepository()
         fakeAudioService = FakeAudioService()
         fakeForegroundService = FakeTimerForegroundService()
@@ -53,7 +51,6 @@ class TimerViewModelPreviewTest {
     private fun createViewModel(): TimerViewModel {
         return TimerViewModel(
             application = mockApplication,
-            settingsRepository = fakeSettingsRepository,
             timerRepository = fakeTimerRepository,
             audioService = fakeAudioService,
             foregroundService = fakeForegroundService,

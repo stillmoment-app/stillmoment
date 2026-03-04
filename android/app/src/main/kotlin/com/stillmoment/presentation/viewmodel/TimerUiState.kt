@@ -26,8 +26,6 @@ data class TimerUiState(
     val errorMessage: String? = null,
     /** Whether settings sheet is visible */
     val showSettings: Boolean = false,
-    /** Whether to show the settings hint tooltip (first-time onboarding) */
-    val showSettingsHint: Boolean = false,
     /** Current Praxis for configuration pills display */
     val currentPraxis: Praxis = Praxis.Default,
     /** Built-in background sounds from catalog */

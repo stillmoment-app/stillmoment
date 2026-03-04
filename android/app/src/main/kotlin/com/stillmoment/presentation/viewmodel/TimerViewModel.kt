@@ -13,7 +13,6 @@ import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
-import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -46,7 +45,6 @@ class TimerViewModel
 @Inject
 constructor(
     application: Application,
-    private val settingsRepository: SettingsRepository,
     private val timerRepository: TimerRepository,
     private val audioService: AudioServiceProtocol,
     private val foregroundService: TimerForegroundServiceProtocol,
@@ -78,17 +76,13 @@ constructor(
         val initialPraxis = runBlocking { praxisRepository.load() }
         val customIntroDuration = resolveCustomIntroDurationSeconds(initialPraxis.introductionId)
         val initialSettings = initialPraxis.toMeditationSettings(customIntroDuration)
-        val hasSeenHint = runBlocking { settingsRepository.getHasSeenSettingsHint() }
         _uiState.value = TimerUiState(
             timer = null,
             selectedMinutes = initialSettings.durationMinutes,
             settings = initialSettings,
-            showSettingsHint = !hasSeenHint,
             currentPraxis = initialPraxis,
             builtInSounds = soundCatalogRepository.getAllSounds()
         )
-        // Continue collecting for future changes (background sound changes, etc.)
-        loadSettings()
         // Observe praxis changes and sync settings + pill labels
         observePraxis()
 
@@ -152,8 +146,12 @@ constructor(
             is TimerEffect.ResetTimer -> handleResetTimer()
             is TimerEffect.TransitionToRunning -> handleTransitionToRunning()
             is TimerEffect.TransitionToCompleted -> handleTransitionToCompleted()
-            is TimerEffect.SaveSettings ->
-                viewModelScope.launch { settingsRepository.updateSettings(effect.settings) }
+            is TimerEffect.SaveSettings -> viewModelScope.launch {
+                val currentPraxis = _uiState.value.currentPraxis
+                praxisRepository.save(
+                    currentPraxis.withDurationMinutes(effect.settings.durationMinutes)
+                )
+            }
         }
     }
 
@@ -220,21 +218,7 @@ constructor(
     }
 
     fun showSettings() {
-        dismissSettingsHint()
         _uiState.update { it.copy(showSettings = true) }
-    }
-
-    /**
-     * Dismisses the settings hint tooltip and marks it as seen.
-     * Called on timeout or when user taps the settings icon.
-     */
-    fun dismissSettingsHint() {
-        if (_uiState.value.showSettingsHint) {
-            _uiState.update { it.copy(showSettingsHint = false) }
-            viewModelScope.launch {
-                settingsRepository.setHasSeenSettingsHint(true)
-            }
-        }
     }
 
     fun hideSettings() {
@@ -409,25 +393,6 @@ constructor(
 
     // MARK: - Persistence
 
-    private fun loadSettings() {
-        viewModelScope.launch {
-            settingsRepository.settingsFlow.collect { settings ->
-                val customIntroDuration = resolveCustomIntroDurationSeconds(settings.introductionId)
-                val settingsWithCustomDuration = settings.copy(
-                    customIntroDurationSeconds = customIntroDuration
-                )
-                _uiState.update { state ->
-                    val newMinutes = if (state.timerState == TimerState.Idle) {
-                        settingsWithCustomDuration.durationMinutes
-                    } else {
-                        state.selectedMinutes
-                    }
-                    state.copy(settings = settingsWithCustomDuration, selectedMinutes = newMinutes)
-                }
-            }
-        }
-    }
-
     private fun observePraxis() {
         viewModelScope.launch {
             praxisRepository.praxisFlow.collect { praxis ->
@@ -474,7 +439,10 @@ constructor(
 
     private fun saveSettings() {
         viewModelScope.launch {
-            settingsRepository.updateSettings(_uiState.value.settings)
+            val state = _uiState.value
+            praxisRepository.save(
+                Praxis.fromMeditationSettings(state.settings, state.currentPraxis.id)
+            )
         }
     }
 
