@@ -60,6 +60,22 @@ constructor(
     }
 
     /**
+     * Validates that the given URI points to a supported audio format.
+     * Does NOT check for duplicates or import the file.
+     * Used by the type-selection flow where import type is chosen first.
+     *
+     * @param uri Content URI to validate
+     * @return Result.success if format is supported, Result.failure with UNSUPPORTED_FORMAT otherwise
+     */
+    fun validateFileFormat(uri: Uri): Result<Unit> {
+        if (!canHandle(uri)) {
+            logger.w(TAG, "Rejected file with unsupported format: $uri")
+            return Result.failure(FileOpenException(FileOpenError.UNSUPPORTED_FORMAT))
+        }
+        return Result.success(Unit)
+    }
+
+    /**
      * Handles a file open request from the system.
      *
      * Validates the format, checks for duplicates, and imports the file

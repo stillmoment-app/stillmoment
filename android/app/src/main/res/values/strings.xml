@@ -292,4 +292,13 @@
     <string name="accessibility_custom_audio_overflow">More options for %1$s</string>
     <string name="accessibility_import_custom_audio">Import audio file</string>
     <string name="accessibility_custom_audio_item">%1$s, duration %2$s</string>
+
+    <!-- Import Type Selection -->
+    <string name="import_type_title">Import as\u2026</string>
+    <string name="import_type_guided">Guided Meditation</string>
+    <string name="import_type_guided_description">Add to meditation library</string>
+    <string name="import_type_soundscape">Soundscape</string>
+    <string name="import_type_soundscape_description">Use as background sound</string>
+    <string name="import_type_attunement">Attunement</string>
+    <string name="import_type_attunement_description">Use as introduction</string>
 </resources>

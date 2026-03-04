@@ -292,4 +292,13 @@
     <string name="accessibility_custom_audio_overflow">Weitere Optionen fuer %1$s</string>
     <string name="accessibility_import_custom_audio">Audiodatei importieren</string>
     <string name="accessibility_custom_audio_item">%1$s, Dauer %2$s</string>
+
+    <!-- Import Type Selection -->
+    <string name="import_type_title">Importieren als\u2026</string>
+    <string name="import_type_guided">Geführte Meditation</string>
+    <string name="import_type_guided_description">Zur Meditationsbibliothek hinzufügen</string>
+    <string name="import_type_soundscape">Klangkulisse</string>
+    <string name="import_type_soundscape_description">Als Hintergrundklang verwenden</string>
+    <string name="import_type_attunement">Einstimmung</string>
+    <string name="import_type_attunement_description">Als Einstimmung verwenden</string>
 </resources>
