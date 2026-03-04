@@ -80,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Ticket: shared-057
 
 ### Changed (Android)
+- **Datei-Import mit Typ-Auswahl** - Beim Teilen einer Audio-Datei mit der App erscheint ein Auswahl-Sheet mit drei Optionen: Gefuehrte Meditation, Klangkulisse oder Einstimmung. Laufende Meditationen werden automatisch beendet (Ticket: shared-073)
 - **PraxisEditor Auto-Save** - Änderungen werden beim Zurücknavigieren automatisch gespeichert, ohne explizite Abbrechen/Fertig-Buttons (Ticket: android-073)
   - TopAppBar zeigt Zurück-Pfeil statt Cancel/Done-Buttons
   - System-Back und Zurück-Pfeil speichern Änderungen implizit (iOS Settings-Pattern)

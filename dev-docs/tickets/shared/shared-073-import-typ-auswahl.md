@@ -1,6 +1,6 @@
 # Ticket shared-073: Datei-Import mit Typ-Auswahl
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~M | Android ~M
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ Aktuell werden geteilte Audio-Dateien immer als Gefuehrte Meditation importiert.
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
