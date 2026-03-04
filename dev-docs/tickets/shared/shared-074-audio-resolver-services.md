@@ -1,6 +1,6 @@
 # Ticket shared-074: Einheitliche Audio-Resolver fuer Einstimmung und Klangatmosphaere
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4h | Android ~4h
 **Phase**: 2-Architektur
