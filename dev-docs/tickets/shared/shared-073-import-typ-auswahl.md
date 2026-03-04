@@ -1,6 +1,6 @@
 # Ticket shared-073: Datei-Import mit Typ-Auswahl
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~M | Android ~M
 **Phase**: 3-Feature
@@ -21,7 +21,7 @@ Aktuell werden geteilte Audio-Dateien immer als Gefuehrte Meditation importiert.
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [x]    | -             |
 
 ---
@@ -31,22 +31,22 @@ Aktuell werden geteilte Audio-Dateien immer als Gefuehrte Meditation importiert.
 <!-- Kriterien gelten fuer BEIDE Plattformen -->
 
 ### Feature (beide Plattformen)
-- [ ] Typ-Auswahl-Sheet erscheint beim Teilen einer Audio-Datei
-- [ ] Drei Optionen: Gefuehrte Meditation, Klangkulisse, Einstimmung
-- [ ] Bestehende Icons konsistent verwendet (play.circle / PlayCircle, waveform.circle / Audiotrack, wind / entsprechendes Material Icon)
-- [ ] Nach Typ-Auswahl Navigation zur richtigen Stelle mit geoeffneter Edit-View
-- [ ] Metadaten (Name, ggf. Teacher) aus ID3-Tags vorausgefuellt
-- [ ] Laufende Meditation (Timer oder Guided) wird beim File-Share abgebrochen (kein Completion-Screen)
-- [ ] Abbrechen/Wegwischen verwirft die Datei
-- [ ] Lokalisiert (DE + EN)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Typ-Auswahl-Sheet erscheint beim Teilen einer Audio-Datei
+- [x] Drei Optionen: Gefuehrte Meditation, Klangkulisse, Einstimmung
+- [x] Bestehende Icons konsistent verwendet (play.circle / PlayCircle, waveform.circle / Audiotrack, wind / entsprechendes Material Icon)
+- [x] Nach Typ-Auswahl Navigation zur richtigen Stelle mit geoeffneter Edit-View
+- [x] Metadaten (Name, ggf. Teacher) aus ID3-Tags vorausgefuellt
+- [x] Laufende Meditation (Timer oder Guided) wird beim File-Share abgebrochen (kein Completion-Screen)
+- [x] Abbrechen/Wegwischen verwirft die Datei
+- [x] Lokalisiert (DE + EN)
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS
+- [x] Unit Tests iOS
 - [x] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
