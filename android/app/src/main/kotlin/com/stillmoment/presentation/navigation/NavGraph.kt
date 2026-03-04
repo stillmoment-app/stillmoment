@@ -234,6 +234,9 @@ fun StillMomentNavHost(
         snackbarHostState = snackbarHostState,
         onValidFile = { uri ->
             pendingImportUri = uri
+            // Intentional: stop any running meditation before showing the type selection sheet.
+            // If the user dismisses the sheet, the meditation stays stopped — the file open action
+            // itself is the decision, no confirmation dialog for meditation abort.
             stopMeditationSignal.value = true
             showImportTypeSheet = true
         }
@@ -630,6 +633,10 @@ private fun ImportTypeSheetEffect(
     val currentOnCustomAudioImport by rememberUpdatedState(onCustomAudioImport)
     val currentOnDismiss by rememberUpdatedState(onDismiss)
 
+    // Resolve strings in composable scope so suspend functions don't need navController.context
+    val errorAlreadyImported = stringResource(R.string.error_already_imported)
+    val errorImportFailed = stringResource(R.string.error_import_failed)
+
     if (showSheet) {
         ImportTypeSelectionSheet(
             onTypeSelect = { importType ->
@@ -645,7 +652,9 @@ private fun ImportTypeSheetEffect(
                         snackbarHostState = snackbarHostState,
                         settingsDataStore = settingsDataStore,
                         onMeditationImport = currentOnMeditationImport,
-                        onCustomAudioImport = currentOnCustomAudioImport
+                        onCustomAudioImport = currentOnCustomAudioImport,
+                        errorAlreadyImported = errorAlreadyImported,
+                        errorImportFailed = errorImportFailed
                     )
                 }
             },
@@ -668,7 +677,9 @@ private suspend fun handleImportTypeSelection(
     snackbarHostState: SnackbarHostState,
     settingsDataStore: SettingsDataStore,
     onMeditationImport: (GuidedMeditation) -> Unit,
-    onCustomAudioImport: (CustomAudioFile) -> Unit
+    onCustomAudioImport: (CustomAudioFile) -> Unit,
+    errorAlreadyImported: String,
+    errorImportFailed: String
 ) {
     when (importType) {
         ImportAudioType.GUIDED_MEDITATION -> handleGuidedMeditationImport(
@@ -676,7 +687,9 @@ private suspend fun handleImportTypeSelection(
             fileOpenHandler = fileOpenHandler,
             navController = navController,
             snackbarHostState = snackbarHostState,
-            onMeditationImport = onMeditationImport
+            onMeditationImport = onMeditationImport,
+            errorAlreadyImported = errorAlreadyImported,
+            errorImportFailed = errorImportFailed
         )
         ImportAudioType.SOUNDSCAPE -> handleCustomAudioImport(
             uri = uri,
@@ -686,7 +699,8 @@ private suspend fun handleImportTypeSelection(
             snackbarHostState = snackbarHostState,
             settingsDataStore = settingsDataStore,
             targetScreen = Screen.SelectBackground,
-            onCustomAudioImport = onCustomAudioImport
+            onCustomAudioImport = onCustomAudioImport,
+            errorImportFailed = errorImportFailed
         )
         ImportAudioType.ATTUNEMENT -> handleCustomAudioImport(
             uri = uri,
@@ -696,7 +710,8 @@ private suspend fun handleImportTypeSelection(
             snackbarHostState = snackbarHostState,
             settingsDataStore = settingsDataStore,
             targetScreen = Screen.SelectIntroduction,
-            onCustomAudioImport = onCustomAudioImport
+            onCustomAudioImport = onCustomAudioImport,
+            errorImportFailed = errorImportFailed
         )
     }
 }
@@ -706,11 +721,11 @@ private suspend fun handleGuidedMeditationImport(
     fileOpenHandler: FileOpenHandler?,
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    onMeditationImport: (GuidedMeditation) -> Unit
+    onMeditationImport: (GuidedMeditation) -> Unit,
+    errorAlreadyImported: String,
+    errorImportFailed: String
 ) {
     val handler = fileOpenHandler ?: return
-    val errorAlreadyImported = navController.context.getString(R.string.error_already_imported)
-    val errorImportFailed = navController.context.getString(R.string.error_import_failed)
 
     navController.navigate(Screen.Library.route) {
         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -740,7 +755,8 @@ private suspend fun handleCustomAudioImport(
     snackbarHostState: SnackbarHostState,
     settingsDataStore: SettingsDataStore,
     targetScreen: Screen,
-    onCustomAudioImport: (CustomAudioFile) -> Unit
+    onCustomAudioImport: (CustomAudioFile) -> Unit,
+    errorImportFailed: String
 ) {
     val repository = customAudioRepository ?: return
 
@@ -758,8 +774,7 @@ private suspend fun handleCustomAudioImport(
             navController.navigate(targetScreen.route)
         },
         onFailure = { error ->
-            val errorMessage = error.message
-                ?: navController.context.getString(R.string.error_import_failed)
+            val errorMessage = error.message ?: errorImportFailed
             snackbarHostState.showSnackbar(
                 message = errorMessage,
                 duration = SnackbarDuration.Short
