@@ -80,11 +80,12 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
 
     // MARK: - Cancel Import
 
-    func testCancelPendingImport_clearsState() {
+    func testCancelPendingImport_clearsAllState() {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
         self.sut.prepareImport(url: url)
         XCTAssertTrue(self.sut.showImportTypeSelection)
+        XCTAssertTrue(self.sut.shouldStopMeditation)
 
         // When
         self.sut.cancelPendingImport()
@@ -92,6 +93,7 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
         // Then
         XCTAssertFalse(self.sut.showImportTypeSelection)
         XCTAssertNil(self.sut.pendingImportURL)
+        XCTAssertFalse(self.sut.shouldStopMeditation)
     }
 
     // MARK: - Import Result State

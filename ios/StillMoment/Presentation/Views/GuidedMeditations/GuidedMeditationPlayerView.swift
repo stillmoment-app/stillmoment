@@ -214,6 +214,12 @@ struct GuidedMeditationPlayerView: View {
         }
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
+        .onChange(of: self.fileOpenHandler.shouldStopMeditation) { shouldStop in
+            guard shouldStop
+            else { return }
+            self.viewModel.stop()
+            self.dismiss()
+        }
     }
 
     // MARK: Private
@@ -222,6 +228,7 @@ struct GuidedMeditationPlayerView: View {
     private var dismiss
     @Environment(\.themeColors)
     private var theme
+    @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 
     private var isZenMode: Bool {
