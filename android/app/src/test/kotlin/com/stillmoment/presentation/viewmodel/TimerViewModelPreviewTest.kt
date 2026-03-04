@@ -29,6 +29,7 @@ class TimerViewModelPreviewTest {
     private lateinit var fakeForegroundService: FakeTimerForegroundService
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeSoundCatalogRepository: FakeSoundCatalogRepository
+    private lateinit var fakeCustomAudioRepository: FakeCustomAudioRepository
     private lateinit var mockApplication: Application
 
     @BeforeEach
@@ -40,6 +41,7 @@ class TimerViewModelPreviewTest {
         fakeForegroundService = FakeTimerForegroundService()
         fakePraxisRepository = FakePraxisRepository()
         fakeSoundCatalogRepository = FakeSoundCatalogRepository()
+        fakeCustomAudioRepository = FakeCustomAudioRepository()
         mockApplication = mock()
     }
 
@@ -56,7 +58,8 @@ class TimerViewModelPreviewTest {
             audioService = fakeAudioService,
             foregroundService = fakeForegroundService,
             praxisRepository = fakePraxisRepository,
-            soundCatalogRepository = fakeSoundCatalogRepository
+            soundCatalogRepository = fakeSoundCatalogRepository,
+            customAudioRepository = fakeCustomAudioRepository
         )
     }
 

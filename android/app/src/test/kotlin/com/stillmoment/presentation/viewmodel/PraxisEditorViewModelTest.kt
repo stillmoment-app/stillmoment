@@ -1,19 +1,14 @@
 package com.stillmoment.presentation.viewmodel
 
-import android.net.Uri
-import com.stillmoment.domain.models.CustomAudioFile
-import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
-import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -533,54 +528,4 @@ class FakePraxisRepository : PraxisRepository {
 // MARK: - Fake CustomAudioRepository
 // ============================================================
 
-/**
- * Fake implementation of CustomAudioRepository for testing.
- * Provides in-memory storage and tracks import/delete calls.
- */
-class FakeCustomAudioRepository : CustomAudioRepository {
-    private val _files = MutableStateFlow<List<CustomAudioFile>>(emptyList())
-    var lastDeletedId: String? = null
-    var importResult: Result<CustomAudioFile> = Result.success(
-        CustomAudioFile(
-            id = "fake-id",
-            name = "fake",
-            filename = "fake.mp3",
-            durationMs = 60_000L,
-            type = CustomAudioType.SOUNDSCAPE
-        )
-    )
-
-    override fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> {
-        return _files.map { files -> files.filter { it.type == type } }
-    }
-
-    override suspend fun loadAll(type: CustomAudioType): List<CustomAudioFile> {
-        return _files.value.filter { it.type == type }
-    }
-
-    override suspend fun importFile(uri: Uri, type: CustomAudioType): Result<CustomAudioFile> {
-        importResult.onSuccess { file ->
-            _files.value = _files.value + file.copy(type = type)
-        }
-        return importResult
-    }
-
-    override suspend fun delete(id: String) {
-        lastDeletedId = id
-        _files.value = _files.value.filter { it.id != id }
-    }
-
-    override suspend fun getFilePath(id: String): String? {
-        return _files.value.find { it.id == id }?.let { "/fake/path/${it.filename}" }
-    }
-
-    override suspend fun findFile(id: String): CustomAudioFile? {
-        return _files.value.find { it.id == id }
-    }
-
-    override suspend fun rename(id: String, newName: String) {
-        _files.value = _files.value.map { file ->
-            if (file.id == id) file.copy(name = newName) else file
-        }
-    }
-}
+// FakeCustomAudioRepository is shared via TimerViewModelTestFakes.kt

@@ -192,7 +192,7 @@ data class Praxis(
      * Converts this Praxis to a MeditationSettings instance.
      * Used when a Praxis is selected and its configuration is applied to the timer.
      */
-    fun toMeditationSettings(): MeditationSettings {
+    fun toMeditationSettings(customIntroDurationSeconds: Int? = null): MeditationSettings {
         return MeditationSettings(
             intervalGongsEnabled = intervalGongsEnabled,
             intervalMinutes = intervalMinutes,
@@ -207,7 +207,8 @@ data class Praxis(
             gongSoundId = gongSoundId,
             gongVolume = gongVolume,
             introductionId = introductionId,
-            introductionEnabled = introductionEnabled
+            introductionEnabled = introductionEnabled,
+            customIntroDurationSeconds = customIntroDurationSeconds
         )
     }
 

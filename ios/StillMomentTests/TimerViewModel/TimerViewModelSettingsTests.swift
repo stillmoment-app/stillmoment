@@ -470,12 +470,12 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut.selectedMinutes = 1
         XCTAssertEqual(self.sut.selectedMinutes, 1)
 
-        // When: Enable introduction (requires minimum 3 minutes)
+        // When: Enable introduction (requires minimum 2 minutes, ceil(95/60))
         self.sut.settings.introductionEnabled = true
         self.sut.settings.introductionId = "breath"
 
         // Then: Duration should be clamped to minimum
-        XCTAssertEqual(self.sut.selectedMinutes, 3, "Should clamp to introduction minimum")
+        XCTAssertEqual(self.sut.selectedMinutes, 2, "Should clamp to introduction minimum")
 
         // When: Disable introduction
         self.sut.settings.introductionId = nil

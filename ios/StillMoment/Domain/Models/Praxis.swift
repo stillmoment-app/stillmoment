@@ -278,7 +278,7 @@ extension Praxis {
 extension Praxis {
     /// Converts this Praxis to a MeditationSettings instance.
     /// Used when a Praxis is selected and its configuration is applied to the timer.
-    func toMeditationSettings() -> MeditationSettings {
+    func toMeditationSettings(customIntroDurationSeconds: Int? = nil) -> MeditationSettings {
         MeditationSettings(
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
@@ -293,7 +293,8 @@ extension Praxis {
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
             introductionId: self.introductionId,
-            introductionEnabled: self.introductionEnabled
+            introductionEnabled: self.introductionEnabled,
+            customIntroDurationSeconds: customIntroDurationSeconds
         )
     }
 }

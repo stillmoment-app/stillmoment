@@ -1,10 +1,14 @@
 package com.stillmoment.presentation.viewmodel
 
+import android.net.Uri
 import com.stillmoment.domain.models.BackgroundSound
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerEvent
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SettingsRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
@@ -16,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 /**
  * Fake implementation of AudioServiceProtocol for testing.
@@ -233,4 +238,56 @@ class FakeSoundCatalogRepository : SoundCatalogRepository {
     override fun findById(id: String): BackgroundSound? = defaultSounds.find { it.id == id }
 
     override fun findByIdOrDefault(id: String): BackgroundSound = findById(id) ?: defaultSounds.first()
+}
+
+/**
+ * Fake implementation of CustomAudioRepository for testing.
+ * Provides in-memory storage and tracks import/delete calls.
+ */
+class FakeCustomAudioRepository : CustomAudioRepository {
+    private val _files = MutableStateFlow<List<CustomAudioFile>>(emptyList())
+    var lastDeletedId: String? = null
+    var importResult: Result<CustomAudioFile> = Result.success(
+        CustomAudioFile(
+            id = "fake-id",
+            name = "fake",
+            filename = "fake.mp3",
+            durationMs = 60_000L,
+            type = CustomAudioType.SOUNDSCAPE
+        )
+    )
+
+    override fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> {
+        return _files.map { files -> files.filter { it.type == type } }
+    }
+
+    override suspend fun loadAll(type: CustomAudioType): List<CustomAudioFile> {
+        return _files.value.filter { it.type == type }
+    }
+
+    override suspend fun importFile(uri: Uri, type: CustomAudioType): Result<CustomAudioFile> {
+        importResult.onSuccess { file ->
+            _files.value = _files.value + file.copy(type = type)
+        }
+        return importResult
+    }
+
+    override suspend fun delete(id: String) {
+        lastDeletedId = id
+        _files.value = _files.value.filter { it.id != id }
+    }
+
+    override suspend fun getFilePath(id: String): String? {
+        return _files.value.find { it.id == id }?.let { "/fake/path/${it.filename}" }
+    }
+
+    override suspend fun findFile(id: String): CustomAudioFile? {
+        return _files.value.find { it.id == id }
+    }
+
+    override suspend fun rename(id: String, newName: String) {
+        _files.value = _files.value.map { file ->
+            if (file.id == id) file.copy(name = newName) else file
+        }
+    }
 }

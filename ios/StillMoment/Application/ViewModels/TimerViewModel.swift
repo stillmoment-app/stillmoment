@@ -38,13 +38,9 @@ final class TimerViewModel: ObservableObject {
         // Load current Praxis and apply its configuration
         let praxis = praxisRepository.load()
         self.currentPraxis = praxis
-        self.settings = praxis.toMeditationSettings()
-        // Initialize selected minutes from Praxis duration (clamped to minimum for introduction)
-        self.selectedMinutes = MeditationSettings.validateDuration(
-            praxis.durationMinutes,
-            introductionId: praxis.introductionId,
-            introductionEnabled: praxis.introductionEnabled
-        )
+        let customIntroDuration = self.resolveCustomIntroDurationSeconds(introductionId: praxis.introductionId)
+        self.settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
+        self.selectedMinutes = self.settings.durationMinutes
         self.setupBindings()
     }
 
@@ -109,10 +105,7 @@ final class TimerViewModel: ObservableObject {
 
     /// Minimum duration in minutes based on current introduction setting
     var minimumDurationMinutes: Int {
-        MeditationSettings.minimumDuration(
-            for: self.settings.introductionId,
-            introductionEnabled: self.settings.introductionEnabled
-        )
+        self.settings.minimumDurationMinutes
     }
 
     /// Whether the timer is actively running
@@ -168,13 +161,10 @@ final class TimerViewModel: ObservableObject {
     /// Called by the PraxisEditorView's onSaved callback.
     func updateFromPraxis(_ praxis: Praxis) {
         self.currentPraxis = praxis
-        let settings = praxis.toMeditationSettings()
+        let customIntroDuration = self.resolveCustomIntroDurationSeconds(introductionId: praxis.introductionId)
+        let settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
         self.settings = settings
-        self.selectedMinutes = MeditationSettings.validateDuration(
-            praxis.durationMinutes,
-            introductionId: praxis.introductionId,
-            introductionEnabled: praxis.introductionEnabled
-        )
+        self.selectedMinutes = settings.durationMinutes
         self.settingsRepository.save(settings)
         Logger.viewModel.info("Updated from praxis")
     }
@@ -191,6 +181,18 @@ final class TimerViewModel: ObservableObject {
 
     /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
     private var minutesBeforeIntroduction: Int?
+
+    /// Returns the custom attunement duration in seconds, or nil for built-in introductions.
+    private func resolveCustomIntroDurationSeconds(introductionId: String? = nil) -> Int? {
+        let introId = introductionId ?? self.settings.introductionId
+        guard let introId,
+              let uuid = UUID(uuidString: introId),
+              let customFile = self.customAudioRepository.findFile(byId: uuid),
+              let duration = customFile.duration else {
+            return nil
+        }
+        return Int(duration)
+    }
 
     // MARK: - Effect Execution
 
@@ -306,15 +308,19 @@ final class TimerViewModel: ObservableObject {
             .store(in: &self.cancellables)
 
         // Enforce minimum duration when introduction changes, restore when disabled.
+        // Note: Uses static method instead of settings.minimumDurationMinutes because
+        // @Published fires in willSet — self.settings still has the old value here.
         self.$settings
             .map(\.introductionId)
             .removeDuplicates()
             .sink { [weak self] introductionId in
                 guard let self
                 else { return }
+                let customDuration = self.resolveCustomIntroDurationSeconds(introductionId: introductionId)
                 let minimum = MeditationSettings.minimumDuration(
                     for: introductionId,
-                    introductionEnabled: self.settings.introductionEnabled
+                    introductionEnabled: self.settings.introductionEnabled,
+                    customIntroDurationSeconds: customDuration
                 )
                 if introductionId != nil, self.selectedMinutes < minimum {
                     self.minutesBeforeIntroduction = self.selectedMinutes

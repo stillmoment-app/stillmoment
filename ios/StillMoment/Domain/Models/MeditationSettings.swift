@@ -36,7 +36,8 @@ struct MeditationSettings: Codable, Equatable {
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = MeditationSettings.defaultGongVolume,
         introductionId: String? = nil,
-        introductionEnabled: Bool = false
+        introductionEnabled: Bool = false,
+        customIntroDurationSeconds: Int? = nil
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
@@ -45,10 +46,12 @@ struct MeditationSettings: Codable, Equatable {
         self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
+        self.customIntroDurationSeconds = customIntroDurationSeconds
         self.durationMinutes = Self.validateDuration(
             durationMinutes,
             introductionId: introductionId,
-            introductionEnabled: introductionEnabled
+            introductionEnabled: introductionEnabled,
+            customIntroDurationSeconds: customIntroDurationSeconds
         )
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
@@ -123,6 +126,10 @@ struct MeditationSettings: Codable, Equatable {
     /// Whether the introduction is enabled (separate from introductionId to preserve user's selection)
     var introductionEnabled: Bool
 
+    /// Custom attunement duration in seconds, resolved by ViewModel. Nil for built-in introductions.
+    /// Transient — not persisted to UserDefaults.
+    var customIntroDurationSeconds: Int?
+
     /// The effective introduction ID. `nil` when disabled or no introduction is selected.
     /// Use this instead of checking `introductionEnabled` + `introductionId` manually.
     var activeIntroductionId: String? {
@@ -141,34 +148,62 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Returns the minimum meditation duration in minutes for a given active introduction ID.
     /// `activeIntroductionId` is `nil` when disabled or unset — callers use `settings.activeIntroductionId`.
-    /// Formula: ceil(introductionDurationSeconds / 60) + 1
-    static func minimumDuration(activeIntroductionId: String?) -> Int {
-        guard let introId = activeIntroductionId,
-              let intro = Introduction.find(byId: introId) else {
+    /// When `customIntroDurationSeconds` is provided, it is used instead of looking up built-in introductions.
+    /// Formula: ceil(introductionDurationSeconds / 60)
+    static func minimumDuration(activeIntroductionId: String?, customIntroDurationSeconds: Int? = nil) -> Int {
+        guard activeIntroductionId != nil else {
             return 1
         }
-        return Int(ceil(Double(intro.durationSeconds) / 60.0)) + 1
+        let durationSeconds: Int
+        if let customDuration = customIntroDurationSeconds {
+            durationSeconds = customDuration
+        } else if let introId = activeIntroductionId,
+                  let intro = Introduction.find(byId: introId) {
+            durationSeconds = intro.durationSeconds
+        } else {
+            return 1
+        }
+        guard durationSeconds > 0 else {
+            return 1
+        }
+        return Int(ceil(Double(durationSeconds) / 60.0))
     }
 
     /// Backward-compatible overload used during init/validation where enabled+id are separate.
-    static func minimumDuration(for introductionId: String?, introductionEnabled: Bool = false) -> Int {
+    static func minimumDuration(
+        for introductionId: String?,
+        introductionEnabled: Bool = false,
+        customIntroDurationSeconds: Int? = nil
+    ) -> Int {
         let activeId = introductionEnabled ? introductionId : nil
-        return Self.minimumDuration(activeIntroductionId: activeId)
+        return Self.minimumDuration(
+            activeIntroductionId: activeId,
+            customIntroDurationSeconds: customIntroDurationSeconds
+        )
     }
 
-    /// Minimum meditation duration in minutes based on current introduction setting
+    /// Minimum meditation duration in minutes based on current introduction setting.
+    /// Uses `customIntroDurationSeconds` when set (for custom attunements).
     var minimumDurationMinutes: Int {
-        Self.minimumDuration(activeIntroductionId: self.activeIntroductionId)
+        Self.minimumDuration(
+            activeIntroductionId: self.activeIntroductionId,
+            customIntroDurationSeconds: self.customIntroDurationSeconds
+        )
     }
 
     /// Validates and clamps duration to valid range (minimum-60 minutes).
-    /// Minimum is 1 without introduction, or ceil(introDuration/60)+1 with enabled introduction.
+    /// Minimum is 1 without introduction, or ceil(introDuration/60) with enabled introduction.
     static func validateDuration(
         _ minutes: Int,
         introductionId: String? = nil,
-        introductionEnabled: Bool = false
+        introductionEnabled: Bool = false,
+        customIntroDurationSeconds: Int? = nil
     ) -> Int {
-        let minimum = Self.minimumDuration(for: introductionId, introductionEnabled: introductionEnabled)
+        let minimum = Self.minimumDuration(
+            for: introductionId,
+            introductionEnabled: introductionEnabled,
+            customIntroDurationSeconds: customIntroDurationSeconds
+        )
         return min(max(minutes, minimum), 60)
     }
 
