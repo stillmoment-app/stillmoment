@@ -47,10 +47,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -95,11 +97,14 @@ private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId
  * Includes a "My Sounds" section for user-imported custom soundscapes.
  * Stops audio previews when leaving the screen via DisposableEffect.
  */
+@Suppress("LongMethod") // Screen composable coordinates selection, dialogs, and import-rename flow
 @Composable
 fun SelectBackgroundSoundScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PraxisEditorViewModel = hiltViewModel()
+    viewModel: PraxisEditorViewModel = hiltViewModel(),
+    initialFileToRename: CustomAudioFile? = null,
+    onConsumeInitialRename: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -111,6 +116,14 @@ fun SelectBackgroundSoundScreen(
 
     var fileToDelete by remember { mutableStateOf<CustomAudioFile?>(null) }
     var fileToRename by remember { mutableStateOf<CustomAudioFile?>(null) }
+
+    // Trigger rename dialog for a file imported via the share flow
+    val currentOnConsumeRename by rememberUpdatedState(onConsumeInitialRename)
+    LaunchedEffect(initialFileToRename) {
+        val file = initialFileToRename ?: return@LaunchedEffect
+        fileToRename = file
+        currentOnConsumeRename()
+    }
 
     DisposableEffect(Unit) {
         onDispose {

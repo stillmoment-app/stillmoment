@@ -19,6 +19,7 @@ import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
@@ -39,6 +40,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var fileOpenHandler: FileOpenHandler
+
+    @Inject
+    lateinit var customAudioRepository: CustomAudioRepository
 
     private val _pendingFileUri = MutableStateFlow<Uri?>(null)
     val pendingFileUri = _pendingFileUri.asStateFlow()
@@ -85,6 +89,7 @@ class MainActivity : ComponentActivity() {
                     StillMomentNavHost(
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
+                        customAudioRepository = customAudioRepository,
                         pendingFileUri = pendingFileUri,
                         onClearFileUri = ::consumePendingFileUri
                     )

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -35,10 +36,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,8 +69,13 @@ import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.ImportAudioType
+import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.presentation.ui.common.ImportTypeSelectionSheet
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
@@ -186,11 +194,14 @@ private val tabs = persistentListOf(
  * Features TabView navigation with Timer, Library, and Settings tabs.
  * Remembers the last selected tab across app restarts.
  */
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod") // Top-level navigation host coordinates import flow, sheet, and nav state
 @Composable
 fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
+    customAudioRepository: CustomAudioRepository? = null,
     pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
     navController: NavHostController = rememberNavController()
@@ -208,17 +219,41 @@ fun StillMomentNavHost(
         selectedAppearanceMode = selectedAppearanceMode,
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
-    val pendingImportedMeditation = remember {
-        MutableStateFlow<GuidedMeditation?>(null)
-    }
+    val pendingImportedMeditation = remember { MutableStateFlow<GuidedMeditation?>(null) }
+    val pendingImportedCustomAudio = remember { MutableStateFlow<CustomAudioFile?>(null) }
+    val stopMeditationSignal = remember { MutableStateFlow(false) }
+
+    // Import type selection sheet state
+    var showImportTypeSheet by remember { mutableStateOf(false) }
+    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
 
     FileOpenEffect(
         fileOpenHandler = fileOpenHandler,
         pendingFileUri = pendingFileUri,
         onClearFileUri = onClearFileUri,
+        snackbarHostState = snackbarHostState,
+        onValidFile = { uri ->
+            pendingImportUri = uri
+            stopMeditationSignal.value = true
+            showImportTypeSheet = true
+        }
+    )
+
+    ImportTypeSheetEffect(
+        showSheet = showImportTypeSheet,
+        pendingUri = pendingImportUri,
+        fileOpenHandler = fileOpenHandler,
+        customAudioRepository = customAudioRepository,
         navController = navController,
         snackbarHostState = snackbarHostState,
-        onMeditationImport = { pendingImportedMeditation.value = it }
+        settingsDataStore = settingsDataStore,
+        scope = scope,
+        onMeditationImport = { pendingImportedMeditation.value = it },
+        onCustomAudioImport = { pendingImportedCustomAudio.value = it },
+        onDismiss = {
+            showImportTypeSheet = false
+            pendingImportUri = null
+        }
     )
 
     NavHostScaffold(
@@ -229,6 +264,10 @@ fun StillMomentNavHost(
         settingsState = settingsState,
         pendingImportedMeditation = pendingImportedMeditation,
         onClearImportedMeditation = { pendingImportedMeditation.value = null },
+        pendingImportedCustomAudio = pendingImportedCustomAudio,
+        onClearImportedCustomAudio = { pendingImportedCustomAudio.value = null },
+        stopMeditationSignal = stopMeditationSignal,
+        onConsumeStopSignal = { stopMeditationSignal.value = false },
         onTabSelect = { tabItem ->
             scope.launch { settingsDataStore.setSelectedTab(tabItem.tab) }
             navController.navigate(tabItem.screen.route) {
@@ -240,6 +279,7 @@ fun StillMomentNavHost(
     )
 }
 
+@Suppress("LongParameterList") // Scaffold coordinates all nav-level state flows
 @Composable
 private fun NavHostScaffold(
     navController: NavHostController,
@@ -248,6 +288,10 @@ private fun NavHostScaffold(
     settingsState: SettingsSheetState,
     pendingImportedMeditation: StateFlow<GuidedMeditation?>,
     onClearImportedMeditation: () -> Unit,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit,
+    stopMeditationSignal: StateFlow<Boolean>,
+    onConsumeStopSignal: () -> Unit,
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -300,22 +344,37 @@ private fun NavHostScaffold(
                 startDestination,
                 settingsState,
                 pendingImportedMeditation,
-                onClearImportedMeditation
+                onClearImportedMeditation,
+                pendingImportedCustomAudio,
+                onClearImportedCustomAudio,
+                stopMeditationSignal,
+                onConsumeStopSignal
             )
         }
     }
 }
 
+@Suppress("LongParameterList") // NavContent distributes state flows to child graphs
 @Composable
 private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
     pendingImportedMeditation: StateFlow<GuidedMeditation?>,
-    onClearImportedMeditation: () -> Unit
+    onClearImportedMeditation: () -> Unit,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit,
+    stopMeditationSignal: StateFlow<Boolean>,
+    onConsumeStopSignal: () -> Unit
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
-        timerNavGraph(navController)
+        timerNavGraph(
+            navController = navController,
+            stopMeditationSignal = stopMeditationSignal,
+            onConsumeStopSignal = onConsumeStopSignal,
+            pendingImportedCustomAudio = pendingImportedCustomAudio,
+            onClearImportedCustomAudio = onClearImportedCustomAudio
+        )
 
         composable(Screen.Library.route) {
             val importedMeditation by pendingImportedMeditation.collectAsState()
@@ -357,13 +416,29 @@ private fun StillMomentNavContent(
     }
 }
 
-private fun NavGraphBuilder.timerNavGraph(navController: NavHostController) {
+private fun NavGraphBuilder.timerNavGraph(
+    navController: NavHostController,
+    stopMeditationSignal: StateFlow<Boolean>,
+    onConsumeStopSignal: () -> Unit,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit
+) {
     navigation(startDestination = Screen.Timer.route, route = Screen.TimerGraph.route) {
         composable(Screen.Timer.route) { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry(Screen.TimerGraph.route)
             }
             val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
+
+            // Observe stop meditation signal from file import flow
+            val shouldStop by stopMeditationSignal.collectAsState()
+            val currentOnConsumeStop by rememberUpdatedState(onConsumeStopSignal)
+            LaunchedEffect(shouldStop) {
+                if (shouldStop) {
+                    sharedViewModel.resetTimer()
+                    currentOnConsumeStop()
+                }
+            }
 
             TimerScreen(
                 onNavigateToFocus = { navController.navigate(Screen.TimerFocus.route) },
@@ -386,17 +461,21 @@ private fun NavGraphBuilder.timerNavGraph(navController: NavHostController) {
             TimerFocusScreen(onBack = { navController.popBackStack() }, viewModel = sharedViewModel)
         }
 
-        praxisEditorNavGraph(navController)
+        praxisEditorNavGraph(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
     }
 }
 
-private fun NavGraphBuilder.praxisEditorNavGraph(navController: NavHostController) {
+private fun NavGraphBuilder.praxisEditorNavGraph(
+    navController: NavHostController,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit
+) {
     navigation(
         startDestination = Screen.PraxisEditor.route,
         route = Screen.PraxisEditorGraph.route
     ) {
         praxisEditorComposable(navController)
-        praxisEditorSubScreens(navController)
+        praxisEditorSubScreens(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
     }
 }
 
@@ -425,19 +504,37 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
     }
 }
 
-private fun NavGraphBuilder.praxisEditorSubScreens(navController: NavHostController) {
+private fun NavGraphBuilder.praxisEditorSubScreens(
+    navController: NavHostController,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit
+) {
     composable(Screen.SelectIntroduction.route) { backStackEntry ->
         val editorViewModel: PraxisEditorViewModel = hiltViewModel(
             remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
         )
-        SelectIntroductionScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+        val pendingFile by pendingImportedCustomAudio.collectAsState()
+        val currentOnClear by rememberUpdatedState(onClearImportedCustomAudio)
+        SelectIntroductionScreen(
+            onBack = { navController.popBackStack() },
+            viewModel = editorViewModel,
+            initialFileToRename = pendingFile?.takeIf { it.type == CustomAudioType.ATTUNEMENT },
+            onConsumeInitialRename = currentOnClear
+        )
     }
 
     composable(Screen.SelectBackground.route) { backStackEntry ->
         val editorViewModel: PraxisEditorViewModel = hiltViewModel(
             remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
         )
-        SelectBackgroundSoundScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+        val pendingFile by pendingImportedCustomAudio.collectAsState()
+        val currentOnClear by rememberUpdatedState(onClearImportedCustomAudio)
+        SelectBackgroundSoundScreen(
+            onBack = { navController.popBackStack() },
+            viewModel = editorViewModel,
+            initialFileToRename = pendingFile?.takeIf { it.type == CustomAudioType.SOUNDSCAPE },
+            onConsumeInitialRename = currentOnClear
+        )
     }
 
     composable(Screen.SelectGong.route) { backStackEntry ->
@@ -471,59 +568,204 @@ private fun NavGraphBuilder.playerComposable(navController: NavHostController) {
 }
 
 /**
- * Handles "Open with" file import as a side effect.
- * Extracted from StillMomentNavHost to reduce complexity.
+ * Validates file format when a file is shared with the app.
+ * On valid format, invokes [onValidFile] so the caller can show the type selection sheet.
+ * On invalid format, shows an error snackbar.
  */
 @Composable
 private fun FileOpenEffect(
     fileOpenHandler: FileOpenHandler?,
     pendingFileUri: StateFlow<Uri?>,
     onClearFileUri: () -> Unit,
-    navController: NavHostController,
     snackbarHostState: SnackbarHostState,
-    onMeditationImport: (GuidedMeditation) -> Unit
+    onValidFile: (Uri) -> Unit
 ) {
     val errorUnsupportedFormat = stringResource(R.string.error_unsupported_format)
-    val errorAlreadyImported = stringResource(R.string.error_already_imported)
-    val errorImportFailed = stringResource(R.string.error_import_failed)
 
     val fileUri by pendingFileUri.collectAsState()
 
     val currentOnClearFileUri by rememberUpdatedState(onClearFileUri)
-    val currentOnMeditationImport by rememberUpdatedState(onMeditationImport)
+    val currentOnValidFile by rememberUpdatedState(onValidFile)
 
     LaunchedEffect(fileUri) {
         val uri = fileUri ?: return@LaunchedEffect
         val handler = fileOpenHandler ?: return@LaunchedEffect
 
-        navController.navigate(Screen.Library.route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-
         currentOnClearFileUri()
-        val result = handler.handleFileOpen(uri)
+        val result = handler.validateFileFormat(uri)
         result.fold(
-            onSuccess = { meditation ->
-                currentOnMeditationImport(meditation)
-            },
-            onFailure = { error ->
-                val message = when ((error as? FileOpenException)?.error) {
-                    FileOpenError.UNSUPPORTED_FORMAT -> errorUnsupportedFormat
-                    FileOpenError.ALREADY_IMPORTED -> errorAlreadyImported
-                    FileOpenError.IMPORT_FAILED -> errorImportFailed
-                    null -> errorImportFailed
-                }
+            onSuccess = { currentOnValidFile(uri) },
+            onFailure = {
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = errorUnsupportedFormat,
                     duration = SnackbarDuration.Short
                 )
             }
         )
     }
+}
+
+/**
+ * Handles the import type selection sheet and subsequent import + navigation.
+ * Shows [ImportTypeSelectionSheet] when [showSheet] is true.
+ * On type selection, imports the file and navigates to the appropriate screen.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList") // Coordinates import flow across multiple subsystems
+@Composable
+private fun ImportTypeSheetEffect(
+    showSheet: Boolean,
+    pendingUri: Uri?,
+    fileOpenHandler: FileOpenHandler?,
+    customAudioRepository: CustomAudioRepository?,
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    settingsDataStore: SettingsDataStore,
+    scope: kotlinx.coroutines.CoroutineScope,
+    onMeditationImport: (GuidedMeditation) -> Unit,
+    onCustomAudioImport: (CustomAudioFile) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val currentOnMeditationImport by rememberUpdatedState(onMeditationImport)
+    val currentOnCustomAudioImport by rememberUpdatedState(onCustomAudioImport)
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
+
+    if (showSheet) {
+        ImportTypeSelectionSheet(
+            onTypeSelect = { importType ->
+                currentOnDismiss()
+                val uri = pendingUri ?: return@ImportTypeSelectionSheet
+                scope.launch {
+                    handleImportTypeSelection(
+                        importType = importType,
+                        uri = uri,
+                        fileOpenHandler = fileOpenHandler,
+                        customAudioRepository = customAudioRepository,
+                        navController = navController,
+                        snackbarHostState = snackbarHostState,
+                        settingsDataStore = settingsDataStore,
+                        onMeditationImport = currentOnMeditationImport,
+                        onCustomAudioImport = currentOnCustomAudioImport
+                    )
+                }
+            },
+            onDismiss = currentOnDismiss
+        )
+    }
+}
+
+/**
+ * Handles file import based on the selected type.
+ * Navigates to the appropriate screen after successful import.
+ */
+@Suppress("LongParameterList") // Import handler dispatches to different flows based on type
+private suspend fun handleImportTypeSelection(
+    importType: ImportAudioType,
+    uri: Uri,
+    fileOpenHandler: FileOpenHandler?,
+    customAudioRepository: CustomAudioRepository?,
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    settingsDataStore: SettingsDataStore,
+    onMeditationImport: (GuidedMeditation) -> Unit,
+    onCustomAudioImport: (CustomAudioFile) -> Unit
+) {
+    when (importType) {
+        ImportAudioType.GUIDED_MEDITATION -> handleGuidedMeditationImport(
+            uri = uri,
+            fileOpenHandler = fileOpenHandler,
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            onMeditationImport = onMeditationImport
+        )
+        ImportAudioType.SOUNDSCAPE -> handleCustomAudioImport(
+            uri = uri,
+            audioType = CustomAudioType.SOUNDSCAPE,
+            customAudioRepository = customAudioRepository,
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            settingsDataStore = settingsDataStore,
+            targetScreen = Screen.SelectBackground,
+            onCustomAudioImport = onCustomAudioImport
+        )
+        ImportAudioType.ATTUNEMENT -> handleCustomAudioImport(
+            uri = uri,
+            audioType = CustomAudioType.ATTUNEMENT,
+            customAudioRepository = customAudioRepository,
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            settingsDataStore = settingsDataStore,
+            targetScreen = Screen.SelectIntroduction,
+            onCustomAudioImport = onCustomAudioImport
+        )
+    }
+}
+
+private suspend fun handleGuidedMeditationImport(
+    uri: Uri,
+    fileOpenHandler: FileOpenHandler?,
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    onMeditationImport: (GuidedMeditation) -> Unit
+) {
+    val handler = fileOpenHandler ?: return
+    val errorAlreadyImported = navController.context.getString(R.string.error_already_imported)
+    val errorImportFailed = navController.context.getString(R.string.error_import_failed)
+
+    navController.navigate(Screen.Library.route) {
+        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+
+    val result = handler.handleFileOpen(uri)
+    result.fold(
+        onSuccess = { meditation -> onMeditationImport(meditation) },
+        onFailure = { error ->
+            val message = when ((error as? FileOpenException)?.error) {
+                FileOpenError.ALREADY_IMPORTED -> errorAlreadyImported
+                FileOpenError.UNSUPPORTED_FORMAT, FileOpenError.IMPORT_FAILED, null -> errorImportFailed
+            }
+            snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
+        }
+    )
+}
+
+@Suppress("LongParameterList") // Import + navigate + error display requires these dependencies
+private suspend fun handleCustomAudioImport(
+    uri: Uri,
+    audioType: CustomAudioType,
+    customAudioRepository: CustomAudioRepository?,
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    settingsDataStore: SettingsDataStore,
+    targetScreen: Screen,
+    onCustomAudioImport: (CustomAudioFile) -> Unit
+) {
+    val repository = customAudioRepository ?: return
+
+    val result = repository.importFile(uri, audioType)
+    result.fold(
+        onSuccess = { file ->
+            onCustomAudioImport(file)
+            settingsDataStore.setSelectedTab(AppTab.TIMER)
+            navController.navigate(Screen.TimerGraph.route) {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+            navController.navigate(Screen.PraxisEditor.route)
+            navController.navigate(targetScreen.route)
+        },
+        onFailure = { error ->
+            val errorMessage = error.message
+                ?: navController.context.getString(R.string.error_import_failed)
+            snackbarHostState.showSnackbar(
+                message = errorMessage,
+                duration = SnackbarDuration.Short
+            )
+        }
+    )
 }
 
 @Composable
