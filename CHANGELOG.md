@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Custom Einstimmung im Timer** - Custom Einstimmung (Attunement) wurde als "No introduction" angezeigt, weil TimerViewModel parallel von SettingsDataStore und PraxisDataStore las und SettingsDataStore custom UUIDs herausfilterte. PraxisDataStore ist jetzt Single Source of Truth fuer Timer-Settings (Ticket: android-074)
 
 ### Fixed (iOS)
+- **Custom Audio Resolution** - Einheitliche Resolver (`AttunementResolver`, `SoundscapeResolver`) fuer transparente Aufloesung von Built-in und importierten Audio-IDs. Timer-Reducer, Pill-Anzeige und Playback nutzen jetzt zentrale Resolver statt duplizierter Katalog-Lookups. Behebt: Custom Einstimmungen wurden im Reducer nicht erkannt, Pill-Labels zeigten Fallback-Text (Ticket: shared-074)
 - **Custom Soundscape Playback** - `AudioService` convenience init fehlte `CustomAudioRepository`, eigene Soundscapes spielten nicht ab (Ticket: shared-065)
 
 ### Changed (iOS)

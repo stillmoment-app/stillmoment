@@ -23,6 +23,8 @@ Last Updated: 2026-02-23
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation. Im Code aktuell noch `Introduction` (Rename-Ticket pending). |
+| `AttunementResolver` | Protocol | Timer | Loest Einstimmungs-IDs transparent auf (built-in oder custom) |
+| `SoundscapeResolver` | Protocol | Timer | Loest Soundscape-IDs transparent auf (built-in oder custom) |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
 | `PreparationCountdownState` | Enum | Guided Meditations | Zustandsautomat fuer Vorbereitungs-Countdown |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
@@ -394,6 +396,52 @@ Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Go
 - Android: (geplant)
 
 **Siehe auch:** `MeditationSettings.introductionId`, `TimerState.introduction`, `TimerEffect.playIntroduction` (Code-Rename geplant)
+
+---
+
+### AttunementResolver
+
+**Typ:** Protocol + Implementation
+**Pattern:** Unified Audio Resolution (Domain Protocol + Infrastructure Implementation)
+
+**Beschreibung:**
+Loest Einstimmungs-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`Introduction`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Kein Konsument muss mehr selbst pruefen ob eine ID built-in oder custom ist.
+
+**Methoden:**
+
+| Methode | Beschreibung |
+|---------|--------------|
+| `resolve(id:)` | Gibt `ResolvedAttunement?` zurueck (Name, Dauer) |
+| `resolveAudioURL(id:)` | Gibt die Playback-URL zurueck |
+| `allAvailable()` | Alle verfuegbaren Einstimmungen (built-in + custom) |
+
+**Datei-Referenzen:**
+- iOS Protocol: `ios/StillMoment/Domain/Services/AttunementResolverProtocol.swift`
+- iOS Implementation: `ios/StillMoment/Infrastructure/Services/AttunementResolver.swift`
+- Android: (geplant)
+
+---
+
+### SoundscapeResolver
+
+**Typ:** Protocol + Implementation
+**Pattern:** Unified Audio Resolution (Domain Protocol + Infrastructure Implementation)
+
+**Beschreibung:**
+Loest Soundscape-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`BackgroundSound`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Die spezielle ID `"silent"` gibt `nil` zurueck.
+
+**Methoden:**
+
+| Methode | Beschreibung |
+|---------|--------------|
+| `resolve(id:)` | Gibt `ResolvedSoundscape?` zurueck (Name) |
+| `resolveAudioURL(id:)` | Gibt die Playback-URL zurueck |
+| `allAvailable()` | Alle verfuegbaren Soundscapes (built-in + custom) |
+
+**Datei-Referenzen:**
+- iOS Protocol: `ios/StillMoment/Domain/Services/SoundscapeResolverProtocol.swift`
+- iOS Implementation: `ios/StillMoment/Infrastructure/Services/SoundscapeResolver.swift`
+- Android: (geplant)
 
 ---
 
