@@ -1,19 +1,68 @@
 package com.stillmoment.data
 
+import android.content.ContentResolver
+import android.content.Context
+import android.database.MatrixCursor
+import android.net.Uri
+import android.provider.OpenableColumns
 import com.stillmoment.domain.models.FileOpenError
+import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.services.LoggerProtocol
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 /**
  * Tests for FileOpenHandler logic.
  *
- * Note: Full integration tests require Android instrumentation (ContentResolver, Uri).
- * These tests verify the domain error model and supported format constants.
+ * Covers format validation (MP3/M4A acceptance, unsupported rejection)
+ * and verifies that validateFileFormat is side-effect-free.
  */
 class FileOpenHandlerTest {
+
+    private lateinit var mockContext: Context
+    private lateinit var mockContentResolver: ContentResolver
+    private lateinit var mockRepository: GuidedMeditationRepository
+    private lateinit var mockLogger: LoggerProtocol
+    private lateinit var sut: FileOpenHandler
+
+    @BeforeEach
+    fun setUp() {
+        mockContext = mock()
+        mockContentResolver = mock()
+        mockRepository = mock()
+        mockLogger = mock()
+        whenever(mockContext.contentResolver).thenReturn(mockContentResolver)
+        sut = FileOpenHandler(mockContext, mockRepository, mockLogger)
+    }
+
+    /**
+     * Creates a mock URI that returns the given MIME type and display name.
+     * Uses thenAnswer to provide a fresh cursor for each query call,
+     * since MatrixCursor has internal position state and cannot be reused.
+     */
+    private fun createMockUri(mimeType: String?, displayName: String): Uri {
+        val uri = mock<Uri>()
+        whenever(mockContentResolver.getType(uri)).thenReturn(mimeType)
+
+        whenever(
+            mockContentResolver.query(any(), isNull(), isNull(), isNull(), isNull())
+        ).thenAnswer {
+            MatrixCursor(arrayOf(OpenableColumns.DISPLAY_NAME)).apply {
+                addRow(arrayOf(displayName))
+            }
+        }
+
+        return uri
+    }
 
     @Nested
     inner class SupportedFormats {
@@ -51,6 +100,88 @@ class FileOpenHandlerTest {
         @Test
         fun `supported extensions do not include wav`() {
             assertTrue("wav" !in FileOpenHandler.SUPPORTED_EXTENSIONS)
+        }
+    }
+
+    @Nested
+    inner class FormatValidation {
+        @Test
+        fun `mp3 file passes format validation`() {
+            val uri = createMockUri("audio/mpeg", "meditation.mp3")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isSuccess)
+        }
+
+        @Test
+        fun `m4a file passes format validation`() {
+            val uri = createMockUri("audio/mp4", "meditation.m4a")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isSuccess)
+        }
+
+        @Test
+        fun `m4a file with x-m4a MIME type passes format validation`() {
+            val uri = createMockUri("audio/x-m4a", "meditation.m4a")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isSuccess)
+        }
+
+        @Test
+        fun `wav file is rejected`() {
+            val uri = createMockUri("audio/wav", "nature.wav")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isFailure)
+            val error = (result.exceptionOrNull() as FileOpenException).error
+            assertEquals(FileOpenError.UNSUPPORTED_FORMAT, error)
+        }
+
+        @Test
+        fun `pdf file is rejected`() {
+            val uri = createMockUri("application/pdf", "document.pdf")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isFailure)
+        }
+
+        @Test
+        fun `text file is rejected`() {
+            val uri = createMockUri("text/plain", "notes.txt")
+            val result = sut.validateFileFormat(uri)
+            assertTrue(result.isFailure)
+        }
+
+        @Test
+        fun `format validation does not import the file`() {
+            val uri = createMockUri("audio/mpeg", "meditation.mp3")
+
+            sut.validateFileFormat(uri)
+
+            // Repository should never be called — validateFileFormat is side-effect-free
+            org.mockito.kotlin.verifyNoInteractions(mockRepository)
+        }
+
+        @Test
+        fun `format validation does not check for duplicates`() {
+            val uri = createMockUri("audio/mpeg", "meditation.mp3")
+
+            sut.validateFileFormat(uri)
+
+            // No duplicate check should happen — only format is validated
+            org.mockito.kotlin.verifyNoInteractions(mockRepository)
+        }
+    }
+
+    @Nested
+    inner class CanHandle {
+        @Test
+        fun `mp3 file can be handled`() {
+            val uri = createMockUri("audio/mpeg", "meditation.mp3")
+            assertTrue(sut.canHandle(uri))
+        }
+
+        @Test
+        fun `unsupported file cannot be handled`() {
+            val uri = createMockUri("video/mp4", "movie.mp4")
+            assertFalse(sut.canHandle(uri))
         }
     }
 
