@@ -19,6 +19,12 @@ enum ImportResult: Equatable {
     case customAudio(CustomAudioFile)
 }
 
+/// State for a custom audio file that was imported and is pending review/navigation
+struct CustomAudioImportState: Equatable {
+    let file: CustomAudioFile
+    let type: CustomAudioType
+}
+
 /// Errors that can occur during file open handling
 enum FileOpenError: Error, Equatable, LocalizedError {
     /// The file format is not supported (only MP3 and M4A)
@@ -80,6 +86,18 @@ final class FileOpenHandler: ObservableObject {
 
     /// Most recently imported meditation via file open, consumed by the list view to show edit sheet
     @Published var importedMeditation: GuidedMeditation?
+
+    /// Whether the import type selection sheet should be shown
+    @Published var showImportTypeSelection = false
+
+    /// The URL of the file being imported (set by prepareImport, consumed by importFile)
+    @Published var pendingImportURL: URL?
+
+    /// Whether a running meditation should be stopped when importing
+    @Published var shouldStopMeditation = false
+
+    /// Custom audio file that was imported and needs navigation/confirmation
+    @Published var pendingCustomAudioImport: CustomAudioImportState?
 
     /// Supported audio file extensions for import
     static let supportedExtensions: Set<String> = ["mp3", "m4a"]
@@ -157,7 +175,53 @@ final class FileOpenHandler: ObservableObject {
         self.isProcessing = true
         defer { self.isProcessing = false }
 
-        return await self.performTypeBasedImport(from: url, as: importType)
+        let result = await self.performTypeBasedImport(from: url, as: importType)
+
+        // Update pending import state based on result
+        switch result {
+        case let .success(.guidedMeditation(meditation)):
+            self.importedMeditation = meditation
+            self.pendingCustomAudioImport = nil
+        case let .success(.customAudio(audioFile)):
+            guard let customAudioType = importType.customAudioType else {
+                break
+            }
+            self.pendingCustomAudioImport = CustomAudioImportState(file: audioFile, type: customAudioType)
+        case .failure:
+            break
+        }
+
+        return result
+    }
+
+    /// Prepares the handler for importing a file by validating it and showing the type selection sheet
+    ///
+    /// This method is called when a file open request is received. It validates the format,
+    /// sets up the pending import URL, and signals to show the import type selection sheet.
+    /// The actual import happens when the user selects a type via `importFile(from:as:)`.
+    ///
+    /// - Parameter url: URL to the audio file
+    func prepareImport(url: URL) {
+        guard self.canHandle(url: url) else {
+            Logger.guidedMeditation.warning(
+                "Rejected file with unsupported format in prepareImport",
+                metadata: ["extension": url.pathExtension]
+            )
+            return
+        }
+
+        self.pendingImportURL = url
+        self.showImportTypeSelection = true
+        self.shouldStopMeditation = true
+    }
+
+    /// Cancels a pending import and clears all related state
+    ///
+    /// Called when the user dismisses the import type selection sheet without selecting a type.
+    func cancelPendingImport() {
+        self.pendingImportURL = nil
+        self.showImportTypeSelection = false
+        self.shouldStopMeditation = false
     }
 
     // MARK: Private
