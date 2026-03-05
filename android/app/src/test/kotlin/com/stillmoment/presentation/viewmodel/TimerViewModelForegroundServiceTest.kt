@@ -2,6 +2,7 @@ package com.stillmoment.presentation.viewmodel
 
 import android.app.Application
 import com.stillmoment.domain.models.TimerState
+import com.stillmoment.testutil.MockAttunementResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,7 +30,6 @@ class TimerViewModelForegroundServiceTest {
     private lateinit var fakeForegroundService: FakeTimerForegroundService
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeSoundCatalogRepository: FakeSoundCatalogRepository
-    private lateinit var fakeCustomAudioRepository: FakeCustomAudioRepository
     private lateinit var mockApplication: Application
 
     @BeforeEach
@@ -40,7 +40,6 @@ class TimerViewModelForegroundServiceTest {
         fakeForegroundService = FakeTimerForegroundService()
         fakePraxisRepository = FakePraxisRepository()
         fakeSoundCatalogRepository = FakeSoundCatalogRepository()
-        fakeCustomAudioRepository = FakeCustomAudioRepository()
         mockApplication = mock()
     }
 
@@ -57,9 +56,7 @@ class TimerViewModelForegroundServiceTest {
             foregroundService = fakeForegroundService,
             praxisRepository = fakePraxisRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            customAudioRepository = fakeCustomAudioRepository,
-            attunementResolver = FakeAttunementResolver(),
-            soundscapeResolver = FakeSoundscapeResolver()
+            attunementResolver = MockAttunementResolver()
         )
     }
 

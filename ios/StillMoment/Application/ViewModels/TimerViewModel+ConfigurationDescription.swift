@@ -28,7 +28,10 @@ extension TimerViewModel {
 
     /// Label for the background sound pill.
     var backgroundPillLabel: String {
-        self.resolveBackgroundSoundName(self.settings.backgroundSoundId)
+        if let resolved = self.soundscapeResolver.resolve(id: self.settings.backgroundSoundId) {
+            return resolved.displayName
+        }
+        return NSLocalizedString("praxis.description.silent", comment: "")
     }
 
     /// Label for the introduction pill. `nil` when introduction is disabled or no introduction is selected.
@@ -36,7 +39,10 @@ extension TimerViewModel {
         guard let introId = self.settings.activeIntroductionId else {
             return nil
         }
-        return self.resolveIntroductionName(introId)
+        if let resolved = self.attunementResolver.resolve(id: introId) {
+            return resolved.displayName
+        }
+        return NSLocalizedString("praxis.editor.introduction.none", comment: "")
     }
 
     /// Label for the interval gong pill. `nil` when interval gongs are disabled.
@@ -48,32 +54,5 @@ extension TimerViewModel {
             format: NSLocalizedString("settings.intervalGongs.stepper", comment: ""),
             self.settings.intervalMinutes
         )
-    }
-
-    // MARK: - Private Helpers
-
-    private func resolveIntroductionName(_ introId: String) -> String {
-        if let intro = Introduction.availableForCurrentLanguage().first(where: { $0.id == introId }) {
-            return intro.name
-        }
-        if let uuid = UUID(uuidString: introId),
-           let customFile = self.customAudioRepository.findFile(byId: uuid) {
-            return customFile.name
-        }
-        return NSLocalizedString("praxis.editor.introduction.none", comment: "")
-    }
-
-    private func resolveBackgroundSoundName(_ soundId: String) -> String {
-        if soundId == "silent" {
-            return NSLocalizedString("praxis.description.silent", comment: "")
-        }
-        if let sound = self.soundRepository.availableSounds.first(where: { $0.id == soundId }) {
-            return sound.name
-        }
-        if let uuid = UUID(uuidString: soundId),
-           let customFile = self.customAudioRepository.findFile(byId: uuid) {
-            return customFile.name
-        }
-        return NSLocalizedString("praxis.description.silent", comment: "")
     }
 }

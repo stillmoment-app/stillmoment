@@ -1,36 +1,26 @@
 package com.stillmoment.infrastructure.audio
 
-import android.net.Uri
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.Introduction
-import com.stillmoment.domain.repositories.CustomAudioRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
+import com.stillmoment.presentation.viewmodel.FakeCustomAudioRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-/**
- * Unit tests for AttunementResolver.
- * Verifies that attunement IDs are resolved correctly from both
- * built-in catalog and custom audio imports.
- */
 class AttunementResolverTest {
-    private lateinit var fakeCustomAudioRepo: FakeCustomAudioRepository
-    private lateinit var sut: AttunementResolver
+
+    private lateinit var fakeCustomAudioRepository: FakeCustomAudioRepository
+    private lateinit var resolver: AttunementResolver
 
     @BeforeEach
     fun setUp() {
-        Introduction.languageOverride = "en"
-        fakeCustomAudioRepo = FakeCustomAudioRepository()
-        sut = AttunementResolver(fakeCustomAudioRepo)
+        fakeCustomAudioRepository = FakeCustomAudioRepository()
+        resolver = AttunementResolver(fakeCustomAudioRepository)
     }
 
     @AfterEach
@@ -40,60 +30,106 @@ class AttunementResolverTest {
 
     @Nested
     inner class Resolve {
-        @Test
-        fun `returns built-in attunement for known built-in ID`() = runTest {
-            val result = sut.resolve("breath")
 
+        @Test
+        fun `returns built-in introduction when available for current language`() {
+            Introduction.languageOverride = "en"
+
+            val result = resolver.resolve("breath")
+
+            assertNotNull(result)
             assertEquals("breath", result?.id)
-            assertEquals("Breathing Exercise", result?.name)
+            assertEquals("Breathing Exercise", result?.displayName)
             assertEquals(95, result?.durationSeconds)
-            assertTrue(result?.isBuiltIn == true)
         }
 
         @Test
-        fun `returns custom attunement for custom audio UUID`() = runTest {
-            val customFile = CustomAudioFile(
-                id = "custom-uuid-123",
-                name = "My Meditation",
-                filename = "custom-uuid-123.mp3",
-                durationMs = 180_000L,
-                type = CustomAudioType.ATTUNEMENT
-            )
-            fakeCustomAudioRepo.addFile(customFile)
+        fun `returns localized name for German language`() {
+            Introduction.languageOverride = "de"
 
-            val result = sut.resolve("custom-uuid-123")
+            val result = resolver.resolve("breath")
 
-            assertEquals("custom-uuid-123", result?.id)
-            assertEquals("My Meditation", result?.name)
-            assertEquals(180, result?.durationSeconds)
-            assertFalse(result?.isBuiltIn == true)
+            assertNotNull(result)
+            assertEquals("Atem\u00fcbung", result?.displayName)
         }
 
         @Test
-        fun `returns null for unknown ID`() = runTest {
-            val result = sut.resolve("nonexistent-id")
+        fun `returns null for built-in introduction not available for current language`() {
+            Introduction.languageOverride = "fr"
+
+            val result = resolver.resolve("breath")
 
             assertNull(result)
         }
 
         @Test
-        fun `returns null for custom audio with soundscape type`() = runTest {
+        fun `returns custom attunement by ID`() {
+            Introduction.languageOverride = "en"
+            val customFile = CustomAudioFile(
+                id = "custom-attunement-1",
+                name = "My Attunement",
+                filename = "custom-attunement-1.mp3",
+                durationMs = 120_000L,
+                type = CustomAudioType.ATTUNEMENT
+            )
+            fakeCustomAudioRepository.addFile(customFile)
+
+            val result = resolver.resolve("custom-attunement-1")
+
+            assertNotNull(result)
+            assertEquals("custom-attunement-1", result?.id)
+            assertEquals("My Attunement", result?.displayName)
+            assertEquals(120, result?.durationSeconds)
+        }
+
+        @Test
+        fun `returns null for custom soundscape ID`() {
+            Introduction.languageOverride = "en"
             val soundscapeFile = CustomAudioFile(
-                id = "soundscape-uuid",
-                name = "Rain Sounds",
-                filename = "soundscape-uuid.mp3",
+                id = "custom-soundscape-1",
+                name = "Forest Rain",
+                filename = "custom-soundscape-1.mp3",
                 durationMs = 300_000L,
                 type = CustomAudioType.SOUNDSCAPE
             )
-            fakeCustomAudioRepo.addFile(soundscapeFile)
+            fakeCustomAudioRepository.addFile(soundscapeFile)
 
-            val result = sut.resolve("soundscape-uuid")
+            val result = resolver.resolve("custom-soundscape-1")
 
             assertNull(result)
         }
 
         @Test
-        fun `returns zero duration when custom audio has null durationMs`() = runTest {
+        fun `returns null for unknown ID`() {
+            Introduction.languageOverride = "en"
+
+            val result = resolver.resolve("nonexistent-id")
+
+            assertNull(result)
+        }
+
+        @Test
+        fun `prefers built-in over custom for same ID`() {
+            Introduction.languageOverride = "en"
+            val customFile = CustomAudioFile(
+                id = "breath",
+                name = "Custom Breath",
+                filename = "custom-breath.mp3",
+                durationMs = 200_000L,
+                type = CustomAudioType.ATTUNEMENT
+            )
+            fakeCustomAudioRepository.addFile(customFile)
+
+            val result = resolver.resolve("breath")
+
+            assertNotNull(result)
+            assertEquals("Breathing Exercise", result?.displayName)
+            assertEquals(95, result?.durationSeconds)
+        }
+
+        @Test
+        fun `returns zero duration when custom attunement has null durationMs`() {
+            Introduction.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "no-duration",
                 name = "Unknown Duration",
@@ -101,88 +137,64 @@ class AttunementResolverTest {
                 durationMs = null,
                 type = CustomAudioType.ATTUNEMENT
             )
-            fakeCustomAudioRepo.addFile(customFile)
+            fakeCustomAudioRepository.addFile(customFile)
 
-            val result = sut.resolve("no-duration")
+            val result = resolver.resolve("no-duration")
 
+            assertNotNull(result)
             assertEquals(0, result?.durationSeconds)
         }
     }
 
     @Nested
-    inner class ResolveBuiltIn {
-        @Test
-        fun `returns attunement for known built-in ID`() {
-            val result = sut.resolveBuiltIn("breath")
-
-            assertEquals("breath", result?.id)
-            assertEquals("Breathing Exercise", result?.name)
-            assertEquals(95, result?.durationSeconds)
-            assertTrue(result?.isBuiltIn == true)
-        }
+    inner class AllAvailable {
 
         @Test
-        fun `returns null for custom audio ID`() {
-            val result = sut.resolveBuiltIn("custom-uuid-123")
-
-            assertNull(result)
-        }
-    }
-
-    @Nested
-    inner class IsBuiltInAvailableForCurrentLanguage {
-        @Test
-        fun `returns true for built-in with matching language`() {
+        fun `returns built-in and custom attunements`() {
             Introduction.languageOverride = "en"
+            val customFile = CustomAudioFile(
+                id = "custom-attunement-1",
+                name = "My Attunement",
+                filename = "custom-attunement-1.mp3",
+                durationMs = 60_000L,
+                type = CustomAudioType.ATTUNEMENT
+            )
+            fakeCustomAudioRepository.addFile(customFile)
 
-            val result = sut.isBuiltInAvailableForCurrentLanguage("breath")
+            val result = resolver.allAvailable()
 
-            assertTrue(result)
+            assertEquals(2, result.size)
+            assertEquals("breath", result[0].id)
+            assertEquals("Breathing Exercise", result[0].displayName)
+            assertEquals("custom-attunement-1", result[1].id)
+            assertEquals("My Attunement", result[1].displayName)
         }
 
         @Test
-        fun `returns false for built-in with unavailable language`() {
+        fun `returns empty when no attunements available`() {
             Introduction.languageOverride = "fr"
 
-            val result = sut.isBuiltInAvailableForCurrentLanguage("breath")
+            val result = resolver.allAvailable()
 
-            assertFalse(result)
+            assertEquals(0, result.size)
         }
 
         @Test
-        fun `returns false for unknown ID`() {
-            val result = sut.isBuiltInAvailableForCurrentLanguage("nonexistent")
+        fun `excludes custom soundscapes from results`() {
+            Introduction.languageOverride = "en"
+            val soundscapeFile = CustomAudioFile(
+                id = "custom-soundscape",
+                name = "Rain",
+                filename = "rain.mp3",
+                durationMs = 300_000L,
+                type = CustomAudioType.SOUNDSCAPE
+            )
+            fakeCustomAudioRepository.addFile(soundscapeFile)
 
-            assertFalse(result)
+            val result = resolver.allAvailable()
+
+            assertEquals(1, result.size)
+            assertEquals("breath", result[0].id)
         }
     }
-}
-
-/**
- * Simple in-memory fake for CustomAudioRepository used in resolver tests.
- */
-private class FakeCustomAudioRepository : CustomAudioRepository {
-    private val files = mutableListOf<CustomAudioFile>()
-
-    fun addFile(file: CustomAudioFile) {
-        files.add(file)
-    }
-
-    override suspend fun findFile(id: String): CustomAudioFile? = files.find { it.id == id }
-
-    override fun filesFlow(type: CustomAudioType): Flow<List<CustomAudioFile>> =
-        flowOf(files.filter { it.type == type })
-
-    override suspend fun loadAll(type: CustomAudioType) = files.filter { it.type == type }
-
-    override suspend fun importFile(uri: Uri, type: CustomAudioType): Result<CustomAudioFile> =
-        Result.failure(UnsupportedOperationException("Not needed in resolver tests"))
-
-    override suspend fun delete(id: String) {
-        files.removeAll { it.id == id }
-    }
-
-    override suspend fun getFilePath(id: String): String? = null
-
-    override suspend fun rename(id: String, newName: String) {}
 }

@@ -3,37 +3,22 @@ package com.stillmoment.domain.services
 import com.stillmoment.domain.models.ResolvedAttunement
 
 /**
- * Resolves attunement audio IDs transparently across built-in catalog and custom imports.
+ * Resolves attunement audio IDs transparently -- regardless of whether
+ * they refer to a built-in introduction or a user-imported custom attunement.
  *
- * Consumers should use this interface instead of directly checking [Introduction.find]
- * or [CustomAudioRepository.findFile] to ensure both sources are always considered.
+ * Consumers never need to check Introduction + CustomAudioRepository separately.
+ * The resolver encapsulates the dual lookup logic in one place.
+ *
+ * Protocol lives in Domain; implementation (with catalog + file system access) in Infrastructure.
  */
 interface AttunementResolverProtocol {
     /**
-     * Resolves an attunement by ID -- checks built-in catalog first, then custom audio.
-     *
-     * Suspend because [CustomAudioRepository.findFile] is suspend.
-     *
-     * @param id Built-in ID (e.g. "breath") or custom audio UUID
-     * @return Resolved attunement or null if not found in either source
+     * Resolves an attunement by ID. Returns null if the ID is unknown or unavailable.
      */
-    suspend fun resolve(id: String): ResolvedAttunement?
+    fun resolve(id: String): ResolvedAttunement?
 
     /**
-     * Synchronous resolve -- only checks the built-in catalog.
-     *
-     * Safe for pure Reducer functions that cannot call suspend functions.
-     *
-     * @param id Built-in ID to look up
-     * @return Resolved attunement or null if not found in built-in catalog
+     * Returns all attunements available for the current language (built-in + custom).
      */
-    fun resolveBuiltIn(id: String): ResolvedAttunement?
-
-    /**
-     * Checks if a built-in attunement is available for the current device language.
-     *
-     * @param id Built-in ID to check
-     * @return True if the attunement exists and has audio for the current language
-     */
-    fun isBuiltInAvailableForCurrentLanguage(id: String): Boolean
+    fun allAvailable(): List<ResolvedAttunement>
 }

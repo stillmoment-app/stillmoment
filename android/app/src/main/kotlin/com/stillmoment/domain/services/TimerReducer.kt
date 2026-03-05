@@ -20,19 +20,21 @@ object TimerReducer {
      * @param timerState Current timer state (.Idle when no timer exists)
      * @param selectedMinutes Currently selected duration in minutes
      * @param settings Current meditation settings (for effect parameters)
+     * @param attunementResolver Resolves attunement IDs (built-in and custom)
      * @return Effects to execute
      */
     fun reduce(
         action: TimerAction,
         timerState: TimerState,
         selectedMinutes: Int,
-        settings: MeditationSettings
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol
     ): List<TimerEffect> {
         return when (action) {
-            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings)
+            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings, attunementResolver)
             is TimerAction.ResetPressed -> reduceResetPressed(timerState)
             is TimerAction.PreparationFinished -> reducePreparationFinished(settings)
-            is TimerAction.StartGongFinished -> reduceStartGongFinished(timerState, settings)
+            is TimerAction.StartGongFinished -> reduceStartGongFinished(timerState, settings, attunementResolver)
             is TimerAction.IntroductionFinished -> reduceIntroductionFinished(timerState, settings)
             is TimerAction.TimerCompleted -> reduceTimerCompleted(timerState, settings)
             is TimerAction.EndGongFinished -> reduceEndGongFinished(timerState)
@@ -42,13 +44,17 @@ object TimerReducer {
 
     // MARK: - Control Actions
 
-    private fun reduceStartPressed(selectedMinutes: Int, settings: MeditationSettings): List<TimerEffect> {
+    private fun reduceStartPressed(
+        selectedMinutes: Int,
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol
+    ): List<TimerEffect> {
         if (selectedMinutes <= 0) {
             return emptyList()
         }
 
         // Determine introduction duration
-        val introDuration = introductionDurationSeconds(settings)
+        val introDuration = introductionDurationSeconds(settings, attunementResolver)
 
         // Determine preparation time: skip if disabled (0), otherwise use configured value
         val preparationTime = if (settings.preparationTimeEnabled) {
@@ -98,14 +104,21 @@ object TimerReducer {
         return listOf(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
     }
 
-    private fun reduceStartGongFinished(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
+    private fun reduceStartGongFinished(
+        timerState: TimerState,
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol
+    ): List<TimerEffect> {
         if (timerState != TimerState.StartGong) {
             return emptyList()
         }
 
-        return if (settings.hasActiveIntroduction && settings.introductionId != null) {
+        val introId = settings.introductionId
+        return if (settings.introductionEnabled && introId != null &&
+            attunementResolver.resolve(introId) != null
+        ) {
             // Introduction configured -> play audio
-            listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(settings.introductionId))
+            listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(introId))
         } else {
             // No introduction -> start background audio directly
             listOf(
@@ -161,7 +174,12 @@ object TimerReducer {
     // MARK: - Helpers
 
     /** Returns the introduction duration in seconds, or 0 if no introduction is configured or disabled. */
-    private fun introductionDurationSeconds(settings: MeditationSettings): Int {
-        return settings.effectiveIntroDurationSeconds
+    private fun introductionDurationSeconds(
+        settings: MeditationSettings,
+        attunementResolver: AttunementResolverProtocol
+    ): Int {
+        if (!settings.introductionEnabled) return 0
+        val introId = settings.introductionId ?: return 0
+        return attunementResolver.resolve(introId)?.durationSeconds ?: 0
     }
 }

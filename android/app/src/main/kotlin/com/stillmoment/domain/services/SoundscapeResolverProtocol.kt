@@ -3,29 +3,23 @@ package com.stillmoment.domain.services
 import com.stillmoment.domain.models.ResolvedSoundscape
 
 /**
- * Resolves soundscape audio IDs transparently across built-in catalog and custom imports.
+ * Resolves soundscape audio IDs transparently -- regardless of whether
+ * they refer to a built-in background sound or a user-imported custom soundscape.
  *
- * Consumers should use this interface instead of directly checking [SoundCatalogRepository.findById]
- * or [CustomAudioRepository.findFile] to ensure both sources are always considered.
+ * Consumers never need to check SoundCatalogRepository + CustomAudioRepository separately.
+ * The resolver encapsulates the dual lookup logic in one place.
+ *
+ * Protocol lives in Domain; implementation (with catalog + file system access) in Infrastructure.
  */
 interface SoundscapeResolverProtocol {
     /**
-     * Resolves a soundscape by ID -- checks built-in catalog first, then custom audio.
-     *
-     * Suspend because [CustomAudioRepository.findFile] is suspend.
-     *
-     * @param id Built-in ID (e.g. "forest") or custom audio UUID
-     * @return Resolved soundscape or null if not found in either source
+     * Resolves a soundscape by ID. Returns null if the ID is unknown.
+     * The special "silent" ID returns null (no sound to resolve).
      */
-    suspend fun resolve(id: String): ResolvedSoundscape?
+    fun resolve(id: String): ResolvedSoundscape?
 
     /**
-     * Synchronous resolve -- only checks the built-in catalog.
-     *
-     * Safe for pure Reducer functions that cannot call suspend functions.
-     *
-     * @param id Built-in ID to look up
-     * @return Resolved soundscape or null if not found in built-in catalog
+     * Returns all available soundscapes (built-in + custom).
      */
-    fun resolveBuiltIn(id: String): ResolvedSoundscape?
+    fun allAvailable(): List<ResolvedSoundscape>
 }

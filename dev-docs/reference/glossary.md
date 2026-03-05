@@ -6,27 +6,25 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-03-05
+Last Updated: 2026-02-23
 -->
 
 ## Quick Reference
 
 | Begriff | Typ | Domain | Beschreibung |
 |---------|-----|--------|--------------|
-| `AttunementResolver` | Service | Timer | Loest Einstimmungs-IDs auf (built-in + custom importiert) |
 | `AudioMetadata` | Value Object | Guided Meditations | Metadaten aus Audio-Dateien (ID3 Tags) |
 | `AppearanceMode` | Enum | App-wide | Darstellungsmodus (system, light, dark) |
 | `ColorTheme` | Enum | App-wide | Farbthema-Auswahl (candlelight, forest, moon) |
-| `ResolvedAttunement` | Value Object | Timer | Aufgeloeste Einstimmung (ID, Name, Dauer, isBuiltIn) |
-| `ResolvedSoundscape` | Value Object | Timer | Aufgeloeste Klangatmosphaere (ID, Name, isBuiltIn, isSilent) |
 | `Soundscape` | Value Object | Timer | Hintergrundgeraeusch (Beiwerk zum Timer) |
-| `SoundscapeResolver` | Service | Timer | Loest Klangatmosphaeren-IDs auf (built-in + custom importiert) |
 | `GongSound` | Value Object | Timer | Konfigurierbarer Gong-Ton (Start/Ende, Intervall) |
 | `IntervalMode` | Enum | Timer | Intervallmodus (REPEATING, AFTER_START, BEFORE_END) |
 | `IntervalSettings` | Value Object | Timer | Intervall-Gong-Konfiguration fuer tick() |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
 | `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation. Im Code aktuell noch `Introduction` (Rename-Ticket pending). |
+| `AttunementResolver` | Protocol | Timer | Loest Einstimmungs-IDs transparent auf (built-in oder custom) |
+| `SoundscapeResolver` | Protocol | Timer | Loest Soundscape-IDs transparent auf (built-in oder custom) |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
 | `PreparationCountdownState` | Enum | Guided Meditations | Zustandsautomat fuer Vorbereitungs-Countdown |
 | `LocalizedString` | Value Object | Timer | Lokalisierter String fuer Soundscape |
@@ -403,102 +401,49 @@ Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Go
 
 ### AttunementResolver
 
-**Typ:** Service (Domain Protocol + Infrastructure Implementation)
-**Pattern:** Strategy / Facade
+**Typ:** Protocol + Implementation
+**Pattern:** Unified Audio Resolution (Domain Protocol + Infrastructure Implementation)
 
 **Beschreibung:**
-Loest Einstimmungs-IDs transparent auf — egal ob built-in (`Introduction.find()`) oder custom importiert (`CustomAudioRepository`). Alle Konsumenten (ViewModel, UI) nutzen den Resolver statt direkte Katalog-Lookups. Verhindert den Bug, dass custom-importierte Einstimmungen als "nicht vorhanden" behandelt werden.
+Loest Einstimmungs-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`Introduction`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Kein Konsument muss mehr selbst pruefen ob eine ID built-in oder custom ist.
 
 **Methoden:**
 
 | Methode | Beschreibung |
 |---------|--------------|
-| `resolve(id)` | Async: Prueft built-in, dann custom. Gibt `ResolvedAttunement?` zurueck |
-| `resolveBuiltIn(id)` | Sync: Nur built-in Katalog (`Introduction.find()`) |
-| `isBuiltInAvailableForCurrentLanguage(id)` | Sync: Sprachverfuegbarkeit fuer built-in |
-
-**Resolve-Reihenfolge:** Built-in zuerst (sync, schnell), dann Custom (async, DB-Lookup).
+| `resolve(id:)` | Gibt `ResolvedAttunement?` zurueck (Name, Dauer) |
+| `resolveAudioURL(id:)` | Gibt die Playback-URL zurueck |
+| `allAvailable()` | Alle verfuegbaren Einstimmungen (built-in + custom) |
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Services/AttunementResolverProtocol.swift` (geplant)
-- Android: `android/app/src/main/kotlin/com/stillmoment/domain/services/AttunementResolverProtocol.kt`
-- Android Impl: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AttunementResolver.kt`
-
-**Siehe auch:** `ResolvedAttunement`, `Attunement`, `SoundscapeResolver`
-
----
-
-### ResolvedAttunement
-
-**Typ:** Value Object
-**Pattern:** Transfer Object
-
-**Beschreibung:**
-Ergebnis einer Einstimmungs-Aufloesung durch `AttunementResolver`. Vereinheitlicht built-in und custom Einstimmungen zu einem einheitlichen Ergebnisobjekt.
-
-**Properties:**
-
-| Property | Typ | Beschreibung |
-|----------|-----|--------------|
-| `id` | String | Eindeutige ID (built-in ID oder Custom-UUID) |
-| `name` | String | Lokalisierter Anzeigename |
-| `durationSeconds` | Int | Dauer in Sekunden |
-| `isBuiltIn` | Boolean | Built-in oder custom importiert? |
-
-**Datei-Referenzen:**
-- iOS: (geplant)
-- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/ResolvedAttunement.kt`
-
-**Siehe auch:** `AttunementResolver`, `ResolvedSoundscape`
+- iOS Protocol: `ios/StillMoment/Domain/Services/AttunementResolverProtocol.swift`
+- iOS Implementation: `ios/StillMoment/Infrastructure/Services/AttunementResolver.swift`
+- Android Protocol: `android/app/src/main/kotlin/com/stillmoment/domain/services/AttunementResolverProtocol.kt`
+- Android Implementation: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AttunementResolver.kt`
 
 ---
 
 ### SoundscapeResolver
 
-**Typ:** Service (Domain Protocol + Infrastructure Implementation)
-**Pattern:** Strategy / Facade
+**Typ:** Protocol + Implementation
+**Pattern:** Unified Audio Resolution (Domain Protocol + Infrastructure Implementation)
 
 **Beschreibung:**
-Loest Klangatmosphaeren-IDs transparent auf — egal ob built-in (`SoundCatalogRepository`) oder custom importiert (`CustomAudioRepository`). Analog zu `AttunementResolver` fuer Soundscapes.
+Loest Soundscape-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`BackgroundSound`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Die spezielle ID `"silent"` gibt `nil` zurueck.
 
 **Methoden:**
 
 | Methode | Beschreibung |
 |---------|--------------|
-| `resolve(id)` | Async: Prueft built-in, dann custom. Gibt `ResolvedSoundscape?` zurueck |
-| `resolveBuiltIn(id)` | Sync: Nur built-in Katalog (`SoundCatalogRepository`) |
+| `resolve(id:)` | Gibt `ResolvedSoundscape?` zurueck (Name) |
+| `resolveAudioURL(id:)` | Gibt die Playback-URL zurueck |
+| `allAvailable()` | Alle verfuegbaren Soundscapes (built-in + custom) |
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Services/SoundscapeResolverProtocol.swift` (geplant)
-- Android: `android/app/src/main/kotlin/com/stillmoment/domain/services/SoundscapeResolverProtocol.kt`
-- Android Impl: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/SoundscapeResolver.kt`
-
-**Siehe auch:** `ResolvedSoundscape`, `Soundscape`, `AttunementResolver`
-
----
-
-### ResolvedSoundscape
-
-**Typ:** Value Object
-**Pattern:** Transfer Object
-
-**Beschreibung:**
-Ergebnis einer Klangatmosphaeren-Aufloesung durch `SoundscapeResolver`. Vereinheitlicht built-in und custom Soundscapes.
-
-**Properties:**
-
-| Property | Typ | Beschreibung |
-|----------|-----|--------------|
-| `id` | String | Eindeutige ID (built-in ID oder Custom-UUID) |
-| `name` | String | Lokalisierter Anzeigename |
-| `isBuiltIn` | Boolean | Built-in oder custom importiert? |
-| `isSilent` | Boolean | Stille-Platzhalter (nur fuer `BackgroundSound.SILENT_ID`) |
-
-**Datei-Referenzen:**
-- iOS: (geplant)
-- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/ResolvedSoundscape.kt`
-
-**Siehe auch:** `SoundscapeResolver`, `ResolvedAttunement`
+- iOS Protocol: `ios/StillMoment/Domain/Services/SoundscapeResolverProtocol.swift`
+- iOS Implementation: `ios/StillMoment/Infrastructure/Services/SoundscapeResolver.swift`
+- Android Protocol: `android/app/src/main/kotlin/com/stillmoment/domain/services/SoundscapeResolverProtocol.kt`
+- Android Implementation: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/SoundscapeResolver.kt`
 
 ---
 

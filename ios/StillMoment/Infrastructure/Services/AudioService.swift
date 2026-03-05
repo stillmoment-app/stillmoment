@@ -20,12 +20,22 @@ final class AudioService: AudioServiceProtocol {
         coordinator: AudioSessionCoordinatorProtocol,
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         customAudioRepository: CustomAudioRepositoryProtocol? = nil,
+        attunementResolver: AttunementResolverProtocol? = nil,
+        soundscapeResolver: SoundscapeResolverProtocol? = nil,
         backgroundPreviewDuration: TimeInterval = 3.0,
         fadeOutDuration: TimeInterval = 0.5
     ) {
         self.coordinator = coordinator
         self.soundRepository = soundRepository
         self.customAudioRepository = customAudioRepository
+        let customRepo = customAudioRepository ?? CustomAudioRepository()
+        self.attunementResolver = attunementResolver ?? AttunementResolver(
+            customAudioRepository: customRepo
+        )
+        self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
+            soundRepository: soundRepository,
+            customAudioRepository: customRepo
+        )
         self.backgroundPreviewDuration = backgroundPreviewDuration
         self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
@@ -242,6 +252,8 @@ final class AudioService: AudioServiceProtocol {
     let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
     let customAudioRepository: CustomAudioRepositoryProtocol?
+    let attunementResolver: AttunementResolverProtocol
+    let soundscapeResolver: SoundscapeResolverProtocol
     private let backgroundPreviewDuration: TimeInterval
     private let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
@@ -309,34 +321,9 @@ private extension AudioService {
         }
     }
 
-    /// Resolves a background sound URL by ID: tries built-in sounds, then custom audio files.
+    /// Resolves a background sound URL by ID via the SoundscapeResolver.
     func resolveBackgroundSoundURL(soundId: String) throws -> URL {
-        // Try built-in sound first
-        if let sound = self.soundRepository.getSound(byId: soundId) {
-            let (name, ext) = self.parseFilename(sound.filename)
-            guard let url = Bundle.main.url(
-                forResource: name,
-                withExtension: ext,
-                subdirectory: "BackgroundAudio"
-            ) else {
-                Logger.audio.error(
-                    "Background audio file not found in bundle",
-                    metadata: ["filename": sound.filename]
-                )
-                throw AudioServiceError.soundFileNotFound
-            }
-            return url
-        }
-
-        // Try custom audio file if soundId is a UUID
-        if let uuid = UUID(uuidString: soundId),
-           let customFile = self.customAudioRepository?.findFile(byId: uuid),
-           let url = self.customAudioRepository?.fileURL(for: customFile) {
-            return url
-        }
-
-        Logger.audio.error("Background sound not found", metadata: ["soundId": soundId])
-        throw AudioServiceError.soundFileNotFound
+        try self.soundscapeResolver.resolveAudioURL(id: soundId)
     }
 }
 

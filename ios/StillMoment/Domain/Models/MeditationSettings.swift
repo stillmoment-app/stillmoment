@@ -51,7 +51,7 @@ struct MeditationSettings: Codable, Equatable {
             durationMinutes,
             introductionId: introductionId,
             introductionEnabled: introductionEnabled,
-            customIntroDurationSeconds: customIntroDurationSeconds
+            introDurationSeconds: customIntroDurationSeconds
         )
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
@@ -148,15 +148,16 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Returns the minimum meditation duration in minutes for a given active introduction ID.
     /// `activeIntroductionId` is `nil` when disabled or unset — callers use `settings.activeIntroductionId`.
-    /// When `customIntroDurationSeconds` is provided, it is used instead of looking up built-in introductions.
+    /// `introDurationSeconds` is provided by the caller (resolved via AttunementResolver).
+    /// Falls back to `Introduction.find()` for built-in intros when `introDurationSeconds` is nil.
     /// Formula: ceil(introductionDurationSeconds / 60)
-    static func minimumDuration(activeIntroductionId: String?, customIntroDurationSeconds: Int? = nil) -> Int {
+    static func minimumDuration(activeIntroductionId: String?, introDurationSeconds: Int? = nil) -> Int {
         guard activeIntroductionId != nil else {
             return 1
         }
         let durationSeconds: Int
-        if let customDuration = customIntroDurationSeconds {
-            durationSeconds = customDuration
+        if let provided = introDurationSeconds {
+            durationSeconds = provided
         } else if let introId = activeIntroductionId,
                   let intro = Introduction.find(byId: introId) {
             durationSeconds = intro.durationSeconds
@@ -173,21 +174,21 @@ struct MeditationSettings: Codable, Equatable {
     static func minimumDuration(
         for introductionId: String?,
         introductionEnabled: Bool = false,
-        customIntroDurationSeconds: Int? = nil
+        introDurationSeconds: Int? = nil
     ) -> Int {
         let activeId = introductionEnabled ? introductionId : nil
         return Self.minimumDuration(
             activeIntroductionId: activeId,
-            customIntroDurationSeconds: customIntroDurationSeconds
+            introDurationSeconds: introDurationSeconds
         )
     }
 
     /// Minimum meditation duration in minutes based on current introduction setting.
-    /// Uses `customIntroDurationSeconds` when set (for custom attunements).
+    /// Uses `customIntroDurationSeconds` when set (resolved via AttunementResolver).
     var minimumDurationMinutes: Int {
         Self.minimumDuration(
             activeIntroductionId: self.activeIntroductionId,
-            customIntroDurationSeconds: self.customIntroDurationSeconds
+            introDurationSeconds: self.customIntroDurationSeconds
         )
     }
 
@@ -197,12 +198,12 @@ struct MeditationSettings: Codable, Equatable {
         _ minutes: Int,
         introductionId: String? = nil,
         introductionEnabled: Bool = false,
-        customIntroDurationSeconds: Int? = nil
+        introDurationSeconds: Int? = nil
     ) -> Int {
         let minimum = Self.minimumDuration(
             for: introductionId,
             introductionEnabled: introductionEnabled,
-            customIntroDurationSeconds: customIntroDurationSeconds
+            introDurationSeconds: introDurationSeconds
         )
         return min(max(minutes, minimum), 60)
     }

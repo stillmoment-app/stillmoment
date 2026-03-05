@@ -1,6 +1,6 @@
 # Ticket shared-074: Einheitliche Audio-Resolver fuer Einstimmung und Klangatmosphaere
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~4h | Android ~4h
 **Phase**: 2-Architektur
@@ -27,7 +27,7 @@ Jede neue Stelle, die eine Audio-ID aufloesen muss, kann denselben Bug einfuehre
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [x]    | -             |
 
 ---

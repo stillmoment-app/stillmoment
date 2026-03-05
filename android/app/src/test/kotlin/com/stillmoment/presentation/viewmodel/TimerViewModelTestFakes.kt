@@ -226,6 +226,11 @@ class FakeSoundCatalogRepository : SoundCatalogRepository {
 class FakeCustomAudioRepository : CustomAudioRepository {
     private val _files = MutableStateFlow<List<CustomAudioFile>>(emptyList())
     var lastDeletedId: String? = null
+
+    /** Adds a file directly to the in-memory store (for test setup). */
+    fun addFile(file: CustomAudioFile) {
+        _files.value = _files.value + file
+    }
     var importResult: Result<CustomAudioFile> = Result.success(
         CustomAudioFile(
             id = "fake-id",

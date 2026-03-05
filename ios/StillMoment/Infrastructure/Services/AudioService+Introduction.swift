@@ -117,35 +117,7 @@ extension AudioService {
 
 private extension AudioService {
     func resolveIntroductionPreviewURL(introductionId: String) throws -> URL {
-        // Try custom attunement (UUID-based ID)
-        if let uuid = UUID(uuidString: introductionId),
-           let customFile = self.customAudioRepository?.findFile(byId: uuid),
-           let url = self.customAudioRepository?.fileURL(for: customFile) {
-            return url
-        }
-
-        // Try built-in introduction
-        guard let filename = Introduction.audioFilenameForCurrentLanguage(introductionId) else {
-            Logger.audio.error(
-                "Introduction not found or not available in current language",
-                metadata: ["introductionId": introductionId]
-            )
-            throw AudioServiceError.soundFileNotFound
-        }
-
-        let (name, ext) = self.parseFilename(filename)
-        guard let url = Bundle.main.url(
-            forResource: name,
-            withExtension: ext,
-            subdirectory: "IntroductionAudio"
-        ) else {
-            Logger.audio.error(
-                "Introduction audio file not found in bundle",
-                metadata: ["filename": filename]
-            )
-            throw AudioServiceError.soundFileNotFound
-        }
-        return url
+        try self.attunementResolver.resolveAudioURL(id: introductionId)
     }
 }
 
