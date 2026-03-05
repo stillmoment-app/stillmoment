@@ -20,7 +20,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -117,9 +116,9 @@ constructor(
             praxisId = praxis.id
 
             val introName = praxis.introductionId?.let { id ->
-                attunementResolver.resolve(id)?.name
+                attunementResolver.resolve(id)?.displayName
             }
-            val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.name
+            val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.displayName
 
             _uiState.update { current ->
                 current.withPraxis(
@@ -130,14 +129,7 @@ constructor(
                 )
             }
 
-            combine(
-                customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE),
-                customAudioRepository.filesFlow(CustomAudioType.ATTUNEMENT)
-            ) { soundscapes, attunements ->
-                soundscapes to attunements
-            }.collect { (soundscapes, attunements) ->
-                _uiState.update { it.copy(customSoundscapes = soundscapes, customAttunements = attunements) }
-            }
+            loadCustomAudio()
         }
     }
 
@@ -208,14 +200,14 @@ constructor(
 
     private fun resolveIntroductionName(introductionId: String?) {
         viewModelScope.launch {
-            val name = introductionId?.let { attunementResolver.resolve(it)?.name }
+            val name = introductionId?.let { attunementResolver.resolve(it)?.displayName }
             _uiState.update { it.copy(resolvedIntroductionName = name) }
         }
     }
 
     private fun resolveBackgroundSoundName(soundId: String) {
         viewModelScope.launch {
-            val name = soundscapeResolver.resolve(soundId)?.name
+            val name = soundscapeResolver.resolve(soundId)?.displayName
             _uiState.update { it.copy(resolvedBackgroundSoundName = name) }
         }
     }
@@ -299,9 +291,12 @@ constructor(
     fun importCustomAudio(uri: Uri, type: CustomAudioType) {
         viewModelScope.launch {
             val result = customAudioRepository.importFile(uri, type)
-            result.onFailure { error ->
-                _uiState.update { it.copy(customAudioError = error.message) }
-            }
+            result.fold(
+                onSuccess = { loadCustomAudio() },
+                onFailure = { error ->
+                    _uiState.update { it.copy(customAudioError = error.message) }
+                }
+            )
         }
     }
 
@@ -313,6 +308,7 @@ constructor(
         viewModelScope.launch {
             val current = _uiState.value
             customAudioRepository.delete(id)
+            loadCustomAudio()
 
             // Reset backgroundSoundId if it references the deleted file
             if (current.backgroundSoundId == id) {
@@ -334,6 +330,7 @@ constructor(
     fun renameCustomAudio(id: String, newName: String) {
         viewModelScope.launch {
             customAudioRepository.rename(id, newName)
+            loadCustomAudio()
         }
     }
 
@@ -342,5 +339,15 @@ constructor(
      */
     fun clearCustomAudioError() {
         _uiState.update { it.copy(customAudioError = null) }
+    }
+
+    /**
+     * Loads custom soundscapes and attunements from the repository.
+     * Called after init and after every CRUD mutation — mirrors iOS approach.
+     */
+    private suspend fun loadCustomAudio() {
+        val soundscapes = customAudioRepository.loadAll(CustomAudioType.SOUNDSCAPE)
+        val attunements = customAudioRepository.loadAll(CustomAudioType.ATTUNEMENT)
+        _uiState.update { it.copy(customSoundscapes = soundscapes, customAttunements = attunements) }
     }
 }
