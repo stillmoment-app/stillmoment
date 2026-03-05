@@ -2,13 +2,11 @@ package com.stillmoment.screenshots
 
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -111,17 +109,14 @@ class ScreengrabScreenshotTests {
             )
         }
 
-        // Apply locale for this test run.
-        // Screengrab passes -e testLocale <locale> for each locale run.
-        // We launch, set Locale.setDefault(), then recreate() so
-        // MainActivity.attachBaseContext() picks up the new locale.
+        // Apply locale BEFORE launching so attachBaseContext() picks it up
+        // without needing recreate() (which causes DataStore race conditions).
         val testLocale = InstrumentationRegistry.getArguments().getString("testLocale") ?: "en-US"
         val locale = Locale.forLanguageTag(testLocale.replace("_", "-"))
+        Locale.setDefault(locale)
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         scenario = ActivityScenario.launch(Intent(context, MainActivity::class.java))
-        Locale.setDefault(locale)
-        scenario.recreate()
 
         composeRule.waitForIdle()
     }
@@ -245,9 +240,9 @@ class ScreengrabScreenshotTests {
         waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
         composeRule.waitForIdle()
 
-        // Tap "Mindful Breathing" - use performTouchInput for reliable physical tap
+        // Tap "Mindful Breathing" - use semantic click for locale-independent behavior
         composeRule.onNodeWithText("Mindful Breathing", substring = true, ignoreCase = true)
-            .performTouchInput { click() }
+            .performClick()
         composeRule.waitForIdle()
 
         // Wait for player screen to appear - look for teacher name (unique to player)
