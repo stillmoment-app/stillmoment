@@ -16,6 +16,7 @@ import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +51,8 @@ constructor(
     private val foregroundService: TimerForegroundServiceProtocol,
     private val praxisRepository: PraxisRepository,
     private val soundCatalogRepository: SoundCatalogRepository,
-    private val attunementResolver: AttunementResolverProtocol
+    private val attunementResolver: AttunementResolverProtocol,
+    private val soundscapeResolver: SoundscapeResolverProtocol
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -72,6 +74,11 @@ constructor(
         return attunementResolver.resolve(introId)?.displayName
     }
 
+    /** Returns the display name for the background sound (built-in or custom), or null if silent. */
+    private fun resolveBackgroundSoundName(praxis: Praxis): String? {
+        return soundscapeResolver.resolve(praxis.backgroundSoundId)?.displayName
+    }
+
     init {
         // Load initial settings and praxis synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
@@ -84,7 +91,8 @@ constructor(
             settings = initialSettings,
             currentPraxis = initialPraxis,
             builtInSounds = soundCatalogRepository.getAllSounds(),
-            resolvedIntroductionName = resolveIntroductionName(initialPraxis)
+            resolvedIntroductionName = resolveIntroductionName(initialPraxis),
+            resolvedBackgroundSoundName = resolveBackgroundSoundName(initialPraxis)
         )
         // Observe praxis changes and sync settings + pill labels
         observePraxis()
@@ -408,6 +416,7 @@ constructor(
                 val introDuration = resolveIntroDurationSeconds(praxis.introductionId)
                 val settings = praxis.toMeditationSettings(introDuration)
                 val introName = resolveIntroductionName(praxis)
+                val bgName = resolveBackgroundSoundName(praxis)
                 _uiState.update { state ->
                     val newMinutes = if (state.timerState == TimerState.Idle) {
                         settings.durationMinutes
@@ -418,7 +427,8 @@ constructor(
                         settings = settings,
                         selectedMinutes = newMinutes,
                         currentPraxis = praxis,
-                        resolvedIntroductionName = introName
+                        resolvedIntroductionName = introName,
+                        resolvedBackgroundSoundName = bgName
                     )
                 }
             }
@@ -435,6 +445,7 @@ constructor(
         val introDuration = resolveIntroDurationSeconds(praxis.introductionId)
         val settings = praxis.toMeditationSettings(introDuration)
         val introName = resolveIntroductionName(praxis)
+        val bgName = resolveBackgroundSoundName(praxis)
         _uiState.update { state ->
             val newMinutes = if (state.timerState == TimerState.Idle) {
                 settings.durationMinutes
@@ -445,7 +456,8 @@ constructor(
                 settings = settings,
                 selectedMinutes = newMinutes,
                 currentPraxis = praxis,
-                resolvedIntroductionName = introName
+                resolvedIntroductionName = introName,
+                resolvedBackgroundSoundName = bgName
             )
         }
     }

@@ -56,7 +56,8 @@ class TimerViewModelForegroundServiceTest {
             foregroundService = fakeForegroundService,
             praxisRepository = fakePraxisRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            attunementResolver = MockAttunementResolver()
+            attunementResolver = MockAttunementResolver(),
+            soundscapeResolver = FakeSoundscapeResolver()
         )
     }
 

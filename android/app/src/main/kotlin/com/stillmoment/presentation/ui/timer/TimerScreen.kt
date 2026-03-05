@@ -49,7 +49,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
-import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
@@ -256,7 +255,8 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
     val language = LocalConfiguration.current.locales[0].language
     val preparationLabel = preparationPillLabel(praxis)
     val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
-    val backgroundLabel = backgroundPillLabel(praxis, uiState.builtInSounds, language)
+    val backgroundLabel = uiState.resolvedBackgroundSoundName
+        ?: stringResource(R.string.praxis_description_silent)
     val introductionLabel = uiState.resolvedIntroductionName
     val intervalLabel = intervalPillLabel(praxis)
 
@@ -292,11 +292,6 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
 private fun preparationPillLabel(praxis: Praxis): String? {
     if (!praxis.preparationTimeEnabled) return null
     return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
-}
-
-private fun backgroundPillLabel(praxis: Praxis, builtInSounds: List<BackgroundSound>, language: String): String {
-    return builtInSounds.firstOrNull { it.id == praxis.backgroundSoundId }?.localizedName(language)
-        ?: builtInSounds.firstOrNull()?.localizedName(language).orEmpty()
 }
 
 @Composable

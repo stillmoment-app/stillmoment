@@ -31,7 +31,9 @@ data class TimerUiState(
     /** Built-in background sounds from catalog */
     val builtInSounds: List<BackgroundSound> = emptyList(),
     /** Resolved introduction display name (built-in or custom), null if none active */
-    val resolvedIntroductionName: String? = null
+    val resolvedIntroductionName: String? = null,
+    /** Resolved background sound display name (built-in or custom) */
+    val resolvedBackgroundSoundName: String? = null
 ) {
     // Convenience accessors delegating to timer
     val timerState: TimerState get() = timer?.state ?: TimerState.Idle
