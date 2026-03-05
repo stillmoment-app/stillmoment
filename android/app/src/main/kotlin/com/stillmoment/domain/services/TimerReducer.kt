@@ -1,6 +1,5 @@
 package com.stillmoment.domain.services
 
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
@@ -104,12 +103,9 @@ object TimerReducer {
             return emptyList()
         }
 
-        val introId = settings.introductionId
-        return if (settings.introductionEnabled && introId != null &&
-            Introduction.isAvailableForCurrentLanguage(introId)
-        ) {
+        return if (settings.hasActiveIntroduction && settings.introductionId != null) {
             // Introduction configured -> play audio
-            listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(introId))
+            listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(settings.introductionId))
         } else {
             // No introduction -> start background audio directly
             listOf(
@@ -166,9 +162,6 @@ object TimerReducer {
 
     /** Returns the introduction duration in seconds, or 0 if no introduction is configured or disabled. */
     private fun introductionDurationSeconds(settings: MeditationSettings): Int {
-        if (!settings.introductionEnabled) return 0
-        val introId = settings.introductionId ?: return 0
-        if (!Introduction.isAvailableForCurrentLanguage(introId)) return 0
-        return Introduction.find(introId)?.durationSeconds ?: 0
+        return settings.effectiveIntroDurationSeconds
     }
 }

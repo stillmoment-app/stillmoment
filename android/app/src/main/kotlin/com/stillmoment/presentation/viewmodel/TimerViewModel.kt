@@ -15,7 +15,9 @@ import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +52,9 @@ constructor(
     private val foregroundService: TimerForegroundServiceProtocol,
     private val praxisRepository: PraxisRepository,
     private val soundCatalogRepository: SoundCatalogRepository,
-    private val customAudioRepository: CustomAudioRepository
+    private val customAudioRepository: CustomAudioRepository,
+    private val attunementResolver: AttunementResolverProtocol,
+    private val soundscapeResolver: SoundscapeResolverProtocol
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -83,6 +87,8 @@ constructor(
             currentPraxis = initialPraxis,
             builtInSounds = soundCatalogRepository.getAllSounds()
         )
+        // Resolve audio names asynchronously for initial state
+        resolveAudioNames(initialPraxis)
         // Observe praxis changes and sync settings + pill labels
         observePraxis()
 
@@ -393,6 +399,25 @@ constructor(
 
     // MARK: - Persistence
 
+    /**
+     * Resolves introduction and background sound names asynchronously via resolvers.
+     * Updates UiState with resolved names for pill label display.
+     */
+    private fun resolveAudioNames(praxis: Praxis) {
+        viewModelScope.launch {
+            val introName = praxis.activeIntroductionId?.let { id ->
+                attunementResolver.resolve(id)?.name
+            }
+            val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.name
+            _uiState.update {
+                it.copy(
+                    resolvedIntroductionName = introName,
+                    resolvedBackgroundSoundName = bgName
+                )
+            }
+        }
+    }
+
     private fun observePraxis() {
         viewModelScope.launch {
             praxisRepository.praxisFlow.collect { praxis ->
@@ -410,6 +435,7 @@ constructor(
                         currentPraxis = praxis
                     )
                 }
+                resolveAudioNames(praxis)
             }
         }
     }
@@ -435,6 +461,7 @@ constructor(
                 currentPraxis = praxis
             )
         }
+        resolveAudioNames(praxis)
     }
 
     private fun saveSettings() {

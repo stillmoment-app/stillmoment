@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.viewmodel
 
+import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
@@ -54,7 +55,9 @@ class PraxisEditorViewModelTest {
             praxisRepository = fakePraxisRepository,
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,
-            soundCatalogRepository = fakeSoundCatalogRepository
+            soundCatalogRepository = fakeSoundCatalogRepository,
+            attunementResolver = FakeAttunementResolver(),
+            soundscapeResolver = FakeSoundscapeResolver()
         )
     }
 
@@ -373,6 +376,123 @@ class PraxisEditorViewModelTest {
             viewModel.setPreparationSeconds(12)
 
             assertEquals(10, viewModel.uiState.value.preparationTimeSeconds)
+        }
+    }
+
+    // MARK: - Resolved Audio Names
+
+    @Nested
+    inner class ResolvedAudioNames {
+        @Test
+        fun `resolves built-in introduction name on init`() = runTest {
+            Introduction.languageOverride = "de"
+            try {
+                fakePraxisRepository.storedPraxis = Praxis.create(
+                    introductionId = "breath",
+                    introductionEnabled = true
+                )
+
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+
+                assertEquals(
+                    Introduction.find("breath")?.localizedName,
+                    viewModel.uiState.value.resolvedIntroductionName
+                )
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `resolves built-in background sound name on init`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(backgroundSoundId = "forest")
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertEquals(
+                "Forest Ambience",
+                viewModel.uiState.value.resolvedBackgroundSoundName
+            )
+        }
+
+        @Test
+        fun `resolvedIntroductionName is null when no introduction set`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(introductionId = null)
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.resolvedIntroductionName)
+        }
+
+        @Test
+        fun `setIntroductionId updates resolvedIntroductionName`() = runTest {
+            Introduction.languageOverride = "de"
+            try {
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+
+                viewModel.setIntroductionId("breath")
+                advanceUntilIdle()
+
+                assertEquals(
+                    Introduction.find("breath")?.localizedName,
+                    viewModel.uiState.value.resolvedIntroductionName
+                )
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `setIntroductionId null clears resolvedIntroductionName`() = runTest {
+            Introduction.languageOverride = "de"
+            try {
+                fakePraxisRepository.storedPraxis = Praxis.create(
+                    introductionId = "breath",
+                    introductionEnabled = true
+                )
+                val viewModel = createViewModel()
+                advanceUntilIdle()
+
+                viewModel.setIntroductionId(null)
+                advanceUntilIdle()
+
+                assertNull(viewModel.uiState.value.resolvedIntroductionName)
+            } finally {
+                Introduction.languageOverride = null
+            }
+        }
+
+        @Test
+        fun `setBackgroundSoundId updates resolvedBackgroundSoundName`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.setBackgroundSoundId("forest")
+            advanceUntilIdle()
+
+            assertEquals(
+                "Forest Ambience",
+                viewModel.uiState.value.resolvedBackgroundSoundName
+            )
+        }
+
+        @Test
+        fun `resolves silent soundscape name on init`() = runTest {
+            fakePraxisRepository.storedPraxis = Praxis.create(
+                backgroundSoundId = BackgroundSound.SILENT_ID
+            )
+
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            assertEquals(
+                "Silence",
+                viewModel.uiState.value.resolvedBackgroundSoundName
+            )
         }
     }
 

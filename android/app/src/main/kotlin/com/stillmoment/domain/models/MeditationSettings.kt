@@ -15,6 +15,10 @@ package com.stillmoment.domain.models
  * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
  * @property gongVolume Volume for start/end gong sounds (0.0 to 1.0)
  * @property introductionEnabled Whether introduction audio is enabled
+ * @property customIntroDurationSeconds Duration of custom attunement in seconds (sync resolution path).
+ *   Populated by TimerViewModel from CustomAudioRepository when converting Praxis to MeditationSettings.
+ *   Built-in introductions use [Introduction.find] instead (no need for this field).
+ *   The async resolution path (Resolver) provides the duration for UI display independently.
  */
 data class MeditationSettings(
     val intervalGongsEnabled: Boolean = false,
@@ -204,6 +208,36 @@ data class MeditationSettings(
      */
     val activeIntroductionId: String?
         get() = if (introductionEnabled) introductionId else null
+
+    /**
+     * Whether an active introduction is configured and available.
+     * Returns true for custom attunements (when [customIntroDurationSeconds] is set)
+     * AND for built-in introductions (when available for current language).
+     */
+    val hasActiveIntroduction: Boolean
+        get() {
+            if (!introductionEnabled) return false
+            introductionId ?: return false
+            // Custom attunement: customIntroDurationSeconds is set
+            if (customIntroDurationSeconds != null) return true
+            // Built-in: check language availability
+            return Introduction.isAvailableForCurrentLanguage(introductionId)
+        }
+
+    /**
+     * The effective introduction duration in seconds.
+     * Returns [customIntroDurationSeconds] for custom attunements, or the built-in duration
+     * for standard introductions. Returns 0 if no active introduction.
+     */
+    val effectiveIntroDurationSeconds: Int
+        get() {
+            if (!hasActiveIntroduction) return 0
+            // Custom attunement duration
+            customIntroDurationSeconds?.let { return it }
+            // Built-in duration
+            val id = introductionId ?: return 0
+            return Introduction.find(id)?.durationSeconds ?: 0
+        }
 
     /**
      * Returns the minimum duration in minutes based on the current introduction setting.
