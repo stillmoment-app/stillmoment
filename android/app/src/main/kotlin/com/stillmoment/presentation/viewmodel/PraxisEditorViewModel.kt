@@ -20,6 +20,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -53,7 +54,37 @@ data class PraxisEditorUiState(
     val resolvedIntroductionName: String? = null,
     /** Resolved background sound name (built-in or custom) */
     val resolvedBackgroundSoundName: String? = null
-)
+) {
+    /**
+     * Applies a loaded Praxis and its resolved names to this state,
+     * preserving fields not owned by Praxis (custom audio lists, errors).
+     */
+    fun withPraxis(
+        praxis: Praxis,
+        builtInSounds: List<BackgroundSound>,
+        resolvedIntroductionName: String?,
+        resolvedBackgroundSoundName: String?
+    ): PraxisEditorUiState = copy(
+        isLoading = false,
+        durationMinutes = praxis.durationMinutes,
+        preparationTimeEnabled = praxis.preparationTimeEnabled,
+        preparationTimeSeconds = praxis.preparationTimeSeconds,
+        gongSoundId = praxis.gongSoundId,
+        gongVolume = praxis.gongVolume,
+        introductionId = praxis.introductionId,
+        introductionEnabled = praxis.introductionEnabled,
+        intervalGongsEnabled = praxis.intervalGongsEnabled,
+        intervalMinutes = praxis.intervalMinutes,
+        intervalMode = praxis.intervalMode,
+        intervalSoundId = praxis.intervalSoundId,
+        intervalGongVolume = praxis.intervalGongVolume,
+        backgroundSoundId = praxis.backgroundSoundId,
+        backgroundSoundVolume = praxis.backgroundSoundVolume,
+        builtInSounds = builtInSounds,
+        resolvedIntroductionName = resolvedIntroductionName,
+        resolvedBackgroundSoundName = resolvedBackgroundSoundName
+    )
+}
 
 /**
  * ViewModel for editing the current Praxis configuration.
@@ -90,35 +121,22 @@ constructor(
             }
             val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.name
 
-            _uiState.value = PraxisEditorUiState(
-                isLoading = false,
-                durationMinutes = praxis.durationMinutes,
-                preparationTimeEnabled = praxis.preparationTimeEnabled,
-                preparationTimeSeconds = praxis.preparationTimeSeconds,
-                gongSoundId = praxis.gongSoundId,
-                gongVolume = praxis.gongVolume,
-                introductionId = praxis.introductionId,
-                introductionEnabled = praxis.introductionEnabled,
-                intervalGongsEnabled = praxis.intervalGongsEnabled,
-                intervalMinutes = praxis.intervalMinutes,
-                intervalMode = praxis.intervalMode,
-                intervalSoundId = praxis.intervalSoundId,
-                intervalGongVolume = praxis.intervalGongVolume,
-                backgroundSoundId = praxis.backgroundSoundId,
-                backgroundSoundVolume = praxis.backgroundSoundVolume,
-                builtInSounds = soundCatalogRepository.getAllSounds(),
-                resolvedIntroductionName = introName,
-                resolvedBackgroundSoundName = bgName
-            )
-        }
-        viewModelScope.launch {
-            customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE).collect { files ->
-                _uiState.update { it.copy(customSoundscapes = files) }
+            _uiState.update { current ->
+                current.withPraxis(
+                    praxis = praxis,
+                    builtInSounds = soundCatalogRepository.getAllSounds(),
+                    resolvedIntroductionName = introName,
+                    resolvedBackgroundSoundName = bgName
+                )
             }
-        }
-        viewModelScope.launch {
-            customAudioRepository.filesFlow(CustomAudioType.ATTUNEMENT).collect { files ->
-                _uiState.update { it.copy(customAttunements = files) }
+
+            combine(
+                customAudioRepository.filesFlow(CustomAudioType.SOUNDSCAPE),
+                customAudioRepository.filesFlow(CustomAudioType.ATTUNEMENT)
+            ) { soundscapes, attunements ->
+                soundscapes to attunements
+            }.collect { (soundscapes, attunements) ->
+                _uiState.update { it.copy(customSoundscapes = soundscapes, customAttunements = attunements) }
             }
         }
     }

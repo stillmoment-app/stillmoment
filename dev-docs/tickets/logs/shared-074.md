@@ -89,3 +89,24 @@ Status: DONE
 Commits:
 - c0742f4 docs: #shared-074 Close ticket (iOS)
 - ab3d21e docs: #shared-074 Close ticket
+
+---
+
+## REVIEW 2
+Verdict: PASS
+
+make check: OK
+make test-unit-agent: OK (898/898)
+
+DISCUSSION:
+<!-- DISCUSSION_START -->
+- android/app/src/main/kotlin/com/stillmoment/domain/models/MeditationSettings.kt:99 - `Introduction.find(activeIntroductionId)` bleibt als Fallback in `minimumDuration()` erhalten (Domain-Layer). Identisches Muster wie auf iOS (REVIEW 1 DISCUSSION). Der `customIntroDurationSeconds`-Pfad wird vom ViewModel immer befuellt wenn ein Resolver vorliegt, daher ist der Fallback praktisch nie aktiv fuer custom IDs. Als bewusste Entscheidung dokumentiert, aber formal eine direkte Katalog-Abhaengigkeit im Domain-Layer.
+- android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/SoundscapeResolver.kt:79 - `localizedSoundName()` nutzt `Introduction.currentLanguage` um die Sprache zu ermitteln. Leicht unerwartet: Sprachermittlung ueber `Introduction`-Klasse statt einen expliziten Sprachparameter. Funktioniert korrekt, da beide auf die gleiche `languageOverride`-Logik zugreifen, ist aber eine implizite Kopplung zwischen zwei unverwandten Domain-Klassen.
+<!-- DISCUSSION_END -->
+
+Summary:
+Die Android-Implementierung ist korrekt und vollstaendig. Domain-Protokolle (`AttunementResolverProtocol`, `SoundscapeResolverProtocol`) und Models (`ResolvedAttunement`, `ResolvedSoundscape`) im Domain-Layer ohne Platform-Imports. Infrastructure-Implementierungen kapseln die duale Lookup-Logik (built-in + custom). Hilt-Bindings in `AppModule` korrekt als `@Singleton` registriert. `TimerReducer` erhaelt den Resolver non-optional als Parameter — kein Fallback-Pfad zu direkten Katalog-Lookups. `TimerViewModel` injiziert den Resolver via Hilt und verwendet ihn fuer Intro-Dauer und Pill-Anzeige (`resolvedIntroductionName` in `TimerUiState`). `ConfigurationPills` liest den aufgeloesten Namen aus dem UiState statt direkt vom Katalog.
+
+Verbleibende direkte `Introduction.find()`-Aufrufe in Infrastructure (`TimerForegroundService`, `AudioService`) sind korrekt: Playback-Code benoetigt die Unterscheidung zwischen built-in (Resource-Dateiname) und custom (Dateipfad) und kann nicht allein durch den Resolver ersetzt werden — der Resolver liefert nur Metadaten.
+
+Alle Akzeptanzkriterien erfuellt. `make check` und alle 898 Unit-Tests sind gruen. Glossar dokumentiert. PASS.
