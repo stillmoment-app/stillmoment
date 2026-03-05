@@ -3,14 +3,15 @@ package com.stillmoment.presentation.viewmodel
 import android.app.Application
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.IntervalSettings
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.ResolvedAttunement
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.domain.services.TimerReducer
+import com.stillmoment.testutil.MockAttunementResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -44,8 +45,18 @@ class TimerViewModelRegressionTest {
     private lateinit var fakeForegroundService: FakeTimerForegroundService
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeSoundCatalogRepository: FakeSoundCatalogRepository
-    private lateinit var fakeCustomAudioRepository: FakeCustomAudioRepository
     private lateinit var mockApplication: Application
+
+    private val emptyResolver = MockAttunementResolver()
+    private val breathResolver = MockAttunementResolver(
+        resolveResult = mapOf(
+            "breath" to ResolvedAttunement(
+                id = "breath",
+                displayName = "Breathing Exercise",
+                durationSeconds = 95
+            )
+        )
+    )
 
     @BeforeEach
     fun setUp() {
@@ -55,7 +66,6 @@ class TimerViewModelRegressionTest {
         fakeForegroundService = FakeTimerForegroundService()
         fakePraxisRepository = FakePraxisRepository()
         fakeSoundCatalogRepository = FakeSoundCatalogRepository()
-        fakeCustomAudioRepository = FakeCustomAudioRepository()
         mockApplication = mock()
     }
 
@@ -73,7 +83,7 @@ class TimerViewModelRegressionTest {
             foregroundService = fakeForegroundService,
             praxisRepository = fakePraxisRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            customAudioRepository = fakeCustomAudioRepository
+            attunementResolver = MockAttunementResolver()
         )
     }
 
@@ -96,7 +106,8 @@ class TimerViewModelRegressionTest {
             action = TimerAction.StartPressed,
             timerState = TimerState.Idle,
             selectedMinutes = 10,
-            settings = settings
+            settings = settings,
+            attunementResolver = emptyResolver
         )
 
         // Then - StartPressed must NOT produce StartBackgroundAudio
@@ -110,7 +121,8 @@ class TimerViewModelRegressionTest {
             action = TimerAction.PreparationFinished,
             timerState = TimerState.Preparation,
             selectedMinutes = 10,
-            settings = settings
+            settings = settings,
+            attunementResolver = emptyResolver
         )
 
         // Then - PreparationFinished must NOT produce StartBackgroundAudio
@@ -124,7 +136,8 @@ class TimerViewModelRegressionTest {
             action = TimerAction.StartGongFinished,
             timerState = TimerState.StartGong,
             selectedMinutes = 10,
-            settings = settings
+            settings = settings,
+            attunementResolver = emptyResolver
         )
 
         // Then - StartGongFinished MUST produce StartBackgroundAudio
@@ -159,7 +172,8 @@ class TimerViewModelRegressionTest {
             action = TimerAction.TimerCompleted,
             timerState = TimerState.Running,
             selectedMinutes = 10,
-            settings = settings
+            settings = settings,
+            attunementResolver = emptyResolver
         )
 
         // Then - PlayCompletionSound must be emitted
@@ -181,7 +195,8 @@ class TimerViewModelRegressionTest {
             action = TimerAction.EndGongFinished,
             timerState = TimerState.EndGong,
             selectedMinutes = 10,
-            settings = settings
+            settings = settings,
+            attunementResolver = emptyResolver
         )
 
         assertTrue(
@@ -250,66 +265,63 @@ class TimerViewModelRegressionTest {
         // reduceIntroductionFinished failed and no StartBackgroundAudio was emitted.
         // iOS ref: testBackgroundAudioStartsAfterIntroductionFinishes()
 
-        // Given - Introduction configured, German locale required for "breath"
-        Introduction.languageOverride = "de"
-        try {
-            val settings = MeditationSettings(
-                durationMinutes = 5,
-                introductionId = "breath",
-                introductionEnabled = true,
-                backgroundSoundId = "forest",
-                backgroundSoundVolume = 0.3f,
-            )
+        // Given - Introduction configured, resolver returns "breath"
+        val settings = MeditationSettings(
+            durationMinutes = 5,
+            introductionId = "breath",
+            introductionEnabled = true,
+            backgroundSoundId = "forest",
+            backgroundSoundVolume = 0.3f,
+        )
 
-            // Verify: StartGongFinished with introduction -> starts introduction, no background audio
-            val gongEffects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 5,
-                settings = settings
-            )
+        // Verify: StartGongFinished with introduction -> starts introduction, no background audio
+        val gongEffects = TimerReducer.reduce(
+            action = TimerAction.StartGongFinished,
+            timerState = TimerState.StartGong,
+            selectedMinutes = 5,
+            settings = settings,
+            attunementResolver = breathResolver
+        )
 
-            assertTrue(
-                gongEffects.any { it is TimerEffect.PlayIntroduction },
-                "Introduction must be played after start gong finishes"
-            )
-            assertFalse(
-                gongEffects.any { it is TimerEffect.StartBackgroundAudio },
-                "Background audio must not start yet (introduction is playing)"
-            )
+        assertTrue(
+            gongEffects.any { it is TimerEffect.PlayIntroduction },
+            "Introduction must be played after start gong finishes"
+        )
+        assertFalse(
+            gongEffects.any { it is TimerEffect.StartBackgroundAudio },
+            "Background audio must not start yet (introduction is playing)"
+        )
 
-            // When - Introduction finishes (timer must be in Introduction state)
-            val introEffects = TimerReducer.reduce(
-                action = TimerAction.IntroductionFinished,
-                timerState = TimerState.Introduction,
-                selectedMinutes = 5,
-                settings = settings
-            )
+        // When - Introduction finishes (timer must be in Introduction state)
+        val introEffects = TimerReducer.reduce(
+            action = TimerAction.IntroductionFinished,
+            timerState = TimerState.Introduction,
+            selectedMinutes = 5,
+            settings = settings,
+            attunementResolver = breathResolver
+        )
 
-            // Then - Background audio MUST start after introduction finishes
-            assertTrue(
-                introEffects.any { it is TimerEffect.StartBackgroundAudio },
-                "Background audio must start after introduction finishes. " +
-                    "Bug: timer must be in Introduction state (not StartGong) when " +
-                    "IntroductionFinished is dispatched."
-            )
+        // Then - Background audio MUST start after introduction finishes
+        assertTrue(
+            introEffects.any { it is TimerEffect.StartBackgroundAudio },
+            "Background audio must start after introduction finishes. " +
+                "Bug: timer must be in Introduction state (not StartGong) when " +
+                "IntroductionFinished is dispatched."
+        )
 
-            // Verify correct sound parameters
-            val bgEffect = introEffects.filterIsInstance<TimerEffect.StartBackgroundAudio>().first()
-            assertEquals("forest", bgEffect.soundId)
-            assertEquals(0.3f, bgEffect.soundVolume)
+        // Verify correct sound parameters
+        val bgEffect = introEffects.filterIsInstance<TimerEffect.StartBackgroundAudio>().first()
+        assertEquals("forest", bgEffect.soundId)
+        assertEquals(0.3f, bgEffect.soundVolume)
 
-            // Verify introduction is stopped and phase ends
-            assertTrue(
-                introEffects.any { it is TimerEffect.StopIntroduction },
-                "Introduction audio must be stopped"
-            )
-            assertTrue(
-                introEffects.any { it is TimerEffect.EndIntroductionPhase },
-                "Introduction phase must end in timer model"
-            )
-        } finally {
-            Introduction.languageOverride = null
-        }
+        // Verify introduction is stopped and phase ends
+        assertTrue(
+            introEffects.any { it is TimerEffect.StopIntroduction },
+            "Introduction audio must be stopped"
+        )
+        assertTrue(
+            introEffects.any { it is TimerEffect.EndIntroductionPhase },
+            "Introduction phase must end in timer model"
+        )
     }
 }

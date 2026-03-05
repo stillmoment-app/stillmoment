@@ -11,10 +11,10 @@ import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.models.TimerState
-import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.TimerReducer
@@ -50,7 +50,7 @@ constructor(
     private val foregroundService: TimerForegroundServiceProtocol,
     private val praxisRepository: PraxisRepository,
     private val soundCatalogRepository: SoundCatalogRepository,
-    private val customAudioRepository: CustomAudioRepository
+    private val attunementResolver: AttunementResolverProtocol
 ) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
@@ -60,28 +60,31 @@ constructor(
     /** Stores duration before introduction auto-clamped, restored when introduction is disabled. */
     private var minutesBeforeIntroduction: Int? = null
 
-    /** Returns custom attunement duration in seconds, or null for built-in introductions. */
-    private fun resolveCustomIntroDurationSeconds(introductionId: String?): Int? {
+    /** Returns attunement duration in seconds using the unified resolver, or null if not found. */
+    private fun resolveIntroDurationSeconds(introductionId: String?): Int? {
         val id = introductionId ?: return null
-        // Built-in introductions are resolved by MeditationSettings.minimumDuration itself
-        if (com.stillmoment.domain.models.Introduction.find(id) != null) return null
-        val customFile = runBlocking { customAudioRepository.findFile(id) } ?: return null
-        val durationMs = customFile.durationMs ?: return null
-        return (durationMs / 1000).toInt()
+        return attunementResolver.resolve(id)?.durationSeconds
+    }
+
+    /** Returns the display name for the active introduction (built-in or custom), or null if none. */
+    private fun resolveIntroductionName(praxis: Praxis): String? {
+        val introId = praxis.activeIntroductionId ?: return null
+        return attunementResolver.resolve(introId)?.displayName
     }
 
     init {
         // Load initial settings and praxis synchronously (DataStore is fast)
         // This ensures the UI shows the saved duration immediately, like iOS with UserDefaults
         val initialPraxis = runBlocking { praxisRepository.load() }
-        val customIntroDuration = resolveCustomIntroDurationSeconds(initialPraxis.introductionId)
-        val initialSettings = initialPraxis.toMeditationSettings(customIntroDuration)
+        val introDuration = resolveIntroDurationSeconds(initialPraxis.introductionId)
+        val initialSettings = initialPraxis.toMeditationSettings(introDuration)
         _uiState.value = TimerUiState(
             timer = null,
             selectedMinutes = initialSettings.durationMinutes,
             settings = initialSettings,
             currentPraxis = initialPraxis,
-            builtInSounds = soundCatalogRepository.getAllSounds()
+            builtInSounds = soundCatalogRepository.getAllSounds(),
+            resolvedIntroductionName = resolveIntroductionName(initialPraxis)
         )
         // Observe praxis changes and sync settings + pill labels
         observePraxis()
@@ -110,7 +113,8 @@ constructor(
             action = action,
             timerState = current.timerState,
             selectedMinutes = current.selectedMinutes,
-            settings = current.settings
+            settings = current.settings,
+            attunementResolver = attunementResolver
         )
         effects.forEach { handleEffect(it) }
     }
@@ -280,8 +284,8 @@ constructor(
 
     fun updateSettings(settings: MeditationSettings) {
         val oldSettings = _uiState.value.settings
-        val customIntroDuration = resolveCustomIntroDurationSeconds(settings.introductionId)
-        var updatedSettings = settings.copy(customIntroDurationSeconds = customIntroDuration)
+        val introDuration = resolveIntroDurationSeconds(settings.introductionId)
+        var updatedSettings = settings.copy(customIntroDurationSeconds = introDuration)
 
         // Track introduction changes for duration restoration
         if (oldSettings.introductionId == null && settings.introductionId != null) {
@@ -298,7 +302,12 @@ constructor(
             }
         }
 
-        _uiState.update { it.copy(settings = updatedSettings) }
+        val introName = if (updatedSettings.introductionEnabled) {
+            updatedSettings.introductionId?.let { attunementResolver.resolve(it)?.displayName }
+        } else {
+            null
+        }
+        _uiState.update { it.copy(settings = updatedSettings, resolvedIntroductionName = introName) }
         // Sync selectedMinutes if idle
         if (_uiState.value.timerState == TimerState.Idle) {
             _uiState.update { it.copy(selectedMinutes = updatedSettings.durationMinutes) }
@@ -396,8 +405,9 @@ constructor(
     private fun observePraxis() {
         viewModelScope.launch {
             praxisRepository.praxisFlow.collect { praxis ->
-                val customIntroDuration = resolveCustomIntroDurationSeconds(praxis.introductionId)
-                val settings = praxis.toMeditationSettings(customIntroDuration)
+                val introDuration = resolveIntroDurationSeconds(praxis.introductionId)
+                val settings = praxis.toMeditationSettings(introDuration)
+                val introName = resolveIntroductionName(praxis)
                 _uiState.update { state ->
                     val newMinutes = if (state.timerState == TimerState.Idle) {
                         settings.durationMinutes
@@ -407,7 +417,8 @@ constructor(
                     state.copy(
                         settings = settings,
                         selectedMinutes = newMinutes,
-                        currentPraxis = praxis
+                        currentPraxis = praxis,
+                        resolvedIntroductionName = introName
                     )
                 }
             }
@@ -421,8 +432,9 @@ constructor(
      * without racing against the async DataStore write.
      */
     fun applyPraxisUpdate(praxis: Praxis) {
-        val customIntroDuration = resolveCustomIntroDurationSeconds(praxis.introductionId)
-        val settings = praxis.toMeditationSettings(customIntroDuration)
+        val introDuration = resolveIntroDurationSeconds(praxis.introductionId)
+        val settings = praxis.toMeditationSettings(introDuration)
+        val introName = resolveIntroductionName(praxis)
         _uiState.update { state ->
             val newMinutes = if (state.timerState == TimerState.Idle) {
                 settings.durationMinutes
@@ -432,7 +444,8 @@ constructor(
             state.copy(
                 settings = settings,
                 selectedMinutes = newMinutes,
-                currentPraxis = praxis
+                currentPraxis = praxis,
+                resolvedIntroductionName = introName
             )
         }
     }
