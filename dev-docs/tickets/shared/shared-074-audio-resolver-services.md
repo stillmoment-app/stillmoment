@@ -27,8 +27,8 @@ Jede neue Stelle, die eine Audio-ID aufloesen muss, kann denselben Bug einfuehre
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

@@ -418,7 +418,8 @@ Loest Einstimmungs-Audio-IDs transparent auf — unabhaengig davon, ob die ID au
 **Datei-Referenzen:**
 - iOS Protocol: `ios/StillMoment/Domain/Services/AttunementResolverProtocol.swift`
 - iOS Implementation: `ios/StillMoment/Infrastructure/Services/AttunementResolver.swift`
-- Android: (geplant)
+- Android Protocol: `android/app/src/main/kotlin/com/stillmoment/domain/services/AttunementResolverProtocol.kt`
+- Android Implementation: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/AttunementResolver.kt`
 
 ---
 
@@ -441,7 +442,8 @@ Loest Soundscape-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf 
 **Datei-Referenzen:**
 - iOS Protocol: `ios/StillMoment/Domain/Services/SoundscapeResolverProtocol.swift`
 - iOS Implementation: `ios/StillMoment/Infrastructure/Services/SoundscapeResolver.swift`
-- Android: (geplant)
+- Android Protocol: `android/app/src/main/kotlin/com/stillmoment/domain/services/SoundscapeResolverProtocol.kt`
+- Android Implementation: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/SoundscapeResolver.kt`
 
 ---
 
