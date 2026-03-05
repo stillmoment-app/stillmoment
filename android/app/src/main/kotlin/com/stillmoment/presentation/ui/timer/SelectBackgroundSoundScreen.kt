@@ -23,13 +23,13 @@ import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -559,7 +559,7 @@ internal fun CustomAudioRow(
 @Composable
 private fun CustomAudioRowIcon(isSelected: Boolean) {
     Icon(
-        imageVector = if (isSelected) Icons.Default.Check else Icons.Default.Audiotrack,
+        imageVector = if (isSelected) Icons.Default.Check else Icons.Outlined.GraphicEq,
         contentDescription = null,
         tint = if (isSelected) {
             MaterialTheme.colorScheme.primary
