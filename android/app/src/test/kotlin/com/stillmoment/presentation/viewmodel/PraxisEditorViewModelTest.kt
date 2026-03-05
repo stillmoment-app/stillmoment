@@ -54,7 +54,9 @@ class PraxisEditorViewModelTest {
             praxisRepository = fakePraxisRepository,
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,
-            soundCatalogRepository = fakeSoundCatalogRepository
+            soundCatalogRepository = fakeSoundCatalogRepository,
+            attunementResolver = FakeAttunementResolver(),
+            soundscapeResolver = FakeSoundscapeResolver()
         )
     }
 

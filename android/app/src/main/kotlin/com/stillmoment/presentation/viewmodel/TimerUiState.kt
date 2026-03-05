@@ -29,7 +29,11 @@ data class TimerUiState(
     /** Current Praxis for configuration pills display */
     val currentPraxis: Praxis = Praxis.Default,
     /** Built-in background sounds from catalog */
-    val builtInSounds: List<BackgroundSound> = emptyList()
+    val builtInSounds: List<BackgroundSound> = emptyList(),
+    /** Resolved introduction name (built-in or custom), null when no introduction active */
+    val resolvedIntroductionName: String? = null,
+    /** Resolved background sound name (built-in or custom) */
+    val resolvedBackgroundSoundName: String? = null
 ) {
     // Convenience accessors delegating to timer
     val timerState: TimerState get() = timer?.state ?: TimerState.Idle

@@ -62,7 +62,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GongSound
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -159,8 +158,8 @@ private fun EditorContent(
         Spacer(modifier = Modifier.height(SectionSpacing))
         AudioSection(
             introductionEnabled = uiState.introductionEnabled,
-            introductionId = uiState.introductionId,
-            backgroundSoundId = uiState.backgroundSoundId,
+            resolvedIntroductionName = uiState.resolvedIntroductionName,
+            resolvedBackgroundSoundName = uiState.resolvedBackgroundSoundName,
             onNavigateToIntroduction = onNavigateToIntroduction,
             onNavigateToBackground = onNavigateToBackground
         )
@@ -336,20 +335,19 @@ private fun PreparationDurationDropdown(
 @Composable
 private fun AudioSection(
     introductionEnabled: Boolean,
-    introductionId: String?,
-    backgroundSoundId: String,
+    resolvedIntroductionName: String?,
+    resolvedBackgroundSoundName: String?,
     onNavigateToIntroduction: () -> Unit,
     onNavigateToBackground: () -> Unit
 ) {
-    val introductionSummary = if (introductionEnabled) {
-        introductionId?.let { id ->
-            Introduction.find(id)?.localizedName
-        } ?: stringResource(R.string.praxis_editor_introduction_none)
+    val introductionSummary = if (introductionEnabled && resolvedIntroductionName != null) {
+        resolvedIntroductionName
     } else {
         stringResource(R.string.praxis_editor_introduction_none)
     }
 
-    val backgroundSummary = backgroundSoundSummary(backgroundSoundId)
+    val backgroundSummary = resolvedBackgroundSoundName
+        ?: stringResource(R.string.praxis_editor_background_silence)
 
     Column {
         EditorSectionTitle(
@@ -376,18 +374,6 @@ private fun AudioSection(
                 onClick = onNavigateToBackground
             )
         }
-    }
-}
-
-/**
- * Returns a localized summary for the given background sound ID.
- */
-@Composable
-private fun backgroundSoundSummary(backgroundSoundId: String): String {
-    return when (backgroundSoundId) {
-        "silent" -> stringResource(R.string.praxis_editor_background_silence)
-        "forest" -> stringResource(R.string.sound_forest)
-        else -> stringResource(R.string.praxis_editor_background_silence)
     }
 }
 

@@ -12,7 +12,9 @@ import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
+import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +48,11 @@ data class PraxisEditorUiState(
     val customSoundscapes: List<CustomAudioFile> = emptyList(),
     val customAttunements: List<CustomAudioFile> = emptyList(),
     val customAudioError: String? = null,
-    val builtInSounds: List<BackgroundSound> = emptyList()
+    val builtInSounds: List<BackgroundSound> = emptyList(),
+    /** Resolved introduction name (built-in or custom), null when no introduction set */
+    val resolvedIntroductionName: String? = null,
+    /** Resolved background sound name (built-in or custom) */
+    val resolvedBackgroundSoundName: String? = null
 )
 
 /**
@@ -64,7 +70,9 @@ constructor(
     private val praxisRepository: PraxisRepository,
     private val audioService: AudioServiceProtocol,
     private val customAudioRepository: CustomAudioRepository,
-    private val soundCatalogRepository: SoundCatalogRepository
+    private val soundCatalogRepository: SoundCatalogRepository,
+    private val attunementResolver: AttunementResolverProtocol,
+    private val soundscapeResolver: SoundscapeResolverProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PraxisEditorUiState())
     val uiState: StateFlow<PraxisEditorUiState> = _uiState.asStateFlow()
@@ -76,6 +84,12 @@ constructor(
         viewModelScope.launch {
             val praxis = praxisRepository.load()
             praxisId = praxis.id
+
+            val introName = praxis.introductionId?.let { id ->
+                attunementResolver.resolve(id)?.name
+            }
+            val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.name
+
             _uiState.value = PraxisEditorUiState(
                 isLoading = false,
                 durationMinutes = praxis.durationMinutes,
@@ -92,7 +106,9 @@ constructor(
                 intervalGongVolume = praxis.intervalGongVolume,
                 backgroundSoundId = praxis.backgroundSoundId,
                 backgroundSoundVolume = praxis.backgroundSoundVolume,
-                builtInSounds = soundCatalogRepository.getAllSounds()
+                builtInSounds = soundCatalogRepository.getAllSounds(),
+                resolvedIntroductionName = introName,
+                resolvedBackgroundSoundName = bgName
             )
         }
         viewModelScope.launch {
@@ -127,6 +143,7 @@ constructor(
 
     fun setIntroductionId(introductionId: String?) {
         _uiState.update { it.copy(introductionId = introductionId) }
+        resolveIntroductionName(introductionId)
     }
 
     fun setIntroductionEnabled(enabled: Boolean) {
@@ -162,10 +179,27 @@ constructor(
 
     fun setBackgroundSoundId(soundId: String) {
         _uiState.update { it.copy(backgroundSoundId = soundId) }
+        resolveBackgroundSoundName(soundId)
     }
 
     fun setBackgroundSoundVolume(volume: Float) {
         _uiState.update { it.copy(backgroundSoundVolume = Praxis.validateVolume(volume)) }
+    }
+
+    // MARK: - Audio Name Resolution
+
+    private fun resolveIntroductionName(introductionId: String?) {
+        viewModelScope.launch {
+            val name = introductionId?.let { attunementResolver.resolve(it)?.name }
+            _uiState.update { it.copy(resolvedIntroductionName = name) }
+        }
+    }
+
+    private fun resolveBackgroundSoundName(soundId: String) {
+        viewModelScope.launch {
+            val name = soundscapeResolver.resolve(soundId)?.name
+            _uiState.update { it.copy(resolvedBackgroundSoundName = name) }
+        }
     }
 
     // MARK: - Save

@@ -551,6 +551,64 @@ class TimerReducerTest {
         }
     }
 
+    // MARK: - Custom Attunement Tests
+
+    @Nested
+    inner class CustomAttunement {
+        @Test
+        fun `startPressed with custom attunement includes correct introduction duration`() {
+            val settings = defaultSettings.copy(
+                introductionEnabled = true,
+                introductionId = "custom-uuid-123",
+                customIntroDurationSeconds = 120
+            )
+            val effects = TimerReducer.reduce(
+                action = TimerAction.StartPressed,
+                timerState = TimerState.Idle,
+                selectedMinutes = 10,
+                settings = settings
+            )
+            val startTimer = effects.filterIsInstance<TimerEffect.StartTimer>().first()
+            assertEquals(120, startTimer.introductionDurationSeconds)
+        }
+
+        @Test
+        fun `startGongFinished with custom attunement starts introduction phase`() {
+            val settings = defaultSettings.copy(
+                introductionEnabled = true,
+                introductionId = "custom-uuid-123",
+                customIntroDurationSeconds = 120
+            )
+            val effects = TimerReducer.reduce(
+                action = TimerAction.StartGongFinished,
+                timerState = TimerState.StartGong,
+                selectedMinutes = 10,
+                settings = settings
+            )
+            assertTrue(effects.any { it is TimerEffect.StartIntroductionPhase })
+            assertTrue(effects.any { it is TimerEffect.PlayIntroduction })
+            val introEffect = effects.filterIsInstance<TimerEffect.PlayIntroduction>().first()
+            assertEquals("custom-uuid-123", introEffect.introductionId)
+        }
+
+        @Test
+        fun `startGongFinished with custom attunement does not start background audio`() {
+            val settings = defaultSettings.copy(
+                introductionEnabled = true,
+                introductionId = "custom-uuid-123",
+                customIntroDurationSeconds = 120
+            )
+            val effects = TimerReducer.reduce(
+                action = TimerAction.StartGongFinished,
+                timerState = TimerState.StartGong,
+                selectedMinutes = 10,
+                settings = settings
+            )
+            assertFalse(effects.any { it is TimerEffect.TransitionToRunning })
+            assertFalse(effects.any { it is TimerEffect.StartBackgroundAudio })
+        }
+    }
+
     // MARK: - Integration Tests
 
     @Nested

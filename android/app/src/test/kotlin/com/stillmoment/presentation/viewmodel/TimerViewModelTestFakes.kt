@@ -5,12 +5,17 @@ import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalSettings
+import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationTimer
+import com.stillmoment.domain.models.ResolvedAttunement
+import com.stillmoment.domain.models.ResolvedSoundscape
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
+import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -263,5 +268,64 @@ class FakeCustomAudioRepository : CustomAudioRepository {
         _files.value = _files.value.map { file ->
             if (file.id == id) file.copy(name = newName) else file
         }
+    }
+}
+
+/**
+ * Fake implementation of AttunementResolverProtocol for testing.
+ * Resolves built-in introductions via Introduction.find() and custom IDs via configurable map.
+ */
+class FakeAttunementResolver : AttunementResolverProtocol {
+    var customAttunements: Map<String, ResolvedAttunement> = emptyMap()
+
+    override suspend fun resolve(id: String): ResolvedAttunement? {
+        resolveBuiltIn(id)?.let { return it }
+        return customAttunements[id]
+    }
+
+    override fun resolveBuiltIn(id: String): ResolvedAttunement? {
+        val intro = Introduction.find(id) ?: return null
+        return ResolvedAttunement(
+            id = intro.id,
+            name = intro.localizedName,
+            durationSeconds = intro.durationSeconds,
+            isBuiltIn = true
+        )
+    }
+
+    override fun isBuiltInAvailableForCurrentLanguage(id: String): Boolean {
+        return Introduction.isAvailableForCurrentLanguage(id)
+    }
+}
+
+/**
+ * Fake implementation of SoundscapeResolverProtocol for testing.
+ * Resolves built-in sounds via a default catalog and custom IDs via configurable map.
+ */
+class FakeSoundscapeResolver : SoundscapeResolverProtocol {
+    var customSoundscapes: Map<String, ResolvedSoundscape> = emptyMap()
+
+    private val builtInSounds = mapOf(
+        BackgroundSound.SILENT_ID to ResolvedSoundscape(
+            id = BackgroundSound.SILENT_ID,
+            name = "Silence",
+            isBuiltIn = true,
+            isSilent = true
+        ),
+        "forest" to ResolvedSoundscape(
+            id = "forest",
+            name = "Forest Ambience",
+            isBuiltIn = true,
+            isSilent = false
+        )
+    )
+
+    override suspend fun resolve(id: String): ResolvedSoundscape? {
+        resolveBuiltIn(id)?.let { return it }
+        return customSoundscapes[id]
+    }
+
+    override fun resolveBuiltIn(id: String): ResolvedSoundscape? {
+        return builtInSounds[id]
     }
 }
