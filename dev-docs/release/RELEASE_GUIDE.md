@@ -61,7 +61,7 @@ cd ios && make release-prepare VERSION=1.8.1
 
 **Android:**
 - Baut App Bundle (AAB)
-- Laedt zu Play Console (Closed Testing) hoch
+- Laedt zu Play Console (Production) hoch
 
 ---
 
@@ -75,8 +75,8 @@ cd ios && make release-prepare VERSION=1.8.1
 
 ### Android (Play Console)
 
-1. Release in Closed Testing ueberpruefen
-2. Bei Bedarf zu Production promoten
+1. Release in Production ueberpruefen
+2. Bei Bedarf Review starten
 
 ---
 
