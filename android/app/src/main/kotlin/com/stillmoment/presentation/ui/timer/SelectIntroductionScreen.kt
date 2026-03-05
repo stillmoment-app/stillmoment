@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -334,7 +334,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) ->
                     label = introduction.localizedName,
                     duration = introduction.formattedDuration,
                     isSelected = selectedId == introduction.id,
-                    iconVector = Icons.Outlined.GraphicEq,
+                    iconVector = Icons.Default.Audiotrack,
                     onClick = { onSelect(introduction.id) }
                 )
             }

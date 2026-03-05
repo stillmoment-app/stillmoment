@@ -595,6 +595,16 @@ class TimerReducerTest {
 
     @Nested
     inner class CustomAttunement {
+        private val customResolver = MockAttunementResolver(
+            resolveResult = mapOf(
+                "custom-uuid-123" to ResolvedAttunement(
+                    id = "custom-uuid-123",
+                    displayName = "Custom Meditation",
+                    durationSeconds = 120
+                )
+            )
+        )
+
         @Test
         fun `startPressed with custom attunement includes correct introduction duration`() {
             val settings = defaultSettings.copy(
@@ -606,7 +616,8 @@ class TimerReducerTest {
                 action = TimerAction.StartPressed,
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
-                settings = settings
+                settings = settings,
+                attunementResolver = customResolver
             )
             val startTimer = effects.filterIsInstance<TimerEffect.StartTimer>().first()
             assertEquals(120, startTimer.introductionDurationSeconds)
@@ -623,7 +634,8 @@ class TimerReducerTest {
                 action = TimerAction.StartGongFinished,
                 timerState = TimerState.StartGong,
                 selectedMinutes = 10,
-                settings = settings
+                settings = settings,
+                attunementResolver = customResolver
             )
             assertTrue(effects.any { it is TimerEffect.StartIntroductionPhase })
             assertTrue(effects.any { it is TimerEffect.PlayIntroduction })
@@ -642,7 +654,8 @@ class TimerReducerTest {
                 action = TimerAction.StartGongFinished,
                 timerState = TimerState.StartGong,
                 selectedMinutes = 10,
-                settings = settings
+                settings = settings,
+                attunementResolver = customResolver
             )
             assertFalse(effects.any { it is TimerEffect.TransitionToRunning })
             assertFalse(effects.any { it is TimerEffect.StartBackgroundAudio })

@@ -283,23 +283,28 @@ class FakeCustomAudioRepository : CustomAudioRepository {
 class FakeAttunementResolver : AttunementResolverProtocol {
     var customAttunements: Map<String, ResolvedAttunement> = emptyMap()
 
-    override suspend fun resolve(id: String): ResolvedAttunement? {
-        resolveBuiltIn(id)?.let { return it }
+    override fun resolve(id: String): ResolvedAttunement? {
+        // Try built-in introduction first (language-filtered)
+        val intro = Introduction.find(id)
+        if (intro != null && intro.availableLanguages.contains(Introduction.currentLanguage)) {
+            return ResolvedAttunement(
+                id = intro.id,
+                displayName = intro.localizedName,
+                durationSeconds = intro.durationSeconds
+            )
+        }
         return customAttunements[id]
     }
 
-    override fun resolveBuiltIn(id: String): ResolvedAttunement? {
-        val intro = Introduction.find(id) ?: return null
-        return ResolvedAttunement(
-            id = intro.id,
-            name = intro.localizedName,
-            durationSeconds = intro.durationSeconds,
-            isBuiltIn = true
-        )
-    }
-
-    override fun isBuiltInAvailableForCurrentLanguage(id: String): Boolean {
-        return Introduction.isAvailableForCurrentLanguage(id)
+    override fun allAvailable(): List<ResolvedAttunement> {
+        val builtIn = Introduction.availableForCurrentLanguage().map { intro ->
+            ResolvedAttunement(
+                id = intro.id,
+                displayName = intro.localizedName,
+                durationSeconds = intro.durationSeconds
+            )
+        }
+        return builtIn + customAttunements.values
     }
 }
 
@@ -311,26 +316,19 @@ class FakeSoundscapeResolver : SoundscapeResolverProtocol {
     var customSoundscapes: Map<String, ResolvedSoundscape> = emptyMap()
 
     private val builtInSounds = mapOf(
-        BackgroundSound.SILENT_ID to ResolvedSoundscape(
-            id = BackgroundSound.SILENT_ID,
-            name = "Silence",
-            isBuiltIn = true,
-            isSilent = true
-        ),
         "forest" to ResolvedSoundscape(
             id = "forest",
-            name = "Forest Ambience",
-            isBuiltIn = true,
-            isSilent = false
+            displayName = "Forest Ambience"
         )
     )
 
-    override suspend fun resolve(id: String): ResolvedSoundscape? {
-        resolveBuiltIn(id)?.let { return it }
+    override fun resolve(id: String): ResolvedSoundscape? {
+        if (id == BackgroundSound.SILENT_ID) return null
+        builtInSounds[id]?.let { return it }
         return customSoundscapes[id]
     }
 
-    override fun resolveBuiltIn(id: String): ResolvedSoundscape? {
-        return builtInSounds[id]
+    override fun allAvailable(): List<ResolvedSoundscape> {
+        return builtInSounds.values.toList() + customSoundscapes.values
     }
 }

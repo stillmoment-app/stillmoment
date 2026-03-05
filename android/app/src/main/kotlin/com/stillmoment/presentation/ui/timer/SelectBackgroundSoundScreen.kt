@@ -25,8 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Eco
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.GraphicEq
@@ -82,7 +82,7 @@ import kotlinx.collections.immutable.toImmutableList
 
 /** Maps a background sound ID to its Compose icon vector. */
 private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId) {
-    "forest" -> Icons.Filled.Forest
+    "forest" -> Icons.Filled.Eco
     "cozy-rain" -> Icons.Filled.WaterDrop
     "rain" -> Icons.AutoMirrored.Filled.VolumeUp
     "ocean" -> Icons.AutoMirrored.Filled.VolumeUp

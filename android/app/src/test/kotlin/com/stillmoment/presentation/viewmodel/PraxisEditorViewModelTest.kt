@@ -481,7 +481,7 @@ class PraxisEditorViewModelTest {
         }
 
         @Test
-        fun `resolves silent soundscape name on init`() = runTest {
+        fun `resolves silent soundscape name as null on init`() = runTest {
             fakePraxisRepository.storedPraxis = Praxis.create(
                 backgroundSoundId = BackgroundSound.SILENT_ID
             )
@@ -489,9 +489,9 @@ class PraxisEditorViewModelTest {
             val viewModel = createViewModel()
             advanceUntilIdle()
 
-            assertEquals(
-                "Silence",
-                viewModel.uiState.value.resolvedBackgroundSoundName
+            assertNull(
+                viewModel.uiState.value.resolvedBackgroundSoundName,
+                "Silent soundscape should resolve to null (UI handles display name)"
             )
         }
     }
