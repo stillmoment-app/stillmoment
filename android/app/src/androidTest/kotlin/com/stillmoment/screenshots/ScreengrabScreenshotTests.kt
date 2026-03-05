@@ -2,12 +2,13 @@ package com.stillmoment.screenshots
 
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -242,17 +243,17 @@ class ScreengrabScreenshotTests {
 
         // Wait for library to load with test fixtures
         waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
+        composeRule.waitForIdle()
 
-        // Tap "Mindful Breathing" meditation - use merged tree for reliable click
-        composeRule.onNode(
-            hasText("Mindful Breathing", substring = true, ignoreCase = true)
-                .and(hasClickAction())
-        ).performClick()
+        // Tap "Mindful Breathing" - use performTouchInput for reliable physical tap
+        composeRule.onNodeWithText("Mindful Breathing", substring = true, ignoreCase = true)
+            .performTouchInput { click() }
+        composeRule.waitForIdle()
 
-        // Wait for player screen to appear - look for play/pause button
+        // Wait for player screen to appear - look for teacher name (unique to player)
         waitForNode(
-            localizedContentDescription("Play meditation", "Meditation abspielen")
-                .or(localizedContentDescription("Pause meditation", "Meditation pausieren"))
+            hasContentDescription("Sarah Kornfield", substring = true, ignoreCase = true),
+            timeoutMs = 8000
         )
 
         // Ensure UI is fully rendered

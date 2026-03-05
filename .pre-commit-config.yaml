@@ -12,7 +12,7 @@ repos:
 
   # Swift linting
   - repo: https://github.com/realm/SwiftLint
-    rev: 0.62.2
+    rev: 0.63.2
     hooks:
       - id: swiftlint
         args: [--strict]
