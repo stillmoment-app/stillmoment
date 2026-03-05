@@ -71,8 +71,8 @@ fun MeditationListItem(
         modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable(onClick = onClick)
-            .semantics { contentDescription = itemDescription },
+            .semantics { contentDescription = itemDescription }
+            .clickable(onClick = onClick),
         colors =
         CardDefaults.cardColors(
             containerColor = LocalStillMomentColors.current.cardBackground

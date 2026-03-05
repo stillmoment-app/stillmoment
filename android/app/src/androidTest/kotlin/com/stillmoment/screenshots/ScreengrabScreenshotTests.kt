@@ -159,6 +159,21 @@ class ScreengrabScreenshotTests {
         composeRule.waitForIdle()
     }
 
+    /**
+     * Waits for the library to show all 5 test fixtures.
+     * Checks both first and last item to ensure the full list is rendered.
+     */
+    private fun waitForLibraryLoaded() {
+        waitForNodeDisplayed(
+            hasText("Mindful Breathing", substring = true, ignoreCase = true),
+            timeoutMs = 10000
+        )
+        waitForNodeDisplayed(
+            hasText("Present Moment", substring = true, ignoreCase = true),
+            timeoutMs = 5000
+        )
+    }
+
     private fun waitForNode(matcher: androidx.compose.ui.test.SemanticsMatcher, timeoutMs: Long = 5000) {
         composeRule.waitUntil(timeoutMillis = timeoutMs) {
             composeRule.onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty()
@@ -223,11 +238,8 @@ class ScreengrabScreenshotTests {
     fun screenshot03_libraryList() {
         navigateToLibraryTab()
 
-        // Wait for library to load - wait for "Mindful Breathing" to appear
-        waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
-
-        // Ensure UI is fully rendered
-        composeRule.waitForIdle()
+        // Wait for library to fully render (DataStore flow is async)
+        waitForLibraryLoaded()
 
         takeScreenshot("03_LibraryList")
     }
@@ -236,23 +248,18 @@ class ScreengrabScreenshotTests {
     fun screenshot04_playerView() {
         navigateToLibraryTab()
 
-        // Wait for library to load with test fixtures
-        waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
-        composeRule.waitForIdle()
+        // Wait for library to fully render
+        waitForLibraryLoaded()
 
-        // Tap "Mindful Breathing" - use semantic click for locale-independent behavior
-        composeRule.onNodeWithText("Mindful Breathing", substring = true, ignoreCase = true)
-            .performClick()
-        composeRule.waitForIdle()
+        // Tap "Mindful Breathing" row - match the clickable Card via contentDescription
+        val meditationMatcher = hasContentDescription("Mindful Breathing", substring = true, ignoreCase = true)
+        composeRule.onNode(meditationMatcher).performClick()
 
-        // Wait for player screen to appear - look for teacher name (unique to player)
-        waitForNode(
+        // Wait for player screen to appear and be fully displayed
+        waitForNodeDisplayed(
             hasContentDescription("Sarah Kornfield", substring = true, ignoreCase = true),
-            timeoutMs = 8000
+            timeoutMs = 10000
         )
-
-        // Ensure UI is fully rendered
-        composeRule.waitForIdle()
 
         takeScreenshot("04_PlayerView")
 
