@@ -62,6 +62,28 @@ Android Infrastructure-Implementierungen fuer AttunementResolver und SoundscapeR
 
 ---
 
+## IMPLEMENT (Android Consumer Refactoring)
+Status: DONE
+Commits:
+- 4f639e4 refactor(android): #shared-074 replace direct catalog lookups with resolver services
+
+Challenges:
+<!-- CHALLENGES_START -->
+- TimerViewModel constructor change (customAudioRepository -> attunementResolver) required updating 4 additional ViewModel test files beyond TimerReducerTest
+- Introduction.languageOverride hack in regression tests no longer needed since resolver mock controls availability
+- Introduction pill label required adding resolvedIntroductionName to TimerUiState since Composables cannot access the resolver directly
+<!-- CHALLENGES_END -->
+
+Summary:
+Replaced all direct Introduction.isAvailableForCurrentLanguage() and Introduction.find() calls in TimerReducer with AttunementResolverProtocol. Added attunementResolver as non-optional parameter to TimerReducer.reduce(). Updated TimerViewModel to inject resolver via Hilt, pass to dispatch, and use resolver for intro duration resolution (replacing the old customAudioRepository-based approach). Fixed introduction pill label by adding resolvedIntroductionName to TimerUiState and populating it in all settings update paths. Updated all 5 test files (TimerReducerTest + 4 ViewModel tests) with MockAttunementResolver. All 898 tests pass.
+
+Remaining direct catalog lookups in Android production code:
+- Introduction.find() in AttunementResolver.kt (Infrastructure — beabsichtigt, Resolver kapselt Katalog)
+- Introduction.availableForCurrentLanguage() in SettingsSheet.kt, PraxisEditorViewModel.kt, SelectIntroductionScreen.kt (UI-Listen — beabsichtigt, matching iOS approach)
+- Introduction.find() in SettingsSheet.kt, PraxisEditorScreen.kt (display name in editor UI — future ticket)
+
+---
+
 ## CLOSE
 Status: DONE
 Commits:
