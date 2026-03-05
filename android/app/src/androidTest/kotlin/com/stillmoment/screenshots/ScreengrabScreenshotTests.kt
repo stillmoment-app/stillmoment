@@ -13,7 +13,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.stillmoment.MainActivity
 import com.stillmoment.data.local.GuidedMeditationDataStore
+import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.domain.models.Praxis
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
@@ -68,6 +70,9 @@ class ScreengrabScreenshotTests {
     @Inject
     lateinit var settingsDataStore: SettingsDataStore
 
+    @Inject
+    lateinit var praxisDataStore: PraxisDataStore
+
     private lateinit var scenario: ActivityScenario<MainActivity>
 
     private val screenshotStrategy = UiAutomatorScreenshotStrategy()
@@ -97,8 +102,12 @@ class ScreengrabScreenshotTests {
 
         runBlocking {
             settingsDataStore.setSelectedTab(com.stillmoment.domain.models.AppTab.TIMER)
-            settingsDataStore.setPreparationTimeEnabled(false)
-            settingsDataStore.setDurationMinutes(1)
+            praxisDataStore.save(
+                Praxis.Default.copy(
+                    preparationTimeEnabled = false,
+                    durationMinutes = 1
+                )
+            )
         }
 
         // Apply locale for this test run.
@@ -137,7 +146,7 @@ class ScreengrabScreenshotTests {
 
     private fun navigateToTimerTab() {
         composeRule.onNode(
-            localizedContentDescription("Navigate to timer", "Zum Timer"),
+            localizedContentDescription("Navigate to timer", "Zum Timer navigieren"),
             useUnmergedTree = true
         ).performClick()
         composeRule.waitForIdle()
@@ -148,7 +157,7 @@ class ScreengrabScreenshotTests {
 
     private fun navigateToLibraryTab() {
         composeRule.onNode(
-            localizedContentDescription("Navigate to library", "Zur Bibliothek"),
+            localizedContentDescription("Navigate to meditations", "Zu den Meditationen"),
             useUnmergedTree = true
         ).performClick()
         composeRule.waitForIdle()
@@ -234,17 +243,16 @@ class ScreengrabScreenshotTests {
         // Wait for library to load with test fixtures
         waitForNode(hasText("Mindful Breathing", substring = true, ignoreCase = true))
 
-        // Tap "Mindful Breathing" meditation - it's in a clickable card
+        // Tap "Mindful Breathing" meditation - use merged tree for reliable click
         composeRule.onNode(
-            hasContentDescription("Mindful Breathing", substring = true, ignoreCase = true)
-                .and(hasClickAction()),
-            useUnmergedTree = true
+            hasText("Mindful Breathing", substring = true, ignoreCase = true)
+                .and(hasClickAction())
         ).performClick()
 
-        // Wait for player sheet to appear - look for play/pause button
+        // Wait for player screen to appear - look for play/pause button
         waitForNode(
-            localizedContentDescription("Play", "abspielen")
-                .or(hasContentDescription("Pause", substring = true, ignoreCase = true))
+            localizedContentDescription("Play meditation", "Meditation abspielen")
+                .or(localizedContentDescription("Pause meditation", "Meditation pausieren"))
         )
 
         // Ensure UI is fully rendered
@@ -252,56 +260,39 @@ class ScreengrabScreenshotTests {
 
         takeScreenshot("04_PlayerView")
 
-        // Close player
+        // Close player - navigate back
         composeRule.onNode(
-            localizedContentDescription("Close", "Schließen"),
-            useUnmergedTree = true
+            localizedContentDescription("Close", "Schließen")
         ).performClick()
     }
 
     @Test
     fun screenshot05_settingsView() {
-        // Enable preparation time and interval gongs for a nicer settings screenshot
-        // (matching iOS which enables both toggles)
+        // Set up interesting praxis config for a nice editor screenshot
         runBlocking {
-            settingsDataStore.setPreparationTimeEnabled(true)
-            settingsDataStore.setPreparationTimeSeconds(15)
-            settingsDataStore.setIntervalGongsEnabled(true)
-            settingsDataStore.setIntervalMinutes(5)
+            praxisDataStore.save(
+                Praxis.Default.copy(
+                    preparationTimeEnabled = true,
+                    preparationTimeSeconds = 15,
+                    intervalGongsEnabled = true,
+                    intervalMinutes = 5
+                )
+            )
         }
 
         navigateToTimerTab()
 
-        // Wait for Settings icon to confirm Timer screen is fully loaded
-        val settingsButtonMatcher = localizedContentDescription("Open settings", "Einstellungen öffnen")
-        waitForNode(settingsButtonMatcher)
+        // Tap configuration pills to open Praxis Editor
+        val pillsMatcher = localizedContentDescription("Current configuration", "Aktuelle Konfiguration")
+        waitForNode(pillsMatcher)
+        composeRule.onNode(pillsMatcher).performClick()
         composeRule.waitForIdle()
 
-        // Open settings - verify button exists and click
-        composeRule.onNode(settingsButtonMatcher, useUnmergedTree = true)
-            .assertIsDisplayed()
-            .performClick()
-
-        // Wait for settings sheet to appear and stabilize
-        composeRule.waitForIdle()
-
-        // Wait for settings sheet content - ensure fully displayed, not just existing
-        // ModalBottomSheet nodes exist in semantics before animation completes
-        val preparationTimeMatcher = hasText("Preparation time", substring = true, ignoreCase = true)
-            .or(hasText("Vorbereitungszeit", substring = true, ignoreCase = true))
-        waitForNodeDisplayed(preparationTimeMatcher)
-
-        // Also verify Done button is visible and displayed
-        val doneButtonMatcher = hasText("Done", ignoreCase = true)
-            .or(hasText("Fertig", ignoreCase = true))
-        waitForNodeDisplayed(doneButtonMatcher)
-
-        // Final idle check before screenshot
-        composeRule.waitForIdle()
+        // Wait for Praxis Editor to appear
+        val editorTitleMatcher = hasText("Configuration", ignoreCase = true)
+            .or(hasText("Konfiguration", ignoreCase = true))
+        waitForNodeDisplayed(editorTitleMatcher)
 
         takeScreenshot("05_SettingsView")
-
-        // Close settings
-        composeRule.onNode(doneButtonMatcher, useUnmergedTree = true).performClick()
     }
 }

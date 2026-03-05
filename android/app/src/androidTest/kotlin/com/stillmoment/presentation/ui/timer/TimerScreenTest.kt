@@ -36,9 +36,7 @@ class TimerScreenTest {
                     uiState = uiState,
                     onMinutesChange = {},
                     onStartClick = {},
-                    onSettingsClick = {},
-                    onSettingsDismiss = {},
-                    onSettingsChange = {}
+                    onNavigateToEditor = {}
                 )
             }
         }
@@ -66,13 +64,6 @@ class TimerScreenTest {
     fun timerScreen_showsStartButton_whenIdle() {
         renderTimerScreen(uiState = TimerUiState())
         composeRule.onNodeWithText("Start", ignoreCase = true).assertIsDisplayed()
-    }
-
-    @Test
-    fun timerScreen_showsSettingsButton_whenIdle() {
-        renderTimerScreen(uiState = TimerUiState())
-        composeRule.onNodeWithContentDescription("Settings", substring = true, ignoreCase = true)
-            .assertIsDisplayed()
     }
 
     // MARK: - Settings Sheet Tests

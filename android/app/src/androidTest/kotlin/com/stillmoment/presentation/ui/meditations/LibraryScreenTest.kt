@@ -42,10 +42,7 @@ class LibraryScreenTest {
                     onDeleteMeditation = {},
                     onDismissEditSheet = {},
                     onSaveMeditation = {},
-                    onClearError = {},
-                    onSettingsClick = {},
-                    onDismissSettingsSheet = {},
-                    onSettingsChange = {}
+                    onClearError = {}
                 )
             }
         }
