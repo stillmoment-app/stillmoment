@@ -18,8 +18,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.outlined.GraphicEq
+import androidx.compose.material.icons.filled.Audiotrack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -39,6 +39,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
@@ -333,6 +334,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) ->
                     label = introduction.localizedName,
                     duration = introduction.formattedDuration,
                     isSelected = selectedId == introduction.id,
+                    iconVector = Icons.Default.Audiotrack,
                     onClick = { onSelect(introduction.id) }
                 )
             }
@@ -345,6 +347,7 @@ private fun IntroductionRow(
     label: String,
     duration: String?,
     isSelected: Boolean,
+    iconVector: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -363,7 +366,7 @@ private fun IntroductionRow(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Icon(
-            imageVector = if (isSelected) Icons.Filled.GraphicEq else Icons.Outlined.GraphicEq,
+            imageVector = if (isSelected) Icons.Default.Check else iconVector,
             contentDescription = null,
             tint = if (isSelected) {
                 MaterialTheme.colorScheme.primary
