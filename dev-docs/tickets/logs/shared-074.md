@@ -47,7 +47,23 @@ Verbleibende direkte Katalog-Lookups in Production Code (ios/StillMoment/):
 
 ---
 
+## IMPLEMENT (Android)
+Status: DONE
+Commits:
+- 62ae4d3 feat(android): #shared-074 implement AttunementResolver and SoundscapeResolver with tests
+
+Challenges:
+<!-- CHALLENGES_START -->
+- FakeCustomAudioRepository had private _files field with no addFile method — needed to add addFile() to support direct test setup without going through importFile()
+<!-- CHALLENGES_END -->
+
+Summary:
+Android Infrastructure-Implementierungen fuer AttunementResolver und SoundscapeResolver erstellt. Domain-Protokolle und Models waren bereits vorhanden (aus vorheriger Task). Beide Resolver nutzen runBlocking fuer den Zugriff auf suspend-Methoden des CustomAudioRepository, da die Resolver-Protokolle synchron sind (Aufruf aus reinen Reducer-Funktionen). Hilt DI-Bindings in AppModule hinzugefuegt. Test-Mocks (MockAttunementResolver, MockSoundscapeResolver) in neuem testutil-Verzeichnis angelegt. 15 Unit-Tests (8 AttunementResolver, 7 SoundscapeResolver) alle gruen. Alle 898 Tests bestanden.
+
+---
+
 ## CLOSE
 Status: DONE
 Commits:
 - c0742f4 docs: #shared-074 Close ticket (iOS)
+- ab3d21e docs: #shared-074 Close ticket
