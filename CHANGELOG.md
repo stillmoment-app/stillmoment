@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed (Android)
+- **Custom Audio korrekt aufgeloest** - Custom Einstimmungen und Klangatmosphaeren wurden in Pills, Editor und TimerReducer nicht erkannt, weil nur der Built-in-Katalog geprueft wurde. Neue AttunementResolver und SoundscapeResolver loesen IDs transparent auf — egal ob built-in oder importiert (Ticket: shared-074)
 - **Custom Einstimmung im Timer** - Custom Einstimmung (Attunement) wurde als "No introduction" angezeigt, weil TimerViewModel parallel von SettingsDataStore und PraxisDataStore las und SettingsDataStore custom UUIDs herausfilterte. PraxisDataStore ist jetzt Single Source of Truth fuer Timer-Settings (Ticket: android-074)
 
 ### Fixed (iOS)
