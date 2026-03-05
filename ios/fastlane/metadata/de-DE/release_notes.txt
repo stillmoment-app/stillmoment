@@ -1,4 +1,9 @@
-- Neu: Farbthemen Kerzenlicht, Wald und Mond
-- Hell- und Dunkelmodus in den Einstellungen wählbar
-- Frei einstellbare Intervallklänge mit eigenem Sound und Lautstärke
-- Vereinfachter Timer für ungestörte Meditation
+- Eigene Klänge importieren (MP3, M4A, WAV)
+- Einstimmung vor der stillen Meditation (z.B. Atemübung)
+- Praxis-Editor direkt auf dem Timer-Screen
+- Abschluss-Screen nach jeder Meditation
+- Zen-Modus — Tab-Bar verschwindet bei laufender Meditation
+- Neuer Einstellungen-Tab
+- Audio-Import über die Teilen-Funktion
+- Verbesserte Klang-Auswahl mit Vorschau
+- Fehlerbehebungen

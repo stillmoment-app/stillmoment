@@ -1,4 +1,9 @@
-- Now available: Candlelight, Forest, and Moon color themes
-- Light and dark mode selection in settings
-- Freely configurable interval gongs with own sound and volume
-- Simplified timer for uninterrupted meditation
+- Import your own sounds (MP3, M4A, WAV)
+- Introduction before silent meditation (e.g., breathing exercise)
+- Practice editor directly on the timer screen
+- Completion screen after every meditation
+- Zen mode — tab bar hides during meditation
+- New settings tab
+- Import audio via the share function
+- Improved sound selection with preview
+- Bug fixes
