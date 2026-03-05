@@ -391,6 +391,7 @@ struct TimerView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 // State Previews
 @available(iOS 17.0, *)
 #Preview("Idle") {
@@ -434,6 +435,7 @@ struct TimerView: View {
         TimerView()
     }
 }
+#endif
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {

@@ -56,6 +56,7 @@ extension TimerViewModel {
 
 // MARK: - SwiftUI Preview Support
 
+#if DEBUG
 extension TimerViewModel {
     /// Creates a view model with mocked services for SwiftUI previews
     static func preview(state: TimerState = .idle) -> TimerViewModel {
@@ -85,3 +86,4 @@ extension TimerViewModel {
         return viewModel
     }
 }
+#endif
