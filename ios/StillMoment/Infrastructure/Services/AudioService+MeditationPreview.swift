@@ -39,16 +39,17 @@ extension AudioService {
     }
 
     func stopMeditationPreview() {
-        guard self.meditationPreviewPlayer != nil else {
+        guard let player = self.meditationPreviewPlayer else {
             return
         }
+        // Nil out immediately so a new preview can start during fade-out
+        self.meditationPreviewPlayer = nil
         Logger.audio.debug("Stopping meditation preview with fade-out")
 
-        // Fade out over 0.3s, then cleanup
-        self.meditationPreviewPlayer?.setVolume(0, fadeDuration: self.fadeOutDuration)
+        // Fade out over 0.3s, then cleanup the captured player instance
+        player.setVolume(0, fadeDuration: self.fadeOutDuration)
         DispatchQueue.main.asyncAfter(deadline: .now() + self.fadeOutDuration) { [weak self] in
-            self?.meditationPreviewPlayer?.stop()
-            self?.meditationPreviewPlayer = nil
+            player.stop()
             self?.coordinator.releaseAudioSession(for: .preview)
             Logger.audio.debug("Meditation preview fade-out complete")
         }
