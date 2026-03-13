@@ -1,0 +1,10 @@
+/*
+  Localizable.strings (German)
+  StillMomentShareExtension
+*/
+
+"share.error.title" = "Import fehlgeschlagen";
+"share.error.message" = "Die Datei konnte nicht für den Import vorbereitet werden.";
+"share.success.title" = "In Still Moment gespeichert";
+"share.success.message" = "Öffne Still Moment, um den Import fortzusetzen.";
+"common.ok" = "OK";

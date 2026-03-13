@@ -355,3 +355,28 @@
 "import.type.attunement" = "Einstimmung";
 "import.type.attunement.description" = "Als Einstimmung verwenden";
 "import.type.cancel" = "Abbrechen";
+
+// MARK: - Share Extension (shared-046)
+
+"share.error.title" = "Import fehlgeschlagen";
+"share.error.message" = "Die Datei konnte nicht für den Import vorbereitet werden.";
+
+"share.download.loading" = "Meditation wird geladen…";
+"share.download.cancel" = "Abbrechen";
+"share.download.error.title" = "Download fehlgeschlagen";
+"share.download.error.message" = "Die Datei konnte nicht heruntergeladen werden.";
+"share.download.error.retry" = "Erneut versuchen";
+"share.download.error.cancel" = "Abbrechen";
+
+// MARK: - Audio Download Errors
+
+"audio_download_error_network" = "Datei konnte nicht heruntergeladen werden. Bitte prüfe deine Internetverbindung.";
+"audio_download_error_invalid_response" = "Der Server hat eine unerwartete Antwort gesendet.";
+"audio_download_error_unsupported_content_type" = "Die Datei ist kein unterstütztes Audioformat.";
+"audio_download_error_cancelled" = "Der Download wurde abgebrochen.";
+"audio_download_error_failed" = "Der Download ist fehlgeschlagen. Bitte erneut versuchen.";
+
+// MARK: - Inbox Errors
+
+"inbox_error_download_failed" = "Der Download ist fehlgeschlagen. Bitte erneut versuchen.";
+"inbox_error_container_not_available" = "Zugriff auf geteilte Daten nicht möglich.";

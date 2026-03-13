@@ -22,8 +22,11 @@ struct StillMomentApp: App {
     /// Theme manager - owns theme state, injected as @EnvironmentObject
     @StateObject private var themeManager = ThemeManager()
 
-    /// File open handler - manages "Open with" imports from Files app
-    @StateObject private var fileOpenHandler = FileOpenHandler()
+    /// File open handler - manages "Open with" and Share Extension imports
+    @StateObject private var fileOpenHandler: FileOpenHandler
+
+    /// Inbox handler - processes Share Extension inbox entries
+    @StateObject private var inboxHandler: InboxHandler
 
     /// Persisted tab selection - remembers last used tab across app launches
     @AppStorage("selectedTab")
@@ -32,7 +35,24 @@ struct StillMomentApp: App {
     /// Error message from file open handling
     @State private var fileOpenErrorMessage: String?
 
+    /// Scene phase for inbox polling
+    @Environment(\.scenePhase)
+    private var scenePhase
+
     init() {
+        let fileOpenHandler = FileOpenHandler()
+        let inboxDir = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
+            .appendingPathComponent("ShareInbox")
+            ?? FileManager.default.temporaryDirectory.appendingPathComponent("ShareInbox")
+
+        _fileOpenHandler = StateObject(wrappedValue: fileOpenHandler)
+        _inboxHandler = StateObject(wrappedValue: InboxHandler(
+            fileOpenHandler: fileOpenHandler,
+            downloadService: AudioDownloadService(),
+            inboxDirectoryURL: inboxDir
+        ))
+
         // Seed test fixtures for screenshot automation (Screenshots target only)
         #if SCREENSHOTS_BUILD
         TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
@@ -82,7 +102,13 @@ struct StillMomentApp: App {
             .environmentObject(self.themeManager)
             .environmentObject(self.fileOpenHandler)
             .onOpenURL { url in
-                self.handleFileOpen(url: url)
+                self.handleOpenURL(url: url)
+            }
+            // iOS 16 signature — update to (oldValue, newValue) when dropping iOS 16
+            .onChange(of: self.scenePhase) { newPhase in
+                if newPhase == .active {
+                    self.checkInbox()
+                }
             }
             .sheet(isPresented: self.$fileOpenHandler.showImportTypeSelection) {
                 self.handleImportDismissed()
@@ -95,6 +121,13 @@ struct StillMomentApp: App {
                 .environmentObject(self.themeManager)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
+            }
+            .overlay {
+                if self.inboxHandler.isDownloading {
+                    DownloadOverlayView {
+                        self.inboxHandler.cancelDownload()
+                    }
+                }
             }
             .alert(
                 NSLocalizedString("common.error", comment: ""),
@@ -110,6 +143,23 @@ struct StillMomentApp: App {
                 if let errorMessage = fileOpenErrorMessage {
                     Text(errorMessage)
                 }
+            }
+            .alert(
+                NSLocalizedString("share.download.error.title", comment: ""),
+                isPresented: Binding(
+                    get: { self.inboxHandler.downloadError != nil },
+                    set: { if !$0 { self.inboxHandler.downloadError = nil } }
+                )
+            ) {
+                Button(NSLocalizedString("share.download.error.retry", comment: "")) {
+                    self.inboxHandler.downloadError = nil
+                    self.checkInbox()
+                }
+                Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
+                    self.inboxHandler.downloadError = nil
+                }
+            } message: {
+                Text(NSLocalizedString("share.download.error.message", comment: ""))
             }
         }
     }
@@ -129,6 +179,31 @@ struct StillMomentApp: App {
         // Check for disable preparation flag (used by UI tests and screenshot automation)
         if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
             PreparationTimeConfigurer.disable()
+        }
+    }
+
+    /// Handles a URL received via onOpenURL
+    ///
+    /// Distinguishes between:
+    /// - `stillmoment://import` — Share Extension trigger, check inbox
+    /// - `file://` — "Open with" file association (shared-045)
+    private func handleOpenURL(url: URL) {
+        if url.scheme == "stillmoment" {
+            Logger.guidedMeditation.info("Received URL scheme: \(url.absoluteString)")
+            self.checkInbox()
+        } else {
+            self.handleFileOpen(url: url)
+        }
+    }
+
+    /// Checks the Share Extension inbox for new entries
+    private func checkInbox() {
+        Task {
+            let result = await self.inboxHandler.processInbox()
+
+            if case let .error(error) = result {
+                self.fileOpenErrorMessage = error.localizedDescription
+            }
         }
     }
 
@@ -176,5 +251,34 @@ struct StillMomentApp: App {
     /// Handles dismissal of the import type selection sheet
     private func handleImportDismissed() {
         self.fileOpenHandler.cancelPendingImport()
+    }
+}
+
+// MARK: - DownloadOverlayView
+
+/// Transparent overlay showing download progress with cancel button
+private struct DownloadOverlayView: View {
+    let onCancel: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+
+            VStack(spacing: 16) {
+                ProgressView()
+                    .scaleEffect(1.5)
+
+                Text(NSLocalizedString("share.download.loading", comment: ""))
+                    .themeFont(.inlineNavigationTitle)
+
+                Button(NSLocalizedString("share.download.cancel", comment: "")) {
+                    self.onCancel()
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(32)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        }
     }
 }

@@ -14,6 +14,7 @@
 		B29CADCD6AF96B53C144F1E7 /* test-mindful-breathing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 937FFD32466BE6D2F6151F24 /* test-mindful-breathing.mp3 */; };
 		C06E1E9F13DC010CF84E2A49 /* test-present-moment.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 62893F35241ED15678CBAFEB /* test-present-moment.mp3 */; };
 		CA08C6272EC4729200D7C911 /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
+		CA2BA72B2F648EB500400927 /* StillMomentShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CA2BA7212F648EB500400927 /* StillMomentShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E9DB9A418CDE4A04B3E351F0 /* test-evening-wind-down.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FD5197DB7DF184DD318CD57D /* test-evening-wind-down.mp3 */; };
 		F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */ = {isa = PBXBuildFile; fileRef = CA08C6262EC4729200D7C911 /* BackgroundAudio */; };
 		GONGSOUNDS0123456789ABCD /* GongSounds in Resources */ = {isa = PBXBuildFile; fileRef = GONGSOUNDS0123456789ABCE /* GongSounds */; };
@@ -23,6 +24,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		CA2BA7292F648EB500400927 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CABCE9142EAE3C430059FC11 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CA2BA7202F648EB500400927;
+			remoteInfo = StillMomentShareExtension;
+		};
 		CABCE92A2EAE3C440059FC11 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CABCE9142EAE3C430059FC11 /* Project object */;
@@ -39,6 +47,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		CA2BA72C2F648EB500400927 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CA2BA72B2F648EB500400927 /* StillMomentShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		1EDFEE4E80517ACA0D470B9F /* test-loving-kindness.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-loving-kindness.mp3"; sourceTree = "<group>"; };
 		3C073AEA25AA0F7E2113AC77 /* TestFixtureSeeder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestFixtureSeeder.swift; sourceTree = "<group>"; };
@@ -49,6 +71,7 @@
 		AF3C8B6A5219475808BC5A86 /* test-body-scan.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = "test-body-scan.mp3"; sourceTree = "<group>"; };
 		CA08C6262EC4729200D7C911 /* BackgroundAudio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = BackgroundAudio; path = StillMoment/Resources/BackgroundAudio; sourceTree = "<group>"; };
 		CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Local.xcconfig; sourceTree = "<group>"; };
+		CA2BA7212F648EB500400927 /* StillMomentShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StillMomentShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE91C2EAE3C430059FC11 /* StillMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StillMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StillMomentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +81,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CA2BA7302F648EB500400927 /* Exceptions for "StillMomentShareExtension" folder in "StillMomentShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CA2BA7202F648EB500400927 /* StillMomentShareExtension */;
+		};
 		CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -75,6 +105,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		CA2BA7222F648EB500400927 /* StillMomentShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CA2BA7302F648EB500400927 /* Exceptions for "StillMomentShareExtension" folder in "StillMomentShareExtension" target */,
+			);
+			path = StillMomentShareExtension;
+			sourceTree = "<group>";
+		};
 		CABCE91E2EAE3C430059FC11 /* StillMoment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -102,6 +140,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				868E6658A0F3DC323D64B9FD /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA2BA71E2F648EB500400927 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -183,6 +228,7 @@
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
 				CABCE92C2EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9362EAE3C440059FC11 /* StillMomentUITests */,
+				CA2BA7222F648EB500400927 /* StillMomentShareExtension */,
 				CABCE91D2EAE3C430059FC11 /* Products */,
 				CA7930B52EC4EBA40070D3BB /* Recovered References */,
 				B200024EC8816B69DFD8CC74 /* Frameworks */,
@@ -197,6 +243,7 @@
 				CABCE9292EAE3C440059FC11 /* StillMomentTests.xctest */,
 				CABCE9332EAE3C440059FC11 /* StillMomentUITests.xctest */,
 				A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */,
+				CA2BA7212F648EB500400927 /* StillMomentShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -232,6 +279,28 @@
 			productReference = A05F824B4B9A156546C68F55 /* StillMoment-Screenshots.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CA2BA7202F648EB500400927 /* StillMomentShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA2BA72F2F648EB500400927 /* Build configuration list for PBXNativeTarget "StillMomentShareExtension" */;
+			buildPhases = (
+				CA2BA71D2F648EB500400927 /* Sources */,
+				CA2BA71E2F648EB500400927 /* Frameworks */,
+				CA2BA71F2F648EB500400927 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CA2BA7222F648EB500400927 /* StillMomentShareExtension */,
+			);
+			name = StillMomentShareExtension;
+			packageProductDependencies = (
+			);
+			productName = StillMomentShareExtension;
+			productReference = CA2BA7212F648EB500400927 /* StillMomentShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		CABCE91B2EAE3C430059FC11 /* StillMoment */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CABCE93D2EAE3C440059FC11 /* Build configuration list for PBXNativeTarget "StillMoment" */;
@@ -239,10 +308,12 @@
 				CABCE9182EAE3C430059FC11 /* Sources */,
 				CABCE9192EAE3C430059FC11 /* Frameworks */,
 				CABCE91A2EAE3C430059FC11 /* Resources */,
+				CA2BA72C2F648EB500400927 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CA2BA72A2F648EB500400927 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CABCE91E2EAE3C430059FC11 /* StillMoment */,
@@ -301,9 +372,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1630;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					CA2BA7202F648EB500400927 = {
+						CreatedOnToolsVersion = 26.2;
+					};
 					CABCE91B2EAE3C430059FC11 = {
 						CreatedOnToolsVersion = 16.3;
 					};
@@ -336,6 +410,7 @@
 				CABCE9282EAE3C440059FC11 /* StillMomentTests */,
 				CABCE9322EAE3C440059FC11 /* StillMomentUITests */,
 				6AA1CC164101D03A01B9960C /* StillMoment-Screenshots */,
+				CA2BA7202F648EB500400927 /* StillMomentShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -353,6 +428,13 @@
 				F82873BFC92B84CA3DE6682F /* BackgroundAudio in Resources */,
 				GONGSOUNDS0123456789ABCF /* GongSounds in Resources */,
 				INTROAUDIO0123456789ABCF /* IntroductionAudio in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CA2BA71F2F648EB500400927 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,6 +473,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CA2BA71D2F648EB500400927 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CABCE9182EAE3C430059FC11 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -415,6 +504,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		CA2BA72A2F648EB500400927 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CA2BA7202F648EB500400927 /* StillMomentShareExtension */;
+			targetProxy = CA2BA7292F648EB500400927 /* PBXContainerItemProxy */;
+		};
 		CABCE92B2EAE3C440059FC11 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CABCE91B2EAE3C430059FC11 /* StillMoment */;
@@ -437,6 +531,7 @@
 				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = S3558HJ3P5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StillMoment/Info.plist;
@@ -472,6 +567,7 @@
 				CODE_SIGN_ENTITLEMENTS = StillMoment/StillMoment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 6;
+				DEVELOPMENT_TEAM = S3558HJ3P5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = StillMoment/Info.plist;
@@ -496,6 +592,66 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CA2BA72D2F648EB500400927 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StillMomentShareExtension/StillMomentShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StillMomentShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StillMomentShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stillmoment.StillMoment.StillMomentShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CA2BA72E2F648EB500400927 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CA08C6282EC4800000D7C911 /* Config/Local.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = StillMomentShareExtension/StillMomentShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StillMomentShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StillMomentShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stillmoment.StillMoment.StillMomentShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -761,6 +917,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		CA2BA72F2F648EB500400927 /* Build configuration list for PBXNativeTarget "StillMomentShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CA2BA72D2F648EB500400927 /* Debug */,
+				CA2BA72E2F648EB500400927 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CABCE9172EAE3C430059FC11 /* Build configuration list for PBXProject "StillMoment" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
