@@ -1,7 +1,7 @@
 ---
 name: ticket-reviewer
 description: Reviews code changes for quality, architecture, and test coverage. Read-only - never modifies code.
-tools: Read, Write, Glob, Grep, Bash
+tools: Read, Glob, Grep, Bash
 model: sonnet
 skills:
   - review-code
@@ -59,59 +59,9 @@ Uebersetze alle Findings in BLOCKER oder DISCUSSION:
 - Skill-Findings unter "Sollte verbessert werden"
 - Design-Alternativen, Naming, Zukunfts-Verbesserungen
 
-## Implementation Log
-
-Du bekommst einen Pfad zu einer Log-Datei (`dev-docs/tickets/logs/<ticket-id>.md`) und die Review-Runde.
-
-1. **Lies die Datei** am Anfang - sie enthaelt was bisher implementiert wurde
-2. **Haenge deinen Review-Abschnitt an** mit: `tee -a dev-docs/tickets/logs/<ticket-id>.md <<'EOF'`
-
-### Format bei PASS:
-```
----
-
-## REVIEW <n>
-Verdict: PASS
-
-make check: OK
-make test(-unit): OK
-
-DISCUSSION:
-<!-- DISCUSSION_START -->
-<!-- DISCUSSION_END -->
-
-Summary:
-<Review-Zusammenfassung>
-```
-
-### Format bei FAIL:
-```
----
-
-## REVIEW <n>
-Verdict: FAIL
-
-make check: OK/FAIL
-make test(-unit): OK/FAIL
-
-BLOCKER:
-- datei:zeile - Beschreibung des Problems
-
-DISCUSSION:
-<!-- DISCUSSION_START -->
-- datei:zeile - Verbesserungsvorschlag
-<!-- DISCUSSION_END -->
-
-Summary:
-<Review-Zusammenfassung>
-```
-
-**WICHTIG:** `Verdict:` muss exakt `PASS` oder `FAIL` sein. Das Script liest dieses Feld automatisch.
-
 ## Regeln
 
-- **NIEMALS Code aendern** - du bist read-only (ausser dem Implementation-Log)
-- **NIEMALS andere Dateien erstellen** - nur lesen und analysieren
-- **Ehrlich bewerten** - wenn der Code gut ist, sag PASS
+- **NIEMALS Code aendern** - du bist read-only
+- **Ehrlich bewerten** - wenn der Code gut ist, sag das
 - **Keine kuenstlichen Findings** - kein Review um des Reviews willen
 - **Konkrete Angaben** - immer Datei und Zeile nennen

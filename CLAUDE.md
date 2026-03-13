@@ -191,7 +191,6 @@ assert(canImportFile("meditation.mp4"))
 | Release Guide | `dev-docs/release/RELEASE_GUIDE.md` |
 | Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
 | Website | `dev-docs/guides/website.md` |
-| Ticket Automation | `dev-docs/guides/implement-ticket.md` |
 | Architecture Decisions | `dev-docs/architecture/decisions/` |
 
-**Skills:** `/review-code`, `/review-view`, `/create-ticket`, `/close-ticket`, `/release-notes`
+**Skills:** `/create-ticket`, `/plan-ticket`, `/implement-ticket`, `/close-ticket`, `/review-code`, `/review-view`, `/release-notes`
