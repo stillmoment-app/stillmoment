@@ -32,6 +32,9 @@ struct StillMomentApp: App {
     @AppStorage("selectedTab")
     private var selectedTab: String = AppTab.timer.rawValue
 
+    /// Navigation path for library tab (enables programmatic navigation)
+    @State private var libraryPath = NavigationPath()
+
     /// Error message from file open handling
     @State private var fileOpenErrorMessage: String?
 
@@ -77,8 +80,8 @@ struct StillMomentApp: App {
                     .accessibilityLabel(Text("tab.timer.accessibility"))
 
                     // Guided Meditations Library Tab
-                    NavigationStack {
-                        GuidedMeditationsListView()
+                    NavigationStack(path: self.$libraryPath) {
+                        GuidedMeditationsListView(navigationPath: self.$libraryPath)
                     }
                     .tabItem {
                         Label("tab.library", systemImage: "waveform")
