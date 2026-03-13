@@ -90,6 +90,13 @@ protocol AudioServiceProtocol {
     /// Stops any currently playing introduction preview
     func stopIntroductionPreview()
 
+    /// Plays a preview of a guided meditation audio file (press-and-hold)
+    /// - Parameter fileURL: Absolute URL to the meditation audio file
+    func playMeditationPreview(fileURL: URL) throws
+
+    /// Stops any currently playing meditation preview (with fade-out)
+    func stopMeditationPreview()
+
     /// Stops any currently playing sound
     func stop()
 }

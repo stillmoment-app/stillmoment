@@ -24,10 +24,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     init(
         meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        metadataService: AudioMetadataServiceProtocol = AudioMetadataService()
+        metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
+        audioService: AudioServiceProtocol = AudioService()
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
+        self.audioService = audioService
     }
 
     // MARK: Internal
@@ -41,6 +43,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var showingDocumentPicker = false
     @Published var showingEditSheet = false
     @Published var meditationToEdit: GuidedMeditation?
+    @Published var previewingMeditationId: UUID?
 
     /// Returns unique teacher names sorted alphabetically for autocomplete
     ///
@@ -185,6 +188,39 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         }
     }
 
+    /// Starts audio preview for a meditation (press-and-hold)
+    ///
+    /// - Parameter meditation: Meditation to preview
+    func startPreview(for meditation: GuidedMeditation) {
+        guard let fileURL = meditationService.fileURL(for: meditation) else {
+            Logger.guidedMeditation.warning(
+                "Cannot preview meditation — file not found",
+                metadata: ["id": meditation.id.uuidString]
+            )
+            return
+        }
+
+        do {
+            try self.audioService.playMeditationPreview(fileURL: fileURL)
+            self.previewingMeditationId = meditation.id
+            Logger.guidedMeditation.info(
+                "Started meditation preview",
+                metadata: ["id": meditation.id.uuidString]
+            )
+        } catch {
+            Logger.guidedMeditation.error("Failed to start meditation preview", error: error)
+        }
+    }
+
+    /// Stops the currently playing meditation preview
+    func stopPreview() {
+        guard self.previewingMeditationId != nil else {
+            return
+        }
+        self.audioService.stopMeditationPreview()
+        self.previewingMeditationId = nil
+    }
+
     /// Groups meditations by teacher for display
     ///
     /// - Returns: Dictionary mapping teacher names to their meditations
@@ -200,4 +236,5 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol
+    private let audioService: AudioServiceProtocol
 }

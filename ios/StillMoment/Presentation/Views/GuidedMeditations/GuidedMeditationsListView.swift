@@ -169,6 +169,7 @@ struct GuidedMeditationsListView: View {
     @StateObject private var viewModel: GuidedMeditationsListViewModel
     @State private var meditationToDelete: GuidedMeditation?
     @State private var settings: GuidedMeditationSettings
+    @State private var isPressing = false
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let settingsRepository: GuidedSettingsRepository
@@ -246,10 +247,7 @@ struct GuidedMeditationsListView: View {
                 .opacity(0)
 
             HStack {
-                Image(systemName: "play.circle")
-                    .font(.system(size: 20))
-                    .foregroundColor(self.theme.textSecondary)
-                    .accessibilityHidden(true)
+                self.previewPlayIcon(for: meditation)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(meditation.effectiveName)
@@ -267,6 +265,35 @@ struct GuidedMeditationsListView: View {
         .cardRowBackground()
         .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
+    }
+
+    private func previewPlayIcon(for meditation: GuidedMeditation) -> some View {
+        let isThisPreviewing = self.viewModel.previewingMeditationId == meditation.id
+        return Image(systemName: "play.circle")
+            .font(.system(size: 20))
+            .foregroundColor(self.theme.textSecondary)
+            .scaleEffect(isThisPreviewing && self.isPressing ? 1.3 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: self.isPressing)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        guard !self.isPressing else {
+                            return
+                        }
+                        self.isPressing = true
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        self.viewModel.startPreview(for: meditation)
+                    }
+                    .onEnded { _ in
+                        self.isPressing = false
+                        self.viewModel.stopPreview()
+                    }
+            )
+            .accessibilityLabel("accessibility.library.preview")
+            .accessibilityHint("accessibility.library.preview.hint")
+            .accessibilityIdentifier("library.button.preview.\(meditation.id.uuidString)")
     }
 
     private func overflowMenu(for meditation: GuidedMeditation) -> some View {

@@ -19,19 +19,24 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockAudioService: MockAudioService!
 
     override func setUp() {
         super.setUp()
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
+        self.mockAudioService = MockAudioService()
         self.sut = GuidedMeditationsListViewModel(
             meditationService: self.mockMeditationService,
-            metadataService: self.mockMetadataService
+            metadataService: self.mockMetadataService,
+            audioService: self.mockAudioService
         )
     }
 
     override func tearDown() {
         self.sut = nil
+        self.mockAudioService = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil
         super.tearDown()
@@ -496,6 +501,96 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Then - Edit sheet should NOT be shown
         XCTAssertFalse(self.sut.showingEditSheet)
         XCTAssertNil(self.sut.meditationToEdit)
+    }
+
+    // MARK: - Preview Tests (AK-1: Long-Press starts preview)
+
+    func testStartPreviewPlaysMeditationAudio() {
+        // Given
+        let meditation = self.createTestMeditation()
+
+        // When
+        self.sut.startPreview(for: meditation)
+
+        // Then
+        XCTAssertTrue(self.mockAudioService.playMeditationPreviewCalled)
+        XCTAssertNotNil(self.mockAudioService.lastMeditationPreviewFileURL)
+    }
+
+    func testStartPreviewSetsPreviewingMeditationId() {
+        // Given
+        let meditation = self.createTestMeditation()
+
+        // When
+        self.sut.startPreview(for: meditation)
+
+        // Then
+        XCTAssertEqual(self.sut.previewingMeditationId, meditation.id)
+    }
+
+    func testStartPreviewWithMissingFileDoesNotPlay() {
+        // Given
+        let meditation = self.createTestMeditation()
+        self.mockMeditationService.mockFileExists = false
+
+        // When
+        self.sut.startPreview(for: meditation)
+
+        // Then
+        XCTAssertFalse(self.mockAudioService.playMeditationPreviewCalled)
+        XCTAssertNil(self.sut.previewingMeditationId)
+    }
+
+    // MARK: - Preview Tests (AK-2: Release stops preview with fade-out)
+
+    func testStopPreviewStopsAudioPlayback() {
+        // Given — preview is active
+        let meditation = self.createTestMeditation()
+        self.sut.startPreview(for: meditation)
+
+        // When
+        self.sut.stopPreview()
+
+        // Then
+        XCTAssertTrue(self.mockAudioService.stopMeditationPreviewCalled)
+        XCTAssertNil(self.sut.previewingMeditationId)
+    }
+
+    func testStopPreviewDoesNothingWhenNoPreviewActive() {
+        // When — no preview active
+        self.sut.stopPreview()
+
+        // Then
+        XCTAssertFalse(self.mockAudioService.stopMeditationPreviewCalled)
+    }
+
+    // MARK: - Preview Tests (AK-4: Only one preview at a time)
+
+    func testStartNewPreviewReplacesExistingPreview() {
+        // Given — preview A is active
+        let meditationA = self.createTestMeditation(name: "A")
+        let meditationB = self.createTestMeditation(name: "B")
+        self.sut.startPreview(for: meditationA)
+
+        // When — start preview B
+        self.sut.startPreview(for: meditationB)
+
+        // Then — previewing meditation is B
+        XCTAssertEqual(self.sut.previewingMeditationId, meditationB.id)
+    }
+
+    // MARK: - Preview Tests (AK-7: Uses .preview audio session source)
+
+    func testStartPreviewUsesPreviewAudioSource() {
+        // Given
+        let meditation = self.createTestMeditation()
+
+        // When
+        self.sut.startPreview(for: meditation)
+
+        // Then — AudioService.playMeditationPreview internally uses .preview source
+        // We verify the method was called (the source is an implementation detail of AudioService)
+        XCTAssertTrue(self.mockAudioService.playMeditationPreviewCalled)
     }
 
     // MARK: Private

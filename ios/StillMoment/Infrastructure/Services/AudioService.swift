@@ -131,9 +131,10 @@ final class AudioService: AudioServiceProtocol {
     func playGongPreview(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing gong preview", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
-        // Stop any previous previews (mutual exclusion: gong and background)
+        // Stop any previous previews (mutual exclusion)
         self.stopGongPreview()
         self.stopBackgroundPreview()
+        self.stopMeditationPreview()
 
         _ = try self.coordinator.requestAudioSession(for: .preview)
         try self.playGongSound(soundId: soundId, volume: volume, isPreview: true)
@@ -152,9 +153,10 @@ final class AudioService: AudioServiceProtocol {
     func playBackgroundPreview(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing background preview", metadata: ["soundId": soundId, "volume": "\(volume)"])
 
-        // Stop any previous previews (mutual exclusion: gong and background)
+        // Stop any previous previews (mutual exclusion)
         self.stopBackgroundPreview()
         self.stopGongPreview()
+        self.stopMeditationPreview()
 
         // Don't play preview for silent sound - just stop any running previews
         if soundId == "silent" {
@@ -255,7 +257,7 @@ final class AudioService: AudioServiceProtocol {
     let attunementResolver: AttunementResolverProtocol
     let soundscapeResolver: SoundscapeResolverProtocol
     private let backgroundPreviewDuration: TimeInterval
-    private let fadeOutDuration: TimeInterval
+    let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
     let introductionCompletionSubject = PassthroughSubject<Void, Never>()
     let gongPlayerDelegate: GongPlayerDelegate
@@ -267,6 +269,7 @@ final class AudioService: AudioServiceProtocol {
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
     var introductionPreviewPlayer: AVAudioPlayer?
+    var meditationPreviewPlayer: AVAudioPlayer?
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
 
@@ -450,6 +453,8 @@ private extension AudioService {
         self.backgroundPreviewPlayer = nil
         self.introductionPreviewPlayer?.stop()
         self.introductionPreviewPlayer = nil
+        self.meditationPreviewPlayer?.stop()
+        self.meditationPreviewPlayer = nil
     }
 
     /// Cleans up all timer players (including keep-alive) without releasing the audio session.

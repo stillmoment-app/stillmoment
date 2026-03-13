@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Long-Press Preview in der Meditations-Bibliothek** - Play-Icon in der Meditationsliste kann lang gedrueckt werden, um eine Audio-Vorschau abzuspielen. Loslassen stoppt die Wiedergabe mit kurzem Fade-out. Visuelles Feedback (Scale-Effekt) und haptisches Feedback beim Start (Ticket: shared-075)
+
 ## [2.0.0] - 2026-03-05
 
 ### Fixed (Android)

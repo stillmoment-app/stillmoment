@@ -4,6 +4,7 @@
 //
 
 import Combine
+import Foundation
 @testable import StillMoment
 
 // MARK: - Mock Services
@@ -185,6 +186,8 @@ final class MockAudioService: AudioServiceProtocol {
     var stopBackgroundPreviewCalled = false
     var playIntroductionPreviewCalled = false
     var stopIntroductionPreviewCalled = false
+    var playMeditationPreviewCalled = false
+    var stopMeditationPreviewCalled = false
     var stopCalled = false
 
     var lastStartGongSoundId: String?
@@ -199,6 +202,7 @@ final class MockAudioService: AudioServiceProtocol {
     var lastBackgroundPreviewSoundId: String?
     var lastBackgroundPreviewVolume: Float?
     var lastIntroductionPreviewId: String?
+    var lastMeditationPreviewFileURL: URL?
     var lastStartBackgroundAudioSoundId: String?
     var lastStartBackgroundAudioVolume: Float?
 
@@ -330,6 +334,20 @@ final class MockAudioService: AudioServiceProtocol {
     func stopIntroductionPreview() {
         self.stopIntroductionPreviewCalled = true
         self.audioCallOrder.append("stopIntroductionPreview")
+    }
+
+    func playMeditationPreview(fileURL: URL) throws {
+        self.playMeditationPreviewCalled = true
+        self.lastMeditationPreviewFileURL = fileURL
+        self.audioCallOrder.append("playMeditationPreview")
+        if self.shouldThrowOnPlay {
+            throw AudioServiceError.playbackFailed
+        }
+    }
+
+    func stopMeditationPreview() {
+        self.stopMeditationPreviewCalled = true
+        self.audioCallOrder.append("stopMeditationPreview")
     }
 
     func stop() {
