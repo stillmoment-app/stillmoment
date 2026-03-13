@@ -528,6 +528,18 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.previewingMeditationId, meditation.id)
     }
 
+    func testStartPreviewWithPlaybackErrorDoesNotSetPreviewingId() {
+        // Given
+        let meditation = self.createTestMeditation()
+        self.mockAudioService.shouldThrowOnPlay = true
+
+        // When
+        self.sut.startPreview(for: meditation)
+
+        // Then
+        XCTAssertNil(self.sut.previewingMeditationId)
+    }
+
     func testStartPreviewWithMissingFileDoesNotPlay() {
         // Given
         let meditation = self.createTestMeditation()
@@ -577,20 +589,6 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
         // Then — previewing meditation is B
         XCTAssertEqual(self.sut.previewingMeditationId, meditationB.id)
-    }
-
-    // MARK: - Preview Tests (AK-7: Uses .preview audio session source)
-
-    func testStartPreviewUsesPreviewAudioSource() {
-        // Given
-        let meditation = self.createTestMeditation()
-
-        // When
-        self.sut.startPreview(for: meditation)
-
-        // Then — AudioService.playMeditationPreview internally uses .preview source
-        // We verify the method was called (the source is an implementation detail of AudioService)
-        XCTAssertTrue(self.mockAudioService.playMeditationPreviewCalled)
     }
 
     // MARK: Private

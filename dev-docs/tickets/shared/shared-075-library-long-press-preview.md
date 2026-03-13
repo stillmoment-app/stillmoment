@@ -10,7 +10,7 @@
 
 ## Was
 
-In der Meditations-Liste soll ein Long-Press auf das Play-Icon eine Audio-Preview der Meditation abspielen — solange der Finger gedrueckt bleibt. Loslassen stoppt die Wiedergabe.
+In der Meditations-Liste soll ein Long-Press auf die Row eine Audio-Preview der Meditation abspielen — solange der Finger gedrueckt bleibt. Loslassen stoppt die Wiedergabe. Ein kurzer Tap navigiert wie bisher zum Full Player.
 
 ## Warum
 
@@ -30,9 +30,9 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Long-Press auf das Play-Icon startet die Meditation ab Anfang als Preview
+- [ ] Long-Press auf die Row startet die Meditation ab Anfang als Preview (Overflow-Menu ausgenommen)
 - [ ] Loslassen stoppt die Preview sofort (mit kurzem Fade-out ~0.3s)
-- [ ] Tap auf die Row (ausserhalb des Icons) navigiert weiterhin zum Full Player
+- [ ] Kurzer Tap auf die Row navigiert zum Full Player
 - [ ] Nur eine Preview gleichzeitig (neuer Long-Press stoppt vorherige Preview)
 - [ ] Haptisches Feedback beim Start der Preview
 - [ ] Subtiler Scale-Effekt auf dem Icon waehrend des Drueckens (visuelles Feedback)
@@ -51,8 +51,8 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 ## Manueller Test
 
 1. Meditations-Bibliothek oeffnen (mindestens 2 Meditationen vorhanden)
-2. Auf das Play-Icon einer Meditation lang druecken
-3. Erwartung: Haptisches Feedback, Icon wird leicht groesser, Audio startet ab Anfang
+2. Auf eine Meditation-Row lang druecken (egal ob Icon oder Text)
+3. Erwartung: Haptisches Feedback, Play-Icon wird leicht groesser, Audio startet ab Anfang
 4. Finger loslassen
 5. Erwartung: Audio stoppt mit kurzem Fade-out
 6. Auf die Row (Name/Dauer) tippen
