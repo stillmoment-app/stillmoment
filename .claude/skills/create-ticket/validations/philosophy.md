@@ -34,14 +34,15 @@ statt:
 
 ---
 
-### 3. Implementierungs-Verben
+### 3. Implementierungs-Verben (nur in der Beschreibung)
 
-**Warnung wenn:**
+**Warnung wenn in der Beschreibung (nicht im Titel!):**
 - "Implementiere..."
 - "Aendere..."
-- "Fuege hinzu..."
 - "Refactore..."
 - "Extrahiere..."
+
+Im Titel sind Verben wie "Fuege X hinzu" normal und kein Red Flag.
 
 **Besser:**
 > "Timer soll X koennen"

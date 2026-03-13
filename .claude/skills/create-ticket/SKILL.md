@@ -25,36 +25,15 @@ Interaktive Ticket-Erstellung mit automatischer Nummerierung und Qualitaetspruef
 Falls nicht im Trigger enthalten, frage:
 > "Was soll das Ticket beschreiben?"
 
-### Schritt 2: Plattform ermitteln
+### Schritt 2: Plattform und Prioritaet ableiten
 
-Frage mit AskUserQuestion:
-- **iOS** - Nur iOS-spezifisch
-- **Android** - Nur Android-spezifisch
-- **Shared** - Beide Plattformen betroffen
+Versuche beides aus dem Kontext abzuleiten:
+- **Plattform:** iOS-spezifische Begriffe (SwiftUI, AudioSession) → iOS. Android-spezifisch → Android. Unklar oder beide → fragen.
+- **Prioritaet:** Bug mit Datenverlust/Crash → KRITISCH. Feature defekt → HOCH. Neues Feature → MITTEL. Kosmetik → NIEDRIG. Unklar → fragen.
 
-### Schritt 3: Prioritaet abfragen
+Nur bei Ambiguitaet mit AskUserQuestion nachfragen.
 
-Frage mit AskUserQuestion:
-- **KRITISCH** - Blockiert Release, Sicherheit, Datenverlust
-- **HOCH** - Wichtige Funktion defekt, viele User betroffen
-- **MITTEL** - Normales Feature, Verbesserung
-- **NIEDRIG** - Nice-to-have, Kosmetik
-
-### Schritt 4: Phase abfragen
-
-Frage mit AskUserQuestion:
-- **1-Quick Fix** - Kritische Bugs, sofort beheben
-- **2-Architektur** - Strukturelle Grundlagen
-- **3-Feature** - Neue Funktionalitaet
-- **4-Polish** - UX-Verbesserungen, Feinschliff
-- **5-QA** - Tests und Qualitaetssicherung
-
-### Schritt 5: Abhaengigkeiten (optional)
-
-Frage:
-> "Hat das Ticket Abhaengigkeiten zu anderen Tickets? (z.B. ios-022, oder 'keine')"
-
-### Schritt 6: Naechste Nummer ermitteln
+### Schritt 3: Naechste Nummer ermitteln
 
 1. Lese `dev-docs/tickets/INDEX.md`
 2. Finde hoechste Nummer fuer die gewaehlte Plattform:
@@ -63,7 +42,7 @@ Frage:
    - Shared: Suche Pattern `shared-(\d+)`
 3. Inkrementiere um 1
 
-### Schritt 7: Philosophie-Validierung
+### Schritt 4: Philosophie-Validierung
 
 Pruefe die Beschreibung gegen `validations/philosophy.md`:
 - Enthaelt sie Code-Snippets? → Warnung
@@ -72,12 +51,12 @@ Pruefe die Beschreibung gegen `validations/philosophy.md`:
 
 Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
 
-### Schritt 7b: Akzeptanzkriterien-Validierung
+### Schritt 4b: Akzeptanzkriterien-Validierung
 
 Pruefe die Akzeptanzkriterien gegen `validations/acceptance-criteria.md`.
 Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
 
-### Schritt 8: Ticket erstellen
+### Schritt 5: Ticket erstellen
 
 1. Lade passendes Template:
    - Platform: `dev-docs/tickets/TEMPLATE-platform.md`
@@ -89,10 +68,10 @@ Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
 
 3. Fuelle Template aus:
    - Status: `[ ] TODO`
-   - Prioritaet, Phase, Abhaengigkeiten aus Abfragen
+   - Prioritaet aus Ableitung/Abfrage
    - Was/Warum aus Beschreibung
 
-### Schritt 9: INDEX.md aktualisieren
+### Schritt 6: INDEX.md aktualisieren
 
 1. Finde richtige Tabelle (iOS/Android/Shared)
 2. Fuege neue Zeile hinzu (sortiert nach Nummer)
@@ -100,7 +79,7 @@ Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
    - Platform: `| [ios-023](ios/ios-023-titel.md) | Titel | Phase | [ ] | - |`
    - Shared: `| [shared-005](shared/shared-005-titel.md) | Titel | Phase | [ ] | [ ] |`
 
-### Schritt 10: Zusammenfassung
+### Schritt 7: Zusammenfassung
 
 Zeige dem User:
 ```
@@ -108,11 +87,8 @@ Ticket erstellt: {platform}-{NNN}
 
 Datei: dev-docs/tickets/{platform}/{filename}.md
 Prioritaet: {prioritaet}
-Phase: {phase}
 
-Naechste Schritte:
-1. Ticket oeffnen und Akzeptanzkriterien verfeinern
-2. Manuellen Test ergaenzen falls noetig
+Naechste Schritte: `/plan-ticket {platform}-{NNN}` oder `/implement-ticket {platform}-{NNN}`
 ```
 
 ## Validierung
@@ -132,11 +108,8 @@ Ticket erstellt: ios-023
 
 Datei: dev-docs/tickets/ios/ios-023-app-switch-sound-stop.md
 Prioritaet: HOCH
-Phase: 1-Quick Fix
 
-Naechste Schritte:
-1. Ticket oeffnen und Akzeptanzkriterien verfeinern
-2. Manuellen Test ergaenzen falls noetig
+Naechste Schritte: `/plan-ticket ios-023` oder `/implement-ticket ios-023`
 ```
 
 ## Referenzen

@@ -15,7 +15,12 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
 
 ## Workflow
 
-### Schritt 1: Ticket finden und verstehen
+### Schritt 1: Feature-Branch erstellen
+
+1. Git-Status pruefen — Working Directory muss sauber sein (keine uncommitteten Aenderungen)
+2. Branch erstellen: `git checkout -b feature/<ticket-id>`
+
+### Schritt 2: Ticket finden und verstehen
 
 1. Ticket-Datei per Glob suchen — nie den Dateinamen raten:
    ```
@@ -23,9 +28,16 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
    ```
 2. Ticket lesen, Akzeptanzkriterien extrahieren
 3. Plattform-CLAUDE.md lesen (`ios/CLAUDE.md` oder `android/CLAUDE.md`)
-4. Bestehenden Code verstehen bevor du aenderst
+4. Plan pruefen: `Glob('dev-docs/tickets/plans/*<ticket-id>*')`
+   - Falls vorhanden: Plan lesen und als Fahrplan nutzen:
+     - **Fachliche Szenarien** → direkt in Tests uebersetzen (Gegeben/Wenn/Dann → Arrange/Act/Assert)
+     - **Reihenfolge** → Akzeptanzkriterien in der vorgeschlagenen Reihenfolge abarbeiten
+     - **Refactorings** → vor dem Feature umsetzen
+     - **API-Hinweise** → verifizierte Signaturen/Availability nutzen
+   - Falls nicht vorhanden: Normal weiterarbeiten
+5. Bestehenden Code verstehen bevor du aenderst
 
-### Schritt 2: Akzeptanzkriterien abarbeiten
+### Schritt 3: Akzeptanzkriterien abarbeiten
 
 Jedes Akzeptanzkriterium einzeln im TDD-Zyklus umsetzen:
 
@@ -47,7 +59,7 @@ assert(canImportFile("meditation.mp4"))
 
 Alle Bash-Aufrufe fuer Tests mit `timeout: 300000` (5 Min).
 
-### Schritt 3: Quality Gate
+### Schritt 4: Quality Gate
 
 Vor jedem Commit im Plattform-Verzeichnis ausfuehren:
 
@@ -56,9 +68,15 @@ Vor jedem Commit im Plattform-Verzeichnis ausfuehren:
 
 Erst wenn beides gruen ist, committen.
 
-### Schritt 4: Commit
+### Schritt 5: Commit
 
 - Format: `<type>(<platform>): #<ticket-id> <description>`
 - Types: feat, fix, refactor, test, docs, chore
 - Logische Einheiten committen, nicht alles auf einmal
 - Beispiel: `feat(ios): #ios-032 Add meditation history view`
+
+### Schritt 6: Naechste Schritte
+
+Zeige dem User:
+> Implementierung abgeschlossen auf Branch `feature/<ticket-id>`.
+> Naechste Schritte: `/review-code`, `/close-ticket <ticket-id>`
