@@ -98,6 +98,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-072](shared/shared-072-einstimmung-toggle-konsistenz.md) | Einstimmung Toggle statt Picker-Option "Ohne Einstimmung" | 4-Polish | [x] | [x] |
 | [shared-073](shared/shared-073-import-typ-auswahl.md) | Datei-Import mit Typ-Auswahl | 3-Feature | [ ] | [x] |
 | [shared-074](shared/shared-074-audio-resolver-services.md) | Einheitliche Audio-Resolver (Einstimmung + Klangatmosphaere) | 2-Architektur | [x] | [x] |
+| [shared-075](shared/shared-075-library-long-press-preview.md) | Long-Press Preview in der Meditations-Bibliothek | 3-Feature | [x] | [ ] |
 
 ---
 

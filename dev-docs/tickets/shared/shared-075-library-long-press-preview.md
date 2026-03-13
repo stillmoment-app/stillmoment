@@ -1,6 +1,6 @@
 # Ticket shared-075: Long-Press Preview in der Meditations-Bibliothek
 
-**Status**: [~] IN PROGRESS
+**Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Plan**: [Implementierungsplan](../plans/shared-075.md)
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~3h | Android ~3h
@@ -22,7 +22,7 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
@@ -30,21 +30,21 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Long-Press auf die Row startet die Meditation ab Anfang als Preview (Overflow-Menu ausgenommen)
-- [ ] Loslassen stoppt die Preview sofort (mit kurzem Fade-out ~0.3s)
-- [ ] Kurzer Tap auf die Row navigiert zum Full Player
-- [ ] Nur eine Preview gleichzeitig (neuer Long-Press stoppt vorherige Preview)
-- [ ] Haptisches Feedback beim Start der Preview
-- [ ] Subtiler Scale-Effekt auf dem Icon waehrend des Drueckens (visuelles Feedback)
-- [ ] Preview nutzt die Audio-Session-Source `.preview` (nicht `.guidedMeditation`)
-- [ ] Preview blockiert nicht den Start einer vollstaendigen Meditation (Navigation zum Player stoppt Preview automatisch)
+- [x] Long-Press auf die Row startet die Meditation ab Anfang als Preview (Overflow-Menu ausgenommen)
+- [x] Loslassen stoppt die Preview sofort (mit kurzem Fade-out ~0.3s)
+- [x] Kurzer Tap auf die Row navigiert zum Full Player
+- [x] Nur eine Preview gleichzeitig (neuer Long-Press stoppt vorherige Preview)
+- [x] Haptisches Feedback beim Start der Preview
+- [x] Subtiler Scale-Effekt auf dem Icon waehrend des Drueckens (visuelles Feedback)
+- [x] Preview nutzt die Audio-Session-Source `.preview` (nicht `.guidedMeditation`)
+- [x] Preview blockiert nicht den Start einer vollstaendigen Meditation (Navigation zum Player stoppt Preview automatisch)
 
 ### Tests
-- [ ] Unit Tests iOS
+- [x] Unit Tests iOS
 - [ ] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
