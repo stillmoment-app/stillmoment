@@ -6,13 +6,22 @@ Dieser Plan beschreibt die technische Umsetzung. Das Ticket (`shared-046-share-e
 
 ## Plattform-Status
 
-### Android: ACTION_SEND bereits implementiert
+### Android: ACTION_SEND existiert, aber Chrome-Share funktioniert nicht
 
-Manifest Intent Filter (`audio/mpeg`, `audio/mp4`, `audio/x-m4a`) + `MainActivity.handleIncomingIntent()` + Import-Flow existieren. Share-Grundfunktion funktioniert bereits.
+Manifest Intent Filter (`audio/mpeg`, `audio/mp4`, `audio/x-m4a`) + `MainActivity.handleIncomingIntent()` + Import-Flow existieren. Share aus Dateimanagern und Audio-Apps funktioniert bereits.
 
-**Einziger offener Punkt:** Verhalten bei URL-Shares aus dem Browser. Android-Browser teilen beim Download-Link typischerweise die lokale Datei (nicht die URL), aber das muss verifiziert werden. Falls doch URLs ankommen: Download-Logik analog zu iOS ergaenzen.
+**Problem: Chrome teilt URLs, keine Dateien.** Recherche der Chromium-Quellen (`ShareHelper.java`, `ShareDelegateImpl.java`) hat ergeben: Chrome Android sendet beim "Teilen" aus dem eingebauten Audio-Player **immer** `ACTION_SEND` mit `text/plain` + `EXTRA_TEXT` (die URL). Einzige Ausnahme sind PDFs. Das bedeutet: Still Moment taucht im Chrome-Share-Sheet nicht auf, weil kein `text/plain`-Filter registriert ist.
 
-**Kein weiterer Code noetig** wenn Browser lokale Dateien teilen (wahrscheinlichster Fall).
+**Neuer Code noetig:**
+1. Zusaetzlicher Intent-Filter fuer `ACTION_SEND` + `text/plain`
+2. Intent-Handler: URL aus `EXTRA_TEXT` extrahieren, Endung pruefen (`.mp3`, `.m4a`)
+3. Bei Audio-URL: Datei herunterladen, dann bestehenden Import-Flow nutzen
+4. Bei Nicht-Audio-URL: still ignorieren (Activity schliessen ohne Aktion)
+5. Download-UX: ProgressView analog zu iOS
+
+**Trade-off:** Mit `text/plain`-Filter erscheint Still Moment bei **jedem** Text-Share (Links, Nachrichten, etc.). Auf Android laesst sich das nicht serverseitig filtern — die Filterung muss im Code passieren. Alternatives Vorgehen: keinen `text/plain`-Filter registrieren und nur den Datei-Share-Pfad unterstuetzen (Dateimanager, andere Audio-Apps). Chrome-User muessen dann die MP3 erst herunterladen und aus dem Dateimanager teilen.
+
+**Empfehlung:** `text/plain`-Filter registrieren. Der UX-Nachteil ist auf Android geringer als auf iOS, weil Android-User das Share Sheet individuell sortieren koennen und selten genutzte Apps nach unten rutschen.
 
 ### iOS: neue Implementierung noetig
 
@@ -239,9 +248,14 @@ Extension Target muss in Xcode erstellt werden (CLI-Tools haben Kompatibilitaets
 4. Tests (Inbox-Handling, URL-Validierung, Download, Fehlerfaelle)
 
 **Android:**
-1. Manuell verifizieren: Chrome und Samsung Internet — MP3-Download-Link teilen → kommt `content://` URI (lokale Datei) oder `text/plain` URL an?
-2. Erwartung: Android-Browser teilen nach Download die lokale Datei. Falls ja → kein neuer Code noetig, ACTION_SEND-Flow funktioniert bereits.
-3. Falls doch URLs ankommen: Download-Service mit OkHttp/Ktor analog zum iOS-Download-Service ergaenzen.
+1. Intent-Filter fuer `ACTION_SEND` + `text/plain` in `AndroidManifest.xml` ergaenzen
+2. `MainActivity.handleIncomingIntent()` erweitern: `text/plain` → URL aus `EXTRA_TEXT` extrahieren, Audio-Endung pruefen
+3. Download-Service: URL → lokale Datei (OkHttp oder `HttpURLConnection`), Content-Type und Dateigroesse validieren
+4. Download-UX: Indeterminate `ProgressView` mit "Meditation wird geladen..." + Cancel
+5. Bei Nicht-Audio-URL: Activity still schliessen (kein Fehler sichtbar)
+6. Bei Fehler (Netzwerk, Timeout): Alert analog zu iOS
+7. Tests: URL-Erkennung, Download, Fehlerfaelle
+8. Optional: Samsung Internet verifizieren (verhält sich vermutlich wie Chrome)
 
 ---
 
@@ -254,3 +268,5 @@ Extension Target muss in Xcode erstellt werden (CLI-Tools haben Kompatibilitaets
 | Download scheitert (Netzwerk, Timeout) | Fehlermeldung in der App, User kann es erneut versuchen |
 | App-Oeffnung via URL-Scheme wird von Apple abgelehnt | Fallback: scenePhase-Polling, User oeffnet App manuell |
 | App Group Entitlement falsch konfiguriert | Haeufigste Fehlerquelle bei Extensions — Provisioning Profile + Entitlements fuer beide Targets pruefen |
+| Android: App erscheint bei jedem Text-Share | Stilles Schliessen bei Nicht-Audio-URLs — Android-User koennen Share Sheet sortieren |
+| Android: Andere Browser (Samsung Internet, Firefox) verhalten sich anders als Chrome | Samsung Internet vermutlich identisch (Chromium-basiert). Firefox muss separat getestet werden |

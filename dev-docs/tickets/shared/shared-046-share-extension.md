@@ -3,7 +3,7 @@
 **Status**: [~] IN PROGRESS
 **Plan**: [Implementierungsplan](../plans/shared-046.md)
 **Prioritaet**: HOCH
-**Aufwand**: iOS ~2d | Android ~0.5d (Verifikation, ggf. URL-Download)
+**Aufwand**: iOS ~2d | Android ~1.5d (URL-Download aus Chrome, Intent-Filter, Download-UX)
 **Phase**: 3-Feature
 
 ---
@@ -23,7 +23,7 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [ ]    | shared-045, shared-073 |
-| Android   | [ ]    | shared-045, shared-073 (ACTION_SEND existiert, Verifikation + ggf. URL-Download) |
+| Android   | [ ]    | shared-045, shared-073 (ACTION_SEND fuer Dateien existiert, URL-Share aus Chrome fehlt — neuer Code noetig) |
 
 ---
 
@@ -70,3 +70,6 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 4. Wiederhole aus einer anderen App (z.B. Mail-Anhang, WhatsApp Audio)
 5. Teste App-Kaltstart: App beenden, dann Datei teilen → App startet und importiert
 6. Teile eine bereits importierte Datei → Erwartung: Duplikat-Hinweis
+7. **Android-spezifisch:** Chrome → MP3 im Player oeffnen → Drei-Punkte-Menue → Teilen → Still Moment waehlen → Erwartung: Download-Indikator, dann Typ-Auswahl
+8. **Android-spezifisch:** Chrome → beliebige Webseite teilen → Still Moment waehlen → Erwartung: App schliesst sich still (kein Fehler)
+9. **Android-spezifisch:** Dateimanager → MP3 teilen → Still Moment → Erwartung: direkter Import ohne Download
