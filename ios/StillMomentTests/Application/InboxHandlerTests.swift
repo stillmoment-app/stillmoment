@@ -99,8 +99,8 @@ final class InboxHandlerTests: XCTestCase {
         }
     }
 
-    func testAudioFileIsDeletedAfterProcessing() async {
-        // Given
+    func testAudioFileExistsAfterProcessingForDeferredImport() async {
+        // Given — audio file in inbox, user hasn't selected import type yet
         let filename = "\(UUID().uuidString)_meditation.mp3"
         let fileURL = self.inboxDirectory.appendingPathComponent(filename)
         FileManager.default.createFile(atPath: fileURL.path, contents: Data(repeating: 0xFF, count: 100))
@@ -108,10 +108,10 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then
-        XCTAssertFalse(
+        // Then — file must still exist because the user needs to select an import type
+        XCTAssertTrue(
             FileManager.default.fileExists(atPath: fileURL.path),
-            "Inbox entry should be deleted after processing"
+            "Audio file must remain in inbox until import type selection completes"
         )
     }
 
@@ -238,8 +238,8 @@ final class InboxHandlerTests: XCTestCase {
         }
     }
 
-    func testAllEntriesDeletedAfterProcessingNewest() async {
-        // Given - multiple entries in inbox
+    func testOlderEntriesDeletedButNewestAudioFileKept() async {
+        // Given - multiple audio entries in inbox
         let file1 = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_first.mp3")
         let file2 = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_second.mp3")
         FileManager.default.createFile(atPath: file1.path, contents: Data(repeating: 0xAA, count: 50))
@@ -252,9 +252,15 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then - all entries cleaned up
-        let remaining = try? FileManager.default.contentsOfDirectory(atPath: self.inboxDirectory.path)
-        XCTAssertEqual(remaining?.count ?? 0, 0, "All inbox entries should be deleted after processing")
+        // Then - older entry deleted, newest kept for deferred import
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: file1.path),
+            "Older entry should be deleted"
+        )
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: file2.path),
+            "Newest audio file must remain for deferred import"
+        )
     }
 
     // MARK: - Stale Entry Cleanup
@@ -300,9 +306,9 @@ final class InboxHandlerTests: XCTestCase {
                 FileManager.default.fileExists(atPath: staleURL.path),
                 "Stale entry should be deleted"
             )
-            XCTAssertFalse(
+            XCTAssertTrue(
                 FileManager.default.fileExists(atPath: freshURL.path),
-                "Fresh entry should also be cleaned up after processing"
+                "Fresh audio file must remain for deferred import"
             )
         } else {
             XCTFail("Expected .audioFile result, got \(result)")

@@ -136,8 +136,13 @@ final class InboxHandler: ObservableObject {
         // Process the newest entry
         let result = await self.processEntry(at: newestFile)
 
-        // Clean up the processed entry
-        self.deleteFiles([newestFile])
+        // JSON references can be deleted immediately — the downloaded file lives elsewhere.
+        // Audio files must NOT be deleted here: prepareImport() only stores the URL for
+        // deferred import. The file is needed when the user selects an import type.
+        // Cleanup happens via the main app after import completes or is cancelled.
+        if newestFile.pathExtension.lowercased() == "json" {
+            self.deleteFiles([newestFile])
+        }
 
         return result
     }

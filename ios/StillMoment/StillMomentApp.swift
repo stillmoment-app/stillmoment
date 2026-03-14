@@ -235,6 +235,7 @@ struct StillMomentApp: App {
 
         Task {
             let result = await self.fileOpenHandler.importFile(from: url, as: type)
+            self.cleanUpInboxFile(at: url)
             self.fileOpenHandler.pendingImportURL = nil
 
             switch result {
@@ -253,7 +254,24 @@ struct StillMomentApp: App {
 
     /// Handles dismissal of the import type selection sheet
     private func handleImportDismissed() {
+        if let url = self.fileOpenHandler.pendingImportURL {
+            self.cleanUpInboxFile(at: url)
+        }
         self.fileOpenHandler.cancelPendingImport()
+    }
+
+    /// Removes a Share Extension inbox file after import completes or is cancelled
+    ///
+    /// Only deletes files inside the inbox directory — "Open with" files from the
+    /// system are not ours to delete.
+    private func cleanUpInboxFile(at url: URL) {
+        let inboxDir = FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
+            .appendingPathComponent("ShareInbox")
+
+        guard let inboxDir, url.path.hasPrefix(inboxDir.path)
+        else { return }
+        try? FileManager.default.removeItem(at: url)
     }
 }
 
