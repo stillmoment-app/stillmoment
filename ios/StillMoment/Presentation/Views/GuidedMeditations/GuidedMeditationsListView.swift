@@ -172,9 +172,6 @@ struct GuidedMeditationsListView: View {
     @State private var meditationToDelete: GuidedMeditation?
     @State private var settings: GuidedMeditationSettings
     @Binding private var navigationPath: NavigationPath
-    @State private var isPressing = false
-    @State private var longPressActive = false
-    @State private var longPressWork: DispatchWorkItem?
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let settingsRepository: GuidedSettingsRepository
@@ -229,11 +226,21 @@ struct GuidedMeditationsListView: View {
                 Section {
                     ForEach(section.meditations) { meditation in
                         self.meditationRow(for: meditation)
-                    }
-                    .onDelete { indexSet in
-                        if let index = indexSet.first {
-                            self.meditationToDelete = section.meditations[index]
-                        }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    self.meditationToDelete = meditation
+                                } label: {
+                                    Label("guided_meditations.delete.confirm", systemImage: "trash")
+                                }
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    self.viewModel.showEditSheet(for: meditation)
+                                } label: {
+                                    Label("guided_meditations.edit", systemImage: "pencil")
+                                }
+                                .tint(self.theme.interactive)
+                            }
                     }
                 } header: {
                     Text(section.teacher)
@@ -248,96 +255,49 @@ struct GuidedMeditationsListView: View {
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
         HStack {
-            HStack {
-                self.previewPlayIcon(for: meditation)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(meditation.effectiveName)
-                        .themeFont(.listActionLabel)
-                    Text(meditation.formattedDuration)
-                        .themeFont(.listSubtitle)
-                }
-
-                Spacer()
+            VStack(alignment: .leading, spacing: 4) {
+                Text(meditation.effectiveName)
+                    .themeFont(.listActionLabel)
+                Text(meditation.formattedDuration)
+                    .themeFont(.listSubtitle)
             }
-            .contentShape(Rectangle())
-            .gesture(self.previewOrNavigateGesture(for: meditation))
 
-            self.overflowMenu(for: meditation)
+            Spacer()
+
+            self.playButton(for: meditation)
         }
         .padding(.vertical, 4)
         .cardRowBackground()
-        .accessibilityHint("accessibility.library.row.hint")
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
 
-    /// Short tap → navigate to player, long press (0.4s) → audio preview
-    private func previewOrNavigateGesture(
-        for meditation: GuidedMeditation
-    ) -> some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { _ in
-                guard !self.isPressing else {
-                    return
-                }
-                self.isPressing = true
-                let work = DispatchWorkItem {
-                    guard self.isPressing else {
-                        return
-                    }
-                    self.longPressActive = true
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    self.viewModel.startPreview(for: meditation)
-                }
-                self.longPressWork = work
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
-            }
-            .onEnded { _ in
-                self.longPressWork?.cancel()
-                self.longPressWork = nil
-                if self.longPressActive {
-                    self.viewModel.stopPreview()
-                } else {
-                    self.navigationPath.append(meditation)
-                }
-                self.isPressing = false
-                self.longPressActive = false
-            }
-    }
-
-    private func previewPlayIcon(for meditation: GuidedMeditation) -> some View {
+    /// Play button with two interactions:
+    /// - Tap → start meditation (navigate to player) or stop preview
+    /// - Long press → start preview
+    private func playButton(for meditation: GuidedMeditation) -> some View {
         let isThisPreviewing = self.viewModel.previewingMeditationId == meditation.id
-        return Image(systemName: "play.circle.fill")
+
+        return Image(systemName: isThisPreviewing ? "stop.circle.fill" : "play.circle.fill")
             .font(.system(size: 28))
             .foregroundColor(self.theme.interactive)
-            .scaleEffect(isThisPreviewing && self.isPressing ? 1.3 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: self.isPressing)
             .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("accessibility.library.preview")
-            .accessibilityHint("accessibility.library.preview.hint")
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if isThisPreviewing {
+                    self.viewModel.stopPreview()
+                } else {
+                    self.viewModel.stopPreview()
+                    self.navigationPath.append(meditation)
+                }
+            }
+            .onLongPressGesture(minimumDuration: 0.5) {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                self.viewModel.startPreview(for: meditation)
+            }
+            .accessibilityLabel(isThisPreviewing ? "accessibility.library.stop" : "accessibility.library.preview")
+            .accessibilityHint(isThisPreviewing ? "accessibility.library.stop.hint" :
+                "accessibility.library.preview.hint")
             .accessibilityIdentifier("library.button.preview.\(meditation.id.uuidString)")
-    }
-
-    private func overflowMenu(for meditation: GuidedMeditation) -> some View {
-        Menu {
-            Button {
-                self.viewModel.showEditSheet(for: meditation)
-            } label: {
-                Label("guided_meditations.edit", systemImage: "pencil")
-            }
-            Button(role: .destructive) {
-                self.meditationToDelete = meditation
-            } label: {
-                Label("guided_meditations.delete.confirm", systemImage: "trash")
-            }
-        } label: {
-            Image(systemName: "ellipsis")
-                .foregroundColor(self.theme.interactive)
-                .frame(minWidth: 44, minHeight: 44)
-        }
-        .accessibilityLabel("accessibility.library.overflow")
-        .accessibilityHint("accessibility.library.overflow.hint")
-        .accessibilityIdentifier("library.button.overflow.\(meditation.id.uuidString)")
     }
 }
 

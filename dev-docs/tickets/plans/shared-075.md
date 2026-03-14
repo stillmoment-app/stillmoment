@@ -1,98 +1,112 @@
-# Implementierungsplan: shared-075 (iOS)
+# Implementierungsplan: shared-075 (iOS Rework)
 
 Ticket: [shared-075](../shared/shared-075-library-long-press-preview.md)
 Erstellt: 2026-03-13
+Aktualisiert: 2026-03-14 (UI-Konzept-Aenderung)
+
+## Hintergrund: Warum Rework
+
+Die urspruengliche Implementierung nutzte `DragGesture(minimumDistance: 0)` auf der gesamten Row um "solange Finger drauf = Preview" umzusetzen. Problem: `DragGesture.onEnded` feuert nicht zuverlaessig in einer `List` (Scroll-Konflikt), was zu unkontrolliert weiterlaufenden Previews fuehrte. SwiftUI bietet keine robuste "press-and-hold-then-release"-Geste.
+
+Neues Konzept: Play-Button mit zwei Interaktionen (Tap = Start Meditation, Long-Press = Preview). Preview laeuft bis expliziter Stop-Tap. Kein Gesture-Tracking waehrend der Wiedergabe noetig.
 
 ## Betroffene Codestellen
 
 | Datei | Layer | Aktion | Beschreibung |
 |-------|-------|--------|-------------|
-| `Domain/Services/AudioServiceProtocol.swift` | Domain | Erweitern | `playMeditationPreview(fileURL:)` + `stopMeditationPreview()` hinzufuegen |
-| `Infrastructure/Services/AudioService.swift` | Infrastructure | Erweitern | Neue Preview-Methoden implementieren (analog `playIntroductionPreview`) |
-| `Application/ViewModels/GuidedMeditationsListViewModel.swift` | Application | Erweitern | AudioService-Dependency + Preview-Methoden + Published State |
-| `Presentation/Views/GuidedMeditations/GuidedMeditationsListView.swift` | Presentation | Erweitern | Long-Press-Gesture auf Play-Icon, Scale-Animation |
-| `StillMomentTests/Mocks/MockTimerService.swift` (MockAudioService) | Test | Erweitern | Neue Mock-Methoden fuer Meditation-Preview |
-| `StillMomentTests/GuidedMeditationsListViewModelTests.swift` | Test | Erweitern | Preview-Tests |
+| `Domain/Services/AudioServiceProtocol.swift` | Domain | Keine Aenderung | `playMeditationPreview` / `stopMeditationPreview` bereits vorhanden |
+| `Infrastructure/Services/AudioService+MeditationPreview.swift` | Infrastructure | Keine Aenderung | Implementierung bereits vorhanden und stabil |
+| `Application/ViewModels/GuidedMeditationsListViewModel.swift` | Application | Anpassen | `startPreview`/`stopPreview` bleiben, ggf. Toggle-Methode ergaenzen |
+| `Presentation/Views/GuidedMeditations/GuidedMeditationsListView.swift` | Presentation | Umbauen | DragGesture entfernen, Play-Button mit Tap/Long-Press + Icon-Wechsel, Row-Tap entfernen |
+| `StillMomentTests/GuidedMeditationsListViewModelTests.swift` | Test | Anpassen | Tests an neues Verhalten anpassen |
 
 ## Design-Entscheidungen
 
-### 1. fileURL statt filePath als Parameter
+### 1. fileURL statt filePath als Parameter (unveraendert)
 
-**Trade-off:** Das Ticket schlaegt `playMeditationPreview(filePath:)` vor, aber `GuidedMeditationServiceProtocol` hat bereits `fileURL(for:) -> URL?` — die URL-Aufloesung (relative Pfade → absolute URLs) ist dort gekapselt.
+**Entscheidung:** `playMeditationPreview(fileURL: URL)` — ViewModel ruft `meditationService.fileURL(for:)` auf. Bereits implementiert.
 
-**Entscheidung:** `playMeditationPreview(fileURL: URL)` — die View/ViewModel ruft `meditationService.fileURL(for:)` auf und uebergibt die fertige URL. Das vermeidet duplizierte Pfad-Aufloesung im AudioService.
+### 2. Play-Button: Tap + Long-Press (NEU — ersetzt DragGesture)
 
-### 2. Gesture: DragGesture(minimumDistance: 0) auf dem Play-Icon
+**Problem:** `DragGesture(minimumDistance: 0)` in einer List ist instabil — `.onEnded` feuert nicht zuverlaessig bei Scroll-Konflikten. Das fuehrte zu Previews die unkontrolliert weiterliefen.
 
-**Trade-off:** `.onLongPressGesture(minimumDuration:pressing:)` hat einen Delay bevor `pressing` true wird. `DragGesture(minimumDistance: 0)` reagiert sofort auf Touch-Down/Touch-Up. Da wir "solange Finger gedrueckt" wollen (nicht "nach X Sekunden"), ist DragGesture passender.
+**Entscheidung:** Play-Button als normaler SwiftUI `Button` mit `.onLongPressGesture(minimumDuration: 0.5, perform:)` fuer Preview-Start. Tap auf den Button wird ueber den Button-Action-Handler abgefangen.
 
-**Entscheidung:** `DragGesture(minimumDistance: 0)` auf dem Play-Icon. `onChanged` = Start Preview + Haptic + Scale. `onEnded` = Stop Preview + Reset Scale. Der umgebende NavigationLink (opacity 0) faengt Taps auf der restlichen Row ab.
+**Zustandsmaschine des Play-Buttons:**
 
-**Risiko:** DragGesture auf einem kleinen Icon (20pt) koennte fummelig sein. Mitigation: `.frame(minWidth: 44, minHeight: 44)` als Hit-Area (Apple HIG Minimum). Zusaetzlich: DragGesture innerhalb einer List kollidiert mit dem Scroll-Gesture — wenn der Finger leicht verrutscht, scrollt die Liste statt die Preview weiterzulaufen. Mitigation: `.simultaneousGesture()` statt `.gesture()` und/oder Toleranzbereich fuer Translation pruefen.
+| Zustand | Icon | Tap | Long-Press |
+|---------|------|-----|------------|
+| Idle | ▶ (play.circle.fill) | Meditation starten | Preview starten |
+| Preview aktiv (diese Meditation) | ■ (stop.circle.fill) | Preview stoppen | — |
+| Preview aktiv (andere Meditation) | ▶ (play.circle.fill) | Meditation starten | Preview wechseln |
 
-### 3. Fade-out im AudioService (nicht im ViewModel)
+**Technisch:** `.onLongPressGesture` wird VOR dem Button-Tap ausgewertet (Gesture-Prioritaet). Wenn Long-Press erkannt → Preview. Wenn Finger vorher losgelassen → Button-Tap → Navigation oder Stop.
 
-**Entscheidung:** `stopMeditationPreview()` macht intern den 0.3s Fade-out (analog `fadeOutBackgroundPreview()`). Der ViewModel ruft nur `stop` auf — kein Timer-Management in der Presentation/Application Layer. Wichtig: `releaseAudioSession(for: .preview)` erst **nach** dem Fade-out aufrufen (analog Background-Preview-Pattern, nicht Introduction-Preview-Pattern das sofort released).
+### 3. Row-Text ist nicht mehr tappbar (NEU)
 
-### 5. Mutual Exclusion mit anderen Previews
+**Problem:** Bisher navigierte Tap auf die Row zum Player. Mit dem neuen Konzept ist nur der Play-Button interaktiv (plus Overflow-Menu).
 
-**Entscheidung:** `playMeditationPreview` muss beim Start alle anderen Previews stoppen (Gong, Background, Introduction) — analog zum bestehenden Pattern in `playIntroductionPreview`. Umgekehrt muessen die bestehenden Preview-Methoden den neuen `meditationPreviewPlayer` ebenfalls stoppen. Sonst koennen zwei Previews gleichzeitig laufen.
+**Entscheidung:** NavigationLink / Tap-Handler von der Row entfernen. Der Play-Button uebernimmt die Navigation (Tap im Idle-Zustand). Das vermeidet Gesture-Konflikte und macht die Interaktionsbereiche eindeutig.
 
-### 6. Kein Icon-Wechsel waehrend Preview
+### 4. Fade-out im AudioService (unveraendert)
 
-**Entscheidung:** Das Play-Icon bleibt unveraendert waehrend die Preview laeuft. Der Scale-Effekt (AK-6) ist ausreichend visuelles Feedback. Ein wechselndes Icon (z.B. Lautsprecher) wuerde suggerieren, dass es ein Toggle ist — die Press-and-Hold-Geste ist selbsterklaerend.
+**Entscheidung:** `stopMeditationPreview()` macht intern den 0.3s Fade-out. Bereits implementiert und stabil (Race Condition in Commit 42212c2 gefixt).
 
-### 7. fileURL-Aufloesung im ViewModel (keine neue Dependency)
+### 5. Mutual Exclusion mit anderen Previews (unveraendert)
 
-**Entscheidung:** Der ViewModel hat bereits `meditationService` (GuidedMeditationServiceProtocol) als Dependency. `fileURL(for:)` wird dort aufgerufen — keine neue Dependency noetig, nur die AudioService-Dependency kommt hinzu.
+**Entscheidung:** `playMeditationPreview` stoppt beim Start alle anderen Previews. Bereits implementiert.
 
-### 4. Preview stoppt bei Navigation zum Player
+### 6. Icon-Wechsel statt Scale-Effekt (NEU — ersetzt "kein Icon-Wechsel")
 
-**Entscheidung:** Kein expliziter Code noetig. Wenn der Player `requestAudioSession(for: .guidedMeditation)` aufruft, loest der AudioSessionCoordinator den Conflict-Handler aus, der alle Preview-Player stoppt. Das bestehende Pattern deckt das ab.
+**Problem:** Der Scale-Effekt war an die DragGesture gebunden ("solange Finger drauf"). Mit dem neuen Konzept brauchen wir dauerhaftes visuelles Feedback waehrend die Preview laeuft.
+
+**Entscheidung:** Icon wechselt von ▶ (play.circle.fill) zu ■ (stop.circle.fill) waehrend Preview aktiv ist. Das ist universell verstaendlich und zeigt klar "hier laeuft etwas, Tap zum Stoppen".
+
+### 7. Kein DispatchWorkItem / kein Timing-State (NEU)
+
+**Entscheidung:** Alle `@State`-Properties fuer Gesture-Tracking entfallen (`isPressing`, `longPressActive`, `longPressWork`). Der Preview-Zustand wird ausschliesslich ueber `viewModel.previewingMeditationId` getrackt — eine einzige Source of Truth.
+
+### 8. Preview stoppt bei Meditation-Start (unveraendert)
+
+**Entscheidung:** Kein expliziter Code noetig. Wenn der Player `requestAudioSession(for: .guidedMeditation)` aufruft, loest der AudioSessionCoordinator den Conflict-Handler aus, der alle Preview-Player stoppt.
 
 ## Fachliche Szenarien
 
-### AK-1: Long-Press auf Play-Icon startet Preview
+### AK-1: Tap auf Play-Button startet Meditation
 
-- Gegeben: Bibliothek mit mindestens einer Meditation
-  Wenn: User drueckt lang auf das Play-Icon
-  Dann: Meditation startet ab Anfang als Audio-Preview
+- Gegeben: Bibliothek mit einer Meditation, keine Preview aktiv
+  Wenn: User tippt kurz auf den Play-Button
+  Dann: Navigation zum Full Player, Meditation startet
 
-### AK-2: Loslassen stoppt Preview mit Fade-out
-
-- Gegeben: Preview laeuft
-  Wenn: User laesst Finger los
-  Dann: Audio stoppt mit ~0.3s Fade-out
-
-### AK-3: Tap auf Row navigiert zum Player
+### AK-2: Long-Press auf Play-Button startet Preview
 
 - Gegeben: Bibliothek mit einer Meditation
-  Wenn: User tippt auf den Namen oder die Dauer (nicht das Play-Icon)
-  Dann: Navigation zum Full Player wie bisher
+  Wenn: User drueckt lang auf den Play-Button (~0.5s)
+  Dann: Haptisches Feedback, Icon wechselt zu ■, Audio startet ab Anfang als Preview
+
+### AK-3: Tap auf Stop-Button stoppt Preview
+
+- Gegeben: Preview laeuft fuer diese Meditation
+  Wenn: User tippt auf den Stop-Button (■)
+  Dann: Audio stoppt mit ~0.3s Fade-out, Icon wechselt zurueck zu ▶
 
 ### AK-4: Nur eine Preview gleichzeitig
 
 - Gegeben: Preview fuer Meditation A laeuft
-  Wenn: User drueckt lang auf Play-Icon von Meditation B
-  Dann: Preview A stoppt, Preview B startet
-
-- Gegeben: Gong-Preview oder Background-Preview laeuft (z.B. aus Settings)
-  Wenn: User drueckt lang auf Play-Icon einer Meditation
-  Dann: Vorherige Preview stoppt, Meditation-Preview startet
+  Wenn: User drueckt lang auf Play-Button von Meditation B
+  Dann: Preview A stoppt, Preview B startet, Icon A → ▶, Icon B → ■
 
 ### AK-5: Haptisches Feedback beim Start
 
 - Gegeben: Bibliothek mit einer Meditation
-  Wenn: User drueckt lang auf das Play-Icon
-  Dann: Haptisches Feedback (impact, medium) beim Start
+  Wenn: User drueckt lang auf den Play-Button
+  Dann: Haptisches Feedback (impact, medium) beim Preview-Start
 
-### AK-6: Scale-Effekt auf Icon waehrend Druecken
+### AK-6: Row-Text ist nicht tappbar
 
-- Gegeben: User drueckt auf Play-Icon
-  Wenn: Finger ist gedrueckt
-  Dann: Icon skaliert leicht hoch (z.B. 1.3x) mit Animation
-  Wenn: Finger losgelassen
-  Dann: Icon skaliert zurueck auf 1.0x
+- Gegeben: Bibliothek mit einer Meditation
+  Wenn: User tippt auf den Meditations-Titel oder die Dauer
+  Dann: Nichts passiert (kein Tap-Handler, nur Scroll)
 
 ### AK-7: Preview nutzt .preview Audio-Session-Source
 
@@ -100,25 +114,23 @@ Erstellt: 2026-03-13
   Wenn: AudioService spielt Meditation-Preview
   Dann: Audio-Session wird mit Source `.preview` angefordert (nicht `.guidedMeditation`)
 
-### AK-8: Navigation zum Player stoppt Preview
+### AK-8: Meditation starten stoppt Preview
 
 - Gegeben: Preview laeuft
-  Wenn: User navigiert zum Full Player (Tap auf Row)
+  Wenn: User startet eine Meditation (Tap auf Play-Button einer beliebigen Meditation)
   Dann: Preview stoppt automatisch (via AudioSessionCoordinator Conflict-Handler)
 
-## Reihenfolge der Akzeptanzkriterien
+## Reihenfolge der Implementierung
 
-1. **AK-7: AudioServiceProtocol + AudioService** — Neue Methoden `playMeditationPreview`/`stopMeditationPreview` + Mock erweitern. Grundlage fuer alles.
-2. **AK-1 + AK-2 + AK-4: ViewModel Preview-Logik** — `GuidedMeditationsListViewModel` um AudioService-Dependency und Preview-Methoden erweitern.
-3. **AK-5 + AK-6 + AK-3: View Gesture + Animation** — DragGesture auf Play-Icon, Scale-Animation, Haptic Feedback.
-4. **AK-8: Navigation stoppt Preview** — Verifizieren dass der bestehende Conflict-Handler das abdeckt (ggf. Test).
+1. **View umbauen:** DragGesture + State-Properties entfernen, Play-Button mit Tap/Long-Press + Icon-Wechsel
+2. **Row-Navigation entfernen:** Tap auf Row-Text deaktivieren, Navigation nur noch ueber Play-Button
+3. **Tests anpassen:** Bestehende Tests an neues Verhalten anpassen
+4. **AudioService/ViewModel:** Keine Aenderungen noetig — bereits stabil
 
 ## Risiken
 
 | Risiko | Mitigation |
 |--------|-----------|
-| DragGesture auf kleinem Icon konkurriert mit NavigationLink | Hit-Area auf 44x44 vergroessern, NavigationLink bleibt auf gesamter Row |
-| DragGesture in List kollidiert mit Scroll-Gesture | `.simultaneousGesture()` und/oder Translation-Toleranz pruefen |
-| cleanupPreviewPlayers() stoppt nicht den neuen meditationPreviewPlayer | meditationPreviewPlayer in cleanupPreviewPlayers() ergaenzen |
-| Bestehende Preview-Methoden stoppen meditationPreviewPlayer nicht | Mutual-Stop in playGongPreview, playBackgroundPreview, playIntroductionPreview ergaenzen |
-| ViewModel braucht jetzt AudioService UND MeditationService | Convenience init mit Defaults — bestehendes Pattern bei TimerViewModel |
+| `.onLongPressGesture` und Button-Tap kollidieren | Gesture-Prioritaet testen: Long-Press sollte vor Tap ausgewertet werden |
+| User entdeckt Long-Press nicht | Play-Icon ist sichtbar und einladend; ggf. Tooltip beim ersten Mal |
+| Row ohne Tap fuehlt sich "tot" an | Overflow-Menu und Play-Button sind weiterhin interaktiv; Scroll funktioniert |

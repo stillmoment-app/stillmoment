@@ -3,18 +3,57 @@
 **Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Plan**: [Implementierungsplan](../plans/shared-075.md)
 **Prioritaet**: MITTEL
-**Aufwand**: iOS ~3h | Android ~3h
+**Aufwand**: iOS ~2h (Rework) | Android ~3h
 **Phase**: 3-Feature
 
 ---
 
 ## Was
 
-In der Meditations-Liste soll ein Long-Press auf die Row eine Audio-Preview der Meditation abspielen — solange der Finger gedrueckt bleibt. Loslassen stoppt die Wiedergabe. Ein kurzer Tap navigiert wie bisher zum Full Player.
+Redesign der Meditations-Row in der Bibliothek:
+
+**Row-Layout:**
+- Titel + Dauer links, Play-Button rechts
+- Kein Overflow-Menu (⋮) mehr — Edit und Loeschen ueber Swipe-Actions
+
+**Play-Button (rechts):**
+- **Tap** → Meditation starten (Navigation zum Full Player)
+- **Long-Press** (~0.5s) → Preview starten (laeuft bis Stop gedrueckt wird)
+- Waehrend Preview: Icon wechselt von ▶ zu ■, Tap auf ■ stoppt Preview
+
+**Swipe-Actions (links wischen):**
+- Bearbeiten (blau) + Loeschen (rot)
+
+**Row-Text** (Titel, Dauer) ist nicht tappbar — nur scrollbar.
 
 ## Warum
 
 Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzuhoeren. Bei einer laengeren Liste ist das muehsam, wenn man eine bestimmte Meditation sucht. Long-Press-Preview ermoeglicht schnelles Reinhoren, ohne die Liste zu verlassen.
+
+**Use Cases:**
+- Meditation kurz vorhoeren ("Ist das die richtige?")
+- Lautstaerke pruefen bevor man eine Session startet
+
+## UI-Konzept-Aenderung (2026-03-14)
+
+Die urspruengliche Implementierung (DragGesture "solange Finger drauf") war instabil — `DragGesture.onEnded` feuert nicht zuverlaessig in einer List (Scroll-Konflikt), was zu unkontrolliert weiterlaufenden Previews fuehrte. SwiftUI bietet keine robuste "press-and-hold-then-release"-Geste.
+
+Neues Konzept: Long-Press startet Preview, Preview laeuft bis expliziter Stop-Tap. Kein Gesture-Tracking waehrend der Wiedergabe noetig. Overflow-Menu entfernt zugunsten von Swipe-Actions.
+
+```
+Idle:                          Preview laeuft:
+┌────────────────────────┐     ┌────────────────────────┐
+│  Bodyscan    25:00  ▶  │     │  Bodyscan    25:00  ■  │
+└────────────────────────┘     └────────────────────────┘
+                Tap→Start       Tap→Stop
+           Long Press→Preview
+
+Swipe links:
+┌────────────────────────┬────────────┬─────────┐
+│  Bodyscan    25:00  ▶  │ Bearbeiten │ Loeschen│
+└────────────────────────┴────────────┴─────────┘
+                            (blau)      (rot)
+```
 
 ---
 
@@ -29,13 +68,19 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 
 ## Akzeptanzkriterien
 
-### Feature (beide Plattformen)
-- [x] Long-Press auf die Row startet die Meditation ab Anfang als Preview (Overflow-Menu ausgenommen)
-- [x] Loslassen stoppt die Preview sofort (mit kurzem Fade-out ~0.3s)
-- [x] Kurzer Tap auf die Row navigiert zum Full Player
+### Row-Layout (beide Plattformen)
+- [x] Play-Button rechts in der Row
+- [x] Kein Overflow-Menu — Edit und Loeschen ueber Swipe-Actions (links wischen)
+- [x] Swipe-Links: Bearbeiten (blau) + Loeschen (rot)
+- [x] Row-Text (Titel, Dauer) ist nicht tappbar — nur scrollbar
+
+### Preview (beide Plattformen)
+- [x] Tap auf Play-Button startet die Meditation (Navigation zum Full Player)
+- [x] Long-Press (~0.5s) auf Play-Button startet Preview ab Anfang
+- [x] Waehrend Preview: Play-Icon (play.circle.fill) wechselt zu Stop-Icon (stop.circle.fill)
+- [x] Tap auf Stop-Icon stoppt die Preview (mit kurzem Fade-out ~0.3s)
 - [x] Nur eine Preview gleichzeitig (neuer Long-Press stoppt vorherige Preview)
 - [x] Haptisches Feedback beim Start der Preview
-- [x] Subtiler Scale-Effekt auf dem Icon waehrend des Drueckens (visuelles Feedback)
 - [x] Preview nutzt die Audio-Session-Source `.preview` (nicht `.guidedMeditation`)
 - [x] Preview blockiert nicht den Start einer vollstaendigen Meditation (Navigation zum Player stoppt Preview automatisch)
 
@@ -44,21 +89,32 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 - [ ] Unit Tests Android
 
 ### Dokumentation
-- [x] CHANGELOG.md
+- [ ] CHANGELOG.md aktualisieren
 
 ---
 
 ## Manueller Test
 
+### Preview
 1. Meditations-Bibliothek oeffnen (mindestens 2 Meditationen vorhanden)
-2. Auf eine Meditation-Row lang druecken (egal ob Icon oder Text)
-3. Erwartung: Haptisches Feedback, Play-Icon wird leicht groesser, Audio startet ab Anfang
-4. Finger loslassen
-5. Erwartung: Audio stoppt mit kurzem Fade-out
-6. Auf die Row (Name/Dauer) tippen
-7. Erwartung: Navigation zum Full Player wie bisher
-8. Waehrend Preview laeuft: auf anderes Play-Icon druecken
-9. Erwartung: Erste Preview stoppt, neue startet
+2. Auf den Play-Button (▶, rechts) einer Meditation **lang druecken** (~0.5s)
+3. Erwartung: Haptisches Feedback, Icon wechselt zu ■, Audio startet ab Anfang
+4. Auf den Stop-Button (■) **tippen**
+5. Erwartung: Audio stoppt mit kurzem Fade-out, Icon wechselt zurueck zu ▶
+6. Auf den Play-Button **kurz tippen**
+7. Erwartung: Navigation zum Full Player (Meditation starten)
+8. Auf den Meditations-Titel oder die Dauer tippen
+9. Erwartung: Nichts passiert (kein Tap-Handler, nur Scroll)
+10. Preview starten, dann auf Play-Button einer anderen Meditation lang druecken
+11. Erwartung: Erste Preview stoppt, zweite startet
+
+### Swipe-Actions
+12. Auf einer Meditation-Row **nach links wischen**
+13. Erwartung: Zwei Buttons erscheinen — "Bearbeiten" (blau) + "Loeschen" (rot)
+14. Auf "Bearbeiten" tippen
+15. Erwartung: Edit-Sheet oeffnet sich
+16. Auf einer anderen Row nach links wischen, "Loeschen" tippen
+17. Erwartung: Loeschen-Bestaetigungsdialog erscheint
 
 ---
 
@@ -72,8 +128,15 @@ Aktuell muss man eine Meditation komplett oeffnen (Fullscreen-Player), um reinzu
 
 ## Hinweise
 
-- iOS: `DragGesture(minimumDistance: 0)` oder `.onLongPressGesture(minimumDuration:)` mit `pressing:`-Callback auf dem Play-Icon. Der umgebende NavigationLink muss den Tap auf das Icon nicht abfangen.
-- AudioService braucht eine neue Methode `playMeditationPreview(filePath:)` / `stopMeditationPreview()` analog zu den bestehenden Preview-Methoden.
-- Android: Kombination aus `pointerInput` mit `detectTapGestures(onPress = ...)` auf dem Icon, `HapticFeedback` beim Start.
+### iOS (implementiert)
+- Play-Button: `Image` mit `.onTapGesture` + `.onLongPressGesture(minimumDuration: 0.5)`. Kein `Button` (Tap und Long-Press kollidieren bei `Button`). Kein `DragGesture` (instabil in List).
+- Swipe-Actions: `.swipeActions(edge: .trailing)` auf der Row. Zwei separate `.swipeActions`-Modifier (Loeschen + Bearbeiten).
+- AudioService: `playMeditationPreview(fileURL:)` / `stopMeditationPreview()` unveraendert.
+- Preview-Zustand: Ausschliesslich ueber `viewModel.previewingMeditationId` — kein lokaler View-State.
+
+### Android (offen)
+- Play-Button: `combinedClickable(onLongClick = ..., onClick = ...)` auf dem Play-Icon, `HapticFeedback` beim Start.
+- Swipe-Actions: `SwipeToDismissBox` oder `material3` Swipe-to-Reveal Pattern.
+- Row-Text: Kein `clickable()` auf der Row — nur Play-Button ist interaktiv.
 
 ---
