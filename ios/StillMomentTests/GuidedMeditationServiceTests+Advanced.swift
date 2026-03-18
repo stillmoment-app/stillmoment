@@ -92,9 +92,32 @@ extension GuidedMeditationServiceTests {
         // When
         let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
 
-        // Then - Should use filename without extension
-        XCTAssertEqual(meditation.name, "Awesome_Meditation")
+        // Then - Should use filename without extension, underscores replaced with spaces
+        XCTAssertEqual(meditation.name, "Awesome Meditation")
         XCTAssertEqual(meditation.teacher, "Teacher")
+    }
+
+    func testAddMeditation_WithMissingTitle_UsesDashSeparatedFilename_ReplacesWithSpaces() throws {
+        // Given
+        guard let sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        let tempURL = createTemporaryAudioFile(filename: "body-scan-10-min.mp3")
+        defer {
+            try? FileManager.default.removeItem(at: tempURL)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
+        }
+
+        let metadata = AudioMetadata(artist: "Teacher", title: nil, duration: 300)
+
+        // When
+        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
+
+        // Then - Dashes replaced with spaces
+        XCTAssertEqual(meditation.name, "body scan 10 min")
     }
 
     func testAddMeditation_WithMissingArtist_UsesUnknownArtist() throws {

@@ -74,6 +74,8 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
             duration: metadata.duration,
             teacher: metadata.artist ?? "Unknown Artist",
             name: metadata.title ?? url.deletingPathExtension().lastPathComponent
+                .replacingOccurrences(of: "_", with: " ")
+                .replacingOccurrences(of: "-", with: " ")
         )
 
         self.meditations.append(meditation)

@@ -113,6 +113,13 @@ struct StillMomentApp: App {
                     self.checkInbox()
                 }
             }
+            // Fallback: scenePhase at App level can miss transitions on some iOS versions
+            .onReceive(
+                NotificationCenter.default
+                    .publisher(for: UIApplication.didBecomeActiveNotification)
+            ) { _ in
+                self.checkInbox()
+            }
             .sheet(isPresented: self.$fileOpenHandler.showImportTypeSelection) {
                 self.handleImportDismissed()
             } content: {

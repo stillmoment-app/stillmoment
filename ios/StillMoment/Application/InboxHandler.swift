@@ -105,6 +105,13 @@ final class InboxHandler: ObservableObject {
     ///
     /// - Returns: The result of processing the inbox
     func processInbox() async -> InboxResult {
+        guard !self.isProcessing else {
+            Logger.infrastructure.info("processInbox() — already in progress, skipping")
+            return .empty
+        }
+        self.isProcessing = true
+        defer { self.isProcessing = false }
+
         guard self.fileManager.fileExists(atPath: self.inboxDirectoryURL.path) else {
             // Directory doesn't exist yet — no one has shared anything. That's normal.
             return .empty
@@ -153,6 +160,8 @@ final class InboxHandler: ObservableObject {
     }
 
     // MARK: Private
+
+    private var isProcessing = false
 
     private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
     private static let supportedExtensions: Set<String> = ["mp3", "m4a", "json"]

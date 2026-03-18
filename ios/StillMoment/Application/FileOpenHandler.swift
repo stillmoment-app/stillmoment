@@ -33,8 +33,8 @@ enum FileOpenError: Error, Equatable, LocalizedError {
     /// The file could not be imported (corrupt, unreadable, or service error)
     case importFailed
 
-    /// A meditation with the same filename is already in the library
-    case alreadyImported
+    /// A file with the same name and size is already in the library
+    case alreadyImported(name: String?, teacher: String?)
 
     // MARK: Internal
 
@@ -44,8 +44,19 @@ enum FileOpenError: Error, Equatable, LocalizedError {
             NSLocalizedString("error.unsupportedFormat", comment: "Unsupported audio format")
         case .importFailed:
             NSLocalizedString("error.fileOpenImportFailed", comment: "File could not be imported")
-        case .alreadyImported:
-            NSLocalizedString("error.alreadyImported", comment: "Meditation already in library")
+        case let .alreadyImported(name, teacher):
+            if let name, let teacher {
+                String(
+                    format: NSLocalizedString(
+                        "error.alreadyImported.withInfo",
+                        comment: "Duplicate with title and teacher — %1$@ is teacher, %2$@ is title"
+                    ),
+                    teacher,
+                    name
+                )
+            } else {
+                NSLocalizedString("error.alreadyImported", comment: "Meditation already in library")
+            }
         }
     }
 }
@@ -144,8 +155,8 @@ final class FileOpenHandler: ObservableObject {
             return .failure(.unsupportedFormat)
         }
 
-        if self.isDuplicate(url: url) {
-            return .failure(.alreadyImported)
+        if let duplicate = self.findDuplicateFromLegacyCheck(url: url) {
+            return .failure(.alreadyImported(name: duplicate.effectiveName, teacher: duplicate.effectiveTeacher))
         }
 
         self.isProcessing = true
@@ -230,71 +241,49 @@ final class FileOpenHandler: ObservableObject {
     private let metadataService: AudioMetadataServiceProtocol
     private let customAudioRepository: CustomAudioRepositoryProtocol
 
-    /// Checks whether a file with the same name and size is already in the library (legacy: meditation-only)
+    /// Returns the matching meditation if the file is already in the library (legacy: meditation-only)
     ///
     /// Uses both filename and file size to avoid false positives when different files
     /// share the same name (e.g. multiple "meditation.mp3" from different sources).
-    private func isDuplicate(url: URL) -> Bool {
+    private func findDuplicateFromLegacyCheck(url: URL) -> GuidedMeditation? {
         do {
             let existing = try self.meditationService.loadMeditations()
             let fileName = url.lastPathComponent
             let incomingFileSize = self.fileSize(of: url)
 
-            let found = existing.contains { meditation in
+            let found = existing.first { meditation in
                 guard meditation.fileName == fileName else {
                     return false
                 }
                 guard let incomingSize = incomingFileSize else {
-                    // Cannot determine incoming file size — fall back to name-only check
                     return true
                 }
                 guard let existingURL = self.meditationService.fileURL(for: meditation) else {
-                    // Cannot resolve existing file — fall back to name-only check
                     return true
                 }
                 let existingSize = self.fileSize(of: existingURL)
                 return existingSize == incomingSize
             }
 
-            if found {
+            if found != nil {
                 Logger.guidedMeditation.info("Duplicate file detected", metadata: ["fileName": fileName])
             }
             return found
         } catch {
             Logger.guidedMeditation.error("Failed to load meditations for duplicate check", error: error)
-            return false
+            return nil
         }
     }
 
-    /// Checks whether a file with the same name and size is already imported as the specified type
-    ///
-    /// For guided meditations: checks against existing meditations by filename and size.
-    /// For soundscapes/attunements: checks against existing custom audio files of that type by filename and size.
-    ///
-    /// Uses both filename and file size to avoid false positives when different files
-    /// share the same name (e.g. multiple "meditation.mp3" from different sources).
-    private func isDuplicate(url: URL, type: ImportAudioType) -> Bool {
-        let fileName = url.lastPathComponent
-        let incomingFileSize = self.fileSize(of: url)
-
-        switch type {
-        case .guidedMeditation:
-            return self.isMeditationDuplicate(fileName: fileName, incomingSize: incomingFileSize)
-        case .soundscape,
-             .attunement:
-            return self.isCustomAudioDuplicate(fileName: fileName, incomingSize: incomingFileSize, type: type)
-        }
-    }
-
-    /// Checks if a file is a duplicate meditation
-    private func isMeditationDuplicate(fileName: String, incomingSize: UInt64?) -> Bool {
+    /// Returns the first matching meditation if a duplicate exists, nil otherwise
+    private func findDuplicateMeditation(fileName: String, incomingSize: UInt64?) -> GuidedMeditation? {
         do {
             let existing = try self.meditationService.loadMeditations()
             return existing
-                .contains { self.matchesFile(meditation: $0, fileName: fileName, incomingSize: incomingSize) }
+                .first { self.matchesFile(meditation: $0, fileName: fileName, incomingSize: incomingSize) }
         } catch {
             Logger.guidedMeditation.error("Failed to check for meditation duplicates", error: error)
-            return false
+            return nil
         }
     }
 
@@ -366,12 +355,8 @@ final class FileOpenHandler: ObservableObject {
             }
         }
 
-        if self.isDuplicate(url: url, type: importType) {
-            Logger.guidedMeditation.info(
-                "Duplicate file detected in type-based import",
-                metadata: ["fileName": url.lastPathComponent, "importType": "\(importType)"]
-            )
-            return .failure(.alreadyImported)
+        if let duplicateError = self.checkDuplicate(for: url, importType: importType) {
+            return .failure(duplicateError)
         }
 
         let metadata: AudioMetadata
@@ -388,6 +373,32 @@ final class FileOpenHandler: ObservableObject {
         case .soundscape,
              .attunement:
             return self.performCustomAudioImport(from: url, metadata: metadata, type: importType)
+        }
+    }
+
+    /// Checks for duplicates and returns the appropriate error, or nil if no duplicate found
+    private func checkDuplicate(for url: URL, importType: ImportAudioType) -> FileOpenError? {
+        let fileName = url.lastPathComponent
+        let incomingSize = self.fileSize(of: url)
+
+        switch importType {
+        case .guidedMeditation:
+            guard let duplicate = self.findDuplicateMeditation(fileName: fileName, incomingSize: incomingSize)
+            else { return nil }
+            Logger.guidedMeditation.info(
+                "Duplicate file detected in type-based import",
+                metadata: ["fileName": fileName, "importType": "\(importType)"]
+            )
+            return .alreadyImported(name: duplicate.effectiveName, teacher: duplicate.effectiveTeacher)
+        case .soundscape,
+             .attunement:
+            guard self.isCustomAudioDuplicate(fileName: fileName, incomingSize: incomingSize, type: importType)
+            else { return nil }
+            Logger.guidedMeditation.info(
+                "Duplicate file detected in type-based import",
+                metadata: ["fileName": fileName, "importType": "\(importType)"]
+            )
+            return .alreadyImported(name: nil, teacher: nil)
         }
     }
 

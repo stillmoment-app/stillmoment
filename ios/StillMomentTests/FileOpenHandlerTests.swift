@@ -207,7 +207,10 @@ final class FileOpenHandlerTests: XCTestCase {
         case .success:
             XCTFail("Expected duplicate detection")
         case let .failure(error):
-            XCTAssertEqual(error, .alreadyImported)
+            guard case .alreadyImported = error else {
+                XCTFail("Expected alreadyImported error, got \(error)")
+                return
+            }
         }
     }
 
@@ -301,7 +304,10 @@ final class FileOpenHandlerTests: XCTestCase {
         case .success:
             XCTFail("Expected duplicate detection when existing file cannot be resolved")
         case let .failure(error):
-            XCTAssertEqual(error, .alreadyImported)
+            guard case .alreadyImported = error else {
+                XCTFail("Expected alreadyImported error, got \(error)")
+                return
+            }
         }
     }
 
@@ -441,7 +447,10 @@ final class FileOpenHandlerTests: XCTestCase {
         case .success:
             XCTFail("Expected duplicate detection")
         case let .failure(error):
-            XCTAssertEqual(error, .alreadyImported)
+            guard case .alreadyImported = error else {
+                XCTFail("Expected alreadyImported error, got \(error)")
+                return
+            }
         }
     }
 

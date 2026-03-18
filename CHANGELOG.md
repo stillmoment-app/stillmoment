@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (iOS)
+- **Share Sheet Import** - Audio-Dateien (MP3, M4A) koennen ueber das System-Share-Sheet direkt an Still Moment gesendet werden — aus Safari, Mail, WhatsApp oder anderen Apps. Die App oeffnet sich, zeigt die Import-Typ-Auswahl und importiert die Datei in die Bibliothek. Bei URL-Shares (z.B. direkter MP3-Link aus Safari) wird die Datei automatisch heruntergeladen. Duplikate werden mit Titel und Lehrername erkannt (Ticket: shared-046)
 - **Long-Press Preview in der Meditations-Bibliothek** - Play-Icon in der Meditationsliste kann lang gedrueckt werden, um eine Audio-Vorschau abzuspielen. Loslassen stoppt die Wiedergabe mit kurzem Fade-out. Visuelles Feedback (Scale-Effekt) und haptisches Feedback beim Start (Ticket: shared-075)
 
 ## [2.0.0] - 2026-03-05

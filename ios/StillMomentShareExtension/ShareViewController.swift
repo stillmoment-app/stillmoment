@@ -163,16 +163,20 @@ final class ShareViewController: UIViewController {
         guard let inboxDir = self.inboxDirectoryURL()
         else { return nil }
 
-        let uuid = UUID().uuidString
-        let filename = "\(uuid)_\(sourceURL.lastPathComponent)"
+        let filename = sourceURL.lastPathComponent
         let destinationURL = inboxDir.appendingPathComponent(filename)
 
         // Atomic write: copy to temp file, then rename
-        let tempURL = inboxDir.appendingPathComponent(".\(uuid).tmp")
+        let tempURL = inboxDir.appendingPathComponent(".\(UUID().uuidString).tmp")
 
         do {
             try FileManager.default.copyItem(at: sourceURL, to: tempURL)
             try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+            // Reset modification date — original file may be older than the stale threshold
+            try? FileManager.default.setAttributes(
+                [.modificationDate: Date()],
+                ofItemAtPath: destinationURL.path
+            )
             return destinationURL
         } catch {
             try? FileManager.default.removeItem(at: tempURL)
@@ -187,9 +191,8 @@ final class ShareViewController: UIViewController {
         guard let inboxDir = self.inboxDirectoryURL()
         else { return false }
 
-        let uuid = UUID().uuidString
         let originalFilename = url.lastPathComponent
-        let jsonFilename = "\(uuid)_\(originalFilename).json"
+        let jsonFilename = "\(originalFilename).json"
         let destinationURL = inboxDir.appendingPathComponent(jsonFilename)
 
         let formatter = ISO8601DateFormatter()
@@ -203,7 +206,7 @@ final class ShareViewController: UIViewController {
             let data = try JSONSerialization.data(withJSONObject: reference, options: [.sortedKeys])
 
             // Atomic write: write to temp file, then rename
-            let tempURL = inboxDir.appendingPathComponent(".\(uuid).tmp")
+            let tempURL = inboxDir.appendingPathComponent(".\(UUID().uuidString).tmp")
             try data.write(to: tempURL, options: .atomic)
             try FileManager.default.moveItem(at: tempURL, to: destinationURL)
             return true
