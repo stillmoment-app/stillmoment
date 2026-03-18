@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Editor for interval gong settings within the Praxis editor.
 ///
@@ -48,6 +49,16 @@ struct IntervalGongsEditorView: View {
     private var theme
     @ObservedObject private var viewModel: PraxisEditorViewModel
 
+    private var supportsVibration: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    private var availableIntervalSounds: [GongSound] {
+        self.supportsVibration
+            ? GongSound.allIntervalSounds
+            : GongSound.allIntervalSounds.filter { $0.id != GongSound.vibrationId }
+    }
+
     private var intervalGongsSection: some View {
         Section {
             Toggle(isOn: self.$viewModel.intervalGongsEnabled) {
@@ -62,7 +73,9 @@ struct IntervalGongsEditorView: View {
                 self.intervalStepperRow
                 self.intervalModePicker
                 self.intervalSoundPicker
-                self.intervalVolumeSlider
+                if self.viewModel.intervalSoundId != GongSound.vibrationId {
+                    self.intervalVolumeSlider
+                }
             }
         }
     }
@@ -116,7 +129,7 @@ struct IntervalGongsEditorView: View {
 
     private var intervalSoundPicker: some View {
         Picker(selection: self.$viewModel.intervalSoundId) {
-            ForEach(GongSound.allIntervalSounds) { sound in
+            ForEach(self.availableIntervalSounds) { sound in
                 Text(sound.name)
                     .tag(sound.id)
             }

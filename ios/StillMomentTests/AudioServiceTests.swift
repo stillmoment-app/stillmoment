@@ -117,8 +117,8 @@ final class AudioServiceTests: XCTestCase {
         // The actual implementation throws AudioServiceError.soundFileNotFound
 
         // Note: In the real implementation, if gong sound file is missing, it will throw
-        // For this test, we verify all gong sound files exist
-        for gongSound in GongSound.allSounds {
+        // For this test, we verify all gong sound files exist (vibration has no file — skip it)
+        for gongSound in GongSound.allSounds where gongSound.id != GongSound.vibrationId {
             let components = gongSound.filename.components(separatedBy: ".")
             let name = components.first ?? gongSound.filename
             let ext = components.count > 1 ? components.last : "mp3"
@@ -130,6 +130,24 @@ final class AudioServiceTests: XCTestCase {
             )
             XCTAssertNotNil(url, "\(gongSound.filename) must be included in test bundle")
         }
+    }
+
+    func testPlayStartGong_WithVibration_DoesNotThrow() {
+        // Given - Vibration requires no audio session or file
+        // When / Then - Should not throw (triggers haptic instead of audio)
+        XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.vibrationId, volume: 1.0))
+    }
+
+    func testPlayIntervalGong_WithVibration_DoesNotThrow() {
+        // Given - Vibration requires no audio session or file
+        // When / Then - Should not throw (triggers haptic instead of audio)
+        XCTAssertNoThrow(try self.sut.playIntervalGong(soundId: GongSound.vibrationId, volume: 1.0))
+    }
+
+    func testPlayGongPreview_WithVibration_DoesNotThrow() {
+        // Given - Vibration preview triggers haptic, no audio needed
+        // When / Then - Should not throw
+        XCTAssertNoThrow(try self.sut.playGongPreview(soundId: GongSound.vibrationId, volume: 1.0))
     }
 
     func testStartBackgroundAudio_WithInvalidSoundId_ThrowsError() {

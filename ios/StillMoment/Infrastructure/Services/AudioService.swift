@@ -5,6 +5,7 @@
 //  Infrastructure - Audio Service Implementation
 //
 
+import AudioToolbox
 import AVFoundation
 import Combine
 import Foundation
@@ -118,12 +119,20 @@ final class AudioService: AudioServiceProtocol {
 
     func playStartGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing start gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
+        if soundId == GongSound.vibrationId {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            return
+        }
         // Audio session is already active via activateTimerSession()
         try self.playGongSound(soundId: soundId, volume: volume)
     }
 
     func playIntervalGong(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing interval gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
+        if soundId == GongSound.vibrationId {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            return
+        }
         // Audio session is already active via activateTimerSession()
         try self.playGongSound(soundId: soundId, volume: volume)
     }
@@ -135,6 +144,11 @@ final class AudioService: AudioServiceProtocol {
         self.stopGongPreview()
         self.stopBackgroundPreview()
         self.stopMeditationPreview()
+
+        if soundId == GongSound.vibrationId {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            return
+        }
 
         _ = try self.coordinator.requestAudioSession(for: .preview)
         try self.playGongSound(soundId: soundId, volume: volume, isPreview: true)

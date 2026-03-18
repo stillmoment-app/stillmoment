@@ -34,6 +34,9 @@ struct GongSound: Identifiable, Equatable {
 // MARK: - Static Sound Definitions
 
 extension GongSound {
+    /// ID for the vibration signal option
+    static let vibrationId: String = "vibration"
+
     /// All available gong sounds (for start/end gong)
     static let allSounds: [GongSound] = [
         GongSound(
@@ -55,7 +58,8 @@ extension GongSound {
             id: "clear-strike",
             filename: "singing-bowl-strike-sound-84682-10s.mp3",
             name: NSLocalizedString("gong.clear-strike", comment: "")
-        )
+        ),
+        vibrationSound
     ]
 
     /// Soft interval tone (5th sound option, only for interval gongs)
@@ -65,8 +69,16 @@ extension GongSound {
         name: NSLocalizedString("gong.soft-interval", comment: "")
     )
 
-    /// All available interval gong sounds (4 standard + soft interval tone)
-    static let allIntervalSounds: [GongSound] = allSounds + [softIntervalTone]
+    /// Vibration signal — no audio file, triggers haptic instead
+    static let vibrationSound = GongSound(
+        id: vibrationId,
+        filename: "",
+        name: NSLocalizedString("gong.vibration", comment: "")
+    )
+
+    /// All available interval gong sounds (4 standard + soft interval tone + vibration)
+    /// Defined explicitly (not derived from allSounds) to ensure vibration remains last.
+    static let allIntervalSounds: [GongSound] = Array(allSounds.dropLast()) + [softIntervalTone, vibrationSound]
 
     /// Default gong sound (Temple Bell)
     static let defaultSound: GongSound = allSounds.first { $0.id == defaultSoundId } ?? allSounds[0]
