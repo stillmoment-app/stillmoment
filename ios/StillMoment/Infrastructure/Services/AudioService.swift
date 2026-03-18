@@ -121,6 +121,7 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.info("Playing start gong", metadata: ["soundId": soundId, "volume": "\(volume)"])
         if soundId == GongSound.vibrationId {
             AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            self.gongCompletionSubject.send()
             return
         }
         // Audio session is already active via activateTimerSession()
@@ -245,6 +246,11 @@ final class AudioService: AudioServiceProtocol {
 
     func playCompletionSound(soundId: String, volume: Float) throws {
         Logger.audio.info("Playing completion sound", metadata: ["soundId": soundId, "volume": "\(volume)"])
+        if soundId == GongSound.vibrationId {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            self.gongCompletionSubject.send()
+            return
+        }
         // Audio session is still active — deactivateTimerSession() is called after completion
         try self.playGongSound(soundId: soundId, volume: volume)
     }

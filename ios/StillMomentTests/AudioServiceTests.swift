@@ -138,6 +138,22 @@ final class AudioServiceTests: XCTestCase {
         XCTAssertNoThrow(try self.sut.playStartGong(soundId: GongSound.vibrationId, volume: 1.0))
     }
 
+    func testPlayStartGong_WithVibration_SendsGongCompletion() {
+        // Given - State machine must progress after vibration (no AVAudioPlayer delegate fires)
+        let expectation = expectation(description: "Gong completion after vibration")
+        var cancellable: AnyCancellable?
+        cancellable = self.sut.gongCompletionPublisher.sink {
+            expectation.fulfill()
+            _ = cancellable
+        }
+
+        // When
+        try? self.sut.playStartGong(soundId: GongSound.vibrationId, volume: 1.0)
+
+        // Then - Publisher must fire so startGongFinished can be dispatched
+        wait(for: [expectation], timeout: 1.0)
+    }
+
     func testPlayIntervalGong_WithVibration_DoesNotThrow() {
         // Given - Vibration requires no audio session or file
         // When / Then - Should not throw (triggers haptic instead of audio)
@@ -148,6 +164,28 @@ final class AudioServiceTests: XCTestCase {
         // Given - Vibration preview triggers haptic, no audio needed
         // When / Then - Should not throw
         XCTAssertNoThrow(try self.sut.playGongPreview(soundId: GongSound.vibrationId, volume: 1.0))
+    }
+
+    func testPlayCompletionSound_WithVibration_DoesNotThrow() {
+        // Given - Vibration requires no audio session or file
+        // When / Then - Should not throw (triggers haptic instead of audio)
+        XCTAssertNoThrow(try self.sut.playCompletionSound(soundId: GongSound.vibrationId, volume: 1.0))
+    }
+
+    func testPlayCompletionSound_WithVibration_SendsGongCompletion() {
+        // Given - State machine must progress after vibration (no AVAudioPlayer delegate fires)
+        let expectation = expectation(description: "Gong completion after vibration")
+        var cancellable: AnyCancellable?
+        cancellable = self.sut.gongCompletionPublisher.sink {
+            expectation.fulfill()
+            _ = cancellable
+        }
+
+        // When
+        try? self.sut.playCompletionSound(soundId: GongSound.vibrationId, volume: 1.0)
+
+        // Then - Publisher must fire so endGongFinished can be dispatched
+        wait(for: [expectation], timeout: 1.0)
     }
 
     func testStartBackgroundAudio_WithInvalidSoundId_ThrowsError() {
