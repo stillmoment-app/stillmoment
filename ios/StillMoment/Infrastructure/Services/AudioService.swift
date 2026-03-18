@@ -65,7 +65,6 @@ final class AudioService: AudioServiceProtocol {
     deinit {
         self.cancellables.removeAll()
         self.cleanupPreviewPlayers()
-        self.timerSessionActive = false
         self.keepAlivePlayer?.stop()
         self.keepAlivePlayer = nil
         self.stopBackgroundAudio()
@@ -242,11 +241,15 @@ final class AudioService: AudioServiceProtocol {
         self.stopIntroduction()
         self.stopBackgroundAudio()
 
-        // Keep-alive is managed by activateTimerSession/deactivateTimerSession.
-        // stop() does NOT touch keep-alive — it may still be needed if timer is active.
-        // Release audio session when stopping all audio
+        // Only release the timer session if THIS instance activated it.
+        // Other AudioService instances (e.g. GuidedMeditationsListViewModel) share the same
+        // coordinator but must never release a session they didn't own — doing so deactivates
+        // the shared AVAudioSession and kills the timer's keep-alive on lock screen.
+        let wasActive = self.timerSessionActive
         self.timerSessionActive = false
-        self.coordinator.releaseAudioSession(for: .timer)
+        if wasActive {
+            self.coordinator.releaseAudioSession(for: .timer)
+        }
     }
 
     // MARK: Private
