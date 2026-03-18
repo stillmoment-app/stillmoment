@@ -22,7 +22,7 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-045, shared-073 |
+| iOS       | [x]    | shared-045, shared-073 |
 | Android   | [ ]    | shared-045, shared-073 (ACTION_SEND fuer Dateien existiert, URL-Share aus Chrome fehlt — neuer Code noetig) |
 
 ---
@@ -39,26 +39,26 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 
 ### Feature (beide Plattformen)
 
-- [ ] MP3- und M4A-Dateien koennen ueber das System-Share-Sheet an Still Moment gesendet werden
-- [ ] Still Moment erscheint im Teilen-Dialog mit App-Icon
-- [ ] Import erfolgt ueber den bestehenden Import-Flow (Datei kopieren, Metadaten extrahieren, Library aktualisieren)
-- [ ] Import-Typ-Auswahl (Meditation / Klangatmosphaere / Einstimmung) wird angezeigt — gleicher Flow wie bei "Oeffnen mit" (shared-045/shared-073)
-- [ ] Erfolgs-Feedback nach Import
-- [ ] Funktioniert wenn App nicht laeuft, im Hintergrund, oder im Vordergrund
-- [ ] Lokalisiert (DE + EN)
+- [x] MP3- und M4A-Dateien koennen ueber das System-Share-Sheet an Still Moment gesendet werden
+- [x] Still Moment erscheint im Teilen-Dialog mit App-Icon
+- [x] Import erfolgt ueber den bestehenden Import-Flow (Datei kopieren, Metadaten extrahieren, Library aktualisieren)
+- [x] Import-Typ-Auswahl (Meditation / Klangatmosphaere / Einstimmung) wird angezeigt — gleicher Flow wie bei "Oeffnen mit" (shared-045/shared-073)
+- [x] Erfolgs-Feedback nach Import
+- [x] Funktioniert wenn App nicht laeuft, im Hintergrund, oder im Vordergrund
+- [x] Lokalisiert (DE + EN)
 
 ### Fehlerfaelle
 
-- [ ] Unerwartetes Format: Fehlermeldung ("Format nicht unterstuetzt")
-- [ ] Korrupte/unlesbare Audio-Datei: Fehlermeldung ("Datei konnte nicht importiert werden")
-- [ ] Duplikat (Datei bereits importiert): Hinweis ("Meditation bereits in der Bibliothek")
+- [x] Unerwartetes Format: Fehlermeldung ("Format nicht unterstuetzt")
+- [x] Korrupte/unlesbare Audio-Datei: Fehlermeldung ("Datei konnte nicht importiert werden")
+- [x] Duplikat (Datei bereits importiert): Hinweis ("Meditation bereits in der Bibliothek")
 
 ### Tests
-- [ ] Unit Tests iOS (Inbox-Handling, URL-Validierung, Download, Fehlerfaelle)
+- [x] Unit Tests iOS (Inbox-Handling, URL-Validierung, Download, Fehlerfaelle)
 - [ ] Unit Tests Android (nur falls neuer Code noetig — siehe Plan)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
