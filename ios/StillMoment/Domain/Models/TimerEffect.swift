@@ -57,6 +57,9 @@ enum TimerEffect: Equatable {
     /// End the introduction phase (transition timer from .introduction to .running)
     case endIntroductionPhase
 
+    /// Transition timer to running state (startGong → running, no introduction path)
+    case beginRunningPhase
+
     // MARK: - State Transition Effects
 
     /// Transition timer to completed state (endGong → completed)

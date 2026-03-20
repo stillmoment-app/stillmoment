@@ -110,6 +110,18 @@ final class TimerService: TimerServiceProtocol {
         self.timerSubject.send((updatedTimer, []))
     }
 
+    func beginRunningPhase() {
+        guard let timer = self.currentTimer else {
+            Logger.timer.warning("Attempted to begin running phase when no timer exists")
+            return
+        }
+
+        Logger.timer.info("Beginning running phase (no intro)", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.endIntroduction()
+        self.currentTimer = updatedTimer
+        self.timerSubject.send((updatedTimer, []))
+    }
+
     // MARK: Private
 
     private let clock: ClockProtocol

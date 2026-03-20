@@ -280,6 +280,8 @@ final class TimerViewModel: ObservableObject {
             self.timerService.beginIntroductionPhase()
         case .endIntroductionPhase:
             self.timerService.endIntroductionPhase()
+        case .beginRunningPhase:
+            self.timerService.beginRunningPhase()
         case .transitionToCompleted:
             self.timer = self.timer?.withState(.completed)
         case .clearTimer:

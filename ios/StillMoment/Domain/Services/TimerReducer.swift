@@ -115,8 +115,9 @@ enum TimerReducer {
             // Introduction configured → play audio
             return [.beginIntroductionPhase, .playIntroduction(introductionId: introId)]
         } else {
-            // No introduction → start background audio directly
+            // No introduction → transition to running and start background audio
             return [
+                .beginRunningPhase,
                 .startBackgroundAudio(
                     soundId: settings.backgroundSoundId,
                     volume: settings.backgroundSoundVolume

@@ -36,4 +36,8 @@ protocol TimerServiceProtocol {
     /// Ends the introduction phase, transitioning the timer from .introduction to .running.
     /// Called when the introduction audio finishes playing (event-driven).
     func endIntroductionPhase()
+
+    /// Transitions the timer from .startGong to .running (no introduction path).
+    /// Called when the start gong finishes and no introduction is configured.
+    func beginRunningPhase()
 }

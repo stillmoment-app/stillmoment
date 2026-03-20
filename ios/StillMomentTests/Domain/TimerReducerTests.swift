@@ -111,6 +111,21 @@ final class TimerReducerTests: XCTestCase {
         )))
     }
 
+    func testStartGongFinished_fromStartGong_withoutIntro_transitionsToRunning() {
+        // Given - no introduction configured
+        // When
+        let effects = TimerReducer.reduce(
+            action: .startGongFinished,
+            timerState: .startGong,
+            selectedMinutes: 10,
+            settings: self.defaultSettings,
+            attunementResolver: self.emptyResolver
+        )
+
+        // Then - must transition to running so interval gongs can fire
+        XCTAssertTrue(effects.contains(.beginRunningPhase))
+    }
+
     // MARK: - TimerCompleted Tests
 
     func testTimerCompleted_playsCompletionSoundAndStopsBackgroundAudio() {

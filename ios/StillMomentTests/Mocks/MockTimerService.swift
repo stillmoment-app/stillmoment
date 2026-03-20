@@ -154,6 +154,18 @@ final class MockTimerService: TimerServiceProtocol {
         self.subject.send((updatedTimer, []))
     }
 
+    var beginRunningPhaseCalled = false
+
+    func beginRunningPhase() {
+        self.beginRunningPhaseCalled = true
+        guard let timer = currentTimerForTest else {
+            return
+        }
+        let updatedTimer = timer.endIntroduction()
+        self.currentTimerForTest = updatedTimer
+        self.subject.send((updatedTimer, []))
+    }
+
     // MARK: Private
 
     private let subject = PassthroughSubject<(MeditationTimer, [TimerEvent]), Never>()
