@@ -1,6 +1,7 @@
 # Ticket ios-040: AudioService als einzelne geteilte Instanz
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan**: [Implementierungsplan](../plans/ios-040.md)
 **Prioritaet**: HOCH
 **Aufwand**: M
 **Abhaengigkeiten**: -
