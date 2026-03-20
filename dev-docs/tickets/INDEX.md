@@ -100,6 +100,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-074](shared/shared-074-audio-resolver-services.md) | Einheitliche Audio-Resolver (Einstimmung + Klangatmosphaere) | 2-Architektur | [x] | [x] |
 | [shared-075](shared/shared-075-library-long-press-preview.md) | Long-Press Preview in der Meditations-Bibliothek | 3-Feature | [x] | [ ] |
 | [shared-076](shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [ ] | [ ] |
+| [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
 
 ---
 
