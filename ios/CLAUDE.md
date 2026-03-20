@@ -204,6 +204,27 @@ Uses a private serial `DispatchQueue` — always go through the coordinator, nev
 
 ---
 
+## Lock Screen / Background Behaviour
+
+**The standard use case is: start meditation, put phone down, lock screen activates.**
+
+This means any feature that triggers during a meditation (gong, vibration, haptic) MUST work with the screen locked, not only in the foreground.
+
+### Haptic feedback on lock screen
+
+- **`UIImpactFeedbackGenerator` / `UINotificationFeedbackGenerator` / `CHHapticEngine`** — foreground only. Do NOT use these for timer-triggered events.
+- **`AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)`** — works with locked screen when the app has an active `AVAudioSession` (keepAlive silence.mp3 is running). This is the correct API for vibration during a meditation.
+
+```swift
+// CORRECT — works on lock screen (active audio session)
+AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+
+// WRONG — silently fails on lock screen
+UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+```
+
+---
+
 ## Xcode Project Structure
 
 ### File System Synchronized Groups

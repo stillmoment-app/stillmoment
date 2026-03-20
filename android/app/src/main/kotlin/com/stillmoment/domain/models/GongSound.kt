@@ -66,40 +66,15 @@ data class GongSound(
             vibrationSound
         )
 
-        /** All available interval sounds (soft interval tone first, then allSounds, vibration last) */
+        /** All available interval sounds (soft interval tone first, then allSounds) */
         val allIntervalSounds: List<GongSound> = listOf(
             GongSound(
                 id = SOFT_INTERVAL_SOUND_ID,
                 nameEnglish = "Soft Interval Tone",
                 nameGerman = "Sanfter Intervallton",
                 rawResourceName = "interval"
-            ),
-            GongSound(
-                id = "temple-bell",
-                nameEnglish = "Temple Bell",
-                nameGerman = "Tempelglocke",
-                rawResourceName = "gong_temple_bell"
-            ),
-            GongSound(
-                id = "classic-bowl",
-                nameEnglish = "Classic Bowl",
-                nameGerman = "Klassisch",
-                rawResourceName = "gong_classic_bowl"
-            ),
-            GongSound(
-                id = "deep-resonance",
-                nameEnglish = "Deep Resonance",
-                nameGerman = "Tiefe Resonanz",
-                rawResourceName = "gong_deep_resonance"
-            ),
-            GongSound(
-                id = "clear-strike",
-                nameEnglish = "Clear Strike",
-                nameGerman = "Klarer Anschlag",
-                rawResourceName = "gong_clear_strike"
-            ),
-            vibrationSound
-        )
+            )
+        ) + allSounds
 
         /** Default gong sound (Temple Bell) */
         val defaultSound: GongSound = allSounds.first { it.id == DEFAULT_SOUND_ID }
