@@ -101,6 +101,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-075](shared/shared-075-library-long-press-preview.md) | Long-Press Preview in der Meditations-Bibliothek | 3-Feature | [x] | [ ] |
 | [shared-076](shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [x] | [x] |
 | [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
+| [shared-078](shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [ ] | [ ] |
 
 ---
 
