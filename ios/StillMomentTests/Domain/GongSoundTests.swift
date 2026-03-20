@@ -88,8 +88,8 @@ final class GongSoundTests: XCTestCase {
         }
     }
 
-    func testAllAvailableSounds_hasFourSounds() {
-        XCTAssertEqual(GongSound.allSounds.count, 4)
+    func testAllAvailableSounds_hasFiveSounds() {
+        XCTAssertEqual(GongSound.allSounds.count, 5)
     }
 
     func testDefaultSound_isTempleBell() {
@@ -131,7 +131,28 @@ final class GongSoundTests: XCTestCase {
         )
     }
 
-    func testAllIntervalSounds_hasFiveSounds() {
-        XCTAssertEqual(GongSound.allIntervalSounds.count, 5)
+    func testAllIntervalSounds_hasSixSounds() {
+        XCTAssertEqual(GongSound.allIntervalSounds.count, 6)
+    }
+
+    func testAllSounds_vibrationIsLast() {
+        XCTAssertEqual(GongSound.allSounds.last?.id, GongSound.vibrationId)
+    }
+
+    func testAllIntervalSounds_vibrationIsLast() {
+        XCTAssertEqual(GongSound.allIntervalSounds.last?.id, GongSound.vibrationId)
+    }
+
+    func testFindById_vibration_returnsVibrationSound() {
+        let sound = GongSound.find(byId: GongSound.vibrationId)
+
+        XCTAssertNotNil(sound)
+        XCTAssertEqual(sound?.id, GongSound.vibrationId)
+    }
+
+    func testFindByIdOrDefault_vibration_returnsVibrationSound() {
+        let sound = GongSound.findOrDefault(byId: GongSound.vibrationId)
+
+        XCTAssertEqual(sound.id, GongSound.vibrationId)
     }
 }

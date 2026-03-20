@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Selection list for choosing the start and end gong sound with volume control.
 ///
@@ -27,7 +28,9 @@ struct GongSelectionView: View {
 
             List {
                 self.soundsSection
-                self.volumeSection
+                if self.viewModel.startGongSoundId != GongSound.vibrationId {
+                    self.volumeSection
+                }
             }
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
@@ -50,9 +53,17 @@ struct GongSelectionView: View {
     private var theme
     @ObservedObject private var viewModel: PraxisEditorViewModel
 
+    private var supportsVibration: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
+
+    private var availableSounds: [GongSound] {
+        self.supportsVibration ? GongSound.allSounds : GongSound.allSounds.filter { $0.id != GongSound.vibrationId }
+    }
+
     private var soundsSection: some View {
         Section {
-            ForEach(GongSound.allSounds) { sound in
+            ForEach(self.availableSounds) { sound in
                 let isSelected = self.viewModel.startGongSoundId == sound.id
                 HStack {
                     Text(sound.name)

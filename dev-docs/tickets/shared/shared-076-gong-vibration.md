@@ -1,6 +1,8 @@
 # Ticket shared-076: Vibration als Gong-Signal
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan Android**: [Implementierungsplan Android](../plans/shared-076-android.md)
+**Plan iOS**: [Implementierungsplan iOS](../plans/shared-076-ios.md)
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h | Android ~2h
 **Phase**: 3-Feature
@@ -59,7 +61,9 @@ Manche User meditieren in Situationen, in denen ein hörbares Signal stört oder
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| Haptic-Typ | `UIImpactFeedbackGenerator(.medium)` | `VibrationEffect.createOneShot(~200ms, medium)` |
+| Start/Ende-Gong | `CHHapticEngine` `.hapticContinuous(duration: 0.4)` | `VibrationEffect.createOneShot(400ms)` |
+| Intervall-Gong | `CHHapticEngine` `.hapticTransient` (kurzer Tap) | `VibrationEffect.createOneShot(150ms)` |
+| Hintergrund (iOS) | ⚠️ Kein Haptic möglich — iOS-Einschränkung | ✅ funktioniert |
 | Lautstärke-Slider | Ausgeblendet wenn Vibration gewählt | Ausgeblendet wenn Vibration gewählt |
 
 ---

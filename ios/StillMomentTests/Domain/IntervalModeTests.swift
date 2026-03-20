@@ -353,8 +353,8 @@ final class IntervalModeTests: XCTestCase {
 
     // MARK: - GongSound Interval Sounds Tests
 
-    func testGongSound_allIntervalSounds_hasFiveSounds() {
-        XCTAssertEqual(GongSound.allIntervalSounds.count, 5)
+    func testGongSound_allIntervalSounds_hasSixSounds() {
+        XCTAssertEqual(GongSound.allIntervalSounds.count, 6)
     }
 
     func testGongSound_allIntervalSounds_containsSoftIntervalTone() {

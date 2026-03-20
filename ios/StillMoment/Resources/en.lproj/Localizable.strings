@@ -82,6 +82,7 @@
 "gong.deep-resonance" = "Deep Resonance";
 "gong.clear-strike" = "Clear Strike";
 "gong.soft-interval" = "Soft Interval Tone";
+"gong.vibration" = "Vibration";
 
 // MARK: - Introduction Names
 "introduction.breath.name" = "Breathing Exercise";
