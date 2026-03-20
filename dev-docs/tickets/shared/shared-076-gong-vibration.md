@@ -1,6 +1,6 @@
 # Ticket shared-076: Vibration als Gong-Signal
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan Android**: [Implementierungsplan Android](../plans/shared-076-android.md)
 **Plan iOS**: [Implementierungsplan iOS](../plans/shared-076-ios.md)
 **Prioritaet**: MITTEL
@@ -23,28 +23,28 @@ Manche User meditieren in Situationen, in denen ein hörbares Signal stört oder
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Im Klang-Picker erscheint "Vibration" als auswählbare Option (neben den Gong-Sounds)
-- [ ] Wenn "Vibration" gewählt ist, wird kein Audio abgespielt — stattdessen ein einzelnes Haptic-Feedback ausgelöst
-- [ ] Wenn "Vibration" gewählt ist, ist der Lautstärke-Slider ausgeblendet
-- [ ] Die Option gilt für Start/Ende-Gong und Intervall-Gong gleichermassen
-- [ ] Beim Antippen von "Vibration" im Klang-Picker wird ein kurzes Haptic als Preview ausgelöst (konsistent zur Gong-Sound-Vorschau)
-- [ ] Lokalisiert (DE + EN): "Vibration" (identisch in beiden Sprachen)
-- [ ] Visuell konsistent zwischen iOS und Android
+- [x] Im Klang-Picker erscheint "Vibration" als auswählbare Option (neben den Gong-Sounds)
+- [x] Wenn "Vibration" gewählt ist, wird kein Audio abgespielt — stattdessen ein einzelnes Haptic-Feedback ausgelöst
+- [x] Wenn "Vibration" gewählt ist, ist der Lautstärke-Slider ausgeblendet
+- [x] Die Option gilt für Start/Ende-Gong und Intervall-Gong gleichermassen
+- [x] Beim Antippen von "Vibration" im Klang-Picker wird ein kurzes Haptic als Preview ausgelöst (konsistent zur Gong-Sound-Vorschau)
+- [x] Lokalisiert (DE + EN): "Vibration" (identisch in beiden Sprachen)
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS: Vibration-Option wird korrekt persistiert und geladen
-- [ ] Unit Tests Android: Vibration-Option wird korrekt persistiert und geladen
+- [x] Unit Tests iOS: Vibration-Option wird korrekt persistiert und geladen
+- [x] Unit Tests Android: Vibration-Option wird korrekt persistiert und geladen
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
