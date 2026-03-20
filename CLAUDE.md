@@ -10,6 +10,8 @@ This is a meditation app for guided meditations (from user's own MP3s) and silen
 - Simplicity over features (no gamification, no streaks, no social)
 - The app should feel like a pause, not another notification
 
+**Standard use case:** User starts a meditation (timer or guided), puts the phone down — the lock screen activates. Nothing else happens during the meditation: switching tabs ends the active session. Features that only work in the foreground are **not sufficient** for the core use case.
+
 **When in doubt:** Would a monk approve? Less is more.
 
 ---

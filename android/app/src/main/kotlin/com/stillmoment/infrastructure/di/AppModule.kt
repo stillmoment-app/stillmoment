@@ -23,6 +23,7 @@ import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
+import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import com.stillmoment.infrastructure.audio.AttunementResolver
 import com.stillmoment.infrastructure.audio.AudioFocusManager
@@ -33,6 +34,7 @@ import com.stillmoment.infrastructure.audio.MediaPlayerFactory
 import com.stillmoment.infrastructure.audio.ProgressScheduler
 import com.stillmoment.infrastructure.audio.SoundscapeResolver
 import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
+import com.stillmoment.infrastructure.audio.VibrationService
 import com.stillmoment.infrastructure.audio.VolumeAnimator
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import dagger.Module
@@ -155,6 +157,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSoundscapeResolver(impl: SoundscapeResolver): SoundscapeResolverProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideVibrationService(impl: VibrationService): VibrationServiceProtocol {
         return impl
     }
 }

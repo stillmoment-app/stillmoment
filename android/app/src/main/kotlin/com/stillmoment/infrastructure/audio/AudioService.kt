@@ -11,6 +11,7 @@ import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
+import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,7 +42,8 @@ constructor(
     private val volumeAnimator: VolumeAnimatorProtocol,
     private val logger: LoggerProtocol,
     private val customAudioRepository: CustomAudioRepository,
-    private val soundCatalogRepository: SoundCatalogRepository
+    private val soundCatalogRepository: SoundCatalogRepository,
+    private val vibrationService: VibrationServiceProtocol
 ) : AudioServiceProtocol {
     init {
         // Register conflict handler to stop background audio when another source takes over
@@ -143,6 +145,10 @@ constructor(
      */
     fun playGong(soundId: String = GongSound.DEFAULT_SOUND_ID, volume: Float = 1.0f) {
         try {
+            if (soundId == GongSound.VIBRATION_ID) {
+                vibrationService.vibrate()
+                return
+            }
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)
@@ -170,6 +176,10 @@ constructor(
      */
     override fun playIntervalGong(soundId: String, volume: Float) {
         try {
+            if (soundId == GongSound.VIBRATION_ID) {
+                vibrationService.vibrateShort()
+                return
+            }
             releaseGongPlayer()
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)
@@ -200,6 +210,11 @@ constructor(
             // Stop any previous previews (mutual exclusion: gong and background)
             stopGongPreview()
             stopBackgroundPreview()
+
+            if (soundId == GongSound.VIBRATION_ID) {
+                vibrationService.vibrate()
+                return
+            }
 
             val gongSound = GongSound.findOrDefault(soundId)
             val resourceId = resolveRawResourceId(gongSound.rawResourceName)

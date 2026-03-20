@@ -63,7 +63,7 @@ Manche User meditieren in Situationen, in denen ein hörbares Signal stört oder
 |-----------|-----|---------|
 | Start/Ende-Gong | `CHHapticEngine` `.hapticContinuous(duration: 0.4)` | `VibrationEffect.createOneShot(400ms)` |
 | Intervall-Gong | `CHHapticEngine` `.hapticTransient` (kurzer Tap) | `VibrationEffect.createOneShot(150ms)` |
-| Hintergrund (iOS) | ⚠️ Kein Haptic möglich — iOS-Einschränkung | ✅ funktioniert |
+| Hintergrund (iOS) | `AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)` — funktioniert bei aktiver AVAudioSession (keepAlive) | ✅ funktioniert |
 | Lautstärke-Slider | Ausgeblendet wenn Vibration gewählt | Ausgeblendet wenn Vibration gewählt |
 
 ---

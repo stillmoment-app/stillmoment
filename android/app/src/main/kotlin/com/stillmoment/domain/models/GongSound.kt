@@ -27,6 +27,16 @@ data class GongSound(
         /** ID for the soft interval tone (uses existing interval.mp3) */
         const val SOFT_INTERVAL_SOUND_ID = "soft-interval"
 
+        /** ID for vibration signal (no audio — device vibration) */
+        const val VIBRATION_ID = "vibration"
+
+        private val vibrationSound = GongSound(
+            id = VIBRATION_ID,
+            nameEnglish = "Vibration",
+            nameGerman = "Vibration",
+            rawResourceName = ""
+        )
+
         /** All available gong sounds (for start/end gong selection) */
         val allSounds: List<GongSound> = listOf(
             GongSound(
@@ -52,7 +62,8 @@ data class GongSound(
                 nameEnglish = "Clear Strike",
                 nameGerman = "Klarer Anschlag",
                 rawResourceName = "gong_clear_strike"
-            )
+            ),
+            vibrationSound
         )
 
         /** All available interval sounds (soft interval tone first, then allSounds) */

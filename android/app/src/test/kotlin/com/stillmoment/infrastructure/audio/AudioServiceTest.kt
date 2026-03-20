@@ -2,12 +2,14 @@ package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.BackgroundSound
+import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
+import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,6 +47,7 @@ class AudioServiceTest {
     private lateinit var mockLogger: LoggerProtocol
     private lateinit var mockCustomAudioRepository: CustomAudioRepository
     private lateinit var mockSoundCatalogRepository: SoundCatalogRepository
+    private lateinit var mockVibrationService: VibrationServiceProtocol
 
     private lateinit var capturedConflictHandler: () -> Unit
     private lateinit var capturedPauseHandler: () -> Unit
@@ -60,6 +63,7 @@ class AudioServiceTest {
         mockLogger = mock()
         mockCustomAudioRepository = mock()
         mockSoundCatalogRepository = mock()
+        mockVibrationService = mock()
 
         // Capture handlers during registration
         val conflictCaptor = argumentCaptor<() -> Unit>()
@@ -94,7 +98,8 @@ class AudioServiceTest {
             mockVolumeAnimator,
             mockLogger,
             mockCustomAudioRepository,
-            mockSoundCatalogRepository
+            mockSoundCatalogRepository,
+            mockVibrationService
         )
 
         // Capture the registered handlers
@@ -706,5 +711,57 @@ class AudioServiceTest {
 
         // Then
         verify(mockCoordinator).releaseAudioSession(AudioSource.TIMER)
+    }
+
+    // MARK: - Vibration Tests
+
+    @Test
+    fun `playGong with vibration id calls vibrate and skips MediaPlayer`() {
+        // When
+        sut.playGong(GongSound.VIBRATION_ID)
+
+        // Then
+        verify(mockVibrationService).vibrate()
+        verify(mockMediaPlayerFactory, never()).createFromResource(any())
+    }
+
+    @Test
+    fun `playIntervalGong with vibration id calls vibrateShort and skips MediaPlayer`() {
+        // When
+        sut.playIntervalGong(GongSound.VIBRATION_ID)
+
+        // Then
+        verify(mockVibrationService).vibrateShort()
+        verify(mockMediaPlayerFactory, never()).createFromResource(any())
+    }
+
+    @Test
+    fun `playGongPreview with vibration id calls vibrate and skips MediaPlayer`() {
+        // When
+        sut.playGongPreview(GongSound.VIBRATION_ID, 1.0f)
+
+        // Then
+        verify(mockVibrationService).vibrate()
+        verify(mockMediaPlayerFactory, never()).createFromResource(any())
+    }
+
+    @Test
+    fun `playGong with normal sound does not call vibrate`() {
+        // When
+        sut.playGong("temple-bell")
+
+        // Then
+        verify(mockVibrationService, never()).vibrate()
+        verify(mockVibrationService, never()).vibrateShort()
+    }
+
+    @Test
+    fun `playIntervalGong with normal sound does not call vibrateShort`() {
+        // When
+        sut.playIntervalGong("temple-bell")
+
+        // Then
+        verify(mockVibrationService, never()).vibrate()
+        verify(mockVibrationService, never()).vibrateShort()
     }
 }

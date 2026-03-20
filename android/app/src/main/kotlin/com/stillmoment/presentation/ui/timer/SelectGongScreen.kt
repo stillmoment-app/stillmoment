@@ -109,16 +109,18 @@ fun SelectGongScreen(
                     )
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
+                if (uiState.gongSoundId != GongSound.VIBRATION_ID) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    GongVolumeSlider(
-                        volume = uiState.gongVolume,
-                        onVolumeChange = { volume -> viewModel.setGongVolume(volume) },
-                        onVolumeChangeFinish = {
-                            viewModel.playGongPreview(uiState.gongSoundId)
-                        }
-                    )
+                        GongVolumeSlider(
+                            volume = uiState.gongVolume,
+                            onVolumeChange = { volume -> viewModel.setGongVolume(volume) },
+                            onVolumeChangeFinish = {
+                                viewModel.playGongPreview(uiState.gongSoundId)
+                            }
+                        )
+                    }
                 }
             }
         }
