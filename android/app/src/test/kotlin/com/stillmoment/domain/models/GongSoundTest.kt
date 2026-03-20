@@ -10,8 +10,8 @@ class GongSoundTest {
     // MARK: - All Sounds Tests
 
     @Test
-    fun `allSounds contains 4 sounds`() {
-        assertEquals(4, GongSound.allSounds.size)
+    fun `allSounds contains 5 sounds`() {
+        assertEquals(5, GongSound.allSounds.size)
     }
 
     @Test
@@ -104,8 +104,8 @@ class GongSoundTest {
     // MARK: - Localized Name Tests
 
     @Test
-    fun `all sounds have valid rawResourceName`() {
-        for (sound in GongSound.allSounds) {
+    fun `all non-vibration sounds have valid rawResourceName`() {
+        for (sound in GongSound.allSounds.filter { it.id != GongSound.VIBRATION_ID }) {
             assertTrue(sound.rawResourceName.isNotBlank(), "Sound ${sound.id} has blank rawResourceName")
         }
     }
@@ -147,8 +147,8 @@ class GongSoundTest {
     // MARK: - Interval Sounds Tests
 
     @Test
-    fun `allIntervalSounds contains 5 sounds`() {
-        assertEquals(5, GongSound.allIntervalSounds.size)
+    fun `allIntervalSounds contains 6 sounds`() {
+        assertEquals(6, GongSound.allIntervalSounds.size)
     }
 
     @Test
@@ -193,5 +193,49 @@ class GongSoundTest {
     fun `findOrDefault returns soft-interval for soft-interval ID`() {
         val sound = GongSound.findOrDefault("soft-interval")
         assertEquals("soft-interval", sound.id)
+    }
+
+    // MARK: - Vibration Tests
+
+    @Test
+    fun `allSounds last entry is vibration`() {
+        assertEquals(GongSound.VIBRATION_ID, GongSound.allSounds.last().id)
+    }
+
+    @Test
+    fun `allIntervalSounds last entry is vibration`() {
+        assertEquals(GongSound.VIBRATION_ID, GongSound.allIntervalSounds.last().id)
+    }
+
+    @Test
+    fun `VIBRATION_ID is vibration`() {
+        assertEquals("vibration", GongSound.VIBRATION_ID)
+    }
+
+    @Test
+    fun `vibration sound has correct localized names`() {
+        val vibration = GongSound.find(GongSound.VIBRATION_ID)
+        assertNotNull(vibration)
+        assertEquals("Vibration", vibration?.nameEnglish)
+        assertEquals("Vibration", vibration?.nameGerman)
+    }
+
+    @Test
+    fun `find returns vibration sound`() {
+        val sound = GongSound.find("vibration")
+        assertNotNull(sound)
+        assertEquals("vibration", sound?.id)
+    }
+
+    @Test
+    fun `findOrDefault returns vibration for vibration id`() {
+        val sound = GongSound.findOrDefault("vibration")
+        assertEquals("vibration", sound.id)
+    }
+
+    @Test
+    fun `vibration rawResourceName is empty string`() {
+        val vibration = GongSound.find("vibration")!!
+        assertEquals("", vibration.rawResourceName)
     }
 }

@@ -27,6 +27,16 @@ data class GongSound(
         /** ID for the soft interval tone (uses existing interval.mp3) */
         const val SOFT_INTERVAL_SOUND_ID = "soft-interval"
 
+        /** ID for vibration signal (no audio — device vibration) */
+        const val VIBRATION_ID = "vibration"
+
+        private val vibrationSound = GongSound(
+            id = VIBRATION_ID,
+            nameEnglish = "Vibration",
+            nameGerman = "Vibration",
+            rawResourceName = ""
+        )
+
         /** All available gong sounds (for start/end gong selection) */
         val allSounds: List<GongSound> = listOf(
             GongSound(
@@ -52,18 +62,44 @@ data class GongSound(
                 nameEnglish = "Clear Strike",
                 nameGerman = "Klarer Anschlag",
                 rawResourceName = "gong_clear_strike"
-            )
+            ),
+            vibrationSound
         )
 
-        /** All available interval sounds (soft interval tone first, then allSounds) */
+        /** All available interval sounds (soft interval tone first, then allSounds, vibration last) */
         val allIntervalSounds: List<GongSound> = listOf(
             GongSound(
                 id = SOFT_INTERVAL_SOUND_ID,
                 nameEnglish = "Soft Interval Tone",
                 nameGerman = "Sanfter Intervallton",
                 rawResourceName = "interval"
-            )
-        ) + allSounds
+            ),
+            GongSound(
+                id = "temple-bell",
+                nameEnglish = "Temple Bell",
+                nameGerman = "Tempelglocke",
+                rawResourceName = "gong_temple_bell"
+            ),
+            GongSound(
+                id = "classic-bowl",
+                nameEnglish = "Classic Bowl",
+                nameGerman = "Klassisch",
+                rawResourceName = "gong_classic_bowl"
+            ),
+            GongSound(
+                id = "deep-resonance",
+                nameEnglish = "Deep Resonance",
+                nameGerman = "Tiefe Resonanz",
+                rawResourceName = "gong_deep_resonance"
+            ),
+            GongSound(
+                id = "clear-strike",
+                nameEnglish = "Clear Strike",
+                nameGerman = "Klarer Anschlag",
+                rawResourceName = "gong_clear_strike"
+            ),
+            vibrationSound
+        )
 
         /** Default gong sound (Temple Bell) */
         val defaultSound: GongSound = allSounds.first { it.id == DEFAULT_SOUND_ID }

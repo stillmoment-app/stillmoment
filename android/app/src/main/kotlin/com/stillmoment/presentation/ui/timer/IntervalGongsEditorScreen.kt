@@ -264,13 +264,15 @@ private fun IntervalEnabledContent(
             onPreview = onPreview
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        if (uiState.intervalSoundId != GongSound.VIBRATION_ID) {
+            Spacer(modifier = Modifier.height(12.dp))
 
-        IntervalVolumeSlider(
-            volume = uiState.intervalGongVolume,
-            onVolumeChange = onVolumeChange,
-            onVolumeChangeFinish = onVolumeChangeFinish
-        )
+            IntervalVolumeSlider(
+                volume = uiState.intervalGongVolume,
+                onVolumeChange = onVolumeChange,
+                onVolumeChangeFinish = onVolumeChangeFinish
+            )
+        }
 
         Spacer(modifier = Modifier.height(4.dp))
 
