@@ -22,10 +22,10 @@ struct StillMomentApp: App {
     /// Theme manager - owns theme state, injected as @EnvironmentObject
     @StateObject private var themeManager = ThemeManager()
 
-    /// Shared audio service — single instance for all ViewModels
+    /// Timer ViewModel — holds the shared AudioService instance
     @StateObject private var timerViewModel: TimerViewModel
 
-    /// Guided meditations list ViewModel — shares the audio service with TimerViewModel
+    /// Guided meditations list ViewModel — shares the AudioService with timerViewModel
     @StateObject private var guidedListViewModel: GuidedMeditationsListViewModel
 
     /// File open handler - manages "Open with" and Share Extension imports
