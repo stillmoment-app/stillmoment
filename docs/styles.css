@@ -521,6 +521,46 @@ header {
     margin-top: 3rem;
 }
 
+/* Philosophy Quote */
+.philosophy-quote {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.philosophy-quote blockquote {
+    margin: 0;
+}
+
+.philosophy-quote blockquote::before {
+    content: '\201C';
+    display: block;
+    font-size: 5rem;
+    color: var(--pale-apricot);
+    line-height: 1;
+    margin-bottom: -1rem;
+    font-style: normal;
+}
+
+.philosophy-quote blockquote p {
+    font-size: 1.35rem;
+    font-style: italic;
+    color: var(--warm-gray);
+    line-height: 1.8;
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .philosophy-quote {
+        padding: 3rem 1.5rem;
+    }
+
+    .philosophy-quote blockquote p {
+        font-size: 1.1rem;
+    }
+}
+
 /* Privacy Banner */
 .privacy-banner {
     background: linear-gradient(135deg, var(--terracotta), var(--clay));

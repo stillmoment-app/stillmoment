@@ -23,22 +23,15 @@ Die App legitimiert Background Audio durch **kontinuierliche hoerbare Inhalte**:
 | Komponente | Beschreibung |
 |------------|--------------|
 | **15-Sekunden Countdown** | Visueller Countdown vor Meditationsstart |
-| **Start-Gong** | Tibetische Klangschale markiert Beginn |
+| **Start-Gong** | Tibetische Klangschale markiert Beginn — auch als Vibration konfigurierbar |
 | **Einstimmung (optional)** | Gefuehrtes Audio (z.B. Atemuebung) nach Start-Gong, vor stiller Phase |
 | **Hintergrund-Audio** | Kontinuierliche Schleife waehrend stiller Meditationsphase |
-| **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi — siehe `ddd.md`) |
-| **Abschluss-Gong** | Tibetische Klangschale markiert Ende |
+| **Intervall-Gongs** | Optionale Gongs (1-60 Min., 3 Modi — siehe `ddd.md`) — auch als Vibration konfigurierbar |
+| **Abschluss-Gong** | Tibetische Klangschale markiert Ende — auch als Vibration konfigurierbar |
 
 ### Hintergrund-Sounds
 
-Flexible Sound-Sammlung via JSON-Konfiguration (`sounds.json`):
-
-| Sound ID | Datei | Lautstaerke | Beschreibung |
-|----------|-------|-------------|--------------|
-| `silent` | `silence.mp3` | 0.15 | Leise aber hoerbar |
-| `forest` | `forest-ambience.mp3` | 0.15 | Natuerliche Waldgeraeusche |
-
-Erweiterbar: Neue Sounds via `sounds.json` + Audio-Dateien in `BackgroundAudio/`.
+Konfiguriert in `BackgroundAudio/sounds.json` (Source of Truth). Neue Sounds: JSON-Eintrag + Audio-Datei in `BackgroundAudio/`.
 
 ### Konfiguration
 
@@ -85,14 +78,14 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 | TimerEffect | Audio-Aktion |
 |-------------|--------------|
 | `activateTimerSession` | Audio Session + Keep-Alive starten (Timer-Start) |
-| `deactivateTimerSession` | Keep-Alive stoppen + Audio Session freigeben (Timer-Ende/Reset) |
-| `configureAudioSession` | Audio Session aktivieren (Legacy, nicht mehr fuer Previews — Previews nutzen `.preview` Source direkt) |
+| `deactivateTimerSession` | Keep-Alive stoppen + Audio Session freigeben (Timer-Ende/Reset/endGongFinished) |
 | `playStartGong` | Start-Gong abspielen |
+| `beginRunningPhase` | Timer von `.startGong` → `.running` (kein Einstimmungs-Pfad) |
 | `playIntroduction(introductionId:)` | Einstimmungs-Audio starten (haelt Audio-Session aktiv) |
 | `stopIntroduction` | Einstimmungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einstimmung) |
-| `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Einstimmung) |
-| `stopBackgroundAudio` | Hintergrund-Sound stoppen |
-| `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen |
+| `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Gong/Einstimmung) |
+| `stopBackgroundAudio` | Hintergrund-Sound stoppen (bei Timer-Ende/Reset) |
+| `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen (oder Vibration wenn `GongSound.vibrationId`) |
 | `playCompletionSound` | Abschluss-Gong abspielen |
 
 **Ausfuehrung:** ViewModel empfaengt Effects vom Reducer und delegiert an AudioService.
@@ -102,9 +95,9 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 private func executeEffect(_ effect: TimerEffect) {
     switch effect {
     case .playStartGong:
-        audioService.playStartGong()
-    case .startBackgroundAudio(let soundId):
-        audioService.startBackgroundAudio(soundId: soundId)
+        try audioService.playStartGong(soundId: settings.startGongSoundId, volume: settings.gongVolume)
+    case let .startBackgroundAudio(soundId, volume):
+        try audioService.startBackgroundAudio(soundId: soundId, volume: volume)
     // ...
     }
 }
@@ -123,6 +116,10 @@ Vor der stillen Meditation soll optional eine Einstimmung (Attunement, z.B. Atem
 Die Einstimmung ist eine eigene Phase in der Timer State Machine (`TimerState.introduction`). Das Einstimmungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
 
 ### Ablauf
+
+Vollständiges Zustandsdiagramm: [`timer-state-machine.md`](timer-state-machine.md)
+
+Audio-Sequenz mit Einstimmung:
 
 ```
 Keep-Alive Audio: ════════════════════════════════════════════════════════════════
@@ -176,7 +173,7 @@ deactivateTimerSession() → Keep-Alive AUS + Audio-Session freigeben (Timer-End
 
 Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt. Die lautlose Datei (`silence.mp3`, Volume 0.05) stoert kein anderes Audio.
 
-**Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed` und `.timerCompleted`. Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
+**Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed`, `.timerCompleted` (via `endGongFinished`). Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
 
 **Audio-Unterbrechung:** Im Interruption-Handler wird Keep-Alive neu gestartet falls `timerSessionActive == true` und `.shouldResume` gesetzt ist.
 
@@ -342,33 +339,6 @@ class AudioSessionCoordinator @Inject constructor() : AudioSessionCoordinatorPro
 
 ---
 
-## Android File Storage Strategie
-
-### Problem
-
-Android SAF (Storage Access Framework) persistable Permissions sind unzuverlaessig, besonders mit Downloads-Ordner und Cloud-Providern.
-
-### Loesung
-
-Importierte Dateien werden in App-internen Speicher kopiert.
-
-### Ablauf
-
-1. User waehlt Datei via OpenDocument Picker
-2. `GuidedMeditationRepositoryImpl.importMeditation()` kopiert zu `filesDir/meditations/`
-3. Lokale `file://` URI wird in DataStore gespeichert
-4. Bei Loeschung wird lokale Kopie auch entfernt
-
-### Plattform-Vergleich
-
-| Aspekt | iOS (Bookmarks) | Android (Copy) |
-|--------|-----------------|----------------|
-| Speicher | Keine Duplizierung | Datei kopiert |
-| Zuverlaessigkeit | Hoch | Sehr hoch |
-| Original-Datei | Muss zugaenglich bleiben | Kann geloescht werden |
-
----
-
 ## Audio-bezogene Einstellungen
 
 ### Konfigurationspfad (seit shared-064)
@@ -379,7 +349,7 @@ Audio-Einstellungen werden ueber **Praxis**-Presets konfiguriert:
 Praxis (Editor) → Praxis.toMeditationSettings() → MeditationSettings → TimerReducer → AudioService
 ```
 
-Der User konfiguriert Gong-Sounds, Lautstaerken, Hintergrund-Audio und Intervall-Gongs im Praxis-Editor. Beim Starten einer Session konvertiert `TimerViewModel.applyPraxis(_:)` die aktive Praxis in `MeditationSettings`, die dann vom Reducer als Effects an den AudioService weitergegeben werden.
+Der User konfiguriert Gong-Sounds, Lautstaerken, Hintergrund-Audio und Intervall-Gongs im Praxis-Editor. Beim Starten einer Session konvertiert `TimerViewModel.updateFromPraxis(_:)` die aktive Praxis in `MeditationSettings`, die dann vom Reducer als Effects an den AudioService weitergegeben werden.
 
 Das globale Settings-Sheet wurde durch den Praxis-Editor ersetzt. `MeditationSettings` bleibt als internes Datenmodell erhalten — die Audio-Logik aendert sich nicht.
 
@@ -407,7 +377,7 @@ User koennen eigene Audio-Dateien als Soundscapes (Hintergrundklaenge) und Attun
 
 #### Unterstuetzte Formate
 
-MP3, M4A, WAV. Andere Formate werden mit verstaendlicher Fehlermeldung abgelehnt.
+Validiert in `SupportedAudioFormats.swift` (Source of Truth). Nicht unterstuetzte Formate werden mit verstaendlicher Fehlermeldung abgelehnt.
 
 #### Speicher-Architektur
 
@@ -470,13 +440,13 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
 ### Integrations-Tests
 
-**Physisches Geraet erforderlich** (iPhone 13 mini ist Zielgeraet):
+Physisches Geraet erforderlich. Kritische Szenarien:
 
-- [ ] Test mit gesperrtem Bildschirm waehrend Vorbereitungszeit: App bleibt wach? (Regression fuer Bug aus 2026-03)
-- [ ] Test mit gesperrtem Bildschirm waehrend stiller Meditation: Background Audio funktioniert?
-- [ ] Test Tab-Wechsel waehrend Playback: Koordination funktioniert?
-- [ ] Test Telefonanruf-Unterbrechungen
-- [ ] Test Lock Screen Controls fuer Guided Meditations
+- Gesperrter Bildschirm waehrend Vorbereitungszeit: App bleibt wach?
+- Gesperrter Bildschirm waehrend stiller Meditation: Background Audio funktioniert?
+- Tab-Wechsel waehrend Playback: Koordination funktioniert?
+- Telefonanruf-Unterbrechung: Timer laeuft nach Anruf weiter?
+- Lock Screen Controls fuer Guided Meditations sichtbar?
 
 ---
 
@@ -492,6 +462,3 @@ final class MockAudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 - Feature-Paritaet zwischen iOS und Android
 
 ---
-
-**Zuletzt aktualisiert**: 2026-03-02
-**Version**: 2.7

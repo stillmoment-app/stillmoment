@@ -189,6 +189,7 @@ assert(canImportFile("meditation.mp4"))
 | Glossary | `dev-docs/reference/glossary.md` |
 | Testing Guide | `dev-docs/guides/tdd.md` |
 | Audio System | `dev-docs/architecture/audio-system.md` |
+| Timer State Machine | `dev-docs/architecture/timer-state-machine.md` |
 | Design System | `dev-docs/reference/color-system.md` |
 | Release Guide | `dev-docs/release/RELEASE_GUIDE.md` |
 | Fastlane iOS | `dev-docs/guides/fastlane-ios.md` |
