@@ -1,6 +1,6 @@
 # Ticket ios-040: AudioService als einzelne geteilte Instanz
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-040.md)
 **Prioritaet**: HOCH
 **Aufwand**: M
@@ -30,19 +30,19 @@ Bug-Precedent: shared-075 führte eine zweite AudioService-Instanz im GuidedMedi
 ## Akzeptanzkriterien
 
 ### Verhalten
-- [ ] Timer-Audio läuft durch wenn der Benutzer in der App navigiert (Tabs wechselt)
-- [ ] Timer-Audio läuft durch wenn die App in den Hintergrund geht (Lock Screen)
-- [ ] Guided Meditation Preview funktioniert weiterhin in der Bibliothek
-- [ ] Preview-Audio und Timer-Audio schließen sich gegenseitig aus (nur eines gleichzeitig)
-- [ ] Settings-Preview (Gong, Hintergrund) funktioniert weiterhin
+- [x] Timer-Audio läuft durch wenn der Benutzer in der App navigiert (Tabs wechselt)
+- [x] Timer-Audio läuft durch wenn die App in den Hintergrund geht (Lock Screen)
+- [x] Guided Meditation Preview funktioniert weiterhin in der Bibliothek
+- [x] Preview-Audio und Timer-Audio schließen sich gegenseitig aus (nur eines gleichzeitig)
+- [x] Settings-Preview (Gong, Hintergrund) funktioniert weiterhin
 
 ### Tests
-- [ ] `TimerViewModelTests`: AudioService-Mock wird korrekt per Constructor-Injection gesetzt (Regression — bestehende Tests müssen weiter bestehen)
-- [ ] `GuidedMeditationsListViewModelTests`: AudioService-Mock wird korrekt injiziert (Regression)
-- [ ] `PraxisEditorViewModelTests`: AudioService-Mock wird korrekt injiziert (Regression)
+- [x] `TimerViewModelTests`: AudioService-Mock wird korrekt per Constructor-Injection gesetzt (Regression — bestehende Tests müssen weiter bestehen)
+- [x] `GuidedMeditationsListViewModelTests`: AudioService-Mock wird korrekt injiziert (Regression)
+- [x] `PraxisEditorViewModelTests`: AudioService-Mock wird korrekt injiziert (Regression)
 
 ### Dokumentation
-- [ ] CHANGELOG.md (interne Refactoring-Notiz)
+- [x] CHANGELOG.md (interne Refactoring-Notiz)
 
 ---
 
