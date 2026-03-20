@@ -241,6 +241,46 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertEqual(self.mockPraxisRepository.currentPraxis.durationMinutes, 20)
     }
 
+    // MARK: - makePraxisEditorViewModel
+
+    func testMakePraxisEditorViewModel_editorReceivesCorrectPraxis() {
+        // Given
+        let praxis = Praxis(durationMinutes: 25, backgroundSoundId: "rain")
+
+        // When
+        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
+
+        // Then: editor starts with the given praxis values
+        XCTAssertEqual(editorVM.durationMinutes, 25)
+        XCTAssertEqual(editorVM.backgroundSoundId, "rain")
+    }
+
+    func testMakePraxisEditorViewModel_usesSharedAudioService() {
+        // Given: TimerViewModel has a known MockAudioService
+        let praxis = Praxis.default
+
+        // When: editor plays a gong preview
+        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
+        editorVM.playGongPreview(soundId: "temple-bell", volume: 0.8)
+
+        // Then: the call reaches the shared mock — not a new AudioService instance
+        XCTAssertTrue(self.mockAudioService.playGongPreviewCalled)
+    }
+
+    func testMakePraxisEditorViewModel_saveCallbackUpdatesTimerViewModel() {
+        // Given
+        let praxis = Praxis(durationMinutes: 30)
+        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
+        editorVM.durationMinutes = 45
+
+        // When: user saves in the editor
+        editorVM.save()
+
+        // Then: TimerViewModel reflects the saved praxis
+        XCTAssertEqual(self.sut.currentPraxis.durationMinutes, 45)
+        XCTAssertEqual(self.sut.selectedMinutes, 45)
+    }
+
     func testStartTimer_persistedDurationIsAvailableOnNextLaunch() {
         // Given: user selects 30 minutes and starts
         self.sut.selectedMinutes = 30

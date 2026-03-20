@@ -126,11 +126,7 @@ struct TimerView: View {
             // Open PraxisEditor for navigation to the imported audio's selection screen
             let praxisForEditor = self.viewModel.currentPraxis
                 .withDurationMinutes(self.viewModel.selectedMinutes)
-            self
-                .editorViewModel =
-                PraxisEditorViewModel(praxis: praxisForEditor) { [weak viewModel = self.viewModel] savedPraxis in
-                    viewModel?.updateFromPraxis(savedPraxis)
-                }
+            self.editorViewModel = self.viewModel.makePraxisEditorViewModel(praxis: praxisForEditor)
             self.navigateToEditor = true
         }
     }
@@ -257,11 +253,7 @@ struct TimerView: View {
             // Capture current wheel selection into the praxis so the editor preserves it on save
             let praxisForEditor = self.viewModel.currentPraxis
                 .withDurationMinutes(self.viewModel.selectedMinutes)
-            self
-                .editorViewModel =
-                PraxisEditorViewModel(praxis: praxisForEditor) { [weak viewModel = self.viewModel] savedPraxis in
-                    viewModel?.updateFromPraxis(savedPraxis)
-                }
+            self.editorViewModel = self.viewModel.makePraxisEditorViewModel(praxis: praxisForEditor)
             self.navigateToEditor = true
         } label: {
             VStack(spacing: 8) {

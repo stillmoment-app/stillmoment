@@ -22,6 +22,12 @@ struct StillMomentApp: App {
     /// Theme manager - owns theme state, injected as @EnvironmentObject
     @StateObject private var themeManager = ThemeManager()
 
+    /// Shared audio service — single instance for all ViewModels
+    @StateObject private var timerViewModel: TimerViewModel
+
+    /// Guided meditations list ViewModel — shares the audio service with TimerViewModel
+    @StateObject private var guidedListViewModel: GuidedMeditationsListViewModel
+
     /// File open handler - manages "Open with" and Share Extension imports
     @StateObject private var fileOpenHandler: FileOpenHandler
 
@@ -43,6 +49,18 @@ struct StillMomentApp: App {
     private var scenePhase
 
     init() {
+        // Apply launch argument overrides before creating ViewModels
+        // (UI tests use -DisablePreparation to configure preparation time behavior)
+        if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
+            PreparationTimeConfigurer.disable()
+        }
+
+        let sharedAudioService = AudioService()
+        _timerViewModel = StateObject(wrappedValue: TimerViewModel(audioService: sharedAudioService))
+        _guidedListViewModel = StateObject(
+            wrappedValue: GuidedMeditationsListViewModel(audioService: sharedAudioService)
+        )
+
         let fileOpenHandler = FileOpenHandler()
         let inboxDir = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
@@ -70,7 +88,7 @@ struct StillMomentApp: App {
                 TabView(selection: self.$selectedTab) {
                     // Timer Feature Tab
                     NavigationStack {
-                        TimerView(viewModel: self.createTimerViewModel())
+                        TimerView(viewModel: self.timerViewModel)
                     }
                     .tabItem {
                         Label("tab.timer", systemImage: "timer")
@@ -81,7 +99,10 @@ struct StillMomentApp: App {
 
                     // Guided Meditations Library Tab
                     NavigationStack(path: self.$libraryPath) {
-                        GuidedMeditationsListView(navigationPath: self.$libraryPath)
+                        GuidedMeditationsListView(
+                            navigationPath: self.$libraryPath,
+                            viewModel: self.guidedListViewModel
+                        )
                     }
                     .tabItem {
                         Label("tab.library", systemImage: "waveform")
@@ -175,22 +196,6 @@ struct StillMomentApp: App {
     }
 
     // MARK: Private
-
-    /// Create configured TimerViewModel
-    /// UI tests can disable preparation time via "-DisablePreparation" launch argument
-    private func createTimerViewModel() -> TimerViewModel {
-        self.applyLaunchArgumentSettings()
-        return TimerViewModel()
-    }
-
-    /// Apply launch argument overrides to UserDefaults
-    /// This allows UI tests to configure preparation time behavior
-    private func applyLaunchArgumentSettings() {
-        // Check for disable preparation flag (used by UI tests and screenshot automation)
-        if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
-            PreparationTimeConfigurer.disable()
-        }
-    }
 
     /// Handles a URL received via onOpenURL
     ///

@@ -167,6 +167,14 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.resetPressed)
     }
 
+    /// Creates a configured PraxisEditorViewModel that saves back to this TimerViewModel.
+    /// Uses the shared AudioService — no separate instance is created.
+    func makePraxisEditorViewModel(praxis: Praxis) -> PraxisEditorViewModel {
+        PraxisEditorViewModel(praxis: praxis, audioService: self.audioService) { [weak self] savedPraxis in
+            self?.updateFromPraxis(savedPraxis)
+        }
+    }
+
     /// Applies a Praxis configuration: updates currentPraxis, settings, and selectedMinutes.
     /// Called by the PraxisEditorView's onSaved callback.
     func updateFromPraxis(_ praxis: Praxis) {
