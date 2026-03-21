@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -75,6 +78,7 @@ import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportAudioType
 import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.ui.common.ImportTypeSelectionSheet
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
@@ -202,8 +206,11 @@ fun StillMomentNavHost(
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
     customAudioRepository: CustomAudioRepository? = null,
+    urlAudioDownloader: UrlAudioDownloaderProtocol? = null,
     pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
+    pendingDownloadUrl: StateFlow<String?> = MutableStateFlow(null),
+    onClearDownloadUrl: () -> Unit = {},
     navController: NavHostController = rememberNavController()
 ) {
     val scope = rememberCoroutineScope()
@@ -237,6 +244,17 @@ fun StillMomentNavHost(
             // Intentional: stop any running meditation before showing the type selection sheet.
             // If the user dismisses the sheet, the meditation stays stopped — the file open action
             // itself is the decision, no confirmation dialog for meditation abort.
+            stopMeditationSignal.value = true
+            showImportTypeSheet = true
+        }
+    )
+
+    DownloadUrlEffect(
+        urlAudioDownloader = urlAudioDownloader,
+        pendingDownloadUrl = pendingDownloadUrl,
+        onClearDownloadUrl = onClearDownloadUrl,
+        onDownloadSuccess = { uri ->
+            pendingImportUri = uri
             stopMeditationSignal.value = true
             showImportTypeSheet = true
         }
@@ -568,6 +586,108 @@ private fun NavGraphBuilder.playerComposable(navController: NavHostController) {
             GuidedMeditationPlayerScreen(meditation = it, onBack = { navController.popBackStack() })
         }
     }
+}
+
+/**
+ * Handles URL download when an audio URL is shared via text (e.g. Chrome).
+ *
+ * Shows an indeterminate progress dialog while downloading.
+ * On success, passes the local file URI to [onDownloadSuccess] so the
+ * existing import flow can proceed (type selection, import).
+ * On failure, shows an error dialog with retry and cancel options.
+ */
+@Composable
+private fun DownloadUrlEffect(
+    urlAudioDownloader: UrlAudioDownloaderProtocol?,
+    pendingDownloadUrl: StateFlow<String?>,
+    onClearDownloadUrl: () -> Unit,
+    onDownloadSuccess: (Uri) -> Unit
+) {
+    val downloadUrl by pendingDownloadUrl.collectAsState()
+    var isDownloading by remember { mutableStateOf(false) }
+    var failedUrl by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
+    val currentOnDownloadSuccess by rememberUpdatedState(onDownloadSuccess)
+
+    LaunchedEffect(downloadUrl) {
+        val url = downloadUrl ?: return@LaunchedEffect
+        val downloader = urlAudioDownloader ?: return@LaunchedEffect
+        currentOnClearDownloadUrl()
+        isDownloading = true
+        failedUrl = null
+        val result = downloader.download(url)
+        isDownloading = false
+        result.fold(
+            onSuccess = { uri -> currentOnDownloadSuccess(uri) },
+            onFailure = { failedUrl = url }
+        )
+    }
+
+    DownloadProgressDialog(isDownloading = isDownloading)
+
+    DownloadErrorDialog(
+        failedUrl = failedUrl,
+        urlAudioDownloader = urlAudioDownloader,
+        scope = scope,
+        onRetryStart = { isDownloading = true },
+        onRetryEnd = { isDownloading = false },
+        onSuccess = currentOnDownloadSuccess,
+        onFailure = { url -> failedUrl = url },
+        onDismiss = { failedUrl = null }
+    )
+}
+
+@Composable
+private fun DownloadProgressDialog(isDownloading: Boolean) {
+    if (!isDownloading) return
+    val loadingText = stringResource(R.string.download_loading)
+    AlertDialog(
+        onDismissRequest = { /* not dismissable during download */ },
+        title = { Text(loadingText) },
+        text = { CircularProgressIndicator() },
+        confirmButton = {}
+    )
+}
+
+@Suppress("LongParameterList") // Retry dialog coordinates download state across multiple callbacks
+@Composable
+private fun DownloadErrorDialog(
+    failedUrl: String?,
+    urlAudioDownloader: UrlAudioDownloaderProtocol?,
+    scope: kotlinx.coroutines.CoroutineScope,
+    onRetryStart: () -> Unit,
+    onRetryEnd: () -> Unit,
+    onSuccess: (Uri) -> Unit,
+    onFailure: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (failedUrl == null) return
+    val errorTitle = stringResource(R.string.download_error_title)
+    val errorMessage = stringResource(R.string.download_error_message)
+    val retryText = stringResource(R.string.download_error_retry)
+    val cancelText = stringResource(R.string.download_error_cancel)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(errorTitle) },
+        text = { Text(errorMessage) },
+        confirmButton = {
+            TextButton(onClick = {
+                onDismiss()
+                if (urlAudioDownloader != null) {
+                    onRetryStart()
+                    scope.launch {
+                        val result = urlAudioDownloader.download(failedUrl)
+                        onRetryEnd()
+                        result.fold(onSuccess = onSuccess, onFailure = { onFailure(failedUrl) })
+                    }
+                }
+            }) { Text(retryText) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(cancelText) }
+        }
+    )
 }
 
 /**

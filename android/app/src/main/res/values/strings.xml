@@ -293,6 +293,13 @@
     <string name="accessibility_import_custom_audio">Import audio file</string>
     <string name="accessibility_custom_audio_item">%1$s, duration %2$s</string>
 
+    <!-- URL Download (Chrome share) -->
+    <string name="download_loading">Loading meditation\u2026</string>
+    <string name="download_error_title">Download failed</string>
+    <string name="download_error_message">The audio file could not be downloaded. Please try again.</string>
+    <string name="download_error_retry">Retry</string>
+    <string name="download_error_cancel">Cancel</string>
+
     <!-- Import Type Selection -->
     <string name="import_type_title">Import as\u2026</string>
     <string name="import_type_guided">Guided Meditation</string>

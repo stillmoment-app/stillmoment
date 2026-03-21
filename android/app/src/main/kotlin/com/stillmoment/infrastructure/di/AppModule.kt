@@ -23,6 +23,7 @@ import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
+import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
 import com.stillmoment.infrastructure.audio.AttunementResolver
@@ -37,6 +38,7 @@ import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
 import com.stillmoment.infrastructure.audio.VibrationService
 import com.stillmoment.infrastructure.audio.VolumeAnimator
 import com.stillmoment.infrastructure.logging.AndroidLogger
+import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -163,6 +165,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideVibrationService(impl: VibrationService): VibrationServiceProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideUrlAudioDownloader(impl: UrlAudioDownloaderImpl): UrlAudioDownloaderProtocol {
         return impl
     }
 }
