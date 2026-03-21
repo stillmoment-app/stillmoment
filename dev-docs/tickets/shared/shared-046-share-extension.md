@@ -1,6 +1,6 @@
 # Ticket shared-046: Share Extension ("Teilen")
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/shared-046.md)
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~1.5d (URL-Download aus Chrome, Intent-Filter, Download-UX)
@@ -23,7 +23,7 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-045, shared-073 |
-| Android   | [ ]    | shared-045, shared-073 (ACTION_SEND fuer Dateien existiert, URL-Share aus Chrome fehlt — neuer Code noetig) |
+| Android   | [x]    | shared-045, shared-073 (ACTION_SEND fuer Dateien existiert, URL-Share aus Chrome fehlt — neuer Code noetig) |
 
 ---
 
@@ -55,7 +55,7 @@ Audio-Dateien koennen ueber das System-Share-Sheet ("Teilen") an Still Moment ge
 
 ### Tests
 - [x] Unit Tests iOS (Inbox-Handling, URL-Validierung, Download, Fehlerfaelle)
-- [ ] Unit Tests Android (nur falls neuer Code noetig — siehe Plan)
+- [x] Unit Tests Android (nur falls neuer Code noetig — siehe Plan)
 
 ### Dokumentation
 - [x] CHANGELOG.md
