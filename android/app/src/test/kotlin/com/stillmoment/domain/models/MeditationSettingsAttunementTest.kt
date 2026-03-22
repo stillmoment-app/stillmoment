@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
  * Covers: minimumDuration with introductions, hasActiveIntroduction,
  * effectiveIntroDurationSeconds, and custom attunement data flow.
  */
-class MeditationSettingsIntroductionTest {
+class MeditationSettingsAttunementTest {
     // MARK: - Introduction Tests
 
     @Test

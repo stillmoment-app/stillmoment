@@ -102,6 +102,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-076](shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [x] | [x] |
 | [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
 | [shared-078](shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [ ] | [ ] |
+| [shared-079](shared/shared-079-screenshot-pipeline-hardening.md) | Screenshot-Pipeline Hardening | 3-Implementation | [ ] | [ ] |
+| [shared-080](shared/shared-080-screenshot-single-flow-test.md) | Screenshot Single-Flow Test | 3-Implementation | [ ] | [ ] |
 
 ---
 

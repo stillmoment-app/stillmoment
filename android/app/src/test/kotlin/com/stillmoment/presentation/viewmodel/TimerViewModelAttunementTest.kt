@@ -22,7 +22,7 @@ import org.mockito.kotlin.mock
  * disabling the introduction should restore the original duration.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class TimerViewModelIntroductionTest {
+class TimerViewModelAttunementTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeTimerRepository: FakeTimerRepository
     private lateinit var fakeAudioService: FakeAudioService

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 /**
  * Unit tests for Introduction domain model.
  */
-class IntroductionTest {
+class AttunementTest {
     @AfterEach
     fun tearDown() {
         Introduction.languageOverride = null
