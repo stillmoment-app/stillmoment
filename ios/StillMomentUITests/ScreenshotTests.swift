@@ -12,6 +12,14 @@ import XCTest
 
 @MainActor
 final class ScreenshotTests: XCTestCase {
+    /// Tab indices matching AppTab order in StillMomentApp.swift.
+    /// SwiftUI tabItem ignores accessibilityIdentifier, so index-based access is the stable approach.
+    private enum TabIndex {
+        static let timer = 0
+        static let library = 1
+        static let settings = 2
+    }
+
     // swiftlint:disable:next implicitly_unwrapped_optional
     var app: XCUIApplication!
 
@@ -67,19 +75,14 @@ final class ScreenshotTests: XCTestCase {
 
     /// Navigate to Library tab
     private func navigateToLibraryTab() {
-        // XCUITest finds tab buttons by their localized label text, not accessibility identifier
-        // "Meditations" (EN) or "Meditationen" (DE)
-        var libraryTab = self.app.tabBars.buttons["Meditations"]
-        if !libraryTab.exists {
-            libraryTab = self.app.tabBars.buttons["Meditationen"]
-        }
+        let libraryTab = self.app.tabBars.buttons.element(boundBy: TabIndex.library)
         XCTAssertTrue(libraryTab.waitForExistence(timeout: 10.0), "Library tab not found")
 
         // Always tap the tab to ensure we're on it (even if isSelected, tap again to be sure)
         libraryTab.tap()
 
         // Verify we're on the Library tab by checking for either add button or empty state
-        let addButton = self.app.descendants(matching: .any)["library.button.add"]
+        let addButton = self.app.buttons["library.button.add"]
         let emptyStateButton = self.app.buttons["library.button.import.emptyState"]
 
         let libraryVisible = addButton.waitForExistence(timeout: 5.0) || emptyStateButton.exists
@@ -175,36 +178,19 @@ final class ScreenshotTests: XCTestCase {
         // Navigate to Library tab
         self.navigateToLibraryTab()
 
-        // Find and tap the first meditation row
-        // Test fixtures include "Mindful Breathing" by Sarah Kornfield
-        // Note: The rows are Buttons in SwiftUI, not Cells, so we search for any element
-        let meditationRows = self.app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        // Tap the first meditation row's play button (Image with play icon).
+        // The play button inherits the row's identifier (library.row.meditation.*),
+        // so we find it as the first Image element within library-prefixed elements.
+        let playImages = self.app.images.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation.'")
         )
-
-        // Wait for meditation rows to appear (test fixtures should be loaded)
-        let firstMeditationRow = meditationRows.element(boundBy: 0)
-        let hasMeditations = firstMeditationRow.waitForExistence(timeout: 5.0)
-
-        if hasMeditations {
-            // The hidden NavigationLink pattern creates a tiny (7x12pt) Button at the
-            // row's trailing edge. XCUITest may resolve to it instead of the full row.
-            // Tap at the row's Y center but at the screen's horizontal center —
-            // SwiftUI List makes the entire row area tappable for NavigationLink.
-            let rowMidY = firstMeditationRow.frame.midY
-            self.app.coordinate(withNormalizedOffset: .zero)
-                .withOffset(CGVector(dx: 200, dy: rowMidY))
-                .tap()
-        } else {
-            // No meditations found - check if empty state is visible
-            let emptyStateButton = self.app.buttons["library.button.import.emptyState"]
-            if emptyStateButton.exists {
-                XCTFail("Library is empty - test fixtures not loaded. Empty state visible.")
-            } else {
-                XCTFail("No meditation rows found and no empty state. Check test fixtures seeding.")
-            }
-            return
-        }
+        let firstPlayImage = playImages.element(boundBy: 0)
+        let emptyState = self.app.buttons["library.button.import.emptyState"]
+        XCTAssertTrue(
+            firstPlayImage.waitForExistence(timeout: 5.0),
+            "No meditation play button found. Empty state visible: \(emptyState.exists)"
+        )
+        firstPlayImage.tap()
 
         // Wait for player sheet to appear with all elements loaded
         let playButton = self.app.buttons["player.button.playPause"]

@@ -35,6 +35,15 @@ skip_open_summary(true)
 # Test target containing ScreenshotTests
 test_target_name("StillMomentUITests")
 
+# Retry flaky tests automatically
+number_of_retries(1)
+
+# Clean app install per language run (no leftover state)
+reinstall_app(true)
+
+# Prevent "Slide to Type" keyboard popup from ruining screenshots
+disable_slide_to_type(true)
+
 # Disable concurrent simulators for stability
 concurrent_simulators(false)
 

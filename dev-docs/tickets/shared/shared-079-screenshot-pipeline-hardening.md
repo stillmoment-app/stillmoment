@@ -28,7 +28,7 @@ Diese Probleme treten sporadisch auf und machen den Prozess unzuverlaessig.
 
 | Plattform | Status |
 |-----------|--------|
-| iOS       | [ ]    |
+| iOS       | [x] DONE |
 | Android   | [ ]    |
 
 ---
@@ -37,14 +37,15 @@ Diese Probleme treten sporadisch auf und machen den Prozess unzuverlaessig.
 
 ### iOS — Snapfile
 
-- [ ] `number_of_retries(2)` — automatischer Retry bei Test-Fehler
-- [ ] `reinstall_app(true)` — saubere App-Installation pro Sprach-Run
-- [ ] `disable_slide_to_type(true)` — kein Keyboard-Popup
+- [x] `number_of_retries(1)` — Retry bei Test-Fehler (1 statt 2, um flaky Tests nicht zu maskieren)
+- [x] `reinstall_app(true)` — saubere App-Installation pro Sprach-Run
+- [x] `disable_slide_to_type(true)` — kein Keyboard-Popup
 
-### iOS — Accessibility Identifier
+### iOS — Stabile Element-Zugriffe
 
-- [ ] Library-Tab hat einen stabilen `.accessibilityIdentifier("tab.library")` in der SwiftUI TabView
-- [ ] `ScreenshotTests.swift` nutzt den Identifier statt lokalisierte Labels (`"Meditations"` / `"Meditationen"`)
+- [x] Tab-Navigation per Index statt lokalisierter Labels (`TabIndex` enum statt `"Meditations"` / `"Meditationen"`)
+- [x] Meditation-Row-Tap per typisierter Image-Query statt fragiler `descendants(matching: .any)` + Koordinaten-Hack
+- [x] Bessere Fehlerdiagnose: Assertion zeigt ob Empty State sichtbar ist
 
 ### Android — Screengrabfile
 
