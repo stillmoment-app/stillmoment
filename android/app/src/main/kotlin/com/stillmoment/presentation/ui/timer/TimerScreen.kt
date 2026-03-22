@@ -243,7 +243,7 @@ private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
  * Matches the iOS configurationPillsRow pattern. Tapping opens the Praxis Editor.
  *
  * Row 1: Preparation (if enabled), Gong, Background
- * Row 2: Introduction (if set), Interval (if enabled)
+ * Row 2: Attunement (if set), Interval (if enabled)
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -257,7 +257,7 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
     val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
     val backgroundLabel = uiState.resolvedBackgroundSoundName
         ?: stringResource(R.string.praxis_description_silent)
-    val introductionLabel = uiState.resolvedIntroductionName
+    val attunementLabel = uiState.resolvedAttunementName
     val intervalLabel = intervalPillLabel(praxis)
 
     TextButton(
@@ -277,7 +277,7 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
                 }
                 SettingPill(icon = Icons.Outlined.Notifications, label = gongLabel)
                 SettingPill(icon = Icons.Outlined.Air, label = backgroundLabel)
-                introductionLabel?.let { label ->
+                attunementLabel?.let { label ->
                     SettingPill(icon = Icons.Outlined.Headphones, label = label)
                 }
                 intervalLabel?.let { label ->

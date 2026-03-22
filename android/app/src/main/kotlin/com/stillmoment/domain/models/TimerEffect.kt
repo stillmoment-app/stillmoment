@@ -33,19 +33,19 @@ sealed class TimerEffect {
     /** Play the completion sound (meditation ends) */
     data class PlayCompletionSound(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
 
-    // MARK: - Introduction Effects
+    // MARK: - Attunement Effects
 
-    /** Play introduction audio (after start gong, before silent meditation) */
-    data class PlayIntroduction(val introductionId: String) : TimerEffect()
+    /** Play attunement audio (after start gong, before silent meditation) */
+    data class PlayAttunement(val attunementId: String) : TimerEffect()
 
-    /** Stop introduction audio (on reset or timer completed during introduction) */
-    data object StopIntroduction : TimerEffect()
+    /** Stop attunement audio (on reset or timer completed during attunement) */
+    data object StopAttunement : TimerEffect()
 
-    /** Signal the timer repository to start the introduction phase (sync timer model state) */
-    data object StartIntroductionPhase : TimerEffect()
+    /** Signal the timer repository to start the attunement phase (sync timer model state) */
+    data object StartAttunementPhase : TimerEffect()
 
-    /** Signal the timer repository to end the introduction phase */
-    data object EndIntroductionPhase : TimerEffect()
+    /** Signal the timer repository to end the attunement phase */
+    data object EndAttunementPhase : TimerEffect()
 
     // MARK: - Background Audio Effects
 
@@ -54,17 +54,17 @@ sealed class TimerEffect {
 
     // MARK: - Timer Repository Effects
 
-    /** Start the timer with given duration, preparation time, and optional introduction duration */
+    /** Start the timer with given duration, preparation time, and optional attunement duration */
     data class StartTimer(
         val durationMinutes: Int,
         val preparationTimeSeconds: Int = 15,
-        val introductionDurationSeconds: Int = 0
+        val attunementDurationSeconds: Int = 0
     ) : TimerEffect()
 
     /** Reset the timer */
     data object ResetTimer : TimerEffect()
 
-    /** Transitions timer from StartGong to Running state (no introduction path) */
+    /** Transitions timer from StartGong to Running state (no attunement path) */
     data object TransitionToRunning : TimerEffect()
 
     /** Transitions timer from EndGong to Completed state */

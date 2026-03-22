@@ -132,7 +132,7 @@ class TimerViewModelRegressionTest {
             "Background audio must not start when start gong begins playing"
         )
 
-        // When - Start gong finishes (no introduction configured)
+        // When - Start gong finishes (no attunement configured)
         val gongEffects = TimerReducer.reduce(
             action = TimerAction.StartGongFinished,
             timerState = TimerState.StartGong,
@@ -256,26 +256,26 @@ class TimerViewModelRegressionTest {
         )
     }
 
-    // MARK: - Background Audio After Introduction
+    // MARK: - Background Audio After Attunement
 
     @Test
-    fun `regression - background audio starts after introduction finishes`() {
-        // CRITICAL: When an introduction is configured and finishes playing,
+    fun `regression - background audio starts after attunement finishes`() {
+        // CRITICAL: When an attunement is configured and finishes playing,
         // background audio must start. Bug: domain timer stayed in .startGong
-        // during introduction, so the .introduction guard in
-        // reduceIntroductionFinished failed and no StartBackgroundAudio was emitted.
-        // iOS ref: testBackgroundAudioStartsAfterIntroductionFinishes()
+        // during attunement, so the .attunement guard in
+        // reduceAttunementFinished failed and no StartBackgroundAudio was emitted.
+        // iOS ref: testBackgroundAudioStartsAfterAttunementFinishes()
 
-        // Given - Introduction configured, resolver returns "breath"
+        // Given - Attunement configured, resolver returns "breath"
         val settings = MeditationSettings(
             durationMinutes = 5,
-            introductionId = "breath",
-            introductionEnabled = true,
+            attunementId = "breath",
+            attunementEnabled = true,
             backgroundSoundId = "forest",
             backgroundSoundVolume = 0.3f,
         )
 
-        // Verify: StartGongFinished with introduction -> starts introduction, no background audio
+        // Verify: StartGongFinished with attunement -> starts attunement, no background audio
         val gongEffects = TimerReducer.reduce(
             action = TimerAction.StartGongFinished,
             timerState = TimerState.StartGong,
@@ -285,29 +285,29 @@ class TimerViewModelRegressionTest {
         )
 
         assertTrue(
-            gongEffects.any { it is TimerEffect.PlayIntroduction },
-            "Introduction must be played after start gong finishes"
+            gongEffects.any { it is TimerEffect.PlayAttunement },
+            "Attunement must be played after start gong finishes"
         )
         assertFalse(
             gongEffects.any { it is TimerEffect.StartBackgroundAudio },
-            "Background audio must not start yet (introduction is playing)"
+            "Background audio must not start yet (attunement is playing)"
         )
 
-        // When - Introduction finishes (timer must be in Introduction state)
+        // When - Attunement finishes (timer must be in Attunement state)
         val introEffects = TimerReducer.reduce(
-            action = TimerAction.IntroductionFinished,
-            timerState = TimerState.Introduction,
+            action = TimerAction.AttunementFinished,
+            timerState = TimerState.Attunement,
             selectedMinutes = 5,
             settings = settings,
             attunementResolver = breathResolver
         )
 
-        // Then - Background audio MUST start after introduction finishes
+        // Then - Background audio MUST start after attunement finishes
         assertTrue(
             introEffects.any { it is TimerEffect.StartBackgroundAudio },
-            "Background audio must start after introduction finishes. " +
-                "Bug: timer must be in Introduction state (not StartGong) when " +
-                "IntroductionFinished is dispatched."
+            "Background audio must start after attunement finishes. " +
+                "Bug: timer must be in Attunement state (not StartGong) when " +
+                "AttunementFinished is dispatched."
         )
 
         // Verify correct sound parameters
@@ -315,14 +315,14 @@ class TimerViewModelRegressionTest {
         assertEquals("forest", bgEffect.soundId)
         assertEquals(0.3f, bgEffect.soundVolume)
 
-        // Verify introduction is stopped and phase ends
+        // Verify attunement is stopped and phase ends
         assertTrue(
-            introEffects.any { it is TimerEffect.StopIntroduction },
-            "Introduction audio must be stopped"
+            introEffects.any { it is TimerEffect.StopAttunement },
+            "Attunement audio must be stopped"
         )
         assertTrue(
-            introEffects.any { it is TimerEffect.EndIntroductionPhase },
-            "Introduction phase must end in timer model"
+            introEffects.any { it is TimerEffect.EndAttunementPhase },
+            "Attunement phase must end in timer model"
         )
     }
 }

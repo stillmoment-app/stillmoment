@@ -6,71 +6,71 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 /**
- * Tests for MeditationSettings introduction and custom attunement behavior.
+ * Tests for MeditationSettings attunement and custom attunement behavior.
  *
  * Split from MeditationSettingsTest to keep test classes manageable.
- * Covers: minimumDuration with introductions, hasActiveIntroduction,
- * effectiveIntroDurationSeconds, and custom attunement data flow.
+ * Covers: minimumDuration with attunements, hasActiveAttunement,
+ * effectiveAttunementDurationSeconds, and custom attunement data flow.
  */
 class MeditationSettingsAttunementTest {
-    // MARK: - Introduction Tests
+    // MARK: - Attunement Tests
 
     @Test
-    fun `default introductionId is null`() {
-        assertEquals(null, MeditationSettings.Default.introductionId)
-        assertEquals(null, MeditationSettings().introductionId)
+    fun `default attunementId is null`() {
+        assertEquals(null, MeditationSettings.Default.attunementId)
+        assertEquals(null, MeditationSettings().attunementId)
     }
 
     @Test
-    fun `minimumDuration without introduction returns 1`() {
+    fun `minimumDuration without attunement returns 1`() {
         assertEquals(1, MeditationSettings.minimumDuration(null))
     }
 
     @Test
-    fun `minimumDuration with breath introduction returns 2`() {
+    fun `minimumDuration with breath attunement returns 2`() {
         // breath: 95s -> ceil(95/60) = ceil(1.583) = 2
-        assertEquals(2, MeditationSettings.minimumDuration("breath", introductionEnabled = true))
+        assertEquals(2, MeditationSettings.minimumDuration("breath", attunementEnabled = true))
     }
 
     @Test
-    fun `minimumDuration with unknown introduction returns 1`() {
+    fun `minimumDuration with unknown attunement returns 1`() {
         assertEquals(1, MeditationSettings.minimumDuration("nonexistent"))
     }
 
     @Test
-    fun `validateDuration with introduction enforces minimum`() {
+    fun `validateDuration with attunement enforces minimum`() {
         // breath min = 2 -> requesting 1 should clamp to 2
-        assertEquals(2, MeditationSettings.validateDuration(1, "breath", introductionEnabled = true))
-        assertEquals(2, MeditationSettings.validateDuration(2, "breath", introductionEnabled = true))
-        assertEquals(3, MeditationSettings.validateDuration(3, "breath", introductionEnabled = true))
-        assertEquals(10, MeditationSettings.validateDuration(10, "breath", introductionEnabled = true))
+        assertEquals(2, MeditationSettings.validateDuration(1, "breath", attunementEnabled = true))
+        assertEquals(2, MeditationSettings.validateDuration(2, "breath", attunementEnabled = true))
+        assertEquals(3, MeditationSettings.validateDuration(3, "breath", attunementEnabled = true))
+        assertEquals(10, MeditationSettings.validateDuration(10, "breath", attunementEnabled = true))
     }
 
     @Test
-    fun `validateDuration without introduction allows 1`() {
+    fun `validateDuration without attunement allows 1`() {
         assertEquals(1, MeditationSettings.validateDuration(1, null))
     }
 
     @Test
-    fun `create with introductionId`() {
-        val settings = MeditationSettings.create(introductionId = "breath")
-        assertEquals("breath", settings.introductionId)
+    fun `create with attunementId`() {
+        val settings = MeditationSettings.create(attunementId = "breath")
+        assertEquals("breath", settings.attunementId)
     }
 
     @Test
-    fun `create with introductionId enforces minimum duration`() {
+    fun `create with attunementId enforces minimum duration`() {
         // breath min = 2 -> duration 1 should be clamped to 2
         val settings = MeditationSettings.create(
             durationMinutes = 1,
-            introductionId = "breath",
-            introductionEnabled = true,
+            attunementId = "breath",
+            attunementEnabled = true,
         )
         assertEquals(2, settings.durationMinutes)
     }
 
     @Test
-    fun `withDurationMinutes respects introduction minimum`() {
-        val settings = MeditationSettings(introductionId = "breath", introductionEnabled = true)
+    fun `withDurationMinutes respects attunement minimum`() {
+        val settings = MeditationSettings(attunementId = "breath", attunementEnabled = true)
         val updated = settings.withDurationMinutes(1)
         assertEquals(2, updated.durationMinutes)
     }
@@ -80,7 +80,7 @@ class MeditationSettingsAttunementTest {
         val settingsNoIntro = MeditationSettings()
         assertEquals(1, settingsNoIntro.minimumDurationMinutes)
 
-        val settingsWithIntro = MeditationSettings(introductionId = "breath", introductionEnabled = true)
+        val settingsWithIntro = MeditationSettings(attunementId = "breath", attunementEnabled = true)
         assertEquals(2, settingsWithIntro.minimumDurationMinutes)
     }
 
@@ -92,8 +92,8 @@ class MeditationSettingsAttunementTest {
         assertEquals(
             6,
             MeditationSettings.minimumDuration(
-                activeIntroductionId = "custom-uuid",
-                customIntroDurationSeconds = 331,
+                activeAttunementId = "custom-uuid",
+                customAttunementDurationSeconds = 331,
             ),
         )
     }
@@ -104,8 +104,8 @@ class MeditationSettingsAttunementTest {
         assertEquals(
             2,
             MeditationSettings.minimumDuration(
-                activeIntroductionId = "custom-uuid",
-                customIntroDurationSeconds = 61,
+                activeAttunementId = "custom-uuid",
+                customAttunementDurationSeconds = 61,
             ),
         )
     }
@@ -115,8 +115,8 @@ class MeditationSettingsAttunementTest {
         assertEquals(
             1,
             MeditationSettings.minimumDuration(
-                activeIntroductionId = null,
-                customIntroDurationSeconds = 331,
+                activeAttunementId = null,
+                customAttunementDurationSeconds = 331,
             ),
         )
     }
@@ -128,31 +128,31 @@ class MeditationSettingsAttunementTest {
             6,
             MeditationSettings.validateDuration(
                 3,
-                introductionId = "custom-uuid",
-                introductionEnabled = true,
-                customIntroDurationSeconds = 331,
+                attunementId = "custom-uuid",
+                attunementEnabled = true,
+                customAttunementDurationSeconds = 331,
             ),
         )
     }
 
     @Test
     fun `minimumDuration built-in breath no extra minute`() {
-        // Breath introduction is 95s -> ceil(95/60) = 2 (not 3)
+        // Breath attunement is 95s -> ceil(95/60) = 2 (not 3)
         assertEquals(
             2,
-            MeditationSettings.minimumDuration("breath", introductionEnabled = true),
+            MeditationSettings.minimumDuration("breath", attunementEnabled = true),
         )
     }
 
-    // MARK: - minimumDurationMinutes with customIntroDurationSeconds Property
+    // MARK: - minimumDurationMinutes with customAttunementDurationSeconds Property
 
     @Test
     fun `minimumDurationMinutes with custom intro duration property returns correct minimum`() {
         // Custom attunement of 5:31 (331s) -> ceil(331/60) = 6
         val settings = MeditationSettings(
-            introductionId = "custom-uuid",
-            introductionEnabled = true,
-            customIntroDurationSeconds = 331,
+            attunementId = "custom-uuid",
+            attunementEnabled = true,
+            customAttunementDurationSeconds = 331,
         )
         assertEquals(6, settings.minimumDurationMinutes)
     }
@@ -160,9 +160,9 @@ class MeditationSettingsAttunementTest {
     @Test
     fun `minimumDurationMinutes with nil custom intro duration uses built-in`() {
         val settings = MeditationSettings(
-            introductionId = "breath",
-            introductionEnabled = true,
-            customIntroDurationSeconds = null,
+            attunementId = "breath",
+            attunementEnabled = true,
+            customAttunementDurationSeconds = null,
         )
         assertEquals(2, settings.minimumDurationMinutes)
     }
@@ -170,166 +170,166 @@ class MeditationSettingsAttunementTest {
     @Test
     fun `withDurationMinutes with custom intro duration clamps to minimum`() {
         val settings = MeditationSettings(
-            introductionId = "custom-uuid",
-            introductionEnabled = true,
-            customIntroDurationSeconds = 331,
+            attunementId = "custom-uuid",
+            attunementEnabled = true,
+            customAttunementDurationSeconds = 331,
         )
         val updated = settings.withDurationMinutes(3)
         assertEquals(6, updated.durationMinutes)
     }
 
-    // MARK: - hasActiveIntroduction Tests
+    // MARK: - hasActiveAttunement Tests
 
     @Test
-    fun `hasActiveIntroduction returns false when disabled`() {
+    fun `hasActiveAttunement returns false when disabled`() {
         val settings = MeditationSettings(
-            introductionEnabled = false,
-            introductionId = "breath",
+            attunementEnabled = false,
+            attunementId = "breath",
         )
-        assertFalse(settings.hasActiveIntroduction)
+        assertFalse(settings.hasActiveAttunement)
     }
 
     @Test
-    fun `hasActiveIntroduction returns false when no introductionId`() {
+    fun `hasActiveAttunement returns false when no attunementId`() {
         val settings = MeditationSettings(
-            introductionEnabled = true,
-            introductionId = null,
+            attunementEnabled = true,
+            attunementId = null,
         )
-        assertFalse(settings.hasActiveIntroduction)
+        assertFalse(settings.hasActiveAttunement)
     }
 
     @Test
-    fun `hasActiveIntroduction returns true for custom attunement`() {
+    fun `hasActiveAttunement returns true for custom attunement`() {
         val settings = MeditationSettings(
-            introductionEnabled = true,
-            introductionId = "custom-uuid-123",
-            customIntroDurationSeconds = 120,
+            attunementEnabled = true,
+            attunementId = "custom-uuid-123",
+            customAttunementDurationSeconds = 120,
         )
-        assertTrue(settings.hasActiveIntroduction)
+        assertTrue(settings.hasActiveAttunement)
     }
 
     @Test
-    fun `hasActiveIntroduction returns true for built-in when language available`() {
-        Introduction.languageOverride = "de"
+    fun `hasActiveAttunement returns true for built-in when language available`() {
+        Attunement.languageOverride = "de"
         try {
             val settings = MeditationSettings(
-                introductionEnabled = true,
-                introductionId = "breath",
+                attunementEnabled = true,
+                attunementId = "breath",
             )
-            assertTrue(settings.hasActiveIntroduction)
+            assertTrue(settings.hasActiveAttunement)
         } finally {
-            Introduction.languageOverride = null
+            Attunement.languageOverride = null
         }
     }
 
     @Test
-    fun `hasActiveIntroduction returns false for built-in when language unavailable`() {
-        Introduction.languageOverride = "fr"
+    fun `hasActiveAttunement returns false for built-in when language unavailable`() {
+        Attunement.languageOverride = "fr"
         try {
             val settings = MeditationSettings(
-                introductionEnabled = true,
-                introductionId = "breath",
+                attunementEnabled = true,
+                attunementId = "breath",
             )
-            assertFalse(settings.hasActiveIntroduction)
+            assertFalse(settings.hasActiveAttunement)
         } finally {
-            Introduction.languageOverride = null
+            Attunement.languageOverride = null
         }
     }
 
     // MARK: - Custom Attunement minimumDuration Data Flow
 
     @Test
-    fun `minimumDuration with custom attunement ID and no customIntroDurationSeconds falls back to 1`() {
-        // Custom attunement IDs are not in the built-in Introduction catalog,
-        // so Introduction.find() returns null. Without customIntroDurationSeconds
+    fun `minimumDuration with custom attunement ID and no customAttunementDurationSeconds falls back to 1`() {
+        // Custom attunement IDs are not in the built-in Attunement catalog,
+        // so Attunement.find() returns null. Without customAttunementDurationSeconds
         // the minimum falls back to 1 minute. This is expected behavior --
         // the TimerViewModel resolves the custom duration via CustomAudioRepository
-        // and populates customIntroDurationSeconds before passing settings to the Reducer.
+        // and populates customAttunementDurationSeconds before passing settings to the Reducer.
         assertEquals(
             1,
             MeditationSettings.minimumDuration(
-                activeIntroductionId = "custom-attunement-uuid",
-                customIntroDurationSeconds = null,
+                activeAttunementId = "custom-attunement-uuid",
+                customAttunementDurationSeconds = null,
             ),
         )
     }
 
     @Test
-    fun `validateDuration with custom attunement and customIntroDurationSeconds enforces minimum`() {
-        // When TimerViewModel provides customIntroDurationSeconds (sync path),
+    fun `validateDuration with custom attunement and customAttunementDurationSeconds enforces minimum`() {
+        // When TimerViewModel provides customAttunementDurationSeconds (sync path),
         // validateDuration correctly enforces the minimum based on audio duration.
         // 180s intro -> ceil(180/60) = 3 min minimum
         assertEquals(
             3,
             MeditationSettings.validateDuration(
                 1,
-                introductionId = "custom-attunement-uuid",
-                introductionEnabled = true,
-                customIntroDurationSeconds = 180,
+                attunementId = "custom-attunement-uuid",
+                attunementEnabled = true,
+                customAttunementDurationSeconds = 180,
             ),
         )
     }
 
     @Test
-    fun `minimumDurationMinutes uses customIntroDurationSeconds from settings property`() {
+    fun `minimumDurationMinutes uses customAttunementDurationSeconds from settings property`() {
         // The minimumDurationMinutes property on MeditationSettings uses the stored
-        // customIntroDurationSeconds field -- this is the sync resolution path.
+        // customAttunementDurationSeconds field -- this is the sync resolution path.
         // TimerViewModel populates this field when converting Praxis to MeditationSettings.
         val settings = MeditationSettings(
-            introductionId = "custom-attunement-uuid",
-            introductionEnabled = true,
-            customIntroDurationSeconds = 240,
+            attunementId = "custom-attunement-uuid",
+            attunementEnabled = true,
+            customAttunementDurationSeconds = 240,
         )
         // 240s -> ceil(240/60) = 4
         assertEquals(4, settings.minimumDurationMinutes)
     }
 
-    // MARK: - effectiveIntroDurationSeconds Tests
+    // MARK: - effectiveAttunementDurationSeconds Tests
 
     @Test
-    fun `effectiveIntroDurationSeconds returns 0 when disabled`() {
+    fun `effectiveAttunementDurationSeconds returns 0 when disabled`() {
         val settings = MeditationSettings(
-            introductionEnabled = false,
-            introductionId = "breath",
+            attunementEnabled = false,
+            attunementId = "breath",
         )
-        assertEquals(0, settings.effectiveIntroDurationSeconds)
+        assertEquals(0, settings.effectiveAttunementDurationSeconds)
     }
 
     @Test
-    fun `effectiveIntroDurationSeconds returns custom duration for custom attunement`() {
+    fun `effectiveAttunementDurationSeconds returns custom duration for custom attunement`() {
         val settings = MeditationSettings(
-            introductionEnabled = true,
-            introductionId = "custom-uuid-123",
-            customIntroDurationSeconds = 120,
+            attunementEnabled = true,
+            attunementId = "custom-uuid-123",
+            customAttunementDurationSeconds = 120,
         )
-        assertEquals(120, settings.effectiveIntroDurationSeconds)
+        assertEquals(120, settings.effectiveAttunementDurationSeconds)
     }
 
     @Test
-    fun `effectiveIntroDurationSeconds returns built-in duration for breath`() {
-        Introduction.languageOverride = "de"
+    fun `effectiveAttunementDurationSeconds returns built-in duration for breath`() {
+        Attunement.languageOverride = "de"
         try {
             val settings = MeditationSettings(
-                introductionEnabled = true,
-                introductionId = "breath",
+                attunementEnabled = true,
+                attunementId = "breath",
             )
-            assertEquals(95, settings.effectiveIntroDurationSeconds)
+            assertEquals(95, settings.effectiveAttunementDurationSeconds)
         } finally {
-            Introduction.languageOverride = null
+            Attunement.languageOverride = null
         }
     }
 
     @Test
-    fun `effectiveIntroDurationSeconds returns 0 for unknown built-in`() {
-        Introduction.languageOverride = "de"
+    fun `effectiveAttunementDurationSeconds returns 0 for unknown built-in`() {
+        Attunement.languageOverride = "de"
         try {
             val settings = MeditationSettings(
-                introductionEnabled = true,
-                introductionId = "nonexistent",
+                attunementEnabled = true,
+                attunementId = "nonexistent",
             )
-            assertEquals(0, settings.effectiveIntroDurationSeconds)
+            assertEquals(0, settings.effectiveAttunementDurationSeconds)
         } finally {
-            Introduction.languageOverride = null
+            Attunement.languageOverride = null
         }
     }
 }

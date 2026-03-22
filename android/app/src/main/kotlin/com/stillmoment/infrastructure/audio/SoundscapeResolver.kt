@@ -1,8 +1,8 @@
 package com.stillmoment.infrastructure.audio
 
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.ResolvedSoundscape
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
@@ -76,7 +76,7 @@ class SoundscapeResolver @Inject constructor(
     }
 
     private fun localizedSoundName(sound: BackgroundSound): String {
-        val language = Introduction.currentLanguage
+        val language = Attunement.currentLanguage
         return if (language == "de") sound.nameGerman else sound.nameEnglish
     }
 }

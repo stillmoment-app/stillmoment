@@ -11,6 +11,6 @@ enum class ImportAudioType {
     /** Import as custom soundscape (background loop) */
     SOUNDSCAPE,
 
-    /** Import as custom attunement (one-shot introduction) */
+    /** Import as custom attunement (one-shot attunement) */
     ATTUNEMENT
 }

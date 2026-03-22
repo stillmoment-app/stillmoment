@@ -30,12 +30,12 @@ interface TimerRepository {
      *
      * @param durationMinutes Duration in minutes (1-60)
      * @param preparationTimeSeconds Duration of preparation phase in seconds (0 to skip)
-     * @param introductionDurationSeconds Duration of introduction audio in seconds (0 = no introduction)
+     * @param attunementDurationSeconds Duration of attunement audio in seconds (0 = no attunement)
      */
     suspend fun start(
         durationMinutes: Int,
         preparationTimeSeconds: Int = 15,
-        introductionDurationSeconds: Int = 0
+        attunementDurationSeconds: Int = 0
     ): List<TimerEvent>
 
     /**
@@ -62,20 +62,20 @@ interface TimerRepository {
     fun tick(intervalSettings: IntervalSettings? = null): Pair<MeditationTimer, List<TimerEvent>>?
 
     /**
-     * Transitions the timer from StartGong to Introduction state.
-     * Called when the start gong finishes and an introduction is configured.
+     * Transitions the timer from StartGong to Attunement state.
+     * Called when the start gong finishes and an attunement is configured.
      */
-    fun startIntroduction()
+    fun startAttunement()
 
     /**
-     * Ends the introduction phase, transitioning from Introduction to Running.
+     * Ends the attunement phase, transitioning from Attunement to Running.
      * Sets silentPhaseStartRemaining for interval gong calculations.
      */
-    fun endIntroduction()
+    fun endAttunement()
 
     /**
      * Transitions the timer from StartGong to Running state.
-     * Called when start gong finishes and no introduction is configured.
+     * Called when start gong finishes and no attunement is configured.
      */
     fun startRunning()
 

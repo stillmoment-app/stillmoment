@@ -35,7 +35,7 @@ object TimerReducer {
             is TimerAction.ResetPressed -> reduceResetPressed(timerState)
             is TimerAction.PreparationFinished -> reducePreparationFinished(settings)
             is TimerAction.StartGongFinished -> reduceStartGongFinished(timerState, settings, attunementResolver)
-            is TimerAction.IntroductionFinished -> reduceIntroductionFinished(timerState, settings)
+            is TimerAction.AttunementFinished -> reduceAttunementFinished(timerState, settings)
             is TimerAction.TimerCompleted -> reduceTimerCompleted(timerState, settings)
             is TimerAction.EndGongFinished -> reduceEndGongFinished(timerState)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(settings)
@@ -53,8 +53,8 @@ object TimerReducer {
             return emptyList()
         }
 
-        // Determine introduction duration
-        val introDuration = introductionDurationSeconds(settings, attunementResolver)
+        // Determine attunement duration
+        val attunementDuration = attunementDurationSeconds(settings, attunementResolver)
 
         // Determine preparation time: skip if disabled (0), otherwise use configured value
         val preparationTime = if (settings.preparationTimeEnabled) {
@@ -66,8 +66,8 @@ object TimerReducer {
         val updatedSettings = settings.copy(durationMinutes = selectedMinutes)
 
         // Background audio never starts here. It starts when the start gong finishes:
-        // - Without introduction: in reduceStartGongFinished
-        // - With introduction: in reduceIntroductionFinished
+        // - Without attunement: in reduceStartGongFinished
+        // - With attunement: in reduceAttunementFinished
         // Always use "silent" for foreground service start - background audio is updated later
         return listOf(
             TimerEffect.StartForegroundService(
@@ -76,7 +76,7 @@ object TimerReducer {
                 settings.gongSoundId,
                 settings.gongVolume
             ),
-            TimerEffect.StartTimer(selectedMinutes, preparationTime, introDuration),
+            TimerEffect.StartTimer(selectedMinutes, preparationTime, attunementDuration),
             TimerEffect.SaveSettings(updatedSettings)
         )
     }
@@ -87,9 +87,9 @@ object TimerReducer {
         }
 
         val effects = mutableListOf<TimerEffect>()
-        // Stop introduction if it was playing
-        if (timerState == TimerState.Introduction) {
-            effects.add(TimerEffect.StopIntroduction)
+        // Stop attunement if it was playing
+        if (timerState == TimerState.Attunement) {
+            effects.add(TimerEffect.StopAttunement)
         }
         effects.add(TimerEffect.StopForegroundService)
         effects.add(TimerEffect.ResetTimer)
@@ -113,14 +113,14 @@ object TimerReducer {
             return emptyList()
         }
 
-        val introId = settings.introductionId
-        return if (settings.introductionEnabled && introId != null &&
-            attunementResolver.resolve(introId) != null
+        val attunementId = settings.attunementId
+        return if (settings.attunementEnabled && attunementId != null &&
+            attunementResolver.resolve(attunementId) != null
         ) {
-            // Introduction configured -> play audio
-            listOf(TimerEffect.StartIntroductionPhase, TimerEffect.PlayIntroduction(introId))
+            // Attunement configured -> play audio
+            listOf(TimerEffect.StartAttunementPhase, TimerEffect.PlayAttunement(attunementId))
         } else {
-            // No introduction -> start background audio directly
+            // No attunement -> start background audio directly
             listOf(
                 TimerEffect.TransitionToRunning,
                 TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
@@ -128,14 +128,14 @@ object TimerReducer {
         }
     }
 
-    private fun reduceIntroductionFinished(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
-        if (timerState != TimerState.Introduction) {
+    private fun reduceAttunementFinished(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
+        if (timerState != TimerState.Attunement) {
             return emptyList()
         }
 
         return listOf(
-            TimerEffect.StopIntroduction,
-            TimerEffect.EndIntroductionPhase,
+            TimerEffect.StopAttunement,
+            TimerEffect.EndAttunementPhase,
             TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
         )
     }
@@ -144,9 +144,9 @@ object TimerReducer {
         val effects = mutableListOf<TimerEffect>(
             TimerEffect.PlayCompletionSound(settings.gongSoundId, settings.gongVolume)
         )
-        // Stop introduction if it was still playing (timer expired during introduction)
-        if (timerState == TimerState.Introduction) {
-            effects.add(TimerEffect.StopIntroduction)
+        // Stop attunement if it was still playing (timer expired during attunement)
+        if (timerState == TimerState.Attunement) {
+            effects.add(TimerEffect.StopAttunement)
         }
 
         return effects
@@ -173,13 +173,13 @@ object TimerReducer {
 
     // MARK: - Helpers
 
-    /** Returns the introduction duration in seconds, or 0 if no introduction is configured or disabled. */
-    private fun introductionDurationSeconds(
+    /** Returns the attunement duration in seconds, or 0 if no attunement is configured or disabled. */
+    private fun attunementDurationSeconds(
         settings: MeditationSettings,
         attunementResolver: AttunementResolverProtocol
     ): Int {
-        if (!settings.introductionEnabled) return 0
-        val introId = settings.introductionId ?: return 0
-        return attunementResolver.resolve(introId)?.durationSeconds ?: 0
+        if (!settings.attunementEnabled) return 0
+        val attunementId = settings.attunementId ?: return 0
+        return attunementResolver.resolve(attunementId)?.durationSeconds ?: 0
     }
 }

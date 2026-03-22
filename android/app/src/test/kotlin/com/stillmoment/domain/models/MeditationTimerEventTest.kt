@@ -91,10 +91,10 @@ class MeditationTimerEventTest {
         }
 
         @Test
-        fun `introduction timer reaches zero emits meditationCompleted`() {
-            // Given - Timer in introduction state with 1 second remaining
+        fun `attunement timer reaches zero emits meditationCompleted`() {
+            // Given - Timer in attunement state with 1 second remaining
             val timer = MeditationTimer.create(1)
-                .copy(state = TimerState.Introduction, remainingSeconds = 1)
+                .copy(state = TimerState.Attunement, remainingSeconds = 1)
 
             // When - Final tick
             val (newTimer, events) = timer.tick()

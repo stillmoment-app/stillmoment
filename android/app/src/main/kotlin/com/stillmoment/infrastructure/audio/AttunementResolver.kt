@@ -1,7 +1,7 @@
 package com.stillmoment.infrastructure.audio
 
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.ResolvedAttunement
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.AttunementResolverProtocol
@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * Infrastructure implementation of AttunementResolverProtocol.
  *
- * Transparently resolves attunement IDs by checking built-in introductions first
+ * Transparently resolves attunement IDs by checking built-in attunements first
  * (filtered by current language), then falling back to user-imported custom attunements.
  *
  * Uses [runBlocking] internally because the resolver protocol is synchronous
@@ -24,13 +24,13 @@ class AttunementResolver @Inject constructor(
 ) : AttunementResolverProtocol {
 
     override fun resolve(id: String): ResolvedAttunement? {
-        // Try built-in introduction first (language-filtered)
-        val intro = Introduction.find(id)
-        if (intro != null && intro.availableLanguages.contains(Introduction.currentLanguage)) {
+        // Try built-in attunement first (language-filtered)
+        val attunement = Attunement.find(id)
+        if (attunement != null && attunement.availableLanguages.contains(Attunement.currentLanguage)) {
             return ResolvedAttunement(
-                id = intro.id,
-                displayName = intro.localizedName,
-                durationSeconds = intro.durationSeconds
+                id = attunement.id,
+                displayName = attunement.localizedName,
+                durationSeconds = attunement.durationSeconds
             )
         }
 
@@ -48,12 +48,12 @@ class AttunementResolver @Inject constructor(
     }
 
     override fun allAvailable(): List<ResolvedAttunement> {
-        // Built-in introductions for current language
-        val builtIn = Introduction.availableForCurrentLanguage().map { intro ->
+        // Built-in attunements for current language
+        val builtIn = Attunement.availableForCurrentLanguage().map { item ->
             ResolvedAttunement(
-                id = intro.id,
-                displayName = intro.localizedName,
-                durationSeconds = intro.durationSeconds
+                id = item.id,
+                displayName = item.localizedName,
+                durationSeconds = item.durationSeconds
             )
         }
 

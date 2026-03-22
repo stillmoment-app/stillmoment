@@ -1,11 +1,11 @@
 package com.stillmoment.presentation.viewmodel
 
 import android.net.Uri
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalSettings
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.ResolvedAttunement
 import com.stillmoment.domain.models.ResolvedSoundscape
@@ -37,11 +37,11 @@ class FakeAudioService : AudioServiceProtocol {
     var backgroundPreviewStopped = false
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
-    var lastIntroductionPreviewId: String? = null
-    var introductionPreviewStopped = false
+    var lastAttunementPreviewId: String? = null
+    var attunementPreviewStopped = false
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
-    override val introductionCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
+    override val attunementCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
 
     override fun playGongPreview(soundId: String, volume: Float) {
         lastGongPreviewSoundId = soundId
@@ -66,12 +66,12 @@ class FakeAudioService : AudioServiceProtocol {
         backgroundPreviewStopped = true
     }
 
-    override fun playIntroductionPreview(introductionId: String) {
-        lastIntroductionPreviewId = introductionId
+    override fun playAttunementPreview(attunementId: String) {
+        lastAttunementPreviewId = attunementId
     }
 
-    override fun stopIntroductionPreview() {
-        introductionPreviewStopped = true
+    override fun stopAttunementPreview() {
+        attunementPreviewStopped = true
     }
 
     override fun playMeditationPreview(fileUri: String) {
@@ -98,8 +98,8 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
     var lastGongVolume: Float? = null
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
-    var lastIntroductionId: String? = null
-    var introductionStopped = false
+    var lastAttunementId: String? = null
+    var attunementStopped = false
     var lastBackgroundAudioSoundId: String? = null
     var lastBackgroundAudioVolume: Float? = null
     var audioPaused = false
@@ -127,12 +127,12 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
         lastIntervalGongVolume = gongVolume
     }
 
-    override fun playIntroduction(introductionId: String) {
-        lastIntroductionId = introductionId
+    override fun playAttunement(attunementId: String) {
+        lastAttunementId = attunementId
     }
 
-    override fun stopIntroduction() {
-        introductionStopped = true
+    override fun stopAttunement() {
+        attunementStopped = true
     }
 
     override fun updateBackgroundAudio(soundId: String, soundVolume: Float) {
@@ -163,7 +163,7 @@ class FakeTimerRepository : TimerRepository {
     override suspend fun start(
         durationMinutes: Int,
         preparationTimeSeconds: Int,
-        introductionDurationSeconds: Int
+        attunementDurationSeconds: Int
     ): List<TimerEvent> {
         // no-op for tests
         return emptyList()
@@ -179,11 +179,11 @@ class FakeTimerRepository : TimerRepository {
 
     override fun tick(intervalSettings: IntervalSettings?): Pair<MeditationTimer, List<TimerEvent>>? = null
 
-    override fun startIntroduction() {
+    override fun startAttunement() {
         // no-op for tests
     }
 
-    override fun endIntroduction() {
+    override fun endAttunement() {
         // no-op for tests
     }
 
@@ -286,15 +286,15 @@ class FakeCustomAudioRepository : CustomAudioRepository {
 
 /**
  * Fake implementation of AttunementResolverProtocol for testing.
- * Resolves built-in introductions via Introduction.find() and custom IDs via configurable map.
+ * Resolves built-in attunements via Attunement.find() and custom IDs via configurable map.
  */
 class FakeAttunementResolver : AttunementResolverProtocol {
     var customAttunements: Map<String, ResolvedAttunement> = emptyMap()
 
     override fun resolve(id: String): ResolvedAttunement? {
-        // Try built-in introduction first (language-filtered)
-        val intro = Introduction.find(id)
-        if (intro != null && intro.availableLanguages.contains(Introduction.currentLanguage)) {
+        // Try built-in attunement first (language-filtered)
+        val intro = Attunement.find(id)
+        if (intro != null && intro.availableLanguages.contains(Attunement.currentLanguage)) {
             return ResolvedAttunement(
                 id = intro.id,
                 displayName = intro.localizedName,
@@ -305,7 +305,7 @@ class FakeAttunementResolver : AttunementResolverProtocol {
     }
 
     override fun allAvailable(): List<ResolvedAttunement> {
-        val builtIn = Introduction.availableForCurrentLanguage().map { intro ->
+        val builtIn = Attunement.availableForCurrentLanguage().map { intro ->
             ResolvedAttunement(
                 id = intro.id,
                 displayName = intro.localizedName,

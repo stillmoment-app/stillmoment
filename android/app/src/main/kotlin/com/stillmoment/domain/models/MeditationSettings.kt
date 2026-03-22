@@ -14,10 +14,10 @@ package com.stillmoment.domain.models
  * @property preparationTimeSeconds Duration of preparation in seconds (5, 10, 15, 20, 30, or 45)
  * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
  * @property gongVolume Volume for start/end gong sounds (0.0 to 1.0)
- * @property introductionEnabled Whether introduction audio is enabled
- * @property customIntroDurationSeconds Duration of custom attunement in seconds (sync resolution path).
+ * @property attunementEnabled Whether attunement audio is enabled
+ * @property customAttunementDurationSeconds Duration of custom attunement in seconds (sync resolution path).
  *   Populated by TimerViewModel from CustomAudioRepository when converting Praxis to MeditationSettings.
- *   Built-in introductions use [Introduction.find] instead (no need for this field).
+ *   Built-in attunements use [Attunement.find] instead (no need for this field).
  *   The async resolution path (Resolver) provides the duration for UI display independently.
  */
 data class MeditationSettings(
@@ -33,9 +33,9 @@ data class MeditationSettings(
     val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
     val gongSoundId: String = DEFAULT_GONG_SOUND_ID,
     val gongVolume: Float = DEFAULT_GONG_VOLUME,
-    val introductionId: String? = null,
-    val introductionEnabled: Boolean = DEFAULT_INTRODUCTION_ENABLED,
-    val customIntroDurationSeconds: Int? = null
+    val attunementId: String? = null,
+    val attunementEnabled: Boolean = DEFAULT_ATTUNEMENT_ENABLED,
+    val customAttunementDurationSeconds: Int? = null
 ) {
     init {
         // Validation is applied through copy() and create() methods
@@ -54,7 +54,7 @@ data class MeditationSettings(
         const val DEFAULT_PREPARATION_TIME_SECONDS = 15
         const val DEFAULT_GONG_SOUND_ID = GongSound.DEFAULT_SOUND_ID
         const val DEFAULT_GONG_VOLUME = 1.0f
-        const val DEFAULT_INTRODUCTION_ENABLED = false
+        const val DEFAULT_ATTUNEMENT_ENABLED = false
 
         /** Minimum interval in minutes */
         const val MIN_INTERVAL_MINUTES = 1
@@ -77,30 +77,30 @@ data class MeditationSettings(
 
         /**
          * Validates and clamps duration to valid range (1-60 minutes).
-         * When an introductionId is provided and introduction is enabled,
-         * enforces a minimum based on introduction duration.
+         * When an attunementId is provided and attunement is enabled,
+         * enforces a minimum based on attunement duration.
          */
         fun validateDuration(
             minutes: Int,
-            introductionId: String? = null,
-            introductionEnabled: Boolean = false,
-            customIntroDurationSeconds: Int? = null,
+            attunementId: String? = null,
+            attunementEnabled: Boolean = false,
+            customAttunementDurationSeconds: Int? = null,
         ): Int {
-            val min = minimumDuration(introductionId, introductionEnabled, customIntroDurationSeconds)
+            val min = minimumDuration(attunementId, attunementEnabled, customAttunementDurationSeconds)
             return minutes.coerceIn(min, 60)
         }
 
         /**
-         * Returns the minimum meditation duration in minutes for a given active introduction ID.
-         * [activeIntroductionId] is `null` when disabled or unset — callers use [MeditationSettings.activeIntroductionId].
-         * When [customIntroDurationSeconds] is provided, it is used instead of looking up built-in introductions.
-         * Formula: ceil(introDuration / 60)
+         * Returns the minimum meditation duration in minutes for a given active attunement ID.
+         * [activeAttunementId] is `null` when disabled or unset — callers use [MeditationSettings.activeAttunementId].
+         * When [customAttunementDurationSeconds] is provided, it is used instead of looking up built-in attunements.
+         * Formula: ceil(attunementDuration / 60)
          */
-        fun minimumDuration(activeIntroductionId: String?, customIntroDurationSeconds: Int? = null): Int {
-            if (activeIntroductionId == null) return 1
+        fun minimumDuration(activeAttunementId: String?, customAttunementDurationSeconds: Int? = null): Int {
+            if (activeAttunementId == null) return 1
             val durationSeconds = when {
-                customIntroDurationSeconds != null -> customIntroDurationSeconds
-                else -> Introduction.find(activeIntroductionId)?.durationSeconds ?: return 1
+                customAttunementDurationSeconds != null -> customAttunementDurationSeconds
+                else -> Attunement.find(activeAttunementId)?.durationSeconds ?: return 1
             }
             if (durationSeconds <= 0) return 1
             return kotlin.math.ceil(durationSeconds / 60.0).toInt()
@@ -110,14 +110,14 @@ data class MeditationSettings(
          * Backward-compatible overload used during init/validation where enabled and id are separate.
          */
         fun minimumDuration(
-            introductionId: String? = null,
-            introductionEnabled: Boolean = false,
-            customIntroDurationSeconds: Int? = null,
+            attunementId: String? = null,
+            attunementEnabled: Boolean = false,
+            customAttunementDurationSeconds: Int? = null,
         ): Int {
-            val activeId = if (introductionEnabled) introductionId else null
+            val activeId = if (attunementEnabled) attunementId else null
             return minimumDuration(
-                activeIntroductionId = activeId,
-                customIntroDurationSeconds = customIntroDurationSeconds,
+                activeAttunementId = activeId,
+                customAttunementDurationSeconds = customAttunementDurationSeconds,
             )
         }
 
@@ -166,9 +166,9 @@ data class MeditationSettings(
             preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME_SECONDS,
             gongSoundId: String = DEFAULT_GONG_SOUND_ID,
             gongVolume: Float = DEFAULT_GONG_VOLUME,
-            introductionId: String? = null,
-            introductionEnabled: Boolean = DEFAULT_INTRODUCTION_ENABLED,
-            customIntroDurationSeconds: Int? = null
+            attunementId: String? = null,
+            attunementEnabled: Boolean = DEFAULT_ATTUNEMENT_ENABLED,
+            customAttunementDurationSeconds: Int? = null
         ): MeditationSettings {
             return MeditationSettings(
                 intervalGongsEnabled = intervalGongsEnabled,
@@ -180,17 +180,17 @@ data class MeditationSettings(
                 backgroundSoundVolume = validateVolume(backgroundSoundVolume),
                 durationMinutes = validateDuration(
                     durationMinutes,
-                    introductionId,
-                    introductionEnabled,
-                    customIntroDurationSeconds,
+                    attunementId,
+                    attunementEnabled,
+                    customAttunementDurationSeconds,
                 ),
                 preparationTimeEnabled = preparationTimeEnabled,
                 preparationTimeSeconds = validatePreparationTime(preparationTimeSeconds),
                 gongSoundId = gongSoundId,
                 gongVolume = validateVolume(gongVolume),
-                introductionId = introductionId,
-                introductionEnabled = introductionEnabled,
-                customIntroDurationSeconds = customIntroDurationSeconds
+                attunementId = attunementId,
+                attunementEnabled = attunementEnabled,
+                customAttunementDurationSeconds = customAttunementDurationSeconds
             )
         }
     }
@@ -203,72 +203,72 @@ data class MeditationSettings(
     }
 
     /**
-     * The effective introduction ID. `null` when disabled or no introduction is selected.
-     * Use this instead of checking [introductionEnabled] + [introductionId] manually.
+     * The effective attunement ID. `null` when disabled or no attunement is selected.
+     * Use this instead of checking [attunementEnabled] + [attunementId] manually.
      */
-    val activeIntroductionId: String?
-        get() = if (introductionEnabled) introductionId else null
+    val activeAttunementId: String?
+        get() = if (attunementEnabled) attunementId else null
 
     /**
-     * Whether an active introduction is configured and available.
-     * Returns true for custom attunements (when [customIntroDurationSeconds] is set)
-     * AND for built-in introductions (when available for current language).
+     * Whether an active attunement is configured and available.
+     * Returns true for custom attunements (when [customAttunementDurationSeconds] is set)
+     * AND for built-in attunements (when available for current language).
      */
-    val hasActiveIntroduction: Boolean
+    val hasActiveAttunement: Boolean
         get() {
-            if (!introductionEnabled) return false
-            introductionId ?: return false
-            // Custom attunement: customIntroDurationSeconds is set
-            if (customIntroDurationSeconds != null) return true
+            if (!attunementEnabled) return false
+            attunementId ?: return false
+            // Custom attunement: customAttunementDurationSeconds is set
+            if (customAttunementDurationSeconds != null) return true
             // Built-in: check language availability
-            return Introduction.isAvailableForCurrentLanguage(introductionId)
+            return Attunement.isAvailableForCurrentLanguage(attunementId)
         }
 
     /**
-     * The effective introduction duration in seconds.
-     * Returns [customIntroDurationSeconds] for custom attunements, or the built-in duration
-     * for standard introductions. Returns 0 if no active introduction.
+     * The effective attunement duration in seconds.
+     * Returns [customAttunementDurationSeconds] for custom attunements, or the built-in duration
+     * for standard attunements. Returns 0 if no active attunement.
      */
-    val effectiveIntroDurationSeconds: Int
+    val effectiveAttunementDurationSeconds: Int
         get() {
-            if (!hasActiveIntroduction) return 0
+            if (!hasActiveAttunement) return 0
             // Custom attunement duration
-            customIntroDurationSeconds?.let { return it }
+            customAttunementDurationSeconds?.let { return it }
             // Built-in duration
-            val id = introductionId ?: return 0
-            return Introduction.find(id)?.durationSeconds ?: 0
+            val id = attunementId ?: return 0
+            return Attunement.find(id)?.durationSeconds ?: 0
         }
 
     /**
-     * Returns the minimum duration in minutes based on the current introduction setting.
-     * Uses [customIntroDurationSeconds] when set (for custom attunements).
+     * Returns the minimum duration in minutes based on the current attunement setting.
+     * Uses [customAttunementDurationSeconds] when set (for custom attunements).
      */
     val minimumDurationMinutes: Int
         get() = minimumDuration(
-            activeIntroductionId = activeIntroductionId,
-            customIntroDurationSeconds = customIntroDurationSeconds
+            activeAttunementId = activeAttunementId,
+            customAttunementDurationSeconds = customAttunementDurationSeconds
         )
 
     /**
-     * Returns a copy with validated duration minutes (respects introduction minimum).
-     * Uses [customIntroDurationSeconds] when set (for custom attunements).
+     * Returns a copy with validated duration minutes (respects attunement minimum).
+     * Uses [customAttunementDurationSeconds] when set (for custom attunements).
      */
     fun withDurationMinutes(minutes: Int): MeditationSettings {
         return copy(
             durationMinutes = validateDuration(
                 minutes,
-                introductionId,
-                introductionEnabled,
-                customIntroDurationSeconds,
+                attunementId,
+                attunementEnabled,
+                customAttunementDurationSeconds,
             )
         )
     }
 
     /**
-     * Returns a copy with the introduction enabled or disabled.
+     * Returns a copy with the attunement enabled or disabled.
      */
-    fun withIntroductionEnabled(enabled: Boolean): MeditationSettings {
-        return copy(introductionEnabled = enabled)
+    fun withAttunementEnabled(enabled: Boolean): MeditationSettings {
+        return copy(attunementEnabled = enabled)
     }
 
     /**
@@ -296,8 +296,8 @@ object MeditationSettingsKeys {
     const val PREPARATION_TIME_SECONDS = "preparationTimeSeconds"
     const val GONG_SOUND_ID = "gongSoundId"
     const val GONG_VOLUME = "gongVolume"
-    const val INTRODUCTION_ID = "introductionId"
-    const val INTRODUCTION_ENABLED = "introductionEnabled"
+    const val ATTUNEMENT_ID = "introductionId"
+    const val ATTUNEMENT_ENABLED = "introductionEnabled"
 
     // Legacy keys for migration
     const val LEGACY_BACKGROUND_AUDIO_MODE = "backgroundAudioMode"

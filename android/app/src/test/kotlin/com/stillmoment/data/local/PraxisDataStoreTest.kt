@@ -123,17 +123,17 @@ class PraxisDataStoreTest {
         }
 
         @Test
-        fun `fromMeditationSettings preserves introduction`() {
-            val settings = MeditationSettings(introductionId = "breath")
+        fun `fromMeditationSettings preserves attunement`() {
+            val settings = MeditationSettings(attunementId = "breath")
             val praxis = Praxis.fromMeditationSettings(settings)
-            assertEquals("breath", praxis.introductionId)
+            assertEquals("breath", praxis.attunementId)
         }
 
         @Test
-        fun `fromMeditationSettings preserves null introduction`() {
-            val settings = MeditationSettings(introductionId = null)
+        fun `fromMeditationSettings preserves null attunement`() {
+            val settings = MeditationSettings(attunementId = null)
             val praxis = Praxis.fromMeditationSettings(settings)
-            assertNull(praxis.introductionId)
+            assertNull(praxis.attunementId)
         }
 
         @Test
@@ -151,7 +151,7 @@ class PraxisDataStoreTest {
                 preparationTimeSeconds = 20,
                 gongSoundId = "deep-resonance",
                 gongVolume = 0.7f,
-                introductionId = "breath"
+                attunementId = "breath"
             )
 
             val praxis = Praxis.fromMeditationSettings(settings)
@@ -168,7 +168,7 @@ class PraxisDataStoreTest {
             assertEquals(20, praxis.preparationTimeSeconds)
             assertEquals("deep-resonance", praxis.gongSoundId)
             assertEquals(0.7f, praxis.gongVolume)
-            assertEquals("breath", praxis.introductionId)
+            assertEquals("breath", praxis.attunementId)
         }
     }
 
@@ -185,7 +185,7 @@ class PraxisDataStoreTest {
                 preparationTimeSeconds = 20,
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
-                introductionId = "breath",
+                attunementId = "breath",
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 intervalMode = IntervalMode.BEFORE_END,
@@ -212,31 +212,31 @@ class PraxisDataStoreTest {
         }
 
         @Test
-        fun `praxis with null introductionId survives JSON round-trip`() {
+        fun `praxis with null attunementId survives JSON round-trip`() {
             val original = Praxis.create(
                 id = "null-intro-id",
-                introductionId = null
+                attunementId = null
             )
 
             val json = Json.encodeToString(original)
             val decoded = Json.decodeFromString<Praxis>(json)
 
             assertEquals(original, decoded)
-            assertNull(decoded.introductionId)
+            assertNull(decoded.attunementId)
         }
 
         @Test
-        fun `praxis with non-null introductionId survives JSON round-trip`() {
+        fun `praxis with non-null attunementId survives JSON round-trip`() {
             val original = Praxis.create(
                 id = "with-intro-id",
-                introductionId = "breath"
+                attunementId = "breath"
             )
 
             val json = Json.encodeToString(original)
             val decoded = Json.decodeFromString<Praxis>(json)
 
             assertEquals(original, decoded)
-            assertEquals("breath", decoded.introductionId)
+            assertEquals("breath", decoded.attunementId)
         }
 
         @Test
@@ -293,8 +293,8 @@ class PraxisDataStoreTest {
         }
 
         @Test
-        fun `Default praxis has no introduction`() {
-            assertNull(Praxis.Default.introductionId)
+        fun `Default praxis has no attunement`() {
+            assertNull(Praxis.Default.attunementId)
         }
 
         @Test

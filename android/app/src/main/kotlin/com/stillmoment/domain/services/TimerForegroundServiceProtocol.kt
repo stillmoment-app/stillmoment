@@ -40,20 +40,20 @@ interface TimerForegroundServiceProtocol {
     fun playIntervalGong(gongSoundId: String, gongVolume: Float)
 
     /**
-     * Play introduction audio through the foreground service.
+     * Play attunement audio through the foreground service.
      *
-     * @param introductionId Introduction identifier (e.g., "breath")
+     * @param attunementId Attunement identifier (e.g., "breath")
      */
-    fun playIntroduction(introductionId: String)
+    fun playAttunement(attunementId: String)
 
     /**
-     * Stop introduction audio.
+     * Stop attunement audio.
      */
-    fun stopIntroduction()
+    fun stopAttunement()
 
     /**
      * Update background audio (start or change sound).
-     * Called when transitioning to Running state after gong or introduction.
+     * Called when transitioning to Running state after gong or attunement.
      *
      * @param soundId Background sound identifier
      * @param soundVolume Background sound volume (0.0 to 1.0)

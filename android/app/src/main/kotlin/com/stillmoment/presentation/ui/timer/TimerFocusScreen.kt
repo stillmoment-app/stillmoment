@@ -110,7 +110,7 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
     val activeStates = setOf(
         TimerState.Preparation,
         TimerState.StartGong,
-        TimerState.Introduction,
+        TimerState.Attunement,
         TimerState.Running,
         TimerState.EndGong
     )
@@ -404,7 +404,7 @@ private fun getStateText(state: TimerState, affirmationIndex: Int): String {
             val index = affirmationIndex % preparationAffirmations.size
             stringResource(preparationAffirmations[index])
         }
-        TimerState.StartGong, TimerState.Introduction, TimerState.Running, TimerState.EndGong -> {
+        TimerState.StartGong, TimerState.Attunement, TimerState.Running, TimerState.EndGong -> {
             val index = affirmationIndex % runningAffirmations.size
             stringResource(runningAffirmations[index])
         }

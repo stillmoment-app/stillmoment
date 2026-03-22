@@ -1,9 +1,9 @@
 package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.R
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GongSound
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -71,11 +71,11 @@ constructor(
     }
 
     private var gongPlayer: MediaPlayerProtocol? = null
-    private var introductionPlayer: MediaPlayerProtocol? = null
+    private var attunementPlayer: MediaPlayerProtocol? = null
     private var backgroundPlayer: MediaPlayerProtocol? = null
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
-    private var introductionPreviewPlayer: MediaPlayerProtocol? = null
+    private var attunementPreviewPlayer: MediaPlayerProtocol? = null
     private var meditationPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private var meditationPreviewFadeJob: Job? = null
@@ -86,8 +86,8 @@ constructor(
     private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     override val gongCompletionFlow: SharedFlow<Unit> = _gongCompletionFlow.asSharedFlow()
 
-    private val _introductionCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    override val introductionCompletionFlow: SharedFlow<Unit> = _introductionCompletionFlow.asSharedFlow()
+    private val _attunementCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val attunementCompletionFlow: SharedFlow<Unit> = _attunementCompletionFlow.asSharedFlow()
 
     companion object {
         private const val TAG = "AudioService"
@@ -110,8 +110,8 @@ constructor(
         /** Default volume for ambient/background sounds (0.0 to 1.0) */
         private const val DEFAULT_AMBIENT_VOLUME = 0.15f
 
-        /** Volume for introduction audio playback */
-        private const val INTRODUCTION_VOLUME = 0.9f
+        /** Volume for attunement audio playback */
+        private const val ATTUNEMENT_VOLUME = 0.9f
 
         /**
          * Resolves a raw resource name to its Android resource ID.
@@ -283,79 +283,79 @@ constructor(
         previewPlayer = null
     }
 
-    // MARK: - Introduction Playback
+    // MARK: - Attunement Playback
 
     /**
-     * Play introduction audio from a raw resource name.
+     * Play attunement audio from a raw resource name.
      *
-     * @param resourceName Raw resource name for the introduction audio (e.g., "intro_breath_de")
+     * @param resourceName Raw resource name for the attunement audio (e.g., "intro_breath_de")
      * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
      */
-    fun playIntroduction(resourceName: String, volume: Float = INTRODUCTION_VOLUME) {
+    fun playAttunement(resourceName: String, volume: Float = ATTUNEMENT_VOLUME) {
         try {
-            stopIntroduction()
+            stopAttunement()
             val resourceId = resolveRawResourceId(resourceName)
             if (resourceId == 0) {
-                logger.e(TAG, "Unknown introduction resource: $resourceName")
+                logger.e(TAG, "Unknown attunement resource: $resourceName")
                 return
             }
             val clampedVolume = volume.coerceIn(0f, 1f)
-            introductionPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
+            attunementPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
                 setVolume(clampedVolume, clampedVolume)
                 setOnCompletionListener {
                     release()
-                    introductionPlayer = null
-                    _introductionCompletionFlow.tryEmit(Unit)
+                    attunementPlayer = null
+                    _attunementCompletionFlow.tryEmit(Unit)
                 }
                 start()
             }
-            logger.d(TAG, "Playing introduction audio, volume: $clampedVolume")
+            logger.d(TAG, "Playing attunement audio, volume: $clampedVolume")
         } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play introduction - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to play attunement - invalid state: ${e.message}")
         }
     }
 
     /**
-     * Play introduction audio from a local file path.
+     * Play attunement audio from a local file path.
      * Used for custom imported attunements.
      *
      * @param filePath Absolute path to the audio file
      * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
      */
-    fun playIntroductionFromFile(filePath: String, volume: Float = INTRODUCTION_VOLUME) {
+    fun playAttunementFromFile(filePath: String, volume: Float = ATTUNEMENT_VOLUME) {
         try {
-            stopIntroduction()
+            stopAttunement()
             val clampedVolume = volume.coerceIn(0f, 1f)
             val player = mediaPlayerFactory.create()
             player.setDataSource(filePath)
             player.setOnErrorListener { what, extra ->
-                logger.e(TAG, "Introduction audio error: what=$what, extra=$extra")
-                introductionPlayer = null
+                logger.e(TAG, "Attunement audio error: what=$what, extra=$extra")
+                attunementPlayer = null
                 false
             }
             player.setOnPreparedListener {
                 player.setVolume(clampedVolume, clampedVolume)
                 player.start()
-                logger.d(TAG, "Playing introduction from file: $filePath, volume: $clampedVolume")
+                logger.d(TAG, "Playing attunement from file: $filePath, volume: $clampedVolume")
             }
             player.setOnCompletionListener {
                 player.release()
-                introductionPlayer = null
-                _introductionCompletionFlow.tryEmit(Unit)
+                attunementPlayer = null
+                _attunementCompletionFlow.tryEmit(Unit)
             }
-            introductionPlayer = player
+            attunementPlayer = player
             player.prepareAsync()
         } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play introduction from file - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to play attunement from file - invalid state: ${e.message}")
         }
     }
 
     /**
-     * Stop introduction audio. Idempotent.
+     * Stop attunement audio. Idempotent.
      */
-    fun stopIntroduction() {
-        safeRelease(introductionPlayer, "introduction")
-        introductionPlayer = null
+    fun stopAttunement() {
+        safeRelease(attunementPlayer, "attunement")
+        attunementPlayer = null
     }
 
     // MARK: - Background Preview
@@ -503,117 +503,117 @@ constructor(
         }
     }
 
-    // MARK: - Introduction Preview
+    // MARK: - Attunement Preview
 
     /**
-     * Play an introduction audio preview (attunement or built-in introduction).
+     * Play an attunement audio preview (attunement or built-in attunement).
      * Automatically stops any previous preview.
      *
-     * Resolves the introductionId: if it matches a built-in Introduction, plays from resources;
+     * Resolves the attunementId: if it matches a built-in Attunement, plays from resources;
      * otherwise treats it as a custom audio UUID and resolves via CustomAudioRepository.
      *
-     * @param introductionId ID of the introduction to preview
+     * @param attunementId ID of the attunement to preview
      */
-    override fun playIntroductionPreview(introductionId: String) {
+    override fun playAttunementPreview(attunementId: String) {
         // Stop any previous previews (mutual exclusion)
-        stopIntroductionPreview()
+        stopAttunementPreview()
         stopGongPreview()
         stopBackgroundPreview()
 
-        val introduction = Introduction.find(introductionId)
-        if (introduction != null) {
-            playBuiltInIntroductionPreview(introduction)
+        val attunement = Attunement.find(attunementId)
+        if (attunement != null) {
+            playBuiltInAttunementPreview(attunement)
         } else {
-            playCustomIntroductionPreview(introductionId)
+            playCustomAttunementPreview(attunementId)
         }
     }
 
     /**
-     * Play a built-in introduction preview from raw resources.
+     * Play a built-in attunement preview from raw resources.
      */
-    private fun playBuiltInIntroductionPreview(introduction: Introduction) {
-        val resourceName = introduction.audioFilename(Introduction.currentLanguage)
+    private fun playBuiltInAttunementPreview(attunement: Attunement) {
+        val resourceName = attunement.audioFilename(Attunement.currentLanguage)
         if (resourceName == null) {
-            logger.d(TAG, "No audio available for introduction ${introduction.id} in ${Introduction.currentLanguage}")
+            logger.d(TAG, "No audio available for attunement ${attunement.id} in ${Attunement.currentLanguage}")
             return
         }
         val resourceId = resolveRawResourceId(resourceName)
         if (resourceId == 0) {
-            logger.e(TAG, "Unknown introduction resource: $resourceName")
+            logger.e(TAG, "Unknown attunement resource: $resourceName")
             return
         }
         try {
             val player = mediaPlayerFactory.createFromResource(resourceId)
             if (player == null) {
-                logger.e(TAG, "Failed to create player for introduction preview: ${introduction.id}")
+                logger.e(TAG, "Failed to create player for attunement preview: ${attunement.id}")
                 return
             }
             coordinator.requestAudioSession(AudioSource.PREVIEW)
-            introductionPreviewPlayer = player.apply {
-                setVolume(INTRODUCTION_VOLUME, INTRODUCTION_VOLUME)
+            attunementPreviewPlayer = player.apply {
+                setVolume(ATTUNEMENT_VOLUME, ATTUNEMENT_VOLUME)
                 setOnCompletionListener {
                     release()
-                    introductionPreviewPlayer = null
+                    attunementPreviewPlayer = null
                     coordinator.releaseAudioSession(AudioSource.PREVIEW)
                 }
                 start()
             }
-            logger.d(TAG, "Playing built-in introduction preview: ${introduction.id}")
+            logger.d(TAG, "Playing built-in attunement preview: ${attunement.id}")
         } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play introduction preview - invalid state: ${e.message}")
+            logger.e(TAG, "Failed to play attunement preview - invalid state: ${e.message}")
         }
     }
 
     /**
-     * Play a custom introduction preview from a local file path.
+     * Play a custom attunement preview from a local file path.
      * Resolves the file path asynchronously via CustomAudioRepository.
      */
-    private fun playCustomIntroductionPreview(introductionId: String) {
+    private fun playCustomAttunementPreview(attunementId: String) {
         mainScope.launch {
             try {
-                val filePath = customAudioRepository.getFilePath(introductionId)
+                val filePath = customAudioRepository.getFilePath(attunementId)
                 if (filePath == null) {
-                    logger.w(TAG, "Custom introduction not found: $introductionId")
+                    logger.w(TAG, "Custom attunement not found: $attunementId")
                     return@launch
                 }
                 coordinator.requestAudioSession(AudioSource.PREVIEW)
                 val player = mediaPlayerFactory.create()
                 player.setDataSource(filePath)
                 player.setOnErrorListener { what, extra ->
-                    logger.e(TAG, "Introduction preview error: what=$what, extra=$extra")
-                    introductionPreviewPlayer = null
+                    logger.e(TAG, "Attunement preview error: what=$what, extra=$extra")
+                    attunementPreviewPlayer = null
                     coordinator.releaseAudioSession(AudioSource.PREVIEW)
                     false
                 }
                 player.setOnPreparedListener {
-                    player.setVolume(INTRODUCTION_VOLUME, INTRODUCTION_VOLUME)
+                    player.setVolume(ATTUNEMENT_VOLUME, ATTUNEMENT_VOLUME)
                     player.start()
-                    logger.d(TAG, "Playing custom introduction preview: $introductionId")
+                    logger.d(TAG, "Playing custom attunement preview: $attunementId")
                 }
                 player.setOnCompletionListener {
                     player.release()
-                    introductionPreviewPlayer = null
+                    attunementPreviewPlayer = null
                     coordinator.releaseAudioSession(AudioSource.PREVIEW)
                 }
-                introductionPreviewPlayer = player
+                attunementPreviewPlayer = player
                 player.prepareAsync()
             } catch (e: IllegalStateException) {
                 logger.e(
                     TAG,
-                    "Failed to play custom introduction preview - invalid state: ${e.message}"
+                    "Failed to play custom attunement preview - invalid state: ${e.message}"
                 )
             }
         }
     }
 
     /**
-     * Stop the current introduction preview. Idempotent - safe to call even if no preview is playing.
+     * Stop the current attunement preview. Idempotent - safe to call even if no preview is playing.
      */
-    override fun stopIntroductionPreview() {
-        if (safeRelease(introductionPreviewPlayer, "introduction preview")) {
+    override fun stopAttunementPreview() {
+        if (safeRelease(attunementPreviewPlayer, "attunement preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
-        introductionPreviewPlayer = null
+        attunementPreviewPlayer = null
     }
 
     // MARK: - Background Audio
@@ -787,7 +787,7 @@ constructor(
         hardStopMeditationPreview()
         stopGongPreview()
         stopBackgroundPreview()
-        stopIntroductionPreview()
+        stopAttunementPreview()
 
         try {
             val player = mediaPlayerFactory.createFromContentUri(fileUri)
@@ -870,8 +870,8 @@ constructor(
         previewPlayer = null
         safeRelease(backgroundPreviewPlayer, "background preview cleanup")
         backgroundPreviewPlayer = null
-        safeRelease(introductionPreviewPlayer, "introduction preview cleanup")
-        introductionPreviewPlayer = null
+        safeRelease(attunementPreviewPlayer, "attunement preview cleanup")
+        attunementPreviewPlayer = null
         safeRelease(meditationPreviewPlayer, "meditation preview cleanup")
         meditationPreviewPlayer = null
     }
@@ -883,10 +883,10 @@ constructor(
      */
     fun release() {
         releaseGongPlayer()
-        stopIntroduction()
+        stopAttunement()
         stopGongPreview()
         stopBackgroundPreview()
-        stopIntroductionPreview()
+        stopAttunementPreview()
         // Hard-stop instead of fade — mainScope.cancel() below would abort the fade coroutine
         meditationPreviewFadeJob?.cancel()
         meditationPreviewFadeJob = null

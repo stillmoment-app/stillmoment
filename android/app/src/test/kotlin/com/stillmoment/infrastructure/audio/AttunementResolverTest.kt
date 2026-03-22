@@ -1,8 +1,8 @@
 package com.stillmoment.infrastructure.audio
 
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.presentation.viewmodel.FakeCustomAudioRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,15 +25,15 @@ class AttunementResolverTest {
 
     @AfterEach
     fun tearDown() {
-        Introduction.languageOverride = null
+        Attunement.languageOverride = null
     }
 
     @Nested
     inner class Resolve {
 
         @Test
-        fun `returns built-in introduction when available for current language`() {
-            Introduction.languageOverride = "en"
+        fun `returns built-in attunement when available for current language`() {
+            Attunement.languageOverride = "en"
 
             val result = resolver.resolve("breath")
 
@@ -45,7 +45,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns localized name for German language`() {
-            Introduction.languageOverride = "de"
+            Attunement.languageOverride = "de"
 
             val result = resolver.resolve("breath")
 
@@ -54,8 +54,8 @@ class AttunementResolverTest {
         }
 
         @Test
-        fun `returns null for built-in introduction not available for current language`() {
-            Introduction.languageOverride = "fr"
+        fun `returns null for built-in attunement not available for current language`() {
+            Attunement.languageOverride = "fr"
 
             val result = resolver.resolve("breath")
 
@@ -64,7 +64,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns custom attunement by ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "custom-attunement-1",
                 name = "My Attunement",
@@ -84,7 +84,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns null for custom soundscape ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val soundscapeFile = CustomAudioFile(
                 id = "custom-soundscape-1",
                 name = "Forest Rain",
@@ -101,7 +101,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns null for unknown ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
 
             val result = resolver.resolve("nonexistent-id")
 
@@ -110,7 +110,7 @@ class AttunementResolverTest {
 
         @Test
         fun `prefers built-in over custom for same ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "breath",
                 name = "Custom Breath",
@@ -129,7 +129,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns zero duration when custom attunement has null durationMs`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "no-duration",
                 name = "Unknown Duration",
@@ -151,7 +151,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns built-in and custom attunements`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "custom-attunement-1",
                 name = "My Attunement",
@@ -172,7 +172,7 @@ class AttunementResolverTest {
 
         @Test
         fun `returns empty when no attunements available`() {
-            Introduction.languageOverride = "fr"
+            Attunement.languageOverride = "fr"
 
             val result = resolver.allAvailable()
 
@@ -181,7 +181,7 @@ class AttunementResolverTest {
 
         @Test
         fun `excludes custom soundscapes from results`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val soundscapeFile = CustomAudioFile(
                 id = "custom-soundscape",
                 name = "Rain",
