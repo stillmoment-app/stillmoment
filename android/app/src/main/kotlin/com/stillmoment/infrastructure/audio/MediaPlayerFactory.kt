@@ -2,6 +2,7 @@ package com.stillmoment.infrastructure.audio
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.Uri
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
 import com.stillmoment.domain.services.MediaPlayerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,6 +23,12 @@ constructor(
 
     override fun createFromResource(resourceId: Int): MediaPlayerProtocol? {
         val mediaPlayer = MediaPlayer.create(context, resourceId) ?: return null
+        return MediaPlayerWrapper(mediaPlayer)
+    }
+
+    override fun createFromContentUri(uriString: String): MediaPlayerProtocol? {
+        val uri = Uri.parse(uriString)
+        val mediaPlayer = MediaPlayer.create(context, uri) ?: return null
         return MediaPlayerWrapper(mediaPlayer)
     }
 

@@ -7,6 +7,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.services.AudioServiceProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -37,6 +38,8 @@ data class GuidedMeditationsListUiState(
     val showDeleteConfirmation: Boolean = false,
     /** Meditation pending deletion (awaiting confirmation) */
     val meditationToDelete: GuidedMeditation? = null,
+    /** ID of the meditation currently being previewed, or null if none */
+    val previewingMeditationId: String? = null,
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -61,7 +64,8 @@ data class GuidedMeditationsListUiState(
 class GuidedMeditationsListViewModel
 @Inject
 constructor(
-    private val repository: GuidedMeditationRepository
+    private val repository: GuidedMeditationRepository,
+    private val audioService: AudioServiceProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -234,6 +238,27 @@ constructor(
         _uiState.update { it.copy(selectedMeditation = updated) }
     }
 
+    // MARK: - Preview
+
+    /**
+     * Starts a meditation preview. Stops any previously running preview.
+     *
+     * @param meditation Meditation to preview
+     */
+    fun startPreview(meditation: GuidedMeditation) {
+        _uiState.update { it.copy(previewingMeditationId = meditation.id) }
+        audioService.playMeditationPreview(meditation.fileUri)
+    }
+
+    /**
+     * Stops the current meditation preview. Idempotent.
+     */
+    fun stopPreview() {
+        if (_uiState.value.previewingMeditationId == null) return
+        _uiState.update { it.copy(previewingMeditationId = null) }
+        audioService.stopMeditationPreview()
+    }
+
     // MARK: - Error Handling
 
     /**
@@ -241,5 +266,10 @@ constructor(
      */
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        audioService.stopMeditationPreview()
     }
 }

@@ -32,7 +32,12 @@ import kotlinx.coroutines.launch
  *
  * Coordinates with AudioSessionCoordinator to ensure exclusive audio access
  * when Timer and Guided Meditations features coexist.
+ *
+ * LargeClass suppressed: this singleton intentionally manages multiple audio concerns
+ * (gongs, background loops, previews, meditation playback). Splitting would require
+ * exposing internal MediaPlayer state across class boundaries.
  */
+@Suppress("LargeClass")
 @Singleton
 class AudioService
 @Inject
@@ -71,7 +76,9 @@ constructor(
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
     private var introductionPreviewPlayer: MediaPlayerProtocol? = null
+    private var meditationPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
+    private var meditationPreviewFadeJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
@@ -93,6 +100,9 @@ constructor(
 
         /** Duration for fade-out effect */
         private const val FADE_OUT_DURATION_MS = 500L
+
+        /** Duration for meditation preview fade-out (~0.3s, consistent with iOS) */
+        private const val MEDITATION_PREVIEW_FADE_OUT_DURATION_MS = 300L
 
         /** Number of steps for fade-out animation */
         private const val FADE_OUT_STEPS = 10
@@ -133,6 +143,28 @@ constructor(
         if (sound == null || sound.isSilent) return null
         val resourceId = resolveRawResourceId(sound.rawResourceName)
         return if (resourceId != 0) resourceId else null
+    }
+
+    // MARK: - Player Lifecycle Helpers
+
+    /**
+     * Safely stops and releases a MediaPlayer. Returns true if a player was released.
+     */
+    private fun safeRelease(player: MediaPlayerProtocol?, label: String): Boolean {
+        if (player == null) return false
+        try {
+            if (player.isPlaying) {
+                player.stop()
+            }
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop $label - invalid state: ${e.message}")
+        }
+        try {
+            player.release()
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to release $label - invalid state: ${e.message}")
+        }
+        return true
     }
 
     // MARK: - Gong Playback
@@ -245,21 +277,10 @@ constructor(
      * Stop the current gong preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopGongPreview() {
-        val hadPlayer = previewPlayer != null
-        try {
-            previewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            previewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop gong preview - invalid state: ${e.message}")
-        }
-        if (hadPlayer) {
+        if (safeRelease(previewPlayer, "gong preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
+        previewPlayer = null
     }
 
     // MARK: - Introduction Playback
@@ -333,17 +354,8 @@ constructor(
      * Stop introduction audio. Idempotent.
      */
     fun stopIntroduction() {
-        try {
-            introductionPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            introductionPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop introduction - invalid state: ${e.message}")
-        }
+        safeRelease(introductionPlayer, "introduction")
+        introductionPlayer = null
     }
 
     // MARK: - Background Preview
@@ -408,25 +420,12 @@ constructor(
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopBackgroundPreview() {
-        val hadPlayer = backgroundPreviewPlayer != null
-        // Cancel fade-out job
         backgroundPreviewJob?.cancel()
         backgroundPreviewJob = null
-
-        try {
-            backgroundPreviewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            backgroundPreviewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop background preview - invalid state: ${e.message}")
-        }
-        if (hadPlayer) {
+        if (safeRelease(backgroundPreviewPlayer, "background preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
+        backgroundPreviewPlayer = null
     }
 
     /**
@@ -479,8 +478,19 @@ constructor(
      */
     private suspend fun fadeOutBackgroundPreview(startVolume: Float) {
         val player = backgroundPreviewPlayer ?: return
+        fadeOutPlayer(player, FADE_OUT_DURATION_MS, startVolume)
+        safeRelease(player, "background preview after fade")
+        backgroundPreviewPlayer = null
+        coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        logger.d(TAG, "Background preview fade-out complete")
+    }
 
-        val stepDuration = FADE_OUT_DURATION_MS / FADE_OUT_STEPS
+    /**
+     * Animates a player's volume from startVolume down to 0 over durationMs.
+     * Must be called from a coroutine context.
+     */
+    private suspend fun fadeOutPlayer(player: MediaPlayerProtocol, durationMs: Long, startVolume: Float = 1.0f) {
+        val stepDuration = durationMs / FADE_OUT_STEPS
         for (step in FADE_OUT_STEPS downTo 0) {
             val volume = startVolume * step / FADE_OUT_STEPS
             try {
@@ -490,21 +500,6 @@ constructor(
                 break
             }
             delay(stepDuration)
-        }
-
-        // Stop and clean up after fade completes
-        try {
-            backgroundPreviewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            backgroundPreviewPlayer = null
-            coordinator.releaseAudioSession(AudioSource.PREVIEW)
-            logger.d(TAG, "Background preview fade-out complete")
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop background preview after fade - invalid state: ${e.message}")
         }
     }
 
@@ -615,21 +610,10 @@ constructor(
      * Stop the current introduction preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopIntroductionPreview() {
-        val hadPlayer = introductionPreviewPlayer != null
-        try {
-            introductionPreviewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            introductionPreviewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop introduction preview - invalid state: ${e.message}")
-        }
-        if (hadPlayer) {
+        if (safeRelease(introductionPreviewPlayer, "introduction preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
+        introductionPreviewPlayer = null
     }
 
     // MARK: - Background Audio
@@ -762,18 +746,9 @@ constructor(
      */
     private fun stopBackgroundAudioInternal() {
         volumeAnimator.cancel()
-        try {
-            backgroundPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            backgroundPlayer = null
-            logger.d(TAG, "Stopped background audio")
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to stop background audio - invalid state: ${e.message}")
-        }
+        safeRelease(backgroundPlayer, "background audio")
+        backgroundPlayer = null
+        logger.d(TAG, "Stopped background audio")
     }
 
     /**
@@ -796,6 +771,89 @@ constructor(
         return backgroundPlayer?.isPlaying == true
     }
 
+    // MARK: - Meditation Preview
+
+    /**
+     * Play a guided meditation preview from a content URI (SAF).
+     * Automatically stops any previous preview.
+     * Uses AudioSource.PREVIEW (not GUIDED_MEDITATION).
+     *
+     * @param fileUri Content URI string of the meditation file
+     */
+    override fun playMeditationPreview(fileUri: String) {
+        // Cancel fade-out and hard-stop the previous player (no fade for switch)
+        meditationPreviewFadeJob?.cancel()
+        meditationPreviewFadeJob = null
+        hardStopMeditationPreview()
+        stopGongPreview()
+        stopBackgroundPreview()
+        stopIntroductionPreview()
+
+        try {
+            val player = mediaPlayerFactory.createFromContentUri(fileUri)
+            if (player == null) {
+                logger.e(TAG, "Failed to create player for meditation preview: $fileUri")
+                return
+            }
+
+            coordinator.requestAudioSession(AudioSource.PREVIEW)
+            meditationPreviewPlayer = player.apply {
+                setVolume(1.0f, 1.0f)
+                setOnCompletionListener {
+                    release()
+                    meditationPreviewPlayer = null
+                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                }
+                start()
+            }
+            logger.d(TAG, "Playing meditation preview: $fileUri")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to play meditation preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Stop the current meditation preview with fade-out (~0.3s, consistent with iOS).
+     * Idempotent - safe to call even if no preview is playing.
+     */
+    override fun stopMeditationPreview() {
+        val player = meditationPreviewPlayer ?: return
+
+        // Cancel any previous fade-out job
+        meditationPreviewFadeJob?.cancel()
+
+        meditationPreviewFadeJob = mainScope.launch {
+            fadeOutMeditationPreview(player)
+        }
+    }
+
+    /**
+     * Fades out and stops the meditation preview player.
+     * Must be called from a coroutine context.
+     */
+    private suspend fun fadeOutMeditationPreview(player: MediaPlayerProtocol) {
+        fadeOutPlayer(player, MEDITATION_PREVIEW_FADE_OUT_DURATION_MS)
+        safeRelease(player, "meditation preview after fade")
+
+        // Only clean up if this player is still the current one (not replaced by a new preview)
+        if (meditationPreviewPlayer === player) {
+            meditationPreviewPlayer = null
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
+            logger.d(TAG, "Meditation preview fade-out complete")
+        }
+    }
+
+    /**
+     * Immediately stops the meditation preview player without fade-out.
+     * Used when switching to a new preview or during conflict cleanup.
+     */
+    private fun hardStopMeditationPreview() {
+        if (safeRelease(meditationPreviewPlayer, "meditation preview")) {
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        }
+        meditationPreviewPlayer = null
+    }
+
     // MARK: - Preview Cleanup
 
     /**
@@ -803,45 +861,19 @@ constructor(
      * Used by the conflict handler to stop previews when another source takes over.
      */
     private fun cleanupPreviewPlayers() {
-        // Cancel background preview fade-out job
         backgroundPreviewJob?.cancel()
         backgroundPreviewJob = null
+        meditationPreviewFadeJob?.cancel()
+        meditationPreviewFadeJob = null
 
-        try {
-            previewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            previewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to cleanup gong preview - invalid state: ${e.message}")
-        }
-
-        try {
-            backgroundPreviewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            backgroundPreviewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to cleanup background preview - invalid state: ${e.message}")
-        }
-
-        try {
-            introductionPreviewPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            introductionPreviewPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to cleanup introduction preview - invalid state: ${e.message}")
-        }
+        safeRelease(previewPlayer, "gong preview cleanup")
+        previewPlayer = null
+        safeRelease(backgroundPreviewPlayer, "background preview cleanup")
+        backgroundPreviewPlayer = null
+        safeRelease(introductionPreviewPlayer, "introduction preview cleanup")
+        introductionPreviewPlayer = null
+        safeRelease(meditationPreviewPlayer, "meditation preview cleanup")
+        meditationPreviewPlayer = null
     }
 
     // MARK: - Lifecycle
@@ -855,21 +887,16 @@ constructor(
         stopGongPreview()
         stopBackgroundPreview()
         stopIntroductionPreview()
+        // Hard-stop instead of fade — mainScope.cancel() below would abort the fade coroutine
+        meditationPreviewFadeJob?.cancel()
+        meditationPreviewFadeJob = null
+        hardStopMeditationPreview()
         stopBackgroundAudio()
         mainScope.cancel()
     }
 
     private fun releaseGongPlayer() {
-        try {
-            gongPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            gongPlayer = null
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to release gong player - invalid state: ${e.message}")
-        }
+        safeRelease(gongPlayer, "gong player")
+        gongPlayer = null
     }
 }

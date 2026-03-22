@@ -73,6 +73,14 @@ class FakeAudioService : AudioServiceProtocol {
     override fun stopIntroductionPreview() {
         introductionPreviewStopped = true
     }
+
+    override fun playMeditationPreview(fileUri: String) {
+        // no-op for timer tests
+    }
+
+    override fun stopMeditationPreview() {
+        // no-op for timer tests
+    }
 }
 
 /**
