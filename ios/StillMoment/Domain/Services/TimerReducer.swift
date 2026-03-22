@@ -67,16 +67,12 @@ enum TimerReducer {
             return []
         }
 
-        var updatedSettings = settings
-        updatedSettings.durationMinutes = selectedMinutes
-
         // Background audio never starts here. It starts when the start gong finishes:
         // - Without introduction: in reduceStartGongFinished
         // - With introduction: in reduceIntroductionFinished
         return [
             .activateTimerSession,
-            .startTimer(durationMinutes: selectedMinutes),
-            .saveSettings(updatedSettings)
+            .startTimer(durationMinutes: selectedMinutes)
         ]
     }
 

@@ -2,7 +2,7 @@
 //  TimerSettingsRepositoryTests.swift
 //  Still Moment
 //
-//  Tests for UserDefaultsTimerSettingsRepository
+//  Tests for UserDefaultsTimerSettingsRepository (legacy, read-only migration)
 //
 
 import XCTest
@@ -48,15 +48,30 @@ final class TimerSettingsRepositoryTests: XCTestCase {
         XCTAssertEqual(settings, .default)
     }
 
-    // MARK: - Save and Load Round-Trip Tests
+    // MARK: - Load From UserDefaults Tests
 
-    func testSaveAndLoad_preservesAllSettings() {
-        guard let sut else {
+    func testLoad_readsAllSettingsFromUserDefaults() {
+        guard let sut, let testDefaults else {
             return XCTFail("sut not initialized")
         }
 
-        // Given
-        let original = MeditationSettings(
+        // Given - Populate UserDefaults directly (simulating legacy data)
+        testDefaults.set(true, forKey: MeditationSettings.Keys.intervalGongsEnabled)
+        testDefaults.set(10, forKey: MeditationSettings.Keys.intervalMinutes)
+        testDefaults.set(0.5, forKey: MeditationSettings.Keys.intervalGongVolume)
+        testDefaults.set("forest", forKey: MeditationSettings.Keys.backgroundSoundId)
+        testDefaults.set(0.8, forKey: MeditationSettings.Keys.backgroundSoundVolume)
+        testDefaults.set(25, forKey: MeditationSettings.Keys.durationMinutes)
+        testDefaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        testDefaults.set(30, forKey: MeditationSettings.Keys.preparationTimeSeconds)
+        testDefaults.set("deep-zen", forKey: MeditationSettings.Keys.startGongSoundId)
+        testDefaults.set(0.7, forKey: MeditationSettings.Keys.gongVolume)
+
+        // When
+        let loaded = sut.load()
+
+        // Then
+        let expected = MeditationSettings(
             intervalGongsEnabled: true,
             intervalMinutes: 10,
             intervalGongVolume: 0.5,
@@ -68,95 +83,49 @@ final class TimerSettingsRepositoryTests: XCTestCase {
             startGongSoundId: "deep-zen",
             gongVolume: 0.7
         )
-
-        // When
-        sut.save(original)
-        let loaded = sut.load()
-
-        // Then
-        XCTAssertEqual(loaded, original)
+        XCTAssertEqual(loaded, expected)
     }
 
-    func testSaveAndLoad_preservesIntervalGongsEnabled() {
-        guard let sut else {
+    func testLoad_readsIntervalGongsEnabled() {
+        guard let sut, let testDefaults else {
             return XCTFail("sut not initialized")
         }
 
         // Given
-        var settings = MeditationSettings.default
-        settings.intervalGongsEnabled = true
+        testDefaults.set(true, forKey: MeditationSettings.Keys.intervalGongsEnabled)
 
         // When
-        sut.save(settings)
         let loaded = sut.load()
 
         // Then
         XCTAssertTrue(loaded.intervalGongsEnabled)
     }
 
-    func testSaveAndLoad_preservesDuration() {
-        guard let sut else {
+    func testLoad_readsDuration() {
+        guard let sut, let testDefaults else {
             return XCTFail("sut not initialized")
         }
 
         // Given
-        var settings = MeditationSettings.default
-        settings.durationMinutes = 45
+        testDefaults.set(45, forKey: MeditationSettings.Keys.durationMinutes)
 
         // When
-        sut.save(settings)
         let loaded = sut.load()
 
         // Then
         XCTAssertEqual(loaded.durationMinutes, 45)
     }
 
-    func testSaveAndLoad_preservesBackgroundSoundVolume() {
-        guard let sut else {
+    func testLoad_readsPreparationSettings() {
+        guard let sut, let testDefaults else {
             return XCTFail("sut not initialized")
         }
 
         // Given
-        var settings = MeditationSettings.default
-        settings.backgroundSoundVolume = 0.75
+        testDefaults.set(false, forKey: MeditationSettings.Keys.preparationTimeEnabled)
+        testDefaults.set(30, forKey: MeditationSettings.Keys.preparationTimeSeconds)
 
         // When
-        sut.save(settings)
-        let loaded = sut.load()
-
-        // Then
-        XCTAssertEqual(loaded.backgroundSoundVolume, 0.75, accuracy: 0.001)
-    }
-
-    func testSaveAndLoad_preservesGongVolume() {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given
-        var settings = MeditationSettings.default
-        settings.gongVolume = 0.6
-
-        // When
-        sut.save(settings)
-        let loaded = sut.load()
-
-        // Then
-        XCTAssertEqual(loaded.gongVolume, 0.6, accuracy: 0.001)
-    }
-
-    func testSaveAndLoad_preservesPreparationSettings() {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given
-        var settings = MeditationSettings.default
-        settings.preparationTimeEnabled = false
-        settings.preparationTimeSeconds = 30
-
-        // When
-        sut.save(settings)
         let loaded = sut.load()
 
         // Then
@@ -164,17 +133,15 @@ final class TimerSettingsRepositoryTests: XCTestCase {
         XCTAssertEqual(loaded.preparationTimeSeconds, 30)
     }
 
-    func testSaveAndLoad_preservesStartGongSoundId() {
-        guard let sut else {
+    func testLoad_readsStartGongSoundId() {
+        guard let sut, let testDefaults else {
             return XCTFail("sut not initialized")
         }
 
         // Given
-        var settings = MeditationSettings.default
-        settings.startGongSoundId = "warm-zen"
+        testDefaults.set("warm-zen", forKey: MeditationSettings.Keys.startGongSoundId)
 
         // When
-        sut.save(settings)
         let loaded = sut.load()
 
         // Then
@@ -288,27 +255,5 @@ final class TimerSettingsRepositoryTests: XCTestCase {
 
         // Then - Should use default (5)
         XCTAssertEqual(settings.intervalMinutes, 5)
-    }
-
-    // MARK: - Overwrite Tests
-
-    func testSave_overwritesPreviousSettings() {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given - Save initial settings
-        var first = MeditationSettings.default
-        first.durationMinutes = 10
-        sut.save(first)
-
-        // When - Save different settings
-        var second = MeditationSettings.default
-        second.durationMinutes = 30
-        sut.save(second)
-
-        // Then - Should have latest settings
-        let loaded = sut.load()
-        XCTAssertEqual(loaded.durationMinutes, 30)
     }
 }

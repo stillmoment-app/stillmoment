@@ -8,12 +8,13 @@
 import Foundation
 import OSLog
 
-/// UserDefaults-based implementation of timer settings persistence
+/// Legacy repository — read-only, used internally by `UserDefaultsPraxisRepository` for migration
+/// from old UserDefaults keys to Praxis format.
 ///
-/// Handles loading, saving, and legacy migration of `MeditationSettings`.
+/// Handles loading and legacy migration of `MeditationSettings` from UserDefaults.
 /// Legacy migration logic (backgroundAudioMode → backgroundSoundId) lives here
 /// to keep the ViewModel free of infrastructure concerns.
-final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
+final class UserDefaultsTimerSettingsRepository {
     // MARK: Lifecycle
 
     /// Creates a repository with the specified UserDefaults instance
@@ -55,25 +56,6 @@ final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
 
         self.logSettings(settings, action: "Loaded")
         return settings
-    }
-
-    func save(_ settings: MeditationSettings) {
-        self.userDefaults.set(settings.intervalGongsEnabled, forKey: MeditationSettings.Keys.intervalGongsEnabled)
-        self.userDefaults.set(settings.intervalMinutes, forKey: MeditationSettings.Keys.intervalMinutes)
-        self.userDefaults.set(settings.intervalMode.rawValue, forKey: MeditationSettings.Keys.intervalMode)
-        self.userDefaults.set(settings.intervalSoundId, forKey: MeditationSettings.Keys.intervalSoundId)
-        self.userDefaults.set(settings.intervalGongVolume, forKey: MeditationSettings.Keys.intervalGongVolume)
-        self.userDefaults.set(settings.backgroundSoundId, forKey: MeditationSettings.Keys.backgroundSoundId)
-        self.userDefaults.set(settings.backgroundSoundVolume, forKey: MeditationSettings.Keys.backgroundSoundVolume)
-        self.userDefaults.set(settings.durationMinutes, forKey: MeditationSettings.Keys.durationMinutes)
-        self.userDefaults.set(settings.preparationTimeEnabled, forKey: MeditationSettings.Keys.preparationTimeEnabled)
-        self.userDefaults.set(settings.preparationTimeSeconds, forKey: MeditationSettings.Keys.preparationTimeSeconds)
-        self.userDefaults.set(settings.startGongSoundId, forKey: MeditationSettings.Keys.startGongSoundId)
-        self.userDefaults.set(settings.gongVolume, forKey: MeditationSettings.Keys.gongVolume)
-        self.userDefaults.set(settings.introductionId, forKey: MeditationSettings.Keys.introductionId)
-        self.userDefaults.set(settings.introductionEnabled, forKey: MeditationSettings.Keys.introductionEnabled)
-
-        self.logSettings(settings, action: "Saved")
     }
 
     // MARK: Private

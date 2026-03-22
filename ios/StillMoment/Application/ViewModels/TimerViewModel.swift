@@ -23,7 +23,6 @@ final class TimerViewModel: ObservableObject {
     init(
         timerService: TimerServiceProtocol = TimerService(),
         audioService: AudioServiceProtocol = AudioService(),
-        settingsRepository: TimerSettingsRepository = UserDefaultsTimerSettingsRepository(),
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
         customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
@@ -32,7 +31,6 @@ final class TimerViewModel: ObservableObject {
     ) {
         self.timerService = timerService
         self.audioService = audioService
-        self.settingsRepository = settingsRepository
         self.soundRepository = soundRepository
         self.praxisRepository = praxisRepository
         self.customAudioRepository = customAudioRepository
@@ -183,7 +181,6 @@ final class TimerViewModel: ObservableObject {
         let settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
         self.settings = settings
         self.selectedMinutes = settings.durationMinutes
-        self.settingsRepository.save(settings)
         Logger.viewModel.info("Updated from praxis")
     }
 
@@ -191,7 +188,6 @@ final class TimerViewModel: ObservableObject {
 
     private let timerService: TimerServiceProtocol
     let audioService: AudioServiceProtocol
-    private let settingsRepository: TimerSettingsRepository
     let soundRepository: BackgroundSoundRepositoryProtocol
     private let praxisRepository: PraxisRepository
     let customAudioRepository: CustomAudioRepositoryProtocol
@@ -229,9 +225,6 @@ final class TimerViewModel: ObservableObject {
             return
         }
         if self.executeTimerEffect(effect) {
-            return
-        }
-        if self.executeSettingsEffect(effect) {
             return
         }
     }
@@ -286,16 +279,6 @@ final class TimerViewModel: ObservableObject {
             self.timer = self.timer?.withState(.completed)
         case .clearTimer:
             self.timer = nil
-        default:
-            return false
-        }
-        return true
-    }
-
-    private func executeSettingsEffect(_ effect: TimerEffect) -> Bool {
-        switch effect {
-        case let .saveSettings(settings):
-            self.executeSaveSettings(settings)
         default:
             return false
         }
@@ -500,20 +483,6 @@ private extension TimerViewModel {
             preparationTimeSeconds: preparationTime,
             intervalSettings: intervalSettings
         )
-    }
-
-    func executeSaveSettings(_ settings: MeditationSettings) {
-        self.settings = settings
-        self.settingsRepository.save(settings)
-    }
-}
-
-// MARK: - Settings Persistence
-
-extension TimerViewModel {
-    /// Saves current settings via the repository
-    func saveSettings() {
-        self.settingsRepository.save(self.settings)
     }
 }
 

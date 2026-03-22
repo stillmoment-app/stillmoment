@@ -17,21 +17,17 @@ final class TimerViewModelPraxisTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockSettingsRepository: MockTimerSettingsRepository!
-    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockPraxisRepository: MockPraxisRepository!
 
     override func setUp() {
         super.setUp()
         self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
-        self.mockSettingsRepository = MockTimerSettingsRepository()
         self.mockPraxisRepository = MockPraxisRepository()
 
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
     }
@@ -40,7 +36,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         self.sut = nil
         self.mockTimerService = nil
         self.mockAudioService = nil
-        self.mockSettingsRepository = nil
         self.mockPraxisRepository = nil
         super.tearDown()
     }
@@ -56,7 +51,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
 
@@ -78,7 +72,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
 
@@ -96,7 +89,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
 
@@ -143,17 +135,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
 
         // Then
         XCTAssertEqual(self.sut.selectedMinutes, 30)
-    }
-
-    func testUpdateFromPraxis_savesSettingsToRepository() {
-        // Given
-        let praxis = Praxis(durationMinutes: 25, startGongSoundId: "classic-bowl")
-
-        // When
-        self.sut.updateFromPraxis(praxis)
-
-        // Then: settings were persisted
-        XCTAssertTrue(self.mockSettingsRepository.saveCalled)
     }
 
     func testUpdateFromPraxis_transfersAllIntervalSettings() {
@@ -290,7 +271,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
 

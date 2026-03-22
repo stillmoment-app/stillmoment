@@ -41,13 +41,9 @@ final class TimerReducerTests: XCTestCase {
         )
 
         // Then - Background audio is NOT started here; it starts in startGongFinished
-        var expectedSettings = settings
-        expectedSettings.durationMinutes = 10
-
-        XCTAssertEqual(effects.count, 3)
+        XCTAssertEqual(effects.count, 2)
         XCTAssertEqual(effects[0], .activateTimerSession)
         XCTAssertEqual(effects[1], .startTimer(durationMinutes: 10))
-        XCTAssertEqual(effects[2], .saveSettings(expectedSettings))
     }
 
     func testStartPressed_producesStartTimerEffect() {
