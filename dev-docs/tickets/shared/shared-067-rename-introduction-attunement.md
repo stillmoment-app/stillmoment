@@ -1,6 +1,6 @@
 # Ticket shared-067: Rename Introduction → Attunement (Code + UI)
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan iOS**: [Implementierungsplan iOS](../plans/shared-067-ios.md)
 **Plan Android**: [Implementierungsplan Android](../plans/shared-067-android.md)
 **Prioritaet**: NIEDRIG
@@ -24,7 +24,7 @@ Code, UI und Dokumentation verwenden unterschiedliche Begriffe fuer dasselbe Kon
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
