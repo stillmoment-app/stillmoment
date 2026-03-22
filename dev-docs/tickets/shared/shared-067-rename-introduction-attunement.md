@@ -22,7 +22,7 @@ Code, UI und Dokumentation verwenden unterschiedliche Begriffe fuer dasselbe Kon
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
