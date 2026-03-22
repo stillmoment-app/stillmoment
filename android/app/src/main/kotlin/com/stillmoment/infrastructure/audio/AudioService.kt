@@ -32,7 +32,12 @@ import kotlinx.coroutines.launch
  *
  * Coordinates with AudioSessionCoordinator to ensure exclusive audio access
  * when Timer and Guided Meditations features coexist.
+ *
+ * LargeClass suppressed: this singleton intentionally manages multiple audio concerns
+ * (gongs, background loops, previews, meditation playback). Splitting would require
+ * exposing internal MediaPlayer state across class boundaries.
  */
+@Suppress("LargeClass")
 @Singleton
 class AudioService
 @Inject
