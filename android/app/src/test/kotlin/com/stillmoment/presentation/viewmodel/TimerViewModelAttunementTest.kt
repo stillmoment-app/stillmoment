@@ -17,12 +17,12 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 /**
- * Unit tests for introduction duration restoration logic in TimerViewModel.
- * When a user enables an introduction that clamps the duration,
- * disabling the introduction should restore the original duration.
+ * Unit tests for attunement duration restoration logic in TimerViewModel.
+ * When a user enables an attunement that clamps the duration,
+ * disabling the attunement should restore the original duration.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class TimerViewModelIntroductionTest {
+class TimerViewModelAttunementTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeTimerRepository: FakeTimerRepository
     private lateinit var fakeAudioService: FakeAudioService
@@ -61,129 +61,129 @@ class TimerViewModelIntroductionTest {
     }
 
     @Test
-    fun `disabling introduction restores pre-introduction duration`() = runTest {
+    fun `disabling attunement restores pre-attunement duration`() = runTest {
         // Given - User has 1 minute selected
         fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 1)
         val viewModel = createViewModel()
         advanceUntilIdle()
         assertEquals(1, viewModel.uiState.value.selectedMinutes)
 
-        // When - Enable introduction (clamps to 3 min)
+        // When - Enable attunement (clamps to 3 min)
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = "breath",
-                introductionEnabled = true,
+                attunementId = "breath",
+                attunementEnabled = true,
                 durationMinutes = 3
             ),
         )
         advanceUntilIdle()
         assertEquals(3, viewModel.uiState.value.selectedMinutes)
 
-        // When - Disable introduction
+        // When - Disable attunement
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = null,
-                introductionEnabled = false,
+                attunementId = null,
+                attunementEnabled = false,
             ),
         )
         advanceUntilIdle()
 
-        // Then - Duration should restore to pre-introduction value
-        assertEquals(1, viewModel.uiState.value.selectedMinutes, "Should restore to pre-introduction duration")
+        // Then - Duration should restore to pre-attunement value
+        assertEquals(1, viewModel.uiState.value.selectedMinutes, "Should restore to pre-attunement duration")
     }
 
     @Test
-    fun `toggle off preserves introductionId selection`() = runTest {
-        // Given - ViewModel with introduction enabled
+    fun `toggle off preserves attunementId selection`() = runTest {
+        // Given - ViewModel with attunement enabled
         val viewModel = createViewModel()
         advanceUntilIdle()
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = "breath",
-                introductionEnabled = true,
+                attunementId = "breath",
+                attunementEnabled = true,
                 durationMinutes = 5
             )
         )
         advanceUntilIdle()
-        assertEquals("breath", viewModel.uiState.value.settings.introductionId)
-        assertEquals(true, viewModel.uiState.value.settings.introductionEnabled)
+        assertEquals("breath", viewModel.uiState.value.settings.attunementId)
+        assertEquals(true, viewModel.uiState.value.settings.attunementEnabled)
 
-        // When - Toggle off (keep introductionId, only disable)
+        // When - Toggle off (keep attunementId, only disable)
         viewModel.updateSettings(
-            viewModel.uiState.value.settings.copy(introductionEnabled = false)
+            viewModel.uiState.value.settings.copy(attunementEnabled = false)
         )
         advanceUntilIdle()
 
-        // Then - introductionId is still preserved, only introductionEnabled changed
-        assertEquals(false, viewModel.uiState.value.settings.introductionEnabled)
+        // Then - attunementId is still preserved, only attunementEnabled changed
+        assertEquals(false, viewModel.uiState.value.settings.attunementEnabled)
         assertEquals(
             "breath",
-            viewModel.uiState.value.settings.introductionId,
+            viewModel.uiState.value.settings.attunementId,
             "Selection should be preserved when toggle is turned off"
         )
     }
 
     @Test
     fun `toggle on restores previous selection`() = runTest {
-        // Given - ViewModel with introduction previously selected but now disabled
+        // Given - ViewModel with attunement previously selected but now disabled
         val viewModel = createViewModel()
         advanceUntilIdle()
         // First enable with a selection
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = "breath",
-                introductionEnabled = true,
+                attunementId = "breath",
+                attunementEnabled = true,
                 durationMinutes = 5
             )
         )
         advanceUntilIdle()
-        // Then disable (preserving the introductionId)
+        // Then disable (preserving the attunementId)
         viewModel.updateSettings(
-            viewModel.uiState.value.settings.copy(introductionEnabled = false)
+            viewModel.uiState.value.settings.copy(attunementEnabled = false)
         )
         advanceUntilIdle()
-        assertEquals(false, viewModel.uiState.value.settings.introductionEnabled)
-        assertEquals("breath", viewModel.uiState.value.settings.introductionId)
+        assertEquals(false, viewModel.uiState.value.settings.attunementEnabled)
+        assertEquals("breath", viewModel.uiState.value.settings.attunementId)
 
         // When - Toggle on again
         viewModel.updateSettings(
-            viewModel.uiState.value.settings.copy(introductionEnabled = true)
+            viewModel.uiState.value.settings.copy(attunementEnabled = true)
         )
         advanceUntilIdle()
 
-        // Then - introductionId is still "breath"
-        assertEquals(true, viewModel.uiState.value.settings.introductionEnabled)
+        // Then - attunementId is still "breath"
+        assertEquals(true, viewModel.uiState.value.settings.attunementEnabled)
         assertEquals(
             "breath",
-            viewModel.uiState.value.settings.introductionId,
+            viewModel.uiState.value.settings.attunementId,
             "Selection should be restored when toggle is turned back on"
         )
     }
 
     @Test
-    fun `disabling introduction does not restore when duration was above minimum`() = runTest {
+    fun `disabling attunement does not restore when duration was above minimum`() = runTest {
         // Given - User has 10 minutes selected (above the 3-minute minimum)
         fakePraxisRepository.storedPraxis = Praxis.create(durationMinutes = 10)
         val viewModel = createViewModel()
         advanceUntilIdle()
         assertEquals(10, viewModel.uiState.value.selectedMinutes)
 
-        // When - Enable introduction (10 > 3, no clamping)
+        // When - Enable attunement (10 > 3, no clamping)
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = "breath",
-                introductionEnabled = true,
+                attunementId = "breath",
+                attunementEnabled = true,
                 durationMinutes = 10
             ),
         )
         advanceUntilIdle()
         assertEquals(10, viewModel.uiState.value.selectedMinutes)
 
-        // When - Disable introduction
+        // When - Disable attunement
         viewModel.updateSettings(
             viewModel.uiState.value.settings.copy(
-                introductionId = null,
-                introductionEnabled = false,
+                attunementId = null,
+                attunementEnabled = false,
             ),
         )
         advanceUntilIdle()

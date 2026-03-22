@@ -6,41 +6,41 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
- * Unit tests for Introduction domain model.
+ * Unit tests for Attunement domain model.
  */
-class IntroductionTest {
+class AttunementTest {
     @AfterEach
     fun tearDown() {
-        Introduction.languageOverride = null
+        Attunement.languageOverride = null
     }
 
     // MARK: - Registry Tests
 
     @Test
-    fun `allIntroductions contains breath`() {
-        val ids = Introduction.allIntroductions.map { it.id }
+    fun `allAttunements contains breath`() {
+        val ids = Attunement.allAttunements.map { it.id }
         assertTrue(ids.contains("breath"))
     }
 
     @Test
-    fun `allIntroductions have unique IDs`() {
-        val ids = Introduction.allIntroductions.map { it.id }
+    fun `allAttunements have unique IDs`() {
+        val ids = Attunement.allAttunements.map { it.id }
         assertEquals(ids.size, ids.distinct().size)
     }
 
     @Test
-    fun `allIntroductions have both English and German names`() {
-        for (intro in Introduction.allIntroductions) {
+    fun `allAttunements have both English and German names`() {
+        for (intro in Attunement.allAttunements) {
             assertTrue(intro.nameEnglish.isNotBlank(), "Intro ${intro.id} has blank English name")
             assertTrue(intro.nameGerman.isNotBlank(), "Intro ${intro.id} has blank German name")
         }
     }
 
-    // MARK: - Breath Introduction Tests
+    // MARK: - Breath Attunement Tests
 
     @Test
     fun `breath has correct properties`() {
-        val breath = Introduction.allIntroductions.first { it.id == "breath" }
+        val breath = Attunement.allAttunements.first { it.id == "breath" }
 
         assertEquals("breath", breath.id)
         assertEquals(95, breath.durationSeconds)
@@ -49,7 +49,7 @@ class IntroductionTest {
 
     @Test
     fun `breath formatted duration is 1 colon 35`() {
-        val breath = Introduction.allIntroductions.first { it.id == "breath" }
+        val breath = Attunement.allAttunements.first { it.id == "breath" }
         assertEquals("1:35", breath.formattedDuration)
     }
 
@@ -59,9 +59,9 @@ class IntroductionTest {
     inner class LanguageFiltering {
         @Test
         fun `availableForCurrentLanguage returns breath for German`() {
-            Introduction.languageOverride = "de"
+            Attunement.languageOverride = "de"
 
-            val available = Introduction.availableForCurrentLanguage()
+            val available = Attunement.availableForCurrentLanguage()
 
             assertEquals(1, available.size)
             assertEquals("breath", available.first().id)
@@ -69,38 +69,38 @@ class IntroductionTest {
 
         @Test
         fun `availableForCurrentLanguage returns breath for English`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
 
-            val available = Introduction.availableForCurrentLanguage()
+            val available = Attunement.availableForCurrentLanguage()
 
             assertEquals(1, available.size)
             assertEquals("breath", available.first().id)
         }
 
         @Test
-        fun `hasAvailableIntroductions is true for German`() {
-            Introduction.languageOverride = "de"
-            assertTrue(Introduction.hasAvailableIntroductions)
+        fun `hasAvailableAttunements is true for German`() {
+            Attunement.languageOverride = "de"
+            assertTrue(Attunement.hasAvailableAttunements)
         }
 
         @Test
-        fun `hasAvailableIntroductions is true for English`() {
-            Introduction.languageOverride = "en"
-            assertTrue(Introduction.hasAvailableIntroductions)
+        fun `hasAvailableAttunements is true for English`() {
+            Attunement.languageOverride = "en"
+            assertTrue(Attunement.hasAvailableAttunements)
         }
 
         @Test
-        fun `hasAvailableIntroductions is false for unsupported language`() {
-            Introduction.languageOverride = "fr"
-            assertFalse(Introduction.hasAvailableIntroductions)
+        fun `hasAvailableAttunements is false for unsupported language`() {
+            Attunement.languageOverride = "fr"
+            assertFalse(Attunement.hasAvailableAttunements)
         }
     }
 
     // MARK: - Find Tests
 
     @Test
-    fun `find returns correct introduction for valid ID`() {
-        val intro = Introduction.find("breath")
+    fun `find returns correct attunement for valid ID`() {
+        val intro = Attunement.find("breath")
 
         assertNotNull(intro)
         assertEquals("breath", intro?.id)
@@ -108,69 +108,69 @@ class IntroductionTest {
 
     @Test
     fun `find returns null for unknown ID`() {
-        assertNull(Introduction.find("nonexistent"))
+        assertNull(Attunement.find("nonexistent"))
     }
 
     @Test
     fun `find returns null for empty ID`() {
-        assertNull(Introduction.find(""))
+        assertNull(Attunement.find(""))
     }
 
     // MARK: - Language Availability Tests
 
     @Test
     fun `isAvailableForCurrentLanguage returns true for breath in German`() {
-        Introduction.languageOverride = "de"
-        assertTrue(Introduction.isAvailableForCurrentLanguage("breath"))
+        Attunement.languageOverride = "de"
+        assertTrue(Attunement.isAvailableForCurrentLanguage("breath"))
     }
 
     @Test
     fun `isAvailableForCurrentLanguage returns true for breath in English`() {
-        Introduction.languageOverride = "en"
-        assertTrue(Introduction.isAvailableForCurrentLanguage("breath"))
+        Attunement.languageOverride = "en"
+        assertTrue(Attunement.isAvailableForCurrentLanguage("breath"))
     }
 
     @Test
     fun `isAvailableForCurrentLanguage returns false for unknown ID`() {
-        Introduction.languageOverride = "de"
-        assertFalse(Introduction.isAvailableForCurrentLanguage("nonexistent"))
+        Attunement.languageOverride = "de"
+        assertFalse(Attunement.isAvailableForCurrentLanguage("nonexistent"))
     }
 
     // MARK: - Audio Filename Tests
 
     @Test
     fun `audioFilenameForCurrentLanguage returns filename for breath in German`() {
-        Introduction.languageOverride = "de"
-        val filename = Introduction.audioFilenameForCurrentLanguage("breath")
+        Attunement.languageOverride = "de"
+        val filename = Attunement.audioFilenameForCurrentLanguage("breath")
         assertNotNull(filename)
         assertEquals("intro_breath_de", filename)
     }
 
     @Test
     fun `audioFilenameForCurrentLanguage returns filename for breath in English`() {
-        Introduction.languageOverride = "en"
-        assertEquals("intro_breath_en", Introduction.audioFilenameForCurrentLanguage("breath"))
+        Attunement.languageOverride = "en"
+        assertEquals("intro_breath_en", Attunement.audioFilenameForCurrentLanguage("breath"))
     }
 
     @Test
     fun `audioFilenameForCurrentLanguage returns null for unknown ID`() {
-        Introduction.languageOverride = "de"
-        assertNull(Introduction.audioFilenameForCurrentLanguage("nonexistent"))
+        Attunement.languageOverride = "de"
+        assertNull(Attunement.audioFilenameForCurrentLanguage("nonexistent"))
     }
 
     // MARK: - Localized Name Tests
 
     @Test
     fun `localizedName returns German name for German locale`() {
-        Introduction.languageOverride = "de"
-        val breath = Introduction.allIntroductions.first { it.id == "breath" }
+        Attunement.languageOverride = "de"
+        val breath = Attunement.allAttunements.first { it.id == "breath" }
         assertEquals(breath.nameGerman, breath.localizedName)
     }
 
     @Test
     fun `localizedName returns English name for English locale`() {
-        Introduction.languageOverride = "en"
-        val breath = Introduction.allIntroductions.first { it.id == "breath" }
+        Attunement.languageOverride = "en"
+        val breath = Attunement.allAttunements.first { it.id == "breath" }
         assertEquals(breath.nameEnglish, breath.localizedName)
     }
 
@@ -178,7 +178,7 @@ class IntroductionTest {
 
     @Test
     fun `formattedDuration formats correctly for various durations`() {
-        val intro = Introduction(
+        val intro = Attunement(
             id = "test",
             nameEnglish = "Test",
             nameGerman = "Test",
@@ -191,7 +191,7 @@ class IntroductionTest {
 
     @Test
     fun `formattedDuration pads seconds with leading zero`() {
-        val intro = Introduction(
+        val intro = Attunement(
             id = "test",
             nameEnglish = "Test",
             nameGerman = "Test",

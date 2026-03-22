@@ -12,6 +12,6 @@ enum class CustomAudioType {
     /** Background sound that loops during meditation */
     SOUNDSCAPE,
 
-    /** Introduction audio that plays once after the start gong */
+    /** Attunement audio that plays once after the start gong */
     ATTUNEMENT
 }

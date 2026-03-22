@@ -65,10 +65,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.IntervalMode
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.presentation.ui.localizedDescription
 import com.stillmoment.presentation.ui.localizedName
@@ -130,9 +130,9 @@ fun SettingsSheet(
                 onGongSoundPreview = onGongSoundPreview,
                 itemSpacing = itemSpacing
             )
-            if (Introduction.hasAvailableIntroductions) {
+            if (Attunement.hasAvailableAttunements) {
                 Spacer(modifier = Modifier.height(sectionSpacing))
-                IntroductionSection(
+                AttunementSection(
                     settings = settings,
                     onSettingsChange = onSettingsChange,
                     itemSpacing = itemSpacing
@@ -558,11 +558,11 @@ private fun GongSoundDropdown(
     }
 }
 
-// MARK: - Introduction Section
+// MARK: - Attunement Section
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntroductionSection(
+private fun AttunementSection(
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit,
     itemSpacing: Dp
@@ -570,18 +570,18 @@ private fun IntroductionSection(
     var expanded by remember { mutableStateOf(false) }
 
     Column {
-        SectionTitle(text = stringResource(R.string.settings_introduction))
+        SectionTitle(text = stringResource(R.string.settings_attunement))
 
         SettingsCard {
-            IntroductionToggle(
+            AttunementToggle(
                 settings = settings,
                 onSettingsChange = onSettingsChange
             )
 
-            if (settings.introductionEnabled) {
+            if (settings.attunementEnabled) {
                 Spacer(modifier = Modifier.height(itemSpacing))
 
-                IntroductionContentDropdown(
+                AttunementContentDropdown(
                     expanded = expanded,
                     onExpandedChange = { expanded = it },
                     settings = settings,
@@ -593,20 +593,20 @@ private fun IntroductionSection(
 }
 
 @Composable
-private fun IntroductionToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
-    val introContentDescription = stringResource(R.string.accessibility_introduction_toggle)
+private fun AttunementToggle(settings: MeditationSettings, onSettingsChange: (MeditationSettings) -> Unit) {
+    val introContentDescription = stringResource(R.string.accessibility_attunement_toggle)
     val haptic = LocalHapticFeedback.current
-    val available = Introduction.availableForCurrentLanguage()
+    val available = Attunement.availableForCurrentLanguage()
 
-    val introStateDescription = if (settings.introductionEnabled) {
-        val introName = settings.introductionId?.let { Introduction.find(it)?.localizedName }
+    val introStateDescription = if (settings.attunementEnabled) {
+        val introName = settings.attunementId?.let { Attunement.find(it)?.localizedName }
         if (introName != null) {
-            stringResource(R.string.accessibility_introduction_enabled, introName)
+            stringResource(R.string.accessibility_attunement_enabled, introName)
         } else {
-            stringResource(R.string.accessibility_introduction_enabled_no_selection)
+            stringResource(R.string.accessibility_attunement_enabled_no_selection)
         }
     } else {
-        stringResource(R.string.accessibility_introduction_disabled)
+        stringResource(R.string.accessibility_attunement_disabled)
     }
 
     Row(
@@ -614,27 +614,27 @@ private fun IntroductionToggle(settings: MeditationSettings, onSettingsChange: (
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(R.string.settings_introduction),
+            text = stringResource(R.string.settings_attunement),
             style = TypographyRole.SettingsDescription.textStyle(),
             color = TypographyRole.SettingsDescription.textColor(),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Switch(
-            checked = settings.introductionEnabled,
+            checked = settings.attunementEnabled,
             onCheckedChange = { enabled ->
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                val newSettings = if (enabled && settings.introductionId == null) {
+                val newSettings = if (enabled && settings.attunementId == null) {
                     val firstId = available.firstOrNull()?.id
-                    settings.copy(introductionEnabled = true, introductionId = firstId)
+                    settings.copy(attunementEnabled = true, attunementId = firstId)
                 } else {
-                    settings.copy(introductionEnabled = enabled)
+                    settings.copy(attunementEnabled = enabled)
                 }
                 onSettingsChange(newSettings)
             },
             colors = stillMomentSwitchColors(),
             modifier = Modifier
-                .testTag("settings.toggle.introduction")
+                .testTag("settings.toggle.attunement")
                 .semantics {
                     contentDescription = introContentDescription
                     stateDescription = introStateDescription
@@ -645,17 +645,17 @@ private fun IntroductionToggle(settings: MeditationSettings, onSettingsChange: (
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun IntroductionContentDropdown(
+private fun AttunementContentDropdown(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     settings: MeditationSettings,
     onSettingsChange: (MeditationSettings) -> Unit
 ) {
-    val available = Introduction.availableForCurrentLanguage().toImmutableList()
-    val introPickerDescription = stringResource(R.string.accessibility_introduction_picker)
+    val available = Attunement.availableForCurrentLanguage().toImmutableList()
+    val introPickerDescription = stringResource(R.string.accessibility_attunement_picker)
 
-    val selectedName = settings.introductionId?.let { id ->
-        Introduction.find(id)?.let { "${it.localizedName} (${it.formattedDuration})" }
+    val selectedName = settings.attunementId?.let { id ->
+        Attunement.find(id)?.let { "${it.localizedName} (${it.formattedDuration})" }
     } ?: available.firstOrNull()?.let { "${it.localizedName} (${it.formattedDuration})" }.orEmpty()
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
@@ -663,7 +663,7 @@ private fun IntroductionContentDropdown(
             value = selectedName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.settings_introduction_content)) },
+            label = { Text(stringResource(R.string.settings_attunement_content)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             shape = DropdownShape,
             colors = dropdownTextFieldColors(),
@@ -678,9 +678,9 @@ private fun IntroductionContentDropdown(
                 DropdownMenuItem(
                     text = { Text("${intro.localizedName} (${intro.formattedDuration})") },
                     onClick = {
-                        val minDuration = MeditationSettings.minimumDuration(intro.id, settings.introductionEnabled)
+                        val minDuration = MeditationSettings.minimumDuration(intro.id, settings.attunementEnabled)
                         val newDuration = maxOf(settings.durationMinutes, minDuration)
-                        onSettingsChange(settings.copy(introductionId = intro.id, durationMinutes = newDuration))
+                        onSettingsChange(settings.copy(attunementId = intro.id, durationMinutes = newDuration))
                         onExpandedChange(false)
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding

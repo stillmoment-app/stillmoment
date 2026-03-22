@@ -30,8 +30,8 @@ data class TimerUiState(
     val currentPraxis: Praxis = Praxis.Default,
     /** Built-in background sounds from catalog */
     val builtInSounds: List<BackgroundSound> = emptyList(),
-    /** Resolved introduction display name (built-in or custom), null if none active */
-    val resolvedIntroductionName: String? = null,
+    /** Resolved attunement display name (built-in or custom), null if none active */
+    val resolvedAttunementName: String? = null,
     /** Resolved background sound display name (built-in or custom) */
     val resolvedBackgroundSoundName: String? = null
 ) {

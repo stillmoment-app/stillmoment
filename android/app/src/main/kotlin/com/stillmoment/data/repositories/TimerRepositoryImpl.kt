@@ -37,13 +37,13 @@ constructor() : TimerRepository {
     override suspend fun start(
         durationMinutes: Int,
         preparationTimeSeconds: Int,
-        introductionDurationSeconds: Int
+        attunementDurationSeconds: Int
     ): List<TimerEvent> {
         val timer =
             MeditationTimer.create(
                 durationMinutes = durationMinutes,
                 preparationTimeSeconds = preparationTimeSeconds,
-                introductionDurationSeconds = introductionDurationSeconds
+                attunementDurationSeconds = attunementDurationSeconds
             ).let { created ->
                 // If preparation time is 0, start directly in StartGong state (gong plays immediately)
                 if (preparationTimeSeconds <= 0) {
@@ -85,13 +85,13 @@ constructor() : TimerRepository {
         return updatedTimer to events
     }
 
-    override fun startIntroduction() {
-        currentTimer = currentTimer?.startIntroduction()
+    override fun startAttunement() {
+        currentTimer = currentTimer?.startAttunement()
         _timer.value = currentTimer
     }
 
-    override fun endIntroduction() {
-        currentTimer = currentTimer?.endIntroduction()
+    override fun endAttunement() {
+        currentTimer = currentTimer?.endAttunement()
         _timer.value = currentTimer
     }
 

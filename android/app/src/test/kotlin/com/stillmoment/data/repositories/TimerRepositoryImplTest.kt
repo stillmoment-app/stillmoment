@@ -205,53 +205,53 @@ class TimerRepositoryImplTest {
         assertEquals(initialCountdown - 1, updatedCountdown)
     }
 
-    // MARK: - Introduction Tests
+    // MARK: - Attunement Tests
 
     @Test
-    fun `start with introductionDurationSeconds stores value in timer`() = runTest {
+    fun `start with attunementDurationSeconds stores value in timer`() = runTest {
         // When
-        sut.start(durationMinutes = 10, introductionDurationSeconds = 95)
+        sut.start(durationMinutes = 10, attunementDurationSeconds = 95)
 
         // Then
         val timer = sut.timerFlow.first()
-        assertEquals(95, timer.introductionDurationSeconds)
+        assertEquals(95, timer.attunementDurationSeconds)
     }
 
     @Test
-    fun `startIntroduction transitions from StartGong to Introduction`() = runTest {
+    fun `startAttunement transitions from StartGong to Attunement`() = runTest {
         // Given — timer in StartGong state (preparation disabled)
         sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
         assertEquals(TimerState.StartGong, sut.currentTimer?.state)
 
         // When
-        sut.startIntroduction()
+        sut.startAttunement()
 
         // Then
         val timer = sut.timerFlow.first()
-        assertEquals(TimerState.Introduction, timer.state)
+        assertEquals(TimerState.Attunement, timer.state)
     }
 
     @Test
-    fun `startIntroduction does nothing when no timer exists`() {
+    fun `startAttunement does nothing when no timer exists`() {
         // Given
         assertNull(sut.currentTimer)
 
         // When
-        sut.startIntroduction()
+        sut.startAttunement()
 
         // Then
         assertNull(sut.currentTimer)
     }
 
     @Test
-    fun `endIntroduction transitions from Introduction to Running`() = runTest {
-        // Given — timer in Introduction state
+    fun `endAttunement transitions from Attunement to Running`() = runTest {
+        // Given — timer in Attunement state
         sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
-        sut.startIntroduction()
-        assertEquals(TimerState.Introduction, sut.currentTimer?.state)
+        sut.startAttunement()
+        assertEquals(TimerState.Attunement, sut.currentTimer?.state)
 
         // When
-        sut.endIntroduction()
+        sut.endAttunement()
 
         // Then
         val timer = sut.timerFlow.first()
@@ -259,15 +259,15 @@ class TimerRepositoryImplTest {
     }
 
     @Test
-    fun `endIntroduction sets silentPhaseStartRemaining`() = runTest {
-        // Given — timer in Introduction state, tick a few times to consume time
+    fun `endAttunement sets silentPhaseStartRemaining`() = runTest {
+        // Given — timer in Attunement state, tick a few times to consume time
         sut.start(durationMinutes = 10, preparationTimeSeconds = 0)
-        sut.startIntroduction()
+        sut.startAttunement()
         repeat(5) { sut.tick() }
         val remainingBeforeEnd = sut.currentTimer?.remainingSeconds
 
         // When
-        sut.endIntroduction()
+        sut.endAttunement()
 
         // Then
         val timer = sut.timerFlow.first()
@@ -275,12 +275,12 @@ class TimerRepositoryImplTest {
     }
 
     @Test
-    fun `endIntroduction does nothing when no timer exists`() {
+    fun `endAttunement does nothing when no timer exists`() {
         // Given
         assertNull(sut.currentTimer)
 
         // When
-        sut.endIntroduction()
+        sut.endAttunement()
 
         // Then
         assertNull(sut.currentTimer)

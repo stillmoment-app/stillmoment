@@ -86,9 +86,9 @@ import com.stillmoment.presentation.ui.settings.AppSettingsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
 import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
 import com.stillmoment.presentation.ui.timer.PraxisEditorScreen
+import com.stillmoment.presentation.ui.timer.SelectAttunementScreen
 import com.stillmoment.presentation.ui.timer.SelectBackgroundSoundScreen
 import com.stillmoment.presentation.ui.timer.SelectGongScreen
-import com.stillmoment.presentation.ui.timer.SelectIntroductionScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.AppSettingsViewModel
@@ -128,7 +128,7 @@ sealed class Screen(val route: String) {
 
     data object PraxisEditor : Screen("praxisEditor")
 
-    data object SelectIntroduction : Screen("selectIntroduction")
+    data object SelectAttunement : Screen("selectAttunement")
 
     data object SelectBackground : Screen("selectBackground")
 
@@ -333,7 +333,7 @@ private fun NavHostScaffold(
     val showBottomBar = currentDestination?.route?.let { route ->
         !screenManagesOwnInsets &&
             route != Screen.SoundAttributions.route &&
-            route != Screen.SelectIntroduction.route &&
+            route != Screen.SelectAttunement.route &&
             route != Screen.SelectBackground.route &&
             route != Screen.SelectGong.route &&
             route != Screen.IntervalGongs.route
@@ -516,7 +516,7 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
                 timerViewModel.applyPraxisUpdate(praxis)
                 navController.popBackStack(Screen.Timer.route, false)
             },
-            onNavigateToIntroduction = { navController.navigate(Screen.SelectIntroduction.route) },
+            onNavigateToAttunement = { navController.navigate(Screen.SelectAttunement.route) },
             onNavigateToBackground = { navController.navigate(Screen.SelectBackground.route) },
             onNavigateToGong = { navController.navigate(Screen.SelectGong.route) },
             onNavigateToIntervalGongs = { navController.navigate(Screen.IntervalGongs.route) },
@@ -530,13 +530,13 @@ private fun NavGraphBuilder.praxisEditorSubScreens(
     pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
     onClearImportedCustomAudio: () -> Unit
 ) {
-    composable(Screen.SelectIntroduction.route) { backStackEntry ->
+    composable(Screen.SelectAttunement.route) { backStackEntry ->
         val editorViewModel: PraxisEditorViewModel = hiltViewModel(
             remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
         )
         val pendingFile by pendingImportedCustomAudio.collectAsState()
         val currentOnClear by rememberUpdatedState(onClearImportedCustomAudio)
-        SelectIntroductionScreen(
+        SelectAttunementScreen(
             onBack = { navController.popBackStack() },
             viewModel = editorViewModel,
             initialFileToRename = pendingFile?.takeIf { it.type == CustomAudioType.ATTUNEMENT },
@@ -829,7 +829,7 @@ private suspend fun handleImportTypeSelection(
             navController = navController,
             snackbarHostState = snackbarHostState,
             settingsDataStore = settingsDataStore,
-            targetScreen = Screen.SelectIntroduction,
+            targetScreen = Screen.SelectAttunement,
             onCustomAudioImport = onCustomAudioImport,
             errorImportFailed = errorImportFailed
         )

@@ -3,11 +3,11 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -36,8 +36,8 @@ data class PraxisEditorUiState(
     val preparationTimeSeconds: Int = Praxis.DEFAULT_PREPARATION_TIME_SECONDS,
     val gongSoundId: String = Praxis.DEFAULT_GONG_SOUND_ID,
     val gongVolume: Float = Praxis.DEFAULT_GONG_VOLUME,
-    val introductionId: String? = null,
-    val introductionEnabled: Boolean = false,
+    val attunementId: String? = null,
+    val attunementEnabled: Boolean = false,
     val intervalGongsEnabled: Boolean = false,
     val intervalMinutes: Int = Praxis.DEFAULT_INTERVAL_MINUTES,
     val intervalMode: IntervalMode = Praxis.DEFAULT_INTERVAL_MODE,
@@ -49,8 +49,8 @@ data class PraxisEditorUiState(
     val customAttunements: List<CustomAudioFile> = emptyList(),
     val customAudioError: String? = null,
     val builtInSounds: List<BackgroundSound> = emptyList(),
-    /** Resolved introduction name (built-in or custom), null when no introduction set */
-    val resolvedIntroductionName: String? = null,
+    /** Resolved attunement name (built-in or custom), null when no attunement set */
+    val resolvedAttunementName: String? = null,
     /** Resolved background sound name (built-in or custom) */
     val resolvedBackgroundSoundName: String? = null
 ) {
@@ -61,7 +61,7 @@ data class PraxisEditorUiState(
     fun withPraxis(
         praxis: Praxis,
         builtInSounds: List<BackgroundSound>,
-        resolvedIntroductionName: String?,
+        resolvedAttunementName: String?,
         resolvedBackgroundSoundName: String?
     ): PraxisEditorUiState = copy(
         isLoading = false,
@@ -70,8 +70,8 @@ data class PraxisEditorUiState(
         preparationTimeSeconds = praxis.preparationTimeSeconds,
         gongSoundId = praxis.gongSoundId,
         gongVolume = praxis.gongVolume,
-        introductionId = praxis.introductionId,
-        introductionEnabled = praxis.introductionEnabled,
+        attunementId = praxis.attunementId,
+        attunementEnabled = praxis.attunementEnabled,
         intervalGongsEnabled = praxis.intervalGongsEnabled,
         intervalMinutes = praxis.intervalMinutes,
         intervalMode = praxis.intervalMode,
@@ -80,7 +80,7 @@ data class PraxisEditorUiState(
         backgroundSoundId = praxis.backgroundSoundId,
         backgroundSoundVolume = praxis.backgroundSoundVolume,
         builtInSounds = builtInSounds,
-        resolvedIntroductionName = resolvedIntroductionName,
+        resolvedAttunementName = resolvedAttunementName,
         resolvedBackgroundSoundName = resolvedBackgroundSoundName
     )
 }
@@ -115,7 +115,7 @@ constructor(
             val praxis = praxisRepository.load()
             praxisId = praxis.id
 
-            val introName = praxis.introductionId?.let { id ->
+            val introName = praxis.attunementId?.let { id ->
                 attunementResolver.resolve(id)?.displayName
             }
             val bgName = soundscapeResolver.resolve(praxis.backgroundSoundId)?.displayName
@@ -124,7 +124,7 @@ constructor(
                 current.withPraxis(
                     praxis = praxis,
                     builtInSounds = soundCatalogRepository.getAllSounds(),
-                    resolvedIntroductionName = introName,
+                    resolvedAttunementName = introName,
                     resolvedBackgroundSoundName = bgName
                 )
             }
@@ -151,18 +151,18 @@ constructor(
         _uiState.update { it.copy(gongVolume = Praxis.validateVolume(volume)) }
     }
 
-    fun setIntroductionId(introductionId: String?) {
-        _uiState.update { it.copy(introductionId = introductionId) }
-        resolveIntroductionName(introductionId)
+    fun setAttunementId(attunementId: String?) {
+        _uiState.update { it.copy(attunementId = attunementId) }
+        resolveAttunementName(attunementId)
     }
 
-    fun setIntroductionEnabled(enabled: Boolean) {
-        val available = Introduction.availableForCurrentLanguage()
+    fun setAttunementEnabled(enabled: Boolean) {
+        val available = Attunement.availableForCurrentLanguage()
         _uiState.update { state ->
-            if (enabled && state.introductionId == null) {
-                state.copy(introductionEnabled = true, introductionId = available.firstOrNull()?.id)
+            if (enabled && state.attunementId == null) {
+                state.copy(attunementEnabled = true, attunementId = available.firstOrNull()?.id)
             } else {
-                state.copy(introductionEnabled = enabled)
+                state.copy(attunementEnabled = enabled)
             }
         }
     }
@@ -198,10 +198,10 @@ constructor(
 
     // MARK: - Audio Name Resolution
 
-    private fun resolveIntroductionName(introductionId: String?) {
+    private fun resolveAttunementName(attunementId: String?) {
         viewModelScope.launch {
-            val name = introductionId?.let { attunementResolver.resolve(it)?.displayName }
-            _uiState.update { it.copy(resolvedIntroductionName = name) }
+            val name = attunementId?.let { attunementResolver.resolve(it)?.displayName }
+            _uiState.update { it.copy(resolvedAttunementName = name) }
         }
     }
 
@@ -227,8 +227,8 @@ constructor(
             preparationTimeSeconds = state.preparationTimeSeconds,
             gongSoundId = state.gongSoundId,
             gongVolume = state.gongVolume,
-            introductionId = state.introductionId,
-            introductionEnabled = state.introductionEnabled,
+            attunementId = state.attunementId,
+            attunementEnabled = state.attunementEnabled,
             intervalGongsEnabled = state.intervalGongsEnabled,
             intervalMinutes = state.intervalMinutes,
             intervalMode = state.intervalMode,
@@ -267,19 +267,19 @@ constructor(
     }
 
     /**
-     * Plays an introduction audio preview using the current introduction.
+     * Plays an attunement audio preview using the current attunement.
      */
-    fun playIntroductionPreview(introductionId: String) {
-        audioService.playIntroductionPreview(introductionId)
+    fun playAttunementPreview(attunementId: String) {
+        audioService.playAttunementPreview(attunementId)
     }
 
     /**
-     * Stops all active audio previews (gong, background, and introduction).
+     * Stops all active audio previews (gong, background, and attunement).
      */
     fun stopPreviews() {
         audioService.stopGongPreview()
         audioService.stopBackgroundPreview()
-        audioService.stopIntroductionPreview()
+        audioService.stopAttunementPreview()
     }
 
     // MARK: - Custom Audio
@@ -316,9 +316,9 @@ constructor(
                 save()
             }
 
-            // Reset introductionId and disable if it references the deleted file
-            if (current.introductionId == id) {
-                _uiState.update { it.copy(introductionId = null, introductionEnabled = false) }
+            // Reset attunementId and disable if it references the deleted file
+            if (current.attunementId == id) {
+                _uiState.update { it.copy(attunementId = null, attunementEnabled = false) }
                 save()
             }
         }

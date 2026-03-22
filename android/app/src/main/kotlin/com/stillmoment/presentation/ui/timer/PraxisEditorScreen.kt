@@ -82,14 +82,14 @@ private val DropdownShape = RoundedCornerShape(12.dp)
  * Replaces the old settings bottom sheet with a chronological layout:
  * Preparation -> Audio & Sounds -> Gongs.
  *
- * Navigation to sub-screens (Introduction, Background, Gong, Interval Gongs)
+ * Navigation to sub-screens (Attunement, Background, Gong, Interval Gongs)
  * is handled via lambda callbacks -- no NavController dependency.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PraxisEditorScreen(
     onNavigateBack: (Praxis) -> Unit,
-    onNavigateToIntroduction: () -> Unit,
+    onNavigateToAttunement: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
@@ -121,7 +121,7 @@ fun PraxisEditorScreen(
             uiState = uiState,
             onPreparationEnable = viewModel::setPreparationEnabled,
             onPreparationSecondsChange = viewModel::setPreparationSeconds,
-            onNavigateToIntroduction = onNavigateToIntroduction,
+            onNavigateToAttunement = onNavigateToAttunement,
             onNavigateToBackground = onNavigateToBackground,
             onNavigateToGong = onNavigateToGong,
             onNavigateToIntervalGongs = onNavigateToIntervalGongs,
@@ -136,7 +136,7 @@ private fun EditorContent(
     uiState: PraxisEditorUiState,
     onPreparationEnable: (Boolean) -> Unit,
     onPreparationSecondsChange: (Int) -> Unit,
-    onNavigateToIntroduction: () -> Unit,
+    onNavigateToAttunement: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
@@ -157,10 +157,10 @@ private fun EditorContent(
         )
         Spacer(modifier = Modifier.height(SectionSpacing))
         AudioSection(
-            introductionEnabled = uiState.introductionEnabled,
-            resolvedIntroductionName = uiState.resolvedIntroductionName,
+            attunementEnabled = uiState.attunementEnabled,
+            resolvedAttunementName = uiState.resolvedAttunementName,
             resolvedBackgroundSoundName = uiState.resolvedBackgroundSoundName,
-            onNavigateToIntroduction = onNavigateToIntroduction,
+            onNavigateToAttunement = onNavigateToAttunement,
             onNavigateToBackground = onNavigateToBackground
         )
         Spacer(modifier = Modifier.height(SectionSpacing))
@@ -334,16 +334,16 @@ private fun PreparationDurationDropdown(
 
 @Composable
 private fun AudioSection(
-    introductionEnabled: Boolean,
-    resolvedIntroductionName: String?,
+    attunementEnabled: Boolean,
+    resolvedAttunementName: String?,
     resolvedBackgroundSoundName: String?,
-    onNavigateToIntroduction: () -> Unit,
+    onNavigateToAttunement: () -> Unit,
     onNavigateToBackground: () -> Unit
 ) {
-    val introductionSummary = if (introductionEnabled && resolvedIntroductionName != null) {
-        resolvedIntroductionName
+    val attunementSummary = if (attunementEnabled && resolvedAttunementName != null) {
+        resolvedAttunementName
     } else {
-        stringResource(R.string.praxis_editor_introduction_none)
+        stringResource(R.string.praxis_editor_attunement_none)
     }
 
     val backgroundSummary = resolvedBackgroundSoundName
@@ -357,11 +357,11 @@ private fun AudioSection(
 
         EditorCard {
             NavigationRow(
-                label = stringResource(R.string.praxis_editor_introduction_row),
-                summary = introductionSummary,
-                accessibilityDescription = stringResource(R.string.accessibility_praxis_editor_introduction),
-                testTag = "praxisEditor.row.introduction",
-                onClick = onNavigateToIntroduction
+                label = stringResource(R.string.praxis_editor_attunement_row),
+                summary = attunementSummary,
+                accessibilityDescription = stringResource(R.string.accessibility_praxis_editor_attunement),
+                testTag = "praxisEditor.row.attunement",
+                onClick = onNavigateToAttunement
             )
 
             Spacer(modifier = Modifier.height(ItemSpacing))

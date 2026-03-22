@@ -91,7 +91,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-065](shared/shared-065-custom-audio-import.md) | Custom Audio Import | 3-Feature | [x] | [x] |
 | [shared-066](shared/shared-066-zen-modus.md) | Zen-Modus (Tab-Bar ausblenden) | 4-Polish | [x] | [x] |
 | [shared-068](shared/shared-068-praxis-vereinfachen.md) | Praxis vereinfachen – Einzelkonfiguration | 2-Architektur | [x] | [x] |
-| [shared-067](shared/shared-067-rename-introduction-attunement.md) | Code-Rename Introduction → Attunement | 4-Polish | [ ] | [ ] |
+| [shared-067](shared/shared-067-rename-introduction-attunement.md) | Code-Rename Introduction → Attunement | 4-Polish | [x] | [x] |
 | [shared-069](shared/shared-069-sound-selection-ux-konsistenz.md) | Sound-Auswahl UX-Konsistenz (Overflow-Menü + Icon-Selektor) | 4-Polish | [x] | [x] |
 | [shared-070](shared/shared-070-guided-settings-in-globale-settings.md) | Guided-Meditation-Einstellungen in globale Settings | 4-Polish | [x] | [x] |
 | [shared-071](shared/shared-071-tab-bibliothek-rename-meditationen.md) | Tab "Bibliothek" → "Meditationen" + Icon waveform | 4-Polish | [x] | [x] |
@@ -102,6 +102,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-076](shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [x] | [x] |
 | [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
 | [shared-078](shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [ ] | [ ] |
+| [shared-079](shared/shared-079-screenshot-pipeline-hardening.md) | Screenshot-Pipeline Hardening | 3-Implementation | [ ] | [ ] |
+| [shared-080](shared/shared-080-screenshot-single-flow-test.md) | Screenshot Single-Flow Test | 3-Implementation | [ ] | [ ] |
 
 ---
 

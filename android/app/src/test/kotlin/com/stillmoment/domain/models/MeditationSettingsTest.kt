@@ -419,8 +419,8 @@ class MeditationSettingsTest {
     }
 
     @Test
-    fun `INTRODUCTION_ID key has expected value`() {
-        assertEquals("introductionId", MeditationSettingsKeys.INTRODUCTION_ID)
+    fun `ATTUNEMENT_ID key has expected value`() {
+        assertEquals("introductionId", MeditationSettingsKeys.ATTUNEMENT_ID)
     }
 
     // MARK: - Interval Gong Volume Tests

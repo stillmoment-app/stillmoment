@@ -34,12 +34,12 @@ constructor(
         TimerForegroundService.playIntervalGong(context, gongSoundId, gongVolume)
     }
 
-    override fun playIntroduction(introductionId: String) {
-        TimerForegroundService.playIntroduction(context, introductionId)
+    override fun playAttunement(attunementId: String) {
+        TimerForegroundService.playAttunement(context, attunementId)
     }
 
-    override fun stopIntroduction() {
-        TimerForegroundService.stopIntroduction(context)
+    override fun stopAttunement() {
+        TimerForegroundService.stopAttunement(context)
     }
 
     override fun updateBackgroundAudio(soundId: String, soundVolume: Float) {

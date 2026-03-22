@@ -50,9 +50,9 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -66,17 +66,17 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 /**
- * Sub-screen for selecting an introduction (attunement) audio.
+ * Sub-screen for selecting an attunement (attunement) audio.
  *
- * Shows a toggle to enable/disable the introduction, and when enabled,
- * displays a list of available built-in introductions and a "My Attunements"
- * section for user-imported custom attunements. Tapping a built-in introduction
+ * Shows a toggle to enable/disable the attunement, and when enabled,
+ * displays a list of available built-in attunements and a "My Attunements"
+ * section for user-imported custom attunements. Tapping a built-in attunement
  * plays a preview without navigating back. Stops audio previews when leaving
  * the screen via DisposableEffect.
  */
 @Suppress("LongMethod") // Screen composable coordinates selection, dialogs, and import-rename flow
 @Composable
-fun SelectIntroductionScreen(
+fun SelectAttunementScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PraxisEditorViewModel = hiltViewModel(),
@@ -112,20 +112,20 @@ fun SelectIntroductionScreen(
         WarmGradientBackground()
 
         Column(modifier = Modifier.fillMaxSize()) {
-            IntroductionTopBar(onBack = onBack)
+            AttunementTopBar(onBack = onBack)
 
-            IntroductionContent(
-                introductionEnabled = uiState.introductionEnabled,
-                onIntroductionEnable = viewModel::setIntroductionEnabled,
-                selectedId = uiState.introductionId,
+            AttunementContent(
+                attunementEnabled = uiState.attunementEnabled,
+                onAttunementEnable = viewModel::setAttunementEnabled,
+                selectedId = uiState.attunementId,
                 customAttunements = uiState.customAttunements.toImmutableList(),
                 onSelectBuiltIn = { id ->
-                    viewModel.setIntroductionId(id)
-                    viewModel.playIntroductionPreview(id)
+                    viewModel.setAttunementId(id)
+                    viewModel.playAttunementPreview(id)
                 },
                 onSelectCustom = { id ->
-                    viewModel.setIntroductionId(id)
-                    viewModel.playIntroductionPreview(id)
+                    viewModel.setAttunementId(id)
+                    viewModel.playAttunementPreview(id)
                 },
                 onDeleteCustomAttunement = { fileToDelete = it },
                 onRenameCustomAttunement = { fileToRename = it },
@@ -136,10 +136,10 @@ fun SelectIntroductionScreen(
         }
     }
 
-    IntroductionDialogs(
+    AttunementDialogs(
         fileToDelete = fileToDelete,
         fileToRename = fileToRename,
-        introductionId = uiState.introductionId,
+        attunementId = uiState.attunementId,
         customAudioError = uiState.customAudioError,
         onDeleteConfirm = { file ->
             viewModel.deleteCustomAudio(file.id)
@@ -157,10 +157,10 @@ fun SelectIntroductionScreen(
 
 @Suppress("LongParameterList") // Dialog host needs all dialog state and callbacks
 @Composable
-private fun IntroductionDialogs(
+private fun AttunementDialogs(
     fileToDelete: CustomAudioFile?,
     fileToRename: CustomAudioFile?,
-    introductionId: String?,
+    attunementId: String?,
     customAudioError: String?,
     onDeleteConfirm: (CustomAudioFile) -> Unit,
     onDeleteDismiss: () -> Unit,
@@ -171,7 +171,7 @@ private fun IntroductionDialogs(
     fileToDelete?.let { file ->
         CustomAudioDeleteDialog(
             fileName = file.name,
-            isUsedInPraxis = introductionId == file.id,
+            isUsedInPraxis = attunementId == file.id,
             onConfirm = { onDeleteConfirm(file) },
             onDismiss = onDeleteDismiss
         )
@@ -194,9 +194,9 @@ private fun IntroductionDialogs(
 }
 
 @Composable
-private fun IntroductionTopBar(onBack: () -> Unit) {
+private fun AttunementTopBar(onBack: () -> Unit) {
     StillMomentTopAppBar(
-        title = stringResource(R.string.praxis_editor_introduction_title),
+        title = stringResource(R.string.praxis_editor_attunement_title),
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(
@@ -211,9 +211,9 @@ private fun IntroductionTopBar(onBack: () -> Unit) {
 
 @Suppress("LongParameterList") // Content composable aggregates toggle + selection + custom audio callbacks
 @Composable
-private fun IntroductionContent(
-    introductionEnabled: Boolean,
-    onIntroductionEnable: (Boolean) -> Unit,
+private fun AttunementContent(
+    attunementEnabled: Boolean,
+    onAttunementEnable: (Boolean) -> Unit,
     selectedId: String?,
     customAttunements: ImmutableList<CustomAudioFile>,
     onSelectBuiltIn: (String) -> Unit,
@@ -229,16 +229,16 @@ private fun IntroductionContent(
             .padding(top = 8.dp)
     ) {
         item {
-            IntroductionToggleCard(
-                enabled = introductionEnabled,
-                onEnable = onIntroductionEnable
+            AttunementToggleCard(
+                enabled = attunementEnabled,
+                onEnable = onAttunementEnable
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        if (introductionEnabled) {
+        if (attunementEnabled) {
             item {
-                IntroductionSelectionCard(
+                AttunementSelectionCard(
                     selectedId = selectedId,
                     onSelect = onSelectBuiltIn
                 )
@@ -260,14 +260,14 @@ private fun IntroductionContent(
 }
 
 @Composable
-private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit) {
+private fun AttunementToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit) {
     val colors = LocalStillMomentColors.current
     val haptic = LocalHapticFeedback.current
-    val toggleDescription = stringResource(R.string.accessibility_praxis_editor_introduction_toggle)
+    val toggleDescription = stringResource(R.string.accessibility_praxis_editor_attunement_toggle)
     val stateDesc = if (enabled) {
-        stringResource(R.string.accessibility_introduction_enabled_no_selection)
+        stringResource(R.string.accessibility_attunement_enabled_no_selection)
     } else {
-        stringResource(R.string.accessibility_introduction_disabled)
+        stringResource(R.string.accessibility_attunement_disabled)
     }
 
     Card(
@@ -284,7 +284,7 @@ private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.praxis_editor_introduction_row),
+                text = stringResource(R.string.praxis_editor_attunement_row),
                 style = TypographyRole.SettingsDescription.textStyle(),
                 color = TypographyRole.SettingsDescription.textColor(),
                 modifier = Modifier.weight(1f)
@@ -298,7 +298,7 @@ private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit
                 },
                 colors = stillMomentSwitchColors(),
                 modifier = Modifier
-                    .testTag("selectIntroduction.toggle.enabled")
+                    .testTag("selectAttunement.toggle.enabled")
                     .semantics {
                         contentDescription = toggleDescription
                         stateDescription = stateDesc
@@ -309,9 +309,9 @@ private fun IntroductionToggleCard(enabled: Boolean, onEnable: (Boolean) -> Unit
 }
 
 @Composable
-private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun AttunementSelectionCard(selectedId: String?, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
-    val introductions = Introduction.allIntroductions
+    val attunements = Attunement.allAttunements
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -321,7 +321,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) ->
         border = BorderStroke(0.5.dp, colors.cardBorder)
     ) {
         Column {
-            introductions.forEachIndexed { index, introduction ->
+            attunements.forEachIndexed { index, attunement ->
                 if (index > 0) {
                     HorizontalDivider(
                         color = colors.cardBorder,
@@ -330,12 +330,12 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) ->
                     )
                 }
 
-                IntroductionRow(
-                    label = introduction.localizedName,
-                    duration = introduction.formattedDuration,
-                    isSelected = selectedId == introduction.id,
+                AttunementRow(
+                    label = attunement.localizedName,
+                    duration = attunement.formattedDuration,
+                    isSelected = selectedId == attunement.id,
                     iconVector = Icons.Default.Audiotrack,
-                    onClick = { onSelect(introduction.id) }
+                    onClick = { onSelect(attunement.id) }
                 )
             }
         }
@@ -343,7 +343,7 @@ private fun IntroductionSelectionCard(selectedId: String?, onSelect: (String) ->
 }
 
 @Composable
-private fun IntroductionRow(
+private fun AttunementRow(
     label: String,
     duration: String?,
     isSelected: Boolean,
@@ -498,7 +498,7 @@ private fun MyAttunementsCard(
 // region Preview
 
 @Composable
-private fun SelectIntroductionScreenPreview() {
+private fun SelectAttunementScreenPreview() {
     StillMomentTheme {
         // Preview requires Hilt -- omitted for static preview
     }

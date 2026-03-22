@@ -1,9 +1,9 @@
 package com.stillmoment.infrastructure.audio
 
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.Introduction
 import com.stillmoment.presentation.viewmodel.FakeCustomAudioRepository
 import com.stillmoment.presentation.viewmodel.FakeSoundCatalogRepository
 import org.junit.jupiter.api.AfterEach
@@ -29,7 +29,7 @@ class SoundscapeResolverTest {
 
     @AfterEach
     fun tearDown() {
-        Introduction.languageOverride = null
+        Attunement.languageOverride = null
     }
 
     @Nested
@@ -44,7 +44,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns built-in sound with English name`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
 
             val result = resolver.resolve("forest")
 
@@ -55,7 +55,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns built-in sound with German name`() {
-            Introduction.languageOverride = "de"
+            Attunement.languageOverride = "de"
 
             val result = resolver.resolve("forest")
 
@@ -65,7 +65,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns custom soundscape by ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "custom-soundscape-1",
                 name = "Ocean Waves",
@@ -84,7 +84,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns null for custom attunement ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val attunementFile = CustomAudioFile(
                 id = "custom-attunement-1",
                 name = "My Attunement",
@@ -101,7 +101,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns null for unknown ID`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
 
             val result = resolver.resolve("nonexistent-id")
 
@@ -114,7 +114,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `returns built-in and custom soundscapes`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val customFile = CustomAudioFile(
                 id = "custom-soundscape-1",
                 name = "Ocean Waves",
@@ -135,7 +135,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `excludes silent from built-in`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
 
             val result = resolver.allAvailable()
 
@@ -145,7 +145,7 @@ class SoundscapeResolverTest {
 
         @Test
         fun `excludes custom attunements from results`() {
-            Introduction.languageOverride = "en"
+            Attunement.languageOverride = "en"
             val attunementFile = CustomAudioFile(
                 id = "custom-attunement",
                 name = "My Attunement",

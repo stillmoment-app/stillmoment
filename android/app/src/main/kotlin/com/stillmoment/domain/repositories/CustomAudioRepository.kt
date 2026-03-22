@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * Implementations copy imported files to local app storage, persist metadata,
  * and provide lookup by ID or type. Supports both soundscapes (background loops)
- * and attunements (one-shot introduction audio).
+ * and attunements (one-shot attunement audio).
  */
 interface CustomAudioRepository {
     /**

@@ -5,7 +5,7 @@
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~2d
 **Phase**: 4-Polish
-**Abhaengigkeit**: shared-078 (Texte und Ton) liefert Subtitle, Description, Promotional Text
+**Abhaengigkeit**: shared-078 (Texte und Ton), shared-079 (Pipeline Hardening), shared-080 (Single-Flow Test)
 
 ---
 

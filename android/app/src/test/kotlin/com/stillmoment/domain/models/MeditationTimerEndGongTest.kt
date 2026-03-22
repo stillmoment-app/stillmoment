@@ -43,10 +43,10 @@ class MeditationTimerEndGongTest {
         }
 
         @Test
-        fun `introduction timer reaching zero transitions to endGong`() {
-            // Given: Timer in Introduction with 1 second left
+        fun `attunement timer reaching zero transitions to endGong`() {
+            // Given: Timer in Attunement with 1 second left
             val timer = MeditationTimer.create(1)
-                .copy(state = TimerState.Introduction, remainingSeconds = 1)
+                .copy(state = TimerState.Attunement, remainingSeconds = 1)
 
             // When: Timer ticks
             val (ticked, _) = timer.tick()

@@ -53,14 +53,14 @@
     <string name="settings_preparation_description">Time to settle in before meditation</string>
     <string name="settings_preparation_duration">Duration</string>
 
-    <!-- Introduction -->
-    <string name="settings_introduction">Introduction</string>
-    <string name="settings_introduction_content">Content</string>
-    <string name="accessibility_introduction_picker">Select introduction</string>
-    <string name="accessibility_introduction_toggle">Introduction toggle</string>
-    <string name="accessibility_introduction_enabled">Introduction enabled: %s</string>
-    <string name="accessibility_introduction_enabled_no_selection">Introduction enabled</string>
-    <string name="accessibility_introduction_disabled">Introduction disabled</string>
+    <!-- Attunement -->
+    <string name="settings_attunement">Attunement</string>
+    <string name="settings_attunement_content">Content</string>
+    <string name="accessibility_attunement_picker">Select attunement</string>
+    <string name="accessibility_attunement_toggle">Attunement toggle</string>
+    <string name="accessibility_attunement_enabled">Attunement enabled: %s</string>
+    <string name="accessibility_attunement_enabled_no_selection">Attunement enabled</string>
+    <string name="accessibility_attunement_disabled">Attunement disabled</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
@@ -248,9 +248,9 @@
     <string name="praxis_editor_section_preparation">Preparation</string>
     <string name="praxis_editor_section_audio">Audio &amp; Sounds</string>
     <string name="praxis_editor_section_gongs">Gongs</string>
-    <string name="praxis_editor_introduction_row">Introduction</string>
-    <string name="praxis_editor_introduction_none">No Introduction</string>
-    <string name="praxis_editor_introduction_title">Introduction</string>
+    <string name="praxis_editor_attunement_row">Attunement</string>
+    <string name="praxis_editor_attunement_none">No Attunement</string>
+    <string name="praxis_editor_attunement_title">Attunement</string>
     <string name="praxis_editor_background_row">Background Sound</string>
     <string name="praxis_editor_background_title">Background Sound</string>
     <string name="praxis_editor_background_silence">Silence</string>
@@ -265,8 +265,8 @@
 
     <!-- Praxis Editor Accessibility -->
     <string name="accessibility_praxis_editor_name">Practice name</string>
-    <string name="accessibility_praxis_editor_introduction">Select introduction</string>
-    <string name="accessibility_praxis_editor_introduction_toggle">Introduction toggle</string>
+    <string name="accessibility_praxis_editor_attunement">Select attunement</string>
+    <string name="accessibility_praxis_editor_attunement_toggle">Attunement toggle</string>
     <string name="accessibility_praxis_editor_background">Select background sound</string>
     <string name="accessibility_praxis_editor_start_gong">Select start and end gong</string>
     <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>
@@ -310,5 +310,5 @@
     <string name="import_type_soundscape">Soundscape</string>
     <string name="import_type_soundscape_description">Use as background sound</string>
     <string name="import_type_attunement">Attunement</string>
-    <string name="import_type_attunement_description">Use as introduction</string>
+    <string name="import_type_attunement_description">Use as attunement</string>
 </resources>

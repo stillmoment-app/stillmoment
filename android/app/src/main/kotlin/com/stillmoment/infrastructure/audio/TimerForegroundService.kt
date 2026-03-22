@@ -12,7 +12,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.stillmoment.MainActivity
 import com.stillmoment.R
-import com.stillmoment.domain.models.Introduction
+import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.LoggerProtocol
@@ -73,8 +73,8 @@ class TimerForegroundService : Service() {
             ACTION_START -> handleStart(intent)
             ACTION_PLAY_GONG -> handlePlayGong(intent)
             ACTION_PLAY_INTERVAL_GONG -> handlePlayIntervalGong(intent)
-            ACTION_PLAY_INTRODUCTION -> handlePlayIntroduction(intent)
-            ACTION_STOP_INTRODUCTION -> audioService.stopIntroduction()
+            ACTION_PLAY_ATTUNEMENT -> handlePlayAttunement(intent)
+            ACTION_STOP_ATTUNEMENT -> audioService.stopAttunement()
             ACTION_UPDATE_BACKGROUND_AUDIO -> handleUpdateBackgroundAudio(intent)
             ACTION_PAUSE_AUDIO -> audioService.pauseBackgroundAudio()
             ACTION_RESUME_AUDIO -> audioService.resumeBackgroundAudio()
@@ -102,21 +102,21 @@ class TimerForegroundService : Service() {
         audioService.playIntervalGong(gongSoundId, gongVolume)
     }
 
-    private fun handlePlayIntroduction(intent: Intent) {
-        val introductionId = intent.getStringExtra(EXTRA_INTRODUCTION_ID) ?: return
-        val introduction = Introduction.find(introductionId)
-        if (introduction != null) {
-            // Built-in introduction
-            val resourceName = introduction.audioFilename(Introduction.currentLanguage) ?: return
-            audioService.playIntroduction(resourceName)
+    private fun handlePlayAttunement(intent: Intent) {
+        val attunementId = intent.getStringExtra(EXTRA_ATTUNEMENT_ID) ?: return
+        val attunement = Attunement.find(attunementId)
+        if (attunement != null) {
+            // Built-in attunement
+            val resourceName = attunement.audioFilename(Attunement.currentLanguage) ?: return
+            audioService.playAttunement(resourceName)
         } else {
-            // Custom introduction: resolve file path asynchronously
+            // Custom attunement: resolve file path asynchronously
             serviceScope.launch {
-                val filePath = customAudioRepository.getFilePath(introductionId)
+                val filePath = customAudioRepository.getFilePath(attunementId)
                 if (filePath != null) {
-                    audioService.playIntroductionFromFile(filePath)
+                    audioService.playAttunementFromFile(filePath)
                 } else {
-                    logger.w(TAG, "Custom introduction not found: $introductionId, skipping")
+                    logger.w(TAG, "Custom attunement not found: $attunementId, skipping")
                 }
             }
         }
@@ -198,7 +198,7 @@ class TimerForegroundService : Service() {
         if (!isRunning) return
 
         isRunning = false
-        audioService.stopIntroduction()
+        audioService.stopAttunement()
         audioService.stopBackgroundAudio()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -257,8 +257,8 @@ class TimerForegroundService : Service() {
         const val ACTION_STOP = "com.stillmoment.action.STOP"
         const val ACTION_PLAY_GONG = "com.stillmoment.action.PLAY_GONG"
         const val ACTION_PLAY_INTERVAL_GONG = "com.stillmoment.action.PLAY_INTERVAL_GONG"
-        const val ACTION_PLAY_INTRODUCTION = "com.stillmoment.action.PLAY_INTRODUCTION"
-        const val ACTION_STOP_INTRODUCTION = "com.stillmoment.action.STOP_INTRODUCTION"
+        const val ACTION_PLAY_ATTUNEMENT = "com.stillmoment.action.PLAY_ATTUNEMENT"
+        const val ACTION_STOP_ATTUNEMENT = "com.stillmoment.action.STOP_ATTUNEMENT"
         const val ACTION_UPDATE_BACKGROUND_AUDIO = "com.stillmoment.action.UPDATE_BACKGROUND_AUDIO"
         const val ACTION_PAUSE_AUDIO = "com.stillmoment.action.PAUSE_AUDIO"
         const val ACTION_RESUME_AUDIO = "com.stillmoment.action.RESUME_AUDIO"
@@ -266,7 +266,7 @@ class TimerForegroundService : Service() {
         const val EXTRA_SOUND_VOLUME = "sound_volume"
         const val EXTRA_GONG_SOUND_ID = "gong_sound_id"
         const val EXTRA_GONG_VOLUME = "gong_volume"
-        const val EXTRA_INTRODUCTION_ID = "introduction_id"
+        const val EXTRA_ATTUNEMENT_ID = "attunement_id"
 
         fun startService(
             context: Context,
@@ -314,19 +314,19 @@ class TimerForegroundService : Service() {
             context.startService(intent)
         }
 
-        fun playIntroduction(context: Context, introductionId: String) {
+        fun playAttunement(context: Context, attunementId: String) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
-                    action = ACTION_PLAY_INTRODUCTION
-                    putExtra(EXTRA_INTRODUCTION_ID, introductionId)
+                    action = ACTION_PLAY_ATTUNEMENT
+                    putExtra(EXTRA_ATTUNEMENT_ID, attunementId)
                 }
             context.startService(intent)
         }
 
-        fun stopIntroduction(context: Context) {
+        fun stopAttunement(context: Context) {
             val intent =
                 Intent(context, TimerForegroundService::class.java).apply {
-                    action = ACTION_STOP_INTRODUCTION
+                    action = ACTION_STOP_ATTUNEMENT
                 }
             context.startService(intent)
         }

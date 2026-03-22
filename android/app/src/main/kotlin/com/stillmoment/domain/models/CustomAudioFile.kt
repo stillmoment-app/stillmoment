@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
  * A user-imported audio file stored in local app storage.
  *
  * Custom audio files are copied to internal storage and can be used
- * as soundscapes (background loops) or attunements (one-shot introductions)
+ * as soundscapes (background loops) or attunements (one-shot audio)
  * within a Praxis configuration.
  *
  * CustomAudioFile is an immutable value object -- all state changes produce new instances.

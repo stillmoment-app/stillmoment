@@ -7,7 +7,7 @@ package com.stillmoment.domain.models
  * `previousState` to detect transitions. Now `tick()` directly communicates
  * what occurred, and the ViewModel processes events without indirection.
  *
- * Note: Introduction completion is NOT a TimerEvent. It is audio-callback-driven
+ * Note: Attunement completion is NOT a TimerEvent. It is audio-callback-driven
  * (file finished), not tick-driven (countdown at 0).
  */
 sealed class TimerEvent {

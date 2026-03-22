@@ -162,7 +162,7 @@ class PraxisEditorViewModelCustomAudioTest {
         }
 
         @Test
-        fun `deleting selected attunement resets introductionId to null`() = runTest {
+        fun `deleting selected attunement resets attunementId to null`() = runTest {
             val attunementId = "custom-attunement-1"
             val attunement = CustomAudioFile(
                 id = attunementId,
@@ -180,16 +180,16 @@ class PraxisEditorViewModelCustomAudioTest {
             // Import and select the attunement
             viewModel.importCustomAudio(mock<Uri>(), CustomAudioType.ATTUNEMENT)
             advanceUntilIdle()
-            viewModel.setIntroductionId(attunementId)
+            viewModel.setAttunementId(attunementId)
 
-            assertEquals(attunementId, viewModel.uiState.value.introductionId)
+            assertEquals(attunementId, viewModel.uiState.value.attunementId)
 
             // Delete the selected attunement
             viewModel.deleteCustomAudio(attunementId)
             advanceUntilIdle()
 
-            assertNull(viewModel.uiState.value.introductionId)
-            assertNull(fakePraxisRepository.lastSavedPraxis?.introductionId)
+            assertNull(viewModel.uiState.value.attunementId)
+            assertNull(fakePraxisRepository.lastSavedPraxis?.attunementId)
         }
 
         @Test
