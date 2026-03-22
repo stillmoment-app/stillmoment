@@ -802,17 +802,18 @@ class AudioServiceTest {
     }
 
     @Test
-    fun `stopMeditationPreview releases audio session when preview was playing`() {
+    fun `stopMeditationPreview releases audio session after fade-out when preview was playing`() {
         // Given
         val mockMeditationPlayer: MediaPlayerProtocol = mock()
         whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
         sut.playMeditationPreview("content://test/meditation.mp3")
         clearInvocations(mockCoordinator)
 
-        // When
+        // When: Stop triggers fade-out coroutine
         sut.stopMeditationPreview()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
+        // Then: Audio session released after fade-out completes
         verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
     }
 

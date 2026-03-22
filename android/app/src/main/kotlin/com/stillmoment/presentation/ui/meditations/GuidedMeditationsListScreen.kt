@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,13 +87,10 @@ fun GuidedMeditationsListScreen(
                         it,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-                } catch (e: SecurityException) {
-                    // Permission might not be grantable, continue anyway
-                    android.util.Log.w(
-                        "GuidedMeditationsListScreen",
-                        "Could not take persistable permission",
-                        e
-                    )
+                } catch (@Suppress("SwallowedException") e: SecurityException) {
+                    // Permission might not be grantable — continue with import anyway.
+                    // SAF URIs sometimes don't support persistable permissions (e.g. from
+                    // certain file managers). The URI remains valid for the current session.
                 }
                 viewModel.importMeditation(it)
             }
@@ -133,7 +131,7 @@ internal fun GuidedMeditationsListScreenContent(
     onStopPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val snackbarHostState = rememberUpdatedState(SnackbarHostState()).value
+    val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
 
     // rememberUpdatedState to safely use lambda in LaunchedEffect
@@ -399,7 +397,7 @@ private fun SwipeBackground(direction: SwipeToDismissBoxValue) {
 }
 
 @Composable
-private fun EditBackground(color: androidx.compose.ui.graphics.Color, contentDescription: String) {
+private fun EditBackground(color: Color, contentDescription: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -412,7 +410,7 @@ private fun EditBackground(color: androidx.compose.ui.graphics.Color, contentDes
 }
 
 @Composable
-private fun DeleteBackground(color: androidx.compose.ui.graphics.Color, contentDescription: String) {
+private fun DeleteBackground(color: Color, contentDescription: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()

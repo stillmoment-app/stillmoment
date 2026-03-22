@@ -1,6 +1,6 @@
 # Ticket shared-075: Long-Press Preview in der Meditations-Bibliothek
 
-**Status**: [~] IN PROGRESS (iOS done, Android offen)
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/shared-075.md)
 **Prioritaet**: MITTEL
 **Aufwand**: iOS ~2h (Rework) | Android ~3h
@@ -62,7 +62,7 @@ Swipe links:
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
@@ -86,10 +86,10 @@ Swipe links:
 
 ### Tests
 - [x] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md aktualisieren
+- [x] CHANGELOG.md aktualisieren
 
 ---
 

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (Android)
 - **Vibration als Gong-Signal** - "Vibration" ist jetzt als Gong-Option auswaehlbar (Start/Ende-Gong und Intervall-Gong). Bei aktiver Vibrations-Option wird kein Ton abgespielt, der Lautstaerke-Slider wird ausgeblendet. (Ticket: shared-076)
+- **Long-Press Preview in der Meditations-Bibliothek** - Play-Icon in der Meditationsliste kann lang gedrueckt werden (~0.5s), um eine Audio-Vorschau abzuspielen. Tippen auf das Stop-Icon beendet die Wiedergabe mit kurzem Fade-out (~0.3s). Haptisches Feedback beim Start. (Ticket: shared-075)
 
 ## [2.0.0] - 2026-03-05
 
