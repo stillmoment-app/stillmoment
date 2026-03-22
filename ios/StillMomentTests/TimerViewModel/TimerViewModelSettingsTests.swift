@@ -8,10 +8,8 @@ import XCTest
 
 /// Tests for TimerViewModel settings persistence, duration management, and repository integration.
 ///
-/// Architecture note: since shared-068, settings are loaded from `PraxisRepository` at init,
-/// not from `TimerSettingsRepository`. The `TimerSettingsRepository` is still written to during
-/// a session (e.g. via `saveSettings()`), but new VM instances load their initial state from
-/// the Praxis. Tests therefore inject a `MockPraxisRepository` to control initial state.
+/// Architecture note: since shared-068, settings are loaded from `PraxisRepository` at init.
+/// Tests therefore inject a `MockPraxisRepository` to control initial state.
 @MainActor
 final class TimerViewModelSettingsTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
@@ -21,21 +19,17 @@ final class TimerViewModelSettingsTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockSettingsRepository: MockTimerSettingsRepository!
-    // swiftlint:disable:next implicitly_unwrapped_optional
     var mockPraxisRepository: MockPraxisRepository!
 
     override func setUp() {
         super.setUp()
         self.mockTimerService = MockTimerService()
         self.mockAudioService = MockAudioService()
-        self.mockSettingsRepository = MockTimerSettingsRepository()
         self.mockPraxisRepository = MockPraxisRepository()
 
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
     }
@@ -44,7 +38,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut = nil
         self.mockTimerService = nil
         self.mockAudioService = nil
-        self.mockSettingsRepository = nil
         self.mockPraxisRepository = nil
         super.tearDown()
     }
@@ -66,7 +59,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -75,21 +67,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         XCTAssertEqual(viewModel.settings.intervalMinutes, 10)
         XCTAssertEqual(viewModel.settings.backgroundSoundId, "forest")
         XCTAssertEqual(viewModel.settings.durationMinutes, 25)
-    }
-
-    func testSaveSettings_delegatesToRepository() {
-        // Given
-        self.sut.settings.intervalGongsEnabled = true
-        self.sut.settings.backgroundSoundId = "forest"
-
-        // When
-        self.sut.saveSettings()
-
-        // Then
-        XCTAssertTrue(self.mockSettingsRepository.saveCalled)
-        XCTAssertEqual(self.mockSettingsRepository.saveCallCount, 1)
-        XCTAssertEqual(self.mockSettingsRepository.lastSavedSettings?.intervalGongsEnabled, true)
-        XCTAssertEqual(self.mockSettingsRepository.lastSavedSettings?.backgroundSoundId, "forest")
     }
 
     // MARK: - Settings Persistence (via praxisRepository)
@@ -108,7 +85,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -130,7 +106,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -147,7 +122,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -166,7 +140,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: self.mockPraxisRepository
         )
 
@@ -182,7 +155,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: MockTimerSettingsRepository(),
             praxisRepository: freshPraxisRepo
         )
 
@@ -201,7 +173,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -227,7 +198,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: MockTimerSettingsRepository(),
             praxisRepository: freshPraxisRepo
         )
 
@@ -246,7 +216,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -262,7 +231,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: MockTimerSettingsRepository(),
             praxisRepository: freshPraxisRepo
         )
 
@@ -307,7 +275,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -323,7 +290,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: MockTimerSettingsRepository(),
             praxisRepository: freshPraxisRepo
         )
 
@@ -363,7 +329,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: MockTimerSettingsRepository(),
             praxisRepository: freshPraxisRepo
         )
 
@@ -381,7 +346,6 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            settingsRepository: self.mockSettingsRepository,
             praxisRepository: praxisRepo
         )
 
@@ -500,48 +464,5 @@ final class TimerViewModelSettingsTests: XCTestCase {
 
         // Then: Duration should still be 10
         XCTAssertEqual(self.sut.selectedMinutes, 10, "Should stay at 10 when no clamping occurred")
-    }
-
-    // MARK: - Settings Hint Persistence (Onboarding)
-
-    // Note: hasSeenSettingsHint is @AppStorage in the View (Presentation Layer)
-    // These tests verify the UserDefaults behavior directly, not via the repository
-
-    func testSettingsHint_defaultIsFalse() {
-        // Given: Clear any saved hint state
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "hasSeenSettingsHint")
-
-        // When: Read the value
-        let hasSeenHint = defaults.bool(forKey: "hasSeenSettingsHint")
-
-        // Then: Should be false (not seen yet)
-        XCTAssertFalse(hasSeenHint, "Default hint state should be false (not seen)")
-    }
-
-    func testSettingsHint_persistsWhenSetToTrue() {
-        // Given: Clear any saved hint state
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "hasSeenSettingsHint")
-
-        // When: Set hint as seen
-        defaults.set(true, forKey: "hasSeenSettingsHint")
-
-        // Then: Should persist
-        let hasSeenHint = defaults.bool(forKey: "hasSeenSettingsHint")
-        XCTAssertTrue(hasSeenHint, "Hint state should persist as true after being set")
-    }
-
-    func testSettingsHint_survivesAppRestart() {
-        // Given: Set hint as seen
-        let defaults = UserDefaults.standard
-        defaults.set(true, forKey: "hasSeenSettingsHint")
-        defaults.synchronize()
-
-        // When: Simulate app restart by reading from fresh defaults access
-        let hasSeenHint = UserDefaults.standard.bool(forKey: "hasSeenSettingsHint")
-
-        // Then: Should still be true
-        XCTAssertTrue(hasSeenHint, "Hint state should survive simulated app restart")
     }
 }

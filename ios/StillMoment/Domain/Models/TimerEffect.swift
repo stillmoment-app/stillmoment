@@ -67,9 +67,4 @@ enum TimerEffect: Equatable {
 
     /// Clear the timer, returning to idle (timer = nil)
     case clearTimer
-
-    // MARK: - Persistence Effects
-
-    /// Save settings to UserDefaults
-    case saveSettings(MeditationSettings)
 }

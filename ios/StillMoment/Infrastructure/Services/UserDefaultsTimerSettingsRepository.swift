@@ -13,7 +13,9 @@ import OSLog
 /// Handles loading, saving, and legacy migration of `MeditationSettings`.
 /// Legacy migration logic (backgroundAudioMode → backgroundSoundId) lives here
 /// to keep the ViewModel free of infrastructure concerns.
-final class UserDefaultsTimerSettingsRepository: TimerSettingsRepository {
+/// Legacy repository — only used internally by `UserDefaultsPraxisRepository` for migration
+/// from old UserDefaults keys to Praxis format. Not used for active read/write operations.
+final class UserDefaultsTimerSettingsRepository {
     // MARK: Lifecycle
 
     /// Creates a repository with the specified UserDefaults instance
