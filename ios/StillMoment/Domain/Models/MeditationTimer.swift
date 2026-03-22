@@ -23,9 +23,9 @@ enum MeditationTimerError: Error, LocalizedError {
 
 /// Domain model representing a meditation timer session
 ///
-/// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
-/// Preparation and introduction are optional phases.
-/// The introduction phase is event-driven (audio callback), not countdown-driven.
+/// State machine: idle → preparation → startGong → [attunement →] running → endGong → completed
+/// Preparation and attunement are optional phases.
+/// The attunement phase is event-driven (audio callback), not countdown-driven.
 struct MeditationTimer: Equatable {
     // MARK: Lifecycle
 
@@ -83,8 +83,8 @@ struct MeditationTimer: Equatable {
     /// Duration of preparation phase in seconds (configured at initialization)
     let preparationTimeSeconds: Int
 
-    /// Remaining seconds when the silent meditation phase started (after introduction)
-    /// Used as baseline for interval gong calculations to exclude introduction time
+    /// Remaining seconds when the silent meditation phase started (after attunement)
+    /// Used as baseline for interval gong calculations to exclude attunement time
     let silentPhaseStartRemaining: Int?
 
     /// Remaining seconds when last interval gong was played
@@ -124,8 +124,8 @@ struct MeditationTimer: Equatable {
             let newTimer = self.tickRunning()
             let events: [TimerEvent] = newTimer.state == .endGong ? [.meditationCompleted] : []
             return (newTimer, events)
-        case .introduction:
-            let newTimer = self.tickIntroduction()
+        case .attunement:
+            let newTimer = self.tickAttunement()
             let events: [TimerEvent] = newTimer.state == .endGong ? [.meditationCompleted] : []
             return (newTimer, events)
         case .running:
@@ -174,11 +174,11 @@ struct MeditationTimer: Equatable {
         )
     }
 
-    /// Ticks the introduction phase (meditation timer decrements, never auto-transitions to running).
-    /// The transition to `.running` is event-driven via `endIntroduction()`.
-    private func tickIntroduction() -> MeditationTimer {
+    /// Ticks the attunement phase (meditation timer decrements, never auto-transitions to running).
+    /// The transition to `.running` is event-driven via `endAttunement()`.
+    private func tickAttunement() -> MeditationTimer {
         let newRemaining = max(0, self.remainingSeconds - 1)
-        let newState: TimerState = newRemaining <= 0 ? .endGong : .introduction
+        let newState: TimerState = newRemaining <= 0 ? .endGong : .attunement
         return MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: newRemaining,
@@ -231,10 +231,10 @@ struct MeditationTimer: Equatable {
         )
     }
 
-    /// Returns a copy transitioned from `.introduction` to `.running`.
-    /// Called when the introduction audio finishes playing (event-driven).
+    /// Returns a copy transitioned from `.attunement` to `.running`.
+    /// Called when the attunement audio finishes playing (event-driven).
     /// Sets `silentPhaseStartRemaining` to current remaining seconds for interval gong calculations.
-    func endIntroduction() -> MeditationTimer {
+    func endAttunement() -> MeditationTimer {
         MeditationTimer(
             durationMinutes: self.durationMinutes,
             remainingSeconds: self.remainingSeconds,
@@ -297,7 +297,7 @@ struct MeditationTimer: Equatable {
     // MARK: - Private Interval Gong Helpers
 
     /// The effective start point for interval calculations
-    /// Uses silentPhaseStartRemaining when introduction was played, otherwise totalSeconds
+    /// Uses silentPhaseStartRemaining when attunement was played, otherwise totalSeconds
     private var effectiveStartRemaining: Int {
         self.silentPhaseStartRemaining ?? self.totalSeconds
     }

@@ -31,11 +31,11 @@ enum TimerEffect: Equatable {
     /// Play the start gong (meditation begins)
     case playStartGong
 
-    /// Play the introduction audio (e.g., guided breathing exercise)
-    case playIntroduction(introductionId: String)
+    /// Play the attunement audio (e.g., guided breathing exercise)
+    case playAttunement(attunementId: String)
 
-    /// Stop the introduction audio (on reset or timer completion during introduction)
-    case stopIntroduction
+    /// Stop the attunement audio (on reset or timer completion during attunement)
+    case stopAttunement
 
     /// Play an interval gong with the specified sound and volume
     case playIntervalGong(soundId: String, volume: Float)
@@ -51,13 +51,13 @@ enum TimerEffect: Equatable {
     /// Reset the timer
     case resetTimer
 
-    /// Begin the introduction phase (transition timer from .startGong to .introduction)
-    case beginIntroductionPhase
+    /// Begin the attunement phase (transition timer from .startGong to .attunement)
+    case beginAttunementPhase
 
-    /// End the introduction phase (transition timer from .introduction to .running)
-    case endIntroductionPhase
+    /// End the attunement phase (transition timer from .attunement to .running)
+    case endAttunementPhase
 
-    /// Transition timer to running state (startGong → running, no introduction path)
+    /// Transition timer to running state (startGong → running, no attunement path)
     case beginRunningPhase
 
     // MARK: - State Transition Effects

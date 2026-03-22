@@ -17,7 +17,7 @@ enum ImportAudioType: Equatable {
     case guidedMeditation
     /// A background sound loop — stored as custom soundscape
     case soundscape
-    /// An introduction audio — stored as custom attunement
+    /// An attunement audio — stored as custom attunement
     case attunement
 
     /// Maps to CustomAudioType for soundscape/attunement imports.

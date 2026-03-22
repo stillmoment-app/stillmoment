@@ -1,8 +1,8 @@
 //
-//  AudioServiceIntroductionTests.swift
+//  AudioServiceAttunementTests.swift
 //  Still Moment
 //
-//  Tests for introduction audio bundle integrity and duration accuracy
+//  Tests for attunement audio bundle integrity and duration accuracy
 //
 
 import AVFoundation
@@ -10,7 +10,7 @@ import XCTest
 @testable import StillMoment
 
 @MainActor
-final class AudioServiceIntroductionTests: XCTestCase {
+final class AudioServiceAttunementTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var sut: AudioService!
 
@@ -26,15 +26,15 @@ final class AudioServiceIntroductionTests: XCTestCase {
         super.tearDown()
     }
 
-    func testAllIntroductionAudioFiles_AreIncludedInBundle() {
-        // Given - All registered introductions with their available languages
-        let introductions = Introduction.allIntroductions
+    func testAllAttunementAudioFiles_AreIncludedInBundle() {
+        // Given - All registered attunements with their available languages
+        let attunements = Attunement.allAttunements
 
         // Then - Verify each audio file exists in bundle
-        for intro in introductions {
-            for language in intro.availableLanguages {
-                guard let filename = intro.audioFilename(for: language) else {
-                    XCTFail("audioFilename returned nil for \(intro.id) / \(language)")
+        for attunement in attunements {
+            for language in attunement.availableLanguages {
+                guard let filename = attunement.audioFilename(for: language) else {
+                    XCTFail("audioFilename returned nil for \(attunement.id) / \(language)")
                     continue
                 }
 
@@ -50,30 +50,30 @@ final class AudioServiceIntroductionTests: XCTestCase {
 
                 XCTAssertNotNil(
                     url,
-                    "Introduction audio '\(filename)' (id: '\(intro.id)', lang: '\(language)') must be included in bundle"
+                    "Attunement audio '\(filename)' (id: '\(attunement.id)', lang: '\(language)') must be included in bundle"
                 )
 
                 if let url {
                     XCTAssertTrue(
                         FileManager.default.fileExists(atPath: url.path),
-                        "Introduction audio '\(filename)' must exist at path: \(url.path)"
+                        "Attunement audio '\(filename)' must exist at path: \(url.path)"
                     )
                 }
             }
         }
 
-        // Verify we have at least one introduction
-        XCTAssertFalse(introductions.isEmpty, "Should have at least one registered introduction")
+        // Verify we have at least one attunement
+        XCTAssertFalse(attunements.isEmpty, "Should have at least one registered attunement")
     }
 
-    func testAllIntroductionAudioFiles_ConfiguredDurationMatchesActualDuration() throws {
-        // Given - All registered introductions with their available languages
-        let introductions = Introduction.allIntroductions
+    func testAllAttunementAudioFiles_ConfiguredDurationMatchesActualDuration() throws {
+        // Given - All registered attunements with their available languages
+        let attunements = Attunement.allAttunements
 
         // Then - Verify configured durationSeconds matches actual audio file duration
-        for intro in introductions {
-            for language in intro.availableLanguages {
-                guard let filename = intro.audioFilename(for: language) else {
+        for attunement in attunements {
+            for language in attunement.availableLanguages {
+                guard let filename = attunement.audioFilename(for: language) else {
                     continue
                 }
 
@@ -93,22 +93,22 @@ final class AudioServiceIntroductionTests: XCTestCase {
                 let actualDuration = player.duration
                 let floorDuration = Int(floor(actualDuration))
                 let ceilDuration = Int(ceil(actualDuration))
-                let configuredDuration = intro.durationSeconds(for: language)
+                let configuredDuration = attunement.durationSeconds(for: language)
 
                 // Configured duration must be between floor and ceil of actual audio length.
                 // This ensures:
-                // 1. The introduction audio is never cut off (durationSeconds >= floor)
+                // 1. The attunement audio is never cut off (durationSeconds >= floor)
                 // 2. The configured duration is accurate (durationSeconds <= ceil)
                 XCTAssertGreaterThanOrEqual(
                     configuredDuration,
                     floorDuration,
-                    "Introduction '\(intro.id)' (\(language)): configured \(configuredDuration)s " +
+                    "Attunement '\(attunement.id)' (\(language)): configured \(configuredDuration)s " +
                         "but audio is \(actualDuration)s (floor: \(floorDuration)s)"
                 )
                 XCTAssertLessThanOrEqual(
                     configuredDuration,
                     ceilDuration,
-                    "Introduction '\(intro.id)' (\(language)): configured \(configuredDuration)s " +
+                    "Attunement '\(attunement.id)' (\(language)): configured \(configuredDuration)s " +
                         "but audio is \(actualDuration)s (ceil: \(ceilDuration)s)"
                 )
             }

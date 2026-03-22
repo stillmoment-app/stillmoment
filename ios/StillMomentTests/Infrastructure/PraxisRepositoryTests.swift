@@ -82,7 +82,7 @@ final class PraxisRepositoryTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
             gongVolume: 0.8,
-            introductionId: nil,
+            attunementId: nil,
             intervalGongsEnabled: true,
             intervalMinutes: 10,
             intervalMode: .afterStart,

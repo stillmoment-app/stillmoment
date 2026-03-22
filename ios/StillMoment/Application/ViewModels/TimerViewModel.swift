@@ -45,8 +45,8 @@ final class TimerViewModel: ObservableObject {
         // Load current Praxis and apply its configuration
         let praxis = praxisRepository.load()
         self.currentPraxis = praxis
-        let customIntroDuration = self.resolveIntroDurationSeconds(introductionId: praxis.introductionId)
-        self.settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
+        let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
+        self.settings = praxis.toMeditationSettings(customAttunementDurationSeconds: customAttunementDuration)
         self.selectedMinutes = self.settings.durationMinutes
         self.setupBindings()
     }
@@ -110,7 +110,7 @@ final class TimerViewModel: ObservableObject {
         self.timer == nil && self.selectedMinutes > 0
     }
 
-    /// Minimum duration in minutes based on current introduction setting
+    /// Minimum duration in minutes based on current attunement setting
     var minimumDurationMinutes: Int {
         self.settings.minimumDurationMinutes
     }
@@ -177,8 +177,8 @@ final class TimerViewModel: ObservableObject {
     /// Called by the PraxisEditorView's onSaved callback.
     func updateFromPraxis(_ praxis: Praxis) {
         self.currentPraxis = praxis
-        let customIntroDuration = self.resolveIntroDurationSeconds(introductionId: praxis.introductionId)
-        let settings = praxis.toMeditationSettings(customIntroDurationSeconds: customIntroDuration)
+        let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
+        let settings = praxis.toMeditationSettings(customAttunementDurationSeconds: customAttunementDuration)
         self.settings = settings
         self.selectedMinutes = settings.durationMinutes
         Logger.viewModel.info("Updated from praxis")
@@ -195,16 +195,16 @@ final class TimerViewModel: ObservableObject {
     let soundscapeResolver: SoundscapeResolverProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    /// Selected minutes before introduction auto-clamped, restored when introduction is disabled.
-    private var minutesBeforeIntroduction: Int?
+    /// Selected minutes before attunement auto-clamped, restored when attunement is disabled.
+    private var minutesBeforeAttunement: Int?
 
     /// Returns the attunement duration in seconds via the resolver, or nil if not found.
-    func resolveIntroDurationSeconds(introductionId: String? = nil) -> Int? {
-        let introId = introductionId ?? self.settings.introductionId
-        guard let introId else {
+    func resolveAttunementDurationSeconds(attunementId: String? = nil) -> Int? {
+        let resolvedId = attunementId ?? self.settings.attunementId
+        guard let resolvedId else {
             return nil
         }
-        return self.attunementResolver.resolve(id: introId)?.durationSeconds
+        return self.attunementResolver.resolve(id: resolvedId)?.durationSeconds
     }
 
     // MARK: - Effect Execution
@@ -249,10 +249,10 @@ final class TimerViewModel: ObservableObject {
             self.audioService.stopBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
-        case let .playIntroduction(introductionId):
-            self.executePlayIntroduction(introductionId: introductionId)
-        case .stopIntroduction:
-            self.audioService.stopIntroduction()
+        case let .playAttunement(attunementId):
+            self.executePlayAttunement(attunementId: attunementId)
+        case .stopAttunement:
+            self.audioService.stopAttunement()
         case let .playIntervalGong(soundId, volume):
             self.executePlayIntervalGong(soundId: soundId, volume: volume)
         case .playCompletionSound:
@@ -269,10 +269,10 @@ final class TimerViewModel: ObservableObject {
             self.executeStartTimer(durationMinutes: durationMinutes)
         case .resetTimer:
             self.timerService.reset()
-        case .beginIntroductionPhase:
-            self.timerService.beginIntroductionPhase()
-        case .endIntroductionPhase:
-            self.timerService.endIntroductionPhase()
+        case .beginAttunementPhase:
+            self.timerService.beginAttunementPhase()
+        case .endAttunementPhase:
+            self.timerService.endAttunementPhase()
         case .beginRunningPhase:
             self.timerService.beginRunningPhase()
         case .transitionToCompleted:
@@ -302,34 +302,34 @@ final class TimerViewModel: ObservableObject {
             }
             .store(in: &self.cancellables)
 
-        self.audioService.introductionCompletionPublisher
+        self.audioService.attunementCompletionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
-                self?.dispatch(.introductionFinished)
+                self?.dispatch(.attunementFinished)
             }
             .store(in: &self.cancellables)
 
-        // Enforce minimum duration when introduction changes, restore when disabled.
+        // Enforce minimum duration when attunement changes, restore when disabled.
         // Note: Uses static method instead of settings.minimumDurationMinutes because
         // @Published fires in willSet — self.settings still has the old value here.
         self.$settings
-            .map(\.introductionId)
+            .map(\.attunementId)
             .removeDuplicates()
-            .sink { [weak self] introductionId in
+            .sink { [weak self] attunementId in
                 guard let self
                 else { return }
-                let introDuration = self.resolveIntroDurationSeconds(introductionId: introductionId)
+                let attunementDuration = self.resolveAttunementDurationSeconds(attunementId: attunementId)
                 let minimum = MeditationSettings.minimumDuration(
-                    for: introductionId,
-                    introductionEnabled: self.settings.introductionEnabled,
-                    introDurationSeconds: introDuration
+                    for: attunementId,
+                    attunementEnabled: self.settings.attunementEnabled,
+                    attunementDurationSeconds: attunementDuration
                 )
-                if introductionId != nil, self.selectedMinutes < minimum {
-                    self.minutesBeforeIntroduction = self.selectedMinutes
+                if attunementId != nil, self.selectedMinutes < minimum {
+                    self.minutesBeforeAttunement = self.selectedMinutes
                     self.selectedMinutes = minimum
-                } else if introductionId == nil, let restored = self.minutesBeforeIntroduction {
+                } else if attunementId == nil, let restored = self.minutesBeforeAttunement {
                     self.selectedMinutes = restored
-                    self.minutesBeforeIntroduction = nil
+                    self.minutesBeforeAttunement = nil
                 }
             }
             .store(in: &self.cancellables)
@@ -420,17 +420,17 @@ private extension TimerViewModel {
         }
     }
 
-    func executePlayIntroduction(introductionId: String) {
+    func executePlayAttunement(attunementId: String) {
         do {
-            let url = try self.attunementResolver.resolveAudioURL(id: introductionId)
-            try self.audioService.playIntroduction(filename: url.path)
+            let url = try self.attunementResolver.resolveAudioURL(id: attunementId)
+            try self.audioService.playAttunement(filename: url.path)
             Logger.viewModel.info(
-                "Introduction audio started",
-                metadata: ["introductionId": introductionId]
+                "Attunement audio started",
+                metadata: ["attunementId": attunementId]
             )
         } catch {
-            Logger.viewModel.error("Failed to play introduction audio", error: error)
-            self.errorMessage = "Failed to play introduction: \(error.localizedDescription)"
+            Logger.viewModel.error("Failed to play attunement audio", error: error)
+            self.errorMessage = "Failed to play attunement: \(error.localizedDescription)"
         }
     }
 

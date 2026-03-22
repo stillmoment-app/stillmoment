@@ -37,8 +37,8 @@ final class PraxisEditorViewModel: ObservableObject {
         self.preparationTimeSeconds = praxis.preparationTimeSeconds
         self.startGongSoundId = praxis.startGongSoundId
         self.gongVolume = praxis.gongVolume
-        self.introductionId = praxis.introductionId
-        self.introductionEnabled = praxis.introductionEnabled
+        self.attunementId = praxis.attunementId
+        self.attunementEnabled = praxis.attunementEnabled
         self.intervalGongsEnabled = praxis.intervalGongsEnabled
         self.intervalMinutes = praxis.intervalMinutes
         self.intervalMode = praxis.intervalMode
@@ -59,8 +59,8 @@ final class PraxisEditorViewModel: ObservableObject {
     @Published var preparationTimeSeconds: Int
     @Published var startGongSoundId: String
     @Published var gongVolume: Float
-    @Published var introductionId: String?
-    @Published var introductionEnabled: Bool
+    @Published var attunementId: String?
+    @Published var attunementEnabled: Bool
     @Published var intervalGongsEnabled: Bool
     @Published var intervalMinutes: Int
     @Published var intervalMode: IntervalMode
@@ -75,9 +75,9 @@ final class PraxisEditorViewModel: ObservableObject {
 
     // MARK: - Computed
 
-    /// Introductions available for the current device language
-    var availableIntroductions: [Introduction] {
-        Introduction.availableForCurrentLanguage()
+    /// Attunements available for the current device language
+    var availableAttunements: [Attunement] {
+        Attunement.availableForCurrentLanguage()
     }
 
     /// All available background sounds from the repository
@@ -96,8 +96,8 @@ final class PraxisEditorViewModel: ObservableObject {
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
-            introductionId: self.introductionId,
-            introductionEnabled: self.introductionEnabled,
+            attunementId: self.attunementId,
+            attunementEnabled: self.attunementEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -140,15 +140,15 @@ final class PraxisEditorViewModel: ObservableObject {
         }
     }
 
-    /// Plays a preview of an introduction or custom attunement
-    func playIntroductionPreview(introductionId: String) {
+    /// Plays a preview of an attunement or custom attunement
+    func playAttunementPreview(attunementId: String) {
         do {
-            try self.audioService.playIntroductionPreview(introductionId: introductionId)
+            try self.audioService.playAttunementPreview(attunementId: attunementId)
         } catch {
             Logger.audio.error(
-                "Failed to play introduction preview",
+                "Failed to play attunement preview",
                 error: error,
-                metadata: ["introductionId": introductionId]
+                metadata: ["attunementId": attunementId]
             )
         }
     }
@@ -157,15 +157,15 @@ final class PraxisEditorViewModel: ObservableObject {
     func stopAllPreviews() {
         self.audioService.stopGongPreview()
         self.audioService.stopBackgroundPreview()
-        self.audioService.stopIntroductionPreview()
+        self.audioService.stopAttunementPreview()
     }
 
-    /// Enables or disables the introduction toggle.
-    /// When enabling with no introduction selected, auto-selects the first available.
-    func setIntroductionEnabled(_ enabled: Bool) {
-        self.introductionEnabled = enabled
-        if enabled, self.introductionId == nil {
-            self.introductionId = self.availableIntroductions.first?.id
+    /// Enables or disables the attunement toggle.
+    /// When enabling with no attunement selected, auto-selects the first available.
+    func setAttunementEnabled(_ enabled: Bool) {
+        self.attunementEnabled = enabled
+        if enabled, self.attunementId == nil {
+            self.attunementId = self.availableAttunements.first?.id
         }
     }
 
@@ -188,8 +188,8 @@ final class PraxisEditorViewModel: ObservableObject {
             case .soundscape:
                 self.backgroundSoundId = imported.id.uuidString
             case .attunement:
-                self.introductionId = imported.id.uuidString
-                self.introductionEnabled = true
+                self.attunementId = imported.id.uuidString
+                self.attunementEnabled = true
             }
             Logger.viewModel.info(
                 "Imported custom audio",
@@ -208,7 +208,7 @@ final class PraxisEditorViewModel: ObservableObject {
         case .soundscape:
             return praxis.backgroundSoundId == file.id.uuidString ? 1 : 0
         case .attunement:
-            return praxis.introductionId == file.id.uuidString ? 1 : 0
+            return praxis.attunementId == file.id.uuidString ? 1 : 0
         }
     }
 
@@ -263,12 +263,12 @@ final class PraxisEditorViewModel: ObservableObject {
                 self.backgroundSoundId = "silent"
             }
         case .attunement:
-            if praxis.introductionId == fileIdString {
-                self.repository.save(praxis.withIntroductionId(nil).withIntroductionEnabled(false))
+            if praxis.attunementId == fileIdString {
+                self.repository.save(praxis.withAttunementId(nil).withAttunementEnabled(false))
             }
-            if self.introductionId == fileIdString {
-                self.introductionId = nil
-                self.introductionEnabled = false
+            if self.attunementId == fileIdString {
+                self.attunementId = nil
+                self.attunementEnabled = false
             }
         }
     }

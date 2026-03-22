@@ -288,39 +288,39 @@ final class MeditationSettingsTests: XCTestCase {
         XCTAssertEqual(decoded.backgroundSoundVolume, 0.75, accuracy: 0.001)
     }
 
-    // MARK: - Introduction Settings
+    // MARK: - Attunement Settings
 
-    func testDefault_hasNoIntroduction() {
+    func testDefault_hasNoAttunement() {
         let settings = MeditationSettings.default
 
-        XCTAssertNil(settings.introductionId)
+        XCTAssertNil(settings.attunementId)
     }
 
-    func testInit_defaultIntroductionId() {
+    func testInit_defaultAttunementId() {
         let settings = MeditationSettings()
 
-        XCTAssertNil(settings.introductionId)
+        XCTAssertNil(settings.attunementId)
     }
 
-    func testInit_customIntroductionId() {
-        let settings = MeditationSettings(introductionId: "breath")
+    func testInit_customAttunementId() {
+        let settings = MeditationSettings(attunementId: "breath")
 
-        XCTAssertEqual(settings.introductionId, "breath")
+        XCTAssertEqual(settings.attunementId, "breath")
     }
 
-    func testKeys_containsIntroductionIdKey() {
-        XCTAssertEqual(MeditationSettings.Keys.introductionId, "introductionId")
+    func testKeys_containsAttunementIdKey() {
+        XCTAssertEqual(MeditationSettings.Keys.attunementId, "introductionId")
     }
 
-    func testEquatable_differentIntroductionIds_areNotEqual() {
-        let settings1 = MeditationSettings(introductionId: nil)
-        let settings2 = MeditationSettings(introductionId: "breath")
+    func testEquatable_differentAttunementIds_areNotEqual() {
+        let settings1 = MeditationSettings(attunementId: nil)
+        let settings2 = MeditationSettings(attunementId: "breath")
 
         XCTAssertNotEqual(settings1, settings2)
     }
 
-    func testCodable_encodesAndDecodesIntroductionId() throws {
-        let original = MeditationSettings(introductionId: "breath")
+    func testCodable_encodesAndDecodesAttunementId() throws {
+        let original = MeditationSettings(attunementId: "breath")
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(original)
@@ -328,11 +328,11 @@ final class MeditationSettingsTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(MeditationSettings.self, from: data)
 
-        XCTAssertEqual(decoded.introductionId, "breath")
+        XCTAssertEqual(decoded.attunementId, "breath")
     }
 
-    func testCodable_encodesAndDecodesNilIntroductionId() throws {
-        let original = MeditationSettings(introductionId: nil)
+    func testCodable_encodesAndDecodesNilAttunementId() throws {
+        let original = MeditationSettings(attunementId: nil)
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(original)
@@ -340,42 +340,42 @@ final class MeditationSettingsTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(MeditationSettings.self, from: data)
 
-        XCTAssertNil(decoded.introductionId)
+        XCTAssertNil(decoded.attunementId)
     }
 
-    // MARK: - Introduction Enabled Settings
+    // MARK: - Attunement Enabled Settings
 
-    func testDefault_hasIntroductionDisabled() {
+    func testDefault_hasAttunementDisabled() {
         let settings = MeditationSettings.default
 
-        XCTAssertFalse(settings.introductionEnabled)
+        XCTAssertFalse(settings.attunementEnabled)
     }
 
-    func testInit_defaultIntroductionEnabled() {
+    func testInit_defaultAttunementEnabled() {
         let settings = MeditationSettings()
 
-        XCTAssertFalse(settings.introductionEnabled)
+        XCTAssertFalse(settings.attunementEnabled)
     }
 
-    func testInit_customIntroductionEnabled() {
-        let settings = MeditationSettings(introductionId: "breath", introductionEnabled: true)
+    func testInit_customAttunementEnabled() {
+        let settings = MeditationSettings(attunementId: "breath", attunementEnabled: true)
 
-        XCTAssertTrue(settings.introductionEnabled)
+        XCTAssertTrue(settings.attunementEnabled)
     }
 
-    func testKeys_containsIntroductionEnabledKey() {
-        XCTAssertEqual(MeditationSettings.Keys.introductionEnabled, "introductionEnabled")
+    func testKeys_containsAttunementEnabledKey() {
+        XCTAssertEqual(MeditationSettings.Keys.attunementEnabled, "introductionEnabled")
     }
 
-    func testEquatable_differentIntroductionEnabled_areNotEqual() {
-        let settings1 = MeditationSettings(introductionId: "breath", introductionEnabled: false)
-        let settings2 = MeditationSettings(introductionId: "breath", introductionEnabled: true)
+    func testEquatable_differentAttunementEnabled_areNotEqual() {
+        let settings1 = MeditationSettings(attunementId: "breath", attunementEnabled: false)
+        let settings2 = MeditationSettings(attunementId: "breath", attunementEnabled: true)
 
         XCTAssertNotEqual(settings1, settings2)
     }
 
-    func testCodable_encodesAndDecodesIntroductionEnabled() throws {
-        let original = MeditationSettings(introductionId: "breath", introductionEnabled: true)
+    func testCodable_encodesAndDecodesAttunementEnabled() throws {
+        let original = MeditationSettings(attunementId: "breath", attunementEnabled: true)
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(original)
@@ -383,6 +383,6 @@ final class MeditationSettingsTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(MeditationSettings.self, from: data)
 
-        XCTAssertTrue(decoded.introductionEnabled)
+        XCTAssertTrue(decoded.attunementEnabled)
     }
 }

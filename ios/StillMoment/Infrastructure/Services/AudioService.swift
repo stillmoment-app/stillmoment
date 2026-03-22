@@ -42,8 +42,8 @@ final class AudioService: AudioServiceProtocol {
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
             gongCompletionSubject.send()
         }
-        self.introductionPlayerDelegate = IntroductionPlayerDelegate { [introductionCompletionSubject] in
-            introductionCompletionSubject.send()
+        self.attunementPlayerDelegate = AttunementPlayerDelegate { [attunementCompletionSubject] in
+            attunementCompletionSubject.send()
         }
         self.setupAudioInterruptionHandling()
         self.registerConflictHandler()
@@ -83,7 +83,7 @@ final class AudioService: AudioServiceProtocol {
     /// Configures the audio session for timer use and starts a silent keep-alive audio loop.
     ///
     /// The keep-alive loop plays `silence.mp3` to prevent iOS from suspending the app
-    /// during phases without audible audio (Preparation, Start-Gong→Introduction transition).
+    /// during phases without audible audio (Preparation, Start-Gong→Attunement transition).
     /// It is automatically replaced when `startBackgroundAudio()` is called.
     /// See ADR-004 for details.
     func configureAudioSession() throws {
@@ -95,7 +95,7 @@ final class AudioService: AudioServiceProtocol {
     /// Activates a timer session: configures audio session and starts always-on keep-alive.
     ///
     /// Keep-alive runs continuously from timer start to timer end. It is NOT stopped when
-    /// background audio, introduction, or gongs play — the silent audio at volume 0.01
+    /// background audio, attunement, or gongs play — the silent audio at volume 0.01
     /// does not interfere with other audio players.
     ///
     /// Call once at timer start. The only counterpart is `deactivateTimerSession()`.
@@ -258,7 +258,7 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping all audio playback")
         self.audioPlayer?.stop()
         self.audioPlayer = nil
-        self.stopIntroduction()
+        self.stopAttunement()
         self.stopBackgroundAudio()
 
         // Only release the timer session if THIS instance activated it.
@@ -282,16 +282,16 @@ final class AudioService: AudioServiceProtocol {
     private let backgroundPreviewDuration: TimeInterval
     let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
-    let introductionCompletionSubject = PassthroughSubject<Void, Never>()
+    let attunementCompletionSubject = PassthroughSubject<Void, Never>()
     let gongPlayerDelegate: GongPlayerDelegate
-    let introductionPlayerDelegate: IntroductionPlayerDelegate
+    let attunementPlayerDelegate: AttunementPlayerDelegate
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
-    var introductionPlayer: AVAudioPlayer?
+    var attunementPlayer: AVAudioPlayer?
     var keepAlivePlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
-    var introductionPreviewPlayer: AVAudioPlayer?
+    var attunementPreviewPlayer: AVAudioPlayer?
     var meditationPreviewPlayer: AVAudioPlayer?
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
@@ -474,8 +474,8 @@ private extension AudioService {
         self.backgroundPreviewTimer = nil
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
-        self.introductionPreviewPlayer?.stop()
-        self.introductionPreviewPlayer = nil
+        self.attunementPreviewPlayer?.stop()
+        self.attunementPreviewPlayer = nil
         self.meditationPreviewPlayer?.stop()
         self.meditationPreviewPlayer = nil
     }
@@ -486,8 +486,8 @@ private extension AudioService {
         self.timerSessionActive = false
         self.audioPlayer?.stop()
         self.audioPlayer = nil
-        self.introductionPlayer?.stop()
-        self.introductionPlayer = nil
+        self.attunementPlayer?.stop()
+        self.attunementPlayer = nil
         self.backgroundAudioPlayer?.stop()
         self.backgroundAudioPlayer = nil
         self.keepAlivePlayer?.stop()

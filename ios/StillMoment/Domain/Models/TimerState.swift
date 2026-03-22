@@ -9,8 +9,8 @@ import Foundation
 
 /// Represents the current state of the meditation timer
 ///
-/// State machine: idle → preparation → startGong → [introduction →] running → endGong → completed
-/// Preparation is optional. Introduction is optional, entered only when the introduction audio
+/// State machine: idle → preparation → startGong → [attunement →] running → endGong → completed
+/// Preparation is optional. Attunement is optional, entered only when the attunement audio
 /// actually starts (after the start gong finishes).
 /// Each state has exactly one meaning. Each transition has exactly one trigger.
 enum TimerState: Equatable {
@@ -23,11 +23,11 @@ enum TimerState: Equatable {
     /// Start gong is playing. The meditation countdown is already running.
     case startGong
 
-    /// Timer is playing the introduction audio (e.g., guided breathing exercise).
+    /// Timer is playing the attunement audio (e.g., guided breathing exercise).
     /// The meditation countdown is running during this phase.
-    /// Entered when the start gong finishes and an introduction is configured.
-    /// Exited when the introduction audio finishes (event-driven, not countdown).
-    case introduction
+    /// Entered when the start gong finishes and an attunement is configured.
+    /// Exited when the attunement audio finishes (event-driven, not countdown).
+    case attunement
 
     /// Timer is in silent meditation phase (countdown running)
     case running

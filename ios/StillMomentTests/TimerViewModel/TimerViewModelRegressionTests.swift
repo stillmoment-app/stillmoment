@@ -203,41 +203,41 @@ final class TimerViewModelRegressionTests: XCTestCase {
         wait(for: [expectation], timeout: 2.0)
     }
 
-    // MARK: - Introduction Background Audio Bug
+    // MARK: - Attunement Background Audio Bug
 
-    func testBackgroundAudioStartsAfterIntroductionFinishes() {
-        // CRITICAL: Regression test for the introduction→background-audio bug.
+    func testBackgroundAudioStartsAfterAttunementFinishes() {
+        // CRITICAL: Regression test for the attunement→background-audio bug.
         // After Einstimmung finishes, Klangkulisse MUST start.
-        // Bug: domain timer stayed in .startGong during introduction, so the
-        // .introduction guard in reduceIntroductionFinished failed → no audio.
+        // Bug: domain timer stayed in .startGong during attunement, so the
+        // .attunement guard in reduceAttunementFinished failed → no audio.
 
-        // Given - Introduction configured (German locale required)
-        Introduction.languageOverride = "de"
-        defer { Introduction.languageOverride = nil }
+        // Given - Attunement configured (German locale required)
+        Attunement.languageOverride = "de"
+        defer { Attunement.languageOverride = nil }
 
-        self.sut.settings.introductionId = "breath"
+        self.sut.settings.attunementId = "breath"
         self.sut.selectedMinutes = 5
 
         // When - Start timer (emits .startGong tick via mock)
         self.sut.startTimer()
 
-        // When - Start gong finishes → triggers beginIntroductionPhase + playIntroduction
+        // When - Start gong finishes → triggers beginAttunementPhase + playAttunement
         // Set timer to startGong so reducer guard passes
         self.sut.timer = .stub(durationMinutes: 5, state: .startGong)
         self.sut.dispatch(.startGongFinished)
 
-        // When - Introduction audio finishes → triggers endIntroductionPhase + startBackgroundAudio
-        // Set timer to introduction so reducer guard passes
-        self.sut.timer = .stub(durationMinutes: 5, state: .introduction)
-        self.sut.dispatch(.introductionFinished)
+        // When - Attunement audio finishes → triggers endAttunementPhase + startBackgroundAudio
+        // Set timer to attunement so reducer guard passes
+        self.sut.timer = .stub(durationMinutes: 5, state: .attunement)
+        self.sut.dispatch(.attunementFinished)
 
         // Then - Background audio MUST have started
         XCTAssertTrue(
             self.mockAudioService.startBackgroundAudioCalled,
             """
-            CRITICAL: Background audio must start after introduction finishes.
-            Bug: domain timer was stuck in .startGong during introduction, causing
-            reduceIntroductionFinished's guard to fail and skip all effects.
+            CRITICAL: Background audio must start after attunement finishes.
+            Bug: domain timer was stuck in .startGong during attunement, causing
+            reduceAttunementFinished's guard to fail and skip all effects.
             """
         )
     }

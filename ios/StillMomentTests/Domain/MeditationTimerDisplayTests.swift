@@ -43,8 +43,8 @@ final class MeditationTimerDisplayTests: XCTestCase {
         XCTAssertTrue(timer.isRunning)
     }
 
-    func testIsRunning_whenIntroduction_returnsTrue() {
-        let timer = MeditationTimer.stub(state: .introduction)
+    func testIsRunning_whenAttunement_returnsTrue() {
+        let timer = MeditationTimer.stub(state: .attunement)
 
         XCTAssertTrue(timer.isRunning)
     }

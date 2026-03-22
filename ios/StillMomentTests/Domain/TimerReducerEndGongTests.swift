@@ -37,19 +37,19 @@ final class TimerReducerEndGongTests: XCTestCase {
         XCTAssertFalse(effects.contains(.deactivateTimerSession))
     }
 
-    func testTimerCompleted_duringIntroduction_stopsIntroduction() {
-        // Given - Timer expired during introduction
+    func testTimerCompleted_duringAttunement_stopsAttunement() {
+        // Given - Timer expired during attunement
         // When
         let effects = TimerReducer.reduce(
             action: .timerCompleted,
-            timerState: .introduction,
+            timerState: .attunement,
             selectedMinutes: 3,
             settings: self.defaultSettings,
             attunementResolver: self.emptyResolver
         )
 
         // Then
-        XCTAssertTrue(effects.contains(.stopIntroduction))
+        XCTAssertTrue(effects.contains(.stopAttunement))
         XCTAssertTrue(effects.contains(.playCompletionSound))
         XCTAssertFalse(effects.contains(.deactivateTimerSession))
     }

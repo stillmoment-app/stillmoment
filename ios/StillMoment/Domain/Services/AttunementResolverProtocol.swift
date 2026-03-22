@@ -8,9 +8,9 @@
 import Foundation
 
 /// Resolves attunement audio IDs transparently — regardless of whether
-/// they refer to a built-in introduction or a user-imported custom attunement.
+/// they refer to a built-in attunement or a user-imported custom attunement.
 ///
-/// Consumers never need to check Introduction + CustomAudioRepository separately.
+/// Consumers never need to check Attunement + CustomAudioRepository separately.
 /// The resolver encapsulates the dual lookup logic in one place.
 ///
 /// Protocol lives in Domain; implementation (with catalog + file system access) in Infrastructure.

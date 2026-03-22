@@ -84,14 +84,14 @@
 "gong.soft-interval" = "Sanfter Intervallton";
 "gong.vibration" = "Vibration";
 
-// MARK: - Introduction Names
-"introduction.breath.name" = "Atemübung";
+// MARK: - Attunement Names
+"attunement.breath.name" = "Atemübung";
 
-"settings.introduction.header" = "Einleitung";
-"settings.introduction.title" = "Einleitung";
-"settings.introduction.none" = "Keine";
-"settings.introduction.option" = "%@ (%@)";
-"settings.introduction.footer" = "Eine optionale geführte Einleitung (z.B. Atemübung), die nach dem Gong vor der stillen Meditation abgespielt wird.";
+"settings.attunement.header" = "Einstimmung";
+"settings.attunement.title" = "Einstimmung";
+"settings.attunement.none" = "Keine";
+"settings.attunement.option" = "%@ (%@)";
+"settings.attunement.footer" = "Eine optionale geführte Einstimmung (z.B. Atemübung), die nach dem Gong vor der stillen Meditation abgespielt wird.";
 
 "settings.preparationTime.header" = "Vorbereitungszeit";
 "settings.preparationTime.title" = "Vorbereitungszeit";
@@ -167,8 +167,8 @@
 "accessibility.intervalMode.hint" = "Wähle wann Intervall-Gongs gespielt werden";
 "accessibility.intervalSound" = "Intervall-Klang";
 "accessibility.intervalSound.hint" = "Wähle den Klang für Intervall-Gongs";
-"accessibility.introduction" = "Einleitung";
-"accessibility.introduction.hint" = "Wähle eine optionale Einleitung für den Beginn der Meditation";
+"accessibility.attunement" = "Einstimmung";
+"accessibility.attunement.hint" = "Wähle eine optionale Einstimmung für den Beginn der Meditation";
 "accessibility.preparationTime" = "Vorbereitungszeit";
 "accessibility.preparationTime.hint" = "Aktiviere oder deaktiviere die Vorbereitungszeit vor der Meditation";
 "accessibility.preparationTimeDuration" = "Vorbereitungsdauer";
@@ -262,7 +262,7 @@
 "accessibility.library.preview" = "Meditation vorhören";
 "accessibility.library.preview.hint" = "Gedrückt halten, um eine Vorschau dieser Meditation zu hören";
 "accessibility.sound.select.hint" = "Wählt diesen Sound aus und spielt eine Vorschau";
-"accessibility.introduction.toggle.hint" = "Aktiviert oder deaktiviert die Einleitung vor der Meditation";
+"accessibility.attunement.toggle.hint" = "Aktiviert oder deaktiviert die Einstimmung vor der Meditation";
 
 // MARK: - Autocomplete
 
@@ -299,9 +299,9 @@
 "praxis.editor.section.preparation" = "Vorbereitung";
 "praxis.editor.section.audio" = "Audio & Klänge";
 "praxis.editor.section.gongs" = "Gongs";
-"praxis.editor.introduction.row" = "Einstimmung";
-"praxis.editor.introduction.none" = "Ohne Einstimmung";
-"praxis.editor.introduction.title" = "Einstimmung";
+"praxis.editor.attunement.row" = "Einstimmung";
+"praxis.editor.attunement.none" = "Ohne Einstimmung";
+"praxis.editor.attunement.title" = "Einstimmung";
 "praxis.editor.background.row" = "Hintergrundklang";
 "praxis.editor.background.title" = "Hintergrundklang";
 "praxis.editor.background.silence" = "Stille";

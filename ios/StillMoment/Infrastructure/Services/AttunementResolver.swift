@@ -8,9 +8,9 @@
 import Foundation
 import OSLog
 
-/// Resolves attunement IDs by checking built-in introductions and custom audio repository.
+/// Resolves attunement IDs by checking built-in attunements and custom audio repository.
 ///
-/// Built-in introductions are language-filtered (only available for the device language).
+/// Built-in attunements are language-filtered (only available for the device language).
 /// Custom attunements are always available regardless of language.
 final class AttunementResolver: AttunementResolverProtocol {
     private let customAudioRepository: CustomAudioRepositoryProtocol
@@ -20,13 +20,13 @@ final class AttunementResolver: AttunementResolverProtocol {
     }
 
     func resolve(id: String) -> ResolvedAttunement? {
-        // Try built-in introduction first
-        if let intro = Introduction.find(byId: id),
-           intro.availableLanguages.contains(Introduction.currentLanguage) {
+        // Try built-in attunement first
+        if let attunement = Attunement.find(byId: id),
+           attunement.availableLanguages.contains(Attunement.currentLanguage) {
             return ResolvedAttunement(
-                id: intro.id,
-                displayName: intro.name,
-                durationSeconds: intro.durationSeconds(for: Introduction.currentLanguage)
+                id: attunement.id,
+                displayName: attunement.name,
+                durationSeconds: attunement.durationSeconds(for: Attunement.currentLanguage)
             )
         }
 
@@ -52,8 +52,8 @@ final class AttunementResolver: AttunementResolverProtocol {
             return url
         }
 
-        // Try built-in introduction
-        guard let filename = Introduction.audioFilenameForCurrentLanguage(id) else {
+        // Try built-in attunement
+        guard let filename = Attunement.audioFilenameForCurrentLanguage(id) else {
             Logger.audio.error(
                 "Attunement not found or not available",
                 metadata: ["id": id]
@@ -80,12 +80,12 @@ final class AttunementResolver: AttunementResolverProtocol {
     }
 
     func allAvailable() -> [ResolvedAttunement] {
-        // Built-in introductions for current language
-        var result = Introduction.availableForCurrentLanguage().map { intro in
+        // Built-in attunements for current language
+        var result = Attunement.availableForCurrentLanguage().map { attunement in
             ResolvedAttunement(
-                id: intro.id,
-                displayName: intro.name,
-                durationSeconds: intro.durationSeconds(for: Introduction.currentLanguage)
+                id: attunement.id,
+                displayName: attunement.name,
+                durationSeconds: attunement.durationSeconds(for: Attunement.currentLanguage)
             )
         }
 

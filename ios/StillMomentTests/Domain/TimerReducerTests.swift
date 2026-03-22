@@ -90,7 +90,7 @@ final class TimerReducerTests: XCTestCase {
         XCTAssertEqual(effects, [.playStartGong])
     }
 
-    func testStartGongFinished_fromStartGong_withoutIntro_startsBackgroundAudio() {
+    func testStartGongFinished_fromStartGong_withoutAttunement_startsBackgroundAudio() {
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
@@ -107,8 +107,8 @@ final class TimerReducerTests: XCTestCase {
         )))
     }
 
-    func testStartGongFinished_fromStartGong_withoutIntro_transitionsToRunning() {
-        // Given - no introduction configured
+    func testStartGongFinished_fromStartGong_withoutAttunement_transitionsToRunning() {
+        // Given - no attunement configured
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,

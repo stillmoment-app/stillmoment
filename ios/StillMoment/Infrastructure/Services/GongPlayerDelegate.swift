@@ -10,7 +10,7 @@ import AVFoundation
 // MARK: - GongPlayerDelegate
 
 /// AVAudioPlayerDelegate that notifies when a gong finishes playing.
-/// Used to sequence introduction audio after the start gong completes.
+/// Used to sequence attunement audio after the start gong completes.
 /// Always fires onFinish — even on interruption (successfully: false) — to prevent
 /// the state machine from getting stuck in `.startGong`.
 class GongPlayerDelegate: NSObject, AVAudioPlayerDelegate {

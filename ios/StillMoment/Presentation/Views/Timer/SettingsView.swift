@@ -17,7 +17,7 @@ struct SettingsView: View {
     init(
         settings: Binding<MeditationSettings>,
         availableSounds: [BackgroundSound],
-        availableIntroductions: [Introduction] = [],
+        availableAttunements: [Attunement] = [],
         onGongChanged: @escaping (String, Float) -> Void,
         onBackgroundChanged: @escaping (String, Float) -> Void,
         onIntervalGongPreview: @escaping (String, Float) -> Void,
@@ -25,7 +25,7 @@ struct SettingsView: View {
     ) {
         _settings = settings
         self.availableSounds = availableSounds
-        self.availableIntroductions = availableIntroductions
+        self.availableAttunements = availableAttunements
         self.onGongChanged = onGongChanged
         self.onBackgroundChanged = onBackgroundChanged
         self.onIntervalGongPreview = onIntervalGongPreview
@@ -44,8 +44,8 @@ struct SettingsView: View {
                 Form {
                     self.preparationTimeSection
                     self.gongSection
-                    if !self.availableIntroductions.isEmpty {
-                        self.introductionSection
+                    if !self.availableAttunements.isEmpty {
+                        self.attunementSection
                     }
                     self.intervalGongsSection
                     self.backgroundAudioSection
@@ -78,7 +78,7 @@ struct SettingsView: View {
     @Binding private var settings: MeditationSettings
 
     private let availableSounds: [BackgroundSound]
-    private let availableIntroductions: [Introduction]
+    private let availableAttunements: [Attunement]
     private let onGongChanged: (String, Float) -> Void
     private let onBackgroundChanged: (String, Float) -> Void
     private let onIntervalGongPreview: (String, Float) -> Void
@@ -168,43 +168,43 @@ struct SettingsView: View {
         }
     }
 
-    // MARK: - Introduction Section
+    // MARK: - Attunement Section
 
-    private var introductionSection: some View {
+    private var attunementSection: some View {
         Section {
             Picker(selection: Binding(
-                get: { self.settings.introductionId ?? "" },
-                set: { self.settings.introductionId = $0.isEmpty ? nil : $0 }
+                get: { self.settings.attunementId ?? "" },
+                set: { self.settings.attunementId = $0.isEmpty ? nil : $0 }
             )) {
-                Text("settings.introduction.none", bundle: .main)
+                Text("settings.attunement.none", bundle: .main)
                     .tag("")
-                ForEach(self.availableIntroductions) { intro in
+                ForEach(self.availableAttunements) { attunement in
                     Text(
                         String(
-                            format: NSLocalizedString("settings.introduction.option", comment: ""),
-                            intro.name,
-                            intro.formattedDuration
+                            format: NSLocalizedString("settings.attunement.option", comment: ""),
+                            attunement.name,
+                            attunement.formattedDuration
                         )
                     )
-                    .tag(intro.id)
+                    .tag(attunement.id)
                 }
             } label: {
-                Text("settings.introduction.title", bundle: .main)
+                Text("settings.attunement.title", bundle: .main)
                     .themeFont(.settingsLabel)
             }
             .pickerStyle(.menu)
-            .onChange(of: self.settings.introductionId) { _ in
+            .onChange(of: self.settings.attunementId) { _ in
                 HapticFeedback.selection()
             }
-            .accessibilityIdentifier("settings.picker.introduction")
-            .accessibilityLabel(NSLocalizedString("accessibility.introduction", comment: ""))
-            .accessibilityHint(NSLocalizedString("accessibility.introduction.hint", comment: ""))
+            .accessibilityIdentifier("settings.picker.attunement")
+            .accessibilityLabel(NSLocalizedString("accessibility.attunement", comment: ""))
+            .accessibilityHint(NSLocalizedString("accessibility.attunement.hint", comment: ""))
             .cardRowBackground()
         } header: {
-            Text("settings.introduction.header", bundle: .main)
+            Text("settings.attunement.header", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
         } footer: {
-            Text("settings.introduction.footer", bundle: .main)
+            Text("settings.attunement.footer", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
         }
     }

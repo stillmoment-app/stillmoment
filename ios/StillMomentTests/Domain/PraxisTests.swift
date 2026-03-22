@@ -42,12 +42,12 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.backgroundSoundVolume, 0.15, accuracy: 0.001)
     }
 
-    func testDefault_hasNoIntroduction() {
-        XCTAssertNil(Praxis.default.introductionId)
+    func testDefault_hasNoAttunement() {
+        XCTAssertNil(Praxis.default.attunementId)
     }
 
-    func testDefault_hasIntroductionDisabled() {
-        XCTAssertFalse(Praxis.default.introductionEnabled)
+    func testDefault_hasAttunementDisabled() {
+        XCTAssertFalse(Praxis.default.attunementEnabled)
     }
 
     // MARK: - Immutability (Value Object)
@@ -149,7 +149,7 @@ final class PraxisTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
             gongVolume: 0.8,
-            introductionId: nil
+            attunementId: nil
         )
 
         // When
@@ -168,7 +168,7 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.preparationTimeSeconds, 10)
         XCTAssertEqual(praxis.startGongSoundId, "classic-bowl")
         XCTAssertEqual(praxis.gongVolume, 0.8, accuracy: 0.001)
-        XCTAssertNil(praxis.introductionId)
+        XCTAssertNil(praxis.attunementId)
     }
 
     // MARK: - toMeditationSettings
@@ -182,7 +182,7 @@ final class PraxisTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
             gongVolume: 0.8,
-            introductionId: nil,
+            attunementId: nil,
             intervalGongsEnabled: true,
             intervalMinutes: 10,
             intervalMode: .afterStart,
@@ -201,7 +201,7 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(settings.preparationTimeSeconds, 10)
         XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
         XCTAssertEqual(settings.gongVolume, 0.8, accuracy: 0.001)
-        XCTAssertNil(settings.introductionId)
+        XCTAssertNil(settings.attunementId)
         XCTAssertTrue(settings.intervalGongsEnabled)
         XCTAssertEqual(settings.intervalMinutes, 10)
         XCTAssertEqual(settings.intervalMode, .afterStart)
@@ -239,70 +239,70 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(updated.id, original.id)
     }
 
-    func testWithIntroductionId_setsId_preservesOtherFields() {
+    func testWithAttunementId_setsId_preservesOtherFields() {
         // Given
-        let original = Praxis(durationMinutes: 15, introductionId: nil)
+        let original = Praxis(durationMinutes: 15, attunementId: nil)
 
         // When
-        let updated = original.withIntroductionId("breath")
+        let updated = original.withAttunementId("breath")
 
         // Then
-        XCTAssertEqual(updated.introductionId, "breath")
+        XCTAssertEqual(updated.attunementId, "breath")
         XCTAssertEqual(updated.durationMinutes, 15)
         XCTAssertEqual(updated.id, original.id)
     }
 
-    func testWithIntroductionEnabled_setsEnabled_preservesOtherFields() {
+    func testWithAttunementEnabled_setsEnabled_preservesOtherFields() {
         // Given
-        let original = Praxis(durationMinutes: 15, introductionId: "breath", introductionEnabled: false)
+        let original = Praxis(durationMinutes: 15, attunementId: "breath", attunementEnabled: false)
 
         // When
-        let updated = original.withIntroductionEnabled(true)
+        let updated = original.withAttunementEnabled(true)
 
         // Then
-        XCTAssertTrue(updated.introductionEnabled)
-        XCTAssertEqual(updated.introductionId, "breath")
+        XCTAssertTrue(updated.attunementEnabled)
+        XCTAssertEqual(updated.attunementId, "breath")
         XCTAssertEqual(updated.durationMinutes, 15)
         XCTAssertEqual(updated.id, original.id)
     }
 
-    func testWithBackgroundSoundId_preservesIntroductionEnabled() {
+    func testWithBackgroundSoundId_preservesAttunementEnabled() {
         // Given
-        let original = Praxis(introductionEnabled: true)
+        let original = Praxis(attunementEnabled: true)
 
         // When
         let updated = original.withBackgroundSoundId("rain")
 
         // Then
-        XCTAssertTrue(updated.introductionEnabled)
+        XCTAssertTrue(updated.attunementEnabled)
     }
 
-    func testWithDurationMinutes_preservesIntroductionEnabled() {
+    func testWithDurationMinutes_preservesAttunementEnabled() {
         // Given
-        let original = Praxis(introductionEnabled: true)
+        let original = Praxis(attunementEnabled: true)
 
         // When
         let updated = original.withDurationMinutes(25)
 
         // Then
-        XCTAssertTrue(updated.introductionEnabled)
+        XCTAssertTrue(updated.attunementEnabled)
     }
 
-    func testWithIntroductionId_preservesIntroductionEnabled() {
+    func testWithAttunementId_preservesAttunementEnabled() {
         // Given
-        let original = Praxis(introductionEnabled: true)
+        let original = Praxis(attunementEnabled: true)
 
         // When
-        let updated = original.withIntroductionId("breath")
+        let updated = original.withAttunementId("breath")
 
         // Then
-        XCTAssertTrue(updated.introductionEnabled)
+        XCTAssertTrue(updated.attunementEnabled)
     }
 
     // MARK: - Codable Migration
 
-    func testDecode_legacyDataWithoutIntroductionEnabled_withIntroductionId_defaultsToTrue() throws {
-        // Given - Legacy JSON that has introductionId but no introductionEnabled key
+    func testDecode_legacyDataWithoutAttunementEnabled_withAttunementId_defaultsToTrue() throws {
+        // Given - Legacy JSON that has attunementId but no attunementEnabled key
         let json = """
             {
                 "id": "00000000-0000-0000-0000-000000000001",
@@ -326,13 +326,13 @@ final class PraxisTests: XCTestCase {
         // When
         let praxis = try JSONDecoder().decode(Praxis.self, from: data)
 
-        // Then - introductionEnabled defaults to true because introductionId is non-nil
-        XCTAssertTrue(praxis.introductionEnabled)
-        XCTAssertEqual(praxis.introductionId, "breath")
+        // Then - attunementEnabled defaults to true because attunementId is non-nil
+        XCTAssertTrue(praxis.attunementEnabled)
+        XCTAssertEqual(praxis.attunementId, "breath")
     }
 
-    func testDecode_legacyDataWithoutIntroductionEnabled_withoutIntroductionId_defaultsToFalse() throws {
-        // Given - Legacy JSON without introductionId and without introductionEnabled
+    func testDecode_legacyDataWithoutAttunementEnabled_withoutAttunementId_defaultsToFalse() throws {
+        // Given - Legacy JSON without attunementId and without attunementEnabled
         let json = """
             {
                 "id": "00000000-0000-0000-0000-000000000001",
@@ -355,13 +355,13 @@ final class PraxisTests: XCTestCase {
         // When
         let praxis = try JSONDecoder().decode(Praxis.self, from: data)
 
-        // Then - introductionEnabled defaults to false because introductionId is nil
-        XCTAssertFalse(praxis.introductionEnabled)
-        XCTAssertNil(praxis.introductionId)
+        // Then - attunementEnabled defaults to false because attunementId is nil
+        XCTAssertFalse(praxis.attunementEnabled)
+        XCTAssertNil(praxis.attunementId)
     }
 
-    func testDecode_newDataWithIntroductionEnabled_preservesValue() throws {
-        // Given - New JSON with explicit introductionEnabled
+    func testDecode_newDataWithAttunementEnabled_preservesValue() throws {
+        // Given - New JSON with explicit attunementEnabled
         let json = """
             {
                 "id": "00000000-0000-0000-0000-000000000001",
@@ -386,46 +386,46 @@ final class PraxisTests: XCTestCase {
         // When
         let praxis = try JSONDecoder().decode(Praxis.self, from: data)
 
-        // Then - introductionEnabled is explicitly false, even though introductionId is set
-        XCTAssertFalse(praxis.introductionEnabled)
-        XCTAssertEqual(praxis.introductionId, "breath")
+        // Then - attunementEnabled is explicitly false, even though attunementId is set
+        XCTAssertFalse(praxis.attunementEnabled)
+        XCTAssertEqual(praxis.attunementId, "breath")
     }
 
-    func testEncodeDecode_roundTrip_preservesIntroductionEnabled() throws {
+    func testEncodeDecode_roundTrip_preservesAttunementEnabled() throws {
         // Given
-        let original = Praxis(introductionId: "breath", introductionEnabled: true)
+        let original = Praxis(attunementId: "breath", attunementEnabled: true)
 
         // When
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(Praxis.self, from: data)
 
         // Then
-        XCTAssertEqual(decoded.introductionEnabled, original.introductionEnabled)
-        XCTAssertEqual(decoded.introductionId, original.introductionId)
+        XCTAssertEqual(decoded.attunementEnabled, original.attunementEnabled)
+        XCTAssertEqual(decoded.attunementId, original.attunementId)
     }
 
-    // MARK: - Migration preserves introductionEnabled
+    // MARK: - Migration preserves attunementEnabled
 
-    func testMigratingFromSettings_preservesIntroductionEnabled() {
+    func testMigratingFromSettings_preservesAttunementEnabled() {
         // Given
-        let settings = MeditationSettings(introductionId: "breath", introductionEnabled: true)
+        let settings = MeditationSettings(attunementId: "breath", attunementEnabled: true)
 
         // When
         let praxis = Praxis(migratingFrom: settings)
 
         // Then
-        XCTAssertTrue(praxis.introductionEnabled)
-        XCTAssertEqual(praxis.introductionId, "breath")
+        XCTAssertTrue(praxis.attunementEnabled)
+        XCTAssertEqual(praxis.attunementId, "breath")
     }
 
-    func testToMeditationSettings_preservesIntroductionEnabled() {
+    func testToMeditationSettings_preservesAttunementEnabled() {
         // Given
-        let praxis = Praxis(introductionId: "breath", introductionEnabled: true)
+        let praxis = Praxis(attunementId: "breath", attunementEnabled: true)
 
         // When
         let settings = praxis.toMeditationSettings()
 
         // Then
-        XCTAssertTrue(settings.introductionEnabled)
+        XCTAssertTrue(settings.attunementEnabled)
     }
 }

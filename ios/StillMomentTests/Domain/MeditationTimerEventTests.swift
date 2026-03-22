@@ -89,10 +89,10 @@ final class MeditationTimerEventTests: XCTestCase {
         XCTAssertEqual(newTimer.state, .endGong)
     }
 
-    func testIntroductionTimerReachesZero_emitsMeditationCompleted() throws {
-        // Given - Timer in introduction state with 1 second remaining
+    func testAttunementTimerReachesZero_emitsMeditationCompleted() throws {
+        // Given - Timer in attunement state with 1 second remaining
         var timer = try MeditationTimer(durationMinutes: 1)
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
         for _ in 0..<59 {
             let (ticked, _) = timer.tick()
             timer = ticked

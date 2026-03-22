@@ -22,7 +22,7 @@ Last Updated: 2026-02-23
 | `IntervalSettings` | Value Object | Timer | Intervall-Gong-Konfiguration fuer tick() |
 | `EditSheetState` | Value Object | Guided Meditations | Zustand und Validierung beim Editieren |
 | `GuidedMeditation` | Entity | Guided Meditations | Gefuehrte Meditation (Audio ist Hauptfeature) |
-| `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation. Im Code aktuell noch `Introduction` (Rename-Ticket pending). |
+| `Attunement` | Value Object | Timer | Optionale Einstimmung (z.B. Atemuebung) vor stiller Meditation |
 | `AttunementResolver` | Protocol | Timer | Loest Einstimmungs-IDs transparent auf (built-in oder custom) |
 | `SoundscapeResolver` | Protocol | Timer | Loest Soundscape-IDs transparent auf (built-in oder custom) |
 | `GuidedMeditationSettings` | Value Object | Guided Meditations | Player-Einstellungen (Vorbereitungszeit) |
@@ -55,7 +55,7 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 | `idle` | Timer bereit zum Start |
 | `preparation` | Vorbereitungsphase vor Meditation (konfigurierbar) |
 | `startGong` | Start-Gong spielt, Meditation-Countdown laeuft bereits |
-| `introduction` | Einstimmungs-Audio spielt (z.B. Atemuebung), Meditation-Countdown laeuft bereits |
+| `attunement` | Einstimmungs-Audio spielt (z.B. Atemuebung), Meditation-Countdown laeuft bereits |
 | `running` | Timer laeuft, stille Meditationsphase aktiv |
 | `endGong` | Timer bei 0, Completion-Gong spielt. Ring voll, 00:00 angezeigt. Wechsel zu `completed` erst nach Audio-Callback (`endGongFinished`). |
 | `completed` | Timer abgelaufen, Meditation beendet |
@@ -63,18 +63,18 @@ Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, H
 **State Machine:**
 
 ```
-idle --> preparation --> startGong --> introduction --> running --> endGong --> completed
+idle --> preparation --> startGong --> attunement --> running --> endGong --> completed
   |                        |              |               ^
   |                        |              +---------------+
   |                        |              (no attunement)
   +------------------------+--------------+
 
 Pfade:
-- Voll: idle → preparation → startGong → introduction → running → endGong → completed
+- Voll: idle → preparation → startGong → attunement → running → endGong → completed
 - Ohne Einstimmung: idle → preparation → startGong → running → endGong → completed
-- Ohne Vorbereitung: idle → startGong → introduction → running → endGong → completed
+- Ohne Vorbereitung: idle → startGong → attunement → running → endGong → completed
 - Minimal: idle → startGong → running → endGong → completed
-- Start-Gong spielt im startGong-State; Einstimmung wartet auf startGongFinished
+- Start-Gong spielt im startGong-State; Einstimmung wartet auf startGongFinished Action
 - Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via startGongFinished)
 - Hintergrund-Audio startet erst beim Uebergang zu running (nach Einstimmung)
 - Einstimmungs-Timer zaehlt zur Gesamtmeditationszeit
@@ -106,7 +106,7 @@ Pfade:
 |-------|--------------|
 | `preparationFinished` | Vorbereitung abgeschlossen |
 | `startGongFinished` | Start-Gong fertig abgespielt, Einstimmungs-Audio kann starten |
-| `introductionFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
+| `attunementFinished` | Einstimmungs-Audio beendet, stille Meditation beginnt |
 | `timerCompleted` | Timer bei 0 angekommen, wechselt zu endGong-Phase |
 | `endGongFinished` | Completion-Gong fertig abgespielt (Audio-Callback), wechselt zu completed |
 | `intervalGongTriggered` | Intervall-Gong soll spielen (ausgeloest durch TimerEvent.intervalGongDue) |
@@ -177,8 +177,8 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 |-----------|---------|
 | Session Lifecycle | `activateTimerSession`, `deactivateTimerSession` |
 | Background Audio | `startBackgroundAudio(soundId:volume:)`, `stopBackgroundAudio` |
-| Sound Effects | `playStartGong`, `playIntroduction(introductionId:)`, `stopIntroduction`, `playIntervalGong(soundId:volume:)`, `playCompletionSound` |
-| Timer Service | `startTimer(durationMinutes:)`, `resetTimer`, `beginIntroductionPhase`, `endIntroductionPhase` |
+| Sound Effects | `playStartGong`, `playAttunement(attunementId:)`, `stopAttunement`, `playIntervalGong(soundId:volume:)`, `playCompletionSound` |
+| Timer Service | `startTimer(durationMinutes:)`, `resetTimer`, `beginAttunementPhase`, `endAttunementPhase` |
 | State Transitions | `transitionToCompleted`, `clearTimer` |
 | Persistence | `saveSettings(MeditationSettings)` |
 
@@ -222,7 +222,7 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 | `tick(intervalSettings:)` | Neue Instanz mit Zeit-1 und Domain Events `(MeditationTimer, [TimerEvent])` |
 | `withState(_:)` | Neue Instanz mit neuem State |
 | `startPreparation()` | Neue Instanz im Vorbereitungsmodus |
-| `endIntroduction()` | Neue Instanz im Running-State nach Einstimmung, setzt `silentPhaseStartRemaining` |
+| `endAttunement()` | Neue Instanz im Running-State nach Einstimmung, setzt `silentPhaseStartRemaining` |
 | `markIntervalGongPlayed()` | Neue Instanz mit Gong-Marker |
 | `shouldPlayIntervalGong(intervalMinutes:mode:)` | Prueft ob Gong faellig |
 | `reset()` | Zurueckgesetzter Timer |
@@ -257,7 +257,7 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 | `preparationTimeEnabled` | Bool | true | Vorbereitungszeit aktiviert? |
 | `preparationTimeSeconds` | Int | 15 | Vorbereitungszeit in Sekunden (5, 10, 15, 20, 30, 45) |
 | `gongSoundId` | String | "temple-bell" | Gong-Ton ID (Start/Ende) |
-| `introductionId` | String? | nil | Einstimmungs-ID (nil = keine Einstimmung) |
+| `attunementId` | String? | nil | Einstimmungs-ID (nil = keine Einstimmung) |
 
 **Validierung:**
 - `validateInterval(_:)` - Clamps zu 1-60
@@ -291,7 +291,7 @@ Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern 
 | `preparationTimeSeconds` | Int | Vorbereitungszeit (5, 10, 15, 20, 30, 45s) |
 | `startGongSoundId` | String | Gong-Ton ID fuer Start/Ende |
 | `gongVolume` | Float | Gong-Lautstaerke (0.0-1.0) |
-| `introductionId` | String? | Einstimmungs-ID (nil = keine) |
+| `attunementId` | String? | Einstimmungs-ID (nil = keine) |
 | `intervalGongsEnabled` | Bool | Intervall-Gongs aktiviert? |
 | `intervalMinutes` | Int | Intervall in Minuten (1-60) |
 | `intervalMode` | IntervalMode | Intervallmodus |
@@ -357,8 +357,6 @@ CRUD-Protokoll fuer Praxis-Persistenz. Implementierungen verbergen den Speicherm
 
 **Typ:** Value Object
 **Pattern:** Static Registry
-**Code-Name (aktuell):** `Introduction` — Rename zu `Attunement` als eigenes Ticket geplant.
-
 **Beschreibung:**
 Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Gong und vor der stillen Meditationsphase abgespielt wird. Einstimmungen spielen einmalig und bereiten den Meditierenden auf die stille Phase vor. Sie sind fest in der App gebundelt, sprachspezifisch und ueber die Timer-Einstellungen konfigurierbar. Die Einstimmungszeit zaehlt zur Gesamtmeditationszeit.
 
@@ -392,10 +390,10 @@ Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Go
 **Audio-Dateinamen-Konvention:** `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
 
 **Datei-Referenzen:**
-- iOS: `ios/StillMoment/Domain/Models/Introduction.swift` (Rename zu `Attunement.swift` geplant)
+- iOS: `ios/StillMoment/Domain/Models/Attunement.swift`
 - Android: (geplant)
 
-**Siehe auch:** `MeditationSettings.introductionId`, `TimerState.introduction`, `TimerEffect.playIntroduction` (Code-Rename geplant)
+**Siehe auch:** `MeditationSettings.attunementId`, `TimerState.attunement`, `TimerEffect.playAttunement`
 
 ---
 
@@ -405,7 +403,7 @@ Optionales Einstimmungs-Audio (z.B. gefuehrte Atemuebung), das nach dem Start-Go
 **Pattern:** Unified Audio Resolution (Domain Protocol + Infrastructure Implementation)
 
 **Beschreibung:**
-Loest Einstimmungs-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`Introduction`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Kein Konsument muss mehr selbst pruefen ob eine ID built-in oder custom ist.
+Loest Einstimmungs-Audio-IDs transparent auf — unabhaengig davon, ob die ID auf einen Built-in-Katalog-Eintrag (`Attunement`) oder eine importierte Custom-Datei (`CustomAudioFile`) zeigt. Kein Konsument muss mehr selbst pruefen ob eine ID built-in oder custom ist.
 
 **Methoden:**
 
@@ -779,7 +777,7 @@ idle --> preparation --> finished --> (MP3 playback)
 | Pattern | Beispiel | Verwendung |
 |---------|----------|------------|
 | `verbPressed` | `startPressed`, `resetPressed` | Benutzer-Interaktion |
-| `nounVerbed` | `preparationFinished`, `introductionFinished` (= Einstimmung fertig), `timerCompleted`, `endGongFinished` | System-Event |
+| `nounVerbed` | `preparationFinished`, `attunementFinished` (= Einstimmung fertig), `timerCompleted`, `endGongFinished` | System-Event |
 | `nounVerbTriggered` | `intervalGongTriggered` | Internes Event (von TimerEvent ausgeloest) |
 
 ### Effects (TimerEffect)

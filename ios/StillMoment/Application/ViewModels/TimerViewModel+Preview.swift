@@ -15,9 +15,9 @@ extension TimerViewModel {
         self.soundRepository.availableSounds
     }
 
-    /// Introductions available for the current device language
-    var availableIntroductions: [Introduction] {
-        Introduction.availableForCurrentLanguage()
+    /// Attunements available for the current device language
+    var availableAttunements: [Attunement] {
+        Attunement.availableForCurrentLanguage()
     }
 
     /// Plays a gong sound preview when user changes gong selection in settings
@@ -73,8 +73,8 @@ extension TimerViewModel {
             )
         case .startGong:
             viewModel.timer = .stub(remainingSeconds: 597, state: .startGong)
-        case .introduction:
-            viewModel.timer = .stub(remainingSeconds: 505, state: .introduction)
+        case .attunement:
+            viewModel.timer = .stub(remainingSeconds: 505, state: .attunement)
         case .running:
             viewModel.timer = .stub(remainingSeconds: 300, state: .running)
         case .endGong:

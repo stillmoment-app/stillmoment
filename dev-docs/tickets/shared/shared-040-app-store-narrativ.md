@@ -1,25 +1,25 @@
-# Ticket shared-040: App Store Narrativ und Screenshots
+# Ticket shared-040: App Store Screenshots und Visuals
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan**: [Implementierungsplan](../plans/shared-040.md)
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~2d
 **Phase**: 4-Polish
+**Abhaengigkeit**: shared-078 (Texte und Ton) liefert Subtitle, Description, Promotional Text
 
 ---
 
 ## Was
 
-App Store (iOS) und Play Store (Android) Praesenz ueberarbeiten mit Fokus auf das BYOM-Alleinstellungsmerkmal:
-
-1. **Beschreibungstexte** neu schreiben (Titel, Untertitel, Beschreibung, Keywords)
-2. **Screenshot-Konzepte** definieren und umsetzen (5 Screenshots pro Plattform)
-3. **Promotional Text** (iOS) fuer saisonale/aktuelle Botschaften
+App Store (iOS) und Play Store (Android) Screenshots und visuelle Metadaten ueberarbeiten. Jedes Bild transportiert eine Botschaft — die App-UI ist Beiwerk, nicht Hauptdarsteller. Dazu Keywords und Store-Metadaten optimieren.
 
 ## Warum
 
-Der App Store ist der erste Kontaktpunkt. Wenn das USP dort nicht sofort sichtbar ist, wird es nie entdeckt. Aktuell kommuniziert die Store-Praesenz das Alleinstellungsmerkmal "eigene MP3s importieren" nicht prominent genug. Die Screenshots muessen das Konzept visuell greifbar machen - insbesondere eine gefuellte Library mit echten Lehrer-Namen.
+Der App Store ist der erste Kontaktpunkt. Die meisten User lesen keinen Text — sie swipen durch die Screenshots. Klassische UI-Screenshots ("so sieht der Timer aus") sind verschenkte Flaeche. Jedes Bild muss eine Botschaft transportieren, die auch ohne Antippen der Description funktioniert.
 
-Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md) | [Marktrecherche](../../reference/market-research.md)
+**Wettbewerbskontext:** Die grossen Apps (Calm, Headspace) haben professionelle Botschaften-Screenshots. Nischen-Apps haben oft nur UI-Screenshots. Die Bilder sind die Chance, mit kleinem Budget professionell zu wirken.
+
+**Abgrenzung zu shared-078:** Dieses Ticket kuemmert sich um Visuals, Keywords und Store-Metadaten. Texte (Subtitle, Description, Promotional Text) werden in shared-078 definiert.
 
 ---
 
@@ -27,93 +27,117 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md) | [Marktrecherche](..
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [ ]    | shared-078 (Texte) |
+| Android   | [ ]    | shared-078 (Texte) |
+
+---
+
+## Screenshot-Konzept
+
+### Prinzip
+
+Jedes Bild besteht aus zwei Ebenen:
+
+```
+┌─────────────┐
+│             │
+│  HEADLINE   │  ← gross, lesbar, transportiert Botschaft
+│  (2-4 Wort) │
+│             │
+│   ┌─────┐   │
+│   │ UI  │   │  ← kleiner, liefert Kontext/Beweis
+│   │     │   │
+│   └─────┘   │
+│             │
+└─────────────┘
+```
+
+Die Headlines erzaehlen beim Durchswipen eine Geschichte: USP → Sympathie → Feature → Vertrauen → Emotion.
+
+### Bild 1 — "Deine MP3s. Deine Praxis."
+
+- **Botschaft:** Du bringst deine eigenen Meditationen mit
+- **UI:** Gefuellte Library mit Lehrer-Namen (leicht veraenderte Namen, keine echten Personen), verschiedene Dauern
+- **Warum Bild 1:** Das ist der USP, das muss zuerst kommen
+- **WICHTIGSTES BILD** — entscheidet ob der User weiterschaut
+
+### Bild 2 — "Kein Abo. Keine Werbung."
+
+- **Botschaft:** Das nervt alle, sofort Sympathie
+- **UI:** Timer laeuft in Candlelight Dark Theme — die App sieht hochwertig aus UND kostet nichts
+- **Warum Bild 2:** Nach dem USP sofort das zweitwichtigste Kaufargument
+
+### Bild 3 — "Stiller Timer mit Gongs."
+
+- **Botschaft:** Zweites Kernfeature fuer stille Meditation
+- **UI:** Praxis Editor mit sichtbarer Gong-Konfiguration (Intervall-Gongs, Start/Ende-Klangschale)
+- **Warum Bild 3:** Fuer User die keine MP3s haben, sondern still meditieren
+
+### Bild 4 — "Kein Tracking. Keine Cloud."
+
+- **Botschaft:** Vertrauenssignal, beilaeufig
+- **UI:** Player im Zen Mode (Tab Bar weg, reduzierte UI) — zeigt visuell dass die App sich zuruecknimmt, Privacy-Headline verstaerkt das
+- **Warum Bild 4:** Privacy als Differenzierung fuer die, die bis hierhin swipen
+
+### Bild 5 — Das Zitat (ohne UI)
+
+- **Botschaft:** Emotionaler Abschluss
+- **Visual:** Dunkler Hintergrund, Zitat-Text gross, kein Screenshot
+  > Meditiere nicht, um dich zu verbessern.
+  > Tue es als Akt der Liebe —
+  > der tiefen, warmen Freundschaft mit dir selbst.
+- **Warum Bild 5:** Wer bis hierhin swipt, ist interessiert. Das Zitat gibt den letzten Impuls
+
+### EN-Varianten der Headlines
+
+1. "Your MP3s. Your practice."
+2. "No subscription. No ads."
+3. "Silent timer with gongs."
+4. "No tracking. No cloud."
+5. Zitat EN
 
 ---
 
 ## Akzeptanzkriterien
 
-### Beschreibungstexte (beide Plattformen)
+### Screenshots (beide Plattformen, je 5 Bilder)
 
-- [ ] App-Titel: "Still Moment - Meditation Timer" (beide Stores)
-- [ ] Untertitel/Kurzbeschreibung kommuniziert den USP direkt
-- [ ] Langbeschreibung: fuehrt mit BYOM-USP, dann Timer, dann Privacy
-- [ ] Keywords (iOS): optimiert auf "meditation timer", "mp3 import", "no subscription", etc.
-- [ ] Beide Sprachen: DE + EN
-- [ ] Kein Marketing-Sprech das nicht eingeloest wird - authentisch und ehrlich
-
-### Screenshot-Konzepte (beide Plattformen, je 5 Bilder)
-
-- [ ] Screenshot 1: Timer in Aktion (Candlelight Dark) - "Finde deine Stille" / "Find your stillness"
-- [ ] Screenshot 2: Gefuellte Library mit echten Lehrer-Namen - "Deine Lehrer. Deine Bibliothek." / "Your teachers. Your library."
-- [ ] Screenshot 3: Import-Flow visualisiert - "Importiere deine Meditationen" / "Import your meditations"
-- [ ] Screenshot 4: Drei Themes nebeneinander - "Drei handverlesene Themes" / "Three curated themes"
-- [ ] Screenshot 5: Privacy-Statement - "Keine Abos. Kein Tracking. Keine Werbung." / "No subscriptions. No tracking. No ads."
-- [ ] Screenshots nutzen bestehende Fastlane/Screenshot-Infrastruktur wo moeglich
-- [ ] Screenshot 2 zeigt realistische Daten: verschiedene Lehrer (z.B. "Tara Brach", "Jack Kornfield", "Gil Fronsdal"), verschiedene Dauern
+- [ ] Jedes Bild hat eine Headline die ohne UI-Kontext funktioniert
+- [ ] Headlines beim Durchswipen erzaehlen eine kohaerente Geschichte
+- [ ] UI-Elemente sind Beiwerk (kleiner), Headlines dominieren (gross)
+- [ ] Bild 1 zeigt gefuellte Library mit realistischen Daten (echte Lehrer-Namen, verschiedene Dauern)
+- [ ] Bild 5 ist rein typografisch (kein UI-Screenshot)
+- [ ] Dark Mode als Basis (wirkt hochwertiger im Store)
+- [ ] DE + EN Varianten
+- [ ] Screenshots auf aktuellen Geraeten (iPhone 16 Pro, Pixel 8)
 
 ### Store-Metadaten
 
-- [ ] iOS Promotional Text (kann jederzeit ohne Review geaendert werden)
-- [ ] iOS App Store Keywords (max 100 Zeichen)
-- [ ] Android Feature Graphic (falls noetig aktualisiert)
-- [ ] Beide Stores: Kategorie korrekt (Health & Fitness)
+- [ ] iOS Keywords (max 100 Zeichen): optimiert auf Long-Tail ("own mp3 meditation", "private meditation app", "meditation timer gong")
+- [ ] iOS App Store Kategorie: Health & Fitness
+- [ ] Android Feature Graphic aktualisiert (falls noetig)
 
 ### Qualitaet
 
-- [ ] Texte gegenlesen (kein Denglisch, keine Rechtschreibfehler)
-- [ ] Screenshots auf aktuellen Geraeten (iPhone 15 Pro, Pixel 8)
-- [ ] Dark Mode Screenshot als Hauptbild (wirkt hochwertiger im Store)
+- [ ] Texte auf Screenshots gegenlesen (kein Denglisch, keine Rechtschreibfehler)
+- [ ] Screenshots im Store-Preview pruefen (Lesbarkeit auf kleinen Geraeten)
+- [ ] Konsistente Typografie und Farbgebung ueber alle 5 Bilder
 
 ### Dokumentation
-- [ ] Texte in `dev-docs/release/` oder Fastlane-Metadaten ablegen
-- [ ] Screenshot-Fixtures aktualisieren falls noetig
+
+- [ ] Screenshot-Konzept in Fastlane-Struktur abgelegt
+- [ ] Screenshot-Fixtures mit realistischen Testdaten fuer Library (Bild 1)
 
 ---
 
 ## Manueller Test
 
-1. Oeffne App Store Connect / Google Play Console im Preview-Modus
-2. Pruefe: Ist der USP "eigene Meditationen importieren" in den ersten 2 Zeilen sichtbar?
-3. Pruefe: Zeigt Screenshot 2 eine gefuellte Library? (Nicht den Empty State!)
-4. Pruefe: Sind alle Texte in DE und EN vorhanden und konsistent?
-
----
-
-## Screenshot-Konzept Detail
-
-### Bild 1 - Timer (Hero Shot)
-- Candlelight Theme, Dark Mode
-- Timer laeuft bei ca. 14:32 von 20:00
-- Progress Ring gut sichtbar
-- Text-Overlay: "Finde deine Stille"
-
-### Bild 2 - Library (USP Shot) - WICHTIGSTES BILD
-- Library mit 6-8 Meditationen
-- Gruppiert nach 2-3 Lehrern
-- Realistische Namen und Dauern
-- Text-Overlay: "Deine Lehrer. Deine Bibliothek."
-- Zeigt das Konzept sofort: "Ah, ICH bringe die Meditationen mit"
-
-### Bild 3 - Import Flow
-- Split-Screen oder Sequenz: Files-Picker → Meditation erscheint in Library
-- Text-Overlay: "Importiere deine Meditationen"
-- Macht den technischen Flow verstaendlich
-
-### Bild 4 - Themes
-- Drei Phones nebeneinander (Candlelight, Forest, Moon)
-- Jeweils Timer-Screen
-- Text-Overlay: "Drei handverlesene Themes"
-
-### Bild 5 - Privacy (Closer)
-- Dunkler Hintergrund, minimalistisch
-- Bullet Points:
-  - Keine Abos
-  - Kein Tracking
-  - Keine Werbung
-  - Keine Accounts
-- Text-Overlay: "Privatsphaere ist nicht verhandelbar."
+1. App Store Connect / Google Play Console → Screenshot-Preview
+2. Pruefe: Kann man die Headlines lesen ohne zu zoomen?
+3. Pruefe: Erzaehlen die 5 Bilder beim Swipen eine Geschichte?
+4. Pruefe: Ist Bild 1 (Library) mit realistischen Daten gefuellt?
+5. Pruefe: Ist Bild 5 rein typografisch (kein UI-Screenshot)?
+6. DE + EN wechseln — beide Varianten konsistent?
 
 ---
 
@@ -122,13 +146,14 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md) | [Marktrecherche](..
 - iOS Fastlane Metadaten: `ios/fastlane/metadata/`
 - iOS Screenshots: `ios/fastlane/screenshots/`
 - Android Store Listing: `android/fastlane/metadata/` (falls vorhanden)
-- Beschreibungstexte: `dev-docs/concepts/byom-strategy.md` (Abschnitt "App Store Strategie")
+- Texte und Ton: shared-078
 
 ---
 
 ## Hinweise
 
-- Screenshot 2 (Library) braucht Test-Fixtures mit realistischen Daten. Die bestehende Screenshot-Infrastruktur (Fastlane + UI Tests) kann das liefern.
-- Promotional Text (iOS) kann ohne App Review Update geaendert werden - ideal fuer saisonale Botschaften oder A/B-Testing von Formulierungen.
+- Bild 1 (Library) braucht Test-Fixtures mit realistischen Daten. Bestehende Screenshot-Infrastruktur (Fastlane + UI Tests) kann das liefern.
 - Keywords: "meditation" allein ist zu kompetitiv. Long-Tail Keywords wie "own mp3 meditation" oder "private meditation app" haben weniger Konkurrenz.
-- Die Store-Beschreibung sollte NICHT "kostenlos" als erstes Wort verwenden - das zieht die falsche Zielgruppe an. Fuehre mit dem USP, erwaehne "kostenlos" weiter unten.
+- Die Reihenfolge der Bilder ist bewusst gewaehlt: USP → Sympathie → Feature → Vertrauen → Emotion. Nicht aendern ohne guten Grund.
+- "Kostenlos" bewusst nicht als Screenshot-Headline — zieht die falsche Zielgruppe an. "Kein Abo" kommuniziert dasselbe, aber positiver.
+- Store-Beschreibung sollte NICHT "kostenlos" als erstes Wort verwenden — fuehre mit dem USP, erwaehne "kostenlos" weiter unten.
