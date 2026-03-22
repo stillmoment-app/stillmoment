@@ -157,7 +157,6 @@ enum TimerEffect: Equatable {
     case deactivateTimerSession
     case playStartGong
     case startTimer(durationMinutes: Int)
-    case saveSettings(MeditationSettings)
 }
 ```
 
