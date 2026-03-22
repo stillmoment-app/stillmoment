@@ -29,9 +29,12 @@ Extrahiere aus dem Trigger:
 Falls nicht im Trigger, frage:
 > "Welches Ticket soll geschlossen werden? (z.B. ios-023)"
 
-### Schritt 2: Ticket lesen
+### Schritt 2: Ticket finden und lesen
 
-1. Konstruiere Pfad: `dev-docs/tickets/{platform}/{ticket-id}.md`
+**Wichtig:** Ticket-Dateinamen haben Suffixe (z.B. `ios-039-legacy-settings-store-aufraeumen.md`). Nie den Pfad raten — immer per Glob suchen:
+- `dev-docs/tickets/{platform}/{ticket-id}*.md`
+
+1. Glob nach Ticket-ID
 2. Lese Ticket-Datei
 3. Extrahiere:
    - Aktueller Status (`[ ]`, `[~]`, `[x]`)
@@ -52,31 +55,26 @@ Falls nicht im Trigger, frage:
 
 ### Schritt 4: Akzeptanzkriterien pruefen
 
-Zeige alle Akzeptanzkriterien und frage:
-> "Sind alle Akzeptanzkriterien erfuellt?"
-> - [ ] Kriterium 1
-> - [ ] Kriterium 2
-> - [ ] ...
+Pruefe die Akzeptanzkriterien selbst gegen den aktuellen Code/Diff. Zeige das Ergebnis als Tabelle:
 
-Optionen:
-- **Ja, alle erfuellt** → Weiter
-- **Nein, noch nicht** → Zeige was fehlt, Ende
+| Kriterium | Erfuellt? |
+|-----------|-----------|
+| ... | Ja/Nein |
+
+Nur bei Zweifeln den User fragen. In der Regel wurde vor dem Close bereits ein Review gemacht.
 
 ### Schritt 5: Dokumentations-Check
 
 Basierend auf Ticket-Typ (aus INDEX.md Dokumentations-Regel):
 
-| Ticket-Typ | CHANGELOG.md | CLAUDE.md | README.md |
-|------------|--------------|-----------|-----------|
-| Bug Fix | Pruefen | - | - |
-| Feature | Pruefen | Bei Architektur | Bei Major |
-| Architektur | Pruefen | Pruefen | - |
-| QA | - | - | - |
+| Ticket-Typ | CHANGELOG.md | CLAUDE.md |
+|------------|--------------|-----------|
+| Bug Fix | Pruefen | - |
+| Feature | Pruefen | Bei Architektur |
+| Architektur | Pruefen | Pruefen |
+| QA | - | - |
 
-Frage bei relevanten Typen:
-> "Wurde die Dokumentation aktualisiert?"
-> - CHANGELOG.md: [Ja/Nein]
-> - CLAUDE.md: [Ja/Nein/Nicht noetig]
+Selbst pruefen ob CHANGELOG.md und ggf. CLAUDE.md aktualisiert werden muessen. Bei Bedarf selbst aktualisieren.
 
 ### Schritt 6: Status aktualisieren
 
@@ -88,13 +86,7 @@ Frage bei relevanten Typen:
    - Finde Zeile mit Ticket-ID
    - Aendere `[~]` oder `[ ]` zu `[x]`
 
-### Schritt 7: Statistik aktualisieren
-
-In INDEX.md, Statistik-Sektion:
-- Erhoehe "Done" um 1
-- Verringere "TODO" um 1
-
-### Schritt 8: Zusammenfassung
+### Schritt 7: Zusammenfassung
 
 ```
 Ticket geschlossen: {ticket-id}
@@ -107,17 +99,6 @@ Dokumentation:
 - CHANGELOG.md: [Aktualisiert/Nicht noetig]
 - CLAUDE.md: [Aktualisiert/Nicht noetig]
 ```
-
-## Autonomer Modus (Agent-Aufruf)
-
-Wenn dieser Skill von einem Agent aufgerufen wird (z.B. `make implement` Pipeline), gibt es keinen User fuer Rueckfragen. In diesem Fall:
-
-- **Schritt 3** (Status pruefen): Bei TODO trotzdem als DONE markieren (Agent hat implementiert)
-- **Schritt 4** (Akzeptanzkriterien): Selbst gegen Code pruefen, nicht fragen. Bei Zweifel: als erfuellt werten (der Reviewer hat bereits geprueft)
-- **Schritt 5** (Dokumentations-Check): Selbst pruefen ob CHANGELOG.md/CLAUDE.md aktualisiert werden muessen. Bei Bedarf selbst aktualisieren
-- **Shared-Tickets**: Plattform aus dem Aufruf-Kontext ableiten
-
-Alle anderen Schritte (Status setzen, INDEX.md, Statistik, Commit) bleiben gleich.
 
 ## Sonderfaelle
 
@@ -148,15 +129,15 @@ Bei Shared-Tickets:
 Ticket ios-020: Timer Reducer Architecture
 
 Akzeptanzkriterien:
-- [x] TimerReducer extrahiert
-- [x] Unit Tests vorhanden
-- [x] ViewModel nutzt Reducer
-
-Sind alle Akzeptanzkriterien erfuellt? → Ja
+| Kriterium | Erfuellt? |
+|-----------|-----------|
+| TimerReducer extrahiert | Ja |
+| Unit Tests vorhanden | Ja |
+| ViewModel nutzt Reducer | Ja |
 
 Dokumentation:
-- CHANGELOG.md aktualisiert? → Ja
-- CLAUDE.md aktualisiert? → Ja (Architektur-Ticket)
+- CHANGELOG.md: Aktualisiert
+- CLAUDE.md: Aktualisiert (Architektur-Ticket)
 
 Ticket geschlossen: ios-020
 
