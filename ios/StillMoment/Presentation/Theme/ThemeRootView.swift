@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct ThemeRootView<Content: View>: View {
     @EnvironmentObject private var themeManager: ThemeManager
@@ -29,5 +30,16 @@ struct ThemeRootView<Content: View>: View {
             .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
             .preferredColorScheme(self.themeManager.preferredColorScheme)
+            .id(self.resolvedColors)
+            .onChange(of: self.resolvedColors) { colors in
+                Self.applyTabBarAppearance(colors)
+            }
+            .onAppear {
+                Self.applyTabBarAppearance(self.resolvedColors)
+            }
+    }
+
+    private static func applyTabBarAppearance(_ colors: ThemeColors) {
+        UITabBar.appearance().unselectedItemTintColor = UIColor(colors.textSecondary).withAlphaComponent(0.5)
     }
 }
