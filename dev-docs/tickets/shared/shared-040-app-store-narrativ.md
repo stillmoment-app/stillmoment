@@ -1,6 +1,7 @@
 # Ticket shared-040: App Store Screenshots und Visuals
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan**: [Implementierungsplan](../plans/shared-040.md)
 **Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~2d
 **Phase**: 4-Polish
@@ -56,7 +57,7 @@ Die Headlines erzaehlen beim Durchswipen eine Geschichte: USP → Sympathie → 
 ### Bild 1 — "Deine MP3s. Deine Praxis."
 
 - **Botschaft:** Du bringst deine eigenen Meditationen mit
-- **UI:** Gefuellte Library mit echten Lehrer-Namen (Tara Brach, Jack Kornfield, Gil Fronsdal), verschiedene Dauern
+- **UI:** Gefuellte Library mit Lehrer-Namen (leicht veraenderte Namen, keine echten Personen), verschiedene Dauern
 - **Warum Bild 1:** Das ist der USP, das muss zuerst kommen
 - **WICHTIGSTES BILD** — entscheidet ob der User weiterschaut
 
@@ -69,13 +70,13 @@ Die Headlines erzaehlen beim Durchswipen eine Geschichte: USP → Sympathie → 
 ### Bild 3 — "Stiller Timer mit Gongs."
 
 - **Botschaft:** Zweites Kernfeature fuer stille Meditation
-- **UI:** Timer mit sichtbarem Gong-Setup (Intervall-Gongs, Start/Ende-Klangschale)
+- **UI:** Praxis Editor mit sichtbarer Gong-Konfiguration (Intervall-Gongs, Start/Ende-Klangschale)
 - **Warum Bild 3:** Fuer User die keine MP3s haben, sondern still meditieren
 
 ### Bild 4 — "Kein Tracking. Keine Cloud."
 
 - **Botschaft:** Vertrauenssignal, beilaeufig
-- **UI:** Minimalistisch — evtl. "No Data Collected"-Badge nachgestellt, oder Settings-Screen der zeigt wie wenig die App braucht
+- **UI:** Player im Zen Mode (Tab Bar weg, reduzierte UI) — zeigt visuell dass die App sich zuruecknimmt, Privacy-Headline verstaerkt das
 - **Warum Bild 4:** Privacy als Differenzierung fuer die, die bis hierhin swipen
 
 ### Bild 5 — Das Zitat (ohne UI)
