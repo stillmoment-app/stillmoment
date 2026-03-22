@@ -19,7 +19,9 @@ import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.ColorTheme
+import com.stillmoment.domain.models.UrlAudioValidator
 import com.stillmoment.domain.repositories.CustomAudioRepository
+import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
@@ -44,12 +46,23 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var customAudioRepository: CustomAudioRepository
 
+    @Inject
+    lateinit var urlAudioDownloader: UrlAudioDownloaderProtocol
+
     private val _pendingFileUri = MutableStateFlow<Uri?>(null)
     val pendingFileUri = _pendingFileUri.asStateFlow()
+
+    private val _pendingDownloadUrl = MutableStateFlow<String?>(null)
+    val pendingDownloadUrl = _pendingDownloadUrl.asStateFlow()
 
     /** Consume the pending file URI after processing */
     fun consumePendingFileUri() {
         _pendingFileUri.value = null
+    }
+
+    /** Consume the pending download URL after processing */
+    fun consumePendingDownloadUrl() {
+        _pendingDownloadUrl.value = null
     }
 
     /**
@@ -90,8 +103,11 @@ class MainActivity : ComponentActivity() {
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
                         customAudioRepository = customAudioRepository,
+                        urlAudioDownloader = urlAudioDownloader,
                         pendingFileUri = pendingFileUri,
-                        onClearFileUri = ::consumePendingFileUri
+                        onClearFileUri = ::consumePendingFileUri,
+                        pendingDownloadUrl = pendingDownloadUrl,
+                        onClearDownloadUrl = ::consumePendingDownloadUrl
                     )
                 }
             }
@@ -104,16 +120,37 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handleIncomingIntent(intent: Intent?) {
-        val uri: Uri? = when (intent?.action) {
-            Intent.ACTION_VIEW -> intent.data
-            Intent.ACTION_SEND -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra(Intent.EXTRA_STREAM)
+        when (intent?.action) {
+            Intent.ACTION_VIEW -> {
+                intent.data?.let { _pendingFileUri.value = it }
             }
-            else -> null
+            Intent.ACTION_SEND -> {
+                if (intent.type == "text/plain") {
+                    handleTextShareIntent(intent)
+                } else {
+                    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(Intent.EXTRA_STREAM)
+                    }
+                    uri?.let { _pendingFileUri.value = it }
+                }
+            }
+            else -> Unit
         }
-        uri?.let { _pendingFileUri.value = it }
+    }
+
+    /**
+     * Handles text/plain share intents (e.g. Chrome audio player share).
+     * Chrome sends the audio URL as plain text via EXTRA_TEXT.
+     * Only audio URLs (.mp3 / .m4a) are processed; other URLs are silently ignored.
+     */
+    private fun handleTextShareIntent(intent: Intent) {
+        val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
+        if (UrlAudioValidator.isAudioUrl(text)) {
+            _pendingDownloadUrl.value = text
+        }
+        // Non-audio URLs are silently ignored — no error, no UI change
     }
 }

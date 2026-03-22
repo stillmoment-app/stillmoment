@@ -65,7 +65,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-043](shared/shared-043-import-auto-metadaten.md) | Import Auto-Metadaten (kein Edit Sheet) | 3-Feature | [ ] | [ ] |
 | [shared-044](shared/shared-044-batch-import.md) | Batch Import (Mehrfachauswahl) | 3-Feature | [ ] | [ ] |
 | [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [x] |
-| [shared-046](shared/shared-046-share-extension.md) | Share Extension ("Teilen") | 3-Feature | [x] | [ ] |
+| [shared-046](shared/shared-046-share-extension.md) | Share Extension ("Teilen") | 3-Feature | [x] | [x] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
 | [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
@@ -101,6 +101,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-075](shared/shared-075-library-long-press-preview.md) | Long-Press Preview in der Meditations-Bibliothek | 3-Feature | [x] | [ ] |
 | [shared-076](shared/shared-076-gong-vibration.md) | Vibration als Gong-Signal | 3-Feature | [x] | [x] |
 | [shared-077](shared/shared-077-philosophie-zitat-settings.md) | Philosophie-Zitat in den Einstellungen | 4-Polish | [ ] | [ ] |
+| [shared-078](shared/shared-078-emotionale-store-texte.md) | App Store + Website – Emotionaler Ton | 4-Polish | [ ] | [ ] |
 
 ---
 
