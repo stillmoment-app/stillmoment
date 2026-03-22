@@ -34,15 +34,15 @@ extension TimerViewModel {
         return NSLocalizedString("praxis.description.silent", comment: "")
     }
 
-    /// Label for the introduction pill. `nil` when introduction is disabled or no introduction is selected.
-    var introductionPillLabel: String? {
-        guard let introId = self.settings.activeIntroductionId else {
+    /// Label for the attunement pill. `nil` when attunement is disabled or no attunement is selected.
+    var attunementPillLabel: String? {
+        guard let attunementId = self.settings.activeAttunementId else {
             return nil
         }
-        if let resolved = self.attunementResolver.resolve(id: introId) {
+        if let resolved = self.attunementResolver.resolve(id: attunementId) {
             return resolved.displayName
         }
-        return NSLocalizedString("praxis.editor.introduction.none", comment: "")
+        return NSLocalizedString("praxis.editor.attunement.none", comment: "")
     }
 
     /// Label for the interval gong pill. `nil` when interval gongs are disabled.

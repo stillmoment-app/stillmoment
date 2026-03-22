@@ -40,8 +40,8 @@ struct PraxisEditorView: View {
                 }
             }
             .onDisappear { self.viewModel.stopAllPreviews() }
-            .navigationDestination(isPresented: self.$navigateToIntroduction) {
-                IntroductionSelectionView(viewModel: self.viewModel)
+            .navigationDestination(isPresented: self.$navigateToAttunement) {
+                AttunementSelectionView(viewModel: self.viewModel)
             }
             .navigationDestination(isPresented: self.$navigateToBackground) {
                 BackgroundSoundSelectionView(viewModel: self.viewModel)
@@ -53,7 +53,7 @@ struct PraxisEditorView: View {
                     case .soundscape:
                         self.navigateToBackground = true
                     case .attunement:
-                        self.navigateToIntroduction = true
+                        self.navigateToAttunement = true
                     }
                 }
             }
@@ -66,7 +66,7 @@ struct PraxisEditorView: View {
     private var theme
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @ObservedObject private var viewModel: PraxisEditorViewModel
-    @State private var navigateToIntroduction = false
+    @State private var navigateToAttunement = false
     @State private var navigateToBackground = false
 
     // MARK: - Preparation
@@ -112,13 +112,13 @@ struct PraxisEditorView: View {
     private var audioSection: some View {
         Section {
             Button {
-                self.navigateToIntroduction = true
+                self.navigateToAttunement = true
             } label: {
                 HStack {
-                    Text("praxis.editor.introduction.row", bundle: .main)
+                    Text("praxis.editor.attunement.row", bundle: .main)
                         .themeFont(.settingsLabel)
                     Spacer()
-                    Text(self.currentIntroductionLabel)
+                    Text(self.currentAttunementLabel)
                         .themeFont(.settingsDescription)
                         .foregroundColor(self.theme.textSecondary)
                     Image(systemName: "chevron.right")
@@ -128,7 +128,7 @@ struct PraxisEditorView: View {
             }
             .buttonStyle(.plain)
             .cardRowBackground()
-            .accessibilityIdentifier("praxis.editor.link.introduction")
+            .accessibilityIdentifier("praxis.editor.link.attunement")
 
             Button {
                 self.navigateToBackground = true
@@ -203,20 +203,22 @@ struct PraxisEditorView: View {
 
     // MARK: - Label Helpers
 
-    private var currentIntroductionLabel: String {
-        guard self.viewModel.introductionEnabled else {
-            return NSLocalizedString("praxis.editor.introduction.none", comment: "")
+    private var currentAttunementLabel: String {
+        guard self.viewModel.attunementEnabled else {
+            return NSLocalizedString("praxis.editor.attunement.none", comment: "")
         }
-        guard let introId = self.viewModel.introductionId,
-              let intro = self.viewModel.availableIntroductions.first(where: { $0.id == introId })
+        guard let attunementId = self.viewModel.attunementId,
+              let attunement = self.viewModel.availableAttunements.first(where: { $0.id == attunementId })
         else {
-            if let introId = self.viewModel.introductionId,
-               let customFile = self.viewModel.customAttunements.first(where: { $0.id.uuidString == introId }) {
+            if let attunementId = self.viewModel.attunementId,
+               let customFile = self.viewModel.customAttunements.first(
+                   where: { $0.id.uuidString == attunementId }
+               ) {
                 return customFile.name
             }
-            return NSLocalizedString("praxis.editor.introduction.none", comment: "")
+            return NSLocalizedString("praxis.editor.attunement.none", comment: "")
         }
-        return intro.name
+        return attunement.name
     }
 
     private var currentBackgroundLabel: String {

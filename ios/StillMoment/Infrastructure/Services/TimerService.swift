@@ -86,26 +86,26 @@ final class TimerService: TimerServiceProtocol {
         self.intervalSettings = nil
     }
 
-    func beginIntroductionPhase() {
+    func beginAttunementPhase() {
         guard let timer = self.currentTimer else {
-            Logger.timer.warning("Attempted to begin introduction when no timer exists")
+            Logger.timer.warning("Attempted to begin attunement when no timer exists")
             return
         }
 
-        Logger.timer.info("Beginning introduction phase", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.withState(.introduction)
+        Logger.timer.info("Beginning attunement phase", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.withState(.attunement)
         self.currentTimer = updatedTimer
         self.timerSubject.send((updatedTimer, []))
     }
 
-    func endIntroductionPhase() {
+    func endAttunementPhase() {
         guard let timer = self.currentTimer else {
-            Logger.timer.warning("Attempted to end introduction when no timer exists")
+            Logger.timer.warning("Attempted to end attunement when no timer exists")
             return
         }
 
-        Logger.timer.info("Ending introduction phase", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.endIntroduction()
+        Logger.timer.info("Ending attunement phase", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.endAttunement()
         self.currentTimer = updatedTimer
         self.timerSubject.send((updatedTimer, []))
     }
@@ -116,8 +116,8 @@ final class TimerService: TimerServiceProtocol {
             return
         }
 
-        Logger.timer.info("Beginning running phase (no intro)", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.endIntroduction()
+        Logger.timer.info("Beginning running phase (no attunement)", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.endAttunement()
         self.currentTimer = updatedTimer
         self.timerSubject.send((updatedTimer, []))
     }
@@ -152,7 +152,7 @@ final class TimerService: TimerServiceProtocol {
 
         // Only tick if in an active state
         guard timer.state == .preparation || timer.state == .startGong
-            || timer.state == .introduction || timer.state == .running
+            || timer.state == .attunement || timer.state == .running
         else {
             return
         }
@@ -166,8 +166,8 @@ final class TimerService: TimerServiceProtocol {
             Logger.timer.info("Preparation complete, playing start gong")
         }
 
-        // Log every 10 seconds to avoid log spam (only for running/introduction/startGong timer)
-        if updatedTimer.state == .running || updatedTimer.state == .introduction
+        // Log every 10 seconds to avoid log spam (only for running/attunement/startGong timer)
+        if updatedTimer.state == .running || updatedTimer.state == .attunement
             || updatedTimer.state == .startGong,
             updatedTimer.remainingSeconds.isMultiple(of: 10) {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])

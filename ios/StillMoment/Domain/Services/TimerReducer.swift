@@ -45,8 +45,8 @@ enum TimerReducer {
                 settings: settings,
                 attunementResolver: attunementResolver
             )
-        case .introductionFinished:
-            self.reduceIntroductionFinished(timerState: timerState, settings: settings)
+        case .attunementFinished:
+            self.reduceAttunementFinished(timerState: timerState, settings: settings)
         case .timerCompleted:
             self.reduceTimerCompleted(timerState: timerState)
         case .endGongFinished:
@@ -68,8 +68,8 @@ enum TimerReducer {
         }
 
         // Background audio never starts here. It starts when the start gong finishes:
-        // - Without introduction: in reduceStartGongFinished
-        // - With introduction: in reduceIntroductionFinished
+        // - Without attunement: in reduceStartGongFinished
+        // - With attunement: in reduceAttunementFinished
         return [
             .activateTimerSession,
             .startTimer(durationMinutes: selectedMinutes)
@@ -82,8 +82,8 @@ enum TimerReducer {
         }
 
         var effects: [TimerEffect] = []
-        if timerState == .introduction {
-            effects.append(.stopIntroduction)
+        if timerState == .attunement {
+            effects.append(.stopAttunement)
         }
         effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
 
@@ -106,12 +106,12 @@ enum TimerReducer {
             return []
         }
 
-        if self.hasActiveIntroduction(settings: settings, attunementResolver: attunementResolver),
-           let introId = settings.introductionId {
-            // Introduction configured → play audio
-            return [.beginIntroductionPhase, .playIntroduction(introductionId: introId)]
+        if self.hasActiveAttunement(settings: settings, attunementResolver: attunementResolver),
+           let attunementId = settings.attunementId {
+            // Attunement configured → play audio
+            return [.beginAttunementPhase, .playAttunement(attunementId: attunementId)]
         } else {
-            // No introduction → transition to running and start background audio
+            // No attunement → transition to running and start background audio
             return [
                 .beginRunningPhase,
                 .startBackgroundAudio(
@@ -122,17 +122,17 @@ enum TimerReducer {
         }
     }
 
-    private static func reduceIntroductionFinished(
+    private static func reduceAttunementFinished(
         timerState: TimerState,
         settings: MeditationSettings
     ) -> [TimerEffect] {
-        guard timerState == .introduction else {
+        guard timerState == .attunement else {
             return []
         }
 
         return [
-            .stopIntroduction,
-            .endIntroductionPhase,
+            .stopAttunement,
+            .endAttunementPhase,
             .startBackgroundAudio(
                 soundId: settings.backgroundSoundId,
                 volume: settings.backgroundSoundVolume
@@ -142,9 +142,9 @@ enum TimerReducer {
 
     private static func reduceTimerCompleted(timerState: TimerState) -> [TimerEffect] {
         var effects: [TimerEffect] = [.playCompletionSound]
-        // Stop introduction if it was still playing (timer expired during introduction)
-        if timerState == .introduction {
-            effects.append(.stopIntroduction)
+        // Stop attunement if it was still playing (timer expired during attunement)
+        if timerState == .attunement {
+            effects.append(.stopAttunement)
         }
         effects.append(.stopBackgroundAudio)
         // Keep-alive stays active during endGong — deactivation happens in reduceEndGongFinished
@@ -178,15 +178,15 @@ enum TimerReducer {
 
     // MARK: - Helpers
 
-    /// Checks if an introduction is configured, enabled, and available
-    private static func hasActiveIntroduction(
+    /// Checks if an attunement is configured, enabled, and available
+    private static func hasActiveAttunement(
         settings: MeditationSettings,
         attunementResolver: AttunementResolverProtocol
     ) -> Bool {
-        guard settings.introductionEnabled,
-              let introId = settings.introductionId else {
+        guard settings.attunementEnabled,
+              let attunementId = settings.attunementId else {
             return false
         }
-        return attunementResolver.resolve(id: introId) != nil
+        return attunementResolver.resolve(id: attunementId) != nil
     }
 }

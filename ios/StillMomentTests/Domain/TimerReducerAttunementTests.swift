@@ -1,21 +1,21 @@
 //
-//  TimerReducerIntroductionTests.swift
+//  TimerReducerAttunementTests.swift
 //  Still Moment
 //
-//  Tests for TimerReducer introduction-related effect mapping.
+//  Tests for TimerReducer attunement-related effect mapping.
 //
 
 import XCTest
 @testable import StillMoment
 
-final class TimerReducerIntroductionTests: XCTestCase {
+final class TimerReducerAttunementTests: XCTestCase {
     // MARK: - Test Helpers
 
     private var defaultSettings: MeditationSettings {
         MeditationSettings.default
     }
 
-    /// Resolver that resolves "breath" to a valid attunement (for introduction tests)
+    /// Resolver that resolves "breath" to a valid attunement (for attunement tests)
     private var breathResolver: MockAttunementResolver {
         let resolver = MockAttunementResolver()
         resolver.stubbedResolveResults["breath"] = ResolvedAttunement(
@@ -26,24 +26,24 @@ final class TimerReducerIntroductionTests: XCTestCase {
         return resolver
     }
 
-    /// Resolver that resolves nothing (for non-introduction tests)
+    /// Resolver that resolves nothing (for non-attunement tests)
     private var emptyResolver: MockAttunementResolver {
         MockAttunementResolver()
     }
 
-    /// Settings with introduction configured and enabled
-    private var settingsWithIntroduction: MeditationSettings {
-        MeditationSettings(introductionId: "breath", introductionEnabled: true)
+    /// Settings with attunement configured and enabled
+    private var settingsWithAttunement: MeditationSettings {
+        MeditationSettings(attunementId: "breath", attunementEnabled: true)
     }
 
-    /// Settings with introduction configured but disabled
-    private var settingsWithIntroductionDisabled: MeditationSettings {
-        MeditationSettings(introductionId: "breath", introductionEnabled: false)
+    /// Settings with attunement configured but disabled
+    private var settingsWithAttunementDisabled: MeditationSettings {
+        MeditationSettings(attunementId: "breath", attunementEnabled: false)
     }
 
-    // MARK: - StartPressed with Introduction
+    // MARK: - StartPressed with Attunement
 
-    func testStartPressed_withoutIntroduction_doesNotIncludeBackgroundAudio() {
+    func testStartPressed_withoutAttunement_doesNotIncludeBackgroundAudio() {
         // When
         let effects = TimerReducer.reduce(
             action: .startPressed,
@@ -63,35 +63,35 @@ final class TimerReducerIntroductionTests: XCTestCase {
         XCTAssertFalse(hasBackgroundAudio, "Background audio should start in startGongFinished, not startPressed")
     }
 
-    func testStartPressed_withIntroduction_delaysBackgroundAudio() {
+    func testStartPressed_withAttunement_delaysBackgroundAudio() {
         // When
         let effects = TimerReducer.reduce(
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
-        // Then - No background audio yet (delayed until introduction finishes)
+        // Then - No background audio yet (delayed until attunement finishes)
         let hasBackgroundAudio = effects.contains { effect in
             if case .startBackgroundAudio = effect {
                 return true
             }
             return false
         }
-        XCTAssertFalse(hasBackgroundAudio, "Background audio should be delayed when introduction is active")
+        XCTAssertFalse(hasBackgroundAudio, "Background audio should be delayed when attunement is active")
     }
 
-    // MARK: - PreparationFinished with Introduction
+    // MARK: - PreparationFinished with Attunement
 
-    func testPreparationFinished_withIntroduction_playsStartGong() {
+    func testPreparationFinished_withAttunement_playsStartGong() {
         // When
         let effects = TimerReducer.reduce(
             action: .preparationFinished,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
@@ -99,7 +99,7 @@ final class TimerReducerIntroductionTests: XCTestCase {
         XCTAssertEqual(effects, [.playStartGong])
     }
 
-    func testPreparationFinished_withoutIntroduction_playsStartGong() {
+    func testPreparationFinished_withoutAttunement_playsStartGong() {
         // When
         let effects = TimerReducer.reduce(
             action: .preparationFinished,
@@ -115,21 +115,21 @@ final class TimerReducerIntroductionTests: XCTestCase {
 
     // MARK: - StartGongFinished
 
-    func testStartGongFinished_withIntroduction_playsIntroduction() {
+    func testStartGongFinished_withAttunement_playsAttunement() {
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         // Then
-        XCTAssertEqual(effects, [.beginIntroductionPhase, .playIntroduction(introductionId: "breath")])
+        XCTAssertEqual(effects, [.beginAttunementPhase, .playAttunement(attunementId: "breath")])
     }
 
-    func testStartGongFinished_withoutIntroduction_startsBackgroundAudio() {
+    func testStartGongFinished_withoutAttunement_startsBackgroundAudio() {
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
@@ -151,19 +151,19 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .completed,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
     }
 
-    func testStartGongFinished_duringIntroduction_isNoOp() {
+    func testStartGongFinished_duringAttunement_isNoOp() {
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
-            timerState: .introduction,
+            timerState: .attunement,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
@@ -175,46 +175,46 @@ final class TimerReducerIntroductionTests: XCTestCase {
             action: .startGongFinished,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
     }
 
-    // MARK: - IntroductionFinished
+    // MARK: - AttunementFinished
 
-    func testIntroductionFinished_producesStopAndStartEffects() {
+    func testAttunementFinished_producesStopAndStartEffects() {
         // When
         let effects = TimerReducer.reduce(
-            action: .introductionFinished,
-            timerState: .introduction,
+            action: .attunementFinished,
+            timerState: .attunement,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         // Then
-        XCTAssertTrue(effects.contains(.stopIntroduction))
-        XCTAssertTrue(effects.contains(.endIntroductionPhase))
+        XCTAssertTrue(effects.contains(.stopAttunement))
+        XCTAssertTrue(effects.contains(.endAttunementPhase))
         XCTAssertTrue(effects.contains(.startBackgroundAudio(
-            soundId: self.settingsWithIntroduction.backgroundSoundId,
-            volume: self.settingsWithIntroduction.backgroundSoundVolume
+            soundId: self.settingsWithAttunement.backgroundSoundId,
+            volume: self.settingsWithAttunement.backgroundSoundVolume
         )))
     }
 
-    func testIntroductionFinished_startsBackgroundAudioWithCorrectSettings() {
+    func testAttunementFinished_startsBackgroundAudioWithCorrectSettings() {
         // Given
         let settings = MeditationSettings(
             backgroundSoundId: "forest",
             backgroundSoundVolume: 0.3,
-            introductionId: "breath"
+            attunementId: "breath"
         )
 
         // When
         let effects = TimerReducer.reduce(
-            action: .introductionFinished,
-            timerState: .introduction,
+            action: .attunementFinished,
+            timerState: .attunement,
             selectedMinutes: 10,
             settings: settings,
             attunementResolver: self.breathResolver
@@ -224,38 +224,38 @@ final class TimerReducerIntroductionTests: XCTestCase {
         XCTAssertTrue(effects.contains(.startBackgroundAudio(soundId: "forest", volume: 0.3)))
     }
 
-    func testIntroductionFinished_fromNonIntroductionState_isNoOp() {
+    func testAttunementFinished_fromNonAttunementState_isNoOp() {
         let effects = TimerReducer.reduce(
-            action: .introductionFinished,
+            action: .attunementFinished,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         XCTAssertTrue(effects.isEmpty)
     }
 
-    // MARK: - TimerCompleted with Introduction
+    // MARK: - TimerCompleted with Attunement
 
-    func testTimerCompleted_fromIntroduction_stopsIntroduction() {
+    func testTimerCompleted_fromAttunement_stopsAttunement() {
         // When
         let effects = TimerReducer.reduce(
             action: .timerCompleted,
-            timerState: .introduction,
+            timerState: .attunement,
             selectedMinutes: 3,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         // Then
         XCTAssertTrue(effects.contains(.playCompletionSound))
-        XCTAssertTrue(effects.contains(.stopIntroduction))
+        XCTAssertTrue(effects.contains(.stopAttunement))
         XCTAssertTrue(effects.contains(.stopBackgroundAudio))
         XCTAssertFalse(effects.contains(.deactivateTimerSession))
     }
 
-    func testTimerCompleted_fromRunning_doesNotStopIntroduction() {
+    func testTimerCompleted_fromRunning_doesNotStopAttunement() {
         // When
         let effects = TimerReducer.reduce(
             action: .timerCompleted,
@@ -266,29 +266,29 @@ final class TimerReducerIntroductionTests: XCTestCase {
         )
 
         // Then
-        XCTAssertFalse(effects.contains(.stopIntroduction))
+        XCTAssertFalse(effects.contains(.stopAttunement))
         XCTAssertEqual(effects, [.playCompletionSound, .stopBackgroundAudio])
     }
 
-    // MARK: - ResetPressed with Introduction
+    // MARK: - ResetPressed with Attunement
 
-    func testResetPressed_fromIntroduction_stopsIntroduction() {
+    func testResetPressed_fromAttunement_stopsAttunement() {
         // When
         let effects = TimerReducer.reduce(
             action: .resetPressed,
-            timerState: .introduction,
+            timerState: .attunement,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroduction,
+            settings: self.settingsWithAttunement,
             attunementResolver: self.breathResolver
         )
 
         // Then
-        XCTAssertTrue(effects.contains(.stopIntroduction))
+        XCTAssertTrue(effects.contains(.stopAttunement))
         XCTAssertTrue(effects.contains(.stopBackgroundAudio))
         XCTAssertTrue(effects.contains(.resetTimer))
     }
 
-    func testResetPressed_fromStartGong_doesNotStopIntroduction() {
+    func testResetPressed_fromStartGong_doesNotStopAttunement() {
         // When
         let effects = TimerReducer.reduce(
             action: .resetPressed,
@@ -299,28 +299,28 @@ final class TimerReducerIntroductionTests: XCTestCase {
         )
 
         // Then
-        XCTAssertFalse(effects.contains(.stopIntroduction))
+        XCTAssertFalse(effects.contains(.stopAttunement))
         XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
     }
 
-    // MARK: - Introduction Disabled Behavior
+    // MARK: - Attunement Disabled Behavior
 
-    func testStartGongFinished_withIntroductionDisabled_startsBackgroundAudio() {
-        // Given - Introduction is set but disabled
+    func testStartGongFinished_withAttunementDisabled_startsBackgroundAudio() {
+        // Given - Attunement is set but disabled
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.settingsWithIntroductionDisabled,
+            settings: self.settingsWithAttunementDisabled,
             attunementResolver: self.breathResolver
         )
 
-        // Then - Should skip introduction and start background audio directly
-        XCTAssertFalse(effects.contains(.beginIntroductionPhase))
+        // Then - Should skip attunement and start background audio directly
+        XCTAssertFalse(effects.contains(.beginAttunementPhase))
         XCTAssertTrue(effects.contains(.startBackgroundAudio(
-            soundId: self.settingsWithIntroductionDisabled.backgroundSoundId,
-            volume: self.settingsWithIntroductionDisabled.backgroundSoundVolume
+            soundId: self.settingsWithAttunementDisabled.backgroundSoundId,
+            volume: self.settingsWithAttunementDisabled.backgroundSoundVolume
         )))
     }
 }

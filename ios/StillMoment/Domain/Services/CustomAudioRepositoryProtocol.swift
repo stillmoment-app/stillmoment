@@ -41,7 +41,7 @@ enum CustomAudioError: Error, LocalizedError {
 ///
 /// Implementations copy imported files to local app storage, persist metadata,
 /// and provide lookup by ID or type. Supports both soundscapes (background loops)
-/// and attunements (one-shot introduction audio).
+/// and attunements (one-shot attunement audio).
 protocol CustomAudioRepositoryProtocol {
     /// Returns all stored custom audio files of the given type, sorted by dateAdded descending.
     func loadAll(type: CustomAudioType) -> [CustomAudioFile]

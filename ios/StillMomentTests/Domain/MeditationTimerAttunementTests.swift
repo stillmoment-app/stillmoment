@@ -1,14 +1,14 @@
 //
-//  MeditationTimerIntroductionTests.swift
+//  MeditationTimerAttunementTests.swift
 //  Still Moment
 //
-//  Tests for MeditationTimer introduction phase behavior
+//  Tests for MeditationTimer attunement phase behavior
 //
 
 import XCTest
 @testable import StillMoment
 
-final class MeditationTimerIntroductionTests: XCTestCase {
+final class MeditationTimerAttunementTests: XCTestCase {
     // MARK: - Preparation → StartGong
 
     func testTick_preparationFinished_transitionsToStartGong() throws {
@@ -58,45 +58,45 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         XCTAssertEqual(timer.remainingSeconds, 597)
     }
 
-    // MARK: - Introduction Phase (Event-Driven)
+    // MARK: - Attunement Phase (Event-Driven)
 
-    func testTick_duringIntroduction_neverAutoTransitionsToRunning() throws {
+    func testTick_duringAttunement_neverAutoTransitionsToRunning() throws {
         var timer = try MeditationTimer(
             durationMinutes: 1, // 60 seconds
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
-        // Tick many times - should stay in introduction (event-driven transition)
+        // Tick many times - should stay in attunement (event-driven transition)
         for _ in 0..<55 {
             (timer, _) = timer.tick()
         }
 
-        XCTAssertEqual(timer.state, .introduction)
+        XCTAssertEqual(timer.state, .attunement)
         XCTAssertEqual(timer.remainingSeconds, 5)
     }
 
-    func testTick_duringIntroduction_decrementsRemainingSeconds() throws {
+    func testTick_duringAttunement_decrementsRemainingSeconds() throws {
         var timer = try MeditationTimer(
             durationMinutes: 10,
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
         let (ticked, _) = timer.tick()
 
-        XCTAssertEqual(ticked.state, .introduction)
+        XCTAssertEqual(ticked.state, .attunement)
         XCTAssertEqual(ticked.remainingSeconds, 599)
     }
 
-    // MARK: - Timer Expires During Introduction
+    // MARK: - Timer Expires During Attunement
 
-    func testTick_timerExpiresDuringIntroduction_transitionsToCompleted() throws {
+    func testTick_timerExpiresDuringAttunement_transitionsToCompleted() throws {
         var timer = try MeditationTimer(
             durationMinutes: 1, // 60 seconds
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
         // Tick 60 times (timer duration)
         for _ in 0..<60 {
@@ -107,63 +107,63 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         XCTAssertEqual(timer.remainingSeconds, 0)
     }
 
-    // MARK: - endIntroduction
+    // MARK: - endAttunement
 
-    func testEndIntroduction_transitionsToRunning() throws {
+    func testEndAttunement_transitionsToRunning() throws {
         var timer = try MeditationTimer(
             durationMinutes: 10,
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
-        // Simulate some ticks during introduction
+        // Simulate some ticks during attunement
         (timer, _) = timer.tick() // 599
         (timer, _) = timer.tick() // 598
         (timer, _) = timer.tick() // 597
 
-        let ended = timer.endIntroduction()
+        let ended = timer.endAttunement()
 
         XCTAssertEqual(ended.state, .running)
         XCTAssertEqual(ended.remainingSeconds, 597)
     }
 
-    func testEndIntroduction_setsSilentPhaseStartRemaining() throws {
+    func testEndAttunement_setsSilentPhaseStartRemaining() throws {
         var timer = try MeditationTimer(
             durationMinutes: 10,
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
-        // Tick 95 times during introduction
+        // Tick 95 times during attunement
         for _ in 0..<95 {
             (timer, _) = timer.tick()
         }
 
-        let ended = timer.endIntroduction()
+        let ended = timer.endAttunement()
 
         XCTAssertEqual(ended.state, .running)
         XCTAssertEqual(ended.silentPhaseStartRemaining, 505) // 600 - 95
     }
 
-    // MARK: - Introduction Counts Toward Total Duration
+    // MARK: - Attunement Counts Toward Total Duration
 
-    func testIntroduction_countsTowardTotalDuration() throws {
+    func testAttunement_countsTowardTotalDuration() throws {
         var timer = try MeditationTimer(
             durationMinutes: 1, // 60 seconds total
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
         XCTAssertEqual(timer.remainingSeconds, 60)
         XCTAssertEqual(timer.totalSeconds, 60)
 
-        // Tick 30 times through introduction
+        // Tick 30 times through attunement
         for _ in 0..<30 {
             (timer, _) = timer.tick()
         }
 
-        // End introduction via event callback
-        timer = timer.endIntroduction()
+        // End attunement via event callback
+        timer = timer.endAttunement()
 
         XCTAssertEqual(timer.state, .running)
         XCTAssertEqual(timer.remainingSeconds, 30) // 60 - 30 = 30 seconds left
@@ -191,21 +191,21 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         XCTAssertEqual(timer.remainingSeconds, 597)
     }
 
-    // MARK: - Interval Gongs After Introduction
+    // MARK: - Interval Gongs After Attunement
 
-    func testIntervalGong_afterIntroduction_usesEffectiveStart() throws {
+    func testIntervalGong_afterAttunement_usesEffectiveStart() throws {
         // 10 min timer, 5 min intervals
         var timer = try MeditationTimer(
             durationMinutes: 10,
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
-        // Tick 95 times during introduction, then end it
+        // Tick 95 times during attunement, then end it
         for _ in 0..<95 {
             (timer, _) = timer.tick()
         }
-        timer = timer.endIntroduction()
+        timer = timer.endAttunement()
 
         XCTAssertEqual(timer.state, .running)
         let silentStart = try XCTUnwrap(timer.silentPhaseStartRemaining)
@@ -226,8 +226,8 @@ final class MeditationTimerIntroductionTests: XCTestCase {
         XCTAssertEqual(timer.remainingSeconds, silentStart - silentElapsed)
     }
 
-    func testIntervalGong_withoutIntroduction_usesTotalSeconds() throws {
-        // 10 min timer, no introduction, 5 min intervals
+    func testIntervalGong_withoutAttunement_usesTotalSeconds() throws {
+        // 10 min timer, no attunement, 5 min intervals
         var timer = try MeditationTimer(
             durationMinutes: 10,
             preparationTimeSeconds: 0
@@ -252,7 +252,7 @@ final class MeditationTimerIntroductionTests: XCTestCase {
             durationMinutes: 10,
             preparationTimeSeconds: 0
         )
-        timer = timer.withState(.introduction)
+        timer = timer.withState(.attunement)
 
         let resetTimer = timer.reset()
 

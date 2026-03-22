@@ -50,8 +50,8 @@ final class UserDefaultsTimerSettingsRepository {
                 MeditationSettings.Keys.gongVolume,
                 default: MeditationSettings.defaultGongVolume
             ),
-            introductionId: self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId),
-            introductionEnabled: self.loadIntroductionEnabled()
+            attunementId: self.userDefaults.string(forKey: MeditationSettings.Keys.attunementId),
+            attunementEnabled: self.loadAttunementEnabled()
         )
 
         self.logSettings(settings, action: "Loaded")
@@ -95,14 +95,14 @@ final class UserDefaultsTimerSettingsRepository {
         return IntervalMode(rawValue: rawValue) ?? .repeating
     }
 
-    /// Loads introductionEnabled with migration support.
-    /// If the key doesn't exist yet (legacy data), defaults to `true` when introductionId is set.
-    private func loadIntroductionEnabled() -> Bool {
-        if self.userDefaults.object(forKey: MeditationSettings.Keys.introductionEnabled) != nil {
-            return self.userDefaults.bool(forKey: MeditationSettings.Keys.introductionEnabled)
+    /// Loads attunementEnabled with migration support.
+    /// If the key doesn't exist yet (legacy data), defaults to `true` when attunementId is set.
+    private func loadAttunementEnabled() -> Bool {
+        if self.userDefaults.object(forKey: MeditationSettings.Keys.attunementEnabled) != nil {
+            return self.userDefaults.bool(forKey: MeditationSettings.Keys.attunementEnabled)
         }
-        // Legacy migration: if introductionId is set, the user had introduction enabled
-        return self.userDefaults.string(forKey: MeditationSettings.Keys.introductionId) != nil
+        // Legacy migration: if attunementId is set, the user had attunement enabled
+        return self.userDefaults.string(forKey: MeditationSettings.Keys.attunementId) != nil
     }
 
     // MARK: - Legacy Migration

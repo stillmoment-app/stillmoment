@@ -1,18 +1,18 @@
 //
-//  IntroductionSelectionView.swift
+//  AttunementSelectionView.swift
 //  Still Moment
 //
-//  Presentation Layer - Introduction selection for Praxis editor
+//  Presentation Layer - Attunement selection for Praxis editor
 //
 
 import SwiftUI
 
-/// Selection list for choosing an optional introduction audio.
+/// Selection list for choosing an optional attunement audio.
 ///
-/// Shows "No Introduction" as first option, then all available introductions
+/// Shows "No Attunement" as first option, then all available attunements
 /// for the current device language with name and duration. Includes a
 /// "My Attunements" section for user-imported custom audio files.
-struct IntroductionSelectionView: View {
+struct AttunementSelectionView: View {
     // MARK: Lifecycle
 
     init(viewModel: PraxisEditorViewModel) {
@@ -28,11 +28,11 @@ struct IntroductionSelectionView: View {
 
             VStack(spacing: 0) {
                 List {
-                    self.introductionToggleRow
+                    self.attunementToggleRow
 
-                    if self.viewModel.introductionEnabled {
-                        ForEach(self.viewModel.availableIntroductions) { intro in
-                            self.introductionRow(for: intro)
+                    if self.viewModel.attunementEnabled {
+                        ForEach(self.viewModel.availableAttunements) { attunement in
+                            self.attunementRow(for: attunement)
                         }
 
                         self.myAttunementsSection
@@ -41,7 +41,7 @@ struct IntroductionSelectionView: View {
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
 
-                if self.viewModel.introductionEnabled {
+                if self.viewModel.attunementEnabled {
                     self.importButton
                 }
             }
@@ -49,7 +49,7 @@ struct IntroductionSelectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("praxis.editor.introduction.title", bundle: .main)
+                Text("praxis.editor.attunement.title", bundle: .main)
                     .themeFont(.inlineNavigationTitle)
             }
         }
@@ -125,31 +125,31 @@ struct IntroductionSelectionView: View {
     @State private var renameText: String = ""
     @State private var showRenameAlert = false
 
-    private var introductionToggleRow: some View {
+    private var attunementToggleRow: some View {
         Toggle(isOn: Binding(
-            get: { self.viewModel.introductionEnabled },
-            set: { self.viewModel.setIntroductionEnabled($0) }
+            get: { self.viewModel.attunementEnabled },
+            set: { self.viewModel.setAttunementEnabled($0) }
         )) {
-            Text("praxis.editor.introduction.row", bundle: .main)
+            Text("praxis.editor.attunement.row", bundle: .main)
                 .themeFont(.settingsLabel)
         }
         .themedToggle()
         .cardRowBackground()
-        .accessibilityHint(NSLocalizedString("accessibility.introduction.toggle.hint", comment: ""))
-        .accessibilityIdentifier("praxis.introduction.toggle")
+        .accessibilityHint(NSLocalizedString("accessibility.attunement.toggle.hint", comment: ""))
+        .accessibilityIdentifier("praxis.attunement.toggle")
     }
 
-    private func introductionRow(for intro: Introduction) -> some View {
-        let isSelected = self.viewModel.introductionId == intro.id
+    private func attunementRow(for attunement: Attunement) -> some View {
+        let isSelected = self.viewModel.attunementId == attunement.id
         return HStack {
             Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
                 .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
                 .frame(width: 24)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(intro.name)
+                Text(attunement.name)
                     .themeFont(.settingsLabel)
-                Text(intro.formattedDuration)
+                Text(attunement.formattedDuration)
                     .themeFont(.settingsDescription)
                     .foregroundColor(self.theme.textSecondary)
             }
@@ -157,14 +157,14 @@ struct IntroductionSelectionView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            self.viewModel.introductionId = intro.id
-            self.viewModel.playIntroductionPreview(introductionId: intro.id)
+            self.viewModel.attunementId = attunement.id
+            self.viewModel.playAttunementPreview(attunementId: attunement.id)
         }
         .cardRowBackground()
         .accessibilityElement(children: .combine)
         .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-        .accessibilityIdentifier("praxis.introduction.\(intro.id)")
+        .accessibilityIdentifier("praxis.attunement.\(attunement.id)")
     }
 
     private var importButton: some View {
@@ -197,7 +197,7 @@ struct IntroductionSelectionView: View {
     }
 
     private func customAttunementRow(for file: CustomAudioFile) -> some View {
-        let isSelected = self.viewModel.introductionId == file.id.uuidString
+        let isSelected = self.viewModel.attunementId == file.id.uuidString
         return HStack {
             HStack {
                 Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
@@ -215,8 +215,8 @@ struct IntroductionSelectionView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                self.viewModel.introductionId = file.id.uuidString
-                self.viewModel.playIntroductionPreview(introductionId: file.id.uuidString)
+                self.viewModel.attunementId = file.id.uuidString
+                self.viewModel.playAttunementPreview(attunementId: file.id.uuidString)
             }
             .accessibilityElement(children: .combine)
             .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
@@ -224,7 +224,7 @@ struct IntroductionSelectionView: View {
             self.overflowMenu(for: file)
         }
         .cardRowBackground()
-        .accessibilityIdentifier("praxis.introduction.custom.\(file.id.uuidString)")
+        .accessibilityIdentifier("praxis.attunement.custom.\(file.id.uuidString)")
     }
 
     private func overflowMenu(for file: CustomAudioFile) -> some View {
@@ -249,7 +249,7 @@ struct IntroductionSelectionView: View {
         }
         .accessibilityLabel("accessibility.library.overflow")
         .accessibilityHint("accessibility.library.overflow.hint")
-        .accessibilityIdentifier("praxis.introduction.overflow.\(file.id.uuidString)")
+        .accessibilityIdentifier("praxis.attunement.overflow.\(file.id.uuidString)")
     }
 }
 
@@ -257,9 +257,9 @@ struct IntroductionSelectionView: View {
 
 #if DEBUG
 @available(iOS 17.0, *)
-#Preview("Introduction Selection") {
+#Preview("Attunement Selection") {
     NavigationStack {
-        IntroductionSelectionView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
+        AttunementSelectionView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
     }
 }
 #endif

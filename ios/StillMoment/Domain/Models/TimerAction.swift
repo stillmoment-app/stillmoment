@@ -23,14 +23,14 @@ enum TimerAction: Equatable {
 
     // MARK: - System Events
 
-    /// Preparation phase finished, transitioning to introduction or running
+    /// Preparation phase finished, transitioning to attunement or running
     case preparationFinished
 
-    /// Start gong finished playing, introduction audio can now begin
+    /// Start gong finished playing, attunement audio can now begin
     case startGongFinished
 
-    /// Introduction audio finished, transitioning to silent meditation
-    case introductionFinished
+    /// Attunement audio finished, transitioning to silent meditation
+    case attunementFinished
 
     /// Timer reached zero, entering endGong phase
     case timerCompleted

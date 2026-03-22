@@ -14,14 +14,14 @@ final class AttunementResolverTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Introduction.languageOverride = "en"
+        Attunement.languageOverride = "en"
         let repo = MockCustomAudioRepository()
         self.customAudioRepository = repo
         self.sut = AttunementResolver(customAudioRepository: repo)
     }
 
     override func tearDown() {
-        Introduction.languageOverride = nil
+        Attunement.languageOverride = nil
         self.sut = nil
         self.customAudioRepository = nil
         super.tearDown()
@@ -30,7 +30,7 @@ final class AttunementResolverTests: XCTestCase {
     // MARK: - resolve(id:)
 
     func testResolveBuiltInAttunement() {
-        // Given: "breath" is a built-in introduction available in English
+        // Given: "breath" is a built-in attunement available in English
         guard let sut else {
             return XCTFail("sut is nil")
         }
@@ -41,12 +41,12 @@ final class AttunementResolverTests: XCTestCase {
         // Then
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.id, "breath")
-        XCTAssertEqual(result?.durationSeconds, Introduction.breath.durationSeconds(for: "en"))
+        XCTAssertEqual(result?.durationSeconds, Attunement.breath.durationSeconds(for: "en"))
     }
 
     func testResolveBuiltInAttunementUnavailableLanguage() {
         // Given: Switch to unsupported language
-        Introduction.languageOverride = "ja"
+        Attunement.languageOverride = "ja"
         guard let sut else {
             return XCTFail("sut is nil")
         }
@@ -149,7 +149,7 @@ final class AttunementResolverTests: XCTestCase {
 
     func testAllAvailableExcludesUnavailableBuiltIn() {
         // Given: Unsupported language
-        Introduction.languageOverride = "ja"
+        Attunement.languageOverride = "ja"
         guard let sut, let repo = self.customAudioRepository else {
             return XCTFail("setup failed")
         }

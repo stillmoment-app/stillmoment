@@ -27,17 +27,17 @@ protocol TimerServiceProtocol {
     /// Stops and cleans up the timer
     func stop()
 
-    /// Begins the introduction phase, transitioning the timer from .startGong to .introduction.
-    /// Called when the start gong finishes and an introduction is configured.
+    /// Begins the attunement phase, transitioning the timer from .startGong to .attunement.
+    /// Called when the start gong finishes and an attunement is configured.
     /// Keeps the domain timer in sync with the display state so that periodic ticks
-    /// deliver .introduction state (not stale .startGong state).
-    func beginIntroductionPhase()
+    /// deliver .attunement state (not stale .startGong state).
+    func beginAttunementPhase()
 
-    /// Ends the introduction phase, transitioning the timer from .introduction to .running.
-    /// Called when the introduction audio finishes playing (event-driven).
-    func endIntroductionPhase()
+    /// Ends the attunement phase, transitioning the timer from .attunement to .running.
+    /// Called when the attunement audio finishes playing (event-driven).
+    func endAttunementPhase()
 
-    /// Transitions the timer from .startGong to .running (no introduction path).
-    /// Called when the start gong finishes and no introduction is configured.
+    /// Transitions the timer from .startGong to .running (no attunement path).
+    /// Called when the start gong finishes and no attunement is configured.
     func beginRunningPhase()
 }

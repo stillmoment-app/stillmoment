@@ -108,12 +108,12 @@ final class AudioServiceKeepAliveTests: XCTestCase {
         self.sut.deactivateTimerSession()
     }
 
-    func testKeepAliveRunsDuringIntroductionPhase() throws {
+    func testKeepAliveRunsDuringAttunementPhase() throws {
         // Given — timer session active
         try self.sut.activateTimerSession()
 
-        // When — introduction starts and finishes (simulated by stopping)
-        self.sut.stopIntroduction() // No-op if not playing
+        // When — attunement starts and finishes (simulated by stopping)
+        self.sut.stopAttunement() // No-op if not playing
 
         // Then — keep-alive still active, session deactivates cleanly
         self.sut.deactivateTimerSession()

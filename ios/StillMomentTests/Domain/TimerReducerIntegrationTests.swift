@@ -55,7 +55,7 @@ final class TimerReducerIntegrationTests: XCTestCase {
         )
         XCTAssertTrue(preparationEffects.contains(.playStartGong))
 
-        // startGong → running (gong finished, no introduction configured)
+        // startGong → running (gong finished, no attunement configured)
         let gongEffects = TimerReducer.reduce(
             action: .startGongFinished,
             timerState: .startGong,

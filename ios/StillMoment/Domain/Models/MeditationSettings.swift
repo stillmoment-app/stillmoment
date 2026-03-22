@@ -35,9 +35,9 @@ struct MeditationSettings: Codable, Equatable {
         preparationTimeSeconds: Int = 15,
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = MeditationSettings.defaultGongVolume,
-        introductionId: String? = nil,
-        introductionEnabled: Bool = false,
-        customIntroDurationSeconds: Int? = nil
+        attunementId: String? = nil,
+        attunementEnabled: Bool = false,
+        customAttunementDurationSeconds: Int? = nil
     ) {
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
@@ -46,19 +46,19 @@ struct MeditationSettings: Codable, Equatable {
         self.intervalGongVolume = Self.validateVolume(intervalGongVolume)
         self.backgroundSoundId = backgroundSoundId
         self.backgroundSoundVolume = Self.validateVolume(backgroundSoundVolume)
-        self.customIntroDurationSeconds = customIntroDurationSeconds
+        self.customAttunementDurationSeconds = customAttunementDurationSeconds
         self.durationMinutes = Self.validateDuration(
             durationMinutes,
-            introductionId: introductionId,
-            introductionEnabled: introductionEnabled,
-            introDurationSeconds: customIntroDurationSeconds
+            attunementId: attunementId,
+            attunementEnabled: attunementEnabled,
+            attunementDurationSeconds: customAttunementDurationSeconds
         )
         self.preparationTimeEnabled = preparationTimeEnabled
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
         self.startGongSoundId = startGongSoundId
         self.gongVolume = Self.validateVolume(gongVolume)
-        self.introductionId = introductionId
-        self.introductionEnabled = introductionEnabled
+        self.attunementId = attunementId
+        self.attunementEnabled = attunementEnabled
     }
 
     // MARK: Internal
@@ -78,8 +78,8 @@ struct MeditationSettings: Codable, Equatable {
         static let preparationTimeSeconds = "preparationTimeSeconds"
         static let startGongSoundId = "startGongSoundId"
         static let gongVolume = "gongVolume"
-        static let introductionId = "introductionId"
-        static let introductionEnabled = "introductionEnabled"
+        static let attunementId = "introductionId"
+        static let attunementEnabled = "introductionEnabled"
         /// Legacy key for migration
         static let legacyBackgroundAudioMode = "backgroundAudioMode"
     }
@@ -120,23 +120,23 @@ struct MeditationSettings: Codable, Equatable {
     /// Gong volume (0.0 to 1.0) - applies to start and end gong
     var gongVolume: Float
 
-    /// Introduction ID (nil = no introduction, references Introduction.id)
-    var introductionId: String?
+    /// Attunement ID (nil = no attunement, references Attunement.id)
+    var attunementId: String?
 
-    /// Whether the introduction is enabled (separate from introductionId to preserve user's selection)
-    var introductionEnabled: Bool
+    /// Whether the attunement is enabled (separate from attunementId to preserve user's selection)
+    var attunementEnabled: Bool
 
-    /// Custom attunement duration in seconds, resolved by ViewModel. Nil for built-in introductions.
+    /// Custom attunement duration in seconds, resolved by ViewModel. Nil for built-in attunements.
     /// Transient — not persisted to UserDefaults.
-    var customIntroDurationSeconds: Int?
+    var customAttunementDurationSeconds: Int?
 
-    /// The effective introduction ID. `nil` when disabled or no introduction is selected.
-    /// Use this instead of checking `introductionEnabled` + `introductionId` manually.
-    var activeIntroductionId: String? {
-        guard self.introductionEnabled else {
+    /// The effective attunement ID. `nil` when disabled or no attunement is selected.
+    /// Use this instead of checking `attunementEnabled` + `attunementId` manually.
+    var activeAttunementId: String? {
+        guard self.attunementEnabled else {
             return nil
         }
-        return self.introductionId
+        return self.attunementId
     }
 
     // MARK: - Validation
@@ -146,21 +146,21 @@ struct MeditationSettings: Codable, Equatable {
         min(max(minutes, 1), 60)
     }
 
-    /// Returns the minimum meditation duration in minutes for a given active introduction ID.
-    /// `activeIntroductionId` is `nil` when disabled or unset — callers use `settings.activeIntroductionId`.
-    /// `introDurationSeconds` is provided by the caller (resolved via AttunementResolver).
-    /// Falls back to `Introduction.find()` for built-in intros when `introDurationSeconds` is nil.
-    /// Formula: ceil(introductionDurationSeconds / 60)
-    static func minimumDuration(activeIntroductionId: String?, introDurationSeconds: Int? = nil) -> Int {
-        guard activeIntroductionId != nil else {
+    /// Returns the minimum meditation duration in minutes for a given active attunement ID.
+    /// `activeAttunementId` is `nil` when disabled or unset — callers use `settings.activeAttunementId`.
+    /// `attunementDurationSeconds` is provided by the caller (resolved via AttunementResolver).
+    /// Falls back to `Attunement.find()` for built-in attunements when `attunementDurationSeconds` is nil.
+    /// Formula: ceil(attunementDurationSeconds / 60)
+    static func minimumDuration(activeAttunementId: String?, attunementDurationSeconds: Int? = nil) -> Int {
+        guard activeAttunementId != nil else {
             return 1
         }
         let durationSeconds: Int
-        if let provided = introDurationSeconds {
+        if let provided = attunementDurationSeconds {
             durationSeconds = provided
-        } else if let introId = activeIntroductionId,
-                  let intro = Introduction.find(byId: introId) {
-            durationSeconds = intro.durationSeconds
+        } else if let attunementId = activeAttunementId,
+                  let attunement = Attunement.find(byId: attunementId) {
+            durationSeconds = attunement.durationSeconds
         } else {
             return 1
         }
@@ -172,38 +172,38 @@ struct MeditationSettings: Codable, Equatable {
 
     /// Backward-compatible overload used during init/validation where enabled+id are separate.
     static func minimumDuration(
-        for introductionId: String?,
-        introductionEnabled: Bool = false,
-        introDurationSeconds: Int? = nil
+        for attunementId: String?,
+        attunementEnabled: Bool = false,
+        attunementDurationSeconds: Int? = nil
     ) -> Int {
-        let activeId = introductionEnabled ? introductionId : nil
+        let activeId = attunementEnabled ? attunementId : nil
         return Self.minimumDuration(
-            activeIntroductionId: activeId,
-            introDurationSeconds: introDurationSeconds
+            activeAttunementId: activeId,
+            attunementDurationSeconds: attunementDurationSeconds
         )
     }
 
-    /// Minimum meditation duration in minutes based on current introduction setting.
-    /// Uses `customIntroDurationSeconds` when set (resolved via AttunementResolver).
+    /// Minimum meditation duration in minutes based on current attunement setting.
+    /// Uses `customAttunementDurationSeconds` when set (resolved via AttunementResolver).
     var minimumDurationMinutes: Int {
         Self.minimumDuration(
-            activeIntroductionId: self.activeIntroductionId,
-            introDurationSeconds: self.customIntroDurationSeconds
+            activeAttunementId: self.activeAttunementId,
+            attunementDurationSeconds: self.customAttunementDurationSeconds
         )
     }
 
     /// Validates and clamps duration to valid range (minimum-60 minutes).
-    /// Minimum is 1 without introduction, or ceil(introDuration/60) with enabled introduction.
+    /// Minimum is 1 without attunement, or ceil(attunementDuration/60) with enabled attunement.
     static func validateDuration(
         _ minutes: Int,
-        introductionId: String? = nil,
-        introductionEnabled: Bool = false,
-        introDurationSeconds: Int? = nil
+        attunementId: String? = nil,
+        attunementEnabled: Bool = false,
+        attunementDurationSeconds: Int? = nil
     ) -> Int {
         let minimum = Self.minimumDuration(
-            for: introductionId,
-            introductionEnabled: introductionEnabled,
-            introDurationSeconds: introDurationSeconds
+            for: attunementId,
+            attunementEnabled: attunementEnabled,
+            attunementDurationSeconds: attunementDurationSeconds
         )
         return min(max(minutes, minimum), 60)
     }
@@ -240,8 +240,8 @@ extension MeditationSettings {
         preparationTimeSeconds: 15,
         startGongSoundId: GongSound.defaultSoundId,
         gongVolume: defaultGongVolume,
-        introductionId: nil,
-        introductionEnabled: false
+        attunementId: nil,
+        attunementEnabled: false
     )
 }
 

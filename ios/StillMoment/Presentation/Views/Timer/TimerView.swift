@@ -151,7 +151,7 @@ struct TimerView: View {
         case .preparation:
             self.viewModel.currentPreparationAffirmation
         case .startGong,
-             .introduction,
+             .attunement,
              .running,
              .endGong:
             self.viewModel.currentRunningAffirmation
@@ -194,7 +194,7 @@ struct TimerView: View {
         case .preparation:
             NSLocalizedString("accessibility.timerState.preparation", comment: "")
         case .startGong,
-             .introduction,
+             .attunement,
              .running,
              .endGong:
             NSLocalizedString("accessibility.timerState.running", comment: "")
@@ -267,11 +267,11 @@ struct TimerView: View {
                 }
 
                 // Row 2: optional settings (only when active)
-                let hasExtras = self.viewModel.introductionPillLabel != nil
+                let hasExtras = self.viewModel.attunementPillLabel != nil
                     || self.viewModel.intervalPillLabel != nil
                 if hasExtras {
                     HStack(spacing: 8) {
-                        if let label = self.viewModel.introductionPillLabel {
+                        if let label = self.viewModel.attunementPillLabel {
                             self.settingPill(icon: "headphones", label: label)
                         }
                         if let label = self.viewModel.intervalPillLabel {

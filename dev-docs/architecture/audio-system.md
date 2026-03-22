@@ -81,8 +81,8 @@ Audio-Operationen werden als Effects modelliert (siehe `ddd.md` Effect Pattern):
 | `deactivateTimerSession` | Keep-Alive stoppen + Audio Session freigeben (Timer-Ende/Reset/endGongFinished) |
 | `playStartGong` | Start-Gong abspielen |
 | `beginRunningPhase` | Timer von `.startGong` → `.running` (kein Einstimmungs-Pfad) |
-| `playIntroduction(introductionId:)` | Einstimmungs-Audio starten (haelt Audio-Session aktiv) |
-| `stopIntroduction` | Einstimmungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einstimmung) |
+| `playAttunement(attunementId:)` | Einstimmungs-Audio starten (haelt Audio-Session aktiv) |
+| `stopAttunement` | Einstimmungs-Audio stoppen (bei Reset/Timer-Ende waehrend Einstimmung) |
 | `startBackgroundAudio(soundId:volume:)` | Hintergrund-Sound starten (erst nach Gong/Einstimmung) |
 | `stopBackgroundAudio` | Hintergrund-Sound stoppen (bei Timer-Ende/Reset) |
 | `playIntervalGong(soundId:volume:)` | Intervall-Gong abspielen (oder Vibration wenn `GongSound.vibrationId`) |
@@ -113,7 +113,7 @@ Vor der stillen Meditation soll optional eine Einstimmung (Attunement, z.B. Atem
 
 ### Loesung
 
-Die Einstimmung ist eine eigene Phase in der Timer State Machine (`TimerState.introduction`). Das Einstimmungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
+Die Einstimmung ist eine eigene Phase in der Timer State Machine (`TimerState.attunement`). Das Einstimmungs-Audio gehoert zu `AudioSource.timer` und haelt die Audio-Session selbst aktiv.
 
 ### Ablauf
 
@@ -124,16 +124,16 @@ Audio-Sequenz mit Einstimmung:
 ```
 Keep-Alive Audio: ════════════════════════════════════════════════════════════════
                   (Always-On: laeuft durchgehend von activateTimerSession bis deactivateTimerSession)
-Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Background Audio + Running
+Preparation → Start-Gong ──(fertig)──→ Attunement Audio → Background Audio + Running
      │              │                         │                       │
      │              │                         │                       └─ Intervall-Gongs zaehlen ab hier
      │              │                         └─ Audio-Session aktiv via Keep-Alive (parallel)
-     │              └─ Gong spielt beim Uebergang preparation→introduction
+     │              └─ Gong spielt beim Uebergang preparation→attunement
      │                 Einstimmung wartet auf Gong-Ende (startGongFinished Action)
      └─ Audio-Session aktiv via Keep-Alive Audio
 ```
 
-**Sequenzierung:** Der Start-Gong und die Einstimmung spielen **nicht gleichzeitig**. Die Einstimmung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playIntroduction`.
+**Sequenzierung:** Der Start-Gong und die Einstimmung spielen **nicht gleichzeitig**. Die Einstimmung startet erst wenn der Gong fertig abgespielt ist. Der AudioService meldet das Gong-Ende via `gongCompletionPublisher`, das ViewModel dispatcht `startGongFinished`, und der Reducer emittiert dann `playAttunement`.
 
 ### Verhalten
 
@@ -141,18 +141,18 @@ Preparation → Start-Gong ──(fertig)──→ Introduction Audio → Backgr
 |--------|--------|
 | **Lautstaerke** | `volume = 0.9` (leicht reduziert gegenueber voller Medienlautstaerke, kein eigener Regler) |
 | **Timer-Countdown** | Laeuft waehrend Einstimmung bereits (zaehlt zur Gesamtzeit) |
-| **Hintergrund-Audio** | Startet erst nach Einstimmung (`introductionFinished` → `startBackgroundAudio`) |
+| **Hintergrund-Audio** | Startet erst nach Einstimmung (`attunementFinished` → `startBackgroundAudio`) |
 | **Intervall-Gongs** | Zaehlen ab Ende der Einstimmung (`silentPhaseStartRemaining` als Baseline) |
 | **Audio-Unterbrechung** | Einstimmung setzt nach Unterbrechung fort, Timer laeuft weiter |
 | **Timer laeuft ab** | Einstimmung wird abgeschnitten, Abschluss-Gong spielt |
-| **Reset/Close** | `stopIntroduction` Effect stoppt Einstimmung sofort |
+| **Reset/Close** | `stopAttunement` Effect stoppt Einstimmung sofort |
 | **Lock Screen** | Keep-Alive Audio haelt App waehrend aller Phasen wach (siehe ADR-004) |
 
 ### Audio-Assets
 
 Namenskonvention: `intro-{id}-{sprache}.mp3` (z.B. `intro-breath-de.mp3`)
 
-Einstimmungen sind sowohl App-Bundle-Assets als auch user-importierbar (siehe shared-065). Registry in `Introduction.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster fuer mitgelieferte Einstimmungen.
+Einstimmungen sind sowohl App-Bundle-Assets als auch user-importierbar (siehe shared-065). Registry in `Attunement.swift` (iOS) definiert ID, Dauer, verfuegbare Sprachen und Dateinamen-Muster fuer mitgelieferte Einstimmungen.
 
 ---
 
@@ -171,7 +171,7 @@ activateTimerSession()   → Audio-Session + Keep-Alive AN (Timer-Start)
 deactivateTimerSession() → Keep-Alive AUS + Audio-Session freigeben (Timer-Ende/Reset)
 ```
 
-Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Introduction spielt. Die lautlose Datei (`silence.mp3`, Volume 0.05) stoert kein anderes Audio.
+Keep-Alive wird NICHT gestoppt wenn Background-Audio, Gong oder Attunement spielt. Die lautlose Datei (`silence.mp3`, Volume 0.05) stoert kein anderes Audio.
 
 **Reducer:** Emittiert `activateTimerSession` bei `.startPressed`, `deactivateTimerSession` bei `.resetPressed`, `.timerCompleted` (via `endGongFinished`). Keep-Alive-Management ist weiterhin ein Infrastructure-Detail — der Reducer kennt nur die Session-Grenzen.
 
@@ -185,7 +185,7 @@ Das gleiche Pattern existiert fuer Guided Meditations:
 
 ### Delegate-Absicherung
 
-Audio-Player-Delegates feuern auch bei `successfully: false` (z.B. Audio-Interruption). Verhindert dass die State Machine in `.startGong` oder `.introduction` haengen bleibt.
+Audio-Player-Delegates feuern auch bei `successfully: false` (z.B. Audio-Interruption). Verhindert dass die State Machine in `.startGong` oder `.attunement` haengen bleibt.
 
 ---
 
@@ -414,7 +414,7 @@ Beim Loeschen einer Custom Audio Datei:
 
 Custom Soundscapes und Attunements nutzen die bestehende Audio-Pipeline:
 - Soundscapes: `AudioService.startBackgroundAudio(soundId:volume:)` mit UUID-String als soundId. `resolveBackgroundSoundURL` prueft erst Built-in Sounds, dann Custom Audio Files via UUID-Lookup im `CustomAudioRepository`
-- Attunements: `AudioService.playIntroduction(filename:)` mit Dateiname aus `CustomAudioFile.filename`
+- Attunements: `AudioService.playAttunement(filename:)` mit Dateiname aus `CustomAudioFile.filename`
 - Kein neuer AudioSource-Wert noetig — Custom Audio laeuft unter `.timer`
 
 ---

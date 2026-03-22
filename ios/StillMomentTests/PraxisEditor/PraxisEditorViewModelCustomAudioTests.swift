@@ -66,7 +66,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         XCTAssertEqual(sut.backgroundSoundId, imported?.id.uuidString)
     }
 
-    func testImportCustomAudio_attunement_setsIntroductionId() {
+    func testImportCustomAudio_attunement_setsAttunementId() {
         // Given
         guard let mockRepo = self.mockCustomAudioRepo else {
             return XCTFail("mockCustomAudioRepo not initialized")
@@ -80,7 +80,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         // Then
         let imported = mockRepo.stubbedAttunements.first
         XCTAssertNotNil(imported)
-        XCTAssertEqual(sut.introductionId, imported?.id.uuidString)
+        XCTAssertEqual(sut.attunementId, imported?.id.uuidString)
     }
 
     func testImportCustomAudio_error_setsCustomAudioError() {
@@ -127,7 +127,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         XCTAssertTrue(mockRepo.deletedIds.contains(file.id))
     }
 
-    func testDeleteCustomAudio_attunement_resetsIntroductionToNil() {
+    func testDeleteCustomAudio_attunement_resetsAttunementToNil() {
         // Given
         let file = CustomAudioFile(
             id: UUID(),
@@ -142,13 +142,13 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         }
         mockRepo.stubbedAttunements = [file]
         let sut = self.createSUT()
-        sut.introductionId = file.id.uuidString
+        sut.attunementId = file.id.uuidString
 
         // When
         sut.deleteCustomAudio(file)
 
         // Then
-        XCTAssertNil(sut.introductionId)
+        XCTAssertNil(sut.attunementId)
         XCTAssertTrue(mockRepo.deletedIds.contains(file.id))
     }
 
@@ -212,7 +212,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             type: .attunement,
             dateAdded: Date()
         )
-        let praxis = Praxis(introductionId: file.id.uuidString)
+        let praxis = Praxis(attunementId: file.id.uuidString)
         guard let mockPraxisRepo = self.mockPraxisRepo else {
             return XCTFail("mockPraxisRepo not initialized")
         }

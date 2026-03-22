@@ -13,7 +13,7 @@ import Foundation
 /// `previousState` to detect transitions. Now `tick()` directly communicates
 /// what occurred, and the ViewModel processes events without indirection.
 ///
-/// Note: `introductionCompleted` is NOT a TimerEvent. Introduction completion is
+/// Note: `attunementCompleted` is NOT a TimerEvent. Attunement completion is
 /// audio-callback-driven (file finished), not tick-driven (countdown at 0).
 enum TimerEvent: Equatable {
     /// Preparation countdown reached zero, transitioning to startGong phase.
