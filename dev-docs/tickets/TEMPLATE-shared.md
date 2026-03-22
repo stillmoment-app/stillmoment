@@ -2,7 +2,7 @@
 
 **Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
 **Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
-**Aufwand**: iOS ~X | Android ~X
+**Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
 **Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
 ---

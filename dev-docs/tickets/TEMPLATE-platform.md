@@ -2,7 +2,7 @@
 
 **Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
 **Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
-**Aufwand**: Klein | Mittel | Gross
+**Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
 **Abhaengigkeiten**: Keine | {platform}-{NNN}
 **Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
