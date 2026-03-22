@@ -1,6 +1,7 @@
 # Ticket ios-039: Legacy Timer-Settings-Store aufraeumen
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan**: [Implementierungsplan](../plans/ios-039.md)
 **Prioritaet**: NIEDRIG
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine
