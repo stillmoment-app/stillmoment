@@ -50,15 +50,15 @@ Previews. Es fehlt ein Konzept fuer "Audio-Lifecycle" das Preview von Timer tren
 
 Keep-Alive wird durch verstreute `startKeepAliveAudio()`/`stopKeepAliveAudio()`-
 Aufrufe gesteuert. Es gibt keine strukturelle Garantie, dass waehrend einer
-aktiven Timer-Session immer Audio laeuft. Jede neue Audio-Phase (Introduction,
+aktiven Timer-Session immer Audio laeuft. Jede neue Audio-Phase (Attunement,
 endGong, zukuenftige Features) kann eine Luecke erzeugen, in der weder Keep-Alive
 noch echtes Audio spielt — und iOS die App suspendiert.
 
 Dokumentierte Brueche:
 - Nov 2025: Countdown-Freeze und stiller Completion-Gong bei gesperrtem Bildschirm
 - Jan 2026: Luecke zwischen stiller Audio und MP3-Start (atomare Transition noetig)
-- Feb 2026: Introduction-Feature erzeugte neue Transition-Luecken
-- Feb 2026: Timer-State-Sync-Problem nach Introduction-Port
+- Feb 2026: Attunement-Feature erzeugte neue Transition-Luecken
+- Feb 2026: Timer-State-Sync-Problem nach Attunement-Port
 
 **Ursache:** Keep-Alive ist ein impliziter Seiteneffekt von `configureAudioSession()`.
 Der AudioService hat kein Konzept von "waehrend einer aktiven Session muss immer
@@ -71,7 +71,7 @@ stimmt — und die stimmt nicht immer, besonders bei neuen Features.
   playIntervalGong()          <- ruft configureAudioSession() auf (redundant)
   playGongPreview()           <- ruft configureAudioSession() auf (Bug: P3)
   playBackgroundPreview()     <- ruft configureAudioSession() auf (Bug: P3)
-  playIntroduction()          <- ruft configureAudioSession() auf (redundant)
+  playAttunement()            <- ruft configureAudioSession() auf (redundant)
   startBackgroundAudio()      <- stoppt Keep-Alive, startet echtes Audio
   stopBackgroundAudio()       <- stoppt Keep-Alive (warum?)
   stop()                      <- stoppt Keep-Alive
@@ -317,19 +317,19 @@ werden. Kein Timer-Refactoring noetig.
 
 Keep-Alive wird heute durch **explizite Start/Stop-Aufrufe** gesteuert, die ueber
 den AudioService verteilt sind (6 Stellen die starten, 4 die stoppen). Jede
-Audio-Transition (Introduction → Background, Background → Gong, etc.) muss
+Audio-Transition (Attunement → Background, Background → Gong, etc.) muss
 Keep-Alive manuell koordinieren. Das erzeugt Luecken.
 
 4 dokumentierte Brueche mit diesem Muster:
 - Nov 2025: Countdown-Freeze bei gesperrtem Bildschirm
 - Jan 2026: Luecke zwischen stiller Audio und MP3-Start
-- Feb 2026: Introduction-Transition-Luecke (Background startet nicht bei gesperrtem Bildschirm)
-- Feb 2026: Timer-State-Sync nach Introduction-Port
+- Feb 2026: Attunement-Transition-Luecke (Background startet nicht bei gesperrtem Bildschirm)
+- Feb 2026: Timer-State-Sync nach Attunement-Port
 
 ### 7.2 Kern-Erkenntnis
 
 silence.mp3 auf Volume 0.01 stoert kein anderes Audio — nicht den Gong, nicht
-die Introduction, nicht das Background-Audio. Es gibt keinen Grund, Keep-Alive
+die Attunement-Audio, nicht das Background-Audio. Es gibt keinen Grund, Keep-Alive
 zwischendurch zu stoppen und neu zu starten. Genau dieses Stoppen-und-Starten
 erzeugt die Luecken.
 
@@ -444,7 +444,7 @@ private func handleAudioInterruption(_ notification: Notification) {
 - Keep-Alive-Mechanismus selbst (`silence.mp3`, Volume 0.01, Endlos-Loop)
 - ADR-004 Grundsatz: Keep-Alive ist Infrastructure-Concern, Domain weiss nichts davon
 - AudioSessionCoordinator: unveraendert
-- Gong-Playback, Introduction-Playback: unveraendert
+- Gong-Playback, Attunement-Playback: unveraendert
 - Reducer: emittiert weiterhin fachliche Effects, keine Keep-Alive-Details
 
 ### 7.10 Aufwand und Risiko
@@ -455,7 +455,7 @@ private func handleAudioInterruption(_ notification: Notification) {
   entfernt Komplexitaet statt sie hinzuzufuegen.
 - **Tests:** Bestehende AudioServiceKeepAliveTests vereinfachen. Neue Tests:
   Keep-Alive laeuft parallel zu Background-Audio, Keep-Alive ueberlebt
-  Introduction-Ende, Keep-Alive wird nach Interruption neu gestartet.
+  Attunement-Ende, Keep-Alive wird nach Interruption neu gestartet.
 - **Android:** Kein Keep-Alive noetig (Foreground Service). Aber
   `activateTimerSession()`/`deactivateTimerSession()` als Konzept ist sinnvoll.
 
@@ -491,7 +491,7 @@ Nach Abschluss aller 5 Schritte ist der Zustand:
   TimerReducer (duenn)
     reduce(timer, action, settings) -> (Timer, [Effect])
     Nur noch: startPressed, resetPressed, selectDuration,
-              startGongFinished, endGongFinished, introductionFinished
+              startGongFinished, endGongFinished, attunementFinished
 
   TimerService
     System-Timer, publiziert (Timer, [Event])

@@ -44,7 +44,7 @@ Dieses Konzept wird inkrementell umgesetzt (siehe `timer-incremental-refactoring
            v
   +- TimerViewModel -------------------------------------------------+
   |  previousState: TimerState      (Transition-Erkennung)           |
-  |  minutesBeforeIntroduction: Int? (Duration-Restore)              |
+  |  minutesBeforeAttunement: Int? (Duration-Restore)              |
   |  settings: MeditationSettings   (teilw. Reducer-managed)        |
   |                                                                  |
   |  handleTimerUpdate() -> erkennt Transition                       |
@@ -165,7 +165,7 @@ und emittieren Domain Events. Das ViewModel ruft Commands auf und verarbeitet Ev
   |  start() -> (newSession, [Events])                               |
   |  tick()  -> (newSession, [Events])                               |
   |  startGongFinished() -> (newSession, [Events])                   |
-  |  introductionFinished() -> (newSession, [Events])                |
+  |  attunementFinished() -> (newSession, [Events])                |
   |  endGongFinished() -> (newSession, [Events])                     |
   |  reset() -> (newSession, [Events])                               |
   |                                                                  |
@@ -226,16 +226,16 @@ mit anderem Namen.
                                                 gongFinished()
                                                        |
                                                 +------+--------+
-                                                | Intro config? |
+                                                | Attunement?   |
                                                 +--+----------+-+
                                                 Ja |          | Nein
                                                    v          v
                                            +----------+  +---------+
-                                           | INTRO-   |  | RUNNING |
-                                           | DUCTION  |  | (Body)  |
+                                           | ATTUNE-  |  | RUNNING |
+                                           | MENT     |  | (Body)  |
                                            +----+-----+  +----+----+
                                                 |              |
-                                     introFinished()   tick->0  |
+                                     attunementFinished()   tick->0  |
                                                 |              |
                                                 v              |
                                            +---------+         |
@@ -309,7 +309,7 @@ enum SessionEvent: Equatable {
     case sessionStarted(durationMinutes: Int, preparationSeconds: Int)
     case preparationCompleted
     case startGongCompleted        // Gong fertig, naechste Phase haengt von Settings ab
-    case introductionCompleted     // Einfuehrung fertig
+    case attunementCompleted     // Einstimmung fertig
     case meditationCompleted       // Timer bei 0 -> endGong-Phase beginnt
     case endGongCompleted          // Gong verklungen -> completed-Phase
     case sessionReset(fromPhase: SessionPhase)
@@ -340,12 +340,12 @@ loest diese aus den aktuellen Settings auf.
                                  volume: settings.gongVolume
                                )
 
-  .startGongCompleted          if intro konfiguriert:
-                                 audioService.playIntroduction()
+  .startGongCompleted          if attunement konfiguriert:
+                                 audioService.playAttunement()
                                else:
                                  audioService.startBackground()
 
-  .introductionCompleted       audioService.stopIntroduction()
+  .attunementCompleted       audioService.stopAttunement()
                                audioService.startBackground()
 
   .intervalGongDue             audioService.playIntervalGong(
@@ -363,8 +363,8 @@ loest diese aus den aktuellen Settings auf.
   .endGongCompleted            iOS: (nichts, UI zeigt Completed)
                                Android: foregroundService.stop()
 
-  .sessionReset(phase)         if phase == .introduction:
-                                 audioService.stopIntroduction()
+  .sessionReset(phase)         if phase == .attunement:
+                                 audioService.stopAttunement()
                                audioService.stop()
                                System-Timer stoppen
                                Android: foregroundService.stop()
@@ -380,9 +380,9 @@ loest diese aus den aktuellen Settings auf.
   .configureAudioSession               .sessionStarted          Fachlich, nicht technisch
   .startTimer(durationMinutes:)        (nicht noetig)           Aggregate IST der Timer
   .resetTimer                          (nicht noetig)           Aggregate resettet sich selbst
-  .endIntroductionPhase                (nicht noetig)           Aggregate verwaltet Phase intern
+  .endAttunementPhase                (nicht noetig)           Aggregate verwaltet Phase intern
   .playStartGong                       .preparationCompleted    "Was passierte" statt "was tun"
-  .playIntroduction(id:)               .startGongCompleted      Handler entscheidet intro/running
+  .playAttunement(id:)               .startGongCompleted      Handler entscheidet attunement/running
   .startBackgroundAudio(soundId:vol:)  (im Handler)             Handler loest Settings auf
   .playIntervalGong(soundId:vol:)      .intervalGongDue         Keine Infrastructure-Details
   .playCompletionSound                 .meditationCompleted     Handler spielt Gong
@@ -390,7 +390,7 @@ loest diese aus den aktuellen Settings auf.
 ```
 
 Mehrere aktuelle Effects werden ueberfluessig weil das Aggregate den Timer
-selbst besitzt (`startTimer`, `resetTimer`, `endIntroductionPhase`).
+selbst besitzt (`startTimer`, `resetTimer`, `endAttunementPhase`).
 
 ---
 
@@ -408,9 +408,9 @@ struct MeditationSession: Equatable {
     let preparationTimeSeconds: Int
     let remainingPreparationSeconds: Int
 
-    // -- Introduction --
-    let introductionId: String?              // Gesetzt bei start(), unveraenderlich
-    let silentPhaseStartRemaining: Int?      // Gesetzt bei introductionFinished()
+    // -- Attunement --
+    let attunementId: String?              // Gesetzt bei start(), unveraenderlich
+    let silentPhaseStartRemaining: Int?      // Gesetzt bei attunementFinished()
 
     // -- Interval Gongs --
     let lastIntervalGongAt: Int?
@@ -437,11 +437,11 @@ struct MeditationSession: Equatable {
     var canReset: Bool { phase != .idle && phase != .completed }
     var isPreparation: Bool { phase == .preparation }
     var isActive: Bool {
-        [.preparation, .startGong, .introduction, .running, .endGong].contains(phase)
+        [.preparation, .startGong, .attunement, .running, .endGong].contains(phase)
     }
     /// Ring fuellt sich (Timer laeuft, Countdown sichtbar)
     var isRunning: Bool {
-        [.startGong, .introduction, .running].contains(phase)
+        [.startGong, .attunement, .running].contains(phase)
     }
 }
 ```
@@ -454,11 +454,11 @@ extension MeditationSession {
     static func idle(durationMinutes: Int = 10) -> MeditationSession {
         MeditationSession(
             phase: .idle,
-            durationMinutes: MeditationSettings.validateDuration(durationMinutes, introductionId: nil),
+            durationMinutes: MeditationSettings.validateDuration(durationMinutes, attunementId: nil),
             remainingSeconds: 0,
             preparationTimeSeconds: 0,
             remainingPreparationSeconds: 0,
-            introductionId: nil,
+            attunementId: nil,
             silentPhaseStartRemaining: nil,
             lastIntervalGongAt: nil,
             affirmationIndex: 0
@@ -466,9 +466,9 @@ extension MeditationSession {
     }
 
     /// Aendert die gewaehlte Dauer (nur in idle)
-    func withDuration(_ minutes: Int, introductionId: String? = nil) -> MeditationSession {
+    func withDuration(_ minutes: Int, attunementId: String? = nil) -> MeditationSession {
         guard phase == .idle else { return self }
-        return copy(durationMinutes: MeditationSettings.validateDuration(minutes, introductionId: introductionId))
+        return copy(durationMinutes: MeditationSettings.validateDuration(minutes, attunementId: attunementId))
     }
 }
 ```
@@ -488,12 +488,12 @@ extension MeditationSession {
     //
     func start(
         preparationTimeSeconds: Int,
-        introductionId: String?
+        attunementId: String?
     ) -> (MeditationSession, [SessionEvent])
 
     // -- tick() --
     //
-    // Vorbedingung: aktive Phase (preparation, startGong, introduction, running)
+    // Vorbedingung: aktive Phase (preparation, startGong, attunement, running)
     // Events:       .preparationCompleted, .meditationCompleted, .intervalGongDue
     //
     func tick(
@@ -505,19 +505,19 @@ extension MeditationSession {
     // -- startGongFinished() --
     //
     // Vorbedingung: phase == .startGong
-    // Uebergang:    -> .introduction (wenn introductionId gesetzt und verfuegbar)
+    // Uebergang:    -> .attunement (wenn attunementId gesetzt und verfuegbar)
     //               -> .running (sonst)
     // Events:       [.startGongCompleted]
     //
     func startGongFinished() -> (MeditationSession, [SessionEvent])
 
-    // -- introductionFinished() --
+    // -- attunementFinished() --
     //
-    // Vorbedingung: phase == .introduction
+    // Vorbedingung: phase == .attunement
     // Uebergang:    -> .running
-    // Events:       [.introductionCompleted]
+    // Events:       [.attunementCompleted]
     //
-    func introductionFinished() -> (MeditationSession, [SessionEvent])
+    func attunementFinished() -> (MeditationSession, [SessionEvent])
 
     // -- endGongFinished() --
     //
@@ -631,7 +631,7 @@ private extension MeditationSession {
   +--------+            |                                                    |
                         |  let (newSession, events) = session.start(        |
                         |      preparationTimeSeconds: settings.prepTime,    |
-                        |      introductionId: settings.introductionId       |
+                        |      attunementId: settings.attunementId       |
                         |  )                                                 |
                         |  session = newSession                              |
                         |  handleEvents(events)                              |
@@ -675,7 +675,7 @@ final class TimerViewModel: ObservableObject {
     private let settingsRepository: TimerSettingsRepository
     private var systemTimer: AnyCancellable?
     private var cancellables = Set<AnyCancellable>()
-    private var minutesBeforeIntroduction: Int?   // UX-Concern, bleibt hier
+    private var minutesBeforeAttunement: Int?   // UX-Concern, bleibt hier
 
     // -- User Actions --
 
@@ -683,7 +683,7 @@ final class TimerViewModel: ObservableObject {
         let prepTime = settings.preparationTimeEnabled ? settings.preparationTimeSeconds : 0
         let (newSession, events) = session.start(
             preparationTimeSeconds: prepTime,
-            introductionId: settings.introductionId
+            attunementId: settings.attunementId
         )
         session = newSession
         handleEvents(events)
@@ -731,11 +731,11 @@ final class TimerViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        audioService.introductionCompletionPublisher
+        audioService.attunementCompletionPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else { return }
-                let (s, e) = session.introductionFinished()
+                let (s, e) = session.attunementFinished()
                 session = s; handleEvents(e)
             }
             .store(in: &cancellables)
@@ -826,7 +826,7 @@ Reine Funktions-Tests. Kein Mock, kein Setup, kein Infrastructure-Dependency.
 // Beispiel: Preparation -> StartGong Transition
 func testTick_preparationReaches0_transitionsToStartGong() {
     var session = MeditationSession.idle(durationMinutes: 10)
-    let (started, _) = session.start(preparationTimeSeconds: 3, introductionId: nil)
+    let (started, _) = session.start(preparationTimeSeconds: 3, attunementId: nil)
     session = started
 
     var events: [SessionEvent] = []
@@ -866,10 +866,10 @@ func testStartGongFinished_inRunning_isNoOp() {
 |---|---|---|---|
 | TimerReducerTests (31) | Command+Event-Tests | MeditationSessionTests | 1:1 portierbar |
 | TimerReducerStateTransitionTests (7) | Phase-Transition-Tests | MeditationSessionPhaseTests | 1:1 portierbar |
-| TimerReducerIntroductionTests (19) | Introduction-Flow-Tests | MeditationSessionIntroTests | 1:1 portierbar |
+| TimerReducerAttunementTests (19) | Attunement-Flow-Tests | MeditationSessionAttunementTests | 1:1 portierbar |
 | TimerReducerIntegrationTests (4) | Full-Cycle-Tests | MeditationSessionIntegrationTests | Vereinfacht |
 | MeditationTimerTests (25) | Tick-/Intervall-Tests | MeditationSessionTickTests | Logik absorbiert |
-| MeditationTimerIntroductionTests (16) | Intro-Tick-Tests | (in IntroTests) | Zusammengefuehrt |
+| MeditationTimerAttunementTests (16) | Attunement-Tick-Tests | (in AttunementTests) | Zusammengefuehrt |
 | TimerDisplayStateTests (12) | Computed-Property-Tests | MeditationSessionComputedTests | 1:1 portierbar |
 | TimerServiceTests (5) | -- | (entfaellt) | Service eliminiert |
 
@@ -885,7 +885,7 @@ zusammenfallen. Mehr weil endGong neue Tests braucht.
 | `AudioService` (Implementierung) | Keep-Alive, Player-Management, Delegates bleiben gleich |
 | `AudioSessionCoordinator` | Nur neuer `.preview`-Typ, Logik unveraendert |
 | `MeditationSettings` | Domain-Modell, unabhaengig vom Timer-Pattern |
-| `Introduction` | Domain-Modell, unabhaengig |
+| `Attunement` | Domain-Modell, unabhaengig |
 | `GongSound`, `BackgroundSound` | Domain-Modelle, unabhaengig |
 | Settings-UI (SettingsSheet) | Ruft ViewModel-Methoden auf, nicht den Reducer |
 | Timer-UI (TimerView/TimerFocusScreen) | Liest State-Properties, egal ob aus DisplayState oder Session |

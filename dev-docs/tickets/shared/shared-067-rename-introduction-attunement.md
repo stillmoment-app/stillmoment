@@ -1,7 +1,8 @@
 # Ticket shared-067: Rename Introduction → Attunement (Code + UI)
 
 **Status**: [~] IN PROGRESS
-**Plan**: [Implementierungsplan iOS](../plans/shared-067-ios.md)
+**Plan iOS**: [Implementierungsplan iOS](../plans/shared-067-ios.md)
+**Plan Android**: [Implementierungsplan Android](../plans/shared-067-android.md)
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Mechanisch aber breit (~90 Dateien). Einziger konzeptioneller Teil: Persistenz-Migration.
 **Phase**: 4-Polish
