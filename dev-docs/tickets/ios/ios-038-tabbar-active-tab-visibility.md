@@ -1,6 +1,6 @@
 # Ticket ios-038: Tab-Bar aktiver Tab schlecht erkennbar (iOS 18)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Aufwand**: Klein
 **Abhaengigkeiten**: Keine

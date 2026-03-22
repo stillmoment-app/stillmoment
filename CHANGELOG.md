@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (iOS)
+- **Tab-Bar aktiver Tab besser erkennbar** - Inaktive Tabs erhalten explizite Farbe (textSecondary@50% Opacity) statt iOS-System-Default. Aktiver Tab ist jetzt auf allen Themes (Light + Dark) sofort erkennbar. UIKit-Bridge wird bei Theme-Wechsel korrekt aktualisiert (Ticket: ios-038)
+
 ### Changed (iOS)
 - **AudioService als einzelne geteilte Instanz** - `TimerViewModel`, `GuidedMeditationsListViewModel` und `PraxisEditorViewModel` teilen sich jetzt eine `AudioService`-Instanz statt je eine eigene zu erstellen. Behebt strukturelle Bugs: falscher Session-Release durch fremde Instanz und Conflict-Handler-Überschreibung im `AudioSessionCoordinator`. `StillMomentApp` erstellt die Instanz einmalig in `init()` und gibt sie per Constructor-Injection weiter. (Ticket: ios-040)
 
