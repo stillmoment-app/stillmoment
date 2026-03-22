@@ -11,14 +11,14 @@ import Foundation
 enum CustomAudioType: String, Codable, Equatable {
     /// Background sound that loops during meditation
     case soundscape
-    /// Introduction audio that plays once after the start gong
+    /// Attunement audio that plays once after the start gong
     case attunement
 }
 
 /// A user-imported audio file stored in local app storage.
 ///
 /// Custom audio files are copied to Application Support and can be used
-/// as soundscapes (background loops) or attunements (one-shot introductions)
+/// as soundscapes (background loops) or attunements (one-shot guided openings)
 /// within a Praxis configuration.
 ///
 /// CustomAudioFile is an immutable value object — all state changes produce new instances.

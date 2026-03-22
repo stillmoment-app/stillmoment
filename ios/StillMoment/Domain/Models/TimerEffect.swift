@@ -57,7 +57,7 @@ enum TimerEffect: Equatable {
     /// End the attunement phase (transition timer from .attunement to .running)
     case endAttunementPhase
 
-    /// Transition timer to running state (startGong → running, no introduction path)
+    /// Transition timer to running state (startGong → running, no attunement path)
     case beginRunningPhase
 
     // MARK: - State Transition Effects
