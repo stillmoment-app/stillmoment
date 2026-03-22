@@ -18,6 +18,17 @@ interface MediaPlayerFactoryProtocol {
     fun createFromResource(resourceId: Int): MediaPlayerProtocol?
 
     /**
+     * Creates a media player from a content URI string (SAF / content://).
+     *
+     * The returned player is already prepared and ready to play.
+     * Uses MediaPlayer.create(context, Uri) internally to support SAF content URIs.
+     *
+     * @param uriString Content URI as string (e.g., "content://...")
+     * @return Configured MediaPlayerProtocol instance, or null if creation fails
+     */
+    fun createFromContentUri(uriString: String): MediaPlayerProtocol?
+
+    /**
      * Creates a new unconfigured media player.
      *
      * The caller is responsible for setting the data source and preparing.

@@ -4,6 +4,7 @@ import android.net.Uri
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.services.AudioServiceProtocol
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 
 /**
  * Unit tests for GuidedMeditationsListViewModel.
@@ -32,13 +35,15 @@ import org.mockito.kotlin.mock
 class GuidedMeditationsListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
+    private lateinit var mockAudioService: AudioServiceProtocol
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeGuidedMeditationRepository()
-        viewModel = GuidedMeditationsListViewModel(fakeRepository)
+        mockAudioService = mock()
+        viewModel = GuidedMeditationsListViewModel(fakeRepository, mockAudioService)
     }
 
     @AfterEach
@@ -646,6 +651,117 @@ class GuidedMeditationsListViewModelTest {
 
             // Then
             assertFalse(viewModel.uiState.value.isLoading)
+        }
+    }
+
+    // ============================================================
+    // MARK: - Preview Tests
+    // ============================================================
+
+    @Nested
+    inner class PreviewTests {
+        @Test
+        fun `startPreview updates previewingMeditationId`() {
+            // Given
+            val meditation = createTestMeditation(id = "med-1")
+
+            // When
+            viewModel.startPreview(meditation)
+
+            // Then
+            assertEquals("med-1", viewModel.uiState.value.previewingMeditationId)
+        }
+
+        @Test
+        fun `startPreview calls audioService playMeditationPreview with fileUri`() {
+            // Given
+            val meditation = createTestMeditation(id = "med-1")
+
+            // When
+            viewModel.startPreview(meditation)
+
+            // Then
+            verify(mockAudioService).playMeditationPreview(meditation.fileUri)
+        }
+
+        @Test
+        fun `stopPreview clears previewingMeditationId`() {
+            // Given: Preview is active
+            val meditation = createTestMeditation(id = "med-1")
+            viewModel.startPreview(meditation)
+            assertEquals("med-1", viewModel.uiState.value.previewingMeditationId)
+
+            // When
+            viewModel.stopPreview()
+
+            // Then
+            assertNull(viewModel.uiState.value.previewingMeditationId)
+        }
+
+        @Test
+        fun `stopPreview calls audioService stopMeditationPreview`() {
+            // Given: Preview is active
+            val meditation = createTestMeditation()
+            viewModel.startPreview(meditation)
+
+            // When
+            viewModel.stopPreview()
+
+            // Then
+            verify(mockAudioService).stopMeditationPreview()
+        }
+
+        @Test
+        fun `startPreview stops previous preview before starting new one`() {
+            // Given: Preview A is active (unique URIs to distinguish calls)
+            val meditationA = GuidedMeditation(
+                id = "med-a",
+                fileUri = "content://test/med-a.mp3",
+                fileName = "med-a.mp3",
+                duration = 600_000L,
+                teacher = "Teacher",
+                name = "Med A"
+            )
+            val meditationB = GuidedMeditation(
+                id = "med-b",
+                fileUri = "content://test/med-b.mp3",
+                fileName = "med-b.mp3",
+                duration = 600_000L,
+                teacher = "Teacher",
+                name = "Med B"
+            )
+            viewModel.startPreview(meditationA)
+
+            // When: Start preview B
+            viewModel.startPreview(meditationB)
+
+            // Then: Preview B is active, audioService was called for both URIs
+            assertEquals("med-b", viewModel.uiState.value.previewingMeditationId)
+            verify(mockAudioService).playMeditationPreview("content://test/med-a.mp3")
+            verify(mockAudioService).playMeditationPreview("content://test/med-b.mp3")
+        }
+
+        @Test
+        fun `initial state has no active preview`() {
+            assertNull(viewModel.uiState.value.previewingMeditationId)
+        }
+
+        @Test
+        fun `stopPreview is idempotent when no preview active`() {
+            // When - should not crash
+            viewModel.stopPreview()
+
+            // Then
+            assertNull(viewModel.uiState.value.previewingMeditationId)
+        }
+
+        @Test
+        fun `stopPreview does not call audioService when no preview active`() {
+            // When
+            viewModel.stopPreview()
+
+            // Then
+            verify(mockAudioService, never()).stopMeditationPreview()
         }
     }
 

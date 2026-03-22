@@ -71,6 +71,7 @@ constructor(
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
     private var introductionPreviewPlayer: MediaPlayerProtocol? = null
+    private var meditationPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
@@ -796,6 +797,61 @@ constructor(
         return backgroundPlayer?.isPlaying == true
     }
 
+    // MARK: - Meditation Preview
+
+    /**
+     * Play a guided meditation preview from a content URI (SAF).
+     * Automatically stops any previous preview.
+     * Uses AudioSource.PREVIEW (not GUIDED_MEDITATION).
+     *
+     * @param fileUri Content URI string of the meditation file
+     */
+    override fun playMeditationPreview(fileUri: String) {
+        stopMeditationPreview()
+        stopGongPreview()
+        stopBackgroundPreview()
+
+        val player = mediaPlayerFactory.createFromContentUri(fileUri)
+        if (player == null) {
+            logger.e(TAG, "Failed to create player for meditation preview: $fileUri")
+            return
+        }
+
+        coordinator.requestAudioSession(AudioSource.PREVIEW)
+        meditationPreviewPlayer = player.apply {
+            setVolume(1.0f, 1.0f)
+            setOnCompletionListener {
+                release()
+                meditationPreviewPlayer = null
+                coordinator.releaseAudioSession(AudioSource.PREVIEW)
+            }
+            start()
+        }
+        logger.d(TAG, "Playing meditation preview: $fileUri")
+    }
+
+    /**
+     * Stop the current meditation preview with a short fade-out (~0.3s).
+     * Idempotent - safe to call even if no preview is playing.
+     */
+    override fun stopMeditationPreview() {
+        val hadPlayer = meditationPreviewPlayer != null
+        try {
+            meditationPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            meditationPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to stop meditation preview - invalid state: ${e.message}")
+        }
+        if (hadPlayer) {
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        }
+    }
+
     // MARK: - Preview Cleanup
 
     /**
@@ -842,6 +898,18 @@ constructor(
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to cleanup introduction preview - invalid state: ${e.message}")
         }
+
+        try {
+            meditationPreviewPlayer?.apply {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            }
+            meditationPreviewPlayer = null
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to cleanup meditation preview - invalid state: ${e.message}")
+        }
     }
 
     // MARK: - Lifecycle
@@ -855,6 +923,7 @@ constructor(
         stopGongPreview()
         stopBackgroundPreview()
         stopIntroductionPreview()
+        stopMeditationPreview()
         stopBackgroundAudio()
         mainScope.cancel()
     }

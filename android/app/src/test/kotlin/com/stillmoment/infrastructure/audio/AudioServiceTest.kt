@@ -71,6 +71,7 @@ class AudioServiceTest {
 
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
         whenever(mockMediaPlayerFactory.createFromResource(any())).thenReturn(mockMediaPlayer)
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMediaPlayer)
         whenever(mockSoundCatalogRepository.findById("forest")).thenReturn(
             BackgroundSound(
                 id = "forest",
@@ -695,6 +696,153 @@ class AudioServiceTest {
 
         // Then: Player is paused
         verify(mockMediaPlayer).pause()
+    }
+
+    // MARK: - Meditation Preview Tests
+
+    @Test
+    fun `playMeditationPreview creates player from content URI and starts`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then
+        verify(mockMediaPlayerFactory).createFromContentUri("content://test/meditation.mp3")
+        verify(mockMeditationPlayer).start()
+    }
+
+    @Test
+    fun `playMeditationPreview sets full volume`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then
+        verify(mockMeditationPlayer).setVolume(1.0f, 1.0f)
+    }
+
+    @Test
+    fun `playMeditationPreview requests audio session as PREVIEW`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then
+        verify(mockCoordinator).requestAudioSession(AudioSource.PREVIEW)
+        verify(mockCoordinator, never()).requestAudioSession(AudioSource.GUIDED_MEDITATION)
+    }
+
+    @Test
+    fun `playMeditationPreview stops previous meditation preview before starting new one`() {
+        // Given: First preview running
+        val firstPlayer: MediaPlayerProtocol = mock()
+        val secondPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any()))
+            .thenReturn(firstPlayer)
+            .thenReturn(secondPlayer)
+        whenever(firstPlayer.isPlaying).thenReturn(true)
+        sut.playMeditationPreview("content://first.mp3")
+        clearInvocations(firstPlayer, mockMediaPlayerFactory)
+
+        // When: Start second preview
+        sut.playMeditationPreview("content://second.mp3")
+
+        // Then: First player was stopped
+        verify(firstPlayer).stop()
+        verify(firstPlayer).release()
+        verify(secondPlayer).start()
+    }
+
+    @Test
+    fun `playMeditationPreview does nothing when factory returns null`() {
+        // Given
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(null)
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then: No session requested, no crash
+        verify(mockCoordinator, never()).requestAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `meditation preview completion releases audio session`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        val listenerCaptor = argumentCaptor<() -> Unit>()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+        verify(mockMeditationPlayer).setOnCompletionListener(listenerCaptor.capture())
+        clearInvocations(mockCoordinator)
+
+        // When: Completion fires
+        listenerCaptor.firstValue.invoke()
+
+        // Then
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `stopMeditationPreview is idempotent when no preview playing`() {
+        // When - should not throw
+        sut.stopMeditationPreview()
+
+        // Then - no exception thrown, test passes
+    }
+
+    @Test
+    fun `stopMeditationPreview releases audio session when preview was playing`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopMeditationPreview()
+
+        // Then
+        verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+    }
+
+    @Test
+    fun `stopMeditationPreview does not release session when no preview was playing`() {
+        // Given: No preview started
+        clearInvocations(mockCoordinator)
+
+        // When
+        sut.stopMeditationPreview()
+
+        // Then
+        verify(mockCoordinator, never()).releaseAudioSession(any())
+    }
+
+    @Test
+    fun `preview conflict handler stops meditation preview player`() {
+        // Given: Meditation preview playing
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.isPlaying).thenReturn(true)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+        clearInvocations(mockMeditationPlayer)
+
+        // When: Conflict handler fires (e.g., guided meditation starts)
+        capturedPreviewConflictHandler.invoke()
+
+        // Then: Meditation preview player was stopped
+        verify(mockMeditationPlayer).stop()
+        verify(mockMeditationPlayer).release()
     }
 
     // MARK: - Release Tests

@@ -127,6 +127,9 @@
     <string name="accessibility_guided_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
     <string name="accessibility_guided_preparation_disabled">Vorbereitungszeit deaktiviert</string>
     <string name="accessibility_delete_meditation">Meditation löschen</string>
+    <string name="accessibility_edit_meditation">Meditation bearbeiten</string>
+    <string name="accessibility_start_preview">Meditation vorschauen</string>
+    <string name="accessibility_stop_preview">Vorschau stoppen</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
     <string name="accessibility_overflow_menu">Weitere Optionen</string>
 

@@ -71,4 +71,19 @@ interface AudioServiceProtocol {
      * Stop the current introduction preview. Idempotent - safe to call even if no preview is playing.
      */
     fun stopIntroductionPreview()
+
+    /**
+     * Play a guided meditation preview from a content URI.
+     * Automatically stops any previous preview.
+     * Uses AudioSource.PREVIEW (not GUIDED_MEDITATION).
+     *
+     * @param fileUri Content URI string of the meditation file (SAF)
+     */
+    fun playMeditationPreview(fileUri: String)
+
+    /**
+     * Stop the current meditation preview with a short fade-out (~0.3s).
+     * Idempotent - safe to call even if no preview is playing.
+     */
+    fun stopMeditationPreview()
 }
