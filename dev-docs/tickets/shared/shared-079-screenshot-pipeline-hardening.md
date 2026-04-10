@@ -1,6 +1,6 @@
 # Ticket shared-079: Screenshot-Pipeline Hardening
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Aufwand**: iOS S (~1h) | Android S (~1h)
 **Abhaengigkeiten**: -
@@ -29,7 +29,7 @@ Diese Probleme treten sporadisch auf und machen den Prozess unzuverlaessig.
 | Plattform | Status |
 |-----------|--------|
 | iOS       | [x] DONE |
-| Android   | [ ]    |
+| Android   | [x] DONE |
 
 ---
 
