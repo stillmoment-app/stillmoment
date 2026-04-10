@@ -1,9 +1,4 @@
-- Import your own sounds (MP3, M4A, WAV)
-- Introduction before silent meditation (e.g., breathing exercise)
-- Practice editor directly on the timer screen
-- Completion screen after every meditation
-- Zen mode — tab bar hides during meditation
-- New settings tab
-- Import audio via the share function
-- Improved sound selection with preview
-- Bug fixes
+- Vibration as a gong option — gentle vibration instead of sound
+- Preview guided meditations with a long press in the library
+- Import audio files directly from other apps
+- Improvements and bug fixes
