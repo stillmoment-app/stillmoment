@@ -1,0 +1,2 @@
+- Vibration als Gong-Signal wählbar — sanfte Vibration statt Ton
+- Hörvorschau durch langes Drücken in der Meditationsbibliothek

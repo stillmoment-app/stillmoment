@@ -1,0 +1,2 @@
+- Vibration as a gong option — gentle vibration instead of sound
+- Preview guided meditations with a long press in the library

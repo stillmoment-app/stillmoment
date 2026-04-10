@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-04-10
+
 ### Fixed (iOS)
 - **Tab-Bar aktiver Tab besser erkennbar** - Inaktive Tabs erhalten explizite Farbe (textSecondary@50% Opacity) statt iOS-System-Default. Aktiver Tab ist jetzt auf allen Themes (Light + Dark) sofort erkennbar. UIKit-Bridge wird bei Theme-Wechsel korrekt aktualisiert (Ticket: ios-038)
 
