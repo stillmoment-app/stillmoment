@@ -38,12 +38,11 @@ mkdir -p "$OUTPUT_DIR"
 get_output_name() {
     local src_name="$1"
     case "$src_name" in
-        "01_TimerIdle")    echo "timer-main" ;;
-        "02_TimerRunning") echo "timer-running" ;;
-        "03_LibraryList")  echo "library-list" ;;
-        "04_PlayerView")   echo "player-view" ;;
-        "05_SettingsView") echo "timer-settings" ;;
-        *)                 echo "" ;;
+        "01_LibraryFilled") echo "library-list" ;;
+        "02_TimerRunning")  echo "timer-running" ;;
+        "03_PraxisEditor")  echo "timer-settings" ;;
+        "04_PlayerZenMode") echo "player-view" ;;
+        *)                  echo "" ;;
     esac
 }
 
@@ -68,27 +67,45 @@ for lang_dir in "$FASTLANE_SCREENSHOTS"/*/; do
     fi
 
     lang=$(basename "$lang_dir")
+
+    # Skip non-locale directories (e.g., fonts/)
+    case "$lang" in
+        de-DE|en-GB) ;;
+        *) continue ;;
+    esac
+
     suffix=$(get_lang_suffix "$lang")
 
     echo -e "${BLUE}Processing language: ${lang}${NC}"
 
     # Process each known screenshot
-    for src_name in "01_TimerIdle" "02_TimerRunning" "03_LibraryList" "04_PlayerView" "05_SettingsView"; do
+    for src_name in "01_LibraryFilled" "02_TimerRunning" "03_PraxisEditor" "04_PlayerZenMode"; do
         dst_name=$(get_output_name "$src_name")
         if [ -z "$dst_name" ]; then
             continue
         fi
 
-        # Try to find the file (with or without device prefix)
+        # Try to find the framed file first (_framed suffix from frameit), then raw
         src_file=""
-        if [ -f "$lang_dir/${src_name}.png" ]; then
-            src_file="$lang_dir/${src_name}.png"
-        else
-            # Look for file with device prefix (e.g., "iPhone 17 Pro Max-01_TimerIdle.png")
+        # 1. Framed with device prefix (e.g., "iPhone 17 Pro Max-01_LibraryFilled_framed.png")
+        found_file=$(find "$lang_dir" -name "*-${src_name}_framed.png" -type f 2>/dev/null | head -1)
+        if [ -n "$found_file" ]; then
+            src_file="$found_file"
+        fi
+        # 2. Framed without device prefix
+        if [ -z "$src_file" ] && [ -f "$lang_dir/${src_name}_framed.png" ]; then
+            src_file="$lang_dir/${src_name}_framed.png"
+        fi
+        # 3. Raw with device prefix (fallback if frameit not run)
+        if [ -z "$src_file" ]; then
             found_file=$(find "$lang_dir" -name "*-${src_name}.png" -type f 2>/dev/null | head -1)
             if [ -n "$found_file" ]; then
                 src_file="$found_file"
             fi
+        fi
+        # 4. Raw without device prefix
+        if [ -z "$src_file" ] && [ -f "$lang_dir/${src_name}.png" ]; then
+            src_file="$lang_dir/${src_name}.png"
         fi
 
         dst_file="$OUTPUT_DIR/${dst_name}${suffix}.png"

@@ -45,7 +45,7 @@ final class ScreenshotTests: XCTestCase {
         self.app.launchArguments += ["-DisablePreparation"]
 
         // Theme/appearance override comes from Snapfile launch_arguments via setupSnapshot()
-        // (e.g., make screenshots THEME=moon MODE=dark)
+        // (e.g., make screenshots THEME=candlelight MODE=dark)
 
         self.app.launch()
 
@@ -89,57 +89,40 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(libraryVisible, "Library content not visible after navigation")
     }
 
-    /// Select duration in picker
-    private func selectDuration(minutes: Int) {
-        let picker = self.app.pickers["timer.picker.minutes"]
-        guard picker.exists else {
-            return
-        }
-
-        // Swipe to desired value (picker shows "X min" format)
-        let pickerWheel = picker.pickerWheels.firstMatch
-        pickerWheel.adjust(toPickerWheelValue: "\(minutes) min")
-    }
-
     // MARK: - Screenshot Tests
 
-    /// Screenshot 1: Timer idle state with duration picker
-    func testScreenshot01_timerIdle() {
-        // Navigate to Timer tab
-        self.navigateToTimerTab()
+    /// Screenshot 1: Library with guided meditations (grouped by teacher)
+    /// Headline: "Deine MP3s. Deine Praxis." / "Your MP3s. Your practice."
+    func testScreenshot01_libraryFilled() {
+        // Navigate to Library tab (Screenshots target has test fixtures seeded)
+        self.navigateToLibraryTab()
 
-        // Ensure picker and start button are visible
-        let startButton = self.app.buttons["timer.button.start"]
-        XCTAssertTrue(startButton.waitForExistence(timeout: 3.0))
+        // Wait for list to populate with test meditations
+        let addButton = self.app.buttons["library.button.add"]
+        XCTAssertTrue(addButton.waitForExistence(timeout: 5.0))
 
-        let picker = self.app.pickers["timer.picker.minutes"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
+        // Wait for first meditation row to appear (ensures list is populated)
+        let meditationRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        )
+        let firstRow = meditationRows.firstMatch
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 5.0), "Library should contain test meditations")
 
-        // Select 10 minutes for a nice display
-        self.selectDuration(minutes: 10)
-
-        // Wait for picker animation to complete
-        _ = startButton.waitForExistence(timeout: 1.0)
-
-        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
-        snapshot("01_TimerIdle", timeWaitingForIdle: 0)
+        snapshot("01_LibraryFilled", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 2: Timer running state (~04:59 remaining)
+    /// Screenshot 2: Timer running state (Candlelight Dark theme)
+    /// Headline: "Kein Abo. Keine Werbung." / "No subscription. No ads."
     func testScreenshot02_timerRunning() {
-        // Navigate to Timer tab
-        let timerTab = self.app.tabBars.buttons["Timer"]
-        if timerTab.exists, !timerTab.isSelected {
-            timerTab.tap()
-        }
+        self.navigateToTimerTab()
 
         let startButton = self.app.buttons["timer.button.start"]
         XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should exist")
 
-        // Select 5 minutes duration
+        // Select 10 minutes duration for a nice display
         let picker = self.app.pickers["timer.picker.minutes"]
         XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
-        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "5 min")
+        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "10 min")
 
         // Start timer
         startButton.tap()
@@ -148,39 +131,43 @@ final class ScreenshotTests: XCTestCase {
         let timerDisplay = self.app.staticTexts["timer.display.time"]
         XCTAssertTrue(timerDisplay.waitForExistence(timeout: 2.0), "Timer display should appear")
 
-        // Take screenshot
-        // timeWaitingForIdle: 0 - skip network indicator wait (can cause 20s delays)
         snapshot("02_TimerRunning", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 3: Library list with guided meditations
-    func testScreenshot03_libraryList() {
-        // Navigate to Library tab (Screenshots target has test fixtures)
-        self.navigateToLibraryTab()
+    /// Screenshot 3: Praxis Editor (configuration) with gong section visible
+    /// Headline: "Stiller Timer mit Gongs." / "Silent timer with gongs."
+    func testScreenshot03_praxisEditor() {
+        self.navigateToTimerTab()
 
-        // Wait for list to populate with test meditations
-        // The Screenshots target automatically seeds 5 test meditations
-        let addButton = self.app.buttons["library.button.add"]
-        XCTAssertTrue(addButton.waitForExistence(timeout: 5.0))
+        // Tap the configuration pills to push PraxisEditorView
+        let configButton = self.app.buttons["timer.button.configuration"]
+        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Configuration button not found")
+        configButton.tap()
 
-        // Wait for first meditation row to appear (ensures list is populated)
-        let meditationRows = self.app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
-        )
-        _ = meditationRows.firstMatch.waitForExistence(timeout: 5.0)
+        // Wait for PraxisEditorView to appear
+        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
+        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "PraxisEditorView did not appear")
 
-        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
-        snapshot("03_LibraryList", timeWaitingForIdle: 0)
+        // Enable preparation time for a fuller-looking configuration screen
+        if preparationToggle.value as? String == "0" {
+            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            _ = preparationToggle.waitForExistence(timeout: 1.0)
+        }
+
+        // Swipe up to ensure Gong section is visible (may be below fold on smaller devices)
+        self.app.swipeUp()
+        Thread.sleep(forTimeInterval: 0.3)
+
+        snapshot("03_PraxisEditor", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 4: Player view with meditation
-    func testScreenshot04_playerView() {
+    /// Screenshot 4: Player in Zen Mode (tab bar hidden, minimal UI)
+    /// Headline: "Kein Tracking. Keine Cloud." / "No tracking. No cloud."
+    func testScreenshot04_playerZenMode() {
         // Navigate to Library tab
         self.navigateToLibraryTab()
 
-        // Tap the first meditation row's play button (Image with play icon).
-        // The play button inherits the row's identifier (library.row.meditation.*),
-        // so we find it as the first Image element within library-prefixed elements.
+        // Tap the first meditation row's play button
         let playImages = self.app.images.matching(
             NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation.'")
         )
@@ -192,7 +179,7 @@ final class ScreenshotTests: XCTestCase {
         )
         firstPlayImage.tap()
 
-        // Wait for player sheet to appear with all elements loaded
+        // Wait for player sheet to appear
         let playButton = self.app.buttons["player.button.playPause"]
         XCTAssertTrue(playButton.waitForExistence(timeout: 5.0), "Player sheet did not appear")
 
@@ -202,34 +189,9 @@ final class ScreenshotTests: XCTestCase {
 
         // Start playback so Zen Mode is active (tab bar hidden)
         playButton.tap()
-        // Wait for playback state to settle (isPlaying = true → isZenMode = true)
+        // Wait for playback state to settle (isPlaying = true -> isZenMode = true)
         Thread.sleep(forTimeInterval: 0.8)
 
-        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
-        snapshot("04_PlayerView", timeWaitingForIdle: 0)
-    }
-
-    /// Screenshot 5: Praxis editor (configuration) view
-    func testScreenshot05_settingsView() {
-        // Navigate to Timer tab
-        self.navigateToTimerTab()
-
-        // Tap the configuration pills to push PraxisEditorView
-        let configButton = self.app.buttons["timer.button.configuration"]
-        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Settings button not found")
-        configButton.tap()
-
-        // Wait for PraxisEditorView to appear via navigation
-        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "Settings sheet did not appear")
-
-        // Enable preparation time: tap if currently OFF
-        if preparationToggle.value as? String == "0" {
-            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            _ = preparationToggle.waitForExistence(timeout: 1.0)
-        }
-
-        // Take screenshot (timeWaitingForIdle: 0 to skip network indicator wait)
-        snapshot("05_SettingsView", timeWaitingForIdle: 0)
+        snapshot("04_PlayerZenMode", timeWaitingForIdle: 0)
     }
 }

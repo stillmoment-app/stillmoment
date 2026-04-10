@@ -105,8 +105,11 @@ screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
 	@bundle install --path vendor/bundle
 	@echo "✅ Screenshot setup complete!"
 
-screenshots: ## Generate all screenshots (THEME=moon MODE=dark optional)
-	@echo "📸 Generating screenshots with Fastlane..."
+THEME ?= candlelight
+MODE ?= dark
+
+screenshots: ## Generate all screenshots (THEME=candlelight MODE=dark default)
+	@echo "📸 Generating screenshots with Fastlane ($(THEME)/$(MODE))..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \

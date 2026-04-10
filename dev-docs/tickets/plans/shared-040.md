@@ -1,7 +1,16 @@
-# Implementierungsplan: shared-040
+# Implementierungsplan: shared-040 (iOS)
 
 Ticket: [shared-040](../shared/shared-040-app-store-narrativ.md)
 Erstellt: 2026-03-22
+Aktualisiert: 2026-03-23
+
+## Scope
+
+Nur **Bilder 1-4 iOS**. Ausgelagert in eigene Tickets:
+- Bild 5 (Zitat-Bild, rein typografisch)
+- Keywords-Optimierung (Long-Tail)
+
+---
 
 ## Bestandsaufnahme
 
@@ -9,64 +18,69 @@ Erstellt: 2026-03-22
 
 | Komponente | Status | Pfad |
 |-----------|--------|------|
-| Snapfile | Fertig | `ios/fastlane/Snapfile` (iPhone 17 Pro Max, de-DE + en-GB) |
+| Snapfile | Fertig | `ios/fastlane/Snapfile` (iPhone 17 Pro Max, de-DE + en-GB, iOS 26.1) |
 | Screenshot UI Tests | 5 Tests | `ios/StillMomentUITests/ScreenshotTests.swift` |
 | Screenshots Target | Fertig | `ios/StillMoment-Screenshots/` mit eigenem Scheme |
 | Test Fixtures | 5 MP3s | `TestFixtureSeeder.swift` (Sarah Kornfield, Tara Goldstein, Jon Salzberg) |
 | Fastfile Lanes | 3 Lanes | `screenshots`, `screenshot_single`, `screenshot_validate` |
 | Post-Processing | Fertig | `ios/scripts/process-screenshots.sh` (kopiert + komprimiert fuer Website) |
 | Makefile | Fertig | `make screenshots`, `make screenshot-single` |
-| Metadata | Fertig | `ios/fastlane/metadata/{de-DE,en-GB}/` (alle Felder) |
-| Framefile.json | **FEHLT** | — |
-| .strings fuer Headlines | **FEHLT** | — |
-| Background-Bild | **FEHLT** | — |
-| Bild 5 (Zitat) Pipeline | **FEHLT** | — |
+| ImageMagick | Installiert | `brew install imagemagick` (7.1.2-18, Voraussetzung fuer frameit) |
+
+### Was fehlt
+
+| Komponente | Beschreibung |
+|-----------|-------------|
+| `Framefile.json` | frameit-Konfiguration (Background, Font, Padding) |
+| `title.strings` | DE + EN Headlines pro Screenshot |
+| `background.png` | Dunkles Hintergrundbild fuer frameit |
 
 ### Was sich aendern muss
 
-**Screenshot-Tests:** Die 5 bestehenden Tests erzeugen die falschen Bilder. Neues Mapping:
+5 bestehende Tests → 4 neue Tests mit neuen Szenen und Snapshot-Namen:
 
 | Bild | Alt (aktuell) | Neu | Headline DE | Headline EN |
 |------|--------------|-----|------------|------------|
-| 01 | Timer idle mit Picker | Library (gefuellt) | "Deine MP3s. Deine Praxis." | "Your MP3s. Your practice." |
+| 01 | Timer idle mit Picker | Library (gefuellt, nach Lehrer gruppiert) | "Deine MP3s. Deine Praxis." | "Your MP3s. Your practice." |
 | 02 | Timer running | Timer running (Candlelight Dark) | "Kein Abo. Keine Werbung." | "No subscription. No ads." |
-| 03 | Library List | Praxis Editor (Gong-Settings) | "Stiller Timer mit Gongs." | "Silent timer with gongs." |
-| 04 | Player View | Player (Zen Mode) | "Kein Tracking. Keine Cloud." | "No tracking. No cloud." |
-| 05 | Settings View | Zitat (rein typografisch) | Philosophie-Zitat | Philosophie-Zitat EN |
+| 03 | Library List | Praxis Editor (Gong-Section sichtbar) | "Stiller Timer mit Gongs." | "Silent timer with gongs." |
+| 04 | Player View | Player im Zen Mode (Tab Bar weg) | "Kein Tracking. Keine Cloud." | "No tracking. No cloud." |
 
-**Test Fixtures:** Lehrer-Namen muessen realistischer werden fuer Bild 1 (aktuell: Sarah Kornfield, Tara Goldstein, Jon Salzberg — angelehnt an echte Lehrer aber nicht echt genug). Ticket fordert: "Tara Brach, Jack Kornfield, Gil Fronsdal".
-
-**Keywords (aktuell):**
-- DE: `meditation,timer,achtsamkeit,privat,offline,geführt,eigene,bibliothek,audio,importieren`
-- EN: `meditation,timer,mindfulness,private,offline,guided,own,library,audio,import,free`
-
-Muessen optimiert werden auf Long-Tail (siehe Ticket).
+Alle Screenshots in **Candlelight Dark** Theme.
 
 ---
 
 ## Design-Entscheidungen
 
-### 1. frameit vs. ImageMagick direkt
+### 1. frameit fuer Headline-Compositing
 
-**Trade-off:** frameit ist Fastlane-nativ und einfach zu konfigurieren, kann aber keine Bilder ohne Device Frame erzeugen (Bild 5). ImageMagick direkt waere flexibler, aber mehr Aufwand.
+**Entscheidung:** frameit (Teil von Fastlane, bereits installiert).
 
-**Entscheidung:** Hybridansatz.
-- Bild 1-4: frameit (Device Frame + Headline + Background)
-- Bild 5: eigenes Script mit ImageMagick (`convert` oder `magick`) — erzeugt rein typografisches Bild
+Deklarative Konfiguration ueber `Framefile.json` + `title.strings`. Kein Custom-Script noetig. ImageMagick ist Voraussetzung und installiert.
 
-### 2. Lehrer-Namen in Test Fixtures
+Alternative (Swift-Script mit Core Graphics) waere Overengineering — frameit erst testen, bei Bedarf umschwenken.
 
-**Trade-off:** Echte Namen (Tara Brach, Jack Kornfield) sind realistischer, aber es sind reale Personen. Leicht veraenderte Namen (Sarah Kornfield) vermeiden rechtliche Fragen, wirken aber kuenstlich.
+### 2. Ohne Device Frame (`show_complete_frame: false`)
 
-**Entscheidung:** Offen — User muss entscheiden. Echte Namen sind im Store ueblich (Insight Timer zeigt sie), aber Still Moment hat keinen Bezug zu diesen Lehrern.
+**Entscheidung:** Kein Device-Rahmen um die Screenshots. Nur Headline oben + UI-Screenshot unten auf dunklem Hintergrund.
 
-### 3. Background-Bild fuer frameit
+Begruendung: Ticket fordert "Headlines dominieren, UI ist Beiwerk". Device Frames lenken ab und verkleinern den Screenshot unnoetig. Falls frameit diesen Modus nicht gut unterstuetzt → Fallback mit Device Frame.
 
-**Trade-off:** frameit braucht ein Background-Bild (nicht einfach eine Farbe). Optionen:
-- a) 1-Pixel-Bild in App-Hintergrundfarbe (minimalistisch, konsistent mit App)
-- b) Gradient oder Textur (professioneller, aber muss zum App-Design passen)
+### 3. Background-Bild
 
-**Entscheidung:** Option a) als Start — ein einfaches dunkles Bild das zum Candlelight Dark Theme passt. Kann spaeter durch Gradient ersetzt werden.
+**Entscheidung:** Solid-Color PNG in Candlelight Dark `backgroundPrimary` (`#1A100C`, rgb 0.102/0.063/0.047). Generiert via ImageMagick. Kann spaeter durch Gradient ersetzt werden.
+
+### 4. Lehrer-Namen bleiben
+
+**Entscheidung:** Bestehende Namen beibehalten (Sarah Kornfield, Tara Goldstein, Jon Salzberg). Leicht veraendert, kein Risiko mit echten Personen, realistisch genug fuer Screenshots.
+
+### 5. Bild 3: PraxisEditorView (Uebersicht)
+
+**Entscheidung:** PraxisEditorView selbst zeigen (nicht IntervalGongsEditorView). Die Uebersicht mit Sections (Preparation, Audio, Gongs) kommuniziert Konfigurationstiefe besser als ein Detailscreen. Headline "Stiller Timer mit Gongs" passt zur Uebersicht.
+
+### 6. Font fuer Headlines
+
+**Entscheidung:** SF Pro (Semibold). System-Font unter `/System/Library/Fonts/SFNS.ttf`. frameit bekommt diesen Pfad direkt — kein Download oder Bundling noetig. Weight-Steuerung ueber `font_weight` Parameter in Framefile.json.
 
 ---
 
@@ -74,65 +88,66 @@ Muessen optimiert werden auf Long-Tail (siehe Ticket).
 
 | Datei | Aktion | Beschreibung |
 |-------|--------|-------------|
-| `ios/fastlane/Framefile.json` | **Neu** | frameit-Konfiguration (Headlines, Font, Background, Padding) |
-| `ios/fastlane/screenshots/de-DE/title.strings` | **Neu** | Deutsche Headlines pro Screenshot |
-| `ios/fastlane/screenshots/en-GB/title.strings` | **Neu** | Englische Headlines pro Screenshot |
-| `ios/fastlane/screenshots/background.png` | **Neu** | Dunkles Hintergrundbild fuer frameit |
-| `ios/scripts/generate-quote-image.sh` | **Neu** | ImageMagick-Script fuer Bild 5 (Zitat) |
-| `ios/StillMomentUITests/ScreenshotTests.swift` | **Aendern** | Tests umbauen (neue Reihenfolge, neue Szenarien) |
-| `ios/StillMoment-Screenshots/TestFixtureSeeder.swift` | **Aendern** | Lehrer-Namen aktualisieren |
-| `ios/fastlane/Fastfile` | **Aendern** | frameit-Schritt in `screenshots` Lane einbauen |
-| `ios/scripts/process-screenshots.sh` | **Aendern** | Neues Naming-Mapping, Bild 5 integrieren |
-| `ios/Makefile` | **Pruefen** | Evtl. ImageMagick-Dependency dokumentieren |
-| `ios/fastlane/metadata/de-DE/keywords.txt` | **Aendern** | Long-Tail Keywords |
-| `ios/fastlane/metadata/en-GB/keywords.txt` | **Aendern** | Long-Tail Keywords |
+| `ios/fastlane/screenshots/Framefile.json` | **Neu** | frameit-Konfiguration |
+| `ios/fastlane/screenshots/background.png` | **Neu** | Generiert: `magick -size 1290x2796 xc:'#1A100C' background.png` |
+| `ios/fastlane/screenshots/de-DE/title.strings` | **Neu** | Deutsche Headlines |
+| `ios/fastlane/screenshots/en-GB/title.strings` | **Neu** | Englische Headlines |
+| `ios/StillMomentUITests/ScreenshotTests.swift` | **Aendern** | 5 alte Tests → 4 neue Tests |
+| `ios/fastlane/Fastfile` | **Aendern** | `frame_screenshots` nach `capture_screenshots` einbauen |
+| `ios/scripts/process-screenshots.sh` | **Aendern** | Naming-Mapping: 5 alte → 4 neue Namen |
+| `ios/Makefile` | **Aendern** | Default THEME=candlelight MODE=dark fuer screenshots Target |
 
 ---
 
 ## Reihenfolge der Implementierung
 
-### Phase 1: frameit-Infrastruktur (ohne Tests zu aendern)
+### Phase 1: frameit-Infrastruktur (Proof of Concept)
 
-1. **Background-Bild erzeugen** — dunkles PNG fuer frameit
-2. **Framefile.json erstellen** — Headlines, Font, Padding, Background konfigurieren
-3. **title.strings anlegen** — DE + EN Headlines pro Screenshot
-4. **Fastfile anpassen** — `frame_screenshots` nach `capture_screenshots` einbauen
-5. **Testen** — `make screenshots` ausfuehren, pruefen ob bestehende Screenshots + Frames korrekt aussehen
+Ziel: frameit auf den bestehenden Screenshots testen, ohne Tests zu aendern.
 
-→ Ergebnis: Die alten Screenshots bekommen schon mal Frames + Headlines. Proof of Concept.
+1. **Background-Bild generieren** — `magick -size 1290x2796 xc:'#1A100C' background.png`
+2. **Framefile.json erstellen** — Background, Padding, Font, `show_complete_frame: false`
+3. **title.strings anlegen** — DE + EN Headlines (erstmal mit alten Screenshot-Namen zum Testen)
+4. **Fastfile anpassen** — `frame_screenshots(path: "./fastlane/screenshots")` nach `capture_screenshots`
+5. **Proof of Concept** — `make screenshots THEME=candlelight MODE=dark`, visuell pruefen
+
+→ Ergebnis: Alte Screenshots mit Frames + Headlines. Zeigt ob frameit-Output professionell genug aussieht.
 
 ### Phase 2: Screenshot-Tests umbauen
 
-6. **TestFixtureSeeder anpassen** — neue Lehrer-Namen, ggf. mehr Fixtures
-7. **ScreenshotTests umschreiben** — neue Reihenfolge, neue Szenarien:
-   - `testScreenshot01_libraryFilled` — Library mit Lehrer-Gruppierung (USP-Shot)
-   - `testScreenshot02_timerRunning` — Timer in Candlelight Dark
-   - `testScreenshot03_praxisEditor` — Praxis Editor mit Gong-Konfiguration sichtbar
-   - `testScreenshot04_playerZenMode` — Player mit laufender Meditation im Zen Mode (Tab Bar weg)
-8. **title.strings aktualisieren** — neue Headlines passend zu neuen Screenshots
-9. **Testen** — `make screenshots`, Ergebnis pruefen
+6. **ScreenshotTests umschreiben** — 4 neue Tests:
+   - `testScreenshot01_libraryFilled` — Library-Tab, warten auf Test-Fixture-Rows
+   - `testScreenshot02_timerRunning` — Timer-Tab, 10 min, Start tappen, warten auf Display
+   - `testScreenshot03_praxisEditor` — Timer-Tab, Config-Button, warten auf PraxisEditorView, ggf. swipeUp fuer Gong-Section
+   - `testScreenshot04_playerZenMode` — Library-Tab, erste Meditation tappen, Play tappen (Zen Mode), 0.8s warten
+7. **title.strings aktualisieren** — Snapshot-Namen matchen: `01_LibraryFilled`, `02_TimerRunning`, `03_PraxisEditor`, `04_PlayerZenMode`
+8. **process-screenshots.sh aktualisieren** — Neues Naming-Mapping:
+   - `01_LibraryFilled` → `library-list`
+   - `02_TimerRunning` → `timer-running`
+   - `03_PraxisEditor` → `timer-settings`
+   - `04_PlayerZenMode` → `player-view`
+9. **Makefile** — Default `THEME=candlelight MODE=dark` fuer screenshots Target
+10. **Pipeline testen** — `make screenshots`, alle 4 Bilder pruefen
 
-### Phase 3: Bild 5 (Zitat)
+### Phase 3: Verifizierung
 
-10. **generate-quote-image.sh erstellen** — ImageMagick-Script das Zitat-Bild in korrekter Store-Aufloesung erzeugt (1290x2796px fuer iPhone 17 Pro Max)
-11. **process-screenshots.sh anpassen** — Bild 5 aus Script-Output integrieren
-12. **Fastfile anpassen** — Zitat-Generierung in Pipeline einbauen
-13. **Testen** — Gesamtpipeline: `make screenshots` erzeugt alle 5 Bilder fertig geframed
-
-### Phase 4: Keywords + Metadaten
-
-14. **Keywords optimieren** — Long-Tail Keywords fuer DE + EN
-15. **release_dry** — Validierung dass alles zusammenpasst
+11. **Visuell pruefen** — Headlines dominant? UI kleiner? Candlelight Dark korrekt?
+12. **Einzeltest** — `make screenshot-single TEST=testScreenshot01_libraryFilled`
+13. **Release-Validierung** — `make release-dry` (4 PNGs pro Locale)
+14. **Website-Kopien** — `docs/images/screenshots/` korrekt?
 
 ---
 
 ## Offene Fragen
 
-- [x] **Lehrer-Namen:** Weiterhin leicht veraenderte Namen (kein Risiko mit echten Personen)
-- [x] **Bild 4 (Privacy):** Player im Zen Mode — zeigt Zurueckhaltung visuell, Privacy-Headline passt dazu
-- [x] **Font fuer Headlines:** SF Pro Display, Semibold — konsistent mit App, lesbar im Store, kein Custom Font noetig
-- [x] **Android:** Spaeter, eigener Plan
-- [ ] **ImageMagick-Dependency:** Ist ImageMagick auf dem CI installiert? frameit braucht es sowieso, aber fuer Bild 5 brauchen wir erweiterte Features (Text-Rendering)
+- [x] Lehrer-Namen: Bestehende Namen beibehalten
+- [x] Bild 4: Player im Zen Mode
+- [x] Font: SF Pro Display Semibold
+- [x] Bild 5: Eigenes Ticket
+- [x] Keywords: Eigenes Ticket
+- [x] ImageMagick: Installiert (7.1.2-18)
+- [x] SF Pro Font: System-Font `/System/Library/Fonts/SFNS.ttf`, kein Download noetig
+- [ ] `show_complete_frame: false`: Testen ob frameit Headlines ohne Device Frame korrekt rendert. Fallback: mit Frame.
 
 ---
 
@@ -140,7 +155,6 @@ Muessen optimiert werden auf Long-Tail (siehe Ticket).
 
 | Risiko | Mitigation |
 |--------|-----------|
-| frameit-Layout sieht nicht professionell genug aus | Phase 1 ist ein Proof of Concept — frueh pruefen, bei Bedarf auf Canva/Figma ausweichen |
-| ImageMagick Text-Rendering fuer Bild 5 sieht schlecht aus (Kerning, Anti-Aliasing) | Alternative: HTML→Screenshot via `wkhtmltoimage` oder Playwright |
-| Lehrer-Namen-Diskussion blockiert den Rest | Phase 1+3 sind unabhaengig von den Namen, koennen vorab umgesetzt werden |
-| iPhone 17 Pro Max Simulator nicht verfuegbar | Snapfile auf verfuegbaren Simulator anpassen, Aufloesung pruefen |
+| frameit ohne Device Frame sieht nicht gut aus | Phase 1 ist Proof of Concept — frueh pruefen, Fallback: mit Frame |
+| SF Pro System-Font funktioniert nicht mit frameit | System-Font `/System/Library/Fonts/SFNS.ttf` direkt referenzieren, bei Bedarf Apple Developer Download |
+| PraxisEditorView Gong-Section nicht sichtbar | swipeUp im Test, auf iPhone 17 Pro Max vermutlich ohne Scroll sichtbar |
