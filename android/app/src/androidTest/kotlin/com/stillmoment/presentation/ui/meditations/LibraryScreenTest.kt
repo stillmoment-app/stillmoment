@@ -39,10 +39,14 @@ class LibraryScreenTest {
                     onMeditationClick = {},
                     onImportClick = {},
                     onEditClick = {},
-                    onDeleteMeditation = {},
+                    onConfirmDelete = {},
+                    onExecuteDelete = {},
+                    onCancelDelete = {},
                     onDismissEditSheet = {},
                     onSaveMeditation = {},
-                    onClearError = {}
+                    onClearError = {},
+                    onPreviewStart = {},
+                    onStopPreview = {}
                 )
             }
         }

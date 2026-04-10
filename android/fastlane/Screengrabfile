@@ -27,12 +27,11 @@ tests_apk_path("app/build/outputs/apk/androidTest/debug/app-debug-androidTest.ap
 # Custom test runner for Hilt dependency injection
 test_instrumentation_runner("com.stillmoment.HiltTestRunner")
 
-# Don't reinstall - Gradle already builds and installs APKs
-# Setting this to true causes issues with the test APK not being found
-reinstall_app(false)
+# Reinstall app before each locale run for clean state (no leftover data)
+reinstall_app(true)
 
-# Exit on test failures
-exit_on_test_failure(true)
+# Continue generating remaining screenshots even if a test fails
+exit_on_test_failure(false)
 
 # Device configuration - Pixel 6 Pro for consistent 6.7" screenshots
 # Note: Emulator must be running before executing screengrab

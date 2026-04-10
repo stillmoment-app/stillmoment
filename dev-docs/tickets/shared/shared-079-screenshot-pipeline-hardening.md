@@ -49,13 +49,12 @@ Diese Probleme treten sporadisch auf und machen den Prozess unzuverlaessig.
 
 ### Android — Screengrabfile
 
-- [ ] `reinstall_app(true)` — saubere App-Installation pro Sprach-Run (aktuell `false` wegen frueherer Probleme — erneut testen)
-- [ ] `exit_on_test_failure(false)` — bei Fehler trotzdem restliche Screenshots erzeugen
+- [x] `reinstall_app(true)` — saubere App-Installation pro Sprach-Run
+- [x] `exit_on_test_failure(false)` — bei Fehler trotzdem restliche Screenshots erzeugen
 
 ### Android — Stabile Identifier
 
-- [ ] Navigation per `testTag` statt lokalisierter `contentDescription` wo moeglich
-- [ ] `localizedContentDescription`-Helper bleibt als Fallback wo `testTag` nicht greift
+- WONTFIX: `localizedContentDescription`-Helper ist bereits stabil (matcht beide Sprachen). testTag-Migration wuerde Test-Infrastruktur in Produktionscode bringen ohne echten Stabilitaetsgewinn.
 
 ### Validierung (beide Plattformen)
 
