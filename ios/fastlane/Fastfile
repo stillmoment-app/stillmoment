@@ -192,7 +192,13 @@ platform :ios do
         scheme: "StillMoment",
         export_method: "app-store",
         output_directory: "./build",
-        output_name: "StillMoment.ipa"
+        output_name: "StillMoment.ipa",
+        export_options: {
+          provisioningProfiles: {
+            "com.stillmoment.StillMoment" => "StillMoment AppStore Distribution",
+            "com.stillmoment.StillMoment.StillMomentShareExtension" => "StillMoment ShareExtension AppStore Distribution"
+          }
+        }
       )
 
       UI.message("Uploading build to TestFlight and waiting for processing...")

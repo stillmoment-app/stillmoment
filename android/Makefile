@@ -89,8 +89,8 @@ screenshots: ## Generate all screenshots automatically (Fastlane Screengrab)
 	@bundle exec fastlane screenshots
 	@echo "Screenshots generated in fastlane/metadata/android/*/images/phoneScreenshots/"
 
-release: ## Upload to Play Store Closed Testing
-	@echo "Building and uploading to Closed Testing..."
+release: ## Upload to Play Store (Production)
+	@echo "Building and uploading to Play Store (Production)..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
