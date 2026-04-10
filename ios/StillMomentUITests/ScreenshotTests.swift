@@ -91,28 +91,29 @@ final class ScreenshotTests: XCTestCase {
 
     // MARK: - Screenshot Tests
 
-    /// Screenshot 1: Library with guided meditations (grouped by teacher)
-    /// Headline: "Deine MP3s. Deine Praxis." / "Your MP3s. Your practice."
-    func testScreenshot01_libraryFilled() {
-        // Navigate to Library tab (Screenshots target has test fixtures seeded)
-        self.navigateToLibraryTab()
+    //
+    // Order and naming matches Android (ScreengrabScreenshotTests.kt):
+    // 01_TimerIdle, 02_TimerRunning, 03_LibraryList, 04_PlayerView, 05_SettingsView
 
-        // Wait for list to populate with test meditations
-        let addButton = self.app.buttons["library.button.add"]
-        XCTAssertTrue(addButton.waitForExistence(timeout: 5.0))
+    /// Screenshot 1: Timer idle state with duration picker
+    func testScreenshot01_timerIdle() {
+        self.navigateToTimerTab()
 
-        // Wait for first meditation row to appear (ensures list is populated)
-        let meditationRows = self.app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
-        )
-        let firstRow = meditationRows.firstMatch
-        XCTAssertTrue(firstRow.waitForExistence(timeout: 5.0), "Library should contain test meditations")
+        let startButton = self.app.buttons["timer.button.start"]
+        XCTAssertTrue(startButton.waitForExistence(timeout: 3.0), "Start button should exist")
 
-        snapshot("01_LibraryFilled", timeWaitingForIdle: 0)
+        // Select 10 minutes for a nice display
+        let picker = self.app.pickers["timer.picker.minutes"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
+        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "10 min")
+
+        // Wait for picker animation to complete
+        _ = startButton.waitForExistence(timeout: 1.0)
+
+        snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
 
     /// Screenshot 2: Timer running state (Candlelight Dark theme)
-    /// Headline: "Kein Abo. Keine Werbung." / "No subscription. No ads."
     func testScreenshot02_timerRunning() {
         self.navigateToTimerTab()
 
@@ -134,36 +135,27 @@ final class ScreenshotTests: XCTestCase {
         snapshot("02_TimerRunning", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 3: Praxis Editor (configuration) with gong section visible
-    /// Headline: "Stiller Timer mit Gongs." / "Silent timer with gongs."
-    func testScreenshot03_praxisEditor() {
-        self.navigateToTimerTab()
+    /// Screenshot 3: Library with guided meditations (grouped by teacher)
+    func testScreenshot03_libraryList() {
+        // Navigate to Library tab (Screenshots target has test fixtures seeded)
+        self.navigateToLibraryTab()
 
-        // Tap the configuration pills to push PraxisEditorView
-        let configButton = self.app.buttons["timer.button.configuration"]
-        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Configuration button not found")
-        configButton.tap()
+        // Wait for list to populate with test meditations
+        let addButton = self.app.buttons["library.button.add"]
+        XCTAssertTrue(addButton.waitForExistence(timeout: 5.0))
 
-        // Wait for PraxisEditorView to appear
-        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "PraxisEditorView did not appear")
+        // Wait for first meditation row to appear (ensures list is populated)
+        let meditationRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        )
+        let firstRow = meditationRows.firstMatch
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 5.0), "Library should contain test meditations")
 
-        // Enable preparation time for a fuller-looking configuration screen
-        if preparationToggle.value as? String == "0" {
-            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            _ = preparationToggle.waitForExistence(timeout: 1.0)
-        }
-
-        // Swipe up to ensure Gong section is visible (may be below fold on smaller devices)
-        self.app.swipeUp()
-        Thread.sleep(forTimeInterval: 0.3)
-
-        snapshot("03_PraxisEditor", timeWaitingForIdle: 0)
+        snapshot("03_LibraryList", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 4: Player in Zen Mode (tab bar hidden, minimal UI)
-    /// Headline: "Kein Tracking. Keine Cloud." / "No tracking. No cloud."
-    func testScreenshot04_playerZenMode() {
+    /// Screenshot 4: Player with active meditation playback
+    func testScreenshot04_playerView() {
         // Navigate to Library tab
         self.navigateToLibraryTab()
 
@@ -192,6 +184,32 @@ final class ScreenshotTests: XCTestCase {
         // Wait for playback state to settle (isPlaying = true -> isZenMode = true)
         Thread.sleep(forTimeInterval: 0.8)
 
-        snapshot("04_PlayerZenMode", timeWaitingForIdle: 0)
+        snapshot("04_PlayerView", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 5: Praxis Editor (timer configuration) with gong section visible
+    func testScreenshot05_settingsView() {
+        self.navigateToTimerTab()
+
+        // Tap the configuration pills to push PraxisEditorView
+        let configButton = self.app.buttons["timer.button.configuration"]
+        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Configuration button not found")
+        configButton.tap()
+
+        // Wait for PraxisEditorView to appear
+        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
+        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "PraxisEditorView did not appear")
+
+        // Enable preparation time for a fuller-looking configuration screen
+        if preparationToggle.value as? String == "0" {
+            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            _ = preparationToggle.waitForExistence(timeout: 1.0)
+        }
+
+        // Swipe up to ensure Gong section is visible (may be below fold on smaller devices)
+        self.app.swipeUp()
+        Thread.sleep(forTimeInterval: 0.3)
+
+        snapshot("05_SettingsView", timeWaitingForIdle: 0)
     }
 }

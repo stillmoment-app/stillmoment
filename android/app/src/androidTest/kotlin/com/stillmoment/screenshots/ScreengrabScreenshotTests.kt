@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -109,14 +110,24 @@ class ScreengrabScreenshotTests {
             )
         }
 
-        // Apply locale BEFORE launching so attachBaseContext() picks it up
-        // without needing recreate() (which causes DataStore race conditions).
+        // Apply locale and launch activity.
+        // On API 36, ActivityScenario.launch() resets Locale.getDefault() to the system locale.
+        // Fix: set locale AFTER launch and apply directly to the Activity's resources.
         val testLocale = InstrumentationRegistry.getArguments().getString("testLocale") ?: "en-US"
         val locale = Locale.forLanguageTag(testLocale.replace("_", "-"))
-        Locale.setDefault(locale)
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         scenario = ActivityScenario.launch(Intent(context, MainActivity::class.java))
+
+        // Set locale after launch (launch resets it on API 36)
+        Locale.setDefault(locale)
+        // Apply locale directly to Activity resources (avoids recreate() which breaks navigation)
+        scenario.onActivity { activity ->
+            val config = android.content.res.Configuration(activity.resources.configuration)
+            config.setLocale(locale)
+            @Suppress("DEPRECATION")
+            activity.resources.updateConfiguration(config, activity.resources.displayMetrics)
+        }
 
         composeRule.waitForIdle()
     }
@@ -251,13 +262,17 @@ class ScreengrabScreenshotTests {
         // Wait for library to fully render
         waitForLibraryLoaded()
 
-        // Tap "Mindful Breathing" row - match the clickable Card via contentDescription
-        val meditationMatcher = hasContentDescription("Mindful Breathing", substring = true, ignoreCase = true)
-        composeRule.onNode(meditationMatcher).performClick()
+        // Tap the first play button to navigate to the player.
+        // Since shared-075, only the play button is clickable (not the entire Card).
+        // Library is grouped by teacher (alphabetically): Jon Salzberg comes first,
+        // so the first play button opens "Present Moment Awareness".
+        val playButtonMatcher = localizedContentDescription("Preview meditation", "Meditation vorschauen")
+        composeRule.onAllNodes(playButtonMatcher).onFirst().performClick()
 
         // Wait for player screen to appear and be fully displayed
+        // First item in alphabetically sorted groups is Jon Salzberg's meditation
         waitForNodeDisplayed(
-            hasContentDescription("Sarah Kornfield", substring = true, ignoreCase = true),
+            hasContentDescription("Jon Salzberg", substring = true, ignoreCase = true),
             timeoutMs = 10000
         )
 

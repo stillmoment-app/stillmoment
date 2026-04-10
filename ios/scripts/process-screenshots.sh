@@ -4,7 +4,7 @@
 # Post-processes Fastlane screenshots for website deployment
 #
 # Copies and renames screenshots from fastlane/screenshots/ to docs/images/screenshots/
-# Naming: 01_TimerIdle.png → timer-main.png (or timer-main-de.png)
+# Naming: 01_TimerIdle.png → timer-main.png (timer-main-de.png for German)
 
 set -eo pipefail
 
@@ -35,13 +35,15 @@ fi
 mkdir -p "$OUTPUT_DIR"
 
 # Function to get output name for screenshot
+# Names match Android (ScreengrabScreenshotTests.kt)
 get_output_name() {
     local src_name="$1"
     case "$src_name" in
-        "01_LibraryFilled") echo "library-list" ;;
+        "01_TimerIdle")     echo "timer-main" ;;
         "02_TimerRunning")  echo "timer-running" ;;
-        "03_PraxisEditor")  echo "timer-settings" ;;
-        "04_PlayerZenMode") echo "player-view" ;;
+        "03_LibraryList")   echo "library-list" ;;
+        "04_PlayerView")    echo "player-view" ;;
+        "05_SettingsView")  echo "timer-settings" ;;
         *)                  echo "" ;;
     esac
 }
@@ -79,7 +81,7 @@ for lang_dir in "$FASTLANE_SCREENSHOTS"/*/; do
     echo -e "${BLUE}Processing language: ${lang}${NC}"
 
     # Process each known screenshot
-    for src_name in "01_LibraryFilled" "02_TimerRunning" "03_PraxisEditor" "04_PlayerZenMode"; do
+    for src_name in "01_TimerIdle" "02_TimerRunning" "03_LibraryList" "04_PlayerView" "05_SettingsView"; do
         dst_name=$(get_output_name "$src_name")
         if [ -z "$dst_name" ]; then
             continue

@@ -27,8 +27,10 @@ tests_apk_path("app/build/outputs/apk/androidTest/debug/app-debug-androidTest.ap
 # Custom test runner for Hilt dependency injection
 test_instrumentation_runner("com.stillmoment.HiltTestRunner")
 
-# Reinstall app before each locale run for clean state (no leftover data)
-reinstall_app(true)
+# Don't reinstall — reinstallation revokes CHANGE_CONFIGURATION permission
+# which LocaleTestRule needs for locale switching. Without it, DE screenshots
+# render in English. Gradle already builds and installs APKs before screengrab runs.
+reinstall_app(false)
 
 # Continue generating remaining screenshots even if a test fails
 exit_on_test_failure(false)

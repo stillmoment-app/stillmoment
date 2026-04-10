@@ -45,8 +45,8 @@ platform :ios do
       only_testing: ["StillMomentUITests/ScreenshotTests"]
     )
 
-    # Add headlines and background via ImageMagick (frameit lacks iPhone 17 Pro Max support)
-    sh("cd .. && ./scripts/frame-screenshots.sh")
+    # Framing disabled — plain screenshots for now
+    # sh("cd .. && ./scripts/frame-screenshots.sh")
 
     # Post-process: copy and rename to docs/images/screenshots/
     sh("cd .. && ./scripts/process-screenshots.sh")

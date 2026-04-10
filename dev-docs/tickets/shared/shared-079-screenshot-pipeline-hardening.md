@@ -49,7 +49,7 @@ Diese Probleme treten sporadisch auf und machen den Prozess unzuverlaessig.
 
 ### Android — Screengrabfile
 
-- [x] `reinstall_app(true)` — saubere App-Installation pro Sprach-Run
+- [x] `reinstall_app` — getestet, bleibt `false`: Neuinstallation entfernt CHANGE_CONFIGURATION-Permission, LocaleTestRule kann dann kein Locale-Switching mehr machen (DE-Screenshots bleiben englisch)
 - [x] `exit_on_test_failure(false)` — bei Fehler trotzdem restliche Screenshots erzeugen
 
 ### Android — Stabile Identifier
