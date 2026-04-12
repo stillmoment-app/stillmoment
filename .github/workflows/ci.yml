@@ -16,7 +16,7 @@ env:
   XCODE_VERSION: '26.0'
   IOS_VERSION: '19.0'
   DEVICE: 'iPhone 17'
-  SWIFTFORMAT_VERSION: '0.59.1'
+  SWIFTFORMAT_VERSION: '0.60.1'
   SWIFTLINT_VERSION: '0.63.2'
 
 jobs:
@@ -165,7 +165,7 @@ jobs:
       run: |
         # Boot simulator and let it settle
         echo "🔧 Booting simulator..."
-        DEVICE_ID=$(xcrun simctl list devices available | grep "${{ env.DEVICE }}" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+        DEVICE_ID=$(xcrun simctl list devices available | grep -F "${{ env.DEVICE }} (" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
 
         if [ -z "$DEVICE_ID" ]; then
           echo "❌ Error: Could not find device matching '${{ env.DEVICE }}'"

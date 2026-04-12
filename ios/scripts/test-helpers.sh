@@ -19,7 +19,7 @@ get_device_id() {
     fi
 
     local device_id=$(xcrun simctl list devices available | \
-        grep "$device_name" | \
+        grep -F "$device_name (" | \
         grep -v "unavailable" | \
         head -1 | \
         sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
