@@ -85,42 +85,44 @@ struct StillMomentApp: App {
     var body: some Scene {
         WindowGroup {
             ThemeRootView {
-                TabView(selection: self.$selectedTab) {
-                    // Timer Feature Tab
-                    NavigationStack {
-                        TimerView(viewModel: self.timerViewModel)
-                    }
-                    .tabItem {
-                        Label("tab.timer", systemImage: "timer")
-                    }
-                    .tag(AppTab.timer.rawValue)
-                    .accessibilityIdentifier("tab.timer")
-                    .accessibilityLabel(Text("tab.timer.accessibility"))
+                RootContainerView {
+                    TabView(selection: self.$selectedTab) {
+                        // Timer Feature Tab
+                        NavigationStack {
+                            TimerView(viewModel: self.timerViewModel)
+                        }
+                        .tabItem {
+                            Label("tab.timer", systemImage: "timer")
+                        }
+                        .tag(AppTab.timer.rawValue)
+                        .accessibilityIdentifier("tab.timer")
+                        .accessibilityLabel(Text("tab.timer.accessibility"))
 
-                    // Guided Meditations Library Tab
-                    NavigationStack(path: self.$libraryPath) {
-                        GuidedMeditationsListView(
-                            navigationPath: self.$libraryPath,
-                            viewModel: self.guidedListViewModel
-                        )
-                    }
-                    .tabItem {
-                        Label("tab.library", systemImage: "waveform")
-                    }
-                    .tag(AppTab.library.rawValue)
-                    .accessibilityIdentifier("tab.library")
-                    .accessibilityLabel(Text("tab.library.accessibility"))
+                        // Guided Meditations Library Tab
+                        NavigationStack(path: self.$libraryPath) {
+                            GuidedMeditationsListView(
+                                navigationPath: self.$libraryPath,
+                                viewModel: self.guidedListViewModel
+                            )
+                        }
+                        .tabItem {
+                            Label("tab.library", systemImage: "waveform")
+                        }
+                        .tag(AppTab.library.rawValue)
+                        .accessibilityIdentifier("tab.library")
+                        .accessibilityLabel(Text("tab.library.accessibility"))
 
-                    // App Settings Tab
-                    NavigationStack {
-                        AppSettingsView()
+                        // App Settings Tab
+                        NavigationStack {
+                            AppSettingsView()
+                        }
+                        .tabItem {
+                            Label("tab.settings", systemImage: "slider.horizontal.3")
+                        }
+                        .tag(AppTab.settings.rawValue)
+                        .accessibilityIdentifier("tab.settings")
+                        .accessibilityLabel(Text("tab.settings.accessibility"))
                     }
-                    .tabItem {
-                        Label("tab.settings", systemImage: "slider.horizontal.3")
-                    }
-                    .tag(AppTab.settings.rawValue)
-                    .accessibilityIdentifier("tab.settings")
-                    .accessibilityLabel(Text("tab.settings.accessibility"))
                 }
             }
             .environmentObject(self.themeManager)

@@ -205,12 +205,22 @@ struct GuidedMeditationPlayerView: View {
             }
         }
         .onAppear {
+            // Clear any stale completion marker so a new session starts fresh
+            self.completedAtRaw = 0
+            self.meditationIdRaw = ""
             Task {
                 await self.viewModel.loadAudio()
             }
         }
         .onDisappear {
             self.viewModel.cleanup()
+        }
+        .onChange(of: self.viewModel.completionEvent) { event in
+            guard let event else {
+                return
+            }
+            self.completedAtRaw = event.completedAt.timeIntervalSince1970
+            self.meditationIdRaw = event.meditationId.uuidString
         }
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
@@ -230,6 +240,11 @@ struct GuidedMeditationPlayerView: View {
     private var theme
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
+
+    @SceneStorage("completion.completedAt")
+    private var completedAtRaw: Double = 0
+    @SceneStorage("completion.meditationId")
+    private var meditationIdRaw: String = ""
 
     private var isZenMode: Bool {
         self.viewModel.isZenMode

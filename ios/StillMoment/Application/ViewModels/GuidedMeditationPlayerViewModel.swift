@@ -9,6 +9,15 @@ import Combine
 import Foundation
 import OSLog
 
+/// Emitted once when a guided meditation ends naturally (audio played to end).
+///
+/// Written to `@SceneStorage` by the View so the completion screen survives
+/// app termination (shared-080).
+struct CompletionEvent: Equatable {
+    let meditationId: UUID
+    let completedAt: Date
+}
+
 /// State of the preparation countdown
 enum PreparationCountdownState: Equatable {
     case idle
@@ -56,6 +65,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     @Published var currentTime: TimeInterval = 0
     @Published var duration: TimeInterval = 0
     @Published var errorMessage: String?
+    @Published private(set) var completionEvent: CompletionEvent?
 
     // MARK: - Preparation Countdown
 
@@ -136,6 +146,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Loads and prepares the audio for playback
     func loadAudio() async {
         self.errorMessage = nil
+        self.completionEvent = nil
 
         Logger.audioPlayer.info("Loading audio", metadata: [
             "meditation": self.meditation.effectiveName,
@@ -270,10 +281,22 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func setupBindings() {
-        // Bind playback state
+        // Bind playback state; emit completionEvent once on natural end
         self.playerService.state
             .receive(on: DispatchQueue.main)
-            .assign(to: &self.$playbackState)
+            .sink { [weak self] state in
+                guard let self else {
+                    return
+                }
+                self.playbackState = state
+                if state == .finished, self.completionEvent == nil {
+                    self.completionEvent = CompletionEvent(
+                        meditationId: self.meditation.id,
+                        completedAt: self.clock.now()
+                    )
+                }
+            }
+            .store(in: &self.cancellables)
 
         // Bind current time
         self.playerService.currentTime
