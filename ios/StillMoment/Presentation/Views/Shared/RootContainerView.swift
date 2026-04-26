@@ -28,15 +28,7 @@ struct RootContainerView<Content: View>: View {
                 guard self.markerPresence == nil else {
                     return
                 }
-                let hasValidMarker = self.completedAtRaw > 0
-                    && !CompletionMarker.isExpired(completedAt: self.completedAtRaw, now: Date())
-                if hasValidMarker {
-                    self.markerPresence = .present
-                } else {
-                    self.completedAtRaw = 0
-                    self.meditationIdRaw = ""
-                    self.markerPresence = .absent
-                }
+                self.markerPresence = self.completedAtRaw > 0 ? .present : .absent
             }
             .overlay {
                 if self.markerPresence == .present {

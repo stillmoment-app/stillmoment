@@ -78,17 +78,13 @@ Der `clock`-Parameter ist bereits Dependency des ViewModels (siehe `setupBinding
 
 Edge Case: Wenn der Player-View NICHT neu erscheint (warmer Resume waehrend gleicher Session), ist der Snapshot ohnehin schon aus dem vorherigen Cold Launch ermittelt — kein Konflikt.
 
-### 5. TTL: 8 Stunden
+### 5. Kein TTL
 
-**Trade-off:** Das Ticket sagt "Groessenordnung Stunden". Zu kurz (1h) verfehlt den "User schaut spaet abends nochmal aufs Phone"-Fall. Zu lang (24h+) wirkt willkuerlich und kann Tage spaeter noch poppen.
+**Entscheidung:** `@SceneStorage` hat einen eigenen Lifecycle (iOS löscht es bei Memory-Druck, Scene-Discard, Force Quit). Ein explizites TTL wäre redundant — das OS regelt den Lifecycle. Kein `CompletionMarker`-Typ, kein Expiry-Check. `RootContainerView` zeigt den Overlay wenn `completedAtRaw > 0`.
 
-**Entscheidung:** 8 Stunden — deckt eine Schlafnacht oder Arbeitstag ab. Konstante als `static let CompletionMarker.defaultTTL: TimeInterval = 8 * 3600`. Tests injizieren abweichende Werte.
+### 6. Marker-Inhalt: Boolean via Timestamp-Trick + optional ID
 
-### 6. Marker-Inhalt: nur Timestamp (+ optional ID)
-
-**Trade-off:** Der `MeditationCompletionView` zeigt bewusst KEINEN Meditations-Titel ("Stille nach der Praxis", shared-053). `meditationId` ist fuer das User-sichtbare Verhalten irrelevant.
-
-**Entscheidung:** Wir speichern `completedAtTimestamp: Double` (zwingend fuer Expiry) und `meditationId: String` (fuer eventuelle Logging/Debug-Zwecke und um zu erkennen, ob beim erneuten Oeffnen DIE Meditation noch existiert — falls in Edge-Cases relevant). Beide via `@SceneStorage`.
+**Entscheidung:** `completedAtRaw: Double` dient als Boolean (`> 0` = Marker gesetzt). `meditationId: String` bleibt fuer Debug-Zwecke. Der Timestamp-Wert selbst wird nicht mehr fuer Expiry ausgewertet.
 
 ## Refactorings
 
