@@ -141,3 +141,50 @@ final class PlayerViewModelCompletionTests: XCTestCase {
         XCTAssertNil(self.sut.completionEvent)
     }
 }
+
+// MARK: - CompletionOverlaySnapshot Tests (AK-6)
+
+final class CompletionOverlaySnapshotTests: XCTestCase {
+    func testEvaluatesAsPresentWhenMarkerSet() {
+        var snapshot = CompletionOverlaySnapshot()
+        snapshot.evaluate(completedAtRaw: 1_000_000)
+        XCTAssertEqual(snapshot.isPresent, true)
+    }
+
+    func testEvaluatesAsAbsentWhenNoMarker() {
+        var snapshot = CompletionOverlaySnapshot()
+        snapshot.evaluate(completedAtRaw: 0)
+        XCTAssertEqual(snapshot.isPresent, false)
+    }
+
+    /// AK-6: Danke-Screen wird nicht doppelt angezeigt wenn Player aktiv ist.
+    /// Der Snapshot wird beim Scene-Start ohne Marker ausgewertet (.absent).
+    /// Schreibt der Player spaeter in @SceneStorage, bleibt der Snapshot eingefroren.
+    func testSnapshotFrozenAfterFirstEvaluation() {
+        // Given - app started without marker (player was already running)
+        var snapshot = CompletionOverlaySnapshot()
+        snapshot.evaluate(completedAtRaw: 0)
+        XCTAssertEqual(snapshot.isPresent, false)
+
+        // When - player writes completion marker to @SceneStorage mid-session
+        snapshot.evaluate(completedAtRaw: 1_000_000)
+
+        // Then - overlay still not triggered
+        XCTAssertEqual(snapshot.isPresent, false)
+    }
+
+    func testDismissClearsPresence() {
+        var snapshot = CompletionOverlaySnapshot()
+        snapshot.evaluate(completedAtRaw: 1_000_000)
+        XCTAssertEqual(snapshot.isPresent, true)
+
+        snapshot.dismiss()
+
+        XCTAssertEqual(snapshot.isPresent, false)
+    }
+
+    func testInitialStateIsNil() {
+        let snapshot = CompletionOverlaySnapshot()
+        XCTAssertNil(snapshot.isPresent)
+    }
+}

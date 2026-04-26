@@ -33,13 +33,13 @@ Der Standard-Use-Case ist: User startet die Meditation und legt das Telefon weg.
 - [ ] Wenn die Meditation natuerlich endet, sieht der User beim naechsten Oeffnen der App den Danke-Screen — unabhaengig davon, ob die App im Hintergrund war, suspendiert wurde oder neu gestartet werden musste.
 - [ ] Tippt der User auf "Zurueck" auf dem Danke-Screen, kehrt er zur Meditationsliste zurueck und der Danke-Screen erscheint nicht erneut.
 - [ ] Wenn der User direkt im Anschluss eine neue Meditation startet, erscheint der alte Danke-Screen nicht mehr.
-- [ ] Der Danke-Screen erscheint nicht mehr, wenn seit dem Ende der Meditation laengere Zeit (Groessenordnung Stunden) vergangen ist.
+- [ ] Der Danke-Screen erscheint solange, bis der User ihn explizit schliesst oder eine neue Meditation startet — unabhaengig davon, wie viel Zeit seit dem Ende der Meditation vergangen ist. Bedingung: "Meditation zu Ende gehoert" war die letzte Interaktion mit der App.
 - [ ] Bricht der User die Meditation aktiv ab (Schliessen-Button, Tab-Wechsel, Audio-Interruption ohne Resume), erscheint kein Danke-Screen.
 - [ ] Lokalisiert (DE + EN) — die `MeditationCompletionView` / `MeditationCompletionScreen` ist bereits lokalisiert, keine neuen Texte noetig.
 - [ ] Visuell konsistent zwischen iOS und Android — gleiches Verhalten, gleiches Erscheinungsbild wie der heutige in-place Danke-Screen.
 
 ### Tests
-- [ ] Unit Tests iOS fuer den Persistenz-/Restoration-Mechanismus (Speichern, Laden, Ablauf-Logik, Loeschen bei aktivem Dismiss).
+- [ ] Unit Tests iOS fuer den Persistenz-/Restoration-Mechanismus (Speichern, Laden, Loeschen bei aktivem Dismiss und bei neuer Meditation).
 - [ ] Unit Tests Android analog.
 - [ ] Unit Test pro Plattform: Danke-Screen wird nicht doppelt angezeigt, wenn der Player-View nach `finished` noch im Vordergrund steht und der persistierte Marker ebenfalls vorhanden ist.
 
@@ -82,7 +82,7 @@ Verhalten ist plattform-identisch. Die Mechanismen unterscheiden sich, das User-
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
 | Wo erscheint der Danke-Screen nach Cold Launch? | Top-Level der App, ueberlagert die TabView | Top-Level der App, ueberlagert die NavHost-Tabs |
-| Wann wird der persistierte Marker geloescht? | Bei Dismiss, Start einer neuen Meditation, oder nach Ablauf der Expiry | Identisch |
+| Wann wird der persistierte Marker geloescht? | Bei Dismiss oder Start einer neuen Meditation | Identisch |
 
 ---
 

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added (iOS)
-- **Danke-Screen ueberlebt App-Termination** - Wenn eine gefuehrte Meditation natuerlich endet und iOS die App anschliessend suspendiert oder terminiert, erscheint beim naechsten Oeffnen der App der Danke-Screen. Der Marker wird via `@SceneStorage` gespeichert und laeuft nach 8 Stunden automatisch ab. Aktive Abbrechvorgaenge (Schliessen-Button, Audio-Konflikt) hinterlassen keinen Marker. (Ticket: shared-080)
+- **Danke-Screen ueberlebt App-Termination** - Wenn eine gefuehrte Meditation natuerlich endet und iOS die App anschliessend suspendiert oder terminiert, erscheint beim naechsten Oeffnen der App der Danke-Screen. Der Marker wird via `@SceneStorage` gespeichert und bleibt bis zum expliziten Schliessen oder Start einer neuen Meditation erhalten. Aktive Abbrechvorgaenge (Schliessen-Button, Audio-Konflikt) hinterlassen keinen Marker. (Ticket: shared-080)
 
 ## [2.1.0] - 2026-04-10
 
