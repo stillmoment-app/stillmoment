@@ -15,16 +15,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -48,24 +44,21 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.PreparationCountdown
+import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -92,13 +85,29 @@ fun GuidedMeditationPlayerScreen(
     meditation: GuidedMeditation,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onMeditationFinish: () -> Unit = {},
+    onMeditationLoad: () -> Unit = {},
     viewModel: GuidedMeditationPlayerViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentOnMeditationCompleted by rememberUpdatedState(onMeditationFinish)
+    val currentOnNewMeditationLoaded by rememberUpdatedState(onMeditationLoad)
 
-    // Load meditation when screen appears
+    // Load meditation when screen appears. Notify the host so any stale
+    // completion marker from a previous meditation is cleared — see shared-080.
     LaunchedEffect(meditation.id) {
         viewModel.loadMeditation(meditation)
+        currentOnNewMeditationLoaded()
+    }
+
+    // Persist a marker the moment audio reaches a natural end. The marker lets
+    // the completion ("thank you") screen survive system-initiated process death
+    // (shared-080). Active dismissals (close button, audio conflict) do NOT
+    // route through here, so they never set the marker.
+    LaunchedEffect(uiState.isCompleted) {
+        if (uiState.isCompleted) {
+            currentOnMeditationCompleted()
+        }
     }
 
     // Cleanup when leaving screen
@@ -263,7 +272,7 @@ internal fun GuidedMeditationPlayerScreenContent(
                     animationSpec = tween(COMPLETION_ANIMATION_DURATION_MS)
                 )
         ) {
-            PlayerCompletionContent(
+            MeditationCompletionContent(
                 onBack = onBack,
                 modifier = Modifier.fillMaxSize()
             )
@@ -501,111 +510,6 @@ private fun PreparationCountdownDisplay(remainingSeconds: Int, progress: Float, 
             text = remainingSeconds.toString(),
             style = TypographyRole.PlayerCountdown.textStyle(sizeOverride = fontSize.sp),
             color = TypographyRole.PlayerCountdown.textColor()
-        )
-    }
-}
-
-/**
- * Completion overlay shown when audio ends naturally.
- * Visually identical to TimerCompletionContent (shared-052).
- */
-@Composable
-private fun PlayerCompletionContent(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < 700
-
-    Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-
-            CompletionHeartIcon(isCompactHeight = isCompactHeight)
-
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 24.dp else 32.dp))
-
-            CompletionMessage(isCompactHeight = isCompactHeight)
-
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 48.dp else 64.dp))
-
-            CompletionBackButton(onClick = onBack)
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun CompletionHeartIcon(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
-    val containerSize = if (isCompactHeight) 72.dp else 80.dp
-    val iconSize = if (isCompactHeight) 32.dp else 40.dp
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(containerSize)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-            modifier = Modifier.size(iconSize)
-        )
-    }
-}
-
-@Composable
-private fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        Text(
-            text = stringResource(R.string.completion_headline),
-            style = TypographyRole.ScreenTitle.textStyle(
-                sizeOverride = if (isCompactHeight) 32.sp else TextUnit.Unspecified
-            ),
-            color = TypographyRole.ScreenTitle.textColor(),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.semantics { heading() }
-        )
-
-        Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 16.dp))
-
-        Text(
-            text = stringResource(R.string.completion_subtitle),
-            style = TypographyRole.BodySecondary.textStyle(
-                sizeOverride = if (isCompactHeight) 14.sp else TextUnit.Unspecified
-            ),
-            color = TypographyRole.BodySecondary.textColor(),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-    }
-}
-
-@Composable
-private fun CompletionBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val backDescription = stringResource(R.string.accessibility_back_to_library)
-
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .height(52.dp)
-            .semantics { contentDescription = backDescription },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = CircleShape
-    ) {
-        Text(
-            text = stringResource(R.string.button_back),
-            style = MaterialTheme.typography.labelLarge
         )
     }
 }

@@ -80,6 +80,7 @@ import com.stillmoment.domain.models.ImportAudioType
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.ui.common.ImportTypeSelectionSheet
+import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
@@ -92,6 +93,7 @@ import com.stillmoment.presentation.ui.timer.SelectGongScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.AppSettingsViewModel
+import com.stillmoment.presentation.viewmodel.CompletionOverlayViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -211,8 +213,17 @@ fun StillMomentNavHost(
     onClearFileUri: () -> Unit = {},
     pendingDownloadUrl: StateFlow<String?> = MutableStateFlow(null),
     onClearDownloadUrl: () -> Unit = {},
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    // Activity-scoped ViewModel — `LocalViewModelStoreOwner` at this composable's call
+    // site is the host Activity, so the ViewModel lives until the activity is destroyed.
+    // Its SavedStateHandle persists across system-initiated process death (shared-080).
+    overlayViewModel: CompletionOverlayViewModel = hiltViewModel()
 ) {
+    // Snapshot the marker at app start: later setMarker() calls (while the player
+    // is still active) must not flip this overlay on. The overlay is only meant
+    // for the case where a meditation finished while the app was suspended.
+    var showCompletionOverlay by remember { mutableStateOf(overlayViewModel.isMarkerSetInitially) }
+
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val savedTab by produceState<AppTab?>(initialValue = null) { value = settingsDataStore.getSelectedTab() }
@@ -277,27 +288,42 @@ fun StillMomentNavHost(
         }
     )
 
-    NavHostScaffold(
-        modifier = modifier,
-        navController = navController,
-        snackbarHostState = snackbarHostState,
-        startDestination = startDestination,
-        settingsState = settingsState,
-        pendingImportedMeditation = pendingImportedMeditation,
-        onClearImportedMeditation = { pendingImportedMeditation.value = null },
-        pendingImportedCustomAudio = pendingImportedCustomAudio,
-        onClearImportedCustomAudio = { pendingImportedCustomAudio.value = null },
-        stopMeditationSignal = stopMeditationSignal,
-        onConsumeStopSignal = { stopMeditationSignal.value = false },
-        onTabSelect = { tabItem ->
-            scope.launch { settingsDataStore.setSelectedTab(tabItem.tab) }
-            navController.navigate(tabItem.screen.route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
+    Box(modifier = modifier.fillMaxSize()) {
+        NavHostScaffold(
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            startDestination = startDestination,
+            settingsState = settingsState,
+            pendingImportedMeditation = pendingImportedMeditation,
+            onClearImportedMeditation = { pendingImportedMeditation.value = null },
+            pendingImportedCustomAudio = pendingImportedCustomAudio,
+            onClearImportedCustomAudio = { pendingImportedCustomAudio.value = null },
+            stopMeditationSignal = stopMeditationSignal,
+            onConsumeStopSignal = { stopMeditationSignal.value = false },
+            onMeditationFinish = { overlayViewModel.setMarker() },
+            onMeditationLoad = { overlayViewModel.clearMarker() },
+            onTabSelect = { tabItem ->
+                scope.launch { settingsDataStore.setSelectedTab(tabItem.tab) }
+                navController.navigate(tabItem.screen.route) {
+                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
+        )
+
+        // Top-level completion overlay — covers the entire NavHost when the previous
+        // meditation finished while the app was suspended/terminated. See shared-080.
+        if (showCompletionOverlay) {
+            MeditationCompletionContent(
+                onBack = {
+                    overlayViewModel.clearMarker()
+                    showCompletionOverlay = false
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         }
-    )
+    }
 }
 
 @Suppress("LongParameterList") // Scaffold coordinates all nav-level state flows
@@ -313,6 +339,8 @@ private fun NavHostScaffold(
     onClearImportedCustomAudio: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
+    onMeditationFinish: () -> Unit,
+    onMeditationLoad: () -> Unit,
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -369,7 +397,9 @@ private fun NavHostScaffold(
                 pendingImportedCustomAudio,
                 onClearImportedCustomAudio,
                 stopMeditationSignal,
-                onConsumeStopSignal
+                onConsumeStopSignal,
+                onMeditationFinish,
+                onMeditationLoad
             )
         }
     }
@@ -386,7 +416,9 @@ private fun StillMomentNavContent(
     pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
     onClearImportedCustomAudio: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
-    onConsumeStopSignal: () -> Unit
+    onConsumeStopSignal: () -> Unit,
+    onMeditationFinish: () -> Unit,
+    onMeditationLoad: () -> Unit
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         timerNavGraph(
@@ -433,7 +465,7 @@ private fun StillMomentNavContent(
             }
         }
 
-        playerComposable(navController)
+        playerComposable(navController, onMeditationFinish, onMeditationLoad)
     }
 }
 
@@ -573,7 +605,11 @@ private fun NavGraphBuilder.praxisEditorSubScreens(
     }
 }
 
-private fun NavGraphBuilder.playerComposable(navController: NavHostController) {
+private fun NavGraphBuilder.playerComposable(
+    navController: NavHostController,
+    onMeditationFinish: () -> Unit,
+    onMeditationLoad: () -> Unit
+) {
     composable(
         route = Screen.Player.route,
         arguments = listOf(navArgument("meditationJson") { type = NavType.StringType })
@@ -583,7 +619,12 @@ private fun NavGraphBuilder.playerComposable(navController: NavHostController) {
             Json.decodeFromString<GuidedMeditation>(Uri.decode(it))
         }
         meditation?.let {
-            GuidedMeditationPlayerScreen(meditation = it, onBack = { navController.popBackStack() })
+            GuidedMeditationPlayerScreen(
+                meditation = it,
+                onBack = { navController.popBackStack() },
+                onMeditationFinish = onMeditationFinish,
+                onMeditationLoad = onMeditationLoad
+            )
         }
     }
 }
