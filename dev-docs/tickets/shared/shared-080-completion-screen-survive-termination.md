@@ -1,6 +1,6 @@
 # Ticket shared-080: Danke-Screen ueberlebt App-Termination
 
-**Status**: [~] IN PROGRESS (iOS)
+**Status**: [x] DONE
 **Plan iOS**: [Implementierungsplan](../plans/shared-080-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Beide Plattformen bieten Standard-Mechanismen fuer State-Restoration (iOS `@SceneStorage`, Android `SavedStateHandle`/persistiertes Repository). Heikel ist das Zusammenspiel mit dem bestehenden in-place Danke-Screen im Player-Stack: keine doppelte Anzeige, sauberes Loeschen des Markers nur bei natuerlichem Ende (nicht bei Abbruch / Audio-Konflikt / Schliessen).
@@ -22,29 +22,29 @@ Der Standard-Use-Case ist: User startet die Meditation und legt das Telefon weg.
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [~]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Wenn die Meditation natuerlich endet, sieht der User beim naechsten Oeffnen der App den Danke-Screen — unabhaengig davon, ob die App im Hintergrund war, suspendiert wurde oder neu gestartet werden musste.
-- [ ] Tippt der User auf "Zurueck" auf dem Danke-Screen, kehrt er zur Meditationsliste zurueck und der Danke-Screen erscheint nicht erneut.
-- [ ] Wenn der User direkt im Anschluss eine neue Meditation startet, erscheint der alte Danke-Screen nicht mehr.
-- [ ] Der Danke-Screen erscheint solange, bis der User ihn explizit schliesst oder eine neue Meditation startet — unabhaengig davon, wie viel Zeit seit dem Ende der Meditation vergangen ist. Bedingung: "Meditation zu Ende gehoert" war die letzte Interaktion mit der App.
-- [ ] Bricht der User die Meditation aktiv ab (Schliessen-Button, Tab-Wechsel, Audio-Interruption ohne Resume), erscheint kein Danke-Screen.
-- [ ] Lokalisiert (DE + EN) — die `MeditationCompletionView` / `MeditationCompletionScreen` ist bereits lokalisiert, keine neuen Texte noetig.
-- [ ] Visuell konsistent zwischen iOS und Android — gleiches Verhalten, gleiches Erscheinungsbild wie der heutige in-place Danke-Screen.
+- [x] Wenn die Meditation natuerlich endet, sieht der User beim naechsten Oeffnen der App den Danke-Screen — unabhaengig davon, ob die App im Hintergrund war, suspendiert wurde oder neu gestartet werden musste.
+- [x] Tippt der User auf "Zurueck" auf dem Danke-Screen, kehrt er zur Meditationsliste zurueck und der Danke-Screen erscheint nicht erneut.
+- [x] Wenn der User direkt im Anschluss eine neue Meditation startet, erscheint der alte Danke-Screen nicht mehr.
+- [x] Der Danke-Screen erscheint solange, bis der User ihn explizit schliesst oder eine neue Meditation startet — unabhaengig davon, wie viel Zeit seit dem Ende der Meditation vergangen ist. Bedingung: "Meditation zu Ende gehoert" war die letzte Interaktion mit der App.
+- [x] Bricht der User die Meditation aktiv ab (Schliessen-Button, Tab-Wechsel, Audio-Interruption ohne Resume), erscheint kein Danke-Screen.
+- [x] Lokalisiert (DE + EN) — die `MeditationCompletionView` / `MeditationCompletionScreen` ist bereits lokalisiert, keine neuen Texte noetig.
+- [x] Visuell konsistent zwischen iOS und Android — gleiches Verhalten, gleiches Erscheinungsbild wie der heutige in-place Danke-Screen.
 
 ### Tests
-- [ ] Unit Tests iOS fuer den Persistenz-/Restoration-Mechanismus (Speichern, Laden, Loeschen bei aktivem Dismiss und bei neuer Meditation).
-- [ ] Unit Tests Android analog.
-- [ ] Unit Test pro Plattform: Danke-Screen wird nicht doppelt angezeigt, wenn der Player-View nach `finished` noch im Vordergrund steht und der persistierte Marker ebenfalls vorhanden ist.
+- [x] Unit Tests iOS fuer den Persistenz-/Restoration-Mechanismus (Speichern, Laden, Loeschen bei aktivem Dismiss und bei neuer Meditation).
+- [x] Unit Tests Android analog.
+- [x] Unit Test pro Plattform: Danke-Screen wird nicht doppelt angezeigt, wenn der Player-View nach `finished` noch im Vordergrund steht und der persistierte Marker ebenfalls vorhanden ist.
 
 ### Dokumentation
-- [ ] CHANGELOG.md (user-sichtbare Verbesserung)
+- [x] CHANGELOG.md (user-sichtbare Verbesserung)
 
 ---
 
