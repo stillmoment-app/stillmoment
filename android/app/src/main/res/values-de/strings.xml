@@ -105,9 +105,17 @@
 
     <!-- Guided Meditations Library -->
     <string name="guided_meditations_title">Geführte Meditationen</string>
-    <string name="guided_meditations_empty_title">Noch keine Meditationen</string>
-    <string name="guided_meditations_empty_description">Füge deine erste geführte Meditation hinzu, indem du eine MP3-Datei aus der Dateien-App importierst.</string>
+    <string name="guided_meditations_empty_title">Dein persönlicher Meditationsraum</string>
+    <string name="guided_meditations_empty_description">Importiere Meditationen von deinen Lieblingslehrern und erstelle so deine persönliche Bibliothek.</string>
+    <string name="guided_meditations_empty_find_sources">Wo finde ich Meditationen?</string>
     <string name="guided_meditations_import">Meditation importieren</string>
+
+    <!-- Content Guide Sheet -->
+    <string name="guided_meditations_guide_title">Wo finde ich Meditationen?</string>
+    <string name="guided_meditations_guide_intro">Auf folgenden Seiten findest du qualitativ hochwertige Meditationen zum kostenlosen Download.</string>
+    <string name="guided_meditations_guide_close">Schließen</string>
+    <string name="guided_meditations_guide_open_source">Quelle im Browser öffnen</string>
+    <string name="guided_meditations_guide_info">Inhalts-Guide</string>
     <string name="guided_meditations_delete_title">Meditation löschen</string>
     <string name="guided_meditations_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
     <string name="guided_meditations_edit_title">Meditation bearbeiten</string>

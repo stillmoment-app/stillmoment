@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -96,6 +97,8 @@ fun GuidedMeditationsListScreen(
             }
         }
 
+    val languageCode = currentLanguageCode()
+
     GuidedMeditationsListScreenContent(
         uiState = uiState,
         onMeditationClick = onMeditationClick,
@@ -109,6 +112,8 @@ fun GuidedMeditationsListScreen(
         onClearError = viewModel::clearError,
         onPreviewStart = viewModel::startPreview,
         onStopPreview = viewModel::stopPreview,
+        onOpenGuide = { viewModel.openGuideSheet(languageCode) },
+        onCloseGuide = viewModel::closeGuideSheet,
         modifier = modifier
     )
 }
@@ -129,10 +134,13 @@ internal fun GuidedMeditationsListScreenContent(
     onClearError: () -> Unit,
     onPreviewStart: (GuidedMeditation) -> Unit,
     onStopPreview: () -> Unit,
+    onOpenGuide: () -> Unit,
+    onCloseGuide: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
+    val guideDescription = stringResource(R.string.guided_meditations_guide_info)
 
     // rememberUpdatedState to safely use lambda in LaunchedEffect
     val currentOnClearError by rememberUpdatedState(onClearError)
@@ -163,6 +171,18 @@ internal fun GuidedMeditationsListScreenContent(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                        IconButton(
+                            onClick = onOpenGuide,
+                            modifier = Modifier.semantics {
+                                contentDescription = guideDescription
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 )
 
@@ -184,7 +204,10 @@ internal fun GuidedMeditationsListScreenContent(
                             }
                         }
                         uiState.isEmpty -> {
-                            EmptyLibraryState(onImportClick = onImportClick)
+                            EmptyLibraryState(
+                                onImportClick = onImportClick,
+                                onFindSourcesClick = onOpenGuide
+                            )
                         }
                         else -> {
                             MeditationsList(
@@ -209,6 +232,14 @@ internal fun GuidedMeditationsListScreenContent(
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation,
                 availableTeachers = uiState.availableTeachers
+            )
+        }
+
+        // Content Guide Sheet
+        if (uiState.showGuideSheet) {
+            ContentGuideSheet(
+                sources = uiState.guideSources,
+                onDismiss = onCloseGuide
             )
         }
 
@@ -446,7 +477,7 @@ private fun GuidedMeditationsListScreenEmptyPreview() {
     StillMomentTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             WarmGradientBackground()
-            EmptyLibraryState(onImportClick = {})
+            EmptyLibraryState(onImportClick = {}, onFindSourcesClick = {})
         }
     }
 }

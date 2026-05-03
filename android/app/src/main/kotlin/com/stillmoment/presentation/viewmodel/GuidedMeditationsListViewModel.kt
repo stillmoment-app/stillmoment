@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.MeditationSource
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -40,6 +42,10 @@ data class GuidedMeditationsListUiState(
     val meditationToDelete: GuidedMeditation? = null,
     /** ID of the meditation currently being previewed, or null if none */
     val previewingMeditationId: String? = null,
+    /** Whether the Content Guide sheet is shown */
+    val showGuideSheet: Boolean = false,
+    /** Curated sources for the current locale (Content Guide) */
+    val guideSources: ImmutableList<MeditationSource> = persistentListOf(),
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -65,7 +71,8 @@ class GuidedMeditationsListViewModel
 @Inject
 constructor(
     private val repository: GuidedMeditationRepository,
-    private val audioService: AudioServiceProtocol
+    private val audioService: AudioServiceProtocol,
+    private val meditationSourceRepository: MeditationSourceRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -164,18 +171,6 @@ constructor(
         }
     }
 
-    /**
-     * Deletes a meditation directly without confirmation.
-     * Use confirmDelete() for user-initiated deletes.
-     *
-     * @param meditation Meditation to delete
-     */
-    fun deleteMeditation(meditation: GuidedMeditation) {
-        viewModelScope.launch {
-            repository.deleteMeditation(meditation.id)
-        }
-    }
-
     // MARK: - Edit
 
     /**
@@ -257,6 +252,25 @@ constructor(
         if (_uiState.value.previewingMeditationId == null) return
         _uiState.update { it.copy(previewingMeditationId = null) }
         audioService.stopMeditationPreview()
+    }
+
+    // MARK: - Content Guide
+
+    /**
+     * Loads the curated meditation sources for the given language and shows the guide sheet.
+     *
+     * @param languageCode Active language code (`"de"`, `"en"`, ...).
+     */
+    fun openGuideSheet(languageCode: String) {
+        val sources = meditationSourceRepository.sources(languageCode).toImmutableList()
+        _uiState.update { it.copy(guideSources = sources, showGuideSheet = true) }
+    }
+
+    /**
+     * Hides the Content Guide sheet.
+     */
+    fun closeGuideSheet() {
+        _uiState.update { it.copy(showGuideSheet = false) }
     }
 
     // MARK: - Error Handling

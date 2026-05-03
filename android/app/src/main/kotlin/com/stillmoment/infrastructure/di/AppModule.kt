@@ -5,11 +5,13 @@ import com.stillmoment.data.local.GuidedMeditationSettingsDataStore
 import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.repositories.CustomAudioRepositoryImpl
 import com.stillmoment.data.repositories.GuidedMeditationRepositoryImpl
+import com.stillmoment.data.repositories.MeditationSourceRepositoryImpl
 import com.stillmoment.data.repositories.SoundCatalogRepositoryImpl
 import com.stillmoment.data.repositories.TimerRepositoryImpl
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
+import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
@@ -147,6 +149,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSoundCatalogRepository(impl: SoundCatalogRepositoryImpl): SoundCatalogRepository {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideMeditationSourceRepository(impl: MeditationSourceRepositoryImpl): MeditationSourceRepository {
         return impl
     }
 

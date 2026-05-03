@@ -3,7 +3,9 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.MeditationSource
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -36,6 +38,7 @@ class GuidedMeditationsListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
     private lateinit var mockAudioService: AudioServiceProtocol
+    private lateinit var fakeSourceRepository: FakeMeditationSourceRepository
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
@@ -43,7 +46,8 @@ class GuidedMeditationsListViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeGuidedMeditationRepository()
         mockAudioService = mock()
-        viewModel = GuidedMeditationsListViewModel(fakeRepository, mockAudioService)
+        fakeSourceRepository = FakeMeditationSourceRepository()
+        viewModel = GuidedMeditationsListViewModel(fakeRepository, mockAudioService, fakeSourceRepository)
     }
 
     @AfterEach
@@ -356,22 +360,6 @@ class GuidedMeditationsListViewModelTest {
 
     @Nested
     inner class DeleteMeditationTests {
-        @Test
-        fun `deleteMeditation calls repository`() = runTest {
-            // Given
-            val meditation = createTestMeditation()
-            fakeRepository.emitMeditations(listOf(meditation))
-            advanceUntilIdle()
-
-            // When
-            viewModel.deleteMeditation(meditation)
-            advanceUntilIdle()
-
-            // Then
-            assertTrue(fakeRepository.deleteWasCalled)
-            assertEquals(meditation.id, fakeRepository.lastDeletedId)
-        }
-
         @Test
         fun `confirmDelete sets meditationToDelete`() = runTest {
             // Given
@@ -792,6 +780,77 @@ class GuidedMeditationsListViewModelTest {
                 )
             }
         return GuidedMeditationGroup(teacher = teacher, meditations = meditations)
+    }
+
+    // ============================================================
+    // MARK: - Content Guide Sheet
+    // ============================================================
+
+    @Nested
+    inner class ContentGuideSheetFlow {
+        @Test
+        fun `openGuideSheet loads sources for given language and shows sheet`() = runTest {
+            fakeSourceRepository.catalog = mapOf(
+                "de" to listOf(makeTestSource("mangold")),
+                "en" to listOf(makeTestSource("tara-brach"))
+            )
+
+            viewModel.openGuideSheet("de")
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertTrue(state.showGuideSheet)
+            assertEquals(listOf("mangold"), state.guideSources.map { it.id })
+        }
+
+        @Test
+        fun `openGuideSheet with english locale loads english sources`() = runTest {
+            fakeSourceRepository.catalog = mapOf(
+                "de" to listOf(makeTestSource("mangold")),
+                "en" to listOf(makeTestSource("tara-brach"), makeTestSource("dharma-seed"))
+            )
+
+            viewModel.openGuideSheet("en")
+            advanceUntilIdle()
+
+            assertEquals(
+                listOf("tara-brach", "dharma-seed"),
+                viewModel.uiState.value.guideSources.map { it.id }
+            )
+        }
+
+        @Test
+        fun `closeGuideSheet hides sheet`() = runTest {
+            fakeSourceRepository.catalog = mapOf("en" to listOf(makeTestSource("tara")))
+            viewModel.openGuideSheet("en")
+            advanceUntilIdle()
+
+            viewModel.closeGuideSheet()
+            advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.showGuideSheet)
+        }
+    }
+
+    private fun makeTestSource(id: String) = MeditationSource(
+        id = id,
+        name = id,
+        author = null,
+        description = "desc",
+        host = "h",
+        url = "https://example.com/$id"
+    )
+}
+
+// ============================================================
+// MARK: - Fake Meditation Source Repository
+// ============================================================
+
+class FakeMeditationSourceRepository : MeditationSourceRepository {
+    var catalog: Map<String, List<MeditationSource>> = emptyMap()
+
+    override fun sources(languageCode: String): List<MeditationSource> {
+        return catalog[languageCode] ?: catalog["en"].orEmpty()
     }
 }
 
