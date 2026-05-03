@@ -241,9 +241,9 @@ final class LibraryFlowUITests: XCTestCase {
             let startButton = self.app.buttons["timer.button.start"]
             XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Timer should be in idle state")
 
-            // Duration picker should still be visible
-            let picker = self.app.pickers["timer.picker.minutes"]
-            XCTAssertTrue(picker.exists, "Duration picker should be visible")
+            // Atemkreis-Dial sollte sichtbar sein (shared-086)
+            let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+            XCTAssertTrue(plusButton.exists, "Dial plus-Button should be visible")
         }
     }
 

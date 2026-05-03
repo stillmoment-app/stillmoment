@@ -10,7 +10,7 @@
 
 // MARK: - Buttons
 
-"button.start" = "Start";
+"button.start" = "Begin";
 "button.done" = "Done";
 "button.back" = "Back";
 
@@ -340,7 +340,16 @@
 "settings.card.label.background" = "Background";
 "settings.card.label.gong" = "Gong";
 "settings.card.label.interval" = "Interval";
-"settings.card.hint" = "Tap to adjust";
+
+// MARK: - Timer Idle Screen (shared-086)
+"timer.idle.headline" = "How much time will you gift yourself?";
+"timer.idle.sectionTitle" = "Adjust the timer";
+"timer.dial.unit" = "Minutes";
+"accessibility.dial.label" = "Meditation duration";
+"accessibility.dial.hint" = "Swipe to change the duration";
+"accessibility.dial.decrement" = "One minute less";
+"accessibility.dial.increment" = "One minute more";
+"accessibility.dial.value" = "%d minutes";
 
 // MARK: - Custom Audio Import (shared-065)
 

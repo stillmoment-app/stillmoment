@@ -95,20 +95,16 @@ final class ScreenshotTests: XCTestCase {
     // Order and naming matches Android (ScreengrabScreenshotTests.kt):
     // 01_TimerIdle, 02_TimerRunning, 03_LibraryList, 04_PlayerView, 05_SettingsView
 
-    /// Screenshot 1: Timer idle state with duration picker
+    /// Screenshot 1: Timer idle state with breath dial (shared-086)
     func testScreenshot01_timerIdle() {
         self.navigateToTimerTab()
 
         let startButton = self.app.buttons["timer.button.start"]
         XCTAssertTrue(startButton.waitForExistence(timeout: 3.0), "Start button should exist")
 
-        // Select 10 minutes for a nice display
-        let picker = self.app.pickers["timer.picker.minutes"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
-        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "10 min")
-
-        // Wait for picker animation to complete
-        _ = startButton.waitForExistence(timeout: 1.0)
+        // Default selectedMinutes ist 10 — Atemkreis zeigt direkt einen schoenen Wert.
+        let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+        XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial should exist")
 
         snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
@@ -120,10 +116,9 @@ final class ScreenshotTests: XCTestCase {
         let startButton = self.app.buttons["timer.button.start"]
         XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should exist")
 
-        // Select 10 minutes duration for a nice display
-        let picker = self.app.pickers["timer.picker.minutes"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Picker should exist")
-        picker.pickerWheels.firstMatch.adjust(toPickerWheelValue: "10 min")
+        // Default selectedMinutes ist 10 — Atemkreis liefert den gewuenschten Wert direkt.
+        let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+        XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial should exist")
 
         // Start timer
         startButton.tap()
