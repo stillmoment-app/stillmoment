@@ -107,7 +107,10 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-080](shared/shared-080-completion-screen-survive-termination.md) | Danke-Screen ueberlebt App-Termination | 4-Polish | [x] | [x] |
 | [shared-081](shared/shared-081-library-filter-nach-dauer.md) | Filter nach Dauer in der Meditationsliste | 3-Feature | [ ] | [ ] |
 | [shared-082](shared/shared-082-download-konstellations-animation.md) | Download-Modal mit Konstellations-Animation | 4-Polish | [x] | [x] |
-| [shared-083](shared/shared-083-setting-karten-timer-konfig.md) | Setting-Karten auf Timer-Konfig statt versteckter Pills | 3-Feature | [ ] | [ ] |
+| [shared-083](shared/shared-083-setting-karten-timer-konfig.md) | Setting-Karten auf Timer-Konfig statt versteckter Pills | 3-Feature | [x] | [ ] |
+| [shared-084](shared/shared-084-meditationen-tab-zuerst.md) | Meditationen-Tab als erster Tab | 4-Polish | [ ] | [ ] |
+| [shared-085](shared/shared-085-store-website-meditationen-zuerst.md) | Store + Website spiegeln Meditationen-zuerst-IA | 4-Polish | [ ] | [ ] |
+| [shared-086](shared/shared-086-atemkreis-picker-timer-konfig.md) | Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig | 4-Polish | [ ] | [ ] |
 
 ---
 
