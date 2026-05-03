@@ -213,31 +213,30 @@
 
 // Content Guide - Import banners and how-to guides (shared-039b)
 "guided_meditations.guide.banner.browser.title" = "How to import from the browser";
-"guided_meditations.guide.banner.browser.subtitle" = "Long-press → Share → Still Moment.";
+"guided_meditations.guide.banner.browser.subtitle" = "Touch and hold link → Share → Still Moment.";
 "guided_meditations.guide.banner.files.title" = "How to import from your files";
-"guided_meditations.guide.banner.files.subtitle" = "Tap “+” → From Files → Pick audio.";
+"guided_meditations.guide.banner.files.subtitle" = "Tap “+” → Pick a recording.";
 
 "guided_meditations.guide.howto.eyebrow" = "How-to";
-"guided_meditations.guide.howto.back" = "Back";
 "guided_meditations.guide.howto.stepCount" = "Step %d of 3";
 
 "guided_meditations.guide.howto.browser.title" = "How to import from the browser";
-"guided_meditations.guide.howto.browser.intro" = "On many websites, you can send mp3 recordings directly to Still Moment — without going through the Files app.";
+"guided_meditations.guide.howto.browser.intro" = "On many websites, you can send a meditation directly to Still Moment — no need to download it first.";
 "guided_meditations.guide.howto.browser.step1.title" = "Share from the browser";
-"guided_meditations.guide.howto.browser.step1.body" = "Long-press the mp3 link → choose “Share…”. The iOS share sheet opens.";
+"guided_meditations.guide.howto.browser.step1.body" = "Touch and hold the link to the recording until a menu appears. Choose “Share…”.";
 "guided_meditations.guide.howto.browser.step2.title" = "Pick Still Moment";
-"guided_meditations.guide.howto.browser.step2.body" = "Tap Still Moment in the app row. iOS briefly confirms with “Saved” — tap OK.";
+"guided_meditations.guide.howto.browser.step2.body" = "Pick Still Moment from the suggested apps. A short confirmation appears — tap “OK”.";
 "guided_meditations.guide.howto.browser.step3.title" = "Finish in the app";
-"guided_meditations.guide.howto.browser.step3.body" = "Switch back to Still Moment. You'll land in the import screen — choose type, teacher and title.";
+"guided_meditations.guide.howto.browser.step3.body" = "Open Still Moment. The import starts automatically — enter title, teacher and type.";
 
 "guided_meditations.guide.howto.files.title" = "How to import from your files";
-"guided_meditations.guide.howto.files.intro" = "If the audio file is already on your device, you can add it directly from the library.";
+"guided_meditations.guide.howto.files.intro" = "If the recording is already on your device, you can add it directly from the library.";
 "guided_meditations.guide.howto.files.step1.title" = "Tap “+” in the library";
-"guided_meditations.guide.howto.files.step1.body" = "In the action menu, choose “From Files”. The iOS file picker opens.";
-"guided_meditations.guide.howto.files.step2.title" = "Pick an audio file";
-"guided_meditations.guide.howto.files.step2.body" = "Navigate to iCloud, Downloads or a local folder and tap the recording.";
+"guided_meditations.guide.howto.files.step1.body" = "Tap “+” at the top right. The Files app opens automatically.";
+"guided_meditations.guide.howto.files.step2.title" = "Pick a recording";
+"guided_meditations.guide.howto.files.step2.body" = "Find the recording, e.g. in the Downloads folder, and tap it.";
 "guided_meditations.guide.howto.files.step3.title" = "Finish";
-"guided_meditations.guide.howto.files.step3.body" = "You'll land in the import screen — choose type, teacher and title.";
+"guided_meditations.guide.howto.files.step3.body" = "The import starts automatically — enter title, teacher and type.";
 
 "guided_meditations.migration.title" = "Updating Library";
 "guided_meditations.migration.message" = "Your meditations are being updated. This may take a moment.";
