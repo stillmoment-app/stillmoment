@@ -210,6 +210,79 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertFalse(self.sut.backgroundPillLabel.isEmpty)
     }
 
+    // MARK: - Setting Card Labels (shared-083)
+
+    func testPreparationCard_whenEnabled_showsSecondsAndIsNotOff() {
+        let praxis = Praxis(
+            preparationTimeEnabled: true,
+            preparationTimeSeconds: 15,
+            startGongSoundId: GongSound.defaultSoundId
+        )
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertTrue(self.sut.preparationCardLabel.contains("15"))
+        XCTAssertFalse(self.sut.preparationCardIsOff)
+    }
+
+    func testPreparationCard_whenDisabled_showsOffAndIsOff() {
+        let praxis = Praxis(
+            preparationTimeEnabled: false,
+            preparationTimeSeconds: 15,
+            startGongSoundId: GongSound.defaultSoundId
+        )
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertEqual(self.sut.preparationCardLabel, NSLocalizedString("common.off", comment: ""))
+        XCTAssertTrue(self.sut.preparationCardIsOff)
+    }
+
+    func testAttunementCard_whenDisabled_showsNoneAndIsOff() {
+        let praxis = Praxis(attunementId: nil, attunementEnabled: false)
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertEqual(
+            self.sut.attunementCardLabel,
+            NSLocalizedString("settings.card.value.attunement.off", comment: "")
+        )
+        XCTAssertTrue(self.sut.attunementCardIsOff)
+    }
+
+    func testBackgroundCard_whenSilent_showsSilenceAndIsNotOff() {
+        // Hintergrund hat kein Off — "Stille" ist eine bewusste Auswahl
+        let praxis = Praxis(backgroundSoundId: "silent")
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertEqual(
+            self.sut.backgroundCardLabel,
+            NSLocalizedString("praxis.editor.background.silence", comment: "")
+        )
+        XCTAssertFalse(self.sut.backgroundCardIsOff)
+    }
+
+    func testGongCard_isNeverOff() {
+        let praxis = Praxis(startGongSoundId: GongSound.defaultSoundId)
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertFalse(self.sut.gongCardLabel.isEmpty)
+        XCTAssertFalse(self.sut.gongCardIsOff)
+    }
+
+    func testIntervalCard_whenDisabled_showsOffAndIsOff() {
+        let praxis = Praxis(intervalGongsEnabled: false)
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertEqual(self.sut.intervalCardLabel, NSLocalizedString("common.off", comment: ""))
+        XCTAssertTrue(self.sut.intervalCardIsOff)
+    }
+
+    func testIntervalCard_whenEnabled_showsMinutesAndIsNotOff() {
+        let praxis = Praxis(intervalGongsEnabled: true, intervalMinutes: 10)
+        self.sut.updateFromPraxis(praxis)
+
+        XCTAssertTrue(self.sut.intervalCardLabel.contains("10"))
+        XCTAssertFalse(self.sut.intervalCardIsOff)
+    }
+
     func testStartTimer_persistsSelectedDurationToPraxisRepository() {
         // Given
         self.sut.selectedMinutes = 20

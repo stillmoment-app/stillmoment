@@ -89,4 +89,28 @@ final class ThemeColorsTests: XCTestCase {
             XCTAssertEqual(theme.accentBubbleBackground, theme.interactive.opacity(0.18))
         }
     }
+
+    // MARK: - Setting Card Tokens (shared-083)
+
+    func testSettingCardBackgroundDerivesFromTextPrimary() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.settingCardBackground, theme.textPrimary.opacity(0.03))
+    }
+
+    func testSettingCardBorderDerivesFromTextPrimary() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.settingCardBorder, theme.textPrimary.opacity(0.08))
+    }
+
+    func testSettingCardTokensFollowThemeAcrossPalettes() {
+        let palettes: [ThemeColors] = [
+            .candlelightLight, .candlelightDark,
+            .forestLight, .forestDark,
+            .moonLight, .moonDark
+        ]
+        for theme in palettes {
+            XCTAssertEqual(theme.settingCardBackground, theme.textPrimary.opacity(0.03))
+            XCTAssertEqual(theme.settingCardBorder, theme.textPrimary.opacity(0.08))
+        }
+    }
 }

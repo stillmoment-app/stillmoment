@@ -346,6 +346,15 @@
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
 "common.off" = "Aus";
 "common.on" = "Ein";
+
+// MARK: - Setting Cards (shared-083)
+"settings.card.value.attunement.off" = "Ohne";
+"settings.card.label.preparation" = "Vorbereitung";
+"settings.card.label.attunement" = "Einstimmung";
+"settings.card.label.background" = "Hintergrund";
+"settings.card.label.gong" = "Gong";
+"settings.card.label.interval" = "Intervall";
+"settings.card.hint" = "Tippen, um anzupassen";
 "accessibility.praxis.editor.cancel" = "Abbrechen";
 "accessibility.praxis.editor.cancel.hint" = "Änderungen verwerfen und schließen";
 "accessibility.praxis.editor.done" = "Fertig";
