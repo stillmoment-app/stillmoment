@@ -88,6 +88,9 @@ iOSInjectionProject/
 
 # Local working directory (screenshots, debug output, etc.)
 tmp/
+handoffs/
+import workflow/
+dev-docs/.obsidian/
 *.swp
 *.swo
 *~
