@@ -1,6 +1,6 @@
 # Ticket shared-082: Download-Modal mit Konstellations-Animation
 
-**Status**: [~] IN PROGRESS (iOS) — Android [x] DONE
+**Status**: [x] DONE (beide Plattformen)
 **Plan**: [Implementierungsplan Android](../plans/shared-082-android.md) | [Implementierungsplan iOS](../plans/shared-082-ios.md)
 **Prioritaet**: NIEDRIG (Polish)
 **Aufwand**: iOS ~M | Android ~M (inkl. Cancel-API)
@@ -39,7 +39,7 @@ Wichtig:
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | Cancel-API existiert bereits, nur UI-Austausch |
+| iOS       | [x]    | Cancel-API existiert bereits, nur UI-Austausch |
 | Android   | [x]    | Cancel-API in `UrlAudioDownloaderProtocol` muss ergaenzt werden (Teil des Tickets) |
 
 ---

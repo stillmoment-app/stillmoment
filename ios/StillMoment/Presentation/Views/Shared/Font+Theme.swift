@@ -54,6 +54,10 @@ enum TypographyRole: CaseIterable {
     // Edit
     case editLabel
     case editCaption
+
+    // Dialog
+    case dialogTitle
+    case dialogBody
 }
 
 // MARK: - Font Spec (Single Source of Truth)
@@ -98,6 +102,9 @@ extension TypographyRole {
         // Edit
         case .editLabel: .dynamic(style: .subheadline, weight: .medium, design: .rounded)
         case .editCaption: .dynamic(style: .caption, weight: .regular, design: .rounded)
+        // Dialog — small modal text (e.g. download progress)
+        case .dialogTitle: .fixed(size: 18, weight: .light, design: .rounded)
+        case .dialogBody: .fixed(size: 12, weight: .regular, design: .rounded)
         }
     }
 
@@ -124,6 +131,8 @@ extension TypographyRole {
         case .listActionLabel: \.textPrimary
         case .editLabel: \.textPrimary
         case .editCaption: \.textSecondary
+        case .dialogTitle: \.textPrimary
+        case .dialogBody: \.textSecondary
         }
     }
 }
