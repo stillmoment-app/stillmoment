@@ -29,9 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -68,6 +70,10 @@ fun DownloadProgressModal(onCancel: () -> Unit, modifier: Modifier = Modifier) {
     val isAppActive = rememberAppActive()
     val themeColors = LocalStillMomentColors.current
     val interactive = MaterialTheme.colorScheme.primary
+    // textPrimary token (cross-platform parity with iOS theme.textPrimary).
+    val textPrimary = MaterialTheme.colorScheme.onSurface
+    val ghostFill = textPrimary.copy(alpha = GHOST_FILL_ALPHA)
+    val ghostBorder = textPrimary.copy(alpha = GHOST_BORDER_ALPHA)
 
     Box(
         modifier = modifier
@@ -83,19 +89,23 @@ fun DownloadProgressModal(onCancel: () -> Unit, modifier: Modifier = Modifier) {
             cardBackground = themeColors.cardBackground,
             cardBorder = themeColors.cardBorder,
             interactive = interactive,
+            ghostFill = ghostFill,
+            ghostBorder = ghostBorder,
             isAppActive = isAppActive,
             onCancel = onCancel
         )
     }
 }
 
-@Suppress("LongParameterList") // Card content needs 6 distinct concerns (texts/colors/state/callback)
+@Suppress("LongParameterList") // Card content needs distinct concerns (texts/colors/state/callback)
 @Composable
 private fun ModalCard(
     texts: ModalTexts,
     cardBackground: Color,
     cardBorder: Color,
     interactive: Color,
+    ghostFill: Color,
+    ghostBorder: Color,
     isAppActive: Boolean,
     onCancel: () -> Unit
 ) {
@@ -116,9 +126,12 @@ private fun ModalCard(
                     bottom = CARD_BOTTOM_PADDING.dp
                 )
             )
+            // liveRegion = Polite triggers TalkBack to announce the title + body
+            // when the modal appears (Compose has no Role.Alert; this is the
+            // idiomatic equivalent for alert-style modals).
             .semantics {
+                liveRegion = LiveRegionMode.Polite
                 isTraversalGroup = true
-                contentDescription = "${texts.title}. ${texts.body}"
             }
             // Block taps from leaking through the card.
             .pointerInput(Unit) {}
@@ -150,6 +163,8 @@ private fun ModalCard(
             label = texts.cancelLabel,
             accessibilityLabel = texts.cancelA11y,
             interactive = interactive,
+            ghostFill = ghostFill,
+            ghostBorder = ghostBorder,
             onClick = onCancel
         )
     }
@@ -162,8 +177,16 @@ private data class ModalTexts(
     val cancelA11y: String
 )
 
+@Suppress("LongParameterList") // Pill needs label/a11y/colors/callback
 @Composable
-private fun CancelGhostPill(label: String, accessibilityLabel: String, interactive: Color, onClick: () -> Unit) {
+private fun CancelGhostPill(
+    label: String,
+    accessibilityLabel: String,
+    interactive: Color,
+    ghostFill: Color,
+    ghostBorder: Color,
+    onClick: () -> Unit
+) {
     TextButton(
         onClick = onClick,
         shape = RoundedCornerShape(PILL_RADIUS.dp),
@@ -173,8 +196,8 @@ private fun CancelGhostPill(label: String, accessibilityLabel: String, interacti
             vertical = PILL_VERTICAL_PADDING.dp
         ),
         modifier = Modifier
-            .background(GHOST_FILL, RoundedCornerShape(PILL_RADIUS.dp))
-            .border(1.dp, GHOST_BORDER, RoundedCornerShape(PILL_RADIUS.dp))
+            .background(ghostFill, RoundedCornerShape(PILL_RADIUS.dp))
+            .border(1.dp, ghostBorder, RoundedCornerShape(PILL_RADIUS.dp))
             .testTag(TestTag.CancelButton)
             .semantics { contentDescription = accessibilityLabel }
     ) {
@@ -204,8 +227,8 @@ private fun rememberAppActive(): Boolean {
 }
 
 private val BACKDROP_COLOR = Color.Black.copy(alpha = 0.55f)
-private val GHOST_FILL = Color(0x0AEBE2D6) // textPrimary @ ~4 % alpha (handoff token)
-private val GHOST_BORDER = Color(0x14EBE2D6) // textPrimary @ ~8 % alpha
+private const val GHOST_FILL_ALPHA = 0.04f
+private const val GHOST_BORDER_ALPHA = 0.08f
 
 private const val CARD_MAX_WIDTH = 320
 private const val SCREEN_PADDING = 36

@@ -6,6 +6,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
@@ -320,8 +322,14 @@ fun StillMomentNavHost(
 
         // Download progress modal — covers the entire host (incl. bottom bar)
         // while a URL share/import download is in flight. Cancel cancels the
-        // active download via the protocol's cancel API.
-        if (isDownloading) {
+        // active download via the protocol's cancel API. 200ms fade smooths
+        // the hand-off into the type-selection sheet on success and the
+        // dismissal on cancel.
+        AnimatedVisibility(
+            visible = isDownloading,
+            enter = fadeIn(animationSpec = tween(durationMillis = 200)),
+            exit = fadeOut(animationSpec = tween(durationMillis = 200))
+        ) {
             DownloadProgressModal(
                 onCancel = {
                     urlAudioDownloader?.cancel()
