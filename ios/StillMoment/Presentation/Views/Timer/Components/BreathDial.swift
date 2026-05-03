@@ -228,6 +228,10 @@ struct BreathDial: View {
         DragGesture(minimumDistance: 0)
             .onChanged { gesture in
                 let center = CGPoint(x: self.diameter / 2, y: self.diameter / 2)
+                let dx = gesture.location.x - center.x
+                let dy = gesture.location.y - center.y
+                guard sqrt(dx * dx + dy * dy) > self.ringRadius * 0.5
+                else { return }
                 let newValue = BreathDialGeometry.valueFromPoint(
                     gesture.location,
                     center: center,
@@ -282,10 +286,15 @@ private struct DialAdjustButton: View {
         .opacity(self.isDisabled ? 0.3 : 1.0)
         .contentShape(Circle())
         .gesture(self.pressGesture)
+        .disabled(self.isDisabled)
         .accessibilityIdentifier(self.identifier)
         .accessibilityLabel(Text(NSLocalizedString(self.accessibilityLabelKey, comment: "")))
         .accessibilityAddTraits(.isButton)
-        .accessibilityRemoveTraits(self.isDisabled ? .isButton : [])
+        .onChange(of: self.isDisabled) { newValue in
+            if newValue {
+                self.handlePressEnd()
+            }
+        }
     }
 
     private var identifier: String {
