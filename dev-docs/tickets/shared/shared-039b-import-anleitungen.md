@@ -1,6 +1,6 @@
 # Ticket shared-039b: Import-Anleitungen im Content Guide
 
-**Status**: [ ] TODO
+**Status**: [x] DONE (iOS)
 **Prioritaet**: MITTEL
 **Komplexitaet**: UI-only auf iOS. Banner-Karten als NavigationLink in den bestehenden NavigationStack des `ContentGuideSheet`, zwei Detail-Views als gepushte Sub-Screens. Zwei neue Theme-Tokens (computed properties) fuer Banner-BG und -Border.
 **Phase**: 4-Polish
@@ -21,7 +21,7 @@ Neue Nutzer kennen die App-internen Import-Wege nicht. Sie sehen den Quellen-She
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-039 (ContentGuideSheet)  |
+| iOS       | [x]    | shared-039 (ContentGuideSheet)  |
 | Android   | -      | folgt in spaeterem Ticket |
 
 ---

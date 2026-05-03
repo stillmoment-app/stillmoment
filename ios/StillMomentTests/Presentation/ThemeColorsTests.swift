@@ -59,4 +59,34 @@ final class ThemeColorsTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - Banner Tokens (shared-039b)
+
+    func testAccentBannerBackgroundDerivesFromInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.accentBannerBackground, theme.interactive.opacity(0.10))
+    }
+
+    func testAccentBannerBorderDerivesFromInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.accentBannerBorder, theme.interactive.opacity(0.28))
+    }
+
+    func testAccentBubbleBackgroundDerivesFromInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.accentBubbleBackground, theme.interactive.opacity(0.18))
+    }
+
+    func testBannerTokensFollowThemeAcrossPalettes() {
+        let palettes: [ThemeColors] = [
+            .candlelightLight, .candlelightDark,
+            .forestLight, .forestDark,
+            .moonLight, .moonDark
+        ]
+        for theme in palettes {
+            XCTAssertEqual(theme.accentBannerBackground, theme.interactive.opacity(0.10))
+            XCTAssertEqual(theme.accentBannerBorder, theme.interactive.opacity(0.28))
+            XCTAssertEqual(theme.accentBubbleBackground, theme.interactive.opacity(0.18))
+        }
+    }
 }

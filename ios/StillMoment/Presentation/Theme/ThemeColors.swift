@@ -46,6 +46,24 @@ struct ThemeColors: Equatable, Hashable {
             endPoint: .bottom
         )
     }
+
+    // MARK: - Banner Tokens (shared-039b)
+
+    /// Akzent-getoenter Hintergrund fuer Banner-Karten im Quellen-Sheet.
+    var accentBannerBackground: Color {
+        self.interactive.opacity(0.10)
+    }
+
+    /// Akzent-getoenter Border fuer Banner-Karten im Quellen-Sheet.
+    var accentBannerBorder: Color {
+        self.interactive.opacity(0.28)
+    }
+
+    /// Akzent-getoenter Hintergrund fuer kreisrunde Icon-Bubbles
+    /// (Banner-Icon links, Step-Number-Badge in Anleitungen).
+    var accentBubbleBackground: Color {
+        self.interactive.opacity(0.18)
+    }
 }
 
 // MARK: - Theme Resolution

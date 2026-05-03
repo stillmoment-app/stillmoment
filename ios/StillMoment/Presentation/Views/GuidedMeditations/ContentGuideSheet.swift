@@ -38,6 +38,7 @@ struct ContentGuideSheet: View {
                 VStack(alignment: .leading, spacing: 0) {
                     self.titleRow
                     self.intro
+                    self.importBanners
                     self.sourceList
                 }
                 .padding(.horizontal, 22)
@@ -84,6 +85,35 @@ struct ContentGuideSheet: View {
             .padding(.bottom, 24)
     }
 
+    private var importBanners: some View {
+        VStack(spacing: 10) {
+            NavigationLink {
+                HowToImportBrowserView()
+            } label: {
+                ImportBannerCard(
+                    icon: "safari",
+                    titleKey: "guided_meditations.guide.banner.browser.title",
+                    subtitleKey: "guided_meditations.guide.banner.browser.subtitle"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("library.guideSheet.banner.browser")
+
+            NavigationLink {
+                HowToImportFilesView()
+            } label: {
+                ImportBannerCard(
+                    icon: "folder",
+                    titleKey: "guided_meditations.guide.banner.files.title",
+                    subtitleKey: "guided_meditations.guide.banner.files.subtitle"
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("library.guideSheet.banner.files")
+        }
+        .padding(.bottom, 24)
+    }
+
     private var sourceList: some View {
         VStack(spacing: 0) {
             ForEach(Array(self.sources.enumerated()), id: \.element.id) { index, source in
@@ -108,6 +138,76 @@ struct ContentGuideSheet: View {
     private func handleTap(on source: MeditationSource) {
         self.onOpenURL(source.url)
         self.onDismiss()
+    }
+}
+
+// MARK: - Banner Card
+
+private struct ImportBannerCard: View {
+    // MARK: Internal
+
+    let icon: String
+    let titleKey: String
+    let subtitleKey: String
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 14) {
+            self.iconBubble
+            self.text
+            Spacer(minLength: 8)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(self.theme.textSecondary)
+                .opacity(.opacitySecondary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(self.theme.accentBannerBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(self.theme.accentBannerBorder, lineWidth: 1)
+        )
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(self.accessibilityLabel)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    // MARK: Private
+
+    @Environment(\.themeColors)
+    private var theme
+
+    private var iconBubble: some View {
+        ZStack {
+            Circle()
+                .fill(self.theme.accentBubbleBackground)
+                .frame(width: 36, height: 36)
+            Image(systemName: self.icon)
+                .font(.system(size: 18, weight: .regular))
+                .foregroundColor(self.theme.interactive)
+        }
+    }
+
+    private var text: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(LocalizedStringKey(self.titleKey))
+                .themeFont(.listTitle)
+                .multilineTextAlignment(.leading)
+            Text(LocalizedStringKey(self.subtitleKey))
+                .themeFont(.bodySecondary, color: \.textSecondary)
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var accessibilityLabel: String {
+        let title = NSLocalizedString(self.titleKey, comment: "")
+        let subtitle = NSLocalizedString(self.subtitleKey, comment: "")
+        return "\(title), \(subtitle)"
     }
 }
 

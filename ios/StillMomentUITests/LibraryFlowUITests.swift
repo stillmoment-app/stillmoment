@@ -68,6 +68,18 @@ final class LibraryFlowUITests: XCTestCase {
         _ = importButton.waitForExistence(timeout: 2.0) || addButton.waitForExistence(timeout: 1.0)
     }
 
+    /// Open the Content Guide sheet via the navigation bar info button.
+    /// Waits on a known sheet element (the close button) instead of the sheet container,
+    /// since SwiftUI containers do not always surface accessibilityIdentifiers reliably.
+    private func openContentGuideSheet() {
+        self.navigateToLibraryTab()
+        let guideButton = self.app.buttons["library.button.guide"]
+        XCTAssertTrue(guideButton.waitForExistence(timeout: 2.0), "Guide button should exist")
+        guideButton.tap()
+        let closeButton = self.app.buttons["library.guideSheet.close"]
+        XCTAssertTrue(closeButton.waitForExistence(timeout: 2.0), "Guide sheet should appear")
+    }
+
     // MARK: - Flow Test 1: Tab Navigation
 
     /// Tests tab navigation between Timer and Library
@@ -241,5 +253,63 @@ final class LibraryFlowUITests: XCTestCase {
             let picker = self.app.pickers["timer.picker.minutes"]
             XCTAssertTrue(picker.exists, "Duration picker should be visible")
         }
+    }
+
+    // MARK: - Flow Test 5: Content Guide Import Banners (shared-039b)
+
+    /// Tests that the Content Guide sheet shows both import banners above the source list.
+    func testGuideSheetShowsImportBanners() {
+        self.openContentGuideSheet()
+
+        let browserBanner = self.app.buttons["library.guideSheet.banner.browser"]
+        let filesBanner = self.app.buttons["library.guideSheet.banner.files"]
+
+        XCTAssertTrue(browserBanner.waitForExistence(timeout: 2.0), "Browser banner should be visible")
+        XCTAssertTrue(filesBanner.waitForExistence(timeout: 2.0), "Files banner should be visible")
+    }
+
+    /// Tests that tapping the browser banner pushes the browser how-to view, and the
+    /// back button returns to the source list.
+    func testBrowserBannerPushesHowtoAndBackReturns() {
+        self.openContentGuideSheet()
+
+        let browserBanner = self.app.buttons["library.guideSheet.banner.browser"]
+        XCTAssertTrue(browserBanner.waitForExistence(timeout: 2.0), "Browser banner should be visible")
+        browserBanner.tap()
+
+        let howtoTitle = self.app.staticTexts["library.guideSheet.howto.browser.title"]
+        XCTAssertTrue(howtoTitle.waitForExistence(timeout: 2.0), "Browser how-to should be pushed")
+
+        // Native back button is the leading button in the navigation bar.
+        let backButton = self.app.navigationBars.buttons.element(boundBy: 0)
+        XCTAssertTrue(backButton.waitForExistence(timeout: 2.0), "Back button should exist")
+        backButton.tap()
+
+        XCTAssertTrue(
+            browserBanner.waitForExistence(timeout: 2.0),
+            "Browser banner should be visible again after back"
+        )
+    }
+
+    /// Tests that tapping the files banner pushes the files how-to view, and the
+    /// back button returns to the source list.
+    func testFilesBannerPushesHowtoAndBackReturns() {
+        self.openContentGuideSheet()
+
+        let filesBanner = self.app.buttons["library.guideSheet.banner.files"]
+        XCTAssertTrue(filesBanner.waitForExistence(timeout: 2.0), "Files banner should be visible")
+        filesBanner.tap()
+
+        let howtoTitle = self.app.staticTexts["library.guideSheet.howto.files.title"]
+        XCTAssertTrue(howtoTitle.waitForExistence(timeout: 2.0), "Files how-to should be pushed")
+
+        let backButton = self.app.navigationBars.buttons.element(boundBy: 0)
+        XCTAssertTrue(backButton.waitForExistence(timeout: 2.0), "Back button should exist")
+        backButton.tap()
+
+        XCTAssertTrue(
+            filesBanner.waitForExistence(timeout: 2.0),
+            "Files banner should be visible again after back"
+        )
     }
 }
