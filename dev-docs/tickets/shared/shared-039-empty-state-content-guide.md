@@ -163,6 +163,7 @@ Einstiegspunkt: `ⓘ`-Icon in der Library-Nav-Bar (neben `+`) — dauerhaft erre
 
 ## Referenz
 
+- Design-Handoff: `handoffs/design_handoff_039_empty_state/` (README.md ist Source of Truth fuer Layout, Copy, Tokens; `library-empty.jsx` als visuelle Referenz).
 - iOS Empty State: `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationsListView.swift`
 - Android Empty State: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/meditations/EmptyLibraryState.kt`
 - BYOM-Strategie: `dev-docs/concepts/byom-strategy.md`

@@ -88,7 +88,6 @@ iOSInjectionProject/
 
 # Local working directory (screenshots, debug output, etc.)
 tmp/
-handoffs/
 import workflow/
 dev-docs/.obsidian/
 *.swp
@@ -102,7 +101,7 @@ test-output.log
 test-*.log
 test-*.txt
 release-prepare.log
-.claude/settings.local.json
+**/.claude/settings.local.json
 .claude/worktrees/
 TestResults.xcresult/
 coverage.json
