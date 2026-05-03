@@ -53,19 +53,17 @@ struct TimerView: View {
             let isCompactHeight = geometry.size.height < 700
 
             VStack(spacing: 0) {
-                if self.viewModel.timerState == .idle {
-                    Spacer(minLength: 8)
-                        .frame(maxHeight: 40)
-                } else {
-                    Spacer(minLength: 8)
+                Spacer(minLength: 8)
+                    .frame(maxHeight: self.viewModel.timerState == .idle ? 24 : 40)
+
+                if self.viewModel.timerState != .idle {
+                    Text("welcome.title", bundle: .main)
+                        .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
+                        .padding(.horizontal)
+
+                    Spacer(minLength: 12)
+                        .frame(maxHeight: 30)
                 }
-
-                Text("welcome.title", bundle: .main)
-                    .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
-                    .padding(.horizontal)
-
-                Spacer(minLength: 12)
-                    .frame(maxHeight: 30)
 
                 if self.viewModel.timerState == .idle {
                     self.idleScreen(geometry: geometry)
@@ -204,30 +202,41 @@ struct TimerView: View {
 
     private func idleScreen(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
-        let spacing: CGFloat = isCompactHeight ? 14 : 22
+        // Dial-Durchmesser: 180 px auf SE, 220 px auf grossen Geraeten.
+        let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
+        // Section-Spacing: kompakter auf kleinen Geraeten, atmend auf grossen.
+        let headlineToDialSpacing: CGFloat = isCompactHeight ? 18 : 28
+        let dialToSectionSpacing: CGFloat = isCompactHeight ? 28 : 44
+        let sectionToCardsSpacing: CGFloat = isCompactHeight ? 12 : 18
 
-        return VStack(spacing: spacing) {
-            self.durationWheel(isCompact: isCompactHeight)
+        return VStack(spacing: 0) {
+            Text("timer.idle.headline", bundle: .main)
+                .themeFont(.sectionTitle)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
+            Spacer(minLength: headlineToDialSpacing)
+                .frame(maxHeight: headlineToDialSpacing)
+
+            BreathDial(
+                value: self.$viewModel.selectedMinutes,
+                minimumValue: self.viewModel.minimumDurationMinutes,
+                diameter: dialDiameter
+            )
+
+            Spacer(minLength: dialToSectionSpacing)
+                .frame(maxHeight: dialToSectionSpacing)
+
+            Text("timer.idle.sectionTitle", bundle: .main)
+                .themeFont(.bodySecondary)
+                .multilineTextAlignment(.center)
+
+            Spacer(minLength: sectionToCardsSpacing)
+                .frame(maxHeight: sectionToCardsSpacing)
+
             self.settingCardsGrid
                 .padding(.horizontal, 18)
         }
-    }
-
-    private func durationWheel(isCompact: Bool) -> some View {
-        Picker(
-            NSLocalizedString("accessibility.durationPicker.label", comment: ""),
-            selection: self.$viewModel.selectedMinutes
-        ) {
-            ForEach(self.viewModel.minimumDurationMinutes...60, id: \.self) { minute in
-                Text(String(format: NSLocalizedString("duration.minutes", comment: ""), minute))
-                    .tag(minute)
-            }
-        }
-        .pickerStyle(.wheel)
-        .frame(height: isCompact ? 120 : 150)
-        .accessibilityIdentifier("timer.picker.minutes")
-        .accessibilityLabel("accessibility.durationPicker")
-        .accessibilityHint("accessibility.durationPicker.hint")
     }
 
     private var settingCardsGrid: some View {
