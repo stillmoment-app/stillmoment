@@ -21,21 +21,26 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     var mockMetadataService: MockAudioMetadataService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockAudioService: MockAudioService!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockMeditationSourceRepository: MockMeditationSourceRepository!
 
     override func setUp() {
         super.setUp()
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
         self.mockAudioService = MockAudioService()
+        self.mockMeditationSourceRepository = MockMeditationSourceRepository()
         self.sut = GuidedMeditationsListViewModel(
             meditationService: self.mockMeditationService,
             metadataService: self.mockMetadataService,
-            audioService: self.mockAudioService
+            audioService: self.mockAudioService,
+            meditationSourceRepository: self.mockMeditationSourceRepository
         )
     }
 
     override func tearDown() {
         self.sut = nil
+        self.mockMeditationSourceRepository = nil
         self.mockAudioService = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil

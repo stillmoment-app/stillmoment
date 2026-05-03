@@ -25,11 +25,13 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     init(
         meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
         metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
-        audioService: AudioServiceProtocol = AudioService()
+        audioService: AudioServiceProtocol = AudioService(),
+        meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository()
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
         self.audioService = audioService
+        self.meditationSourceRepository = meditationSourceRepository
     }
 
     // MARK: Internal
@@ -42,6 +44,8 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showingDocumentPicker = false
     @Published var showingEditSheet = false
+    @Published var showingGuideSheet = false
+    @Published var guideSources: [MeditationSource] = []
     @Published var meditationToEdit: GuidedMeditation?
     @Published var previewingMeditationId: UUID?
 
@@ -221,6 +225,19 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.previewingMeditationId = nil
     }
 
+    /// Loads curated meditation sources for the given language and shows the guide sheet.
+    ///
+    /// - Parameter languageCode: Active language code (`"de"`, `"en"`, …). Falls back to English when unknown.
+    func openGuideSheet(languageCode: String) {
+        self.guideSources = self.meditationSourceRepository.sources(for: languageCode)
+        self.showingGuideSheet = true
+    }
+
+    /// Hides the Content Guide sheet.
+    func closeGuideSheet() {
+        self.showingGuideSheet = false
+    }
+
     /// Groups meditations by teacher for display
     ///
     /// - Returns: Dictionary mapping teacher names to their meditations
@@ -237,4 +254,5 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol
     private let audioService: AudioServiceProtocol
+    private let meditationSourceRepository: MeditationSourceRepositoryProtocol
 }

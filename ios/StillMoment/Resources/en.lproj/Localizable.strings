@@ -205,8 +205,15 @@
 "guided_meditations.import" = "Import meditation";
 "guided_meditations.edit" = "Edit";
 
-"guided_meditations.empty.title" = "No meditations yet";
-"guided_meditations.empty.message" = "Add your first guided meditation by importing an MP3 file from the Files app.";
+"guided_meditations.empty.title" = "Your Personal Meditation Space";
+"guided_meditations.empty.message" = "Bring meditations from your favorite teachers and build a library that's truly yours.";
+"guided_meditations.empty.findSources" = "Where can I find meditations?";
+
+"guided_meditations.guide.title" = "Where to find meditations?";
+"guided_meditations.guide.intro" = "These sites offer high-quality meditations as free downloads.";
+"guided_meditations.guide.close" = "Close";
+"guided_meditations.guide.openSource" = "Open source in browser";
+"guided_meditations.guide.info" = "Content guide";
 
 "guided_meditations.migration.title" = "Updating Library";
 "guided_meditations.migration.message" = "Your meditations are being updated. This may take a moment.";
