@@ -155,61 +155,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertEqual(self.sut.settings.intervalMode, .afterStart)
     }
 
-    // MARK: - Setting Pills
-
-    func testPreparationPillLabel_whenEnabled_containsSeconds() {
-        // Given
-        let praxis = Praxis(
-            preparationTimeEnabled: true,
-            preparationTimeSeconds: 15,
-            startGongSoundId: GongSound.defaultSoundId
-        )
-        self.sut.updateFromPraxis(praxis)
-
-        // Then: pill label contains the preparation seconds
-        XCTAssertNotNil(self.sut.preparationPillLabel)
-        XCTAssertTrue(self.sut.preparationPillLabel?.contains("15") == true)
-    }
-
-    func testPreparationPillLabel_whenDisabled_isNil() {
-        // Given
-        let praxis = Praxis(
-            preparationTimeEnabled: false,
-            preparationTimeSeconds: 15,
-            startGongSoundId: GongSound.defaultSoundId
-        )
-        self.sut.updateFromPraxis(praxis)
-
-        // Then: pill is hidden
-        XCTAssertNil(self.sut.preparationPillLabel)
-    }
-
-    func testIntervalPillLabel_whenDisabled_isNil() {
-        // Given
-        let praxis = Praxis(intervalGongsEnabled: false)
-        self.sut.updateFromPraxis(praxis)
-
-        // Then: interval pill is hidden
-        XCTAssertNil(self.sut.intervalPillLabel)
-    }
-
-    func testIntervalPillLabel_whenEnabled_containsMinutes() {
-        // Given
-        let praxis = Praxis(intervalGongsEnabled: true, intervalMinutes: 10)
-        self.sut.updateFromPraxis(praxis)
-
-        // Then: interval pill shows the duration
-        XCTAssertNotNil(self.sut.intervalPillLabel)
-        XCTAssertTrue(self.sut.intervalPillLabel?.contains("10") == true)
-    }
-
-    func testAlwaysVisiblePills_areAlwaysPresent() {
-        // When: default configuration
-        // Then: gong and background pills are always non-empty
-        XCTAssertFalse(self.sut.gongPillLabel.isEmpty)
-        XCTAssertFalse(self.sut.backgroundPillLabel.isEmpty)
-    }
-
     // MARK: - Setting Card Labels (shared-083)
 
     func testPreparationCard_whenEnabled_showsSecondsAndIsNotOff() {
@@ -295,40 +240,37 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertEqual(self.mockPraxisRepository.currentPraxis.durationMinutes, 20)
     }
 
-    // MARK: - makePraxisEditorViewModel
+    // MARK: - sessionEditor (shared-083)
 
-    func testMakePraxisEditorViewModel_editorReceivesCorrectPraxis() {
-        // Given
+    func testSessionEditor_isInitializedFromCurrentPraxis() {
+        // Given: repository has a specific praxis
         let praxis = Praxis(durationMinutes: 25, backgroundSoundId: "rain")
+        self.mockPraxisRepository.currentPraxis = praxis
 
         // When
-        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
+        let viewModel = TimerViewModel(
+            timerService: self.mockTimerService,
+            audioService: self.mockAudioService,
+            praxisRepository: self.mockPraxisRepository
+        )
 
-        // Then: editor starts with the given praxis values
-        XCTAssertEqual(editorVM.durationMinutes, 25)
-        XCTAssertEqual(editorVM.backgroundSoundId, "rain")
+        // Then: sessionEditor starts with the same values
+        XCTAssertEqual(viewModel.sessionEditor.durationMinutes, 25)
+        XCTAssertEqual(viewModel.sessionEditor.backgroundSoundId, "rain")
     }
 
-    func testMakePraxisEditorViewModel_usesSharedAudioService() {
-        // Given: TimerViewModel has a known MockAudioService
-        let praxis = Praxis.default
-
+    func testSessionEditor_usesSharedAudioService() {
         // When: editor plays a gong preview
-        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
-        editorVM.playGongPreview(soundId: "temple-bell", volume: 0.8)
+        self.sut.sessionEditor.playGongPreview(soundId: "temple-bell", volume: 0.8)
 
         // Then: the call reaches the shared mock — not a new AudioService instance
         XCTAssertTrue(self.mockAudioService.playGongPreviewCalled)
     }
 
-    func testMakePraxisEditorViewModel_saveCallbackUpdatesTimerViewModel() {
-        // Given
-        let praxis = Praxis(durationMinutes: 30)
-        let editorVM = self.sut.makePraxisEditorViewModel(praxis: praxis)
-        editorVM.durationMinutes = 45
-
-        // When: user saves in the editor
-        editorVM.save()
+    func testSessionEditor_saveCallbackUpdatesTimerViewModel() {
+        // When: user changes a field in the editor (live-save runs)
+        self.sut.sessionEditor.durationMinutes = 45
+        self.sut.sessionEditor.save()
 
         // Then: TimerViewModel reflects the saved praxis
         XCTAssertEqual(self.sut.currentPraxis.durationMinutes, 45)

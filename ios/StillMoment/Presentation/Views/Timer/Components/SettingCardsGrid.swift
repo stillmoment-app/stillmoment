@@ -44,6 +44,7 @@ struct SettingCardsGrid: View {
             icon: item.icon,
             value: item.value,
             isOff: item.isOff,
+            identifier: item.identifier,
             action: item.action
         )
     }
@@ -54,5 +55,6 @@ struct SettingCardsGridItem {
     let icon: String
     let value: String
     let isOff: Bool
+    let identifier: String
     let action: () -> Void
 }

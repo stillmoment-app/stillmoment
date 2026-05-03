@@ -271,7 +271,10 @@ final class PraxisEditorViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private let customAudioRepository: CustomAudioRepositoryProtocol
-    private let onSaved: (Praxis) -> Void
+    /// `var` (not `let`): the owning TimerViewModel rewires this after its own
+    /// init has finished so it can pass `[weak self]` without violating Swift's
+    /// "self captured before all members initialised" rule.
+    var onSaved: (Praxis) -> Void
     private var autoSaveCancellables: Set<AnyCancellable> = []
 
     /// Wires up automatic persistence: any change to a configuration field triggers

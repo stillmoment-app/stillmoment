@@ -156,48 +156,40 @@ final class LibraryFlowUITests: XCTestCase {
         }
     }
 
-    // MARK: - Flow Test 3: Configuration Editor
+    // MARK: - Flow Test 3: Setting Cards
 
-    /// Tests navigation to PraxisEditorView via configuration pills
-    func testSettingsSheetFlow() {
+    /// Tests navigation from setting cards into their detail views (shared-083)
+    func testSettingCardsFlow() {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Verify configuration pills exist") { _ in
-            let configButton = self.app.buttons["timer.button.configuration"]
-            XCTAssertTrue(configButton.waitForExistence(timeout: 2.0), "Settings button should exist")
-        }
-
-        XCTContext.runActivity(named: "Open PraxisEditorView") { _ in
-            let configButton = self.app.buttons["timer.button.configuration"]
-            configButton.tap()
-
-            // PraxisEditorView should appear via navigation
-            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-            XCTAssertTrue(preparationToggle.waitForExistence(timeout: 3.0), "Praxis editor should appear")
-        }
-
-        XCTContext.runActivity(named: "Verify editor UI elements") { _ in
-            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-            XCTAssertTrue(preparationToggle.waitForExistence(timeout: 2.0), "Preparation toggle should exist")
-
-            let intervalLink = self.app.buttons["praxis.editor.link.intervalGongs"]
-            XCTAssertTrue(intervalLink.waitForExistence(timeout: 2.0), "Interval gongs link should exist")
-        }
-
-        XCTContext.runActivity(named: "Toggle preparation time") { _ in
-            let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-            if preparationToggle.exists {
-                XCTAssertTrue(preparationToggle.isEnabled, "Toggle should be enabled")
-                preparationToggle.tap()
-                XCTAssertTrue(preparationToggle.exists, "Toggle should still exist after tap")
+        XCTContext.runActivity(named: "Verify all five setting cards exist") { _ in
+            for identifier in [
+                "timer.card.preparation",
+                "timer.card.attunement",
+                "timer.card.background",
+                "timer.card.gong",
+                "timer.card.interval"
+            ] {
+                let card = self.app.buttons[identifier]
+                XCTAssertTrue(card.waitForExistence(timeout: 2.0), "\(identifier) should exist")
             }
+        }
+
+        XCTContext.runActivity(named: "Open Interval Gongs detail view") { _ in
+            self.app.buttons["timer.card.interval"].tap()
+
+            // The interval gongs editor exposes its toggle via this identifier
+            let intervalToggle = self.app.switches["praxis.editor.toggle.intervalGongs"]
+            XCTAssertTrue(
+                intervalToggle.waitForExistence(timeout: 3.0),
+                "Interval gongs editor should appear"
+            )
         }
 
         XCTContext.runActivity(named: "Navigate back to Timer") { _ in
             self.app.navigationBars.buttons.firstMatch.tap()
 
-            // Timer should be visible again
             let startButton = self.app.buttons["timer.button.start"]
             XCTAssertTrue(
                 startButton.waitForExistence(timeout: 2.0),

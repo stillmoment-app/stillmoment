@@ -29,13 +29,11 @@ struct TimerView: View {
         NavigationStack(path: self.$settingPath) {
             self.content
                 .navigationDestination(for: SettingDestination.self) { destination in
-                    self.detailView(for: destination)
+                    SettingDetailRoot(
+                        destination: destination,
+                        viewModel: self.viewModel.sessionEditor
+                    )
                 }
-        }
-        .onChange(of: self.viewModel.timerState) { newState in
-            if newState != .idle {
-                self.editorViewModel = nil
-            }
         }
         .onChange(of: self.fileOpenHandler.shouldStopMeditation) { shouldStop in
             guard shouldStop
@@ -138,7 +136,6 @@ struct TimerView: View {
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: TimerViewModel
     @State private var settingPath: [SettingDestination] = []
-    @State private var editorViewModel: PraxisEditorViewModel?
 
     private var isZenMode: Bool {
         self.viewModel.isZenMode
@@ -239,31 +236,36 @@ struct TimerView: View {
                 label: NSLocalizedString("settings.card.label.preparation", comment: ""),
                 icon: "hourglass",
                 value: self.viewModel.preparationCardLabel,
-                isOff: self.viewModel.preparationCardIsOff
+                isOff: self.viewModel.preparationCardIsOff,
+                identifier: "timer.card.preparation"
             ) { self.openDetail(for: .preparation) },
             attunement: SettingCardsGridItem(
                 label: NSLocalizedString("settings.card.label.attunement", comment: ""),
                 icon: "sparkles",
                 value: self.viewModel.attunementCardLabel,
-                isOff: self.viewModel.attunementCardIsOff
+                isOff: self.viewModel.attunementCardIsOff,
+                identifier: "timer.card.attunement"
             ) { self.openDetail(for: .attunement) },
             background: SettingCardsGridItem(
                 label: NSLocalizedString("settings.card.label.background", comment: ""),
                 icon: "wind",
                 value: self.viewModel.backgroundCardLabel,
-                isOff: self.viewModel.backgroundCardIsOff
+                isOff: self.viewModel.backgroundCardIsOff,
+                identifier: "timer.card.background"
             ) { self.openDetail(for: .background) },
             gong: SettingCardsGridItem(
                 label: NSLocalizedString("settings.card.label.gong", comment: ""),
                 icon: "bell",
                 value: self.viewModel.gongCardLabel,
-                isOff: self.viewModel.gongCardIsOff
+                isOff: self.viewModel.gongCardIsOff,
+                identifier: "timer.card.gong"
             ) { self.openDetail(for: .gong) },
             interval: SettingCardsGridItem(
                 label: NSLocalizedString("settings.card.label.interval", comment: ""),
                 icon: "arrow.clockwise",
                 value: self.viewModel.intervalCardLabel,
-                isOff: self.viewModel.intervalCardIsOff
+                isOff: self.viewModel.intervalCardIsOff,
+                identifier: "timer.card.interval"
             ) { self.openDetail(for: .interval) }
         )
     }
@@ -271,35 +273,8 @@ struct TimerView: View {
     // MARK: - Navigation
 
     private func openDetail(for destination: SettingDestination) {
-        if self.editorViewModel == nil {
-            self.editorViewModel = self.makeEditorViewModel()
-        }
         if self.settingPath.last != destination {
             self.settingPath.append(destination)
-        }
-    }
-
-    private func makeEditorViewModel() -> PraxisEditorViewModel {
-        let praxis = self.viewModel.currentPraxis
-            .withDurationMinutes(self.viewModel.selectedMinutes)
-        return self.viewModel.makePraxisEditorViewModel(praxis: praxis)
-    }
-
-    @ViewBuilder
-    private func detailView(for destination: SettingDestination) -> some View {
-        if let editor = editorViewModel {
-            switch destination {
-            case .preparation:
-                PreparationTimeSelectionView(viewModel: editor)
-            case .attunement:
-                AttunementSelectionView(viewModel: editor)
-            case .background:
-                BackgroundSoundSelectionView(viewModel: editor)
-            case .gong:
-                GongSelectionView(viewModel: editor)
-            case .interval:
-                IntervalGongsEditorView(viewModel: editor)
-            }
         }
     }
 

@@ -15,6 +15,7 @@ struct SettingCard: View {
     let icon: String
     let value: String
     let isOff: Bool
+    let identifier: String
     let action: () -> Void
 
     @Environment(\.themeColors)
@@ -50,6 +51,7 @@ struct SettingCard: View {
         .opacity(self.isOff ? Self.dimmedOpacity : 1.0)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(self.identifier)
     }
 
     private static let dimmedOpacity: Double = 0.45
@@ -78,9 +80,27 @@ private struct SettingCardButtonStyle: ButtonStyle {
 @available(iOS 17.0, *)
 #Preview("Setting Card") {
     HStack(spacing: 8) {
-        SettingCard(label: "Vorbereitung", icon: "hourglass", value: "10 Sek.", isOff: false) {}
-        SettingCard(label: "Einstimmung", icon: "sparkles", value: "Ohne", isOff: true) {}
-        SettingCard(label: "Hintergrund", icon: "wind", value: "Stille", isOff: false) {}
+        SettingCard(
+            label: "Vorbereitung",
+            icon: "hourglass",
+            value: "10 Sek.",
+            isOff: false,
+            identifier: "timer.card.preparation"
+        ) {}
+        SettingCard(
+            label: "Einstimmung",
+            icon: "sparkles",
+            value: "Ohne",
+            isOff: true,
+            identifier: "timer.card.attunement"
+        ) {}
+        SettingCard(
+            label: "Hintergrund",
+            icon: "wind",
+            value: "Stille",
+            isOff: false,
+            identifier: "timer.card.background"
+        ) {}
     }
     .padding()
 }
