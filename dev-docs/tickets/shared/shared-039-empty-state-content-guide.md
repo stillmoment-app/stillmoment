@@ -1,6 +1,6 @@
 # Ticket shared-039: Empty State + In-App Content Guide
 
-**Status**: [ ] TODO
+**Status**: [x] DONE (2026-05-03)
 **Prioritaet**: HOCH
 **Komplexitaet**: Gering — UI-only, keine Business-Logik. Hauptarbeit ist Lokalisierung und Theme-Konsistenz.
 **Phase**: 4-Polish
@@ -28,8 +28,8 @@ Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

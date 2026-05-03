@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (iOS)
 - **Danke-Screen ueberlebt App-Termination** - Wenn eine gefuehrte Meditation natuerlich endet und iOS die App anschliessend suspendiert oder terminiert, erscheint beim naechsten Oeffnen der App der Danke-Screen. Der Marker wird via `@SceneStorage` gespeichert und bleibt bis zum expliziten Schliessen oder Start einer neuen Meditation erhalten. Aktive Abbrechvorgaenge (Schliessen-Button, Audio-Konflikt) hinterlassen keinen Marker. (Ticket: shared-080)
+- **Empty State + Content Guide** - Die leere Bibliothek begruesst Nutzer mit einem Waveform-Glow-Icon, einer Titel-/Body-Botschaft und zwei CTAs: "Meditation importieren" oeffnet den Document Picker, "Wo finde ich Meditationen?" oeffnet ein neues Sheet mit kuratierten, kostenlosen Quellen pro Locale. Ein neues `info.circle`-Icon in der Toolbar macht den Guide auch bei gefuellter Liste erreichbar. Source-Inhalte (Name, Autor, Beschreibung, Host, URL) liegen pro Locale in `meditation_sources.json`. Links oeffnen im System-Browser, kein Tracking. (Ticket: shared-039)
 
 ### Added (Android)
 - **Danke-Screen ueberlebt App-Termination** - Wenn eine gefuehrte Meditation natuerlich endet und das System die App anschliessend beendet, erscheint beim naechsten Oeffnen der App der Danke-Screen. Der Marker wird via `SavedStateHandle` in einem activity-scoped ViewModel gespeichert und bleibt bis zum expliziten Schliessen oder Start einer neuen Meditation erhalten. Aktive Abbrechvorgaenge (Schliessen-Button, Audio-Konflikt) hinterlassen keinen Marker. (Ticket: shared-080)
+- **Empty State + Content Guide** - Die leere Bibliothek zeigt ein Waveform-Glow-Icon, Titel/Body und zwei CTAs: "Meditation importieren" oeffnet den Storage-Access-Picker, "Wo finde ich Meditationen?" oeffnet einen `ModalBottomSheet` mit kuratierten Quellen pro Locale. Ein zusaetzlicher Info-Button in der Top-App-Bar macht den Guide auch bei gefuellter Liste erreichbar. Source-Inhalte liegen in `assets/meditation_sources.json`. Links oeffnen via `Intent.ACTION_VIEW` im System-Browser, kein Tracking. (Ticket: shared-039)
 
 ## [2.1.0] - 2026-04-10
 

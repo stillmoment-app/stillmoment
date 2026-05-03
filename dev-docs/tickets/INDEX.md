@@ -67,7 +67,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-045](shared/shared-045-share-sheet-file-association.md) | File Association ("Oeffnen mit") | 3-Feature | [x] | [x] |
 | [shared-046](shared/shared-046-share-extension.md) | Share Extension ("Teilen") | 3-Feature | [x] | [x] |
 | [shared-047](shared/shared-047-meditation-export-share.md) | Meditation exportieren / teilen | 3-Feature | [ ] | [ ] |
-| [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [ ] | [ ] |
+| [shared-039](shared/shared-039-empty-state-content-guide.md) | Empty State + In-App Content Guide | 3-Feature | [x] | [x] |
+| [shared-039b](shared/shared-039b-import-anleitungen.md) | Import-Anleitungen im Content Guide | 4-Polish | [ ] | - |
 | [shared-040](shared/shared-040-app-store-narrativ.md) | App Store Narrativ und Screenshots | 4-Polish | [ ] | [ ] |
 | [shared-041](shared/shared-041-appearance-mode-selection.md) | Appearance Mode Selection | 3-Feature | [x] | [x] |
 | [shared-042](shared/shared-042-settings-appearance-section.md) | Settings Erscheinungsbild-Section | 4-Polish | [x] | [x] |
