@@ -1,6 +1,6 @@
 # Ticket shared-086: Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE (iOS) / [ ] TODO (Android)
 **Plan**: [Implementierungsplan iOS](../plans/shared-086-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Neuer gestischer Picker (Drag im Ring + radial platzierte +/-Buttons mit Long-Press-Beschleunigung) ersetzt den bestehenden Wheel-Picker. Geometrie ist exakt vom Design vorgegeben, muss aber vertikal responsiv skalieren. Daneben mehrere Layout-Anpassungen (Headline-Reihe, Sentence-Case-Labels, Atem-Spacing). Risiko liegt vor allem in der korrekten Geste-Mathematik (atan2 + Clamping mit dynamischem Min) und der Skalierung auf kleinen Geraeten.
@@ -24,7 +24,7 @@ Der Wheel-Picker fuehlt sich wie ein iOS-System-Control an und bricht den medita
 
 | Plattform | Status | Abhaengigkeit                |
 |-----------|--------|------------------------------|
-| iOS       | [ ]    | shared-083                   |
+| iOS       | [x]    | shared-083                   |
 | Android   | [ ]    | shared-083                   |
 
 ---

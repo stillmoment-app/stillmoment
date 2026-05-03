@@ -110,7 +110,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-083](shared/shared-083-setting-karten-timer-konfig.md) | Setting-Karten auf Timer-Konfig statt versteckter Pills | 3-Feature | [x] | [ ] |
 | [shared-084](shared/shared-084-meditationen-tab-zuerst.md) | Meditationen-Tab als erster Tab | 4-Polish | [ ] | [ ] |
 | [shared-085](shared/shared-085-store-website-meditationen-zuerst.md) | Store + Website spiegeln Meditationen-zuerst-IA | 4-Polish | [ ] | [ ] |
-| [shared-086](shared/shared-086-atemkreis-picker-timer-konfig.md) | Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig | 4-Polish | [ ] | [ ] |
+| [shared-086](shared/shared-086-atemkreis-picker-timer-konfig.md) | Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig | 4-Polish | [x] | [ ] |
+| [shared-087](shared/shared-087-player-atemkreis-redesign.md) | Guided Meditation Player Redesign — Atemkreis & Auto-Start | 3-Feature | [ ] | [ ] |
 
 ---
 
