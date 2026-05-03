@@ -229,6 +229,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-075](android/android-075-url-share-hangs.md) | URL-Share haengt im Loading-Dialog | 1-Quick Fix | [x] | - |
 | [android-076](android/android-076-file-uri-rejected.md) | URL-Share Import scheitert (file:// abgewiesen) | 1-Quick Fix | [x] | - |
 | [android-077](android/android-077-url-download-filename.md) | URL-Download Cache-Prefix entfernen | 1-Quick Fix | [x] | - |
+| [android-078](android/android-078-edit-stale-lambda.md) | Edit-Sheet zeigt alte Metadaten (stale lambda) | 1-Quick Fix | [x] | - |
 
 ---
 

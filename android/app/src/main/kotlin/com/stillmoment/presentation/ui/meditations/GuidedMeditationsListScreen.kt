@@ -358,15 +358,21 @@ private fun SwipeToEditDeleteItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // android-078: rememberSwipeToDismissBoxState caches the confirmValueChange lambda.
+    // Without rememberUpdatedState, the lambda would close over the original onEditClick/
+    // onDelete (which capture the original meditation), so opening the edit sheet a second
+    // time after a save would show stale metadata until the app is restarted.
+    val currentOnEditClick by rememberUpdatedState(onEditClick)
+    val currentOnDelete by rememberUpdatedState(onDelete)
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             when (value) {
                 SwipeToDismissBoxValue.StartToEnd -> {
-                    onEditClick()
+                    currentOnEditClick()
                     false
                 }
                 SwipeToDismissBoxValue.EndToStart -> {
-                    onDelete()
+                    currentOnDelete()
                     false
                 }
                 else -> false
