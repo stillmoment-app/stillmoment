@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Step 2 — Picker-Alternativen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { background: #0a0604; min-height: 100vh; margin: 0; }
+  .stage {
+    min-height: 100vh; padding: 48px 32px 80px;
+    display: flex; gap: 36px 28px; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .pair { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 393px; }
+  .pair-label {
+    font-family: var(--sm-font-display); font-size: 17px; color: var(--sm-text);
+    font-weight: 400; letter-spacing: -0.01em;
+  }
+  .pair-label .num {
+    display: inline-block; width: 22px; height: 22px; border-radius: 50%;
+    border: 1px solid rgba(217,154,126,0.5); color: var(--sm-accent-text);
+    font-size: 11px; line-height: 22px; text-align: center; margin-right: 8px;
+    font-family: var(--sm-font-ui); vertical-align: 2px; letter-spacing: 0;
+  }
+  .pair-sub { font-family: var(--sm-font-ui); font-size: 12px; color: var(--sm-text-2);
+              max-width: 393px; text-align: center; line-height: 1.55; min-height: 36px; }
+  .pair-sub em { color: var(--sm-accent-text); font-style: normal; }
+
+  .intro {
+    max-width: 760px; margin: 16px auto 8px; padding: 0 24px;
+    text-align: center; color: var(--sm-text-2);
+    font-family: var(--sm-font-ui); font-size: 13px; line-height: 1.65;
+  }
+  .intro h1 {
+    font-family: var(--sm-font-display); font-weight: 400; font-size: 28px;
+    color: var(--sm-text); margin: 0 0 8px; letter-spacing: -0.01em;
+  }
+  .intro .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--sm-accent-text); font-weight: 500; margin-bottom: 10px;
+  }
+
+  .row-of-three, .row-of-two {
+    display: flex; gap: 28px; flex-wrap: wrap; justify-content: center;
+    width: 100%; max-width: 1320px;
+  }
+  .row-of-three { margin-bottom: 8px; }
+
+  .section-title {
+    width: 100%; max-width: 1320px; margin: 32px auto 4px; padding: 0 8px;
+    font-family: var(--sm-font-ui); font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--sm-text-3);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-title::before, .section-title::after {
+    content: ""; flex: 1; height: 1px; background: rgba(235,226,214,0.06);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="pickers-hybrid-v2.jsx"></script>
+<script type="text/babel" src="timer-config-step2-v2.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState } = React;
+const { VariantPhoneV2 } = window.SM_Step2V2;
+const { BreathDialPlusV2 } = window.SM_PickersHybridV2;
+
+function App() {
+  const [minutes, setMinutes] = useState(18);
+  const [activeTab, setActiveTab] = useState("timer");
+
+  const dense = {
+    prepOn: true,    prepDur: "15 Sek.",
+    introOn: false,  intro: "Atem-Anker",
+    ambientOn: true, ambient: "Regen",
+    gong: "Tempelglocke", gongVol: 70,
+    intervalOn: true, interval: "5 Min.", intervalVol: 50,
+  };
+
+  return (
+    <div>
+      <div className="intro">
+        <div className="eyebrow">Step 2 · Zeitauswahl</div>
+        <h1>Atemkreis + Feintuning &middot; v2</h1>
+        <p>
+          Tick-Marken entfernt, Drag-Tropfen größer mit sanftem Pulse, Card-Labels in
+          Sentence-Case, mehr Atem zwischen Picker und Detail-Sektion. Drei Verbesserungen
+          aus dem kritischen Review.
+        </p>
+      </div>
+
+      <div className="stage" style={{ padding: "8px 24px 80px", display: "flex", justifyContent: "center" }}>
+        <VariantPhoneV2
+          label={<span>Atemkreis + Feintuning · v2</span>}
+          sub={<>Tropfen pulsiert sanft, keine Tick-Marken, ausgeschriebene Card-Labels.</>}
+          Picker={BreathDialPlusV2}
+          minutes={minutes} setMinutes={setMinutes}
+          dense={dense} activeTab={activeTab} setActiveTab={setActiveTab}/>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
