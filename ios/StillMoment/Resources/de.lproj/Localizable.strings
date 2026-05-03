@@ -6,7 +6,6 @@
 // MARK: - Main Screen
 
 "welcome.title" = "Schön, dass du da bist";
-"duration.question" = "Wie viel Zeit schenkst du dir?";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -185,9 +184,6 @@
 "accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
 "accessibility.backToLibrary" = "Zurück zu Meditationen";
 "accessibility.backToTimer" = "Zurück zum Timer";
-"accessibility.timer.configuration.label" = "Aktuelle Konfiguration";
-"accessibility.timer.configuration.hint" = "Öffnet den Konfigurationseditor";
-
 // MARK: - Time Units
 
 "time.minutes" = "%d Minuten";
@@ -329,27 +325,23 @@
 
 // MARK: - Praxis Editor
 
-"praxis.editor.title" = "Konfiguration";
-"praxis.editor.duration.label" = "Dauer";
-"praxis.editor.section.preparation" = "Vorbereitung";
-"praxis.editor.section.audio" = "Audio & Klänge";
-"praxis.editor.section.gongs" = "Gongs";
 "praxis.editor.attunement.row" = "Einstimmung";
-"praxis.editor.attunement.none" = "Ohne Einstimmung";
 "praxis.editor.attunement.title" = "Einstimmung";
-"praxis.editor.background.row" = "Hintergrundklang";
 "praxis.editor.background.title" = "Hintergrundklang";
 "praxis.editor.background.silence" = "Stille";
-"praxis.editor.startGong.row" = "Start & Ende";
 "praxis.editor.startGong.title" = "Start & Ende";
-"praxis.editor.intervalGongs.row" = "Intervall-Gongs";
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
 "common.off" = "Aus";
 "common.on" = "Ein";
-"accessibility.praxis.editor.cancel" = "Abbrechen";
-"accessibility.praxis.editor.cancel.hint" = "Änderungen verwerfen und schließen";
-"accessibility.praxis.editor.done" = "Fertig";
-"accessibility.praxis.editor.done.hint" = "Änderungen speichern";
+
+// MARK: - Setting Cards (shared-083)
+"settings.card.value.attunement.off" = "Ohne";
+"settings.card.label.preparation" = "Vorbereitung";
+"settings.card.label.attunement" = "Einstimmung";
+"settings.card.label.background" = "Hintergrund";
+"settings.card.label.gong" = "Gong";
+"settings.card.label.interval" = "Intervall";
+"settings.card.hint" = "Tippen, um anzupassen";
 
 // MARK: - Custom Audio Import (shared-065)
 

@@ -116,11 +116,10 @@ final class TimerFlowUITests: XCTestCase {
             XCTAssertTrue(endButton.waitForExistence(timeout: 2.0), "End button should exist")
             endButton.tap()
 
-            // Should return to initial state
-            let selectDurationLabel = self.app.staticTexts["timer.duration.question"]
-            XCTAssertTrue(selectDurationLabel.waitForExistence(timeout: 2.0), "Duration question should reappear")
+            // Should return to idle state — minute picker and start button reappear
+            let picker = self.app.pickers["timer.picker.minutes"]
+            XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Minute picker should reappear")
 
-            // Start button should be visible again
             let startButton = self.app.buttons["timer.button.start"]
             XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should be visible again")
         }
@@ -174,6 +173,6 @@ final class TimerFlowUITests: XCTestCase {
         // Running -> Idle (end timer)
         self.app.buttons["timer.button.end"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.start"].waitForExistence(timeout: 2.0))
-        XCTAssertTrue(self.app.staticTexts["timer.duration.question"].waitForExistence(timeout: 2.0))
+        XCTAssertTrue(self.app.pickers["timer.picker.minutes"].waitForExistence(timeout: 2.0))
     }
 }

@@ -7,7 +7,11 @@
 
 import SwiftUI
 
-/// Main view for the meditation timer
+/// Main view for the meditation timer.
+///
+/// Idle screen shows the minute picker plus five tappable setting cards
+/// (Vorbereitung · Einstimmung · Hintergrund · Gong · Intervall) that
+/// push directly into the existing detail views — no Praxis-Editor index.
 struct TimerView: View {
     // MARK: Lifecycle
 
@@ -22,6 +26,29 @@ struct TimerView: View {
     // MARK: Internal
 
     var body: some View {
+        NavigationStack(path: self.$settingPath) {
+            self.content
+                .navigationDestination(for: SettingDestination.self) { destination in
+                    SettingDetailRoot(
+                        destination: destination,
+                        viewModel: self.viewModel.sessionEditor
+                    )
+                }
+        }
+        .onChange(of: self.fileOpenHandler.shouldStopMeditation) { shouldStop in
+            guard shouldStop
+            else { return }
+            self.viewModel.resetTimer()
+            self.fileOpenHandler.shouldStopMeditation = false
+        }
+        .onChange(of: self.fileOpenHandler.pendingCustomAudioImport) { pendingImport in
+            guard let pending = pendingImport
+            else { return }
+            self.openDetail(for: pending.type == .soundscape ? .background : .attunement)
+        }
+    }
+
+    private var content: some View {
         GeometryReader { geometry in
             let isCompactHeight = geometry.size.height < 700
 
@@ -33,7 +60,6 @@ struct TimerView: View {
                     Spacer(minLength: 8)
                 }
 
-                // Title
                 Text("welcome.title", bundle: .main)
                     .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
                     .padding(.horizontal)
@@ -41,22 +67,19 @@ struct TimerView: View {
                 Spacer(minLength: 12)
                     .frame(maxHeight: 30)
 
-                // Timer Display or Picker
                 if self.viewModel.timerState == .idle {
-                    self.minutePicker(geometry: geometry)
+                    self.idleScreen(geometry: geometry)
                 } else {
                     self.timerDisplay(geometry: geometry)
                 }
 
                 Spacer(minLength: 16)
 
-                // Control Buttons
                 self.controlButtons
                     .padding(.horizontal)
 
                 Spacer(minLength: 16)
 
-                // Error Message
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .themeFont(.caption, color: \.error)
@@ -88,16 +111,6 @@ struct TimerView: View {
                 }
             }
         }
-        .navigationDestination(isPresented: self.$navigateToEditor) {
-            if let vm = self.editorViewModel {
-                PraxisEditorView(viewModel: vm)
-            }
-        }
-        .onChange(of: self.navigateToEditor) { isPresented in
-            if !isPresented {
-                self.editorViewModel?.save()
-            }
-        }
         .overlay {
             if self.viewModel.timerState == .completed {
                 ZStack {
@@ -114,21 +127,6 @@ struct TimerView: View {
         .animation(.easeInOut(duration: 0.4), value: self.viewModel.timerState == .completed)
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
-        .onChange(of: self.fileOpenHandler.shouldStopMeditation) { shouldStop in
-            guard shouldStop
-            else { return }
-            self.viewModel.resetTimer()
-            self.fileOpenHandler.shouldStopMeditation = false
-        }
-        .onChange(of: self.fileOpenHandler.pendingCustomAudioImport) { pendingImport in
-            guard pendingImport != nil
-            else { return }
-            // Open PraxisEditor for navigation to the imported audio's selection screen
-            let praxisForEditor = self.viewModel.currentPraxis
-                .withDurationMinutes(self.viewModel.selectedMinutes)
-            self.editorViewModel = self.viewModel.makePraxisEditorViewModel(praxis: praxisForEditor)
-            self.navigateToEditor = true
-        }
     }
 
     // MARK: Private
@@ -137,8 +135,7 @@ struct TimerView: View {
     private var theme
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: TimerViewModel
-    @State private var navigateToEditor = false
-    @State private var editorViewModel: PraxisEditorViewModel?
+    @State private var settingPath: [SettingDestination] = []
 
     private var isZenMode: Bool {
         self.viewModel.isZenMode
@@ -203,31 +200,16 @@ struct TimerView: View {
         }
     }
 
-    // MARK: - View Components
+    // MARK: - Idle Screen
 
-    private func minutePicker(geometry: GeometryProxy) -> some View {
+    private func idleScreen(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
-        let imageSize: CGFloat = isCompactHeight ? 100 : 150
-        let spacing: CGFloat = isCompactHeight ? 12 : 20
+        let spacing: CGFloat = isCompactHeight ? 14 : 22
 
         return VStack(spacing: spacing) {
-            Image("HandsHeart")
-                .resizable()
-                .scaledToFit()
-                .frame(width: imageSize, height: imageSize)
-                .padding(.bottom, isCompactHeight ? 4 : 8)
-
-            Text("duration.question", bundle: .main)
-                .themeFont(.sectionTitle, size: isCompactHeight ? 18 : nil)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .padding(.horizontal)
-                .accessibilityIdentifier("timer.duration.question")
-
             self.durationWheel(isCompact: isCompactHeight)
-
-            self.configurationPillsRow
-                .padding(.top, isCompactHeight ? 8 : 16)
+            self.settingCardsGrid
+                .padding(.horizontal, 18)
         }
     }
 
@@ -248,58 +230,55 @@ struct TimerView: View {
         .accessibilityHint("accessibility.durationPicker.hint")
     }
 
-    private var configurationPillsRow: some View {
-        Button {
-            // Capture current wheel selection into the praxis so the editor preserves it on save
-            let praxisForEditor = self.viewModel.currentPraxis
-                .withDurationMinutes(self.viewModel.selectedMinutes)
-            self.editorViewModel = self.viewModel.makePraxisEditorViewModel(praxis: praxisForEditor)
-            self.navigateToEditor = true
-        } label: {
-            VStack(spacing: 8) {
-                // Row 1: always-visible base settings
-                HStack(spacing: 8) {
-                    if let label = self.viewModel.preparationPillLabel {
-                        self.settingPill(icon: "hourglass", label: label)
-                    }
-                    self.settingPill(icon: "bell", label: self.viewModel.gongPillLabel)
-                    self.settingPill(icon: "wind", label: self.viewModel.backgroundPillLabel)
-                }
-
-                // Row 2: optional settings (only when active)
-                let hasExtras = self.viewModel.attunementPillLabel != nil
-                    || self.viewModel.intervalPillLabel != nil
-                if hasExtras {
-                    HStack(spacing: 8) {
-                        if let label = self.viewModel.attunementPillLabel {
-                            self.settingPill(icon: "headphones", label: label)
-                        }
-                        if let label = self.viewModel.intervalPillLabel {
-                            self.settingPill(icon: "arrow.clockwise", label: label)
-                        }
-                    }
-                }
-            }
-        }
-        .accessibilityLabel(NSLocalizedString("accessibility.timer.configuration.label", comment: ""))
-        .accessibilityHint(NSLocalizedString("accessibility.timer.configuration.hint", comment: ""))
-        .accessibilityIdentifier("timer.button.configuration")
+    private var settingCardsGrid: some View {
+        SettingCardsGrid(
+            preparation: SettingCardsGridItem(
+                label: NSLocalizedString("settings.card.label.preparation", comment: ""),
+                icon: "hourglass",
+                value: self.viewModel.preparationCardLabel,
+                isOff: self.viewModel.preparationCardIsOff,
+                identifier: "timer.card.preparation"
+            ) { self.openDetail(for: .preparation) },
+            attunement: SettingCardsGridItem(
+                label: NSLocalizedString("settings.card.label.attunement", comment: ""),
+                icon: "sparkles",
+                value: self.viewModel.attunementCardLabel,
+                isOff: self.viewModel.attunementCardIsOff,
+                identifier: "timer.card.attunement"
+            ) { self.openDetail(for: .attunement) },
+            background: SettingCardsGridItem(
+                label: NSLocalizedString("settings.card.label.background", comment: ""),
+                icon: "wind",
+                value: self.viewModel.backgroundCardLabel,
+                isOff: self.viewModel.backgroundCardIsOff,
+                identifier: "timer.card.background"
+            ) { self.openDetail(for: .background) },
+            gong: SettingCardsGridItem(
+                label: NSLocalizedString("settings.card.label.gong", comment: ""),
+                icon: "bell",
+                value: self.viewModel.gongCardLabel,
+                isOff: self.viewModel.gongCardIsOff,
+                identifier: "timer.card.gong"
+            ) { self.openDetail(for: .gong) },
+            interval: SettingCardsGridItem(
+                label: NSLocalizedString("settings.card.label.interval", comment: ""),
+                icon: "arrow.clockwise",
+                value: self.viewModel.intervalCardLabel,
+                isOff: self.viewModel.intervalCardIsOff,
+                identifier: "timer.card.interval"
+            ) { self.openDetail(for: .interval) }
+        )
     }
 
-    private func settingPill(icon: String, label: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 11, weight: .medium))
-                .accessibilityHidden(true)
-            Text(label)
-                .themeFont(.caption)
+    // MARK: - Navigation
+
+    private func openDetail(for destination: SettingDestination) {
+        if self.settingPath.last != destination {
+            self.settingPath.append(destination)
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(Capsule().fill(self.theme.accentBackground))
-        .overlay(Capsule().strokeBorder(self.theme.textSecondary.opacity(0.2), lineWidth: 0.5))
-        .foregroundColor(self.theme.textSecondary)
     }
+
+    // MARK: - Timer Display
 
     private func timerDisplay(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
@@ -367,7 +346,6 @@ struct TimerView: View {
 
     private var controlButtons: some View {
         HStack(spacing: 30) {
-            // Start Button (only in idle state)
             if self.viewModel.canStart {
                 Button(action: self.viewModel.startTimer) {
                     Label(NSLocalizedString("button.start", comment: ""), systemImage: "play.fill")
@@ -384,54 +362,38 @@ struct TimerView: View {
 // MARK: - Previews
 
 #if DEBUG
-// State Previews
 @available(iOS 17.0, *)
 #Preview("Idle") {
-    NavigationStack {
-        TimerView()
-    }
+    TimerView()
 }
 
 @available(iOS 17.0, *)
 #Preview("Preparation") {
-    NavigationStack {
-        TimerView(viewModel: TimerViewModel.preview(state: .preparation))
-    }
+    TimerView(viewModel: TimerViewModel.preview(state: .preparation))
 }
 
 @available(iOS 17.0, *)
 #Preview("Running") {
-    NavigationStack {
-        TimerView(viewModel: TimerViewModel.preview(state: .running))
-    }
+    TimerView(viewModel: TimerViewModel.preview(state: .running))
 }
 
 @available(iOS 17.0, *)
 #Preview("Completed") {
-    NavigationStack {
-        TimerView(viewModel: TimerViewModel.preview(state: .completed))
-    }
+    TimerView(viewModel: TimerViewModel.preview(state: .completed))
 }
 
-// Device Size Previews
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
-    NavigationStack {
-        TimerView()
-    }
+    TimerView()
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    NavigationStack {
-        TimerView()
-    }
+    TimerView()
 }
 #endif
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    NavigationStack {
-        TimerView()
-    }
+    TimerView()
 }

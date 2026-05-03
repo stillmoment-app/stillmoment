@@ -187,27 +187,24 @@ final class ScreenshotTests: XCTestCase {
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 5: Praxis Editor (timer configuration) with gong section visible
+    /// Screenshot 5: Interval Gongs editor (deepest configuration screen)
     func testScreenshot05_settingsView() {
         self.navigateToTimerTab()
 
-        // Tap the configuration pills to push PraxisEditorView
-        let configButton = self.app.buttons["timer.button.configuration"]
-        XCTAssertTrue(configButton.waitForExistence(timeout: 3.0), "Configuration button not found")
-        configButton.tap()
+        // Tap the Interval card — it leads into the most visually rich detail view
+        let intervalCard = self.app.buttons["timer.card.interval"]
+        XCTAssertTrue(intervalCard.waitForExistence(timeout: 3.0), "Interval card not found")
+        intervalCard.tap()
 
-        // Wait for PraxisEditorView to appear
-        let preparationToggle = self.app.switches["praxis.editor.toggle.preparation"]
-        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "PraxisEditorView did not appear")
+        let intervalToggle = self.app.switches["praxis.editor.toggle.intervalGongs"]
+        XCTAssertTrue(intervalToggle.waitForExistence(timeout: 5.0), "Interval editor did not appear")
 
-        // Enable preparation time for a fuller-looking configuration screen
-        if preparationToggle.value as? String == "0" {
-            preparationToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-            _ = preparationToggle.waitForExistence(timeout: 1.0)
+        // Enable interval gongs for a fuller-looking configuration screen
+        if intervalToggle.value as? String == "0" {
+            intervalToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            _ = intervalToggle.waitForExistence(timeout: 1.0)
         }
 
-        // Swipe up to ensure Gong section is visible (may be below fold on smaller devices)
-        self.app.swipeUp()
         Thread.sleep(forTimeInterval: 0.3)
 
         snapshot("05_SettingsView", timeWaitingForIdle: 0)

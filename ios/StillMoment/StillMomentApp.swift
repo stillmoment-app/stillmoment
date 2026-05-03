@@ -87,16 +87,15 @@ struct StillMomentApp: App {
             ThemeRootView {
                 RootContainerView {
                     TabView(selection: self.$selectedTab) {
-                        // Timer Feature Tab
-                        NavigationStack {
-                            TimerView(viewModel: self.timerViewModel)
-                        }
-                        .tabItem {
-                            Label("tab.timer", systemImage: "timer")
-                        }
-                        .tag(AppTab.timer.rawValue)
-                        .accessibilityIdentifier("tab.timer")
-                        .accessibilityLabel(Text("tab.timer.accessibility"))
+                        // Timer Feature Tab — TimerView owns its own NavigationStack
+                        // (path-based routing for the five setting detail views).
+                        TimerView(viewModel: self.timerViewModel)
+                            .tabItem {
+                                Label("tab.timer", systemImage: "timer")
+                            }
+                            .tag(AppTab.timer.rawValue)
+                            .accessibilityIdentifier("tab.timer")
+                            .accessibilityLabel(Text("tab.timer.accessibility"))
 
                         // Guided Meditations Library Tab
                         NavigationStack(path: self.$libraryPath) {

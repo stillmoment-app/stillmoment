@@ -64,6 +64,20 @@ struct ThemeColors: Equatable, Hashable {
     var accentBubbleBackground: Color {
         self.interactive.opacity(0.18)
     }
+
+    // MARK: - Setting Card Tokens (shared-083)
+
+    /// Subtil getoenter Hintergrund fuer Setting-Karten auf dem Timer-Konfig-Screen.
+    /// Leitet aus textPrimary ab — bleibt in Light + Dark unauffaellig.
+    var settingCardBackground: Color {
+        self.textPrimary.opacity(0.03)
+    }
+
+    /// Subtiler Border fuer Setting-Karten — definiert die Karte gegen den
+    /// dahinterliegenden Theme-Gradient.
+    var settingCardBorder: Color {
+        self.textPrimary.opacity(0.08)
+    }
 }
 
 // MARK: - Theme Resolution

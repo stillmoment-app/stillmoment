@@ -6,7 +6,6 @@
 // MARK: - Main Screen
 
 "welcome.title" = "Lovely to see you";
-"duration.question" = "How much time do you want to gift yourself?";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -185,9 +184,6 @@
 "accessibility.endMeditation.hint" = "Ends meditation and returns to timer selection";
 "accessibility.backToLibrary" = "Back to meditations";
 "accessibility.backToTimer" = "Back to timer";
-"accessibility.timer.configuration.label" = "Current configuration";
-"accessibility.timer.configuration.hint" = "Opens configuration editor";
-
 // MARK: - Time Units
 
 "time.minutes" = "%d minutes";
@@ -329,27 +325,23 @@
 
 // MARK: - Praxis Editor
 
-"praxis.editor.title" = "Configuration";
-"praxis.editor.duration.label" = "Duration";
-"praxis.editor.section.preparation" = "Preparation";
-"praxis.editor.section.audio" = "Audio & Sounds";
-"praxis.editor.section.gongs" = "Gongs";
 "praxis.editor.attunement.row" = "Attunement";
-"praxis.editor.attunement.none" = "No Attunement";
 "praxis.editor.attunement.title" = "Attunement";
-"praxis.editor.background.row" = "Background Sound";
 "praxis.editor.background.title" = "Background Sound";
 "praxis.editor.background.silence" = "Silence";
-"praxis.editor.startGong.row" = "Start & End Gong";
 "praxis.editor.startGong.title" = "Start & End Gong";
-"praxis.editor.intervalGongs.row" = "Interval Gongs";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
 "common.off" = "Off";
 "common.on" = "On";
-"accessibility.praxis.editor.cancel" = "Cancel";
-"accessibility.praxis.editor.cancel.hint" = "Discard changes and close";
-"accessibility.praxis.editor.done" = "Done";
-"accessibility.praxis.editor.done.hint" = "Save changes";
+
+// MARK: - Setting Cards (shared-083)
+"settings.card.value.attunement.off" = "None";
+"settings.card.label.preparation" = "Preparation";
+"settings.card.label.attunement" = "Attunement";
+"settings.card.label.background" = "Background";
+"settings.card.label.gong" = "Gong";
+"settings.card.label.interval" = "Interval";
+"settings.card.hint" = "Tap to adjust";
 
 // MARK: - Custom Audio Import (shared-065)
 

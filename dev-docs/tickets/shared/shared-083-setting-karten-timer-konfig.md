@@ -1,6 +1,6 @@
 # Ticket shared-083: Setting-Karten auf Timer-Konfig statt versteckter Pills
 
-**Status**: [~] IN PROGRESS
+**Status**: [~] IN PROGRESS (iOS DONE, Android offen)
 **Plan**: [Implementierungsplan](../plans/shared-083.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel-hoch. Mehrere parallele Aenderungen: Layout-Umbau Idle-Screen, neue Detail-View fuer Vorbereitungszeit, Wegfall des Praxis-Editor-Index, Wechsel des Speicher-Patterns von Save-on-Dismiss zu Live-Schreiben. Risiko: Custom-Audio-Import-Flow ist heute am Editor-Index aufgehaengt und muss neu verkabelt werden.
@@ -24,7 +24,7 @@ Heute liegen unter dem Minuten-Picker drei kleine Pillen, die wie dekorative Tag
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---

@@ -42,13 +42,29 @@ final class TimerViewModel: ObservableObject {
             customAudioRepository: customAudioRepository
         )
 
-        // Load current Praxis and apply its configuration
         let praxis = praxisRepository.load()
         self.currentPraxis = praxis
+
+        // sessionEditor is constructed with a placeholder onSaved because Swift
+        // forbids `[weak self]` until every stored property is initialised.
+        // The real callback is wired up below, once `self` is fully usable.
+        self.sessionEditor = PraxisEditorViewModel(
+            praxis: praxis,
+            repository: praxisRepository,
+            audioService: audioService,
+            soundRepository: soundRepository,
+            customAudioRepository: customAudioRepository
+        ) { _ in }
+
         let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
         self.settings = praxis.toMeditationSettings(customAttunementDurationSeconds: customAttunementDuration)
         self.selectedMinutes = self.settings.durationMinutes
+
         self.setupBindings()
+
+        self.sessionEditor.onSaved = { [weak self] saved in
+            self?.updateFromPraxis(saved)
+        }
     }
 
     // MARK: Internal
@@ -69,6 +85,14 @@ final class TimerViewModel: ObservableObject {
 
     /// The current Praxis configuration (single config, loaded from repository on init)
     @Published var currentPraxis: Praxis = .default
+
+    /// Editor view model used by the five setting detail views.
+    ///
+    /// Owned by the TimerViewModel (one instance per session) so the detail
+    /// views can be reached without any lazy-init / race-condition gymnastics
+    /// in the View layer. Live-save handles persistence; `onSaved` updates
+    /// `currentPraxis` here on every change.
+    let sessionEditor: PraxisEditorViewModel
 
     /// Current affirmation index (rotates between sessions)
     var currentAffirmationIndex: Int = 0
@@ -165,16 +189,8 @@ final class TimerViewModel: ObservableObject {
         self.dispatch(.resetPressed)
     }
 
-    /// Creates a configured PraxisEditorViewModel that saves back to this TimerViewModel.
-    /// Uses the shared AudioService — no separate instance is created.
-    func makePraxisEditorViewModel(praxis: Praxis) -> PraxisEditorViewModel {
-        PraxisEditorViewModel(praxis: praxis, audioService: self.audioService) { [weak self] savedPraxis in
-            self?.updateFromPraxis(savedPraxis)
-        }
-    }
-
     /// Applies a Praxis configuration: updates currentPraxis, settings, and selectedMinutes.
-    /// Called by the PraxisEditorView's onSaved callback.
+    /// Called by `sessionEditor`'s onSaved callback after every live-save.
     func updateFromPraxis(_ praxis: Praxis) {
         self.currentPraxis = praxis
         let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
@@ -309,6 +325,8 @@ final class TimerViewModel: ObservableObject {
             }
             .store(in: &self.cancellables)
 
+        self.bindSelectedMinutesToEditor()
+
         // Enforce minimum duration when attunement changes, restore when disabled.
         // Note: Uses static method instead of settings.minimumDurationMinutes because
         // @Published fires in willSet — self.settings still has the old value here.
@@ -330,6 +348,23 @@ final class TimerViewModel: ObservableObject {
                 } else if attunementId == nil, let restored = self.minutesBeforeAttunement {
                     self.selectedMinutes = restored
                     self.minutesBeforeAttunement = nil
+                }
+            }
+            .store(in: &self.cancellables)
+    }
+
+    /// Keep the editor's durationMinutes in sync with the wheel picker.
+    /// Without this, an editor live-save (e.g. flipping a toggle in a detail
+    /// view) would persist the editor's stale durationMinutes and overwrite
+    /// whatever the user dialed in on the idle screen.
+    private func bindSelectedMinutesToEditor() {
+        self.$selectedMinutes
+            .removeDuplicates()
+            .sink { [weak self] minutes in
+                guard let self
+                else { return }
+                if self.sessionEditor.durationMinutes != minutes {
+                    self.sessionEditor.durationMinutes = minutes
                 }
             }
             .store(in: &self.cancellables)

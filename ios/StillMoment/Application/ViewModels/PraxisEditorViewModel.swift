@@ -5,6 +5,7 @@
 //  Application Layer - ViewModel for editing the current Praxis configuration
 //
 
+import Combine
 import Foundation
 import OSLog
 
@@ -48,6 +49,7 @@ final class PraxisEditorViewModel: ObservableObject {
         self.backgroundSoundVolume = praxis.backgroundSoundVolume
 
         self.loadCustomAudio()
+        self.setupAutoSave()
     }
 
     // MARK: Internal
@@ -160,6 +162,27 @@ final class PraxisEditorViewModel: ObservableObject {
         self.audioService.stopAttunementPreview()
     }
 
+    // MARK: - Preparation Time Selection (shared-083)
+
+    /// Selects a preparation time. `nil` means "Off". Live-save persists immediately.
+    func selectPreparationTime(seconds: Int?) {
+        if let seconds {
+            self.preparationTimeSeconds = seconds
+            self.preparationTimeEnabled = true
+        } else {
+            self.preparationTimeEnabled = false
+        }
+    }
+
+    /// Whether the given preparation-time option is currently selected.
+    /// `nil` represents the "Off" option.
+    func isPreparationTimeSelected(seconds: Int?) -> Bool {
+        if let seconds {
+            return self.preparationTimeEnabled && self.preparationTimeSeconds == seconds
+        }
+        return !self.preparationTimeEnabled
+    }
+
     /// Enables or disables the attunement toggle.
     /// When enabling with no attunement selected, auto-selects the first available.
     func setAttunementEnabled(_ enabled: Bool) {
@@ -248,7 +271,43 @@ final class PraxisEditorViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private let customAudioRepository: CustomAudioRepositoryProtocol
-    private let onSaved: (Praxis) -> Void
+    /// `var` (not `let`): the owning TimerViewModel rewires this after its own
+    /// init has finished so it can pass `[weak self]` without violating Swift's
+    /// "self captured before all members initialised" rule.
+    var onSaved: (Praxis) -> Void
+    private var autoSaveCancellables: Set<AnyCancellable> = []
+
+    /// Wires up automatic persistence: any change to a configuration field triggers
+    /// `save()` immediately. The Detail-Views can therefore bind directly to the
+    /// `@Published` fields without an explicit save step (shared-083).
+    ///
+    /// `dropFirst()` skips the initial value emitted on subscription, so init
+    /// itself does not write anything to the repository.
+    private func setupAutoSave() {
+        let publishers: [AnyPublisher<Void, Never>] = [
+            self.$durationMinutes.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$preparationTimeEnabled.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$preparationTimeSeconds.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$startGongSoundId.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$gongVolume.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$attunementId.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$attunementEnabled.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$intervalGongsEnabled.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$intervalMinutes.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$intervalMode.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$intervalSoundId.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$intervalGongVolume.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$backgroundSoundId.dropFirst().map { _ in }.eraseToAnyPublisher(),
+            self.$backgroundSoundVolume.dropFirst().map { _ in }.eraseToAnyPublisher()
+        ]
+        // `@Published` fires in willSet — the property still holds the old value
+        // when the sink runs synchronously. `receive(on: RunLoop.main)` defers the
+        // sink to the next run-loop tick, after didSet has applied the new value.
+        Publishers.MergeMany(publishers)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in self?.save() }
+            .store(in: &self.autoSaveCancellables)
+    }
 
     /// Resets the current editor selection and saved configuration if it references the given file.
     private func resetConfigurationIfAffected(by file: CustomAudioFile) {
