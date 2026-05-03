@@ -226,6 +226,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-071](android/android-071-preparation-affirmation-fuenfte.md) | Vorbereitungs-Phase: 5. Affirmation | 4-Polish | [x] | - |
 | [android-072](android/android-072-background-sound-library.md) | Background Sound Library erweitern | 2-Features | [x] | - |
 | [android-073](android/android-073-praxis-editor-auto-save.md) | PraxisEditor Auto-Save beim Zurücknavigieren | 4-Polish | [x] | - |
+| [android-075](android/android-075-url-share-hangs.md) | URL-Share haengt im Loading-Dialog | 1-Quick Fix | [x] | - |
 
 ---
 

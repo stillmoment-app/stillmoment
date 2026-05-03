@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Android)
+- **URL-Share haengt im Loading-Dialog** - Beim Teilen eines direkten MP3-Links aus Chrome (Long-Press → Link teilen → Still Moment) blieb der "Meditation wird geladen"-Dialog fuer immer sichtbar, weil `DownloadUrlEffect` in `NavGraph.kt` den `pendingDownloadUrl`-State **vor** dem Download leerte und damit `LaunchedEffect` self-cancelte (Key-Aenderung waehrend Coroutine lief → `isDownloading` blieb `true`). Fix: `clearDownloadUrl()` ans Ende des Effects nach dem `result.fold()` verschoben. (Ticket: android-075)
+
 ### Added (iOS)
 - **Danke-Screen ueberlebt App-Termination** - Wenn eine gefuehrte Meditation natuerlich endet und iOS die App anschliessend suspendiert oder terminiert, erscheint beim naechsten Oeffnen der App der Danke-Screen. Der Marker wird via `@SceneStorage` gespeichert und bleibt bis zum expliziten Schliessen oder Start einer neuen Meditation erhalten. Aktive Abbrechvorgaenge (Schliessen-Button, Audio-Konflikt) hinterlassen keinen Marker. (Ticket: shared-080)
 - **Empty State + Content Guide** - Die leere Bibliothek begruesst Nutzer mit einem Waveform-Glow-Icon, einer Titel-/Body-Botschaft und zwei CTAs: "Meditation importieren" oeffnet den Document Picker, "Wo finde ich Meditationen?" oeffnet ein neues Sheet mit kuratierten, kostenlosen Quellen pro Locale. Ein neues `info.circle`-Icon in der Toolbar macht den Guide auch bei gefuellter Liste erreichbar. Source-Inhalte (Name, Autor, Beschreibung, Host, URL) liegen pro Locale in `meditation_sources.json`. Links oeffnen im System-Browser, kein Tracking. (Ticket: shared-039)

@@ -654,7 +654,9 @@ private fun DownloadUrlEffect(
     LaunchedEffect(downloadUrl) {
         val url = downloadUrl ?: return@LaunchedEffect
         val downloader = urlAudioDownloader ?: return@LaunchedEffect
-        currentOnClearDownloadUrl()
+        // Clear AFTER the download finishes; clearing first would mutate `downloadUrl`
+        // mid-flight and cause LaunchedEffect to cancel its own coroutine, leaving
+        // `isDownloading = true` forever and the loading dialog stuck on screen.
         isDownloading = true
         failedUrl = null
         val result = downloader.download(url)
@@ -663,6 +665,7 @@ private fun DownloadUrlEffect(
             onSuccess = { uri -> currentOnDownloadSuccess(uri) },
             onFailure = { failedUrl = url }
         )
+        currentOnClearDownloadUrl()
     }
 
     DownloadProgressDialog(isDownloading = isDownloading)
