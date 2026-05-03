@@ -67,7 +67,9 @@ final class TypographyTests: XCTestCase {
             ("Player", [.playerTitle, .playerTeacher, .playerTimestamp, .playerCountdown]),
             ("List", [.listTitle, .listSubtitle, .listBody, .listSectionTitle, .listActionLabel]),
             ("Edit", [.editLabel, .editCaption]),
-            ("Dialog", [.dialogTitle, .dialogBody])
+            ("Dialog", [.dialogTitle, .dialogBody]),
+            ("Card", [.cardLabel]),
+            ("Dial", [.dialValue, .dialUnit])
         ]
 
         for (groupName, roles) in groups {
@@ -83,7 +85,7 @@ final class TypographyTests: XCTestCase {
     }
 
     func testAllRolesCovered() {
-        XCTAssertEqual(self.allRoles.count, 23, "Update this count when adding new TypographyRole cases")
+        XCTAssertEqual(self.allRoles.count, 26, "Update this count when adding new TypographyRole cases")
     }
 
     // MARK: - Font Spec Expectations
@@ -135,6 +137,57 @@ final class TypographyTests: XCTestCase {
             TypographyRole.dialogBody.fontSpec,
             .fixed(size: 12, weight: .regular, design: .rounded)
         )
+    }
+
+    // MARK: - Breath Dial Roles (shared-086)
+
+    func testCardLabelIsFixedRegular11() {
+        XCTAssertEqual(
+            TypographyRole.cardLabel.fontSpec,
+            .fixed(size: 11, weight: .regular, design: .rounded)
+        )
+    }
+
+    func testCardLabelUsesSecondaryColor() {
+        XCTAssertEqual(TypographyRole.cardLabel.textColor, \ThemeColors.textSecondary)
+    }
+
+    func testDialValueIsFixedLight62() {
+        // 62 px ist die kompakte Untergrenze; Views skalieren bis 76 ueber size-Override.
+        XCTAssertEqual(
+            TypographyRole.dialValue.fontSpec,
+            .fixed(size: 62, weight: .light, design: .rounded)
+        )
+    }
+
+    func testDialValueUsesPrimaryColor() {
+        XCTAssertEqual(TypographyRole.dialValue.textColor, \ThemeColors.textPrimary)
+    }
+
+    func testDialValueHasNegativeTracking() {
+        XCTAssertLessThan(TypographyRole.dialValue.tracking, 0)
+    }
+
+    func testDialUnitIsFixedRegular10() {
+        XCTAssertEqual(
+            TypographyRole.dialUnit.fontSpec,
+            .fixed(size: 10, weight: .regular, design: .rounded)
+        )
+    }
+
+    func testDialUnitUsesSecondaryColor() {
+        XCTAssertEqual(TypographyRole.dialUnit.textColor, \ThemeColors.textSecondary)
+    }
+
+    func testDialUnitHasNoTracking() {
+        // Sentence-Case-Label ("Minuten") braucht kein Letter-Spacing.
+        XCTAssertEqual(TypographyRole.dialUnit.tracking, 0, accuracy: 0.0001)
+    }
+
+    func testDefaultRoleHasNoTracking() {
+        // Bestehende Rollen duerfen sich durch das Tracking-Feature nicht aendern.
+        XCTAssertEqual(TypographyRole.bodyPrimary.tracking, 0, accuracy: 0.0001)
+        XCTAssertEqual(TypographyRole.screenTitle.tracking, 0, accuracy: 0.0001)
     }
 
     // MARK: - Text Color Expectations

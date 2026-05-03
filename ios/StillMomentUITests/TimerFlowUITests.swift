@@ -64,10 +64,12 @@ final class TimerFlowUITests: XCTestCase {
             XCTAssertTrue(startButton.exists, "Start button should be visible")
         }
 
-        XCTContext.runActivity(named: "Verify duration picker and start button") { _ in
-            // Picker should be visible
-            let picker = self.app.pickers["timer.picker.minutes"]
-            XCTAssertTrue(picker.exists)
+        XCTContext.runActivity(named: "Verify breath dial and start button") { _ in
+            // Atemkreis-Picker (shared-086): +/- Buttons sind sicht- und queryebene Adjust-Buttons.
+            let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+            XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial plus-Button should be visible")
+            let minusButton = self.app.descendants(matching: .any)["timer.dial.minus"]
+            XCTAssertTrue(minusButton.exists, "Dial minus-Button should be visible")
 
             // Start button should exist and be enabled
             let startButton = self.app.buttons["timer.button.start"]
@@ -116,9 +118,9 @@ final class TimerFlowUITests: XCTestCase {
             XCTAssertTrue(endButton.waitForExistence(timeout: 2.0), "End button should exist")
             endButton.tap()
 
-            // Should return to idle state — minute picker and start button reappear
-            let picker = self.app.pickers["timer.picker.minutes"]
-            XCTAssertTrue(picker.waitForExistence(timeout: 2.0), "Minute picker should reappear")
+            // Should return to idle state — dial and start button reappear
+            let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+            XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial should reappear")
 
             let startButton = self.app.buttons["timer.button.start"]
             XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should be visible again")
@@ -173,6 +175,7 @@ final class TimerFlowUITests: XCTestCase {
         // Running -> Idle (end timer)
         self.app.buttons["timer.button.end"].tap()
         XCTAssertTrue(self.app.buttons["timer.button.start"].waitForExistence(timeout: 2.0))
-        XCTAssertTrue(self.app.pickers["timer.picker.minutes"].waitForExistence(timeout: 2.0))
+        let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
+        XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0))
     }
 }

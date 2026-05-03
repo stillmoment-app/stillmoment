@@ -24,10 +24,8 @@ struct SettingCard: View {
     var body: some View {
         Button(action: self.action) {
             VStack(spacing: 7) {
-                Text(self.label.uppercased())
-                    .font(.system(size: 9.5, weight: .medium, design: .rounded))
-                    .tracking(1.3)
-                    .foregroundColor(self.theme.textSecondary)
+                Text(self.label)
+                    .themeFont(.cardLabel)
                     .lineLimit(1)
                     .truncationMode(.tail)
 

@@ -113,4 +113,46 @@ final class ThemeColorsTests: XCTestCase {
             XCTAssertEqual(theme.settingCardBorder, theme.textPrimary.opacity(0.08))
         }
     }
+
+    // MARK: - Breath Dial Tokens (shared-086)
+
+    func testDialActiveArcUsesInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.dialActiveArc, theme.interactive)
+    }
+
+    func testDialDropletCoreUsesInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.dialDropletCore, theme.interactive)
+    }
+
+    func testDialDropletHaloDerivesFromInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
+    }
+
+    func testDialButtonBackgroundDerivesFromTextPrimary() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.dialButtonBackground, theme.textPrimary.opacity(0.04))
+    }
+
+    func testDialButtonBorderDerivesFromTextPrimary() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.dialButtonBorder, theme.textPrimary.opacity(0.10))
+    }
+
+    func testDialTokensFollowThemeAcrossPalettes() {
+        let palettes: [ThemeColors] = [
+            .candlelightLight, .candlelightDark,
+            .forestLight, .forestDark,
+            .moonLight, .moonDark
+        ]
+        for theme in palettes {
+            XCTAssertEqual(theme.dialActiveArc, theme.interactive)
+            XCTAssertEqual(theme.dialDropletCore, theme.interactive)
+            XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
+            XCTAssertEqual(theme.dialButtonBackground, theme.textPrimary.opacity(0.04))
+            XCTAssertEqual(theme.dialButtonBorder, theme.textPrimary.opacity(0.10))
+        }
+    }
 }

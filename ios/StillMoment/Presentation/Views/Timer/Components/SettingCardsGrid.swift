@@ -14,9 +14,6 @@ struct SettingCardsGrid: View {
     let gong: SettingCardsGridItem
     let interval: SettingCardsGridItem
 
-    @Environment(\.themeColors)
-    private var theme
-
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
@@ -28,13 +25,6 @@ struct SettingCardsGrid: View {
                 self.cardView(self.gong)
                 self.cardView(self.interval)
             }
-
-            Text("settings.card.hint", bundle: .main)
-                .font(.system(size: 10.5, weight: .regular, design: .rounded))
-                .tracking(1.3)
-                .foregroundColor(self.theme.textSecondary.opacity(0.8))
-                .textCase(.uppercase)
-                .padding(.top, 4)
         }
     }
 

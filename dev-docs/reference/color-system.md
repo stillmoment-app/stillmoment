@@ -85,6 +85,23 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 | `.cardBorder` | Card-Rahmen (Light: clear, Dark: aufgehellter Stroke 0.5pt) |
 | `.error` | Fehlermeldungen |
 
+### Computed Tokens (abgeleitet)
+
+Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrimary` / `backgroundPrimary`. Wirken automatisch in allen Themes × Light/Dark.
+
+| Token | Ableitung | Verwendung |
+|-------|-----------|------------|
+| `.accentBannerBackground` | `interactive.opacity(0.10)` | Banner-Karten im Quellen-Sheet |
+| `.accentBannerBorder` | `interactive.opacity(0.28)` | Banner-Karten-Border |
+| `.accentBubbleBackground` | `interactive.opacity(0.18)` | Icon-Bubbles, Step-Number-Badges |
+| `.settingCardBackground` | `textPrimary.opacity(0.03)` | Setting-Karten am Timer-Konfig (shared-083) |
+| `.settingCardBorder` | `textPrimary.opacity(0.08)` | Setting-Karten-Border |
+| `.dialActiveArc` | `= interactive` | Aktiv-Bogen des Atemkreis-Pickers (shared-086) |
+| `.dialDropletCore` | `= interactive` | Drag-Tropfen Kern-Punkt |
+| `.dialDropletHalo` | `interactive.opacity(0.18)` | Pulsierender Halo um den Drag-Tropfen |
+| `.dialButtonBackground` | `textPrimary.opacity(0.04)` | +/- Adjust-Buttons am Atemkreis |
+| `.dialButtonBorder` | `textPrimary.opacity(0.10)` | +/- Adjust-Buttons-Border |
+
 ### Gradient
 
 ```swift
@@ -107,7 +124,7 @@ Definiert in `Font+Theme.swift`. Jede `TypographyRole` kapselt Font-Groesse, Wei
 
 **Wichtig:** `.themeFont()` setzt immer BEIDES — `.font()` UND `.foregroundColor()`. Nie zusaetzlich `.foregroundColor()` auf denselben Text setzen.
 
-### Typography Roles (21 Rollen)
+### Typography Roles (26 Rollen)
 
 | Gruppe | Rolle | FontSpec | Default-Farbe |
 |--------|-------|----------|---------------|
@@ -132,8 +149,13 @@ Definiert in `Font+Theme.swift`. Jede `TypographyRole` kapselt Font-Groesse, Wei
 | List | `listActionLabel` | dynamic .body medium | textPrimary |
 | Edit | `editLabel` | dynamic .subheadline medium | textPrimary |
 | Edit | `editCaption` | dynamic .caption regular | textSecondary |
+| Dialog | `dialogTitle` | fixed 18pt light | textPrimary |
+| Dialog | `dialogBody` | fixed 12pt regular | textSecondary |
+| Card | `cardLabel` | fixed 11pt regular | textSecondary |
+| Dial | `dialValue` | fixed 62pt light, tracking -1.5 | textPrimary |
+| Dial | `dialUnit` | fixed 10pt regular | textSecondary |
 
-Alle Rollen verwenden `.rounded` Design. Unit Tests (`TypographyTests`) pruefen das exhaustiv.
+Alle Rollen verwenden `.rounded` Design. Unit Tests (`TypographyTests`) pruefen das exhaustiv. Tracking-Spalte: nur Dial-Rollen weichen vom Default 0 ab.
 
 ### FontSpec-Typen
 
