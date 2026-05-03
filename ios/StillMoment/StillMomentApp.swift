@@ -156,11 +156,18 @@ struct StillMomentApp: App {
                 .presentationDragIndicator(.visible)
             }
             .overlay {
-                if self.inboxHandler.isDownloading {
-                    DownloadOverlayView {
-                        self.inboxHandler.cancelDownload()
+                Group {
+                    if self.inboxHandler.isDownloading {
+                        DownloadOverlayView {
+                            self.inboxHandler.cancelDownload()
+                        }
+                        .transition(.opacity)
                     }
                 }
+                .animation(
+                    .easeInOut(duration: 0.2),
+                    value: self.inboxHandler.isDownloading
+                )
             }
             .alert(
                 NSLocalizedString("common.error", comment: ""),
@@ -286,34 +293,5 @@ struct StillMomentApp: App {
         guard let inboxDir, url.path.hasPrefix(inboxDir.path)
         else { return }
         try? FileManager.default.removeItem(at: url)
-    }
-}
-
-// MARK: - DownloadOverlayView
-
-/// Transparent overlay showing download progress with cancel button
-private struct DownloadOverlayView: View {
-    let onCancel: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-
-            VStack(spacing: 16) {
-                ProgressView()
-                    .scaleEffect(1.5)
-
-                Text(NSLocalizedString("share.download.loading", comment: ""))
-                    .themeFont(.inlineNavigationTitle)
-
-                Button(NSLocalizedString("share.download.cancel", comment: "")) {
-                    self.onCancel()
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(32)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        }
     }
 }

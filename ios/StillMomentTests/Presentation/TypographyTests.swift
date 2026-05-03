@@ -66,7 +66,8 @@ final class TypographyTests: XCTestCase {
             ("Settings", [.settingsLabel, .settingsDescription]),
             ("Player", [.playerTitle, .playerTeacher, .playerTimestamp, .playerCountdown]),
             ("List", [.listTitle, .listSubtitle, .listBody, .listSectionTitle, .listActionLabel]),
-            ("Edit", [.editLabel, .editCaption])
+            ("Edit", [.editLabel, .editCaption]),
+            ("Dialog", [.dialogTitle, .dialogBody])
         ]
 
         for (groupName, roles) in groups {
@@ -82,7 +83,7 @@ final class TypographyTests: XCTestCase {
     }
 
     func testAllRolesCovered() {
-        XCTAssertEqual(self.allRoles.count, 21, "Update this count when adding new TypographyRole cases")
+        XCTAssertEqual(self.allRoles.count, 23, "Update this count when adding new TypographyRole cases")
     }
 
     // MARK: - Font Spec Expectations
@@ -122,6 +123,20 @@ final class TypographyTests: XCTestCase {
         )
     }
 
+    func testDialogTitleIsFixedLight18() {
+        XCTAssertEqual(
+            TypographyRole.dialogTitle.fontSpec,
+            .fixed(size: 18, weight: .light, design: .rounded)
+        )
+    }
+
+    func testDialogBodyIsFixedRegular12() {
+        XCTAssertEqual(
+            TypographyRole.dialogBody.fontSpec,
+            .fixed(size: 12, weight: .regular, design: .rounded)
+        )
+    }
+
     // MARK: - Text Color Expectations
 
     func testPrimaryColorRoles() {
@@ -132,7 +147,8 @@ final class TypographyTests: XCTestCase {
             .settingsLabel,
             .playerTitle, .playerCountdown,
             .listTitle, .listSectionTitle, .listActionLabel,
-            .editLabel
+            .editLabel,
+            .dialogTitle
         ]
         for role in primaryRoles {
             XCTAssertEqual(role.textColor, \ThemeColors.textPrimary, "Role \(role) should use textPrimary")
@@ -145,7 +161,8 @@ final class TypographyTests: XCTestCase {
             .settingsDescription,
             .playerTimestamp,
             .listSubtitle, .listBody,
-            .editCaption
+            .editCaption,
+            .dialogBody
         ]
         for role in secondaryRoles {
             XCTAssertEqual(role.textColor, \ThemeColors.textSecondary, "Role \(role) should use textSecondary")
