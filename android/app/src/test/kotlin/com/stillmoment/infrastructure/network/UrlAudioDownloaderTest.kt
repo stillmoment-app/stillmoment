@@ -77,9 +77,10 @@ class UrlAudioDownloaderTest {
 
             sut.download("https://example.com/meditation.mp3")
 
-            val files = cacheDir.listFiles() ?: emptyArray()
-            assertTrue(files.isNotEmpty()) { "Expected a temp file in cacheDir" }
-            assertTrue(files.any { it.length() == audioBytes.size.toLong() })
+            // android-077: file lives in a per-download sub-directory with original name
+            val downloadedFiles = cacheDir.walkTopDown().filter { it.isFile }.toList()
+            assertTrue(downloadedFiles.isNotEmpty()) { "Expected a downloaded file under cacheDir" }
+            assertTrue(downloadedFiles.any { it.length() == audioBytes.size.toLong() })
         }
 
         @Test
@@ -116,15 +117,21 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
-        fun `temp filename includes original filename`() = kotlinx.coroutines.test.runTest {
+        fun `downloaded file uses original filename without prefix`() = kotlinx.coroutines.test.runTest {
+            // android-077: downloaded file should be named exactly like the URL filename,
+            // so the imported meditation shows a clean name in the library
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("audio/mpeg")
             whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
 
             sut.download("https://cdn.example.com/my-meditation.mp3")
 
-            val files = cacheDir.listFiles() ?: emptyArray()
-            assertTrue(files.any { it.name.contains("my-meditation.mp3") })
+            val downloadedFiles = cacheDir.walkTopDown().filter { it.isFile }.toList()
+            val names = downloadedFiles.map { it.name }
+            assertTrue(
+                names.contains("my-meditation.mp3"),
+                "Expected file 'my-meditation.mp3' (no prefix). Found: $names"
+            )
         }
     }
 

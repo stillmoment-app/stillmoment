@@ -77,7 +77,12 @@ class UrlAudioDownloaderImpl @Inject constructor(
             }
 
             val filename = UrlAudioValidator.extractFilename(url)
-            val tempFile = File(context.cacheDir, "dl_${System.currentTimeMillis()}_$filename")
+            // Use a per-download sub-directory so the file keeps its original name
+            // (e.g. "Moment-mal-01Atem.mp3") while still avoiding collisions across
+            // repeated downloads of the same URL.
+            val downloadDir = File(context.cacheDir, "dl_${System.currentTimeMillis()}")
+            downloadDir.mkdirs()
+            val tempFile = File(downloadDir, filename)
 
             connection.inputStream.use { input ->
                 tempFile.outputStream().use { output ->
