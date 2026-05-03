@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Step 1 — 5 Setting-Karten auf Timer-Konfig</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { background: #0a0604; min-height: 100vh; margin: 0; }
+  .stage {
+    min-height: 100vh; padding: 40px 24px;
+    display: flex; gap: 32px; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .pair { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .pair-label {
+    font-family: var(--sm-font-ui); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sm-text-3); font-weight: 500;
+  }
+  .pair-sub { font-family: var(--sm-font-ui); font-size: 12px; color: var(--sm-text-2); max-width: 393px; text-align: center; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="timer-config-step1.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState } = React;
+const { TimerConfigStep1, TimerConfigBefore } = window.SM_TimerConfigStep1;
+
+function App() {
+  const [minutes, setMinutes] = useState(10);
+  const [activeTab, setActiveTab] = useState("timer");
+  const [dense, setDense] = useState({
+    prepOn: true,    prepDur: "15 Sek.",
+    introOn: false,  intro: "Atem-Anker",
+    ambientOn: true, ambient: "Regen",
+    gong: "Tempelglocke", gongVol: 70,
+    intervalOn: true, interval: "5 Min.", intervalVol: 50,
+  });
+
+  const onOpenConfig = (key) => {
+    alert(`→ öffnet bestehendes Sheet/Subscreen: ${key}`);
+  };
+
+  return (
+    <div className="stage">
+      <div className="pair">
+        <div className="pair-label">Vorher (heute)</div>
+        <div className="pair-sub">Drei Pillen unter dem Picker. Sehen wie Tags aus, sind aber Buttons. Vorbereitung & Einstimmung sind in einem separaten Settings-Tab versteckt.</div>
+        <TimerConfigBefore
+          minutes={minutes} setMinutes={setMinutes}
+          dense={dense}
+          onStart={() => {}}
+          activeTab={activeTab} setActiveTab={setActiveTab}/>
+      </div>
+      <div className="pair">
+        <div className="pair-label">Nachher (Schritt 1)</div>
+        <div className="pair-sub">Alle 5 Sitzungs-Settings als sichtbare, klar tippbare Karten direkt auf dem Konfig-Screen. Tap öffnet das bereits existierende Detail-Sheet.</div>
+        <TimerConfigStep1
+          minutes={minutes} setMinutes={setMinutes}
+          dense={dense}
+          onStart={() => {}}
+          onOpenConfig={onOpenConfig}
+          activeTab={activeTab} setActiveTab={setActiveTab}/>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
