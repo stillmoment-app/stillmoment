@@ -78,6 +78,37 @@ struct ThemeColors: Equatable, Hashable {
     var settingCardBorder: Color {
         self.textPrimary.opacity(0.08)
     }
+
+    // MARK: - Breath Dial Tokens (shared-086)
+
+    /// Aktiv-Bogen des Atemkreis-Pickers. Identisch mit `interactive`,
+    /// damit der Atemkreis dieselbe Akzentfarbe wie Buttons traegt — bekommt
+    /// einen eigenen semantischen Namen, damit der Wert spaeter pro Palette
+    /// feinjustiert werden kann ohne den View anzufassen.
+    var dialActiveArc: Color {
+        self.interactive
+    }
+
+    /// Tropfen-Kern (innerer voller Punkt am Drag-Tropfen).
+    var dialDropletCore: Color {
+        self.interactive
+    }
+
+    /// Pulsierender Halo um den Drag-Tropfen — leichte Akzentfarbe als
+    /// Affordance "ich bin anfassbar".
+    var dialDropletHalo: Color {
+        self.interactive.opacity(0.18)
+    }
+
+    /// Subtil getoenter Hintergrund fuer +/- Buttons am Atemkreis-Picker.
+    var dialButtonBackground: Color {
+        self.textPrimary.opacity(0.04)
+    }
+
+    /// Subtiler Border fuer +/- Buttons.
+    var dialButtonBorder: Color {
+        self.textPrimary.opacity(0.10)
+    }
 }
 
 // MARK: - Theme Resolution

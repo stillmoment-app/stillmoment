@@ -58,6 +58,13 @@ enum TypographyRole: CaseIterable {
     // Dialog
     case dialogTitle
     case dialogBody
+
+    /// Setting Card (shared-086)
+    case cardLabel
+
+    // Breath Dial (shared-086)
+    case dialValue
+    case dialUnit
 }
 
 // MARK: - Font Spec (Single Source of Truth)
@@ -105,6 +112,21 @@ extension TypographyRole {
         // Dialog — small modal text (e.g. download progress)
         case .dialogTitle: .fixed(size: 18, weight: .light, design: .rounded)
         case .dialogBody: .fixed(size: 12, weight: .regular, design: .rounded)
+        // Setting Card (shared-086) — sentence-case label
+        case .cardLabel: .fixed(size: 11, weight: .regular, design: .rounded)
+        // Breath Dial (shared-086) — center value (default 62, scales bis 76 via size override)
+        case .dialValue: .fixed(size: 62, weight: .light, design: .rounded)
+        // Breath Dial (shared-086) — "Minuten"-Label unter dem Wert
+        case .dialUnit: .fixed(size: 10, weight: .regular, design: .rounded)
+        }
+    }
+
+    /// Letter-Spacing pro Rolle. Default 0 — nur einzelne Rollen mit
+    /// bewusstem Tracking-Bedarf weichen ab.
+    var tracking: CGFloat {
+        switch self {
+        case .dialValue: -1.5
+        default: 0
         }
     }
 
@@ -133,6 +155,9 @@ extension TypographyRole {
         case .editCaption: \.textSecondary
         case .dialogTitle: \.textPrimary
         case .dialogBody: \.textSecondary
+        case .cardLabel: \.textSecondary
+        case .dialValue: \.textPrimary
+        case .dialUnit: \.textSecondary
         }
     }
 }
@@ -171,6 +196,7 @@ private struct ThemeTypographyModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(self.resolvedFont)
+            .tracking(self.role.tracking)
             .foregroundColor(self.theme[keyPath: self.colorOverride ?? self.role.textColor])
     }
 
