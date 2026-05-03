@@ -154,9 +154,17 @@ constructor(
     }
 
     /**
-     * Extracts the file name from a content URI using ContentResolver.
+     * Extracts the file name from a URI.
+     *
+     * For content:// URIs, queries the ContentResolver for DISPLAY_NAME.
+     * For file:// URIs, reads the last path segment directly — Android 7+
+     * returns null from ContentResolver.query() for file scheme.
      */
     private fun getFileName(uri: Uri): String {
+        if (uri.scheme == "file") {
+            return uri.lastPathSegment ?: "Unknown"
+        }
+
         var fileName = "Unknown"
 
         context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->

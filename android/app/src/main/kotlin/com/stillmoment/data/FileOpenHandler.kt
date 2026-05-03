@@ -129,6 +129,11 @@ constructor(
     }
 
     private fun getFileName(uri: Uri): String {
+        // Android 7+: ContentResolver.query() returns null for file:// URIs.
+        // Read the filename directly from the path instead.
+        if (uri.scheme == "file") {
+            return uri.lastPathSegment ?: "Unknown"
+        }
         var fileName = "Unknown"
         context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             if (cursor.moveToFirst()) {
@@ -151,6 +156,13 @@ constructor(
     }
 
     private fun queryFileSize(uri: Uri): Long? {
+        // Android 7+: ContentResolver.query() returns null for file:// URIs.
+        // Read the size directly from the file instead.
+        if (uri.scheme == "file") {
+            val path = uri.path ?: return null
+            val file = java.io.File(path)
+            return if (file.exists()) file.length() else null
+        }
         val cursor = context.contentResolver.query(uri, null, null, null, null) ?: return null
         return cursor.use {
             if (!it.moveToFirst()) return@use null

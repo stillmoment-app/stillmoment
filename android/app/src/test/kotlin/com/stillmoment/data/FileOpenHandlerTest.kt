@@ -183,6 +183,27 @@ class FileOpenHandlerTest {
             val uri = createMockUri("video/mp4", "movie.mp4")
             assertFalse(sut.canHandle(uri))
         }
+
+        @Test
+        fun `file uri with mp3 extension can be handled (URL download path)`() {
+            // Reproduces the URL-share flow (android-076): URLs are downloaded to the
+            // app cache and surface as file:// URIs. ContentResolver.query() returns null
+            // for those, so the extension fallback must read uri.lastPathSegment directly.
+            val uri = mock<Uri>()
+            whenever(uri.scheme).thenReturn("file")
+            whenever(uri.lastPathSegment).thenReturn("dl_123_meditation.mp3")
+            whenever(mockContentResolver.getType(uri)).thenReturn(null)
+            assertTrue(sut.canHandle(uri))
+        }
+
+        @Test
+        fun `file uri with unsupported extension cannot be handled`() {
+            val uri = mock<Uri>()
+            whenever(uri.scheme).thenReturn("file")
+            whenever(uri.lastPathSegment).thenReturn("dl_123_video.wav")
+            whenever(mockContentResolver.getType(uri)).thenReturn(null)
+            assertFalse(sut.canHandle(uri))
+        }
     }
 
     @Nested
