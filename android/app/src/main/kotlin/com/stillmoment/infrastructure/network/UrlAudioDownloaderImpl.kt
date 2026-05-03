@@ -11,6 +11,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -42,6 +43,17 @@ class UrlAudioDownloaderImpl @Inject constructor(
     }
     private var uriFromFile: (File) -> Uri = { file -> Uri.fromFile(file) }
 
+    // Single-download assumption: the URL import flow runs sequentially, so we never have
+    // two parallel downloads. @Volatile gives us cross-thread visibility without the
+    // overhead of AtomicReference. We disconnect the connection on cancel() so a blocked
+    // input-stream read unblocks immediately; the cancelled flag lets us translate the
+    // resulting IOException into CancellationException.
+    @Volatile
+    private var currentConnection: HttpURLConnection? = null
+
+    @Volatile
+    private var cancelled: Boolean = false
+
     companion object {
         private const val TAG = "UrlDownload"
         private const val TIMEOUT_MS = 60_000
@@ -57,7 +69,9 @@ class UrlAudioDownloaderImpl @Inject constructor(
     }
 
     override suspend fun download(url: String): Result<Uri> = withContext(Dispatchers.IO) {
+        cancelled = false
         val connection = connectionFactory(url)
+        currentConnection = connection
         try {
             connection.connectTimeout = TIMEOUT_MS
             connection.readTimeout = TIMEOUT_MS
@@ -90,11 +104,24 @@ class UrlAudioDownloaderImpl @Inject constructor(
                 }
             }
 
+            if (cancelled) {
+                tempFile.delete()
+                return@withContext Result.failure(CancellationException("Download cancelled"))
+            }
+
             logger.d(TAG, "Downloaded ${tempFile.length()} bytes from $url to ${tempFile.name}")
             Result.success(uriFromFile(tempFile))
         } catch (e: java.io.IOException) {
-            logger.e(TAG, "IO error downloading $url", e)
-            Result.failure(e)
+            // When cancel() disconnects the underlying connection, the input stream
+            // throws an IOException. Translate that to CancellationException so callers
+            // can distinguish user cancellation from genuine network errors.
+            if (cancelled) {
+                logger.d(TAG, "Download cancelled for $url (IO interrupted)")
+                Result.failure(CancellationException("Download cancelled"))
+            } else {
+                logger.e(TAG, "IO error downloading $url", e)
+                Result.failure(e)
+            }
         } catch (e: SecurityException) {
             logger.e(TAG, "Security error downloading $url", e)
             Result.failure(e)
@@ -103,6 +130,14 @@ class UrlAudioDownloaderImpl @Inject constructor(
             Result.failure(e)
         } finally {
             connection.disconnect()
+            currentConnection = null
         }
+    }
+
+    override fun cancel() {
+        // Disconnecting unblocks any in-flight inputStream.read() with an IOException,
+        // which the catch-block translates into a CancellationException result.
+        cancelled = true
+        currentConnection?.disconnect()
     }
 }

@@ -105,7 +105,11 @@ enum class TypographyRole {
 
     // Edit
     EditLabel,
-    EditCaption
+    EditCaption,
+
+    // Dialog (modal cards, e.g. download progress)
+    DialogTitle,
+    DialogBody
 }
 
 // endregion
@@ -154,6 +158,9 @@ internal val TypographyRole.fontSpec: FontSpec
         // Edit
         TypographyRole.EditLabel -> FontSpec(14.sp, FontWeight.Medium)
         TypographyRole.EditCaption -> FontSpec(12.sp, FontWeight.Normal)
+        // Dialog
+        TypographyRole.DialogTitle -> FontSpec(18.sp, FontWeight.Light)
+        TypographyRole.DialogBody -> FontSpec(12.sp, FontWeight.Normal)
     }
 
 // endregion
@@ -196,6 +203,8 @@ internal val TypographyRole.colorRole: ThemeColorRole
         TypographyRole.ListActionLabel -> ThemeColorRole.TextPrimary
         TypographyRole.EditLabel -> ThemeColorRole.TextPrimary
         TypographyRole.EditCaption -> ThemeColorRole.TextSecondary
+        TypographyRole.DialogTitle -> ThemeColorRole.TextPrimary
+        TypographyRole.DialogBody -> ThemeColorRole.TextSecondary
     }
 
 /**

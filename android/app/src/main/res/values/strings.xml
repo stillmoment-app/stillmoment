@@ -306,6 +306,8 @@
 
     <!-- URL Download (Chrome share) -->
     <string name="download_loading">Loading meditation\u2026</string>
+    <string name="download_modal_body">One moment, we\u2019re fetching the recording for you.</string>
+    <string name="download_modal_cancel_a11y">Cancel download</string>
     <string name="download_error_title">Download failed</string>
     <string name="download_error_message">The audio file could not be downloaded. Please try again.</string>
     <string name="download_error_retry">Retry</string>

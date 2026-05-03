@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +78,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportAudioType
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
+import com.stillmoment.presentation.ui.common.DownloadProgressModal
 import com.stillmoment.presentation.ui.common.ImportTypeSelectionSheet
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
@@ -99,6 +99,7 @@ import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -245,6 +246,10 @@ fun StillMomentNavHost(
     var showImportTypeSheet by remember { mutableStateOf(false) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
 
+    // URL-download progress overlay state — hoisted so the modal can render as a
+    // sibling of NavHostScaffold (covering the bottom bar) instead of as a Dialog.
+    var isDownloading by remember { mutableStateOf(false) }
+
     FileOpenEffect(
         fileOpenHandler = fileOpenHandler,
         pendingFileUri = pendingFileUri,
@@ -264,6 +269,7 @@ fun StillMomentNavHost(
         urlAudioDownloader = urlAudioDownloader,
         pendingDownloadUrl = pendingDownloadUrl,
         onClearDownloadUrl = onClearDownloadUrl,
+        onDownloadingChange = { isDownloading = it },
         onDownloadSuccess = { uri ->
             pendingImportUri = uri
             stopMeditationSignal.value = true
@@ -311,6 +317,19 @@ fun StillMomentNavHost(
                 }
             }
         )
+
+        // Download progress modal — covers the entire host (incl. bottom bar)
+        // while a URL share/import download is in flight. Cancel cancels the
+        // active download via the protocol's cancel API.
+        if (isDownloading) {
+            DownloadProgressModal(
+                onCancel = {
+                    urlAudioDownloader?.cancel()
+                    // Cancel propagates as Result.failure(CancellationException),
+                    // which DownloadUrlEffect filters out — no error dialog will show.
+                }
+            )
+        }
 
         // Top-level completion overlay — covers the entire NavHost when the previous
         // meditation finished while the app was suspended/terminated. See shared-080.
@@ -632,23 +651,25 @@ private fun NavGraphBuilder.playerComposable(
 /**
  * Handles URL download when an audio URL is shared via text (e.g. Chrome).
  *
- * Shows an indeterminate progress dialog while downloading.
- * On success, passes the local file URI to [onDownloadSuccess] so the
- * existing import flow can proceed (type selection, import).
- * On failure, shows an error dialog with retry and cancel options.
+ * Drives the [isDownloading] state via [onDownloadingChange] so the host can render
+ * the [DownloadProgressModal] as a top-level overlay. On success, passes the local
+ * file URI to [onDownloadSuccess]. On failure (genuine network/HTTP errors), an error
+ * dialog with retry and cancel options is shown. User-initiated cancellation
+ * (CancellationException) is filtered out — no error dialog appears.
  */
 @Composable
 private fun DownloadUrlEffect(
     urlAudioDownloader: UrlAudioDownloaderProtocol?,
     pendingDownloadUrl: StateFlow<String?>,
     onClearDownloadUrl: () -> Unit,
+    onDownloadingChange: (Boolean) -> Unit,
     onDownloadSuccess: (Uri) -> Unit
 ) {
     val downloadUrl by pendingDownloadUrl.collectAsState()
-    var isDownloading by remember { mutableStateOf(false) }
     var failedUrl by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
+    val currentOnDownloadingChange by rememberUpdatedState(onDownloadingChange)
     val currentOnDownloadSuccess by rememberUpdatedState(onDownloadSuccess)
 
     LaunchedEffect(downloadUrl) {
@@ -656,41 +677,33 @@ private fun DownloadUrlEffect(
         val downloader = urlAudioDownloader ?: return@LaunchedEffect
         // Clear AFTER the download finishes; clearing first would mutate `downloadUrl`
         // mid-flight and cause LaunchedEffect to cancel its own coroutine, leaving
-        // `isDownloading = true` forever and the loading dialog stuck on screen.
-        isDownloading = true
+        // the loading state stuck on screen.
+        currentOnDownloadingChange(true)
         failedUrl = null
         val result = downloader.download(url)
-        isDownloading = false
+        currentOnDownloadingChange(false)
         result.fold(
             onSuccess = { uri -> currentOnDownloadSuccess(uri) },
-            onFailure = { failedUrl = url }
+            onFailure = { error ->
+                // User-initiated cancel surfaces as CancellationException — silently
+                // dismiss without showing the error dialog.
+                if (error !is CancellationException) {
+                    failedUrl = url
+                }
+            }
         )
         currentOnClearDownloadUrl()
     }
-
-    DownloadProgressDialog(isDownloading = isDownloading)
 
     DownloadErrorDialog(
         failedUrl = failedUrl,
         urlAudioDownloader = urlAudioDownloader,
         scope = scope,
-        onRetryStart = { isDownloading = true },
-        onRetryEnd = { isDownloading = false },
+        onRetryStart = { currentOnDownloadingChange(true) },
+        onRetryEnd = { currentOnDownloadingChange(false) },
         onSuccess = currentOnDownloadSuccess,
         onFailure = { url -> failedUrl = url },
         onDismiss = { failedUrl = null }
-    )
-}
-
-@Composable
-private fun DownloadProgressDialog(isDownloading: Boolean) {
-    if (!isDownloading) return
-    val loadingText = stringResource(R.string.download_loading)
-    AlertDialog(
-        onDismissRequest = { /* not dismissable during download */ },
-        title = { Text(loadingText) },
-        text = { CircularProgressIndicator() },
-        confirmButton = {}
     )
 }
 

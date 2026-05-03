@@ -163,6 +163,7 @@ class TypographyTest {
                 TypographyRole.ListSectionTitle,
                 TypographyRole.ListActionLabel,
                 TypographyRole.EditLabel,
+                TypographyRole.DialogTitle,
             )
             primaryRoles.forEach { role ->
                 assertEquals(
@@ -183,6 +184,7 @@ class TypographyTest {
                 TypographyRole.ListSubtitle,
                 TypographyRole.ListBody,
                 TypographyRole.EditCaption,
+                TypographyRole.DialogBody,
             )
             secondaryRoles.forEach { role ->
                 assertEquals(
@@ -213,8 +215,8 @@ class TypographyTest {
     inner class RoleUniqueness {
 
         @Test
-        fun `all 20 roles are defined`() {
-            assertEquals(20, TypographyRole.entries.size)
+        fun `all 22 roles are defined`() {
+            assertEquals(22, TypographyRole.entries.size)
         }
 
         @Test

@@ -6,8 +6,16 @@ import com.stillmoment.domain.services.LoggerProtocol
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 import java.net.HttpURLConnection
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -200,6 +208,82 @@ class UrlAudioDownloaderTest {
             val result = sut.download("https://example.com/audio.mp3")
 
             assertTrue(result.isFailure)
+        }
+    }
+
+    @Nested
+    inner class Cancellation {
+
+        @Test
+        fun `cancel without active download is a no-op`() {
+            // Should not crash
+            sut.cancel()
+        }
+
+        @Test
+        fun `cancel during running download returns CancellationException`() = runTest(
+            UnconfinedTestDispatcher()
+        ) {
+            // Simulate a slow input stream that blocks until interrupted
+            val slowStream = object : InputStream() {
+                override fun read(): Int {
+                    // Block for a long time so the cancel() call lands while we're reading
+                    Thread.sleep(10_000)
+                    return -1
+                }
+            }
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.inputStream).thenReturn(slowStream)
+
+            val deferred = async { sut.download("https://example.com/slow.mp3") }
+            // Give the download a moment to start
+            delay(50)
+            sut.cancel()
+
+            val result = deferred.await()
+            assertTrue(result.isFailure) { "Expected failure after cancel" }
+            val exception = result.exceptionOrNull()
+            assertNotNull(exception)
+            assertTrue(
+                exception is CancellationException,
+                "Expected CancellationException but got ${exception?.javaClass?.simpleName}"
+            )
+        }
+
+        @Test
+        fun `subsequent download after cancel runs cleanly`() = runTest(UnconfinedTestDispatcher()) {
+            val slowStream = object : InputStream() {
+                override fun read(): Int {
+                    Thread.sleep(10_000)
+                    return -1
+                }
+            }
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.inputStream).thenReturn(slowStream)
+
+            val firstDeferred = async { sut.download("https://example.com/slow.mp3") }
+            delay(50)
+            sut.cancel()
+            firstDeferred.await()
+
+            // Reset mocks for the second, fast download (new connection from factory)
+            val freshConnection: HttpURLConnection = mock()
+            val freshUri: Uri = mock()
+            whenever(freshConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(freshConnection.contentType).thenReturn("audio/mpeg")
+            whenever(freshConnection.inputStream).thenReturn(ByteArrayInputStream("ok".toByteArray()))
+            val sutFresh = UrlAudioDownloaderImpl(
+                context = mockContext,
+                logger = mockLogger,
+                connectionFactory = { freshConnection },
+                uriFromFile = { freshUri }
+            )
+
+            val secondResult = sutFresh.download("https://example.com/fast.mp3")
+            assertTrue(secondResult.isSuccess) { "Second download should succeed after cancel" }
+            assertEquals(freshUri, secondResult.getOrNull())
         }
     }
 }

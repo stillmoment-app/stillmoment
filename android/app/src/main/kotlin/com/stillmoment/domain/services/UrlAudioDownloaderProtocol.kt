@@ -18,4 +18,13 @@ interface UrlAudioDownloaderProtocol {
      *         or failure with a descriptive exception.
      */
     suspend fun download(url: String): Result<Uri>
+
+    /**
+     * Cancels an active download, if any. No-op when no download is running.
+     *
+     * The active [download] call resolves with `Result.failure` wrapping a
+     * `CancellationException` so callers can distinguish user cancellation
+     * from network errors.
+     */
+    fun cancel()
 }
