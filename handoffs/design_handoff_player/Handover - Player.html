@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Still Moment — Handover · Player</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../styles.css"/>
+<style>
+  body { background: var(--sm-bg-deep); color: var(--sm-text); margin: 0; font-family: var(--sm-font-ui); line-height: 1.55; }
+  .doc { max-width: 1240px; margin: 0 auto; padding: 64px 56px 96px; }
+  .meta { display: flex; align-items: baseline; gap: 18px; color: var(--sm-text-3); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 24px; }
+  .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--sm-accent); }
+  h1 { font-family: var(--sm-font-display); font-weight: 400; font-size: 56px; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 16px; color: var(--sm-text); text-wrap: balance; }
+  h1 em { color: var(--sm-accent-text); font-style: italic; }
+  .lede { font-family: var(--sm-font-display); font-size: 22px; line-height: 1.4; color: var(--sm-text-2); max-width: 720px; margin: 0 0 64px; font-weight: 400; }
+  h2 { font-family: var(--sm-font-display); font-weight: 400; font-size: 32px; margin: 64px 0 24px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--sm-font-ui); font-weight: 500; font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sm-text-3); margin: 32px 0 12px; }
+  p { margin: 0 0 12px; max-width: 760px; color: var(--sm-text-2); }
+  p strong { color: var(--sm-text); font-weight: 500; }
+
+  .frames { display: grid; grid-template-columns: repeat(2, max-content); gap: 56px; justify-content: center; margin: 32px 0 24px; }
+  .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .frame-label { font-family: var(--sm-font-ui); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sm-text-3); }
+  .frame-label em { color: var(--sm-accent-text); font-style: normal; }
+
+  .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 32px; }
+  .spec h3 { margin-top: 0; }
+  .spec ul { list-style: none; padding: 0; margin: 0; }
+  .spec li { padding: 10px 0; border-top: 1px solid rgba(235, 226, 214, 0.06); display: grid; grid-template-columns: 140px 1fr; gap: 18px; font-size: 14px; }
+  .spec li:first-child { border-top: none; padding-top: 0; }
+  .spec li b { font-weight: 500; color: var(--sm-text-3); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; align-self: center; }
+  .spec li span { color: var(--sm-text); }
+  .spec li code { font-family: ui-monospace, "SF Mono", monospace; font-size: 12.5px; color: var(--sm-accent-text); background: rgba(196, 122, 94, 0.08); padding: 2px 6px; border-radius: 6px; }
+
+  .tokens { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 56px; margin: 16px 0 0; padding: 0; list-style: none; }
+  .tokens li { display: grid; grid-template-columns: 28px 1fr; gap: 14px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(235, 226, 214, 0.06); font-size: 13px; }
+  .tokens li:first-child, .tokens li:nth-child(2) { border-top: none; }
+  .tokens .swatch { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(235, 226, 214, 0.08); }
+  .tokens code { font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; color: var(--sm-accent-text); }
+  .tokens .desc { color: var(--sm-text-2); font-size: 12px; }
+
+  .why { background: var(--sm-card); border: 1px solid var(--sm-card-line); border-radius: var(--sm-r-lg); padding: 28px 32px; margin: 32px 0 0; }
+  .why p { color: var(--sm-text); max-width: none; }
+  .why p + p { margin-top: 8px; color: var(--sm-text-2); }
+
+  .changes { list-style: none; padding: 0; margin: 16px 0 0; counter-reset: chg; }
+  .changes li { counter-increment: chg; padding: 14px 0 14px 44px; border-top: 1px solid rgba(235, 226, 214, 0.06); position: relative; font-size: 14px; color: var(--sm-text-2); max-width: 820px; }
+  .changes li:first-child { border-top: none; }
+  .changes li::before { content: counter(chg, decimal-leading-zero); position: absolute; left: 0; top: 14px; font-family: var(--sm-font-display); font-size: 18px; color: var(--sm-accent-text); font-variant-numeric: tabular-nums; }
+  .changes li b { color: var(--sm-text); font-weight: 500; }
+
+  hr.rule { border: none; border-top: 1px solid rgba(235, 226, 214, 0.06); margin: 48px 0; }
+
+  .filebar { margin-top: 48px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .file { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--sm-r-pill); background: rgba(235, 226, 214, 0.04); border: 1px solid rgba(235, 226, 214, 0.07); font-family: ui-monospace, "SF Mono", monospace; font-size: 12px; color: var(--sm-text-2); }
+  .file b { color: var(--sm-accent-text); font-weight: 500; }
+
+  /* Phone — eigenständige, leichtgewichtige Render hier (nicht den Original-Player umgeleitet) */
+  .ph { width: 393px; height: 852px; position: relative; overflow: hidden; border-radius: 48px;
+        background: radial-gradient(ellipse 90% 70% at 50% 40%, #3a201a 0%, #2a1610 38%, #170b07 80%, #0d0604 100%);
+        font-family: var(--sm-font-ui); color: var(--sm-text); isolation: isolate; }
+  .ph .sb { position:absolute; top:0; left:0; right:0; height:54px; padding:18px 32px 0; display:flex; align-items:center; justify-content:space-between; font-family:-apple-system,"SF Pro Text",system-ui,sans-serif; font-weight:600; font-size:17px; color:#ebe2d6; z-index:5; }
+  .ph .close { position:absolute; top:64px; left:24px; z-index:6; width:44px; height:44px; border-radius:50%; background:rgba(235,226,214,0.08); border:1px solid rgba(235,226,214,0.10); display:inline-flex; align-items:center; justify-content:center; }
+  .ph .stage { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ph .artist { font-size:11px; letter-spacing:0.3em; text-transform:uppercase; color:rgba(168,154,140,0.55); }
+  .ph .title { font-family:var(--sm-font-display); font-weight:400; font-size:22px; line-height:1.2; color:rgba(235,226,214,0.85); margin-top:8px; margin-bottom:56px; }
+  .ph .ringbox { position:relative; width:280px; height:280px; }
+  .ph .breath { position:absolute; inset:30px; border-radius:50%;
+                background: radial-gradient(circle at 50% 45%, rgba(217,154,126,0.35), rgba(196,122,94,0.12) 60%, rgba(196,122,94,0) 80%);
+                border: 1px solid rgba(217,154,126,0.25);
+                animation: ho-breathe 16s ease-in-out infinite;
+                display:flex; align-items:center; justify-content:center; }
+  .ph .pause { width:80px; height:80px; border-radius:50%; background:rgba(15,8,5,0.55); border:1px solid rgba(217,154,126,0.35); backdrop-filter:blur(8px); display:inline-flex; align-items:center; justify-content:center; }
+  .ph .remain { margin-top:36px; font-size:12px; letter-spacing:0.18em; color:rgba(168,154,140,0.55); font-variant-numeric:tabular-nums; }
+  .ph .ending-action { position:absolute; bottom:64px; left:0; right:0; display:flex; justify-content:center; }
+  .ph .end-btn { background:transparent; border:none; color:rgba(217,154,126,0.7); font-family:var(--sm-font-ui); font-size:12px; letter-spacing:0.14em; text-transform:lowercase; padding:8px; display:inline-flex; align-items:center; gap:8px; }
+  @keyframes ho-breathe { 0%,100% { transform: scale(.86); opacity: .7 } 50% { transform: scale(1.04); opacity: 1 } }
+
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .doc { max-width: none; padding: 32px; }
+    .frame-label, h3 { color: #666; }
+    h1 em { color: #c47a5e; }
+    p { color: #444; }
+    .why { background: #f8f5f1; border-color: #e8e0d6; color: #1a1a1a; }
+    .why p { color: #1a1a1a; } .why p + p { color: #444; }
+    .spec li { border-color: #e8e0d6; }
+    .changes li { border-color: #e8e0d6; color: #444; }
+    .file { background: #f8f5f1; border-color: #e8e0d6; color: #444; }
+    .tokens li { border-color: #e8e0d6; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="meta">
+    <span>Still Moment</span><span class="dot"></span>
+    <span>Handover · Design Spec</span><span class="dot"></span>
+    <span>v1 · Mai 2026</span>
+  </div>
+  <h1>Player · <em>Atemkreis</em></h1>
+  <p class="lede">
+    Wenn eine Meditation läuft, ist der Bildschirm nicht für Bedienung da, sondern für Atmosphäre.
+    Der Player verwandelt sich in einen einzigen, langsam atmenden Kreis. Pause sitzt mittig,
+    die Restzeit liegt als hauchfeiner Bogen außen herum — sonst nichts.
+  </p>
+
+  <h2>Der Player</h2>
+  <div class="frames">
+
+    <div class="frame-wrap">
+      <div class="ph">
+        <div class="sb"><span>19:44</span><span style="opacity:.7;font-size:13px;">●●● ▽ 22</span></div>
+        <button class="close" aria-label="Schließen"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="#ebe2d6" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        <div class="stage">
+          <div class="artist">Christine Braehler</div>
+          <div class="title">Herzenskraft aufbauen</div>
+          <div class="ringbox">
+            <svg width="280" height="280" style="position:absolute; inset:0;">
+              <circle cx="140" cy="140" r="130" fill="none" stroke="rgba(235,226,214,0.07)" stroke-width="1"/>
+              <circle cx="140" cy="140" r="130" fill="none" stroke="#c47a5e" stroke-width="1.2"
+                      stroke-dasharray="400 817" transform="rotate(-90 140 140)" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+            <div class="breath">
+              <button class="pause" aria-label="Pause">
+                <svg width="26" height="26" viewBox="0 0 26 26"><rect x="6" y="4" width="4.5" height="18" rx="1.5" fill="#d99a7e"/><rect x="15.5" y="4" width="4.5" height="18" rx="1.5" fill="#d99a7e"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="remain">NOCH 8:32 MIN</div>
+        </div>
+      </div>
+      <div class="frame-label"><em>1.</em> &nbsp; Standard · läuft</div>
+    </div>
+
+  </div>
+
+  <div class="why">
+    <p><strong>Warum so wenig.</strong> Während einer Meditation schaut man eh nicht hin — das ist kein Bug, das ist Teil der Praxis. Jeder Knopf, der trotzdem auf dem Schirm sitzt, ist ein Versprechen, dass es etwas zu bedienen gäbe. Genau das wollen wir nicht.</p>
+    <p>Der Atemkreis übernimmt zwei Funktionen gleichzeitig: er ist Lebenszeichen (das Audio läuft) und Atemführung (~16 s pro Zyklus, langsamer als ein Ruheatem, einladend zum Mitatmen). Pause bleibt erreichbar — als einziger expliziter Knopf, mittig, durch den Glaskreis sichtbar. Restzeit darunter ist Information, kein Slider; nichts an ihr ist anfassbar.</p>
+  </div>
+
+  <hr class="rule"/>
+
+  <h2>Was sich gegenüber dem alten Stand ändert</h2>
+  <ol class="changes">
+    <li><b>Slider entfällt.</b> Im alten Player konnte man scrubben — bei Meditation eine Falle (man landet ungewollt im Outro). Restzeit bleibt sichtbar als feiner Bogen + Text, ist aber nicht mehr greifbar.</li>
+    <li><b>±10 Sekunden entfallen.</b> Skip-Buttons stammen aus der Podcast-Welt („Wort genau verstehen wollen"). In der Meditation gibt es nichts zu verstehen, das man nicht verpassen darf. Wer abdriftet, kommt durch den Atemkreis zurück, nicht durch einen Skip-Knopf.</li>
+    <li><b>Restzeit-Doppelung entfällt.</b> Vorher: 8:13 vergangen + 8:32 verbleibend. Beides ist Buchhaltung. Jetzt nur noch eine Zahl: was bleibt.</li>
+    <li><b>Großer Pause-Button im Pop-Stil weg.</b> Der dominante Kupferkreis sah aus wie eine Aufforderung zu drücken. Neuer Pause-Button ist ein matter Glaskreis im Atemzentrum — dezent, aber findbar.</li>
+    <li><b>Track-Metadaten rücken nach oben</b>, weg von der Steuerungsachse. Wer hinschaut, sieht erst „Was höre ich gerade", dann den Atem.</li>
+  </ol>
+
+  <hr class="rule"/>
+
+  <h2>Spezifikation</h2>
+  <div class="specs">
+
+    <div class="spec">
+      <h3>Layout</h3>
+      <ul>
+        <li><b>Phone</b><span>393 × 852 (iPhone 15 Pro logical)</span></li>
+        <li><b>Hintergrund</b><span><code>radial-gradient(90% 70% at 50% 40%, #3a201a → #2a1610 → #170b07 → #0d0604)</code></span></li>
+        <li><b>Status-Bar</b><span>shell.jsx · unverändert · helle Schrift</span></li>
+        <li><b>Schließen</b><span><code>.icon-btn</code> oben links · einzige Always-On-Interaktion</span></li>
+        <li><b>Artist</b><span>11 / 0.3em UPPERCASE · <code>--sm-text-3</code> @ 0.55</span></li>
+        <li><b>Titel</b><span>Newsreader 22 / 1.2 · <code>--sm-text</code> @ 0.85</span></li>
+        <li><b>Ring-Box</b><span>280 × 280 · vertikal mittig auf Phone</span></li>
+        <li><b>Restzeit-Label</b><span>12 / 0.18em UPPERCASE · 36 px unter Ring · tabular-nums</span></li>
+      </ul>
+    </div>
+
+    <div class="spec">
+      <h3>Atemkreis &amp; Steuerung</h3>
+      <ul>
+        <li><b>Atem-Tempo</b><span>16 s pro Zyklus (~ 8 s ein, 8 s aus)</span></li>
+        <li><b>Atem-Skala</b><span><code>scale(.86) → scale(1.04)</code> · <code>opacity .7 → 1</code></span></li>
+        <li><b>Atem-Easing</b><span><code>ease-in-out</code> · <code>infinite</code></span></li>
+        <li><b>Atem-Glow</b><span>radial gradient <code>--sm-accent-glow</code> @ 0.35 → 0 · 1 px Outline @ 0.25</span></li>
+        <li><b>Restzeit-Bogen</b><span>r = 130 · 1.2 px <code>--sm-accent</code> @ 0.7 · von 12 Uhr im Uhrzeigersinn · stroke-linecap round</span></li>
+        <li><b>Pause-Button</b><span>80 × 80 · <code>rgba(15,8,5,0.55)</code> + <code>backdrop-filter: blur(8px)</code> · 1 px <code>--sm-accent-glow</code> @ 0.35</span></li>
+        <li><b>Pause-Glyph</b><span>Pause-Bars · <code>--sm-accent-glow</code> · Tap toggelt zu Play-Glyph</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="rule"/>
+
+  <h2>Verwendete Tokens</h2>
+  <p>Alle Farben kommen aus <code>styles.css</code>; ein Theme-Wechsel trifft den Player automatisch.</p>
+  <ul class="tokens">
+    <li><span class="swatch" style="background: var(--sm-accent);"></span><div><code>--sm-accent</code><div class="desc">Restzeit-Bogen</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-accent-soft);"></span><div><code>--sm-accent-soft</code><div class="desc">Atem-Outline</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-accent-glow);"></span><div><code>--sm-accent-glow</code><div class="desc">Atem-Glow, Pause-Glyph</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-accent-dim);"></span><div><code>--sm-accent-dim</code><div class="desc">Pause-Button-Border</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-text);"></span><div><code>--sm-text</code><div class="desc">Titel</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-text-2);"></span><div><code>--sm-text-2</code><div class="desc">— (frei)</div></div></li>
+    <li><span class="swatch" style="background: var(--sm-text-3);"></span><div><code>--sm-text-3</code><div class="desc">Artist, „NOCH … MIN"</div></div></li>
+  </ul>
+  <p style="margin-top:16px;">Type: <code>--sm-font-display</code> (Newsreader) für den Titel, <code>--sm-font-ui</code> (Geist) für alles andere.</p>
+
+  <h2>Zustände &amp; Übergänge</h2>
+  <ol class="changes">
+    <li><b>Idle (läuft).</b> Atemkreis pulsiert, Pause-Button mittig, Restzeit darunter.</li>
+    <li><b>Pause.</b> Tap auf Pause-Button → Atemanimation pausiert (<code>animation-play-state: paused</code>) im aktuellen Frame, Glyph wird zu Play-Dreieck, Restzeit-Bogen friert ein. Audio pausiert.</li>
+    <li><b>Resume.</b> Tap auf Play → Animation läuft weiter, Audio läuft weiter, Glyph wird wieder Pause-Bar. Cross-Fade 200 ms.</li>
+    <li><b>Ende der Sitzung.</b> Audio fadet aus, Schluss-Gong, Übergang zum Post-Session-Screen (separater Spec).</li>
+  </ol>
+
+  <h2>Akzeptanzkriterien</h2>
+  <ol class="changes">
+    <li><b>Kein Slider, keine ±10s, keine vergangene Zeit.</b> Restzeit ist die einzige Zahl auf dem Screen.</li>
+    <li><b>Atem läuft kontinuierlich</b>, nicht ans Audio gekoppelt — die Visualisierung schlägt Atemtempo vor, das Audio ist Inhalt.</li>
+    <li><b>Pause-Button durch den Glaskreis hindurch erreichbar</b>, auch wenn der Atemkreis mitten im Maximum ist.</li>
+    <li><b>Pause ist die einzige Interaktion neben Schließen.</b> Keine Skip-, Verlängerungs- oder Neustart-Geste.</li>
+    <li><b>Schließen-Knopf jederzeit erreichbar</b>, in jedem Zustand.</li>
+    <li><b>Reduced motion:</b> bei <code>prefers-reduced-motion: reduce</code> Atem-Animation deaktivieren — Kreis bleibt im neutralen Zustand (<code>scale(1)</code>) sichtbar, Glow konstant.</li>
+  </ol>
+
+  <h2>Offene Punkte</h2>
+  <ol class="changes">
+    <li><b>Audio-Steuerung über Lockscreen / Control Center.</b> Pause/Play von außen muss in den Player-Zustand spiegeln. Nicht im Visual-Spec, aber Engineering muss das mitdenken.</li>
+    <li><b>„Neu starten" wurde bewusst gestrichen.</b> Falls Nutzerinnen es vermissen, könnte es zukünftig hinter Long-Press auf den Pause-Button liegen — bewusst versteckt, nicht primärer Pfad.</li>
+    <li><b>Atemtempo.</b> 16 s ist eine erste Setzung. Soll ggf. mit den Lehrern abgestimmt werden — manche Meditationsstile bevorzugen längere Atemzyklen (4-7-8, 6-2-7, etc.).</li>
+    <li><b>Haptik.</b> Sanftes Haptic-Tap beim Pause/Resume.</li>
+  </ol>
+
+  <div class="filebar">
+    <div class="file"><b>+</b> player-options.jsx <span style="color: var(--sm-text-3);">(Variante B · Atemkreis)</span></div>
+    <div class="file">styles.css <span style="color: var(--sm-text-3);">(unverändert)</span></div>
+    <div class="file">shell.jsx <span style="color: var(--sm-text-3);">(unverändert)</span></div>
+  </div>
+
+</div>
+</body>
+</html>

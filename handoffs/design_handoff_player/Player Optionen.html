@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Player · Optionen · Still Moment</title>
+<style>
+  :root {
+    --sm-bg: #0a0604;
+    --sm-text: #ebe2d6;
+    --sm-text-2: rgba(235,226,214,0.72);
+    --sm-text-3: rgba(168,154,140,0.6);
+    --sm-font-display: "Newsreader", Georgia, serif;
+    --sm-font-ui: "Geist", -apple-system, "SF Pro Text", system-ui, sans-serif;
+  }
+  html, body { margin: 0; background: var(--sm-bg); }
+  body { font-family: var(--sm-font-ui); color: var(--sm-text); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="player-options.jsx"></script>
+</body>
+</html>
