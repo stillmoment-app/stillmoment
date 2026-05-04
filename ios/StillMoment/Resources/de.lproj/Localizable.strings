@@ -275,6 +275,9 @@
 "guided_meditations.preparation.seconds" = "%ds";
 "guided_meditations.player.preparationTime" = "Vorbereitungszeit";
 "guided_meditations.player.countdown" = "%d Sekunden bis die Meditation beginnt";
+"guided_meditations.player.preroll.label" = "Vorbereitung";
+"guided_meditations.player.preroll.hint" = "GLEICH GEHT'S LOS";
+"guided_meditations.player.remainingTime.format" = "NOCH %@ MIN";
 
 // MARK: - Player Completion
 

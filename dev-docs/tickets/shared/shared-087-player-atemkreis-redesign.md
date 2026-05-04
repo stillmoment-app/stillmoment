@@ -33,7 +33,7 @@ Das neue Design folgt dem Standard-Use-Case: User startet Meditation, legt Phone
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | iOS-Implementierung als Referenz |
 
 ---
@@ -139,7 +139,7 @@ Das neue Design folgt dem Standard-Use-Case: User startet Meditation, legt Phone
 - [ ] Unit-Tests iOS: Player startet automatisch beim onAppear (mit/ohne Pre-Roll); Atemkreis-View-Logik (Layer-Zustaende pro Phase); Restzeit-Label-Formatierung; Reduced-Motion-Pfad
 - [ ] Unit-Tests Android: aequivalente Coverage
 - [ ] Bestehende ViewModel-Tests (Countdown, Completion, Lockscreen) laufen unveraendert weiter — kein Regress
-- [ ] iOS Snapshot-/UI-Test: Pre-Roll-Phase, Hauptphase Playing, Hauptphase Paused, Reduced Motion (vier Screenshots)
+- [ ] iOS Snapshot-/UI-Test: Pre-Roll-Phase, Hauptphase Playing, Hauptphase Paused (drei Screenshots). Reduced-Motion-Verhalten bleibt manueller Test (Settings → Accessibility → Reduce Motion) — automatisierte Snapshot-Variante braucht Snapshot-Diff-Infrastruktur und einen App-seitigen Override fuer `accessibilityReduceMotion`, beides ausserhalb des Scopes
 
 ### Dokumentation
 

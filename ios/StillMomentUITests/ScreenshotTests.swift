@@ -166,20 +166,75 @@ final class ScreenshotTests: XCTestCase {
         )
         firstPlayImage.tap()
 
-        // Wait for player sheet to appear
-        let playButton = self.app.buttons["player.button.playPause"]
-        XCTAssertTrue(playButton.waitForExistence(timeout: 5.0), "Player sheet did not appear")
+        // Wait for player sheet to appear (auto-start: pause button visible once
+        // the main phase is reached — short wait covers the optional pre-roll).
+        let pauseButton = self.app.buttons["player.button.playPause"]
+        XCTAssertTrue(pauseButton.waitForExistence(timeout: 8.0), "Player did not appear")
 
-        // Wait for progress slider to be visible (ensures sheet is fully rendered)
-        let progressSlider = self.app.sliders["player.slider.progress"]
-        XCTAssertTrue(progressSlider.waitForExistence(timeout: 3.0), "Player progress slider should appear")
-
-        // Start playback so Zen Mode is active (tab bar hidden)
-        playButton.tap()
-        // Wait for playback state to settle (isPlaying = true -> isZenMode = true)
+        // Auto-Start triggers Zen Mode — kein Tap noetig
         Thread.sleep(forTimeInterval: 0.8)
 
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 4a: Player Pre-Roll-Phase (Countdown + Hint).
+    /// Relauncht ohne `-DisablePreparation`, damit der Vorbereitungs-Countdown
+    /// laeuft. Snapshot wird gleich nach dem Tap auf die Meditation gemacht,
+    /// solange der Countdown noch sichtbar ist.
+    func testScreenshot04a_playerPreRoll() {
+        // Re-launch with preparation enabled
+        self.app.terminate()
+        self.app.launchArguments.removeAll { $0 == "-DisablePreparation" }
+        self.app.launch()
+        let appReady = self.app.wait(for: .runningForeground, timeout: 10)
+        XCTAssertTrue(appReady, "App should be running in foreground after relaunch")
+
+        self.navigateToLibraryTab()
+
+        let playImages = self.app.images.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation.'")
+        )
+        let firstPlayImage = playImages.element(boundBy: 0)
+        XCTAssertTrue(
+            firstPlayImage.waitForExistence(timeout: 5.0),
+            "No meditation play button found"
+        )
+        firstPlayImage.tap()
+
+        // Pre-Roll-Countdown muss innerhalb von ~1 s sichtbar sein.
+        let countdown = self.app.staticTexts["player.countdown"]
+        XCTAssertTrue(
+            countdown.waitForExistence(timeout: 3.0),
+            "Pre-roll countdown should appear"
+        )
+
+        snapshot("04a_PlayerPreRoll", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 4b: Player paused state (Pause-Glyph als Play, Atem-Glow nutzt
+    /// Standby-Werte). Kein eigener Sprachverlauf — nutzt dieselbe Meditation
+    /// wie 04, mit einem Pause-Tap dazwischen.
+    func testScreenshot04b_playerPaused() {
+        self.navigateToLibraryTab()
+
+        let playImages = self.app.images.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation.'")
+        )
+        let firstPlayImage = playImages.element(boundBy: 0)
+        XCTAssertTrue(
+            firstPlayImage.waitForExistence(timeout: 5.0),
+            "No meditation play button found"
+        )
+        firstPlayImage.tap()
+
+        let pauseButton = self.app.buttons["player.button.playPause"]
+        XCTAssertTrue(pauseButton.waitForExistence(timeout: 8.0), "Player did not appear")
+
+        // Tap pause: Glyph wechselt zu Play, Audio pausiert, Atem laeuft weiter.
+        pauseButton.tap()
+        Thread.sleep(forTimeInterval: 0.8)
+
+        snapshot("04b_PlayerPaused", timeWaitingForIdle: 0)
     }
 
     /// Screenshot 5: Interval Gongs editor (deepest configuration screen)

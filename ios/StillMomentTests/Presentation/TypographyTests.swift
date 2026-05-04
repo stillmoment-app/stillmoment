@@ -64,7 +64,7 @@ final class TypographyTests: XCTestCase {
             ("Headings", [.screenTitle, .inlineNavigationTitle, .sectionTitle]),
             ("Body", [.bodyPrimary, .bodySecondary, .caption]),
             ("Settings", [.settingsLabel, .settingsDescription]),
-            ("Player", [.playerTitle, .playerTeacher, .playerTimestamp, .playerCountdown]),
+            ("Player", [.playerTitle, .playerTeacher, .playerTimestamp, .playerCountdown, .playerRemainingTime]),
             ("List", [.listTitle, .listSubtitle, .listBody, .listSectionTitle, .listActionLabel]),
             ("Edit", [.editLabel, .editCaption]),
             ("Dialog", [.dialogTitle, .dialogBody]),
@@ -85,7 +85,7 @@ final class TypographyTests: XCTestCase {
     }
 
     func testAllRolesCovered() {
-        XCTAssertEqual(self.allRoles.count, 26, "Update this count when adding new TypographyRole cases")
+        XCTAssertEqual(self.allRoles.count, 27, "Update this count when adding new TypographyRole cases")
     }
 
     // MARK: - Font Spec Expectations
@@ -213,6 +213,7 @@ final class TypographyTests: XCTestCase {
             .bodySecondary, .caption,
             .settingsDescription,
             .playerTimestamp,
+            .playerRemainingTime,
             .listSubtitle, .listBody,
             .editCaption,
             .dialogBody
