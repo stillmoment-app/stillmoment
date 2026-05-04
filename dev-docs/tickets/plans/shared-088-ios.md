@@ -167,11 +167,11 @@ Migration arbeitet mit:
 
 ### 1. Layout der Setting-Cards-Grid (4 Karten statt 5)
 
-**Trade-off:** Bisheriges Layout ist 3+2 (Vorbereitung · Einstimmung · Hintergrund / Gong · Intervall). Mit nur 4 Karten kommen 2+2 oder 4+0 in Frage.
+**Entscheidung:** 2+2-Layout (Vorbereitung · Hintergrund / Gong · Intervall).
+Card-Maße und -Hoehen bleiben identisch zu heute, nur eine Reihe weniger.
 
-**Vorschlag:** 2+2-Layout (Vorbereitung · Hintergrund / Gong · Intervall). Symmetrisch, die fuenfte Karte ist auch optisch verschwunden. Card-Hoehen bleiben gleich, nur eine Reihe weniger.
-
-**Offen fuer User-Review** — wenn 4+0 (eine Reihe) bevorzugt wird oder der Grid lieber komplett umgeschnitten werden soll.
+**Hinweis:** Das Setting-Card-Layout wird im naechsten Ticket ohnehin ersetzt —
+hier minimal-invasiv arbeiten, keine Schoenheits-OPs am Grid.
 
 ### 2. `CustomAudioType.attunement` ganz loeschen oder Case behalten?
 
@@ -181,11 +181,12 @@ Migration arbeitet mit:
 
 **Entscheidung:** Komplett loeschen. Migration entfernt UserDefaults-Eintrag und das Verzeichnis. Konsistent mit dem Ticket-Hinweis "tote Code-Pfade vermeiden".
 
-### 3. `ImportAudioType` — leerer Fallback?
+### 3. `ImportAudioType` — Sheet behalten?
 
-**Trade-off:** Nach Entfernung bleibt das Enum `ImportAudioType` mit `.guidedMeditation` und `.soundscape`. `customAudioType` mappt nur noch `.soundscape → .soundscape`. Sinnvoller Mehrwert oder kann das Enum abgeschafft werden?
-
-**Entscheidung:** Enum behalten. Es trennt weiter Library-Imports (mit Metadaten/Player) von Soundscape-Imports (Custom Audio). `ImportTypeSelectionView` zeigt nur noch zwei Optionen — das ist immer noch eine sinnvolle UX-Unterscheidung.
+**Entscheidung:** Sheet bleibt mit zwei Optionen (`.guidedMeditation`, `.soundscape`).
+Klangkulisse-Import via Share-Sheet ist ein legitimer Pfad und das Sheet kostet
+in der reduzierten Form nichts. `customAudioType` mappt nur noch `.soundscape → .soundscape`,
+das Enum bleibt erhalten.
 
 ### 4. State-Machine-Schreiben in `MeditationTimer`
 
@@ -371,9 +372,9 @@ geloeschte Dateien fallen automatisch raus.
 
 ---
 
-## Offene Fragen
+## Geklaerte Entscheidungen
 
-- [ ] Card-Layout 4 Karten: 2+2 oder 4+0? (siehe Design-Entscheidung 1)
-- [ ] `ImportTypeSelectionView` mit nur zwei Optionen — soll das Sheet komplett entfallen und Import direkt als Soundscape oder Library oeffnen, abhaengig vom Kontext? (Out-of-Scope-Entscheidung — bleibt erstmal beim Sheet.)
-- [ ] Migration-Marker-Key Name: `stillmoment.migration.attunementRemoved.v1` ok oder anderer Stil im Projekt etabliert?
-- [ ] Andere Plattform (Android): Soll der Plan dort identisch aussehen oder spaeter eigenstaendig erstellt werden? (Ticket sagt "beide Plattformen", aber dieser Plan ist iOS-only.)
+- **Card-Layout (4 Karten):** 2+2-Layout, minimal-invasiv. Folge-Ticket ersetzt das Layout ohnehin.
+- **ImportTypeSelectionView:** Sheet bleibt mit zwei Optionen (Geführte Meditation, Klangkulisse).
+- **Migration-Marker-Key:** `stillmoment.migration.attunementRemoved.v1`.
+- **Android:** Eigener Plan unter `dev-docs/tickets/plans/shared-088-android.md`. iOS zuerst implementieren, Android danach.
