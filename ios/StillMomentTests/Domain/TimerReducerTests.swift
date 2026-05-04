@@ -16,10 +16,6 @@ final class TimerReducerTests: XCTestCase {
         MeditationSettings.default
     }
 
-    private var emptyResolver: MockAttunementResolver {
-        MockAttunementResolver()
-    }
-
     // MARK: - StartPressed Tests
 
     func testStartPressed_producesCorrectEffects() {
@@ -36,8 +32,7 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: settings,
-            attunementResolver: self.emptyResolver
+            settings: settings
         )
 
         // Then - Background audio is NOT started here; it starts in startGongFinished
@@ -52,8 +47,7 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
@@ -66,8 +60,7 @@ final class TimerReducerTests: XCTestCase {
             action: .startPressed,
             timerState: .idle,
             selectedMinutes: 0,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
@@ -82,22 +75,20 @@ final class TimerReducerTests: XCTestCase {
             action: .preparationFinished,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
         XCTAssertEqual(effects, [.playStartGong])
     }
 
-    func testStartGongFinished_fromStartGong_withoutAttunement_startsBackgroundAudio() {
+    func testStartGongFinished_fromStartGong_startsBackgroundAudio() {
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
@@ -107,15 +98,13 @@ final class TimerReducerTests: XCTestCase {
         )))
     }
 
-    func testStartGongFinished_fromStartGong_withoutAttunement_transitionsToRunning() {
-        // Given - no attunement configured
+    func testStartGongFinished_fromStartGong_transitionsToRunning() {
         // When
         let effects = TimerReducer.reduce(
             action: .startGongFinished,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then - must transition to running so interval gongs can fire
@@ -130,8 +119,7 @@ final class TimerReducerTests: XCTestCase {
             action: .timerCompleted,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
@@ -149,8 +137,7 @@ final class TimerReducerTests: XCTestCase {
             action: .intervalGongTriggered,
             timerState: .running,
             selectedMinutes: 10,
-            settings: settings,
-            attunementResolver: self.emptyResolver
+            settings: settings
         )
 
         // Then
@@ -166,8 +153,7 @@ final class TimerReducerTests: XCTestCase {
             action: .intervalGongTriggered,
             timerState: .running,
             selectedMinutes: 10,
-            settings: settings,
-            attunementResolver: self.emptyResolver
+            settings: settings
         )
 
         // Then

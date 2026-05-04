@@ -163,10 +163,9 @@ final class LibraryFlowUITests: XCTestCase {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Verify all five setting cards exist") { _ in
+        XCTContext.runActivity(named: "Verify all four setting cards exist") { _ in
             for identifier in [
                 "timer.card.preparation",
-                "timer.card.attunement",
                 "timer.card.background",
                 "timer.card.gong",
                 "timer.card.interval"

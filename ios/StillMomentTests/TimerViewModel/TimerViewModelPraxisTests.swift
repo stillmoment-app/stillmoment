@@ -181,17 +181,6 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertTrue(self.sut.preparationCardIsOff)
     }
 
-    func testAttunementCard_whenDisabled_showsNoneAndIsOff() {
-        let praxis = Praxis(attunementId: nil, attunementEnabled: false)
-        self.sut.updateFromPraxis(praxis)
-
-        XCTAssertEqual(
-            self.sut.attunementCardLabel,
-            NSLocalizedString("settings.card.value.attunement.off", comment: "")
-        )
-        XCTAssertTrue(self.sut.attunementCardIsOff)
-    }
-
     func testBackgroundCard_whenSilent_showsSilenceAndIsNotOff() {
         // Hintergrund hat kein Off — "Stille" ist eine bewusste Auswahl
         let praxis = Praxis(backgroundSoundId: "silent")

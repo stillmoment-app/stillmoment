@@ -426,43 +426,4 @@ final class TimerViewModelSettingsTests: XCTestCase {
             "Start gong should play when meditation begins"
         )
     }
-
-    // MARK: - Attunement Duration Restoration
-
-    func testDisablingAttunement_restoresPreAttunementDuration() {
-        // Given: User selects 1 minute
-        self.sut.selectedMinutes = 1
-        XCTAssertEqual(self.sut.selectedMinutes, 1)
-
-        // When: Enable attunement (requires minimum 2 minutes, ceil(95/60))
-        self.sut.settings.attunementEnabled = true
-        self.sut.settings.attunementId = "breath"
-
-        // Then: Duration should be clamped to minimum
-        XCTAssertEqual(self.sut.selectedMinutes, 2, "Should clamp to attunement minimum")
-
-        // When: Disable attunement
-        self.sut.settings.attunementId = nil
-
-        // Then: Duration should restore to the pre-attunement value
-        XCTAssertEqual(self.sut.selectedMinutes, 1, "Should restore to pre-attunement duration")
-    }
-
-    func testDisablingAttunement_noRestoreWhenDurationWasAboveMinimum() {
-        // Given: User selects 10 minutes (already above the 3-minute minimum)
-        self.sut.selectedMinutes = 10
-
-        // When: Enable attunement
-        self.sut.settings.attunementEnabled = true
-        self.sut.settings.attunementId = "breath"
-
-        // Then: Duration should stay at 10 (already above minimum)
-        XCTAssertEqual(self.sut.selectedMinutes, 10, "Should not change when already above minimum")
-
-        // When: Disable attunement
-        self.sut.settings.attunementId = nil
-
-        // Then: Duration should still be 10
-        XCTAssertEqual(self.sut.selectedMinutes, 10, "Should stay at 10 when no clamping occurred")
-    }
 }

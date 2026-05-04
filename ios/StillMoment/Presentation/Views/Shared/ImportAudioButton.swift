@@ -9,8 +9,8 @@ import SwiftUI
 
 /// Bordered import button placed below a selection list.
 ///
-/// Used on BackgroundSoundSelectionView and AttunementSelectionView to
-/// trigger a document picker for importing custom audio files.
+/// Used on BackgroundSoundSelectionView to trigger a document picker for
+/// importing custom audio files.
 struct ImportAudioButton: View {
     // MARK: Lifecycle
 

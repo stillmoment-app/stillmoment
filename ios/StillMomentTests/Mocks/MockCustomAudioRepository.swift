@@ -18,7 +18,6 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: - Configurable returns
 
     var stubbedSoundscapes: [CustomAudioFile] = []
-    var stubbedAttunements: [CustomAudioFile] = []
     var stubbedFindResult: CustomAudioFile?
     var stubbedFileURL: URL?
     var shouldThrowOnImport: Error?
@@ -28,7 +27,10 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: - Protocol
 
     func loadAll(type: CustomAudioType) -> [CustomAudioFile] {
-        type == .soundscape ? self.stubbedSoundscapes : self.stubbedAttunements
+        switch type {
+        case .soundscape:
+            self.stubbedSoundscapes
+        }
     }
 
     func importFile(from url: URL, type: CustomAudioType) throws -> CustomAudioFile {
@@ -42,10 +44,9 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
             type: type,
             dateAdded: Date()
         )
-        if type == .soundscape {
+        switch type {
+        case .soundscape:
             self.stubbedSoundscapes.append(file)
-        } else {
-            self.stubbedAttunements.append(file)
         }
         return file
     }
@@ -54,7 +55,6 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
         if let error = self.shouldThrowOnDelete { throw error }
         self.deletedIds.append(id)
         self.stubbedSoundscapes.removeAll { $0.id == id }
-        self.stubbedAttunements.removeAll { $0.id == id }
     }
 
     func fileURL(for audioFile: CustomAudioFile) -> URL? {
@@ -62,8 +62,7 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     }
 
     func findFile(byId id: UUID) -> CustomAudioFile? {
-        self.stubbedFindResult
-            ?? (self.stubbedSoundscapes + self.stubbedAttunements).first { $0.id == id }
+        self.stubbedFindResult ?? self.stubbedSoundscapes.first { $0.id == id }
     }
 
     func update(_ file: CustomAudioFile) throws {
@@ -71,8 +70,6 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
         self.updatedFiles.append(file)
         if let index = self.stubbedSoundscapes.firstIndex(where: { $0.id == file.id }) {
             self.stubbedSoundscapes[index] = file
-        } else if let index = self.stubbedAttunements.firstIndex(where: { $0.id == file.id }) {
-            self.stubbedAttunements[index] = file
         }
     }
 }

@@ -42,14 +42,6 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.backgroundSoundVolume, 0.15, accuracy: 0.001)
     }
 
-    func testDefault_hasNoAttunement() {
-        XCTAssertNil(Praxis.default.attunementId)
-    }
-
-    func testDefault_hasAttunementDisabled() {
-        XCTAssertFalse(Praxis.default.attunementEnabled)
-    }
-
     // MARK: - Immutability (Value Object)
 
     func testEquality_sameIdSameFields_areEqual() {
@@ -148,8 +140,7 @@ final class PraxisTests: XCTestCase {
             preparationTimeEnabled: false,
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
-            gongVolume: 0.8,
-            attunementId: nil
+            gongVolume: 0.8
         )
 
         // When
@@ -168,7 +159,6 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.preparationTimeSeconds, 10)
         XCTAssertEqual(praxis.startGongSoundId, "classic-bowl")
         XCTAssertEqual(praxis.gongVolume, 0.8, accuracy: 0.001)
-        XCTAssertNil(praxis.attunementId)
     }
 
     // MARK: - toMeditationSettings
@@ -182,7 +172,6 @@ final class PraxisTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
             gongVolume: 0.8,
-            attunementId: nil,
             intervalGongsEnabled: true,
             intervalMinutes: 10,
             intervalMode: .afterStart,
@@ -201,7 +190,6 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(settings.preparationTimeSeconds, 10)
         XCTAssertEqual(settings.startGongSoundId, "classic-bowl")
         XCTAssertEqual(settings.gongVolume, 0.8, accuracy: 0.001)
-        XCTAssertNil(settings.attunementId)
         XCTAssertTrue(settings.intervalGongsEnabled)
         XCTAssertEqual(settings.intervalMinutes, 10)
         XCTAssertEqual(settings.intervalMode, .afterStart)
@@ -239,70 +227,11 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(updated.id, original.id)
     }
 
-    func testWithAttunementId_setsId_preservesOtherFields() {
-        // Given
-        let original = Praxis(durationMinutes: 15, attunementId: nil)
-
-        // When
-        let updated = original.withAttunementId("breath")
-
-        // Then
-        XCTAssertEqual(updated.attunementId, "breath")
-        XCTAssertEqual(updated.durationMinutes, 15)
-        XCTAssertEqual(updated.id, original.id)
-    }
-
-    func testWithAttunementEnabled_setsEnabled_preservesOtherFields() {
-        // Given
-        let original = Praxis(durationMinutes: 15, attunementId: "breath", attunementEnabled: false)
-
-        // When
-        let updated = original.withAttunementEnabled(true)
-
-        // Then
-        XCTAssertTrue(updated.attunementEnabled)
-        XCTAssertEqual(updated.attunementId, "breath")
-        XCTAssertEqual(updated.durationMinutes, 15)
-        XCTAssertEqual(updated.id, original.id)
-    }
-
-    func testWithBackgroundSoundId_preservesAttunementEnabled() {
-        // Given
-        let original = Praxis(attunementEnabled: true)
-
-        // When
-        let updated = original.withBackgroundSoundId("rain")
-
-        // Then
-        XCTAssertTrue(updated.attunementEnabled)
-    }
-
-    func testWithDurationMinutes_preservesAttunementEnabled() {
-        // Given
-        let original = Praxis(attunementEnabled: true)
-
-        // When
-        let updated = original.withDurationMinutes(25)
-
-        // Then
-        XCTAssertTrue(updated.attunementEnabled)
-    }
-
-    func testWithAttunementId_preservesAttunementEnabled() {
-        // Given
-        let original = Praxis(attunementEnabled: true)
-
-        // When
-        let updated = original.withAttunementId("breath")
-
-        // Then
-        XCTAssertTrue(updated.attunementEnabled)
-    }
-
     // MARK: - Codable Migration
 
-    func testDecode_legacyDataWithoutAttunementEnabled_withAttunementId_defaultsToTrue() throws {
-        // Given - Legacy JSON that has attunementId but no attunementEnabled key
+    func testDecode_legacyDataWithIntroductionFields_decodesWithoutCrashing() throws {
+        // Given - Legacy JSON that still contains the old `introductionId`/`introductionEnabled` keys.
+        // After shared-088 these keys are simply ignored — Decoding must not crash.
         let json = """
             {
                 "id": "00000000-0000-0000-0000-000000000001",
@@ -312,6 +241,7 @@ final class PraxisTests: XCTestCase {
                 "startGongSoundId": "temple-bell",
                 "gongVolume": 1.0,
                 "introductionId": "breath",
+                "introductionEnabled": true,
                 "intervalGongsEnabled": false,
                 "intervalMinutes": 5,
                 "intervalMode": "repeating",
@@ -326,106 +256,33 @@ final class PraxisTests: XCTestCase {
         // When
         let praxis = try JSONDecoder().decode(Praxis.self, from: data)
 
-        // Then - attunementEnabled defaults to true because attunementId is non-nil
-        XCTAssertTrue(praxis.attunementEnabled)
-        XCTAssertEqual(praxis.attunementId, "breath")
+        // Then
+        XCTAssertEqual(praxis.durationMinutes, 10)
+        XCTAssertEqual(praxis.startGongSoundId, "temple-bell")
     }
 
-    func testDecode_legacyDataWithoutAttunementEnabled_withoutAttunementId_defaultsToFalse() throws {
-        // Given - Legacy JSON without attunementId and without attunementEnabled
-        let json = """
-            {
-                "id": "00000000-0000-0000-0000-000000000001",
-                "durationMinutes": 10,
-                "preparationTimeEnabled": true,
-                "preparationTimeSeconds": 15,
-                "startGongSoundId": "temple-bell",
-                "gongVolume": 1.0,
-                "intervalGongsEnabled": false,
-                "intervalMinutes": 5,
-                "intervalMode": "repeating",
-                "intervalSoundId": "soft-chime",
-                "intervalGongVolume": 0.75,
-                "backgroundSoundId": "silent",
-                "backgroundSoundVolume": 0.15
-            }
-            """
-        let data = Data(json.utf8)
-
-        // When
-        let praxis = try JSONDecoder().decode(Praxis.self, from: data)
-
-        // Then - attunementEnabled defaults to false because attunementId is nil
-        XCTAssertFalse(praxis.attunementEnabled)
-        XCTAssertNil(praxis.attunementId)
-    }
-
-    func testDecode_newDataWithAttunementEnabled_preservesValue() throws {
-        // Given - New JSON with explicit attunementEnabled
-        let json = """
-            {
-                "id": "00000000-0000-0000-0000-000000000001",
-                "durationMinutes": 10,
-                "preparationTimeEnabled": true,
-                "preparationTimeSeconds": 15,
-                "startGongSoundId": "temple-bell",
-                "gongVolume": 1.0,
-                "introductionId": "breath",
-                "introductionEnabled": false,
-                "intervalGongsEnabled": false,
-                "intervalMinutes": 5,
-                "intervalMode": "repeating",
-                "intervalSoundId": "soft-chime",
-                "intervalGongVolume": 0.75,
-                "backgroundSoundId": "silent",
-                "backgroundSoundVolume": 0.15
-            }
-            """
-        let data = Data(json.utf8)
-
-        // When
-        let praxis = try JSONDecoder().decode(Praxis.self, from: data)
-
-        // Then - attunementEnabled is explicitly false, even though attunementId is set
-        XCTAssertFalse(praxis.attunementEnabled)
-        XCTAssertEqual(praxis.attunementId, "breath")
-    }
-
-    func testEncodeDecode_roundTrip_preservesAttunementEnabled() throws {
+    func testEncodeDecode_roundTrip_preservesAllFields() throws {
         // Given
-        let original = Praxis(attunementId: "breath", attunementEnabled: true)
+        let original = Praxis(
+            durationMinutes: 25,
+            preparationTimeEnabled: false,
+            preparationTimeSeconds: 10,
+            startGongSoundId: "classic-bowl",
+            gongVolume: 0.8,
+            intervalGongsEnabled: true,
+            intervalMinutes: 10,
+            intervalMode: .afterStart,
+            intervalSoundId: "temple-bell",
+            intervalGongVolume: 0.6,
+            backgroundSoundId: "forest",
+            backgroundSoundVolume: 0.3
+        )
 
         // When
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(Praxis.self, from: data)
 
         // Then
-        XCTAssertEqual(decoded.attunementEnabled, original.attunementEnabled)
-        XCTAssertEqual(decoded.attunementId, original.attunementId)
-    }
-
-    // MARK: - Migration preserves attunementEnabled
-
-    func testMigratingFromSettings_preservesAttunementEnabled() {
-        // Given
-        let settings = MeditationSettings(attunementId: "breath", attunementEnabled: true)
-
-        // When
-        let praxis = Praxis(migratingFrom: settings)
-
-        // Then
-        XCTAssertTrue(praxis.attunementEnabled)
-        XCTAssertEqual(praxis.attunementId, "breath")
-    }
-
-    func testToMeditationSettings_preservesAttunementEnabled() {
-        // Given
-        let praxis = Praxis(attunementId: "breath", attunementEnabled: true)
-
-        // When
-        let settings = praxis.toMeditationSettings()
-
-        // Then
-        XCTAssertTrue(settings.attunementEnabled)
+        XCTAssertEqual(decoded, original)
     }
 }

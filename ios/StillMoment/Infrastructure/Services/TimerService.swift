@@ -86,38 +86,14 @@ final class TimerService: TimerServiceProtocol {
         self.intervalSettings = nil
     }
 
-    func beginAttunementPhase() {
-        guard let timer = self.currentTimer else {
-            Logger.timer.warning("Attempted to begin attunement when no timer exists")
-            return
-        }
-
-        Logger.timer.info("Beginning attunement phase", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.withState(.attunement)
-        self.currentTimer = updatedTimer
-        self.timerSubject.send((updatedTimer, []))
-    }
-
-    func endAttunementPhase() {
-        guard let timer = self.currentTimer else {
-            Logger.timer.warning("Attempted to end attunement when no timer exists")
-            return
-        }
-
-        Logger.timer.info("Ending attunement phase", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.endAttunement()
-        self.currentTimer = updatedTimer
-        self.timerSubject.send((updatedTimer, []))
-    }
-
     func beginRunningPhase() {
         guard let timer = self.currentTimer else {
             Logger.timer.warning("Attempted to begin running phase when no timer exists")
             return
         }
 
-        Logger.timer.info("Beginning running phase (no attunement)", metadata: ["remaining": timer.remainingSeconds])
-        let updatedTimer = timer.endAttunement()
+        Logger.timer.info("Beginning running phase", metadata: ["remaining": timer.remainingSeconds])
+        let updatedTimer = timer.withState(.running)
         self.currentTimer = updatedTimer
         self.timerSubject.send((updatedTimer, []))
     }
@@ -152,7 +128,7 @@ final class TimerService: TimerServiceProtocol {
 
         // Only tick if in an active state
         guard timer.state == .preparation || timer.state == .startGong
-            || timer.state == .attunement || timer.state == .running
+            || timer.state == .running
         else {
             return
         }
@@ -166,10 +142,9 @@ final class TimerService: TimerServiceProtocol {
             Logger.timer.info("Preparation complete, playing start gong")
         }
 
-        // Log every 10 seconds to avoid log spam (only for running/attunement/startGong timer)
-        if updatedTimer.state == .running || updatedTimer.state == .attunement
-            || updatedTimer.state == .startGong,
-            updatedTimer.remainingSeconds.isMultiple(of: 10) {
+        // Log every 10 seconds to avoid log spam (only for running/startGong timer)
+        if updatedTimer.state == .running || updatedTimer.state == .startGong,
+           updatedTimer.remainingSeconds.isMultiple(of: 10) {
             Logger.timer.debug("Timer tick", metadata: ["remaining": updatedTimer.remainingSeconds])
         }
 

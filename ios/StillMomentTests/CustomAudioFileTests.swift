@@ -139,21 +139,17 @@ final class CustomAudioFileTests: XCTestCase {
 
     func testCustomAudioType_rawValues() {
         XCTAssertEqual(CustomAudioType.soundscape.rawValue, "soundscape")
-        XCTAssertEqual(CustomAudioType.attunement.rawValue, "attunement")
     }
 
     func testCustomAudioType_codableRoundtrip() throws {
         // Given
         let soundscape = CustomAudioType.soundscape
-        let attunement = CustomAudioType.attunement
 
         // When
         let soundscapeData = try JSONEncoder().encode(soundscape)
-        let attunementData = try JSONEncoder().encode(attunement)
 
         // Then
         XCTAssertEqual(try JSONDecoder().decode(CustomAudioType.self, from: soundscapeData), .soundscape)
-        XCTAssertEqual(try JSONDecoder().decode(CustomAudioType.self, from: attunementData), .attunement)
     }
 
     // MARK: - Helpers

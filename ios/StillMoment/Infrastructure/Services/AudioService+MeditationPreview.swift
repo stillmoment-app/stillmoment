@@ -18,7 +18,6 @@ extension AudioService {
         self.stopMeditationPreview()
         self.stopGongPreview()
         self.stopBackgroundPreview()
-        self.stopAttunementPreview()
 
         _ = try self.coordinator.requestAudioSession(for: .preview)
 

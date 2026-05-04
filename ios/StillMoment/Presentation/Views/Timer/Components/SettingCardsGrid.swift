@@ -2,14 +2,13 @@
 //  SettingCardsGrid.swift
 //  Still Moment
 //
-//  Presentation Layer - 3+2 layout of setting cards on the timer config screen.
+//  Presentation Layer - 2+2 layout of setting cards on the timer config screen.
 //
 
 import SwiftUI
 
 struct SettingCardsGrid: View {
     let preparation: SettingCardsGridItem
-    let attunement: SettingCardsGridItem
     let background: SettingCardsGridItem
     let gong: SettingCardsGridItem
     let interval: SettingCardsGridItem
@@ -18,7 +17,6 @@ struct SettingCardsGrid: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 self.cardView(self.preparation)
-                self.cardView(self.attunement)
                 self.cardView(self.background)
             }
             HStack(spacing: 8) {

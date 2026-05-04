@@ -9,8 +9,8 @@ import SwiftUI
 
 /// Main view for the meditation timer.
 ///
-/// Idle screen shows the minute picker plus five tappable setting cards
-/// (Vorbereitung · Einstimmung · Hintergrund · Gong · Intervall) that
+/// Idle screen shows the minute picker plus four tappable setting cards
+/// (Vorbereitung · Hintergrund · Gong · Intervall) that
 /// push directly into the existing detail views — no Praxis-Editor index.
 struct TimerView: View {
     // MARK: Lifecycle
@@ -42,9 +42,9 @@ struct TimerView: View {
             self.fileOpenHandler.shouldStopMeditation = false
         }
         .onChange(of: self.fileOpenHandler.pendingCustomAudioImport) { pendingImport in
-            guard let pending = pendingImport
+            guard pendingImport != nil
             else { return }
-            self.openDetail(for: pending.type == .soundscape ? .background : .attunement)
+            self.openDetail(for: .background)
         }
     }
 
@@ -146,7 +146,6 @@ struct TimerView: View {
         case .preparation:
             self.viewModel.currentPreparationAffirmation
         case .startGong,
-             .attunement,
              .running,
              .endGong:
             self.viewModel.currentRunningAffirmation
@@ -189,7 +188,6 @@ struct TimerView: View {
         case .preparation:
             NSLocalizedString("accessibility.timerState.preparation", comment: "")
         case .startGong,
-             .attunement,
              .running,
              .endGong:
             NSLocalizedString("accessibility.timerState.running", comment: "")
@@ -220,7 +218,7 @@ struct TimerView: View {
 
             BreathDial(
                 value: self.$viewModel.selectedMinutes,
-                minimumValue: self.viewModel.minimumDurationMinutes,
+                minimumValue: 1,
                 diameter: dialDiameter
             )
 
@@ -248,13 +246,6 @@ struct TimerView: View {
                 isOff: self.viewModel.preparationCardIsOff,
                 identifier: "timer.card.preparation"
             ) { self.openDetail(for: .preparation) },
-            attunement: SettingCardsGridItem(
-                label: NSLocalizedString("settings.card.label.attunement", comment: ""),
-                icon: "sparkles",
-                value: self.viewModel.attunementCardLabel,
-                isOff: self.viewModel.attunementCardIsOff,
-                identifier: "timer.card.attunement"
-            ) { self.openDetail(for: .attunement) },
             background: SettingCardsGridItem(
                 label: NSLocalizedString("settings.card.label.background", comment: ""),
                 icon: "wind",

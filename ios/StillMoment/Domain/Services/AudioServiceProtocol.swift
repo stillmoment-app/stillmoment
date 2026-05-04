@@ -11,12 +11,7 @@ import Foundation
 /// Protocol defining audio playback behavior
 protocol AudioServiceProtocol {
     /// Publishes when a gong sound (start/interval/completion) finishes playing.
-    /// Used to sequence attunement audio after start gong completes.
     var gongCompletionPublisher: AnyPublisher<Void, Never> { get }
-
-    /// Publishes when the attunement audio finishes playing naturally.
-    /// Does NOT fire when attunement is stopped manually (via stopAttunement).
-    var attunementCompletionPublisher: AnyPublisher<Void, Never> { get }
 
     /// Configures the audio session for background-capable playback
     func configureAudioSession() throws
@@ -57,13 +52,6 @@ protocol AudioServiceProtocol {
     ///   - volume: Playback volume (0.0 to 1.0)
     func playCompletionSound(soundId: String, volume: Float) throws
 
-    /// Plays the attunement audio (e.g., guided breathing exercise)
-    /// - Parameter filename: Resolved filename of the attunement audio (e.g., "intro-breath-de.mp3")
-    func playAttunement(filename: String) throws
-
-    /// Stops the attunement audio
-    func stopAttunement()
-
     /// Plays a preview of a gong sound (stops any previous preview)
     /// - Parameters:
     ///   - soundId: ID of the gong sound to preview (references GongSound.id)
@@ -81,14 +69,6 @@ protocol AudioServiceProtocol {
 
     /// Stops any currently playing background preview
     func stopBackgroundPreview()
-
-    /// Plays a preview of an attunement sound
-    /// - Parameter attunementId: Either a built-in Attunement ID (e.g. "breath") or a UUID string for a custom
-    /// attunement
-    func playAttunementPreview(attunementId: String) throws
-
-    /// Stops any currently playing attunement preview
-    func stopAttunementPreview()
 
     /// Plays a preview of a guided meditation audio file (press-and-hold)
     /// - Parameter fileURL: Absolute URL to the meditation audio file

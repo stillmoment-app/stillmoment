@@ -13,10 +13,6 @@ final class TimerReducerEndGongTests: XCTestCase {
         MeditationSettings.default
     }
 
-    private var emptyResolver: MockAttunementResolver {
-        MockAttunementResolver()
-    }
-
     // MARK: - timerCompleted action
 
     func testTimerCompleted_playsCompletionSoundAndStopsBackgroundAudio() {
@@ -26,31 +22,13 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .timerCompleted,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
         XCTAssertTrue(effects.contains(.playCompletionSound))
         XCTAssertTrue(effects.contains(.stopBackgroundAudio))
         // Should NOT deactivate timer session yet (keep-alive stays active)
-        XCTAssertFalse(effects.contains(.deactivateTimerSession))
-    }
-
-    func testTimerCompleted_duringAttunement_stopsAttunement() {
-        // Given - Timer expired during attunement
-        // When
-        let effects = TimerReducer.reduce(
-            action: .timerCompleted,
-            timerState: .attunement,
-            selectedMinutes: 3,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
-        )
-
-        // Then
-        XCTAssertTrue(effects.contains(.stopAttunement))
-        XCTAssertTrue(effects.contains(.playCompletionSound))
         XCTAssertFalse(effects.contains(.deactivateTimerSession))
     }
 
@@ -62,8 +40,7 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .endGongFinished,
             timerState: .endGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then
@@ -76,8 +53,7 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .endGongFinished,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         // Then - No effects
@@ -89,8 +65,7 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .endGongFinished,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -101,8 +76,7 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .endGongFinished,
             timerState: .completed,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -115,8 +89,7 @@ final class TimerReducerEndGongTests: XCTestCase {
             action: .resetPressed,
             timerState: .endGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertTrue(effects.contains(.resetTimer))

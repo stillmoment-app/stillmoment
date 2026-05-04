@@ -25,30 +25,19 @@ enum TimerReducer {
         action: TimerAction,
         timerState: TimerState,
         selectedMinutes: Int,
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
+        settings: MeditationSettings
     ) -> [TimerEffect] {
         switch action {
         case .startPressed:
-            self.reduceStartPressed(
-                timerState: timerState,
-                selectedMinutes: selectedMinutes,
-                settings: settings
-            )
+            self.reduceStartPressed(selectedMinutes: selectedMinutes)
         case .resetPressed:
             self.reduceResetPressed(timerState: timerState)
         case .preparationFinished:
             self.reducePreparationFinished()
         case .startGongFinished:
-            self.reduceStartGongFinished(
-                timerState: timerState,
-                settings: settings,
-                attunementResolver: attunementResolver
-            )
-        case .attunementFinished:
-            self.reduceAttunementFinished(timerState: timerState, settings: settings)
+            self.reduceStartGongFinished(timerState: timerState, settings: settings)
         case .timerCompleted:
-            self.reduceTimerCompleted(timerState: timerState)
+            self.reduceTimerCompleted()
         case .endGongFinished:
             self.reduceEndGongFinished(timerState: timerState)
         case .intervalGongTriggered:
@@ -58,18 +47,12 @@ enum TimerReducer {
 
     // MARK: - Control Actions
 
-    private static func reduceStartPressed(
-        timerState: TimerState,
-        selectedMinutes: Int,
-        settings: MeditationSettings
-    ) -> [TimerEffect] {
+    private static func reduceStartPressed(selectedMinutes: Int) -> [TimerEffect] {
         guard selectedMinutes > 0 else {
             return []
         }
 
-        // Background audio never starts here. It starts when the start gong finishes:
-        // - Without attunement: in reduceStartGongFinished
-        // - With attunement: in reduceAttunementFinished
+        // Background audio never starts here. It starts when the start gong finishes.
         return [
             .activateTimerSession,
             .startTimer(durationMinutes: selectedMinutes)
@@ -80,14 +63,7 @@ enum TimerReducer {
         guard timerState != .idle else {
             return []
         }
-
-        var effects: [TimerEffect] = []
-        if timerState == .attunement {
-            effects.append(.stopAttunement)
-        }
-        effects.append(contentsOf: [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
-
-        return effects
+        return [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession]
     }
 
     // MARK: - Timer Update Actions
@@ -99,40 +75,14 @@ enum TimerReducer {
 
     private static func reduceStartGongFinished(
         timerState: TimerState,
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
+        settings: MeditationSettings
     ) -> [TimerEffect] {
         guard timerState == .startGong else {
             return []
         }
 
-        if self.hasActiveAttunement(settings: settings, attunementResolver: attunementResolver),
-           let attunementId = settings.attunementId {
-            // Attunement configured → play audio
-            return [.beginAttunementPhase, .playAttunement(attunementId: attunementId)]
-        } else {
-            // No attunement → transition to running and start background audio
-            return [
-                .beginRunningPhase,
-                .startBackgroundAudio(
-                    soundId: settings.backgroundSoundId,
-                    volume: settings.backgroundSoundVolume
-                )
-            ]
-        }
-    }
-
-    private static func reduceAttunementFinished(
-        timerState: TimerState,
-        settings: MeditationSettings
-    ) -> [TimerEffect] {
-        guard timerState == .attunement else {
-            return []
-        }
-
         return [
-            .stopAttunement,
-            .endAttunementPhase,
+            .beginRunningPhase,
             .startBackgroundAudio(
                 soundId: settings.backgroundSoundId,
                 volume: settings.backgroundSoundVolume
@@ -140,16 +90,9 @@ enum TimerReducer {
         ]
     }
 
-    private static func reduceTimerCompleted(timerState: TimerState) -> [TimerEffect] {
-        var effects: [TimerEffect] = [.playCompletionSound]
-        // Stop attunement if it was still playing (timer expired during attunement)
-        if timerState == .attunement {
-            effects.append(.stopAttunement)
-        }
-        effects.append(.stopBackgroundAudio)
+    private static func reduceTimerCompleted() -> [TimerEffect] {
         // Keep-alive stays active during endGong — deactivation happens in reduceEndGongFinished
-
-        return effects
+        [.playCompletionSound, .stopBackgroundAudio]
     }
 
     private static func reduceEndGongFinished(timerState: TimerState) -> [TimerEffect] {
@@ -174,19 +117,5 @@ enum TimerReducer {
                 volume: settings.intervalGongVolume
             )
         ]
-    }
-
-    // MARK: - Helpers
-
-    /// Checks if an attunement is configured, enabled, and available
-    private static func hasActiveAttunement(
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
-    ) -> Bool {
-        guard settings.attunementEnabled,
-              let attunementId = settings.attunementId else {
-            return false
-        }
-        return attunementResolver.resolve(id: attunementId) != nil
     }
 }

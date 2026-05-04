@@ -36,7 +36,6 @@ final class PraxisEditorViewModelTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "temple-bell",
             gongVolume: 0.8,
-            attunementId: nil,
             intervalGongsEnabled: true,
             intervalMinutes: 5,
             intervalMode: .repeating,
@@ -151,89 +150,5 @@ final class PraxisEditorViewModelTests: XCTestCase {
         // Then
         XCTAssertTrue(self.mockAudioService.stopGongPreviewCalled)
         XCTAssertTrue(self.mockAudioService.stopBackgroundPreviewCalled)
-    }
-
-    // MARK: - Attunement Toggle
-
-    func testInit_attunementEnabledFromPraxis() {
-        // Given
-        let praxis = Praxis(attunementId: "breathing", attunementEnabled: true)
-
-        // When
-        let sut = self.createSUT(praxis: praxis)
-
-        // Then
-        XCTAssertTrue(sut.attunementEnabled)
-        XCTAssertEqual(sut.attunementId, "breathing")
-    }
-
-    func testInit_attunementDisabledByDefault() {
-        // Then — default testPraxis has no attunement
-        XCTAssertFalse(self.sut.attunementEnabled)
-    }
-
-    func testSetAttunementEnabled_autoSelectsFirstWhenNilId() {
-        // Given — attunementId is nil (default)
-        XCTAssertNil(self.sut.attunementId)
-
-        // When
-        self.sut.setAttunementEnabled(true)
-
-        // Then
-        XCTAssertTrue(self.sut.attunementEnabled)
-        let firstAvailable = self.sut.availableAttunements.first?.id
-        XCTAssertEqual(self.sut.attunementId, firstAvailable)
-    }
-
-    func testSetAttunementEnabled_preservesExistingSelection() {
-        // Given — attunementId already set
-        self.sut.attunementId = "custom-intro"
-        self.sut.attunementEnabled = false
-
-        // When
-        self.sut.setAttunementEnabled(true)
-
-        // Then — keeps existing selection
-        XCTAssertTrue(self.sut.attunementEnabled)
-        XCTAssertEqual(self.sut.attunementId, "custom-intro")
-    }
-
-    func testSetAttunementDisabled_preservesAttunementId() {
-        // Given
-        self.sut.attunementId = "breathing"
-        self.sut.attunementEnabled = true
-
-        // When
-        self.sut.setAttunementEnabled(false)
-
-        // Then — id preserved for re-enable
-        XCTAssertFalse(self.sut.attunementEnabled)
-        XCTAssertEqual(self.sut.attunementId, "breathing")
-    }
-
-    func testSave_persistsAttunementEnabled() {
-        // Given
-        self.sut.attunementEnabled = true
-        self.sut.attunementId = "breathing"
-
-        // When
-        self.sut.save()
-
-        // Then
-        XCTAssertEqual(self.savedPraxis?.attunementEnabled, true)
-        XCTAssertEqual(self.savedPraxis?.attunementId, "breathing")
-    }
-
-    func testSave_persistsAttunementDisabled() {
-        // Given
-        self.sut.attunementEnabled = false
-        self.sut.attunementId = "breathing"
-
-        // When
-        self.sut.save()
-
-        // Then
-        XCTAssertEqual(self.savedPraxis?.attunementEnabled, false)
-        XCTAssertEqual(self.savedPraxis?.attunementId, "breathing")
     }
 }

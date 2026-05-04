@@ -83,15 +83,6 @@
 "gong.soft-interval" = "Soft Interval Tone";
 "gong.vibration" = "Vibration";
 
-// MARK: - Attunement Names
-"attunement.breath.name" = "Breathing Exercise";
-
-"settings.attunement.header" = "Attunement";
-"settings.attunement.title" = "Attunement";
-"settings.attunement.none" = "None";
-"settings.attunement.option" = "%@ (%@)";
-"settings.attunement.footer" = "An optional guided attunement (e.g. breathing exercise) that plays after the gong before silent meditation.";
-
 "settings.preparationTime.header" = "Preparation Time";
 "settings.preparationTime.title" = "Preparation Time";
 "settings.preparationTime.description" = "Time to settle in before meditation";
@@ -166,8 +157,6 @@
 "accessibility.intervalMode.hint" = "Choose when interval gongs play";
 "accessibility.intervalSound" = "Interval sound";
 "accessibility.intervalSound.hint" = "Choose the sound for interval gongs";
-"accessibility.attunement" = "Attunement";
-"accessibility.attunement.hint" = "Choose an optional attunement for the beginning of meditation";
 "accessibility.preparationTime" = "Preparation time";
 "accessibility.preparationTime.hint" = "Enable or disable preparation time before meditation";
 "accessibility.preparationTimeDuration" = "Preparation duration";
@@ -295,7 +284,6 @@
 "accessibility.library.preview" = "Preview meditation";
 "accessibility.library.preview.hint" = "Press and hold to listen to a preview of this meditation";
 "accessibility.sound.select.hint" = "Selects this sound and plays a preview";
-"accessibility.attunement.toggle.hint" = "Enables or disables attunement audio before meditation";
 
 // MARK: - Autocomplete
 
@@ -327,8 +315,6 @@
 
 // MARK: - Praxis Editor
 
-"praxis.editor.attunement.row" = "Attunement";
-"praxis.editor.attunement.title" = "Attunement";
 "praxis.editor.background.title" = "Background Sound";
 "praxis.editor.background.silence" = "Silence";
 "praxis.editor.startGong.title" = "Start & End Gong";
@@ -337,9 +323,7 @@
 "common.on" = "On";
 
 // MARK: - Setting Cards (shared-083)
-"settings.card.value.attunement.off" = "None";
 "settings.card.label.preparation" = "Preparation";
-"settings.card.label.attunement" = "Attunement";
 "settings.card.label.background" = "Background";
 "settings.card.label.gong" = "Gong";
 "settings.card.label.interval" = "Interval";
@@ -359,18 +343,16 @@
 "custom.audio.duration.unknown" = "Unknown";
 
 "custom.audio.section.mySounds" = "My Sounds";
-"custom.audio.section.myAttunements" = "My Attunements";
 
 "custom.audio.import.button" = "Import own file";
 
 "custom.audio.empty.sounds" = "No custom files imported";
-"custom.audio.empty.attunements" = "No custom files imported";
 
 "custom.audio.delete.confirm.title" = "Delete file?";
 "custom.audio.delete.confirm.message" = "This file will be permanently deleted.";
 "custom.audio.delete.confirm.button" = "Delete";
-"custom.audio.delete.warning.single" = "Used in 1 practice. That practice will fall back to Silence / No Attunement.";
-"custom.audio.delete.warning.multiple" = "Used in %d practices. Those practices will fall back to Silence / No Attunement.";
+"custom.audio.delete.warning.single" = "Used in 1 practice. That practice will fall back to Silence.";
+"custom.audio.delete.warning.multiple" = "Used in %d practices. Those practices will fall back to Silence.";
 
 "custom.audio.error.unsupportedFormat" = "Unsupported format: .%@. Supported: MP3, M4A, WAV.";
 "custom.audio.error.fileCopyFailed" = "Could not import the file. Please try again.";
@@ -378,7 +360,6 @@
 "custom.audio.error.fileNotFound" = "File not found.";
 
 "custom.audio.accessibility.importButton.soundscape" = "Import own soundscape";
-"custom.audio.accessibility.importButton.attunement" = "Import own attunement";
 "custom.audio.accessibility.delete" = "Delete %@";
 "custom.audio.accessibility.rename" = "Edit name";
 "custom.audio.accessibility.rename.hint" = "Opens rename dialog";
@@ -394,8 +375,6 @@
 "import.type.guided.description" = "Add to meditation library";
 "import.type.soundscape" = "Soundscape";
 "import.type.soundscape.description" = "Use as background sound";
-"import.type.attunement" = "Attunement";
-"import.type.attunement.description" = "Use as attunement";
 "import.type.cancel" = "Cancel";
 
 // MARK: - Share Extension (shared-046)

@@ -27,7 +27,7 @@ iOS und Android verwenden **exakt dieselben Begriffe**. Dies ermöglicht:
 - `startPressed`, `closePressed`
 
 **System-Ereignisse** (Verb + Past Participle):
-- `preparationFinished`, `attunementFinished`, `timerCompleted`
+- `preparationFinished`, `startGongFinished`, `endGongFinished`, `timerCompleted`
 - `intervalGongTriggered` (ausgeloest durch TimerEvent.intervalGongDue)
 
 ---
@@ -152,33 +152,27 @@ object TimerReducer {
 ### State Machine
 
 ```
-┌──────┐ startPressed  ┌─────────────┐ prep.Finished ┌───────────┐ startGongFinished ┌──────────────┐ intro.Finished ┌─────────┐
-│ Idle │──────────────►│ Preparation │──────────────►│ StartGong │─────────────────►│ Attunement │───────────────►│ Running │
-└──────┘               └─────────────┘               └───────────┘                   └──────────────┘                └─────────┘
-    ▲                       │                              │                                │                           │
-    │                       │  (no preparation)            │  (no attunement)             │                           │
-    │                       └──►┐                          └───────────────────────────────►┐                           │
-    │                            │                                                          │                           │
-    │                  resetPressed                                                         │  timerCompleted           │
-    │◄──────────────── (from any non-idle state) ─────────────────────────────────────────┤                           │
-    │                                                                                       │                           │
-    │                  ┌───────────┐  endGongFinished  ┌─────────┐                          │                           │
-    └──────────────────│ Completed │◄─────────────────│ EndGong │◄─────────────────────────┘◄──────────────────────────┘
+┌──────┐ startPressed  ┌─────────────┐ prep.Finished ┌───────────┐ startGongFinished ┌─────────┐
+│ Idle │──────────────►│ Preparation │──────────────►│ StartGong │──────────────────►│ Running │
+└──────┘               └─────────────┘               └───────────┘                   └─────────┘
+    ▲                       │                              │                              │
+    │                       │  (no preparation)            │                              │
+    │                       └──►┐                          │                              │
+    │                            ▼                          │                              │
+    │                  resetPressed                          │  timerCompleted             │
+    │◄──────────────── (from any non-idle state) ──────────┤                              │
+    │                                                        │                              │
+    │                  ┌───────────┐  endGongFinished  ┌─────────┐                         │
+    └──────────────────│ Completed │◄─────────────────│ EndGong │◄────────────────────────┘
                        └───────────┘                   └─────────┘
 ```
 
 **Pfade:**
-- Voll: idle → preparation → startGong → attunement → running → endGong → completed
-- Ohne Einstimmung: idle → preparation → startGong → running → endGong → completed
-- Ohne Vorbereitung: idle → startGong → attunement → running → endGong → completed
-- Minimal: idle → startGong → running → endGong → completed
-- Start-Gong spielt im `startGong`-State; Einstimmung wartet auf `startGongFinished` Action
-- Einstimmungs-Audio startet erst nach dem Start-Gong (sequenziell via `startGongFinished` Action)
-- Einstimmung zaehlt zur Gesamtmeditationszeit (Countdown laeuft bereits)
-- Hintergrund-Audio und Intervall-Gongs starten erst beim Uebergang zu running
+- Voll: idle → preparation → startGong → running → endGong → completed
+- Ohne Vorbereitung: idle → startGong → running → endGong → completed
+- Start-Gong spielt im `startGong`-State; Hintergrund-Audio und Intervall-Gongs starten erst beim Uebergang zu running
 - Running wechselt zu endGong (Timer bei 0), endGong wechselt zu completed (Audio-Callback)
 - endGong: Completion-Gong spielt, UI zeigt 00:00 mit vollem Ring, Keep-Alive bleibt aktiv
-- Wenn Timer waehrend der Einstimmung ablaeuft: attunement → endGong → completed (Einstimmung wird abgeschnitten)
 
 ### Intervall-Gong-Zyklus
 
@@ -326,8 +320,6 @@ enum TimerEffect: Equatable {
     case startBackgroundAudio(soundId: String, volume: Float)
     case stopBackgroundAudio
     case playStartGong
-    case playAttunement(attunementId: String)
-    case stopAttunement
     case playIntervalGong(soundId: String, volume: Float)
     case playCompletionSound
     case startTimer(durationMinutes: Int)
@@ -343,8 +335,6 @@ sealed class TimerEffect {
     data class StartForegroundService(val soundId: String) : TimerEffect()
     data object StopForegroundService : TimerEffect()
     data object PlayStartGong : TimerEffect()
-    data class PlayAttunement(val attunementId: String) : TimerEffect()
-    data object StopAttunement : TimerEffect()
     data object PlayIntervalGong : TimerEffect()
     data object PlayCompletionGong : TimerEffect()
     data class StartTimer(val durationMinutes: Int) : TimerEffect()

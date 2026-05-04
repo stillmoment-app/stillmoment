@@ -55,6 +55,10 @@ struct StillMomentApp: App {
             PreparationTimeConfigurer.disable()
         }
 
+        // One-time silent cleanup of legacy attunement data (shared-088).
+        // Runs before any repository load so persisted state is already clean.
+        AttunementCleanupMigration.runIfNeeded()
+
         let sharedAudioService = AudioService()
         _timerViewModel = StateObject(wrappedValue: TimerViewModel(audioService: sharedAudioService))
         _guidedListViewModel = StateObject(

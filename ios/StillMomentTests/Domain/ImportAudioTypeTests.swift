@@ -21,19 +21,10 @@ final class ImportAudioTypeTests: XCTestCase {
         XCTAssertEqual(type, .soundscape)
     }
 
-    func testImportAudioType_hasAttunementCase() {
-        let type: ImportAudioType = .attunement
-        XCTAssertEqual(type, .attunement)
-    }
-
     // MARK: - CustomAudioType Mapping
 
     func testSoundscape_mapsToCustomAudioTypeSoundscape() {
         XCTAssertEqual(ImportAudioType.soundscape.customAudioType, .soundscape)
-    }
-
-    func testAttunement_mapsToCustomAudioTypeAttunement() {
-        XCTAssertEqual(ImportAudioType.attunement.customAudioType, .attunement)
     }
 
     func testGuidedMeditation_hasNoCustomAudioType() {
@@ -44,7 +35,5 @@ final class ImportAudioTypeTests: XCTestCase {
 
     func testImportAudioType_differentCases_areNotEqual() {
         XCTAssertNotEqual(ImportAudioType.guidedMeditation, ImportAudioType.soundscape)
-        XCTAssertNotEqual(ImportAudioType.soundscape, ImportAudioType.attunement)
-        XCTAssertNotEqual(ImportAudioType.guidedMeditation, ImportAudioType.attunement)
     }
 }

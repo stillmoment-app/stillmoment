@@ -17,7 +17,6 @@ struct SettingsView: View {
     init(
         settings: Binding<MeditationSettings>,
         availableSounds: [BackgroundSound],
-        availableAttunements: [Attunement] = [],
         onGongChanged: @escaping (String, Float) -> Void,
         onBackgroundChanged: @escaping (String, Float) -> Void,
         onIntervalGongPreview: @escaping (String, Float) -> Void,
@@ -25,7 +24,6 @@ struct SettingsView: View {
     ) {
         _settings = settings
         self.availableSounds = availableSounds
-        self.availableAttunements = availableAttunements
         self.onGongChanged = onGongChanged
         self.onBackgroundChanged = onBackgroundChanged
         self.onIntervalGongPreview = onIntervalGongPreview
@@ -44,9 +42,6 @@ struct SettingsView: View {
                 Form {
                     self.preparationTimeSection
                     self.gongSection
-                    if !self.availableAttunements.isEmpty {
-                        self.attunementSection
-                    }
                     self.intervalGongsSection
                     self.backgroundAudioSection
                 }
@@ -78,7 +73,6 @@ struct SettingsView: View {
     @Binding private var settings: MeditationSettings
 
     private let availableSounds: [BackgroundSound]
-    private let availableAttunements: [Attunement]
     private let onGongChanged: (String, Float) -> Void
     private let onBackgroundChanged: (String, Float) -> Void
     private let onIntervalGongPreview: (String, Float) -> Void
@@ -164,47 +158,6 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.gong.title", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
-        }
-    }
-
-    // MARK: - Attunement Section
-
-    private var attunementSection: some View {
-        Section {
-            Picker(selection: Binding(
-                get: { self.settings.attunementId ?? "" },
-                set: { self.settings.attunementId = $0.isEmpty ? nil : $0 }
-            )) {
-                Text("settings.attunement.none", bundle: .main)
-                    .tag("")
-                ForEach(self.availableAttunements) { attunement in
-                    Text(
-                        String(
-                            format: NSLocalizedString("settings.attunement.option", comment: ""),
-                            attunement.name,
-                            attunement.formattedDuration
-                        )
-                    )
-                    .tag(attunement.id)
-                }
-            } label: {
-                Text("settings.attunement.title", bundle: .main)
-                    .themeFont(.settingsLabel)
-            }
-            .pickerStyle(.menu)
-            .onChange(of: self.settings.attunementId) { _ in
-                HapticFeedback.selection()
-            }
-            .accessibilityIdentifier("settings.picker.attunement")
-            .accessibilityLabel(NSLocalizedString("accessibility.attunement", comment: ""))
-            .accessibilityHint(NSLocalizedString("accessibility.attunement.hint", comment: ""))
-            .cardRowBackground()
-        } header: {
-            Text("settings.attunement.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
-        } footer: {
-            Text("settings.attunement.footer", bundle: .main)
                 .foregroundColor(self.theme.textSecondary)
         }
     }

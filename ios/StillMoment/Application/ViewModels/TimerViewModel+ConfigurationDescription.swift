@@ -30,22 +30,6 @@ extension TimerViewModel {
         !self.settings.preparationTimeEnabled
     }
 
-    /// Card label for attunement. Shows the attunement name when active, "Ohne" otherwise.
-    var attunementCardLabel: String {
-        guard let attunementId = self.settings.activeAttunementId else {
-            return NSLocalizedString("settings.card.value.attunement.off", comment: "")
-        }
-        if let resolved = self.attunementResolver.resolve(id: attunementId) {
-            return resolved.displayName
-        }
-        return NSLocalizedString("settings.card.value.attunement.off", comment: "")
-    }
-
-    /// Whether the attunement card should render as dimmed (off).
-    var attunementCardIsOff: Bool {
-        self.settings.activeAttunementId == nil
-    }
-
     /// Card label for the background sound. Always shows a value — "Stille" is a
     /// deliberate choice and not an off-state.
     var backgroundCardLabel: String {

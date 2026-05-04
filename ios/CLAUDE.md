@@ -139,8 +139,7 @@ enum TimerReducer {
         action: TimerAction,
         timerState: TimerState,
         selectedMinutes: Int,
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
+        settings: MeditationSettings
     ) -> [TimerEffect] { ... }
 }
 ```

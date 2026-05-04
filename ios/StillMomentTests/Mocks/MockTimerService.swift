@@ -130,30 +130,6 @@ final class MockTimerService: TimerServiceProtocol {
     /// Returns the current test timer (for verification)
     var currentTimerForTest: MeditationTimer?
 
-    var beginAttunementPhaseCalled = false
-
-    func beginAttunementPhase() {
-        self.beginAttunementPhaseCalled = true
-        guard let timer = currentTimerForTest else {
-            return
-        }
-        let updatedTimer = timer.withState(.attunement)
-        self.currentTimerForTest = updatedTimer
-        self.subject.send((updatedTimer, []))
-    }
-
-    var endAttunementPhaseCalled = false
-
-    func endAttunementPhase() {
-        self.endAttunementPhaseCalled = true
-        guard let timer = currentTimerForTest else {
-            return
-        }
-        let updatedTimer = timer.endAttunement()
-        self.currentTimerForTest = updatedTimer
-        self.subject.send((updatedTimer, []))
-    }
-
     var beginRunningPhaseCalled = false
 
     func beginRunningPhase() {
@@ -161,7 +137,7 @@ final class MockTimerService: TimerServiceProtocol {
         guard let timer = currentTimerForTest else {
             return
         }
-        let updatedTimer = timer.endAttunement()
+        let updatedTimer = timer.withState(.running)
         self.currentTimerForTest = updatedTimer
         self.subject.send((updatedTimer, []))
     }
@@ -177,11 +153,6 @@ final class MockAudioService: AudioServiceProtocol {
         self.gongCompletionSubject.eraseToAnyPublisher()
     }
 
-    let attunementCompletionSubject = PassthroughSubject<Void, Never>()
-    var attunementCompletionPublisher: AnyPublisher<Void, Never> {
-        self.attunementCompletionSubject.eraseToAnyPublisher()
-    }
-
     var configureAudioSessionCalled = false
     var activateTimerSessionCalled = false
     var deactivateTimerSessionCalled = false
@@ -190,14 +161,10 @@ final class MockAudioService: AudioServiceProtocol {
     var playStartGongCalled = false
     var playIntervalGongCalled = false
     var playCompletionSoundCalled = false
-    var playAttunementCalled = false
-    var stopAttunementCalled = false
     var playGongPreviewCalled = false
     var stopGongPreviewCalled = false
     var playBackgroundPreviewCalled = false
     var stopBackgroundPreviewCalled = false
-    var playAttunementPreviewCalled = false
-    var stopAttunementPreviewCalled = false
     var playMeditationPreviewCalled = false
     var stopMeditationPreviewCalled = false
     var stopCalled = false
@@ -208,12 +175,10 @@ final class MockAudioService: AudioServiceProtocol {
     var lastIntervalGongVolume: Float?
     var lastCompletionSoundId: String?
     var lastCompletionSoundVolume: Float?
-    var lastAttunementFilename: String?
     var lastPreviewSoundId: String?
     var lastPreviewVolume: Float?
     var lastBackgroundPreviewSoundId: String?
     var lastBackgroundPreviewVolume: Float?
-    var lastAttunementPreviewId: String?
     var lastMeditationPreviewFileURL: URL?
     var lastStartBackgroundAudioSoundId: String?
     var lastStartBackgroundAudioVolume: Float?
@@ -258,20 +223,6 @@ final class MockAudioService: AudioServiceProtocol {
     func stopBackgroundAudio() {
         self.stopBackgroundAudioCalled = true
         self.audioCallOrder.append("stopBackgroundAudio")
-    }
-
-    func playAttunement(filename: String) throws {
-        self.playAttunementCalled = true
-        self.lastAttunementFilename = filename
-        self.audioCallOrder.append("playAttunement")
-        if self.shouldThrowOnPlay {
-            throw AudioServiceError.playbackFailed
-        }
-    }
-
-    func stopAttunement() {
-        self.stopAttunementCalled = true
-        self.audioCallOrder.append("stopAttunement")
     }
 
     func playStartGong(soundId: String, volume: Float) throws {
@@ -332,20 +283,6 @@ final class MockAudioService: AudioServiceProtocol {
     func stopBackgroundPreview() {
         self.stopBackgroundPreviewCalled = true
         self.audioCallOrder.append("stopBackgroundPreview")
-    }
-
-    func playAttunementPreview(attunementId: String) throws {
-        self.playAttunementPreviewCalled = true
-        self.lastAttunementPreviewId = attunementId
-        self.audioCallOrder.append("playAttunementPreview")
-        if self.shouldThrowOnPlay {
-            throw AudioServiceError.playbackFailed
-        }
-    }
-
-    func stopAttunementPreview() {
-        self.stopAttunementPreviewCalled = true
-        self.audioCallOrder.append("stopAttunementPreview")
     }
 
     func playMeditationPreview(fileURL: URL) throws {

@@ -14,10 +14,10 @@ extension MeditationTimer {
     }
 
     /// Whether the timer is actively running (for UI display)
-    /// Returns true during start gong, attunement, silent meditation and endGong phases
+    /// Returns true during start gong, silent meditation and endGong phases
     /// (no visual difference between these phases per design — ring full, 00:00 during endGong)
     var isRunning: Bool {
-        self.state == .running || self.state == .attunement
+        self.state == .running
             || self.state == .startGong || self.state == .endGong
     }
 

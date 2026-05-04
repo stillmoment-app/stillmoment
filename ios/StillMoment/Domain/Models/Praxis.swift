@@ -24,8 +24,6 @@ struct Praxis: Codable, Equatable, Identifiable {
     let preparationTimeSeconds: Int
     let startGongSoundId: String
     let gongVolume: Float
-    let attunementId: String?
-    let attunementEnabled: Bool
     let intervalGongsEnabled: Bool
     let intervalMinutes: Int
     let intervalMode: IntervalMode
@@ -45,8 +43,6 @@ struct Praxis: Codable, Equatable, Identifiable {
         case preparationTimeSeconds
         case startGongSoundId
         case gongVolume
-        case attunementId = "introductionId"
-        case attunementEnabled = "introductionEnabled"
         case intervalGongsEnabled
         case intervalMinutes
         case intervalMode
@@ -63,8 +59,6 @@ struct Praxis: Codable, Equatable, Identifiable {
         preparationTimeSeconds: Int = 15,
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = 1.0,
-        attunementId: String? = nil,
-        attunementEnabled: Bool = false,
         intervalGongsEnabled: Bool = false,
         intervalMinutes: Int = 5,
         intervalMode: IntervalMode = .repeating,
@@ -79,8 +73,6 @@ struct Praxis: Codable, Equatable, Identifiable {
         self.preparationTimeSeconds = Self.validatePreparationTime(preparationTimeSeconds)
         self.startGongSoundId = startGongSoundId
         self.gongVolume = Self.validateVolume(gongVolume)
-        self.attunementId = attunementId
-        self.attunementEnabled = attunementEnabled
         self.intervalGongsEnabled = intervalGongsEnabled
         self.intervalMinutes = Self.validateInterval(intervalMinutes)
         self.intervalMode = intervalMode
@@ -102,9 +94,6 @@ struct Praxis: Codable, Equatable, Identifiable {
         )
         self.startGongSoundId = try container.decode(String.self, forKey: .startGongSoundId)
         self.gongVolume = try Self.validateVolume(container.decode(Float.self, forKey: .gongVolume))
-        self.attunementId = try container.decodeIfPresent(String.self, forKey: .attunementId)
-        self.attunementEnabled = try container.decodeIfPresent(Bool.self, forKey: .attunementEnabled)
-            ?? (self.attunementId != nil)
         self.intervalGongsEnabled = try container.decode(Bool.self, forKey: .intervalGongsEnabled)
         self.intervalMinutes = try Self.validateInterval(container.decode(Int.self, forKey: .intervalMinutes))
         self.intervalMode = try container.decode(IntervalMode.self, forKey: .intervalMode)
@@ -148,8 +137,6 @@ extension Praxis {
         preparationTimeSeconds: 15,
         startGongSoundId: GongSound.defaultSoundId,
         gongVolume: 1.0,
-        attunementId: nil,
-        attunementEnabled: false,
         intervalGongsEnabled: false,
         intervalMinutes: 5,
         intervalMode: .repeating,
@@ -172,8 +159,6 @@ extension Praxis {
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
-            attunementId: self.attunementId,
-            attunementEnabled: self.attunementEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -193,50 +178,6 @@ extension Praxis {
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
-            attunementId: self.attunementId,
-            attunementEnabled: self.attunementEnabled,
-            intervalGongsEnabled: self.intervalGongsEnabled,
-            intervalMinutes: self.intervalMinutes,
-            intervalMode: self.intervalMode,
-            intervalSoundId: self.intervalSoundId,
-            intervalGongVolume: self.intervalGongVolume,
-            backgroundSoundId: self.backgroundSoundId,
-            backgroundSoundVolume: self.backgroundSoundVolume
-        )
-    }
-
-    /// Returns a new Praxis with the attunement replaced.
-    func withAttunementId(_ newId: String?) -> Praxis {
-        Praxis(
-            id: self.id,
-            durationMinutes: self.durationMinutes,
-            preparationTimeEnabled: self.preparationTimeEnabled,
-            preparationTimeSeconds: self.preparationTimeSeconds,
-            startGongSoundId: self.startGongSoundId,
-            gongVolume: self.gongVolume,
-            attunementId: newId,
-            attunementEnabled: self.attunementEnabled,
-            intervalGongsEnabled: self.intervalGongsEnabled,
-            intervalMinutes: self.intervalMinutes,
-            intervalMode: self.intervalMode,
-            intervalSoundId: self.intervalSoundId,
-            intervalGongVolume: self.intervalGongVolume,
-            backgroundSoundId: self.backgroundSoundId,
-            backgroundSoundVolume: self.backgroundSoundVolume
-        )
-    }
-
-    /// Returns a new Praxis with the attunement enabled/disabled.
-    func withAttunementEnabled(_ enabled: Bool) -> Praxis {
-        Praxis(
-            id: self.id,
-            durationMinutes: self.durationMinutes,
-            preparationTimeEnabled: self.preparationTimeEnabled,
-            preparationTimeSeconds: self.preparationTimeSeconds,
-            startGongSoundId: self.startGongSoundId,
-            gongVolume: self.gongVolume,
-            attunementId: self.attunementId,
-            attunementEnabled: enabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -260,8 +201,6 @@ extension Praxis {
             preparationTimeSeconds: settings.preparationTimeSeconds,
             startGongSoundId: settings.startGongSoundId,
             gongVolume: settings.gongVolume,
-            attunementId: settings.attunementId,
-            attunementEnabled: settings.attunementEnabled,
             intervalGongsEnabled: settings.intervalGongsEnabled,
             intervalMinutes: settings.intervalMinutes,
             intervalMode: settings.intervalMode,
@@ -278,7 +217,7 @@ extension Praxis {
 extension Praxis {
     /// Converts this Praxis to a MeditationSettings instance.
     /// Used when a Praxis is selected and its configuration is applied to the timer.
-    func toMeditationSettings(customAttunementDurationSeconds: Int? = nil) -> MeditationSettings {
+    func toMeditationSettings() -> MeditationSettings {
         MeditationSettings(
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
@@ -291,10 +230,7 @@ extension Praxis {
             preparationTimeEnabled: self.preparationTimeEnabled,
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
-            gongVolume: self.gongVolume,
-            attunementId: self.attunementId,
-            attunementEnabled: self.attunementEnabled,
-            customAttunementDurationSeconds: customAttunementDurationSeconds
+            gongVolume: self.gongVolume
         )
     }
 }

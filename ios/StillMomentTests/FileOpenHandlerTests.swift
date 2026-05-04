@@ -404,27 +404,6 @@ final class FileOpenHandlerTests: XCTestCase {
         }
     }
 
-    func testImportAsAttunement_routesToCustomAudioRepository() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/intro.m4a")
-
-        // When
-        let result = await self.sut.importFile(from: url, as: .attunement)
-
-        // Then
-        switch result {
-        case let .success(importResult):
-            if case .customAudio = importResult {
-                XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.count, 1)
-                XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.first?.1, .attunement)
-            } else {
-                XCTFail("Expected customAudio result")
-            }
-        case .failure:
-            XCTFail("Expected successful import")
-        }
-    }
-
     // MARK: - Type-Based Duplicate Detection (shared-073)
 
     func testImportAsGuidedMeditation_duplicate_returnsError() async {

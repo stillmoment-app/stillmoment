@@ -17,8 +17,6 @@ struct SettingDetailRoot: View {
         switch self.destination {
         case .preparation:
             PreparationTimeSelectionView(viewModel: self.viewModel)
-        case .attunement:
-            AttunementSelectionView(viewModel: self.viewModel)
         case .background:
             BackgroundSoundSelectionView(viewModel: self.viewModel)
         case .gong:

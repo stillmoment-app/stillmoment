@@ -17,16 +17,13 @@ enum ImportAudioType: Equatable {
     case guidedMeditation
     /// A background sound loop — stored as custom soundscape
     case soundscape
-    /// An attunement audio — stored as custom attunement
-    case attunement
 
-    /// Maps to CustomAudioType for soundscape/attunement imports.
+    /// Maps to CustomAudioType for soundscape imports.
     /// Returns nil for guided meditations (different import path).
     var customAudioType: CustomAudioType? {
         switch self {
         case .guidedMeditation: nil
         case .soundscape: .soundscape
-        case .attunement: .attunement
         }
     }
 }

@@ -66,23 +66,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         XCTAssertEqual(sut.backgroundSoundId, imported?.id.uuidString)
     }
 
-    func testImportCustomAudio_attunement_setsAttunementId() {
-        // Given
-        guard let mockRepo = self.mockCustomAudioRepo else {
-            return XCTFail("mockCustomAudioRepo not initialized")
-        }
-        let sut = self.createSUT()
-        let url = URL(fileURLWithPath: "/tmp/intro.mp3")
-
-        // When
-        sut.importCustomAudio(from: url, type: .attunement)
-
-        // Then
-        let imported = mockRepo.stubbedAttunements.first
-        XCTAssertNotNil(imported)
-        XCTAssertEqual(sut.attunementId, imported?.id.uuidString)
-    }
-
     func testImportCustomAudio_error_setsCustomAudioError() {
         // Given
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -127,31 +110,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         XCTAssertTrue(mockRepo.deletedIds.contains(file.id))
     }
 
-    func testDeleteCustomAudio_attunement_resetsAttunementToNil() {
-        // Given
-        let file = CustomAudioFile(
-            id: UUID(),
-            name: "Test",
-            filename: "test.mp3",
-            duration: 60,
-            type: .attunement,
-            dateAdded: Date()
-        )
-        guard let mockRepo = self.mockCustomAudioRepo else {
-            return XCTFail("mockCustomAudioRepo not initialized")
-        }
-        mockRepo.stubbedAttunements = [file]
-        let sut = self.createSUT()
-        sut.attunementId = file.id.uuidString
-
-        // When
-        sut.deleteCustomAudio(file)
-
-        // Then
-        XCTAssertNil(sut.attunementId)
-        XCTAssertTrue(mockRepo.deletedIds.contains(file.id))
-    }
-
     func testDeleteCustomAudio_doesNotResetUnrelatedSelection() {
         // Given - background sound is a different ID than the deleted file
         let file = CustomAudioFile(
@@ -189,30 +147,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             dateAdded: Date()
         )
         let praxis = Praxis(backgroundSoundId: file.id.uuidString)
-        guard let mockPraxisRepo = self.mockPraxisRepo else {
-            return XCTFail("mockPraxisRepo not initialized")
-        }
-        mockPraxisRepo.currentPraxis = praxis
-        let sut = self.createSUT(praxis: praxis)
-
-        // When
-        let count = sut.usageCount(for: file)
-
-        // Then
-        XCTAssertEqual(count, 1)
-    }
-
-    func testUsageCount_attunement_countsCurrentPraxisUsingIt() {
-        // Given
-        let file = CustomAudioFile(
-            id: UUID(),
-            name: "Intro",
-            filename: "intro.mp3",
-            duration: 30,
-            type: .attunement,
-            dateAdded: Date()
-        )
-        let praxis = Praxis(attunementId: file.id.uuidString)
         guard let mockPraxisRepo = self.mockPraxisRepo else {
             return XCTFail("mockPraxisRepo not initialized")
         }
@@ -406,16 +340,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             type: .soundscape,
             dateAdded: Date()
         )
-        let attunement = CustomAudioFile(
-            id: UUID(),
-            name: "Welcome",
-            filename: "welcome.mp3",
-            duration: 30,
-            type: .attunement,
-            dateAdded: Date()
-        )
         mockRepo.stubbedSoundscapes = [soundscape]
-        mockRepo.stubbedAttunements = [attunement]
 
         // When - init calls loadCustomAudio()
         let sut = self.createSUT()
@@ -423,7 +348,5 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         // Then
         XCTAssertEqual(sut.customSoundscapes.count, 1)
         XCTAssertEqual(sut.customSoundscapes.first?.name, "Rain")
-        XCTAssertEqual(sut.customAttunements.count, 1)
-        XCTAssertEqual(sut.customAttunements.first?.name, "Welcome")
     }
 }

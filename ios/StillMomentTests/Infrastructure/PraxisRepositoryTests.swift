@@ -82,7 +82,6 @@ final class PraxisRepositoryTests: XCTestCase {
             preparationTimeSeconds: 10,
             startGongSoundId: "classic-bowl",
             gongVolume: 0.8,
-            attunementId: nil,
             intervalGongsEnabled: true,
             intervalMinutes: 10,
             intervalMode: .afterStart,
@@ -96,6 +95,42 @@ final class PraxisRepositoryTests: XCTestCase {
         let loaded = sut.load()
 
         XCTAssertEqual(loaded, original)
+    }
+
+    // MARK: - Legacy attunement keys silently ignored
+
+    func testLoad_withLegacyAttunementJson_doesNotCrash() {
+        guard let sut, let testDefaults else {
+            return XCTFail("sut not initialized")
+        }
+        // Given - persisted Praxis JSON from a pre-shared-088 build
+        let json = """
+            {
+                "id": "00000000-0000-0000-0000-000000000099",
+                "durationMinutes": 12,
+                "preparationTimeEnabled": true,
+                "preparationTimeSeconds": 15,
+                "startGongSoundId": "temple-bell",
+                "gongVolume": 1.0,
+                "introductionId": "breath",
+                "introductionEnabled": true,
+                "intervalGongsEnabled": false,
+                "intervalMinutes": 5,
+                "intervalMode": "repeating",
+                "intervalSoundId": "soft-chime",
+                "intervalGongVolume": 0.75,
+                "backgroundSoundId": "silent",
+                "backgroundSoundVolume": 0.15
+            }
+            """
+        testDefaults.set(Data(json.utf8), forKey: "currentPraxis")
+
+        // When
+        let praxis = sut.load()
+
+        // Then - legacy keys are ignored, persistence still works
+        XCTAssertEqual(praxis.durationMinutes, 12)
+        XCTAssertEqual(praxis.startGongSoundId, "temple-bell")
     }
 
     func testSave_overwritesPrevious() {

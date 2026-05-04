@@ -86,13 +86,6 @@ private struct SettingCardButtonStyle: ButtonStyle {
             identifier: "timer.card.preparation"
         ) {}
         SettingCard(
-            label: "Einstimmung",
-            icon: "sparkles",
-            value: "Ohne",
-            isOff: true,
-            identifier: "timer.card.attunement"
-        ) {}
-        SettingCard(
             label: "Hintergrund",
             icon: "wind",
             value: "Stille",

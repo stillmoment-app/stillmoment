@@ -15,10 +15,6 @@ final class TimerReducerStateTransitionTests: XCTestCase {
         MeditationSettings.default
     }
 
-    private var emptyResolver: MockAttunementResolver {
-        MockAttunementResolver()
-    }
-
     // MARK: - ResetPressed Effect Mapping
 
     func testResetPressed_fromRunning_producesStopAndResetEffects() {
@@ -26,8 +22,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             action: .resetPressed,
             timerState: .running,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertEqual(effects, [.stopBackgroundAudio, .resetTimer, .clearTimer, .deactivateTimerSession])
@@ -38,8 +33,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             action: .resetPressed,
             timerState: .completed,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertFalse(effects.isEmpty)
@@ -51,8 +45,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             action: .resetPressed,
             timerState: .preparation,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertFalse(effects.isEmpty)
@@ -64,8 +57,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             action: .resetPressed,
             timerState: .idle,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertTrue(effects.isEmpty)
@@ -76,8 +68,7 @@ final class TimerReducerStateTransitionTests: XCTestCase {
             action: .resetPressed,
             timerState: .startGong,
             selectedMinutes: 10,
-            settings: self.defaultSettings,
-            attunementResolver: self.emptyResolver
+            settings: self.defaultSettings
         )
 
         XCTAssertFalse(effects.isEmpty)

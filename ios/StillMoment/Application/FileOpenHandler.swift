@@ -15,7 +15,7 @@ import OSLog
 enum ImportResult: Equatable {
     /// Successfully imported as a guided meditation
     case guidedMeditation(GuidedMeditation)
-    /// Successfully imported as custom audio (soundscape or attunement)
+    /// Successfully imported as custom audio (soundscape)
     case customAudio(CustomAudioFile)
 }
 
@@ -172,7 +172,7 @@ final class FileOpenHandler: ObservableObject {
     ///
     /// - Parameters:
     ///   - url: URL to the audio file
-    ///   - importType: The type to import as (guided meditation, soundscape, or attunement)
+    ///   - importType: The type to import as (guided meditation or soundscape)
     /// - Returns: Result with the ImportResult or a FileOpenError
     func importFile(from url: URL, as importType: ImportAudioType) async -> Result<ImportResult, FileOpenError> {
         guard self.canHandle(url: url) else {
@@ -370,8 +370,7 @@ final class FileOpenHandler: ObservableObject {
         switch importType {
         case .guidedMeditation:
             return await self.performGuidedMeditationImport(from: url, metadata: metadata)
-        case .soundscape,
-             .attunement:
+        case .soundscape:
             return self.performCustomAudioImport(from: url, metadata: metadata, type: importType)
         }
     }
@@ -390,8 +389,7 @@ final class FileOpenHandler: ObservableObject {
                 metadata: ["fileName": fileName, "importType": "\(importType)"]
             )
             return .alreadyImported(name: duplicate.effectiveName, teacher: duplicate.effectiveTeacher)
-        case .soundscape,
-             .attunement:
+        case .soundscape:
             guard self.isCustomAudioDuplicate(fileName: fileName, incomingSize: incomingSize, type: importType)
             else { return nil }
             Logger.guidedMeditation.info(

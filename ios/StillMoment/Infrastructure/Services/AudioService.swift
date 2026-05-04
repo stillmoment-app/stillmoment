@@ -21,7 +21,6 @@ final class AudioService: AudioServiceProtocol {
         coordinator: AudioSessionCoordinatorProtocol,
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         customAudioRepository: CustomAudioRepositoryProtocol? = nil,
-        attunementResolver: AttunementResolverProtocol? = nil,
         soundscapeResolver: SoundscapeResolverProtocol? = nil,
         backgroundPreviewDuration: TimeInterval = 3.0,
         fadeOutDuration: TimeInterval = 0.5
@@ -30,9 +29,6 @@ final class AudioService: AudioServiceProtocol {
         self.soundRepository = soundRepository
         self.customAudioRepository = customAudioRepository
         let customRepo = customAudioRepository ?? CustomAudioRepository()
-        self.attunementResolver = attunementResolver ?? AttunementResolver(
-            customAudioRepository: customRepo
-        )
         self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
             soundRepository: soundRepository,
             customAudioRepository: customRepo
@@ -41,9 +37,6 @@ final class AudioService: AudioServiceProtocol {
         self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
             gongCompletionSubject.send()
-        }
-        self.attunementPlayerDelegate = AttunementPlayerDelegate { [attunementCompletionSubject] in
-            attunementCompletionSubject.send()
         }
         self.setupAudioInterruptionHandling()
         self.registerConflictHandler()
@@ -83,7 +76,7 @@ final class AudioService: AudioServiceProtocol {
     /// Configures the audio session for timer use and starts a silent keep-alive audio loop.
     ///
     /// The keep-alive loop plays `silence.mp3` to prevent iOS from suspending the app
-    /// during phases without audible audio (Preparation, Start-Gong→Attunement transition).
+    /// during phases without audible audio (Preparation, Start-Gong→Running transition).
     /// It is automatically replaced when `startBackgroundAudio()` is called.
     /// See ADR-004 for details.
     func configureAudioSession() throws {
@@ -95,7 +88,7 @@ final class AudioService: AudioServiceProtocol {
     /// Activates a timer session: configures audio session and starts always-on keep-alive.
     ///
     /// Keep-alive runs continuously from timer start to timer end. It is NOT stopped when
-    /// background audio, attunement, or gongs play — the silent audio at volume 0.01
+    /// background audio or gongs play — the silent audio at volume 0.01
     /// does not interfere with other audio players.
     ///
     /// Call once at timer start. The only counterpart is `deactivateTimerSession()`.
@@ -258,7 +251,6 @@ final class AudioService: AudioServiceProtocol {
         Logger.audio.debug("Stopping all audio playback")
         self.audioPlayer?.stop()
         self.audioPlayer = nil
-        self.stopAttunement()
         self.stopBackgroundAudio()
 
         // Only release the timer session if THIS instance activated it.
@@ -277,21 +269,16 @@ final class AudioService: AudioServiceProtocol {
     let coordinator: AudioSessionCoordinatorProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
     let customAudioRepository: CustomAudioRepositoryProtocol?
-    let attunementResolver: AttunementResolverProtocol
     let soundscapeResolver: SoundscapeResolverProtocol
     private let backgroundPreviewDuration: TimeInterval
     let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
-    let attunementCompletionSubject = PassthroughSubject<Void, Never>()
     let gongPlayerDelegate: GongPlayerDelegate
-    let attunementPlayerDelegate: AttunementPlayerDelegate
     private var audioPlayer: AVAudioPlayer?
     private var backgroundAudioPlayer: AVAudioPlayer?
-    var attunementPlayer: AVAudioPlayer?
     var keepAlivePlayer: AVAudioPlayer?
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
-    var attunementPreviewPlayer: AVAudioPlayer?
     var meditationPreviewPlayer: AVAudioPlayer?
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
@@ -474,8 +461,6 @@ private extension AudioService {
         self.backgroundPreviewTimer = nil
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
-        self.attunementPreviewPlayer?.stop()
-        self.attunementPreviewPlayer = nil
         self.meditationPreviewPlayer?.stop()
         self.meditationPreviewPlayer = nil
     }
@@ -486,8 +471,6 @@ private extension AudioService {
         self.timerSessionActive = false
         self.audioPlayer?.stop()
         self.audioPlayer = nil
-        self.attunementPlayer?.stop()
-        self.attunementPlayer = nil
         self.backgroundAudioPlayer?.stop()
         self.backgroundAudioPlayer = nil
         self.keepAlivePlayer?.stop()

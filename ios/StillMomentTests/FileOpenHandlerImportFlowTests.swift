@@ -115,23 +115,6 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
         XCTAssertEqual(self.sut.pendingCustomAudioImport?.type, .soundscape)
     }
 
-    func testImportAsAttunement_setsPendingCustomAudioImport() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/intro.m4a")
-        self.sut.prepareImport(url: url)
-
-        // When
-        let result = await self.sut.importFile(from: url, as: .attunement)
-
-        // Then
-        guard case .success = result else {
-            XCTFail("Expected success")
-            return
-        }
-        XCTAssertNotNil(self.sut.pendingCustomAudioImport)
-        XCTAssertEqual(self.sut.pendingCustomAudioImport?.type, .attunement)
-    }
-
     func testImportAsGuidedMeditation_setsImportedMeditation() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")

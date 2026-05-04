@@ -203,42 +203,24 @@ final class TimerViewModelRegressionTests: XCTestCase {
         wait(for: [expectation], timeout: 2.0)
     }
 
-    // MARK: - Attunement Background Audio Bug
+    // MARK: - Background Audio After Start Gong
 
-    func testBackgroundAudioStartsAfterAttunementFinishes() {
-        // CRITICAL: Regression test for the attunement→background-audio bug.
-        // After Einstimmung finishes, Klangkulisse MUST start.
-        // Bug: domain timer stayed in .startGong during attunement, so the
-        // .attunement guard in reduceAttunementFinished failed → no audio.
-
-        // Given - Attunement configured (German locale required)
-        Attunement.languageOverride = "de"
-        defer { Attunement.languageOverride = nil }
-
-        self.sut.settings.attunementId = "breath"
+    func testBackgroundAudioStartsAfterStartGong() {
+        // After the start gong finishes, the background audio MUST start.
         self.sut.selectedMinutes = 5
 
         // When - Start timer (emits .startGong tick via mock)
         self.sut.startTimer()
 
-        // When - Start gong finishes → triggers beginAttunementPhase + playAttunement
+        // When - Start gong finishes → triggers beginRunningPhase + startBackgroundAudio
         // Set timer to startGong so reducer guard passes
         self.sut.timer = .stub(durationMinutes: 5, state: .startGong)
         self.sut.dispatch(.startGongFinished)
 
-        // When - Attunement audio finishes → triggers endAttunementPhase + startBackgroundAudio
-        // Set timer to attunement so reducer guard passes
-        self.sut.timer = .stub(durationMinutes: 5, state: .attunement)
-        self.sut.dispatch(.attunementFinished)
-
         // Then - Background audio MUST have started
         XCTAssertTrue(
             self.mockAudioService.startBackgroundAudioCalled,
-            """
-            CRITICAL: Background audio must start after attunement finishes.
-            Bug: domain timer was stuck in .startGong during attunement, causing
-            reduceAttunementFinished's guard to fail and skip all effects.
-            """
+            "Background audio must start after the start gong finishes."
         )
     }
 }

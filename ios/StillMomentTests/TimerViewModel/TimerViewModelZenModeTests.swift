@@ -70,14 +70,6 @@ final class TimerViewModelZenModeTests: XCTestCase {
         XCTAssertTrue(self.sut.isZenMode, "Tab bar must be hidden during start gong")
     }
 
-    func testZenModeIsActiveDuringAttunement() {
-        // Given: timer is in attunement phase
-        self.sut.timer = .stub(remainingSeconds: 600, state: .attunement)
-
-        // Then
-        XCTAssertTrue(self.sut.isZenMode, "Tab bar must be hidden during attunement")
-    }
-
     func testZenModeIsActiveDuringRunning() {
         // Given: timer is running
         self.sut.timer = .stub(remainingSeconds: 300, state: .running)

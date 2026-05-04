@@ -26,7 +26,6 @@ final class TimerViewModel: ObservableObject {
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
         customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
-        attunementResolver: AttunementResolverProtocol? = nil,
         soundscapeResolver: SoundscapeResolverProtocol? = nil
     ) {
         self.timerService = timerService
@@ -34,9 +33,6 @@ final class TimerViewModel: ObservableObject {
         self.soundRepository = soundRepository
         self.praxisRepository = praxisRepository
         self.customAudioRepository = customAudioRepository
-        self.attunementResolver = attunementResolver ?? AttunementResolver(
-            customAudioRepository: customAudioRepository
-        )
         self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
             soundRepository: soundRepository,
             customAudioRepository: customAudioRepository
@@ -56,8 +52,7 @@ final class TimerViewModel: ObservableObject {
             customAudioRepository: customAudioRepository
         ) { _ in }
 
-        let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
-        self.settings = praxis.toMeditationSettings(customAttunementDurationSeconds: customAttunementDuration)
+        self.settings = praxis.toMeditationSettings()
         self.selectedMinutes = self.settings.durationMinutes
 
         self.setupBindings()
@@ -86,7 +81,7 @@ final class TimerViewModel: ObservableObject {
     /// The current Praxis configuration (single config, loaded from repository on init)
     @Published var currentPraxis: Praxis = .default
 
-    /// Editor view model used by the five setting detail views.
+    /// Editor view model used by the four setting detail views.
     ///
     /// Owned by the TimerViewModel (one instance per session) so the detail
     /// views can be reached without any lazy-init / race-condition gymnastics
@@ -134,11 +129,6 @@ final class TimerViewModel: ObservableObject {
         self.timer == nil && self.selectedMinutes > 0
     }
 
-    /// Minimum duration in minutes based on current attunement setting
-    var minimumDurationMinutes: Int {
-        self.settings.minimumDurationMinutes
-    }
-
     /// Whether the timer is actively running
     var isRunning: Bool {
         self.timer?.isRunning ?? false
@@ -170,8 +160,7 @@ final class TimerViewModel: ObservableObject {
             action: action,
             timerState: self.timer?.state ?? .idle,
             selectedMinutes: self.selectedMinutes,
-            settings: self.settings,
-            attunementResolver: self.attunementResolver
+            settings: self.settings
         )
 
         self.executeEffects(effects)
@@ -193,8 +182,7 @@ final class TimerViewModel: ObservableObject {
     /// Called by `sessionEditor`'s onSaved callback after every live-save.
     func updateFromPraxis(_ praxis: Praxis) {
         self.currentPraxis = praxis
-        let customAttunementDuration = self.resolveAttunementDurationSeconds(attunementId: praxis.attunementId)
-        let settings = praxis.toMeditationSettings(customAttunementDurationSeconds: customAttunementDuration)
+        let settings = praxis.toMeditationSettings()
         self.settings = settings
         self.selectedMinutes = settings.durationMinutes
         Logger.viewModel.info("Updated from praxis")
@@ -207,21 +195,8 @@ final class TimerViewModel: ObservableObject {
     let soundRepository: BackgroundSoundRepositoryProtocol
     private let praxisRepository: PraxisRepository
     let customAudioRepository: CustomAudioRepositoryProtocol
-    let attunementResolver: AttunementResolverProtocol
     let soundscapeResolver: SoundscapeResolverProtocol
     private var cancellables = Set<AnyCancellable>()
-
-    /// Selected minutes before attunement auto-clamped, restored when attunement is disabled.
-    private var minutesBeforeAttunement: Int?
-
-    /// Returns the attunement duration in seconds via the resolver, or nil if not found.
-    func resolveAttunementDurationSeconds(attunementId: String? = nil) -> Int? {
-        let resolvedId = attunementId ?? self.settings.attunementId
-        guard let resolvedId else {
-            return nil
-        }
-        return self.attunementResolver.resolve(id: resolvedId)?.durationSeconds
-    }
 
     // MARK: - Effect Execution
 
@@ -265,10 +240,6 @@ final class TimerViewModel: ObservableObject {
             self.audioService.stopBackgroundAudio()
         case .playStartGong:
             self.executePlayStartGong()
-        case let .playAttunement(attunementId):
-            self.executePlayAttunement(attunementId: attunementId)
-        case .stopAttunement:
-            self.audioService.stopAttunement()
         case let .playIntervalGong(soundId, volume):
             self.executePlayIntervalGong(soundId: soundId, volume: volume)
         case .playCompletionSound:
@@ -285,10 +256,6 @@ final class TimerViewModel: ObservableObject {
             self.executeStartTimer(durationMinutes: durationMinutes)
         case .resetTimer:
             self.timerService.reset()
-        case .beginAttunementPhase:
-            self.timerService.beginAttunementPhase()
-        case .endAttunementPhase:
-            self.timerService.endAttunementPhase()
         case .beginRunningPhase:
             self.timerService.beginRunningPhase()
         case .transitionToCompleted:
@@ -318,39 +285,7 @@ final class TimerViewModel: ObservableObject {
             }
             .store(in: &self.cancellables)
 
-        self.audioService.attunementCompletionPublisher
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.dispatch(.attunementFinished)
-            }
-            .store(in: &self.cancellables)
-
         self.bindSelectedMinutesToEditor()
-
-        // Enforce minimum duration when attunement changes, restore when disabled.
-        // Note: Uses static method instead of settings.minimumDurationMinutes because
-        // @Published fires in willSet — self.settings still has the old value here.
-        self.$settings
-            .map(\.attunementId)
-            .removeDuplicates()
-            .sink { [weak self] attunementId in
-                guard let self
-                else { return }
-                let attunementDuration = self.resolveAttunementDurationSeconds(attunementId: attunementId)
-                let minimum = MeditationSettings.minimumDuration(
-                    for: attunementId,
-                    attunementEnabled: self.settings.attunementEnabled,
-                    attunementDurationSeconds: attunementDuration
-                )
-                if attunementId != nil, self.selectedMinutes < minimum {
-                    self.minutesBeforeAttunement = self.selectedMinutes
-                    self.selectedMinutes = minimum
-                } else if attunementId == nil, let restored = self.minutesBeforeAttunement {
-                    self.selectedMinutes = restored
-                    self.minutesBeforeAttunement = nil
-                }
-            }
-            .store(in: &self.cancellables)
     }
 
     /// Keep the editor's durationMinutes in sync with the wheel picker.
@@ -452,20 +387,6 @@ private extension TimerViewModel {
         } catch {
             Logger.viewModel.error("Failed to play start gong", error: error)
             self.errorMessage = "Failed to play start sound: \(error.localizedDescription)"
-        }
-    }
-
-    func executePlayAttunement(attunementId: String) {
-        do {
-            let url = try self.attunementResolver.resolveAudioURL(id: attunementId)
-            try self.audioService.playAttunement(filename: url.path)
-            Logger.viewModel.info(
-                "Attunement audio started",
-                metadata: ["attunementId": attunementId]
-            )
-        } catch {
-            Logger.viewModel.error("Failed to play attunement audio", error: error)
-            self.errorMessage = "Failed to play attunement: \(error.localizedDescription)"
         }
     }
 

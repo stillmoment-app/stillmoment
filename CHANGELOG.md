@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed (iOS)
+- **Einstimmungs-Feature komplett entfernt** - Die optionale Einstimmungs-Phase (Attunement, z.B. gefuehrte Atemuebung nach dem Start-Gong) wurde vollstaendig aus dem Meditations-Timer entfernt. Audio-Import bietet nur noch "Gefuehrte Meditation" und "Klangkulisse"; das Setting-Cards-Grid zeigt vier Karten (Vorbereitung · Hintergrund · Gong · Intervall) statt fuenf. Bestehende Einstimmungs-Konfigurationen und importierte Einstimmungs-Audio-Dateien werden beim ersten App-Start nach dem Update stillschweigend entfernt — kein Dialog, kein Hinweis. Der Timer durchlaeuft jetzt `idle → preparation → startGong → running → endGong → completed` ohne optionale Attunement-Phase. (Ticket: shared-088)
+
 ### Fixed (Android)
 - **URL-Share haengt im Loading-Dialog** - Beim Teilen eines direkten MP3-Links aus Chrome (Long-Press → Link teilen → Still Moment) blieb der "Meditation wird geladen"-Dialog fuer immer sichtbar, weil `DownloadUrlEffect` in `NavGraph.kt` den `pendingDownloadUrl`-State **vor** dem Download leerte und damit `LaunchedEffect` self-cancelte (Key-Aenderung waehrend Coroutine lief → `isDownloading` blieb `true`). Fix: `clearDownloadUrl()` ans Ende des Effects nach dem `result.fold()` verschoben. (Ticket: android-075)
 - **URL-Share scheitert beim Import (file:// URI abgewiesen)** - Nach dem Loading-Dialog-Fix lief der Download durch, aber `FileOpenHandler.canHandle()` wies die heruntergeladene `file://`-URI als „Unsupported format" ab. Grund: `ContentResolver.query()` liefert seit Android 7+ `null` fuer `file://`-URIs, dadurch wurde der Fallback-Filename `"Unknown"` ohne Extension. Fix: Special-Case fuer `uri.scheme == "file"` in `getFileName()` und `queryFileSize()` (in `FileOpenHandler` + `GuidedMeditationRepositoryImpl`) — Filename und Groesse werden direkt aus dem URI-Path gelesen. (Ticket: android-076)

@@ -49,9 +49,7 @@ final class UserDefaultsTimerSettingsRepository {
             gongVolume: self.loadFloat(
                 MeditationSettings.Keys.gongVolume,
                 default: MeditationSettings.defaultGongVolume
-            ),
-            attunementId: self.userDefaults.string(forKey: MeditationSettings.Keys.attunementId),
-            attunementEnabled: self.loadAttunementEnabled()
+            )
         )
 
         self.logSettings(settings, action: "Loaded")
@@ -93,16 +91,6 @@ final class UserDefaultsTimerSettingsRepository {
             return .repeating
         }
         return IntervalMode(rawValue: rawValue) ?? .repeating
-    }
-
-    /// Loads attunementEnabled with migration support.
-    /// If the key doesn't exist yet (legacy data), defaults to `true` when attunementId is set.
-    private func loadAttunementEnabled() -> Bool {
-        if self.userDefaults.object(forKey: MeditationSettings.Keys.attunementEnabled) != nil {
-            return self.userDefaults.bool(forKey: MeditationSettings.Keys.attunementEnabled)
-        }
-        // Legacy migration: if attunementId is set, the user had attunement enabled
-        return self.userDefaults.string(forKey: MeditationSettings.Keys.attunementId) != nil
     }
 
     // MARK: - Legacy Migration

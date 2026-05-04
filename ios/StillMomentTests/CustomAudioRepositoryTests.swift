@@ -64,44 +64,6 @@ final class CustomAudioRepositoryTests: XCTestCase {
         XCTAssertTrue(result.isEmpty)
     }
 
-    func testLoadAll_attunementType_returnsEmptyWhenOnlySoundscapesExist() throws {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given
-        let url = try createTempAudioFile(name: "sound.mp3")
-        _ = try sut.importFile(from: url, type: .soundscape)
-
-        // When
-        let attunements = sut.loadAll(type: .attunement)
-
-        // Then
-        XCTAssertTrue(attunements.isEmpty)
-    }
-
-    func testLoadAll_returnsOnlyMatchingType() throws {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given
-        let soundscapeURL = try createTempAudioFile(name: "bg-sound.mp3")
-        let attunementURL = try createTempAudioFile(name: "intro.mp3")
-        _ = try sut.importFile(from: soundscapeURL, type: .soundscape)
-        _ = try sut.importFile(from: attunementURL, type: .attunement)
-
-        // When
-        let soundscapes = sut.loadAll(type: .soundscape)
-        let attunements = sut.loadAll(type: .attunement)
-
-        // Then
-        XCTAssertEqual(soundscapes.count, 1)
-        XCTAssertEqual(attunements.count, 1)
-        XCTAssertEqual(soundscapes.first?.name, "bg-sound")
-        XCTAssertEqual(attunements.first?.name, "intro")
-    }
-
     func testLoadAll_sortedByDateAddedDescending() throws {
         guard let sut else {
             return XCTFail("sut not initialized")
@@ -154,10 +116,10 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "sound.m4a")
 
         // When
-        let result = try sut.importFile(from: url, type: .attunement)
+        let result = try sut.importFile(from: url, type: .soundscape)
 
         // Then
-        XCTAssertEqual(result.type, .attunement)
+        XCTAssertEqual(result.type, .soundscape)
         XCTAssertTrue(result.filename.hasSuffix(".m4a"))
     }
 
@@ -319,7 +281,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "temp.mp3")
-        let imported = try sut.importFile(from: url, type: .attunement)
+        let imported = try sut.importFile(from: url, type: .soundscape)
         try sut.delete(id: imported.id)
 
         // When - create fresh repository
@@ -329,7 +291,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         )
 
         // Then
-        XCTAssertTrue(repo2.loadAll(type: .attunement).isEmpty)
+        XCTAssertTrue(repo2.loadAll(type: .soundscape).isEmpty)
     }
 
     // MARK: - findFile
@@ -358,22 +320,6 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // When / Then
         XCTAssertNil(sut.findFile(byId: UUID()))
-    }
-
-    func testFindFile_searchesAcrossTypes() throws {
-        guard let sut else {
-            return XCTFail("sut not initialized")
-        }
-
-        // Given - file stored as attunement
-        let url = try createTempAudioFile(name: "cross-type.mp3")
-        let imported = try sut.importFile(from: url, type: .attunement)
-
-        // When - search without specifying type
-        let found = sut.findFile(byId: imported.id)
-
-        // Then
-        XCTAssertEqual(found?.type, .attunement)
     }
 
     // MARK: - fileURL

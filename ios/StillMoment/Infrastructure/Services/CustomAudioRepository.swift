@@ -11,8 +11,8 @@ import OSLog
 
 /// Concrete implementation of CustomAudioRepositoryProtocol
 ///
-/// Manages user-imported audio files (soundscapes and attunements) with UserDefaults persistence.
-/// Audio files are copied to Application Support/CustomAudio/soundscapes/ or /attunements/.
+/// Manages user-imported audio files (soundscapes) with UserDefaults persistence.
+/// Audio files are copied to Application Support/CustomAudio/soundscapes/.
 final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: Lifecycle
 
@@ -92,32 +92,27 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     }
 
     func delete(id: UUID) throws {
-        // Search across both types
-        for type in [CustomAudioType.soundscape, CustomAudioType.attunement] {
-            var files = self.loadAll(type: type)
-            guard let index = files.firstIndex(where: { $0.id == id }) else {
-                continue
-            }
-
-            let file = files[index]
-
-            // Remove file from disk
-            let directory = self.getDirectory(for: type)
-            let fileURL = directory.appendingPathComponent(file.filename)
-            if self.fileManager.fileExists(atPath: fileURL.path) {
-                try? self.fileManager.removeItem(at: fileURL)
-                Logger.infrastructure.debug("Deleted custom audio file: \(fileURL.path)")
-            }
-
-            // Remove from metadata and persist
-            files.remove(at: index)
-            try self.saveFiles(files, type: type)
-
-            Logger.infrastructure.info("Deleted custom audio: \(file.name)", metadata: ["type": type.rawValue])
-            return
+        let type = CustomAudioType.soundscape
+        var files = self.loadAll(type: type)
+        guard let index = files.firstIndex(where: { $0.id == id }) else {
+            throw CustomAudioError.fileNotFound(id)
         }
 
-        throw CustomAudioError.fileNotFound(id)
+        let file = files[index]
+
+        // Remove file from disk
+        let directory = self.getDirectory(for: type)
+        let fileURL = directory.appendingPathComponent(file.filename)
+        if self.fileManager.fileExists(atPath: fileURL.path) {
+            try? self.fileManager.removeItem(at: fileURL)
+            Logger.infrastructure.debug("Deleted custom audio file: \(fileURL.path)")
+        }
+
+        // Remove from metadata and persist
+        files.remove(at: index)
+        try self.saveFiles(files, type: type)
+
+        Logger.infrastructure.info("Deleted custom audio: \(file.name)", metadata: ["type": type.rawValue])
     }
 
     func fileURL(for audioFile: CustomAudioFile) -> URL? {
@@ -131,12 +126,7 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
 
     func findFile(byId id: UUID) -> CustomAudioFile? {
         let allSoundscapes = self.loadAll(type: .soundscape)
-        if let found = allSoundscapes.first(where: { $0.id == id }) {
-            return found
-        }
-
-        let allAttunements = self.loadAll(type: .attunement)
-        return allAttunements.first { $0.id == id }
+        return allSoundscapes.first { $0.id == id }
     }
 
     func update(_ file: CustomAudioFile) throws {
@@ -161,8 +151,6 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         switch type {
         case .soundscape:
             "customAudioFiles_soundscape"
-        case .attunement:
-            "customAudioFiles_attunement"
         }
     }
 
@@ -172,8 +160,10 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         // Application Support directory is guaranteed to exist on iOS
         // swiftlint:disable:next force_unwrapping
         let appSupport = self.fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let subdir = type == .soundscape ? "soundscapes" : "attunements"
-        return appSupport.appendingPathComponent("CustomAudio/\(subdir)")
+        switch type {
+        case .soundscape:
+            return appSupport.appendingPathComponent("CustomAudio/soundscapes")
+        }
     }
 
     // MARK: - File Operations

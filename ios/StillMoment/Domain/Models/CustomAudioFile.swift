@@ -2,7 +2,7 @@
 //  CustomAudioFile.swift
 //  Still Moment
 //
-//  Domain - Custom Audio File Model (user-imported soundscapes and attunements)
+//  Domain - Custom Audio File Model (user-imported soundscapes)
 //
 
 import Foundation
@@ -11,15 +11,12 @@ import Foundation
 enum CustomAudioType: String, Codable, Equatable {
     /// Background sound that loops during meditation
     case soundscape
-    /// Attunement audio that plays once after the start gong
-    case attunement
 }
 
 /// A user-imported audio file stored in local app storage.
 ///
-/// Custom audio files are copied to Application Support and can be used
-/// as soundscapes (background loops) or attunements (one-shot guided openings)
-/// within a Praxis configuration.
+/// Custom audio files are copied to Application Support and used as
+/// soundscapes (background loops) within a Praxis configuration.
 ///
 /// CustomAudioFile is an immutable value object — all state changes produce new instances.
 struct CustomAudioFile: Identifiable, Codable, Equatable {
@@ -37,7 +34,7 @@ struct CustomAudioFile: Identifiable, Codable, Equatable {
     /// Audio duration in seconds (nil if detection failed)
     let duration: TimeInterval?
 
-    /// Whether this is a soundscape or attunement
+    /// Whether this is a soundscape (currently the only kind)
     let type: CustomAudioType
 
     /// When the file was imported

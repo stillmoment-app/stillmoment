@@ -399,8 +399,7 @@ final class IntervalModeTests: XCTestCase {
             action: .intervalGongTriggered,
             timerState: .running,
             selectedMinutes: 10,
-            settings: settings,
-            attunementResolver: MockAttunementResolver()
+            settings: settings
         )
 
         // Then

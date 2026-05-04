@@ -133,69 +133,6 @@ final class AudioServicePreviewSessionTests: XCTestCase {
         )
     }
 
-    // MARK: - Attunement Preview Requests .preview Source
-
-    func testPlayAttunementPreviewRequestsPreviewSession() throws {
-        // Given — set language to German (breath is available in "de")
-        Attunement.languageOverride = "de"
-        defer { Attunement.languageOverride = nil }
-
-        // When
-        try self.sut.playAttunementPreview(attunementId: "breath")
-
-        // Then — preview should register as .preview, not .timer
-        XCTAssertTrue(
-            self.mockCoordinator.requestedSources.contains(.preview),
-            "Attunement preview should request .preview audio session"
-        )
-        XCTAssertFalse(
-            self.mockCoordinator.requestedSources.contains(.timer),
-            "Attunement preview should NOT request .timer audio session"
-        )
-
-        // Clean up
-        self.sut.stopAttunementPreview()
-    }
-
-    func testStopAttunementPreviewReleasesPreviewSession() throws {
-        // Given — attunement preview is playing
-        Attunement.languageOverride = "de"
-        defer { Attunement.languageOverride = nil }
-        try self.sut.playAttunementPreview(attunementId: "breath")
-        self.mockCoordinator.releasedSources.removeAll()
-
-        // When
-        self.sut.stopAttunementPreview()
-
-        // Then — session is released for .preview
-        XCTAssertTrue(
-            self.mockCoordinator.releasedSources.contains(.preview),
-            "Stopping attunement preview should release .preview audio session"
-        )
-    }
-
-    func testStopAttunementPreviewWhenNotPlaying_DoesNotRelease() {
-        // When — stop without play
-        self.sut.stopAttunementPreview()
-
-        // Then — no release call (guard early return)
-        XCTAssertTrue(
-            self.mockCoordinator.releasedSources.isEmpty,
-            "Stopping attunement preview when not playing should not release session"
-        )
-    }
-
-    func testPlayAttunementPreviewThrowsForUnknownId() {
-        // Given — an ID that does not exist
-        Attunement.languageOverride = "de"
-        defer { Attunement.languageOverride = nil }
-
-        // When/Then — should throw soundFileNotFound
-        XCTAssertThrowsError(try self.sut.playAttunementPreview(attunementId: "nonexistent")) { error in
-            XCTAssertEqual(error as? AudioServiceError, .soundFileNotFound)
-        }
-    }
-
     // MARK: - Preview→Preview Reuse (Same Source, No Conflict)
 
     func testSecondPreviewReusesPreviewSession() throws {

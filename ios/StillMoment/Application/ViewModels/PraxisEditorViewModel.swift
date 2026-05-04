@@ -38,8 +38,6 @@ final class PraxisEditorViewModel: ObservableObject {
         self.preparationTimeSeconds = praxis.preparationTimeSeconds
         self.startGongSoundId = praxis.startGongSoundId
         self.gongVolume = praxis.gongVolume
-        self.attunementId = praxis.attunementId
-        self.attunementEnabled = praxis.attunementEnabled
         self.intervalGongsEnabled = praxis.intervalGongsEnabled
         self.intervalMinutes = praxis.intervalMinutes
         self.intervalMode = praxis.intervalMode
@@ -61,8 +59,6 @@ final class PraxisEditorViewModel: ObservableObject {
     @Published var preparationTimeSeconds: Int
     @Published var startGongSoundId: String
     @Published var gongVolume: Float
-    @Published var attunementId: String?
-    @Published var attunementEnabled: Bool
     @Published var intervalGongsEnabled: Bool
     @Published var intervalMinutes: Int
     @Published var intervalMode: IntervalMode
@@ -71,16 +67,10 @@ final class PraxisEditorViewModel: ObservableObject {
     @Published var backgroundSoundId: String
     @Published var backgroundSoundVolume: Float
     @Published var customSoundscapes: [CustomAudioFile] = []
-    @Published var customAttunements: [CustomAudioFile] = []
     @Published var customAudioError: String?
     @Published var isImportingAudio = false
 
     // MARK: - Computed
-
-    /// Attunements available for the current device language
-    var availableAttunements: [Attunement] {
-        Attunement.availableForCurrentLanguage()
-    }
 
     /// All available background sounds from the repository
     var availableBackgroundSounds: [BackgroundSound] {
@@ -98,8 +88,6 @@ final class PraxisEditorViewModel: ObservableObject {
             preparationTimeSeconds: self.preparationTimeSeconds,
             startGongSoundId: self.startGongSoundId,
             gongVolume: self.gongVolume,
-            attunementId: self.attunementId,
-            attunementEnabled: self.attunementEnabled,
             intervalGongsEnabled: self.intervalGongsEnabled,
             intervalMinutes: self.intervalMinutes,
             intervalMode: self.intervalMode,
@@ -142,24 +130,10 @@ final class PraxisEditorViewModel: ObservableObject {
         }
     }
 
-    /// Plays a preview of an attunement or custom attunement
-    func playAttunementPreview(attunementId: String) {
-        do {
-            try self.audioService.playAttunementPreview(attunementId: attunementId)
-        } catch {
-            Logger.audio.error(
-                "Failed to play attunement preview",
-                error: error,
-                metadata: ["attunementId": attunementId]
-            )
-        }
-    }
-
     /// Stops all active audio previews
     func stopAllPreviews() {
         self.audioService.stopGongPreview()
         self.audioService.stopBackgroundPreview()
-        self.audioService.stopAttunementPreview()
     }
 
     // MARK: - Preparation Time Selection (shared-083)
@@ -183,21 +157,11 @@ final class PraxisEditorViewModel: ObservableObject {
         return !self.preparationTimeEnabled
     }
 
-    /// Enables or disables the attunement toggle.
-    /// When enabling with no attunement selected, auto-selects the first available.
-    func setAttunementEnabled(_ enabled: Bool) {
-        self.attunementEnabled = enabled
-        if enabled, self.attunementId == nil {
-            self.attunementId = self.availableAttunements.first?.id
-        }
-    }
-
     // MARK: - Custom Audio
 
-    /// Loads custom soundscapes and attunements from the repository
+    /// Loads custom soundscapes from the repository
     func loadCustomAudio() {
         self.customSoundscapes = self.customAudioRepository.loadAll(type: .soundscape)
-        self.customAttunements = self.customAudioRepository.loadAll(type: .attunement)
     }
 
     /// Imports a custom audio file of the given type.
@@ -210,9 +174,6 @@ final class PraxisEditorViewModel: ObservableObject {
             switch type {
             case .soundscape:
                 self.backgroundSoundId = imported.id.uuidString
-            case .attunement:
-                self.attunementId = imported.id.uuidString
-                self.attunementEnabled = true
             }
             Logger.viewModel.info(
                 "Imported custom audio",
@@ -230,8 +191,6 @@ final class PraxisEditorViewModel: ObservableObject {
         switch file.type {
         case .soundscape:
             return praxis.backgroundSoundId == file.id.uuidString ? 1 : 0
-        case .attunement:
-            return praxis.attunementId == file.id.uuidString ? 1 : 0
         }
     }
 
@@ -290,8 +249,6 @@ final class PraxisEditorViewModel: ObservableObject {
             self.$preparationTimeSeconds.dropFirst().map { _ in }.eraseToAnyPublisher(),
             self.$startGongSoundId.dropFirst().map { _ in }.eraseToAnyPublisher(),
             self.$gongVolume.dropFirst().map { _ in }.eraseToAnyPublisher(),
-            self.$attunementId.dropFirst().map { _ in }.eraseToAnyPublisher(),
-            self.$attunementEnabled.dropFirst().map { _ in }.eraseToAnyPublisher(),
             self.$intervalGongsEnabled.dropFirst().map { _ in }.eraseToAnyPublisher(),
             self.$intervalMinutes.dropFirst().map { _ in }.eraseToAnyPublisher(),
             self.$intervalMode.dropFirst().map { _ in }.eraseToAnyPublisher(),
@@ -320,14 +277,6 @@ final class PraxisEditorViewModel: ObservableObject {
             }
             if self.backgroundSoundId == fileIdString {
                 self.backgroundSoundId = "silent"
-            }
-        case .attunement:
-            if praxis.attunementId == fileIdString {
-                self.repository.save(praxis.withAttunementId(nil).withAttunementEnabled(false))
-            }
-            if self.attunementId == fileIdString {
-                self.attunementId = nil
-                self.attunementEnabled = false
             }
         }
     }

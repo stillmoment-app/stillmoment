@@ -84,18 +84,6 @@ final class PraxisEditorViewModelLiveSaveTests: XCTestCase {
         XCTAssertEqual(self.mockRepository.savedPraxis?.gongVolume, 0.42)
     }
 
-    func testAttunementIdChange_persistsImmediately() {
-        self.sut.attunementId = "earth-en"
-        self.waitForAutoSave()
-        XCTAssertEqual(self.mockRepository.savedPraxis?.attunementId, "earth-en")
-    }
-
-    func testAttunementEnabledChange_persistsImmediately() {
-        self.sut.attunementEnabled = true
-        self.waitForAutoSave()
-        XCTAssertEqual(self.mockRepository.savedPraxis?.attunementEnabled, true)
-    }
-
     func testIntervalGongsEnabledChange_persistsImmediately() {
         self.sut.intervalGongsEnabled = true
         self.waitForAutoSave()

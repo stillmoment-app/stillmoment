@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Half-sheet presenting three import type options when a user shares an audio file.
+/// Half-sheet presenting two import type options when a user shares an audio file.
 ///
 /// Each row shows an SF Symbol icon, a title, and a description.
 /// The sheet calls back with the selected type or dismisses on cancel.
@@ -38,12 +38,6 @@ struct ImportTypeSelectionView: View {
                 title: NSLocalizedString("import.type.soundscape", comment: ""),
                 description: NSLocalizedString("import.type.soundscape.description", comment: "")
             ) { self.onTypeSelected(.soundscape) }
-
-            ImportTypeRow(
-                icon: "wind",
-                title: NSLocalizedString("import.type.attunement", comment: ""),
-                description: NSLocalizedString("import.type.attunement.description", comment: "")
-            ) { self.onTypeSelected(.attunement) }
 
             Button(action: self.onCancel) {
                 Text(NSLocalizedString("import.type.cancel", comment: ""))

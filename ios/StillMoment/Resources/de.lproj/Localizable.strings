@@ -83,15 +83,6 @@
 "gong.soft-interval" = "Sanfter Intervallton";
 "gong.vibration" = "Vibration";
 
-// MARK: - Attunement Names
-"attunement.breath.name" = "Atemübung";
-
-"settings.attunement.header" = "Einstimmung";
-"settings.attunement.title" = "Einstimmung";
-"settings.attunement.none" = "Keine";
-"settings.attunement.option" = "%@ (%@)";
-"settings.attunement.footer" = "Eine optionale geführte Einstimmung (z.B. Atemübung), die nach dem Gong vor der stillen Meditation abgespielt wird.";
-
 "settings.preparationTime.header" = "Vorbereitungszeit";
 "settings.preparationTime.title" = "Vorbereitungszeit";
 "settings.preparationTime.description" = "Zeit zum Ankommen vor der Meditation";
@@ -166,8 +157,6 @@
 "accessibility.intervalMode.hint" = "Wähle wann Intervall-Gongs gespielt werden";
 "accessibility.intervalSound" = "Intervall-Klang";
 "accessibility.intervalSound.hint" = "Wähle den Klang für Intervall-Gongs";
-"accessibility.attunement" = "Einstimmung";
-"accessibility.attunement.hint" = "Wähle eine optionale Einstimmung für den Beginn der Meditation";
 "accessibility.preparationTime" = "Vorbereitungszeit";
 "accessibility.preparationTime.hint" = "Aktiviere oder deaktiviere die Vorbereitungszeit vor der Meditation";
 "accessibility.preparationTimeDuration" = "Vorbereitungsdauer";
@@ -295,7 +284,6 @@
 "accessibility.library.preview" = "Meditation vorhören";
 "accessibility.library.preview.hint" = "Gedrückt halten, um eine Vorschau dieser Meditation zu hören";
 "accessibility.sound.select.hint" = "Wählt diesen Sound aus und spielt eine Vorschau";
-"accessibility.attunement.toggle.hint" = "Aktiviert oder deaktiviert die Einstimmung vor der Meditation";
 
 // MARK: - Autocomplete
 
@@ -327,8 +315,6 @@
 
 // MARK: - Praxis Editor
 
-"praxis.editor.attunement.row" = "Einstimmung";
-"praxis.editor.attunement.title" = "Einstimmung";
 "praxis.editor.background.title" = "Hintergrundklang";
 "praxis.editor.background.silence" = "Stille";
 "praxis.editor.startGong.title" = "Start & Ende";
@@ -337,9 +323,7 @@
 "common.on" = "Ein";
 
 // MARK: - Setting Cards (shared-083)
-"settings.card.value.attunement.off" = "Ohne";
 "settings.card.label.preparation" = "Vorbereitung";
-"settings.card.label.attunement" = "Einstimmung";
 "settings.card.label.background" = "Hintergrund";
 "settings.card.label.gong" = "Gong";
 "settings.card.label.interval" = "Intervall";
@@ -359,18 +343,16 @@
 "custom.audio.duration.unknown" = "Unbekannt";
 
 "custom.audio.section.mySounds" = "Meine Klänge";
-"custom.audio.section.myAttunements" = "Meine Einstimmungen";
 
 "custom.audio.import.button" = "Eigene Datei importieren";
 
 "custom.audio.empty.sounds" = "Keine eigenen Dateien importiert";
-"custom.audio.empty.attunements" = "Keine eigenen Dateien importiert";
 
 "custom.audio.delete.confirm.title" = "Datei löschen?";
 "custom.audio.delete.confirm.message" = "Diese Datei wird dauerhaft gelöscht.";
 "custom.audio.delete.confirm.button" = "Löschen";
-"custom.audio.delete.warning.single" = "Wird in 1 Praxis verwendet. Diese Praxis fällt auf Stille / Ohne Einstimmung zurück.";
-"custom.audio.delete.warning.multiple" = "Wird in %d Praxen verwendet. Diese Praxen fallen auf Stille / Ohne Einstimmung zurück.";
+"custom.audio.delete.warning.single" = "Wird in 1 Praxis verwendet. Diese Praxis fällt auf Stille zurück.";
+"custom.audio.delete.warning.multiple" = "Wird in %d Praxen verwendet. Diese Praxen fallen auf Stille zurück.";
 
 "custom.audio.error.unsupportedFormat" = "Format nicht unterstützt: .%@. Unterstützt: MP3, M4A, WAV.";
 "custom.audio.error.fileCopyFailed" = "Datei konnte nicht importiert werden. Bitte erneut versuchen.";
@@ -378,7 +360,6 @@
 "custom.audio.error.fileNotFound" = "Datei nicht gefunden.";
 
 "custom.audio.accessibility.importButton.soundscape" = "Eigenen Soundscape importieren";
-"custom.audio.accessibility.importButton.attunement" = "Eigene Einstimmung importieren";
 "custom.audio.accessibility.delete" = "%@ löschen";
 "custom.audio.accessibility.rename" = "Name bearbeiten";
 "custom.audio.accessibility.rename.hint" = "Öffnet Dialog zur Umbenennung";
@@ -394,8 +375,6 @@
 "import.type.guided.description" = "Zur Meditationsbibliothek hinzufügen";
 "import.type.soundscape" = "Klangkulisse";
 "import.type.soundscape.description" = "Als Hintergrundklang verwenden";
-"import.type.attunement" = "Einstimmung";
-"import.type.attunement.description" = "Als Einstimmung verwenden";
 "import.type.cancel" = "Abbrechen";
 
 // MARK: - Share Extension (shared-046)
