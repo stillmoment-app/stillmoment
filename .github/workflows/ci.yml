@@ -16,7 +16,7 @@ env:
   XCODE_VERSION: '26.0'
   IOS_VERSION: 'latest'
   DEVICE: 'iPhone 17'
-  SWIFTFORMAT_VERSION: '0.61.1'
+  SWIFTFORMAT_VERSION: '0.61.0'
   SWIFTLINT_VERSION: '0.63.2'
 
 jobs:
@@ -115,6 +115,36 @@ jobs:
         key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-
+
+    - name: Show Available Simulators
+      run: |
+        echo "=== Installed iOS runtimes ==="
+        xcrun simctl list runtimes | grep -i ios || true
+        echo ""
+        echo "=== Available iPhone simulators ==="
+        xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" || true
+        echo ""
+        echo "=== xcodebuild destinations for unit-test scheme ==="
+        xcodebuild -showdestinations \
+          -project ios/StillMoment.xcodeproj \
+          -scheme StillMoment-UnitTests 2>&1 | head -40 || true
+
+    - name: Boot Simulator
+      run: |
+        DEVICE_ID=$(xcrun simctl list devices available | grep -F "${{ env.DEVICE }} (" | grep -v "unavailable" | head -1 | sed -E 's/.*\(([A-Z0-9-]+)\).*/\1/')
+        if [ -z "$DEVICE_ID" ]; then
+          echo "❌ Could not find device matching '${{ env.DEVICE }}'"
+          exit 1
+        fi
+        echo "📱 Booting $DEVICE_ID"
+        xcrun simctl boot "$DEVICE_ID" || true
+        for i in {1..30}; do
+          if xcrun simctl list devices | grep "$DEVICE_ID" | grep -q "Booted"; then
+            echo "✅ Simulator booted"
+            break
+          fi
+          sleep 1
+        done
 
     - name: Run Unit Tests
       run: cd ios && make test-unit
