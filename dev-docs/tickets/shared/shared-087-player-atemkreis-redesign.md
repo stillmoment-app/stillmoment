@@ -14,8 +14,8 @@ Der Guided-Meditation-Player wird komplett neu gestaltet:
 
 - **Auto-Start**: kein initialer Play-Tap mehr — Pre-Roll oder Audio startet sofort beim Oeffnen des Player-Screens.
 - **Radikale Reduktion auf eine Geste**: kein Slider, kein Skip ±10 s, keine Elapsed-Zeit. Einzige sichtbare Bedienung ist Pause/Play (existiert nur in der Hauptphase).
-- **Atemkreis als zentrales Element**: 280 × 280-Komponente mit statischem Track, Restzeit-Bogen (waechst mit Fortschritt) und atmendem Glow (~16 s Zyklus, ease-in-out, kontinuierlich, nicht ans Audio gekoppelt). Pause-Button als Glas-Element mittig im Glow.
-- **Pre-Roll-Variante**: gleiche 280 × 280-Box, aber Bogen entleert sich linear, Glow atmet noch nicht. Countdown-Zahl im Inneren, Hint "GLEICH GEHT'S LOS" unter dem Ring. Schliessen jederzeit moeglich, kein Pause.
+- **Atemkreis als zentrales Element**: 280 × 280-Komponente mit statischem Track, Restzeit-Bogen (waechst mit Fortschritt) inkl. „Sonnen"-Punkt am vorderen Bogen-Ende und atmendem Glow (~16 s Zyklus, ease-in-out, kontinuierlich, nicht ans Audio gekoppelt). Pause-Button als Glas-Element mittig im Glow.
+- **Pre-Roll-Variante**: gleiche 280 × 280-Box, aber **nur der statische Track** ist sichtbar — kein Restzeit-Bogen, der die verbleibende Vorbereitungszeit visualisiert. Glow atmet noch nicht. Countdown-Zahl im Inneren kommuniziert die Restzeit, Hint "GLEICH GEHT'S LOS" unter dem Ring. Schliessen jederzeit moeglich, kein Pause.
 - **Restzeit-Label**: "NOCH 8:32 MIN" 36 pt unter dem Ring (ersetzt das Currenttime/Remaining-HStack).
 - **Responsive in der Vertikale**: Layout passt sich an iPhone SE (compact height) bis Pro Max an, ohne Scrollen.
 
@@ -52,20 +52,20 @@ Das neue Design folgt dem Standard-Use-Case: User startet Meditation, legt Phone
 ### Feature: Pre-Roll-Phase (beide Plattformen)
 
 - [ ] 280 × 280-Box, vertikal und horizontal zentriert, mit Safe-Area-Beruecksichtigung
-- [ ] Statischer Ring-Hintergrund (subtiler Stroke, semantisches Token)
-- [ ] Vorbereitungs-Bogen entleert sich **linear** ueber die Vorbereitungsdauer (Start: voll, Ende: leer); Stroke faerbt sich ueber Akzent-Token, Linecap rund, Rotation -90° (Start bei 12 Uhr, Uhrzeigersinn)
+- [ ] Statischer Ring-Hintergrund (subtiler Stroke, semantisches Token) — **einzige** sichtbare Ring-Schicht in dieser Phase
+- [ ] **Kein Vorbereitungs-Bogen / kein zweiter Bogen ausserhalb des Glow.** Die verbleibende Vorbereitungszeit wird ausschliesslich durch die Countdown-Zahl in der Mitte kommuniziert (zwei parallele Restzeit-Visualisierungen wirken redundant)
 - [ ] Inneres Glow-Feld (ca. 220 × 220, Kreis): warmer Radial-Gradient — gedaempfter als Hauptphase. **Keine** Atem-Animation in dieser Phase
 - [ ] Inhalt im Glow-Feld: Countdown-Zahl gross (themed Font-Rolle, monospaced/tabular-Numerals) + Label "Vorbereitung" darunter
 - [ ] Hint-Label unter dem Ring: "GLEICH GEHT'S LOS" in Uppercase, gedaempfte Sekundaerfarbe
 - [ ] **Kein Pause-Button** waehrend der Pre-Roll
 - [ ] Schliessen-Button oben links jederzeit erreichbar
 - [ ] Audio-Engine ist waehrend der Pre-Roll **noch nicht** gestartet — nur ein UI-Timer laeuft
-- [ ] Reduced Motion: Bogen aktualisiert sich weiterhin (Information). Cross-Fade entfaellt, instant cut
+- [ ] Reduced Motion: identisches Verhalten — Track plus Countdown-Zahl. Cross-Fade entfaellt, instant cut
 
 ### Feature: Uebergang Pre-Roll → Hauptphase (beide Plattformen)
 
 - [ ] Cross-Fade von Countdown-Zahl + Label "Vorbereitung" + Hint zu Hauptphasen-Inhalten in ca. 400 ms
-- [ ] Vorbereitungs-Bogen springt auf 0 und waechst dann mit Fortschritt
+- [ ] Restzeit-Bogen erscheint bei 0 und waechst dann mit Fortschritt; Sonnen-Punkt am vorderen Ende erscheint mit
 - [ ] Inneres Glow-Feld beginnt zu atmen (kein Sprung, sondern Easing-Start aus `scale(1)`)
 - [ ] Pause-Button erscheint per Fade-In mittig im Glow
 - [ ] Restzeit-Label "NOCH … MIN" erscheint per Fade-In
@@ -76,7 +76,8 @@ Das neue Design folgt dem Standard-Use-Case: User startet Meditation, legt Phone
 - [ ] Layout von oben nach unten: Schliessen-Button (oben links) · Lehrer-Name · Meditationstitel · Atemkreis (zentriert) · Restzeit-Label
 - [ ] Atemkreis-Box 280 × 280, vertikal und horizontal zentriert, mit Safe-Area-Beruecksichtigung
 - [ ] **Layer 1**: statischer Ring-Hintergrund (subtiler Stroke, semantisches Token)
-- [ ] **Layer 2**: Restzeit-Bogen — Stroke in Akzent-Token, Linecap rund, Rotation -90°. Gefuellter Anteil entspricht **vergangener** Sitzungszeit. Update-Frequenz 1–5 s reicht visuell
+- [ ] **Layer 2a**: Restzeit-Bogen — Stroke in Akzent-Token, Linecap rund, Rotation -90°. Gefuellter Anteil entspricht **vergangener** Sitzungszeit. Update-Frequenz 1–5 s reicht visuell
+- [ ] **Layer 2b**: „Sonnen"-Punkt — kleiner gefuellter Kreis (~9 pt) in Akzent-Token mit dezentem Soft-Shadow, sitzt am vorderen Ende des Restzeit-Bogens und wandert mit dem Fortschritt mit
 - [ ] **Layer 3**: Atem-Glow — kontinuierliche Animation ~16 s pro Zyklus, ease-in-out, infinite. Skala variiert leicht, Opacity variiert leicht. Animation laeuft **unabhaengig vom Audio**
 - [ ] Pause-Button 80 × 80, exakt zentriert im Glow
 - [ ] Pause-Button-Look: halbtransparenter Glas-Stil mit Backdrop-Blur (~8 px). Auf Plattformen ohne Backdrop-Filter: opaker dunkler Fallback ohne Blur

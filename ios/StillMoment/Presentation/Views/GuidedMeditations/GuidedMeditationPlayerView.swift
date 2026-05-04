@@ -175,8 +175,6 @@ struct GuidedMeditationPlayerView: View {
             BreathingCircleView(
                 phase: self.viewModel.phase,
                 progress: self.viewModel.progress,
-                preRollStartedAt: self.viewModel.countdownStartedAt,
-                preRollTotalSeconds: self.viewModel.countdownTotalSeconds,
                 reduceMotion: self.reduceMotion
             ) {
                 self.circleContent
