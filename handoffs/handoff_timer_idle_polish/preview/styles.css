@@ -1,0 +1,293 @@
+/* Still Moment — meditation app design language */
+
+:root {
+  /* Warm dark palette — mahogany / cacao with copper accent */
+  --sm-bg-deep: #150a07;
+  --sm-bg-1: #221310;
+  --sm-bg-2: #2c1a15;
+  --sm-bg-3: #3a221c;
+  --sm-card: #2a1812;
+  --sm-card-hi: #341e17;
+  --sm-card-line: rgba(235, 226, 214, 0.06);
+
+  /* Copper accent */
+  --sm-accent: #c47a5e;
+  --sm-accent-soft: #b06a4f;
+  --sm-accent-glow: #d68a6e;
+  --sm-accent-dim: rgba(196, 122, 94, 0.18);
+  --sm-accent-text: #d99a7e;
+
+  /* Text */
+  --sm-text: #ebe2d6;
+  --sm-text-2: #a89a8c;
+  --sm-text-3: #6f6358;
+  --sm-text-4: #4a4039;
+
+  /* Sage — secondary accent */
+  --sm-sage: #8aa896;
+
+  /* Radii */
+  --sm-r-sm: 12px;
+  --sm-r-md: 18px;
+  --sm-r-lg: 24px;
+  --sm-r-xl: 32px;
+  --sm-r-pill: 999px;
+
+  /* Type */
+  --sm-font-display: "Newsreader", Georgia, serif;
+  --sm-font-ui: "Geist", -apple-system, "SF Pro Text", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+body {
+  margin: 0;
+  font-family: var(--sm-font-ui);
+  color: var(--sm-text);
+  background: #0a0604;
+}
+
+/* Phone canvas — 393 x 852 (iPhone 15/16/17 Pro logical) */
+.phone {
+  width: 393px;
+  height: 852px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 48px;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 30%, #3a201a 0%, #2a1610 38%, #190c08 72%, #110705 100%);
+  font-family: var(--sm-font-ui);
+  color: var(--sm-text);
+  isolation: isolate;
+}
+
+.phone-bare { /* same content, no rounded device-edge */
+  border-radius: 0;
+}
+
+/* iPhone SE 2/3 — 375 x 667pt */
+.phone-se {
+  width: 375px;
+  height: 667px;
+  border-radius: 32px;
+}
+
+/* Status bar */
+.statusbar {
+  height: 54px;
+  padding: 18px 32px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--sm-text);
+  position: relative;
+  z-index: 5;
+}
+.statusbar .icons { display: flex; gap: 6px; align-items: center; }
+.statusbar svg { display: block; }
+
+/* Tab bar */
+.tabbar {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-radius: var(--sm-r-pill);
+  background: rgba(34, 19, 16, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(235, 226, 214, 0.06);
+  z-index: 4;
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 18px;
+  border-radius: var(--sm-r-pill);
+  color: var(--sm-text-2);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+}
+.tab.active {
+  background: var(--sm-accent-dim);
+  color: var(--sm-accent);
+}
+.tab svg { width: 22px; height: 22px; }
+
+/* Screen content scroll area, accounting for status + tabbar */
+.screen-content {
+  position: absolute;
+  inset: 54px 0 96px 0;
+  overflow: hidden;
+}
+.screen-content.no-tabbar {
+  inset: 54px 0 0 0;
+}
+.screen-content.scrollable {
+  overflow-y: auto;
+}
+
+/* Headlines */
+.h-display {
+  font-family: var(--sm-font-display);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.h-section {
+  font-family: var(--sm-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sm-text-3);
+}
+.label {
+  font-size: 13px;
+  color: var(--sm-text-2);
+  letter-spacing: 0.01em;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sm-accent-text);
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(180deg, var(--sm-accent-glow), var(--sm-accent-soft));
+  color: #2a1208;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 17px;
+  border: none;
+  padding: 16px 36px;
+  border-radius: var(--sm-r-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 16px 40px -12px rgba(196, 122, 94, 0.5),
+              0 0 0 1px rgba(214, 138, 110, 0.3) inset;
+}
+.btn-ghost {
+  background: rgba(235, 226, 214, 0.04);
+  color: var(--sm-text);
+  border: 1px solid rgba(235, 226, 214, 0.07);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: var(--sm-r-pill);
+  cursor: pointer;
+}
+.icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(235, 226, 214, 0.06);
+  border: 1px solid rgba(235, 226, 214, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--sm-text);
+}
+
+/* Cards */
+.card {
+  background: var(--sm-card);
+  border: 1px solid var(--sm-card-line);
+  border-radius: var(--sm-r-lg);
+}
+
+/* Row (for settings-like lists) */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  gap: 12px;
+}
+.row + .row {
+  border-top: 1px solid rgba(235, 226, 214, 0.04);
+}
+.row-title { font-size: 16px; color: var(--sm-text); }
+.row-value { font-size: 14px; color: var(--sm-accent-text); display: inline-flex; align-items: center; gap: 6px; }
+
+/* Toggle */
+.switch {
+  width: 50px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(235, 226, 214, 0.12);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+  padding: 0;
+}
+.switch.on { background: var(--sm-accent); }
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+.switch.on::after { transform: translateX(20px); }
+
+/* Scrollbar styling */
+.screen-content::-webkit-scrollbar { width: 0; }
+
+/* Subtle press feedback */
+.press { cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; }
+.press:active { transform: scale(0.98); }
+
+/* Vignette for full-bleed phone backgrounds */
+.bg-vignette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 100%, rgba(196, 122, 94, 0.06), transparent 60%);
+  pointer-events: none;
+}
+
+/* Pill (the original style — kept for reference but used carefully) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--sm-r-pill);
+  background: rgba(196, 122, 94, 0.18);
+  color: var(--sm-text);
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Misc */
+.divider {
+  height: 1px;
+  background: rgba(235, 226, 214, 0.06);
+  margin: 0 18px;
+}

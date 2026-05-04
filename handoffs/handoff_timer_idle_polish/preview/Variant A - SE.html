@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Variant A — SE-tauglich</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { background: #0a0604; min-height: 100vh; margin: 0; }
+  .stage {
+    min-height: 100vh; padding: 36px 24px 80px;
+    display: flex; gap: 28px; align-items: flex-start; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .pair { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .pair-label {
+    font-family: var(--sm-font-display); font-size: 17px; color: var(--sm-text);
+    font-weight: 400; letter-spacing: -0.01em;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .pair-label .num {
+    display: inline-block; min-width: 22px; height: 22px; padding: 0 7px;
+    border-radius: 11px;
+    border: 1px solid rgba(217,154,126,0.5); color: var(--sm-accent-text);
+    font-size: 11px; line-height: 22px; text-align: center;
+    font-family: var(--sm-font-ui); letter-spacing: 0;
+  }
+  .pair-sub { font-family: var(--sm-font-ui); font-size: 12.5px; color: var(--sm-text-2);
+              max-width: 393px; text-align: center; line-height: 1.55; min-height: 56px; }
+  .pair-sub em { color: var(--sm-accent-text); font-style: normal; }
+  .device-tag {
+    font-family: var(--sm-font-ui); font-size: 10.5px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--sm-text-3);
+    margin-top: 6px;
+  }
+
+  .intro {
+    max-width: 760px; margin: 16px auto 24px; padding: 0 24px;
+    text-align: center; color: var(--sm-text-2);
+    font-family: var(--sm-font-ui); font-size: 13px; line-height: 1.65;
+  }
+  .intro h1 {
+    font-family: var(--sm-font-display); font-weight: 400; font-size: 30px;
+    color: var(--sm-text); margin: 0 0 10px; letter-spacing: -0.01em;
+  }
+  .intro .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--sm-accent-text); font-weight: 500; margin-bottom: 10px;
+  }
+  .diagnosis {
+    margin: 24px auto 0; max-width: 720px; padding: 16px 22px;
+    background: rgba(235,226,214,0.025);
+    border: 1px solid rgba(235,226,214,0.06);
+    border-radius: 14px; text-align: left;
+    color: var(--sm-text-2); font-size: 12.5px; line-height: 1.7;
+  }
+  .diagnosis strong { color: var(--sm-text); font-weight: 500; }
+  .diagnosis ul { margin: 8px 0 0; padding-left: 20px; }
+  .diagnosis li { margin-bottom: 4px; }
+
+  .row-title {
+    width: 100%; max-width: 1320px; margin: 28px auto 8px; padding: 0 8px;
+    font-family: var(--sm-font-ui); font-size: 11px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--sm-text-3);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .row-title::before, .row-title::after {
+    content: ""; flex: 1; height: 1px; background: rgba(235,226,214,0.06);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script><!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="ring-quiet.jsx"></script>
+<script type="text/babel" src="variant-a-ruhig.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState } = React;
+const { VariantA_Ruhig } = window.SM_VariantA;
+
+// CSS-Override: Phone-Klasse für SE
+const seStyle = document.createElement("style");
+seStyle.textContent = `.phone-as-se .phone { width: 375px; height: 667px; border-radius: 36px; }`;
+document.head.appendChild(seStyle);
+
+function App() {
+  const [m1, setM1] = useState(18);
+  const [m2, setM2] = useState(18);
+  const [activeTab, setActiveTab] = useState("timer");
+
+  const dense = {
+    prepOn: true,    prepDur: "15 Sek.",
+    ambientOn: true, ambient: "Regen",
+    gong: "Tempelglocke", gongVol: 70,
+    intervalOn: true, interval: "5 Min.", intervalVol: 50,
+  };
+
+  const Pair = ({ tag, label, sub, device, children }) => (
+    <div className="pair">
+      <div className="pair-label"><span className="num">{tag}</span>{label}</div>
+      <div className="pair-sub">{sub}</div>
+      {children}
+      <div className="device-tag">{device}</div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="intro">
+        <div className="eyebrow">Variante A · SE-tauglich</div>
+        <h1>Ohne −/+, ohne Höhenproblem</h1>
+        <p>
+          Identische Komponente, zwei Geräte-Größen. Mit nur 4 Settings passt alles bequem
+          auch auf den iPhone SE — kein Scroll, kein Gefummel.
+        </p>
+        <div className="diagnosis">
+          <strong>Was geändert wurde gegenüber A v1:</strong>
+          <ul>
+            <li><strong>„Einstimmung" entfernt</strong> — Feature kommt weg, mehr Luft in der Liste.</li>
+            <li><strong>−/+ Buttons aus der Zeitenstellung entfernt</strong> — Zeit nur per Drag im Ring.</li>
+            <li><strong>Reihenfolge:</strong> Vorbereitung · Gong · Intervall · Hintergrund.</li>
+            <li>Ring 196px (SE) bzw. 236px (Pro), Listen-Zeilen 8px Padding auf SE.</li>
+            <li>Scroll-Variante verworfen — mit 4 Zeilen schlicht nicht nötig.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="row-title">A — Ruhig auf beiden Geräten</div>
+      <div className="stage">
+        <Pair
+          tag="A · SE"
+          label="iPhone SE 2/3"
+          sub={<>375×667pt — kompaktere Defaults, alle Elemente sichtbar, kein Scroll nötig.</>}
+          device="iPhone SE — 375 × 667">
+          <VariantA_Ruhig
+            small={true} phoneClass="phone-as-se"
+            minutes={m1} setMinutes={setM1}
+            dense={dense} activeTab={activeTab} setActiveTab={setActiveTab}/>
+        </Pair>
+
+        <Pair
+          tag="A · Pro"
+          label="iPhone 13 mini / 15 Pro"
+          sub={<>393×852pt — großzügigere Margins, größerer Ring. Identische Komponenten, andere Werte.</>}
+          device="iPhone 15 Pro — 393 × 852">
+          <VariantA_Ruhig
+            small={false}
+            minutes={m2} setMinutes={setM2}
+            dense={dense} activeTab={activeTab} setActiveTab={setActiveTab}/>
+        </Pair>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
