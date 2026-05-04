@@ -22,7 +22,6 @@ enum ImportResult: Equatable {
 /// State for a custom audio file that was imported and is pending review/navigation
 struct CustomAudioImportState: Equatable {
     let file: CustomAudioFile
-    let type: CustomAudioType
 }
 
 /// Errors that can occur during file open handling
@@ -194,10 +193,7 @@ final class FileOpenHandler: ObservableObject {
             self.importedMeditation = meditation
             self.pendingCustomAudioImport = nil
         case let .success(.customAudio(audioFile)):
-            guard let customAudioType = importType.customAudioType else {
-                break
-            }
-            self.pendingCustomAudioImport = CustomAudioImportState(file: audioFile, type: customAudioType)
+            self.pendingCustomAudioImport = CustomAudioImportState(file: audioFile)
         case .failure:
             break
         }
@@ -305,13 +301,9 @@ final class FileOpenHandler: ObservableObject {
         return existingSize == incomingSize
     }
 
-    /// Checks if a file is a duplicate custom audio file
-    private func isCustomAudioDuplicate(fileName: String, incomingSize: UInt64?, type: ImportAudioType) -> Bool {
-        guard let customAudioType = type.customAudioType
-        else {
-            return false
-        }
-        let existing = self.customAudioRepository.loadAll(type: customAudioType)
+    /// Checks if a file is a duplicate custom soundscape
+    private func isCustomAudioDuplicate(fileName: String, incomingSize: UInt64?) -> Bool {
+        let existing = self.customAudioRepository.loadAll()
         return existing.contains { self.matchesFile(audioFile: $0, fileName: fileName, incomingSize: incomingSize) }
     }
 
@@ -371,7 +363,7 @@ final class FileOpenHandler: ObservableObject {
         case .guidedMeditation:
             return await self.performGuidedMeditationImport(from: url, metadata: metadata)
         case .soundscape:
-            return self.performCustomAudioImport(from: url, metadata: metadata, type: importType)
+            return self.performCustomAudioImport(from: url, metadata: metadata)
         }
     }
 
@@ -390,7 +382,7 @@ final class FileOpenHandler: ObservableObject {
             )
             return .alreadyImported(name: duplicate.effectiveName, teacher: duplicate.effectiveTeacher)
         case .soundscape:
-            guard self.isCustomAudioDuplicate(fileName: fileName, incomingSize: incomingSize, type: importType)
+            guard self.isCustomAudioDuplicate(fileName: fileName, incomingSize: incomingSize)
             else { return nil }
             Logger.guidedMeditation.info(
                 "Duplicate file detected in type-based import",
@@ -418,29 +410,23 @@ final class FileOpenHandler: ObservableObject {
         }
     }
 
-    /// Performs custom audio import for type-based flow
+    /// Performs custom soundscape import for type-based flow
     private func performCustomAudioImport(
         from url: URL,
-        metadata: AudioMetadata,
-        type: ImportAudioType
+        metadata: AudioMetadata
     ) -> Result<ImportResult, FileOpenError> {
-        guard let customAudioType = type.customAudioType else {
-            return .failure(.importFailed)
-        }
-
         do {
-            let audioFile = try self.customAudioRepository.importFile(from: url, type: customAudioType)
+            let audioFile = try self.customAudioRepository.importFile(from: url)
             Logger.guidedMeditation.info(
-                "Successfully imported custom audio via type-based import",
+                "Successfully imported custom soundscape via type-based import",
                 metadata: [
                     "id": audioFile.id.uuidString,
-                    "fileName": audioFile.filename,
-                    "type": "\(customAudioType)"
+                    "fileName": audioFile.filename
                 ]
             )
             return .success(.customAudio(audioFile))
         } catch {
-            Logger.guidedMeditation.error("Failed to import custom audio", error: error)
+            Logger.guidedMeditation.error("Failed to import custom soundscape", error: error)
             return .failure(.importFailed)
         }
     }

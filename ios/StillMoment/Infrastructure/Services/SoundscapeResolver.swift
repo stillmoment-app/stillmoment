@@ -35,8 +35,7 @@ final class SoundscapeResolver: SoundscapeResolverProtocol {
 
         // Try custom soundscape (UUID-based ID)
         if let uuid = UUID(uuidString: id),
-           let customFile = self.customAudioRepository.findFile(byId: uuid),
-           customFile.type == .soundscape {
+           let customFile = self.customAudioRepository.findFile(byId: uuid) {
             return ResolvedSoundscape(id: id, displayName: customFile.name)
         }
 
@@ -82,7 +81,7 @@ final class SoundscapeResolver: SoundscapeResolverProtocol {
         }
 
         // Custom soundscapes
-        let customFiles = self.customAudioRepository.loadAll(type: .soundscape)
+        let customFiles = self.customAudioRepository.loadAll()
         result += customFiles.map { file in
             ResolvedSoundscape(id: file.id.uuidString, displayName: file.name)
         }

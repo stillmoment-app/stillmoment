@@ -21,16 +21,6 @@ final class ImportAudioTypeTests: XCTestCase {
         XCTAssertEqual(type, .soundscape)
     }
 
-    // MARK: - CustomAudioType Mapping
-
-    func testSoundscape_mapsToCustomAudioTypeSoundscape() {
-        XCTAssertEqual(ImportAudioType.soundscape.customAudioType, .soundscape)
-    }
-
-    func testGuidedMeditation_hasNoCustomAudioType() {
-        XCTAssertNil(ImportAudioType.guidedMeditation.customAudioType)
-    }
-
     // MARK: - Equatable
 
     func testImportAudioType_differentCases_areNotEqual() {

@@ -58,7 +58,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         }
 
         // When
-        let result = sut.loadAll(type: .soundscape)
+        let result = sut.loadAll()
 
         // Then
         XCTAssertTrue(result.isEmpty)
@@ -71,15 +71,15 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given - import two files sequentially
         let url1 = try createTempAudioFile(name: "first.mp3")
-        _ = try sut.importFile(from: url1, type: .soundscape)
+        _ = try sut.importFile(from: url1)
 
         // Small delay to ensure different timestamps
         Thread.sleep(forTimeInterval: 0.01)
         let url2 = try createTempAudioFile(name: "second.mp3")
-        _ = try sut.importFile(from: url2, type: .soundscape)
+        _ = try sut.importFile(from: url2)
 
         // When
-        let loaded = sut.loadAll(type: .soundscape)
+        let loaded = sut.loadAll()
 
         // Then - most recently added first
         XCTAssertEqual(loaded.count, 2)
@@ -98,11 +98,10 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "my-sound.mp3")
 
         // When
-        let result = try sut.importFile(from: url, type: .soundscape)
+        let result = try sut.importFile(from: url)
 
         // Then
         XCTAssertEqual(result.name, "my-sound")
-        XCTAssertEqual(result.type, .soundscape)
         XCTAssertFalse(result.filename.isEmpty)
         XCTAssertTrue(result.filename.hasSuffix(".mp3"))
     }
@@ -116,10 +115,9 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "sound.m4a")
 
         // When
-        let result = try sut.importFile(from: url, type: .soundscape)
+        let result = try sut.importFile(from: url)
 
         // Then
-        XCTAssertEqual(result.type, .soundscape)
         XCTAssertTrue(result.filename.hasSuffix(".m4a"))
     }
 
@@ -132,7 +130,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "sound.wav")
 
         // When
-        let result = try sut.importFile(from: url, type: .soundscape)
+        let result = try sut.importFile(from: url)
 
         // Then
         XCTAssertEqual(result.name, "sound")
@@ -148,7 +146,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "sound.ogg")
 
         // When / Then
-        XCTAssertThrowsError(try sut.importFile(from: url, type: .soundscape)) { error in
+        XCTAssertThrowsError(try sut.importFile(from: url)) { error in
             guard case CustomAudioError.unsupportedFormat = error else {
                 return XCTFail("Expected unsupportedFormat error, got \(error)")
             }
@@ -164,7 +162,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "sound.MP3")
 
         // When / Then - the repo lowercases the extension before checking
-        let result = try sut.importFile(from: url, type: .soundscape)
+        let result = try sut.importFile(from: url)
         XCTAssertEqual(result.name, "sound")
     }
 
@@ -175,14 +173,14 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "persisted.mp3")
-        _ = try sut.importFile(from: url, type: .soundscape)
+        _ = try sut.importFile(from: url)
 
         // When - create a fresh repository with the same UserDefaults
         let repo2 = CustomAudioRepository(
             userDefaults: testDefaults,
             fileManager: .default
         )
-        let loaded = repo2.loadAll(type: .soundscape)
+        let loaded = repo2.loadAll()
 
         // Then
         XCTAssertEqual(loaded.count, 1)
@@ -199,13 +197,13 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url2 = try createTempAudioFile(name: "sound.mp3")
 
         // When
-        let first = try sut.importFile(from: url1, type: .soundscape)
-        let second = try sut.importFile(from: url2, type: .soundscape)
+        let first = try sut.importFile(from: url1)
+        let second = try sut.importFile(from: url2)
 
         // Then - both have the same name but different IDs (duplicate import allowed)
         XCTAssertEqual(first.name, second.name)
         XCTAssertNotEqual(first.id, second.id)
-        XCTAssertEqual(sut.loadAll(type: .soundscape).count, 2)
+        XCTAssertEqual(sut.loadAll().count, 2)
     }
 
     func testImportFile_dummyData_durationIsNil() throws {
@@ -217,7 +215,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         let url = try createTempAudioFile(name: "not-real-audio.mp3")
 
         // When
-        let result = try sut.importFile(from: url, type: .soundscape)
+        let result = try sut.importFile(from: url)
 
         // Then - duration detection fails gracefully for non-audio data
         XCTAssertNil(result.duration)
@@ -232,13 +230,13 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "deletable.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
 
         // When
         try sut.delete(id: imported.id)
 
         // Then
-        XCTAssertTrue(sut.loadAll(type: .soundscape).isEmpty)
+        XCTAssertTrue(sut.loadAll().isEmpty)
     }
 
     func testDelete_nonExistentId_throwsFileNotFound() {
@@ -262,14 +260,14 @@ final class CustomAudioRepositoryTests: XCTestCase {
         // Given
         let url1 = try createTempAudioFile(name: "keep.mp3")
         let url2 = try createTempAudioFile(name: "delete.mp3")
-        _ = try sut.importFile(from: url1, type: .soundscape)
-        let toDelete = try sut.importFile(from: url2, type: .soundscape)
+        _ = try sut.importFile(from: url1)
+        let toDelete = try sut.importFile(from: url2)
 
         // When
         try sut.delete(id: toDelete.id)
 
         // Then
-        let remaining = sut.loadAll(type: .soundscape)
+        let remaining = sut.loadAll()
         XCTAssertEqual(remaining.count, 1)
         XCTAssertEqual(remaining.first?.name, "keep")
     }
@@ -281,7 +279,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "temp.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
         try sut.delete(id: imported.id)
 
         // When - create fresh repository
@@ -291,7 +289,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         )
 
         // Then
-        XCTAssertTrue(repo2.loadAll(type: .soundscape).isEmpty)
+        XCTAssertTrue(repo2.loadAll().isEmpty)
     }
 
     // MARK: - findFile
@@ -303,7 +301,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "findme.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
 
         // When
         let found = sut.findFile(byId: imported.id)
@@ -331,7 +329,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "accessible.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
 
         // When
         let fileURL = sut.fileURL(for: imported)
@@ -348,7 +346,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "will-delete.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
         try sut.delete(id: imported.id)
 
         // When
@@ -367,14 +365,14 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "original.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
 
         // When
         let renamed = imported.withName("New Name")
         try sut.update(renamed)
 
         // Then
-        let loaded = sut.loadAll(type: .soundscape)
+        let loaded = sut.loadAll()
         XCTAssertEqual(loaded.first?.name, "New Name")
     }
 
@@ -385,14 +383,14 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "myfile.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
         let originalFilename = imported.filename
 
         // When
         try sut.update(imported.withName("Different Name"))
 
         // Then — filename (disk path) is unchanged
-        let loaded = try XCTUnwrap(sut.loadAll(type: .soundscape).first)
+        let loaded = try XCTUnwrap(sut.loadAll().first)
         XCTAssertEqual(loaded.filename, originalFilename)
     }
 
@@ -407,7 +405,6 @@ final class CustomAudioRepositoryTests: XCTestCase {
             name: "Ghost",
             filename: "ghost.mp3",
             duration: nil,
-            type: .soundscape,
             dateAdded: Date()
         )
 
@@ -426,7 +423,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
 
         // Given
         let url = try createTempAudioFile(name: "before.mp3")
-        let imported = try sut.importFile(from: url, type: .soundscape)
+        let imported = try sut.importFile(from: url)
         try sut.update(imported.withName("After"))
 
         // When — fresh repository with same UserDefaults
@@ -436,7 +433,7 @@ final class CustomAudioRepositoryTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(repo2.loadAll(type: .soundscape).first?.name, "After")
+        XCTAssertEqual(repo2.loadAll().first?.name, "After")
     }
 
     // MARK: - CustomAudioError

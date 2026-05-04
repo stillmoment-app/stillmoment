@@ -40,18 +40,18 @@ enum CustomAudioError: Error, LocalizedError {
 /// Protocol for managing custom audio file persistence
 ///
 /// Implementations copy imported files to local app storage, persist metadata,
-/// and provide lookup by ID or type. Currently supports soundscapes (background loops).
+/// and provide lookup by ID. Stores soundscapes (background loops).
 protocol CustomAudioRepositoryProtocol {
-    /// Returns all stored custom audio files of the given type, sorted by dateAdded descending.
-    func loadAll(type: CustomAudioType) -> [CustomAudioFile]
+    /// Returns all stored custom soundscapes, sorted by dateAdded descending.
+    func loadAll() -> [CustomAudioFile]
 
-    /// Imports an audio file from the given URL.
+    /// Imports an audio file from the given URL as a custom soundscape.
     ///
     /// Copies the file to local storage, detects duration, creates metadata record.
     /// Supported formats: mp3, m4a, wav.
     /// - Throws: `CustomAudioError.unsupportedFormat` if the format is not supported.
     /// - Throws: `CustomAudioError.fileCopyFailed` if the file cannot be copied.
-    func importFile(from url: URL, type: CustomAudioType) throws -> CustomAudioFile
+    func importFile(from url: URL) throws -> CustomAudioFile
 
     /// Deletes the custom audio file with the given ID.
     ///
@@ -62,7 +62,7 @@ protocol CustomAudioRepositoryProtocol {
     /// Returns the local file URL for the given custom audio file, or nil if the file is missing.
     func fileURL(for audioFile: CustomAudioFile) -> URL?
 
-    /// Finds a custom audio file by ID across all types, or nil if not found.
+    /// Finds a custom audio file by ID, or nil if not found.
     func findFile(byId id: UUID) -> CustomAudioFile?
 
     /// Updates an existing custom audio file's metadata (e.g. display name).

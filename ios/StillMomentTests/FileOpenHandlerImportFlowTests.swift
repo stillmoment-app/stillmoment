@@ -112,7 +112,6 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
             return
         }
         XCTAssertNotNil(self.sut.pendingCustomAudioImport)
-        XCTAssertEqual(self.sut.pendingCustomAudioImport?.type, .soundscape)
     }
 
     func testImportAsGuidedMeditation_setsImportedMeditation() async {

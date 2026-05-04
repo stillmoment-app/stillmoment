@@ -72,7 +72,6 @@ final class CustomAudioFileTests: XCTestCase {
             name: "Test",
             filename: "test.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: date
         )
         let fileB = CustomAudioFile(
@@ -80,7 +79,6 @@ final class CustomAudioFileTests: XCTestCase {
             name: "Test",
             filename: "test.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: date
         )
         XCTAssertEqual(fileA, fileB)
@@ -93,7 +91,6 @@ final class CustomAudioFileTests: XCTestCase {
             name: "Same",
             filename: "same.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: date
         )
         let fileB = CustomAudioFile(
@@ -101,7 +98,6 @@ final class CustomAudioFileTests: XCTestCase {
             name: "Same",
             filename: "same.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: date
         )
         XCTAssertNotEqual(fileA, fileB)
@@ -132,24 +128,29 @@ final class CustomAudioFileTests: XCTestCase {
         // Then
         XCTAssertNil(decoded.duration)
         XCTAssertEqual(original.name, decoded.name)
-        XCTAssertEqual(original.type, decoded.type)
     }
 
-    // MARK: - CustomAudioType
-
-    func testCustomAudioType_rawValues() {
-        XCTAssertEqual(CustomAudioType.soundscape.rawValue, "soundscape")
-    }
-
-    func testCustomAudioType_codableRoundtrip() throws {
-        // Given
-        let soundscape = CustomAudioType.soundscape
+    func testCodable_legacyDataWithTypeField_decodesWithoutCrashing() throws {
+        // Given - Legacy JSON from pre-shared-088 that still contains the `type` field.
+        // After removing CustomAudioType the field is simply ignored — decoding must not crash.
+        let json = """
+            {
+                "id": "00000000-0000-0000-0000-000000000001",
+                "name": "Legacy",
+                "filename": "legacy.mp3",
+                "duration": 60,
+                "type": "soundscape",
+                "dateAdded": 750000000
+            }
+            """
+        let data = Data(json.utf8)
 
         // When
-        let soundscapeData = try JSONEncoder().encode(soundscape)
+        let decoded = try JSONDecoder().decode(CustomAudioFile.self, from: data)
 
         // Then
-        XCTAssertEqual(try JSONDecoder().decode(CustomAudioType.self, from: soundscapeData), .soundscape)
+        XCTAssertEqual(decoded.name, "Legacy")
+        XCTAssertEqual(decoded.filename, "legacy.mp3")
     }
 
     // MARK: - Helpers
@@ -157,15 +158,13 @@ final class CustomAudioFileTests: XCTestCase {
     private func makeFile(
         id: UUID = UUID(),
         name: String = "Test Sound",
-        duration: TimeInterval? = 60,
-        type: CustomAudioType = .soundscape
+        duration: TimeInterval? = 60
     ) -> CustomAudioFile {
         CustomAudioFile(
             id: id,
             name: name,
             filename: "\(id.uuidString).mp3",
             duration: duration,
-            type: type,
             dateAdded: Date()
         )
     }

@@ -161,23 +161,19 @@ final class PraxisEditorViewModel: ObservableObject {
 
     /// Loads custom soundscapes from the repository
     func loadCustomAudio() {
-        self.customSoundscapes = self.customAudioRepository.loadAll(type: .soundscape)
+        self.customSoundscapes = self.customAudioRepository.loadAll()
     }
 
-    /// Imports a custom audio file of the given type.
+    /// Imports a custom audio file as a soundscape.
     /// On success the list is refreshed and the new file is selected.
-    func importCustomAudio(from url: URL, type: CustomAudioType) {
+    func importCustomAudio(from url: URL) {
         do {
-            let imported = try self.customAudioRepository.importFile(from: url, type: type)
+            let imported = try self.customAudioRepository.importFile(from: url)
             self.loadCustomAudio()
-            // Auto-select the newly imported file
-            switch type {
-            case .soundscape:
-                self.backgroundSoundId = imported.id.uuidString
-            }
+            self.backgroundSoundId = imported.id.uuidString
             Logger.viewModel.info(
                 "Imported custom audio",
-                metadata: ["name": imported.name, "type": type.rawValue]
+                metadata: ["name": imported.name]
             )
         } catch {
             self.customAudioError = error.localizedDescription
@@ -188,10 +184,7 @@ final class PraxisEditorViewModel: ObservableObject {
     /// How many times the given custom audio file is used in the current configuration.
     func usageCount(for file: CustomAudioFile) -> Int {
         let praxis = self.repository.load()
-        switch file.type {
-        case .soundscape:
-            return praxis.backgroundSoundId == file.id.uuidString ? 1 : 0
-        }
+        return praxis.backgroundSoundId == file.id.uuidString ? 1 : 0
     }
 
     /// Renames a custom audio file. Trims whitespace; ignores empty names.
@@ -270,14 +263,11 @@ final class PraxisEditorViewModel: ObservableObject {
     private func resetConfigurationIfAffected(by file: CustomAudioFile) {
         let fileIdString = file.id.uuidString
         let praxis = self.repository.load()
-        switch file.type {
-        case .soundscape:
-            if praxis.backgroundSoundId == fileIdString {
-                self.repository.save(praxis.withBackgroundSoundId("silent"))
-            }
-            if self.backgroundSoundId == fileIdString {
-                self.backgroundSoundId = "silent"
-            }
+        if praxis.backgroundSoundId == fileIdString {
+            self.repository.save(praxis.withBackgroundSoundId("silent"))
+        }
+        if self.backgroundSoundId == fileIdString {
+            self.backgroundSoundId = "silent"
         }
     }
 }

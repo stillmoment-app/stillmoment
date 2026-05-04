@@ -78,7 +78,6 @@ final class SoundscapeResolverTests: XCTestCase {
             name: "Rain Recording",
             filename: "\(customId.uuidString).mp3",
             duration: 300,
-            type: .soundscape,
             dateAdded: Date()
         )
         customRepo.stubbedSoundscapes = [customFile]
@@ -128,7 +127,6 @@ final class SoundscapeResolverTests: XCTestCase {
             name: "Custom Rain",
             filename: "\(customId.uuidString).mp3",
             duration: 120,
-            type: .soundscape,
             dateAdded: Date()
         )
         customRepo.stubbedSoundscapes = [customFile]
@@ -156,7 +154,6 @@ final class SoundscapeResolverTests: XCTestCase {
             name: "Rain",
             filename: "\(customId.uuidString).mp3",
             duration: 300,
-            type: .soundscape,
             dateAdded: Date()
         )
         customRepo.stubbedSoundscapes = [customFile]

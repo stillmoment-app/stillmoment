@@ -58,7 +58,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         let url = URL(fileURLWithPath: "/tmp/sound.mp3")
 
         // When
-        sut.importCustomAudio(from: url, type: .soundscape)
+        sut.importCustomAudio(from: url)
 
         // Then
         let imported = mockRepo.stubbedSoundscapes.first
@@ -76,7 +76,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         let url = URL(fileURLWithPath: "/tmp/sound.ogg")
 
         // When
-        sut.importCustomAudio(from: url, type: .soundscape)
+        sut.importCustomAudio(from: url)
 
         // Then
         XCTAssertNotNil(sut.customAudioError)
@@ -91,7 +91,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Test",
             filename: "test.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -117,7 +116,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "ToDelete",
             filename: "delete.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -143,7 +141,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Test",
             filename: "test.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         let praxis = Praxis(backgroundSoundId: file.id.uuidString)
@@ -167,7 +164,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Unused",
             filename: "unused.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockPraxisRepo = self.mockPraxisRepo else {
@@ -192,7 +188,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Old Name",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -216,7 +211,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Before",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -239,7 +233,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Original",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -262,7 +255,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Original",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -285,7 +277,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Name",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -308,7 +299,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Name",
             filename: "sound.mp3",
             duration: 60,
-            type: .soundscape,
             dateAdded: Date()
         )
         guard let mockRepo = self.mockCustomAudioRepo else {
@@ -337,7 +327,6 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
             name: "Rain",
             filename: "rain.mp3",
             duration: 120,
-            type: .soundscape,
             dateAdded: Date()
         )
         mockRepo.stubbedSoundscapes = [soundscape]

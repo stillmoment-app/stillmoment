@@ -7,12 +7,6 @@
 
 import Foundation
 
-/// Type of custom audio file
-enum CustomAudioType: String, Codable, Equatable {
-    /// Background sound that loops during meditation
-    case soundscape
-}
-
 /// A user-imported audio file stored in local app storage.
 ///
 /// Custom audio files are copied to Application Support and used as
@@ -34,9 +28,6 @@ struct CustomAudioFile: Identifiable, Codable, Equatable {
     /// Audio duration in seconds (nil if detection failed)
     let duration: TimeInterval?
 
-    /// Whether this is a soundscape (currently the only kind)
-    let type: CustomAudioType
-
     /// When the file was imported
     let dateAdded: Date
 
@@ -49,7 +40,6 @@ struct CustomAudioFile: Identifiable, Codable, Equatable {
             name: newName,
             filename: self.filename,
             duration: self.duration,
-            type: self.type,
             dateAdded: self.dateAdded
         )
     }

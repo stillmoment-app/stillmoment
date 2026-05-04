@@ -51,9 +51,8 @@ struct BackgroundSoundSelectionView: View {
             self.viewModel.stopAllPreviews()
         }
         .onAppear {
-            // Show rename alert for freshly imported custom audio
-            if let pending = self.fileOpenHandler.pendingCustomAudioImport,
-               pending.type == .soundscape {
+            // Show rename alert for freshly imported custom soundscape
+            if let pending = self.fileOpenHandler.pendingCustomAudioImport {
                 self.fileToRename = pending.file
                 self.renameText = pending.file.name
                 self.showRenameAlert = true
@@ -62,7 +61,7 @@ struct BackgroundSoundSelectionView: View {
         }
         .sheet(isPresented: self.$showImportPicker) {
             DocumentPicker { url in
-                self.viewModel.importCustomAudio(from: url, type: .soundscape)
+                self.viewModel.importCustomAudio(from: url)
             }
         }
         .alert(

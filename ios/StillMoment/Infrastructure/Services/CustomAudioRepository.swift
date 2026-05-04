@@ -28,9 +28,8 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
 
     // MARK: Internal
 
-    func loadAll(type: CustomAudioType) -> [CustomAudioFile] {
-        let key = self.storageKey(for: type)
-        guard let data = userDefaults.data(forKey: key) else {
+    func loadAll() -> [CustomAudioFile] {
+        guard let data = userDefaults.data(forKey: Self.storageKey) else {
             return []
         }
 
@@ -41,14 +40,13 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         } catch {
             Logger.infrastructure.error(
                 "Failed to decode custom audio files",
-                error: error,
-                metadata: ["type": type.rawValue]
+                error: error
             )
             return []
         }
     }
 
-    func importFile(from url: URL, type: CustomAudioType) throws -> CustomAudioFile {
+    func importFile(from url: URL) throws -> CustomAudioFile {
         // Validate format
         let ext = url.pathExtension.lowercased()
         guard self.supportedFormats.contains(ext) else {
@@ -68,7 +66,7 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         let filename = "\(fileId.uuidString).\(ext)"
 
         // Copy file to local storage
-        let destinationURL = try copyFileToDirectory(from: url, filename: filename, type: type)
+        let destinationURL = try copyFileToDirectory(from: url, filename: filename)
 
         // Detect duration
         let duration = self.detectDuration(at: destinationURL)
@@ -79,21 +77,19 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
             name: url.deletingPathExtension().lastPathComponent,
             filename: filename,
             duration: duration,
-            type: type,
             dateAdded: Date()
         )
 
         // Persist metadata
-        try self.persistFile(file, type: type)
+        try self.persistFile(file)
 
-        Logger.infrastructure.info("Imported custom audio: \(file.name)", metadata: ["type": type.rawValue])
+        Logger.infrastructure.info("Imported custom audio: \(file.name)")
 
         return file
     }
 
     func delete(id: UUID) throws {
-        let type = CustomAudioType.soundscape
-        var files = self.loadAll(type: type)
+        var files = self.loadAll()
         guard let index = files.firstIndex(where: { $0.id == id }) else {
             throw CustomAudioError.fileNotFound(id)
         }
@@ -101,8 +97,7 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
         let file = files[index]
 
         // Remove file from disk
-        let directory = self.getDirectory(for: type)
-        let fileURL = directory.appendingPathComponent(file.filename)
+        let fileURL = Self.directory(fileManager: self.fileManager).appendingPathComponent(file.filename)
         if self.fileManager.fileExists(atPath: fileURL.path) {
             try? self.fileManager.removeItem(at: fileURL)
             Logger.infrastructure.debug("Deleted custom audio file: \(fileURL.path)")
@@ -110,14 +105,13 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
 
         // Remove from metadata and persist
         files.remove(at: index)
-        try self.saveFiles(files, type: type)
+        try self.saveFiles(files)
 
-        Logger.infrastructure.info("Deleted custom audio: \(file.name)", metadata: ["type": type.rawValue])
+        Logger.infrastructure.info("Deleted custom audio: \(file.name)")
     }
 
     func fileURL(for audioFile: CustomAudioFile) -> URL? {
-        let directory = self.getDirectory(for: audioFile.type)
-        let url = directory.appendingPathComponent(audioFile.filename)
+        let url = Self.directory(fileManager: self.fileManager).appendingPathComponent(audioFile.filename)
         guard self.fileManager.fileExists(atPath: url.path) else {
             return nil
         }
@@ -125,17 +119,16 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     }
 
     func findFile(byId id: UUID) -> CustomAudioFile? {
-        let allSoundscapes = self.loadAll(type: .soundscape)
-        return allSoundscapes.first { $0.id == id }
+        self.loadAll().first { $0.id == id }
     }
 
     func update(_ file: CustomAudioFile) throws {
-        var files = self.loadAll(type: file.type)
+        var files = self.loadAll()
         guard let index = files.firstIndex(where: { $0.id == file.id }) else {
             throw CustomAudioError.fileNotFound(file.id)
         }
         files[index] = file
-        try self.saveFiles(files, type: file.type)
+        try self.saveFiles(files)
         Logger.infrastructure.info("Updated custom audio: \(file.name)")
     }
 
@@ -145,32 +138,23 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
     private let fileManager: FileManager
     private let supportedFormats: Set<String> = ["mp3", "m4a", "wav"]
 
-    // MARK: - Storage Keys
+    /// UserDefaults key for the soundscape file metadata array.
+    /// Suffix `_soundscape` retained for backward compatibility with existing
+    /// pre-shared-088 storage; renaming would require a data migration.
+    private static let storageKey = "customAudioFiles_soundscape"
 
-    private func storageKey(for type: CustomAudioType) -> String {
-        switch type {
-        case .soundscape:
-            "customAudioFiles_soundscape"
-        }
-    }
-
-    // MARK: - Directory Management
-
-    private func getDirectory(for type: CustomAudioType) -> URL {
+    private static func directory(fileManager: FileManager) -> URL {
         // Application Support directory is guaranteed to exist on iOS
         // swiftlint:disable:next force_unwrapping
-        let appSupport = self.fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        switch type {
-        case .soundscape:
-            return appSupport.appendingPathComponent("CustomAudio/soundscapes")
-        }
+        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        return appSupport.appendingPathComponent("CustomAudio/soundscapes")
     }
 
     // MARK: - File Operations
 
     @discardableResult
-    private func copyFileToDirectory(from sourceURL: URL, filename: String, type: CustomAudioType) throws -> URL {
-        let directory = self.getDirectory(for: type)
+    private func copyFileToDirectory(from sourceURL: URL, filename: String) throws -> URL {
+        let directory = Self.directory(fileManager: self.fileManager)
 
         // Create directory if needed
         if !self.fileManager.fileExists(atPath: directory.path) {
@@ -217,17 +201,17 @@ final class CustomAudioRepository: CustomAudioRepositoryProtocol {
 
     // MARK: - Persistence
 
-    private func persistFile(_ file: CustomAudioFile, type: CustomAudioType) throws {
-        var files = self.loadAll(type: type)
+    private func persistFile(_ file: CustomAudioFile) throws {
+        var files = self.loadAll()
         files.append(file)
-        try self.saveFiles(files, type: type)
+        try self.saveFiles(files)
     }
 
-    private func saveFiles(_ files: [CustomAudioFile], type: CustomAudioType) throws {
+    private func saveFiles(_ files: [CustomAudioFile]) throws {
         do {
             let encoder = JSONEncoder()
             let data = try encoder.encode(files)
-            self.userDefaults.set(data, forKey: self.storageKey(for: type))
+            self.userDefaults.set(data, forKey: Self.storageKey)
         } catch {
             throw CustomAudioError.persistenceFailed(error.localizedDescription)
         }

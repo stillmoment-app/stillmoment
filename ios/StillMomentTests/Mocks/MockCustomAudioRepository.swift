@@ -11,7 +11,7 @@ import Foundation
 final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
     // MARK: - Recorded calls
 
-    var importedFiles: [(URL, CustomAudioType)] = []
+    var importedFiles: [URL] = []
     var deletedIds: [UUID] = []
     var updatedFiles: [CustomAudioFile] = []
 
@@ -26,28 +26,21 @@ final class MockCustomAudioRepository: CustomAudioRepositoryProtocol {
 
     // MARK: - Protocol
 
-    func loadAll(type: CustomAudioType) -> [CustomAudioFile] {
-        switch type {
-        case .soundscape:
-            self.stubbedSoundscapes
-        }
+    func loadAll() -> [CustomAudioFile] {
+        self.stubbedSoundscapes
     }
 
-    func importFile(from url: URL, type: CustomAudioType) throws -> CustomAudioFile {
+    func importFile(from url: URL) throws -> CustomAudioFile {
         if let error = self.shouldThrowOnImport { throw error }
-        self.importedFiles.append((url, type))
+        self.importedFiles.append(url)
         let file = CustomAudioFile(
             id: UUID(),
             name: url.deletingPathExtension().lastPathComponent,
             filename: "\(UUID().uuidString).mp3",
             duration: 60,
-            type: type,
             dateAdded: Date()
         )
-        switch type {
-        case .soundscape:
-            self.stubbedSoundscapes.append(file)
-        }
+        self.stubbedSoundscapes.append(file)
         return file
     }
 

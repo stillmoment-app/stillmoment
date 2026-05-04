@@ -395,7 +395,6 @@ final class FileOpenHandlerTests: XCTestCase {
         case let .success(importResult):
             if case .customAudio = importResult {
                 XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.count, 1)
-                XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.first?.1, .soundscape)
             } else {
                 XCTFail("Expected customAudio result")
             }
