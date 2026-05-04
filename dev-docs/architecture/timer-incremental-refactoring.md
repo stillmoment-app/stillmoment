@@ -5,6 +5,12 @@
 > Reducer-Patterns. Dient gleichzeitig als Zwischenschritt zum Aggregate,
 > falls dieses spaeter noch gewuenscht ist.
 
+> **Hinweis (shared-088):** Dieses Konzept entstand vor Entfernung des
+> Einstimmungs-Features. Code-Skizzen, Bug-Log-Eintraege und API-Beispiele
+> referenzieren noch `playAttunement()`, eine `attunement`-Phase und
+> Attunement-bezogene Brueche — diese existieren in der heutigen Codebase
+> nicht mehr. Als historischen Snapshot lesen.
+
 **Bezug:** `dev-docs/architecture/meditation-session-aggregate.md`
 
 ---

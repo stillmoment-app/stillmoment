@@ -4,6 +4,15 @@
 > DDD Aggregate mit klarem Lifecycle, Domain Events und einer einzigen
 > Quelle der Wahrheit.
 
+> **Hinweis (shared-088):** Dieses Konzept entstand vor Entfernung des
+> Einstimmungs-Features. Code-Beispiele, Diagramme und API-Skizzen unten
+> referenzieren teilweise noch eine `attunement`-Phase, `attunementId`,
+> `attunementFinished()` und Events wie `.attunementCompleted` —
+> diese existieren in der Codebase nicht mehr. Beim Lesen als historischen
+> Snapshot betrachten; das Phasenmodell ist heute
+> `idle → preparation → startGong → running → endGong → completed`
+> ohne optionale Attunement-Phase.
+
 ### Implementierungsfortschritt
 
 Dieses Konzept wird inkrementell umgesetzt (siehe `timer-incremental-refactoring.md`).

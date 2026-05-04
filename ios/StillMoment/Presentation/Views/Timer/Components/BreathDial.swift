@@ -6,15 +6,13 @@
 //
 //  Ersatz fuer den Wheel-Picker. Ring + Aktiv-Bogen + Drag-Tropfen plus zwei
 //  radial platzierte +/- Buttons mit Long-Press-Beschleunigung. Wert wird
-//  ueber `value` (Binding) und `minimumValue` gesteuert; Bogen-Skala bleibt
-//  immer 1..60 — nur Drag- und Tap-Werte klemmen gegen `minimumValue`.
+//  ueber `value` (Binding) gesteuert; Werte werden auf [1, 60] geklemmt.
 //
 
 import SwiftUI
 
 struct BreathDial: View {
     @Binding var value: Int
-    let minimumValue: Int
     let diameter: CGFloat
 
     @Environment(\.themeColors)
@@ -24,7 +22,6 @@ struct BreathDial: View {
 
     @State private var haloAnimating = false
 
-    private static let maximumValue = 60
     private static let buttonSize: CGFloat = 44
     private static let dropletCoreRadius: CGFloat = 6.5
     private static let dropletOuterRadius: CGFloat = 14
@@ -60,11 +57,11 @@ struct BreathDial: View {
     }
 
     private var canDecrement: Bool {
-        self.value > self.minimumValue
+        self.value > BreathDialGeometry.minMinutes
     }
 
     private var canIncrement: Bool {
-        self.value < Self.maximumValue
+        self.value < BreathDialGeometry.maxMinutes
     }
 
     var body: some View {
@@ -148,7 +145,7 @@ struct BreathDial: View {
     }
 
     private var droplet: some View {
-        let progress = Double(self.value) / Double(Self.maximumValue)
+        let progress = Double(self.value) / Double(BreathDialGeometry.maxMinutes)
         let angleRad = progress * 2 * .pi - .pi / 2
         let offsetX = cos(angleRad) * self.ringRadius
         let offsetY = sin(angleRad) * self.ringRadius
@@ -234,8 +231,7 @@ struct BreathDial: View {
                 else { return }
                 let newValue = BreathDialGeometry.valueFromPoint(
                     gesture.location,
-                    center: center,
-                    minimum: self.minimumValue
+                    center: center
                 )
                 if newValue != self.value {
                     self.value = newValue
@@ -246,7 +242,7 @@ struct BreathDial: View {
     // MARK: - Adjust
 
     private func adjustValue(by delta: Int) {
-        let clamped = BreathDialGeometry.clampValue(self.value + delta, minimum: self.minimumValue)
+        let clamped = BreathDialGeometry.clampValue(self.value + delta)
         if clamped != self.value {
             self.value = clamped
         }
@@ -341,7 +337,7 @@ private final class AcceleratorHolder {
 @available(iOS 17.0, *)
 #Preview("BreathDial - 220") {
     StatefulPreview(initialValue: 18) { binding in
-        BreathDial(value: binding, minimumValue: 1, diameter: 220)
+        BreathDial(value: binding, diameter: 220)
     }
     .padding()
 }
@@ -349,7 +345,7 @@ private final class AcceleratorHolder {
 @available(iOS 17.0, *)
 #Preview("BreathDial - 180 (compact)") {
     StatefulPreview(initialValue: 30) { binding in
-        BreathDial(value: binding, minimumValue: 5, diameter: 180)
+        BreathDial(value: binding, diameter: 180)
     }
     .padding()
 }

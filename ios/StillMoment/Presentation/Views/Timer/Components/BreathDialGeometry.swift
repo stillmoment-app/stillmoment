@@ -19,15 +19,16 @@ enum BreathDialGeometry {
     }
 
     static let maxMinutes: Int = 60
+    static let minMinutes: Int = 1
 
     /// Wandelt einen Beruehrungspunkt (im selben Koordinatensystem wie `center`)
     /// in einen Minutenwert um.
     ///
-    /// - 12-Uhr-Position entspricht 0 (snap auf `minimum`),
+    /// - 12-Uhr-Position entspricht 0 (snap auf 1),
     ///   3-Uhr = 15, 6-Uhr = 30, 9-Uhr = 45.
     /// - Bogen wird im Uhrzeigersinn aufgespannt.
-    /// - Wert wird auf `[minimum, 60]` geklemmt; 0 wird auf `minimum` gehoben.
-    static func valueFromPoint(_ point: CGPoint, center: CGPoint, minimum: Int) -> Int {
+    /// - Wert wird auf `[1, 60]` geklemmt; 0 wird auf 1 gehoben.
+    static func valueFromPoint(_ point: CGPoint, center: CGPoint) -> Int {
         let dx = point.x - center.x
         let dy = point.y - center.y
         let degrees = atan2(dy, dx) * 180 / .pi
@@ -36,20 +37,17 @@ enum BreathDialGeometry {
             normalized += 360
         }
         let raw = Int((normalized / 360 * Double(self.maxMinutes)).rounded())
-        let value = raw == 0 ? minimum : raw
-        return self.clampValue(value, minimum: minimum)
+        let value = raw == 0 ? self.minMinutes : raw
+        return self.clampValue(value)
     }
 
-    /// Klemmt einen Roh-Minutenwert auf das gueltige Intervall `[minimum, 60]`.
+    /// Klemmt einen Roh-Minutenwert auf das gueltige Intervall `[1, 60]`.
     /// Wird sowohl von Drag- als auch +/- Pfaden genutzt.
-    static func clampValue(_ value: Int, minimum: Int) -> Int {
-        max(minimum, min(self.maxMinutes, value))
+    static func clampValue(_ value: Int) -> Int {
+        max(self.minMinutes, min(self.maxMinutes, value))
     }
 
     /// Anteil (0...1) fuer den Aktiv-Bogen.
-    /// **Wichtig:** Skala bleibt fest 1..60 — nicht `minimum..60`.
-    /// Sonst wuerde sich der Bogen schlagartig veraendern, sobald die
-    /// Einstimmung den Mindestwert hochzieht.
     static func arcProgress(_ value: Int) -> Double {
         Double(value) / Double(self.maxMinutes)
     }

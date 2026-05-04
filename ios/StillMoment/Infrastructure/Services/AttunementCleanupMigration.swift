@@ -30,9 +30,14 @@ enum AttunementCleanupMigration {
     }
 
     /// Runs the cleanup migration if it has not run before. Idempotent.
+    ///
+    /// - Parameter applicationSupportURL: Override for the Application Support directory.
+    ///   Production code uses the default (resolved via `fileManager`); tests inject a
+    ///   temporary directory to avoid touching the real Application Support folder.
     static func runIfNeeded(
         userDefaults: UserDefaults = .standard,
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        applicationSupportURL: URL? = nil
     ) {
         guard !userDefaults.bool(forKey: self.markerKey) else {
             return
@@ -48,7 +53,10 @@ enum AttunementCleanupMigration {
             clearedKeys.append(key)
         }
 
-        let attunementDir = self.legacyAttunementDirectory(fileManager: fileManager)
+        let attunementDir = self.legacyAttunementDirectory(
+            fileManager: fileManager,
+            applicationSupportURL: applicationSupportURL
+        )
         var filesDeleted = 0
         if let attunementDir, fileManager.fileExists(atPath: attunementDir.path) {
             if let contents = try? fileManager.contentsOfDirectory(atPath: attunementDir.path) {
@@ -67,10 +75,12 @@ enum AttunementCleanupMigration {
         )
     }
 
-    private static func legacyAttunementDirectory(fileManager: FileManager) -> URL? {
-        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return nil
-        }
-        return appSupport.appendingPathComponent("CustomAudio/attunements")
+    private static func legacyAttunementDirectory(
+        fileManager: FileManager,
+        applicationSupportURL: URL?
+    ) -> URL? {
+        let baseURL = applicationSupportURL
+            ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        return baseURL?.appendingPathComponent("CustomAudio/attunements")
     }
 }

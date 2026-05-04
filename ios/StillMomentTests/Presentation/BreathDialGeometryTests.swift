@@ -4,7 +4,7 @@
 //
 //  Pure-function tests fuer den Atemkreis-Picker (shared-086).
 //  Geprueft wird die Geste-Mathematik: Punkt -> Winkel -> Wert,
-//  Wraparound an 12-Uhr und Clamping gegen [minimum, 60].
+//  Wraparound an 12-Uhr und Clamping gegen [1, 60].
 //
 
 import CoreGraphics
@@ -28,7 +28,7 @@ final class BreathDialGeometryTests: XCTestCase {
         let point = CGPoint(x: self.center.x + self.ringRadius, y: self.center.y)
 
         // When
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         // Then: 3 Uhr = 90°, 90/360 * 60 = 15 Min
         XCTAssertEqual(value, 15)
@@ -37,7 +37,7 @@ final class BreathDialGeometryTests: XCTestCase {
     func testSixOClockMapsTo30Minutes() {
         let point = CGPoint(x: self.center.x, y: self.center.y + self.ringRadius)
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 30)
     }
@@ -45,7 +45,7 @@ final class BreathDialGeometryTests: XCTestCase {
     func testNineOClockMapsTo45Minutes() {
         let point = CGPoint(x: self.center.x - self.ringRadius, y: self.center.y)
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 45)
     }
@@ -60,7 +60,7 @@ final class BreathDialGeometryTests: XCTestCase {
             y: self.center.y - cos(angleFromTop) * self.ringRadius
         )
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 55)
     }
@@ -73,43 +73,21 @@ final class BreathDialGeometryTests: XCTestCase {
             y: self.center.y - cos(angleFromTop) * self.ringRadius
         )
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 5)
     }
 
     // MARK: - AK-2: 12-Uhr-Wraparound + Clamping
 
-    func testTwelveOClockSnapsToMinimumWithMinimumOne() {
+    func testTwelveOClockSnapsToOne() {
         // Genau auf 12 Uhr berechnet sich der Rohwert zu 0 — der Dial hat keinen
-        // Null-Min-Zustand, also klemmt es auf das uebergebene Minimum.
+        // Null-Zustand, also snappt es auf 1 (Minimum).
         let point = CGPoint(x: self.center.x, y: self.center.y - self.ringRadius)
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 1)
-    }
-
-    func testTwelveOClockSnapsToMinimumWithCustomMinimum() {
-        // Bei aktiver Einstimmung (z.B. minimum = 5) klemmt das obere Ende ebenfalls.
-        let point = CGPoint(x: self.center.x, y: self.center.y - self.ringRadius)
-
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 5)
-
-        XCTAssertEqual(value, 5)
-    }
-
-    func testValuesBelowMinimumAreClamped() {
-        // 1-Uhr-Position rohwert = 5 Min — bei minimum = 10 muss der Wert auf 10 klemmen.
-        let angleFromTop: CGFloat = 30 * .pi / 180
-        let point = CGPoint(
-            x: self.center.x + sin(angleFromTop) * self.ringRadius,
-            y: self.center.y - cos(angleFromTop) * self.ringRadius
-        )
-
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 10)
-
-        XCTAssertEqual(value, 10)
     }
 
     func testValueRightBeforeTwelveReachesSixty() {
@@ -120,33 +98,27 @@ final class BreathDialGeometryTests: XCTestCase {
             y: self.center.y - cos(angleFromTop) * self.ringRadius
         )
 
-        let value = BreathDialGeometry.valueFromPoint(point, center: self.center, minimum: 1)
+        let value = BreathDialGeometry.valueFromPoint(point, center: self.center)
 
         XCTAssertEqual(value, 60)
     }
 
     func testClampValueClampsHigh() {
-        XCTAssertEqual(BreathDialGeometry.clampValue(75, minimum: 1), 60)
+        XCTAssertEqual(BreathDialGeometry.clampValue(75), 60)
     }
 
     func testClampValueClampsLow() {
-        XCTAssertEqual(BreathDialGeometry.clampValue(-3, minimum: 5), 5)
-    }
-
-    func testClampValueRespectsCustomMinimum() {
-        XCTAssertEqual(BreathDialGeometry.clampValue(2, minimum: 10), 10)
+        XCTAssertEqual(BreathDialGeometry.clampValue(-3), 1)
     }
 
     func testClampValueLetsValidValueThrough() {
-        XCTAssertEqual(BreathDialGeometry.clampValue(18, minimum: 1), 18)
+        XCTAssertEqual(BreathDialGeometry.clampValue(18), 18)
     }
 
-    // MARK: - AK-5: Bogen-Skala bleibt 1..60, nicht minimum..60
+    // MARK: - Bogen-Skala 1..60
 
     func testArcProgressUsesFullScale() {
-        // Bei minimum=10 und value=30 muss der Bogen 30/60 = 0.5 fuellen,
-        // NICHT (30-10)/(60-10) = 0.4. Andernfalls springt der Bogen wenn
-        // sich die Einstimmung aendert.
+        // value=30 muss den Bogen halb fuellen (30/60 = 0.5).
         XCTAssertEqual(BreathDialGeometry.arcProgress(30), 0.5, accuracy: 0.0001)
     }
 

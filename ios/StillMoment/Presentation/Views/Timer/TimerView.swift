@@ -218,7 +218,6 @@ struct TimerView: View {
 
             BreathDial(
                 value: self.$viewModel.selectedMinutes,
-                minimumValue: 1,
                 diameter: dialDiameter
             )
 
