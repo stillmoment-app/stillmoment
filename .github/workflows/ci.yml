@@ -18,6 +18,7 @@ env:
   DEVICE: 'iPhone 17'
   SWIFTFORMAT_VERSION: '0.61.0'
   SWIFTLINT_VERSION: '0.63.2'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   lint:
