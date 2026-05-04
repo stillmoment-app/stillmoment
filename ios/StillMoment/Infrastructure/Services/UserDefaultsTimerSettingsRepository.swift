@@ -110,7 +110,7 @@ final class UserDefaultsTimerSettingsRepository {
             ])
             return migratedId
         }
-        return "silent"
+        return BackgroundSound.silentId
     }
 
     // MARK: - Logging

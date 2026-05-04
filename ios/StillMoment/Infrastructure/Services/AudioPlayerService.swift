@@ -242,7 +242,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
 
         // Get silent sound from repository (DRY: same source as BackgroundSound picker)
-        guard let sound = self.soundRepository.getSound(byId: "silent") else {
+        guard let sound = self.soundRepository.getSound(byId: BackgroundSound.silentId) else {
             Logger.audio.error("Silent sound not found in repository")
             throw AudioPlayerError.fileNotAccessible
         }

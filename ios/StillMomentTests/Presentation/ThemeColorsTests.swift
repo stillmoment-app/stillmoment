@@ -90,30 +90,6 @@ final class ThemeColorsTests: XCTestCase {
         }
     }
 
-    // MARK: - Setting Card Tokens (shared-083)
-
-    func testSettingCardBackgroundDerivesFromTextPrimary() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.settingCardBackground, theme.textPrimary.opacity(0.03))
-    }
-
-    func testSettingCardBorderDerivesFromTextPrimary() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.settingCardBorder, theme.textPrimary.opacity(0.08))
-    }
-
-    func testSettingCardTokensFollowThemeAcrossPalettes() {
-        let palettes: [ThemeColors] = [
-            .candlelightLight, .candlelightDark,
-            .forestLight, .forestDark,
-            .moonLight, .moonDark
-        ]
-        for theme in palettes {
-            XCTAssertEqual(theme.settingCardBackground, theme.textPrimary.opacity(0.03))
-            XCTAssertEqual(theme.settingCardBorder, theme.textPrimary.opacity(0.08))
-        }
-    }
-
     // MARK: - Breath Dial Tokens (shared-086)
 
     func testDialActiveArcUsesInteractive() {
@@ -131,16 +107,6 @@ final class ThemeColorsTests: XCTestCase {
         XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
     }
 
-    func testDialButtonBackgroundDerivesFromTextPrimary() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.dialButtonBackground, theme.textPrimary.opacity(0.04))
-    }
-
-    func testDialButtonBorderDerivesFromTextPrimary() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.dialButtonBorder, theme.textPrimary.opacity(0.10))
-    }
-
     func testDialTokensFollowThemeAcrossPalettes() {
         let palettes: [ThemeColors] = [
             .candlelightLight, .candlelightDark,
@@ -151,8 +117,30 @@ final class ThemeColorsTests: XCTestCase {
             XCTAssertEqual(theme.dialActiveArc, theme.interactive)
             XCTAssertEqual(theme.dialDropletCore, theme.interactive)
             XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
-            XCTAssertEqual(theme.dialButtonBackground, theme.textPrimary.opacity(0.04))
-            XCTAssertEqual(theme.dialButtonBorder, theme.textPrimary.opacity(0.10))
+        }
+    }
+
+    // MARK: - Settings List Tokens (shared-089)
+
+    func testSettingsDividerDerivesFromControlTrack() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.settingsDivider, theme.controlTrack.opacity(0.30))
+    }
+
+    func testSettingsValueAccentMatchesInteractive() {
+        let theme = ThemeColors.candlelightLight
+        XCTAssertEqual(theme.settingsValueAccent, theme.interactive)
+    }
+
+    func testSettingsTokensFollowThemeAcrossPalettes() {
+        let palettes: [ThemeColors] = [
+            .candlelightLight, .candlelightDark,
+            .forestLight, .forestDark,
+            .moonLight, .moonDark
+        ]
+        for theme in palettes {
+            XCTAssertEqual(theme.settingsDivider, theme.controlTrack.opacity(0.30))
+            XCTAssertEqual(theme.settingsValueAccent, theme.interactive)
         }
     }
 }

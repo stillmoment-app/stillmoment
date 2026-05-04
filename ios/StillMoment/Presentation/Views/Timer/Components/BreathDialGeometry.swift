@@ -13,11 +13,6 @@ import CoreGraphics
 import Foundation
 
 enum BreathDialGeometry {
-    enum ButtonDirection {
-        case plus
-        case minus
-    }
-
     static let maxMinutes: Int = 60
     static let minMinutes: Int = 1
 
@@ -61,14 +56,5 @@ enum BreathDialGeometry {
             x: center.x + cos(angleRad) * radius,
             y: center.y + sin(angleRad) * radius
         )
-    }
-
-    /// Offset eines +/- Buttons relativ zum Dial-Mittelpunkt.
-    /// 5-Uhr-Position fuer "+", 7-Uhr-Position fuer "-".
-    /// Beide sitzen 45° links bzw. rechts der Vertikalen-Unten.
-    static func buttonOffset(direction: ButtonDirection, distance: CGFloat) -> CGSize {
-        let component = distance * sqrt(2) / 2
-        let xSign: CGFloat = direction == .plus ? 1 : -1
-        return CGSize(width: xSign * component, height: component)
     }
 }

@@ -156,27 +156,27 @@ final class LibraryFlowUITests: XCTestCase {
         }
     }
 
-    // MARK: - Flow Test 3: Setting Cards
+    // MARK: - Flow Test 3: Setting Rows
 
-    /// Tests navigation from setting cards into their detail views (shared-083)
-    func testSettingCardsFlow() {
+    /// Tests navigation from settings list rows into their detail views (shared-089)
+    func testSettingRowsFlow() {
         // Navigate to Timer first (app may remember last tab)
         self.navigateToTimerTab()
 
-        XCTContext.runActivity(named: "Verify all four setting cards exist") { _ in
+        XCTContext.runActivity(named: "Verify all four setting rows exist") { _ in
             for identifier in [
-                "timer.card.preparation",
-                "timer.card.background",
-                "timer.card.gong",
-                "timer.card.interval"
+                "timer.row.preparation",
+                "timer.row.gong",
+                "timer.row.interval",
+                "timer.row.background"
             ] {
-                let card = self.app.buttons[identifier]
-                XCTAssertTrue(card.waitForExistence(timeout: 2.0), "\(identifier) should exist")
+                let row = self.app.buttons[identifier]
+                XCTAssertTrue(row.waitForExistence(timeout: 2.0), "\(identifier) should exist")
             }
         }
 
         XCTContext.runActivity(named: "Open Interval Gongs detail view") { _ in
-            self.app.buttons["timer.card.interval"].tap()
+            self.app.buttons["timer.row.interval"].tap()
 
             // The interval gongs editor exposes its toggle via this identifier
             let intervalToggle = self.app.switches["praxis.editor.toggle.intervalGongs"]
@@ -241,8 +241,8 @@ final class LibraryFlowUITests: XCTestCase {
             XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Timer should be in idle state")
 
             // Atemkreis-Dial sollte sichtbar sein (shared-086)
-            let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
-            XCTAssertTrue(plusButton.exists, "Dial plus-Button should be visible")
+            let dial = self.app.descendants(matching: .any)["timer.dial"]
+            XCTAssertTrue(dial.exists, "Dial should be visible")
         }
     }
 

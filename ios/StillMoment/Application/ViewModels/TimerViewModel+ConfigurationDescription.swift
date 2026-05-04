@@ -30,8 +30,8 @@ extension TimerViewModel {
         !self.settings.preparationTimeEnabled
     }
 
-    /// Card label for the background sound. Always shows a value — "Stille" is a
-    /// deliberate choice and not an off-state.
+    /// Card label for the background sound. Returns "Stille" when no soundscape
+    /// is selected (or the resolver does not find one).
     var backgroundCardLabel: String {
         if let resolved = self.soundscapeResolver.resolve(id: self.settings.backgroundSoundId) {
             return resolved.displayName
@@ -39,9 +39,10 @@ extension TimerViewModel {
         return NSLocalizedString("praxis.editor.background.silence", comment: "")
     }
 
-    /// Background card is never dimmed — silence is a valid choice.
+    /// Background row dims when "Stille" is selected — analog zu Vorbereitung "Aus"
+    /// und Intervall "Aus" (shared-089).
     var backgroundCardIsOff: Bool {
-        false
+        self.settings.backgroundSoundId == BackgroundSound.silentId
     }
 
     /// Card label for the start gong sound.

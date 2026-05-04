@@ -53,8 +53,13 @@ struct TimerView: View {
             let isCompactHeight = geometry.size.height < 700
 
             VStack(spacing: 0) {
+                // Im idle-Zustand verteilt sich der Restraum so:
+                // Top und unter Beginnen wachsen, der Spalt Liste→Beginnen
+                // bleibt klein. Beginnen ist dadurch optisch der Liste
+                // zugehoerig, der Inhalt rueckt vertikal zur Mitte.
+                let isIdle = self.viewModel.timerState == .idle
                 Spacer(minLength: 8)
-                    .frame(maxHeight: self.viewModel.timerState == .idle ? 24 : 40)
+                    .frame(maxHeight: isIdle ? .infinity : 40)
 
                 if self.viewModel.timerState != .idle {
                     Text("welcome.title", bundle: .main)
@@ -72,11 +77,13 @@ struct TimerView: View {
                 }
 
                 Spacer(minLength: 16)
+                    .frame(maxHeight: isIdle ? (isCompactHeight ? 24 : 36) : .infinity)
 
                 self.controlButtons
                     .padding(.horizontal)
 
                 Spacer(minLength: 16)
+                    .frame(maxHeight: .infinity)
 
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -203,9 +210,10 @@ struct TimerView: View {
         // Dial-Durchmesser: 180 px auf SE, 220 px auf grossen Geraeten.
         let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
         // Section-Spacing: kompakter auf kleinen Geraeten, atmend auf grossen.
+        // Atemkreis-zur-Liste bekommt deutlich mehr Atem als Headline-zum-Atemkreis,
+        // damit Atemkreis und Liste sich visuell als getrennte Bloecke lesen.
         let headlineToDialSpacing: CGFloat = isCompactHeight ? 18 : 28
-        let dialToSectionSpacing: CGFloat = isCompactHeight ? 28 : 44
-        let sectionToCardsSpacing: CGFloat = isCompactHeight ? 12 : 18
+        let dialToListSpacing: CGFloat = isCompactHeight ? 32 : 72
 
         return VStack(spacing: 0) {
             Text("timer.idle.headline", bundle: .main)
@@ -221,51 +229,64 @@ struct TimerView: View {
                 diameter: dialDiameter
             )
 
-            Spacer(minLength: dialToSectionSpacing)
-                .frame(maxHeight: dialToSectionSpacing)
+            Spacer(minLength: dialToListSpacing)
+                .frame(maxHeight: dialToListSpacing)
 
-            Text("timer.idle.sectionTitle", bundle: .main)
-                .themeFont(.bodySecondary)
-                .multilineTextAlignment(.center)
-
-            Spacer(minLength: sectionToCardsSpacing)
-                .frame(maxHeight: sectionToCardsSpacing)
-
-            self.settingCardsGrid
-                .padding(.horizontal, 18)
+            self.idleSettingsList(isCompactHeight: isCompactHeight)
+                .padding(.horizontal, 24)
         }
     }
 
-    private var settingCardsGrid: some View {
-        SettingCardsGrid(
-            preparation: SettingCardsGridItem(
-                label: NSLocalizedString("settings.card.label.preparation", comment: ""),
-                icon: "hourglass",
+    private func idleSettingsList(isCompactHeight: Bool) -> some View {
+        IdleSettingsList(
+            preparation: self.idleListItem(
+                labelKey: "settings.card.label.preparation",
                 value: self.viewModel.preparationCardLabel,
                 isOff: self.viewModel.preparationCardIsOff,
-                identifier: "timer.card.preparation"
+                identifier: "timer.row.preparation"
             ) { self.openDetail(for: .preparation) },
-            background: SettingCardsGridItem(
-                label: NSLocalizedString("settings.card.label.background", comment: ""),
-                icon: "wind",
-                value: self.viewModel.backgroundCardLabel,
-                isOff: self.viewModel.backgroundCardIsOff,
-                identifier: "timer.card.background"
-            ) { self.openDetail(for: .background) },
-            gong: SettingCardsGridItem(
-                label: NSLocalizedString("settings.card.label.gong", comment: ""),
-                icon: "bell",
+            gong: self.idleListItem(
+                labelKey: "settings.card.label.gong",
                 value: self.viewModel.gongCardLabel,
                 isOff: self.viewModel.gongCardIsOff,
-                identifier: "timer.card.gong"
+                identifier: "timer.row.gong"
             ) { self.openDetail(for: .gong) },
-            interval: SettingCardsGridItem(
-                label: NSLocalizedString("settings.card.label.interval", comment: ""),
-                icon: "arrow.clockwise",
+            interval: self.idleListItem(
+                labelKey: "settings.card.label.interval",
                 value: self.viewModel.intervalCardLabel,
                 isOff: self.viewModel.intervalCardIsOff,
-                identifier: "timer.card.interval"
-            ) { self.openDetail(for: .interval) }
+                identifier: "timer.row.interval"
+            ) { self.openDetail(for: .interval) },
+            background: self.idleListItem(
+                labelKey: "settings.card.label.background",
+                value: self.viewModel.backgroundCardLabel,
+                isOff: self.viewModel.backgroundCardIsOff,
+                identifier: "timer.row.background"
+            ) { self.openDetail(for: .background) },
+            isCompactHeight: isCompactHeight
+        )
+    }
+
+    private func idleListItem(
+        labelKey: String,
+        value: String,
+        isOff: Bool,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> IdleSettingsListItem {
+        let label = NSLocalizedString(labelKey, comment: "")
+        let accessibilityLabel = String(
+            format: NSLocalizedString("accessibility.idleSettings.row", comment: ""),
+            label,
+            value
+        )
+        return IdleSettingsListItem(
+            label: label,
+            value: value,
+            isOff: isOff,
+            identifier: identifier,
+            accessibilityLabel: accessibilityLabel,
+            action: action
         )
     }
 

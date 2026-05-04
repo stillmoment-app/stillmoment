@@ -29,7 +29,7 @@ struct BackgroundSoundSelectionView: View {
             VStack(spacing: 0) {
                 List {
                     self.soundsSection
-                    if self.viewModel.backgroundSoundId != "silent" {
+                    if self.viewModel.backgroundSoundId != BackgroundSound.silentId {
                         self.volumeSection
                     }
                     self.mySoundsSection

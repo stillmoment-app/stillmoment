@@ -25,6 +25,12 @@ import Foundation
 /// )
 /// ```
 struct BackgroundSound: Identifiable, Equatable {
+    /// ID des "Stille"-Sounds. Sonderfall: kein abspielbares Audio,
+    /// sondern das Datensignal "kein Soundscape ausgewaehlt". Wird vom
+    /// `SoundscapeResolver` zu `nil` aufgeloest und steuert UI-Zustaende
+    /// wie die gedaempfte Idle-Listenzeile (shared-089).
+    static let silentId: String = "silent"
+
     /// Unique identifier for the sound
     let id: String
 

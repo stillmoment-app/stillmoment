@@ -181,15 +181,24 @@ final class TimerViewModelPraxisTests: XCTestCase {
         XCTAssertTrue(self.sut.preparationCardIsOff)
     }
 
-    func testBackgroundCard_whenSilent_showsSilenceAndIsNotOff() {
-        // Hintergrund hat kein Off — "Stille" ist eine bewusste Auswahl
-        let praxis = Praxis(backgroundSoundId: "silent")
+    func testBackgroundCard_whenSilent_showsSilenceAndIsOff() {
+        // shared-089: Hintergrund "Stille" gilt als inaktiver Zustand —
+        // die Zeile soll auf dem Idle-Screen gedaempft erscheinen.
+        let praxis = Praxis(backgroundSoundId: BackgroundSound.silentId)
         self.sut.updateFromPraxis(praxis)
 
         XCTAssertEqual(
             self.sut.backgroundCardLabel,
             NSLocalizedString("praxis.editor.background.silence", comment: "")
         )
+        XCTAssertTrue(self.sut.backgroundCardIsOff)
+    }
+
+    func testBackgroundCard_whenSoundscapeSelected_isNotOff() {
+        // Hintergrund mit aktivem Soundscape ist NICHT inaktiv (shared-089).
+        let praxis = Praxis(backgroundSoundId: "rain")
+        self.sut.updateFromPraxis(praxis)
+
         XCTAssertFalse(self.sut.backgroundCardIsOff)
     }
 

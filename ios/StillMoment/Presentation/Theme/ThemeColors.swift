@@ -65,20 +65,6 @@ struct ThemeColors: Equatable, Hashable {
         self.interactive.opacity(0.18)
     }
 
-    // MARK: - Setting Card Tokens (shared-083)
-
-    /// Subtil getoenter Hintergrund fuer Setting-Karten auf dem Timer-Konfig-Screen.
-    /// Leitet aus textPrimary ab — bleibt in Light + Dark unauffaellig.
-    var settingCardBackground: Color {
-        self.textPrimary.opacity(0.03)
-    }
-
-    /// Subtiler Border fuer Setting-Karten — definiert die Karte gegen den
-    /// dahinterliegenden Theme-Gradient.
-    var settingCardBorder: Color {
-        self.textPrimary.opacity(0.08)
-    }
-
     // MARK: - Breath Dial Tokens (shared-086)
 
     /// Aktiv-Bogen des Atemkreis-Pickers. Identisch mit `interactive`,
@@ -100,14 +86,21 @@ struct ThemeColors: Equatable, Hashable {
         self.interactive.opacity(0.18)
     }
 
-    /// Subtil getoenter Hintergrund fuer +/- Buttons am Atemkreis-Picker.
-    var dialButtonBackground: Color {
-        self.textPrimary.opacity(0.04)
+    // MARK: - Settings List Tokens (shared-089)
+
+    /// Trennlinien-Farbe fuer die flache Settings-Liste auf dem Idle-Screen.
+    /// Analog zur Track-Rolle des Atemkreis-Rings, nur dezenter — definiert
+    /// die Zeilen-Grenzen, ohne mit der Hauptachse (Atemkreis) zu konkurrieren.
+    var settingsDivider: Color {
+        self.controlTrack.opacity(0.30)
     }
 
-    /// Subtiler Border fuer +/- Buttons.
-    var dialButtonBorder: Color {
-        self.textPrimary.opacity(0.10)
+    /// Akzent fuer den Wert-Text rechts in der Listenzeile. Identisch mit
+    /// `interactive`, aber unter eigenem Namen, damit der Wert spaeter pro
+    /// Palette feinjustiert werden kann ohne View-Eingriffe (analog zu
+    /// `dialActiveArc`).
+    var settingsValueAccent: Color {
+        self.interactive
     }
 }
 

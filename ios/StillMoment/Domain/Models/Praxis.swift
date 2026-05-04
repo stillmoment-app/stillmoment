@@ -64,7 +64,7 @@ struct Praxis: Codable, Equatable, Identifiable {
         intervalMode: IntervalMode = .repeating,
         intervalSoundId: String = GongSound.defaultIntervalSoundId,
         intervalGongVolume: Float = 0.75,
-        backgroundSoundId: String = "silent",
+        backgroundSoundId: String = BackgroundSound.silentId,
         backgroundSoundVolume: Float = 0.15
     ) {
         self.id = id
@@ -142,7 +142,7 @@ extension Praxis {
         intervalMode: .repeating,
         intervalSoundId: GongSound.defaultIntervalSoundId,
         intervalGongVolume: 0.75,
-        backgroundSoundId: "silent",
+        backgroundSoundId: BackgroundSound.silentId,
         backgroundSoundVolume: 0.15
     )
 }

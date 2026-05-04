@@ -38,7 +38,7 @@ final class PraxisTests: XCTestCase {
 
     func testDefault_hasSilentBackground() {
         let praxis = Praxis.default
-        XCTAssertEqual(praxis.backgroundSoundId, "silent")
+        XCTAssertEqual(praxis.backgroundSoundId, BackgroundSound.silentId)
         XCTAssertEqual(praxis.backgroundSoundVolume, 0.15, accuracy: 0.001)
     }
 

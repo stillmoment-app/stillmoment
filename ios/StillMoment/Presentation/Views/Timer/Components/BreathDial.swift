@@ -4,9 +4,9 @@
 //
 //  Presentation Layer - Atemkreis-Picker (shared-086).
 //
-//  Ersatz fuer den Wheel-Picker. Ring + Aktiv-Bogen + Drag-Tropfen plus zwei
-//  radial platzierte +/- Buttons mit Long-Press-Beschleunigung. Wert wird
-//  ueber `value` (Binding) gesteuert; Werte werden auf [1, 60] geklemmt.
+//  Ring + Aktiv-Bogen + Drag-Tropfen. Wert wird ueber `value` (Binding)
+//  gesteuert; Werte werden auf [1, 60] geklemmt. VoiceOver-Slider-Adjust
+//  bleibt als alleinige nicht-gestische Eingabe.
 //
 
 import SwiftUI
@@ -22,7 +22,6 @@ struct BreathDial: View {
 
     @State private var haloAnimating = false
 
-    private static let buttonSize: CGFloat = 44
     private static let dropletCoreRadius: CGFloat = 6.5
     private static let dropletOuterRadius: CGFloat = 14
     private static let dropletStrokeWidth: CGFloat = 1.8
@@ -38,64 +37,10 @@ struct BreathDial: View {
         (self.diameter - self.ringWidth) / 2
     }
 
-    /// Radius vom Dial-Mittelpunkt zum Mittelpunkt eines +/- Buttons.
-    /// 168 px bei 220 Dial-Durchmesser (JS-Referenz). Skaliert proportional.
-    private var buttonRadialDistance: CGFloat {
-        self.diameter * 168 / 220
-    }
-
-    private var buttonOffsetSize: CGSize {
-        BreathDialGeometry.buttonOffset(direction: .plus, distance: self.buttonRadialDistance)
-    }
-
-    private var totalWidth: CGFloat {
-        max(self.diameter, 2 * self.buttonOffsetSize.width + Self.buttonSize)
-    }
-
-    private var totalHeight: CGFloat {
-        self.diameter / 2 + self.buttonOffsetSize.height + Self.buttonSize / 2
-    }
-
-    private var canDecrement: Bool {
-        self.value > BreathDialGeometry.minMinutes
-    }
-
-    private var canIncrement: Bool {
-        self.value < BreathDialGeometry.maxMinutes
-    }
-
     var body: some View {
-        ZStack {
-            self.dialContent
-                .frame(width: self.diameter, height: self.diameter)
-                .position(x: self.totalWidth / 2, y: self.diameter / 2)
-
-            DialAdjustButton(
-                direction: .minus,
-                isDisabled: !self.canDecrement,
-                size: Self.buttonSize
-            ) {
-                self.adjustValue(by: -1)
-            }
-            .position(
-                x: self.totalWidth / 2 - self.buttonOffsetSize.width,
-                y: self.diameter / 2 + self.buttonOffsetSize.height
-            )
-
-            DialAdjustButton(
-                direction: .plus,
-                isDisabled: !self.canIncrement,
-                size: Self.buttonSize
-            ) {
-                self.adjustValue(by: 1)
-            }
-            .position(
-                x: self.totalWidth / 2 + self.buttonOffsetSize.width,
-                y: self.diameter / 2 + self.buttonOffsetSize.height
-            )
-        }
-        .frame(width: self.totalWidth, height: self.totalHeight)
-        .accessibilityElement(children: .contain)
+        self.dialContent
+            .frame(width: self.diameter, height: self.diameter)
+            .accessibilityElement(children: .contain)
     }
 
     // MARK: - Dial-Inhalt (Ring + Bogen + Tropfen + Mittelschrift)
@@ -253,82 +198,6 @@ struct BreathDial: View {
     private var accessibilityValueString: String {
         String(format: NSLocalizedString("accessibility.dial.value", comment: ""), self.value)
     }
-}
-
-// MARK: - Adjust-Button (Touch-down + Long-Press-Beschleunigung)
-
-private struct DialAdjustButton: View {
-    let direction: BreathDialGeometry.ButtonDirection
-    let isDisabled: Bool
-    let size: CGFloat
-    let onPress: () -> Void
-
-    @Environment(\.themeColors)
-    private var theme
-    @State private var holder = AcceleratorHolder()
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(self.theme.dialButtonBackground)
-                .overlay(
-                    Circle().stroke(self.theme.dialButtonBorder, lineWidth: 1)
-                )
-            Text(self.direction == .plus ? "+" : "−")
-                .font(.system(size: 22, weight: .light, design: .rounded))
-                .foregroundColor(self.theme.textPrimary)
-        }
-        .frame(width: self.size, height: self.size)
-        .opacity(self.isDisabled ? 0.3 : 1.0)
-        .contentShape(Circle())
-        .gesture(self.pressGesture)
-        .disabled(self.isDisabled)
-        .accessibilityIdentifier(self.identifier)
-        .accessibilityLabel(Text(NSLocalizedString(self.accessibilityLabelKey, comment: "")))
-        .accessibilityAddTraits(.isButton)
-        .onChange(of: self.isDisabled) { newValue in
-            if newValue {
-                self.handlePressEnd()
-            }
-        }
-    }
-
-    private var identifier: String {
-        self.direction == .plus ? "timer.dial.plus" : "timer.dial.minus"
-    }
-
-    private var accessibilityLabelKey: String {
-        self.direction == .plus ? "accessibility.dial.increment" : "accessibility.dial.decrement"
-    }
-
-    private var pressGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .onChanged { _ in self.handlePressBegin() }
-            .onEnded { _ in self.handlePressEnd() }
-    }
-
-    private func handlePressBegin() {
-        guard self.holder.accelerator == nil
-        else { return }
-        guard !self.isDisabled
-        else { return }
-        let action = self.onPress
-        let acc = LongPressAccelerator(action: action)
-        self.holder.accelerator = acc
-        acc.start()
-    }
-
-    private func handlePressEnd() {
-        self.holder.accelerator?.stop()
-        self.holder.accelerator = nil
-    }
-}
-
-/// Reference-type-Halter, damit der Accelerator zwischen Press-Phasen ueberlebt
-/// und `.onChanged`-Updates nicht jedes Mal neue Instanzen anlegen.
-@MainActor
-private final class AcceleratorHolder {
-    var accelerator: LongPressAccelerator?
 }
 
 // MARK: - Previews

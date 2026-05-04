@@ -61,7 +61,7 @@ final class SoundscapeResolverTests: XCTestCase {
         }
 
         // When
-        let result = sut.resolve(id: "silent")
+        let result = sut.resolve(id: BackgroundSound.silentId)
 
         // Then
         XCTAssertNil(result)

@@ -330,13 +330,15 @@
 
 // MARK: - Timer Idle Screen (shared-086)
 "timer.idle.headline" = "How much time will you gift yourself?";
-"timer.idle.sectionTitle" = "Adjust the timer";
 "timer.dial.unit" = "Minutes";
 "accessibility.dial.label" = "Meditation duration";
 "accessibility.dial.hint" = "Swipe to change the duration";
-"accessibility.dial.decrement" = "One minute less";
-"accessibility.dial.increment" = "One minute more";
 "accessibility.dial.value" = "%d minutes";
+
+// MARK: - Timer Idle Settings List (shared-089)
+// Format string for the accessibility label of a list row.
+// %1$@ = setting label (e.g. "Preparation"), %2$@ = current value (e.g. "15 sec.")
+"accessibility.idleSettings.row" = "%1$@, %2$@, double tap to edit";
 
 // MARK: - Custom Audio Import (shared-065)
 

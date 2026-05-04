@@ -57,7 +57,7 @@ final class PraxisRepositoryTests: XCTestCase {
             return XCTFail("sut not initialized")
         }
         let praxis = sut.load()
-        XCTAssertEqual(praxis.backgroundSoundId, "silent")
+        XCTAssertEqual(praxis.backgroundSoundId, BackgroundSound.silentId)
     }
 
     func testLoad_calledTwice_returnsSamePraxis() {
@@ -203,6 +203,6 @@ final class PraxisRepositoryTests: XCTestCase {
         let praxis = sut.load()
 
         XCTAssertEqual(praxis.durationMinutes, 10) // default duration
-        XCTAssertEqual(praxis.backgroundSoundId, "silent") // default background
+        XCTAssertEqual(praxis.backgroundSoundId, BackgroundSound.silentId) // default background
     }
 }

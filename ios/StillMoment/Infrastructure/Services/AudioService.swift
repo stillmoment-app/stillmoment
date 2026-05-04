@@ -166,7 +166,7 @@ final class AudioService: AudioServiceProtocol {
         self.stopMeditationPreview()
 
         // Don't play preview for silent sound - just stop any running previews
-        if soundId == "silent" {
+        if soundId == BackgroundSound.silentId {
             Logger.audio.debug("Skipping preview for silent sound")
             return
         }

@@ -213,7 +213,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.configureAudioSession()
 
         // When - Start with valid sound ID
-        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15))
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15))
 
         // Then - Clean up
         self.sut.stop()
@@ -358,7 +358,7 @@ final class AudioServiceTests: XCTestCase {
     func testStopBackgroundAudio_WhenPlaying_StopsPlayback() throws {
         // Given - Start background audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // When
         self.sut.stopBackgroundAudio()
@@ -381,7 +381,7 @@ final class AudioServiceTests: XCTestCase {
     func testStop_ReleasesAudioSession() throws {
         // Given - Configure and start audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // When
         self.sut.stop()
@@ -423,7 +423,7 @@ final class AudioServiceTests: XCTestCase {
     func testBackgroundAudio_SwitchingSounds_Succeeds() throws {
         // Given - Start with silent
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // When - Switch to forest
         self.sut.stopBackgroundAudio()
@@ -482,7 +482,7 @@ final class AudioServiceTests: XCTestCase {
     func testBackgroundAudioAndGong_PlaySimultaneously() throws {
         // Given - Start background audio
         try self.sut.configureAudioSession()
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // When - Play gong while background audio is playing
         XCTAssertNoThrow(try self.sut.playIntervalGong(soundId: GongSound.defaultSoundId, volume: 1.0))
@@ -521,7 +521,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
 
         // When - Start second preview
-        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "silent", volume: 0.3))
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: BackgroundSound.silentId, volume: 0.3))
 
         // Then - Should replace previous (no crash, no overlap)
         self.sut.stopBackgroundPreview()
@@ -582,7 +582,7 @@ final class AudioServiceTests: XCTestCase {
         try self.sut.playGongPreview(soundId: "deep-zen", volume: 1.0)
 
         // When - Select "silent" background sound
-        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: "silent", volume: 0.3))
+        XCTAssertNoThrow(try self.sut.playBackgroundPreview(soundId: BackgroundSound.silentId, volume: 0.3))
 
         // Then - Should not throw, and should have stopped any running previews
         // (calling stop again should be safe)

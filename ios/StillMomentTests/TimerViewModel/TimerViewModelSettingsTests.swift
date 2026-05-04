@@ -202,7 +202,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
         )
 
         // Then: Should use default "silent"
-        XCTAssertEqual(newViewModel.settings.backgroundSoundId, "silent")
+        XCTAssertEqual(newViewModel.settings.backgroundSoundId, BackgroundSound.silentId)
     }
 
     // MARK: - Background Volume Settings

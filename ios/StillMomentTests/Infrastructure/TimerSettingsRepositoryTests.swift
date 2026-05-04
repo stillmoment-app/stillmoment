@@ -202,11 +202,11 @@ final class TimerSettingsRepositoryTests: XCTestCase {
         let settings = sut.load()
 
         // Then - Should migrate to "silent"
-        XCTAssertEqual(settings.backgroundSoundId, "silent")
+        XCTAssertEqual(settings.backgroundSoundId, BackgroundSound.silentId)
 
         // And - Migration should write the new key
         let storedId = testDefaults.string(forKey: MeditationSettings.Keys.backgroundSoundId)
-        XCTAssertEqual(storedId, "silent")
+        XCTAssertEqual(storedId, BackgroundSound.silentId)
     }
 
     func testLoad_withLegacyWhiteNoiseMode_migratesCorrectly() {
@@ -221,7 +221,7 @@ final class TimerSettingsRepositoryTests: XCTestCase {
         let settings = sut.load()
 
         // Then - Should migrate to "silent" (White Noise was removed)
-        XCTAssertEqual(settings.backgroundSoundId, "silent")
+        XCTAssertEqual(settings.backgroundSoundId, BackgroundSound.silentId)
     }
 
     func testLoad_withNewSoundId_ignoresLegacyMode() {

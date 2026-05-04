@@ -28,7 +28,7 @@ struct MeditationSettings: Codable, Equatable {
         intervalMode: IntervalMode = .repeating,
         intervalSoundId: String = GongSound.defaultIntervalSoundId,
         intervalGongVolume: Float = MeditationSettings.defaultIntervalGongVolume,
-        backgroundSoundId: String = "silent",
+        backgroundSoundId: String = BackgroundSound.silentId,
         backgroundSoundVolume: Float = MeditationSettings.defaultBackgroundSoundVolume,
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
@@ -144,7 +144,7 @@ extension MeditationSettings {
         intervalMode: .repeating,
         intervalSoundId: GongSound.defaultIntervalSoundId,
         intervalGongVolume: defaultIntervalGongVolume,
-        backgroundSoundId: "silent",
+        backgroundSoundId: BackgroundSound.silentId,
         backgroundSoundVolume: defaultBackgroundSoundVolume,
         durationMinutes: 10,
         preparationTimeEnabled: true,
@@ -163,11 +163,11 @@ extension MeditationSettings {
     static func migrateLegacyMode(_ mode: String) -> String {
         switch mode {
         case "Silent":
-            "silent"
+            BackgroundSound.silentId
         case "White Noise":
-            "silent" // WhiteNoise removed, fallback to silent
+            BackgroundSound.silentId // WhiteNoise removed, fallback to silent
         default:
-            "silent"
+            BackgroundSound.silentId
         }
     }
 }

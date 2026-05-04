@@ -153,33 +153,4 @@ final class BreathDialGeometryTests: XCTestCase {
         XCTAssertEqual(point.x, self.center.x, accuracy: 0.001)
         XCTAssertEqual(point.y, self.center.y + self.ringRadius, accuracy: 0.001)
     }
-
-    // MARK: - Button-Offsets
-
-    func testPlusButtonSitsBelowRight() {
-        let offset = BreathDialGeometry.buttonOffset(direction: .plus, distance: 168)
-
-        // 5-Uhr = 45° rechts von unten -> beide Komponenten positiv.
-        XCTAssertGreaterThan(offset.width, 0)
-        XCTAssertGreaterThan(offset.height, 0)
-        // 45°-Symmetrie: |dx| == |dy|
-        XCTAssertEqual(offset.width, offset.height, accuracy: 0.001)
-    }
-
-    func testMinusButtonSitsBelowLeft() {
-        let offset = BreathDialGeometry.buttonOffset(direction: .minus, distance: 168)
-
-        // 7-Uhr = 45° links von unten -> dx negativ, dy positiv.
-        XCTAssertLessThan(offset.width, 0)
-        XCTAssertGreaterThan(offset.height, 0)
-        XCTAssertEqual(abs(offset.width), offset.height, accuracy: 0.001)
-    }
-
-    func testButtonOffsetMagnitudeMatchesDistance() {
-        let distance: CGFloat = 168
-        let offset = BreathDialGeometry.buttonOffset(direction: .plus, distance: distance)
-
-        let magnitude = sqrt(offset.width * offset.width + offset.height * offset.height)
-        XCTAssertEqual(magnitude, distance, accuracy: 0.001)
-    }
 }

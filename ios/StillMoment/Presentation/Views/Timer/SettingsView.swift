@@ -332,7 +332,7 @@ struct SettingsView: View {
             .cardRowBackground()
 
             // Volume slider - only shown when a non-silent sound is selected
-            if self.settings.backgroundSoundId != "silent" {
+            if self.settings.backgroundSoundId != BackgroundSound.silentId {
                 VolumeSliderRow(
                     volume: self.$settings.backgroundSoundVolume,
                     accessibilityTitleKey: "settings.backgroundAudio.volume",
@@ -357,7 +357,7 @@ struct SettingsView: View {
 private let defaultSettings = MeditationSettings(
     intervalGongsEnabled: false,
     intervalMinutes: 5,
-    backgroundSoundId: "silent"
+    backgroundSoundId: BackgroundSound.silentId
 )
 
 private let forestSettings = MeditationSettings(

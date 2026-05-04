@@ -104,8 +104,8 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(startButton.waitForExistence(timeout: 3.0), "Start button should exist")
 
         // Default selectedMinutes ist 10 — Atemkreis zeigt direkt einen schoenen Wert.
-        let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
-        XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial should exist")
+        let dial = self.app.descendants(matching: .any)["timer.dial"]
+        XCTAssertTrue(dial.waitForExistence(timeout: 2.0), "Dial should exist")
 
         snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
@@ -118,8 +118,8 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should exist")
 
         // Default selectedMinutes ist 10 — Atemkreis liefert den gewuenschten Wert direkt.
-        let plusButton = self.app.descendants(matching: .any)["timer.dial.plus"]
-        XCTAssertTrue(plusButton.waitForExistence(timeout: 2.0), "Dial should exist")
+        let dial = self.app.descendants(matching: .any)["timer.dial"]
+        XCTAssertTrue(dial.waitForExistence(timeout: 2.0), "Dial should exist")
 
         // Start timer
         startButton.tap()
@@ -242,10 +242,10 @@ final class ScreenshotTests: XCTestCase {
     func testScreenshot05_settingsView() {
         self.navigateToTimerTab()
 
-        // Tap the Interval card — it leads into the most visually rich detail view
-        let intervalCard = self.app.buttons["timer.card.interval"]
-        XCTAssertTrue(intervalCard.waitForExistence(timeout: 3.0), "Interval card not found")
-        intervalCard.tap()
+        // Tap the Interval row — it leads into the most visually rich detail view
+        let intervalRow = self.app.buttons["timer.row.interval"]
+        XCTAssertTrue(intervalRow.waitForExistence(timeout: 3.0), "Interval row not found")
+        intervalRow.tap()
 
         let intervalToggle = self.app.switches["praxis.editor.toggle.intervalGongs"]
         XCTAssertTrue(intervalToggle.waitForExistence(timeout: 5.0), "Interval editor did not appear")

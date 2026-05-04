@@ -1,6 +1,9 @@
 # Ticket shared-086: Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig
 
 **Status**: [x] DONE (iOS) / [ ] TODO (Android)
+
+> ⚠️ **Teile von shared-086 sind durch shared-089 ueberschrieben (iOS):**
+> Die radialen **+/-Buttons** am Atemkreis und die **Sub-Headline "Passe den Timer an"** wurden mit shared-089 entfernt. Der Atemkreis bleibt mit Drag-Geste und VoiceOver-Slider-Adjust-Action erhalten. Die Akzeptanzkriterien zu +/-Buttons (Long-Press-Beschleunigung, radiale Position, Disabled-State, accessibility-Labels "Eine Minute weniger"/"Eine Minute mehr") und Section-Trenner unterhalb des Atemkreises sind auf iOS nicht mehr aktiv. Auf Android wird shared-089 in einem Zug mit shared-086 implementiert (kein Zwischenzustand mit +/-Buttons).
 **Plan**: [Implementierungsplan iOS](../plans/shared-086-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Neuer gestischer Picker (Drag im Ring + radial platzierte +/-Buttons mit Long-Press-Beschleunigung) ersetzt den bestehenden Wheel-Picker. Geometrie ist exakt vom Design vorgegeben, muss aber vertikal responsiv skalieren. Daneben mehrere Layout-Anpassungen (Headline-Reihe, Sentence-Case-Labels, Atem-Spacing). Risiko liegt vor allem in der korrekten Geste-Mathematik (atan2 + Clamping mit dynamischem Min) und der Skalierung auf kleinen Geraeten.

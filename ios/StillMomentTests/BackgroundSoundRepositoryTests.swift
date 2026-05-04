@@ -71,7 +71,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         let sounds = try sut.loadSounds()
 
         // Then
-        let silent = sounds.first { $0.id == "silent" }
+        let silent = sounds.first { $0.id == BackgroundSound.silentId }
         XCTAssertNotNil(silent, "Should contain silent sound")
         XCTAssertEqual(silent?.filename, "silence.mp3")
     }
@@ -101,11 +101,11 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         _ = try sut.loadSounds()
 
         // When
-        let sound = sut.getSound(byId: "silent")
+        let sound = sut.getSound(byId: BackgroundSound.silentId)
 
         // Then
         XCTAssertNotNil(sound)
-        XCTAssertEqual(sound?.id, "silent")
+        XCTAssertEqual(sound?.id, BackgroundSound.silentId)
     }
 
     func testGetSoundById_NonExistingId_ReturnsNil() throws {
@@ -155,7 +155,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         let sounds = try sut.loadSounds()
 
         // Then
-        let silent = sounds.first { $0.id == "silent" }
+        let silent = sounds.first { $0.id == BackgroundSound.silentId }
         XCTAssertNotNil(silent, "Should contain silent sound")
         XCTAssertEqual(
             Double(silent?.volume ?? 0),
@@ -312,9 +312,9 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
         }
 
         // When - Get same sound multiple times
-        let sound1 = sut.getSound(byId: "silent")
-        let sound2 = sut.getSound(byId: "silent")
-        let sound3 = sut.getSound(byId: "silent")
+        let sound1 = sut.getSound(byId: BackgroundSound.silentId)
+        let sound2 = sut.getSound(byId: BackgroundSound.silentId)
+        let sound3 = sut.getSound(byId: BackgroundSound.silentId)
 
         // Then - All should be identical
         XCTAssertNotNil(sound1)
@@ -340,7 +340,7 @@ final class BackgroundSoundRepositoryTests: XCTestCase {
             "Repository must provide at least 1 sound (silent mode for background audio)"
         )
 
-        let hasSilent = sounds.contains { $0.id == "silent" }
+        let hasSilent = sounds.contains { $0.id == BackgroundSound.silentId }
         XCTAssertTrue(hasSilent, "Repository must provide 'silent' sound for Apple compliance")
     }
 }
@@ -384,7 +384,7 @@ extension BackgroundSoundRepositoryTests {
         for _ in 0..<10 {
             DispatchQueue.global().async {
                 _ = sut.availableSounds
-                _ = sut.getSound(byId: "silent")
+                _ = sut.getSound(byId: BackgroundSound.silentId)
                 expectation.fulfill()
             }
         }

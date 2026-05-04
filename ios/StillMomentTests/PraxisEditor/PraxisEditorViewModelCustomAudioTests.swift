@@ -105,7 +105,7 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         sut.deleteCustomAudio(file)
 
         // Then
-        XCTAssertEqual(sut.backgroundSoundId, "silent")
+        XCTAssertEqual(sut.backgroundSoundId, BackgroundSound.silentId)
         XCTAssertTrue(mockRepo.deletedIds.contains(file.id))
     }
 

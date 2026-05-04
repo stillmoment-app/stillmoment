@@ -64,7 +64,7 @@ final class AudioServiceIntegrationTests: XCTestCase {
         await fulfillment(of: [startGongExpectation], timeout: 0.5)
 
         // Start background audio
-        try service.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try service.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // Wait briefly
         let backgroundAudioExpectation = expectation(description: "Background audio")

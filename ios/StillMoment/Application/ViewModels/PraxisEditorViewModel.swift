@@ -264,10 +264,10 @@ final class PraxisEditorViewModel: ObservableObject {
         let fileIdString = file.id.uuidString
         let praxis = self.repository.load()
         if praxis.backgroundSoundId == fileIdString {
-            self.repository.save(praxis.withBackgroundSoundId("silent"))
+            self.repository.save(praxis.withBackgroundSoundId(BackgroundSound.silentId))
         }
         if self.backgroundSoundId == fileIdString {
-            self.backgroundSoundId = "silent"
+            self.backgroundSoundId = BackgroundSound.silentId
         }
     }
 }

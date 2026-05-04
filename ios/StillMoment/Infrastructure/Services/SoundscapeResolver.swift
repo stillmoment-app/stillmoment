@@ -24,7 +24,7 @@ final class SoundscapeResolver: SoundscapeResolverProtocol {
     }
 
     func resolve(id: String) -> ResolvedSoundscape? {
-        guard id != "silent" else {
+        guard id != BackgroundSound.silentId else {
             return nil
         }
 

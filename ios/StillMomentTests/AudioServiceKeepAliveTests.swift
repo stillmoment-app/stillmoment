@@ -32,7 +32,7 @@ final class AudioServiceKeepAliveTests: XCTestCase {
         try self.sut.activateTimerSession()
 
         // Then — keep-alive is running (background audio can start alongside it)
-        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15))
+        XCTAssertNoThrow(try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15))
     }
 
     func testKeepAliveIsPlayingAfterActivation() throws {
@@ -79,7 +79,7 @@ final class AudioServiceKeepAliveTests: XCTestCase {
         try self.sut.activateTimerSession()
 
         // When — background audio starts (keep-alive must NOT be stopped)
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // Then — deactivate cleans up both keep-alive and background audio
         self.sut.deactivateTimerSession()
@@ -88,7 +88,7 @@ final class AudioServiceKeepAliveTests: XCTestCase {
     func testKeepAliveRunsAfterBackgroundAudioStops() throws {
         // Given — timer session with background audio
         try self.sut.activateTimerSession()
-        try self.sut.startBackgroundAudio(soundId: "silent", volume: 0.15)
+        try self.sut.startBackgroundAudio(soundId: BackgroundSound.silentId, volume: 0.15)
 
         // When — background audio stops (keep-alive must continue)
         self.sut.stopBackgroundAudio()
