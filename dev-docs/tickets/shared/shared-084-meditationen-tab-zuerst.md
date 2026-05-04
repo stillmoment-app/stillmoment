@@ -1,9 +1,10 @@
 # Ticket shared-084: Meditationen-Tab als erster Tab
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig — Tab-Reihenfolge tauschen + Default-Tab beim ersten Start. Last-used-Persistenz (shared-002) muss erhalten bleiben.
 **Phase**: 4-Polish
+**Plan iOS**: [Implementierungsplan](../plans/shared-084-ios.md)
 
 ---
 
