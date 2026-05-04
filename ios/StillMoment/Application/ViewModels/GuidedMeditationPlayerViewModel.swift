@@ -80,6 +80,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     @Published private(set) var countdownState: PreparationCountdownState = .idle
 
+    /// Wall-Clock-Startzeit der Pre-Roll-Phase. Wird zum Zeichnen des kontinuierlich
+    /// schrumpfenden Bogens via `TimelineView` genutzt, damit der Bogen exakt bei
+    /// 0 ankommt, wenn der Countdown endet (statt 1 s spaeter durch das per-Tick-Easing).
+    @Published private(set) var countdownStartedAt: Date?
+
+    /// Gesamtdauer der Pre-Roll-Phase in Sekunden. Quelle fuer die Bogen-Animation.
+    @Published private(set) var countdownTotalSeconds: Int?
+
     /// Preparation time in seconds before MP3 starts (nil = disabled)
     private let preparationTimeSeconds: Int?
 
@@ -265,6 +273,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     func cleanup() {
         self.countdownTimer?.cancel()
         self.countdownTimer = nil
+        self.countdownStartedAt = nil
+        self.countdownTotalSeconds = nil
         self.playerService.cleanup()
         self.cancellables.removeAll()
         Logger.audioPlayer.debug("Cleaned up player resources")
@@ -358,6 +368,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     private func startCountdown(seconds: Int) {
         let countdown = PreparationCountdown(totalSeconds: seconds)
         self.countdownState = .active(countdown)
+        self.countdownStartedAt = self.clock.now()
+        self.countdownTotalSeconds = seconds
 
         // Start silent background audio to keep app active during countdown
         do {
@@ -382,6 +394,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             self.countdownTimer?.cancel()
             self.countdownTimer = nil
             self.countdownState = .finished
+            self.countdownStartedAt = nil
+            self.countdownTotalSeconds = nil
             // Use atomic transition to prevent audio gap when screen is locked.
             // This starts playback BEFORE stopping silent audio, ensuring iOS
             // never suspends the app due to lack of audio.

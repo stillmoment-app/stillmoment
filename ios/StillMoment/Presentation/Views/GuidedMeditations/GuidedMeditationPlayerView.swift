@@ -47,11 +47,14 @@ struct GuidedMeditationPlayerView: View {
                     insertion: .move(edge: .bottom).combined(with: .opacity),
                     removal: .opacity
                 ))
-            } else {
+            } else if self.didKickOff {
                 self.playerContent
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.7), value: self.viewModel.isCompleted)
+        .animation(.easeInOut(duration: 0.4), value: self.didKickOff)
+        .animation(.easeInOut(duration: 0.4), value: self.viewModel.phase)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -92,9 +95,11 @@ struct GuidedMeditationPlayerView: View {
                 // startet sofort beim Oeffnen des Players. ViewModel guarded
                 // selbst, falls loadAudio einen Fehler gesetzt hat.
                 guard self.viewModel.errorMessage == nil else {
+                    self.didKickOff = true
                     return
                 }
                 self.viewModel.startPlayback()
+                self.didKickOff = true
             }
         }
         .onDisappear {
@@ -133,14 +138,13 @@ struct GuidedMeditationPlayerView: View {
     @SceneStorage("completion.meditationId")
     private var meditationIdRaw: String = ""
 
+    /// Erst gesetzt nachdem `loadAudio()` durch und `startPlayback()` aufgerufen ist.
+    /// Verhindert, dass die Hauptphasen-UI (Pause-Button + Restzeit-Label) kurz
+    /// aufblitzt, bevor die Pre-Roll-Phase greift.
+    @State private var didKickOff = false
+
     private var isZenMode: Bool {
         self.viewModel.isZenMode
-    }
-
-    /// Pre-Roll-Bogen entleert sich linear: voll → leer.
-    /// `countdownProgress` zaehlt 0 → 1 hoch — wir invertieren.
-    private var preRollProgress: Double {
-        1.0 - self.viewModel.countdownProgress
     }
 
     @ViewBuilder private var playerContent: some View {
@@ -171,7 +175,8 @@ struct GuidedMeditationPlayerView: View {
             BreathingCircleView(
                 phase: self.viewModel.phase,
                 progress: self.viewModel.progress,
-                preRollProgress: self.preRollProgress,
+                preRollStartedAt: self.viewModel.countdownStartedAt,
+                preRollTotalSeconds: self.viewModel.countdownTotalSeconds,
                 reduceMotion: self.reduceMotion
             ) {
                 self.circleContent
@@ -244,9 +249,10 @@ struct GuidedMeditationPlayerView: View {
                 ),
                 self.viewModel.formattedRemainingMinutes
             ))
-            .themeFont(.playerTitle)
+            .themeFont(.playerRemainingTime)
             .monospacedDigit()
             .textCase(.uppercase)
+            .tracking(1.5)
             .accessibilityIdentifier("player.text.remainingTime")
             .accessibilityLabel("guided_meditations.player.remainingTime")
             .accessibilityValue(self.viewModel.formattedRemainingTime)

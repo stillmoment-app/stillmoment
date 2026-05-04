@@ -21,8 +21,10 @@ struct BreathingCircleView<Content: View>: View {
     /// Fortschritt der Hauptphase (0–1, vergangene Sitzungszeit).
     /// Wird fuer den Restzeit-Bogen genutzt, ignoriert in Pre-Roll.
     let progress: Double
-    /// Pre-Roll-Fortschritt (0–1, entleert sich linear: 1 = voll, 0 = leer).
-    let preRollProgress: Double
+    /// Wall-Clock-Startzeit der Pre-Roll-Phase (nil ausserhalb von Pre-Roll).
+    let preRollStartedAt: Date?
+    /// Gesamtdauer der Pre-Roll-Phase in Sekunden (nil ausserhalb von Pre-Roll).
+    let preRollTotalSeconds: Int?
     let reduceMotion: Bool
     @ViewBuilder let content: () -> Content
 
@@ -32,15 +34,10 @@ struct BreathingCircleView<Content: View>: View {
             Circle()
                 .stroke(self.theme.ringTrack, lineWidth: self.lineWidth)
 
-            // Layer 2: Bogen (Restzeit oder Pre-Roll)
-            Circle()
-                .trim(from: 0, to: self.arcAmount)
-                .stroke(
-                    self.theme.interactive,
-                    style: StrokeStyle(lineWidth: self.lineWidth, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 1.0), value: self.arcAmount)
+            // Layer 2: Bogen — pro Phase eigene Circle-Identitaet, damit SwiftUI
+            // beim Phasenwechsel nicht ueber die `.trim()`-Werte interpoliert.
+            // Spec: "Vorbereitungs-Bogen springt auf 0 und waechst dann mit Fortschritt".
+            self.progressArc
 
             // Layer 3: Atem-Glow + Inhalt (Pause-Button oder Countdown)
             ZStack {
@@ -65,6 +62,43 @@ struct BreathingCircleView<Content: View>: View {
         }
     }
 
+    @ViewBuilder private var progressArc: some View {
+        switch self.phase {
+        case .preRoll:
+            self.preRollArc
+        case .playing,
+             .paused:
+            self.arc(amount: self.progress.clamped(to: 0...1))
+                .animation(.linear(duration: 1.0), value: self.progress)
+        }
+    }
+
+    /// Pre-Roll-Bogen, kontinuierlich aus der Wall-Clock berechnet via `TimelineView`.
+    /// Ergebnis: der Bogen erreicht exakt 0, wenn der Countdown endet — kein
+    /// Rest-Segment durch nachhinkendes Easing.
+    @ViewBuilder private var preRollArc: some View {
+        if let startedAt = self.preRollStartedAt,
+           let total = self.preRollTotalSeconds, total > 0 {
+            TimelineView(.animation) { context in
+                let elapsed = context.date.timeIntervalSince(startedAt)
+                let remaining = max(0, Double(total) - elapsed)
+                self.arc(amount: (remaining / Double(total)).clamped(to: 0...1))
+            }
+        } else {
+            self.arc(amount: 1.0)
+        }
+    }
+
+    private func arc(amount: Double) -> some View {
+        Circle()
+            .trim(from: 0, to: amount)
+            .stroke(
+                self.theme.interactive,
+                style: StrokeStyle(lineWidth: self.lineWidth, lineCap: .round)
+            )
+            .rotationEffect(.degrees(-90))
+    }
+
     // MARK: Private
 
     @Environment(\.themeColors)
@@ -78,26 +112,13 @@ struct BreathingCircleView<Content: View>: View {
     /// Vollzyklus 16 s → halbe Periode 8 s mit autoreverses
     private let breathHalfPeriod: Double = 8
 
-    /// Anteil des Bogens, der gerade gefuellt ist.
-    /// - Hauptphase: waechst mit `progress` (vergangene Zeit).
-    /// - Pre-Roll: entleert sich linear aus 1 → 0 (`preRollProgress`).
-    private var arcAmount: Double {
-        switch self.phase {
-        case .preRoll:
-            self.preRollProgress.clamped(to: 0...1)
-        case .playing,
-             .paused:
-            self.progress.clamped(to: 0...1)
-        }
-    }
-
     private var glow: some View {
         Circle()
             .fill(
                 RadialGradient(
                     colors: [
-                        self.theme.interactive.opacity(0.35),
-                        self.theme.interactive.opacity(0.12),
+                        self.theme.interactive.opacity(0.55),
+                        self.theme.interactive.opacity(0.20),
                         self.theme.interactive.opacity(0.0)
                     ],
                     center: .center,
@@ -111,36 +132,36 @@ struct BreathingCircleView<Content: View>: View {
     }
 
     /// Skala des Glow:
-    /// - Pre-Roll: ruhig auf neutralem Wert (0.93).
+    /// - Pre-Roll: ruhig auf neutralem Wert (0.92).
     /// - Reduced Motion: konstanter Mittelwert.
-    /// - Hauptphase normal: pulsiert zwischen 0.90 und 1.05.
+    /// - Hauptphase normal: pulsiert zwischen 0.85 und 1.10 (Δ 25 % — sichtbar atmend).
     private var glowScale: CGFloat {
         switch self.phase {
         case .preRoll:
-            return 0.93
+            return 0.92
         case .playing,
              .paused:
             if self.reduceMotion {
-                return 0.93
+                return 0.92
             }
-            return self.breathing ? 1.05 : 0.90
+            return self.breathing ? 1.10 : 0.85
         }
     }
 
     /// Opacity des Glow:
-    /// - Pre-Roll: gedaempft (0.65) — Glow „schlaeft" noch.
+    /// - Pre-Roll: gedaempft (0.55) — Glow „schlaeft" noch.
     /// - Reduced Motion: konstanter Mittelwert.
-    /// - Hauptphase normal: pulsiert zwischen 0.75 und 1.0.
+    /// - Hauptphase normal: pulsiert zwischen 0.55 und 1.0 (Δ 45 % — gut sichtbar).
     private var glowOpacity: Double {
         switch self.phase {
         case .preRoll:
-            return 0.65
+            return 0.55
         case .playing,
              .paused:
             if self.reduceMotion {
-                return 0.85
+                return 0.78
             }
-            return self.breathing ? 1.0 : 0.75
+            return self.breathing ? 1.0 : 0.55
         }
     }
 
@@ -194,7 +215,8 @@ private extension Double {
         BreathingCircleView(
             phase: .playing,
             progress: 0.3,
-            preRollProgress: 0,
+            preRollStartedAt: nil,
+            preRollTotalSeconds: nil,
             reduceMotion: false
         ) {
             GlassPauseButton(isPlaying: true) {}
@@ -218,10 +240,11 @@ private extension Double {
         BreathingCircleView(
             phase: .preRoll,
             progress: 0,
-            preRollProgress: 0.6,
+            preRollStartedAt: Date().addingTimeInterval(-4),
+            preRollTotalSeconds: 10,
             reduceMotion: false
         ) {
-            Text("9")
+            Text("6")
                 .font(.system(size: 72, weight: .light, design: .rounded))
                 .foregroundColor(.white)
         }
@@ -244,7 +267,8 @@ private extension Double {
         BreathingCircleView(
             phase: .playing,
             progress: 0.5,
-            preRollProgress: 0,
+            preRollStartedAt: nil,
+            preRollTotalSeconds: nil,
             reduceMotion: true
         ) {
             GlassPauseButton(isPlaying: true) {}

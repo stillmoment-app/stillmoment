@@ -43,6 +43,7 @@ enum TypographyRole: CaseIterable {
     case playerTeacher
     case playerTimestamp
     case playerCountdown
+    case playerRemainingTime
 
     // List
     case listTitle
@@ -99,6 +100,9 @@ extension TypographyRole {
         case .playerTeacher: .fixed(size: 20, weight: .medium, design: .rounded)
         case .playerTimestamp: .dynamic(style: .caption, weight: .regular, design: .rounded)
         case .playerCountdown: .fixed(size: 32, weight: .light, design: .rounded)
+        // Restzeit-Label im Atemkreis-Player — sekundaer, ruhig, soll nicht mit
+        // dem Meditationstitel oben konkurrieren.
+        case .playerRemainingTime: .fixed(size: 14, weight: .medium, design: .rounded)
         // List — Dynamic Type for accessibility
         // .headline is inherently semibold — halation compensation not needed (only ≤regular is adjusted)
         case .listTitle: .dynamic(style: .headline, weight: nil, design: .rounded)
@@ -146,6 +150,7 @@ extension TypographyRole {
         case .playerTeacher: \.interactive
         case .playerTimestamp: \.textSecondary
         case .playerCountdown: \.textPrimary
+        case .playerRemainingTime: \.textSecondary
         case .listTitle,
              .listSectionTitle: \.textPrimary
         case .listSubtitle,
