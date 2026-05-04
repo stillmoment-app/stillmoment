@@ -166,17 +166,12 @@ final class ScreenshotTests: XCTestCase {
         )
         firstPlayImage.tap()
 
-        // Wait for player sheet to appear
-        let playButton = self.app.buttons["player.button.playPause"]
-        XCTAssertTrue(playButton.waitForExistence(timeout: 5.0), "Player sheet did not appear")
+        // Wait for player sheet to appear (auto-start: pause button visible once
+        // the main phase is reached — short wait covers the optional pre-roll).
+        let pauseButton = self.app.buttons["player.button.playPause"]
+        XCTAssertTrue(pauseButton.waitForExistence(timeout: 8.0), "Player did not appear")
 
-        // Wait for progress slider to be visible (ensures sheet is fully rendered)
-        let progressSlider = self.app.sliders["player.slider.progress"]
-        XCTAssertTrue(progressSlider.waitForExistence(timeout: 3.0), "Player progress slider should appear")
-
-        // Start playback so Zen Mode is active (tab bar hidden)
-        playButton.tap()
-        // Wait for playback state to settle (isPlaying = true -> isZenMode = true)
+        // Auto-Start triggers Zen Mode — kein Tap noetig
         Thread.sleep(forTimeInterval: 0.8)
 
         snapshot("04_PlayerView", timeWaitingForIdle: 0)

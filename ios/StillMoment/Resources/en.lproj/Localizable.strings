@@ -275,6 +275,9 @@
 "guided_meditations.preparation.seconds" = "%ds";
 "guided_meditations.player.preparationTime" = "Preparation time";
 "guided_meditations.player.countdown" = "%d seconds until meditation starts";
+"guided_meditations.player.preroll.label" = "Preparation";
+"guided_meditations.player.preroll.hint" = "STARTING IN A MOMENT";
+"guided_meditations.player.remainingTime.format" = "%@ MIN LEFT";
 
 // MARK: - Player Completion
 

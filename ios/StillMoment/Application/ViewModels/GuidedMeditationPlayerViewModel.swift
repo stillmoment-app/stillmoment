@@ -25,6 +25,15 @@ enum PreparationCountdownState: Equatable {
     case finished
 }
 
+/// Visual phase of the guided meditation player.
+///
+/// Drives view layout decisions: pre-roll countdown, active playback or paused state.
+enum PlayerPhase: Equatable {
+    case preRoll
+    case playing
+    case paused
+}
+
 /// ViewModel for the Guided Meditation Player View
 ///
 /// Manages:
@@ -89,6 +98,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         return self.formatTime(remaining)
     }
 
+    /// Restzeit fuer das "NOCH … MIN"-Label im neuen Player-Layout.
+    ///
+    /// Identisch mit `formattedRemainingTime` — eigene Property, weil der
+    /// View-Aufruf so semantisch klar bleibt ("Minuten-Label im Atemkreis-Player").
+    var formattedRemainingMinutes: String {
+        self.formattedRemainingTime
+    }
+
     /// Progress as a value between 0 and 1
     var progress: Double {
         guard self.duration > 0 else {
@@ -105,6 +122,21 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Whether the guided meditation has completed naturally (audio reached end)
     var isCompleted: Bool {
         self.playbackState == .finished
+    }
+
+    /// Visuelle Phase des Players.
+    ///
+    /// - `.preRoll` solange die Vorbereitung laeuft.
+    /// - `.playing` wenn Audio aktiv spielt.
+    /// - `.paused` als Default fuer alle anderen Zustaende (idle, paused, loading, finished).
+    var phase: PlayerPhase {
+        if self.isPreparing {
+            return .preRoll
+        }
+        if self.playbackState == .playing {
+            return .playing
+        }
+        return .paused
     }
 
     // MARK: - Preparation Countdown Properties
