@@ -14,9 +14,9 @@ concurrency:
 
 env:
   XCODE_VERSION: '26.0'
-  IOS_VERSION: '19.0'
+  IOS_VERSION: 'latest'
   DEVICE: 'iPhone 17'
-  SWIFTFORMAT_VERSION: '0.60.1'
+  SWIFTFORMAT_VERSION: '0.61.1'
   SWIFTLINT_VERSION: '0.63.2'
 
 jobs:
