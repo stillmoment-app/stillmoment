@@ -13,6 +13,10 @@ enum AppTab: String, CaseIterable {
     case timer
     case library
     case settings
+
+    /// Default tab on first launch (no persisted selection yet).
+    /// shared-084: Meditationen-Tab ist Tab 1 — Library = Kernfeature, Timer = Add-on.
+    static let defaultTab: AppTab = .library
 }
 
 @main
@@ -34,9 +38,10 @@ struct StillMomentApp: App {
     /// Inbox handler - processes Share Extension inbox entries
     @StateObject private var inboxHandler: InboxHandler
 
-    /// Persisted tab selection - remembers last used tab across app launches
+    /// Persisted tab selection - remembers last used tab across app launches.
+    /// First launch (no stored value) lands on AppTab.defaultTab (shared-084).
     @AppStorage("selectedTab")
-    private var selectedTab: String = AppTab.timer.rawValue
+    private var selectedTab: String = AppTab.defaultTab.rawValue
 
     /// Navigation path for library tab (enables programmatic navigation)
     @State private var libraryPath = NavigationPath()
@@ -91,17 +96,7 @@ struct StillMomentApp: App {
             ThemeRootView {
                 RootContainerView {
                     TabView(selection: self.$selectedTab) {
-                        // Timer Feature Tab — TimerView owns its own NavigationStack
-                        // (path-based routing for the five setting detail views).
-                        TimerView(viewModel: self.timerViewModel)
-                            .tabItem {
-                                Label("tab.timer", systemImage: "timer")
-                            }
-                            .tag(AppTab.timer.rawValue)
-                            .accessibilityIdentifier("tab.timer")
-                            .accessibilityLabel(Text("tab.timer.accessibility"))
-
-                        // Guided Meditations Library Tab
+                        // Guided Meditations Library Tab — Library = Kernfeature (shared-084).
                         NavigationStack(path: self.$libraryPath) {
                             GuidedMeditationsListView(
                                 navigationPath: self.$libraryPath,
@@ -114,6 +109,16 @@ struct StillMomentApp: App {
                         .tag(AppTab.library.rawValue)
                         .accessibilityIdentifier("tab.library")
                         .accessibilityLabel(Text("tab.library.accessibility"))
+
+                        // Timer Feature Tab — TimerView owns its own NavigationStack
+                        // (path-based routing for the five setting detail views).
+                        TimerView(viewModel: self.timerViewModel)
+                            .tabItem {
+                                Label("tab.timer", systemImage: "timer")
+                            }
+                            .tag(AppTab.timer.rawValue)
+                            .accessibilityIdentifier("tab.timer")
+                            .accessibilityLabel(Text("tab.timer.accessibility"))
 
                         // App Settings Tab
                         NavigationStack {

@@ -49,11 +49,10 @@ final class AppTabTests: XCTestCase {
 
     // MARK: - Default Tab Behavior
 
-    func testDefaultTabIsTimer() {
-        // The default tab when no value is stored should be timer
-        // This matches the @AppStorage default in StillMomentApp
-        let defaultTab = AppTab.timer
-        XCTAssertEqual(defaultTab.rawValue, "timer")
+    func testDefaultTabIsLibrary() {
+        // On first launch the active tab should be library (shared-084).
+        // StillMomentApp uses AppTab.defaultTab.rawValue as the @AppStorage default.
+        XCTAssertEqual(AppTab.defaultTab, .library)
     }
 
     // MARK: - Persistence Key Consistency

@@ -14,9 +14,10 @@ import XCTest
 final class ScreenshotTests: XCTestCase {
     /// Tab indices matching AppTab order in StillMomentApp.swift.
     /// SwiftUI tabItem ignores accessibilityIdentifier, so index-based access is the stable approach.
+    /// shared-084: Library zuerst, danach Timer, dann Settings.
     private enum TabIndex {
-        static let timer = 0
-        static let library = 1
+        static let library = 0
+        static let timer = 1
         static let settings = 2
     }
 
