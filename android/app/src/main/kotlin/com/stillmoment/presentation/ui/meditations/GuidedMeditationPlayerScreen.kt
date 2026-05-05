@@ -270,7 +270,6 @@ private fun PlayerBody(
     ) {
         MeditationInfoHeader(meditation = meditation)
 
-        Spacer(modifier = Modifier.height(12.dp))
         Spacer(modifier = Modifier.weight(1f))
 
         BreathingCircle(
@@ -296,7 +295,7 @@ private fun PlayerBody(
             reduceMotion = reduceMotion
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

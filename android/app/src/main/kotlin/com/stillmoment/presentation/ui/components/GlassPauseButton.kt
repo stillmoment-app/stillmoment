@@ -32,6 +32,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.presentation.ui.theme.LocalIsDarkTheme
 
 /**
  * 80×80 Glas-Style-Button mit Pause/Play-Glyph.
@@ -51,13 +52,17 @@ fun GlassPauseButton(isPlaying: Boolean, onClick: () -> Unit, modifier: Modifier
     val pauseLabel = stringResource(R.string.accessibility_pause_button_player)
     val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
+    // Backdrop-Blur-Fallback: in Dark-Mode hebt sich ein helles, leicht
+    // staerkeres Overlay vom dunklen Gradient ab; in Light-Mode reicht ein
+    // schwaecheres Overlay, sonst wirkt die Glas-Flaeche zu milchig.
+    val glassFillAlpha = if (LocalIsDarkTheme.current) 0.15f else 0.10f
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(80.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.12f))
+            .background(Color.White.copy(alpha = glassFillAlpha))
             .border(
                 BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)),
                 CircleShape
