@@ -151,8 +151,8 @@ class SettingsDataStoreTest {
     }
 
     @Test
-    fun `AppTab DEFAULT is TIMER`() {
-        assertEquals(AppTab.TIMER, AppTab.DEFAULT)
+    fun `AppTab DEFAULT is LIBRARY`() {
+        assertEquals(AppTab.LIBRARY, AppTab.DEFAULT)
     }
 
     @Test

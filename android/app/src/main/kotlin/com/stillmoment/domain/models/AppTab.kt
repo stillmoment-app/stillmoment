@@ -13,7 +13,7 @@ enum class AppTab(val route: String) {
 
     companion object {
         /** Default tab shown on first app launch */
-        val DEFAULT = TIMER
+        val DEFAULT = LIBRARY
 
         /**
          * Parse a route string to AppTab, returning DEFAULT for unknown routes.
