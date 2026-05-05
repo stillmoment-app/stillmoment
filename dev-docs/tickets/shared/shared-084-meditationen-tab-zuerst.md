@@ -1,6 +1,6 @@
 # Ticket shared-084: Meditationen-Tab als erster Tab
 
-**Status**: [~] IN PROGRESS (iOS DONE, Android offen)
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig — Tab-Reihenfolge tauschen + Default-Tab beim ersten Start. Last-used-Persistenz (shared-002) muss erhalten bleiben.
 **Phase**: 4-Polish
@@ -24,24 +24,24 @@ Das Aufbauen einer eigenen Meditations-Bibliothek ist das Kernfeature der App; d
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-002    |
-| Android   | [ ]    | shared-002    |
+| Android   | [x]    | shared-002    |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [x] Tab-Reihenfolge in der Tab-Bar: Meditationen, Timer, Einstellungen (von links nach rechts) — iOS
-- [x] Beim allerersten App-Start ist der Meditationen-Tab aktiv — iOS
-- [x] Bei spaeteren App-Starts ist der zuletzt verwendete Tab aktiv (shared-002 bleibt gueltig) — iOS
-- [ ] Visuell konsistent zwischen iOS und Android (Android ausstehend)
+- [x] Tab-Reihenfolge in der Tab-Bar: Meditationen, Timer, Einstellungen (von links nach rechts) — iOS + Android
+- [x] Beim allerersten App-Start ist der Meditationen-Tab aktiv — iOS + Android
+- [x] Bei spaeteren App-Starts ist der zuletzt verwendete Tab aktiv (shared-002 bleibt gueltig) — iOS + Android
+- [x] Visuell konsistent zwischen iOS und Android
 
 ### Tests
 - [x] Unit Tests iOS (erste-Launch Default + Last-used-Wiederherstellung)
-- [ ] Unit Tests Android (erste-Launch Default + Last-used-Wiederherstellung)
+- [x] Unit Tests Android (erste-Launch Default + Last-used-Wiederherstellung)
 
 ### Dokumentation
-- [x] CHANGELOG.md (user-sichtbare Aenderung) — iOS-Eintrag
+- [x] CHANGELOG.md (user-sichtbare Aenderung) — iOS- und Android-Eintrag
 
 ---
 
