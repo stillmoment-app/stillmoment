@@ -33,20 +33,6 @@ sealed class TimerEffect {
     /** Play the completion sound (meditation ends) */
     data class PlayCompletionSound(val gongSoundId: String, val gongVolume: Float) : TimerEffect()
 
-    // MARK: - Attunement Effects
-
-    /** Play attunement audio (after start gong, before silent meditation) */
-    data class PlayAttunement(val attunementId: String) : TimerEffect()
-
-    /** Stop attunement audio (on reset or timer completed during attunement) */
-    data object StopAttunement : TimerEffect()
-
-    /** Signal the timer repository to start the attunement phase (sync timer model state) */
-    data object StartAttunementPhase : TimerEffect()
-
-    /** Signal the timer repository to end the attunement phase */
-    data object EndAttunementPhase : TimerEffect()
-
     // MARK: - Background Audio Effects
 
     /** Start background audio (ambient sound) — only when entering Running state */
@@ -54,17 +40,16 @@ sealed class TimerEffect {
 
     // MARK: - Timer Repository Effects
 
-    /** Start the timer with given duration, preparation time, and optional attunement duration */
+    /** Start the timer with given duration and preparation time */
     data class StartTimer(
         val durationMinutes: Int,
-        val preparationTimeSeconds: Int = 15,
-        val attunementDurationSeconds: Int = 0
+        val preparationTimeSeconds: Int = 15
     ) : TimerEffect()
 
     /** Reset the timer */
     data object ResetTimer : TimerEffect()
 
-    /** Transitions timer from StartGong to Running state (no attunement path) */
+    /** Transitions timer from StartGong to Running state */
     data object TransitionToRunning : TimerEffect()
 
     /** Transitions timer from EndGong to Completed state */

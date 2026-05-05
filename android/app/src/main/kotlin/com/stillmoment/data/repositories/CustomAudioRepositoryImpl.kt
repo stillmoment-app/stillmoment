@@ -148,7 +148,6 @@ constructor(
         val subDir =
             when (type) {
                 CustomAudioType.SOUNDSCAPE -> "soundscapes"
-                CustomAudioType.ATTUNEMENT -> "attunements"
             }
         return File(context.filesDir, "$CUSTOM_AUDIO_DIR/$subDir")
     }

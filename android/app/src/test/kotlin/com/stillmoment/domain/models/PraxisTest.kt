@@ -19,8 +19,6 @@ class PraxisTest {
         assertEquals(15, praxis.preparationTimeSeconds)
         assertEquals(GongSound.DEFAULT_SOUND_ID, praxis.gongSoundId)
         assertEquals(1.0f, praxis.gongVolume)
-        assertNull(praxis.attunementId)
-        assertFalse(praxis.attunementEnabled)
         assertFalse(praxis.intervalGongsEnabled)
         assertEquals(5, praxis.intervalMinutes)
         assertEquals(IntervalMode.REPEATING, praxis.intervalMode)
@@ -46,8 +44,6 @@ class PraxisTest {
         assertEquals(Praxis.Default.preparationTimeSeconds, praxis.preparationTimeSeconds)
         assertEquals(Praxis.Default.gongSoundId, praxis.gongSoundId)
         assertEquals(Praxis.Default.gongVolume, praxis.gongVolume)
-        assertEquals(Praxis.Default.attunementId, praxis.attunementId)
-        assertEquals(Praxis.Default.attunementEnabled, praxis.attunementEnabled)
         assertEquals(Praxis.Default.intervalGongsEnabled, praxis.intervalGongsEnabled)
         assertEquals(Praxis.Default.intervalMinutes, praxis.intervalMinutes)
         assertEquals(Praxis.Default.intervalMode, praxis.intervalMode)
@@ -302,8 +298,6 @@ class PraxisTest {
                 preparationTimeSeconds = 30,
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
-                attunementId = "breath",
-                attunementEnabled = true
             )
 
             val praxis = Praxis.fromMeditationSettings(settings)
@@ -320,8 +314,6 @@ class PraxisTest {
             assertEquals(30, praxis.preparationTimeSeconds)
             assertEquals("clear-strike", praxis.gongSoundId)
             assertEquals(0.8f, praxis.gongVolume)
-            assertEquals("breath", praxis.attunementId)
-            assertTrue(praxis.attunementEnabled)
         }
 
         @Test
@@ -356,8 +348,6 @@ class PraxisTest {
                 preparationTimeSeconds = 20,
                 gongSoundId = "deep-resonance",
                 gongVolume = 0.7f,
-                attunementId = "breath",
-                attunementEnabled = true,
                 intervalGongsEnabled = true,
                 intervalMinutes = 8,
                 intervalMode = IntervalMode.AFTER_START,
@@ -374,8 +364,6 @@ class PraxisTest {
             assertEquals(original.preparationTimeSeconds, settings.preparationTimeSeconds)
             assertEquals(original.gongSoundId, settings.gongSoundId)
             assertEquals(original.gongVolume, settings.gongVolume)
-            assertEquals(original.attunementId, settings.attunementId)
-            assertEquals(original.attunementEnabled, settings.attunementEnabled)
             assertEquals(original.intervalGongsEnabled, settings.intervalGongsEnabled)
             assertEquals(original.intervalMinutes, settings.intervalMinutes)
             assertEquals(original.intervalMode, settings.intervalMode)
@@ -400,8 +388,6 @@ class PraxisTest {
                 preparationTimeSeconds = 10,
                 gongSoundId = "classic-bowl",
                 gongVolume = 0.5f,
-                attunementId = null,
-                attunementEnabled = false
             )
 
             val praxis = Praxis.fromMeditationSettings(originalSettings)
@@ -419,8 +405,6 @@ class PraxisTest {
             assertEquals(originalSettings.preparationTimeSeconds, roundTrippedSettings.preparationTimeSeconds)
             assertEquals(originalSettings.gongSoundId, roundTrippedSettings.gongSoundId)
             assertEquals(originalSettings.gongVolume, roundTrippedSettings.gongVolume)
-            assertEquals(originalSettings.attunementId, roundTrippedSettings.attunementId)
-            assertEquals(originalSettings.attunementEnabled, roundTrippedSettings.attunementEnabled)
         }
     }
 
@@ -467,55 +451,6 @@ class PraxisTest {
 
             assertEquals(1, original.withDurationMinutes(0).durationMinutes)
             assertEquals(60, original.withDurationMinutes(100).durationMinutes)
-        }
-
-        @Test
-        fun `withAttunementId preserves id and other fields`() {
-            val original = Praxis.create(
-                durationMinutes = 15,
-                attunementId = null
-            )
-
-            val updated = original.withAttunementId("breath")
-
-            assertEquals(original.id, updated.id)
-            assertEquals("breath", updated.attunementId)
-            assertEquals(original.durationMinutes, updated.durationMinutes)
-            assertEquals(original.gongSoundId, updated.gongSoundId)
-        }
-
-        @Test
-        fun `withAttunementId accepts null`() {
-            val original = Praxis.create(attunementId = "breath")
-
-            val updated = original.withAttunementId(null)
-
-            assertNull(updated.attunementId)
-        }
-
-        @Test
-        fun `withAttunementEnabled preserves id and other fields`() {
-            val original = Praxis.create(
-                durationMinutes = 15,
-                attunementEnabled = false,
-                attunementId = "breath"
-            )
-
-            val updated = original.withAttunementEnabled(true)
-
-            assertEquals(original.id, updated.id)
-            assertTrue(updated.attunementEnabled)
-            assertEquals(original.attunementId, updated.attunementId)
-            assertEquals(original.durationMinutes, updated.durationMinutes)
-        }
-
-        @Test
-        fun `withAttunementEnabled can disable`() {
-            val original = Praxis.create(attunementEnabled = true)
-
-            val updated = original.withAttunementEnabled(false)
-
-            assertFalse(updated.attunementEnabled)
         }
     }
 

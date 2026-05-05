@@ -7,15 +7,15 @@ import org.junit.jupiter.api.Test
 
 /**
  * Tests for ImportAudioType — verifies the import type selection model
- * supports the three required import destinations.
+ * supports the required import destinations after shared-088 removed Attunement.
  */
 class ImportAudioTypeTest {
 
     @Nested
     inner class AvailableImportTypes {
         @Test
-        fun `exactly three import types are available`() {
-            assertEquals(3, ImportAudioType.entries.size)
+        fun `exactly two import types are available`() {
+            assertEquals(2, ImportAudioType.entries.size)
         }
 
         @Test
@@ -26,11 +26,6 @@ class ImportAudioTypeTest {
         @Test
         fun `soundscape is an available import type`() {
             assertTrue(ImportAudioType.entries.contains(ImportAudioType.SOUNDSCAPE))
-        }
-
-        @Test
-        fun `attunement is an available import type`() {
-            assertTrue(ImportAudioType.entries.contains(ImportAudioType.ATTUNEMENT))
         }
     }
 
@@ -43,15 +38,6 @@ class ImportAudioTypeTest {
             assertEquals(
                 CustomAudioType.SOUNDSCAPE.name,
                 ImportAudioType.SOUNDSCAPE.name
-            )
-        }
-
-        @Test
-        fun `attunement import type corresponds to attunement custom audio type`() {
-            // ImportAudioType.ATTUNEMENT should map to CustomAudioType.ATTUNEMENT
-            assertEquals(
-                CustomAudioType.ATTUNEMENT.name,
-                ImportAudioType.ATTUNEMENT.name
             )
         }
 

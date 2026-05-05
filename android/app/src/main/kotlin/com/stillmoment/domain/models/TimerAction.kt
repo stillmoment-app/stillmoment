@@ -24,9 +24,6 @@ sealed class TimerAction {
     /** Start gong audio finished playing */
     data object StartGongFinished : TimerAction()
 
-    /** Attunement audio finished playing */
-    data object AttunementFinished : TimerAction()
-
     /** Timer completed (reached zero), entering endGong phase */
     data object TimerCompleted : TimerAction()
 

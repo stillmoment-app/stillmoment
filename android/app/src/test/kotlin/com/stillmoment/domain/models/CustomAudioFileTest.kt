@@ -85,17 +85,6 @@ class CustomAudioFileTest {
             )
             assertEquals(CustomAudioType.SOUNDSCAPE, file.type)
         }
-
-        @Test
-        fun `attunement type is ATTUNEMENT`() {
-            val file = CustomAudioFile(
-                name = "breath",
-                filename = "breath.mp3",
-                durationMs = 90_000L,
-                type = CustomAudioType.ATTUNEMENT
-            )
-            assertEquals(CustomAudioType.ATTUNEMENT, file.type)
-        }
     }
 
     // MARK: - Identity Tests

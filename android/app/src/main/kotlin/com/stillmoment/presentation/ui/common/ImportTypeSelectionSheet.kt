@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Air
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +35,7 @@ import com.stillmoment.presentation.ui.theme.textStyle
 
 /**
  * Bottom sheet for selecting the import type when sharing an audio file with the app.
- * Presents three options: Guided Meditation, Soundscape, and Attunement.
+ * Presents two options: Guided Meditation and Soundscape.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,13 +72,6 @@ fun ImportTypeSelectionSheet(onTypeSelect: (ImportAudioType) -> Unit, onDismiss:
                 title = stringResource(R.string.import_type_soundscape),
                 description = stringResource(R.string.import_type_soundscape_description),
                 onClick = { onTypeSelect(ImportAudioType.SOUNDSCAPE) }
-            )
-
-            ImportTypeRow(
-                icon = Icons.Filled.Air,
-                title = stringResource(R.string.import_type_attunement),
-                description = stringResource(R.string.import_type_attunement_description),
-                onClick = { onTypeSelect(ImportAudioType.ATTUNEMENT) }
             )
         }
     }

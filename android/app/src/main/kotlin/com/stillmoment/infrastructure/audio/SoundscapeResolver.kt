@@ -1,12 +1,12 @@
 package com.stillmoment.infrastructure.audio
 
-import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.ResolvedSoundscape
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.services.SoundscapeResolverProtocol
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
@@ -76,7 +76,16 @@ class SoundscapeResolver @Inject constructor(
     }
 
     private fun localizedSoundName(sound: BackgroundSound): String {
-        val language = Attunement.currentLanguage
+        val language = currentLanguage()
         return if (language == "de") sound.nameGerman else sound.nameEnglish
     }
+
+    /**
+     * Allows tests to override the device language without standing up an Android
+     * Configuration. Production code reads [Locale.getDefault].
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    internal var languageOverride: String? = null
+
+    private fun currentLanguage(): String = languageOverride ?: Locale.getDefault().language
 }

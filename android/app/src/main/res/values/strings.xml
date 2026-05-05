@@ -53,15 +53,6 @@
     <string name="settings_preparation_description">Time to settle in before meditation</string>
     <string name="settings_preparation_duration">Duration</string>
 
-    <!-- Attunement -->
-    <string name="settings_attunement">Attunement</string>
-    <string name="settings_attunement_content">Content</string>
-    <string name="accessibility_attunement_picker">Select attunement</string>
-    <string name="accessibility_attunement_toggle">Attunement toggle</string>
-    <string name="accessibility_attunement_enabled">Attunement enabled: %s</string>
-    <string name="accessibility_attunement_enabled_no_selection">Attunement enabled</string>
-    <string name="accessibility_attunement_disabled">Attunement disabled</string>
-
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
     <string name="sound_silent_description">Meditate in silence.</string>
@@ -256,9 +247,6 @@
     <string name="praxis_editor_section_preparation">Preparation</string>
     <string name="praxis_editor_section_audio">Audio &amp; Sounds</string>
     <string name="praxis_editor_section_gongs">Gongs</string>
-    <string name="praxis_editor_attunement_row">Attunement</string>
-    <string name="praxis_editor_attunement_none">No Attunement</string>
-    <string name="praxis_editor_attunement_title">Attunement</string>
     <string name="praxis_editor_background_row">Background Sound</string>
     <string name="praxis_editor_background_title">Background Sound</string>
     <string name="praxis_editor_background_silence">Silence</string>
@@ -273,8 +261,6 @@
 
     <!-- Praxis Editor Accessibility -->
     <string name="accessibility_praxis_editor_name">Practice name</string>
-    <string name="accessibility_praxis_editor_attunement">Select attunement</string>
-    <string name="accessibility_praxis_editor_attunement_toggle">Attunement toggle</string>
     <string name="accessibility_praxis_editor_background">Select background sound</string>
     <string name="accessibility_praxis_editor_start_gong">Select start and end gong</string>
     <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>
@@ -287,10 +273,8 @@
 
     <!-- Custom Audio Import -->
     <string name="custom_audio_section_my_sounds">My Sounds</string>
-    <string name="custom_audio_section_my_attunements">My Attunements</string>
     <string name="custom_audio_import_button">Import Audio File</string>
     <string name="custom_audio_empty_sounds">No custom sounds imported yet</string>
-    <string name="custom_audio_empty_attunements">No custom attunements imported yet</string>
     <string name="custom_audio_delete_title">Delete Audio File</string>
     <string name="custom_audio_delete_message">Are you sure you want to delete \"%1$s\"?</string>
     <string name="custom_audio_delete_warning_praxis">Used in the current practice</string>
@@ -319,6 +303,4 @@
     <string name="import_type_guided_description">Add to meditation library</string>
     <string name="import_type_soundscape">Soundscape</string>
     <string name="import_type_soundscape_description">Use as background sound</string>
-    <string name="import_type_attunement">Attunement</string>
-    <string name="import_type_attunement_description">Use as attunement</string>
 </resources>

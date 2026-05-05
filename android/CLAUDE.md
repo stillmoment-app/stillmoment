@@ -108,7 +108,6 @@ sealed class TimerState {
     data object Idle : TimerState()
     data object Preparation : TimerState()
     data object StartGong : TimerState()
-    data object Introduction : TimerState()
     data object Running : TimerState()
     data object EndGong : TimerState()
     data object Completed : TimerState()
@@ -168,7 +167,7 @@ companion object {
 
 ### Reducer Pattern
 
-Pure effect mapper: `(Action, TimerState, Int, Settings, AttunementResolver) -> List<Effect>`.
+Pure effect mapper: `(Action, TimerState, Int, Settings) -> List<Effect>`.
 No intermediate display state — the ViewModel holds `MeditationTimer?` directly and forwards
 computed properties (timerState, remainingSeconds, progress, etc.).
 
@@ -179,10 +178,9 @@ object TimerReducer {
         timerState: TimerState,
         selectedMinutes: Int,
         settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
     ): List<TimerEffect> {
         return when (action) {
-            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings, attunementResolver)
+            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings)
             is TimerAction.ResetPressed -> reduceResetPressed(timerState)
             ...
         }
@@ -211,7 +209,6 @@ private fun dispatch(action: TimerAction) {
         timerState = current.timerState,
         selectedMinutes = current.selectedMinutes,
         settings = current.settings,
-        attunementResolver = attunementResolver
     )
     effects.forEach { handleEffect(it) }
 }
@@ -316,7 +313,6 @@ make test                   # Full suite (debug + release variants)
 ```kotlin
 class TimerReducerTest {
     private val defaultSettings = MeditationSettings.Default
-    private val emptyResolver = MockAttunementResolver()
 
     @Nested
     inner class StartPressed {
@@ -327,7 +323,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 15,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
             assertTrue(effects.any { it is TimerEffect.StartTimer })
             assertTrue(effects.any { it is TimerEffect.SaveSettings })

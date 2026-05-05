@@ -20,9 +20,6 @@ interface AudioServiceProtocol {
     /** Emits when a start/completion gong finishes playing */
     val gongCompletionFlow: SharedFlow<Unit>
 
-    /** Emits when attunement audio finishes playing */
-    val attunementCompletionFlow: SharedFlow<Unit>
-
     /**
      * Play a gong sound preview. Automatically stops any previous preview.
      * Uses a separate player to avoid interfering with timer playback.
@@ -58,19 +55,6 @@ interface AudioServiceProtocol {
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
     fun stopBackgroundPreview()
-
-    /**
-     * Play an attunement audio preview (custom or built-in attunement).
-     * Automatically stops any previous preview.
-     *
-     * @param attunementId ID of the attunement to preview
-     */
-    fun playAttunementPreview(attunementId: String)
-
-    /**
-     * Stop the current attunement preview. Idempotent - safe to call even if no preview is playing.
-     */
-    fun stopAttunementPreview()
 
     /**
      * Play a guided meditation preview from a content URI.

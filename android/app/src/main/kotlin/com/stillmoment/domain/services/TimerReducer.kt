@@ -20,7 +20,6 @@ object TimerReducer {
      * @param timerState Current timer state (.Idle when no timer exists)
      * @param selectedMinutes Currently selected duration in minutes
      * @param settings Current meditation settings (for effect parameters)
-     * @param attunementResolver Resolves attunement IDs (built-in and custom)
      * @return Effects to execute
      */
     fun reduce(
@@ -28,15 +27,13 @@ object TimerReducer {
         timerState: TimerState,
         selectedMinutes: Int,
         settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
     ): List<TimerEffect> {
         return when (action) {
-            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings, attunementResolver)
+            is TimerAction.StartPressed -> reduceStartPressed(selectedMinutes, settings)
             is TimerAction.ResetPressed -> reduceResetPressed(timerState)
             is TimerAction.PreparationFinished -> reducePreparationFinished(settings)
-            is TimerAction.StartGongFinished -> reduceStartGongFinished(timerState, settings, attunementResolver)
-            is TimerAction.AttunementFinished -> reduceAttunementFinished(timerState, settings)
-            is TimerAction.TimerCompleted -> reduceTimerCompleted(timerState, settings)
+            is TimerAction.StartGongFinished -> reduceStartGongFinished(timerState, settings)
+            is TimerAction.TimerCompleted -> reduceTimerCompleted(settings)
             is TimerAction.EndGongFinished -> reduceEndGongFinished(timerState)
             is TimerAction.IntervalGongTriggered -> reduceIntervalGongTriggered(settings)
         }
@@ -44,17 +41,10 @@ object TimerReducer {
 
     // MARK: - Control Actions
 
-    private fun reduceStartPressed(
-        selectedMinutes: Int,
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
-    ): List<TimerEffect> {
+    private fun reduceStartPressed(selectedMinutes: Int, settings: MeditationSettings): List<TimerEffect> {
         if (selectedMinutes <= 0) {
             return emptyList()
         }
-
-        // Determine attunement duration
-        val attunementDuration = attunementDurationSeconds(settings, attunementResolver)
 
         // Determine preparation time: skip if disabled (0), otherwise use configured value
         val preparationTime = if (settings.preparationTimeEnabled) {
@@ -65,10 +55,9 @@ object TimerReducer {
 
         val updatedSettings = settings.copy(durationMinutes = selectedMinutes)
 
-        // Background audio never starts here. It starts when the start gong finishes:
-        // - Without attunement: in reduceStartGongFinished
-        // - With attunement: in reduceAttunementFinished
-        // Always use "silent" for foreground service start - background audio is updated later
+        // Background audio never starts here. It starts when the start gong finishes
+        // (in reduceStartGongFinished). Always use "silent" for foreground service start —
+        // background audio is updated later.
         return listOf(
             TimerEffect.StartForegroundService(
                 "silent",
@@ -76,7 +65,7 @@ object TimerReducer {
                 settings.gongSoundId,
                 settings.gongVolume
             ),
-            TimerEffect.StartTimer(selectedMinutes, preparationTime, attunementDuration),
+            TimerEffect.StartTimer(selectedMinutes, preparationTime),
             TimerEffect.SaveSettings(updatedSettings)
         )
     }
@@ -86,15 +75,10 @@ object TimerReducer {
             return emptyList()
         }
 
-        val effects = mutableListOf<TimerEffect>()
-        // Stop attunement if it was playing
-        if (timerState == TimerState.Attunement) {
-            effects.add(TimerEffect.StopAttunement)
-        }
-        effects.add(TimerEffect.StopForegroundService)
-        effects.add(TimerEffect.ResetTimer)
-
-        return effects
+        return listOf(
+            TimerEffect.StopForegroundService,
+            TimerEffect.ResetTimer
+        )
     }
 
     // MARK: - Timer Update Actions
@@ -104,52 +88,21 @@ object TimerReducer {
         return listOf(TimerEffect.PlayStartGong(settings.gongSoundId, settings.gongVolume))
     }
 
-    private fun reduceStartGongFinished(
-        timerState: TimerState,
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
-    ): List<TimerEffect> {
+    private fun reduceStartGongFinished(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
         if (timerState != TimerState.StartGong) {
             return emptyList()
         }
 
-        val attunementId = settings.attunementId
-        return if (settings.attunementEnabled && attunementId != null &&
-            attunementResolver.resolve(attunementId) != null
-        ) {
-            // Attunement configured -> play audio
-            listOf(TimerEffect.StartAttunementPhase, TimerEffect.PlayAttunement(attunementId))
-        } else {
-            // No attunement -> start background audio directly
-            listOf(
-                TimerEffect.TransitionToRunning,
-                TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
-            )
-        }
-    }
-
-    private fun reduceAttunementFinished(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
-        if (timerState != TimerState.Attunement) {
-            return emptyList()
-        }
-
         return listOf(
-            TimerEffect.StopAttunement,
-            TimerEffect.EndAttunementPhase,
+            TimerEffect.TransitionToRunning,
             TimerEffect.StartBackgroundAudio(settings.backgroundSoundId, settings.backgroundSoundVolume)
         )
     }
 
-    private fun reduceTimerCompleted(timerState: TimerState, settings: MeditationSettings): List<TimerEffect> {
-        val effects = mutableListOf<TimerEffect>(
+    private fun reduceTimerCompleted(settings: MeditationSettings): List<TimerEffect> {
+        return listOf(
             TimerEffect.PlayCompletionSound(settings.gongSoundId, settings.gongVolume)
         )
-        // Stop attunement if it was still playing (timer expired during attunement)
-        if (timerState == TimerState.Attunement) {
-            effects.add(TimerEffect.StopAttunement)
-        }
-
-        return effects
     }
 
     private fun reduceEndGongFinished(timerState: TimerState): List<TimerEffect> {
@@ -169,17 +122,5 @@ object TimerReducer {
         return listOf(
             TimerEffect.PlayIntervalGong(settings.intervalSoundId, settings.intervalGongVolume)
         )
-    }
-
-    // MARK: - Helpers
-
-    /** Returns the attunement duration in seconds, or 0 if no attunement is configured or disabled. */
-    private fun attunementDurationSeconds(
-        settings: MeditationSettings,
-        attunementResolver: AttunementResolverProtocol
-    ): Int {
-        if (!settings.attunementEnabled) return 0
-        val attunementId = settings.attunementId ?: return 0
-        return attunementResolver.resolve(attunementId)?.durationSeconds ?: 0
     }
 }

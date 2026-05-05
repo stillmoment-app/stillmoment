@@ -26,9 +26,9 @@ private val Context.customAudioDataStore: DataStore<Preferences> by preferencesD
 /**
  * DataStore for persisting custom audio file metadata.
  *
- * Stores a single JSON list of all CustomAudioFile objects (both soundscapes and attunements).
- * Filtering by type happens at query time. This is simpler than maintaining separate keys
- * and keeps the data model flat.
+ * Stores a single JSON list of all CustomAudioFile objects. Filtering by type happens
+ * at query time, which keeps the data model flat and leaves room for future custom-audio
+ * kinds without a schema change.
  */
 @Singleton
 class CustomAudioDataStore

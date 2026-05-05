@@ -1,12 +1,12 @@
 package com.stillmoment.domain.services
 
 import com.stillmoment.domain.models.MeditationSettings
-import com.stillmoment.domain.models.ResolvedAttunement
 import com.stillmoment.domain.models.TimerAction
 import com.stillmoment.domain.models.TimerEffect
 import com.stillmoment.domain.models.TimerState
-import com.stillmoment.testutil.MockAttunementResolver
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -17,20 +17,9 @@ import org.junit.jupiter.api.Test
  * - Same inputs always produce same outputs
  * - No side effects (all I/O represented as TimerEffect)
  * - No state mutations (returns only List<TimerEffect>)
- * - Uses MockAttunementResolver for attunement resolution
  */
 class TimerReducerTest {
     private val defaultSettings = MeditationSettings.Default
-    private val emptyResolver = MockAttunementResolver()
-    private val breathResolver = MockAttunementResolver(
-        resolveResult = mapOf(
-            "breath" to ResolvedAttunement(
-                id = "breath",
-                displayName = "Breathing Exercise",
-                durationSeconds = 95
-            )
-        )
-    )
 
     // MARK: - StartPressed Tests
 
@@ -43,7 +32,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 15,
                 settings = defaultSettings.copy(backgroundSoundId = "forest"),
-                attunementResolver = emptyResolver
             )
 
             // Verify effects - foreground service always starts with "silent"
@@ -59,7 +47,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 0,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
@@ -72,7 +59,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(gongSoundId = "deep-zen"),
-                attunementResolver = emptyResolver
             )
 
             val serviceEffect = effects.filterIsInstance<TimerEffect.StartForegroundService>().first()
@@ -90,7 +76,6 @@ class TimerReducerTest {
                     backgroundSoundId = "forest",
                     backgroundSoundVolume = customVolume
                 ),
-                attunementResolver = emptyResolver
             )
 
             // Foreground service always starts with "silent", volume is still passed
@@ -106,7 +91,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             val startTimer = effects.filterIsInstance<TimerEffect.StartTimer>().first()
@@ -120,7 +104,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(preparationTimeEnabled = false),
-                attunementResolver = emptyResolver
             )
 
             val startTimer = effects.filterIsInstance<TimerEffect.StartTimer>().first()
@@ -135,7 +118,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(preparationTimeEnabled = false),
-                attunementResolver = emptyResolver
             )
 
             assertFalse(effects.any { it is TimerEffect.PlayStartGong })
@@ -148,7 +130,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 20,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             val saveEffect = effects.filterIsInstance<TimerEffect.SaveSettings>().first()
@@ -167,7 +148,6 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
@@ -181,7 +161,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
@@ -194,41 +173,9 @@ class TimerReducerTest {
                 timerState = TimerState.Completed,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertFalse(effects.isEmpty())
-            assertTrue(effects.contains(TimerEffect.StopForegroundService))
-            assertTrue(effects.contains(TimerEffect.ResetTimer))
-        }
-
-        @Test
-        fun `does not stop attunement when resetting from StartGong`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.ResetPressed,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 10,
-                settings = defaultSettings,
-                attunementResolver = emptyResolver
-            )
-
-            // No StopAttunement since we never entered Attunement
-            assertFalse(effects.any { it is TimerEffect.StopAttunement })
-            assertTrue(effects.contains(TimerEffect.StopForegroundService))
-            assertTrue(effects.contains(TimerEffect.ResetTimer))
-        }
-
-        @Test
-        fun `stops attunement when resetting during attunement`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.ResetPressed,
-                timerState = TimerState.Attunement,
-                selectedMinutes = 10,
-                settings = defaultSettings,
-                attunementResolver = emptyResolver
-            )
-
-            assertTrue(effects.any { it is TimerEffect.StopAttunement })
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
             assertTrue(effects.contains(TimerEffect.ResetTimer))
         }
@@ -245,7 +192,6 @@ class TimerReducerTest {
                 timerState = TimerState.Preparation,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertEquals(1, effects.size)
@@ -259,7 +205,6 @@ class TimerReducerTest {
                 timerState = TimerState.Preparation,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(gongSoundId = "clear-strike"),
-                attunementResolver = emptyResolver
             )
 
             val gongEffect = effects.filterIsInstance<TimerEffect.PlayStartGong>().first()
@@ -272,60 +217,16 @@ class TimerReducerTest {
     @Nested
     inner class StartGongFinished {
         @Test
-        fun `transitions to running without attunement`() {
+        fun `transitions to running and starts background audio`() {
             val effects = TimerReducer.reduce(
                 action = TimerAction.StartGongFinished,
                 timerState = TimerState.StartGong,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
-            // No attunement configured -> TransitionToRunning + StartBackgroundAudio
             assertTrue(effects.any { it is TimerEffect.TransitionToRunning })
             assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
-        }
-
-        @Test
-        fun `transitions to attunement when configured`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 10,
-                settings = defaultSettings.copy(attunementId = "breath", attunementEnabled = true),
-                attunementResolver = breathResolver
-            )
-
-            assertTrue(effects.any { it is TimerEffect.StartAttunementPhase })
-            assertTrue(effects.any { it is TimerEffect.PlayAttunement })
-            val introEffect = effects.filterIsInstance<TimerEffect.PlayAttunement>().first()
-            assertEquals("breath", introEffect.attunementId)
-            // No TransitionToRunning when attunement is configured
-            assertFalse(effects.any { it is TimerEffect.TransitionToRunning })
-        }
-
-        @Test
-        fun `transitions to running when attunementEnabled is false despite valid attunementId`() {
-            // Given - settings with valid attunementId but attunementEnabled = false
-            val settings = defaultSettings.copy(
-                attunementEnabled = false,
-                attunementId = "breath"
-            )
-
-            // When - StartGong finished
-            val effects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 5,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-
-            // Then - should transition to running (no attunement phase)
-            assertTrue(effects.any { it is TimerEffect.TransitionToRunning })
-            assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
-            assertFalse(effects.any { it is TimerEffect.StartAttunementPhase })
-            assertFalse(effects.any { it is TimerEffect.PlayAttunement })
         }
 
         @Test
@@ -335,14 +236,13 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
         }
 
         @Test
-        fun `starts background audio when no attunement`() {
+        fun `passes background sound id and volume`() {
             val effects = TimerReducer.reduce(
                 action = TimerAction.StartGongFinished,
                 timerState = TimerState.StartGong,
@@ -351,48 +251,11 @@ class TimerReducerTest {
                     backgroundSoundId = "forest",
                     backgroundSoundVolume = 0.5f
                 ),
-                attunementResolver = emptyResolver
             )
 
             val audioEffect = effects.filterIsInstance<TimerEffect.StartBackgroundAudio>().first()
             assertEquals("forest", audioEffect.soundId)
             assertEquals(0.5f, audioEffect.soundVolume)
-        }
-    }
-
-    // MARK: - AttunementFinished Tests
-
-    @Nested
-    inner class AttunementFinished {
-        @Test
-        fun `stops attunement and starts background audio`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.AttunementFinished,
-                timerState = TimerState.Attunement,
-                selectedMinutes = 10,
-                settings = defaultSettings.copy(
-                    backgroundSoundId = "forest",
-                    backgroundSoundVolume = 0.3f
-                ),
-                attunementResolver = emptyResolver
-            )
-
-            assertTrue(effects.any { it is TimerEffect.StopAttunement })
-            assertTrue(effects.any { it is TimerEffect.EndAttunementPhase })
-            assertTrue(effects.any { it is TimerEffect.StartBackgroundAudio })
-        }
-
-        @Test
-        fun `does nothing when not in Attunement state`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.AttunementFinished,
-                timerState = TimerState.Running,
-                selectedMinutes = 10,
-                settings = defaultSettings,
-                attunementResolver = emptyResolver
-            )
-
-            assertTrue(effects.isEmpty())
         }
     }
 
@@ -407,43 +270,11 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
             // Foreground service stays active during endGong
             assertFalse(effects.contains(TimerEffect.StopForegroundService))
-        }
-
-        @Test
-        fun `stops attunement when timer expires during attunement`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.TimerCompleted,
-                timerState = TimerState.Attunement,
-                selectedMinutes = 10,
-                settings = defaultSettings,
-                attunementResolver = emptyResolver
-            )
-
-            assertTrue(effects.any { it is TimerEffect.StopAttunement })
-            assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
-            // Foreground service stays active during endGong
-            assertFalse(effects.contains(TimerEffect.StopForegroundService))
-        }
-
-        @Test
-        fun `does not stop attunement when completing from Running`() {
-            val effects = TimerReducer.reduce(
-                action = TimerAction.TimerCompleted,
-                timerState = TimerState.Running,
-                selectedMinutes = 10,
-                settings = defaultSettings,
-                attunementResolver = emptyResolver
-            )
-
-            // No StopAttunement since we were in Running, not Attunement
-            assertFalse(effects.any { it is TimerEffect.StopAttunement })
-            assertTrue(effects.any { it is TimerEffect.PlayCompletionSound })
         }
 
         @Test
@@ -453,7 +284,6 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(gongSoundId = "deep-resonance"),
-                attunementResolver = emptyResolver
             )
 
             val completionEffect = effects.filterIsInstance<TimerEffect.PlayCompletionSound>().first()
@@ -472,7 +302,6 @@ class TimerReducerTest {
                 timerState = TimerState.EndGong,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.any { it is TimerEffect.TransitionToCompleted })
@@ -486,7 +315,6 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
@@ -499,7 +327,6 @@ class TimerReducerTest {
                 timerState = TimerState.Completed,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
@@ -514,7 +341,6 @@ class TimerReducerTest {
                 timerState = TimerState.EndGong,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertFalse(effects.contains(TimerEffect.ResetTimer))
@@ -533,7 +359,6 @@ class TimerReducerTest {
                 timerState = TimerState.EndGong,
                 selectedMinutes = 10,
                 settings = defaultSettings,
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.contains(TimerEffect.StopForegroundService))
@@ -552,7 +377,6 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(intervalGongsEnabled = true),
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.any { it is TimerEffect.PlayIntervalGong })
@@ -570,7 +394,6 @@ class TimerReducerTest {
                     intervalGongsEnabled = true,
                     intervalSoundId = "soft-interval"
                 ),
-                attunementResolver = emptyResolver
             )
 
             val intervalEffect = effects.filterIsInstance<TimerEffect.PlayIntervalGong>().first()
@@ -584,81 +407,9 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 10,
                 settings = defaultSettings.copy(intervalGongsEnabled = false),
-                attunementResolver = emptyResolver
             )
 
             assertTrue(effects.isEmpty())
-        }
-    }
-
-    // MARK: - Custom Attunement Tests
-
-    @Nested
-    inner class CustomAttunement {
-        private val customResolver = MockAttunementResolver(
-            resolveResult = mapOf(
-                "custom-uuid-123" to ResolvedAttunement(
-                    id = "custom-uuid-123",
-                    displayName = "Custom Meditation",
-                    durationSeconds = 120
-                )
-            )
-        )
-
-        @Test
-        fun `startPressed with custom attunement includes correct attunement duration`() {
-            val settings = defaultSettings.copy(
-                attunementEnabled = true,
-                attunementId = "custom-uuid-123",
-                customAttunementDurationSeconds = 120
-            )
-            val effects = TimerReducer.reduce(
-                action = TimerAction.StartPressed,
-                timerState = TimerState.Idle,
-                selectedMinutes = 10,
-                settings = settings,
-                attunementResolver = customResolver
-            )
-            val startTimer = effects.filterIsInstance<TimerEffect.StartTimer>().first()
-            assertEquals(120, startTimer.attunementDurationSeconds)
-        }
-
-        @Test
-        fun `startGongFinished with custom attunement starts attunement phase`() {
-            val settings = defaultSettings.copy(
-                attunementEnabled = true,
-                attunementId = "custom-uuid-123",
-                customAttunementDurationSeconds = 120
-            )
-            val effects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 10,
-                settings = settings,
-                attunementResolver = customResolver
-            )
-            assertTrue(effects.any { it is TimerEffect.StartAttunementPhase })
-            assertTrue(effects.any { it is TimerEffect.PlayAttunement })
-            val introEffect = effects.filterIsInstance<TimerEffect.PlayAttunement>().first()
-            assertEquals("custom-uuid-123", introEffect.attunementId)
-        }
-
-        @Test
-        fun `startGongFinished with custom attunement does not start background audio`() {
-            val settings = defaultSettings.copy(
-                attunementEnabled = true,
-                attunementId = "custom-uuid-123",
-                customAttunementDurationSeconds = 120
-            )
-            val effects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 10,
-                settings = settings,
-                attunementResolver = customResolver
-            )
-            assertFalse(effects.any { it is TimerEffect.TransitionToRunning })
-            assertFalse(effects.any { it is TimerEffect.StartBackgroundAudio })
         }
     }
 
@@ -676,7 +427,6 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
             assertTrue(startEffects.any { it is TimerEffect.StartForegroundService })
@@ -687,17 +437,15 @@ class TimerReducerTest {
                 timerState = TimerState.Preparation,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(prepEffects.any { it is TimerEffect.PlayStartGong })
 
-            // Start gong finished -> Running (no attunement)
+            // Start gong finished -> Running
             val gongEffects = TimerReducer.reduce(
                 action = TimerAction.StartGongFinished,
                 timerState = TimerState.StartGong,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(gongEffects.any { it is TimerEffect.TransitionToRunning })
             assertTrue(gongEffects.any { it is TimerEffect.StartBackgroundAudio })
@@ -708,7 +456,6 @@ class TimerReducerTest {
                 timerState = TimerState.Running,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
             assertFalse(completedEffects.contains(TimerEffect.StopForegroundService))
@@ -719,7 +466,6 @@ class TimerReducerTest {
                 timerState = TimerState.EndGong,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(endEffects.any { it is TimerEffect.TransitionToCompleted })
             assertTrue(endEffects.contains(TimerEffect.StopForegroundService))
@@ -730,7 +476,6 @@ class TimerReducerTest {
                 timerState = TimerState.Completed,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(resetEffects.contains(TimerEffect.ResetTimer))
         }
@@ -745,122 +490,11 @@ class TimerReducerTest {
                 timerState = TimerState.Idle,
                 selectedMinutes = 1,
                 settings = settings,
-                attunementResolver = emptyResolver
             )
             assertTrue(startEffects.any { it is TimerEffect.StartTimer })
             val startTimer = startEffects.filterIsInstance<TimerEffect.StartTimer>().first()
             assertEquals(0, startTimer.preparationTimeSeconds)
             assertFalse(startEffects.any { it is TimerEffect.PlayStartGong })
-
-            // PreparationCompleted event from start() -> plays gong
-            val prepEffects = TimerReducer.reduce(
-                action = TimerAction.PreparationFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 1,
-                settings = settings,
-                attunementResolver = emptyResolver
-            )
-            assertTrue(prepEffects.any { it is TimerEffect.PlayStartGong })
-
-            // Start gong finished -> Running
-            val gongEffects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 1,
-                settings = settings,
-                attunementResolver = emptyResolver
-            )
-            assertTrue(gongEffects.any { it is TimerEffect.TransitionToRunning })
-
-            // Timer completed -> EndGong
-            val completedEffects = TimerReducer.reduce(
-                action = TimerAction.TimerCompleted,
-                timerState = TimerState.Running,
-                selectedMinutes = 1,
-                settings = settings,
-                attunementResolver = emptyResolver
-            )
-            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
-
-            // End gong finished -> Completed
-            val endEffects = TimerReducer.reduce(
-                action = TimerAction.EndGongFinished,
-                timerState = TimerState.EndGong,
-                selectedMinutes = 1,
-                settings = settings,
-                attunementResolver = emptyResolver
-            )
-            assertTrue(endEffects.any { it is TimerEffect.TransitionToCompleted })
-            assertTrue(endEffects.contains(TimerEffect.StopForegroundService))
-        }
-
-        @Test
-        fun `full cycle with attunement`() {
-            val settings = defaultSettings.copy(attunementId = "breath", attunementEnabled = true)
-
-            // Start
-            val startEffects = TimerReducer.reduce(
-                action = TimerAction.StartPressed,
-                timerState = TimerState.Idle,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(startEffects.any { it is TimerEffect.StartTimer })
-
-            // Preparation finished -> StartGong
-            val prepEffects = TimerReducer.reduce(
-                action = TimerAction.PreparationFinished,
-                timerState = TimerState.Preparation,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(prepEffects.any { it is TimerEffect.PlayStartGong })
-
-            // Start gong finished -> Attunement (because attunement is configured)
-            val gongEffects = TimerReducer.reduce(
-                action = TimerAction.StartGongFinished,
-                timerState = TimerState.StartGong,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(gongEffects.any { it is TimerEffect.StartAttunementPhase })
-            assertTrue(gongEffects.any { it is TimerEffect.PlayAttunement })
-
-            // Attunement finished -> Running
-            val introEffects = TimerReducer.reduce(
-                action = TimerAction.AttunementFinished,
-                timerState = TimerState.Attunement,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(introEffects.any { it is TimerEffect.StopAttunement })
-            assertTrue(introEffects.any { it is TimerEffect.EndAttunementPhase })
-            assertTrue(introEffects.any { it is TimerEffect.StartBackgroundAudio })
-
-            // Timer completed -> EndGong
-            val completedEffects = TimerReducer.reduce(
-                action = TimerAction.TimerCompleted,
-                timerState = TimerState.Running,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(completedEffects.any { it is TimerEffect.PlayCompletionSound })
-
-            // End gong finished -> Completed
-            val endEffects = TimerReducer.reduce(
-                action = TimerAction.EndGongFinished,
-                timerState = TimerState.EndGong,
-                selectedMinutes = 3,
-                settings = settings,
-                attunementResolver = breathResolver
-            )
-            assertTrue(endEffects.any { it is TimerEffect.TransitionToCompleted })
-            assertTrue(endEffects.contains(TimerEffect.StopForegroundService))
         }
     }
 }

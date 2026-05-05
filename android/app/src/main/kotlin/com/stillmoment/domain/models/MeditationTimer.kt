@@ -13,8 +13,6 @@ import java.util.Locale
  * @property state Current state of the timer
  * @property remainingPreparationSeconds Remaining preparation seconds (preparationTimeSeconds→0 before timer starts)
  * @property preparationTimeSeconds Duration of preparation in seconds (configured at initialization)
- * @property attunementDurationSeconds Duration of attunement audio in seconds (0 = no attunement)
- * @property silentPhaseStartRemaining Remaining seconds when silent meditation phase started (after attunement)
  * @property lastIntervalGongAt Remaining seconds when last interval gong was played
  */
 data class MeditationTimer(
@@ -23,8 +21,6 @@ data class MeditationTimer(
     val state: TimerState,
     val remainingPreparationSeconds: Int = 0,
     val preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME,
-    val attunementDurationSeconds: Int = 0,
-    val silentPhaseStartRemaining: Int? = null,
     val lastIntervalGongAt: Int? = null
 ) {
     init {
@@ -111,15 +107,6 @@ data class MeditationTimer(
                 }
                 newTimer to events
             }
-            TimerState.Attunement -> {
-                val newTimer = tickAttunement()
-                val events = if (newTimer.state == TimerState.EndGong) {
-                    listOf(TimerEvent.MeditationCompleted)
-                } else {
-                    emptyList()
-                }
-                newTimer to events
-            }
             TimerState.Running -> tickRunningWithEvents(intervalSettings)
             TimerState.Idle, TimerState.EndGong, TimerState.Completed -> this to emptyList()
         }
@@ -152,19 +139,6 @@ data class MeditationTimer(
         )
     }
 
-    /**
-     * Ticks the attunement phase (meditation timer decrements, never auto-transitions to running).
-     * The transition to Running is event-driven via endAttunement().
-     */
-    private fun tickAttunement(): MeditationTimer {
-        val newRemaining = maxOf(0, remainingSeconds - 1)
-        val newState = if (newRemaining <= 0) TimerState.EndGong else TimerState.Attunement
-        return copy(
-            remainingSeconds = newRemaining,
-            state = newState
-        )
-    }
-
     /** Ticks the main meditation timer (used for StartGong and Running states). */
     private fun tickRunning(): MeditationTimer {
         val newRemaining = maxOf(0, remainingSeconds - 1)
@@ -186,26 +160,6 @@ data class MeditationTimer(
             state = TimerState.Preparation,
             remainingPreparationSeconds = preparationTimeSeconds,
             lastIntervalGongAt = null
-        )
-    }
-
-    /**
-     * Returns a copy transitioned to Attunement state.
-     * Called when start gong finishes and an attunement is configured.
-     */
-    fun startAttunement(): MeditationTimer {
-        return copy(state = TimerState.Attunement)
-    }
-
-    /**
-     * Returns a copy transitioned from Attunement to Running.
-     * Called when the attunement audio finishes playing (event-driven).
-     * Sets silentPhaseStartRemaining to current remaining seconds for interval gong calculations.
-     */
-    fun endAttunement(): MeditationTimer {
-        return copy(
-            state = TimerState.Running,
-            silentPhaseStartRemaining = remainingSeconds
         )
     }
 
@@ -248,13 +202,6 @@ data class MeditationTimer(
         }
     }
 
-    /**
-     * The effective start point for interval calculations.
-     * Uses silentPhaseStartRemaining when attunement was played, otherwise totalSeconds.
-     */
-    private val effectiveStartRemaining: Int
-        get() = silentPhaseStartRemaining ?: totalSeconds
-
     private fun shouldPlaySingleFromEnd(intervalSeconds: Int): Boolean {
         // Already played?
         if (lastIntervalGongAt != null) return false
@@ -266,14 +213,14 @@ data class MeditationTimer(
         // Already played?
         if (lastIntervalGongAt != null) return false
 
-        val elapsed = effectiveStartRemaining - remainingSeconds
+        val elapsed = totalSeconds - remainingSeconds
         return elapsed >= intervalSeconds
     }
 
     private fun shouldPlayRepeatingFromStart(intervalSeconds: Int): Boolean {
         // First gong not yet played
         if (lastIntervalGongAt == null) {
-            val elapsed = effectiveStartRemaining - remainingSeconds
+            val elapsed = totalSeconds - remainingSeconds
             return elapsed >= intervalSeconds
         }
 
@@ -288,7 +235,6 @@ data class MeditationTimer(
             remainingSeconds = durationMinutes * 60,
             state = TimerState.Idle,
             remainingPreparationSeconds = 0,
-            silentPhaseStartRemaining = null,
             lastIntervalGongAt = null
         )
     }
@@ -307,23 +253,16 @@ data class MeditationTimer(
          *
          * @param durationMinutes Duration in minutes (1-60)
          * @param preparationTimeSeconds Duration of preparation in seconds (default: 15). Use 0 to skip preparation.
-         * @param attunementDurationSeconds Duration of attunement audio in seconds (default: 0 = no attunement)
          * @return A new MeditationTimer instance
          * @throws IllegalArgumentException if duration is not between 1 and 60 minutes
          */
-        fun create(
-            durationMinutes: Int,
-            preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME,
-            attunementDurationSeconds: Int = 0
-        ): MeditationTimer {
+        fun create(durationMinutes: Int, preparationTimeSeconds: Int = DEFAULT_PREPARATION_TIME): MeditationTimer {
             return MeditationTimer(
                 durationMinutes = durationMinutes,
                 remainingSeconds = durationMinutes * 60,
                 state = TimerState.Idle,
                 remainingPreparationSeconds = 0,
                 preparationTimeSeconds = preparationTimeSeconds,
-                attunementDurationSeconds = attunementDurationSeconds,
-                silentPhaseStartRemaining = null,
                 lastIntervalGongAt = null
             )
         }

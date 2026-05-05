@@ -41,20 +41,6 @@ class MeditationTimerEndGongTest {
             assertEquals(0, ticked.remainingSeconds)
             assertEquals(TimerState.EndGong, ticked.state)
         }
-
-        @Test
-        fun `attunement timer reaching zero transitions to endGong`() {
-            // Given: Timer in Attunement with 1 second left
-            val timer = MeditationTimer.create(1)
-                .copy(state = TimerState.Attunement, remainingSeconds = 1)
-
-            // When: Timer ticks
-            val (ticked, _) = timer.tick()
-
-            // Then: Transitions to EndGong
-            assertEquals(0, ticked.remainingSeconds)
-            assertEquals(TimerState.EndGong, ticked.state)
-        }
     }
 
     @Nested

@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Air
-import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Repeat
@@ -137,7 +136,6 @@ private fun TimerScreenLayout(
             Spacer(modifier = Modifier.height(24.dp))
             MinutePicker(
                 selectedMinutes = uiState.selectedMinutes,
-                minimumMinutes = uiState.minimumDurationMinutes,
                 onMinutesChange = onMinutesChange,
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -159,12 +157,7 @@ private fun TimerScreenLayout(
 }
 
 @Composable
-private fun MinutePicker(
-    selectedMinutes: Int,
-    minimumMinutes: Int,
-    onMinutesChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     // Use screen height like iOS does with geometry.size.height
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isCompactHeight = configuration.screenHeightDp < 700
@@ -201,7 +194,7 @@ private fun MinutePicker(
         WheelPicker(
             selectedValue = selectedMinutes,
             onValueChange = onMinutesChange,
-            range = minimumMinutes..60,
+            range = 1..60,
             visibleItems = visibleItems,
             modifier = Modifier.height(pickerHeight)
         )
@@ -242,8 +235,7 @@ private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
  * Tappable row of pills showing the current meditation configuration.
  * Matches the iOS configurationPillsRow pattern. Tapping opens the Praxis Editor.
  *
- * Row 1: Preparation (if enabled), Gong, Background
- * Row 2: Attunement (if set), Interval (if enabled)
+ * Pills: Preparation (if enabled), Gong, Background, Interval (if enabled)
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -257,7 +249,6 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
     val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
     val backgroundLabel = uiState.resolvedBackgroundSoundName
         ?: stringResource(R.string.praxis_description_silent)
-    val attunementLabel = uiState.resolvedAttunementName
     val intervalLabel = intervalPillLabel(praxis)
 
     TextButton(
@@ -277,9 +268,6 @@ private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
                 }
                 SettingPill(icon = Icons.Outlined.Notifications, label = gongLabel)
                 SettingPill(icon = Icons.Outlined.Air, label = backgroundLabel)
-                attunementLabel?.let { label ->
-                    SettingPill(icon = Icons.Outlined.Headphones, label = label)
-                }
                 intervalLabel?.let { label ->
                     SettingPill(icon = Icons.Outlined.Repeat, label = label)
                 }
