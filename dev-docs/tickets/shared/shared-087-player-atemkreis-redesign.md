@@ -1,6 +1,6 @@
 # Ticket shared-087: Guided Meditation Player Redesign — Atemkreis & Auto-Start
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan iOS**: [Implementierungsplan](../plans/shared-087-ios.md)
 **Plan Android**: [Implementierungsplan](../plans/shared-087-android.md)
 **Prioritaet**: HOCH
@@ -35,7 +35,7 @@ Das neue Design folgt dem Standard-Use-Case: User startet Meditation, legt Phone
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | iOS-Implementierung als Referenz |
+| Android   | [x]    | iOS-Implementierung als Referenz |
 
 ---
 
