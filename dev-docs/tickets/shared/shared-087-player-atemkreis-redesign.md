@@ -2,6 +2,7 @@
 
 **Status**: [~] IN PROGRESS
 **Plan iOS**: [Implementierungsplan](../plans/shared-087-ios.md)
+**Plan Android**: [Implementierungsplan](../plans/shared-087-android.md)
 **Prioritaet**: HOCH
 **Komplexitaet**: Mittel-hoch. Komplette View-Neuschreibung mit eigenstaendiger Atemkreis-Komponente, Pre-Roll-/Hauptphasen-Uebergang mit Cross-Fade, neuer Glas-Pause-Button. ViewModel-Logik bleibt weitgehend, aber UI-Triggering wechselt von Play-Tap zu Auto-Start. Risiko: korrekte Sync der Atem-Animation mit Pause-State, Backdrop-Blur-Performance auf aelteren Geraeten, Reduced-Motion-Pfad.
 **Phase**: 3-Feature
