@@ -156,11 +156,6 @@ final class TimerViewModel: ObservableObject {
         self.timerState != .idle
     }
 
-    /// Formatted time string
-    var formattedTime: String {
-        self.timer?.formattedTime ?? "00:00"
-    }
-
     // MARK: - Action Dispatch
 
     /// Dispatches an action to the reducer and executes resulting effects

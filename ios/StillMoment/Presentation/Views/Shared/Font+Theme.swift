@@ -242,7 +242,7 @@ extension View {
     ///     Text("timer.idle.headline", bundle: .main)
     ///         .themeFont(.screenTitle)
     ///
-    ///     Text(viewModel.formattedTime)
+    ///     Text(viewModel.formattedRemainingMinutes)
     ///         .themeFont(.timerCountdown, size: isCompact ? 80 : nil)
     ///
     ///     Text(error)

@@ -31,7 +31,7 @@ Affirmations-Texte und die "Schoen, dass du da bist"-Headline sind beide gut gem
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-087 iOS (vorhanden) |
+| iOS       | [x]    | shared-087 iOS (vorhanden) |
 | Android   | [ ]    | iOS-Implementierung als Referenz; shared-087 Android (offen) |
 
 ---

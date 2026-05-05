@@ -204,7 +204,7 @@ private extension Double {
 // MARK: - Previews
 
 @available(iOS 17.0, *)
-#Preview("Playing") {
+#Preview("Playing — Timer (leeres Inneres)") {
     ZStack {
         LinearGradient(
             colors: [
@@ -221,7 +221,7 @@ private extension Double {
             progress: 0.3,
             reduceMotion: false
         ) {
-            GlassPauseButton(isPlaying: true) {}
+            EmptyView()
         }
     }
 }
@@ -269,7 +269,7 @@ private extension Double {
             progress: 0.5,
             reduceMotion: true
         ) {
-            GlassPauseButton(isPlaying: true) {}
+            EmptyView()
         }
     }
 }
