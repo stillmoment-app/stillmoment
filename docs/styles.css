@@ -1048,6 +1048,12 @@ footer {
     direction: ltr;
 }
 
+.split-layout .split-section.text-only {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+    text-align: center;
+}
+
 .split-layout .split-text h2 {
     font-size: 2rem;
     font-weight: 600;
