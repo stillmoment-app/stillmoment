@@ -52,8 +52,8 @@ class AppTabTest {
     @Nested
     inner class Default {
         @Test
-        fun `DEFAULT is TIMER`() {
-            assertEquals(AppTab.TIMER, AppTab.DEFAULT)
+        fun `DEFAULT is LIBRARY`() {
+            assertEquals(AppTab.LIBRARY, AppTab.DEFAULT)
         }
     }
 

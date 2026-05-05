@@ -17,12 +17,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -170,14 +170,6 @@ data class SettingsSheetState(
 
 private val tabs = persistentListOf(
     TabItem(
-        tab = AppTab.TIMER,
-        screen = Screen.TimerGraph,
-        labelResId = R.string.tab_timer,
-        selectedIcon = Icons.Filled.Timer,
-        unselectedIcon = Icons.Outlined.Timer,
-        accessibilityResId = R.string.accessibility_tab_timer
-    ),
-    TabItem(
         tab = AppTab.LIBRARY,
         screen = Screen.Library,
         labelResId = R.string.tab_library,
@@ -186,11 +178,19 @@ private val tabs = persistentListOf(
         accessibilityResId = R.string.accessibility_tab_library
     ),
     TabItem(
+        tab = AppTab.TIMER,
+        screen = Screen.TimerGraph,
+        labelResId = R.string.tab_timer,
+        selectedIcon = Icons.Filled.Timer,
+        unselectedIcon = Icons.Outlined.Timer,
+        accessibilityResId = R.string.accessibility_tab_timer
+    ),
+    TabItem(
         tab = AppTab.SETTINGS,
         screen = Screen.SettingsGraph,
         labelResId = R.string.tab_settings,
-        selectedIcon = Icons.AutoMirrored.Filled.QueueMusic,
-        unselectedIcon = Icons.AutoMirrored.Outlined.QueueMusic,
+        selectedIcon = Icons.Filled.Tune,
+        unselectedIcon = Icons.Outlined.Tune,
         accessibilityResId = R.string.accessibility_tab_settings
     )
 )
