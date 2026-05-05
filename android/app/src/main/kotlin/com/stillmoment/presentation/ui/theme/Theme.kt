@@ -41,7 +41,17 @@ data class StillMomentColors(
     /** Card background color (Light ~= bgPrimary, Dark = own value) */
     val cardBackground: Color,
     /** Card border: Light = Transparent, Dark = subtle stroke */
-    val cardBorder: Color
+    val cardBorder: Color,
+    /** Divider color for the flat settings list on the timer idle screen (shared-089) */
+    val settingsDivider: Color,
+    /** Accent color for the value text in the flat settings list (shared-089) */
+    val settingsValueAccent: Color,
+    /** Active arc color of the BreathDial picker (shared-086) */
+    val dialActiveArc: Color,
+    /** Halo color (with alpha) around the BreathDial droplet (shared-086) */
+    val dialDropletHalo: Color,
+    /** Core fill color of the BreathDial droplet (shared-086) */
+    val dialDropletCore: Color
 )
 
 /**
@@ -49,11 +59,12 @@ data class StillMomentColors(
  * Access via `LocalStillMomentColors.current` in Composables.
  */
 val LocalStillMomentColors = staticCompositionLocalOf {
-    StillMomentColors(
+    buildStillMomentColors(
         progress = CdLightProgress,
         controlTrack = CdLightControlTrack,
         cardBackground = CdLightCardBackground,
-        cardBorder = CdLightCardBorder
+        cardBorder = CdLightCardBorder,
+        interactive = CdLightInteractive
     )
 }
 
@@ -63,21 +74,80 @@ val LocalStillMomentColors = staticCompositionLocalOf {
  */
 internal fun resolveStillMomentColors(theme: ColorTheme, darkTheme: Boolean): StillMomentColors = when (theme) {
     ColorTheme.CANDLELIGHT -> if (darkTheme) {
-        StillMomentColors(CdDarkProgress, CdDarkControlTrack, CdDarkCardBackground, CdDarkCardBorder)
+        buildStillMomentColors(
+            progress = CdDarkProgress,
+            controlTrack = CdDarkControlTrack,
+            cardBackground = CdDarkCardBackground,
+            cardBorder = CdDarkCardBorder,
+            interactive = CdDarkInteractive
+        )
     } else {
-        StillMomentColors(CdLightProgress, CdLightControlTrack, CdLightCardBackground, CdLightCardBorder)
+        buildStillMomentColors(
+            progress = CdLightProgress,
+            controlTrack = CdLightControlTrack,
+            cardBackground = CdLightCardBackground,
+            cardBorder = CdLightCardBorder,
+            interactive = CdLightInteractive
+        )
     }
     ColorTheme.FOREST -> if (darkTheme) {
-        StillMomentColors(FoDarkProgress, FoDarkControlTrack, FoDarkCardBackground, FoDarkCardBorder)
+        buildStillMomentColors(
+            progress = FoDarkProgress,
+            controlTrack = FoDarkControlTrack,
+            cardBackground = FoDarkCardBackground,
+            cardBorder = FoDarkCardBorder,
+            interactive = FoDarkInteractive
+        )
     } else {
-        StillMomentColors(FoLightProgress, FoLightControlTrack, FoLightCardBackground, FoLightCardBorder)
+        buildStillMomentColors(
+            progress = FoLightProgress,
+            controlTrack = FoLightControlTrack,
+            cardBackground = FoLightCardBackground,
+            cardBorder = FoLightCardBorder,
+            interactive = FoLightInteractive
+        )
     }
     ColorTheme.MOON -> if (darkTheme) {
-        StillMomentColors(MnDarkProgress, MnDarkControlTrack, MnDarkCardBackground, MnDarkCardBorder)
+        buildStillMomentColors(
+            progress = MnDarkProgress,
+            controlTrack = MnDarkControlTrack,
+            cardBackground = MnDarkCardBackground,
+            cardBorder = MnDarkCardBorder,
+            interactive = MnDarkInteractive
+        )
     } else {
-        StillMomentColors(MnLightProgress, MnLightControlTrack, MnLightCardBackground, MnLightCardBorder)
+        buildStillMomentColors(
+            progress = MnLightProgress,
+            controlTrack = MnLightControlTrack,
+            cardBackground = MnLightCardBackground,
+            cardBorder = MnLightCardBorder,
+            interactive = MnLightInteractive
+        )
     }
 }
+
+/**
+ * Builds [StillMomentColors] with derived shared-086/089 tokens. Centralised so the
+ * derivation rules (alpha for divider/halo, primary as accent/arc/core) live in one
+ * place and stay consistent across all six theme/mode combinations.
+ */
+private fun buildStillMomentColors(
+    progress: Color,
+    controlTrack: Color,
+    cardBackground: Color,
+    cardBorder: Color,
+    interactive: Color
+): StillMomentColors = StillMomentColors(
+    progress = progress,
+    controlTrack = controlTrack,
+    cardBackground = cardBackground,
+    cardBorder = cardBorder,
+    settingsDivider = controlTrack.copy(alpha = 0.30f),
+    settingsValueAccent = interactive,
+    dialActiveArc = interactive,
+    dialDropletHalo = interactive.copy(alpha = 0.18f),
+    dialDropletCore = interactive
+)
 
 /**
  * Still Moment Theme - Multiple color themes with Material 3.

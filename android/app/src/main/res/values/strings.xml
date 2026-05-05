@@ -5,7 +5,19 @@
 
     <!-- Main Screen -->
     <string name="welcome_title">Lovely to see you</string>
-    <string name="duration_question">How much time do you want to gift yourself?</string>
+
+    <!-- Timer Idle Screen (shared-086 / shared-089) -->
+    <string name="timer_idle_headline">How much time do you want to gift yourself?</string>
+    <string name="timer_dial_unit">Minutes</string>
+    <string name="settings_card_label_preparation">Preparation</string>
+    <string name="settings_card_label_gong">Gong</string>
+    <string name="settings_card_label_interval">Interval</string>
+    <string name="settings_card_label_background">Background</string>
+    <string name="settings_preparation_time_title">Preparation</string>
+    <string name="accessibility_dial_label">Meditation duration</string>
+    <string name="accessibility_dial_value">%d minutes</string>
+    <string name="accessibility_dial_hint">Drag the ring to change the duration.</string>
+    <string name="accessibility_idle_settings_row">%1$s, %2$s, double tap to change</string>
 
     <!-- Common -->
     <string name="common_cancel">Cancel</string>
@@ -271,10 +283,6 @@
     <string name="accessibility_praxis_editor_interval_gongs">Configure interval gongs</string>
     <string name="accessibility_praxis_editor_preparation_toggle">Preparation time toggle</string>
     <string name="accessibility_praxis_editor_preparation_duration">Preparation duration</string>
-
-    <!-- Configuration Pills -->
-    <string name="accessibility_configuration_pills">Current configuration</string>
-    <string name="accessibility_configuration_pills_hint">Opens configuration editor</string>
 
     <!-- Custom Audio Import -->
     <string name="custom_audio_section_my_sounds">My Sounds</string>

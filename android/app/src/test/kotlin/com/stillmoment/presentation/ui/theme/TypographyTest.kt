@@ -215,8 +215,8 @@ class TypographyTest {
     inner class RoleUniqueness {
 
         @Test
-        fun `all 22 roles are defined`() {
-            assertEquals(22, TypographyRole.entries.size)
+        fun `all 24 roles are defined`() {
+            assertEquals(24, TypographyRole.entries.size)
         }
 
         @Test

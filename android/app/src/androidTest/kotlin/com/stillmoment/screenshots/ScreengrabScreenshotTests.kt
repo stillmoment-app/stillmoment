@@ -287,30 +287,39 @@ class ScreengrabScreenshotTests {
 
     @Test
     fun screenshot05_settingsView() {
-        // Set up interesting praxis config for a nice editor screenshot
+        // Set up interesting praxis config so the flat settings list (shared-089)
+        // is in a visually rich state — preparation enabled, interval gongs on,
+        // a soundscape selected for the background row to read as active.
         runBlocking {
             praxisDataStore.save(
                 Praxis.Default.copy(
                     preparationTimeEnabled = true,
                     preparationTimeSeconds = 15,
                     intervalGongsEnabled = true,
-                    intervalMinutes = 5
+                    intervalMinutes = 5,
+                    backgroundSoundId = "forest"
                 )
             )
         }
 
         navigateToTimerTab()
 
-        // Tap configuration pills to open Praxis Editor
-        val pillsMatcher = localizedContentDescription("Current configuration", "Aktuelle Konfiguration")
-        waitForNode(pillsMatcher)
-        composeRule.onNode(pillsMatcher).performClick()
+        // Tap the background row in the new flat idle settings list to navigate
+        // directly into the Background sub-screen (no PraxisEditor index in
+        // between since shared-089).
+        val backgroundRowMatcher = hasContentDescription(
+            "Background",
+            substring = true,
+            ignoreCase = true
+        ).or(hasContentDescription("Hintergrund", substring = true, ignoreCase = true))
+        waitForNode(backgroundRowMatcher)
+        composeRule.onAllNodes(backgroundRowMatcher).onFirst().performClick()
         composeRule.waitForIdle()
 
-        // Wait for Praxis Editor to appear
-        val editorTitleMatcher = hasText("Configuration", ignoreCase = true)
-            .or(hasText("Konfiguration", ignoreCase = true))
-        waitForNodeDisplayed(editorTitleMatcher)
+        // Background sub-screen should now show — wait for any sound name.
+        val forestMatcher = hasText("Forest", substring = true, ignoreCase = true)
+            .or(hasText("Wald", substring = true, ignoreCase = true))
+        waitForNodeDisplayed(forestMatcher)
 
         takeScreenshot("05_SettingsView")
     }

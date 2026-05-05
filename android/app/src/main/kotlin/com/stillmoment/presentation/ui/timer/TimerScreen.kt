@@ -1,43 +1,27 @@
 package com.stillmoment.presentation.ui.timer
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.Air
-import androidx.compose.material.icons.outlined.HourglassEmpty
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -57,17 +41,27 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.timer.components.BreathDial
+import com.stillmoment.presentation.ui.timer.components.IdleSettingsList
+import com.stillmoment.presentation.ui.timer.components.IdleSettingsListItem
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 
 /**
- * Timer Screen - Main meditation timer view.
- * Displays duration picker in idle state. Navigates to focus mode when timer starts.
+ * Timer Screen - Main meditation timer view (shared-086 / shared-089).
+ *
+ * Idle-Layout: Headline → BreathDial (Atemkreis) → flache 4-Zeilen-Settings-Liste
+ * → Beginnen-Button. Tap auf eine Listen-Zeile navigiert direkt in den jeweiligen
+ * Sub-Screen (kein PraxisEditor-Index dazwischen). Nach Wert-Aenderung im
+ * Atemkreis wird die Dauer ueber [TimerViewModel.setSelectedMinutes] persistiert.
  */
 @Composable
 fun TimerScreen(
     onNavigateToFocus: () -> Unit,
-    onNavigateToEditor: () -> Unit,
+    onNavigateToPreparation: () -> Unit,
+    onNavigateToGong: () -> Unit,
+    onNavigateToInterval: () -> Unit,
+    onNavigateToBackground: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: TimerViewModel = hiltViewModel()
 ) {
@@ -80,7 +74,10 @@ fun TimerScreen(
             viewModel.startTimer()
             onNavigateToFocus()
         },
-        onNavigateToEditor = onNavigateToEditor,
+        onNavigateToPreparation = onNavigateToPreparation,
+        onNavigateToGong = onNavigateToGong,
+        onNavigateToInterval = onNavigateToInterval,
+        onNavigateToBackground = onNavigateToBackground,
         modifier = modifier
     )
 }
@@ -90,7 +87,10 @@ internal fun TimerScreenContent(
     uiState: TimerUiState,
     onMinutesChange: (Int) -> Unit,
     onStartClick: () -> Unit,
-    onNavigateToEditor: () -> Unit,
+    onNavigateToPreparation: () -> Unit,
+    onNavigateToGong: () -> Unit,
+    onNavigateToInterval: () -> Unit,
+    onNavigateToBackground: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -101,7 +101,10 @@ internal fun TimerScreenContent(
                 uiState = uiState,
                 onMinutesChange = onMinutesChange,
                 onStartClick = onStartClick,
-                onNavigateToEditor = onNavigateToEditor,
+                onNavigateToPreparation = onNavigateToPreparation,
+                onNavigateToGong = onNavigateToGong,
+                onNavigateToInterval = onNavigateToInterval,
+                onNavigateToBackground = onNavigateToBackground,
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -113,9 +116,18 @@ private fun TimerScreenLayout(
     uiState: TimerUiState,
     onMinutesChange: (Int) -> Unit,
     onStartClick: () -> Unit,
-    onNavigateToEditor: () -> Unit,
+    onNavigateToPreparation: () -> Unit,
+    onNavigateToGong: () -> Unit,
+    onNavigateToInterval: () -> Unit,
+    onNavigateToBackground: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isCompact = LocalConfiguration.current.screenHeightDp < COMPACT_HEIGHT_THRESHOLD_DP
+    val dialDiameter = if (isCompact) 180.dp else 220.dp
+    val headlineToDial = if (isCompact) 18.dp else 28.dp
+    val dialToList = if (isCompact) 32.dp else 72.dp
+    val listToButton = if (isCompact) 24.dp else 32.dp
+
     Box(modifier = modifier.fillMaxSize()) {
         StillMomentTopAppBar()
 
@@ -127,22 +139,40 @@ private fun TimerScreenLayout(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1f))
+
             Text(
-                text = stringResource(R.string.welcome_title),
+                text = stringResource(R.string.timer_idle_headline),
                 style = TypographyRole.ScreenTitle.textStyle(),
                 color = TypographyRole.ScreenTitle.textColor(),
+                textAlign = TextAlign.Center,
                 modifier = Modifier.semantics { heading() }
             )
-            Spacer(modifier = Modifier.height(24.dp))
-            MinutePicker(
-                selectedMinutes = uiState.selectedMinutes,
-                onMinutesChange = onMinutesChange,
+
+            Spacer(modifier = Modifier.height(headlineToDial))
+
+            BreathDial(
+                value = uiState.selectedMinutes,
+                onValueChange = onMinutesChange,
+                diameter = dialDiameter
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            ConfigurationPills(uiState = uiState, onClick = onNavigateToEditor)
+
+            Spacer(modifier = Modifier.height(dialToList))
+
+            IdleSettingsList(
+                preparation = preparationListItem(uiState.currentPraxis, onNavigateToPreparation),
+                gong = gongListItem(uiState.currentPraxis, onNavigateToGong),
+                interval = intervalListItem(uiState.currentPraxis, onNavigateToInterval),
+                background = backgroundListItem(uiState, onNavigateToBackground),
+                isCompactHeight = isCompact
+            )
+
+            Spacer(modifier = Modifier.height(listToButton))
             Spacer(modifier = Modifier.weight(1f))
+
             StartButton(onClick = onStartClick)
+
             Spacer(modifier = Modifier.height(16.dp))
+
             uiState.errorMessage?.let { error ->
                 Text(
                     text = error,
@@ -153,51 +183,6 @@ private fun TimerScreenLayout(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun MinutePicker(selectedMinutes: Int, onMinutesChange: (Int) -> Unit, modifier: Modifier = Modifier) {
-    // Use screen height like iOS does with geometry.size.height
-    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < 700
-    val visibleItems = if (isCompactHeight) 3 else 5
-    val pickerHeight = (visibleItems * 40).dp
-    val imageSize = if (isCompactHeight) 100.dp else 150.dp
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Hands with Heart Image
-        Image(
-            painter = painterResource(id = R.drawable.hands_heart),
-            contentDescription = null,
-            modifier =
-            Modifier
-                .height(imageSize)
-                .padding(bottom = if (isCompactHeight) 4.dp else 8.dp)
-        )
-
-        // Question
-        Text(
-            text = stringResource(R.string.duration_question),
-            style = TypographyRole.BodySecondary.textStyle(),
-            color = TypographyRole.BodySecondary.textColor(),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 24.dp))
-
-        // Wheel Picker
-        WheelPicker(
-            selectedValue = selectedMinutes,
-            onValueChange = onMinutesChange,
-            range = 1..60,
-            visibleItems = visibleItems,
-            modifier = Modifier.height(pickerHeight)
-        )
     }
 }
 
@@ -229,95 +214,81 @@ private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-// MARK: - Configuration Pills
+// region Card-Label Helpers (shared-089)
 
 /**
- * Tappable row of pills showing the current meditation configuration.
- * Matches the iOS configurationPillsRow pattern. Tapping opens the Praxis Editor.
- *
- * Pills: Preparation (if enabled), Gong, Background, Interval (if enabled)
+ * Composable helper that builds an [IdleSettingsListItem] for the preparation row.
+ * Pendant zu iOS `preparationCardLabel`/`preparationCardIsOff`.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ConfigurationPills(uiState: TimerUiState, onClick: () -> Unit) {
-    val pillsLabel = stringResource(R.string.accessibility_configuration_pills)
-    val pillsHint = stringResource(R.string.accessibility_configuration_pills_hint)
-    val praxis = uiState.currentPraxis
+private fun preparationListItem(praxis: Praxis, onClick: () -> Unit): IdleSettingsListItem {
+    val label = stringResource(R.string.settings_card_label_preparation)
+    val isOff = IdleSettingsRowState.preparationIsOff(praxis)
+    val value = if (isOff) {
+        stringResource(R.string.common_off)
+    } else {
+        stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
+    }
+    return idleListItem(label, value, isOff, "timer.row.preparation", onClick)
+}
 
+@Composable
+private fun gongListItem(praxis: Praxis, onClick: () -> Unit): IdleSettingsListItem {
+    val label = stringResource(R.string.settings_card_label_gong)
     val language = LocalConfiguration.current.locales[0].language
-    val preparationLabel = preparationPillLabel(praxis)
-    val gongLabel = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
-    val backgroundLabel = uiState.resolvedBackgroundSoundName
-        ?: stringResource(R.string.praxis_description_silent)
-    val intervalLabel = intervalPillLabel(praxis)
+    val value = GongSound.findOrDefault(praxis.gongSoundId).localizedName(language)
+    return idleListItem(
+        label,
+        value,
+        isOff = IdleSettingsRowState.gongIsOff(praxis),
+        identifier = "timer.row.gong",
+        onClick = onClick
+    )
+}
 
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier
-            .semantics {
-                contentDescription = "$pillsLabel. $pillsHint"
-            }
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                preparationLabel?.let { label ->
-                    SettingPill(icon = Icons.Outlined.HourglassEmpty, label = label)
-                }
-                SettingPill(icon = Icons.Outlined.Notifications, label = gongLabel)
-                SettingPill(icon = Icons.Outlined.Air, label = backgroundLabel)
-                intervalLabel?.let { label ->
-                    SettingPill(icon = Icons.Outlined.Repeat, label = label)
-                }
-            }
-        }
+@Composable
+private fun intervalListItem(praxis: Praxis, onClick: () -> Unit): IdleSettingsListItem {
+    val label = stringResource(R.string.settings_card_label_interval)
+    val isOff = IdleSettingsRowState.intervalIsOff(praxis)
+    val value = if (isOff) {
+        stringResource(R.string.common_off)
+    } else {
+        stringResource(R.string.settings_interval_minutes_format, praxis.intervalMinutes)
     }
+    return idleListItem(label, value, isOff, "timer.row.interval", onClick)
 }
 
 @Composable
-private fun preparationPillLabel(praxis: Praxis): String? {
-    if (!praxis.preparationTimeEnabled) return null
-    return stringResource(R.string.praxis_pill_preparation, praxis.preparationTimeSeconds)
+private fun backgroundListItem(uiState: TimerUiState, onClick: () -> Unit): IdleSettingsListItem {
+    val label = stringResource(R.string.settings_card_label_background)
+    val silenceLabel = stringResource(R.string.praxis_description_silent)
+    val isOff = IdleSettingsRowState.backgroundIsOff(uiState.currentPraxis)
+    val value = uiState.resolvedBackgroundSoundName ?: silenceLabel
+    return idleListItem(label, value, isOff, "timer.row.background", onClick)
 }
 
 @Composable
-private fun intervalPillLabel(praxis: Praxis): String? {
-    if (!praxis.intervalGongsEnabled) return null
-    return stringResource(R.string.settings_interval_minutes_format, praxis.intervalMinutes)
+private fun idleListItem(
+    label: String,
+    value: String,
+    isOff: Boolean,
+    identifier: String,
+    onClick: () -> Unit
+): IdleSettingsListItem {
+    val accessibilityLabel = stringResource(R.string.accessibility_idle_settings_row, label, value)
+    return IdleSettingsListItem(
+        label = label,
+        value = value,
+        isOff = isOff,
+        identifier = identifier,
+        accessibilityLabel = accessibilityLabel,
+        onClick = onClick
+    )
 }
 
-@Composable
-private fun SettingPill(icon: ImageVector, label: String, modifier: Modifier = Modifier) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .border(
-                width = 0.5.dp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 10.dp, vertical = 6.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(14.dp)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = label,
-            style = TypographyRole.Caption.textStyle(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
+// endregion
+
+private const val COMPACT_HEIGHT_THRESHOLD_DP = 700
 
 // MARK: - Previews
 
@@ -331,7 +302,27 @@ private fun TimerScreenIdlePreview() {
             uiState = TimerUiState(),
             onMinutesChange = {},
             onStartClick = {},
-            onNavigateToEditor = {}
+            onNavigateToPreparation = {},
+            onNavigateToGong = {},
+            onNavigateToInterval = {},
+            onNavigateToBackground = {}
+        )
+    }
+}
+
+@Suppress("UnusedPrivateMember") // @Preview composables are surfaced by the IDE, not by callers.
+@Preview(name = "Phone Small Dark", widthDp = 360, heightDp = 640, showBackground = true)
+@Composable
+private fun TimerScreenIdlePreviewDark() {
+    StillMomentTheme(darkTheme = true) {
+        TimerScreenContent(
+            uiState = TimerUiState(),
+            onMinutesChange = {},
+            onStartClick = {},
+            onNavigateToPreparation = {},
+            onNavigateToGong = {},
+            onNavigateToInterval = {},
+            onNavigateToBackground = {}
         )
     }
 }
