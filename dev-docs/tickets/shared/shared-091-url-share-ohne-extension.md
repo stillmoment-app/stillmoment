@@ -1,6 +1,8 @@
 # Ticket shared-091: URL-Share akzeptiert Audio-URLs ohne .mp3/.m4a-Endung
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan iOS**: [Implementierungsplan iOS](../plans/shared-091-ios.md)
+**Plan Android**: [Implementierungsplan Android](../plans/shared-091-android.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Fachliche Logik klein, aber UX-Fallback bei nicht-Audio-URLs muss sauber sein. Risiko: Downloads landen in einem Loading-Dialog, der vorher gar nicht sichtbar wurde.
 **Phase**: 1-Quick Fix
@@ -31,9 +33,9 @@ Viele Podcast-/Talk-Plattformen (audiodharma.org, Dharma Seed, vereinzelt SoundC
 ### Feature (beide Plattformen)
 - [ ] Eine HTTP/HTTPS-URL ohne erkennbare Audio-Endung wird von der Share-Erkennung akzeptiert (Download-Modal oeffnet sich)
 - [ ] Liefert der Server beim Download einen unterstuetzten Audio-Content-Type (audio/mpeg, audio/mp4, audio/x-m4a, application/octet-stream), wird die Datei importiert
-- [ ] Liefert der Server einen nicht-unterstuetzten Content-Type (z. B. text/html), zeigt der Download-Dialog einen verstaendlichen Fehlertext und einen "Schliessen"-Pfad
+- [ ] Liefert der Server einen nicht-unterstuetzten Content-Type (z. B. text/html), zeigt der Download-Dialog Title "Keine Aufnahme gefunden" / Message "Wir konnten unter diesem Link keine Aufnahme finden." und einen "Schliessen"-Pfad (kein Retry)
 - [ ] Konkrete Beispiel-URL `https://www.audiodharma.org/talks/25401/download` laesst sich erfolgreich teilen → Datei landet in der Meditations-Bibliothek
-- [ ] Lokalisiert (DE + EN) — neuer Fehlertext fuer "kein Audio hinter URL"
+- [ ] Lokalisiert (DE + EN) — Title/Message/Button-Texte fuer "keine Aufnahme gefunden"
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests

@@ -1,6 +1,6 @@
 # Ticket shared-089: Timer-Idle-Screen mit flacher Settings-Liste statt Karten-Grid
 
-**Status**: [x] DONE (iOS) — Android offen
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Visuelle Beruhigung des Idle-Screens durch Ersetzen des Karten-Grids durch eine flache Listenkomponente und Entfernen der +/- Buttons am Atemkreis. Bewusster Konflikt mit shared-086 (Sub-Headline und +/- Buttons werden ueberschrieben). Voraussetzung ist shared-088 (genau 4 Settings uebrig). Risiko liegt in der vertikalen Verteilung auf kleinen vs. grossen Geraeten und in der semantischen Theme-Belegung der Listen-Optik (akzentuierter Wert-Text, Trennlinien, Inaktiv-Opazitaet) ohne direkte Hex-Werte.
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Das aktuelle Karten-Grid (3+2) konkurriert visuell mit dem Atemkreis und macht d
 | Plattform | Status | Abhaengigkeit              |
 |-----------|--------|----------------------------|
 | iOS       | [x]    | shared-086, shared-088     |
-| Android   | [ ]    | shared-086, shared-088     |
+| Android   | [x]    | shared-086, shared-088     |
 
 ---
 
@@ -76,7 +76,7 @@ Das aktuelle Karten-Grid (3+2) konkurriert visuell mit dem Atemkreis und macht d
 - [x] Beginnen-Button bleibt der bestehende `.warmPrimaryButton()` — kein neuer Stil, kein copper-Pill-Glow aus dem Handoff. (iOS)
 - [x] Headline "Wie viel Zeit schenkst du dir?" bleibt unveraendert in Text, Position und Typo-Rolle. (iOS)
 - [x] Lokalisierung DE + EN: bestehende Setting-Labels weiterverwendet, "timer.idle.sectionTitle" entfernt, neuer Format-String `accessibility.idleSettings.row` hinzugefuegt. (iOS)
-- [ ] Visuell konsistent zwischen iOS und Android — gleiche Reihenfolge, gleiche Wert-Akzentuierung, gleiche Inaktiv-Optik, gleiche responsive Logik. (Android offen)
+- [x] Visuell konsistent zwischen iOS und Android — gleiche Reihenfolge, gleiche Wert-Akzentuierung, gleiche Inaktiv-Optik, gleiche responsive Logik.
 
 ### Tests
 
