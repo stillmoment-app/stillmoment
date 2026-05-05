@@ -112,7 +112,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-085](shared/shared-085-store-website-meditationen-zuerst.md) | Store + Website spiegeln Meditationen-zuerst-IA | 4-Polish | [ ] | [ ] |
 | [shared-086](shared/shared-086-atemkreis-picker-timer-konfig.md) | Atemkreis-Picker und UI-Feinpolitur am Timer-Konfig | 4-Polish | [x] | — in shared-089 (zusammen umgesetzt, ohne +/-Buttons / Sub-Headline / Sentence-Case-Karten) |
 | [shared-087](shared/shared-087-player-atemkreis-redesign.md) | Guided Meditation Player Redesign — Atemkreis & Auto-Start | 3-Feature | [x] | [ ] |
-| [shared-088](shared/shared-088-einstimmung-feature-entfernen.md) | Einstimmung-Feature entfernen | 2-Architektur | [~] | [ ] |
+| [shared-088](shared/shared-088-einstimmung-feature-entfernen.md) | Einstimmung-Feature entfernen | 2-Architektur | [~] | [x] |
 | [shared-089](shared/shared-089-timer-idle-listen-layout.md) | Timer-Idle-Screen mit flacher Settings-Liste | 4-Polish | [ ] | [ ] |
 | [shared-090](shared/shared-090-timer-atemkreis-analog-player.md) | Timer-Display analog zum Player (Atemkreis) | 4-Polish | [x] | [ ] |
 

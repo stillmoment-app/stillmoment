@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
  * Repository interface for managing custom audio files.
  *
  * Implementations copy imported files to local app storage, persist metadata,
- * and provide lookup by ID or type. Supports both soundscapes (background loops)
- * and attunements (one-shot attunement audio).
+ * and provide lookup by ID or type. Currently only soundscapes (background loops)
+ * are supported; the type parameter is kept so future custom-audio kinds can extend it.
  */
 interface CustomAudioRepository {
     /**
@@ -31,7 +31,7 @@ interface CustomAudioRepository {
      * Supported formats: mp3, m4a, wav.
      *
      * @param uri Content URI from Storage Access Framework
-     * @param type Whether this is a soundscape or attunement
+     * @param type The custom-audio kind (currently only SOUNDSCAPE)
      * @return Result with the imported CustomAudioFile or a CustomAudioError
      */
     suspend fun importFile(uri: Uri, type: CustomAudioType): Result<CustomAudioFile>

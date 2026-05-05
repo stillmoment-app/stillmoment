@@ -7,9 +7,8 @@ import kotlinx.serialization.Serializable
 /**
  * A user-imported audio file stored in local app storage.
  *
- * Custom audio files are copied to internal storage and can be used
- * as soundscapes (background loops) or attunements (one-shot audio)
- * within a Praxis configuration.
+ * Custom audio files are copied to internal storage and used as
+ * soundscapes (background loops) within a Praxis configuration.
  *
  * CustomAudioFile is an immutable value object -- all state changes produce new instances.
  *
@@ -17,7 +16,7 @@ import kotlinx.serialization.Serializable
  * @property name Display name (derived from filename without extension on import)
  * @property filename Actual filename in local storage (UUID-based, e.g. "3A9F...mp3")
  * @property durationMs Audio duration in milliseconds (null if detection failed)
- * @property type Whether this is a soundscape or attunement
+ * @property type The custom-audio kind (currently only SOUNDSCAPE; field kept for forward-compat)
  * @property dateAdded When the file was imported (epoch millis)
  */
 @Serializable

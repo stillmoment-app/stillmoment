@@ -31,7 +31,7 @@ Das widerspricht der App-Philosophie "Einfachheit ueber Features". Die Entfernun
 | Plattform | Status         | Abhaengigkeit |
 |-----------|----------------|---------------|
 | iOS       | [~] IN PROGRESS| -             |
-| Android   | [~] IN PROGRESS| -             |
+| Android   | [x] DONE       | -             |
 
 ---
 

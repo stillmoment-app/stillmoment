@@ -82,8 +82,8 @@ private val DropdownShape = RoundedCornerShape(12.dp)
  * Replaces the old settings bottom sheet with a chronological layout:
  * Preparation -> Audio & Sounds -> Gongs.
  *
- * Navigation to sub-screens (Attunement, Background, Gong, Interval Gongs)
- * is handled via lambda callbacks -- no NavController dependency.
+ * Navigation to sub-screens (Background, Gong, Interval Gongs) is handled
+ * via lambda callbacks -- no NavController dependency.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
