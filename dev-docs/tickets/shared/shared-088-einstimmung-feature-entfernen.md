@@ -2,6 +2,7 @@
 
 **Status**: [~] IN PROGRESS
 **Plan (iOS)**: [Implementierungsplan](../plans/shared-088-ios.md)
+**Plan (Android)**: [Implementierungsplan](../plans/shared-088-android.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Querschnitt durch alle Layer — Domain (Timer-State-Machine, Phasen), Application (ViewModels, Timer-Berechnung), Presentation (Timer-Konfig, Import-UI), Infrastructure (Audio-Resolver, Persistenz). Risiko: Migration bestehender Settings/Imports und vollstaendiges Aufraeumen ohne tote Code-Pfade.
 **Phase**: 2-Architektur
@@ -30,7 +31,7 @@ Das widerspricht der App-Philosophie "Einfachheit ueber Features". Die Entfernun
 | Plattform | Status         | Abhaengigkeit |
 |-----------|----------------|---------------|
 | iOS       | [~] IN PROGRESS| -             |
-| Android   | [ ]            | -             |
+| Android   | [~] IN PROGRESS| -             |
 
 ---
 
