@@ -5,6 +5,7 @@
 **Komplexitaet**: Niedrig — Tab-Reihenfolge tauschen + Default-Tab beim ersten Start. Last-used-Persistenz (shared-002) muss erhalten bleiben.
 **Phase**: 4-Polish
 **Plan iOS**: [Implementierungsplan](../plans/shared-084-ios.md)
+**Plan Android**: [Implementierungsplan](../plans/shared-084-android.md)
 
 ---
 
