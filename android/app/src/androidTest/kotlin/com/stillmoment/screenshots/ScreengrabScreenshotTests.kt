@@ -278,9 +278,10 @@ class ScreengrabScreenshotTests {
 
         takeScreenshot("04_PlayerView")
 
-        // Close player - navigate back
+        // Close player - navigate back. Since shared-087 the close button uses
+        // the "Back to library" accessibility label (analog iOS) instead of "Close".
         composeRule.onNode(
-            localizedContentDescription("Close", "Schließen")
+            localizedContentDescription("Back to library", "Zurück zur Bibliothek")
         ).performClick()
     }
 

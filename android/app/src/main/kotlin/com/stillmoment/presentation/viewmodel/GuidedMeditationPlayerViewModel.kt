@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
@@ -55,6 +56,16 @@ data class PlayerUiState(
     val countdownProgress: Double
         get() = preparationCountdown?.progress ?: 0.0
 
+    /**
+     * Visuelle Phase des Players.
+     *
+     * - [MeditationPhase.PreRoll] solange die Vorbereitung laeuft.
+     * - [MeditationPhase.Playing] ansonsten (auch bei Pause, Loading, Idle, Finished —
+     *   der Atemkreis sieht in all diesen Zustaenden gleich aus).
+     */
+    val phase: MeditationPhase
+        get() = if (isPreparing) MeditationPhase.PreRoll else MeditationPhase.Playing
+
     /** Formatted current position (MM:SS or HH:MM:SS) */
     val formattedPosition: String
         get() = formatTime(currentPosition)
@@ -66,6 +77,15 @@ data class PlayerUiState(
     /** Formatted remaining time (MM:SS or HH:MM:SS) */
     val formattedRemaining: String
         get() = formatTime(duration - currentPosition)
+
+    /**
+     * Restzeit fuer das "NOCH … MIN"-Label im neuen Player-Layout.
+     *
+     * Identisch mit [formattedRemaining] — eigene Property, weil der
+     * View-Aufruf so semantisch klar bleibt ("Minuten-Label im Atemkreis-Player").
+     */
+    val formattedRemainingMinutes: String
+        get() = formattedRemaining
 
     private fun formatTime(ms: Long): String {
         val totalSeconds = (ms / 1000).coerceAtLeast(0)
@@ -156,9 +176,14 @@ constructor(
      * Loads a meditation for playback.
      * Loads the preparation time setting from the repository.
      *
+     * Suspend, damit der direkte Folge-Aufruf [startPlayback] das
+     * geladene `preparationTimeSeconds` sicher sieht. Andernfalls wuerde
+     * Auto-Start ggf. mit `preparationTimeSeconds == null` losspielen,
+     * obwohl Pre-Roll konfiguriert ist.
+     *
      * @param meditation Meditation to load
      */
-    fun loadMeditation(meditation: GuidedMeditation) {
+    suspend fun loadMeditation(meditation: GuidedMeditation) {
         // Cancel any running countdown
         countdownJob?.cancel()
         countdownJob = null
@@ -179,11 +204,9 @@ constructor(
             )
         }
 
-        // Load settings from repository
-        viewModelScope.launch {
-            val settings = settingsRepository.getSettings()
-            preparationTimeSeconds = settings.effectivePreparationTimeSeconds
-        }
+        // Load settings sequentially so startPlayback() sees the value.
+        val settings = settingsRepository.getSettings()
+        preparationTimeSeconds = settings.effectivePreparationTimeSeconds
     }
 
     /**

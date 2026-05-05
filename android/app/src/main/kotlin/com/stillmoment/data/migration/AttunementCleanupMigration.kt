@@ -1,12 +1,11 @@
 package com.stillmoment.data.migration
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import com.stillmoment.data.local.appSettingsDataStore
+import com.stillmoment.data.local.customAudioDataStore
 import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -19,23 +18,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-
-/**
- * Identical preferencesDataStore name as [com.stillmoment.data.local.CustomAudioDataStore].
- * Multiple `preferencesDataStore` calls with the same name share the same instance,
- * so the migration sees the same backing file as the production data store.
- */
-private val Context.customAudioDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "custom_audio"
-)
-
-/**
- * Same backing file as [com.stillmoment.data.local.SettingsDataStore]. Used here for the
- * idempotency marker and to remove legacy attunement keys.
- */
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "settings"
-)
 
 /**
  * One-shot migration that removes the Einstimmung/Attunement feature data on first start
@@ -65,7 +47,7 @@ class AttunementCleanupMigration @Inject constructor(
      * Runs the migration once. Subsequent calls are no-ops thanks to the marker.
      */
     suspend fun runIfNeeded() {
-        val alreadyRun = context.settingsDataStore.data.first()[MARKER_KEY] == true
+        val alreadyRun = context.appSettingsDataStore.data.first()[MARKER_KEY] == true
         if (alreadyRun) return
 
         val filteredCount = filterCustomAudioJson()
@@ -119,7 +101,7 @@ class AttunementCleanupMigration @Inject constructor(
     @Suppress("TooGenericExceptionCaught") // intentional: any failure is logged, marker still set
     private suspend fun removeLegacySettingsKeys() {
         try {
-            context.settingsDataStore.edit { prefs ->
+            context.appSettingsDataStore.edit { prefs ->
                 prefs.remove(stringPreferencesKey("introductionId"))
                 prefs.remove(booleanPreferencesKey("introductionEnabled"))
             }
@@ -129,7 +111,7 @@ class AttunementCleanupMigration @Inject constructor(
     }
 
     private suspend fun setMarker() {
-        context.settingsDataStore.edit { prefs ->
+        context.appSettingsDataStore.edit { prefs ->
             prefs[MARKER_KEY] = true
         }
     }

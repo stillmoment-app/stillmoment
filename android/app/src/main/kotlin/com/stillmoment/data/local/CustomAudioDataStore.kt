@@ -19,7 +19,10 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-private val Context.customAudioDataStore: DataStore<Preferences> by preferencesDataStore(
+// Extension property for the "custom_audio" DataStore. Shared with
+// [com.stillmoment.data.migration.AttunementCleanupMigration]; see the
+// `appSettingsDataStore` doc comment for the multi-instance crash this prevents.
+internal val Context.customAudioDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "custom_audio"
 )
 
