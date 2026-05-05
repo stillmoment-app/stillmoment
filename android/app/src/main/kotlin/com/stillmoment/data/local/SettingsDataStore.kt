@@ -16,8 +16,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-// Extension property for DataStore
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+// Extension property for the app-level "settings" DataStore.
+//
+// Visibility is `internal` (not `private`) so [com.stillmoment.data.migration.AttunementCleanupMigration]
+// can share the SAME DataStore instance via this property delegate. Defining a second
+// `preferencesDataStore(name = "settings")` in another file would create a second
+// `DataStoreImpl` pointing at the same `settings.preferences_pb` file and crash with
+// `IllegalStateException: There are multiple DataStores active for the same file` on first read.
+internal val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "settings"
 )
 
@@ -42,7 +48,7 @@ constructor(
      * Emits the saved tab or AppTab.DEFAULT for new installations.
      */
     val selectedTabFlow: Flow<AppTab> =
-        context.dataStore.data
+        context.appSettingsDataStore.data
             .map { preferences ->
                 AppTab.fromRoute(preferences[Keys.SELECTED_TAB])
             }
@@ -59,7 +65,7 @@ constructor(
      * Save the selected tab.
      */
     suspend fun setSelectedTab(tab: AppTab) {
-        context.dataStore.edit { preferences ->
+        context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.SELECTED_TAB] = tab.route
         }
     }
@@ -69,7 +75,7 @@ constructor(
      * Emits the saved theme or ColorTheme.DEFAULT for new installations.
      */
     val selectedThemeFlow: Flow<ColorTheme> =
-        context.dataStore.data
+        context.appSettingsDataStore.data
             .map { preferences ->
                 ColorTheme.fromString(preferences[Keys.SELECTED_THEME])
             }
@@ -85,7 +91,7 @@ constructor(
      * Save the selected color theme.
      */
     suspend fun setSelectedTheme(theme: ColorTheme) {
-        context.dataStore.edit { preferences ->
+        context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.SELECTED_THEME] = theme.name
         }
     }
@@ -95,7 +101,7 @@ constructor(
      * Emits the saved mode or AppearanceMode.DEFAULT (SYSTEM) for new installations.
      */
     val appearanceModeFlow: Flow<AppearanceMode> =
-        context.dataStore.data
+        context.appSettingsDataStore.data
             .map { preferences ->
                 AppearanceMode.fromString(preferences[Keys.APPEARANCE_MODE])
             }
@@ -111,7 +117,7 @@ constructor(
      * Save the selected appearance mode.
      */
     suspend fun setAppearanceMode(mode: AppearanceMode) {
-        context.dataStore.edit { preferences ->
+        context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.APPEARANCE_MODE] = mode.name
         }
     }
