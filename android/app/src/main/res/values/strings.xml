@@ -132,6 +132,11 @@
     <string name="accessibility_meditation_item">%1$s, duration %2$s</string>
 
 
+    <!-- Guided Meditations Player (shared-087) -->
+    <string name="guided_meditations_player_remaining_time_format">%1$s MIN LEFT</string>
+    <string name="guided_meditations_player_preroll_hint">STARTING IN A MOMENT</string>
+    <string name="guided_meditations_player_preroll_label">Preparation</string>
+
     <!-- Player Accessibility -->
     <string name="accessibility_player_progress">Playback progress: %d percent</string>
     <string name="accessibility_seek_slider">Seek slider</string>

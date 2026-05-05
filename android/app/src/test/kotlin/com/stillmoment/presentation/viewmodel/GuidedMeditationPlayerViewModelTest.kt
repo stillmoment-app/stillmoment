@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.viewmodel
 
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.PreparationCountdown
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
@@ -484,6 +485,84 @@ class GuidedMeditationPlayerViewModelTest {
             )
 
             assertEquals("0:00", state.formattedRemaining)
+        }
+    }
+
+    // MARK: - Phase Tests (shared-087)
+
+    @Nested
+    inner class PhaseTests {
+        @Test
+        fun `phase is Playing when no countdown`() {
+            val state = PlayerUiState()
+
+            assertEquals(MeditationPhase.Playing, state.phase)
+        }
+
+        @Test
+        fun `phase is PreRoll while countdown is active`() {
+            val countdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 10)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertEquals(MeditationPhase.PreRoll, state.phase)
+        }
+
+        @Test
+        fun `phase is Playing when countdown finished`() {
+            val countdown = PreparationCountdown(totalSeconds = 15, remainingSeconds = 0)
+            val state = PlayerUiState(preparationCountdown = countdown)
+
+            assertEquals(MeditationPhase.Playing, state.phase)
+        }
+
+        @Test
+        fun `phase remains Playing after pause`() {
+            // Player paused mid-playback — Atemkreis sieht visuell identisch aus
+            val state = PlayerUiState(
+                isPlaying = false,
+                currentPosition = 150_000L,
+                duration = 300_000L,
+                progress = 0.5f
+            )
+
+            assertEquals(MeditationPhase.Playing, state.phase)
+        }
+    }
+
+    // MARK: - formattedRemainingMinutes Tests (shared-087)
+
+    @Nested
+    inner class FormattedRemainingMinutesTests {
+        @Test
+        fun `formats remaining as mm-ss for 8-32`() {
+            // 600s duration, 88s elapsed → 512s remaining = 8:32
+            val state = PlayerUiState(
+                currentPosition = 88_000L,
+                duration = 600_000L
+            )
+
+            assertEquals("8:32", state.formattedRemainingMinutes)
+        }
+
+        @Test
+        fun `pads seconds below ten`() {
+            // 600s - 555s = 45s → 0:45
+            val state = PlayerUiState(
+                currentPosition = 555_000L,
+                duration = 600_000L
+            )
+
+            assertEquals("0:45", state.formattedRemainingMinutes)
+        }
+
+        @Test
+        fun `is zero when at end`() {
+            val state = PlayerUiState(
+                currentPosition = 600_000L,
+                duration = 600_000L
+            )
+
+            assertEquals("0:00", state.formattedRemainingMinutes)
         }
     }
 
