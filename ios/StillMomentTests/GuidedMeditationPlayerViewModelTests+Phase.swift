@@ -8,12 +8,12 @@ import XCTest
 @testable import StillMoment
 
 extension GuidedMeditationPlayerViewModelTests {
-    // MARK: - PlayerPhase
+    // MARK: - MeditationPhase
 
-    func testPhase_isPausedInitially() {
+    func testPhase_isPlayingInitiallyWithoutPreRoll() {
         // Given a freshly initialized player without preparation time
-        // Then phase should be .paused (not preparing, not yet playing)
-        XCTAssertEqual(self.sut.phase, .paused)
+        // Then phase should be .playing (no pre-roll → main phase visual)
+        XCTAssertEqual(self.sut.phase, .playing)
     }
 
     func testPhase_isPreRollWhilePreparing() async {
@@ -53,7 +53,7 @@ extension GuidedMeditationPlayerViewModelTests {
         XCTAssertEqual(self.sut.phase, .playing)
     }
 
-    func testPhase_isPausedAfterUserPause() async {
+    func testPhase_remainsPlayingAfterUserPause() async {
         // Given audio was playing
         await self.sut.loadAudio()
         let playingExp = self.expectation(description: "playing")
@@ -75,8 +75,9 @@ extension GuidedMeditationPlayerViewModelTests {
         self.mockPlayerService.state.send(.paused)
         await fulfillment(of: [pausedExp], timeout: 1.0)
 
-        // Then phase reflects paused
-        XCTAssertEqual(self.sut.phase, .paused)
+        // Then visuelle Phase bleibt .playing — der Atemkreis sieht
+        // pausiert und spielend identisch aus (Bogen friert ein, Atem laeuft).
+        XCTAssertEqual(self.sut.phase, .playing)
     }
 
     // MARK: - formattedRemainingMinutes

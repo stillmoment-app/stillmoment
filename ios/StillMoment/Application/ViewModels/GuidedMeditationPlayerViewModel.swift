@@ -25,13 +25,15 @@ enum PreparationCountdownState: Equatable {
     case finished
 }
 
-/// Visual phase of the guided meditation player.
+/// Visuelle Phase einer Meditation (Timer oder Player).
 ///
-/// Drives view layout decisions: pre-roll countdown, active playback or paused state.
-enum PlayerPhase: Equatable {
+/// Layout-Phase, kein Audio-Zustand: Pause des Players oder Loading bleiben
+/// `.playing`, weil sich der Atemkreis visuell identisch verhaelt
+/// (Bogen friert ein, Atem laeuft weiter). Nur die Pre-Roll-Phase
+/// zeigt ein anderes Inneres.
+enum MeditationPhase: Equatable {
     case preRoll
     case playing
-    case paused
 }
 
 /// ViewModel for the Guided Meditation Player View
@@ -127,16 +129,10 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// Visuelle Phase des Players.
     ///
     /// - `.preRoll` solange die Vorbereitung laeuft.
-    /// - `.playing` wenn Audio aktiv spielt.
-    /// - `.paused` als Default fuer alle anderen Zustaende (idle, paused, loading, finished).
-    var phase: PlayerPhase {
-        if self.isPreparing {
-            return .preRoll
-        }
-        if self.playbackState == .playing {
-            return .playing
-        }
-        return .paused
+    /// - `.playing` ansonsten (auch bei Pause, Loading, Idle, Finished —
+    ///   der Atemkreis sieht in all diesen Zustaenden gleich aus).
+    var phase: MeditationPhase {
+        self.isPreparing ? .preRoll : .playing
     }
 
     // MARK: - Preparation Countdown Properties

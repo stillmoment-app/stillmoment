@@ -2,12 +2,12 @@
 //  BreathingCircleView.swift
 //  Still Moment
 //
-//  Presentation Layer — Atemkreis fuer den Guided-Meditation-Player.
+//  Presentation Layer — geteilter Atemkreis fuer Timer und Player.
 //
 
 import SwiftUI
 
-/// 280×280-Atemkreis mit drei Schichten:
+/// Atemkreis mit drei Schichten — geteilte Visualisierung fuer Timer und Player:
 /// 1. Statischer Ring-Hintergrund (Track) — in jeder Phase sichtbar
 /// 2. Restzeit-Bogen + Sonnen-Punkt — nur in der Hauptphase
 /// 3. Atem-Glow im Inneren (animiert in der Hauptphase)
@@ -16,15 +16,19 @@ import SwiftUI
 /// Vorbereitungszeit kommuniziert sich allein durch die Countdown-Zahl im Inneren.
 ///
 /// Die Komponente ist visuell — Logik (Phase, Progress, Reduced-Motion-Status)
-/// kommt vom aufrufenden View.
+/// kommt vom aufrufenden View. Keine Player-spezifischen Annahmen (Audio,
+/// AVPlayer) — Inhalt wird via `content`-Closure injiziert.
 struct BreathingCircleView<Content: View>: View {
     // MARK: Internal
 
-    let phase: PlayerPhase
+    let phase: MeditationPhase
     /// Fortschritt der Hauptphase (0–1, vergangene Sitzungszeit).
     /// Wird fuer den Restzeit-Bogen genutzt, ignoriert in Pre-Roll.
     let progress: Double
     let reduceMotion: Bool
+    /// Aussendurchmesser des Atemkreises. Default 280 px (Player). Timer auf
+    /// iPhone SE skaliert auf z. B. 240 px herunter.
+    var outerSize: CGFloat = 280
     @ViewBuilder let content: () -> Content
 
     var body: some View {
@@ -64,8 +68,7 @@ struct BreathingCircleView<Content: View>: View {
         switch self.phase {
         case .preRoll:
             EmptyView()
-        case .playing,
-             .paused:
+        case .playing:
             ZStack {
                 self.arc(amount: self.progress.clamped(to: 0...1))
                 self.progressDot
@@ -106,8 +109,10 @@ struct BreathingCircleView<Content: View>: View {
     private var theme
     @State private var breathing = false
 
-    private let outerSize: CGFloat = 280
-    private let glowSize: CGFloat = 220
+    private var glowSize: CGFloat {
+        self.outerSize * (220.0 / 280.0)
+    }
+
     private let lineWidth: CGFloat = 3
     private let dotSize: CGFloat = 9
 
@@ -141,8 +146,7 @@ struct BreathingCircleView<Content: View>: View {
         switch self.phase {
         case .preRoll:
             return 0.92
-        case .playing,
-             .paused:
+        case .playing:
             if self.reduceMotion {
                 return 0.92
             }
@@ -158,8 +162,7 @@ struct BreathingCircleView<Content: View>: View {
         switch self.phase {
         case .preRoll:
             return 0.55
-        case .playing,
-             .paused:
+        case .playing:
             if self.reduceMotion {
                 return 0.78
             }
@@ -171,8 +174,7 @@ struct BreathingCircleView<Content: View>: View {
         switch self.phase {
         case .preRoll:
             return nil
-        case .playing,
-             .paused:
+        case .playing:
             if self.reduceMotion {
                 return nil
             }

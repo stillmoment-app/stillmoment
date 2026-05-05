@@ -53,37 +53,11 @@ struct TimerView: View {
             let isCompactHeight = geometry.size.height < 700
 
             VStack(spacing: 0) {
-                // Im idle-Zustand verteilt sich der Restraum so:
-                // Top und unter Beginnen wachsen, der Spalt Liste→Beginnen
-                // bleibt klein. Beginnen ist dadurch optisch der Liste
-                // zugehoerig, der Inhalt rueckt vertikal zur Mitte.
-                let isIdle = self.viewModel.timerState == .idle
-                Spacer(minLength: 8)
-                    .frame(maxHeight: isIdle ? .infinity : 40)
-
-                if self.viewModel.timerState != .idle {
-                    Text("welcome.title", bundle: .main)
-                        .themeFont(.screenTitle, size: isCompactHeight ? 24 : nil)
-                        .padding(.horizontal)
-
-                    Spacer(minLength: 12)
-                        .frame(maxHeight: 30)
-                }
-
                 if self.viewModel.timerState == .idle {
-                    self.idleScreen(geometry: geometry)
+                    self.idleLayout(geometry: geometry, isCompactHeight: isCompactHeight)
                 } else {
-                    self.timerDisplay(geometry: geometry)
+                    self.sessionLayout(geometry: geometry)
                 }
-
-                Spacer(minLength: 16)
-                    .frame(maxHeight: isIdle ? (isCompactHeight ? 24 : 36) : .infinity)
-
-                self.controlButtons
-                    .padding(.horizontal)
-
-                Spacer(minLength: 16)
-                    .frame(maxHeight: .infinity)
 
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -138,27 +112,14 @@ struct TimerView: View {
 
     @Environment(\.themeColors)
     private var theme
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: TimerViewModel
     @State private var settingPath: [SettingDestination] = []
 
     private var isZenMode: Bool {
         self.viewModel.isZenMode
-    }
-
-    private var stateText: String {
-        switch self.viewModel.timerState {
-        case .idle:
-            NSLocalizedString("state.ready", comment: "")
-        case .preparation:
-            self.viewModel.currentPreparationAffirmation
-        case .startGong,
-             .running,
-             .endGong:
-            self.viewModel.currentRunningAffirmation
-        case .completed:
-            NSLocalizedString("state.completed", comment: "")
-        }
     }
 
     // MARK: - Accessibility Helpers
@@ -188,18 +149,41 @@ struct TimerView: View {
         return components.joined(separator: " \(andSeparator) ") + " \(remaining)"
     }
 
-    private var accessibilityStateLabel: String {
-        switch self.viewModel.timerState {
-        case .idle:
-            NSLocalizedString("accessibility.timerState.idle", comment: "")
-        case .preparation:
-            NSLocalizedString("accessibility.timerState.preparation", comment: "")
-        case .startGong,
-             .running,
-             .endGong:
-            NSLocalizedString("accessibility.timerState.running", comment: "")
-        case .completed:
-            NSLocalizedString("accessibility.timerState.completed", comment: "")
+    // MARK: - Layouts
+
+    private func idleLayout(geometry: GeometryProxy, isCompactHeight: Bool) -> some View {
+        // Im idle-Zustand verteilt sich der Restraum so:
+        // Top und unter Beginnen wachsen, der Spalt Liste→Beginnen
+        // bleibt klein. Beginnen ist dadurch optisch der Liste
+        // zugehoerig, der Inhalt rueckt vertikal zur Mitte.
+        VStack(spacing: 0) {
+            Spacer(minLength: 8)
+                .frame(maxHeight: .infinity)
+
+            self.idleScreen(geometry: geometry)
+
+            Spacer(minLength: 16)
+                .frame(maxHeight: isCompactHeight ? 24 : 36)
+
+            self.controlButtons
+                .padding(.horizontal)
+
+            Spacer(minLength: 16)
+                .frame(maxHeight: .infinity)
+        }
+    }
+
+    private func sessionLayout(geometry: GeometryProxy) -> some View {
+        // Session-Modus: BreathingCircle + Restzeit-Label vertikal zentriert.
+        // Kein Begruessungs-Headline, kein Begin-Button.
+        VStack(spacing: 0) {
+            Spacer(minLength: 16)
+                .frame(maxHeight: .infinity)
+
+            self.timerDisplay(geometry: geometry)
+
+            Spacer(minLength: 16)
+                .frame(maxHeight: .infinity)
         }
     }
 
@@ -302,65 +286,70 @@ struct TimerView: View {
 
     private func timerDisplay(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
-        let circleSize: CGFloat = min(geometry.size.width * (isCompactHeight ? 0.55 : 0.7), 320)
-        let spacing: CGFloat = isCompactHeight ? 12 : 20
+        let circleSize: CGFloat = isCompactHeight ? 240 : 280
 
-        return VStack(spacing: spacing) {
-            ZStack {
-                if self.viewModel.isPreparation {
-                    self.preparationCircle(size: circleSize, isCompact: isCompactHeight)
-                } else {
-                    self.progressCircle(size: circleSize, isCompact: isCompactHeight)
-                }
+        return VStack(spacing: 12) {
+            BreathingCircleView(
+                phase: self.viewModel.phase,
+                progress: self.viewModel.progress,
+                reduceMotion: self.reduceMotion,
+                outerSize: circleSize
+            ) {
+                self.circleContent
             }
 
-            Text(self.stateText)
-                .themeFont(.bodySecondary, size: isCompactHeight ? 14 : nil)
-                .accessibilityIdentifier("timer.state.text")
-                .accessibilityLabel(self.accessibilityStateLabel)
+            self.bottomLabel
+        }
+        .animation(.easeInOut(duration: 0.4), value: self.viewModel.phase)
+    }
+
+    @ViewBuilder private var circleContent: some View {
+        switch self.viewModel.phase {
+        case .preRoll:
+            VStack(spacing: 6) {
+                Text("\(self.viewModel.remainingPreparationSeconds)")
+                    .themeFont(.playerCountdown, size: 72)
+                    .monospacedDigit()
+                    .accessibilityIdentifier("timer.display.time")
+                    .accessibilityLabel(String(
+                        format: NSLocalizedString("accessibility.preparation", comment: ""),
+                        self.viewModel.remainingPreparationSeconds
+                    ))
+
+                Text("guided_meditations.player.preroll.label")
+                    .themeFont(.playerTimestamp)
+                    .foregroundColor(self.theme.textSecondary)
+            }
+            .transition(.opacity)
+        case .playing:
+            EmptyView()
         }
     }
 
-    private func preparationCircle(size: CGFloat, isCompact: Bool) -> some View {
-        ZStack {
-            Circle()
-                .stroke(self.theme.ringTrack, lineWidth: 8)
-                .frame(width: size, height: size)
-
-            Text(self.viewModel.formattedTime)
-                .themeFont(.timerCountdown, size: isCompact ? 80 : nil)
-                .monospacedDigit()
-                .accessibilityIdentifier("timer.display.time")
-                .accessibilityLabel(String(
-                    format: NSLocalizedString("accessibility.preparation", comment: ""),
-                    self.viewModel.remainingPreparationSeconds
-                ))
-        }
-    }
-
-    private func progressCircle(size: CGFloat, isCompact: Bool) -> some View {
-        ZStack {
-            Circle()
-                .stroke(self.theme.ringTrack, lineWidth: 8)
-                .frame(width: size, height: size)
-
-            Circle()
-                .trim(from: 0, to: self.viewModel.progress)
-                .stroke(self.theme.progress, style: StrokeStyle(lineWidth: 8, lineCap: .round))
-                .frame(width: size, height: size)
-                .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 0.5), value: self.viewModel.progress)
-                .shadow(color: self.theme.progress.opacity(.opacityShadow), radius: 8, x: 0, y: 0)
-
-            Text(self.viewModel.formattedTime)
-                .themeFont(.timerRunning, size: isCompact ? 48 : nil)
-                .monospacedDigit()
-                .accessibilityIdentifier("timer.display.time")
-                .accessibilityLabel(String(
-                    format: NSLocalizedString("accessibility.remainingTime", comment: ""),
-                    self.viewModel.formattedTime
-                ))
-                .accessibilityValue(self.accessibilityTimeValue)
+    @ViewBuilder private var bottomLabel: some View {
+        switch self.viewModel.phase {
+        case .preRoll:
+            Text("guided_meditations.player.preroll.hint")
+                .themeFont(.playerTimestamp)
+                .foregroundColor(self.theme.textSecondary)
+                .textCase(.uppercase)
+                .transition(.opacity)
+        case .playing:
+            Text(String(
+                format: NSLocalizedString(
+                    "guided_meditations.player.remainingTime.format",
+                    comment: ""
+                ),
+                self.viewModel.formattedRemainingMinutes
+            ))
+            .themeFont(.playerRemainingTime)
+            .monospacedDigit()
+            .textCase(.uppercase)
+            .tracking(1.5)
+            .accessibilityIdentifier("timer.display.time")
+            .accessibilityLabel("guided_meditations.player.remainingTime")
+            .accessibilityValue(self.accessibilityTimeValue)
+            .transition(.opacity)
         }
     }
 

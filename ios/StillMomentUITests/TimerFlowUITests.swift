@@ -163,12 +163,12 @@ final class TimerFlowUITests: XCTestCase {
         // Start timer
         self.app.buttons["timer.button.start"].tap()
 
-        // Wait for running state (timer display visible)
+        // Wait for running state (timer display visible — Restzeit-Label).
+        // Der Affirmations-Container `timer.state.text` existiert nicht mehr;
+        // `timer.display.time` ist in Pre-Roll auf der Countdown-Zahl, in
+        // der Hauptphase auf dem Restzeit-Label.
         let timerDisplay = self.app.staticTexts["timer.display.time"]
         XCTAssertTrue(timerDisplay.waitForExistence(timeout: 3.0), "Should be in running state")
-
-        // State text should be visible
-        XCTAssertTrue(self.app.staticTexts["timer.state.text"].waitForExistence(timeout: 2.0))
 
         // Running -> Idle (end timer)
         self.app.buttons["timer.button.end"].tap()
