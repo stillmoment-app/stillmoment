@@ -76,27 +76,6 @@ final class TimerViewModelBasicTests: XCTestCase {
         XCTAssertTrue(self.mockTimerService.resetCalled)
     }
 
-    // MARK: - Formatting (tested via MeditationTimer)
-
-    func testFormattedTime_duringCountdown_showsSeconds() {
-        // Given - preparation state
-        self.sut.timer = .stub(
-            state: .preparation,
-            remainingPreparationSeconds: 12
-        )
-
-        // Then
-        XCTAssertEqual(self.sut.formattedTime, "12")
-    }
-
-    func testFormattedTime_duringRunning_showsMinutesSeconds() {
-        // Given - running state with 2:05 remaining
-        self.sut.timer = .stub(remainingSeconds: 125, state: .running)
-
-        // Then
-        XCTAssertEqual(self.sut.formattedTime, "02:05")
-    }
-
     // MARK: - Control Conditions
 
     func testCanStart_whenIdleWithMinutes_returnsTrue() {

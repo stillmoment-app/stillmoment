@@ -125,7 +125,6 @@ Beide Plattformen implementieren dieselben Features:
 - Guided Meditations Library
 - Background Audio
 - Interval Gongs
-- Affirmations
 - DE/EN Lokalisierung
 
 ### Shared Architecture Decisions

@@ -89,9 +89,6 @@ final class TimerViewModel: ObservableObject {
     /// `currentPraxis` here on every change.
     let sessionEditor: PraxisEditorViewModel
 
-    /// Current affirmation index (rotates between sessions)
-    var currentAffirmationIndex: Int = 0
-
     // MARK: - Computed Properties (Forwarded from MeditationTimer)
 
     /// Current timer state
@@ -124,6 +121,25 @@ final class TimerViewModel: ObservableObject {
         self.timer?.isPreparation ?? false
     }
 
+    /// Visuelle Phase fuer den geteilten `BreathingCircleView`.
+    ///
+    /// - `.preRoll` waehrend der Vorbereitungs-Countdown laeuft.
+    /// - `.playing` ansonsten — der Atemkreis sieht in StartGong, Running und
+    ///   EndGong identisch aus (Bogen waechst, Atem laeuft).
+    var phase: MeditationPhase {
+        self.isPreparation ? .preRoll : .playing
+    }
+
+    /// Restzeit fuer das "NOCH … MIN"-Label im Atemkreis-Layout.
+    ///
+    /// Format `m:ss` (Player-Konvention, ohne Minuten-Padding) — verwendet
+    /// zusammen mit `guided_meditations.player.remainingTime.format`.
+    var formattedRemainingMinutes: String {
+        let minutes = self.remainingSeconds / 60
+        let seconds = self.remainingSeconds % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+
     /// Returns true if timer can be started
     var canStart: Bool {
         self.timer == nil && self.selectedMinutes > 0
@@ -140,21 +156,11 @@ final class TimerViewModel: ObservableObject {
         self.timerState != .idle
     }
 
-    /// Formatted time string
-    var formattedTime: String {
-        self.timer?.formattedTime ?? "00:00"
-    }
-
     // MARK: - Action Dispatch
 
     /// Dispatches an action to the reducer and executes resulting effects
     func dispatch(_ action: TimerAction) {
         Logger.viewModel.debug("Dispatching action: \(String(describing: action))")
-
-        // Affirmation rotation (UI-only state, not part of domain)
-        if case .startPressed = action {
-            self.currentAffirmationIndex = (self.currentAffirmationIndex + 1) % 5
-        }
 
         let effects = TimerReducer.reduce(
             action: action,

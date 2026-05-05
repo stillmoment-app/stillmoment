@@ -220,8 +220,7 @@ struct GuidedMeditationPlayerView: View {
                     .foregroundColor(self.theme.textSecondary)
             }
             .transition(.opacity)
-        case .playing,
-             .paused:
+        case .playing:
             GlassPauseButton(isPlaying: self.viewModel.isPlaying) {
                 HapticFeedback.impact(.soft)
                 self.viewModel.togglePlayPause()
@@ -238,8 +237,7 @@ struct GuidedMeditationPlayerView: View {
                 .foregroundColor(self.theme.textSecondary)
                 .textCase(.uppercase)
                 .accessibilityIdentifier("player.text.preRollHint")
-        case .playing,
-             .paused:
+        case .playing:
             Text(String(
                 format: NSLocalizedString(
                     "guided_meditations.player.remainingTime.format",

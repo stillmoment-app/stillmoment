@@ -239,10 +239,10 @@ extension View {
     /// Uses the role's default size unless overridden for responsive layouts.
     /// Color defaults to the role's semantic color but can be overridden.
     ///
-    ///     Text("welcome.title", bundle: .main)
+    ///     Text("timer.idle.headline", bundle: .main)
     ///         .themeFont(.screenTitle)
     ///
-    ///     Text(viewModel.formattedTime)
+    ///     Text(viewModel.formattedRemainingMinutes)
     ///         .themeFont(.timerCountdown, size: isCompact ? 80 : nil)
     ///
     ///     Text(error)

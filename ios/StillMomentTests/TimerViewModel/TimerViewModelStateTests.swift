@@ -6,7 +6,7 @@
 import XCTest
 @testable import StillMoment
 
-/// Tests for TimerViewModel state transitions, timer updates, completion, and affirmations
+/// Tests for TimerViewModel state transitions, timer updates, and completion
 @MainActor
 final class TimerViewModelStateTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
@@ -84,35 +84,5 @@ final class TimerViewModelStateTests: XCTestCase {
         }
 
         wait(for: [expectation], timeout: 2.0)
-    }
-
-    // MARK: - Affirmations
-
-    func testAffirmationsRotation() {
-        // Given
-        let initialIndex = self.sut.currentAffirmationIndex
-
-        // When
-        self.sut.startTimer()
-
-        // Then
-        XCTAssertEqual(self.sut.currentAffirmationIndex, initialIndex + 1)
-    }
-
-    func testPreparationAffirmations() {
-        // Given/When
-        let affirmation = self.sut.currentPreparationAffirmation
-
-        // Then
-        XCTAssertFalse(affirmation.isEmpty)
-        XCTAssertTrue(affirmation.contains("...") || affirmation.contains("Settle") || affirmation.contains("breath"))
-    }
-
-    func testRunningAffirmations() {
-        // Given/When
-        let affirmation = self.sut.currentRunningAffirmation
-
-        // Then - Can be empty string (one of the affirmations is silence)
-        XCTAssertTrue(!affirmation.isEmpty || affirmation.isEmpty)
     }
 }

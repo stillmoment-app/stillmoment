@@ -125,10 +125,13 @@ jobs:
         echo "=== Available iPhone simulators ==="
         xcrun simctl list devices available | grep "iPhone" | grep -v "unavailable" || true
         echo ""
-        echo "=== xcodebuild destinations for unit-test scheme ==="
+        echo "=== xcodebuild project info ==="
+        xcodebuild -list -project ios/StillMoment.xcodeproj 2>&1 || true
+        echo ""
+        echo "=== xcodebuild destinations for unit-test scheme (full) ==="
         xcodebuild -showdestinations \
           -project ios/StillMoment.xcodeproj \
-          -scheme StillMoment-UnitTests 2>&1 | head -40 || true
+          -scheme StillMoment-UnitTests 2>&1 || true
 
     - name: Boot Simulator
       run: |

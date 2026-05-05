@@ -5,7 +5,6 @@
 
 // MARK: - Main Screen
 
-"welcome.title" = "Lovely to see you";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -36,21 +35,6 @@
 
 "state.ready" = "Ready when you are";
 "state.completed" = "Thank you";
-
-// MARK: - Preparation Affirmations
-
-"affirmation.preparation.1" = "Settle in...";
-"affirmation.preparation.2" = "Take a deep breath...";
-"affirmation.preparation.3" = "Prepare gently...";
-"affirmation.preparation.4" = "Time for you soon...";
-
-// MARK: - Running Affirmations
-
-"affirmation.running.1" = "Breathe softly";
-"affirmation.running.2" = "All is welcome";
-"affirmation.running.3" = "You're here, that's enough";
-"affirmation.running.4" = "Kindness begins here";
-"affirmation.running.5" = "You are doing wonderfully";
 
 // MARK: - Settings
 

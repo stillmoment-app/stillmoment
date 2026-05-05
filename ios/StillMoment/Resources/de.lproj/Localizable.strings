@@ -5,7 +5,6 @@
 
 // MARK: - Main Screen
 
-"welcome.title" = "Schön, dass du da bist";
 "duration.minutes" = "%d min";
 
 // MARK: - Buttons
@@ -36,21 +35,6 @@
 
 "state.ready" = "Bereit, wenn du es bist";
 "state.completed" = "Danke dir";
-
-// MARK: - Preparation Affirmations
-
-"affirmation.preparation.1" = "Lass dich ankommen...";
-"affirmation.preparation.2" = "Atme tief durch...";
-"affirmation.preparation.3" = "Bereite dich sanft vor...";
-"affirmation.preparation.4" = "Gleich ist Zeit für dich...";
-
-// MARK: - Running Affirmations
-
-"affirmation.running.1" = "Atme sanft";
-"affirmation.running.2" = "Alles darf sein";
-"affirmation.running.3" = "Du bist hier, das reicht";
-"affirmation.running.4" = "Freundlichkeit beginnt hier";
-"affirmation.running.5" = "Du machst das wunderbar";
 
 // MARK: - Settings
 
