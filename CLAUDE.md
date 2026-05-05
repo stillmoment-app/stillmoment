@@ -101,6 +101,10 @@ make test               # Full suite (with coverage on iOS)
 - TDD-Loop: `make test-single-agent TEST=ClassName/testMethod` (schnellstes Feedback)
 - Never retry the same failing command — investigate root cause first
 
+**Code navigation rules (Claude Code):**
+- LSP for symbol questions: bei "wo ist X definiert?", "wer ruft Y auf?", Refactorings, Typ-Unsicherheit → `LSP` Tool nutzen (`goToDefinition`, `findReferences`, `hover`, `documentSymbol`). Spart Reads, vermeidet Grep-Verwechslungen bei gleichnamigen Symbolen in unterschiedlichen Scopes.
+- LSP-Grenzen: Externe Libs (Android Framework, Compose-internals, KSP-generierte Hilt-Klassen, SwiftUI-Modifier-Ketten an Bridge-Punkten) sind nicht zuverlässig indiziert. Bei `No hover information available` oder `No definition found` → auf Read/Grep ausweichen, kein Workaround nötig.
+
 **Release** (from `ios/` directory):
 ```bash
 make release-dry            # Validate without upload
