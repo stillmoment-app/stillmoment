@@ -52,7 +52,6 @@ class PraxisEditorViewModelCustomAudioTest {
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            attunementResolver = FakeAttunementResolver(),
             soundscapeResolver = FakeSoundscapeResolver()
         )
     }
@@ -83,30 +82,6 @@ class PraxisEditorViewModelCustomAudioTest {
             assertEquals(1, state.customSoundscapes.size)
             assertEquals("Ocean Waves", state.customSoundscapes.first().name)
             assertEquals(CustomAudioType.SOUNDSCAPE, state.customSoundscapes.first().type)
-        }
-
-        @Test
-        fun `importing attunement appears in customAttunements state`() = runTest {
-            val attunement = CustomAudioFile(
-                id = "attunement-1",
-                name = "Breathing Guide",
-                filename = "breath.mp3",
-                durationMs = 90_000L,
-                type = CustomAudioType.ATTUNEMENT,
-                dateAdded = 1000L
-            )
-            fakeCustomAudioRepository.importResult = Result.success(attunement)
-
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.importCustomAudio(mock<Uri>(), CustomAudioType.ATTUNEMENT)
-            advanceUntilIdle()
-
-            val state = viewModel.uiState.value
-            assertEquals(1, state.customAttunements.size)
-            assertEquals("Breathing Guide", state.customAttunements.first().name)
-            assertEquals(CustomAudioType.ATTUNEMENT, state.customAttunements.first().type)
         }
 
         @Test
@@ -159,37 +134,6 @@ class PraxisEditorViewModelCustomAudioTest {
 
             assertEquals(Praxis.DEFAULT_BACKGROUND_SOUND_ID, viewModel.uiState.value.backgroundSoundId)
             assertEquals(Praxis.DEFAULT_BACKGROUND_SOUND_ID, fakePraxisRepository.lastSavedPraxis?.backgroundSoundId)
-        }
-
-        @Test
-        fun `deleting selected attunement resets attunementId to null`() = runTest {
-            val attunementId = "custom-attunement-1"
-            val attunement = CustomAudioFile(
-                id = attunementId,
-                name = "Breath Intro",
-                filename = "breath.mp3",
-                durationMs = 30_000L,
-                type = CustomAudioType.ATTUNEMENT,
-                dateAdded = 1000L
-            )
-            fakeCustomAudioRepository.importResult = Result.success(attunement)
-
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            // Import and select the attunement
-            viewModel.importCustomAudio(mock<Uri>(), CustomAudioType.ATTUNEMENT)
-            advanceUntilIdle()
-            viewModel.setAttunementId(attunementId)
-
-            assertEquals(attunementId, viewModel.uiState.value.attunementId)
-
-            // Delete the selected attunement
-            viewModel.deleteCustomAudio(attunementId)
-            advanceUntilIdle()
-
-            assertNull(viewModel.uiState.value.attunementId)
-            assertNull(fakePraxisRepository.lastSavedPraxis?.attunementId)
         }
 
         @Test

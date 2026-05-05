@@ -1,7 +1,6 @@
 package com.stillmoment.presentation.viewmodel
 
 import android.app.Application
-import com.stillmoment.testutil.MockAttunementResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -55,7 +54,6 @@ class TimerViewModelPreviewTest {
             foregroundService = fakeForegroundService,
             praxisRepository = fakePraxisRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            attunementResolver = MockAttunementResolver(),
             soundscapeResolver = FakeSoundscapeResolver()
         )
     }

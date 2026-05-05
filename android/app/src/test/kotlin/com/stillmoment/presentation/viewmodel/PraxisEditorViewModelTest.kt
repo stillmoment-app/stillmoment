@@ -1,6 +1,5 @@
 package com.stillmoment.presentation.viewmodel
 
-import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
@@ -56,7 +55,6 @@ class PraxisEditorViewModelTest {
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,
             soundCatalogRepository = fakeSoundCatalogRepository,
-            attunementResolver = FakeAttunementResolver(),
             soundscapeResolver = FakeSoundscapeResolver()
         )
     }
@@ -87,8 +85,6 @@ class PraxisEditorViewModelTest {
                 preparationTimeSeconds = 30,
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
-                attunementId = "breath",
-                attunementEnabled = true,
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 intervalMode = IntervalMode.BEFORE_END,
@@ -108,8 +104,6 @@ class PraxisEditorViewModelTest {
             assertEquals(30, state.preparationTimeSeconds)
             assertEquals("clear-strike", state.gongSoundId)
             assertEquals(0.8f, state.gongVolume)
-            assertEquals("breath", state.attunementId)
-            assertTrue(state.attunementEnabled)
             assertTrue(state.intervalGongsEnabled)
             assertEquals(10, state.intervalMinutes)
             assertEquals(IntervalMode.BEFORE_END, state.intervalMode)
@@ -162,79 +156,6 @@ class PraxisEditorViewModelTest {
             viewModel.setGongVolume(0.5f)
 
             assertEquals(0.5f, viewModel.uiState.value.gongVolume)
-        }
-
-        @Test
-        fun `setAttunementId updates state`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setAttunementId("breath")
-
-            assertEquals("breath", viewModel.uiState.value.attunementId)
-        }
-
-        @Test
-        fun `setAttunementId allows null`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-            viewModel.setAttunementId("breath")
-
-            viewModel.setAttunementId(null)
-
-            assertNull(viewModel.uiState.value.attunementId)
-        }
-
-        @Test
-        fun `setAttunementEnabled updates state`() = runTest {
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setAttunementEnabled(true)
-
-            assertTrue(viewModel.uiState.value.attunementEnabled)
-        }
-
-        @Test
-        fun `setAttunementEnabled selects first available attunement when none selected`() = runTest {
-            Attunement.languageOverride = "de"
-            try {
-                val viewModel = createViewModel()
-                advanceUntilIdle()
-
-                viewModel.setAttunementEnabled(true)
-
-                val available = Attunement.availableForCurrentLanguage()
-                assertEquals(available.firstOrNull()?.id, viewModel.uiState.value.attunementId)
-            } finally {
-                Attunement.languageOverride = null
-            }
-        }
-
-        @Test
-        fun `setAttunementEnabled preserves existing attunement selection`() = runTest {
-            fakePraxisRepository.storedPraxis = Praxis.create(attunementId = "breath")
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setAttunementEnabled(true)
-
-            assertEquals("breath", viewModel.uiState.value.attunementId)
-        }
-
-        @Test
-        fun `setAttunementEnabled false preserves attunementId for later reuse`() = runTest {
-            fakePraxisRepository.storedPraxis = Praxis.create(
-                attunementId = "breath",
-                attunementEnabled = true
-            )
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            viewModel.setAttunementEnabled(false)
-
-            assertFalse(viewModel.uiState.value.attunementEnabled)
-            assertEquals("breath", viewModel.uiState.value.attunementId)
         }
 
         @Test
@@ -384,27 +305,6 @@ class PraxisEditorViewModelTest {
     @Nested
     inner class ResolvedAudioNames {
         @Test
-        fun `resolves built-in attunement name on init`() = runTest {
-            Attunement.languageOverride = "de"
-            try {
-                fakePraxisRepository.storedPraxis = Praxis.create(
-                    attunementId = "breath",
-                    attunementEnabled = true
-                )
-
-                val viewModel = createViewModel()
-                advanceUntilIdle()
-
-                assertEquals(
-                    Attunement.find("breath")?.localizedName,
-                    viewModel.uiState.value.resolvedAttunementName
-                )
-            } finally {
-                Attunement.languageOverride = null
-            }
-        }
-
-        @Test
         fun `resolves built-in background sound name on init`() = runTest {
             fakePraxisRepository.storedPraxis = Praxis.create(backgroundSoundId = "forest")
 
@@ -415,55 +315,6 @@ class PraxisEditorViewModelTest {
                 "Forest Ambience",
                 viewModel.uiState.value.resolvedBackgroundSoundName
             )
-        }
-
-        @Test
-        fun `resolvedAttunementName is null when no attunement set`() = runTest {
-            fakePraxisRepository.storedPraxis = Praxis.create(attunementId = null)
-
-            val viewModel = createViewModel()
-            advanceUntilIdle()
-
-            assertNull(viewModel.uiState.value.resolvedAttunementName)
-        }
-
-        @Test
-        fun `setAttunementId updates resolvedAttunementName`() = runTest {
-            Attunement.languageOverride = "de"
-            try {
-                val viewModel = createViewModel()
-                advanceUntilIdle()
-
-                viewModel.setAttunementId("breath")
-                advanceUntilIdle()
-
-                assertEquals(
-                    Attunement.find("breath")?.localizedName,
-                    viewModel.uiState.value.resolvedAttunementName
-                )
-            } finally {
-                Attunement.languageOverride = null
-            }
-        }
-
-        @Test
-        fun `setAttunementId null clears resolvedAttunementName`() = runTest {
-            Attunement.languageOverride = "de"
-            try {
-                fakePraxisRepository.storedPraxis = Praxis.create(
-                    attunementId = "breath",
-                    attunementEnabled = true
-                )
-                val viewModel = createViewModel()
-                advanceUntilIdle()
-
-                viewModel.setAttunementId(null)
-                advanceUntilIdle()
-
-                assertNull(viewModel.uiState.value.resolvedAttunementName)
-            } finally {
-                Attunement.languageOverride = null
-            }
         }
 
         @Test
@@ -510,8 +361,6 @@ class PraxisEditorViewModelTest {
             viewModel.setPreparationSeconds(30)
             viewModel.setGongSoundId("clear-strike")
             viewModel.setGongVolume(0.7f)
-            viewModel.setAttunementId("breath")
-            viewModel.setAttunementEnabled(true)
             viewModel.setIntervalGongsEnabled(true)
             viewModel.setIntervalMinutes(15)
             viewModel.setIntervalMode(IntervalMode.AFTER_START)
@@ -527,8 +376,6 @@ class PraxisEditorViewModelTest {
             assertEquals(30, saved.preparationTimeSeconds)
             assertEquals("clear-strike", saved.gongSoundId)
             assertEquals(0.7f, saved.gongVolume)
-            assertEquals("breath", saved.attunementId)
-            assertTrue(saved.attunementEnabled)
             assertTrue(saved.intervalGongsEnabled)
             assertEquals(15, saved.intervalMinutes)
             assertEquals(IntervalMode.AFTER_START, saved.intervalMode)

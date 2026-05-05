@@ -418,11 +418,6 @@ class MeditationSettingsTest {
         assertEquals("interval_from_end", MeditationSettingsKeys.LEGACY_INTERVAL_FROM_END)
     }
 
-    @Test
-    fun `ATTUNEMENT_ID key has expected value`() {
-        assertEquals("introductionId", MeditationSettingsKeys.ATTUNEMENT_ID)
-    }
-
     // MARK: - Interval Gong Volume Tests
 
     @Test

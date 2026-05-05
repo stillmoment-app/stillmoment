@@ -9,8 +9,5 @@ enum class ImportAudioType {
     GUIDED_MEDITATION,
 
     /** Import as custom soundscape (background loop) */
-    SOUNDSCAPE,
-
-    /** Import as custom attunement (one-shot attunement) */
-    ATTUNEMENT
+    SOUNDSCAPE
 }

@@ -69,7 +69,7 @@ constructor(
     }
 
     override suspend fun save(praxis: Praxis) {
-        val json = Json.encodeToString(praxis)
+        val json = praxisJson.encodeToString(praxis)
         context.praxisDataStore.edit { prefs ->
             prefs[Keys.CURRENT_PRAXIS] = json
         }
@@ -91,11 +91,15 @@ constructor(
 
     /**
      * Safely decodes a JSON string to a Praxis, returning null on failure.
+     *
+     * Uses [praxisJson] with `ignoreUnknownKeys = true` so legacy fields removed in
+     * later versions (e.g. `introductionId` / `introductionEnabled` from the
+     * Einstimmung feature) do not cause the decode to fail.
      */
     @Suppress("TooGenericExceptionCaught") // Intentional: catch any deserialization failure
     private fun decodeOrNull(json: String): Praxis? {
         return try {
-            Json.decodeFromString<Praxis>(json)
+            praxisJson.decodeFromString<Praxis>(json)
         } catch (e: Exception) {
             logger.e(TAG, "JSON decode failed", e)
             null
@@ -104,5 +108,6 @@ constructor(
 
     companion object {
         private const val TAG = "PraxisDataStore"
+        private val praxisJson = Json { ignoreUnknownKeys = true }
     }
 }

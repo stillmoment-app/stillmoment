@@ -89,7 +89,6 @@ private val DropdownShape = RoundedCornerShape(12.dp)
 @Composable
 fun PraxisEditorScreen(
     onNavigateBack: (Praxis) -> Unit,
-    onNavigateToAttunement: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
@@ -121,7 +120,6 @@ fun PraxisEditorScreen(
             uiState = uiState,
             onPreparationEnable = viewModel::setPreparationEnabled,
             onPreparationSecondsChange = viewModel::setPreparationSeconds,
-            onNavigateToAttunement = onNavigateToAttunement,
             onNavigateToBackground = onNavigateToBackground,
             onNavigateToGong = onNavigateToGong,
             onNavigateToIntervalGongs = onNavigateToIntervalGongs,
@@ -130,13 +128,11 @@ fun PraxisEditorScreen(
     }
 }
 
-@Suppress("LongParameterList") // State-hoisted composable aggregates callbacks from parent
 @Composable
 private fun EditorContent(
     uiState: PraxisEditorUiState,
     onPreparationEnable: (Boolean) -> Unit,
     onPreparationSecondsChange: (Int) -> Unit,
-    onNavigateToAttunement: () -> Unit,
     onNavigateToBackground: () -> Unit,
     onNavigateToGong: () -> Unit,
     onNavigateToIntervalGongs: () -> Unit,
@@ -157,10 +153,7 @@ private fun EditorContent(
         )
         Spacer(modifier = Modifier.height(SectionSpacing))
         AudioSection(
-            attunementEnabled = uiState.attunementEnabled,
-            resolvedAttunementName = uiState.resolvedAttunementName,
             resolvedBackgroundSoundName = uiState.resolvedBackgroundSoundName,
-            onNavigateToAttunement = onNavigateToAttunement,
             onNavigateToBackground = onNavigateToBackground
         )
         Spacer(modifier = Modifier.height(SectionSpacing))
@@ -333,19 +326,7 @@ private fun PreparationDurationDropdown(
 // region Audio & Sounds Section
 
 @Composable
-private fun AudioSection(
-    attunementEnabled: Boolean,
-    resolvedAttunementName: String?,
-    resolvedBackgroundSoundName: String?,
-    onNavigateToAttunement: () -> Unit,
-    onNavigateToBackground: () -> Unit
-) {
-    val attunementSummary = if (attunementEnabled && resolvedAttunementName != null) {
-        resolvedAttunementName
-    } else {
-        stringResource(R.string.praxis_editor_attunement_none)
-    }
-
+private fun AudioSection(resolvedBackgroundSoundName: String?, onNavigateToBackground: () -> Unit) {
     val backgroundSummary = resolvedBackgroundSoundName
         ?: stringResource(R.string.praxis_editor_background_silence)
 
@@ -356,16 +337,6 @@ private fun AudioSection(
         )
 
         EditorCard {
-            NavigationRow(
-                label = stringResource(R.string.praxis_editor_attunement_row),
-                summary = attunementSummary,
-                accessibilityDescription = stringResource(R.string.accessibility_praxis_editor_attunement),
-                testTag = "praxisEditor.row.attunement",
-                onClick = onNavigateToAttunement
-            )
-
-            Spacer(modifier = Modifier.height(ItemSpacing))
-
             NavigationRow(
                 label = stringResource(R.string.praxis_editor_background_row),
                 summary = backgroundSummary,

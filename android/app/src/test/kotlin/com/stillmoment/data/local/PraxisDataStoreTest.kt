@@ -8,7 +8,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -123,20 +122,6 @@ class PraxisDataStoreTest {
         }
 
         @Test
-        fun `fromMeditationSettings preserves attunement`() {
-            val settings = MeditationSettings(attunementId = "breath")
-            val praxis = Praxis.fromMeditationSettings(settings)
-            assertEquals("breath", praxis.attunementId)
-        }
-
-        @Test
-        fun `fromMeditationSettings preserves null attunement`() {
-            val settings = MeditationSettings(attunementId = null)
-            val praxis = Praxis.fromMeditationSettings(settings)
-            assertNull(praxis.attunementId)
-        }
-
-        @Test
         fun `fromMeditationSettings with all custom values`() {
             val settings = MeditationSettings.create(
                 intervalGongsEnabled = true,
@@ -151,7 +136,6 @@ class PraxisDataStoreTest {
                 preparationTimeSeconds = 20,
                 gongSoundId = "deep-resonance",
                 gongVolume = 0.7f,
-                attunementId = "breath"
             )
 
             val praxis = Praxis.fromMeditationSettings(settings)
@@ -168,7 +152,6 @@ class PraxisDataStoreTest {
             assertEquals(20, praxis.preparationTimeSeconds)
             assertEquals("deep-resonance", praxis.gongSoundId)
             assertEquals(0.7f, praxis.gongVolume)
-            assertEquals("breath", praxis.attunementId)
         }
     }
 
@@ -185,7 +168,6 @@ class PraxisDataStoreTest {
                 preparationTimeSeconds = 20,
                 gongSoundId = "clear-strike",
                 gongVolume = 0.8f,
-                attunementId = "breath",
                 intervalGongsEnabled = true,
                 intervalMinutes = 10,
                 intervalMode = IntervalMode.BEFORE_END,
@@ -212,34 +194,6 @@ class PraxisDataStoreTest {
         }
 
         @Test
-        fun `praxis with null attunementId survives JSON round-trip`() {
-            val original = Praxis.create(
-                id = "null-intro-id",
-                attunementId = null
-            )
-
-            val json = Json.encodeToString(original)
-            val decoded = Json.decodeFromString<Praxis>(json)
-
-            assertEquals(original, decoded)
-            assertNull(decoded.attunementId)
-        }
-
-        @Test
-        fun `praxis with non-null attunementId survives JSON round-trip`() {
-            val original = Praxis.create(
-                id = "with-intro-id",
-                attunementId = "breath"
-            )
-
-            val json = Json.encodeToString(original)
-            val decoded = Json.decodeFromString<Praxis>(json)
-
-            assertEquals(original, decoded)
-            assertEquals("breath", decoded.attunementId)
-        }
-
-        @Test
         fun `JSON contains expected key names`() {
             val praxis = Praxis.create(
                 id = "json-fields-test",
@@ -251,6 +205,83 @@ class PraxisDataStoreTest {
             // Verify ID and key structural fields are present in serialized JSON
             assertTrue(json.contains("json-fields-test"), "JSON should contain the ID value")
             assertTrue(json.contains("durationMinutes"), "JSON should contain durationMinutes key: $json")
+        }
+    }
+
+    // MARK: - Legacy JSON Compatibility
+
+    @Nested
+    inner class LegacyJsonCompatibility {
+        private val lenientJson = Json { ignoreUnknownKeys = true }
+
+        @Test
+        fun `legacy praxis JSON with introductionId field decodes without throwing`() {
+            // Mirrors the JSON written by app versions that still had the Einstimmung feature.
+            // After shared-088 the Praxis class no longer has the Einstimmung fields, so the
+            // decoder must ignore them (otherwise PraxisDataStore.load() returns null and the
+            // user sees a fresh-install Praxis on upgrade).
+            val legacyJson = """
+                {
+                  "id":"legacy-id",
+                  "durationMinutes":12,
+                  "preparationTimeEnabled":true,
+                  "preparationTimeSeconds":15,
+                  "gongSoundId":"classic-bowl",
+                  "gongVolume":1.0,
+                  "introductionId":"breath",
+                  "introductionEnabled":true,
+                  "intervalGongsEnabled":false,
+                  "intervalMinutes":5,
+                  "intervalMode":"REPEATING",
+                  "intervalSoundId":"soft-interval",
+                  "intervalGongVolume":0.75,
+                  "backgroundSoundId":"silent",
+                  "backgroundSoundVolume":0.15
+                }
+            """.trimIndent()
+
+            val decoded = lenientJson.decodeFromString<Praxis>(legacyJson)
+
+            assertEquals("legacy-id", decoded.id)
+            assertEquals(12, decoded.durationMinutes)
+        }
+
+        @Test
+        fun `re-encoded praxis no longer contains introduction keys`() {
+            // After lenient decode, the Praxis object has no attunement state at all. Re-encoding
+            // it must drop the legacy keys cleanly so the persisted JSON converges to the new
+            // schema on the next save.
+            val legacyJson = """
+                {
+                  "id":"legacy-id",
+                  "durationMinutes":12,
+                  "introductionId":"breath",
+                  "introductionEnabled":true,
+                  "preparationTimeEnabled":true,
+                  "preparationTimeSeconds":15,
+                  "gongSoundId":"classic-bowl",
+                  "gongVolume":1.0,
+                  "intervalGongsEnabled":false,
+                  "intervalMinutes":5,
+                  "intervalMode":"REPEATING",
+                  "intervalSoundId":"soft-interval",
+                  "intervalGongVolume":0.75,
+                  "backgroundSoundId":"silent",
+                  "backgroundSoundVolume":0.15
+                }
+            """.trimIndent()
+
+            val decoded = lenientJson.decodeFromString<Praxis>(legacyJson)
+            val reEncoded = Json.encodeToString(decoded)
+
+            assertFalse(
+                reEncoded.contains("introductionId"),
+                "Re-encoded praxis still contains legacy introductionId key"
+            )
+            assertFalse(
+                reEncoded.contains("introductionEnabled"),
+                "Re-encoded praxis still contains legacy introductionEnabled key"
+            )
         }
     }
 
@@ -290,11 +321,6 @@ class PraxisDataStoreTest {
         @Test
         fun `Default praxis has silent background`() {
             assertEquals("silent", Praxis.Default.backgroundSoundId)
-        }
-
-        @Test
-        fun `Default praxis has no attunement`() {
-            assertNull(Praxis.Default.attunementId)
         }
 
         @Test

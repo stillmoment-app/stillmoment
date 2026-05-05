@@ -1,7 +1,6 @@
 package com.stillmoment.infrastructure.audio
 
 import com.stillmoment.R
-import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.repositories.CustomAudioRepository
@@ -71,11 +70,9 @@ constructor(
     }
 
     private var gongPlayer: MediaPlayerProtocol? = null
-    private var attunementPlayer: MediaPlayerProtocol? = null
     private var backgroundPlayer: MediaPlayerProtocol? = null
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
-    private var attunementPreviewPlayer: MediaPlayerProtocol? = null
     private var meditationPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private var meditationPreviewFadeJob: Job? = null
@@ -85,9 +82,6 @@ constructor(
     // Completion flows for ViewModel to observe
     private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     override val gongCompletionFlow: SharedFlow<Unit> = _gongCompletionFlow.asSharedFlow()
-
-    private val _attunementCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    override val attunementCompletionFlow: SharedFlow<Unit> = _attunementCompletionFlow.asSharedFlow()
 
     companion object {
         private const val TAG = "AudioService"
@@ -110,9 +104,6 @@ constructor(
         /** Default volume for ambient/background sounds (0.0 to 1.0) */
         private const val DEFAULT_AMBIENT_VOLUME = 0.15f
 
-        /** Volume for attunement audio playback */
-        private const val ATTUNEMENT_VOLUME = 0.9f
-
         /**
          * Resolves a raw resource name to its Android resource ID.
          * @param name The resource name (e.g., "gong_temple_bell")
@@ -124,8 +115,6 @@ constructor(
             "gong_deep_resonance" -> R.raw.gong_deep_resonance
             "gong_clear_strike" -> R.raw.gong_clear_strike
             "interval" -> R.raw.interval
-            "intro_breath_de" -> R.raw.intro_breath_de
-            "intro_breath_en" -> R.raw.intro_breath_en
             "forest_ambience" -> R.raw.forest_ambience
             "cozy_midnight_rain" -> R.raw.cozy_midnight_rain
             "silence" -> R.raw.silence
@@ -283,81 +272,6 @@ constructor(
         previewPlayer = null
     }
 
-    // MARK: - Attunement Playback
-
-    /**
-     * Play attunement audio from a raw resource name.
-     *
-     * @param resourceName Raw resource name for the attunement audio (e.g., "intro_breath_de")
-     * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
-     */
-    fun playAttunement(resourceName: String, volume: Float = ATTUNEMENT_VOLUME) {
-        try {
-            stopAttunement()
-            val resourceId = resolveRawResourceId(resourceName)
-            if (resourceId == 0) {
-                logger.e(TAG, "Unknown attunement resource: $resourceName")
-                return
-            }
-            val clampedVolume = volume.coerceIn(0f, 1f)
-            attunementPlayer = mediaPlayerFactory.createFromResource(resourceId)?.apply {
-                setVolume(clampedVolume, clampedVolume)
-                setOnCompletionListener {
-                    release()
-                    attunementPlayer = null
-                    _attunementCompletionFlow.tryEmit(Unit)
-                }
-                start()
-            }
-            logger.d(TAG, "Playing attunement audio, volume: $clampedVolume")
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play attunement - invalid state: ${e.message}")
-        }
-    }
-
-    /**
-     * Play attunement audio from a local file path.
-     * Used for custom imported attunements.
-     *
-     * @param filePath Absolute path to the audio file
-     * @param volume Playback volume (0.0 to 1.0), defaults to 0.9
-     */
-    fun playAttunementFromFile(filePath: String, volume: Float = ATTUNEMENT_VOLUME) {
-        try {
-            stopAttunement()
-            val clampedVolume = volume.coerceIn(0f, 1f)
-            val player = mediaPlayerFactory.create()
-            player.setDataSource(filePath)
-            player.setOnErrorListener { what, extra ->
-                logger.e(TAG, "Attunement audio error: what=$what, extra=$extra")
-                attunementPlayer = null
-                false
-            }
-            player.setOnPreparedListener {
-                player.setVolume(clampedVolume, clampedVolume)
-                player.start()
-                logger.d(TAG, "Playing attunement from file: $filePath, volume: $clampedVolume")
-            }
-            player.setOnCompletionListener {
-                player.release()
-                attunementPlayer = null
-                _attunementCompletionFlow.tryEmit(Unit)
-            }
-            attunementPlayer = player
-            player.prepareAsync()
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play attunement from file - invalid state: ${e.message}")
-        }
-    }
-
-    /**
-     * Stop attunement audio. Idempotent.
-     */
-    fun stopAttunement() {
-        safeRelease(attunementPlayer, "attunement")
-        attunementPlayer = null
-    }
-
     // MARK: - Background Preview
 
     /**
@@ -501,119 +415,6 @@ constructor(
             }
             delay(stepDuration)
         }
-    }
-
-    // MARK: - Attunement Preview
-
-    /**
-     * Play an attunement audio preview (attunement or built-in attunement).
-     * Automatically stops any previous preview.
-     *
-     * Resolves the attunementId: if it matches a built-in Attunement, plays from resources;
-     * otherwise treats it as a custom audio UUID and resolves via CustomAudioRepository.
-     *
-     * @param attunementId ID of the attunement to preview
-     */
-    override fun playAttunementPreview(attunementId: String) {
-        // Stop any previous previews (mutual exclusion)
-        stopAttunementPreview()
-        stopGongPreview()
-        stopBackgroundPreview()
-
-        val attunement = Attunement.find(attunementId)
-        if (attunement != null) {
-            playBuiltInAttunementPreview(attunement)
-        } else {
-            playCustomAttunementPreview(attunementId)
-        }
-    }
-
-    /**
-     * Play a built-in attunement preview from raw resources.
-     */
-    private fun playBuiltInAttunementPreview(attunement: Attunement) {
-        val resourceName = attunement.audioFilename(Attunement.currentLanguage)
-        if (resourceName == null) {
-            logger.d(TAG, "No audio available for attunement ${attunement.id} in ${Attunement.currentLanguage}")
-            return
-        }
-        val resourceId = resolveRawResourceId(resourceName)
-        if (resourceId == 0) {
-            logger.e(TAG, "Unknown attunement resource: $resourceName")
-            return
-        }
-        try {
-            val player = mediaPlayerFactory.createFromResource(resourceId)
-            if (player == null) {
-                logger.e(TAG, "Failed to create player for attunement preview: ${attunement.id}")
-                return
-            }
-            coordinator.requestAudioSession(AudioSource.PREVIEW)
-            attunementPreviewPlayer = player.apply {
-                setVolume(ATTUNEMENT_VOLUME, ATTUNEMENT_VOLUME)
-                setOnCompletionListener {
-                    release()
-                    attunementPreviewPlayer = null
-                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
-                }
-                start()
-            }
-            logger.d(TAG, "Playing built-in attunement preview: ${attunement.id}")
-        } catch (e: IllegalStateException) {
-            logger.e(TAG, "Failed to play attunement preview - invalid state: ${e.message}")
-        }
-    }
-
-    /**
-     * Play a custom attunement preview from a local file path.
-     * Resolves the file path asynchronously via CustomAudioRepository.
-     */
-    private fun playCustomAttunementPreview(attunementId: String) {
-        mainScope.launch {
-            try {
-                val filePath = customAudioRepository.getFilePath(attunementId)
-                if (filePath == null) {
-                    logger.w(TAG, "Custom attunement not found: $attunementId")
-                    return@launch
-                }
-                coordinator.requestAudioSession(AudioSource.PREVIEW)
-                val player = mediaPlayerFactory.create()
-                player.setDataSource(filePath)
-                player.setOnErrorListener { what, extra ->
-                    logger.e(TAG, "Attunement preview error: what=$what, extra=$extra")
-                    attunementPreviewPlayer = null
-                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
-                    false
-                }
-                player.setOnPreparedListener {
-                    player.setVolume(ATTUNEMENT_VOLUME, ATTUNEMENT_VOLUME)
-                    player.start()
-                    logger.d(TAG, "Playing custom attunement preview: $attunementId")
-                }
-                player.setOnCompletionListener {
-                    player.release()
-                    attunementPreviewPlayer = null
-                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
-                }
-                attunementPreviewPlayer = player
-                player.prepareAsync()
-            } catch (e: IllegalStateException) {
-                logger.e(
-                    TAG,
-                    "Failed to play custom attunement preview - invalid state: ${e.message}"
-                )
-            }
-        }
-    }
-
-    /**
-     * Stop the current attunement preview. Idempotent - safe to call even if no preview is playing.
-     */
-    override fun stopAttunementPreview() {
-        if (safeRelease(attunementPreviewPlayer, "attunement preview")) {
-            coordinator.releaseAudioSession(AudioSource.PREVIEW)
-        }
-        attunementPreviewPlayer = null
     }
 
     // MARK: - Background Audio
@@ -787,7 +588,6 @@ constructor(
         hardStopMeditationPreview()
         stopGongPreview()
         stopBackgroundPreview()
-        stopAttunementPreview()
 
         try {
             val player = mediaPlayerFactory.createFromContentUri(fileUri)
@@ -870,8 +670,6 @@ constructor(
         previewPlayer = null
         safeRelease(backgroundPreviewPlayer, "background preview cleanup")
         backgroundPreviewPlayer = null
-        safeRelease(attunementPreviewPlayer, "attunement preview cleanup")
-        attunementPreviewPlayer = null
         safeRelease(meditationPreviewPlayer, "meditation preview cleanup")
         meditationPreviewPlayer = null
     }
@@ -883,10 +681,8 @@ constructor(
      */
     fun release() {
         releaseGongPlayer()
-        stopAttunement()
         stopGongPreview()
         stopBackgroundPreview()
-        stopAttunementPreview()
         // Hard-stop instead of fade — mainScope.cancel() below would abort the fade coroutine
         meditationPreviewFadeJob?.cancel()
         meditationPreviewFadeJob = null

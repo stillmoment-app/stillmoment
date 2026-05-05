@@ -1,19 +1,16 @@
 package com.stillmoment.presentation.viewmodel
 
 import android.net.Uri
-import com.stillmoment.domain.models.Attunement
 import com.stillmoment.domain.models.BackgroundSound
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalSettings
 import com.stillmoment.domain.models.MeditationTimer
-import com.stillmoment.domain.models.ResolvedAttunement
 import com.stillmoment.domain.models.ResolvedSoundscape
 import com.stillmoment.domain.models.TimerEvent
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
-import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
@@ -37,11 +34,8 @@ class FakeAudioService : AudioServiceProtocol {
     var backgroundPreviewStopped = false
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
-    var lastAttunementPreviewId: String? = null
-    var attunementPreviewStopped = false
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
-    override val attunementCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
 
     override fun playGongPreview(soundId: String, volume: Float) {
         lastGongPreviewSoundId = soundId
@@ -64,14 +58,6 @@ class FakeAudioService : AudioServiceProtocol {
 
     override fun stopBackgroundPreview() {
         backgroundPreviewStopped = true
-    }
-
-    override fun playAttunementPreview(attunementId: String) {
-        lastAttunementPreviewId = attunementId
-    }
-
-    override fun stopAttunementPreview() {
-        attunementPreviewStopped = true
     }
 
     override fun playMeditationPreview(fileUri: String) {
@@ -98,8 +84,6 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
     var lastGongVolume: Float? = null
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
-    var lastAttunementId: String? = null
-    var attunementStopped = false
     var lastBackgroundAudioSoundId: String? = null
     var lastBackgroundAudioVolume: Float? = null
     var audioPaused = false
@@ -127,14 +111,6 @@ class FakeTimerForegroundService : TimerForegroundServiceProtocol {
         lastIntervalGongVolume = gongVolume
     }
 
-    override fun playAttunement(attunementId: String) {
-        lastAttunementId = attunementId
-    }
-
-    override fun stopAttunement() {
-        attunementStopped = true
-    }
-
     override fun updateBackgroundAudio(soundId: String, soundVolume: Float) {
         lastBackgroundAudioSoundId = soundId
         lastBackgroundAudioVolume = soundVolume
@@ -160,11 +136,7 @@ class FakeTimerRepository : TimerRepository {
 
     override val currentTimer: MeditationTimer? = null
 
-    override suspend fun start(
-        durationMinutes: Int,
-        preparationTimeSeconds: Int,
-        attunementDurationSeconds: Int
-    ): List<TimerEvent> {
+    override suspend fun start(durationMinutes: Int, preparationTimeSeconds: Int): List<TimerEvent> {
         // no-op for tests
         return emptyList()
     }
@@ -178,14 +150,6 @@ class FakeTimerRepository : TimerRepository {
     }
 
     override fun tick(intervalSettings: IntervalSettings?): Pair<MeditationTimer, List<TimerEvent>>? = null
-
-    override fun startAttunement() {
-        // no-op for tests
-    }
-
-    override fun endAttunement() {
-        // no-op for tests
-    }
 
     override fun startRunning() {
         // no-op for tests
@@ -213,9 +177,9 @@ class FakeSoundCatalogRepository : SoundCatalogRepository {
         BackgroundSound(
             id = "forest",
             nameEnglish = "Forest Ambience",
-            nameGerman = "Waldatmosph\u00e4re",
+            nameGerman = "Waldatmosphäre",
             descriptionEnglish = "Natural forest sounds",
-            descriptionGerman = "Nat\u00fcrliche Waldger\u00e4usche",
+            descriptionGerman = "Natürliche Waldgeräusche",
             rawResourceName = "forest_ambience"
         )
     )
@@ -281,38 +245,6 @@ class FakeCustomAudioRepository : CustomAudioRepository {
         _files.value = _files.value.map { file ->
             if (file.id == id) file.copy(name = newName) else file
         }
-    }
-}
-
-/**
- * Fake implementation of AttunementResolverProtocol for testing.
- * Resolves built-in attunements via Attunement.find() and custom IDs via configurable map.
- */
-class FakeAttunementResolver : AttunementResolverProtocol {
-    var customAttunements: Map<String, ResolvedAttunement> = emptyMap()
-
-    override fun resolve(id: String): ResolvedAttunement? {
-        // Try built-in attunement first (language-filtered)
-        val intro = Attunement.find(id)
-        if (intro != null && intro.availableLanguages.contains(Attunement.currentLanguage)) {
-            return ResolvedAttunement(
-                id = intro.id,
-                displayName = intro.localizedName,
-                durationSeconds = intro.durationSeconds
-            )
-        }
-        return customAttunements[id]
-    }
-
-    override fun allAvailable(): List<ResolvedAttunement> {
-        val builtIn = Attunement.availableForCurrentLanguage().map { intro ->
-            ResolvedAttunement(
-                id = intro.id,
-                displayName = intro.localizedName,
-                durationSeconds = intro.durationSeconds
-            )
-        }
-        return builtIn + customAttunements.values
     }
 }
 

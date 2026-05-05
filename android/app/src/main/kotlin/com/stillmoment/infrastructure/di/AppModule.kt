@@ -15,7 +15,6 @@ import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
-import com.stillmoment.domain.services.AttunementResolverProtocol
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -28,7 +27,6 @@ import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
-import com.stillmoment.infrastructure.audio.AttunementResolver
 import com.stillmoment.infrastructure.audio.AudioFocusManager
 import com.stillmoment.infrastructure.audio.AudioPlayerService
 import com.stillmoment.infrastructure.audio.AudioService
@@ -155,12 +153,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMeditationSourceRepository(impl: MeditationSourceRepositoryImpl): MeditationSourceRepository {
-        return impl
-    }
-
-    @Provides
-    @Singleton
-    fun provideAttunementResolver(impl: AttunementResolver): AttunementResolverProtocol {
         return impl
     }
 

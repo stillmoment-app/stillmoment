@@ -53,15 +53,6 @@
     <string name="settings_preparation_description">Zeit zum Ankommen vor der Meditation</string>
     <string name="settings_preparation_duration">Dauer</string>
 
-    <!-- Attunement -->
-    <string name="settings_attunement">Einstimmung</string>
-    <string name="settings_attunement_content">Inhalt</string>
-    <string name="accessibility_attunement_picker">Einstimmung auswählen</string>
-    <string name="accessibility_attunement_toggle">Einstimmung Schalter</string>
-    <string name="accessibility_attunement_enabled">Einstimmung aktiviert: %s</string>
-    <string name="accessibility_attunement_enabled_no_selection">Einstimmung aktiviert</string>
-    <string name="accessibility_attunement_disabled">Einstimmung deaktiviert</string>
-
     <!-- Background Sounds -->
     <string name="sound_silent">Stille</string>
     <string name="sound_silent_description">Meditiere in Stille.</string>
@@ -256,9 +247,6 @@
     <string name="praxis_editor_section_preparation">Vorbereitung</string>
     <string name="praxis_editor_section_audio">Audio &amp; Klänge</string>
     <string name="praxis_editor_section_gongs">Gongs</string>
-    <string name="praxis_editor_attunement_row">Einstimmung</string>
-    <string name="praxis_editor_attunement_none">Ohne Einstimmung</string>
-    <string name="praxis_editor_attunement_title">Einstimmung</string>
     <string name="praxis_editor_background_row">Hintergrundklang</string>
     <string name="praxis_editor_background_title">Hintergrundklang</string>
     <string name="praxis_editor_background_silence">Stille</string>
@@ -273,8 +261,6 @@
 
     <!-- Praxis Editor Accessibility -->
     <string name="accessibility_praxis_editor_name">Praxisname</string>
-    <string name="accessibility_praxis_editor_attunement">Einstimmung auswählen</string>
-    <string name="accessibility_praxis_editor_attunement_toggle">Einstimmung Schalter</string>
     <string name="accessibility_praxis_editor_background">Hintergrundklang auswählen</string>
     <string name="accessibility_praxis_editor_start_gong">Start- und Ende-Gong auswählen</string>
     <string name="accessibility_praxis_editor_interval_gongs">Intervall-Gongs konfigurieren</string>
@@ -287,10 +273,8 @@
 
     <!-- Custom Audio Import -->
     <string name="custom_audio_section_my_sounds">Meine Klänge</string>
-    <string name="custom_audio_section_my_attunements">Meine Einstimmungen</string>
     <string name="custom_audio_import_button">Audiodatei importieren</string>
     <string name="custom_audio_empty_sounds">Noch keine eigenen Klänge importiert</string>
-    <string name="custom_audio_empty_attunements">Noch keine eigenen Einstimmungen importiert</string>
     <string name="custom_audio_delete_title">Audiodatei löschen</string>
     <string name="custom_audio_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
     <string name="custom_audio_delete_warning_praxis">Wird in der aktuellen Praxis verwendet</string>
@@ -319,6 +303,4 @@
     <string name="import_type_guided_description">Zur Meditationsbibliothek hinzufügen</string>
     <string name="import_type_soundscape">Klangkulisse</string>
     <string name="import_type_soundscape_description">Als Hintergrundklang verwenden</string>
-    <string name="import_type_attunement">Einstimmung</string>
-    <string name="import_type_attunement_description">Als Einstimmung verwenden</string>
 </resources>
