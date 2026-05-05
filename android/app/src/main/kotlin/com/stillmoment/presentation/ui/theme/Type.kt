@@ -109,7 +109,11 @@ enum class TypographyRole {
 
     // Dialog (modal cards, e.g. download progress)
     DialogTitle,
-    DialogBody
+    DialogBody,
+
+    // Timer Idle Dial (shared-086 / shared-089)
+    DialValue,
+    DialUnit
 }
 
 // endregion
@@ -161,6 +165,9 @@ internal val TypographyRole.fontSpec: FontSpec
         // Dialog
         TypographyRole.DialogTitle -> FontSpec(18.sp, FontWeight.Light)
         TypographyRole.DialogBody -> FontSpec(12.sp, FontWeight.Normal)
+        // Timer Idle Dial
+        TypographyRole.DialValue -> FontSpec(76.sp, FontWeight.Light)
+        TypographyRole.DialUnit -> FontSpec(10.sp, FontWeight.Normal)
     }
 
 // endregion
@@ -205,6 +212,8 @@ internal val TypographyRole.colorRole: ThemeColorRole
         TypographyRole.EditCaption -> ThemeColorRole.TextSecondary
         TypographyRole.DialogTitle -> ThemeColorRole.TextPrimary
         TypographyRole.DialogBody -> ThemeColorRole.TextSecondary
+        TypographyRole.DialValue -> ThemeColorRole.TextPrimary
+        TypographyRole.DialUnit -> ThemeColorRole.TextSecondary
     }
 
 /**

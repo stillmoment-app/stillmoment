@@ -100,6 +100,8 @@ Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrima
 | `.settingsDivider` | `controlTrack.opacity(0.30)` | Trennlinien der flachen Settings-Liste am Idle-Screen (shared-089) |
 | `.settingsValueAccent` | `= interactive` | Wert-Text rechts in der Settings-Listenzeile |
 
+**Android-Pendant (shared-089):** Die fuenf Idle-Screen-Tokens (`settingsDivider`, `settingsValueAccent`, `dialActiveArc`, `dialDropletHalo`, `dialDropletCore`) liegen als Felder auf `StillMomentColors` (`presentation/ui/theme/Theme.kt`) und werden in `buildStillMomentColors(...)` aus `colorScheme.primary` (= iOS `interactive`) bzw. `controlTrack` abgeleitet — exakt analog zur iOS-Computed-Property-Logik. Theme/Mode-Resolution geschieht in `resolveStillMomentColors`, propagiert via `LocalStillMomentColors`.
+
 ### Gradient
 
 ```swift

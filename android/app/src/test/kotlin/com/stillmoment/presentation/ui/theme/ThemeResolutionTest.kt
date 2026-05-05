@@ -149,6 +149,62 @@ class ThemeResolutionTest {
             val darkColors = ColorTheme.entries.map { resolveStillMomentColors(it, darkTheme = true) }
             assertEquals(3, darkColors.toSet().size, "All dark StillMomentColors should be distinct")
         }
+
+        @Test
+        fun `settingsValueAccent equals primary interactive for each theme`() {
+            // shared-089: the value-text accent in the flat settings list must follow
+            // colorScheme.primary so it inherits WCAG contrast guarantees and reacts
+            // to theme + light/dark switches automatically.
+            assertEquals(
+                CdLightInteractive,
+                resolveStillMomentColors(ColorTheme.CANDLELIGHT, darkTheme = false).settingsValueAccent
+            )
+            assertEquals(
+                CdDarkInteractive,
+                resolveStillMomentColors(ColorTheme.CANDLELIGHT, darkTheme = true).settingsValueAccent
+            )
+            assertEquals(
+                FoLightInteractive,
+                resolveStillMomentColors(ColorTheme.FOREST, darkTheme = false).settingsValueAccent
+            )
+            assertEquals(
+                MnDarkInteractive,
+                resolveStillMomentColors(ColorTheme.MOON, darkTheme = true).settingsValueAccent
+            )
+        }
+
+        @Test
+        fun `settingsDivider derives from controlTrack with reduced alpha`() {
+            ColorTheme.entries.forEach { theme ->
+                listOf(false, true).forEach { dark ->
+                    val colors = resolveStillMomentColors(theme, darkTheme = dark)
+                    assertEquals(
+                        colors.controlTrack.copy(alpha = 0.30f),
+                        colors.settingsDivider,
+                        "settingsDivider should be controlTrack at alpha 0.30 for $theme dark=$dark"
+                    )
+                }
+            }
+        }
+
+        @Test
+        fun `dial active arc matches primary interactive`() {
+            ColorTheme.entries.forEach { theme ->
+                listOf(false, true).forEach { dark ->
+                    val colors = resolveStillMomentColors(theme, darkTheme = dark)
+                    assertEquals(
+                        colors.settingsValueAccent,
+                        colors.dialActiveArc,
+                        "dialActiveArc should match settingsValueAccent for $theme dark=$dark"
+                    )
+                    assertEquals(
+                        colors.settingsValueAccent,
+                        colors.dialDropletCore,
+                        "dialDropletCore should match settingsValueAccent for $theme dark=$dark"
+                    )
+                }
+            }
+        }
     }
 
     // endregion

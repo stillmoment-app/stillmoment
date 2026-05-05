@@ -89,6 +89,7 @@ import com.stillmoment.presentation.ui.settings.AppSettingsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
 import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
 import com.stillmoment.presentation.ui.timer.PraxisEditorScreen
+import com.stillmoment.presentation.ui.timer.PreparationTimeSelectionScreen
 import com.stillmoment.presentation.ui.timer.SelectBackgroundSoundScreen
 import com.stillmoment.presentation.ui.timer.SelectGongScreen
 import com.stillmoment.presentation.ui.timer.TimerFocusScreen
@@ -128,8 +129,6 @@ sealed class Screen(val route: String) {
 
     data object SoundAttributions : Screen("soundAttributions")
 
-    data object PraxisEditorGraph : Screen("praxisEditorGraph")
-
     data object PraxisEditor : Screen("praxisEditor")
 
     data object SelectBackground : Screen("selectBackground")
@@ -137,6 +136,8 @@ sealed class Screen(val route: String) {
     data object SelectGong : Screen("selectGong")
 
     data object IntervalGongs : Screen("intervalGongs")
+
+    data object PreparationTime : Screen("preparationTime")
 
     data object Player : Screen("player/{meditationJson}") {
         fun createRoute(meditation: GuidedMeditation): String {
@@ -387,7 +388,8 @@ private fun NavHostScaffold(
             route != Screen.SoundAttributions.route &&
             route != Screen.SelectBackground.route &&
             route != Screen.SelectGong.route &&
-            route != Screen.IntervalGongs.route
+            route != Screen.IntervalGongs.route &&
+            route != Screen.PreparationTime.route
     } != false
 
     Scaffold(
@@ -500,70 +502,64 @@ private fun NavGraphBuilder.timerNavGraph(
     onClearImportedCustomAudio: () -> Unit
 ) {
     navigation(startDestination = Screen.Timer.route, route = Screen.TimerGraph.route) {
-        composable(Screen.Timer.route) { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(Screen.TimerGraph.route)
-            }
-            val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
-
-            // Observe stop meditation signal from file import flow
-            val shouldStop by stopMeditationSignal.collectAsState()
-            val currentOnConsumeStop by rememberUpdatedState(onConsumeStopSignal)
-            LaunchedEffect(shouldStop) {
-                if (shouldStop) {
-                    sharedViewModel.resetTimer()
-                    currentOnConsumeStop()
-                }
-            }
-
-            TimerScreen(
-                onNavigateToFocus = { navController.navigate(Screen.TimerFocus.route) },
-                onNavigateToEditor = { navController.navigate(Screen.PraxisEditor.route) },
-                viewModel = sharedViewModel
-            )
-        }
-
-        composable(
-            route = Screen.TimerFocus.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }
-        ) { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(Screen.TimerGraph.route)
-            }
-            val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
-            TimerFocusScreen(onBack = { navController.popBackStack() }, viewModel = sharedViewModel)
-        }
-
-        praxisEditorNavGraph(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
+        timerIdleAndFocusComposables(navController, stopMeditationSignal, onConsumeStopSignal)
+        praxisEditorComposable(navController)
+        timerSubScreenComposables(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
     }
 }
 
-private fun NavGraphBuilder.praxisEditorNavGraph(
+private fun NavGraphBuilder.timerIdleAndFocusComposables(
     navController: NavHostController,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit
+    stopMeditationSignal: StateFlow<Boolean>,
+    onConsumeStopSignal: () -> Unit
 ) {
-    navigation(
-        startDestination = Screen.PraxisEditor.route,
-        route = Screen.PraxisEditorGraph.route
-    ) {
-        praxisEditorComposable(navController)
-        praxisEditorSubScreens(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
+    composable(Screen.Timer.route) { backStackEntry ->
+        val parentEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(Screen.TimerGraph.route)
+        }
+        val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
+
+        // Observe stop meditation signal from file import flow
+        val shouldStop by stopMeditationSignal.collectAsState()
+        val currentOnConsumeStop by rememberUpdatedState(onConsumeStopSignal)
+        LaunchedEffect(shouldStop) {
+            if (shouldStop) {
+                sharedViewModel.resetTimer()
+                currentOnConsumeStop()
+            }
+        }
+
+        TimerScreen(
+            onNavigateToFocus = { navController.navigate(Screen.TimerFocus.route) },
+            onNavigateToPreparation = { navController.navigate(Screen.PreparationTime.route) },
+            onNavigateToGong = { navController.navigate(Screen.SelectGong.route) },
+            onNavigateToInterval = { navController.navigate(Screen.IntervalGongs.route) },
+            onNavigateToBackground = { navController.navigate(Screen.SelectBackground.route) },
+            viewModel = sharedViewModel
+        )
+    }
+
+    composable(
+        route = Screen.TimerFocus.route,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
+    ) { backStackEntry ->
+        val parentEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(Screen.TimerGraph.route)
+        }
+        val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
+        TimerFocusScreen(onBack = { navController.popBackStack() }, viewModel = sharedViewModel)
     }
 }
 
 private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostController) {
     composable(Screen.PraxisEditor.route) { backStackEntry ->
-        val parentEntry = remember(backStackEntry) {
-            navController.getBackStackEntry(Screen.PraxisEditorGraph.route)
-        }
-        val editorViewModel: PraxisEditorViewModel = hiltViewModel(parentEntry)
         val timerEntry = remember(backStackEntry) {
             navController.getBackStackEntry(Screen.TimerGraph.route)
         }
+        val editorViewModel: PraxisEditorViewModel = hiltViewModel(timerEntry)
         val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
 
         PraxisEditorScreen(
@@ -579,37 +575,96 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
     }
 }
 
-private fun NavGraphBuilder.praxisEditorSubScreens(
+private fun NavGraphBuilder.timerSubScreenComposables(
+    navController: NavHostController,
+    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
+    onClearImportedCustomAudio: () -> Unit
+) {
+    selectBackgroundComposable(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
+    selectGongComposable(navController)
+    intervalGongsComposable(navController)
+    preparationTimeComposable(navController)
+}
+
+/**
+ * Resolve the TimerGraph-scoped [PraxisEditorViewModel] + [TimerViewModel]
+ * pair. Compose-rules' `ViewModelInjection` rule prefers `hiltViewModel` only
+ * in default parameters; here we deliberately need the ViewModel from a
+ * specific NavBackStackEntry (TimerGraph), which the default-parameter path
+ * cannot express.
+ */
+@Suppress("ComposableNaming") // Returns ViewModels — naming convention not applicable.
+@Composable
+private fun rememberTimerScopedEditorViewModels(
+    navController: NavHostController,
+    backStackEntry: androidx.navigation.NavBackStackEntry
+): Pair<PraxisEditorViewModel, TimerViewModel> {
+    val timerEntry = remember(backStackEntry) {
+        navController.getBackStackEntry(Screen.TimerGraph.route)
+    }
+
+    @Suppress("ViewModelInjection")
+    val editorViewModel: PraxisEditorViewModel = hiltViewModel(timerEntry)
+
+    @Suppress("ViewModelInjection")
+    val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
+    return editorViewModel to timerViewModel
+}
+
+private fun saveAndPop(
+    navController: NavHostController,
+    editorViewModel: PraxisEditorViewModel,
+    timerViewModel: TimerViewModel
+) {
+    timerViewModel.applyPraxisUpdate(editorViewModel.save())
+    navController.popBackStack()
+}
+
+private fun NavGraphBuilder.selectBackgroundComposable(
     navController: NavHostController,
     pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
     onClearImportedCustomAudio: () -> Unit
 ) {
     composable(Screen.SelectBackground.route) { backStackEntry ->
-        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
-            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
-        )
+        val (editorViewModel, timerViewModel) = rememberTimerScopedEditorViewModels(navController, backStackEntry)
         val pendingFile by pendingImportedCustomAudio.collectAsState()
         val currentOnClear by rememberUpdatedState(onClearImportedCustomAudio)
         SelectBackgroundSoundScreen(
-            onBack = { navController.popBackStack() },
+            onBack = { saveAndPop(navController, editorViewModel, timerViewModel) },
             viewModel = editorViewModel,
             initialFileToRename = pendingFile?.takeIf { it.type == CustomAudioType.SOUNDSCAPE },
             onConsumeInitialRename = currentOnClear
         )
     }
+}
 
+private fun NavGraphBuilder.selectGongComposable(navController: NavHostController) {
     composable(Screen.SelectGong.route) { backStackEntry ->
-        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
-            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        val (editorViewModel, timerViewModel) = rememberTimerScopedEditorViewModels(navController, backStackEntry)
+        SelectGongScreen(
+            onBack = { saveAndPop(navController, editorViewModel, timerViewModel) },
+            viewModel = editorViewModel
         )
-        SelectGongScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
     }
+}
 
+private fun NavGraphBuilder.intervalGongsComposable(navController: NavHostController) {
     composable(Screen.IntervalGongs.route) { backStackEntry ->
-        val editorViewModel: PraxisEditorViewModel = hiltViewModel(
-            remember(backStackEntry) { navController.getBackStackEntry(Screen.PraxisEditorGraph.route) }
+        val (editorViewModel, timerViewModel) = rememberTimerScopedEditorViewModels(navController, backStackEntry)
+        IntervalGongsEditorScreen(
+            onBack = { saveAndPop(navController, editorViewModel, timerViewModel) },
+            viewModel = editorViewModel
         )
-        IntervalGongsEditorScreen(onBack = { navController.popBackStack() }, viewModel = editorViewModel)
+    }
+}
+
+private fun NavGraphBuilder.preparationTimeComposable(navController: NavHostController) {
+    composable(Screen.PreparationTime.route) { backStackEntry ->
+        val (editorViewModel, timerViewModel) = rememberTimerScopedEditorViewModels(navController, backStackEntry)
+        PreparationTimeSelectionScreen(
+            onBack = { saveAndPop(navController, editorViewModel, timerViewModel) },
+            viewModel = editorViewModel
+        )
     }
 }
 
