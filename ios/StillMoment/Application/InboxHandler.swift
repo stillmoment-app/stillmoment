@@ -131,6 +131,7 @@ final class InboxHandler: ObservableObject {
             options: [.skipsHiddenFiles]
         ) else {
             Logger.infrastructure.error("Failed to list inbox directory contents")
+            self.downloadError = .containerNotAvailable
             return .error(.containerNotAvailable)
         }
 
@@ -250,6 +251,7 @@ final class InboxHandler: ObservableObject {
               let downloadURL = URL(string: urlRef.url)
         else {
             Logger.infrastructure.error("Failed to parse URL reference: \(url.lastPathComponent)")
+            self.downloadError = .downloadFailed
             return .error(.downloadFailed)
         }
 

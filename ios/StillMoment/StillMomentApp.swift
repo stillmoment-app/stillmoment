@@ -260,13 +260,13 @@ struct StillMomentApp: App {
     }
 
     /// Checks the Share Extension inbox for new entries
+    ///
+    /// Fehler werden vom InboxHandler ueber `downloadError` publiziert — der
+    /// Download-Alert ist die Single Source of Truth fuer Share-Inbox-Fehler.
+    /// Hier kein zweiter Alert-Pfad noetig (sonst Doppel-Alert).
     private func checkInbox() {
         Task {
-            let result = await self.inboxHandler.processInbox()
-
-            if case let .error(error) = result {
-                self.fileOpenErrorMessage = error.localizedDescription
-            }
+            _ = await self.inboxHandler.processInbox()
         }
     }
 
