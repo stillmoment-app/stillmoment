@@ -288,6 +288,11 @@
     <string name="download_error_message">Die Audiodatei konnte nicht heruntergeladen werden. Bitte versuche es erneut.</string>
     <string name="download_error_retry">Erneut versuchen</string>
     <string name="download_error_cancel">Abbrechen</string>
+    <string name="download_error_not_audio_title">Keine Aufnahme gefunden</string>
+    <string name="download_error_not_audio_message">Wir konnten unter diesem Link keine Aufnahme finden.</string>
+    <string name="download_error_no_link_title">Kein Link gefunden</string>
+    <string name="download_error_no_link_message">In dem geteilten Inhalt war kein Link enthalten.</string>
+    <string name="download_error_close">Schließen</string>
 
     <!-- Import Type Selection -->
     <string name="import_type_title">Importieren als\u2026</string>

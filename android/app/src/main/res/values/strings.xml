@@ -288,6 +288,11 @@
     <string name="download_error_message">The audio file could not be downloaded. Please try again.</string>
     <string name="download_error_retry">Retry</string>
     <string name="download_error_cancel">Cancel</string>
+    <string name="download_error_not_audio_title">No recording found</string>
+    <string name="download_error_not_audio_message">We couldn’t find a recording at this link.</string>
+    <string name="download_error_no_link_title">No link found</string>
+    <string name="download_error_no_link_message">We couldn’t find a link in the shared content.</string>
+    <string name="download_error_close">Close</string>
 
     <!-- Import Type Selection -->
     <string name="import_type_title">Import as\u2026</string>

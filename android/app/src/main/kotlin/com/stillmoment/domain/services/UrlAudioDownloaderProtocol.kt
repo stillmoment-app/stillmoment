@@ -14,8 +14,12 @@ interface UrlAudioDownloaderProtocol {
     /**
      * Downloads audio from [url] to a local temporary file.
      *
-     * @return Uri to the downloaded local file on success,
-     *         or failure with a descriptive exception.
+     * On success: [Result] wraps the [Uri] of the downloaded file.
+     * On failure: the [Throwable] is one of
+     * [com.stillmoment.domain.models.UrlAudioDownloadError.NotAudio],
+     * [com.stillmoment.domain.models.UrlAudioDownloadError.Http],
+     * [com.stillmoment.domain.models.UrlAudioDownloadError.Network], or
+     * [kotlinx.coroutines.CancellationException] (user-initiated cancel).
      */
     suspend fun download(url: String): Result<Uri>
 

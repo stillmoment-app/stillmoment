@@ -78,6 +78,7 @@ import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportAudioType
+import com.stillmoment.domain.models.UrlAudioDownloadError
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.ui.common.DownloadProgressModal
@@ -214,6 +215,8 @@ fun StillMomentNavHost(
     onClearFileUri: () -> Unit = {},
     pendingDownloadUrl: StateFlow<String?> = MutableStateFlow(null),
     onClearDownloadUrl: () -> Unit = {},
+    invalidShareSignal: StateFlow<Boolean> = MutableStateFlow(false),
+    onClearInvalidShareSignal: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
     // Activity-scoped ViewModel — `LocalViewModelStoreOwner` at this composable's call
     // site is the host Activity, so the ViewModel lives until the activity is destroyed.
@@ -275,6 +278,11 @@ fun StillMomentNavHost(
             stopMeditationSignal.value = true
             showImportTypeSheet = true
         }
+    )
+
+    InvalidShareEffect(
+        invalidShareSignal = invalidShareSignal,
+        onClearSignal = onClearInvalidShareSignal
     )
 
     ImportTypeSheetEffect(
@@ -693,13 +701,20 @@ private fun NavGraphBuilder.playerComposable(
 }
 
 /**
+ * Captured failure state for the download flow. `notAudio` distinguishes
+ * NotAudio (no retry — the URL won't change) from network/server errors
+ * (retry-able), so the error dialog can offer the right action.
+ */
+private data class DownloadFailure(val url: String, val notAudio: Boolean)
+
+/**
  * Handles URL download when an audio URL is shared via text (e.g. Chrome).
  *
  * Drives the [isDownloading] state via [onDownloadingChange] so the host can render
  * the [DownloadProgressModal] as a top-level overlay. On success, passes the local
- * file URI to [onDownloadSuccess]. On failure (genuine network/HTTP errors), an error
- * dialog with retry and cancel options is shown. User-initiated cancellation
- * (CancellationException) is filtered out — no error dialog appears.
+ * file URI to [onDownloadSuccess]. On failure: a NotAudio dialog (no retry) for
+ * non-audio URLs, a retry dialog for genuine network/HTTP errors. User-initiated
+ * cancellation (CancellationException) is filtered out — no error dialog appears.
  */
 @Composable
 private fun DownloadUrlEffect(
@@ -710,7 +725,7 @@ private fun DownloadUrlEffect(
     onDownloadSuccess: (Uri) -> Unit
 ) {
     val downloadUrl by pendingDownloadUrl.collectAsState()
-    var failedUrl by remember { mutableStateOf<String?>(null) }
+    var failure by remember { mutableStateOf<DownloadFailure?>(null) }
     val scope = rememberCoroutineScope()
     val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
     val currentOnDownloadingChange by rememberUpdatedState(onDownloadingChange)
@@ -723,7 +738,7 @@ private fun DownloadUrlEffect(
         // mid-flight and cause LaunchedEffect to cancel its own coroutine, leaving
         // the loading state stuck on screen.
         currentOnDownloadingChange(true)
-        failedUrl = null
+        failure = null
         val result = downloader.download(url)
         currentOnDownloadingChange(false)
         result.fold(
@@ -732,38 +747,103 @@ private fun DownloadUrlEffect(
                 // User-initiated cancel surfaces as CancellationException — silently
                 // dismiss without showing the error dialog.
                 if (error !is CancellationException) {
-                    failedUrl = url
+                    failure = DownloadFailure(url = url, notAudio = error is UrlAudioDownloadError.NotAudio)
                 }
             }
         )
         currentOnClearDownloadUrl()
     }
 
-    DownloadErrorDialog(
-        failedUrl = failedUrl,
-        urlAudioDownloader = urlAudioDownloader,
-        scope = scope,
-        onRetryStart = { currentOnDownloadingChange(true) },
-        onRetryEnd = { currentOnDownloadingChange(false) },
-        onSuccess = currentOnDownloadSuccess,
-        onFailure = { url -> failedUrl = url },
-        onDismiss = { failedUrl = null }
+    val current = failure
+    if (current != null) {
+        if (current.notAudio) {
+            NotAudioErrorDialog(onDismiss = { failure = null })
+        } else {
+            RetryableErrorDialog(
+                failedUrl = current.url,
+                urlAudioDownloader = urlAudioDownloader,
+                scope = scope,
+                onRetryStart = { currentOnDownloadingChange(true) },
+                onRetryEnd = { currentOnDownloadingChange(false) },
+                onSuccess = currentOnDownloadSuccess,
+                onFailure = { url, notAudio -> failure = DownloadFailure(url, notAudio) },
+                onDismiss = { failure = null }
+            )
+        }
+    }
+}
+
+/**
+ * Dialog shown when the shared URL didn't point to an audio file
+ * (e.g. text/html, video). Only a Close action — retrying the same
+ * URL won't help.
+ */
+@Composable
+private fun NotAudioErrorDialog(onDismiss: () -> Unit) {
+    val title = stringResource(R.string.download_error_not_audio_title)
+    val message = stringResource(R.string.download_error_not_audio_message)
+    val closeText = stringResource(R.string.download_error_close)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(closeText) }
+        }
     )
 }
 
+/**
+ * Silent-fail guard for text/plain shares without a usable URL (free text,
+ * mailto:, blank). Shows the same dialog shape as [NotAudioErrorDialog]
+ * so the URL-share-fail UX stays uniform — the user always sees a
+ * Title + Message + Close affordance, never nothing.
+ */
+@Composable
+private fun InvalidShareEffect(invalidShareSignal: StateFlow<Boolean>, onClearSignal: () -> Unit) {
+    val signal by invalidShareSignal.collectAsState()
+    val currentOnClear by rememberUpdatedState(onClearSignal)
+    if (signal) {
+        NoLinkErrorDialog(onDismiss = { currentOnClear() })
+    }
+}
+
+/**
+ * Dialog shown when the shared text/plain payload contained no usable
+ * HTTP/HTTPS link (free text, mailto:, blank). Same shape as
+ * [NotAudioErrorDialog] — Title + Message + Close.
+ */
+@Composable
+private fun NoLinkErrorDialog(onDismiss: () -> Unit) {
+    val title = stringResource(R.string.download_error_no_link_title)
+    val message = stringResource(R.string.download_error_no_link_message)
+    val closeText = stringResource(R.string.download_error_close)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(closeText) }
+        }
+    )
+}
+
+/**
+ * Dialog shown for retry-able download failures (network errors, HTTP 5xx, etc.).
+ * Offers Retry + Cancel — a retry dispatches a fresh download for the same URL.
+ */
 @Suppress("LongParameterList") // Retry dialog coordinates download state across multiple callbacks
 @Composable
-private fun DownloadErrorDialog(
-    failedUrl: String?,
+private fun RetryableErrorDialog(
+    failedUrl: String,
     urlAudioDownloader: UrlAudioDownloaderProtocol?,
     scope: kotlinx.coroutines.CoroutineScope,
     onRetryStart: () -> Unit,
     onRetryEnd: () -> Unit,
     onSuccess: (Uri) -> Unit,
-    onFailure: (String) -> Unit,
+    onFailure: (String, Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if (failedUrl == null) return
     val errorTitle = stringResource(R.string.download_error_title)
     val errorMessage = stringResource(R.string.download_error_message)
     val retryText = stringResource(R.string.download_error_retry)
@@ -780,7 +860,14 @@ private fun DownloadErrorDialog(
                     scope.launch {
                         val result = urlAudioDownloader.download(failedUrl)
                         onRetryEnd()
-                        result.fold(onSuccess = onSuccess, onFailure = { onFailure(failedUrl) })
+                        result.fold(
+                            onSuccess = onSuccess,
+                            onFailure = { error ->
+                                if (error !is CancellationException) {
+                                    onFailure(failedUrl, error is UrlAudioDownloadError.NotAudio)
+                                }
+                            }
+                        )
                     }
                 }
             }) { Text(retryText) }

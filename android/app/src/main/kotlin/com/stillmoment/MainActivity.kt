@@ -55,6 +55,9 @@ class MainActivity : ComponentActivity() {
     private val _pendingDownloadUrl = MutableStateFlow<String?>(null)
     val pendingDownloadUrl = _pendingDownloadUrl.asStateFlow()
 
+    private val _invalidShareSignal = MutableStateFlow(false)
+    val invalidShareSignal = _invalidShareSignal.asStateFlow()
+
     /** Consume the pending file URI after processing */
     fun consumePendingFileUri() {
         _pendingFileUri.value = null
@@ -63,6 +66,11 @@ class MainActivity : ComponentActivity() {
     /** Consume the pending download URL after processing */
     fun consumePendingDownloadUrl() {
         _pendingDownloadUrl.value = null
+    }
+
+    /** Consume the invalid-share signal after the snackbar has been shown */
+    fun consumeInvalidShareSignal() {
+        _invalidShareSignal.value = false
     }
 
     /**
@@ -107,7 +115,9 @@ class MainActivity : ComponentActivity() {
                         pendingFileUri = pendingFileUri,
                         onClearFileUri = ::consumePendingFileUri,
                         pendingDownloadUrl = pendingDownloadUrl,
-                        onClearDownloadUrl = ::consumePendingDownloadUrl
+                        onClearDownloadUrl = ::consumePendingDownloadUrl,
+                        invalidShareSignal = invalidShareSignal,
+                        onClearInvalidShareSignal = ::consumeInvalidShareSignal
                     )
                 }
             }
@@ -144,13 +154,21 @@ class MainActivity : ComponentActivity() {
     /**
      * Handles text/plain share intents (e.g. Chrome audio player share).
      * Chrome sends the audio URL as plain text via EXTRA_TEXT.
-     * Only audio URLs (.mp3 / .m4a) are processed; other URLs are silently ignored.
+     *
+     * Since shared-091 the validator only checks the URL scheme — every HTTP/HTTPS
+     * URL goes through the download flow, where the actual audio decision is made
+     * against the server's Content-Type (NotAudio dialog if the link points to
+     * text/html etc.). Anything that is not a usable HTTP/HTTPS URL — null, blank,
+     * non-HTTP scheme, free text — raises [_invalidShareSignal] so the user sees a
+     * "no link found" dialog instead of a silent fail.
      */
     private fun handleTextShareIntent(intent: Intent) {
-        val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
-        if (UrlAudioValidator.isAudioUrl(text)) {
-            _pendingDownloadUrl.value = text
+        val text = intent.getStringExtra(Intent.EXTRA_TEXT)
+        when (val result = UrlAudioValidator.classifyShareText(text)) {
+            is UrlAudioValidator.ShareTextResult.AudioUrl ->
+                _pendingDownloadUrl.value = result.url
+            is UrlAudioValidator.ShareTextResult.NotALink ->
+                _invalidShareSignal.value = true
         }
-        // Non-audio URLs are silently ignored — no error, no UI change
     }
 }

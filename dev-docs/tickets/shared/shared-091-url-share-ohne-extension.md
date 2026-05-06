@@ -1,6 +1,6 @@
 # Ticket shared-091: URL-Share akzeptiert Audio-URLs ohne .mp3/.m4a-Endung
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan iOS**: [Implementierungsplan iOS](../plans/shared-091-ios.md)
 **Plan Android**: [Implementierungsplan Android](../plans/shared-091-android.md)
 **Prioritaet**: MITTEL
@@ -23,8 +23,8 @@ Viele Podcast-/Talk-Plattformen (audiodharma.org, Dharma Seed, vereinzelt SoundC
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 

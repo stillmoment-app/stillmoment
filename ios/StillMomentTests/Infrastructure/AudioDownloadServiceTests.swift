@@ -205,6 +205,34 @@ final class AudioDownloadServiceTests: XCTestCase {
         XCTAssertEqual(localURL.pathExtension, "mp3")
     }
 
+    func testDownloadFromURLWithoutExtension_nonStandardAudioMp3ContentType_savesAsMp3() async throws {
+        // Given — URL ohne Endung, Server liefert das non-standard "audio/mp3"
+        // (audiodharma.org → S3 / linodeobjects.com sendet diesen Content-Type
+        // statt des offiziellen "audio/mpeg"). Die `audio/`-Prefix-Pruefung in
+        // validateContentType muss das durchlassen, sonst sieht der User
+        // "Keine Aufnahme gefunden" fuer einen klar gueltigen MP3-Download.
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25407/download"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "audio/mp3"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "talk-25407")
+
+        // Then
+        XCTAssertTrue(FileManager.default.fileExists(atPath: localURL.path))
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+    }
+
     func testDownloadFromURLWithoutExtension_audioXM4aContentType_savesAsM4a() async throws {
         // Given
         let sut = try XCTUnwrap(self.sut)

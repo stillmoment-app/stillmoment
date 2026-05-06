@@ -2,6 +2,7 @@ package com.stillmoment.infrastructure.network
 
 import android.content.Context
 import android.net.Uri
+import com.stillmoment.domain.models.UrlAudioDownloadError
 import com.stillmoment.domain.services.LoggerProtocol
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -20,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -108,6 +110,23 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
+        fun `accepts non-standard audio-slash-mp3 content type`() = kotlinx.coroutines.test.runTest {
+            // Many CDNs (audiodharma's S3 backend at linodeobjects.com is one example)
+            // send the non-standard "audio/mp3" instead of the official "audio/mpeg".
+            // Both must be accepted — otherwise the user sees "Keine Aufnahme gefunden"
+            // for what is clearly a valid MP3 download.
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mp3")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://example.com/audio.mp3")
+
+            assertTrue(result.isSuccess) {
+                "Expected success for audio/mp3, got ${result.exceptionOrNull()?.javaClass?.simpleName}"
+            }
+        }
+
+        @Test
         fun `accepts octet-stream content type as fallback`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("application/octet-stream")
@@ -152,30 +171,35 @@ class UrlAudioDownloaderTest {
     inner class HttpErrors {
 
         @Test
-        fun `returns failure for 404 not found`() = kotlinx.coroutines.test.runTest {
+        fun `returns Http error for 404 not found`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_NOT_FOUND)
 
             val result = sut.download("https://example.com/missing.mp3")
 
-            assertTrue(result.isFailure)
+            val error = result.exceptionOrNull()
+            assertTrue(error is UrlAudioDownloadError.Http) { "Expected Http error, got ${error?.javaClass}" }
+            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, (error as UrlAudioDownloadError.Http).code)
         }
 
         @Test
-        fun `returns failure for 403 forbidden`() = kotlinx.coroutines.test.runTest {
+        fun `returns Http error for 403 forbidden`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_FORBIDDEN)
 
             val result = sut.download("https://example.com/protected.mp3")
 
-            assertTrue(result.isFailure)
+            val error = result.exceptionOrNull()
+            assertTrue(error is UrlAudioDownloadError.Http)
+            assertEquals(HttpURLConnection.HTTP_FORBIDDEN, (error as UrlAudioDownloadError.Http).code)
         }
 
         @Test
-        fun `returns failure for 500 server error`() = kotlinx.coroutines.test.runTest {
+        fun `returns Http error for 500 server error`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_INTERNAL_ERROR)
 
             val result = sut.download("https://example.com/error.mp3")
 
-            assertTrue(result.isFailure)
+            val error = result.exceptionOrNull()
+            assertTrue(error is UrlAudioDownloadError.Http)
         }
     }
 
@@ -183,23 +207,23 @@ class UrlAudioDownloaderTest {
     inner class UnsupportedContentType {
 
         @Test
-        fun `returns failure for html content type`() = kotlinx.coroutines.test.runTest {
+        fun `returns NotAudio for html content type`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("text/html")
 
             val result = sut.download("https://example.com/page.html")
 
-            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
         }
 
         @Test
-        fun `returns failure for video content type`() = kotlinx.coroutines.test.runTest {
+        fun `returns NotAudio for video content type`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("video/mp4")
 
             val result = sut.download("https://example.com/video.mp4")
 
-            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
         }
     }
 
@@ -207,12 +231,135 @@ class UrlAudioDownloaderTest {
     inner class ConnectionErrors {
 
         @Test
-        fun `returns failure when connection throws io exception`() = kotlinx.coroutines.test.runTest {
+        fun `returns Network error when connection throws io exception`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenThrow(IOException("Network unreachable"))
 
             val result = sut.download("https://example.com/audio.mp3")
 
-            assertTrue(result.isFailure)
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.Network)
+        }
+
+        @Test
+        fun `returns Network error when connection factory throws`() = kotlinx.coroutines.test.runTest {
+            // shared-091 "kein silent fail": pathological inputs (malformed URLs that pass
+            // the scheme-only validator) must surface as a typed error too — otherwise the
+            // exception escapes download() and the LaunchedEffect leaves the loading modal
+            // stuck on screen.
+            val throwingSut = UrlAudioDownloaderImpl(
+                context = mockContext,
+                logger = mockLogger,
+                connectionFactory = { throw IOException("malformed url") },
+                uriFromFile = { mockUri }
+            )
+
+            val result = throwingSut.download("https://invalid url with spaces")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.Network) {
+                "Expected Network error, got ${result.exceptionOrNull()?.javaClass}"
+            }
+        }
+    }
+
+    @Nested
+    inner class FilenameResolution {
+
+        @Test
+        fun `uses Content-Disposition filename when present`() = kotlinx.coroutines.test.runTest {
+            // shared-091: audiodharma.org/talks/.../download → S3 redirect with
+            // Content-Disposition: attachment; filename="20260504-talk.mp3"
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.getHeaderField("Content-Disposition"))
+                .thenReturn("attachment; filename=\"20260504-talk.mp3\"")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            sut.download("https://www.audiodharma.org/talks/25401/download")
+
+            val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+            assertTrue("20260504-talk.mp3" in names) {
+                "Expected file '20260504-talk.mp3', found: $names"
+            }
+        }
+
+        @Test
+        fun `parses Content-Disposition filename star encoding`() = kotlinx.coroutines.test.runTest {
+            // RFC 6266: filename*=UTF-8''percent-encoded-name takes precedence
+            // when both filename and filename* are present.
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.getHeaderField("Content-Disposition"))
+                .thenReturn("""attachment; filename="ascii.mp3"; filename*=UTF-8''Sch%C3%B6n.mp3""")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            sut.download("https://example.com/talk")
+
+            val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+            assertTrue("Schön.mp3" in names) { "Expected decoded UTF-8 filename, found: $names" }
+        }
+
+        @Test
+        fun `falls back to audio_mp3 for url without extension and no Content-Disposition`() =
+            kotlinx.coroutines.test.runTest {
+                whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+                whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+                whenever(mockConnection.getHeaderField("Content-Disposition")).thenReturn(null)
+                whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+                sut.download("https://www.audiodharma.org/talks/25401/download")
+
+                val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+                assertTrue("audio.mp3" in names) { "Expected fallback audio.mp3, found: $names" }
+            }
+
+        @Test
+        fun `falls back to audio_m4a when content type is audio-mp4`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mp4")
+            whenever(mockConnection.getHeaderField("Content-Disposition")).thenReturn(null)
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            sut.download("https://example.com/episode")
+
+            val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+            assertTrue("audio.m4a" in names) { "Expected fallback audio.m4a, found: $names" }
+        }
+
+        @Test
+        fun `prefers URL filename over Content-Disposition without audio extension`() =
+            kotlinx.coroutines.test.runTest {
+                // If the server's Content-Disposition lacks an audio extension
+                // (e.g. just "track"), don't import the file under that name —
+                // it would be rejected by the importer downstream. Use the URL
+                // path filename instead, since it has the right extension.
+                whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+                whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+                whenever(mockConnection.getHeaderField("Content-Disposition"))
+                    .thenReturn("attachment; filename=\"track\"")
+                whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+                sut.download("https://example.com/song.mp3")
+
+                val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+                assertTrue("song.mp3" in names) { "Expected URL filename song.mp3, found: $names" }
+            }
+
+        @Test
+        fun `strips path separators from Content-Disposition filename`() = runTest {
+            // Defence against directory traversal — the header is from the server
+            // and must not be allowed to write outside the per-download directory.
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.getHeaderField("Content-Disposition"))
+                .thenReturn("""attachment; filename="../../etc/passwd.mp3"""")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            sut.download("https://example.com/track")
+
+            val files = cacheDir.walkTopDown().filter { it.isFile }.toList()
+            val names = files.map { it.name }
+            assertTrue("passwd.mp3" in names) { "Expected sanitised passwd.mp3, found: $names" }
+            // No file should leak outside the per-download directory.
+            assertNull(files.firstOrNull { it.path.contains("..") })
         }
     }
 
