@@ -1,4 +1,8 @@
 {
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": false,
+    "pyright-lsp@claude-plugins-official": false
+  },
   "hooks": {
     "PostToolUse": [
       {
