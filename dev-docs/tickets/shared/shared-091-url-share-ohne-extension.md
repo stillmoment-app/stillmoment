@@ -31,10 +31,15 @@ Viele Podcast-/Talk-Plattformen (audiodharma.org, Dharma Seed, vereinzelt SoundC
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
+
+**User-Perspektive — Leitsatz:**
+> Wenn der Link ein nutzbares Audio-File enthaelt (mit oder ohne Endung in der URL), wird es importiert. Wenn der Link kein nutzbares Audio enthaelt **oder** der Import aus irgendeinem Grund scheitert: niemals silent fail — immer eine Meldung an den User.
+
 - [ ] Eine HTTP/HTTPS-URL ohne erkennbare Audio-Endung wird von der Share-Erkennung akzeptiert (Download-Modal oeffnet sich)
-- [ ] Liefert der Server beim Download einen unterstuetzten Audio-Content-Type (audio/mpeg, audio/mp4, audio/x-m4a, application/octet-stream), wird die Datei importiert
+- [ ] Liefert der Server beim Download einen unterstuetzten Audio-Content-Type (audio/mpeg, audio/mp4, audio/x-m4a, application/octet-stream), wird die Datei in die Bibliothek importiert — **inkl. URLs ohne erkennbare Datei-Endung im Pfad** (Filename/Extension werden aus `Content-Disposition`-Header oder Content-Type abgeleitet, sodass die nachgelagerte Import-Pipeline die Datei akzeptiert)
 - [ ] Liefert der Server einen nicht-unterstuetzten Content-Type (z. B. text/html), zeigt der Download-Dialog Title "Keine Aufnahme gefunden" / Message "Wir konnten unter diesem Link keine Aufnahme finden." und einen "Schliessen"-Pfad (kein Retry)
-- [ ] Konkrete Beispiel-URL `https://www.audiodharma.org/talks/25401/download` laesst sich erfolgreich teilen → Datei landet in der Meditations-Bibliothek
+- [ ] **Kein silent fail im URL-Share-Flow:** zwischen "Saved to Still Moment" und einem User-sichtbaren Ergebnis erscheint **entweder** der Import-Sheet (Erfolg) **oder** ein Fehler-Dialog (kein nutzbares Audio, Netzwerkfehler, Datei-Format wird vom Importer abgewiesen, etc.) — niemals nichts
+- [ ] Konkrete Beispiel-URL `https://www.audiodharma.org/talks/25401/download` laesst sich erfolgreich teilen → Datei landet in der Meditations-Bibliothek (mit dem vom Server gelieferten Filename, falls `Content-Disposition` vorhanden)
 - [ ] Lokalisiert (DE + EN) — Title/Message/Button-Texte fuer "keine Aufnahme gefunden"
 - [ ] Visuell konsistent zwischen iOS und Android
 

@@ -28,8 +28,10 @@ enum InboxResult: Equatable {
 
 /// Errors that can occur during inbox processing
 enum InboxError: Error, Equatable, LocalizedError {
-    /// The download of a shared URL failed
+    /// The download of a shared URL failed (network, server, write error — retry sinnvoll)
     case downloadFailed
+    /// Der geteilte Link liefert keine Audio-Datei (z. B. text/html). Retry hilft nicht.
+    case notAnAudioUrl
     /// The app group container is not available
     case containerNotAvailable
 
@@ -42,6 +44,12 @@ enum InboxError: Error, Equatable, LocalizedError {
                 "inbox_error_download_failed",
                 value: "The download failed. Please try again.",
                 comment: "Error when downloading a shared audio file fails"
+            )
+        case .notAnAudioUrl:
+            NSLocalizedString(
+                "share.download.error.not_audio.message",
+                value: "We couldn't find a recording at this link.",
+                comment: "Error when a shared URL does not point to an audio file"
             )
         case .containerNotAvailable:
             NSLocalizedString(
@@ -255,6 +263,19 @@ final class InboxHandler: ObservableObject {
             )
             Logger.infrastructure.info("Download completed: \(urlRef.filename)")
             self.fileOpenHandler.prepareImport(url: downloadedURL)
+
+            // Defense-in-Depth: prepareImport setzt showImportTypeSelection nur,
+            // wenn FileOpenHandler.canHandle die Datei akzeptiert. Wird der Import
+            // stumm abgewiesen (z. B. unbekannte Endung), erscheint sonst nirgends
+            // ein Hinweis fuer den User. → eigener Fehlercase.
+            guard self.fileOpenHandler.showImportTypeSelection else {
+                Logger.infrastructure.error(
+                    "Downloaded file rejected by importer: \(downloadedURL.lastPathComponent)"
+                )
+                self.downloadError = .notAnAudioUrl
+                return .error(.notAnAudioUrl)
+            }
+
             return .downloadCompleted(downloadedURL)
         } catch is CancellationError {
             Logger.infrastructure.info("Download cancelled for \(urlRef.url)")
@@ -262,6 +283,10 @@ final class InboxHandler: ObservableObject {
         } catch let error as AudioDownloadError where error == .downloadCancelled {
             Logger.infrastructure.info("Download cancelled for \(urlRef.url)")
             return .empty
+        } catch let error as AudioDownloadError where error == .unsupportedContentType {
+            Logger.infrastructure.info("URL did not point to audio: \(urlRef.url)")
+            self.downloadError = .notAnAudioUrl
+            return .error(.notAnAudioUrl)
         } catch {
             Logger.infrastructure.error("Download failed for \(urlRef.url)")
             self.downloadError = .downloadFailed

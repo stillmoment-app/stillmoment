@@ -9,11 +9,16 @@ import Foundation
 final class MockAudioDownloadService: AudioDownloadServiceProtocol {
     var downloadedURL: URL?
     var downloadShouldFail = false
+    /// Wenn gesetzt, wirft `download(...)` diesen Fehler — hat Vorrang vor `downloadShouldFail`.
+    var errorToThrow: AudioDownloadError?
     var downloadCancelCalled = false
     var downloadedFileURL: URL?
 
     func download(from url: URL, filename: String) async throws -> URL {
         self.downloadedURL = url
+        if let errorToThrow {
+            throw errorToThrow
+        }
         if self.downloadShouldFail {
             throw AudioDownloadError.downloadFailed
         }

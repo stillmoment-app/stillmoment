@@ -193,26 +193,57 @@ struct StillMomentApp: App {
                 }
             }
             .alert(
-                NSLocalizedString("share.download.error.title", comment: ""),
+                self.downloadAlertTitleKey,
                 isPresented: Binding(
                     get: { self.inboxHandler.downloadError != nil },
                     set: { if !$0 { self.inboxHandler.downloadError = nil } }
                 )
             ) {
-                Button(NSLocalizedString("share.download.error.retry", comment: "")) {
-                    self.inboxHandler.downloadError = nil
-                    self.checkInbox()
-                }
-                Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
-                    self.inboxHandler.downloadError = nil
-                }
+                self.downloadAlertButtons
             } message: {
-                Text(NSLocalizedString("share.download.error.message", comment: ""))
+                Text(NSLocalizedString(self.downloadAlertMessageKey, comment: ""))
             }
         }
     }
 
     // MARK: Private
+
+    /// Title-Key fuer den Download-Alert, abhaengig vom konkreten Fehler.
+    private var downloadAlertTitleKey: String {
+        switch self.inboxHandler.downloadError {
+        case .notAnAudioUrl:
+            NSLocalizedString("share.download.error.not_audio.title", comment: "")
+        default:
+            NSLocalizedString("share.download.error.title", comment: "")
+        }
+    }
+
+    /// Message-Key fuer den Download-Alert, abhaengig vom konkreten Fehler.
+    private var downloadAlertMessageKey: String {
+        switch self.inboxHandler.downloadError {
+        case .notAnAudioUrl:
+            "share.download.error.not_audio.message"
+        default:
+            "share.download.error.message"
+        }
+    }
+
+    /// Buttons fuer den Download-Alert: Retry nur bei wiederholbaren Fehlern.
+    @ViewBuilder private var downloadAlertButtons: some View {
+        if self.inboxHandler.downloadError == .notAnAudioUrl {
+            Button(NSLocalizedString("common.close", comment: ""), role: .cancel) {
+                self.inboxHandler.downloadError = nil
+            }
+        } else {
+            Button(NSLocalizedString("share.download.error.retry", comment: "")) {
+                self.inboxHandler.downloadError = nil
+                self.checkInbox()
+            }
+            Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
+                self.inboxHandler.downloadError = nil
+            }
+        }
+    }
 
     /// Handles a URL received via onOpenURL
     ///

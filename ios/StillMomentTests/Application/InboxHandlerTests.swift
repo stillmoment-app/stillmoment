@@ -364,6 +364,72 @@ final class InboxHandlerTests: XCTestCase {
         )
     }
 
+    // MARK: - URL hinter Link ist keine Audio-Datei
+
+    func testURLReferenceWithUnsupportedContentTypeReturnsNotAnAudioUrl() async throws {
+        // Given — Server liefert text/html statt audio/*
+        self.mockDownloadService.errorToThrow = .unsupportedContentType
+        let urlRef = URLReference(
+            url: "https://www.example.com/",
+            filename: "example",
+            timestamp: "2026-05-05T10:00:00Z"
+        )
+        let jsonData = try JSONEncoder().encode(urlRef)
+        let filename = "\(UUID().uuidString)_example.json"
+        let fileURL = self.inboxDirectory.appendingPathComponent(filename)
+        FileManager.default.createFile(atPath: fileURL.path, contents: jsonData)
+
+        // When
+        let result = await self.sut.processInbox()
+
+        // Then — eigener Fehler-Case, nicht generisches downloadFailed
+        if case let .error(error) = result {
+            XCTAssertEqual(error, .notAnAudioUrl)
+        } else {
+            XCTFail("Expected .error(.notAnAudioUrl), got \(result)")
+        }
+        XCTAssertEqual(self.sut.downloadError, .notAnAudioUrl)
+    }
+
+    // MARK: - Defense-in-Depth: Download gelang, aber Datei wird vom Importer nicht akzeptiert
+
+    func testURLReferenceWithDownloadedFileWithoutAudioExtensionReturnsNotAnAudioUrl() async throws {
+        // Given — Download liefert eine Datei ohne .mp3/.m4a-Endung zurueck
+        // (kann passieren wenn AudioDownloadService neue Content-Types akzeptiert,
+        // aber FileOpenHandler.canHandle sie nicht kennt — kein silent fail)
+        let downloadedURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(UUID().uuidString)_no_extension")
+        FileManager.default.createFile(atPath: downloadedURL.path, contents: Data("audio".utf8))
+        defer { try? FileManager.default.removeItem(at: downloadedURL) }
+
+        self.mockDownloadService.downloadedFileURL = downloadedURL
+
+        let urlRef = URLReference(
+            url: "https://example.com/audio/feed",
+            filename: "feed",
+            timestamp: "2026-05-06T10:00:00Z"
+        )
+        let jsonData = try JSONEncoder().encode(urlRef)
+        let filename = "\(UUID().uuidString)_feed.json"
+        let fileURL = self.inboxDirectory.appendingPathComponent(filename)
+        FileManager.default.createFile(atPath: fileURL.path, contents: jsonData)
+
+        // When
+        let result = await self.sut.processInbox()
+
+        // Then — User sieht eine Meldung, kein silent fail
+        if case let .error(error) = result {
+            XCTAssertEqual(error, .notAnAudioUrl)
+        } else {
+            XCTFail("Expected .error(.notAnAudioUrl), got \(result)")
+        }
+        XCTAssertEqual(self.sut.downloadError, .notAnAudioUrl)
+        XCTAssertFalse(
+            self.mockFileOpenHandler.showImportTypeSelection,
+            "Importer hat die Datei nicht angenommen — Sheet darf nicht erscheinen"
+        )
+    }
+
     // MARK: - Download Cancellation
 
     func testCancelDownloadForwardsToDownloadService() {

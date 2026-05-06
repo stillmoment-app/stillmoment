@@ -13,11 +13,13 @@ import UniformTypeIdentifiers
 ///
 /// Supports two attachment types:
 /// - `public.audio`: Audio files shared directly (e.g. from Files, Mail)
-/// - `public.url`: URLs shared from Safari/browsers (filtered to .mp3/.m4a)
+/// - `public.url`: HTTP/HTTPS URLs shared from Safari/browsers — auch ohne Datei-Endung
+///   (z. B. `https://www.audiodharma.org/talks/25401/download`). Die finale Audio-Pruefung
+///   erfolgt anhand des Server-Content-Types beim Download in der Haupt-App.
 ///
 /// Flow:
 /// 1. Extract attachment from NSExtensionContext
-/// 2. Audio file → copy to inbox; URL → validate extension, write JSON reference
+/// 2. Audio file → copy to inbox; URL → check scheme, write JSON reference
 /// 3. Open main app via `stillmoment://import` URL scheme
 /// 4. Complete extension request
 final class ShareViewController: UIViewController {
@@ -26,6 +28,7 @@ final class ShareViewController: UIViewController {
     private static let appGroupIdentifier = "group.com.stillmoment"
     private static let inboxDirectoryName = "ShareInbox"
     private static let supportedExtensions: Set<String> = ["mp3", "m4a"]
+    private static let supportedURLSchemes: Set<String> = ["http", "https"]
     private static let urlScheme = "stillmoment://import"
 
     // MARK: - Lifecycle
@@ -116,10 +119,11 @@ final class ShareViewController: UIViewController {
                 return
             }
 
-            // Check if the URL points to an audio file
-            let pathExtension = url.pathExtension.lowercased()
-            guard Self.supportedExtensions.contains(pathExtension) else {
-                // Not an audio URL — close silently (no error for non-audio URLs)
+            // Nur HTTP/HTTPS akzeptieren — alles andere (mailto, file, custom schemes)
+            // kann der Downloader nicht behandeln. Die Audio-Pruefung selbst erfolgt
+            // beim eigentlichen Download in der Haupt-App anhand des Content-Types.
+            let scheme = url.scheme?.lowercased() ?? ""
+            guard Self.supportedURLSchemes.contains(scheme) else {
                 DispatchQueue.main.async {
                     self.completeRequest()
                 }

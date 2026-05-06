@@ -115,6 +115,7 @@ Aktuell blockiert `UrlAudioValidator.isAudioUrl` URLs ohne `.mp3`/`.m4a`-Endung 
 - **Cross-Platform-Konsistenz**: Fehlertexte abstimmen mit iOS-Plan (`shared-091-ios.md`). DE/EN-Wording sollte zwischen Plattformen identisch sein.
 - **detekt**: `DownloadErrorDialog` koennte `LongMethod` (60 Zeilen) ueberschreiten, wenn beide Dialog-Varianten direkt eingebaut werden. Praeventiv in zwei separate Composables splitten (z. B. `NotAudioErrorDialog`, `RetryableErrorDialog`).
 - **Backward-Compat**: Bestehende JSON-Inbox-Eintraege (gibt es auf Android nicht) sind irrelevant. Pending-URLs werden nicht persistiert — nichts in DataStore zu migrieren.
+- **Umbrella-AK "kein silent fail"** (Ticket): Der bestehende Plan erfuellt das bereits durch (a) Filename-Fallback `audio.mp3` (kein Pfad ins "Datei ohne Endung wird abgewiesen"-Loch wie auf iOS), (b) typisierte Errors auf `DownloadErrorDialog` durchgereicht. Trotzdem **defensiv pruefen** (manueller Smoke-Test): `LaunchedEffect`-Pfad in `NavGraph.kt` muss bei jedem `Result.failure(...)`-Branch in **irgendeinen** sichtbaren Zustand muenden (Dialog) — kein Pfad darf `pendingDownloadUrl` zuruecksetzen ohne UI-Feedback. Cancellation ist die einzige Ausnahme (User-initiiert, AK-6).
 
 ## Offene Fragen
 

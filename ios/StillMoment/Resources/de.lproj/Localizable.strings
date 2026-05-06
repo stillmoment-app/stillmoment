@@ -376,6 +376,8 @@
 "share.download.error.message" = "Die Datei konnte nicht heruntergeladen werden.";
 "share.download.error.retry" = "Erneut versuchen";
 "share.download.error.cancel" = "Abbrechen";
+"share.download.error.not_audio.title" = "Keine Aufnahme gefunden";
+"share.download.error.not_audio.message" = "Wir konnten unter diesem Link keine Aufnahme finden.";
 
 // MARK: - Audio Download Errors
 

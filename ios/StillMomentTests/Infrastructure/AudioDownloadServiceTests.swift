@@ -104,6 +104,158 @@ final class AudioDownloadServiceTests: XCTestCase {
         XCTAssertEqual(localURL.pathExtension, "m4a")
     }
 
+    // MARK: - URL ohne Datei-Endung (audiodharma-Style)
+
+    func testDownloadFromURLWithoutFileExtension_audioMpegContentType_savesAsMp3() async throws {
+        // Given — URL ohne .mp3/.m4a-Endung (z. B. https://www.audiodharma.org/talks/25401/download)
+        // Server liefert audio/mpeg, kein Content-Disposition
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25401/download"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "audio/mpeg"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "talk-25401")
+
+        // Then — Endung aus Content-Type abgeleitet, FileOpenHandler.canHandle akzeptiert sie
+        XCTAssertTrue(FileManager.default.fileExists(atPath: localURL.path))
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+    }
+
+    func testDownloadFromURLWithoutExtension_contentDispositionFilename_usesServerFilename() async throws {
+        // Given — URL ohne Endung, aber Server liefert Content-Disposition mit echtem Filename
+        // (audiodharma S3-Antwort liefert genau das)
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25401/download"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: [
+                    "Content-Type": "audio/mpeg",
+                    "Content-Disposition": "attachment; filename=\"20260504-David_Lorey-IMC-guided.mp3\""
+                ]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "talk-25401")
+
+        // Then — Filename aus Content-Disposition gewinnt vor Parameter
+        XCTAssertEqual(localURL.lastPathComponent, "20260504-David_Lorey-IMC-guided.mp3")
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+    }
+
+    func testDownloadFromURLWithoutExtension_audioMp4ContentType_savesAsM4a() async throws {
+        // Given — URL ohne Endung, Server liefert audio/mp4
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://example.com/episode/42"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "audio/mp4"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "42")
+
+        // Then
+        XCTAssertEqual(localURL.pathExtension, "m4a")
+    }
+
+    func testDownloadFromURLWithoutExtension_octetStream_fallsBackToMp3() async throws {
+        // Given — URL ohne Endung, Server liefert generischen Content-Type
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://example.com/audio/feed"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "application/octet-stream"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "feed")
+
+        // Then — Fallback auf .mp3 (FileOpenHandler.canHandle akzeptiert)
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+    }
+
+    func testDownloadFromURLWithoutExtension_audioXM4aContentType_savesAsM4a() async throws {
+        // Given
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://example.com/podcast"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "audio/x-m4a"]
+            ))
+            return (response, Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "podcast")
+
+        // Then
+        XCTAssertEqual(localURL.pathExtension, "m4a")
+    }
+
+    func testDownloadFromURLWithoutExtension_htmlContentType_throwsUnsupportedContentType() async throws {
+        // Given — URL ohne Endung, Server antwortet mit text/html (typisch fuer Linksammlungen)
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://www.example.com/"))
+
+        MockURLProtocol.requestHandler = { request in
+            let url = try XCTUnwrap(request.url)
+            let response = try XCTUnwrap(HTTPURLResponse(
+                url: url,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Type": "text/html"]
+            ))
+            return (response, Data("<html></html>".utf8))
+        }
+
+        // When / Then
+        do {
+            _ = try await sut.download(from: remoteURL, filename: "page")
+            XCTFail("Expected unsupportedContentType for non-audio URL without extension")
+        } catch {
+            guard let downloadError = error as? AudioDownloadError else {
+                return XCTFail("Expected AudioDownloadError, got \(error)")
+            }
+            XCTAssertEqual(downloadError, .unsupportedContentType)
+        }
+    }
+
     // MARK: - Network Error
 
     func testDownloadWithNetworkError_throwsNetworkError() async throws {
