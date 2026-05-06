@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.ui.timer
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -122,13 +123,16 @@ private fun TimerScreenLayout(
     onNavigateToBackground: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isCompact = LocalConfiguration.current.screenHeightDp < COMPACT_HEIGHT_THRESHOLD_DP
-    val dialDiameter = if (isCompact) 180.dp else 220.dp
-    val headlineToDial = if (isCompact) 18.dp else 28.dp
-    val dialToList = if (isCompact) 32.dp else 72.dp
-    val listToButton = if (isCompact) 24.dp else 32.dp
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        // Container height (post-Scaffold padding), nicht screenHeightDp:
+        // Bottom-Bar/Status-Insets verkleinern den verfuegbaren Bereich,
+        // sonst laeuft das Idle-Layout auf Pixel-8-Klasse vertikal ueber.
+        val isCompact = maxHeight < COMPACT_HEIGHT_THRESHOLD
+        val dialDiameter = if (isCompact) 180.dp else 220.dp
+        val headlineToDial = if (isCompact) 18.dp else 28.dp
+        val dialToList = if (isCompact) 32.dp else 72.dp
+        val listToButton = if (isCompact) 24.dp else 32.dp
 
-    Box(modifier = modifier.fillMaxSize()) {
         StillMomentTopAppBar()
 
         Column(
@@ -288,7 +292,7 @@ private fun idleListItem(
 
 // endregion
 
-private const val COMPACT_HEIGHT_THRESHOLD_DP = 700
+private val COMPACT_HEIGHT_THRESHOLD = 840.dp
 
 // MARK: - Previews
 
