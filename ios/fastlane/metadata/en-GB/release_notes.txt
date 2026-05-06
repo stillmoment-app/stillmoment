@@ -1,4 +1,3 @@
-- Vibration as a gong option — gentle vibration instead of sound
-- Preview guided meditations with a long press in the library
-- Import audio files directly from other apps
-- Improvements and bug fixes
+- New UI for easier navigation
+- Simplified import of recordings – share directly from the browser
+- Getting started guide: how to find and import meditations
