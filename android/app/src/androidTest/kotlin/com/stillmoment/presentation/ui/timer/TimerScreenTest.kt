@@ -36,22 +36,16 @@ class TimerScreenTest {
                     uiState = uiState,
                     onMinutesChange = {},
                     onStartClick = {},
-                    onNavigateToEditor = {}
+                    onNavigateToPreparation = {},
+                    onNavigateToGong = {},
+                    onNavigateToInterval = {},
+                    onNavigateToBackground = {}
                 )
             }
         }
     }
 
     // MARK: - Idle State Tests
-
-    @Test
-    fun timerScreen_showsWelcomeTitle_whenIdle() {
-        renderTimerScreen(uiState = TimerUiState())
-        // Welcome title uses string resource - check for "Lovely to see you" or similar
-        // Note: Actual text depends on locale, test may need adjustment
-        composeRule.onNodeWithText("Lovely to see you", substring = true, ignoreCase = true)
-            .assertIsDisplayed()
-    }
 
     @Test
     fun timerScreen_showsDurationQuestion_whenIdle() {

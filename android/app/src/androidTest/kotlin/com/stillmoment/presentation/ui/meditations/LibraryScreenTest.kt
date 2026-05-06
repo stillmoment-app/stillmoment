@@ -46,7 +46,9 @@ class LibraryScreenTest {
                     onSaveMeditation = {},
                     onClearError = {},
                     onPreviewStart = {},
-                    onStopPreview = {}
+                    onStopPreview = {},
+                    onOpenGuide = {},
+                    onCloseGuide = {}
                 )
             }
         }
@@ -119,7 +121,7 @@ class LibraryScreenTest {
     fun emptyLibraryState_showsCorrectUI() {
         composeRule.setContent {
             StillMomentTheme {
-                EmptyLibraryState(onImportClick = {})
+                EmptyLibraryState(onImportClick = {}, onFindSourcesClick = {})
             }
         }
         composeRule.onNodeWithText("Your library is empty", ignoreCase = true).assertIsDisplayed()

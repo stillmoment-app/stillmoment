@@ -56,11 +56,9 @@ class PlayerScreenTest {
                 GuidedMeditationPlayerScreenContent(
                     meditation = meditation,
                     uiState = uiState,
+                    reduceMotion = false,
                     onBack = {},
-                    onPlayPause = {},
-                    onSeek = {},
-                    onSkipForward = {},
-                    onSkipBackward = {},
+                    onTogglePlayPause = {},
                     onClearError = {}
                 )
             }
@@ -94,27 +92,6 @@ class PlayerScreenTest {
     fun playerScreen_showsPauseButton_whenPlaying() {
         renderPlayerScreen(uiState = testUiState.copy(isPlaying = true))
         composeRule.onNodeWithContentDescription("Pause", substring = true, ignoreCase = true)
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun playerScreen_showsSkipForwardButton() {
-        renderPlayerScreen()
-        composeRule.onNodeWithContentDescription("forward", substring = true, ignoreCase = true)
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun playerScreen_showsSkipBackwardButton() {
-        renderPlayerScreen()
-        composeRule.onNodeWithContentDescription("backward", substring = true, ignoreCase = true)
-            .assertIsDisplayed()
-    }
-
-    @Test
-    fun playerScreen_showsSeekSlider() {
-        renderPlayerScreen()
-        composeRule.onNodeWithContentDescription("Seek", substring = true, ignoreCase = true)
             .assertIsDisplayed()
     }
 
