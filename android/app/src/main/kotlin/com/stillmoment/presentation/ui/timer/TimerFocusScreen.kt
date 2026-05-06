@@ -1,10 +1,12 @@
 package com.stillmoment.presentation.ui.timer
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +21,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,8 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -52,50 +53,42 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerState
+import com.stillmoment.presentation.ui.common.BreathingCircle
+import com.stillmoment.presentation.ui.common.MeditationBottomLabel
+import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
+import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
-import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TypographyRole
 import com.stillmoment.presentation.ui.theme.textColor
 import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.util.rememberIsReducedMotion
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 
-/** Affirmation resource IDs for preparation phase */
-private val preparationAffirmations = intArrayOf(
-    R.string.affirmation_preparation_1,
-    R.string.affirmation_preparation_2,
-    R.string.affirmation_preparation_3,
-    R.string.affirmation_preparation_4,
-    R.string.affirmation_preparation_5
-)
-
-/** Affirmation resource IDs for running phase */
-private val runningAffirmations = intArrayOf(
-    R.string.affirmation_running_1,
-    R.string.affirmation_running_2,
-    R.string.affirmation_running_3,
-    R.string.affirmation_running_4,
-    R.string.affirmation_running_5
-)
-
 private const val ANIMATION_DURATION_MS = 400
+private const val COMPACT_HEIGHT_DP = 700
+private const val BREATHING_CIRCLE_COMPACT_DP = 240
+private const val BREATHING_CIRCLE_DEFAULT_DP = 280
 
 /**
- * Timer Focus Screen - Distraction-free view during active meditation.
+ * Timer Focus Screen — distraction-free view during active meditation.
  *
- * Shows only the timer display and controls without navigation elements.
- * When the timer completes, shows a completion overlay with a thank-you message.
- * Closes when user taps the close button or resets the timer.
+ * Visuelles Vokabular geteilt mit dem Guided-Meditation-Player (shared-090):
+ * Atemkreis, Pre-Roll-Countdown, Restzeit-Label. Inneres bleibt in der Hauptphase
+ * leer — der Timer hat keine Pause-Funktion.
+ *
+ * Schliesst, wenn der User den Schliessen-Button tippt oder der Timer zum Idle-State
+ * zurueckkehrt. Bei Completion wird der Danke-Screen als Overlay eingeblendet.
  */
 @Composable
 fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: TimerViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Track if timer was ever active (for back navigation when returning to Idle)
     var wasActive by remember { mutableStateOf(false) }
     var hasNavigatedBack by remember { mutableStateOf(false) }
 
@@ -106,7 +99,6 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
         }
     }
 
-    // Navigate back when timer returns to Idle after being active
     val activeStates = setOf(
         TimerState.Preparation,
         TimerState.StartGong,
@@ -122,7 +114,6 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
         }
     }
 
-    // Don't render content if navigation is in progress (prevents flicker)
     if (hasNavigatedBack) return
 
     TimerFocusScreenContent(
@@ -133,7 +124,6 @@ fun TimerFocusScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewMode
         },
         onCompletionBack = {
             viewModel.resetTimer()
-            // LaunchedEffect handles navigation when state returns to Idle
         },
         modifier = modifier
     )
@@ -146,10 +136,13 @@ internal fun TimerFocusScreenContent(
     onCompletionBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val reduceMotion = rememberIsReducedMotion()
+
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(containerColor = Color.Transparent) { paddingValues ->
             FocusScreenLayout(
                 uiState = uiState,
+                reduceMotion = reduceMotion,
                 onBack = onClose,
                 modifier = Modifier.padding(paddingValues)
             )
@@ -172,7 +165,12 @@ internal fun TimerFocusScreenContent(
 }
 
 @Composable
-private fun FocusScreenLayout(uiState: TimerUiState, onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun FocusScreenLayout(
+    uiState: TimerUiState,
+    reduceMotion: Boolean,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val backDescription = stringResource(R.string.accessibility_close_focus)
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -191,25 +189,89 @@ private fun FocusScreenLayout(uiState: TimerUiState, onBack: () -> Unit, modifie
                     }
                 }
             )
+
+            FocusTimerDisplay(
+                uiState = uiState,
+                reduceMotion = reduceMotion,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = TopAppBarHeight)
+                    .padding(horizontal = 24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modifier: Modifier = Modifier) {
+    val configuration = LocalConfiguration.current
+    val circleSize = if (configuration.screenHeightDp < COMPACT_HEIGHT_DP) {
+        BREATHING_CIRCLE_COMPACT_DP.dp
+    } else {
+        BREATHING_CIRCLE_DEFAULT_DP.dp
+    }
+
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.weight(1f))
+
+        BreathingCircle(
+            phase = uiState.phase,
+            progress = uiState.progress,
+            reduceMotion = reduceMotion,
+            outerSize = circleSize
+        ) {
+            BreathingCircleSlot(
+                phase = uiState.phase,
+                countdownSeconds = uiState.remainingPreparationSeconds,
+                reduceMotion = reduceMotion
+            )
         }
 
-        // Hide timer content from accessibility tree when completion overlay is visible
-        if (uiState.timerState != TimerState.Completed) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(top = TopAppBarHeight).padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = stringResource(R.string.welcome_title),
-                    style = TypographyRole.ScreenTitle.textStyle(),
-                    color = TypographyRole.ScreenTitle.textColor(),
-                    modifier = Modifier.semantics { heading() }
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                FocusTimerDisplay(uiState = uiState)
-                Spacer(modifier = Modifier.weight(1f))
-            }
+        Spacer(modifier = Modifier.weight(1f))
+
+        MeditationBottomLabel(
+            phase = uiState.phase,
+            formattedRemainingMinutes = uiState.formattedRemainingMinutes,
+            reduceMotion = reduceMotion,
+            hintModifier = Modifier.testTag("timer.display.preRollHint"),
+            remainingModifier = Modifier
+                .testTag("timer.display.remainingTime")
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, reduceMotion: Boolean) {
+    val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
+    val countdownDescription = stringResource(
+        R.string.accessibility_countdown_seconds,
+        countdownSeconds
+    )
+
+    AnimatedContent(
+        targetState = phase,
+        transitionSpec = {
+            fadeIn(animationSpec = tween(transitionDuration)) togetherWith
+                fadeOut(animationSpec = tween(transitionDuration))
+        },
+        label = "timerCircleContent"
+    ) { current ->
+        when (current) {
+            MeditationPhase.PreRoll -> PreRollCircleContent(
+                countdownSeconds = countdownSeconds,
+                modifier = Modifier
+                    .testTag("timer.display.countdown")
+                    .semantics {
+                        contentDescription = countdownDescription
+                        liveRegion = LiveRegionMode.Polite
+                    }
+            )
+            MeditationPhase.Playing -> Spacer(modifier = Modifier.size(0.dp))
         }
     }
 }
@@ -217,7 +279,7 @@ private fun FocusScreenLayout(uiState: TimerUiState, onBack: () -> Unit, modifie
 @Composable
 private fun TimerCompletionContent(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val configuration = LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < 700
+    val isCompactHeight = configuration.screenHeightDp < COMPACT_HEIGHT_DP
 
     Box(
         modifier = modifier
@@ -312,102 +374,6 @@ private fun CompletionBackButton(onClick: () -> Unit, modifier: Modifier = Modif
             text = stringResource(R.string.button_back),
             style = MaterialTheme.typography.labelLarge
         )
-    }
-}
-
-@Composable
-private fun FocusTimerDisplay(uiState: TimerUiState, modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < 700
-    val ringSize = if (isCompactHeight) 220.dp else 280.dp
-
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        TimerRing(uiState = uiState, ringSize = ringSize, isCompactHeight = isCompactHeight)
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = getStateText(uiState.timerState, uiState.currentAffirmationIndex),
-            style = TypographyRole.BodySecondary.textStyle(),
-            color = TypographyRole.BodySecondary.textColor(),
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun TimerRing(
-    uiState: TimerUiState,
-    ringSize: androidx.compose.ui.unit.Dp,
-    isCompactHeight: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = uiState.progress,
-        animationSpec = tween(durationMillis = 500),
-        label = "progress"
-    )
-    val isPreparationStyle = uiState.isPreparation
-    val minutes = uiState.remainingSeconds / 60
-    val seconds = uiState.remainingSeconds % 60
-    val timerAccessibilityDescription = if (isPreparationStyle) {
-        stringResource(R.string.accessibility_countdown_seconds, uiState.remainingPreparationSeconds)
-    } else {
-        stringResource(R.string.accessibility_time_remaining, minutes, seconds)
-    }
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size(ringSize).semantics {
-            contentDescription = timerAccessibilityDescription
-            liveRegion = LiveRegionMode.Polite
-        }
-    ) {
-        CircularProgressIndicator(
-            progress = { 1f },
-            modifier = Modifier.size(ringSize),
-            strokeWidth = 10.dp,
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            strokeCap = StrokeCap.Round
-        )
-        if (!isPreparationStyle) {
-            CircularProgressIndicator(
-                progress = { animatedProgress },
-                modifier = Modifier.size(ringSize),
-                strokeWidth = 10.dp,
-                color = LocalStillMomentColors.current.progress,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0f),
-                strokeCap = StrokeCap.Round
-            )
-        }
-        Text(
-            text = uiState.formattedTime,
-            style = if (isPreparationStyle) {
-                TypographyRole.TimerCountdown.textStyle(
-                    sizeOverride = if (isCompactHeight) 90.sp else 110.sp
-                )
-            } else {
-                TypographyRole.TimerRunning.textStyle(
-                    sizeOverride = if (isCompactHeight) 56.sp else 72.sp
-                )
-            },
-            color = TypographyRole.TimerCountdown.textColor()
-        )
-    }
-}
-
-@Composable
-private fun getStateText(state: TimerState, affirmationIndex: Int): String {
-    return when (state) {
-        TimerState.Idle -> stringResource(R.string.state_ready)
-        TimerState.Preparation -> {
-            val index = affirmationIndex % preparationAffirmations.size
-            stringResource(preparationAffirmations[index])
-        }
-        TimerState.StartGong, TimerState.Running, TimerState.EndGong -> {
-            val index = affirmationIndex % runningAffirmations.size
-            stringResource(runningAffirmations[index])
-        }
-        TimerState.Completed -> stringResource(R.string.state_completed)
     }
 }
 

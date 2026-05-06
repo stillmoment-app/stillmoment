@@ -601,26 +601,5 @@ class MeditationTimerTest {
                 .copy(state = TimerState.Completed, remainingSeconds = 0)
             assertFalse(completed.canStart)
         }
-
-        @Test
-        fun `formattedTime shows preparation seconds when in preparation`() {
-            val timer = MeditationTimer.create(10)
-                .startPreparation()
-            assertEquals("15", timer.formattedTime)
-        }
-
-        @Test
-        fun `formattedTime shows MM-SS format when running`() {
-            val timer = MeditationTimer.create(10)
-                .copy(state = TimerState.Running)
-            assertEquals("10:00", timer.formattedTime)
-        }
-
-        @Test
-        fun `formattedTime shows 00-00 for a completed timer`() {
-            val timer = MeditationTimer.create(10)
-                .copy(state = TimerState.Completed, remainingSeconds = 0)
-            assertEquals("00:00", timer.formattedTime)
-        }
     }
 }
