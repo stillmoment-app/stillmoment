@@ -9,6 +9,9 @@ This is a meditation app for guided meditations (from user's own MP3s) and silen
 - No monetization pressure (no ads, no subscription, no in-app purchases)
 - Simplicity over features (no gamification, no streaks, no social)
 - The app should feel like a pause, not another notification
+- Audience is non-technical — use non-technical language when addressing users
+
+**Feature priority:** The Library (building a personal collection from your own MP3s) is the core feature; the Silent Meditation timer is an add-on. This shapes tab order (Library first), the default tab on first launch, screenshot and marketing emphasis, and feature prioritization in conflicts.
 
 **Standard use case:** User starts a meditation (timer or guided), puts the phone down — the lock screen activates. Nothing else happens during the meditation: switching tabs ends the active session. Features that only work in the foreground are **not sufficient** for the core use case.
 
