@@ -1,23 +1,22 @@
-Meditation, wie sie sein sollte.
+Still Moment ist deine persönliche Meditations-App: eigene Aufnahmen importieren, Timer nach deinen Wünschen gestalten — ohne Abo, ohne Werbung, ohne Tracking. Ein Geschenk, kein Produkt.
 
-Still Moment ist ein Geschenk, kein Produkt — kostenlos und Open Source. Eine warmherzige Meditations-App, die dir hilft, friedliche Momente in deinem vollen Alltag zu schaffen. Ohne Werbung, Tracking oder Ablenkung.
+DEINE BIBLIOTHEK, DEIN GESCHMACK
+Du weißt, welche Stimmen dir guttun. Still Moment hilft dir, ihre Meditationen zu sammeln und immer griffbereit zu haben.
+• Eigene Aufnahmen importieren – aus Dateien oder direkt aus dem Browser geteilt
+• Nach Lehrer sortiert – du findest schnell, was du suchst
+• Hören mit gesperrtem Bildschirm – Handy weglegen und loslassen
+• Deine Dateien bleiben auf deinem Gerät
 
-GEFÜHRTE MEDITATIONEN
-Erstelle deine persönliche Bibliothek mit deinen Lieblings-Meditationen.
-• Importiere MP3s von iCloud Drive oder lokalem Speicher
-• Sortiert nach Lehrer für einfaches Durchsuchen
-• Hintergrund-Wiedergabe — höre mit gesperrtem Bildschirm
-• Deine Dateien bleiben auf deinem Gerät, immer zugänglich
-
-FREIE MEDITATION
-Ein einfacher Timer, der dir nicht im Weg steht. Tut genau das, was du brauchst — nicht mehr.
-• Wähle 1-60 Minuten mit intuitiver Steuerung
+DEIN TIMER, DEIN TEMPO
+Stille nach deinen Vorstellungen. Kein starres Format – gestalte den Timer so, wie er sich für dich richtig anfühlt.
+• 1 bis 60 Minuten – du bestimmst die Dauer
 • Sanfter Countdown zur Vorbereitung
-• Wähle aus verschiedenen Klangschalen-Sounds für Start, Ende und Intervalle
-• Optionale Intervall-Gongs
-• Passe Gong- und Hintergrund-Lautstärke nach Wunsch an
-• Hintergrund-Optionen (still oder Waldgeräusche)
-• Funktioniert perfekt bei gesperrtem Bildschirm
+• Klangschalen für Beginn, Ende und Intervalle – wähle, was dich einlädt
+• Hintergrundklang: vollständige Stille oder sanfte Waldgeräusche
+• Lautstärken ganz nach deinem Gefühl
+
+RUHIG, KLAR, OHNE ABLENKUNG
+Still Moment ist bewusst einfach gehalten. Kein Punkte-System, keine Statistiken, keine Benachrichtigungen. Nur Raum für deine Praxis – gestaltet mit warmen Erdtönen, die dich nicht aufwühlen.
 
 DEINE MEDITATION, DEINE DATEN, DEIN GERÄT
 Still Moment sammelt absolut keine Daten. Alles bleibt auf deinem Gerät, wo es hingehört.
@@ -26,12 +25,7 @@ Still Moment sammelt absolut keine Daten. Alles bleibt auf deinem Gerät, wo es 
 • Kein Account, keine Anmeldung, kein Abo
 • Open Source — überprüfe unsere Versprechen selbst
 
-WARM & REDUZIERT GESTALTET
-• Warme Erdtöne wie Terrakotta und Sand
-• Klare, reduzierte Oberfläche
-• Keine visuellen Ablenkungen
-
 KOSTENLOS & OPEN SOURCE
-Still Moment wurde von einem Meditierenden gebaut und als Geschenk an die Community angeboten. Keine Premium-Features, keine Upsells, keine versteckten Kosten. Der vollständige Quellcode ist für jeden zugänglich — zum Überprüfen, Lernen oder Verbessern.
+Still Moment wurde von einem Meditierenden gebaut und als Geschenk an die Community angeboten. Keine Premium-Features, keine Upsells, keine versteckten Kosten. Der vollständige Quellcode ist für jeden zugänglich.
 
 Lade Still Moment herunter und schenke dir die Pause, die du verdienst.

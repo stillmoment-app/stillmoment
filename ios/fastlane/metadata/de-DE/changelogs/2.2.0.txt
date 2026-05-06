@@ -1,0 +1,3 @@
+- Neues UI für einfachere Bedienung
+- Vereinfachter Import von Aufnahmen – auch direkt aus dem Browser
+- Getting-Started-Guide: So findest und importierst du Meditationen
