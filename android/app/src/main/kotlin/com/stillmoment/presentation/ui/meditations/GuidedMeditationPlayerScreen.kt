@@ -51,7 +51,10 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.presentation.ui.common.BreathingCircle
+import com.stillmoment.presentation.ui.common.MeditationBottomLabel
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
+import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
+import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.GlassPauseButton
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
@@ -64,7 +67,6 @@ import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 
 private const val COMPLETION_ANIMATION_DURATION_MS = 400
-private const val PHASE_TRANSITION_MS = 400
 private const val COMPACT_HEIGHT_DP = 700
 private const val BREATHING_CIRCLE_COMPACT_DP = 240
 private const val BREATHING_CIRCLE_DEFAULT_DP = 280
@@ -289,10 +291,12 @@ private fun PlayerBody(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomLabel(
+        MeditationBottomLabel(
             phase = uiState.phase,
             formattedRemainingMinutes = uiState.formattedRemainingMinutes,
-            reduceMotion = reduceMotion
+            reduceMotion = reduceMotion,
+            hintModifier = Modifier.testTag("player.text.preRollHint"),
+            remainingModifier = Modifier.testTag("player.text.remainingTime")
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -346,6 +350,11 @@ private fun CircleContent(
 ) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
 
+    val countdownDescription = stringResource(
+        R.string.accessibility_countdown_seconds,
+        countdownSeconds
+    )
+
     AnimatedContent(
         targetState = phase,
         transitionSpec = {
@@ -355,103 +364,20 @@ private fun CircleContent(
         label = "circleContent"
     ) { current ->
         when (current) {
-            MeditationPhase.PreRoll -> PreRollContent(countdownSeconds = countdownSeconds)
+            MeditationPhase.PreRoll -> PreRollCircleContent(
+                countdownSeconds = countdownSeconds,
+                modifier = Modifier
+                    .testTag("player.countdown")
+                    .semantics {
+                        contentDescription = countdownDescription
+                    }
+            )
             MeditationPhase.Playing -> GlassPauseButton(
                 isPlaying = isPlaying,
                 onClick = onTogglePlayPause
             )
         }
     }
-}
-
-@Composable
-private fun PreRollContent(countdownSeconds: Int, modifier: Modifier = Modifier) {
-    val countdownDescription = stringResource(
-        R.string.accessibility_countdown_seconds,
-        countdownSeconds
-    )
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .testTag("player.countdown")
-            .semantics {
-                contentDescription = countdownDescription
-            }
-    ) {
-        Text(
-            text = countdownSeconds.toString(),
-            style = TypographyRole.PlayerCountdown.textStyle().copy(
-                fontFeatureSettings = "tnum"
-            ),
-            color = TypographyRole.PlayerCountdown.textColor()
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = stringResource(R.string.guided_meditations_player_preroll_label),
-            style = TypographyRole.PlayerTimestamp.textStyle(),
-            color = TypographyRole.PlayerTimestamp.textColor()
-        )
-    }
-}
-
-@Composable
-private fun BottomLabel(
-    phase: MeditationPhase,
-    formattedRemainingMinutes: String,
-    reduceMotion: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
-
-    AnimatedContent(
-        targetState = phase,
-        transitionSpec = {
-            fadeIn(animationSpec = tween(transitionDuration)) togetherWith
-                fadeOut(animationSpec = tween(transitionDuration))
-        },
-        label = "bottomLabel",
-        modifier = modifier
-    ) { current ->
-        when (current) {
-            MeditationPhase.PreRoll -> PreRollHint()
-            MeditationPhase.Playing -> RemainingTimeLabel(
-                formattedRemainingMinutes = formattedRemainingMinutes
-            )
-        }
-    }
-}
-
-@Composable
-private fun PreRollHint(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(R.string.guided_meditations_player_preroll_hint),
-        style = TypographyRole.PlayerTimestamp.textStyle(),
-        color = TypographyRole.PlayerTimestamp.textColor(),
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag("player.text.preRollHint"),
-        textAlign = TextAlign.Center
-    )
-}
-
-@Composable
-private fun RemainingTimeLabel(formattedRemainingMinutes: String, modifier: Modifier = Modifier) {
-    val text = stringResource(
-        R.string.guided_meditations_player_remaining_time_format,
-        formattedRemainingMinutes
-    )
-    Text(
-        text = text,
-        style = TypographyRole.PlayerTimestamp.textStyle().copy(
-            fontFeatureSettings = "tnum"
-        ),
-        color = TypographyRole.PlayerTimestamp.textColor(),
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag("player.text.remainingTime"),
-        textAlign = TextAlign.Center
-    )
 }
 
 // MARK: - Previews
