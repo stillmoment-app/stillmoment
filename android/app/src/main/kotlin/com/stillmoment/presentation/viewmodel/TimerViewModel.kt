@@ -188,9 +188,6 @@ constructor(
     }
 
     fun startTimer() {
-        _uiState.update { state ->
-            state.copy(currentAffirmationIndex = (state.currentAffirmationIndex + 1) % AFFIRMATION_COUNT)
-        }
         dispatch(TimerAction.StartPressed)
     }
 
@@ -416,9 +413,5 @@ constructor(
         super.onCleared()
         timerJob?.cancel()
         // Don't stop service here - let it run if timer is active
-    }
-
-    companion object {
-        private const val AFFIRMATION_COUNT = 5
     }
 }

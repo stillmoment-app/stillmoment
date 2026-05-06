@@ -8,9 +8,13 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -40,7 +45,7 @@ class UrlAudioDownloaderTest {
 
     @BeforeEach
     fun setUp() {
-        cacheDir = createTempDir("downloader_test")
+        cacheDir = createTempDirectory("downloader_test").toFile()
         mockContext = mock()
         mockLogger = mock()
         mockConnection = mock()
@@ -220,15 +225,29 @@ class UrlAudioDownloaderTest {
             sut.cancel()
         }
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `cancel during running download returns CancellationException`() = runTest(
             UnconfinedTestDispatcher()
         ) {
-            // Simulate a slow input stream that blocks until interrupted
+            // Deterministic synchronisation: don't rely on `delay()` (which is virtual time
+            // under UnconfinedTestDispatcher) to wait for the IO-thread to start the
+            // download. Use real latches instead.
+            // 1. The slow stream signals `downloadStarted` once read() blocks, so the test
+            //    only calls cancel() after the download genuinely entered the read.
+            // 2. disconnect() on the mock counts down `cancelLatch`, releasing the read so
+            //    the download finishes promptly instead of waiting on Thread.sleep(10s).
+            val downloadStarted = CompletableDeferred<Unit>()
+            val cancelLatch = CountDownLatch(1)
+            doAnswer {
+                cancelLatch.countDown()
+                null
+            }.whenever(mockConnection).disconnect()
+
             val slowStream = object : InputStream() {
                 override fun read(): Int {
-                    // Block for a long time so the cancel() call lands while we're reading
-                    Thread.sleep(10_000)
+                    downloadStarted.complete(Unit)
+                    cancelLatch.await(5, TimeUnit.SECONDS)
                     return -1
                 }
             }
@@ -237,8 +256,7 @@ class UrlAudioDownloaderTest {
             whenever(mockConnection.inputStream).thenReturn(slowStream)
 
             val deferred = async { sut.download("https://example.com/slow.mp3") }
-            // Give the download a moment to start
-            delay(50)
+            downloadStarted.await()
             sut.cancel()
 
             val result = deferred.await()
@@ -251,11 +269,20 @@ class UrlAudioDownloaderTest {
             )
         }
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         @Test
         fun `subsequent download after cancel runs cleanly`() = runTest(UnconfinedTestDispatcher()) {
+            val downloadStarted = CompletableDeferred<Unit>()
+            val cancelLatch = CountDownLatch(1)
+            doAnswer {
+                cancelLatch.countDown()
+                null
+            }.whenever(mockConnection).disconnect()
+
             val slowStream = object : InputStream() {
                 override fun read(): Int {
-                    Thread.sleep(10_000)
+                    downloadStarted.complete(Unit)
+                    cancelLatch.await(5, TimeUnit.SECONDS)
                     return -1
                 }
             }
@@ -264,7 +291,7 @@ class UrlAudioDownloaderTest {
             whenever(mockConnection.inputStream).thenReturn(slowStream)
 
             val firstDeferred = async { sut.download("https://example.com/slow.mp3") }
-            delay(50)
+            downloadStarted.await()
             sut.cancel()
             firstDeferred.await()
 

@@ -1,5 +1,6 @@
 package com.stillmoment.presentation.viewmodel
 
+import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.MeditationSettings
 import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerState
@@ -183,35 +184,91 @@ class TimerViewModelUiStateTest {
         assertFalse(timer.isActive)
     }
 
-    // MARK: - formattedTime Tests
+    // MARK: - phase Tests
 
     @Test
-    fun `formattedTime shows countdown seconds during countdown state`() {
+    fun `phase returns PreRoll during Preparation`() {
         val state = TimerUiState(
             timer = MeditationTimer(
                 durationMinutes = 10,
                 remainingSeconds = 600,
                 state = TimerState.Preparation,
-                remainingPreparationSeconds = 15
+                remainingPreparationSeconds = 7
             )
         )
-        assertEquals("15", state.formattedTime)
+        assertEquals(MeditationPhase.PreRoll, state.phase)
     }
 
     @Test
-    fun `formattedTime shows MM SS format when running`() {
+    fun `phase returns Playing during StartGong`() {
         val state = TimerUiState(
             timer = MeditationTimer(
                 durationMinutes = 10,
-                remainingSeconds = 305, // 5:05
-                state = TimerState.Running
+                remainingSeconds = 600,
+                state = TimerState.StartGong
             )
         )
-        assertEquals("05:05", state.formattedTime)
+        assertEquals(MeditationPhase.Playing, state.phase)
     }
 
     @Test
-    fun `formattedTime handles zero remaining seconds`() {
+    fun `phase returns Playing during Running`() {
+        val state = TimerUiState(
+            timer = MeditationTimer(
+                durationMinutes = 10,
+                remainingSeconds = 305,
+                state = TimerState.Running
+            )
+        )
+        assertEquals(MeditationPhase.Playing, state.phase)
+    }
+
+    @Test
+    fun `phase returns Playing during EndGong`() {
+        val state = TimerUiState(
+            timer = MeditationTimer(
+                durationMinutes = 10,
+                remainingSeconds = 0,
+                state = TimerState.EndGong
+            )
+        )
+        assertEquals(MeditationPhase.Playing, state.phase)
+    }
+
+    @Test
+    fun `phase returns Playing when idle`() {
+        val state = TimerUiState(timer = null)
+        assertEquals(MeditationPhase.Playing, state.phase)
+    }
+
+    // MARK: - formattedRemainingMinutes Tests
+
+    @Test
+    fun `formattedRemainingMinutes formats mm-ss without leading zero on minutes`() {
+        val state = TimerUiState(
+            timer = MeditationTimer(
+                durationMinutes = 10,
+                remainingSeconds = 512, // 8:32
+                state = TimerState.Running
+            )
+        )
+        assertEquals("8:32", state.formattedRemainingMinutes)
+    }
+
+    @Test
+    fun `formattedRemainingMinutes formats less than one minute`() {
+        val state = TimerUiState(
+            timer = MeditationTimer(
+                durationMinutes = 10,
+                remainingSeconds = 45,
+                state = TimerState.Running
+            )
+        )
+        assertEquals("0:45", state.formattedRemainingMinutes)
+    }
+
+    @Test
+    fun `formattedRemainingMinutes handles zero seconds`() {
         val state = TimerUiState(
             timer = MeditationTimer(
                 durationMinutes = 10,
@@ -219,38 +276,25 @@ class TimerViewModelUiStateTest {
                 state = TimerState.Running
             )
         )
-        assertEquals("00:00", state.formattedTime)
+        assertEquals("0:00", state.formattedRemainingMinutes)
     }
 
     @Test
-    fun `formattedTime formats full hour correctly`() {
+    fun `formattedRemainingMinutes pads seconds with leading zero`() {
         val state = TimerUiState(
             timer = MeditationTimer(
-                durationMinutes = 60,
-                remainingSeconds = 3600, // 60:00
+                durationMinutes = 5,
+                remainingSeconds = 65, // 1:05
                 state = TimerState.Running
             )
         )
-        assertEquals("60:00", state.formattedTime)
+        assertEquals("1:05", state.formattedRemainingMinutes)
     }
 
     @Test
-    fun `formattedTime handles single digit countdown`() {
-        val state = TimerUiState(
-            timer = MeditationTimer(
-                durationMinutes = 10,
-                remainingSeconds = 600,
-                state = TimerState.Preparation,
-                remainingPreparationSeconds = 5
-            )
-        )
-        assertEquals("5", state.formattedTime)
-    }
-
-    @Test
-    fun `formattedTime shows default time when no timer`() {
+    fun `formattedRemainingMinutes uses selectedMinutes when no timer`() {
         val state = TimerUiState(timer = null, selectedMinutes = 10)
-        assertEquals("10:00", state.formattedTime)
+        assertEquals("10:00", state.formattedRemainingMinutes)
     }
 
     // MARK: - Settings Integration Tests

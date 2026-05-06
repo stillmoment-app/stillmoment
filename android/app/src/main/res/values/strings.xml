@@ -3,9 +3,6 @@
     <!-- App -->
     <string name="app_name">Still Moment</string>
 
-    <!-- Main Screen -->
-    <string name="welcome_title">Lovely to see you</string>
-
     <!-- Timer Idle Screen (shared-086 / shared-089) -->
     <string name="timer_idle_headline">How much time do you want to gift yourself?</string>
     <string name="timer_dial_unit">Minutes</string>
@@ -35,10 +32,6 @@
     <!-- Tabs -->
     <string name="tab_timer">Timer</string>
     <string name="tab_library">Meditations</string>
-
-    <!-- Timer States -->
-    <string name="state_ready">Ready when you are</string>
-    <string name="state_completed">Thank you</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -85,20 +78,6 @@
     <string name="accessibility_countdown_seconds">%d seconds until meditation starts</string>
     <string name="accessibility_time_remaining">%1$d minutes and %2$d seconds remaining</string>
     <string name="accessibility_minute_picker">Duration: %d minutes</string>
-
-    <!-- Affirmations - Preparation -->
-    <string name="affirmation_preparation_1">Settle in...</string>
-    <string name="affirmation_preparation_2">Take a deep breath...</string>
-    <string name="affirmation_preparation_3">Prepare gently...</string>
-    <string name="affirmation_preparation_4">Time for you soon...</string>
-    <string name="affirmation_preparation_5">Welcome this stillness...</string>
-
-    <!-- Affirmations - Running -->
-    <string name="affirmation_running_1">Breathe softly</string>
-    <string name="affirmation_running_2">All is welcome</string>
-    <string name="affirmation_running_3">You\'re here, that\'s enough</string>
-    <string name="affirmation_running_4">Kindness begins here</string>
-    <string name="affirmation_running_5">You are doing wonderfully</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Meditation Timer</string>

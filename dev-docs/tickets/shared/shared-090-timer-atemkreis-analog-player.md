@@ -1,6 +1,6 @@
 # Ticket shared-090: Timer-Display analog zum Player (Atemkreis-Visualisierung)
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan iOS**: [Implementierungsplan](../plans/shared-090-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig-mittel. Umbau einer existierenden View mit geteilter Komponente — kein neues Domain-Verhalten, keine Audio-Aenderung. Risiko liegt im sauberen Aufraeumen toter Pfade (Affirmations, alte Lokalisierungs-Keys) ohne Tests zu zerschiessen, sowie in der Wiederverwendung der Atemkreis-Komponente ohne Player-spezifische Annahmen einzuschleusen.
@@ -32,7 +32,7 @@ Affirmations-Texte und die "Schoen, dass du da bist"-Headline sind beide gut gem
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-087 iOS (vorhanden) |
-| Android   | [ ]    | iOS-Implementierung als Referenz; shared-087 Android (offen) |
+| Android   | [x]    | iOS-Implementierung als Referenz; shared-087 Android (DONE) |
 
 ---
 

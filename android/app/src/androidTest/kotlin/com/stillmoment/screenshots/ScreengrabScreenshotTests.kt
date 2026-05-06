@@ -233,10 +233,9 @@ class ScreengrabScreenshotTests {
         val closeButtonMatcher = localizedContentDescription("Close and end", "Schließen und Meditation")
         waitForNode(closeButtonMatcher)
 
-        // Wait for timer to tick down to 00:5X (1 minute timer, ~3-5 seconds elapsed)
-        // Using regex-like matching for any 00:5X value
+        // Wait for timer to tick down to 0:5X (1 minute timer, ~3-5 seconds elapsed)
         composeRule.waitUntil(timeoutMillis = 10000) {
-            composeRule.onAllNodes(hasText("00:5", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("0:5", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
 
         takeScreenshot("02_TimerRunning")
