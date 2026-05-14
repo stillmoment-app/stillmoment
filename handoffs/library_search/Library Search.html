@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Still Moment — Library Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body {
+    background: #0a0604;
+    margin: 0;
+    padding: 48px 24px 96px;
+    min-height: 100vh;
+    color: var(--sm-text);
+    font-family: var(--sm-font-ui);
+  }
+  .stage {
+    max-width: 1320px;
+    margin: 0 auto;
+  }
+  .title {
+    font-family: var(--sm-font-display);
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    color: var(--sm-text);
+  }
+  .title em { color: var(--sm-accent-text); font-style: italic; }
+  .lede {
+    color: var(--sm-text-2);
+    max-width: 720px;
+    margin: 0 0 48px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .row {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .frame-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .frame-label {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sm-text-3);
+  }
+  .frame-label em { color: var(--sm-accent-text); font-style: normal; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="library-search.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { LibrarySearch } = window.SM_LibrarySearch;
+
+function Page() {
+  return (
+    <div className="stage">
+      <h1 className="title">Library — <em>Suchfunktion</em></h1>
+      <p className="lede">
+        Suchfeld oben unter dem Titel (HIG-Pattern für browse-first views). Sucht parallel
+        in Titel + Sprecher. Flache Trefferliste, Match-Highlight im Akzent, Historie als
+        Liste. Funktioniert identisch über alle iOS-Versionen.
+      </p>
+      <div className="row">
+        <div className="frame-wrap">
+          <LibrarySearch state="idle" activeTab="med" setActiveTab={() => {}}/>
+          <div className="frame-label"><em>1.</em> &nbsp; Inaktiv</div>
+        </div>
+        <div className="frame-wrap">
+          <LibrarySearch state="history" activeTab="med" setActiveTab={() => {}}/>
+          <div className="frame-label"><em>2.</em> &nbsp; Fokussiert + leer · Historie</div>
+        </div>
+        <div className="frame-wrap">
+          <LibrarySearch state="results" q="breath" activeTab="med" setActiveTab={() => {}}/>
+          <div className="frame-label"><em>3.</em> &nbsp; Treffer · Query „breath"</div>
+        </div>
+        <div className="frame-wrap">
+          <LibrarySearch state="results" q="slator" activeTab="med" setActiveTab={() => {}}/>
+          <div className="frame-label"><em>4.</em> &nbsp; Treffer im Sprechernamen · „slator"</div>
+        </div>
+        <div className="frame-wrap">
+          <LibrarySearch state="empty" q="zitrone" activeTab="med" setActiveTab={() => {}}/>
+          <div className="frame-label"><em>5.</em> &nbsp; Kein Treffer · „zitrone"</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Page/>);
+</script>
+</body>
+</html>
