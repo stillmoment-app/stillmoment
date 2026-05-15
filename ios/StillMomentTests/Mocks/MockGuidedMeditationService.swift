@@ -36,7 +36,12 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
         self.meditations = meditations
     }
 
-    func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
+    func addMeditation(
+        from url: URL,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ) throws -> GuidedMeditation {
         if self.addShouldThrow {
             throw GuidedMeditationError.fileCopyFailed(reason: "Mock error")
         }
@@ -46,8 +51,8 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
             localFilePath: "\(meditationId.uuidString).mp3",
             fileName: url.lastPathComponent,
             duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown",
-            name: metadata.title ?? "Untitled"
+            teacher: teacher,
+            name: name
         )
         self.meditations.append(meditation)
         return meditation

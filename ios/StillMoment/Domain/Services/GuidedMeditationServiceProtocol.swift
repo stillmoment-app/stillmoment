@@ -55,16 +55,26 @@ protocol GuidedMeditationServiceProtocol {
     /// - Throws: GuidedMeditationError if saving fails
     func saveMeditations(_ meditations: [GuidedMeditation]) throws
 
-    /// Adds a new guided meditation from a file URL
+    /// Adds a new guided meditation from a file URL.
     ///
     /// Copies the file to Application Support/Meditations/ and creates a meditation entry.
+    /// `teacher` and `name` are taken verbatim — the caller (ViewModel) is responsible for
+    /// computing sensible defaults via `ImportPrefill.compute(...)` and letting the user
+    /// edit them in the Edit-Sheet before save.
     ///
     /// - Parameters:
     ///   - url: URL to the audio file (must have read access)
-    ///   - metadata: Audio metadata (artist, title, duration)
+    ///   - metadata: Audio metadata (duration; artist/title are not persisted here)
+    ///   - teacher: Teacher/Artist name to persist
+    ///   - name: Meditation name to persist
     /// - Returns: The newly created GuidedMeditation
     /// - Throws: GuidedMeditationError if file copy fails
-    func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation
+    func addMeditation(
+        from url: URL,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ) throws -> GuidedMeditation
 
     /// Updates an existing guided meditation
     ///

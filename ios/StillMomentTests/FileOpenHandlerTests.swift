@@ -114,12 +114,13 @@ final class FileOpenHandlerTests: XCTestCase {
         // When
         let result = await self.sut.importFile(from: incomingURL)
 
-        // Then
+        // Then — Import wird angenommen, Persistenz erfolgt erst nach Save im Edit-Sheet.
         guard case .success = result else {
             XCTFail("Same name but different size should import, got \(result)")
             return
         }
-        XCTAssertEqual(self.mockMeditationService.meditations.count, 2)
+        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
+        XCTAssertNotNil(self.sut.pendingImportSignal)
     }
 
     func testSameNameWithUnresolvableFileDefaultsToNameOnlyDuplicateCheck() async {
@@ -151,21 +152,10 @@ final class FileOpenHandlerTests: XCTestCase {
 
     // MARK: - Service Failures
 
-    func testServiceAddFailureReturnsError() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        self.mockMeditationService.addShouldThrow = true
-
-        // When
-        let result = await self.sut.importFile(from: url)
-
-        // Then
-        guard case let .failure(error) = result else {
-            XCTFail("Expected failure, got \(result)")
-            return
-        }
-        XCTAssertEqual(error, .importFailed)
-    }
+    // testServiceAddFailureReturnsError wurde mit ios-043 entfernt:
+    // FileOpenHandler ruft `addMeditation` nicht mehr — der Persistenz-Fehler tritt jetzt
+    // im ViewModel beim Save im Edit-Sheet auf (siehe
+    // GuidedMeditationsListViewModelTests.testSaveImportedMeditationFailureSetsError…).
 
     // MARK: - State Management
 

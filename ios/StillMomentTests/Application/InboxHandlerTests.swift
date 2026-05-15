@@ -86,9 +86,10 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then — Datei wurde direkt importiert und ist als Meditation in der Library
-        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
-        XCTAssertNotNil(self.mockFileOpenHandler.importedMeditation)
+        // Then — Datei wurde an den FileOpenHandler weitergegeben, das Edit-Sheet wartet auf Save.
+        // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
+        XCTAssertTrue(self.mockMeditationService.meditations.isEmpty)
+        XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
     }
 
     func testAudioFileIsCleanedUpFromInboxAfterImport() async {
@@ -253,7 +254,9 @@ final class InboxHandlerTests: XCTestCase {
             FileManager.default.fileExists(atPath: file2.path),
             "Newest entry should be cleaned up after direct import"
         )
-        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
+        // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043) — pendingImportSignal
+        // ist gesetzt, Library bleibt leer.
+        XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
     }
 
     // MARK: - Stale Entry Cleanup
@@ -303,7 +306,8 @@ final class InboxHandlerTests: XCTestCase {
                 FileManager.default.fileExists(atPath: freshURL.path),
                 "Fresh entry should be cleaned up after direct import"
             )
-            XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
+            // Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
+            XCTAssertNotNil(self.mockFileOpenHandler.pendingImportSignal)
         } else {
             XCTFail("Expected .audioFile result, got \(result)")
         }
@@ -419,7 +423,7 @@ final class InboxHandlerTests: XCTestCase {
         }
         XCTAssertEqual(self.sut.downloadError, .notAnAudioUrl)
         XCTAssertNil(
-            self.mockFileOpenHandler.importedMeditation,
+            self.mockFileOpenHandler.pendingImportSignal,
             "Importer hat die Datei nicht angenommen — Edit-Sheet darf nicht ausgeloest werden"
         )
     }

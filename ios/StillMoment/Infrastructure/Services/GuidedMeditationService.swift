@@ -60,22 +60,25 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
         }
     }
 
-    func addMeditation(from url: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
+    func addMeditation(
+        from url: URL,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ) throws -> GuidedMeditation {
         let meditationId = UUID()
 
         // Copy file to local storage
         let localPath = try copyFileToMeditationsDirectory(from: url, meditationId: meditationId)
 
-        // Create meditation with local path
+        // Create meditation with caller-provided teacher/name (no fallbacks)
         let meditation = GuidedMeditation(
             id: meditationId,
             localFilePath: localPath,
             fileName: url.lastPathComponent,
             duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown Artist",
-            name: metadata.title ?? url.deletingPathExtension().lastPathComponent
-                .replacingOccurrences(of: "_", with: " ")
-                .replacingOccurrences(of: "-", with: " ")
+            teacher: teacher,
+            name: name
         )
 
         self.meditations.append(meditation)

@@ -44,19 +44,29 @@ enum FileOpenError: Error, Equatable, LocalizedError {
     }
 }
 
+/// Signal-Wert: ein ausstehender Import liegt bereit, das Edit-Sheet kann oeffnen.
+///
+/// FileOpenHandler persistiert selbst nichts mehr — er publiziert nur den
+/// extrahierten Zustand, das ViewModel uebernimmt Prefill, Edit-Sheet und Save.
+struct IncomingFileImport: Equatable {
+    let url: URL
+    let metadata: AudioMetadata
+    let didStartAccessing: Bool
+}
+
 /// Handles importing audio files received via share / "Open with".
 ///
 /// Audio files shared with the app (Share Extension, file association, or
 /// direct "open in") are always imported as a guided meditation. Soundscapes
 /// are imported through the Settings flow (separate code path).
 ///
-/// Flow:
+/// Flow (ios-043):
 /// 1. Validate the file format (MP3 / M4A).
 /// 2. Signal a running meditation to stop (so the Edit-Sheet can open cleanly).
 /// 3. Detect duplicates by filename + size.
 /// 4. Extract metadata.
-/// 5. Persist via `GuidedMeditationService`.
-/// 6. Publish `importedMeditation` — the Library reacts by opening the Edit-Sheet.
+/// 5. Publish `pendingImportSignal` — the Library reacts by opening the Edit-Sheet
+///    with a prefilled draft. Persistence happens only after Save in the sheet.
 @MainActor
 final class FileOpenHandler: ObservableObject {
     // MARK: Lifecycle
@@ -74,9 +84,10 @@ final class FileOpenHandler: ObservableObject {
     /// Whether a file import is currently being processed
     @Published private(set) var isProcessing = false
 
-    /// Most recently imported meditation, consumed by the Library list view
-    /// to open the Edit-Sheet for the freshly imported file.
-    @Published var importedMeditation: GuidedMeditation?
+    /// Signal fuer einen ausstehenden Import — wird von der Library beobachtet,
+    /// um das Edit-Sheet mit einem Prefill-Draft zu oeffnen. Nach dem Konsum
+    /// vom Beobachter auf `nil` zurueckzusetzen.
+    @Published var pendingImportSignal: IncomingFileImport?
 
     /// Signals that a running timer/player should be stopped because an import
     /// is about to take over the foreground (Edit-Sheet).
@@ -105,13 +116,17 @@ final class FileOpenHandler: ObservableObject {
         return .success(url)
     }
 
-    /// Imports a shared audio file as a meditation.
+    /// Validates the shared audio file and publishes a pending-import signal.
     ///
-    /// Validates the file, signals any running session to stop, checks for
-    /// duplicates, extracts metadata, and persists the meditation.
-    /// On success, `importedMeditation` is published so the Library can open
-    /// the Edit-Sheet.
-    func importFile(from url: URL) async -> Result<GuidedMeditation, FileOpenError> {
+    /// Validates the file, signals any running session to stop, checks for duplicates,
+    /// extracts metadata, and publishes `pendingImportSignal`. The Library list view
+    /// observes the signal, opens the Edit-Sheet with a prefilled draft, and persists
+    /// only after the user taps Save.
+    ///
+    /// The Security-Scoped Resource stays open across the Edit-Sheet lifecycle —
+    /// the ViewModel takes ownership via `didStartAccessing` and releases it on
+    /// Save or Cancel.
+    func importFile(from url: URL) async -> Result<IncomingFileImport, FileOpenError> {
         guard self.canHandle(url: url) else {
             Logger.guidedMeditation.warning(
                 "Rejected file with unsupported format",
@@ -125,13 +140,11 @@ final class FileOpenHandler: ObservableObject {
         defer { self.isProcessing = false }
 
         let didStartAccessing = url.startAccessingSecurityScopedResource()
-        defer {
+
+        if let duplicate = self.findDuplicateMeditation(for: url) {
             if didStartAccessing {
                 url.stopAccessingSecurityScopedResource()
             }
-        }
-
-        if let duplicate = self.findDuplicateMeditation(for: url) {
             return .failure(.alreadyImported(
                 name: duplicate.effectiveName,
                 teacher: duplicate.effectiveTeacher
@@ -140,8 +153,21 @@ final class FileOpenHandler: ObservableObject {
 
         do {
             let metadata = try await self.metadataService.extractMetadata(from: url)
-            return self.persistMeditation(from: url, metadata: metadata)
+            let signal = IncomingFileImport(
+                url: url,
+                metadata: metadata,
+                didStartAccessing: didStartAccessing
+            )
+            Logger.guidedMeditation.info(
+                "Pending import published",
+                metadata: ["fileName": url.lastPathComponent]
+            )
+            self.pendingImportSignal = signal
+            return .success(signal)
         } catch {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
             Logger.guidedMeditation.error("Failed to extract metadata for import", error: error)
             return .failure(.importFailed)
         }
@@ -151,24 +177,6 @@ final class FileOpenHandler: ObservableObject {
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol
-
-    private func persistMeditation(
-        from url: URL,
-        metadata: AudioMetadata
-    ) -> Result<GuidedMeditation, FileOpenError> {
-        do {
-            let meditation = try self.meditationService.addMeditation(from: url, metadata: metadata)
-            Logger.guidedMeditation.info(
-                "Successfully imported meditation via share",
-                metadata: ["id": meditation.id.uuidString, "fileName": url.lastPathComponent]
-            )
-            self.importedMeditation = meditation
-            return .success(meditation)
-        } catch {
-            Logger.guidedMeditation.error("Failed to persist imported meditation", error: error)
-            return .failure(.importFailed)
-        }
-    }
 
     /// Returns the first meditation in the library that matches the given URL
     /// by filename and (when both files are resolvable) size.

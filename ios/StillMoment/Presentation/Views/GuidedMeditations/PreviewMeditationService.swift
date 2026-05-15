@@ -23,13 +23,18 @@ final class PreviewMeditationService: GuidedMeditationServiceProtocol {
         self.meditations = meditations
     }
 
-    func addMeditation(from _: URL, metadata: AudioMetadata) throws -> GuidedMeditation {
+    func addMeditation(
+        from _: URL,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ) throws -> GuidedMeditation {
         GuidedMeditation(
             localFilePath: "preview.mp3",
             fileName: "preview.mp3",
             duration: metadata.duration,
-            teacher: metadata.artist ?? "Unknown",
-            name: metadata.title ?? "Untitled"
+            teacher: teacher,
+            name: name
         )
     }
 
