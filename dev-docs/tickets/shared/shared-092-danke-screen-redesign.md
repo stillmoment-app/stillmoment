@@ -1,6 +1,6 @@
 # Ticket shared-092: Danke-Screen Redesign — Glow statt Herz
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Plan**: [Implementierungsplan iOS](../plans/shared-092-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig. Reines Visual-Redesign eines bestehenden Screens. Der Glow ist statisch (zwei konzentrische Kreise mit Radial-Gradient) — keine Animationen, kein Lifecycle-Pfad, kein Eingriff in geteilte Komponenten. Risiko liegt im Theme-Mapping und in der Lokalisierungs-Hygiene (alten Subtitle-Key sauber entfernen).
