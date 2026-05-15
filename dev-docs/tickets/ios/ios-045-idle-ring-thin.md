@@ -1,6 +1,6 @@
 # Ticket ios-045: Idle-Ring in Running-Sprache (duenn)
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-045.md)
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Klein — visuelle Anpassung einer bestehenden Komponente, Drag-Logik und Accessibility bleiben unveraendert

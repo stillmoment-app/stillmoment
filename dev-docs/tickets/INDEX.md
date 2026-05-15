@@ -164,7 +164,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-042](ios/ios-042-share-import-immer-meditation.md) | Share-Import immer als Meditation | 4-Polish | [x] | - |
 | [ios-043](ios/ios-043-import-prefill-service.md) | Prefill-Service fuer Meditation-Import | 3-Feature | [x] | ios-042 |
 | [ios-044](ios/ios-044-import-prefill-edit-sheet-ui.md) | Edit-Sheet Prefill-UI | 3-Feature | [x] | ios-043 |
-| [ios-045](ios/ios-045-idle-ring-thin.md) | Idle-Ring in Running-Sprache (duenn) | 4-Polish | [ ] | - |
+| [ios-045](ios/ios-045-idle-ring-thin.md) | Idle-Ring in Running-Sprache (duenn) | 4-Polish | [x] | - |
 
 ---
 
