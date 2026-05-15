@@ -256,12 +256,25 @@ struct StillMomentApp: App {
 
     /// Checks the Share Extension inbox for new entries
     ///
-    /// Fehler werden vom InboxHandler ueber `downloadError` publiziert — der
-    /// Download-Alert ist die Single Source of Truth fuer Share-Inbox-Fehler.
-    /// Hier kein zweiter Alert-Pfad noetig (sonst Doppel-Alert).
+    /// Download- und Netzwerk-Fehler werden vom InboxHandler ueber `downloadError`
+    /// publiziert (eigener Alert). Import-Fehler (Duplikat, Metadata, Persist)
+    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenErrorMessage`
+    /// gemeldet — denselben Alert nutzt auch der "Open with"-Pfad.
     private func checkInbox() {
         Task {
-            _ = await self.inboxHandler.processInbox()
+            let result = await self.inboxHandler.processInbox()
+            switch result {
+            case .audioFile,
+                 .downloadCompleted:
+                self.selectedTab = AppTab.library.rawValue
+            case let .audioImportFailed(error):
+                self.selectedTab = AppTab.library.rawValue
+                self.fileOpenErrorMessage = error.localizedDescription
+            case .empty,
+                 .downloadStarted,
+                 .error:
+                break
+            }
         }
     }
 

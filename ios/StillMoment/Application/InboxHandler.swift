@@ -14,11 +14,14 @@ import OSLog
 enum InboxResult: Equatable {
     /// Inbox was empty or only contained stale/unrecognized entries
     case empty
-    /// An audio file was found and handed off for import
+    /// An audio file was successfully imported as a meditation
     case audioFile(URL)
+    /// An audio file was recognized but the import itself failed
+    /// (duplicate, metadata failure, persistence failure)
+    case audioImportFailed(FileOpenError)
     /// A download was started for a URL reference
     case downloadStarted
-    /// A download completed successfully
+    /// A download completed and the resulting file was imported successfully
     case downloadCompleted(URL)
     /// An error occurred during processing
     case error(InboxError)
@@ -235,11 +238,38 @@ final class InboxHandler: ObservableObject {
         return .empty
     }
 
+    /// Validates a freshly downloaded file and imports it as a meditation.
+    ///
+    /// Defense-in-Depth: Der AudioDownloadService akzeptiert ggf. neue
+    /// Content-Types, die FileOpenHandler.canHandle (noch) nicht kennt.
+    /// Ohne diesen Check waere die Ablehnung fuer den User unsichtbar.
+    private func importDownloadedFile(at url: URL) async -> InboxResult {
+        guard case .success = self.fileOpenHandler.validateFileForImport(url: url) else {
+            Logger.infrastructure.error("Downloaded file rejected by importer: \(url.lastPathComponent)")
+            self.downloadError = .notAnAudioUrl
+            return .error(.notAnAudioUrl)
+        }
+        switch await self.fileOpenHandler.importFile(from: url) {
+        case .success:
+            return .downloadCompleted(url)
+        case let .failure(error):
+            return .audioImportFailed(error)
+        }
+    }
+
     /// Processes an audio file entry — imports directly as a meditation.
+    ///
+    /// Surfaces import errors (duplicate, metadata failure, persistence failure)
+    /// via `.audioImportFailed` so the caller can present an alert. Without this,
+    /// "bereits importiert"-Hinweise verschwinden im Share-Extension-Pfad.
     private func processAudioFile(at url: URL) async -> InboxResult {
         Logger.infrastructure.info("Processing audio inbox entry: \(url.lastPathComponent)")
-        _ = await self.fileOpenHandler.importFile(from: url)
-        return .audioFile(url)
+        switch await self.fileOpenHandler.importFile(from: url) {
+        case .success:
+            return .audioFile(url)
+        case let .failure(error):
+            return .audioImportFailed(error)
+        }
     }
 
     /// Processes a URL reference (JSON) entry
@@ -262,20 +292,7 @@ final class InboxHandler: ObservableObject {
                 filename: urlRef.filename
             )
             Logger.infrastructure.info("Download completed: \(urlRef.filename)")
-
-            // Defense-in-Depth: Der AudioDownloadService akzeptiert ggf. neue
-            // Content-Types, die FileOpenHandler.canHandle (noch) nicht kennt.
-            // Ohne diesen Check waere die Ablehnung fuer den User unsichtbar.
-            guard case .success = self.fileOpenHandler.validateFileForImport(url: downloadedURL) else {
-                Logger.infrastructure.error(
-                    "Downloaded file rejected by importer: \(downloadedURL.lastPathComponent)"
-                )
-                self.downloadError = .notAnAudioUrl
-                return .error(.notAnAudioUrl)
-            }
-
-            _ = await self.fileOpenHandler.importFile(from: downloadedURL)
-            return .downloadCompleted(downloadedURL)
+            return await self.importDownloadedFile(at: downloadedURL)
         } catch is CancellationError {
             Logger.infrastructure.info("Download cancelled for \(urlRef.url)")
             return .empty
