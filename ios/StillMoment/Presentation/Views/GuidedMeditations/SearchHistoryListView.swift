@@ -52,7 +52,7 @@ struct SearchHistoryListView: View {
     private var entriesList: some View {
         ScrollView {
             VStack(spacing: 0) {
-                ForEach(Array(self.history.enumerated()), id: \.offset) { _, term in
+                ForEach(self.history, id: \.self) { term in
                     self.historyRow(term: term)
                 }
             }

@@ -1,6 +1,6 @@
 # Ticket ios-041: Suchfunktion fuer die Bibliothek
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-041.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: mittel — Such-Logik (Tokens, Diakritika, Ranking) + Historie-Persistenz + neuer UI-State und Match-Highlight im Treffer-Text

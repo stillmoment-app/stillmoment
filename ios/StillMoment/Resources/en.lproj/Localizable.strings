@@ -280,8 +280,6 @@
 "library.search.history.title" = "Recent searches";
 "library.search.history.clear" = "Clear";
 
-"accessibility.library.search.label" = "Search library";
-"accessibility.library.search.clear" = "Clear search";
 "accessibility.library.search.history.entry" = "Search again: %@";
 
 // MARK: - Autocomplete

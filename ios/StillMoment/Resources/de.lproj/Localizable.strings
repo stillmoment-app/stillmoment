@@ -276,12 +276,10 @@
 "library.search.prompt" = "Nach Titel oder Sprecher suchen";
 "library.search.results.count" = "%d Treffer";
 "library.search.empty.title" = "Nichts gefunden";
-"library.search.empty.message" = "Keine Treffer für „%@\"";
+"library.search.empty.message" = "Keine Treffer für „%@“";
 "library.search.history.title" = "Zuletzt gesucht";
 "library.search.history.clear" = "Leeren";
 
-"accessibility.library.search.label" = "Bibliothek durchsuchen";
-"accessibility.library.search.clear" = "Suche leeren";
 "accessibility.library.search.history.entry" = "Erneut suchen: %@";
 
 // MARK: - Autocomplete
