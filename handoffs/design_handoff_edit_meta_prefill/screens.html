@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Meditation bearbeiten — Prefill-Kaskade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { background: #0a0604; margin: 0; padding: 40px 24px; min-height: 100vh; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(393px, 1fr));
+    gap: 32px;
+    max-width: 2100px;
+    margin: 0 auto;
+  }
+  .caption {
+    font-family: "Geist", sans-serif;
+    color: #a89a8c;
+    font-size: 13px;
+    line-height: 1.45;
+    margin: 0 0 14px;
+  }
+  .caption strong {
+    font-family: "Newsreader", serif;
+    font-weight: 500;
+    color: #ebe2d6;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .item { display: flex; flex-direction: column; align-items: center; }
+  .phone-wrap { box-shadow: 0 30px 60px rgba(0,0,0,0.5); border-radius: 48px; }
+  h1 {
+    font-family: "Newsreader", serif;
+    color: #ebe2d6;
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 auto 8px;
+    max-width: 2100px;
+    padding: 0 8px;
+  }
+  .lede {
+    font-family: "Geist", sans-serif;
+    color: #a89a8c;
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 720px;
+    margin: 0 auto 40px;
+    padding: 0 8px;
+  }
+</style>
+</head>
+<body>
+<h1>Meditation bearbeiten — Prefill-Kaskade</h1>
+<p class="lede">Fünf Eingangssituationen für denselben Edit-Screen. Welche Felder vorausgefüllt sind und welcher Banner oben steht hängt davon ab, welche Metadaten die App in der Datei gefunden hat.</p>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="import-edit.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { EditMeta_ID3, EditMeta_TeacherInFilename, EditMeta_FilenameOnly, EditMeta_GarbageFilename, EditMeta_Autocomplete } = window.SM_EditMeta;
+
+const items = [
+  {
+    title: "1. Bestfall — ID3-Tags vorhanden",
+    body: "TPE1 + TIT2 sind in der mp3 eingebettet. Beide Felder voll. Datei: bodyscan-mbsr.mp3",
+    Comp: EditMeta_ID3,
+  },
+  {
+    title: "2. Bonus — Lehrer:in im Dateinamen erkannt",
+    body: "Substring-Match gegen die known-teachers-Liste. „bodyscan-tara_brach.mp3“ → Lehrer „Tara Brach“, Titel „Bodyscan“.",
+    Comp: EditMeta_TeacherInFilename,
+  },
+  {
+    title: "3. Nur Titel — aus parsebarem Dateinamen",
+    body: "Kein ID3, kein Lehrer-Match — aber Dateiname ist Wort-basiert. Tokens → Title-Case. Lehrer bleibt leer.",
+    Comp: EditMeta_FilenameOnly,
+  },
+  {
+    title: "4. Müll-Dateiname — beides leer",
+    body: "UUID erkannt als Schrott → keine Suggestion, beide Felder leer, neutraler Banner. Datei: d067c0ea-…-94b2dc2f13dd.mp3",
+    Comp: EditMeta_GarbageFilename,
+  },
+  {
+    title: "5. Lehrer:in-Autocomplete — beim Tippen",
+    body: "Substring-Match mit Highlight, Anzahl Meditationen + zuletzt verwendet. Footer-Eintrag legt neue:n Lehrer:in an.",
+    Comp: EditMeta_Autocomplete,
+  },
+];
+
+function App() {
+  return (
+    <div className="grid">
+      {items.map((it, i) => (
+        <div key={i} className="item">
+          <p className="caption">
+            <strong>{it.title}</strong>
+            {it.body}
+          </p>
+          <div className="phone-wrap">
+            <it.Comp/>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+
+</body>
+</html>
