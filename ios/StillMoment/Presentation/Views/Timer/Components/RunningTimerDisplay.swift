@@ -84,7 +84,7 @@ struct RunningTimerDisplay: View {
 
 #if DEBUG
 @available(iOS 17.0, *)
-#Preview("Running — voll") {
+#Preview("Running — Start (leer)") {
     ZStack {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         RunningTimerDisplay(
@@ -98,7 +98,7 @@ struct RunningTimerDisplay: View {
 }
 
 @available(iOS 17.0, *)
-#Preview("Running — halb") {
+#Preview("Running — halb gefuellt") {
     ZStack {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         RunningTimerDisplay(

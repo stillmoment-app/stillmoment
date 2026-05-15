@@ -2,12 +2,19 @@
    Prinzip: Stille. Es bewegt sich nur der Pegel, sehr langsam.
    Keine Atembewegung — die App taktet den Atem nicht, sie begleitet.
 
+   Richtung: Pegel FÜLLT sich von unten nach oben über die Sitzungsdauer.
+   Metapher: Meditation füllt dich auf, sie verbraucht dich nicht.
+   (Erste Version war absteigend — sah aus wie eine sich leerende Batterie,
+    falsche Botschaft für eine Praxis, die Energie geben soll.)
+
    Vokabular:
    - Glas-Capsule, 110×360
-   - warmer Verlauf von oben nach unten (heller Honig → tiefer Kupfer)
-   - dünner Meniskus-Glanz an der Flüssigkeitskante
+   - warmer Verlauf von oben (Honig) nach unten (Kupfer), wachsend
+   - dünner Meniskus-Glanz an der steigenden Flüssigkeitskante
    - schmaler Glas-Reflex links
-   - Restzeit groß daneben, „verbleibend" als Eyebrow
+   - Restzeit groß daneben, „verbleibend" als Eyebrow (praktische Info,
+     erzählt eine andere Geschichte als das Visual — und das ist okay:
+     Glas = Metapher, Zahl = Information)
 
    Tokens aus styles.css. Keine harten Farbwerte hier.
 */
@@ -44,11 +51,13 @@ function useTickSV(active = true) {
   return n;
 }
 
-/* Vessel — pure geometry, no breath. */
+/* Vessel — pure geometry, no breath.
+   progress 0..1 controls FILL LEVEL (not drain): leeres Glas → volles Glas.
+   Metapher: du füllst dich auf, nicht: du läufst leer. */
 function Vessel({ progress }) {
   const w = 110, h = 360;
-  const fillH = h * (1 - progress);
-  const top = h - fillH;
+  const fillH = h * progress;          // wächst von 0 nach h
+  const top = h - fillH;                // Oberkante der Flüssigkeit
   return (
     <div style={{
       width: w + 2, height: h + 2, position: "relative",
@@ -60,17 +69,24 @@ function Vessel({ progress }) {
     }}>
       <svg width={w} height={h} style={{ display: "block" }}>
         <defs>
+          {/* Gradient ist auf das Glas referenziert (nicht auf die Flüssigkeit).
+             So zeigt der wachsende Pegel zuerst die tiefen, gegen Ende auch die
+             hellen Töne — die Wärme "kommt nach oben". */}
           <linearGradient id="sv-fluid" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"   stopColor="rgba(232,178,148,0.85)"/>
             <stop offset="40%"  stopColor="rgba(214,138,110,0.85)"/>
             <stop offset="100%" stopColor="rgba(176,106,79,0.95)"/>
           </linearGradient>
         </defs>
-        {/* fluid */}
-        <rect x="0" y={top} width={w} height={fillH} fill="url(#sv-fluid)"/>
-        {/* meniscus highlight */}
-        <ellipse cx={w / 2} cy={top + 1.5} rx={w * 0.42} ry="1.5"
-          fill="rgba(255,230,210,0.55)"/>
+        {/* fluid — wächst von unten nach oben */}
+        {fillH > 0 && (
+          <rect x="0" y={top} width={w} height={fillH} fill="url(#sv-fluid)"/>
+        )}
+        {/* meniscus highlight — sitzt auf der wandernden Oberkante */}
+        {fillH > 2 && (
+          <ellipse cx={w / 2} cy={top + 1.5} rx={w * 0.42} ry="1.5"
+            fill="rgba(255,230,210,0.55)"/>
+        )}
       </svg>
       {/* glass side reflex */}
       <div style={{

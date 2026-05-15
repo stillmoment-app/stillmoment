@@ -1,4 +1,4 @@
-# Ticket ios-046: Running-Timer-Display — Sanduhr-Vessel
+# Ticket ios-046: Running-Timer-Display — Akku-Vessel
 
 **Status**: [ ] TODO
 **Plan**: [Implementierungsplan](../plans/ios-046.md)
@@ -11,11 +11,11 @@
 
 ## Was
 
-Die Hauptphase des Meditation-Timers (stille Praxis, laufende Sitzung) bekommt ein neues Visual: eine vertikale Glas-Capsule ("Sanduhr-Vessel") mit warmem Verlauf, deren Fluessigkeitspegel linear ueber die Sitzungsdauer sinkt. Rechts daneben steht die Restzeit prominent in MM:SS-Form, darueber ein Eyebrow "VERBLEIBEND", darunter "von X Minuten" zur Verortung.
+Die Hauptphase des Meditation-Timers (stille Praxis, laufende Sitzung) bekommt ein neues Visual: eine vertikale Glas-Capsule ("Akku-Vessel") mit warmem Verlauf, deren Fluessigkeitspegel linear ueber die Sitzungsdauer steigt — das Glas fuellt sich auf. Rechts daneben steht die Restzeit prominent in MM:SS-Form, darueber ein Eyebrow "VERBLEIBEND", darunter "von X Minuten" zur Verortung.
 
 ## Warum
 
-Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den die App eigentlich nicht vorgeben will — eine Meditations-App soll nicht diktieren, wann ein- und ausgeatmet wird. Das Sanduhr-Visual ist still: nichts pulsiert, nichts pumpt, nur der Pegel rinnt langsam (linear, nicht pro Frame wahrnehmbar). Gleichzeitig wird die Restzeit gross und ablesbar — bisher war sie klein unter dem Atemkreis. "Zeit, die rinnt" als raeumlicher Verlauf statt zirkulaerer Indikator ist die staerkere Metapher fuer eine stille Sitzung.
+Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den die App eigentlich nicht vorgeben will — eine Meditations-App soll nicht diktieren, wann ein- und ausgeatmet wird. Das Vessel-Visual ist still: nichts pulsiert, nichts pumpt, nur der Pegel steigt langsam (linear, nicht pro Frame wahrnehmbar). Gleichzeitig wird die Restzeit gross und ablesbar — bisher war sie klein unter dem Atemkreis. Die Botschaft des Visuals ist "Meditation fuellt dich auf, sie verbraucht dich nicht": waehrend die Restzeit praktisch runterzaehlt, erzaehlt das Glas die andere, sinnstiftende Geschichte.
 
 ---
 
@@ -28,7 +28,7 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 - [ ] Layout: Vessel-Visual und Restzeit-Textblock nebeneinander, horizontal und vertikal in der verfuegbaren Flaeche zentriert, definierter Abstand zwischen beiden
 - [ ] Vessel ist eine vertikale, abgerundete Glas-Capsule (Hochformat, schmal) mit subtilem dunklem Glas-Hintergrund und einer feinen, hellen Randlinie
 - [ ] Pegel im Vessel: warmer Vertikal-Verlauf von hellem Honig oben ueber Kupfer in der Mitte zu tiefem Kupfer unten
-- [ ] Pegel-Gradient ist an der Glas-Geometrie verortet (nicht an der Fluessigkeit): wenn der Pegel sinkt, "wandert" die helle Zone **nicht** mit nach unten — die Oberkante des Pegels schiebt sich durch den Farbverlauf hindurch
+- [ ] Pegel-Gradient ist an der Glas-Geometrie verortet (nicht an der Fluessigkeit): wenn der Pegel steigt, "wandert" die helle Zone **nicht** mit nach oben — die Oberkante des Pegels schiebt sich nach oben durch den Farbverlauf hindurch, anfangs sind nur die tiefen Kupfertoene sichtbar, gegen Sitzungsende kommen die honigfarbenen Spitzentoene dazu
 - [ ] Schmaler heller Meniskus-Glanz sitzt auf der Wasseroberflaeche und folgt der Pegelhoehe
 - [ ] Schmaler statischer Glas-Reflex an der linken Innenseite des Vessels
 - [ ] Restzeit rechts neben dem Vessel: grosse Display-Schrift im Format MM:SS, tabulare Ziffern (kein Spaltenwechsel beim Tick), warmer heller Textton
@@ -39,8 +39,8 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 
 ### Feature: Pegel-Animation
 
-- [ ] Pegel startet bei Sitzungsbeginn voll (oben) und ist am Sitzungsende leer (unten)
-- [ ] Pegel sinkt **linear** ueber die gesamte Sitzungsdauer — keine Easing-Kurve, keine sekuendlichen Spruenge
+- [ ] Pegel startet bei Sitzungsbeginn leer (unten) und ist am Sitzungsende voll (oben) — Metapher: Meditation laedt dich auf
+- [ ] Pegel steigt **linear** ueber die gesamte Sitzungsdauer — keine Easing-Kurve, keine sekuendlichen Spruenge
 - [ ] Bei Sitzungsdauern von 1 bis 60 Minuten ist die Pegel-Bewegung pro Frame nicht wahrnehmbar, aber ueber Minuten klar sichtbar
 - [ ] Restzeit-Zahl tickt im Sekundentakt von voll auf 00:00
 - [ ] Keine Atem-Animation, kein Pulsen, kein Schwingen des Meniskus
@@ -58,7 +58,7 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 
 ### Feature: Reduced Motion / Accessibility
 
-- [ ] Bei aktivem "Bewegung reduzieren" snappt der Pegel im Sekundentakt an die korrekte Hoehe statt kontinuierlich zu sinken — bleibt informativ (Restzeit-Zahl tickt ohnehin sekuendlich)
+- [ ] Bei aktivem "Bewegung reduzieren" snappt der Pegel im Sekundentakt an die korrekte Hoehe statt kontinuierlich zu steigen — bleibt informativ (Restzeit-Zahl tickt ohnehin sekuendlich)
 - [ ] Vessel-Visual ist fuer Screen Reader als dekorativ markiert (keine doppelte Auslesung der Restzeit)
 - [ ] Restzeit-Label ist fuer Screen Reader lesbar; bestehender accessibility-Identifier `timer.display.time` bleibt auf dem Restzeit-Text erreichbar
 - [ ] Schliessen-Button behaelt seinen accessibility-Label (wie heute)
@@ -66,7 +66,7 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 ### Feature: Theming / Konsistenz
 
 - [ ] Timer nutzt den aktiven Theme-Hintergrund (`theme.backgroundGradient`) wie bisher
-- [ ] Vessel-Pegel-Farben (Honig/Kupfer/Tief-Kupfer) sind **bewusst nicht** ans Theme gekoppelt, sondern tragen eine eigene warme Material-Identitaet; in allen drei Themes (warm/sage/dusk) und in Light/Dark bleibt der Pegel im warmen Honig-Kupfer-Bereich
+- [ ] Vessel-Pegel-Farbe ist an das aktive Theme gekoppelt: nutzt `theme.interactive` als Basis und erzeugt die raeumliche Tiefe ueber einen Opacity-Verlauf (oben transparenter, unten kraeftiger). Dadurch passt die Fuellfarbe in allen drei Themes (Kerzenschein/Wald/Mondlicht) × Light/Dark zur Akzentfarbe der App
 - [ ] Text-Farben (Restzeit, Eyebrow, Sub-Label) sind weiterhin Theme-getoned ueber das bestehende Semantik-Token-System
 
 ### Feature: Lokalisierung
@@ -77,7 +77,7 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 
 ### Tests
 
-- [ ] Unit-Test: Pegel-Progress (0.0 bei Sitzungsstart, 1.0 bei Sitzungsende, monoton wachsend)
+- [ ] Unit-Test: Pegel-Progress (0.0 bei Sitzungsstart = leer, 1.0 bei Sitzungsende = voll, monoton wachsend)
 - [ ] Unit-Test: Restzeit-Formatierung MM:SS fuer typische Werte (60 min, 7:36, 0:01, 0:00)
 - [ ] Unit-Test: Resume-Berechnung — nach simulierter Pause-Phase ist Progress aus `started_at` und aktuellem Zeitpunkt korrekt
 - [ ] Bestehende Timer-ViewModel-Tests (Reducer, State-Machine, Completion) laufen unveraendert
@@ -95,15 +95,15 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 ## Manueller Test
 
 1. Timer-Tab oeffnen, Vorbereitungszeit auf 0 setzen, Sitzung mit z.B. 10 Minuten starten
-2. Erwartung Hauptphase: vertikales Glas-Vessel links, Pegel voll, warmer Honig/Kupfer-Verlauf. Rechts daneben: "VERBLEIBEND" als Eyebrow, darunter die grosse Restzeit (z.B. "10:00"), darunter "von 10 Minuten" kursiv. Kein Atemkreis, kein Pulsen
+2. Erwartung Hauptphase: vertikales Glas-Vessel links, Pegel leer (Boden), warmer Honig/Kupfer-Verlauf erst sichtbar wenn die Fluessigkeit hochkommt. Rechts daneben: "VERBLEIBEND" als Eyebrow, darunter die grosse Restzeit (z.B. "10:00"), darunter "von 10 Minuten" kursiv. Kein Atemkreis, kein Pulsen
 3. Restzeit tickt sekuendlich nach unten; Sekundenstellen rutschen nicht, weil Zahlen monospaced sind
-4. Nach ca. 1 Minute Beobachtung: Pegel ist sichtbar gesunken; Bewegung war zu keinem Zeitpunkt sprunghaft oder pro Frame "fluessig"
+4. Nach ca. 1 Minute Beobachtung: Pegel ist sichtbar gestiegen; Bewegung war zu keinem Zeitpunkt sprunghaft oder pro Frame "fluessig"
 5. App in Hintergrund schicken (Home-Wisch), 30 s warten, App zurueck: Pegel zeigt die korrekte Hoehe fuer die jetzt verstrichene Sitzungszeit, ohne Snap-Back oder Catch-up-Sprung
-6. Sitzung mit Vorbereitungszeit > 0 starten: Pre-Roll bleibt wie heute (Atemkreis mit Countdown). Beim Uebergang in die Hauptphase erscheint das Vessel-Visual und die Pegel-Animation startet bei voll
-7. Sitzung auf 1 Minute starten und durchlaufen lassen: Pegel ist am Ende leer; EndGong spielt; Uebergang zum Danke-Screen wie heute
+6. Sitzung mit Vorbereitungszeit > 0 starten: Pre-Roll bleibt wie heute (Atemkreis mit Countdown). Beim Uebergang in die Hauptphase erscheint das Vessel-Visual und die Pegel-Animation startet bei leer
+7. Sitzung auf 1 Minute starten und durchlaufen lassen: Pegel ist am Ende voll; EndGong spielt; Uebergang zum Danke-Screen wie heute
 8. Schliessen-Button in der Toolbar oben links: beendet die Sitzung sauber wie heute
 9. Settings → "Bewegung reduzieren" einschalten, Sitzung starten: Pegel snappt sekuendlich an die korrekte Hoehe; Restzeit tickt normal
-10. Theme-Wechsel (warm / sage / dusk) und Light/Dark: Vessel-Pegel-Farben bleiben im warmen Honig-Kupfer-Bereich; Text- und Hintergrund-Farben passen sich dem Theme an
+10. Theme-Wechsel (Kerzenschein / Wald / Mondlicht) und Light/Dark: Vessel-Pegel-Farbe wechselt mit der Akzentfarbe des Themes (Terrakotta / Oliv / Blau bzw. Lavendel); Glas-Hintergrund bleibt neutral; Text- und Hintergrund-Farben passen sich dem Theme an
 11. Auf iPhone SE: Vessel und Restzeit-Block sind komplett sichtbar ohne Abschneiden; Layout bleibt zentriert
 12. VoiceOver: Restzeit wird gelesen, Vessel-Visual nicht doppelt; Schliessen-Button hat ein verstaendliches Label
 
@@ -126,9 +126,9 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 
 Bei 60 Minuten Sitzungsdauer laeuft die Pegel-Animation 3600 Sekunden linear. Eine einzige durchgaengige SwiftUI-Animation ueber diese Dauer ist in Ordnung — Voraussetzung ist eine zuverlaessige Resume-Logik, die nach App-Suspend nicht in den falschen Endwert "snappt". Source of Truth ist `started_at` als Wall-Clock-Timestamp; daraus wird jedes Mal, wenn die View aktiv wird, der aktuelle Progress berechnet und die Restanimation mit der verbleibenden Dauer neu gestartet.
 
-**Pegel-Farben bewusst nicht im Theme-System:**
+**Pegel-Farbe folgt dem Theme:**
 
-Honig und Kupfer-Toene des Pegels sind eine eigene Material-Identitaet ("warmer Honig im Glas"), die in der App sonst nicht auftaucht. Sie werden bewusst als lokale Konstanten im Vessel-Komponentencode gehalten und **nicht** als neue semantische Theme-Tokens eingefuehrt. Falls sich das Theme-System dadurch unsauber anfuehlt: das Token-Inventar bleibt unveraendert, die Farben sind als "Material" der Komponente zu lesen, nicht als Theme-Werte.
+Die Fuellfarbe nutzt das bestehende `theme.interactive`-Token — dasselbe, das Buttons und der Atemkreis tragen. Damit ist der Akku-Pegel in jedem Theme die Akzentfarbe der App (warmes Terrakotta in Kerzenschein, gedaempfter Olivton in Wald, tiefes Blau/Lavendel in Mondlicht). Die raeumliche Tiefe entsteht ueber drei Opacity-Stops (0.55 oben → 0.95 unten) gegen den dunklen Glas-Hintergrund — keine zusaetzlichen Theme-Tokens noetig.
 
 **Pre-Roll und Danke-Screen bleiben unveraendert:**
 
