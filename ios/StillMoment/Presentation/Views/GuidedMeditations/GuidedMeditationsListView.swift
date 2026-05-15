@@ -49,7 +49,7 @@ struct GuidedMeditationsListView: View {
             if self.viewModel.meditations.isEmpty {
                 self.emptyStateView
             } else {
-                self.meditationsList
+                self.searchableLibraryContent
             }
 
             if self.viewModel.isMigrating {
@@ -206,90 +206,34 @@ struct GuidedMeditationsListView: View {
 
     // MARK: - Subviews
 
-    private var migrationOverlay: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.5)
-            Text("guided_meditations.migration.title")
-                .themeFont(.listTitle)
-            Text("guided_meditations.migration.message")
-                .themeFont(.listSubtitle)
-                .multilineTextAlignment(.center)
-        }
-        .padding(32)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(self.theme.cardBackground)
-                .shadow(radius: 8)
+    private var searchableLibraryContent: some View {
+        LibrarySearchContentView(
+            viewModel: self.viewModel,
+            onOpenMeditation: { meditation in
+                self.viewModel.stopPreview()
+                self.navigationPath.append(meditation)
+            },
+            onStartPreview: { meditation in
+                self.viewModel.startPreview(for: meditation)
+            },
+            onStopPreview: {
+                self.viewModel.stopPreview()
+            },
+            onEditMeditation: { meditation in
+                self.viewModel.showEditSheet(for: meditation)
+            },
+            onDeleteMeditation: { meditation in
+                self.meditationToDelete = meditation
+            },
+            idleContent: { self.meditationsList }
         )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(self.theme.textPrimary.opacity(.opacityOverlay))
-    }
-
-    private var emptyStateView: some View {
-        VStack(spacing: 0) {
-            self.waveformGlyph
-                .padding(.bottom, 32)
-
-            Text("guided_meditations.empty.title")
-                .themeFont(.screenTitle)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 280)
-                .padding(.bottom, 14)
-
-            Text("guided_meditations.empty.message")
-                .themeFont(.bodySecondary, color: \.textSecondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-                .padding(.bottom, 36)
-
-            Button {
-                self.viewModel.showDocumentPicker()
-            } label: {
-                Label("guided_meditations.import", systemImage: "plus")
-            }
-            .warmPrimaryButton()
-            .accessibilityHint("accessibility.library.import.hint")
-            .accessibilityIdentifier("library.button.import.emptyState")
-
-            Button {
-                self.viewModel.openGuideSheet(languageCode: self.currentLanguageCode)
-            } label: {
-                Text("guided_meditations.empty.findSources")
-                    .themeFont(.bodySecondary, color: \.interactive)
-                    .underline(true, color: self.theme.interactive.opacity(.opacitySecondary))
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .frame(minHeight: 44)
-            }
-            .buttonStyle(.plain)
-            .padding(.top, 14)
-            .accessibilityIdentifier("library.button.findSources.emptyState")
-        }
-        .padding(.horizontal, 36)
-        .padding(.top, 80)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private var waveformGlyph: some View {
-        ZStack {
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            self.theme.interactive.opacity(0.18),
-                            self.theme.interactive.opacity(0)
-                        ],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: 60
-                    )
-                )
-                .frame(width: 120, height: 120)
-            Image(systemName: "waveform")
-                .font(.system(size: 64, weight: .regular))
-                .foregroundColor(self.theme.interactive)
-                .accessibilityHidden(true)
+        .searchable(
+            text: self.$viewModel.searchQuery,
+            placement: .automatic,
+            prompt: Text("library.search.prompt", bundle: .main)
+        )
+        .onSubmit(of: .search) {
+            self.viewModel.submitSearch()
         }
     }
 
@@ -371,6 +315,97 @@ struct GuidedMeditationsListView: View {
             .accessibilityHint(isThisPreviewing ? "accessibility.library.stop.hint" :
                 "accessibility.library.preview.hint")
             .accessibilityIdentifier("library.button.preview.\(meditation.id.uuidString)")
+    }
+}
+
+// MARK: - Idle Subviews (extension)
+
+private extension GuidedMeditationsListView {
+    var migrationOverlay: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            Text("guided_meditations.migration.title")
+                .themeFont(.listTitle)
+            Text("guided_meditations.migration.message")
+                .themeFont(.listSubtitle)
+                .multilineTextAlignment(.center)
+        }
+        .padding(32)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(self.theme.cardBackground)
+                .shadow(radius: 8)
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(self.theme.textPrimary.opacity(.opacityOverlay))
+    }
+
+    var emptyStateView: some View {
+        VStack(spacing: 0) {
+            self.waveformGlyph
+                .padding(.bottom, 32)
+
+            Text("guided_meditations.empty.title")
+                .themeFont(.screenTitle)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 280)
+                .padding(.bottom, 14)
+
+            Text("guided_meditations.empty.message")
+                .themeFont(.bodySecondary, color: \.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+                .padding(.bottom, 36)
+
+            Button {
+                self.viewModel.showDocumentPicker()
+            } label: {
+                Label("guided_meditations.import", systemImage: "plus")
+            }
+            .warmPrimaryButton()
+            .accessibilityHint("accessibility.library.import.hint")
+            .accessibilityIdentifier("library.button.import.emptyState")
+
+            Button {
+                self.viewModel.openGuideSheet(languageCode: self.currentLanguageCode)
+            } label: {
+                Text("guided_meditations.empty.findSources")
+                    .themeFont(.bodySecondary, color: \.interactive)
+                    .underline(true, color: self.theme.interactive.opacity(.opacitySecondary))
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .frame(minHeight: 44)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 14)
+            .accessibilityIdentifier("library.button.findSources.emptyState")
+        }
+        .padding(.horizontal, 36)
+        .padding(.top, 80)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    var waveformGlyph: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            self.theme.interactive.opacity(0.18),
+                            self.theme.interactive.opacity(0)
+                        ],
+                        center: .center,
+                        startRadius: 0,
+                        endRadius: 60
+                    )
+                )
+                .frame(width: 120, height: 120)
+            Image(systemName: "waveform")
+                .font(.system(size: 64, weight: .regular))
+                .foregroundColor(self.theme.interactive)
+                .accessibilityHidden(true)
+        }
     }
 }
 

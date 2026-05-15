@@ -26,12 +26,15 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
         metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
         audioService: AudioServiceProtocol = AudioService(),
-        meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository()
+        meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository(),
+        searchHistoryStore: SearchHistoryStore = UserDefaultsSearchHistoryStore()
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
         self.audioService = audioService
         self.meditationSourceRepository = meditationSourceRepository
+        self.searchHistoryStore = searchHistoryStore
+        self.searchHistory = searchHistoryStore.load()
     }
 
     // MARK: Internal
@@ -48,6 +51,28 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var guideSources: [MeditationSource] = []
     @Published var meditationToEdit: GuidedMeditation?
     @Published var previewingMeditationId: UUID?
+
+    // MARK: - Suche (ios-041)
+
+    @Published var searchQuery: String = ""
+    @Published var searchHistory: [String] = []
+    @Published var isSearching: Bool = false
+
+    static let searchHistoryLimit = 6
+
+    /// Aktuell sichtbare Trefferliste fuer die Eingabe.
+    var searchResults: [GuidedMeditation] {
+        LibrarySearchEngine.search(meditations: self.meditations, query: self.searchQuery)
+    }
+
+    /// Abgeleiteter Ansichtszustand der Suche.
+    var searchState: LibrarySearchState {
+        let trimmed = self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return self.isSearching ? .history : .idle
+        }
+        return self.searchResults.isEmpty ? .empty : .results
+    }
 
     /// Returns unique teacher names sorted alphabetically for autocomplete
     ///
@@ -238,6 +263,54 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.showingGuideSheet = false
     }
 
+    // MARK: - Suche (ios-041)
+
+    /// Bestaetigung via Return-Taste — fuegt den Begriff der Historie hinzu, wenn Treffer existieren.
+    func submitSearch() {
+        guard !self.searchResults.isEmpty else {
+            return
+        }
+        self.commitCurrentQueryToHistory()
+    }
+
+    /// Treffer-Tap — fuegt den Begriff der Historie hinzu und setzt die Suche zurueck.
+    func recordSearchCommittedByOpening() {
+        if !self.searchResults.isEmpty {
+            self.commitCurrentQueryToHistory()
+        }
+        self.resetSearch()
+    }
+
+    /// Setzt das Suchfeld auf einen Historie-Eintrag.
+    func selectHistoryEntry(_ term: String) {
+        self.searchQuery = term
+    }
+
+    /// Loescht die Suchhistorie komplett.
+    func clearHistory() {
+        self.searchHistory = []
+        self.searchHistoryStore.save([])
+    }
+
+    /// Leert das Suchfeld und beendet den Fokus-Zustand.
+    func resetSearch() {
+        self.searchQuery = ""
+        self.isSearching = false
+    }
+
+    private func commitCurrentQueryToHistory() {
+        let updated = SearchHistory.prepend(
+            history: self.searchHistory,
+            term: self.searchQuery,
+            limit: Self.searchHistoryLimit
+        )
+        guard updated != self.searchHistory else {
+            return
+        }
+        self.searchHistory = updated
+        self.searchHistoryStore.save(updated)
+    }
+
     /// Groups meditations by teacher for display
     ///
     /// - Returns: Dictionary mapping teacher names to their meditations
@@ -255,4 +328,5 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let metadataService: AudioMetadataServiceProtocol
     private let audioService: AudioServiceProtocol
     private let meditationSourceRepository: MeditationSourceRepositoryProtocol
+    private let searchHistoryStore: SearchHistoryStore
 }

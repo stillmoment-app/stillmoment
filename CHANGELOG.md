@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (iOS)
+- **Suchfunktion in der Bibliothek** - Ueber der Liste der gefuehrten Meditationen erscheint ab dem ersten Eintrag ein Suchfeld. Live-Filter ab Zeichen 1, sucht gleichzeitig in Titel und Sprecher, case- und diakritika-insensitiv, mehrere Tokens werden mit UND verknuepft. Treffer werden flach gelistet, sortiert nach Wortanfangs-Match im Titel → Wortanfangs-Match im Sprecher → Substring im Titel → Substring im Sprecher; bei gleichem Rang gewinnt das juengere `dateAdded`. Alle Vorkommen des Suchbegriffs werden in der Akzentfarbe hervorgehoben. Fokussiertes Suchfeld bei leerer Eingabe zeigt die letzten 6 Suchbegriffe ("Zuletzt gesucht") mit "Leeren"-Button — Begriffe werden bei Return oder Treffer-Tap aufgenommen (kein Speichern bei 0 Treffern, Dedup case- und diakritika-insensitiv, neuester oben, FIFO max 6, persistent in UserDefaults und damit lokal). Tab-Wechsel und Player-Oeffnen setzen das Suchfeld zurueck. Empty-State "Nichts gefunden" mit Lupen-Symbol bei 0 Treffern, automatisch von VoiceOver angesagt. (Ticket: ios-041)
+
 ## [2.2.0] - 2026-05-06
 
 ### Changed (iOS)

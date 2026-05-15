@@ -144,6 +144,13 @@ struct StillMomentApp: App {
                     self.checkInbox()
                 }
             }
+            // ios-041: Verlaesst der User den Library-Tab waehrend einer Suche,
+            // wird die Eingabe zurueckgesetzt — die Historie bleibt erhalten.
+            .onChange(of: self.selectedTab) { newTab in
+                if newTab != AppTab.library.rawValue {
+                    self.guidedListViewModel.resetSearch()
+                }
+            }
             // Fallback: scenePhase at App level can miss transitions on some iOS versions
             .onReceive(
                 NotificationCenter.default

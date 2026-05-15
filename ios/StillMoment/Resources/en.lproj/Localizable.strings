@@ -267,7 +267,22 @@
 "accessibility.library.overflow.hint" = "Opens menu with edit and delete options";
 "accessibility.library.preview" = "Preview meditation";
 "accessibility.library.preview.hint" = "Press and hold to listen to a preview of this meditation";
+"accessibility.library.stop" = "Stop preview";
+"accessibility.library.stop.hint" = "Stops the running preview";
 "accessibility.sound.select.hint" = "Selects this sound and plays a preview";
+
+// MARK: - Library Search (ios-041)
+
+"library.search.prompt" = "Search by title or teacher";
+"library.search.results.count" = "%d results";
+"library.search.empty.title" = "No results";
+"library.search.empty.message" = "No matches for \"%@\"";
+"library.search.history.title" = "Recent searches";
+"library.search.history.clear" = "Clear";
+
+"accessibility.library.search.label" = "Search library";
+"accessibility.library.search.clear" = "Clear search";
+"accessibility.library.search.history.entry" = "Search again: %@";
 
 // MARK: - Autocomplete
 
