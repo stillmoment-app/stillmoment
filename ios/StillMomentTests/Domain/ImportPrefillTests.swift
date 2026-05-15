@@ -75,6 +75,21 @@ final class ImportPrefillTests: XCTestCase {
         XCTAssertEqual(ImportPrefill.preprocessFilename("MORNING-meditation.mp3"), "MORNING meditation")
     }
 
+    func testPreprocessSplitsDigitsFromLetters() {
+        // "04Fuesse" → "04 Fuesse" (Zahl direkt vor Wort wird getrennt).
+        XCTAssertEqual(ImportPrefill.preprocessFilename("Moment-mal-04Fuesse.mp3"), "Moment mal 04 Fuesse")
+    }
+
+    func testPreprocessSplitsCamelCase() {
+        // "MomentMal" → "Moment Mal" (Klein->Gross-Wechsel im Wort).
+        XCTAssertEqual(ImportPrefill.preprocessFilename("MomentMal.mp3"), "Moment Mal")
+    }
+
+    func testPreprocessDoesNotSplitAllCapsAcronym() {
+        // "MBSR" bleibt zusammen — kein Klein->Gross-Wechsel innerhalb.
+        XCTAssertEqual(ImportPrefill.preprocessFilename("MBSRBodyscan.mp3"), "MBSR Bodyscan")
+    }
+
     // MARK: - Garbage-Detection
 
     func testIsGarbageDetectsUUID() {

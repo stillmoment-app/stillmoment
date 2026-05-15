@@ -63,10 +63,10 @@ struct SearchResultsListView: View {
     private func row(for meditation: GuidedMeditation) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                HighlightedText(text: meditation.effectiveName, query: self.query)
+                HighlightedText(text: meditation.name, query: self.query)
                     .themeFont(.listActionLabel)
                 HStack(spacing: 6) {
-                    HighlightedText(text: meditation.effectiveTeacher, query: self.query)
+                    HighlightedText(text: meditation.teacher, query: self.query)
                         .themeFont(.listSubtitle, color: \.textSecondary)
                     Text(verbatim: "·")
                         .themeFont(.listSubtitle, color: \.textSecondary)

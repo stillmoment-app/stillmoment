@@ -82,10 +82,8 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     }
 
     /// Returns unique teacher names sorted alphabetically for autocomplete
-    ///
-    /// Uses `effectiveTeacher` to respect custom teacher overrides.
     var uniqueTeachers: [String] {
-        let teachers = Set(meditations.map(\.effectiveTeacher))
+        let teachers = Set(meditations.map(\.teacher))
         return teachers.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
     }
 
@@ -165,7 +163,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         let prefill = ImportPrefill.compute(
             metadata: metadata,
             fileName: url.lastPathComponent,
-            knownTeachers: Array(Set(self.meditations.map(\.effectiveTeacher)))
+            knownTeachers: Array(Set(self.meditations.map(\.teacher)))
         )
         let draft = GuidedMeditation(
             localFilePath: "",
@@ -374,7 +372,7 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     ///
     /// - Returns: Dictionary mapping teacher names to their meditations
     func meditationsByTeacher() -> [(teacher: String, meditations: [GuidedMeditation])] {
-        let grouped = Dictionary(grouping: meditations) { $0.effectiveTeacher }
+        let grouped = Dictionary(grouping: meditations) { $0.teacher }
         return grouped.map { (teacher: $0.key, meditations: $0.value) }
             .sorted { $0.teacher.localizedCaseInsensitiveCompare($1.teacher) == .orderedAscending }
     }

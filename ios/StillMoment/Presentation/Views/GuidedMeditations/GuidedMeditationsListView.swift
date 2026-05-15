@@ -111,25 +111,11 @@ struct GuidedMeditationsListView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: self.$viewModel.showingEditSheet) {
-            ThemeRootView {
-                if let meditation = viewModel.meditationToEdit {
-                    GuidedMeditationEditSheet(
-                        meditation: meditation,
-                        availableTeachers: self.viewModel.uniqueTeachers,
-                        onSave: { updated in
-                            self.viewModel.handleEditSheetSave(updated)
-                        },
-                        onCancel: {
-                            if self.viewModel.pendingImport != nil {
-                                self.viewModel.cancelImport()
-                            } else {
-                                self.viewModel.showingEditSheet = false
-                            }
-                        }
-                    )
-                }
-            }
+        .sheet(
+            isPresented: self.$viewModel.showingEditSheet,
+            onDismiss: self.handleEditSheetDismiss
+        ) {
+            self.editSheetContent
         }
         .navigationDestination(for: GuidedMeditation.self) { meditation in
             GuidedMeditationPlayerView(
@@ -168,7 +154,7 @@ struct GuidedMeditationsListView: View {
                 Text(
                     String(
                         format: NSLocalizedString("guided_meditations.delete.message", comment: ""),
-                        meditation.effectiveName
+                        meditation.name
                     )
                 )
             }
@@ -212,6 +198,32 @@ struct GuidedMeditationsListView: View {
     }
 
     // MARK: - Subviews
+
+    private var editSheetContent: some View {
+        ThemeRootView {
+            if let meditation = viewModel.meditationToEdit {
+                GuidedMeditationEditSheet(
+                    meditation: meditation,
+                    mode: self.viewModel.pendingImport != nil ? .importMode : .edit,
+                    availableTeachers: self.viewModel.uniqueTeachers,
+                    onSave: { updated in
+                        self.viewModel.handleEditSheetSave(updated)
+                    },
+                    onCancel: {
+                        // Dismissing the sheet triggers `onDismiss`, which handles cancelImport.
+                        self.viewModel.showingEditSheet = false
+                    }
+                )
+            }
+        }
+    }
+
+    private func handleEditSheetDismiss() {
+        // Catches both Cancel-tap and interactive swipe-down dismiss.
+        if self.viewModel.pendingImport != nil {
+            self.viewModel.cancelImport()
+        }
+    }
 
     private var searchableLibraryContent: some View {
         LibrarySearchContentView(
@@ -280,7 +292,7 @@ struct GuidedMeditationsListView: View {
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(meditation.effectiveName)
+                Text(meditation.name)
                     .themeFont(.listActionLabel)
                 Text(meditation.formattedDuration)
                     .themeFont(.listSubtitle)

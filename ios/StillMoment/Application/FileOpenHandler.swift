@@ -146,8 +146,8 @@ final class FileOpenHandler: ObservableObject {
                 url.stopAccessingSecurityScopedResource()
             }
             return .failure(.alreadyImported(
-                name: duplicate.effectiveName,
-                teacher: duplicate.effectiveTeacher
+                name: duplicate.name,
+                teacher: duplicate.teacher
             ))
         }
 

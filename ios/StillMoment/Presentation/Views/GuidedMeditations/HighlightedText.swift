@@ -11,7 +11,9 @@ import SwiftUI
 ///
 /// - Mehrere Vorkommen werden alle hervorgehoben (nicht nur das erste).
 /// - Case- und diakritika-insensitiv (delegiert an `LibrarySearchEngine`).
-/// - Foreground = theme.interactive, Hintergrund = theme.interactive.opacity(0.14).
+/// - Foreground = theme.interactive, Weight = semibold. Kein Hintergrund-Tint —
+///   der Akzent + die Strichstaerke tragen den Kontrast (auf warmem Card-Background
+///   verschwimmt ein zusaetzlicher Tint).
 struct HighlightedText: View {
     let text: String
     let query: String
@@ -29,7 +31,7 @@ struct HighlightedText: View {
         for range in ranges {
             if let attrRange = Range(range, in: result) {
                 result[attrRange].foregroundColor = self.theme.interactive
-                result[attrRange].backgroundColor = self.theme.interactive.opacity(0.14)
+                result[attrRange].font = .body.weight(.semibold)
             }
         }
         return result

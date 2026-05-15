@@ -2,37 +2,71 @@
 //  GuidedMeditationEditSheet.swift
 //  Still Moment
 //
-//  Presentation Layer - Guided Meditation Edit Sheet
+//  Presentation Layer - Guided Meditation Edit Sheet (ios-044)
 //
 
 import SwiftUI
 
-/// Sheet for editing guided meditation metadata
+/// Mode of operation for `GuidedMeditationEditSheet`.
 ///
-/// Allows users to customize:
-/// - Teacher name
-/// - Meditation name
+/// The view is structurally identical in both modes; only the save-button label and the
+/// autofocus rule differ. Persistence (`addMeditation` vs. `updateMeditation`) is handled
+/// by the caller via the `onSave` closure.
+enum GuidedMeditationEditSheetMode {
+    /// Import flow — the meditation is a draft and has not been persisted yet.
+    case importMode
+    /// Edit flow — the meditation already exists in the library.
+    case edit
+
+    /// Localized key for the confirmation button label.
+    var saveButtonKey: String {
+        switch self {
+        case .importMode: "guided_meditations.import.action"
+        case .edit: "common.save"
+        }
+    }
+
+    /// Decides whether the name field should auto-focus when the sheet appears.
+    ///
+    /// Import mode auto-focuses the name field only if the prefilled name is effectively
+    /// empty (the user has nothing to confirm). Edit mode never auto-focuses, so the user
+    /// first sees the persisted values.
+    func shouldAutofocusName(prefilledName: String) -> Bool {
+        guard self == .importMode else {
+            return false
+        }
+        return prefilledName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+}
+
+/// Sheet for editing guided meditation metadata.
+///
+/// Used for both importing newly added files (where the meditation is a draft with prefilled
+/// values) and editing existing library entries. Save and Cancel semantics are delegated to
+/// the caller via closures.
 struct GuidedMeditationEditSheet: View {
     // MARK: Lifecycle
 
     init(
         meditation: GuidedMeditation,
+        mode: GuidedMeditationEditSheetMode = .edit,
         availableTeachers: [String] = [],
         onSave: @escaping (GuidedMeditation) -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.meditation = meditation
+        self.mode = mode
         self.availableTeachers = availableTeachers
         self.onSave = onSave
         self.onCancel = onCancel
 
-        // Initialize edit state with meditation
         _editState = State(initialValue: EditSheetState(meditation: meditation))
     }
 
     // MARK: Internal
 
     let meditation: GuidedMeditation
+    let mode: GuidedMeditationEditSheetMode
     let availableTeachers: [String]
     let onSave: (GuidedMeditation) -> Void
     let onCancel: () -> Void
@@ -40,80 +74,40 @@ struct GuidedMeditationEditSheet: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Warm gradient background (consistent with other views)
                 self.theme.backgroundGradient
                     .ignoresSafeArea()
 
                 Form {
                     Section {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("guided_meditations.edit.teacher")
-                                .themeFont(.editLabel)
-
-                            AutocompleteTextField(
-                                text: self.$editState.editedTeacher,
-                                placeholder: "guided_meditations.edit.teacherPlaceholder",
-                                suggestions: self.availableTeachers,
-                                accessibilityLabel: "guided_meditations.edit.teacher",
-                                accessibilityIdentifier: "editSheet.field.teacher"
-                            )
-                        }
+                        self.teacherField
                     }
-
                     Section {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("guided_meditations.edit.name")
-                                .themeFont(.editLabel)
-
-                            TextField("guided_meditations.edit.namePlaceholder", text: self.$editState.editedName)
-                                .accessibilityLabel("guided_meditations.edit.name")
-                                .accessibilityIdentifier("editSheet.field.name")
-                        }
-                    }
-
-                    Section {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text("guided_meditations.edit.file")
-                                    .themeFont(.editLabel)
-                                Spacer()
-                                Text(self.meditation.fileName)
-                                    .themeFont(.editCaption)
-                            }
-
-                            HStack {
-                                Text("guided_meditations.edit.duration")
-                                    .themeFont(.editLabel)
-                                Spacer()
-                                Text(self.meditation.formattedDuration)
-                                    .themeFont(.editCaption)
-                            }
-                        }
-                    } header: {
-                        Text("guided_meditations.edit.fileInfo")
-                            .foregroundColor(self.theme.textSecondary)
+                        self.nameField
+                    } footer: {
+                        self.fileInfoFooter
                     }
                 }
                 .scrollContentBackground(.hidden)
+                .modifier(CompactSectionSpacingModifier())
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("guided_meditations.edit.title", bundle: .main)
-                        .themeFont(.inlineNavigationTitle)
-                }
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("common.cancel", comment: "")) {
+                    Button {
                         self.onCancel()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .medium))
                     }
                     .foregroundColor(self.theme.textSecondary)
+                    .accessibilityLabel("common.cancel")
                     .accessibilityIdentifier("editSheet.button.cancel")
                     .accessibilityHint("accessibility.editSheet.cancel.hint")
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("common.save", comment: "")) {
-                        self.onSave(self.editState.applyChanges())
+                    Button(NSLocalizedString(self.mode.saveButtonKey, comment: "")) {
+                        self.attemptSave()
                     }
                     .tint(self.theme.interactive)
                     .accessibilityIdentifier("editSheet.button.save")
@@ -121,7 +115,72 @@ struct GuidedMeditationEditSheet: View {
                     .disabled(!self.editState.isValid)
                 }
             }
+            .onAppear {
+                self.applyAutofocus()
+            }
         }
+    }
+
+    // MARK: - Subviews
+
+    private var teacherField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("guided_meditations.edit.teacher")
+                .themeFont(.editLabel)
+
+            AutocompleteTextField(
+                text: self.$editState.editedTeacher,
+                focus: self.$teacherFocused,
+                placeholder: "guided_meditations.edit.teacherPlaceholder",
+                suggestions: self.availableTeachers,
+                accessibilityLabel: "guided_meditations.edit.teacher",
+                accessibilityIdentifier: "editSheet.field.teacher",
+                submitLabel: .next
+            ) {
+                self.nameFocused = true
+            }
+            .accessibilityHint(self.requiredHintIfEmpty(self.editState.editedTeacher))
+        }
+    }
+
+    private var nameField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("guided_meditations.edit.name")
+                .themeFont(.editLabel)
+
+            ClearableTextField(
+                "guided_meditations.edit.namePlaceholder",
+                text: self.$editState.editedName,
+                focus: self.$nameFocused,
+                accessibilityLabel: "guided_meditations.edit.name",
+                accessibilityIdentifier: "editSheet.field.name",
+                submitLabel: .done,
+                lineLimit: 1...3,
+                onSubmit: self.attemptSave
+            )
+            .accessibilityHint(self.requiredHintIfEmpty(self.editState.editedName))
+        }
+    }
+
+    private var fileInfoFooter: some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "doc")
+                .font(.system(size: 11))
+                .foregroundColor(self.theme.textSecondary)
+                .padding(.top, 2)
+            (
+                Text(self.meditation.fileName)
+                    + Text(verbatim: "  ·  ")
+                    + Text(self.meditation.formattedDuration)
+            )
+            .themeFont(.editCaption, color: \.textSecondary)
+            .lineLimit(2)
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
+        .padding(.top, 8)
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Private
@@ -129,6 +188,47 @@ struct GuidedMeditationEditSheet: View {
     @Environment(\.themeColors)
     private var theme
     @State private var editState: EditSheetState
+    @FocusState private var teacherFocused: Bool
+    @FocusState private var nameFocused: Bool
+
+    private func attemptSave() {
+        guard self.editState.isValid else {
+            return
+        }
+        self.onSave(self.editState.applyChanges())
+    }
+
+    private func applyAutofocus() {
+        guard self.mode.shouldAutofocusName(prefilledName: self.editState.editedName) else {
+            return
+        }
+        // Slight delay lets the sheet finish presenting before the keyboard pops up.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            self.nameFocused = true
+        }
+    }
+
+    private func requiredHintIfEmpty(_ value: String) -> LocalizedStringKey {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "accessibility.editSheet.requiredField.hint" : ""
+    }
+}
+
+// MARK: - Helpers
+
+/// Reduces the vertical gap between `Form` sections on iOS 17+.
+///
+/// Standard Form-section spacing is ~30pt — that breaks the visual rhythm between the
+/// Lehrer and Name cards. iOS 16 falls back to the default; the gap is bigger there
+/// but the layout remains correct.
+private struct CompactSectionSpacingModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 17.0, *) {
+            content.listSectionSpacing(.compact)
+        } else {
+            content
+        }
+    }
 }
 
 // MARK: - Previews
@@ -142,38 +242,40 @@ private let previewMeditation = GuidedMeditation(
 )
 
 @available(iOS 17.0, *)
-#Preview("Default") {
+#Preview("Edit") {
     GuidedMeditationEditSheet(
         meditation: previewMeditation,
+        mode: .edit,
         availableTeachers: ["Jon Kabat-Zinn", "Jack Kornfield", "Tara Brach", "Joseph Goldstein"],
         onSave: { _ in },
         onCancel: {}
     )
 }
 
-// Device Size Previews
 @available(iOS 17.0, *)
-#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
+#Preview("Import (Prefilled)") {
     GuidedMeditationEditSheet(
         meditation: previewMeditation,
+        mode: .importMode,
+        availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
         onSave: { _ in },
         onCancel: {}
     )
 }
 
 @available(iOS 17.0, *)
-#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    GuidedMeditationEditSheet(
-        meditation: previewMeditation,
-        onSave: { _ in },
-        onCancel: {}
+#Preview("Import (Empty Prefill)") {
+    let draft = GuidedMeditation(
+        localFilePath: "",
+        fileName: "d067c0ea-2c04-b934.mp3",
+        duration: 600,
+        teacher: "",
+        name: ""
     )
-}
-
-@available(iOS 17.0, *)
-#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    GuidedMeditationEditSheet(
-        meditation: previewMeditation,
+    return GuidedMeditationEditSheet(
+        meditation: draft,
+        mode: .importMode,
+        availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
         onSave: { _ in },
         onCancel: {}
     )

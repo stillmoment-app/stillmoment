@@ -319,46 +319,42 @@ final class GuidedMeditationServiceTests: XCTestCase {
         XCTAssertEqual(loaded[2].teacher, "CHARLIE")
     }
 
-    func testLoadMeditations_UsesEffectiveTeacherForSorting() throws {
-        // Given - Meditation with customTeacher set
+    func testLoadMeditations_SortsByTeacher() throws {
+        // Given
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
-        var med1 = self.createTestMeditation(teacher: "Zulu", name: "Test")
-        med1.customTeacher = "Alpha" // Override to "Alpha"
-
-        let med2 = self.createTestMeditation(teacher: "Bravo", name: "Test")
+        let med1 = self.createTestMeditation(teacher: "Bravo", name: "Test")
+        let med2 = self.createTestMeditation(teacher: "Alpha", name: "Test")
 
         try sut.saveMeditations([med1, med2])
 
         // When
         let loaded = try sut.loadMeditations()
 
-        // Then - Should sort by effectiveTeacher (Alpha comes before Bravo)
-        XCTAssertEqual(loaded[0].effectiveTeacher, "Alpha")
-        XCTAssertEqual(loaded[1].effectiveTeacher, "Bravo")
+        // Then
+        XCTAssertEqual(loaded[0].teacher, "Alpha")
+        XCTAssertEqual(loaded[1].teacher, "Bravo")
     }
 
-    func testLoadMeditations_UsesEffectiveNameForSorting() throws {
-        // Given - Two meditations with same teacher, different names
+    func testLoadMeditations_SortsByNameWhenSameTeacher() throws {
+        // Given
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
-        var med1 = self.createTestMeditation(teacher: "Teacher", name: "Zulu")
-        med1.customName = "Alpha" // Override to "Alpha"
-
-        let med2 = self.createTestMeditation(teacher: "Teacher", name: "Bravo")
+        let med1 = self.createTestMeditation(teacher: "Teacher", name: "Bravo")
+        let med2 = self.createTestMeditation(teacher: "Teacher", name: "Alpha")
 
         try sut.saveMeditations([med1, med2])
 
         // When
         let loaded = try sut.loadMeditations()
 
-        // Then - Should sort by effectiveName (Alpha comes before Bravo)
-        XCTAssertEqual(loaded[0].effectiveName, "Alpha")
-        XCTAssertEqual(loaded[1].effectiveName, "Bravo")
+        // Then
+        XCTAssertEqual(loaded[0].name, "Alpha")
+        XCTAssertEqual(loaded[1].name, "Bravo")
     }
 
     // MARK: - Helper Methods

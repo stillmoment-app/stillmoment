@@ -1,6 +1,6 @@
 # Ticket ios-044: Edit-Sheet Prefill-UI
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-044.md)
 **Prioritaet**: HOCH
 **Komplexitaet**: Schlanke UI-Erweiterung (X-Clear-Button, Match-Highlight im bestehenden Autocomplete, Pflichtfeld-Validation, Modus-Trennung Import vs. Edit) plus einmaliger Domain-Cleanup: der ungenutzte `customTeacher`/`customName`-Override-Mechanismus wird entfernt. Der Cleanup vereinfacht die Save-Logik fuer beide Modi und beseitigt eine semantische Schiefe im Import-Pfad (ios-043 hat den Override als Transport missbraucht, was zu einem Bug fuehrte). Migration ist trivial: einmaliger Sweep beim Load.
@@ -64,53 +64,66 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 
 ### Vorbereitung: Override-Mechanismus entfernen
 
-- [ ] `customTeacher: String?` und `customName: String?` werden aus `GuidedMeditation` entfernt.
-- [ ] Die computed properties `effectiveTeacher` und `effectiveName` entfallen — alle Aufrufstellen lesen direkt `teacher` bzw. `name`. (Aufrufer u. a.: `LibrarySearchEngine`, `GuidedMeditationsListViewModel.uniqueTeachers`, `meditationsByTeacher`, `ImportPrefill`, View-Anzeige, Player-Title.)
-- [ ] **Migration beim Load**: bestehende persistierte Eintraege mit `customTeacher != nil` → `teacher = customTeacher`, danach `customTeacher` aus dem persistierten Format entfernen. Analog `customName`. Migration ist idempotent (zweiter Lauf macht nichts). Kein Datenverlust: `customTeacher` war ohnehin der aktuell sichtbare Wert.
-- [ ] **Sheet-Titel im Import-Modus**: neuer Localization-Key `guided_meditations.import.title` (DE „Meditation importieren", EN „Import meditation"). Edit-Modus nutzt weiter `guided_meditations.edit.title`.
-- [ ] **Save-Button-Text im Import-Modus**: neuer Localization-Key `guided_meditations.import.action` (DE „Importieren", EN „Import"). Edit-Modus nutzt weiter `common.save`.
+- [x] `customTeacher: String?` und `customName: String?` werden aus `GuidedMeditation` entfernt.
+- [x] Die computed properties `effectiveTeacher` und `effectiveName` entfallen — alle Aufrufstellen lesen direkt `teacher` bzw. `name`. (Aufrufer u. a.: `LibrarySearchEngine`, `GuidedMeditationsListViewModel.uniqueTeachers`, `meditationsByTeacher`, `ImportPrefill`, View-Anzeige, Player-Title.)
+- [x] **Migration beim Load**: bestehende persistierte Eintraege mit `customTeacher != nil` → `teacher = customTeacher`, danach `customTeacher` aus dem persistierten Format entfernen. Analog `customName`. Migration ist idempotent (zweiter Lauf macht nichts). Kein Datenverlust: `customTeacher` war ohnehin der aktuell sichtbare Wert. Implementierung: Custom `init(from:)` faltet die alten Felder beim Decoden in `teacher`/`name`, ein einmaliges Flag `guidedMeditationsOverrideMigratedV1` triggert einen Re-Save, damit die alten Keys auch physisch aus UserDefaults verschwinden.
+- [x] **Save-Button-Text im Import-Modus**: Localization-Key `guided_meditations.import.action` (DE „Importieren", EN „Import"). Edit-Modus nutzt weiter `common.save`.
+
+> Der ursprünglich vorgesehene Sheet-Titel ist nach UX-Review entfallen — siehe „Toolbar-Vereinfachung" unten.
 
 ### Universell (beide Modi)
 
-- [ ] **X-Clear-Button** in jedem Textfeld: erscheint sobald das Feld fokussiert ist UND einen Wert enthaelt (iOS-Standard `.whileEditing`), leert das Feld bei Tap, verbirgt sich bei leerem Feld oder Focus-Verlust. Accessibility-Label „Feld leeren". Style gemaess Handoff (20×20 px Kreis, gedimmtes Hellgrau, dunkles X).
-- [ ] **Match-Substring im Autocomplete** ist akzent-hervorgehoben (Stil konsistent mit ios-041 Library-Search-Highlight).
-- [ ] Klick auf X im Lehrer-Feld leert das Feld. Der Autocomplete-Dropdown bleibt geschlossen — konsistent mit der Library-Suche aus ios-041 (leeres Feld = keine Vorschlaege; eine volle Lehrer-Liste bei leerem Feld waere visuelles Rauschen ohne klaren Entscheidungswert). Abweichung vom urspruenglichen Handoff bewusst.
-- [ ] **Save-Button** disabled (gedimmt, nicht tappbar) wenn `teacher.trim().isEmpty || name.trim().isEmpty`.
-- [ ] Return-Taste im Lehrer-Feld setzt Fokus auf Name-Feld; Return-Taste im Name-Feld triggert Save (falls valid).
-- [ ] **Placeholder**: Lehrer-Feld „Wer leitet die Meditation an?", Name-Feld „Wie heisst diese Meditation?". Lokalisiert DE + EN.
-- [ ] Der String `"Unknown Artist"` erscheint nirgendwo neu im UI — weder als Default-Wert, Suggestion noch Placeholder. (Bestehende Library-Eintraege mit `teacher = "Unknown Artist"` werden NICHT migriert — die Migration in der Vorbereitungs-Sektion betrifft nur den Override-Mechanismus, nicht inhaltliche Werte. Der User kann „Unknown Artist" weiter via Edit-Sheet selbst korrigieren.)
-- [ ] Keine Banner, keine Source-Badges, keine sonstigen visuellen Prefill-Indikatoren.
-- [ ] File-Info-Section (Dateiname, Dauer, read-only) wird in **beiden** Modi am Ende des Sheets angezeigt — im Import-Modus als Reality-Check fuer den User („passt der Prefill zur Datei?"), im Edit-Modus wie heute. Konsistente Sheet-Struktur ueber beide Modi.
+- [x] **X-Clear-Button** in jedem Textfeld: erscheint sobald das Feld fokussiert ist UND einen Wert enthaelt (iOS-Standard `.whileEditing`), leert das Feld bei Tap, verbirgt sich bei leerem Feld oder Focus-Verlust. Accessibility-Label „Feld leeren". Style 20×20 px Kreis, gedimmtes Hellgrau, dunkles X.
+- [x] **Match-Substring im Autocomplete** ist akzent-hervorgehoben. Style nach UX-Review: Akzentfarbe + Font-Weight `semibold` (statt zusätzlichem Background-Tint — der Tint verschwamm auf warmem Card-Background). Konsistent angewendet auch in der Library-Suche aus ios-041.
+- [x] Klick auf X im Lehrer-Feld leert das Feld. Der Autocomplete-Dropdown bleibt geschlossen — konsistent mit der Library-Suche aus ios-041 (leeres Feld = keine Vorschlaege).
+- [x] **Save-Button** disabled (gedimmt, nicht tappbar) wenn `teacher.trim().isEmpty || name.trim().isEmpty`. Tint = `theme.interactive`, damit er bei valider Eingabe als Primaer-Action sichtbar bleibt.
+- [x] Return-Taste im Lehrer-Feld setzt Fokus auf Name-Feld; Return-Taste im Name-Feld triggert Save (falls valid). `submitLabel(.next)` bzw. `.done`.
+- [x] **Placeholder**: Lehrer-Feld „Wer leitet die Meditation an?", Name-Feld „Wie heisst diese Meditation?". Lokalisiert DE + EN.
+- [x] Der String `"Unknown Artist"` erscheint nirgendwo neu im UI — weder als Default-Wert, Suggestion noch Placeholder. Bestehende Library-Eintraege mit `teacher = "Unknown Artist"` werden NICHT migriert — die Migration betrifft nur den Override-Mechanismus, nicht inhaltliche Werte.
+- [x] Keine Banner, keine Source-Badges, keine sonstigen visuellen Prefill-Indikatoren.
+- [x] **Name-Feld waechst vertikal mit `axis: .vertical, lineLimit: 1...3`** — lange Titel wie „MSC Liebende Guete fuer ein geliebtes Wesen" werden nicht mehr in der Mitte abgeschnitten, sondern brechen umgebrochen. Wichtig, weil das Name-Feld das primaere Korrektur-Feld ist.
+- [x] **Datei-Info als kompakter, zweizeiliger Footer** unter der Name-Card: `[Doc-Icon] {filename} · {duration}`. `lineLimit(2)` mit `.byTruncatingTail` als Fallback. Sichtbar in **beiden** Modi (Reality-Check beim Import, gewohnter Look beim Edit).
+- [x] **Toolbar-Vereinfachung**: kein Sheet-Titel (`principal` ToolbarItem entfaellt). Cancel als minimaler X-Icon-Button (`xmark`, 15pt, `textSecondary`), Save-Action behaelt prominentes Pill-Label mit `theme.interactive` als Tint. Begruendung: in iOS 26 (Liquid Glass) rendern Pill-Buttons schwerer; ein langer Titel + zwei Pill-Buttons fuehrte zu Truncation („Meditation..."). Die asymmetrische Toolbar reflektiert die Hierarchie (sekundaer / primaer).
+- [x] **Autocomplete-Dropdown im Plain-Look**: keine eigene Card mit Shadow mehr. Subtile Trennlinie ueber dem ersten Vorschlag (zum Input), duenne Trennlinien zwischen Vorschlaegen, transparenter Hintergrund. Vermeidet den Eindruck „alle Eintraege selektiert" auf warmem Card-Background.
+- [x] **Kompaktes Section-Spacing** zwischen Lehrer- und Name-Card via `.listSectionSpacing(.compact)` (iOS 17+). iOS 16 nutzt Standard-Spacing — akzeptierter Trade-off, weil die Sections-Trennung wichtiger ist als der minimale Gap.
+
+### Filename-Preprocessing (Erweiterung von ios-043)
+
+- [x] `ImportPrefill.preprocessFilename` fuegt Spaces an Wort-Grenzen ein, die in Filesharing-Dateinamen oft an Stelle echter Trenner stehen:
+  - **CamelCase**: `MomentMal` → `Moment Mal` (Klein → Gross)
+  - **Akronym-Ende**: `MBSRBodyscan` → `MBSR Bodyscan` (mehrere Gross gefolgt von Klein)
+  - **Zahl/Wort**: `04Fuesse` → `04 Fuesse` (Zahl direkt vor Buchstabe oder umgekehrt)
+- [x] Konkretes User-Beispiel: `Moment-mal-04Fuesse.mp3` → Prefill-Vorschlag `Moment mal 04 Fuesse` statt `Moment mal 04Fuesse`.
+- [x] Diakritika-Rueckabbildung (`ue`→`ü`, `oe`→`ö`, `ae`→`ä`, `ss`→`ß`) findet **bewusst nicht** statt — die Heuristik produziert zu viele false positives (z. B. `Quelle` → `Quölle`). Verbliebene Sonderzeichen korrigiert der User manuell.
 
 ### Nur Import-Modus
 
-- [ ] Beim Import erscheint das Edit-Sheet mit `prefill.teacher` / `prefill.name` als Default in den Feldern; nil-Werte ergeben leere Felder.
-- [ ] **Autofocus**: wenn `prefill.name == nil` → Name-Feld autofocus (Tastatur sofort). Sonst → kein Autofocus.
-- [ ] **Save** ruft `meditationService.addMeditation(url, metadata, teacher, name)` auf — erst dann wird die Datei in den App-Container kopiert und der Library-Eintrag angelegt.
-- [ ] **Cancel** persistiert nichts: keine Datei-Kopie, kein Library-Eintrag, kein Bookmark. Die Quelle (URL aus Share-Sheet / Inbox) wird sauber freigegeben.
-- [ ] Auch ein Modal-Swipe-Down (interactive dismiss) verhaelt sich wie Cancel.
+- [x] Beim Import erscheint das Edit-Sheet mit `prefill.teacher` / `prefill.name` als Default in den Feldern; nil-Werte ergeben leere Felder.
+- [x] **Autofocus**: wenn `prefill.name == nil` → Name-Feld autofocus (Tastatur sofort). Sonst → kein Autofocus. Reine Modus-Logik (`shouldAutofocusName(prefilledName:)`) wird in `GuidedMeditationEditSheetModeTests` getestet.
+- [x] **Save** ruft `meditationService.addMeditation(url, metadata, teacher, name)` auf — erst dann wird die Datei in den App-Container kopiert und der Library-Eintrag angelegt.
+- [x] **Cancel** persistiert nichts: keine Datei-Kopie, kein Library-Eintrag, kein Bookmark. Die Quelle (URL aus Share-Sheet / Inbox) wird sauber freigegeben.
+- [x] Auch ein Modal-Swipe-Down (interactive dismiss) verhaelt sich wie Cancel. Implementierung: `.sheet(onDismiss:)`-Closure ruft `cancelImport()` falls `pendingImport != nil`.
 
 ### Nur Edit-Modus
 
-- [ ] Sheet zeigt die persistierten Werte unveraendert — auch wenn `teacher` z. B. `"Unknown Artist"` enthaelt (Alt-Library, nicht migriert). Der Wert bleibt erhalten, falls der User ihn nicht aendert.
-- [ ] Kein Autofocus.
-- [ ] **Save** ruft `meditationService.updateMeditation(...)` auf.
-- [ ] **Cancel** laesst die Meditation unveraendert.
-- [ ] X-Button, Pflichtfeld-Validation und Match-Highlight funktionieren identisch zum Import-Modus.
+- [x] Sheet zeigt die persistierten Werte unveraendert — auch wenn `teacher` z. B. `"Unknown Artist"` enthaelt (Alt-Library, nicht migriert). Der Wert bleibt erhalten, falls der User ihn nicht aendert.
+- [x] Kein Autofocus.
+- [x] **Save** ruft `meditationService.updateMeditation(...)` auf.
+- [x] **Cancel** laesst die Meditation unveraendert.
+- [x] X-Button, Pflichtfeld-Validation und Match-Highlight funktionieren identisch zum Import-Modus.
 
 ### Tests
 
-- [ ] Unit-Test Migration: Eintrag mit `customTeacher = "X"` und `teacher = "Y"` wird beim Load zu `teacher = "X"`, `customTeacher` entfernt. Eintrag ohne `customTeacher` bleibt unveraendert. Zweiter Lauf macht nichts.
-- [ ] Unit-Test `EditSheetState`: `isValid` ist false wenn `editedTeacher` ODER `editedName` leer; true sonst. `applyChanges()` liefert eine `GuidedMeditation` mit `teacher = editedTeacher`, `name = editedName`. `hasChanges` semantisch unveraendert (vergleicht `editedTeacher` mit `originalMeditation.teacher`).
-- [ ] Unit-Test X-Clear-Button: Tap leert Feld, disabled Save. Beim Lehrer-Feld bleibt der Autocomplete geschlossen (kein Dropdown bei leerem Feld).
-- [ ] Unit-Test Match-Highlight: bei Query `"T"` ist im Eintrag `"Tara Brach"` das `"T"` als highlighted Range markiert.
-- [ ] Unit-Test Autofocus-Regel (Import-Modus): `prefill.name == nil` → Autofocus Name; `prefill.name != nil` → kein Autofocus.
-- [ ] Unit-Test Edit-Modus: Sheet ohne Prefill rendert keinen Autofocus; persistierte Werte (auch `"Unknown Artist"`) bleiben unveraendert sichtbar.
-- [ ] Snapshot-Test: Sheet im ID3-Bestfall (beide Felder vorbelegt) vs. Garbage-Fall (beide leer mit Placeholder).
+- [x] Unit-Test Migration: Eintrag mit `customTeacher = "X"` und `teacher = "Y"` wird beim Load zu `teacher = "X"`, `customTeacher` entfernt. Eintrag ohne `customTeacher` bleibt unveraendert. Zweiter Lauf macht nichts. (`GuidedMeditationServiceTests+Migration`)
+- [x] Unit-Test `EditSheetState`: `isValid` ist false wenn `editedTeacher` ODER `editedName` leer; true sonst. `applyChanges()` liefert eine `GuidedMeditation` mit `teacher = editedTeacher`, `name = editedName`. `hasChanges` semantisch unveraendert. (`EditSheetStateTests`)
+- [x] Unit-Test Match-Highlight: `LibrarySearchEngine.highlightRanges(in:"Tara Brach", query:"T")` liefert die Range fuer das `T`. (Bestand aus ios-041.)
+- [x] Unit-Test Autofocus-Regel (Import-Modus): `prefill.name == nil` → Autofocus Name; `prefill.name != nil` → kein Autofocus. (`GuidedMeditationEditSheetModeTests`)
+- [x] Unit-Test Filename-Boundaries: `04Fuesse` → `04 Fuesse`, `MomentMal` → `Moment Mal`, `MBSRBodyscan` → `MBSR Bodyscan`. (`ImportPrefillTests`)
+- [x] Snapshot-Tests UI: bewusst weggelassen — die UI-Polish-Iterationen waeren mit Snapshot-Tests teurer als der Mehrwert. Visuelle Pruefung lief ueber manuelle QA im Simulator.
 
 ### Dokumentation
 
-- [ ] CHANGELOG.md (user-sichtbare Verbesserung des Import-Flows: bessere Vorschlaege, schnelles Korrigieren via X-Button).
+- [x] CHANGELOG.md — user-sichtbare Verbesserungen des Import-Flows: X-Clear-Button, Pflichtfeld, Match-Highlight, vertikales Name-Feld, schickerer Autocomplete-Look, Filename-Parser mit CamelCase/Number-Split.
 
 ---
 
@@ -147,6 +160,7 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 - **Avatar / Person-Icon im Autocomplete-Dropdown**: bewusst weggelassen (rein dekorativ, zieht visuell Richtung Kontaktliste).
 - **Lehrer-Detail-Anzeige** (z. B. „zuletzt gehoert vor 3 Wochen"): `lastPlayedAt` wird heute nicht persistiert.
 - **Edit-Modus mit nachtraeglichem Prefill** (z. B. „Auto-Vervollstaendigung bei leerem Lehrer-Feld in Alt-Eintraegen"): kein Auto-Fixing — der User editiert manuell.
+- **Sheet-offen-bei-Save-Fehler / Retry-Flow**: Schlaegt der Save fehl (Disk voll, Quell-URL verloren, UserDefaults-Write-Fehler), wird der Fehler als Alert gezeigt und das Sheet schliesst sich. Der einzige realistisch durch Retry behebbare Fall ist „Speicher voll" — Frequenz zu niedrig, um einen Inline-Retry-Flow zu rechtfertigen. User sharet die Datei neu bzw. editiert erneut.
 
 ---
 

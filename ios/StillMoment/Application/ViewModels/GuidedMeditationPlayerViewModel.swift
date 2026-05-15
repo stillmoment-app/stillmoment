@@ -166,8 +166,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.completionEvent = nil
 
         Logger.audioPlayer.info("Loading audio", metadata: [
-            "meditation": self.meditation.effectiveName,
-            "teacher": self.meditation.effectiveTeacher
+            "meditation": self.meditation.name,
+            "teacher": self.meditation.teacher
         ])
 
         // Get local file URL via service (resolves path and verifies file exists)

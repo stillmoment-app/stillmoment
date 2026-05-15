@@ -11,23 +11,10 @@ import Foundation
 ///
 /// Audio files are stored locally in the app's Application Support/Meditations directory.
 /// Legacy installations may have security-scoped bookmarks which are migrated on first launch.
-///
-/// Metadata can be customized by the user, overriding values read from ID3 tags.
 struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
     // MARK: Lifecycle
 
     /// Initializes a new guided meditation with a local file path (preferred)
-    ///
-    /// - Parameters:
-    ///   - id: Unique identifier (defaults to new UUID)
-    ///   - localFilePath: Relative path within Application Support/Meditations/
-    ///   - fileName: Original file name
-    ///   - duration: Duration in seconds
-    ///   - teacher: Teacher/Artist name
-    ///   - name: Meditation name/title
-    ///   - customTeacher: Optional custom teacher name
-    ///   - customName: Optional custom meditation name
-    ///   - dateAdded: Date added (defaults to now)
     init(
         id: UUID = UUID(),
         localFilePath: String,
@@ -35,8 +22,6 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         duration: TimeInterval,
         teacher: String,
         name: String,
-        customTeacher: String? = nil,
-        customName: String? = nil,
         dateAdded: Date = Date()
     ) {
         self.id = id
@@ -46,23 +31,10 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.duration = duration
         self.teacher = teacher
         self.name = name
-        self.customTeacher = customTeacher
-        self.customName = customName
         self.dateAdded = dateAdded
     }
 
     /// Legacy initializer for security-scoped bookmarks (migration support)
-    ///
-    /// - Parameters:
-    ///   - id: Unique identifier (defaults to new UUID)
-    ///   - fileBookmark: Security-scoped bookmark data
-    ///   - fileName: Original file name
-    ///   - duration: Duration in seconds
-    ///   - teacher: Teacher/Artist name
-    ///   - name: Meditation name/title
-    ///   - customTeacher: Optional custom teacher name
-    ///   - customName: Optional custom meditation name
-    ///   - dateAdded: Date added (defaults to now)
     init(
         id: UUID = UUID(),
         fileBookmark: Data,
@@ -70,8 +42,6 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         duration: TimeInterval,
         teacher: String,
         name: String,
-        customTeacher: String? = nil,
-        customName: String? = nil,
         dateAdded: Date = Date()
     ) {
         self.id = id
@@ -81,9 +51,42 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.duration = duration
         self.teacher = teacher
         self.name = name
-        self.customTeacher = customTeacher
-        self.customName = customName
         self.dateAdded = dateAdded
+    }
+
+    // MARK: - Codable
+
+    /// Decodes a meditation; legacy `customTeacher`/`customName` overrides are folded into
+    /// `teacher`/`name` so the rest of the app sees a single source of truth.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.localFilePath = try container.decodeIfPresent(String.self, forKey: .localFilePath)
+        self.fileBookmark = try container.decodeIfPresent(Data.self, forKey: .fileBookmark)
+        self.fileName = try container.decode(String.self, forKey: .fileName)
+        self.duration = try container.decode(TimeInterval.self, forKey: .duration)
+        self.dateAdded = try container.decode(Date.self, forKey: .dateAdded)
+
+        let originalTeacher = try container.decode(String.self, forKey: .teacher)
+        let originalName = try container.decode(String.self, forKey: .name)
+        let legacyCustomTeacher = try container.decodeIfPresent(String.self, forKey: .customTeacher)
+        let legacyCustomName = try container.decodeIfPresent(String.self, forKey: .customName)
+
+        self.teacher = legacyCustomTeacher ?? originalTeacher
+        self.name = legacyCustomName ?? originalName
+    }
+
+    /// Encodes the meditation without the legacy `customTeacher`/`customName` fields.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.id, forKey: .id)
+        try container.encodeIfPresent(self.localFilePath, forKey: .localFilePath)
+        try container.encodeIfPresent(self.fileBookmark, forKey: .fileBookmark)
+        try container.encode(self.fileName, forKey: .fileName)
+        try container.encode(self.duration, forKey: .duration)
+        try container.encode(self.teacher, forKey: .teacher)
+        try container.encode(self.name, forKey: .name)
+        try container.encode(self.dateAdded, forKey: .dateAdded)
     }
 
     // MARK: Internal
@@ -109,24 +112,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
     /// Meditation name/title (from ID3 tag or user-edited)
     var name: String
 
-    /// Custom teacher name set by user (overrides ID3 tag)
-    var customTeacher: String?
-
-    /// Custom meditation name set by user (overrides ID3 tag)
-    var customName: String?
-
     /// Date when the meditation was added to the library
     let dateAdded: Date
-
-    /// Returns the effective teacher name (custom if set, otherwise original)
-    var effectiveTeacher: String {
-        self.customTeacher ?? self.teacher
-    }
-
-    /// Returns the effective meditation name (custom if set, otherwise original)
-    var effectiveName: String {
-        self.customName ?? self.name
-    }
 
     /// Formatted duration string (MM:SS or HH:MM:SS)
     var formattedDuration: String {
@@ -155,9 +142,23 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
             duration: self.duration,
             teacher: self.teacher,
             name: self.name,
-            customTeacher: self.customTeacher,
-            customName: self.customName,
             dateAdded: self.dateAdded
         )
+    }
+
+    // MARK: Private
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case localFilePath
+        case fileBookmark
+        case fileName
+        case duration
+        case teacher
+        case name
+        case dateAdded
+        // Legacy keys (read-only during migration; no longer encoded)
+        case customTeacher
+        case customName
     }
 }
