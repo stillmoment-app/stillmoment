@@ -10,7 +10,7 @@ import XCTest
 @testable import StillMoment
 
 final class MeditationCompletionViewTests: XCTestCase {
-    func testOnBackClosureIsInvokedWhenCalled() {
+    func testOnBackClosureIsExposedAndCallable() {
         // Given
         var didInvoke = false
         let view = MeditationCompletionView { didInvoke = true }
@@ -19,7 +19,7 @@ final class MeditationCompletionViewTests: XCTestCase {
         view.onBack()
 
         // Then
-        XCTAssertTrue(didInvoke, "Tapping the completion button should invoke the onBack closure")
+        XCTAssertTrue(didInvoke, "The onBack closure should be exposed on the view and invoke the caller's handler")
     }
 
     func testDefaultAccessibilityLabelResolvesFromLocalization() {
