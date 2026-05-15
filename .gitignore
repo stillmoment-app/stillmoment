@@ -85,6 +85,7 @@ iOSInjectionProject/
 .vscode/
 .idea/
 .xcodebuildmcp/
+.obsidian/
 
 # Local working directory (screenshots, debug output, etc.)
 tmp/
