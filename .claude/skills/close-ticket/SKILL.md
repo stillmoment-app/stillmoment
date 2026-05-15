@@ -38,13 +38,21 @@ Aus Git-History und CHANGELOG-Struktur:
 
 ## Workflow
 
-### Schritt 1: Ticket-Nummer extrahieren
+### Schritt 1: Ticket-Nummer ermitteln
 
-- Pattern: `(ios|android|shared)-(\d+)` aus Trigger
-- Beispiel: "Schliesse Ticket **ios-023**" → `ios-023`
+Reihenfolge der Quellen:
 
-Falls nicht im Trigger:
-> "Welches Ticket soll geschlossen werden? (z.B. ios-023)"
+1. **Trigger-Text:** Pattern `(ios|android|shared)-(\d+)` (z.B. "Schliesse Ticket **ios-023**" → `ios-023`)
+2. **Aktueller Branch-Name als Fallback:** `git rev-parse --abbrev-ref HEAD`, dann Pattern `feature/(ios|android|shared)-(\d+)(-(ios|android))?` matchen. Beispiele:
+   - `feature/ios-042` → `ios-042`
+   - `feature/shared-067-ios` → `shared-067`, Plattform-Hinweis `ios` (relevant fuer Shared-Tickets-Sonderfall)
+   - `feature/shared-075` → `shared-075`
+3. **Wenn beides nichts ergibt:** "Welches Ticket soll geschlossen werden? (z.B. ios-023)"
+
+Wenn die ID aus dem Branch abgeleitet wird, einmal sichtbar bestaetigen:
+> "Schliesse Ticket {id} (aus Branch `{branch}` abgeleitet)."
+
+Falls die Trigger-ID und die Branch-ID auseinanderlaufen: STOP, fragen welche stimmt — sonst merged man am Ende den falschen Branch.
 
 ### Schritt 2: Ticket finden und lesen
 
