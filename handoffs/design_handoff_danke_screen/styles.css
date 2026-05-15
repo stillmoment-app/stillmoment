@@ -1,0 +1,47 @@
+/* Still Moment — Danke-Screen Varianten */
+
+:root {
+  --sm-bg-deep: #150a07;
+  --sm-bg-1: #221310;
+  --sm-bg-2: #2c1a15;
+  --sm-bg-3: #3a221c;
+
+  --sm-accent: #c47a5e;
+  --sm-accent-soft: #b06a4f;
+  --sm-accent-glow: #d68a6e;
+  --sm-accent-text: #d99a7e;
+
+  --sm-text: #ebe2d6;
+  --sm-text-2: #a89a8c;
+  --sm-text-3: #6f6358;
+
+  --sm-font-display: "Newsreader", Georgia, serif;
+  --sm-font-ui: "Geist", -apple-system, "SF Pro Text", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+body {
+  margin: 0;
+  font-family: var(--sm-font-ui);
+  color: var(--sm-text);
+  background: #0a0604;
+}
+
+@keyframes dk-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dk-breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.55; }
+  50%      { transform: scale(1.04); opacity: 1; }
+}
+@keyframes dk-glow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
+}
+@keyframes dk-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translateY(-120px) scale(0.6); opacity: 0; }
+}
