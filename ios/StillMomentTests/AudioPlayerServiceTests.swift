@@ -514,8 +514,8 @@ final class AudioPlayerServiceTests: XCTestCase {
         // Then - Now Playing info should be set
         let nowPlaying = self.mockNowPlayingProvider.nowPlayingInfo
         XCTAssertNotNil(nowPlaying, "Now Playing info should be set during play (session is active)")
-        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyTitle] as? String, meditation.effectiveName)
-        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyArtist] as? String, meditation.effectiveTeacher)
+        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyTitle] as? String, meditation.name)
+        XCTAssertEqual(nowPlaying?[MPMediaItemPropertyArtist] as? String, meditation.teacher)
     }
 
     @MainActor

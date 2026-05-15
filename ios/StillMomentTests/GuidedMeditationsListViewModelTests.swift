@@ -166,7 +166,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         await self.sut.loadMeditations()
 
         var updatedMeditation = meditation
-        updatedMeditation.customName = "Updated Name"
+        updatedMeditation.name = "Updated Name"
 
         // When
         self.sut.updateMeditation(updatedMeditation)
@@ -266,10 +266,10 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(grouped[2].meditations.count, 1)
     }
 
-    func testMeditationsByTeacherWithCustomNames() {
+    func testMeditationsByTeacherUsesTeacher() {
         // Given
         var meditation = self.createTestMeditation(teacher: "Original", name: "Original")
-        meditation.customTeacher = "Custom Teacher"
+        meditation.teacher = "Updated Teacher"
         self.sut.meditations = [meditation]
 
         // When
@@ -277,8 +277,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
         // Then
         XCTAssertEqual(grouped.count, 1)
-        // Should use effectiveTeacher (custom if available)
-        XCTAssertEqual(grouped[0].teacher, "Custom Teacher")
+        XCTAssertEqual(grouped[0].teacher, "Updated Teacher")
     }
 
     func testMeditationsByTeacherSorting() {
@@ -356,17 +355,17 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertEqual(teachers, ["Alice", "Bob", "Zara"])
     }
 
-    func testUniqueTeachersUsesEffectiveTeacher() {
-        // Given - Meditation with custom teacher override
+    func testUniqueTeachersReflectsCurrentTeacher() {
+        // Given - Meditation whose teacher was edited
         var meditation = self.createTestMeditation(teacher: "Original", name: "Med1")
-        meditation.customTeacher = "Custom"
+        meditation.teacher = "Updated"
         self.sut.meditations = [meditation]
 
         // When
         let teachers = self.sut.uniqueTeachers
 
-        // Then - Should use effective (custom) teacher
-        XCTAssertEqual(teachers, ["Custom"])
+        // Then
+        XCTAssertEqual(teachers, ["Updated"])
         XCTAssertFalse(teachers.contains("Original"))
     }
 

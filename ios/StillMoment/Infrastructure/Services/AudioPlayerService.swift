@@ -423,8 +423,8 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     private func setupNowPlayingInfo(for meditation: GuidedMeditation, duration: TimeInterval) {
         var nowPlayingInfo = [String: Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = meditation.effectiveName
-        nowPlayingInfo[MPMediaItemPropertyArtist] = meditation.effectiveTeacher
+        nowPlayingInfo[MPMediaItemPropertyTitle] = meditation.name
+        nowPlayingInfo[MPMediaItemPropertyArtist] = meditation.teacher
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
 

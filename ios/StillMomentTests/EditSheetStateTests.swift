@@ -13,53 +13,32 @@ final class EditSheetStateTests: XCTestCase {
 
     private func makeTestMeditation(
         teacher: String = "Original Teacher",
-        name: String = "Original Name",
-        customTeacher: String? = nil,
-        customName: String? = nil
+        name: String = "Original Name"
     ) -> GuidedMeditation {
         GuidedMeditation(
             fileBookmark: Data(),
             fileName: "test.mp3",
             duration: 600,
             teacher: teacher,
-            name: name,
-            customTeacher: customTeacher,
-            customName: customName
+            name: name
         )
     }
 
     // MARK: - Initialization Tests
 
-    func testInitializesWithEffectiveValues() {
+    func testInitializesWithMeditationValues() {
         // Given
         let meditation = self.makeTestMeditation(
-            teacher: "Original",
-            name: "Original Name",
-            customTeacher: "Custom Teacher",
-            customName: "Custom Name"
-        )
-
-        // When
-        let state = EditSheetState(meditation: meditation)
-
-        // Then - Should use effective values (custom if set)
-        XCTAssertEqual(state.editedTeacher, "Custom Teacher")
-        XCTAssertEqual(state.editedName, "Custom Name")
-    }
-
-    func testInitializesWithOriginalWhenNoCustomValues() {
-        // Given
-        let meditation = self.makeTestMeditation(
-            teacher: "Original Teacher",
-            name: "Original Name"
+            teacher: "Tara Brach",
+            name: "Body Scan"
         )
 
         // When
         let state = EditSheetState(meditation: meditation)
 
         // Then
-        XCTAssertEqual(state.editedTeacher, "Original Teacher")
-        XCTAssertEqual(state.editedName, "Original Name")
+        XCTAssertEqual(state.editedTeacher, "Tara Brach")
+        XCTAssertEqual(state.editedName, "Body Scan")
     }
 
     // MARK: - hasChanges Tests
@@ -184,7 +163,7 @@ final class EditSheetStateTests: XCTestCase {
 
     // MARK: - applyChanges Tests
 
-    func testApplyChangesSetsCustomValuesWhenChanged() {
+    func testApplyChangesSetsEditedValuesDirectly() {
         // Given
         let meditation = self.makeTestMeditation()
         var state = EditSheetState(meditation: meditation)
@@ -195,11 +174,11 @@ final class EditSheetStateTests: XCTestCase {
         let updated = state.applyChanges()
 
         // Then
-        XCTAssertEqual(updated.customTeacher, "New Teacher")
-        XCTAssertEqual(updated.customName, "New Name")
+        XCTAssertEqual(updated.teacher, "New Teacher")
+        XCTAssertEqual(updated.name, "New Name")
     }
 
-    func testApplyChangesDoesNotSetCustomWhenUnchanged() {
+    func testApplyChangesReturnsOriginalValuesWhenUnchanged() {
         // Given
         let meditation = self.makeTestMeditation()
         let state = EditSheetState(meditation: meditation)
@@ -207,24 +186,9 @@ final class EditSheetStateTests: XCTestCase {
         // When
         let updated = state.applyChanges()
 
-        // Then - Should be nil, not set to original value
-        XCTAssertNil(updated.customTeacher)
-        XCTAssertNil(updated.customName)
-    }
-
-    func testApplyChangesSetsOnlyChangedFields() {
-        // Given
-        let meditation = self.makeTestMeditation()
-        var state = EditSheetState(meditation: meditation)
-        state.editedTeacher = "New Teacher"
-        // Name unchanged
-
-        // When
-        let updated = state.applyChanges()
-
         // Then
-        XCTAssertEqual(updated.customTeacher, "New Teacher")
-        XCTAssertNil(updated.customName)
+        XCTAssertEqual(updated.teacher, meditation.teacher)
+        XCTAssertEqual(updated.name, meditation.name)
     }
 
     func testApplyChangesPreservesOriginalMeditationId() {

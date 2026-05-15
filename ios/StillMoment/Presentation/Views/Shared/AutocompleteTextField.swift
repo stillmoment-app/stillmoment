@@ -7,51 +7,63 @@
 
 import SwiftUI
 
-/// A TextField with autocomplete suggestions dropdown
+/// A TextField with autocomplete suggestions dropdown.
 ///
-/// Features:
-/// - Shows filtered suggestions as user types
-/// - Case-insensitive contains matching
-/// - Tap to select fills the text field
-/// - Dismisses on outside tap or selection
-/// - Warm earth tone design matching app theme
+/// Features (ios-044):
+/// - Filters suggestions case-insensitively as the user types.
+/// - Match substring inside each suggestion is accent-highlighted (consistent with library search).
+/// - Inline clear (X) button — appears while focused with non-empty text.
+/// - Dropdown stays closed on empty input (no suggestions for an empty query — consistent with
+///   the library search behavior).
+/// - Parent owns focus via `FocusState<Bool>.Binding`, enabling multi-field navigation.
 struct AutocompleteTextField: View {
     // MARK: Lifecycle
 
     init(
         text: Binding<String>,
+        focus: FocusState<Bool>.Binding,
         placeholder: LocalizedStringKey,
         suggestions: [String],
         accessibilityLabel: LocalizedStringKey,
-        accessibilityIdentifier: String? = nil
+        accessibilityIdentifier: String? = nil,
+        submitLabel: SubmitLabel = .return,
+        onSubmit: (() -> Void)? = nil
     ) {
         self._text = text
+        self.focus = focus
         self.placeholder = placeholder
         self.suggestions = suggestions
         self.accessibilityLabel = accessibilityLabel
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.submitLabel = submitLabel
+        self.onSubmit = onSubmit
     }
 
     // MARK: Internal
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TextField(self.placeholder, text: self.$text)
-                .focused(self.$isFocused)
-                .accessibilityLabel(self.accessibilityLabel)
-                .accessibilityIdentifier(self.accessibilityIdentifier ?? "")
-                .onChange(of: self.text) { newValue in
-                    let filtered = Self.filterSuggestions(self.suggestions, for: newValue)
-                    self.showSuggestions = !filtered.isEmpty
-                }
-                .onChange(of: self.isFocused) { focused in
-                    if !focused {
-                        // Delay to allow tap on suggestion to register
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                            self.showSuggestions = false
-                        }
+            ClearableTextField(
+                self.placeholder,
+                text: self.$text,
+                focus: self.focus,
+                accessibilityLabel: self.accessibilityLabel,
+                accessibilityIdentifier: self.accessibilityIdentifier,
+                submitLabel: self.submitLabel,
+                onSubmit: self.onSubmit
+            )
+            .onChange(of: self.text) { newValue in
+                let filtered = Self.filterSuggestions(self.suggestions, for: newValue)
+                self.showSuggestions = !filtered.isEmpty
+            }
+            .onChange(of: self.focus.wrappedValue) { focused in
+                if !focused {
+                    // Delay to allow tap on suggestion to register
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        self.showSuggestions = false
                     }
                 }
+            }
 
             if self.showSuggestions {
                 self.suggestionsList
@@ -83,12 +95,14 @@ struct AutocompleteTextField: View {
     private var theme
     @Binding private var text: String
     @State private var showSuggestions = false
-    @FocusState private var isFocused: Bool
+    private let focus: FocusState<Bool>.Binding
 
     private let placeholder: LocalizedStringKey
     private let suggestions: [String]
     private let accessibilityLabel: LocalizedStringKey
     private let accessibilityIdentifier: String?
+    private let submitLabel: SubmitLabel
+    private let onSubmit: (() -> Void)?
 
     private var filteredSuggestions: [String] {
         Self.filterSuggestions(self.suggestions, for: self.text)
@@ -96,19 +110,24 @@ struct AutocompleteTextField: View {
 
     private var suggestionsList: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(self.filteredSuggestions, id: \.self) { suggestion in
+            // Subtle top separator detaches the dropdown from the input without a box.
+            Rectangle()
+                .fill(self.theme.textSecondary.opacity(0.18))
+                .frame(height: 0.5)
+
+            ForEach(Array(self.filteredSuggestions.enumerated()), id: \.element) { index, suggestion in
                 Button {
                     self.text = suggestion
                     self.showSuggestions = false
-                    self.isFocused = false
+                    self.focus.wrappedValue = false
                 } label: {
                     HStack {
-                        Text(suggestion)
+                        HighlightedText(text: suggestion, query: self.text)
                             .themeFont(.bodyPrimary)
                         Spacer()
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 12)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -118,19 +137,14 @@ struct AutocompleteTextField: View {
                 ))
                 .accessibilityHint(NSLocalizedString("autocomplete.suggestion.hint", comment: ""))
 
-                if suggestion != self.filteredSuggestions.last {
-                    Divider()
-                        .background(self.theme.textSecondary.opacity(.opacityTertiary))
+                if index < self.filteredSuggestions.count - 1 {
+                    Rectangle()
+                        .fill(self.theme.textSecondary.opacity(0.12))
+                        .frame(height: 0.5)
                 }
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(self.theme.backgroundSecondary)
-                .shadow(color: self.theme.textPrimary.opacity(0.1), radius: 4, x: 0, y: 2)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .padding(.top, 4)
+        .padding(.top, 6)
     }
 }
 
@@ -138,32 +152,32 @@ struct AutocompleteTextField: View {
 
 @available(iOS 17.0, *)
 #Preview("With Suggestions") {
-    @Previewable @State var text = "Al"
-
-    Form {
-        Section("Teacher") {
-            AutocompleteTextField(
-                text: $text,
-                placeholder: "Enter teacher name",
-                suggestions: ["Alice", "Albert", "Bob", "Charlie"],
-                accessibilityLabel: "Teacher name"
-            )
-        }
-    }
+    AutocompletePreviewWrapper(initialText: "Al")
 }
 
 @available(iOS 17.0, *)
 #Preview("Empty") {
-    @Previewable @State var text = ""
+    AutocompletePreviewWrapper(initialText: "")
+}
 
-    Form {
-        Section("Teacher") {
-            AutocompleteTextField(
-                text: $text,
-                placeholder: "Enter teacher name",
-                suggestions: ["Alice", "Albert", "Bob"],
-                accessibilityLabel: "Teacher name"
-            )
+@available(iOS 17.0, *)
+private struct AutocompletePreviewWrapper: View {
+    let initialText: String
+    @State private var text: String = ""
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        Form {
+            Section("Teacher") {
+                AutocompleteTextField(
+                    text: self.$text,
+                    focus: self.$focused,
+                    placeholder: "Enter teacher name",
+                    suggestions: ["Alice", "Albert", "Bob", "Charlie"],
+                    accessibilityLabel: "Teacher name"
+                )
+            }
         }
+        .onAppear { self.text = self.initialText }
     }
 }

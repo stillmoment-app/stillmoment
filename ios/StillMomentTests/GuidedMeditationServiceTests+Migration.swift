@@ -219,47 +219,103 @@ extension GuidedMeditationServiceTests {
         XCTAssertTrue(testUserDefaults.bool(forKey: "guidedMeditationsMigratedToLocalFiles_v1"))
     }
 
-    /// Tests that custom metadata is preserved during migration
-    func testMigration_PreservesCustomMetadata() throws {
-        // Given
+    /// Tests that legacy `customTeacher`/`customName` overrides are folded into
+    /// `teacher`/`name` when loading a library persisted before ios-044.
+    func testMigration_LegacyCustomOverrides_FoldedIntoTeacherAndName() throws {
+        guard let sut, let testUserDefaults else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        let id = UUID()
+        let legacyJSON = """
+            [
+              {
+                "id": "\(id.uuidString)",
+                "localFilePath": "\(id.uuidString).mp3",
+                "fileName": "session.mp3",
+                "duration": 600,
+                "teacher": "Original Teacher",
+                "name": "Original Name",
+                "customTeacher": "Custom Teacher",
+                "customName": "Custom Name",
+                "dateAdded": 0
+              }
+            ]
+            """
+        guard let data = legacyJSON.data(using: .utf8) else {
+            XCTFail("Failed to encode legacy JSON")
+            return
+        }
+        testUserDefaults.set(data, forKey: "guidedMeditationsLibrary")
+        testUserDefaults.set(true, forKey: "guidedMeditationsMigratedToLocalFiles_v1")
+
+        let loaded = try sut.loadMeditations()
+
+        let migrated = loaded.first
+        XCTAssertEqual(migrated?.teacher, "Custom Teacher")
+        XCTAssertEqual(migrated?.name, "Custom Name")
+    }
+
+    /// Tests that re-loading after the legacy fold-in does not change anything
+    /// (idempotent — the saved JSON no longer contains the legacy keys).
+    func testMigration_LegacyCustomOverrides_IsIdempotent() throws {
+        guard let sut, let testUserDefaults else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        let id = UUID()
+        let legacyJSON = """
+            [
+              {
+                "id": "\(id.uuidString)",
+                "localFilePath": "\(id.uuidString).mp3",
+                "fileName": "session.mp3",
+                "duration": 600,
+                "teacher": "Original Teacher",
+                "name": "Original Name",
+                "customTeacher": "Custom Teacher",
+                "dateAdded": 0
+              }
+            ]
+            """
+        guard let data = legacyJSON.data(using: .utf8) else {
+            XCTFail("Failed to encode legacy JSON")
+            return
+        }
+        testUserDefaults.set(data, forKey: "guidedMeditationsLibrary")
+        testUserDefaults.set(true, forKey: "guidedMeditationsMigratedToLocalFiles_v1")
+
+        _ = try sut.loadMeditations()
+        let secondLoad = try sut.loadMeditations()
+
+        XCTAssertEqual(secondLoad.first?.teacher, "Custom Teacher")
+        XCTAssertEqual(secondLoad.first?.name, "Original Name")
+
+        // After persistence, the on-disk JSON no longer contains the legacy keys.
+        guard let storedData = testUserDefaults.data(forKey: "guidedMeditationsLibrary"),
+              let storedString = String(data: storedData, encoding: .utf8) else {
+            XCTFail("No persisted data after load")
+            return
+        }
+        XCTAssertFalse(storedString.contains("customTeacher"))
+        XCTAssertFalse(storedString.contains("customName"))
+    }
+
+    /// Entries without legacy override keys are loaded unchanged.
+    func testMigration_NoLegacyOverride_LeavesEntryUntouched() throws {
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
 
-        let tempURL = createTemporaryAudioFile(filename: "custom_metadata.mp3")
-        defer {
-            try? FileManager.default.removeItem(at: tempURL)
-            let meditationsDir = sut.getMeditationsDirectory()
-            try? FileManager.default.removeItem(at: meditationsDir)
-        }
+        let med = self.createTestMeditation(teacher: "Teacher", name: "Name")
+        try sut.saveMeditations([med])
 
-        let bookmark = try tempURL.bookmarkData()
-
-        let legacyMeditation = GuidedMeditation(
-            id: UUID(),
-            fileBookmark: bookmark,
-            fileName: "custom_metadata.mp3",
-            duration: 300,
-            teacher: "Original Teacher",
-            name: "Original Name",
-            customTeacher: "Custom Teacher",
-            customName: "Custom Name"
-        )
-
-        try saveLegacyMeditationsDirectly([legacyMeditation])
-
-        // When
         let loaded = try sut.loadMeditations()
-
-        // Then - Custom metadata should be preserved
-        let migrated = loaded.first
-        XCTAssertEqual(migrated?.teacher, "Original Teacher")
-        XCTAssertEqual(migrated?.name, "Original Name")
-        XCTAssertEqual(migrated?.customTeacher, "Custom Teacher")
-        XCTAssertEqual(migrated?.customName, "Custom Name")
-        XCTAssertEqual(migrated?.effectiveTeacher, "Custom Teacher")
-        XCTAssertEqual(migrated?.effectiveName, "Custom Name")
+        XCTAssertEqual(loaded.first?.teacher, "Teacher")
+        XCTAssertEqual(loaded.first?.name, "Name")
     }
 
     /// Tests that dateAdded is preserved during migration

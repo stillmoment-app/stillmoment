@@ -80,8 +80,8 @@ enum LibrarySearchEngine {
 
     /// Bucket des besten Treffers fuer ein einzelnes Token in einer Meditation.
     private static func bestBucket(for token: String, in meditation: GuidedMeditation) -> MatchBucket? {
-        let title = meditation.effectiveName
-        let teacher = meditation.effectiveTeacher
+        let title = meditation.name
+        let teacher = meditation.teacher
 
         if self.hasWordStartMatch(of: token, in: title) {
             return .wordStartInTitle

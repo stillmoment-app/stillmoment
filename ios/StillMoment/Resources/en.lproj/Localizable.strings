@@ -153,6 +153,8 @@
 "accessibility.intervalGongVolume.hint" = "Adjust the volume of interval gong sounds";
 "accessibility.editSheet.cancel.hint" = "Closes the form without saving changes";
 "accessibility.editSheet.save.hint" = "Saves your changes and closes the form";
+"accessibility.clearButton.label" = "Clear field";
+"accessibility.editSheet.requiredField.hint" = "Required";
 "accessibility.endMeditation" = "End meditation";
 "accessibility.endMeditation.hint" = "Ends meditation and returns to timer selection";
 "accessibility.backToLibrary" = "Back to meditations";
@@ -220,12 +222,14 @@
 
 "guided_meditations.edit.title" = "Edit meditation";
 "guided_meditations.edit.teacher" = "Teacher/Guide";
-"guided_meditations.edit.teacherPlaceholder" = "Teacher's name";
+"guided_meditations.edit.teacherPlaceholder" = "Who guides this meditation?";
 "guided_meditations.edit.name" = "Name";
-"guided_meditations.edit.namePlaceholder" = "Meditation name";
+"guided_meditations.edit.namePlaceholder" = "What is this meditation called?";
 "guided_meditations.edit.file" = "File";
 "guided_meditations.edit.duration" = "Duration";
 "guided_meditations.edit.fileInfo" = "File Information";
+
+"guided_meditations.import.action" = "Import";
 
 "guided_meditations.player.teacher" = "Teacher";
 "guided_meditations.player.title" = "Meditation title";

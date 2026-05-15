@@ -50,8 +50,17 @@ struct ImportPrefill: Equatable {
     /// Schritte:
     /// 1. Endung entfernen (`.mp3`, `.m4a`, …).
     /// 2. Track-Nummer-Praefix entfernen (`^\d{1,3}[-_.\s]+`).
-    /// 3. Trenner `_`, `-`, `.` zu Spaces; multiple Spaces zusammenfassen; trim.
-    /// 4. Casing wird **nicht** veraendert — der Filename wird verbatim uebernommen.
+    /// 3. Trenner `_`, `-`, `.` zu Spaces; multiple Spaces zusammenfassen.
+    /// 4. CamelCase-Wechsel und Zahl/Wort-Uebergaenge mit Space ergaenzen — so wird
+    ///    `04Fuesse` zu `04 Fuesse` und `MomentMal` zu `Moment Mal`. Der Wechsel von
+    ///    Klein zu Gross deutet auf ein Wort-Trennzeichen hin, das in Filesharing-
+    ///    Dateinamen oft an Stelle eines echten Trenners verwendet wird.
+    /// 5. Casing innerhalb der Woerter wird **nicht** veraendert — der Inhalt bleibt
+    ///    verbatim, damit Deutsch mit Praepositionen wie "im" lesbar bleibt.
+    ///
+    /// Diakritika-Rueckabbildung (`ue`→`ü`, `oe`→`ö`, `ae`→`ä`, `ss`→`ß`) findet
+    /// **bewusst nicht** statt — die Heuristik produziert zu viele false positives
+    /// (z. B. `Quelle` → `Quölle`). User korrigiert verbliebene Sonderzeichen manuell.
     static func preprocessFilename(_ raw: String) -> String {
         var working = (raw as NSString).deletingPathExtension
         if let trackMatch = working.range(of: #"^\d{1,3}[-_.\s]+"#, options: .regularExpression) {
@@ -61,9 +70,55 @@ struct ImportPrefill: Equatable {
             .replacingOccurrences(of: "_", with: " ")
             .replacingOccurrences(of: "-", with: " ")
             .replacingOccurrences(of: ".", with: " ")
-        let collapsed = spaced
+        let segmented = self.insertWordBoundaries(in: spaced)
+        let collapsed = segmented
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
         return collapsed.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Fuegt Spaces an CamelCase- und Zahl/Buchstabe-Uebergaengen ein.
+    private static func insertWordBoundaries(in input: String) -> String {
+        let characters = Array(input)
+        var result = ""
+        result.reserveCapacity(characters.count)
+        for index in characters.indices {
+            let current = characters[index]
+            if index > 0 {
+                let previous = characters[index - 1]
+                let next = index + 1 < characters.count ? characters[index + 1] : nil
+                if self.isWordBoundary(previous: previous, current: current, next: next) {
+                    result.append(" ")
+                }
+            }
+            result.append(current)
+        }
+        return result
+    }
+
+    private static func isWordBoundary(
+        previous: Character,
+        current: Character,
+        next: Character?
+    ) -> Bool {
+        // lowercase letter followed by uppercase letter: "MomentMal" → "Moment Mal"
+        if previous.isLetter, previous.isLowercase, current.isUppercase {
+            return true
+        }
+        // Acronym followed by a capitalized word: "MBSRBodyscan" → "MBSR Bodyscan"
+        // (previous uppercase, current uppercase, next lowercase).
+        if previous.isLetter, previous.isUppercase,
+           current.isLetter, current.isUppercase,
+           let next, next.isLetter, next.isLowercase {
+            return true
+        }
+        // digit ↔ letter: "04Fuesse" → "04 Fuesse"
+        if previous.isNumber, current.isLetter {
+            return true
+        }
+        if previous.isLetter, current.isNumber {
+            return true
+        }
+        return false
     }
 
     /// Berechnet Prefill-Vorschlaege fuer `teacher` und `name` aus ID3-Metadaten und Dateiname.

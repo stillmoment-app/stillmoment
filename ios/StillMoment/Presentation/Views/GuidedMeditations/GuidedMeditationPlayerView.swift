@@ -151,20 +151,20 @@ struct GuidedMeditationPlayerView: View {
         VStack(spacing: 0) {
             // Lehrer + Titel
             VStack(spacing: 8) {
-                Text(self.viewModel.meditation.effectiveTeacher)
+                Text(self.viewModel.meditation.teacher)
                     .themeFont(.playerTeacher)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .accessibilityLabel("guided_meditations.player.teacher")
-                    .accessibilityValue(self.viewModel.meditation.effectiveTeacher)
+                    .accessibilityValue(self.viewModel.meditation.teacher)
 
-                Text(self.viewModel.meditation.effectiveName)
+                Text(self.viewModel.meditation.name)
                     .themeFont(.playerTitle)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
                     .accessibilityLabel("guided_meditations.player.title")
-                    .accessibilityValue(self.viewModel.meditation.effectiveName)
+                    .accessibilityValue(self.viewModel.meditation.name)
             }
             .padding(.horizontal, 24)
             .padding(.top, 16)

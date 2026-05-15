@@ -7,70 +7,45 @@
 
 import Foundation
 
-/// Manages state and validation logic for editing guided meditation metadata
+/// Manages state and validation logic for editing guided meditation metadata.
 ///
-/// This struct extracts testable business logic from the UI layer,
-/// enabling unit testing without SwiftUI dependencies.
-///
-/// Usage:
-/// ```swift
-/// var state = EditSheetState(meditation: meditation)
-/// state.editedTeacher = "New Teacher"
-/// if state.isValid && state.hasChanges {
-///     let updated = state.applyChanges()
-/// }
-/// ```
+/// Holds the editable fields and a snapshot of the original meditation so the view
+/// can detect changes, validate input, and produce an updated `GuidedMeditation`
+/// without owning persistence.
 struct EditSheetState {
     // MARK: Lifecycle
 
-    /// Initializes edit state from a meditation
-    ///
-    /// - Parameter meditation: The meditation to edit
     init(meditation: GuidedMeditation) {
         self.originalMeditation = meditation
-        self.editedTeacher = meditation.effectiveTeacher
-        self.editedName = meditation.effectiveName
+        self.editedTeacher = meditation.teacher
+        self.editedName = meditation.name
     }
 
     // MARK: Internal
 
-    /// The original meditation being edited
     let originalMeditation: GuidedMeditation
 
-    /// Current edited teacher value
     var editedTeacher: String
 
-    /// Current edited name value
     var editedName: String
 
-    /// Whether changes have been made compared to original values
+    /// Whether the user changed the teacher or name compared to the initial values.
     var hasChanges: Bool {
         self.editedTeacher != self.originalMeditation.teacher ||
             self.editedName != self.originalMeditation.name
     }
 
-    /// Whether the current values are valid for saving
+    /// Whether both fields contain non-whitespace input.
     var isValid: Bool {
         !self.editedTeacher.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
             !self.editedName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    /// Creates an updated meditation with the edited values
-    ///
-    /// Only sets customTeacher/customName if values differ from original.
-    ///
-    /// - Returns: Updated meditation with applied changes
+    /// Returns the original meditation with `teacher` and `name` replaced by the edited values.
     func applyChanges() -> GuidedMeditation {
         var updated = self.originalMeditation
-
-        // Only set custom values if they differ from original
-        updated.customTeacher = self.editedTeacher != self.originalMeditation.teacher
-            ? self.editedTeacher
-            : nil
-        updated.customName = self.editedName != self.originalMeditation.name
-            ? self.editedName
-            : nil
-
+        updated.teacher = self.editedTeacher
+        updated.name = self.editedName
         return updated
     }
 }

@@ -43,6 +43,14 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
                 self.meditations = try self.performMigration()
             }
 
+            // Strip legacy `customTeacher`/`customName` fields from persistence on first load
+            // after ios-044. The decoded `teacher`/`name` already reflect the legacy override;
+            // re-saving rewrites the JSON without those keys.
+            if !self.isOverrideMigrationCompleted() {
+                try self.saveMeditations(self.meditations)
+                self.markOverrideMigrationCompleted()
+            }
+
             return self.sortedMeditations()
         } catch {
             throw GuidedMeditationError.persistenceFailed(reason: error.localizedDescription)
@@ -157,6 +165,7 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
     private let fileManager: FileManager
     private let storageKey = "guidedMeditationsLibrary"
     private let migrationKey = "guidedMeditationsMigratedToLocalFiles_v1"
+    private let overrideMigrationKey = "guidedMeditationsOverrideMigratedV1"
 
     private var meditations: [GuidedMeditation] = []
 
@@ -168,6 +177,14 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
 
     private func markMigrationCompleted() {
         self.userDefaults.set(true, forKey: self.migrationKey)
+    }
+
+    private func isOverrideMigrationCompleted() -> Bool {
+        self.userDefaults.bool(forKey: self.overrideMigrationKey)
+    }
+
+    private func markOverrideMigrationCompleted() {
+        self.userDefaults.set(true, forKey: self.overrideMigrationKey)
     }
 
     private func hasMeditationsWithBookmarks() -> Bool {
@@ -206,10 +223,10 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
                 let localPath = try copyFileToMeditationsDirectory(from: url, meditationId: meditation.id)
                 let migratedMeditation = meditation.withLocalFilePath(localPath)
                 migrated.append(migratedMeditation)
-                Logger.audio.info("Migrated meditation: \(meditation.effectiveName)")
+                Logger.audio.info("Migrated meditation: \(meditation.name)")
             } catch {
                 Logger.audio
-                    .error("Failed to migrate meditation \(meditation.effectiveName): \(error.localizedDescription)")
+                    .error("Failed to migrate meditation \(meditation.name): \(error.localizedDescription)")
                 removedCount += 1
             }
         }
@@ -274,9 +291,9 @@ final class GuidedMeditationService: GuidedMeditationServiceProtocol {
 
     private func sortedMeditations() -> [GuidedMeditation] {
         self.meditations.sorted { lhs, rhs in
-            let teacherComparison = lhs.effectiveTeacher.localizedCaseInsensitiveCompare(rhs.effectiveTeacher)
+            let teacherComparison = lhs.teacher.localizedCaseInsensitiveCompare(rhs.teacher)
             if teacherComparison == .orderedSame {
-                return lhs.effectiveName.localizedCaseInsensitiveCompare(rhs.effectiveName) == .orderedAscending
+                return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
             }
             return teacherComparison == .orderedAscending
         }

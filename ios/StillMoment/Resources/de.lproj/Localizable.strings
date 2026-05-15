@@ -153,6 +153,8 @@
 "accessibility.intervalGongVolume.hint" = "Lautstärke des Intervall-Gongs anpassen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
+"accessibility.clearButton.label" = "Feld leeren";
+"accessibility.editSheet.requiredField.hint" = "Erforderlich";
 "accessibility.endMeditation" = "Meditation beenden";
 "accessibility.endMeditation.hint" = "Beendet die Meditation und kehrt zur Timer-Auswahl zurück";
 "accessibility.backToLibrary" = "Zurück zu Meditationen";
@@ -220,12 +222,14 @@
 
 "guided_meditations.edit.title" = "Meditation bearbeiten";
 "guided_meditations.edit.teacher" = "Lehrer/Guide";
-"guided_meditations.edit.teacherPlaceholder" = "Name des Lehrers";
+"guided_meditations.edit.teacherPlaceholder" = "Wer leitet die Meditation an?";
 "guided_meditations.edit.name" = "Name";
-"guided_meditations.edit.namePlaceholder" = "Name der Meditation";
+"guided_meditations.edit.namePlaceholder" = "Wie heißt diese Meditation?";
 "guided_meditations.edit.file" = "Datei";
 "guided_meditations.edit.duration" = "Dauer";
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
+
+"guided_meditations.import.action" = "Importieren";
 
 "guided_meditations.player.teacher" = "Lehrer";
 "guided_meditations.player.title" = "Meditationstitel";
