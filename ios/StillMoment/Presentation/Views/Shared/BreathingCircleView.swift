@@ -113,8 +113,13 @@ struct BreathingCircleView<Content: View>: View {
         self.outerSize * (220.0 / 280.0)
     }
 
-    private let lineWidth: CGFloat = 3
-    private let dotSize: CGFloat = 9
+    private var lineWidth: CGFloat {
+        RingMetrics.lineWidth
+    }
+
+    private var dotSize: CGFloat {
+        RingMetrics.beadDiameter
+    }
 
     /// Vollzyklus 16 s → halbe Periode 8 s mit autoreverses
     private let breathHalfPeriod: Double = 8

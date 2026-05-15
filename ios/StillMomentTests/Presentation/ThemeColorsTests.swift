@@ -97,17 +97,7 @@ final class ThemeColorsTests: XCTestCase {
         XCTAssertEqual(theme.dialActiveArc, theme.interactive)
     }
 
-    func testDialDropletCoreUsesInteractive() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.dialDropletCore, theme.interactive)
-    }
-
-    func testDialDropletHaloDerivesFromInteractive() {
-        let theme = ThemeColors.candlelightLight
-        XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
-    }
-
-    func testDialTokensFollowThemeAcrossPalettes() {
+    func testDialActiveArcFollowsThemeAcrossPalettes() {
         let palettes: [ThemeColors] = [
             .candlelightLight, .candlelightDark,
             .forestLight, .forestDark,
@@ -115,8 +105,6 @@ final class ThemeColorsTests: XCTestCase {
         ]
         for theme in palettes {
             XCTAssertEqual(theme.dialActiveArc, theme.interactive)
-            XCTAssertEqual(theme.dialDropletCore, theme.interactive)
-            XCTAssertEqual(theme.dialDropletHalo, theme.interactive.opacity(0.18))
         }
     }
 

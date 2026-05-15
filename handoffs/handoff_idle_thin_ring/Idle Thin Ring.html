@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Still Moment — Idle Ring (thin) handoff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body {
+    background: #0a0604;
+    margin: 0;
+    padding: 40px 20px 80px;
+    font-family: var(--sm-font-ui);
+    color: var(--sm-text);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(393px, 1fr));
+    max-width: 1280px;
+    margin: 0 auto;
+    gap: 32px;
+    justify-items: center;
+  }
+  .label {
+    text-align: center;
+    margin-bottom: 14px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sm-text-3);
+  }
+  h1 {
+    text-align: center;
+    font-family: var(--sm-font-display);
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .sub {
+    text-align: center;
+    color: var(--sm-text-2);
+    font-size: 13px;
+    margin: 0 0 40px;
+    line-height: 1.5;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    text-wrap: balance;
+  }
+</style>
+</head>
+<body>
+<h1>Idle-Ring an laufenden Timer angepasst</h1>
+<p class="sub">
+  Der Dauer-Picker im Idle-Screen übernimmt jetzt die identische Ring-Sprache des laufenden Timers:
+  dünner Basis-Ring (1 px), zarter Fortschritts-Bogen (1.5 px) und kleine Lichtperle (r=5) statt großem Knob.
+</p>
+
+<div id="root" class="grid"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script> <!-- pragma: allowlist secret -->
+
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="timer-idle-thin.jsx"></script>
+<script type="text/babel" src="timer-prep-running.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function App() {
+  const [minutes, setMinutes] = useState(10);
+  const [dense] = useState({
+    prepOn: true,    prepDur: "15 Sek.",
+    introOn: true,   intro: "Ankommen mit dem Atem",
+    ambientOn: true, ambient: "Regen",
+    gong: "Tempelglocke", gongVol: 70,
+    intervalOn: true, interval: "5 Min.", intervalVol: 50,
+  });
+
+  const { TimerIdleThin } = window.SM_TimerIdleThin;
+  const { RunningTimerFinal } = window.SM_PrepRunning;
+
+  return (
+    <>
+      <div>
+        <div className="label">Idle — dünner Ring</div>
+        <TimerIdleThin
+          minutes={minutes} setMinutes={setMinutes} dense={dense}
+          onStart={() => {}} onOpenConfig={() => {}}
+          activeTab="timer" setActiveTab={() => {}}
+        />
+      </div>
+      <div>
+        <div className="label">Laufender Timer (Referenz)</div>
+        <RunningTimerFinal duration={600} elapsed={124} onClose={() => {}}/>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+
+</body>
+</html>

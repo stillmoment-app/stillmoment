@@ -75,17 +75,6 @@ struct ThemeColors: Equatable, Hashable {
         self.interactive
     }
 
-    /// Tropfen-Kern (innerer voller Punkt am Drag-Tropfen).
-    var dialDropletCore: Color {
-        self.interactive
-    }
-
-    /// Pulsierender Halo um den Drag-Tropfen — leichte Akzentfarbe als
-    /// Affordance "ich bin anfassbar".
-    var dialDropletHalo: Color {
-        self.interactive.opacity(0.18)
-    }
-
     // MARK: - Settings List Tokens (shared-089)
 
     /// Trennlinien-Farbe fuer die flache Settings-Liste auf dem Idle-Screen.
