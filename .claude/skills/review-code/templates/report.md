@@ -1,79 +1,51 @@
-# Code Review: {Scope}
+# Report-Gliederung
 
-**Ticket**: {ticket-id oder "Kein Ticket"}
-**Datum**: {YYYY-MM-DD}
-**Plattform**: {iOS / Android / Beide}
+Strukturvorlage fuer den inline Review-Output. **Keine Datei erzeugen** - direkt in der Antwort ausgeben. Felder weglassen wenn leer.
 
 ---
 
 ## Zusammenfassung
 
-{1-2 Saetze: Ist der Code gut? Gibt es Probleme?}
-
----
+1-2 Saetze: Ist der Code gut? Gibt es Probleme?
 
 ## Geprueft
 
-### Dateien
-- {Liste der geprueften Dateien}
-
-### Akzeptanzkriterien (falls Ticket)
-- [ ] {Kriterium 1} - {Erfuellt/Nicht erfuellt}
-- [ ] {Kriterium 2} - {Erfuellt/Nicht erfuellt}
-
-### Statische Pruefungen
-- `make check` / `./gradlew lint`: {Bestanden / X Fehler}
-
-### Dokumentation
-- GLOSSARY.md: {Aktuell / Update noetig: ...}
-- dev-docs: {Aktuell / Update noetig: ...}
-
----
+- **Dateien:** Liste aus `git diff --name-only` (kurz halten - bei vielen Dateien zusammenfassen)
+- **Akzeptanzkriterien** (falls Ticket): pro Kriterium ein Checkbox + Status
+- **Statische Pruefungen:** `make check` / `./gradlew lint` Ergebnis
+- **Localization** (bei UI-Code): /review-localization Ergebnis
+- **Memory-Treffer** (falls themen-relevant): bekannte Stolperfallen die geprueft wurden
+- **Dokumentation:** GLOSSARY.md / dev-docs Status, nur wenn Update noetig
 
 ## Findings
 
-{Nur wenn es echte Findings gibt. Sonst diesen Abschnitt weglassen.}
+Nur ausgeben wenn es echte Findings gibt. Sektionen weglassen die leer waeren.
 
-### Muss gefixt werden
-{Bugs, Sicherheitsprobleme, Architekturverletzungen}
+### Mechanisch (Auto-Fix-Kandidaten)
 
-- **{Kategorie}**: {Beschreibung}
-  - Datei: {Pfad:Zeile}
-  - Grund: {Warum ist das ein Problem?}
-  - Vorschlag: {Wie fixen?}
+Tabelle - alle in einem Rutsch fixbar via Auto-Fix-Flow.
 
-### Sollte verbessert werden
-{Wartbarkeit, fehlende wichtige Tests}
+| # | Finding | Datei:Zeile | Standard-Fix |
+|---|---------|-------------|--------------|
+| 1 | print() statt Logger | AudioService.swift:42 | `Logger.audio.info(...)` |
+| 2 | [weak self] fehlt | TimerViewModel.swift:88 | `[weak self] in self?....` |
 
-- **{Kategorie}**: {Beschreibung}
-  - Datei: {Pfad:Zeile}
-  - Grund: {Warum?}
+### Substanziell
 
----
+Findings die Diskussion brauchen, aber konkret fixbar sind. Pro Finding: Kategorie, Datei:Zeile, Grund, konkreter Vorschlag.
+
+### Diskutiert
+
+Architektur / Naming / Design-Entscheidungen. Kein Auto-Fix. Pro Finding: Kategorie, Datei:Zeile, Grund, ggf. Optionen.
+
+### Scope-Drift / Overengineering
+
+Nur bei Ticket-Reviews relevant. Was wurde ueber das Ticket hinaus gemacht? Empfehlung: im aktuellen Ticket lassen / eigenes Ticket / rueckgaengig.
 
 ## Positiv
 
-{Nur wenn etwas wirklich bemerkenswert gut geloest wurde}
-
-- {Was und warum es gut ist}
-
----
+Nur wenn etwas wirklich bemerkenswert gut geloest wurde.
 
 ## Fazit
 
-{Freigabe / Freigabe mit Anmerkungen / Nacharbeit erforderlich}
-
----
-
-## Naechste Schritte
-
-{Nur anzeigen wenn Findings vorhanden}
-
-Folgende Findings sind automatisch fixbar:
-
-| # | Finding | Komplexitaet |
-|---|---------|--------------|
-| 1 | {Finding 1} | {einfach/mittel/komplex} |
-| 2 | {Finding 2} | {einfach/mittel/komplex} |
-
-Soll ich diese Findings jetzt beheben?
+Freigabe / Freigabe mit Anmerkungen / Nacharbeit erforderlich.

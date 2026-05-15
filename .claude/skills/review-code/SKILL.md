@@ -1,11 +1,11 @@
 ---
 name: review-code
-description: Reviewt Code-Implementierungen nach Wartbarkeit, Architektur, Lesbarkeit (DDD) und sinnvoller Testabdeckung. Aktiviere bei Ticket-Abschluss, Code-Review-Anfragen, oder wenn der User nach Qualitaetspruefung fragt. Gibt nur Feedback wenn es wirklich relevant ist - kein Review um des Reviews willen.
+description: Reviewt Code-Implementierungen nach Wartbarkeit, Architektur, Lesbarkeit (DDD), sinnvoller Testabdeckung und Scope-Treue. Bietet Auto-Fix fuer mechanische Findings an. Aktiviere bei Ticket-Abschluss, Code-Review-Anfragen, oder wenn der User nach Qualitaetspruefung fragt. Gibt nur Feedback wenn es wirklich relevant ist - kein Review um des Reviews willen.
 ---
 
 # Code Review
 
-Systematisches Code-Review mit Fokus auf das Wesentliche.
+Systematisches Code-Review mit Fokus auf das Wesentliche. Bei mechanischen Findings: Auto-Fix-Angebot.
 
 ## Kernprinzip
 
@@ -21,6 +21,7 @@ Systematisches Code-Review mit Fokus auf das Wesentliche.
 **Keine Coverage-Jagd** - Relevante Tests statt Prozentzahlen.
 **DDD wo sinnvoll** - Ubiquitous Language, aussagekraeftige Namen, klare Domaengrenzen.
 **Pragmatische Architektur** - Clean Architecture als Leitfaden, nicht als Dogma.
+**Surgical Changes** - Code soll nur das tun, was das Ticket verlangt. Drive-by-Refactorings sind Findings.
 
 ## Wann dieser Skill aktiviert wird
 
@@ -37,94 +38,92 @@ Automatisch bei:
 **Mit Ticket-Referenz:**
 1. Ticket lesen: `dev-docs/tickets/{platform}/{ticket-id}.md`
 2. Akzeptanzkriterien extrahieren
-3. Zugehoerige Dateien identifizieren
+3. Diff bestimmen: `git diff $(git merge-base main HEAD) HEAD --stat`
 
 **Ohne Ticket-Referenz:**
 1. User nach Scope fragen (Dateien, Feature, Modul)
 2. Relevante Dateien mit Glob/Grep finden
 
-### Schritt 2: Code lesen
+Bei sehr grossem Diff: Code-Lesen kann an `Explore`-Subagent delegiert werden, um den Hauptkontext freizuhalten. Keine starre Schwelle - Fingerspitzengefuehl.
 
-Alle relevanten Dateien lesen:
-- Implementierung (Models, Services, ViewModels, Views)
-- Zugehoerige Tests
-- Abhaengigkeiten (Protocols, Interfaces)
+### Schritt 2: Diff + Checks parallel
 
-**Kontext beachten:**
-- Wie passt der Code in die bestehende Architektur?
-- Welche Patterns werden im Projekt verwendet?
+In einer Bash-Runde parallel starten:
 
-### Schritt 3: Ehrliche Bewertung
+1. **Diff lesen:** `git diff $(git merge-base main HEAD) HEAD` → Review-Fokus
+2. **Statische Pruefungen:** `make -C ios check` ODER `make -C android lint` (je nach Plattform im Diff)
+3. **Memory-Check:** MEMORY.md auf themen-relevante Eintraege scannen (Audio → Lock-Screen-Gong-Bug, UIKit-bridged Controls → Theme-Probleme, Convenience init → Dependency vergessen, etc.)
 
-Bewerte nach 5 Kategorien - aber nur wenn es etwas zu sagen gibt:
+Bei UI-Code zusaetzlich:
+4. **Localization:** `/review-localization` als parallelen Subagent starten
+
+### Schritt 3: Bewerten
+
+**Diff-First lesen.** Ganze Dateien nur als Kontext wenn ein Hunk allein nicht verstaendlich ist.
+
+Bewerten nach Checklisten - aber nur wenn es etwas zu sagen gibt:
 
 1. **Wartbarkeit** - `checklists/wartbarkeit.md`
 2. **Architektur** - `checklists/architektur.md`
 3. **Lesbarkeit (DDD)** - `checklists/lesbarkeit.md`
 4. **Testabdeckung** - `checklists/tests.md`
-5. **Dokumentation** - `checklists/doku.md`
+5. **Scope-Treue** - `checklists/scope.md`
+6. **Mechanische Findings** - `checklists/mechanische-findings.md`
+7. **Dokumentation** - `checklists/doku.md`
+
+Bei Ticket-Reviews zusaetzlich: jedes Akzeptanzkriterium einzeln pruefen, Scope-Drift gezielt suchen.
 
 **Wichtig:** Nicht jede Kategorie muss Findings haben. Guter Code ist gut.
 
-### Schritt 4: Ticket-Akzeptanzkriterien pruefen
+### Schritt 4: Report inline ausgeben
 
-Falls Ticket vorhanden:
-- Jedes Akzeptanzkriterium einzeln pruefen
-- Nur dokumentieren was fehlt oder falsch ist
+Strukturvorlage: `templates/report.md` (keine Datei erzeugen, nur als Gliederung nutzen).
 
-### Schritt 5: Statische Pruefungen ausfuehren
-
-Plattform-spezifisch ausfuehren:
-- **iOS**: `cd ios && make check`
-- **Android**: `cd android && ./gradlew lint`
-
-Fehler im Report dokumentieren. Kein Finding wenn alles gruen ist.
-
-### Schritt 6: Dokumentation pruefen
-
-Pruefen nach `checklists/doku.md`:
-- **GLOSSARY.md**: Neue Domain-Begriffe dokumentiert?
-- **Relevante dev-docs**: Bei Architektur-/Pattern-Aenderungen aktualisiert?
-
-Nur dokumentieren was fehlt.
-
-### Schritt 7: Report generieren
-
-Report nach `templates/report.md`:
 - Kurze Zusammenfassung
-- Nur echte Findings (wenn vorhanden)
+- Findings nach Klasse gruppiert (mechanisch / substanziell / diskutiert / scope-drift)
 - Positives nur wenn wirklich bemerkenswert
+- Fazit: Freigabe / Freigabe mit Anmerkungen / Nacharbeit
 
 **Wenn alles gut ist:**
+
 ```
 Der Code erfuellt die Anforderungen und ist gut strukturiert.
 Keine Anmerkungen.
 ```
 
-Das ist ein valides Review-Ergebnis.
+Das ist ein valides Review-Ergebnis. Kein Auto-Fix-Flow noetig, Review fertig.
 
-### Schritt 8: Interaktive Nachfrage
+### Schritt 5: Optional Auto-Fix
 
-Nach dem Report dem User die Wahl geben:
+**Wenn mechanische Findings vorhanden:**
 
-**Wenn Findings vorhanden:**
+Liste praesentieren:
 
-Mit AskUserQuestion nachfragen:
-- "Soll ich die Findings beheben?"
-- Optionen:
-  - **Ja, alle fixen** - Alle fixbaren Findings umsetzen
-  - **Auswahl fixen** - User waehlt welche Findings
-  - **Nein, nur Report** - Keine Aenderungen vornehmen
+```
+Folgende mechanische Findings koennen automatisch gefixt werden:
 
-**Wenn keine Findings:**
+1. print() → Logger.audio in AudioService.swift:42
+2. Fehlendes [weak self] in TimerViewModel.swift:88
+3. Hardcoded String "Starten" in TimerView.swift:120
+```
 
-Keine Nachfrage noetig, Review ist abgeschlossen.
+Mit AskUserQuestion fragen:
+- **Alle fixen** (Default)
+- **Auswahl fixen** - User waehlt einzelne aus
+- **Nichts fixen** - Nur Report
 
-**Beim Fixen:**
+Bei Zustimmung: Fixes direkt im Hauptkontext via `Edit`-Tool umsetzen (kein Subagent-Overhead fuer 5-Zeilen-Mechanik).
 
-1. TDD-Workflow einhalten (erst Test rot, dann gruen, dann refactor)
-2. Nach jedem Fix `make check` ausfuehren
-3. Aenderungen dokumentieren
+**Auto-Fix-Constraints (Surgical):**
+- Nur die in der Liste genannten Zeilen aendern
+- Kein Drive-by-Refactoring (keine Imports umsortieren, kein Style-Fixing in unveraenderten Bereichen)
+- Existierenden Stil matchen
+- Nach allen Fixes einmal `make -C {platform} check` (gruen sein)
+- Bei Unklarheit (z.B. welcher Logger-Kanal passt) STOPPEN und zurueckmelden, nicht raten
+
+**Substanzielle Findings** (fehlender Test, kleines Refactoring): einzeln nachfragen mit konkretem Vorschlag. Nicht autonom fixen.
+
+**Diskutierte Findings** (Architektur, Naming, Design): kein Auto-Fix, nur Report. Das sind oft die wichtigsten Findings - sie verlangen Diskussion, nicht Mechanik.
 
 ## Was ECHTE Findings sind
 
@@ -136,6 +135,16 @@ Keine Nachfrage noetig, Review ist abgeschlossen.
 | Fehlender Test fuer kritischen Pfad | "Mehr Tests waeren besser" |
 | Unverstaendlicher Code | "Ich haette es anders gemacht" |
 | Wartbarkeitsproblem | Kosmetik |
+| Scope-Drift / Drive-by-Refactoring | "Wuerde ich anders strukturieren" |
+| Mechanisches Anti-Pattern (print, force unwrap, ...) | "Koennte man komprimieren" |
+
+## Finding-Klassifikation
+
+| Klasse | Beispiele | Action |
+|--------|-----------|--------|
+| **Mechanisch** | `print()`, `[weak self]` fehlt, hardcoded String, force unwrap, direkte Farbe | Liste → Auto-Fix im Hauptkontext |
+| **Substanziell** | Fehlender Test fuer kritischen Pfad, kleines Refactoring | Einzeln nachfragen |
+| **Diskutiert** | Architekturverletzung, Naming, Design-Entscheidung | Nur Report |
 
 ## Was NICHT wichtig ist
 
@@ -154,5 +163,7 @@ Keine Nachfrage noetig, Review ist abgeschlossen.
 
 ## Referenzen
 
-- `CLAUDE.md` - Projekt-Standards
+- `CLAUDE.md` - Projekt-Standards (inkl. Forbidden Patterns)
 - `dev-docs/tickets/INDEX.md` - Ticket-System
+- `checklists/mechanische-findings.md` - Auto-Fix-Patterns
+- `checklists/scope.md` - Surgical Changes + Overengineering
