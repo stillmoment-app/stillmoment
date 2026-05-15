@@ -1,6 +1,7 @@
 # Ticket shared-092: Danke-Screen Redesign — Atemkreis statt Herz
 
 **Status**: [ ] TODO
+**Plan (iOS)**: [Implementierungsplan](../plans/shared-092-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig-mittel. Reines Visual-Redesign eines bestehenden Screens. Risiko liegt darin, die `BreathingCircle`-Komponente sauber um eine neue Phase zu erweitern, ohne ihre heutigen Aufrufer (Player, Timer) zu brechen. Auftritts-Stagger und Reduced-Motion-Pfad sind die heikleren Details.
 **Phase**: 4-Polish
