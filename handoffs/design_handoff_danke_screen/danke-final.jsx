@@ -40,25 +40,24 @@ function StatusBar() {
   );
 }
 
-/* Atem-Glühen — gleiches Vokabular wie der Sitzungs-Anfang */
+/* Glow-Kreis — statisch. Die Sitzung ist vorbei, also kein Pulsieren.
+   Stattdessen ein ruhiges, nachglimmendes Licht. */
 function GlowOrb() {
   return (
     <div style={{
-      position: "relative", width: 160, height: 160,
+      position: "relative", width: 180, height: 180,
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       {/* äusserer weicher Halo */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%",
-        background: "radial-gradient(circle at 50% 50%, rgba(217,154,126,0.28), rgba(196,122,94,0.06) 55%, transparent 78%)",
-        animation: "dk-breathe 7s ease-in-out infinite",
+        background: "radial-gradient(circle at 50% 50%, rgba(217,154,126,0.22), rgba(196,122,94,0.05) 55%, transparent 78%)",
       }}/>
       {/* innerer warmer Kern */}
       <div style={{
-        width: 88, height: 88, borderRadius: "50%",
-        background: "radial-gradient(circle at 50% 45%, rgba(232,178,148,0.85), rgba(217,154,126,0.5) 40%, rgba(196,122,94,0.15) 70%, transparent 88%)",
-        boxShadow: "0 0 60px 8px rgba(217,154,126,0.25)",
-        animation: "dk-breathe 7s ease-in-out infinite",
+        width: 96, height: 96, borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 45%, rgba(232,178,148,0.9), rgba(217,154,126,0.55) 38%, rgba(196,122,94,0.18) 68%, transparent 88%)",
+        boxShadow: "0 0 70px 10px rgba(217,154,126,0.22)",
       }}/>
     </div>
   );

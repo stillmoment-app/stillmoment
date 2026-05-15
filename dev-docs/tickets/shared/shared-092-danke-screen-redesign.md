@@ -1,8 +1,8 @@
-# Ticket shared-092: Danke-Screen Redesign — Atemkreis statt Herz
+# Ticket shared-092: Danke-Screen Redesign — Glow statt Herz
 
 **Status**: [ ] TODO
 **Prioritaet**: MITTEL
-**Komplexitaet**: Niedrig-mittel. Reines Visual-Redesign eines bestehenden Screens. Risiko liegt darin, die `BreathingCircle`-Komponente sauber um eine neue Phase zu erweitern, ohne ihre heutigen Aufrufer (Player, Timer) zu brechen. Auftritts-Stagger und Reduced-Motion-Pfad sind die heikleren Details.
+**Komplexitaet**: Niedrig. Reines Visual-Redesign eines bestehenden Screens. Der Glow ist statisch (zwei konzentrische Kreise mit Radial-Gradient) — keine Animationen, kein Lifecycle-Pfad, kein Eingriff in geteilte Komponenten. Risiko liegt im Theme-Mapping und in der Lokalisierungs-Hygiene (alten Subtitle-Key sauber entfernen).
 **Phase**: 4-Polish
 
 ---
@@ -11,16 +11,16 @@
 
 Redesign des Completion-Screens, der nach Ende einer Meditation (Timer abgelaufen oder geleitete Meditation fertig) angezeigt wird:
 
-- **Herz-Icon weicht einem ruhig atmenden Glow-Kreis** — dieselbe `BreathingCircle`-Komponente, die der Sitzungs-Anfang verwendet, in einer neuen `completion`-Phase (nur das Glow-Layer, ohne Track / Restzeit-Bogen / Sonnen-Punkt).
+- **Herz-Icon weicht einem ruhigen, statischen Glow-Kreis** — zwei konzentrische Kreise mit warmem Radial-Gradient (aeusserer Halo + innerer Kern). Bewusst NICHT animiert: die Sitzung ist zu Ende, ein pulsierender Atem wuerde faelschlich Aktivitaet suggerieren.
 - **Eine zentrale warme Botschaft** statt Headline + Subline: "Danke, dass du dir diesen Moment genommen hast." Der heutige Subtitle entfaellt komplett.
 - **Button "Fertig"** statt "Zurueck" — waermerer Abschluss, kein Rueckzugs-Wording. Neuer Localization-Key.
-- **Sanfter Auftritt**: Glow, Headline und Button erscheinen mit leichtem Stagger-Fade-In beim `onAppear`.
+- **Auftritt ohne Stagger**: Der Screen erscheint als direkter Schnitt aus der Sitzung. Keine Fade-In-/Y-Versatz-Animationen — die Stille soll nicht durch UI-Bewegung unterbrochen werden.
 
 Der Screen-Hintergrund nutzt weiterhin den aktiven Theme-Gradient — kein Hardcode-Mahagoni aus dem Handoff. Glow- und Textfarben werden auf bestehende semantische Tokens gemappt (analog zur Setzung in shared-087).
 
 ## Warum
 
-Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vielen Dank", "Zurueck"-Button. Das Redesign rahmt den Abschluss in dasselbe Atem-Vokabular wie der Sitzungs-Anfang — visuell schliesst sich die Klammer um die Praxis. Die Sprache wird aktiv und warm: nicht "Vielen Dank", sondern "Danke, dass *du dir* diesen Moment genommen hast." Keine Zahlen, keine Streaks, keine Statistiken — die bewusste Produkt-Entscheidung bleibt.
+Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vielen Dank", "Zurueck"-Button. Das Redesign macht den Abschluss waermer — ein nachglimmendes Licht statt eines Icons, eine aktive Aussage statt einer Floskel. Die Sprache wird aktiv und warm: nicht "Vielen Dank", sondern "Danke, dass *du dir* diesen Moment genommen hast." Bewusst statisch und ohne Auftritts-Animation: nach einer Meditation soll die Stille fortgesetzt werden, nicht durch UI-Bewegung unterbrochen. Keine Zahlen, keine Streaks, keine Statistiken — die bewusste Produkt-Entscheidung bleibt.
 
 ---
 
@@ -40,12 +40,10 @@ Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vie
 ### Feature: Glow statt Herz (beide Plattformen)
 
 - [ ] Das Herz-Icon (`heart.fill` / `Icons.Filled.Favorite`) ist auf dem Completion-Screen entfernt
-- [ ] An seiner Stelle steht eine ruhig atmende Glow-Kreis-Visualisierung, realisiert ueber eine neue Phase der bestehenden `BreathingCircle`-Komponente (z. B. `.completion`)
-- [ ] In der `.completion`-Phase sind sichtbar: **ausschliesslich** das innere Atem-Glow-Layer (warmer Radial-Gradient)
-- [ ] In der `.completion`-Phase sind **nicht** sichtbar: statischer Ring-Track, Restzeit-Bogen, Sonnen-Punkt am Bogen-Ende
-- [ ] Glow atmet kontinuierlich (ease-in-out, infinite); Tempo entspricht der heutigen Hauptphase (ca. 16 s Vollzyklus) oder leicht ruhiger
-- [ ] Bei aktivem "Bewegung reduzieren" laeuft die Atem-Animation nicht; Glow bleibt sichtbar im neutralen Mittelwert
-- [ ] Bestehende `BreathingCircle`-Aufrufer (Guided Player, Timer Pre-Roll und Hauptphase) verhalten sich unveraendert — keine Regression in deren Layern
+- [ ] An seiner Stelle steht eine statische Glow-Kreis-Visualisierung als eigenstaendige Komponente (z. B. `CompletionGlow` / `CompletionGlowOrb`) — KEIN Wiederverwendung von `BreathingCircleView` / `BreathingCircle`
+- [ ] Der Glow besteht aus zwei konzentrischen Kreisen: aeusserer Halo + innerer Kern, beide mit warmem Radial-Gradient. Beide Kreise sind statisch (keine Scale-/Opacity-Animation, kein Atem-Loop)
+- [ ] Bounding-Box ca. 160–180 pt im Standard-Layout; auf iPhone SE / compact-height proportional kleiner
+- [ ] Geteilte Komponenten (`BreathingCircleView` iOS / `BreathingCircle` Android) bleiben unveraendert — kein neuer Case im `MeditationPhase`-Enum, keine Switch-Anpassungen an den heutigen Aufrufern
 
 ### Feature: Eine zentrale Botschaft (beide Plattformen)
 
@@ -65,21 +63,16 @@ Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vie
 - [ ] Button-Style: bestehender Primary-Button-Stil (`warmPrimaryButton` iOS / Material3 Pill Android) — kein Hardcode-Verlauf aus dem Handoff
 - [ ] Hit-Target ≥ 44 pt
 
-### Feature: Auftritts-Animation (beide Plattformen)
+### Feature: Auftritt (beide Plattformen)
 
-- [ ] Beim Erscheinen des Screens (`onAppear` / `LaunchedEffect`) starten Glow, Headline und Button mit Stagger:
-  - Glow: 0 ms
-  - Headline: +120 ms
-  - Button: +240 ms
-- [ ] Jedes Element animiert in ~500 ms: opacity 0 → 1, leichter Y-Versatz (~8 pt) → 0, ease-out
-- [ ] Glow-Atem-Loop laeuft unabhaengig — der Stagger ist nur das Einblenden, das Atmen ist permanent
-- [ ] Bei aktivem "Bewegung reduzieren": Stagger und Y-Versatz entfallen, alle Elemente erscheinen direkt sichtbar
-- [ ] Der Stagger laeuft sowohl beim Erscheinen aus einer aktiven Session (Timer/Player faded raus, Completion faded rein) **als auch** beim Erscheinen auf App-Start nach Termination (shared-080) — er ist nicht an einen Vorgaenger-View gekoppelt
+- [ ] Der Screen erscheint ohne Auftritts-Animation — direkter Schnitt vom Sitzungs-Ende auf den Danke-Screen. Kein Stagger-Fade-In, kein Y-Versatz.
+- [ ] Da der Screen statisch ist, ist der Reduced-Motion-Pfad implizit erfuellt — er verhaelt sich identisch zur Normalansicht.
+- [ ] Der statische Auftritt ist unabhaengig vom Lifecycle-Pfad: ob aus einer aktiven Session (Timer/Player fertig) oder beim App-Start nach Termination (shared-080) — kein onAppear-getriggerter Effekt noetig.
 
 ### Feature: Theming (beide Plattformen)
 
 - [ ] Hintergrund nutzt den aktiven Theme-Gradient (`theme.backgroundGradient` o. ae.) — keine theme-unabhaengigen Hardcoded-Farben
-- [ ] Glow-Farbe nutzt das Akzent-Token `theme.interactive` (warmes Akzent in allen drei Themes)
+- [ ] Glow-Farbe nutzt das Akzent-Token `theme.interactive` (warmes Akzent in allen drei Themes); innerer Kern heller, aeusserer Halo gedaempfter
 - [ ] Text-Farben kommen aus dem bestehenden Typografie-System (Theme-abhaengig)
 - [ ] Hex-Werte aus dem Handoff (`#3a201a`, `#e8b294`, `#d68a6e`, etc.) werden NICHT uebernommen
 - [ ] Newsreader/Geist Google Fonts werden NICHT integriert — App-Typografie bleibt
@@ -98,14 +91,13 @@ Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vie
 
 ### Tests
 
-- [ ] iOS Unit-Test: `MeditationCompletionView` rendert mit neuer Glow-Phase, ruft `onBack` auf, Reduced-Motion-Pfad
-- [ ] iOS Unit-Test: `BreathingCircleView` in `.completion`-Phase zeigt nur das Glow-Layer (kein Track, kein Bogen, kein Dot)
-- [ ] Android Unit-Test: aequivalente Coverage fuer `MeditationCompletionContent` und `BreathingCircle`
-- [ ] Bestehende Player- und Timer-Tests laufen unveraendert (kein Regress in den anderen `BreathingCircle`-Phasen)
+- [ ] iOS Unit-Test: `MeditationCompletionView` ruft `onBack`-Closure auf, wenn der Button getappt wird
+- [ ] Android Unit-Test: aequivalentes Verhalten fuer `MeditationCompletionContent`
+- [ ] Bestehende Player- und Timer-Tests laufen unveraendert (keine Beruehrung der geteilten `BreathingCircle`-Komponente)
 
 ### Dokumentation
 
-- [ ] CHANGELOG.md (user-sichtbare Aenderung — "Danke-Screen ueberarbeitet, weicheres Visual mit Atemkreis")
+- [ ] CHANGELOG.md (user-sichtbare Aenderung — "Danke-Screen ueberarbeitet, ruhiger und waermer")
 - [ ] Glossar nur bei Bedarf
 
 ---
@@ -113,11 +105,11 @@ Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vie
 ## Manueller Test
 
 1. Timer starten (1 Min reicht), ablaufen lassen → Danke-Screen erscheint
-2. Erwartung: Stagger-Fade-In sichtbar (Glow zuerst, dann Headline, dann Button), Glow atmet ruhig, Botschaft "Danke, dass du dir diesen Moment genommen hast.", Button "Fertig"
+2. Erwartung: Statischer Glow (kein Atem-Pulse), Botschaft "Danke, dass du dir diesen Moment genommen hast.", Button "Fertig" — alles direkt sichtbar, kein Fade-In
 3. "Fertig" antippen: zurueck zur Library/Home (wie heute)
 4. Geleitete Meditation starten, durchspielen lassen → identischer Danke-Screen mit identischem Verhalten
-5. Android: App waehrend laufender Meditation killen, Meditation laeuft im Hintergrund zu Ende → beim naechsten App-Start erscheint der Danke-Screen, Stagger laeuft auch hier (shared-080-Pfad)
-6. Settings → Bedienungshilfen → "Bewegung reduzieren" einschalten, Test 1+2 wiederholen → kein Atem-Pulse, kein Stagger, alles direkt sichtbar
+5. Android: App waehrend laufender Meditation killen, Meditation laeuft im Hintergrund zu Ende → beim naechsten App-Start erscheint der Danke-Screen (shared-080-Pfad), identisch statisch
+6. Settings → Bedienungshilfen → "Bewegung reduzieren" einschalten, Test 1+2 wiederholen → Screen ist ohnehin statisch, kein Unterschied erwartet
 7. Theme wechseln (Candlelight → Forest → Moon, jeweils Light + Dark): Hintergrund und Glow passen sich an, keine Hardcode-Mahagoni-Reste
 8. Auf iPhone SE (compact height): kein Scrollen noetig, Glow nicht abgeschnitten, Button mit genug Abstand zum Home-Indicator
 
@@ -129,9 +121,9 @@ Erwartung: Auf iOS und Android identisches Verhalten und nahezu identische visue
 
 | Verhalten | iOS | Android |
 |-----------|-----|---------|
-| Stagger-Fade-In | `withAnimation(.easeOut(duration: 0.5).delay(...))` auf `@State`-Opacities | `LaunchedEffect` + `animate*AsState` mit Delays |
-| Reduced-Motion-Detection | `accessibilityReduceMotion` Environment | `LocalAccessibilityManager` bzw. heute genutzte Quelle der `BreathingCircle` |
-| Glow-Animation | bereits in `BreathingCircleView` vorhanden | bereits in `BreathingCircle` vorhanden |
+| Glow-Darstellung | Eigenes `CompletionGlow`-View, zwei `Circle` mit `RadialGradient` | Eigenes `CompletionGlow`-Composable, zwei `Box`/`Canvas` mit `Brush.radialGradient` |
+| Auftritt | Direkt sichtbar — kein `withAnimation`, kein onAppear-Effekt | Direkt sichtbar — kein `animate*AsState`, kein `LaunchedEffect` |
+| Theme-Quelle | `theme.backgroundGradient`, `theme.interactive` | `MaterialTheme.colorScheme` / Theme-Tokens analog |
 
 ---
 
@@ -140,8 +132,6 @@ Erwartung: Auf iOS und Android identisches Verhalten und nahezu identische visue
 - Handoff: `handoffs/design_handoff_danke_screen/` (insb. `README.md`)
 - iOS heute: `ios/StillMoment/Presentation/Views/Shared/MeditationCompletionView.swift`
 - Android heute: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/common/MeditationCompletionContent.kt`
-- iOS BreathingCircle: `ios/StillMoment/Presentation/Views/Shared/BreathingCircleView.swift`
-- Android BreathingCircle: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/common/BreathingCircle.kt`
 - Related Tickets: shared-087 (Player-Redesign mit BreathingCircle), shared-080 (Completion survives termination), shared-052 (Timer-Completion), shared-053 (Player-Completion)
 
 ---
@@ -152,18 +142,18 @@ Erwartung: Auf iOS und Android identisches Verhalten und nahezu identische visue
 
 - Hintergrund: Handoff zeigt einen spezifischen Mahagoni-Radial-Gradient. Wir nutzen stattdessen den aktiven `theme.backgroundGradient`, damit der Screen nicht aus der App-Atmosphaere ausbricht und auch in den Themes Forest/Moon funktioniert.
 - Typografie: Handoff nennt Newsreader/Geist. Wir bleiben bei den projekteigenen Typography-Rollen.
-- Farb-Hex-Werte: werden auf bestehende oder neue semantische Tokens gemappt, nicht hardcoded uebernommen.
-- Glow-Bounding-Box: Handoff sagt 160 × 160 px (mit 88 × 88 Kern). Wir behalten die `outerSize`-Logik der `BreathingCircle` bei (Default 280) und skalieren auf dem Completion-Screen passend herunter (z. B. ~200), damit Headline und Button vertikal Platz haben.
+- Farb-Hex-Werte: werden auf bestehende oder neue semantische Tokens gemappt, nicht hardcoded uebernommen. Der innere Glow-Kern bleibt aber sichtbar heller als der aeussere Halo — die Hierarchie "heisser Punkt → diffuses Licht" bleibt erhalten.
+- Glow-Bounding-Box: Handoff sagt 180 × 180 px (mit 96 × 96 Kern). Wir orientieren uns daran und skalieren bei compact-height proportional.
 
-**`BreathingCircle` erweitern, nicht duplizieren:**
+**Glow als eigene, statische Komponente:**
 
-- Neue Phase `.completion` im bestehenden `MeditationPhase`-Enum (oder eigenes `BreathingCirclePhase`-Enum, falls die Domain-Semantik dagegenspricht — `MeditationPhase` ist aktuell `.preRoll` / `.playing`, "completion" passt thematisch dazu).
-- Track-/Arc-/Dot-Layer per `phase`-Switch ausblenden — bestehende `preRoll`/`playing`-Pfade bleiben unveraendert.
-- Glow-Scale/Opacity in `.completion`: leicht gedaempfter Bereich (z. B. 0.92–1.05 / 0.65–1.0) ist akzeptabel, muss aber im Ticket nicht final festgelegt werden — der Implementierer waehlt mit Blick auf die Wirkung.
+- KEIN Wiederverwendung von `BreathingCircleView` / `BreathingCircle`. Diese Komponente kommuniziert "die App atmet, die Sitzung laeuft" — fuer den Abschluss-Screen ist genau das die falsche Botschaft.
+- KEIN neuer Case im `MeditationPhase`-Enum. Die Phase beschreibt eine laufende Sitzung; der Danke-Screen ist keine Phase einer Sitzung, sondern deren Nachklang.
+- Der Glow ist zwei stillstehende Radial-Gradient-Kreise (Halo + Kern). Kein Lifecycle, kein State, kein Timer.
 
 **Lock-Screen-Lifecycle:**
 
-- Auf Android existiert ein Pfad, der den Completion-Screen beim App-Start anzeigt, falls die Meditation waehrend Suspend/Termination zu Ende gelaufen ist (shared-080, `CompletionOverlayViewModel`). Der Stagger-Fade-In muss auch dort laufen — also `onAppear`/`LaunchedEffect`-gesteuert, nicht an eine Vorgaenger-View-Transition gekoppelt.
+- Da der Screen statisch ist, ist der shared-080-Termination-Pfad (Completion-Overlay beim App-Start) trivial erfuellt: der Screen sieht identisch aus, unabhaengig davon, woher er kommt.
 
 **Aufraeumen:**
 
@@ -180,6 +170,7 @@ Sequenziell: iOS zuerst, dann Android mit der iOS-Implementierung als Referenz.
 - "Teilen"-Button (passt nicht zur App-Philosophie)
 - Atemtempo-Individualisierung pro Lehrer
 - Aenderung der Navigations-Ziele nach "Fertig" (bleibt wie heute "Zurueck")
+- Aufruf-/Verlassens-Animationen am Container — bewusst kein Fade-Out
 
 ---
 

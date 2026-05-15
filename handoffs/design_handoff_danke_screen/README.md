@@ -94,43 +94,37 @@ Vollflächiger Screen über die gesamte Safe Area, vertikal zentrierter Stack:
 
 #### 2. Glow Orb
 
-Zwei konzentrische Kreise, beide mit gleicher Atem-Animation (Pulse).
+Zwei konzentrische Kreise — **statisch**, nicht animiert. Die Sitzung
+ist vorbei; ein pulsierender Atem würde fälschlich Aktivität suggerieren.
+Stattdessen ein ruhiges, nachglimmendes Licht.
 
-**Bounding-Box:** 160 × 160 px, zentriert.
+**Bounding-Box:** 180 × 180 px, zentriert.
 
-**Äusserer Halo** (160 × 160 px, absolute fill):
+**Äusserer Halo** (180 × 180 px, absolute fill):
 ```
 border-radius: 50%;
 background: radial-gradient(
   circle at 50% 50%,
-  rgba(217, 154, 126, 0.28),
-  rgba(196, 122,  94, 0.06) 55%,
+  rgba(217, 154, 126, 0.22),
+  rgba(196, 122,  94, 0.05) 55%,
   transparent 78%
 );
-animation: breathe 7s ease-in-out infinite;
 ```
 
-**Innerer Kern** (88 × 88 px, zentriert):
+**Innerer Kern** (96 × 96 px, zentriert):
 ```
 border-radius: 50%;
 background: radial-gradient(
   circle at 50% 45%,
-  rgba(232, 178, 148, 0.85),
-  rgba(217, 154, 126, 0.5)  40%,
-  rgba(196, 122,  94, 0.15) 70%,
+  rgba(232, 178, 148, 0.9),
+  rgba(217, 154, 126, 0.55) 38%,
+  rgba(196, 122,  94, 0.18) 68%,
   transparent 88%
 );
-box-shadow: 0 0 60px 8px rgba(217, 154, 126, 0.25);
-animation: breathe 7s ease-in-out infinite;
+box-shadow: 0 0 70px 10px rgba(217, 154, 126, 0.22);
 ```
 
-**Keyframes:**
-```
-@keyframes breathe {
-  0%, 100% { transform: scale(0.92); opacity: 0.55; }
-  50%      { transform: scale(1.04); opacity: 1.0;  }
-}
-```
+Keine Keyframes, keine Animation auf dem Glow.
 
 #### 3. Headline
 
@@ -175,16 +169,12 @@ animation: breathe 7s ease-in-out infinite;
 
 ## Interactions & Behavior
 
-- **Auftritt**: Wenn die Sitzung endet, fadet der Screen über **600 ms**
-  ein. Glow + Text + Button erscheinen mit leichtem Stagger:
-  - Glow: 0 ms
-  - Headline: +120 ms
-  - Button: +240 ms
-  - Jedes Element: opacity 0 → 1, `translateY(8px)` → `0`, 500 ms
-    `cubic-bezier(0.22, 1, 0.36, 1)`.
+- **Auftritt**: Der Screen erscheint ohne Animation — direkter Schnitt
+  vom Sitzungs-Ende auf den Danke-Screen. Bewusst: die Stille soll nicht
+  durch UI-Bewegung gestört werden.
 
-- **Glow-Atem**: kontinuierlich, 7-Sekunden-Loop, läuft solange der
-  Screen sichtbar ist.
+- **Glow**: statisch, keine Loop-Animation. Die Sitzung ist zu Ende;
+  ein atmender Kreis würde fälschlich „die App arbeitet noch" suggerieren.
 
 - **„Fertig" Tap**: navigiert zurück zum Startscreen / zur Library
   (analog zum heutigen „Zurück"-Verhalten). Beim Verlassen 200 ms
@@ -254,10 +244,9 @@ Font-Loading-Strategie verwenden (Self-host empfohlen).
 
 ### Animation
 
-- **breathe** (Glow): 7 s, `ease-in-out`, infinite — Pulse zwischen
-  `scale(0.92)` / `opacity 0.55` und `scale(1.04)` / `opacity 1.0`
-- **Screen-Entry**: 500 ms, `cubic-bezier(0.22, 1, 0.36, 1)`,
-  staggered (0 / 120 / 240 ms)
+Keine. Der Screen ist statisch — Glow, Headline und Button erscheinen
+ohne Fade oder Stagger. Begründung: nach einer Meditation soll die
+Stille fortgesetzt werden, nicht durch UI-Bewegung unterbrochen.
 
 ## Assets
 
@@ -271,7 +260,7 @@ System-Status-Bar verwenden.
 
 In diesem Bundle:
 
-- **`Danke Screen Final.html`** — Einstiegspunkt, im Browser öffnen, um den
+- **`index.html`** — Einstiegspunkt, im Browser öffnen, um den
   finalen Screen + ein direktes Vorher/Nachher-Vergleichsbild zu sehen.
 - **`danke-final.jsx`** — React-Komponenten der Referenz (StatusBar, GlowOrb,
   DankeFinal, ComparePanel).
@@ -284,8 +273,9 @@ In diesem Bundle:
 
 Damit klar ist, warum welcher Wert so gewählt wurde:
 
-1. **Herz-Icon raus** → ruhig pulsierender Glow-Kreis. Dasselbe
-   Atem-Vokabular wie der Sitzungs-Anfang — der Abschluss rahmt visuell.
+1. **Herz-Icon raus** → ruhiger, **statischer** Glow-Kreis. Greift das
+   warme Licht-Vokabular der App auf, pulsiert aber bewusst nicht: die
+   Sitzung ist zu Ende, Bewegung würde Aktivität suggerieren.
 2. **„Vielen Dank" → „Danke, dass du dir diesen Moment genommen hast."**
    Aktive, warme Aussage statt transaktionale Floskel. Die separate
    Subline aus dem alten Screen entfällt.
