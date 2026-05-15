@@ -1,6 +1,6 @@
 # Ticket ios-044: Edit-Sheet Prefill-UI
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-044.md)
 **Prioritaet**: HOCH
 **Komplexitaet**: Schlanke UI-Erweiterung (X-Clear-Button, Match-Highlight im bestehenden Autocomplete, Pflichtfeld-Validation, Modus-Trennung Import vs. Edit) plus einmaliger Domain-Cleanup: der ungenutzte `customTeacher`/`customName`-Override-Mechanismus wird entfernt. Der Cleanup vereinfacht die Save-Logik fuer beide Modi und beseitigt eine semantische Schiefe im Import-Pfad (ios-043 hat den Override als Transport missbraucht, was zu einem Bug fuehrte). Migration ist trivial: einmaliger Sweep beim Load.
