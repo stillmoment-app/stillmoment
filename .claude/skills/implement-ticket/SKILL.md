@@ -29,7 +29,10 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
 2. **Ticket lesen**, Akzeptanzkriterien extrahieren.
 3. **Plattform-CLAUDE.md lesen** (`ios/CLAUDE.md` oder `android/CLAUDE.md`).
 4. **Bei `shared-<id>`-Tickets:** User fragen, welche Plattform zuerst umgesetzt wird. Danach Schritte 3–5 fuer Plattform A, anschliessend fuer Plattform B. Cross-Platform-Konsistenz vor Abschluss verifizieren.
-5. **Plan pruefen:** `Glob('dev-docs/tickets/plans/*<ticket-id>*')`. Falls vorhanden: als Fahrplan nutzen (fachliche Szenarien werden Tests, Reihenfolge wird uebernommen, Refactorings vorgezogen). Falls nicht vorhanden: normal weiterarbeiten.
+5. **Plan pruefen:** `Glob('dev-docs/tickets/plans/*<ticket-id>*')`.
+   - **Plan vorhanden:** als Fahrplan nutzen (fachliche Szenarien werden Tests, Reihenfolge wird uebernommen, Refactorings vorgezogen).
+   - **Kein Plan, Ticket hat ≥ 3 Akzeptanzkriterien ODER beruehrt unbekannte Framework-APIs/Architektur-Schichten:** User fragen, ob `/plan-ticket <ticket-id>` zuerst laufen soll. Default-Empfehlung: ja. User kann mit „weiter ohne Plan" ueberstimmen — dann normal weiterarbeiten.
+   - **Kein Plan, Ticket ist klein (1–2 AK, bekannter Code-Bereich):** ohne Plan weiterarbeiten.
 6. **Cross-Platform-Lookup (Pflicht):** Existiert das Feature schon auf der anderen Plattform? Wenn ja, dortige Implementierung lesen, bevor Code geschrieben wird. Sichert identisches Verhalten.
 7. **Bestehenden Code verstehen**, bevor du aenderst.
 8. **Mock-Verfuegbarkeit pruefen:** Fuer geplante ViewModel-/Service-Tests pruefen, ob entsprechende Mocks/Test-Doubles in `ios/StillMomentTests/Mocks/` bzw. dem Android-Pendant existieren. Fehlende Mocks zuerst anlegen — sonst scheitert der Red-Schritt.
