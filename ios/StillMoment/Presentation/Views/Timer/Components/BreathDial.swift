@@ -4,9 +4,11 @@
 //
 //  Presentation Layer - Atemkreis-Picker (shared-086).
 //
-//  Ring + Aktiv-Bogen + Drag-Tropfen. Wert wird ueber `value` (Binding)
-//  gesteuert; Werte werden auf [1, 60] geklemmt. VoiceOver-Slider-Adjust
-//  bleibt als alleinige nicht-gestische Eingabe.
+//  Ring + Aktiv-Bogen + Bead. Wert wird ueber `value` (Binding) gesteuert;
+//  Werte werden auf [1, 60] geklemmt. VoiceOver-Slider-Adjust bleibt als
+//  alleinige nicht-gestische Eingabe. Ring-Werte werden aus `RingMetrics`
+//  geteilt mit `BreathingCircleView` — damit Idle und Running dieselbe
+//  Ring-Sprache sprechen (ios-045).
 //
 
 import SwiftUI
@@ -17,24 +19,26 @@ struct BreathDial: View {
 
     @Environment(\.themeColors)
     private var theme
-    @Environment(\.accessibilityReduceMotion)
-    private var reduceMotion
 
-    @State private var haloAnimating = false
+    @State private var isDragging = false
 
-    private static let dropletCoreRadius: CGFloat = 6.5
-    private static let dropletOuterRadius: CGFloat = 14
-    private static let dropletStrokeWidth: CGFloat = 1.8
-    private static let haloMaxRadius: CGFloat = 26
-    private static let haloMinRadius: CGFloat = 18
-    private static let haloStaticRadius: CGFloat = 22
+    private static let dragBeadScale: CGFloat = 1.55
+    private static let dragAnimation = Animation.easeOut(duration: 0.15)
+    private static let valueAnimation = Animation.easeOut(duration: 0.15)
+    private static let hitAreaInset: CGFloat = -24
 
     private var ringWidth: CGFloat {
-        max(13, self.diameter * 16 / 220)
+        RingMetrics.lineWidth
     }
 
     private var ringRadius: CGFloat {
         (self.diameter - self.ringWidth) / 2
+    }
+
+    private var beadDiameter: CGFloat {
+        self.isDragging
+            ? RingMetrics.beadDiameter * Self.dragBeadScale
+            : RingMetrics.beadDiameter
     }
 
     var body: some View {
@@ -43,16 +47,16 @@ struct BreathDial: View {
             .accessibilityElement(children: .contain)
     }
 
-    // MARK: - Dial-Inhalt (Ring + Bogen + Tropfen + Mittelschrift)
+    // MARK: - Dial-Inhalt (Ring + Bogen + Bead + Mittelschrift)
 
     private var dialContent: some View {
         ZStack {
             self.trackRing
             self.activeArc
-            self.droplet
+            self.bead
             self.centerText
         }
-        .contentShape(Circle())
+        .contentShape(Circle().inset(by: Self.hitAreaInset))
         .gesture(self.dragGesture)
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier("timer.dial")
@@ -86,57 +90,23 @@ struct BreathDial: View {
             )
             .rotationEffect(.degrees(-90))
             .frame(width: self.diameter - self.ringWidth, height: self.diameter - self.ringWidth)
-            .animation(.easeOut(duration: 0.15), value: self.value)
+            .animation(Self.valueAnimation, value: self.value)
     }
 
-    private var droplet: some View {
+    private var bead: some View {
         let progress = Double(self.value) / Double(BreathDialGeometry.maxMinutes)
         let angleRad = progress * 2 * .pi - .pi / 2
         let offsetX = cos(angleRad) * self.ringRadius
         let offsetY = sin(angleRad) * self.ringRadius
 
-        return ZStack {
-            self.dropletHalo
-
-            // Aussenring (Tropfen-Body) — verdeckt den Bogen darunter
-            Circle()
-                .fill(self.theme.backgroundPrimary)
-                .frame(width: Self.dropletOuterRadius * 2, height: Self.dropletOuterRadius * 2)
-                .overlay(
-                    Circle()
-                        .stroke(self.theme.dialDropletCore, lineWidth: Self.dropletStrokeWidth)
-                )
-
-            // Tropfen-Kern
-            Circle()
-                .fill(self.theme.dialDropletCore)
-                .frame(width: Self.dropletCoreRadius * 2, height: Self.dropletCoreRadius * 2)
-        }
-        .offset(x: offsetX, y: offsetY)
-        .animation(.easeOut(duration: 0.15), value: self.value)
-        .accessibilityHidden(true)
-    }
-
-    @ViewBuilder private var dropletHalo: some View {
-        if self.reduceMotion {
-            // Statischer Halo — mittlere Groesse, mittlere Opazitaet
-            Circle()
-                .fill(self.theme.dialDropletHalo)
-                .frame(width: Self.haloStaticRadius * 2, height: Self.haloStaticRadius * 2)
-        } else {
-            Circle()
-                .fill(self.theme.dialDropletHalo)
-                .frame(
-                    width: (self.haloAnimating ? Self.haloMaxRadius : Self.haloMinRadius) * 2,
-                    height: (self.haloAnimating ? Self.haloMaxRadius : Self.haloMinRadius) * 2
-                )
-                .opacity(self.haloAnimating ? 0.05 : 0.35)
-                .animation(
-                    .easeInOut(duration: 1.3).repeatForever(autoreverses: true),
-                    value: self.haloAnimating
-                )
-                .onAppear { self.haloAnimating = true }
-        }
+        return Circle()
+            .fill(self.theme.interactive)
+            .frame(width: self.beadDiameter, height: self.beadDiameter)
+            .shadow(color: self.theme.interactive.opacity(0.6), radius: RingMetrics.beadShadowRadius)
+            .offset(x: offsetX, y: offsetY)
+            .animation(Self.valueAnimation, value: self.value)
+            .animation(Self.dragAnimation, value: self.isDragging)
+            .accessibilityHidden(true)
     }
 
     private var centerText: some View {
@@ -174,6 +144,9 @@ struct BreathDial: View {
                 let dy = gesture.location.y - center.y
                 guard sqrt(dx * dx + dy * dy) > self.ringRadius * 0.5
                 else { return }
+                if !self.isDragging {
+                    self.isDragging = true
+                }
                 let newValue = BreathDialGeometry.valueFromPoint(
                     gesture.location,
                     center: center
@@ -181,6 +154,9 @@ struct BreathDial: View {
                 if newValue != self.value {
                     self.value = newValue
                 }
+            }
+            .onEnded { _ in
+                self.isDragging = false
             }
     }
 
