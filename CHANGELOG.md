@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (iOS)
+- **Share-Import ohne Typ-Auswahl — immer als Meditation** - Beim Teilen oder Oeffnen einer MP3/M4A (Share Extension, "Oeffnen mit", URL-Download) entfaellt die Zwischenfrage "Worum handelt es sich?" mit den Optionen Meditation/Klangkulisse. Die Datei landet direkt in der Bibliothek, der Edit-Dialog fuer die importierte Meditation oeffnet sich automatisch, der Bibliotheks-Tab ist aktiv. Klangkulissen werden weiterhin im Einstellungen-Pfad (bei der Hintergrund-Sound-Auswahl) importiert — der Eintrittspunkt dafuer hat sich nicht geaendert. Duplikat-Erkennung (Name + Groesse), Format-Fehler und der "kein Audio gefunden"-Dialog beim URL-Share funktionieren wie zuvor. (Ticket: ios-042)
+
 ### Added (iOS)
 - **Suchfunktion in der Bibliothek** - Ueber der Liste der gefuehrten Meditationen erscheint ab dem ersten Eintrag ein Suchfeld. Live-Filter ab Zeichen 1, sucht gleichzeitig in Titel und Sprecher, case- und diakritika-insensitiv, mehrere Tokens werden mit UND verknuepft. Treffer werden flach gelistet, sortiert nach Wortanfangs-Match im Titel → Wortanfangs-Match im Sprecher → Substring im Titel → Substring im Sprecher; bei gleichem Rang gewinnt das juengere `dateAdded`. Alle Vorkommen des Suchbegriffs werden in der Akzentfarbe hervorgehoben. Fokussiertes Suchfeld bei leerer Eingabe zeigt die letzten 6 Suchbegriffe ("Zuletzt gesucht") mit "Leeren"-Button — Begriffe werden bei Return oder Treffer-Tap aufgenommen (kein Speichern bei 0 Treffern, Dedup case- und diakritika-insensitiv, neuester oben, FIFO max 6, persistent in UserDefaults und damit lokal). Tab-Wechsel und Player-Oeffnen setzen das Suchfeld zurueck. Empty-State "Nichts gefunden" mit Lupen-Symbol bei 0 Treffern, automatisch von VoiceOver angesagt. (Ticket: ios-041)
 

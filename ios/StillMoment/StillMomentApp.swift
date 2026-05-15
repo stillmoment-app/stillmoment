@@ -158,18 +158,6 @@ struct StillMomentApp: App {
             ) { _ in
                 self.checkInbox()
             }
-            .sheet(isPresented: self.$fileOpenHandler.showImportTypeSelection) {
-                self.handleImportDismissed()
-            } content: {
-                ThemeRootView {
-                    ImportTypeSelectionView(
-                        onTypeSelected: self.handleImportTypeSelection
-                    ) { self.fileOpenHandler.showImportTypeSelection = false }
-                }
-                .environmentObject(self.themeManager)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.visible)
-            }
             .overlay {
                 Group {
                     if self.inboxHandler.isDownloading {
@@ -277,67 +265,24 @@ struct StillMomentApp: App {
         }
     }
 
-    /// Handles a file URL received via "Open with" (CFBundleDocumentTypes)
+    /// Handles a file URL received via "Open with" (CFBundleDocumentTypes).
     ///
-    /// Validates the file and shows the import type selection sheet.
-    /// The actual import happens when the user selects a type.
+    /// Imports directly as a meditation. The Library reacts to the published
+    /// `importedMeditation` and opens the Edit-Sheet automatically.
     private func handleFileOpen(url: URL) {
         Logger.guidedMeditation.info(
             "Received file open URL",
             metadata: ["file": url.lastPathComponent]
         )
-        self.fileOpenHandler.prepareImport(url: url)
-
-        // Show error if format is unsupported (prepareImport silently rejects)
-        if !self.fileOpenHandler.showImportTypeSelection {
-            self.fileOpenErrorMessage = FileOpenError.unsupportedFormat.localizedDescription
-        }
-    }
-
-    /// Handles the user's import type selection
-    private func handleImportTypeSelection(_ type: ImportAudioType) {
-        guard let url = self.fileOpenHandler.pendingImportURL
-        else { return }
-        self.fileOpenHandler.showImportTypeSelection = false
 
         Task {
-            let result = await self.fileOpenHandler.importFile(from: url, as: type)
-            self.cleanUpInboxFile(at: url)
-            self.fileOpenHandler.pendingImportURL = nil
-
+            let result = await self.fileOpenHandler.importFile(from: url)
             switch result {
-            case .success(.guidedMeditation):
+            case .success:
                 self.selectedTab = AppTab.library.rawValue
-
-            case .success(.customAudio):
-                // Navigate to Timer tab — TimerView reacts to pendingCustomAudioImport
-                self.selectedTab = AppTab.timer.rawValue
-
             case let .failure(error):
                 self.fileOpenErrorMessage = error.localizedDescription
             }
         }
-    }
-
-    /// Handles dismissal of the import type selection sheet
-    private func handleImportDismissed() {
-        if let url = self.fileOpenHandler.pendingImportURL {
-            self.cleanUpInboxFile(at: url)
-        }
-        self.fileOpenHandler.cancelPendingImport()
-    }
-
-    /// Removes a Share Extension inbox file after import completes or is cancelled
-    ///
-    /// Only deletes files inside the inbox directory — "Open with" files from the
-    /// system are not ours to delete.
-    private func cleanUpInboxFile(at url: URL) {
-        let inboxDir = FileManager.default
-            .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
-            .appendingPathComponent("ShareInbox")
-
-        guard let inboxDir, url.path.hasPrefix(inboxDir.path)
-        else { return }
-        try? FileManager.default.removeItem(at: url)
     }
 }

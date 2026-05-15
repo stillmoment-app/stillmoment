@@ -152,13 +152,11 @@ final class InboxHandler: ObservableObject {
         // Process the newest entry
         let result = await self.processEntry(at: newestFile)
 
-        // JSON references can be deleted immediately — the downloaded file lives elsewhere.
-        // Audio files must NOT be deleted here: prepareImport() only stores the URL for
-        // deferred import. The file is needed when the user selects an import type.
-        // Cleanup happens via the main app after import completes or is cancelled.
-        if newestFile.pathExtension.lowercased() == "json" {
-            self.deleteFiles([newestFile])
-        }
+        // Audio files are imported synchronously by processAudioFile — the
+        // copy lives in the library, so we can delete the inbox entry here.
+        // JSON references describe a download; the downloaded file is stored
+        // elsewhere, so deleting the JSON reference is safe too.
+        self.deleteFiles([newestFile])
 
         return result
     }
@@ -229,7 +227,7 @@ final class InboxHandler: ObservableObject {
         let ext = url.pathExtension.lowercased()
 
         if Self.supportedAudioExtensions.contains(ext) {
-            return self.processAudioFile(at: url)
+            return await self.processAudioFile(at: url)
         } else if ext == "json" {
             return await self.processURLReference(at: url)
         }
@@ -237,10 +235,10 @@ final class InboxHandler: ObservableObject {
         return .empty
     }
 
-    /// Processes an audio file entry
-    private func processAudioFile(at url: URL) -> InboxResult {
+    /// Processes an audio file entry — imports directly as a meditation.
+    private func processAudioFile(at url: URL) async -> InboxResult {
         Logger.infrastructure.info("Processing audio inbox entry: \(url.lastPathComponent)")
-        self.fileOpenHandler.prepareImport(url: url)
+        _ = await self.fileOpenHandler.importFile(from: url)
         return .audioFile(url)
     }
 
@@ -264,13 +262,11 @@ final class InboxHandler: ObservableObject {
                 filename: urlRef.filename
             )
             Logger.infrastructure.info("Download completed: \(urlRef.filename)")
-            self.fileOpenHandler.prepareImport(url: downloadedURL)
 
-            // Defense-in-Depth: prepareImport setzt showImportTypeSelection nur,
-            // wenn FileOpenHandler.canHandle die Datei akzeptiert. Wird der Import
-            // stumm abgewiesen (z. B. unbekannte Endung), erscheint sonst nirgends
-            // ein Hinweis fuer den User. → eigener Fehlercase.
-            guard self.fileOpenHandler.showImportTypeSelection else {
+            // Defense-in-Depth: Der AudioDownloadService akzeptiert ggf. neue
+            // Content-Types, die FileOpenHandler.canHandle (noch) nicht kennt.
+            // Ohne diesen Check waere die Ablehnung fuer den User unsichtbar.
+            guard case .success = self.fileOpenHandler.validateFileForImport(url: downloadedURL) else {
                 Logger.infrastructure.error(
                     "Downloaded file rejected by importer: \(downloadedURL.lastPathComponent)"
                 )
@@ -278,6 +274,7 @@ final class InboxHandler: ObservableObject {
                 return .error(.notAnAudioUrl)
             }
 
+            _ = await self.fileOpenHandler.importFile(from: downloadedURL)
             return .downloadCompleted(downloadedURL)
         } catch is CancellationError {
             Logger.infrastructure.info("Download cancelled for \(urlRef.url)")

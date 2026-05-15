@@ -41,11 +41,6 @@ struct TimerView: View {
             self.viewModel.resetTimer()
             self.fileOpenHandler.shouldStopMeditation = false
         }
-        .onChange(of: self.fileOpenHandler.pendingCustomAudioImport) { pendingImport in
-            guard pendingImport != nil
-            else { return }
-            self.openDetail(for: .background)
-        }
     }
 
     private var content: some View {
