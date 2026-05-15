@@ -17,8 +17,12 @@ import SwiftUI
 ///   schiebt sich beim Auffuellen nach oben durch den Verlauf hindurch.
 /// - Pegel-Farbe nimmt die `interactive`-Akzentfarbe des aktiven Themes
 ///   auf (Kerzenschein/Wald/Mondlicht × Light/Dark). Die raeumliche
-///   Tiefe wird ueber einen Opacity-Verlauf erzeugt: oben transparenter
-///   (heller-wirkend auf dunklem Glas), unten kraeftiger.
+///   Tiefe wird ueber einen Opacity-Verlauf erzeugt: oben transparenter,
+///   unten kraeftiger.
+/// - Glas-Material (Hintergrund-Tint, Border, Reflex) reagiert auf das
+///   ColorScheme: im Light Mode dezenter dunkler Tint und dunkler Reflex
+///   auf hellem Background, im Dark Mode warmes dunkles Material mit
+///   hellem Reflex.
 struct VesselView: View {
     // MARK: Internal
 
@@ -39,7 +43,7 @@ struct VesselView: View {
         .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius))
         .overlay(
             RoundedRectangle(cornerRadius: Self.cornerRadius)
-                .strokeBorder(Self.glassBorder, lineWidth: 1)
+                .strokeBorder(self.glassBorder, lineWidth: 1)
         )
         .animation(self.fluidAnimation, value: self.progress)
         .accessibilityHidden(true)
@@ -49,6 +53,8 @@ struct VesselView: View {
 
     @Environment(\.themeColors)
     private var theme
+    @Environment(\.colorScheme)
+    private var colorScheme
 
     private var clampedProgress: CGFloat {
         CGFloat(max(0, min(1, self.progress)))
@@ -72,8 +78,53 @@ struct VesselView: View {
 
     private var glassBackground: some View {
         Rectangle()
-            .fill(Self.glassFill)
+            .fill(self.glassFill)
             .frame(width: self.width, height: self.height)
+    }
+
+    /// Glas-Hintergrund passt sich dem ColorScheme an:
+    /// - Light: dezenter dunkler Tint auf hellem Background (warmer
+    ///   dunkler Schiefer-Ton, neutral genug fuer alle drei Themes).
+    /// - Dark: warmes dunkles Material, das dem bisherigen Look folgt.
+    /// Beide Stufen werden zusaetzlich ueber einen Opacity-Verlauf
+    /// (oben transparenter, unten kraeftiger) raeumlich vertieft.
+    private var glassFill: LinearGradient {
+        switch self.colorScheme {
+        case .dark:
+            return LinearGradient(
+                colors: [
+                    Color(red: 58 / 255, green: 32 / 255, blue: 26 / 255).opacity(0.40),
+                    Color(red: 26 / 255, green: 13 / 255, blue: 9 / 255).opacity(0.60)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .light:
+            return LinearGradient(
+                colors: [
+                    Color.black.opacity(0.08),
+                    Color.black.opacity(0.18)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        @unknown default:
+            return LinearGradient(
+                colors: [
+                    Color.black.opacity(0.08),
+                    Color.black.opacity(0.18)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+
+    /// Border-Farbe: dezent, theme-getoned. `controlTrack` ist in beiden
+    /// Modes ein mittlerer Ton — als 25 %-Opacity-Linie sichtbar, ohne
+    /// laut zu werden.
+    private var glassBorder: Color {
+        self.theme.controlTrack.opacity(0.25)
     }
 
     /// Volle Hoehe Gradient, sichtbar nur unten via Mask — dadurch sitzt der
@@ -118,11 +169,13 @@ struct VesselView: View {
     }
 
     /// Schmaler vertikaler Glas-Reflex an der linken Innenseite.
+    /// Im Dark Mode heller Schimmer (Weiss), im Light Mode dunklerer
+    /// Glanz-Strich (`textPrimary`) — beides erzeugt die "Glas-Kante".
     private var glassReflex: some View {
         RoundedRectangle(cornerRadius: 3)
             .fill(
                 LinearGradient(
-                    colors: [Color.white.opacity(0.18), Color.white.opacity(0)],
+                    colors: [self.reflexColor.opacity(0.18), self.reflexColor.opacity(0)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -133,25 +186,17 @@ struct VesselView: View {
             .padding(.leading, 12)
     }
 
+    private var reflexColor: Color {
+        switch self.colorScheme {
+        case .dark: .white
+        case .light: self.theme.textPrimary
+        @unknown default: .white
+        }
+    }
+
     // MARK: - Material Constants
 
     private static let cornerRadius: CGFloat = 28
-
-    /// Glas-Hintergrund: dunkle Tinte, oben transparenter, unten kraeftiger.
-    private static let glassFill = LinearGradient(
-        colors: [
-            Color(red: 58 / 255, green: 32 / 255, blue: 26 / 255).opacity(0.4),
-            Color(red: 26 / 255, green: 13 / 255, blue: 9 / 255).opacity(0.6)
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-
-    private static let glassBorder = Color(
-        red: 235 / 255,
-        green: 226 / 255,
-        blue: 214 / 255
-    ).opacity(0.10)
 
     private static let meniscusColor = Color(
         red: 255 / 255,
@@ -193,5 +238,14 @@ struct VesselView: View {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         VesselView(progress: 1.0, reduceMotion: false)
     }
+}
+
+@available(iOS 17.0, *)
+#Preview("Vessel — Light Mode, halb") {
+    ZStack {
+        Color(red: 1.00, green: 0.89, blue: 0.84).ignoresSafeArea()
+        VesselView(progress: 0.5, reduceMotion: false)
+    }
+    .preferredColorScheme(.light)
 }
 #endif
