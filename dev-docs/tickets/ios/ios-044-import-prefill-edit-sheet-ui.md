@@ -2,7 +2,7 @@
 
 **Status**: [ ] TODO
 **Prioritaet**: HOCH
-**Komplexitaet**: Mehrere zusammenhaengende UI-Bausteine (X-Clear-Button, erweiterter Lehrer-Autocomplete mit Counts, Pflichtfeld-Validation, Modus-Trennung Import vs. Edit). Reine Presentation-Layer-Arbeit auf Basis des Domain-Services aus ios-043.
+**Komplexitaet**: Schlanke UI-Erweiterung (X-Clear-Button, Match-Highlight im bestehenden Autocomplete, Pflichtfeld-Validation, Modus-Trennung Import vs. Edit). Reine Presentation-Layer-Arbeit auf Basis des Domain-Services aus ios-043.
 **Abhaengigkeiten**: ios-043 (Prefill-Service); ios-042 (kein Typ-Auswahl-Sheet mehr im Flow)
 **Phase**: 3-Feature
 
@@ -17,7 +17,7 @@ Der `GuidedMeditationEditSheet` wird in zwei Modi betrieben:
 
 Beide Modi nutzen die **gleiche** SwiftUI-View. Die View bleibt bewusst dumm: sie kennt nur zwei `String`-Bindings (Teacher, Name), die `availableTeachers`-Liste, einen `mode`-Wert (steuert Autofocus und ggf. die File-Info-Section) und zwei Closures (`onSave`, `onCancel`). Persistenz-Logik, `hasChanges`-Vergleich und der Aufruf der korrekten Service-Methode liegen **ausserhalb** der View im ViewModel/Caller.
 
-**Domain-State sauber trennen.** Das bestehende `EditSheetState` ist Edit-spezifisch — `originalMeditation: GuidedMeditation` ist required, `hasChanges` und `applyChanges() -> GuidedMeditation` setzen eine zu mutierende Meditation voraus. Im Import-Modus gibt es keine bestehende Meditation, gegen die man vergleichen koennte. Empfohlene Form: **zwei getrennte Domain-Typen** — `EditSheetState` bleibt unveraendert; neu hinzu kommt ein leichter `ImportDraft { teacher: String; name: String; isValid: Bool }`. Alternative: ein Enum mit zwei Cases — nur waehlen, wenn die View-Verdrahtung dadurch nachweislich einfacher wird. Default ist die zwei-Typen-Variante (klarere DDD-Grenze, weniger Switch-Logik im ViewModel).
+**Domain-State.** Das bestehende `EditSheetState` bleibt fuer den Edit-Pfad unveraendert. Fuer den Import-Pfad gibt es keine bestehende Meditation, gegen die man vergleichen koennte — und auch kein `applyChanges()`-Verhalten, das einen Domain-Typ rechtfertigen wuerde. Empfohlene Form: **zwei `@Published` String-Properties + `canSaveImport: Bool`-Computed im ViewModel**. Kein zusaetzlicher Domain-Typ noetig.
 
 Save-Verhalten und Initial-Felder bleiben pro Modus klar getrennt:
 - Save: `addMeditation(url, metadata, teacher, name)` vs. `updateMeditation(...)` (vom Caller entschieden, nicht von der View).
@@ -27,7 +27,7 @@ Save-Verhalten und Initial-Felder bleiben pro Modus klar getrennt:
 
 - **X-Clear-Button** im Textfeld, erscheint sobald das Feld einen Wert enthaelt, leert das Feld in einem Tap.
 - **Lehrer wird Pflichtfeld** — Save-Button disabled wenn Lehrer:in oder Name leer.
-- **Lehrer-Autocomplete erweitert** — pro Eintrag „X Meditationen", Match-Substring akzent-hervorgehoben, Footer-Eintrag „neue Lehrer:in anlegen" falls Query keinem bekannten Namen exakt entspricht.
+- **Lehrer-Autocomplete-Highlight** — Match-Substring im Dropdown akzent-hervorgehoben (Stil konsistent mit ios-041 Library-Search-Highlight). Counts/Footer/Avatar bewusst nicht — App-Philosophie „weniger ist mehr".
 - **Placeholder-Texte** als Hilfe bei leeren Feldern: Lehrer „Wer leitet die Meditation an?", Name „Wie heisst diese Meditation?". Lokalisiert DE + EN.
 
 ### Nur Import-Modus
@@ -36,11 +36,13 @@ Save-Verhalten und Initial-Felder bleiben pro Modus klar getrennt:
 
 ## Warum
 
-Die Prefill-Kaskade aus ios-043 liefert bessere Defaults. Der Handoff verzichtet bewusst auf visuelle Indikatoren („Prefill-Indikatoren — keine Banner, keine Badges. Die Tatsache dass ein Wert vorausgefuellt wurde wird nicht visuell hervorgehoben"): wenn der Wert stimmt, weiter; wenn nicht, X-Button und neu tippen. Das passt zur App-Philosophie „Ruhe statt Information" — die Maske gibt der User:in einen ausgefuellten Startpunkt, ohne sich selbst zu erklaeren.
+Die Prefill-Kaskade aus ios-043 liefert bessere Defaults. Der Handoff verzichtet bewusst auf visuelle Indikatoren („Prefill-Indikatoren — keine Banner, keine Badges. Die Tatsache dass ein Wert vorausgefuellt wurde wird nicht visuell hervorgehoben"): wenn der Wert stimmt, weiter; wenn nicht, X-Button und neu tippen.
 
 Der X-Button macht das Verwerfen eines schlechten Vorschlags zu einer einzigen Geste — wichtiger als ein dekoratives Badge, das nur sagt „dieser Wert ist abgeleitet".
 
-Lehrer-Pflichtfeld haelt die neu importierte Library konsistent — wer beim Anchor-Worst-Case eine UUID-Datei reinwirft, wird zum Ausfuellen gezwungen statt mit Lehrer-Default `"Unknown Artist"` weiterzulaufen. Im Edit-Modus gilt die gleiche Pflicht: User darf Werte editieren, aber nicht leer speichern.
+Lehrer-Pflichtfeld haelt die neu importierte Library konsistent — wer beim Anchor-Worst-Case eine UUID-Datei reinwirft, wird zum Ausfuellen gezwungen statt mit leerem Lehrer-Feld weiterzulaufen. Im Edit-Modus gilt die gleiche Pflicht: User darf Werte editieren, aber nicht leer speichern.
+
+Match-Highlight im Autocomplete: kostet wenig (`AttributedString`-Variante des Eintrags) und nimmt das bestehende ios-041-Pattern wieder auf — Konsistenz zwischen Library-Suche und Lehrer-Autocomplete. Counts („X Meditationen") und „Neue Lehrer:in anlegen"-Footer sind bewusst weggelassen: bei <20 Lehrern ist der Count Information ohne Entscheidungswert, und der Footer bestaetigt nur was Save ohnehin tut.
 
 Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur, Autocomplete-Verdrahtung, X-Clear-Logik, Pflichtfeld-Validierung, Placeholder und Toolbar sind in beiden Modi identisch — zwei separate Sheets wuerden den gesamten Block duplizieren. Die einzigen modus-spezifischen Unterschiede leben **ausserhalb** der View: Save-Closure (welche Service-Methode), Initial-Werte, Autofocus-Regel.
 
@@ -51,7 +53,7 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 - iOS-Code-Bereich:
   - `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationEditSheet.swift` (eine Aufrufstelle in `GuidedMeditationsListView.swift:117`)
   - `ios/StillMoment/Domain/Models/EditSheetState.swift`
-  - `ios/StillMoment/Presentation/Views/Shared/AutocompleteTextField.swift` (Erweiterung um Counts-Anzeige und „neue Lehrer:in anlegen"-Footer)
+  - `ios/StillMoment/Presentation/Views/Shared/AutocompleteTextField.swift` (Erweiterung um Match-Highlight)
 
 ---
 
@@ -60,9 +62,7 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 ### Universell (beide Modi)
 
 - [ ] **X-Clear-Button** in jedem Textfeld: erscheint sobald das Feld einen Wert enthaelt, leert das Feld bei Tap, verbirgt sich bei leerem Feld. Accessibility-Label „Feld leeren". Style gemaess Handoff (20×20 px Kreis, gedimmtes Hellgrau, dunkles X).
-- [ ] **Lehrer-Autocomplete** zeigt pro Eintrag „X Meditationen" (Singular `1 Meditation` / Plural `N Meditationen`, lokalisiert).
-- [ ] Match-Substring im Autocomplete ist akzent-hervorgehoben (Stil konsistent mit ios-041 Library-Search-Highlight).
-- [ ] Wenn die aktuelle Lehrer-Eingabe **keinem** bekannten Eintrag exakt entspricht (case-insensitive, trimmed) und nicht leer ist: am Ende der Liste ein Footer-Eintrag „`„{query}" als neue Lehrer:in anlegen`". Tap uebernimmt den Wert ins Feld und schliesst das Dropdown.
+- [ ] **Match-Substring im Autocomplete** ist akzent-hervorgehoben (Stil konsistent mit ios-041 Library-Search-Highlight).
 - [ ] Klick auf X im Lehrer-Feld leert das Feld UND oeffnet den Autocomplete-Dropdown mit der vollen Lehrer-Liste (gemaess Handoff „Clear-Button — Klick-Verhalten").
 - [ ] **Save-Button** disabled (gedimmt, nicht tappbar) wenn `teacher.trim().isEmpty || name.trim().isEmpty`.
 - [ ] Return-Taste im Lehrer-Feld setzt Fokus auf Name-Feld; Return-Taste im Name-Feld triggert Save (falls valid).
@@ -84,15 +84,14 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 - [ ] Kein Autofocus.
 - [ ] **Save** ruft `meditationService.updateMeditation(...)` auf.
 - [ ] **Cancel** laesst die Meditation unveraendert.
-- [ ] X-Button, Pflichtfeld-Validation und Autocomplete-Erweiterungen funktionieren identisch zum Import-Modus.
+- [ ] X-Button, Pflichtfeld-Validation und Match-Highlight funktionieren identisch zum Import-Modus.
 
 ### Tests
 
 - [ ] Unit-Test `EditSheetState` (Edit-Pfad): `isValid` ist false wenn `teacher` ODER `name` leer; true sonst; `hasChanges`/`applyChanges` unveraendert in der Semantik.
-- [ ] Unit-Test `ImportDraft` (Import-Pfad, falls als separater Typ implementiert): `isValid` ist false wenn `teacher` ODER `name` leer; true sonst.
+- [ ] Unit-Test ViewModel-Import-Pfad: `canSaveImport` ist false wenn `teacher` ODER `name` leer; true sonst.
 - [ ] Unit-Test X-Clear-Button: Tap leert Feld, disabled Save. Bei Lehrer-Feld: oeffnet Autocomplete.
-- [ ] Unit-Test Autocomplete-Counts: Singular/Plural lokalisiert, Aggregation aus `loadMeditations()` korrekt.
-- [ ] Unit-Test Autocomplete-Footer: bei exaktem Match nicht angezeigt, sonst angezeigt; bei leerer Query nicht angezeigt.
+- [ ] Unit-Test Match-Highlight: bei Query `"T"` ist im Eintrag `"Tara Brach"` das `"T"` als highlighted Range markiert.
 - [ ] Unit-Test Autofocus-Regel (Import-Modus): `prefill.name == nil` → Autofocus Name; `prefill.name != nil` → kein Autofocus.
 - [ ] Unit-Test Edit-Modus: Sheet mit `prefill == nil` rendert keinen Autofocus; persistierte Werte (auch `"Unknown Artist"`) bleiben unveraendert sichtbar.
 - [ ] Snapshot-Test: Sheet im ID3-Bestfall (beide Felder vorbelegt) vs. Garbage-Fall (beide leer mit Placeholder).
@@ -121,8 +120,7 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 
 ### Universell
 
-9. **Autocomplete-Counts**: mehrere Meditationen mit „Tara Brach" und eine mit „Jon Kabat-Zinn" anlegen. Im Edit-Sheet (Import oder Edit) im Lehrer-Feld „T" tippen. Erwartung: Eintrag „Tara Brach" mit „N Meditationen", Match-Substring akzent-hervorgehoben.
-10. **Neue Lehrer:in anlegen**: „Joseph G" tippen wenn nur „Joseph Goldstein" und „Jon Kabat-Zinn" bekannt sind und keiner exakt matched. Erwartung: am Ende der Liste „„Joseph G" als neue Lehrer:in anlegen". Tap uebernimmt und schliesst.
+9. **Match-Highlight**: mehrere Meditationen mit „Tara Brach" und eine mit „Jon Kabat-Zinn" anlegen. Im Edit-Sheet (Import oder Edit) im Lehrer-Feld „T" tippen. Erwartung: Eintrag „Tara Brach" sichtbar, „T" im Namen akzent-hervorgehoben.
 
 ---
 
@@ -131,17 +129,19 @@ Das gleiche Sheet fuer beide Modi vermeidet Code-Duplikation. Die Form-Struktur,
 - **Audio-Preview** im Edit-Sheet: bewusst nicht enthalten (siehe Design-Handoff Abschnitt „Out of Scope" — geplant als separates Library-Long-Press-Feature).
 - **Cover/Glyph-Auswahl** und **Tags**: nicht spezifiziert, eigener spaeterer Designdurchlauf.
 - **Migration bestehender Library-Eintraege** mit `"Unknown Artist"`: siehe ios-043 — Edit-Modus zeigt den persistierten Wert unveraendert.
-- **Source-Badges und Prefill-Banner**: bewusst weggelassen (siehe Handoff „Prefill ist still"). Wenn spaeter doch gewuenscht, kann ios-043 additiv eine Source-Markierung liefern.
-- **Avatar / Person-Icon im Autocomplete-Dropdown**: der Handoff zeigt einen 28 px Avatar-Kreis links neben jedem Eintrag. Bewusst weggelassen — App-Philosophie „weniger ist mehr"; ein rein dekoratives Element ohne Informationsgehalt zieht visuell in Richtung Kontaktliste. Wenn spaeter echte Lehrer-Bilder hinzukommen, eigenes Feature.
-- **Lehrer-Detail-Anzeige** (z. B. „zuletzt gehoert vor 3 Wochen"): bewusst weggelassen, weil `lastPlayedAt` heute nicht persistiert wird.
+- **Source-Badges und Prefill-Banner**: bewusst weggelassen (siehe Handoff „Prefill ist still").
+- **Autocomplete-Counts** („X Meditationen" pro Eintrag): bewusst weggelassen — App-Philosophie „weniger ist mehr"; bei wenigen Lehrern Information ohne Entscheidungswert.
+- **„Neue Lehrer:in anlegen"-Footer im Autocomplete**: bewusst weggelassen — bestaetigt nur, was Save ohnehin tut.
+- **Avatar / Person-Icon im Autocomplete-Dropdown**: bewusst weggelassen (rein dekorativ, zieht visuell Richtung Kontaktliste).
+- **Lehrer-Detail-Anzeige** (z. B. „zuletzt gehoert vor 3 Wochen"): `lastPlayedAt` wird heute nicht persistiert.
 - **Edit-Modus mit nachtraeglichem Prefill** (z. B. „Auto-Vervollstaendigung bei leerem Lehrer-Feld in Alt-Eintraegen"): kein Auto-Fixing — der User editiert manuell.
 
 ---
 
 ## Hinweise
 
-- `AutocompleteTextField` (bzw. das aktuelle Pendant) muss um die Count-Anzeige und den Footer-Eintrag erweitert werden. Statt `[String]` wird ein Wert-Typ mit `(name: String, count: Int)` uebergeben. Aggregation macht der Caller (ViewModel) — Counts pro `effectiveTeacher` aufsummieren, Lehrer mit `sanitize(_:) == nil` ausschliessen (Konsistenz mit ios-043).
-- Domain-State: `EditSheetState` bleibt fuer den Edit-Pfad unveraendert (mit `originalMeditation`, `hasChanges`, `applyChanges`). Fuer den Import-Pfad neuen, schmalen Typ `ImportDraft` einfuehren (siehe Abschnitt „Was"). Die View bekommt nur Bindings + `mode` + Closures und kennt keinen der beiden Domain-Typen direkt. Modus-spezifische Service-Aufrufe (`addMeditation` vs. `updateMeditation`) macht das ViewModel im jeweiligen Save-Callback.
+- `AutocompleteTextField` wird um Match-Highlight erweitert — der Substring der aktuellen Query im Eintrag wird akzent-eingefaerbt (`AttributedString` oder vergleichbarer Mechanismus konsistent zur Library-Suche aus ios-041). Keine Aenderung der Datenstruktur — `[String]` bleibt.
+- Domain-State: `EditSheetState` bleibt fuer den Edit-Pfad unveraendert (mit `originalMeditation`, `hasChanges`, `applyChanges`). Fuer den Import-Pfad zwei `@Published`-Strings im ViewModel + `canSaveImport: Bool`-Computed; kein zusaetzlicher Domain-Typ. Die View bekommt nur Bindings + `mode` + Closures.
 - ViewModel (`GuidedMeditationsListViewModel`) bekommt einen zusaetzlichen Pfad: nach Datei-Auswahl wird `ImportPrefill.compute(...)` aufgerufen, das Edit-Sheet im Import-Modus geoeffnet, und erst bei Save wird `addMeditation(...)` aufgerufen. Der heutige Pfad „sofort persistieren, dann Edit-Sheet" entfaellt.
-- Lokalisierung: alle neuen Strings DE + EN. Placeholder-Texte und Autocomplete-Counts in beiden Sprachen testen.
+- Lokalisierung: alle neuen Strings DE + EN. Placeholder-Texte in beiden Sprachen testen.
 - Accessibility: X-Button bekommt klares `accessibilityLabel("Feld leeren")`. Pflichtfeld-State wird ueber den disabled Save-Button signalisiert, plus `accessibilityHint` an leeren Feldern („Erforderlich").
