@@ -95,24 +95,15 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     ///
     /// If legacy bookmarks need migration, shows a migration overlay
     /// while copying files to local storage.
-    func loadMeditations() {
-        // Check if migration is needed before loading
+    func loadMeditations() async {
         if self.meditationService.needsMigration() {
             self.isMigrating = true
             Logger.guidedMeditation.info("Migration needed, starting async migration")
-
-            // Run migration in a task so the UI can update
-            Task {
-                // Small delay to ensure the overlay is visible
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
-
-                await self.performLoad()
-                self.isMigrating = false
-            }
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s — overlay sichtbar machen
+            await self.performLoad()
+            self.isMigrating = false
         } else {
-            Task {
-                await self.performLoad()
-            }
+            await self.performLoad()
         }
     }
 

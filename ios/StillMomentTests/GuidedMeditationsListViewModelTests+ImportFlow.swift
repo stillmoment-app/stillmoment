@@ -61,8 +61,7 @@ extension GuidedMeditationsListViewModelTests {
         // Given — Library kennt "Tara Brach" bereits.
         let existing = self.makeTestMeditation(teacher: "Tara Brach", name: "Bestehende Meditation")
         self.mockMeditationService.meditations = [existing]
-        self.sut.loadMeditations()
-        await self.waitForImportFlow()
+        await self.sut.loadMeditations()
 
         self.mockMetadataService.fixedMetadata = AudioMetadata(artist: nil, title: nil, duration: 600)
         let url = URL(fileURLWithPath: "/tmp/bodyscan-tara_brach.mp3")
@@ -160,9 +159,5 @@ extension GuidedMeditationsListViewModelTests {
             teacher: teacher,
             name: name
         )
-    }
-
-    private func waitForImportFlow() async {
-        try? await Task.sleep(nanoseconds: 200_000_000)
     }
 }

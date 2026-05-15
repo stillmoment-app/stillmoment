@@ -174,8 +174,10 @@ struct GuidedMeditationsListView: View {
             }
         }
         .onAppear {
-            self.viewModel.loadMeditations()
             self.settings = self.settingsRepository.load()
+        }
+        .task {
+            await self.viewModel.loadMeditations()
         }
         .onChange(of: self.fileOpenHandler.pendingImportSignal) { newSignal in
             guard let signal = newSignal else {

@@ -68,8 +68,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         self.mockMeditationService.meditations = [meditation1, meditation2]
 
         // When
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         // Then
         XCTAssertEqual(self.sut.meditations.count, 2)
@@ -82,8 +81,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         self.mockMeditationService.meditations = []
 
         // When
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         // Then
         XCTAssertTrue(self.sut.meditations.isEmpty)
@@ -96,8 +94,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         self.mockMeditationService.loadShouldThrow = true
 
         // When
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         // Then
         XCTAssertTrue(self.sut.meditations.isEmpty)
@@ -116,8 +113,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
         XCTAssertEqual(self.sut.meditations.count, 1)
 
         // When
@@ -133,8 +129,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
         self.mockMeditationService.deleteShouldThrow = true
 
         // When
@@ -151,8 +146,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         let existingMeditation = self.createTestMeditation(name: "Existing")
         let nonExistentMeditation = self.createTestMeditation(name: "NonExistent")
         self.mockMeditationService.meditations = [existingMeditation]
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         // When
         self.sut.deleteMeditation(nonExistentMeditation)
@@ -169,8 +163,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         var updatedMeditation = meditation
         updatedMeditation.customName = "Updated Name"
@@ -188,8 +181,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given
         let meditation = self.createTestMeditation()
         self.mockMeditationService.meditations = [meditation]
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
         self.mockMeditationService.updateShouldThrow = true
 
         // When
@@ -398,9 +390,8 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         // Given
         self.mockMeditationService.meditations = []
 
-        // When - Call loadMeditations (now async via Task)
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        // When
+        await self.sut.loadMeditations()
 
         // Then
         XCTAssertFalse(self.sut.isLoading) // Should be false after completion
@@ -411,14 +402,12 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     func testErrorMessageClearedOnNextOperation() async {
         // Given - Error from previous operation
         self.mockMeditationService.loadShouldThrow = true
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
         XCTAssertNotNil(self.sut.errorMessage)
 
         // When - Perform successful operation
         self.mockMeditationService.loadShouldThrow = false
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
 
         // Then - Error should be cleared
         XCTAssertNil(self.sut.errorMessage)
@@ -427,8 +416,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     func testErrorMessageClearedOnImport() async {
         // Given - Error from previous operation
         self.mockMeditationService.loadShouldThrow = true
-        self.sut.loadMeditations()
-        await self.waitForLoad()
+        await self.sut.loadMeditations()
         XCTAssertNotNil(self.sut.errorMessage)
 
         // When - Start import
@@ -568,11 +556,5 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
             teacher: teacher,
             name: name
         )
-    }
-
-    /// Waits for async operations triggered by loadMeditations()
-    private func waitForLoad() async {
-        // loadMeditations() uses Task internally, so we need to yield
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
     }
 }
