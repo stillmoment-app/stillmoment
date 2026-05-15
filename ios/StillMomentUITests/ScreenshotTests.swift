@@ -178,6 +178,33 @@ final class ScreenshotTests: XCTestCase {
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
     }
 
+    /// Screenshot 6: Edit sheet — same layout as the Import sheet, used to showcase
+    /// how users curate a library entry (teacher + name + file footer).
+    func testScreenshot06_editSheet() {
+        self.navigateToLibraryTab()
+
+        let meditationRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        )
+        let firstRow = meditationRows.firstMatch
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 5.0), "Library should contain test meditations")
+
+        firstRow.swipeLeft()
+
+        let editButton = self.app.buttons["library.row.swipe.edit"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 3.0), "Edit swipe action not visible")
+        editButton.tap()
+
+        // Edit mode does not auto-focus — keyboard stays down, both fields visible.
+        let teacherField = self.app.textFields["editSheet.field.teacher"]
+        XCTAssertTrue(teacherField.waitForExistence(timeout: 3.0), "Edit sheet did not appear")
+
+        // Let the sheet present-animation settle before capturing.
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("06_EditSheet", timeWaitingForIdle: 0)
+    }
+
     /// Screenshot 5: Interval Gongs editor (deepest configuration screen)
     func testScreenshot05_settingsView() {
         self.navigateToTimerTab()

@@ -276,6 +276,7 @@ struct GuidedMeditationsListView: View {
                                     Label("guided_meditations.edit", systemImage: "pencil")
                                 }
                                 .tint(self.theme.interactive)
+                                .accessibilityIdentifier("library.row.swipe.edit")
                             }
                     }
                 } header: {
