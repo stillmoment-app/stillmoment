@@ -332,6 +332,11 @@
 // MARK: - Timer Idle Screen (shared-086)
 "timer.idle.headline" = "How much time will you gift yourself?";
 "timer.dial.unit" = "Minutes";
+
+// MARK: - Timer Running Screen (ios-046)
+"timer.running.remaining" = "REMAINING";
+"timer.running.duration.singular" = "of %d minute";
+"timer.running.duration.plural" = "of %d minutes";
 "accessibility.dial.label" = "Meditation duration";
 "accessibility.dial.hint" = "Swipe to change the duration";
 "accessibility.dial.value" = "%d minutes";

@@ -82,7 +82,7 @@ extension TypographyRole {
         switch self {
         // Timer — ultraLight/thin for large numerals
         case .timerCountdown: .fixed(size: 100, weight: .ultraLight, design: .rounded)
-        case .timerRunning: .fixed(size: 60, weight: .thin, design: .rounded)
+        case .timerRunning: .fixed(size: 64, weight: .thin, design: .rounded)
         // Headings
         case .screenTitle: .fixed(size: 28, weight: .light, design: .rounded)
         // .headline is inherently semibold — halation compensation not needed
@@ -130,6 +130,9 @@ extension TypographyRole {
     var tracking: CGFloat {
         switch self {
         case .dialValue: -1.5
+        // ios-046: Restzeit braucht negatives Tracking analog zum Handoff
+        // (-0.02em bei 64 pt = -1.28 pt) — kompakte grosse Ziffer.
+        case .timerRunning: -1.28
         default: 0
         }
     }
