@@ -116,6 +116,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-089](shared/shared-089-timer-idle-listen-layout.md) | Timer-Idle-Screen mit flacher Settings-Liste | 4-Polish | [x] | [x] |
 | [shared-090](shared/shared-090-timer-atemkreis-analog-player.md) | Timer-Display analog zum Player (Atemkreis) | 4-Polish | [x] | [x] |
 | [shared-091](shared/shared-091-url-share-ohne-extension.md) | URL-Share akzeptiert Audio-URLs ohne .mp3/.m4a-Endung | 1-Quick Fix | [x] | [x] |
+| [shared-092](shared/shared-092-danke-screen-redesign.md) | Danke-Screen Redesign — Atemkreis statt Herz | 4-Polish | [ ] | [ ] |
 
 ---
 
