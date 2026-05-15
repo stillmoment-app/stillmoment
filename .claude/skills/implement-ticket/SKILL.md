@@ -29,7 +29,11 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
 2. **Ticket lesen**, Akzeptanzkriterien extrahieren.
 3. **Plattform-CLAUDE.md lesen** (`ios/CLAUDE.md` oder `android/CLAUDE.md`).
 4. **Bei `shared-<id>`-Tickets:** User fragen, welche Plattform zuerst umgesetzt wird. Danach Schritte 3–5 fuer Plattform A, anschliessend fuer Plattform B. Cross-Platform-Konsistenz vor Abschluss verifizieren.
-5. **Plan pruefen:** `Glob('dev-docs/tickets/plans/*<ticket-id>*')`.
+5. **Plan pruefen** (exakter Pfad, nicht Substring):
+   - `ios-<id>` / `android-<id>`: `dev-docs/tickets/plans/<ticket-id>.md`
+   - `shared-<id>`: `dev-docs/tickets/plans/<ticket-id>-<platform>.md` fuer die gerade umzusetzende Plattform (siehe Schritt 4)
+
+   Verhalten:
    - **Plan vorhanden:** als Fahrplan nutzen (fachliche Szenarien werden Tests, Reihenfolge wird uebernommen, Refactorings vorgezogen).
    - **Kein Plan, Ticket hat ≥ 3 Akzeptanzkriterien ODER beruehrt unbekannte Framework-APIs/Architektur-Schichten:** User fragen, ob `/plan-ticket <ticket-id>` zuerst laufen soll. Default-Empfehlung: ja. User kann mit „weiter ohne Plan" ueberstimmen — dann normal weiterarbeiten.
    - **Kein Plan, Ticket ist klein (1–2 AK, bekannter Code-Bereich):** ohne Plan weiterarbeiten.

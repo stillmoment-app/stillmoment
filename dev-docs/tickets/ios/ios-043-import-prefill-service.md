@@ -1,6 +1,7 @@
 # Ticket ios-043: Prefill-Service fuer Meditation-Import
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
+**Plan**: [Implementierungsplan](../plans/ios-043.md)
 **Prioritaet**: HOCH
 **Komplexitaet**: Schlanke Pipeline (sanitize → preprocess → garbage-check → zwei Kaskaden), jede Stufe trivial. Reine Domain/Application-Layer-Arbeit ohne UI.
 **Abhaengigkeiten**: ios-042 (Share-Import immer als Meditation)
