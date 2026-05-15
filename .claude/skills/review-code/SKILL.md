@@ -35,27 +35,48 @@ Automatisch bei:
 
 ### Schritt 1: Scope ermitteln
 
+**Ticket-ID-Quellen (in dieser Reihenfolge pruefen):**
+1. Explizites Argument (`/review-code ios-042`)
+2. Branch-Name: `git rev-parse --abbrev-ref HEAD` — Muster `feature/<ticket-id>`, `fix/<ticket-id>`, `refactor/<ticket-id>` → Ticket-ID extrahieren. Bei Treffer: dem User mitteilen ("Branch deutet auf Ticket ios-042 hin — pruefe gegen dessen Akzeptanzkriterien.") und fortfahren.
+3. Keine Ticket-ID gefunden → User nach Scope fragen (Dateien, Feature, Modul)
+
 **Mit Ticket-Referenz:**
-1. Ticket lesen: `dev-docs/tickets/{platform}/{ticket-id}.md`
+1. Ticket-Datei per Glob suchen (Dateiname kann von ID abweichen): `dev-docs/tickets/**/*{ticket-id}*.md`
 2. Akzeptanzkriterien extrahieren
 3. Diff bestimmen: `git diff $(git merge-base main HEAD) HEAD --stat`
 
 **Ohne Ticket-Referenz:**
-1. User nach Scope fragen (Dateien, Feature, Modul)
-2. Relevante Dateien mit Glob/Grep finden
+1. Relevante Dateien mit Glob/Grep finden
+2. Diff trotzdem gegen `main` ermitteln
 
 Bei sehr grossem Diff: Code-Lesen kann an `Explore`-Subagent delegiert werden, um den Hauptkontext freizuhalten. Keine starre Schwelle - Fingerspitzengefuehl.
 
-### Schritt 2: Diff + Checks parallel
+### Schritt 2: Diff + Checks parallel (Subagent-First)
 
-In einer Bash-Runde parallel starten:
+**Regel:** Alles mit langem Output oder unabhaengiger Recherche → Subagent. Hauptkontext bleibt fuer Bewertung frei.
 
-1. **Diff lesen:** `git diff $(git merge-base main HEAD) HEAD` → Review-Fokus
-2. **Statische Pruefungen:** `make -C ios check` ODER `make -C android lint` (je nach Plattform im Diff)
-3. **Memory-Check:** MEMORY.md auf themen-relevante Eintraege scannen (Audio → Lock-Screen-Gong-Bug, UIKit-bridged Controls → Theme-Probleme, Convenience init → Dependency vergessen, etc.)
+In einer Runde parallel starten:
+
+1. **Diff lesen** (Hauptkontext): `git diff $(git merge-base main HEAD) HEAD` → Review-Fokus
+2. **Statische Pruefungen** (`Bash`-Subagent): `make -C ios check` ODER `make -C android lint`. Prompt: "Run X in Y, return only RESULT and any errors".
+3. **Test-Lauf** (`Bash`-Subagent): `make -C {platform} test-unit-agent` mit `timeout: 300000`. **Kein Review ohne grüne Tests** - rote Tests sind Nacharbeit, bevor weitergereviewt wird.
+4. **Memory-Mapping** (Hauptkontext): MEMORY.md gegen Diff-Themen mappen. Konkrete Trigger:
+
+| Diff enthaelt | MEMORY-Eintraege pruefen |
+|---|---|
+| `AudioService`, `AudioSession`, Gong | [[project_lock_screen_gong_bug]], Lock-Screen-Keep-Alive |
+| `Slider`, `Picker(.segmented)`, `DatePicker`, `Stepper` | UIKit-bridged Controls → `.id(theme)` noetig |
+| Neue Dependency in Service-`init` | [[ios-architektur-fallstricke]] Convenience-init |
+| `.navigationTitle()`, `.searchable()` in Sheet | UIKit-Bridge → Toolbar-Workaround |
+| `.foregroundColor(.warmBlack)` etc. | Direkte Farben → semantische Rolle |
+| Neue Compose-Composables | detekt LongMethod, MultipleEmitters |
+| `preferencesDataStore(name=...)` | [[feedback_android_datastore_singleton]] |
+| `remember { ... }` mit Lambda-Closure | [[feedback_compose_stale_lambda]] |
+| Feature nach Meditations-Ende | [[feedback_lock_screen_lifecycle]] |
 
 Bei UI-Code zusaetzlich:
-4. **Localization:** `/review-localization` als parallelen Subagent starten
+5. **Localization** (Subagent): `/review-localization`
+6. **Cross-Platform-Check** (Hauptkontext): Wenn Feature auf beiden Plattformen existiert — wurde die andere Plattform synchron gehalten? Siehe `checklists/cross-platform.md`.
 
 ### Schritt 3: Bewerten
 
@@ -68,8 +89,11 @@ Bewerten nach Checklisten - aber nur wenn es etwas zu sagen gibt:
 3. **Lesbarkeit (DDD)** - `checklists/lesbarkeit.md`
 4. **Testabdeckung** - `checklists/tests.md`
 5. **Scope-Treue** - `checklists/scope.md`
-6. **Mechanische Findings** - `checklists/mechanische-findings.md`
-7. **Dokumentation** - `checklists/doku.md`
+6. **Cross-Platform-Konsistenz** - `checklists/cross-platform.md`
+7. **Mechanische Findings** - `checklists/mechanische-findings.md`
+8. **Dokumentation** - `checklists/doku.md`
+
+**Review-Annahmen explizit machen** (Karpathy "Think Before Coding"): Bevor ein nicht-mechanisches Finding rausgeht, prüfen: "Welche Annahme treffe ich hier? Koennte es absichtlich so sein?" Beispiel: `strong self` in einem Task der die View-Lifetime ueberdauert ist kein Leak. **Wenn unklar: nicht raten - Verify-Subagent (`Explore`) starten** ("Wer ruft diese Methode auf? Wie ist der Lifecycle?") oder im Report als Frage formulieren statt als Bug.
 
 Bei Ticket-Reviews zusaetzlich: jedes Akzeptanzkriterium einzeln pruefen, Scope-Drift gezielt suchen.
 
@@ -120,10 +144,13 @@ Bei Zustimmung: Fixes direkt im Hauptkontext via `Edit`-Tool umsetzen (kein Suba
 - Existierenden Stil matchen
 - Nach allen Fixes einmal `make -C {platform} check` (gruen sein)
 - Bei Unklarheit (z.B. welcher Logger-Kanal passt) STOPPEN und zurueckmelden, nicht raten
+- **Wenn `make check` nach Fix rot wird: STOP, kein Try-and-Error.** Diff zeigen, Fehler melden, User entscheidet — nicht selbstaendig weiterfrickeln.
 
 **Substanzielle Findings** (fehlender Test, kleines Refactoring): einzeln nachfragen mit konkretem Vorschlag. Nicht autonom fixen.
 
 **Diskutierte Findings** (Architektur, Naming, Design): kein Auto-Fix, nur Report. Das sind oft die wichtigsten Findings - sie verlangen Diskussion, nicht Mechanik.
+
+Bei diskutierten Findings: **Optionen statt Empfehlung praesentieren** wenn mehrere Ansaetze sinnvoll sind. "Diese Naming-Wahl koennte als A, B oder C angegangen werden — welche passt zum Domaenen-Modell?" — User entscheidet. Nur wenn klar besser: eine konkrete Empfehlung.
 
 ## Was ECHTE Findings sind
 
@@ -167,3 +194,4 @@ Bei Zustimmung: Fixes direkt im Hauptkontext via `Edit`-Tool umsetzen (kein Suba
 - `dev-docs/tickets/INDEX.md` - Ticket-System
 - `checklists/mechanische-findings.md` - Auto-Fix-Patterns
 - `checklists/scope.md` - Surgical Changes + Overengineering
+- `checklists/cross-platform.md` - iOS/Android-Konsistenz
