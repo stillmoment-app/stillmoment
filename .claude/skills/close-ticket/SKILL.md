@@ -1,15 +1,24 @@
 ---
 name: close-ticket
-description: Schliesst Tickets ab mit Status-Update in Ticket-Datei und INDEX.md. Prueft Akzeptanzkriterien und Dokumentations-Anforderungen. Aktiviere bei "Schliesse Ticket...", "Close ticket...", oder /close-ticket.
+description: Schliesst Tickets vollstaendig ab — committet offene Aenderungen, prueft CHANGELOG, setzt Ticket+INDEX auf DONE, merged Branch nach main (--no-ff) und loescht ihn lokal. Aktiviere bei "Schliesse Ticket...", "Close ticket...", oder /close-ticket.
 ---
 
 # Close Ticket
 
-Ticket abschliessen mit Status-Update und Dokumentations-Check.
+Ein Ticket wird mit diesem Skill vollstaendig abgeschlossen — Code, Doku, Status und Git in einem Rutsch.
 
 ## Kernprinzip
 
-**Sorgfaeltig abschliessen.** Ein Ticket ist erst DONE wenn alle Akzeptanzkriterien erfuellt sind und die Dokumentation aktualisiert wurde.
+**Ein Ticket ist erst DONE wenn alles drumherum stimmt:**
+- Alle Aenderungen committed
+- CHANGELOG-Eintrag vorhanden
+- Ticket-Datei + INDEX.md auf `[x] DONE`
+- Branch nach main gemerged und lokal geloescht
+
+**Was dieser Skill NICHT tut:**
+- Keine inhaltliche Pruefung der Akzeptanzkriterien — das macht `/review-code` vor dem Close.
+- Kein `git push` und kein remote-delete des Branches — der User pusht manuell.
+- Keine Tests laufen lassen — Annahme: vor dem Close war alles gruen.
 
 ## Wann dieser Skill aktiviert wird
 
@@ -18,75 +27,103 @@ Ticket abschliessen mit Status-Update und Dokumentations-Check.
 - "Ticket shared-001 ist fertig"
 - `/close-ticket ios-023`
 
+## Konventionen aus dem Repo
+
+Aus Git-History und CHANGELOG-Struktur:
+- **Branch-Name:** `feature/<ticket-id>` oder `feature/<ticket-id>-<platform>` (z.B. `feature/ios-042`, `feature/shared-067-ios`)
+- **Commit-Message:** `<type>(<scope>): #<ticket-id> <kurzbeschreibung>` (z.B. `feat(ios): #ios-041 Bibliotheks-Suche`)
+- **Type:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`
+- **Scope:** `ios`, `android`, `shared`, oder Sub-Bereich
+- **CHANGELOG.md:** `[Unreleased]`-Sektion mit Subsektionen `### Added|Changed|Fixed|Removed (iOS)` bzw. `(Android)`. Jeder Eintrag endet mit `(Ticket: <ticket-id>)`.
+
 ## Workflow
 
-### Schritt 1: Ticket-Nummer extrahieren
+### Schritt 1: Ticket-Nummer ermitteln
 
-Extrahiere aus dem Trigger:
-- Pattern: `(ios|android|shared)-(\d+)`
-- Beispiel: "Schliesse Ticket **ios-023**" → `ios-023`
+Reihenfolge der Quellen:
 
-Falls nicht im Trigger, frage:
-> "Welches Ticket soll geschlossen werden? (z.B. ios-023)"
+1. **Trigger-Text:** Pattern `(ios|android|shared)-(\d+)` (z.B. "Schliesse Ticket **ios-023**" → `ios-023`)
+2. **Aktueller Branch-Name als Fallback:** `git rev-parse --abbrev-ref HEAD`, dann Pattern `feature/(ios|android|shared)-(\d+)(-(ios|android))?` matchen. Beispiele:
+   - `feature/ios-042` → `ios-042`
+   - `feature/shared-067-ios` → `shared-067`, Plattform-Hinweis `ios` (relevant fuer Shared-Tickets-Sonderfall)
+   - `feature/shared-075` → `shared-075`
+3. **Wenn beides nichts ergibt:** "Welches Ticket soll geschlossen werden? (z.B. ios-023)"
+
+Wenn die ID aus dem Branch abgeleitet wird, einmal sichtbar bestaetigen:
+> "Schliesse Ticket {id} (aus Branch `{branch}` abgeleitet)."
+
+Falls die Trigger-ID und die Branch-ID auseinanderlaufen: STOP, fragen welche stimmt — sonst merged man am Ende den falschen Branch.
 
 ### Schritt 2: Ticket finden und lesen
 
-**Wichtig:** Ticket-Dateinamen haben Suffixe (z.B. `ios-039-legacy-settings-store-aufraeumen.md`). Nie den Pfad raten — immer per Glob suchen:
+Ticket-Dateinamen haben Suffixe — nie raten, immer per Glob suchen:
 - `dev-docs/tickets/{platform}/{ticket-id}*.md`
 
-1. Glob nach Ticket-ID
-2. Lese Ticket-Datei
-3. Extrahiere:
-   - Aktueller Status (`[ ]`, `[~]`, `[x]`)
-   - Akzeptanzkriterien
-   - Phase/Typ
+Lese die Datei und extrahiere:
+- Aktueller Status (`[ ]`, `[~]`, `[x]`)
+- Titel (fuer Commit-Messages und CHANGELOG)
+- Ticket-Typ (Feature / Bug Fix / Refactoring / ...)
 
-### Schritt 3: Status pruefen
+**Wenn Status bereits `[x]` DONE:**
+> "Ticket {id} ist bereits abgeschlossen. Pruefe nur noch Git-Zustand und Merge?"
+> Bei "ja" weiter ab Schritt 4. Bei "nein" Ende.
 
-**Wenn bereits DONE `[x]`:**
-> "Ticket {id} ist bereits abgeschlossen."
-> Ende.
+### Schritt 3: Branch-Zuordnung pruefen
 
-**Wenn TODO `[ ]`:**
-> "Ticket {id} wurde noch nicht begonnen. Soll es trotzdem als DONE markiert werden?"
+Ermittle aktuellen Branch: `git rev-parse --abbrev-ref HEAD`
 
-**Wenn IN PROGRESS `[~]`:**
-> Weiter zu Schritt 4.
+- Wenn Branch `main` → STOP, fragen: "Du bist auf main. Welcher Branch gehoert zu {ticket-id}?"
+- Wenn Branch-Name die Ticket-ID enthaelt → OK
+- Sonst warnen: "Aktueller Branch ist `{branch}` — gehoert er zu {ticket-id}? (ja/nein)"
 
-### Schritt 4: Akzeptanzkriterien pruefen
+### Schritt 4: Offene Aenderungen committen
 
-Pruefe die Akzeptanzkriterien selbst gegen den aktuellen Code/Diff. Zeige das Ergebnis als Tabelle:
+`git status --porcelain`
 
-| Kriterium | Erfuellt? |
-|-----------|-----------|
-| ... | Ja/Nein |
+**Wenn leer:** weiter zu Schritt 5.
 
-Nur bei Zweifeln den User fragen. In der Regel wurde vor dem Close bereits ein Review gemacht.
+**Wenn nicht leer:**
+1. Zeige `git status` + kurzen `git diff --stat`.
+2. Schlage Commit-Message vor, Format: `<type>(<scope>): #<ticket-id> <kurzbeschreibung>`
+   - `type` aus Ticket-Typ ableiten (Feature → `feat`, Bug Fix → `fix`, Refactoring → `refactor`, sonst `chore`)
+   - `scope` aus Plattform (`ios`, `android`, `shared`)
+   - Kurzbeschreibung aus Ticket-Titel
+3. Frage: "Committen mit dieser Message? (ja / andere Message / abbrechen)"
+4. Bei "ja": stage gezielt (keine `git add -A`, lieber konkrete Pfade aus `git status`), commit.
+5. Bei "abbrechen": Skill stoppt — User soll selbst committen und Skill erneut starten.
 
-### Schritt 5: Dokumentations-Check
+### Schritt 5: CHANGELOG.md pruefen
 
-Basierend auf Ticket-Typ (aus INDEX.md Dokumentations-Regel):
+Lies den `[Unreleased]`-Block aus `CHANGELOG.md`.
 
-| Ticket-Typ | CHANGELOG.md | CLAUDE.md |
-|------------|--------------|-----------|
-| Bug Fix | Pruefen | - |
-| Feature | Pruefen | Bei Architektur |
-| Architektur | Pruefen | Pruefen |
-| QA | - | - |
+Suche nach einer Zeile mit `(Ticket: {ticket-id})`.
 
-Selbst pruefen ob CHANGELOG.md und ggf. CLAUDE.md aktualisiert werden muessen. Bei Bedarf selbst aktualisieren.
+**Wenn vorhanden:** OK, weiter zu Schritt 6.
 
-### Schritt 6: Status aktualisieren
+**Wenn nicht vorhanden:**
+1. Frage: "Kein CHANGELOG-Eintrag fuer {ticket-id} gefunden. Soll ich einen erstellen?"
+2. Bei "ja":
+   - Sektion bestimmen: `Added` (neues Feature), `Changed` (Aenderung an Bestehendem), `Fixed` (Bug Fix), `Removed` (Entfernung)
+   - Plattform aus Ticket-ID/Branch ableiten (`(iOS)` / `(Android)`)
+   - Eintragsformat aus bestehenden Eintraegen spiegeln: `- **Titel** - Beschreibung. (Ticket: {ticket-id})`
+   - Beschreibung aus Ticket-Inhalt zusammenfassen (1–3 Saetze, was sich aus User-Sicht aendert)
+   - User-Bestaetigung des Entwurfs einholen, dann eintragen
+3. Commit: `docs(<scope>): #<ticket-id> CHANGELOG-Eintrag`
 
-1. **Ticket-Datei aktualisieren:**
-   - Aendere `**Status**: [~] IN PROGRESS` zu `**Status**: [x] DONE`
-   - Oder `**Status**: [ ] TODO` zu `**Status**: [x] DONE`
+### Schritt 6: Status auf DONE setzen
 
-2. **INDEX.md aktualisieren:**
-   - Finde Zeile mit Ticket-ID
-   - Aendere `[~]` oder `[ ]` zu `[x]`
+1. **Ticket-Datei:** `**Status**: [~] IN PROGRESS` (oder `[ ] TODO`) → `**Status**: [x] DONE`
+2. **INDEX.md** in `dev-docs/tickets/INDEX.md`: Zeile mit Ticket-ID finden, `[~]` oder `[ ]` → `[x]`
+3. Commit: `docs(<ticket-id>): Ticket abschliessen`
 
-### Schritt 7: Zusammenfassung
+### Schritt 7: Merge in main und Branch loeschen
+
+1. `git checkout main`
+2. `git merge --no-ff <branch>` — Default-Merge-Message (`Merge branch '<branch>'`) ist ok
+3. **Bei Merge-Konflikt:** STOP. Zeige Konflikt-Files, frage User wie weiter (Konflikt manuell loesen, dann erneut). Skill selbst loest keine Konflikte.
+4. **Bei erfolgreichem Merge:** `git branch -d <branch>` (kein `-D` — falls da noch was nicht gemerged ist, soll's failen und der User entscheidet)
+
+### Schritt 8: Zusammenfassung
 
 ```
 Ticket geschlossen: {ticket-id}
@@ -94,10 +131,16 @@ Ticket geschlossen: {ticket-id}
 Status: [x] DONE
 Datei: dev-docs/tickets/{platform}/{filename}.md
 INDEX.md: Aktualisiert
+CHANGELOG: {Eintrag vorhanden / neu erstellt}
 
-Dokumentation:
-- CHANGELOG.md: [Aktualisiert/Nicht noetig]
-- CLAUDE.md: [Aktualisiert/Nicht noetig]
+Git:
+- Commits auf {branch}: {N}
+- Merged in main (--no-ff)
+- Branch lokal geloescht
+
+Noch zu tun (manuell):
+- git push origin main
+- git push origin --delete {branch}
 ```
 
 ## Sonderfaelle
@@ -105,49 +148,27 @@ Dokumentation:
 ### WONTFIX
 
 Falls User sagt "als WONTFIX schliessen":
-1. Aendere Status zu `[x] WONTFIX`
-2. Frage nach Begruendung
-3. Fuege Begruendung ins Ticket ein
+1. Frage nach Begruendung
+2. Fuege Begruendung als Notiz ins Ticket ein
+3. Status → `[x] WONTFIX` (statt `[x] DONE`)
+4. Kein Merge — Branch je nach User-Wunsch verwerfen oder behalten
 
 ### Shared-Tickets
 
-Bei Shared-Tickets:
+Bei `shared-*`-Tickets:
 1. Frage: "Welche Plattform wurde abgeschlossen?"
    - Nur iOS
    - Nur Android
    - Beide
+2. Aktualisiere nur die entsprechende Plattform-Spalte in INDEX.md
+3. Wenn nur eine Plattform DONE → Ticket bleibt offen (kein Merge zu main fuer die andere Plattform), oder Branch ist plattform-spezifisch (`feature/shared-082-ios`) → dann normal mergen, INDEX-Eintrag bleibt teilweise offen
 
-2. Aktualisiere entsprechende Status-Spalten in INDEX.md
+### Bereits committet, aber CHANGELOG fehlt
 
-## Beispiel
-
-**Input:**
-> "Schliesse Ticket ios-020"
-
-**Ablauf:**
-```
-Ticket ios-020: Timer Reducer Architecture
-
-Akzeptanzkriterien:
-| Kriterium | Erfuellt? |
-|-----------|-----------|
-| TimerReducer extrahiert | Ja |
-| Unit Tests vorhanden | Ja |
-| ViewModel nutzt Reducer | Ja |
-
-Dokumentation:
-- CHANGELOG.md: Aktualisiert
-- CLAUDE.md: Aktualisiert (Architektur-Ticket)
-
-Ticket geschlossen: ios-020
-
-Status: [x] DONE
-Datei: dev-docs/tickets/ios/ios-020-timer-reducer-architecture.md
-INDEX.md: Aktualisiert
-```
+Normaler Pfad — Schritt 5 fuegt CHANGELOG nachtraeglich hinzu (eigener `docs:`-Commit). Kein Squash, kein Amend.
 
 ## Referenzen
 
-- `dev-docs/tickets/INDEX.md` - Ticket-Uebersicht + Dokumentations-Regel
-- `CHANGELOG.md` - Aenderungshistorie
-- `CLAUDE.md` - Projekt-Dokumentation
+- `dev-docs/tickets/INDEX.md` — Ticket-Uebersicht
+- `CHANGELOG.md` — `[Unreleased]`-Sektion ist Pflicht-Quelle fuer Release Notes
+- `dev-docs/release/RELEASE_GUIDE.md` — was nach dem Close mit `[Unreleased]` passiert

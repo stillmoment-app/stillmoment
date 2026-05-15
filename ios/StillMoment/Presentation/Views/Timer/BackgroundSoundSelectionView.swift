@@ -50,15 +50,6 @@ struct BackgroundSoundSelectionView: View {
         .onDisappear {
             self.viewModel.stopAllPreviews()
         }
-        .onAppear {
-            // Show rename alert for freshly imported custom soundscape
-            if let pending = self.fileOpenHandler.pendingCustomAudioImport {
-                self.fileToRename = pending.file
-                self.renameText = pending.file.name
-                self.showRenameAlert = true
-                self.fileOpenHandler.pendingCustomAudioImport = nil
-            }
-        }
         .sheet(isPresented: self.$showImportPicker) {
             DocumentPicker { url in
                 self.viewModel.importCustomAudio(from: url)
@@ -112,7 +103,6 @@ struct BackgroundSoundSelectionView: View {
 
     @Environment(\.themeColors)
     private var theme
-    @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @ObservedObject private var viewModel: PraxisEditorViewModel
     @State private var showImportPicker = false
     @State private var fileToDelete: CustomAudioFile?

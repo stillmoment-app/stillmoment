@@ -2,7 +2,7 @@
 //  FileOpenHandlerImportFlowTests.swift
 //  Still Moment
 //
-//  Tests for FileOpenHandler import flow state management (shared-073)
+//  Tests for the share/open-with import flow (ios-042: always meditation).
 //
 
 import XCTest
@@ -18,125 +18,133 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockCustomAudioRepo: MockCustomAudioRepository!
 
     override func setUp() {
         super.setUp()
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
-        self.mockCustomAudioRepo = MockCustomAudioRepository()
         self.sut = FileOpenHandler(
             meditationService: self.mockMeditationService,
-            metadataService: self.mockMetadataService,
-            customAudioRepository: self.mockCustomAudioRepo
+            metadataService: self.mockMetadataService
         )
     }
 
     override func tearDown() {
         self.sut = nil
-        self.mockCustomAudioRepo = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil
         super.tearDown()
     }
 
-    // MARK: - Prepare Import
+    // MARK: - Direct Import on Share
 
-    func testPrepareImport_validFile_setsShowImportTypeSelection() {
+    func testImportFile_validMP3_addsMeditationToLibrary() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
 
         // When
-        self.sut.prepareImport(url: url)
+        let result = await self.sut.importFile(from: url)
 
         // Then
-        XCTAssertTrue(self.sut.showImportTypeSelection)
-        XCTAssertEqual(self.sut.pendingImportURL, url)
+        guard case .success = result else {
+            XCTFail("Expected success, got \(result)")
+            return
+        }
+        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
     }
 
-    func testPrepareImport_validFile_setsShouldStopMeditation() {
+    func testImportFile_validMP3_publishesImportedMeditation() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
 
         // When
-        self.sut.prepareImport(url: url)
+        _ = await self.sut.importFile(from: url)
 
-        // Then
-        XCTAssertTrue(self.sut.shouldStopMeditation)
+        // Then — Library beobachtet importedMeditation und oeffnet das Edit-Sheet
+        XCTAssertNotNil(self.sut.importedMeditation)
+        XCTAssertEqual(self.sut.importedMeditation?.fileName, "meditation.mp3")
     }
 
-    func testPrepareImport_unsupportedFormat_doesNotShowSheet() {
+    func testImportFile_unsupportedFormat_returnsError() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/document.pdf")
 
         // When
-        self.sut.prepareImport(url: url)
+        let result = await self.sut.importFile(from: url)
 
         // Then
-        XCTAssertFalse(self.sut.showImportTypeSelection)
-        XCTAssertNil(self.sut.pendingImportURL)
+        guard case let .failure(error) = result else {
+            XCTFail("Expected failure, got \(result)")
+            return
+        }
+        XCTAssertEqual(error, .unsupportedFormat)
+        XCTAssertNil(self.sut.importedMeditation)
     }
 
-    // MARK: - Cancel Import
-
-    func testCancelPendingImport_clearsAllState() {
+    func testImportFile_duplicate_returnsAlreadyImported() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        self.sut.prepareImport(url: url)
-        XCTAssertTrue(self.sut.showImportTypeSelection)
-        XCTAssertTrue(self.sut.shouldStopMeditation)
+        let existing = GuidedMeditation(
+            localFilePath: "existing.mp3",
+            fileName: "meditation.mp3",
+            duration: 600,
+            teacher: "Teacher",
+            name: "Existing"
+        )
+        self.mockMeditationService.meditations = [existing]
 
         // When
-        self.sut.cancelPendingImport()
+        let result = await self.sut.importFile(from: url)
 
         // Then
-        XCTAssertFalse(self.sut.showImportTypeSelection)
-        XCTAssertNil(self.sut.pendingImportURL)
+        guard case let .failure(error) = result else {
+            XCTFail("Expected failure, got \(result)")
+            return
+        }
+        guard case .alreadyImported = error else {
+            XCTFail("Expected alreadyImported, got \(error)")
+            return
+        }
+    }
+
+    func testImportFile_metadataFailure_returnsImportFailed() async {
+        // Given
+        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        self.mockMetadataService.extractShouldThrow = true
+
+        // When
+        let result = await self.sut.importFile(from: url)
+
+        // Then
+        guard case let .failure(error) = result else {
+            XCTFail("Expected failure, got \(result)")
+            return
+        }
+        XCTAssertEqual(error, .importFailed)
+    }
+
+    // MARK: - shouldStopMeditation Signal
+
+    func testImportFile_validFile_signalsRunningMeditationToStop() async {
+        // Given
+        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
         XCTAssertFalse(self.sut.shouldStopMeditation)
-    }
-
-    // MARK: - Import Result State
-
-    func testImportAsSoundscape_setsPendingCustomAudioImport() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/nature-sounds.mp3")
-        self.sut.prepareImport(url: url)
 
         // When
-        let result = await self.sut.importFile(from: url, as: .soundscape)
+        _ = await self.sut.importFile(from: url)
 
-        // Then
-        guard case .success = result else {
-            XCTFail("Expected success")
-            return
-        }
-        XCTAssertNotNil(self.sut.pendingCustomAudioImport)
+        // Then — eine laufende Meditation (Timer/Player) muss beim Import beendet werden
+        XCTAssertTrue(self.sut.shouldStopMeditation)
     }
 
-    func testImportAsGuidedMeditation_setsImportedMeditation() async {
+    func testImportFile_unsupportedFormat_doesNotSignalStop() async {
         // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        let url = URL(fileURLWithPath: "/tmp/document.pdf")
 
         // When
-        let result = await self.sut.importFile(from: url, as: .guidedMeditation)
+        _ = await self.sut.importFile(from: url)
 
-        // Then
-        guard case .success = result else {
-            XCTFail("Expected success")
-            return
-        }
-        XCTAssertNotNil(self.sut.importedMeditation)
-    }
-
-    func testImportAsGuidedMeditation_doesNotSetPendingCustomAudio() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When
-        _ = await self.sut.importFile(from: url, as: .guidedMeditation)
-
-        // Then
-        XCTAssertNil(self.sut.pendingCustomAudioImport)
+        // Then — abgelehnte Datei darf keine laufende Meditation stoppen
+        XCTAssertFalse(self.sut.shouldStopMeditation)
     }
 }

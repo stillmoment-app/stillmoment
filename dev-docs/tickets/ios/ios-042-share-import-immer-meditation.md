@@ -1,6 +1,6 @@
 # Ticket ios-042: Share-Import immer als Meditation
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Geringer Aufwand, betrifft aber den Share-Eintrittspfad (Share Extension, "Oeffnen mit", URL-Download via Inbox) und den anschliessenden Library-Flow inkl. Edit-Sheet — Regressionen waeren sofort fuer User sichtbar.
 **Abhaengigkeiten**: Keine

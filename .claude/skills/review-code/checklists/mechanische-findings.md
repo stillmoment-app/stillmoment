@@ -1,6 +1,6 @@
 # Mechanische Findings (Auto-Fix-Kandidaten)
 
-Findings die per Pattern erkannt und mit Standard-Fix behoben werden koennen. Diese landen im Auto-Fix-Flow (siehe SKILL.md Schritt 8).
+Findings die per Pattern erkannt und mit Standard-Fix behoben werden koennen. Diese landen im Auto-Fix-Flow (siehe SKILL.md Schritt 5).
 
 ## Wann ist ein Finding "mechanisch"?
 
@@ -218,4 +218,5 @@ Wenn Auto-Fix ausgeloest wird (direkt im Hauptkontext via `Edit`):
 2. **Keine Verhaltensaenderung:** Fix darf das Beobachtungsverhalten nicht aendern (ausser bei Bug-Fixes).
 3. **Stop on uncertainty:** Bei Unklarheit (z.B. welcher Logger-Kanal passt) zurueckmelden, nicht raten.
 4. **Quality Gate:** Nach allen Fixes `make -C {platform} check` muss gruen sein.
-5. **TDD bei Test-Findings:** Test rot → fixen → gruen.
+5. **Stop bei rotem check:** Wenn der Quality Gate rot wird, NICHT weiter-fixen. Diff zeigen, Fehler melden, User entscheidet.
+6. **TDD bei Test-Findings:** Test rot → fixen → gruen.

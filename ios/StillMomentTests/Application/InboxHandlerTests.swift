@@ -25,8 +25,6 @@ final class InboxHandlerTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockCustomAudioRepo: MockCustomAudioRepository!
-    // swiftlint:disable:next implicitly_unwrapped_optional
     var inboxDirectory: URL!
 
     override func setUp() {
@@ -40,11 +38,9 @@ final class InboxHandlerTests: XCTestCase {
 
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
-        self.mockCustomAudioRepo = MockCustomAudioRepository()
         self.mockFileOpenHandler = FileOpenHandler(
             meditationService: self.mockMeditationService,
-            metadataService: self.mockMetadataService,
-            customAudioRepository: self.mockCustomAudioRepo
+            metadataService: self.mockMetadataService
         )
         self.mockDownloadService = MockAudioDownloadService()
 
@@ -61,7 +57,6 @@ final class InboxHandlerTests: XCTestCase {
         self.sut = nil
         self.mockDownloadService = nil
         self.mockFileOpenHandler = nil
-        self.mockCustomAudioRepo = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil
         self.inboxDirectory = nil
@@ -82,25 +77,8 @@ final class InboxHandlerTests: XCTestCase {
 
     // MARK: - Audio File Processing
 
-    func testAudioFileInInboxIsPassedToFileOpenHandler() async {
+    func testAudioFileIsImportedDirectlyAsMeditation() async {
         // Given
-        let filename = "\(UUID().uuidString)_meditation.mp3"
-        let fileURL = self.inboxDirectory.appendingPathComponent(filename)
-        FileManager.default.createFile(atPath: fileURL.path, contents: Data(repeating: 0xFF, count: 100))
-
-        // When
-        let result = await self.sut.processInbox()
-
-        // Then
-        if case .audioFile = result {
-            // File was recognized and handed off for import
-        } else {
-            XCTFail("Expected .audioFile result, got \(result)")
-        }
-    }
-
-    func testAudioFileExistsAfterProcessingForDeferredImport() async {
-        // Given — audio file in inbox, user hasn't selected import type yet
         let filename = "\(UUID().uuidString)_meditation.mp3"
         let fileURL = self.inboxDirectory.appendingPathComponent(filename)
         FileManager.default.createFile(atPath: fileURL.path, contents: Data(repeating: 0xFF, count: 100))
@@ -108,10 +86,24 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then — file must still exist because the user needs to select an import type
-        XCTAssertTrue(
+        // Then — Datei wurde direkt importiert und ist als Meditation in der Library
+        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
+        XCTAssertNotNil(self.mockFileOpenHandler.importedMeditation)
+    }
+
+    func testAudioFileIsCleanedUpFromInboxAfterImport() async {
+        // Given
+        let filename = "\(UUID().uuidString)_meditation.mp3"
+        let fileURL = self.inboxDirectory.appendingPathComponent(filename)
+        FileManager.default.createFile(atPath: fileURL.path, contents: Data(repeating: 0xFF, count: 100))
+
+        // When
+        _ = await self.sut.processInbox()
+
+        // Then — Inbox-Datei wurde nach dem Import aufgeraeumt
+        XCTAssertFalse(
             FileManager.default.fileExists(atPath: fileURL.path),
-            "Audio file must remain in inbox until import type selection completes"
+            "Inbox audio file should be removed after import"
         )
     }
 
@@ -238,7 +230,7 @@ final class InboxHandlerTests: XCTestCase {
         }
     }
 
-    func testOlderEntriesDeletedButNewestAudioFileKept() async {
+    func testOlderEntriesDeletedAndNewestAudioFileImported() async {
         // Given - multiple audio entries in inbox
         let file1 = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_first.mp3")
         let file2 = self.inboxDirectory.appendingPathComponent("\(UUID().uuidString)_second.mp3")
@@ -252,15 +244,16 @@ final class InboxHandlerTests: XCTestCase {
         // When
         _ = await self.sut.processInbox()
 
-        // Then - older entry deleted, newest kept for deferred import
+        // Then - older entry deleted, newest imported and cleaned up
         XCTAssertFalse(
             FileManager.default.fileExists(atPath: file1.path),
             "Older entry should be deleted"
         )
-        XCTAssertTrue(
+        XCTAssertFalse(
             FileManager.default.fileExists(atPath: file2.path),
-            "Newest audio file must remain for deferred import"
+            "Newest entry should be cleaned up after direct import"
         )
+        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
     }
 
     // MARK: - Stale Entry Cleanup
@@ -300,16 +293,17 @@ final class InboxHandlerTests: XCTestCase {
         // When
         let result = await self.sut.processInbox()
 
-        // Then - fresh entry processed, stale entry deleted
+        // Then - fresh entry processed (imported + cleaned up), stale entry deleted
         if case .audioFile = result {
             XCTAssertFalse(
                 FileManager.default.fileExists(atPath: staleURL.path),
                 "Stale entry should be deleted"
             )
-            XCTAssertTrue(
+            XCTAssertFalse(
                 FileManager.default.fileExists(atPath: freshURL.path),
-                "Fresh audio file must remain for deferred import"
+                "Fresh entry should be cleaned up after direct import"
             )
+            XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
         } else {
             XCTFail("Expected .audioFile result, got \(result)")
         }
@@ -424,9 +418,9 @@ final class InboxHandlerTests: XCTestCase {
             XCTFail("Expected .error(.notAnAudioUrl), got \(result)")
         }
         XCTAssertEqual(self.sut.downloadError, .notAnAudioUrl)
-        XCTAssertFalse(
-            self.mockFileOpenHandler.showImportTypeSelection,
-            "Importer hat die Datei nicht angenommen — Sheet darf nicht erscheinen"
+        XCTAssertNil(
+            self.mockFileOpenHandler.importedMeditation,
+            "Importer hat die Datei nicht angenommen — Edit-Sheet darf nicht ausgeloest werden"
         )
     }
 

@@ -2,13 +2,11 @@
 //  FileOpenHandlerTests.swift
 //  Still Moment
 //
-//  Tests for FileOpenHandler - handles "Open with" file association
+//  Tests for FileOpenHandler - handles share/"open with" imports.
 //
 
 import XCTest
 @testable import StillMoment
-
-// MARK: - FileOpenHandlerTests
 
 @MainActor
 final class FileOpenHandlerTests: XCTestCase {
@@ -20,199 +18,47 @@ final class FileOpenHandlerTests: XCTestCase {
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMetadataService: MockAudioMetadataService!
-    // swiftlint:disable:next implicitly_unwrapped_optional
-    var mockCustomAudioRepo: MockCustomAudioRepository!
 
     override func setUp() {
         super.setUp()
         self.mockMeditationService = MockGuidedMeditationService()
         self.mockMetadataService = MockAudioMetadataService()
-        self.mockCustomAudioRepo = MockCustomAudioRepository()
         self.sut = FileOpenHandler(
             meditationService: self.mockMeditationService,
-            metadataService: self.mockMetadataService,
-            customAudioRepository: self.mockCustomAudioRepo
+            metadataService: self.mockMetadataService
         )
     }
 
     override func tearDown() {
         self.sut = nil
-        self.mockCustomAudioRepo = nil
         self.mockMetadataService = nil
         self.mockMeditationService = nil
         super.tearDown()
     }
 
-    // MARK: - Supported Format Tests
+    // MARK: - Supported Formats
 
     func testAcceptsMP3File() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When
-        let result = self.sut.canHandle(url: url)
-
-        // Then
-        XCTAssertTrue(result)
+        XCTAssertTrue(self.sut.canHandle(url: URL(fileURLWithPath: "/tmp/meditation.mp3")))
     }
 
     func testAcceptsM4AFile() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.m4a")
-
-        // When
-        let result = self.sut.canHandle(url: url)
-
-        // Then
-        XCTAssertTrue(result)
+        XCTAssertTrue(self.sut.canHandle(url: URL(fileURLWithPath: "/tmp/meditation.m4a")))
     }
 
     func testAcceptsUppercaseExtension() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.MP3")
-
-        // When
-        let result = self.sut.canHandle(url: url)
-
-        // Then
-        XCTAssertTrue(result)
+        XCTAssertTrue(self.sut.canHandle(url: URL(fileURLWithPath: "/tmp/meditation.MP3")))
     }
 
     func testRejectsUnsupportedFormat() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/document.pdf")
-
-        // When
-        let result = self.sut.canHandle(url: url)
-
-        // Then
-        XCTAssertFalse(result)
+        XCTAssertFalse(self.sut.canHandle(url: URL(fileURLWithPath: "/tmp/document.pdf")))
     }
 
     func testRejectsWAVFormat() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/audio.wav")
-
-        // When
-        let result = self.sut.canHandle(url: url)
-
-        // Then
-        XCTAssertFalse(result)
+        XCTAssertFalse(self.sut.canHandle(url: URL(fileURLWithPath: "/tmp/audio.wav")))
     }
 
-    // MARK: - Import Tests
-
-    func testSuccessfulImportReturnsMeditation() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case .success:
-            XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
-        case .failure:
-            XCTFail("Expected success but got failure")
-        }
-    }
-
-    func testSuccessfulImportResultIncludesMeditation() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case let .success(meditation):
-            XCTAssertNotNil(meditation)
-            XCTAssertEqual(meditation.fileName, "meditation.mp3")
-        case .failure:
-            XCTFail("Expected success but got failure")
-        }
-    }
-
-    func testUnsupportedFormatReturnsError() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/document.pdf")
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case .success:
-            XCTFail("Expected failure for unsupported format")
-        case let .failure(error):
-            XCTAssertEqual(error, .unsupportedFormat)
-        }
-    }
-
-    func testMetadataExtractionFailureReturnsError() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/corrupt.mp3")
-        self.mockMetadataService.extractShouldThrow = true
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case .success:
-            XCTFail("Expected failure for corrupt file")
-        case let .failure(error):
-            XCTAssertEqual(error, .importFailed)
-        }
-    }
-
-    func testServiceAddFailureReturnsError() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        self.mockMeditationService.addShouldThrow = true
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case .success:
-            XCTFail("Expected failure when service fails")
-        case let .failure(error):
-            XCTAssertEqual(error, .importFailed)
-        }
-    }
-
-    // MARK: - Duplicate Detection Tests
-
-    func testDuplicateFileReturnsAlreadyImported() async {
-        // Given - add a meditation with same filename and size
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        let existingMeditation = GuidedMeditation(
-            localFilePath: "existing.mp3",
-            fileName: "meditation.mp3",
-            duration: 600,
-            teacher: "Teacher",
-            name: "Existing"
-        )
-        self.mockMeditationService.meditations = [existingMeditation]
-
-        // When
-        let result = await self.sut.handleFileOpen(url: url)
-
-        // Then
-        switch result {
-        case .success:
-            XCTFail("Expected duplicate detection")
-        case let .failure(error):
-            guard case .alreadyImported = error else {
-                XCTFail("Expected alreadyImported error, got \(error)")
-                return
-            }
-        }
-    }
+    // MARK: - Duplicate Detection
 
     func testDifferentFilenameIsNotDuplicate() async {
         // Given - existing meditation with different filename
@@ -227,14 +73,12 @@ final class FileOpenHandlerTests: XCTestCase {
         self.mockMeditationService.meditations = [existingMeditation]
 
         // When
-        let result = await self.sut.handleFileOpen(url: url)
+        let result = await self.sut.importFile(from: url)
 
         // Then
-        switch result {
-        case .success:
-            break // Expected success
-        case .failure:
-            XCTFail("Different filename should not be considered duplicate")
+        guard case .success = result else {
+            XCTFail("Different filename should import successfully, got \(result)")
+            return
         }
     }
 
@@ -245,7 +89,6 @@ final class FileOpenHandlerTests: XCTestCase {
         let existingURL = self.mockMeditationService.getMeditationsDirectory()
             .appendingPathComponent(existingLocalPath)
 
-        // Create both files with different sizes
         let fileManager = FileManager.default
         try? fileManager.createDirectory(
             at: self.mockMeditationService.getMeditationsDirectory(),
@@ -269,21 +112,18 @@ final class FileOpenHandlerTests: XCTestCase {
         self.mockMeditationService.meditations = [existingMeditation]
 
         // When
-        let result = await self.sut.handleFileOpen(url: incomingURL)
+        let result = await self.sut.importFile(from: incomingURL)
 
-        // Then - different file size → not a duplicate → import succeeds
-        switch result {
-        case .success:
-            XCTAssertEqual(self.mockMeditationService.meditations.count, 2)
-        case let .failure(error):
-            XCTFail("Same name but different size should not be duplicate, got: \(error)")
+        // Then
+        guard case .success = result else {
+            XCTFail("Same name but different size should import, got \(result)")
+            return
         }
+        XCTAssertEqual(self.mockMeditationService.meditations.count, 2)
     }
 
     func testSameNameWithUnresolvableFileDefaultsToNameOnlyDuplicateCheck() async {
         // Given - existing meditation with same filename but file doesn't exist on disk
-        // (fileURL returns nil → falls back to name-only, but when file doesn't exist
-        // the mock returns nil for unresolvable files)
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
         let existingMeditation = GuidedMeditation(
             localFilePath: "existing.mp3",
@@ -293,179 +133,71 @@ final class FileOpenHandlerTests: XCTestCase {
             name: "Existing"
         )
         self.mockMeditationService.meditations = [existingMeditation]
-        // Simulate that the existing file cannot be found on disk
         self.mockMeditationService.mockFileExists = false
 
         // When
-        let result = await self.sut.handleFileOpen(url: url)
+        let result = await self.sut.importFile(from: url)
 
         // Then - falls back to name-only check when file can't be resolved
-        switch result {
-        case .success:
+        guard case let .failure(error) = result else {
             XCTFail("Expected duplicate detection when existing file cannot be resolved")
-        case let .failure(error):
-            guard case .alreadyImported = error else {
-                XCTFail("Expected alreadyImported error, got \(error)")
-                return
-            }
+            return
+        }
+        guard case .alreadyImported = error else {
+            XCTFail("Expected alreadyImported, got \(error)")
+            return
         }
     }
 
-    // MARK: - State Management Tests
+    // MARK: - Service Failures
 
-    func testIsProcessingIsTrueDuringImport() async {
+    func testServiceAddFailureReturnsError() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When - start import (check state before)
-        XCTAssertFalse(self.sut.isProcessing)
-
-        // After import
-        _ = await self.sut.handleFileOpen(url: url)
-
-        // Then - should be false again
-        XCTAssertFalse(self.sut.isProcessing)
-    }
-
-    // MARK: - Format Validation (shared-073)
-
-    func testValidateFileForImport_mp3_succeeds() {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        self.mockMeditationService.addShouldThrow = true
 
         // When
-        let result = self.sut.validateFileForImport(url: url)
+        let result = await self.sut.importFile(from: url)
 
         // Then
-        switch result {
-        case let .success(validatedURL):
-            XCTAssertEqual(validatedURL, url)
-        case .failure:
-            XCTFail("MP3 should be accepted")
+        guard case let .failure(error) = result else {
+            XCTFail("Expected failure, got \(result)")
+            return
         }
+        XCTAssertEqual(error, .importFailed)
+    }
+
+    // MARK: - State Management
+
+    func testIsProcessingIsResetAfterImport() async {
+        // Given
+        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        XCTAssertFalse(self.sut.isProcessing)
+
+        // When
+        _ = await self.sut.importFile(from: url)
+
+        // Then
+        XCTAssertFalse(self.sut.isProcessing)
+    }
+
+    // MARK: - Format Validation (used by InboxHandler defense-in-depth)
+
+    func testValidateFileForImport_mp3_succeeds() {
+        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
+        guard case let .success(validatedURL) = self.sut.validateFileForImport(url: url) else {
+            XCTFail("MP3 should be accepted")
+            return
+        }
+        XCTAssertEqual(validatedURL, url)
     }
 
     func testValidateFileForImport_unsupportedFormat_fails() {
-        // Given
         let url = URL(fileURLWithPath: "/tmp/document.pdf")
-
-        // When
-        let result = self.sut.validateFileForImport(url: url)
-
-        // Then
-        switch result {
-        case .success:
+        guard case let .failure(error) = self.sut.validateFileForImport(url: url) else {
             XCTFail("PDF should be rejected")
-        case let .failure(error):
-            XCTAssertEqual(error, .unsupportedFormat)
-        }
-    }
-
-    // MARK: - Type-Based Import (shared-073)
-
-    func testImportAsGuidedMeditation_routesToMeditationService() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-
-        // When
-        let result = await self.sut.importFile(from: url, as: .guidedMeditation)
-
-        // Then
-        switch result {
-        case let .success(importResult):
-            if case .guidedMeditation = importResult {
-                XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
-            } else {
-                XCTFail("Expected guidedMeditation result")
-            }
-        case .failure:
-            XCTFail("Expected successful import")
-        }
-    }
-
-    func testImportAsSoundscape_routesToCustomAudioRepository() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/nature-sounds.mp3")
-
-        // When
-        let result = await self.sut.importFile(from: url, as: .soundscape)
-
-        // Then
-        switch result {
-        case let .success(importResult):
-            if case .customAudio = importResult {
-                XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.count, 1)
-            } else {
-                XCTFail("Expected customAudio result")
-            }
-        case .failure:
-            XCTFail("Expected successful import")
-        }
-    }
-
-    // MARK: - Type-Based Duplicate Detection (shared-073)
-
-    func testImportAsGuidedMeditation_duplicate_returnsError() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        let existing = GuidedMeditation(
-            localFilePath: "existing.mp3",
-            fileName: "meditation.mp3",
-            duration: 600,
-            teacher: "Teacher",
-            name: "Existing"
-        )
-        self.mockMeditationService.meditations = [existing]
-
-        // When
-        let result = await self.sut.importFile(from: url, as: .guidedMeditation)
-
-        // Then
-        switch result {
-        case .success:
-            XCTFail("Expected duplicate detection")
-        case let .failure(error):
-            guard case .alreadyImported = error else {
-                XCTFail("Expected alreadyImported error, got \(error)")
-                return
-            }
-        }
-    }
-
-    func testSameFileAsSoundscapeAndGuidedMeditation_bothSucceed() async {
-        // Given - import as guided meditation first
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        let guidedResult = await self.sut.importFile(from: url, as: .guidedMeditation)
-        guard case .success = guidedResult else {
-            XCTFail("First import should succeed")
             return
         }
-
-        // When - import same file as soundscape
-        let soundscapeResult = await self.sut.importFile(from: url, as: .soundscape)
-
-        // Then - both exist independently
-        switch soundscapeResult {
-        case .success:
-            XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
-            XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.count, 1)
-        case .failure:
-            XCTFail("Same file should be importable as different types")
-        }
-    }
-
-    func testCancelImport_noFileImported() {
-        // Given - validate a file
-        let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
-        let result = self.sut.validateFileForImport(url: url)
-        guard case .success = result else {
-            XCTFail("Validation should succeed")
-            return
-        }
-
-        // When - user cancels (no importFile call)
-        // Then - nothing was imported
-        XCTAssertEqual(self.mockMeditationService.meditations.count, 0)
-        XCTAssertEqual(self.mockCustomAudioRepo.importedFiles.count, 0)
+        XCTAssertEqual(error, .unsupportedFormat)
     }
 }

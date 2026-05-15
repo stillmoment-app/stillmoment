@@ -8,12 +8,20 @@ Strukturvorlage fuer den inline Review-Output. **Keine Datei erzeugen** - direkt
 
 1-2 Saetze: Ist der Code gut? Gibt es Probleme?
 
+## Annahmen (optional)
+
+Nur wenn relevant: Welche Annahmen liegen dem Review zugrunde? Beispiel: "Ich nehme an, dass der `strong self` im Task absichtlich ist, weil der Task die View-Lifetime ueberdauert."
+
+Macht das Review nachvollziehbar und vermeidet "Bug-Findings" die in Wahrheit Design-Entscheidungen sind.
+
 ## Geprueft
 
 - **Dateien:** Liste aus `git diff --name-only` (kurz halten - bei vielen Dateien zusammenfassen)
 - **Akzeptanzkriterien** (falls Ticket): pro Kriterium ein Checkbox + Status
 - **Statische Pruefungen:** `make check` / `./gradlew lint` Ergebnis
+- **Tests:** `make test-unit-agent` Ergebnis (PASSED / FAILED + Anzahl)
 - **Localization** (bei UI-Code): /review-localization Ergebnis
+- **Cross-Platform** (falls Feature auf beiden Plattformen): synchron / Hinweis fuer Follow-up / nicht relevant
 - **Memory-Treffer** (falls themen-relevant): bekannte Stolperfallen die geprueft wurden
 - **Dokumentation:** GLOSSARY.md / dev-docs Status, nur wenn Update noetig
 
@@ -36,7 +44,22 @@ Findings die Diskussion brauchen, aber konkret fixbar sind. Pro Finding: Kategor
 
 ### Diskutiert
 
-Architektur / Naming / Design-Entscheidungen. Kein Auto-Fix. Pro Finding: Kategorie, Datei:Zeile, Grund, ggf. Optionen.
+Architektur / Naming / Design-Entscheidungen. Kein Auto-Fix.
+
+Pro Finding: Kategorie, Datei:Zeile, Grund. **Wenn mehrere Ansaetze sinnvoll sind: Optionen praesentieren, nicht eine Empfehlung durchdruecken.**
+
+Beispiel:
+```
+Naming `MeditationLibraryStore` vs `LibraryRepository`
+Datei: LibraryStore.swift:15
+Grund: Doppelte Verantwortung — sowohl Persistenz als auch In-Memory-Cache.
+Optionen:
+  A) Trennen: `LibraryRepository` (Persistenz) + `LibraryCache` (Memory)
+  B) Im Glossar als `LibraryStore` etablieren (Persistenz + Cache als bewusste Einheit)
+  C) Verbleibender Name, aber Doc-Kommentar der die Doppelrolle erklaert
+```
+
+Nur eine Empfehlung geben, wenn objektiv eine besser ist (z.B. Architekturverletzung). Sonst entscheidet User.
 
 ### Scope-Drift / Overengineering
 

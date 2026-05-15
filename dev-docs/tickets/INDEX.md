@@ -160,7 +160,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-039](ios/ios-039-legacy-settings-store-aufraeumen.md) | Legacy Timer-Settings-Store aufraeumen | 2-Architektur | [x] | - |
 | [ios-040](ios/ios-040-audio-service-single-instance.md) | AudioService als einzelne geteilte Instanz | 2-Architektur | [x] | - |
 | [ios-041](ios/ios-041-library-search.md) | Suchfunktion fuer die Bibliothek | 3-Feature | [x] | - |
-| [ios-042](ios/ios-042-share-import-immer-meditation.md) | Share-Import immer als Meditation | 4-Polish | [ ] | - |
+| [ios-042](ios/ios-042-share-import-immer-meditation.md) | Share-Import immer als Meditation | 4-Polish | [x] | - |
 
 ---
 
