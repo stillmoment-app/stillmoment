@@ -36,10 +36,10 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - Direct Import on Share
+    // MARK: - Direct Import on Share (Pending-Flow)
 
-    func testImportFile_validMP3_addsMeditationToLibrary() async {
-        // Given
+    func testImportFile_validMP3_doesNotAddToLibraryYet() async {
+        // Given — Persistenz erfolgt erst nach Save im Edit-Sheet (ios-043).
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
 
         // When
@@ -50,19 +50,19 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
             XCTFail("Expected success, got \(result)")
             return
         }
-        XCTAssertEqual(self.mockMeditationService.meditations.count, 1)
+        XCTAssertTrue(self.mockMeditationService.meditations.isEmpty)
     }
 
-    func testImportFile_validMP3_publishesImportedMeditation() async {
+    func testImportFile_validMP3_publishesPendingImportSignal() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/meditation.mp3")
 
         // When
         _ = await self.sut.importFile(from: url)
 
-        // Then — Library beobachtet importedMeditation und oeffnet das Edit-Sheet
-        XCTAssertNotNil(self.sut.importedMeditation)
-        XCTAssertEqual(self.sut.importedMeditation?.fileName, "meditation.mp3")
+        // Then — Library beobachtet pendingImport und oeffnet das Edit-Sheet
+        XCTAssertNotNil(self.sut.pendingImportSignal)
+        XCTAssertEqual(self.sut.pendingImportSignal?.url.lastPathComponent, "meditation.mp3")
     }
 
     func testImportFile_unsupportedFormat_returnsError() async {
@@ -78,7 +78,7 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
             return
         }
         XCTAssertEqual(error, .unsupportedFormat)
-        XCTAssertNil(self.sut.importedMeditation)
+        XCTAssertNil(self.sut.pendingImportSignal)
     }
 
     func testImportFile_duplicate_returnsAlreadyImported() async {

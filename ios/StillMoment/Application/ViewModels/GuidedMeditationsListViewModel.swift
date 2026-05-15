@@ -52,6 +52,13 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var meditationToEdit: GuidedMeditation?
     @Published var previewingMeditationId: UUID?
 
+    /// Zwischenstand zwischen Import und Save im Edit-Sheet (ios-043).
+    ///
+    /// Solange `pendingImport != nil`, ist eine Audiodatei extrahiert, aber **noch nicht
+    /// persistiert** — die Datei-Kopie und der `addMeditation`-Aufruf erfolgen erst beim
+    /// Save im Edit-Sheet. Cancel verwirft den Pending-State ohne Persistenz.
+    @Published var pendingImport: PendingImport?
+
     // MARK: - Suche (ios-041)
 
     @Published var searchQuery: String = ""
@@ -125,29 +132,20 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.isLoading = false
     }
 
-    /// Handles importing a meditation from a selected file URL
+    /// Startet einen Import via DocumentPicker.
     ///
-    /// - Parameter url: URL to the selected audio file
+    /// Extrahiert Metadaten und uebergibt an `beginImport` — die Persistenz erfolgt
+    /// erst beim Save im Edit-Sheet (`handleEditSheetSave`).
     func importMeditation(from url: URL) async {
         self.isLoading = true
         self.errorMessage = nil
 
         Logger.guidedMeditation.info("Importing meditation", metadata: ["file": url.lastPathComponent])
 
-        // Start accessing the security-scoped resource IMMEDIATELY
-        // This is required for files from the Files app / DocumentPicker
         let didStartAccessing = url.startAccessingSecurityScopedResource()
 
-        defer {
-            if didStartAccessing {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
         do {
-            // Extract metadata from audio file
             let metadata = try await metadataService.extractMetadata(from: url)
-
             Logger.guidedMeditation.debug(
                 "Extracted metadata",
                 metadata: [
@@ -156,23 +154,93 @@ final class GuidedMeditationsListViewModel: ObservableObject {
                     "duration": metadata.duration
                 ]
             )
-
-            // Add meditation to library
-            let meditation = try meditationService.addMeditation(from: url, metadata: metadata)
-
-            // Reload meditations to get sorted list
-            self.meditations = try self.meditationService.loadMeditations()
-
-            // Open edit sheet for imported meditation
-            self.showEditSheet(for: meditation)
-
-            Logger.guidedMeditation.info("Successfully imported meditation", metadata: ["id": meditation.id.uuidString])
+            self.beginImport(url: url, metadata: metadata, didStartAccessing: didStartAccessing)
         } catch {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
             Logger.guidedMeditation.error("Failed to import meditation", error: error)
             self.errorMessage = NSLocalizedString("error.importFailed", comment: "Failed to import meditation")
         }
 
         self.isLoading = false
+    }
+
+    /// Oeffnet das Edit-Sheet mit einem Draft fuer einen ausstehenden Import.
+    ///
+    /// Wird sowohl vom DocumentPicker-Pfad (`importMeditation(from:)`) als auch vom
+    /// FileOpenHandler-Pfad (Share/Open-in) aufgerufen.
+    func beginImport(url: URL, metadata: AudioMetadata, didStartAccessing: Bool) {
+        let prefill = ImportPrefill.compute(
+            metadata: metadata,
+            fileName: url.lastPathComponent,
+            knownTeachers: Array(Set(self.meditations.map(\.effectiveTeacher)))
+        )
+        let draft = GuidedMeditation(
+            localFilePath: "",
+            fileName: url.lastPathComponent,
+            duration: metadata.duration,
+            teacher: prefill.teacher ?? "",
+            name: prefill.name ?? ""
+        )
+        self.pendingImport = PendingImport(
+            url: url,
+            metadata: metadata,
+            didStartAccessing: didStartAccessing,
+            draftId: draft.id
+        )
+        self.meditationToEdit = draft
+        self.showingEditSheet = true
+    }
+
+    /// Cancel im Edit-Sheet im Import-Modus: verwirft Draft, gibt Security-Scope frei.
+    func cancelImport() {
+        guard let pending = self.pendingImport else {
+            return
+        }
+        if pending.didStartAccessing {
+            pending.url.stopAccessingSecurityScopedResource()
+        }
+        self.pendingImport = nil
+        self.meditationToEdit = nil
+        self.showingEditSheet = false
+    }
+
+    /// Save im Edit-Sheet — verzweigt zwischen Import (persistiert via `addMeditation`)
+    /// und regulaerem Edit (`updateMeditation`).
+    func handleEditSheetSave(_ edited: GuidedMeditation) {
+        if let pending = self.pendingImport, pending.draftId == edited.id {
+            self.saveImportedMeditation(edited, pending: pending)
+        } else {
+            self.updateMeditation(edited)
+            self.showingEditSheet = false
+        }
+    }
+
+    private func saveImportedMeditation(_ edited: GuidedMeditation, pending: PendingImport) {
+        defer {
+            if pending.didStartAccessing {
+                pending.url.stopAccessingSecurityScopedResource()
+            }
+            self.pendingImport = nil
+            self.showingEditSheet = false
+        }
+        do {
+            _ = try self.meditationService.addMeditation(
+                from: pending.url,
+                metadata: pending.metadata,
+                teacher: edited.teacher,
+                name: edited.name
+            )
+            self.meditations = try self.meditationService.loadMeditations()
+            Logger.guidedMeditation.info(
+                "Successfully imported meditation",
+                metadata: ["fileName": pending.url.lastPathComponent]
+            )
+        } catch {
+            Logger.guidedMeditation.error("Failed to persist imported meditation", error: error)
+            self.errorMessage = NSLocalizedString("error.importFailed", comment: "Failed to import meditation")
+        }
     }
 
     /// Deletes a meditation from the library

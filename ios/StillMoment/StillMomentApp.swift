@@ -280,8 +280,8 @@ struct StillMomentApp: App {
 
     /// Handles a file URL received via "Open with" (CFBundleDocumentTypes).
     ///
-    /// Imports directly as a meditation. The Library reacts to the published
-    /// `importedMeditation` and opens the Edit-Sheet automatically.
+    /// Validates the file and publishes a pending import; the Library reacts
+    /// to `pendingImportSignal` and opens the Edit-Sheet with a Prefill-Draft.
     private func handleFileOpen(url: URL) {
         Logger.guidedMeditation.info(
             "Received file open URL",

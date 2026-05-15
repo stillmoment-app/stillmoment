@@ -53,7 +53,12 @@ extension GuidedMeditationServiceTests {
         )
 
         // When
-        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
+        let meditation = try sut.addMeditation(
+            from: tempURL,
+            metadata: metadata,
+            teacher: "Test Teacher",
+            name: "Test Meditation"
+        )
 
         // Then
         XCTAssertEqual(meditation.name, "Test Meditation")
@@ -69,58 +74,7 @@ extension GuidedMeditationServiceTests {
         XCTAssertEqual(loaded.first?.id, meditation.id)
     }
 
-    func testAddMeditation_WithMissingTitle_UsesFilename() throws {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
-
-        let tempURL = createTemporaryAudioFile(filename: "Awesome_Meditation.mp3")
-        defer {
-            try? FileManager.default.removeItem(at: tempURL)
-            let meditationsDir = sut.getMeditationsDirectory()
-            try? FileManager.default.removeItem(at: meditationsDir)
-        }
-
-        let metadata = AudioMetadata(
-            artist: "Teacher",
-            title: nil, // No title
-            duration: 300
-        )
-
-        // When
-        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
-
-        // Then - Should use filename without extension, underscores replaced with spaces
-        XCTAssertEqual(meditation.name, "Awesome Meditation")
-        XCTAssertEqual(meditation.teacher, "Teacher")
-    }
-
-    func testAddMeditation_WithMissingTitle_UsesDashSeparatedFilename_ReplacesWithSpaces() throws {
-        // Given
-        guard let sut else {
-            XCTFail("SUT not initialized")
-            return
-        }
-
-        let tempURL = createTemporaryAudioFile(filename: "body-scan-10-min.mp3")
-        defer {
-            try? FileManager.default.removeItem(at: tempURL)
-            let meditationsDir = sut.getMeditationsDirectory()
-            try? FileManager.default.removeItem(at: meditationsDir)
-        }
-
-        let metadata = AudioMetadata(artist: "Teacher", title: nil, duration: 300)
-
-        // When
-        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
-
-        // Then - Dashes replaced with spaces
-        XCTAssertEqual(meditation.name, "body scan 10 min")
-    }
-
-    func testAddMeditation_WithMissingArtist_UsesUnknownArtist() throws {
+    func testAddMeditation_PersistsTeacherAndNameVerbatim() throws {
         // Given
         guard let sut else {
             XCTFail("SUT not initialized")
@@ -134,18 +88,46 @@ extension GuidedMeditationServiceTests {
             try? FileManager.default.removeItem(at: meditationsDir)
         }
 
-        let metadata = AudioMetadata(
-            artist: nil, // No artist
-            title: "Meditation",
-            duration: 300
-        )
+        // Metadata is irrelevant for teacher/name — caller passes them in directly.
+        let metadata = AudioMetadata(artist: nil, title: nil, duration: 300)
 
         // When
-        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
+        let meditation = try sut.addMeditation(
+            from: tempURL,
+            metadata: metadata,
+            teacher: "Custom Teacher",
+            name: "Custom Title"
+        )
 
-        // Then - Should use "Unknown Artist"
-        XCTAssertEqual(meditation.teacher, "Unknown Artist")
-        XCTAssertEqual(meditation.name, "Meditation")
+        // Then — service stores the caller-provided values; no implicit defaults.
+        XCTAssertEqual(meditation.teacher, "Custom Teacher")
+        XCTAssertEqual(meditation.name, "Custom Title")
+    }
+
+    func testAddMeditation_AcceptsEmptyTeacherAndName() throws {
+        // Empty strings are a valid input — the Edit-Sheet (ios-044) is responsible for
+        // validation. The service must not reject them.
+        guard let sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+
+        let tempURL = createTemporaryAudioFile()
+        defer {
+            try? FileManager.default.removeItem(at: tempURL)
+            let meditationsDir = sut.getMeditationsDirectory()
+            try? FileManager.default.removeItem(at: meditationsDir)
+        }
+
+        let meditation = try sut.addMeditation(
+            from: tempURL,
+            metadata: AudioMetadata(artist: nil, title: nil, duration: 300),
+            teacher: "",
+            name: ""
+        )
+
+        XCTAssertEqual(meditation.teacher, "")
+        XCTAssertEqual(meditation.name, "")
     }
 
     func testAddMeditation_MultipleTimes_AppendsToCollection() throws {
@@ -168,8 +150,8 @@ extension GuidedMeditationServiceTests {
         let metadata2 = AudioMetadata(artist: "Teacher", title: "Second", duration: 600)
 
         // When
-        let med1 = try sut.addMeditation(from: url1, metadata: metadata1)
-        let med2 = try sut.addMeditation(from: url2, metadata: metadata2)
+        let med1 = try sut.addMeditation(from: url1, metadata: metadata1, teacher: "Teacher", name: "First")
+        let med2 = try sut.addMeditation(from: url2, metadata: metadata2, teacher: "Teacher", name: "Second")
 
         // Then
         let loaded = try sut.loadMeditations()
@@ -195,7 +177,12 @@ extension GuidedMeditationServiceTests {
         let metadata = AudioMetadata(artist: "Teacher", title: "Test", duration: 300)
 
         // When
-        let meditation = try sut.addMeditation(from: tempURL, metadata: metadata)
+        let meditation = try sut.addMeditation(
+            from: tempURL,
+            metadata: metadata,
+            teacher: "Teacher",
+            name: "Test"
+        )
 
         // Then - File should exist at resolved fileURL
         guard let fileURL = sut.fileURL(for: meditation) else {

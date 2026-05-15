@@ -107,49 +107,8 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Import Meditation Tests
 
-    func testImportMeditationSuccess() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/test.mp3")
-
-        // When
-        await self.sut.importMeditation(from: url)
-
-        // Then
-        XCTAssertEqual(self.sut.meditations.count, 1)
-        XCTAssertNil(self.sut.errorMessage)
-        XCTAssertFalse(self.sut.isLoading)
-
-        // Verify metadata was extracted
-        XCTAssertNotNil(self.mockMetadataService.extractedMetadata)
-    }
-
-    func testImportMeditationMetadataExtractionFails() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/test.mp3")
-        self.mockMetadataService.extractShouldThrow = true
-
-        // When
-        await self.sut.importMeditation(from: url)
-
-        // Then
-        XCTAssertTrue(self.sut.meditations.isEmpty)
-        XCTAssertNotNil(self.sut.errorMessage)
-        XCTAssertFalse(self.sut.isLoading)
-    }
-
-    func testImportMeditationServiceFails() async {
-        // Given
-        let url = URL(fileURLWithPath: "/tmp/test.mp3")
-        self.mockMeditationService.addShouldThrow = true
-
-        // When
-        await self.sut.importMeditation(from: url)
-
-        // Then
-        XCTAssertTrue(self.sut.meditations.isEmpty)
-        XCTAssertNotNil(self.sut.errorMessage)
-        XCTAssertFalse(self.sut.isLoading)
-    }
+    // Der Pending-Import-Flow (Prefill, Cancel, Save) ist in
+    // GuidedMeditationsListViewModelTests+ImportFlow.swift ausgelagert.
 
     // MARK: - Delete Meditation Tests
 
@@ -483,16 +442,17 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
 
     // MARK: - Import Opens Edit Sheet Tests
 
-    func testImportMeditationOpensEditSheetForImportedMeditation() async {
+    func testImportMeditationOpensEditSheetWithDraft() async {
         // Given
         let url = URL(fileURLWithPath: "/tmp/test.mp3")
 
         // When
         await self.sut.importMeditation(from: url)
 
-        // Then - Edit sheet should be shown with the imported meditation
+        // Then — Edit-Sheet zeigt den Draft (nicht eine persistierte Meditation).
         XCTAssertTrue(self.sut.showingEditSheet)
         XCTAssertNotNil(self.sut.meditationToEdit)
+        XCTAssertNotNil(self.sut.pendingImport)
     }
 
     func testImportMeditationDoesNotOpenEditSheetOnError() async {

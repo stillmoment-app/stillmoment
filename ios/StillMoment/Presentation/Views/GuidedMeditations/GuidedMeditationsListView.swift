@@ -118,11 +118,14 @@ struct GuidedMeditationsListView: View {
                         meditation: meditation,
                         availableTeachers: self.viewModel.uniqueTeachers,
                         onSave: { updated in
-                            self.viewModel.updateMeditation(updated)
-                            self.viewModel.showingEditSheet = false
+                            self.viewModel.handleEditSheetSave(updated)
                         },
                         onCancel: {
-                            self.viewModel.showingEditSheet = false
+                            if self.viewModel.pendingImport != nil {
+                                self.viewModel.cancelImport()
+                            } else {
+                                self.viewModel.showingEditSheet = false
+                            }
                         }
                     )
                 }
@@ -174,16 +177,18 @@ struct GuidedMeditationsListView: View {
             self.viewModel.loadMeditations()
             self.settings = self.settingsRepository.load()
         }
-        .onChange(of: self.fileOpenHandler.importedMeditation) { newMeditation in
-            guard let meditation = newMeditation else {
+        .onChange(of: self.fileOpenHandler.pendingImportSignal) { newSignal in
+            guard let signal = newSignal else {
                 return
             }
-            // Reload library to include the newly imported file
-            self.viewModel.loadMeditations()
-            // Open edit sheet for the imported meditation
-            self.viewModel.showEditSheet(for: meditation)
+            // Pending-Import-Flow: ViewModel berechnet Prefill, oeffnet Edit-Sheet.
+            self.viewModel.beginImport(
+                url: signal.url,
+                metadata: signal.metadata,
+                didStartAccessing: signal.didStartAccessing
+            )
             // Consume the event
-            self.fileOpenHandler.importedMeditation = nil
+            self.fileOpenHandler.pendingImportSignal = nil
         }
     }
 
@@ -409,51 +414,4 @@ private extension GuidedMeditationsListView {
     }
 }
 
-// MARK: - Previews
-
-#if DEBUG
-@available(iOS 17.0, *)
-#Preview("Empty State") {
-    NavigationStack {
-        GuidedMeditationsListView()
-    }
-    .environmentObject(FileOpenHandler())
-}
-
-@available(iOS 17.0, *)
-#Preview("With Meditations") {
-    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
-    NavigationStack {
-        GuidedMeditationsListView(meditationService: service)
-    }
-    .environmentObject(FileOpenHandler())
-}
-
-// Device Size Previews
-@available(iOS 17.0, *)
-#Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
-    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
-    NavigationStack {
-        GuidedMeditationsListView(meditationService: service)
-    }
-    .environmentObject(FileOpenHandler())
-}
-
-@available(iOS 17.0, *)
-#Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
-    NavigationStack {
-        GuidedMeditationsListView(meditationService: service)
-    }
-    .environmentObject(FileOpenHandler())
-}
-
-@available(iOS 17.0, *)
-#Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    let service = PreviewMeditationService(meditations: PreviewMeditationService.sampleMeditations)
-    NavigationStack {
-        GuidedMeditationsListView(meditationService: service)
-    }
-    .environmentObject(FileOpenHandler())
-}
-#endif
+// SwiftUI-Previews in GuidedMeditationsListView+Previews.swift
