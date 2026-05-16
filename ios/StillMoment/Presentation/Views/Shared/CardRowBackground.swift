@@ -95,22 +95,4 @@ extension View {
     func cardRowBackground() -> some View {
         modifier(CardRowBackgroundModifier())
     }
-
-    /// Apply the warm lifted card shadow (Contact + Body) directly to any view.
-    ///
-    /// Use this for free-floating cards that are not list rows (e.g. Library Group
-    /// cards, search bar, header pill).
-    func liftedCardShadow() -> some View {
-        modifier(LiftedCardShadowBridge())
-    }
-}
-
-/// Bridge so callers can apply the lifted shadow without knowing the color scheme.
-private struct LiftedCardShadowBridge: ViewModifier {
-    @Environment(\.colorScheme)
-    private var colorScheme
-
-    func body(content: Content) -> some View {
-        content.modifier(LiftedCardShadow(isDark: self.colorScheme == .dark))
-    }
 }

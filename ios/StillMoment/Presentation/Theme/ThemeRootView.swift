@@ -39,45 +39,46 @@ struct ThemeRootView<Content: View>: View {
             }
     }
 
-    /// Tabbar-Hintergrund: warmer Tint nach Handover (shared-094).
+    /// Tabbar-Hintergrund nach Handover (shared-094).
     ///
     /// Durchgehende, opake Bar (kein iOS-26-Pill) — passend zur App-Philosophie
     /// und vermeidet den iOS-26-Scroll-Edge-Effekt, bei dem Content unter
     /// transparenten Bars durchschimmern wuerde.
     private var tabBarTint: Color {
-        Color(Self.tabBarTintColor(for: self.resolvedColors))
+        self.resolvedColors.tabBarBackground
     }
 
     // MARK: - Tab Bar Appearance
 
-    /// Setzt nur `tintColor` + `unselectedItemTintColor` (Handover-Fallback).
+    /// Konfiguriert `UITabBarAppearance` mit opakem Hintergrund in unserem
+    /// warmen Tint und setzt die Item-Tints (aktiv = Akzent, inaktiv =
+    /// textSecondary). Sowohl `standardAppearance` als auch `scrollEdgeAppearance`
+    /// werden gesetzt — auf iOS 18 wechselt das System sonst auf das hellgrau-
+    /// weisse Standard-Material, sobald Content die Tabbar beruehrt.
     /// `UIAppearance` wirkt auf neue Instanzen; `.id(resolvedColors)` erzwingt
     /// den Neuaufbau bei Theme-Wechsel.
     private static func applyTabBarAppearance(_ colors: ThemeColors) {
         let interactive = UIColor(colors.interactive)
         let textSecondary = UIColor(colors.textSecondary).withAlphaComponent(0.6)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(colors.tabBarBackground)
+
+        for itemAppearance in [
+            appearance.stackedLayoutAppearance,
+            appearance.inlineLayoutAppearance,
+            appearance.compactInlineLayoutAppearance
+        ] {
+            itemAppearance.normal.iconColor = textSecondary
+            itemAppearance.normal.titleTextAttributes = [.foregroundColor: textSecondary]
+            itemAppearance.selected.iconColor = interactive
+            itemAppearance.selected.titleTextAttributes = [.foregroundColor: interactive]
+        }
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
         UITabBar.appearance().tintColor = interactive
         UITabBar.appearance().unselectedItemTintColor = textSecondary
-    }
-
-    private static func tabBarTintColor(for colors: ThemeColors) -> UIColor {
-        // Werte direkt aus dem Handover (shared-094) — bewusst hardcoded und
-        // nicht ueber Theme-Tokens, weil die Tabbar-Material-Werte vom Theme
-        // entkoppelt sind (sie sind eine Material-Logik, keine Farbrolle).
-        if self.isEffectivelyDark(colors) {
-            UIColor(red: 46 / 255, green: 33 / 255, blue: 26 / 255, alpha: 1.0)
-        } else {
-            UIColor(red: 255 / 255, green: 246 / 255, blue: 230 / 255, alpha: 1.0)
-        }
-    }
-
-    private static func isEffectivelyDark(_ colors: ThemeColors) -> Bool {
-        let uiColor = UIColor(colors.backgroundPrimary)
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        return (red + green + blue) / 3.0 < 0.3
     }
 }

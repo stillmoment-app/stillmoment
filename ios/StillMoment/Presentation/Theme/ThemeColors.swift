@@ -41,11 +41,6 @@ struct ThemeColors: Equatable, Hashable {
     /// mit niedriger Opacity.
     let divider: Color
 
-    /// Mittlerer Stop des Bottom-Fades, ueber den die Scroll-Region in den
-    /// Akzent-Stop des Hintergrunds auslaeuft. Light: Apricot-Smoke, Dark:
-    /// Mahagoni-Smoke.
-    let fadeMid: Color
-
     /// Oberer Stop des vertikalen Verlaufs auf dem plastischen Play-Button.
     let playGradientTop: Color
 
@@ -92,6 +87,16 @@ struct ThemeColors: Equatable, Hashable {
     /// feinjustiert werden kann ohne den View anzufassen.
     var dialActiveArc: Color {
         self.interactive
+    }
+
+    // MARK: - TabBar Tokens (shared-094)
+
+    /// Hintergrundfarbe der TabBar. Aktuell identisch mit `cardBackground` —
+    /// die TabBar liegt visuell auf derselben Materialschicht wie eine
+    /// gehobene Karte. Eigener Name, damit die TabBar bei kuenftigen
+    /// Refinements ohne View-Eingriff feinjustiert werden kann.
+    var tabBarBackground: Color {
+        self.cardBackground
     }
 
     // MARK: - Settings List Tokens (shared-089)

@@ -39,8 +39,6 @@ extension ThemeColors {
         accentBackground: Color(red: 0.910, green: 0.627, blue: 0.455),
         // divider rgba(120, 55, 28, 0.14) — warmer Trenner in Akzent-Familie
         divider: Color(red: 120 / 255, green: 55 / 255, blue: 28 / 255, opacity: 0.14),
-        // fadeMid rgba(232, 160, 116, 0.72) — Apricot-Smoke
-        fadeMid: Color(red: 232 / 255, green: 160 / 255, blue: 116 / 255, opacity: 0.72),
         // playGradientTop #B85F46
         playGradientTop: Color(red: 0.722, green: 0.373, blue: 0.275),
         // playGradientBot #7E3A2D
@@ -74,8 +72,6 @@ extension ThemeColors {
         accentBackground: Color(red: 0.365, green: 0.227, blue: 0.184),
         // divider rgba(242, 228, 211, 0.10) — verstaerkter Trenner
         divider: Color(red: 242 / 255, green: 228 / 255, blue: 211 / 255, opacity: 0.10),
-        // fadeMid rgba(93, 58, 47, 0.78) — Mahagoni-Smoke
-        fadeMid: Color(red: 93 / 255, green: 58 / 255, blue: 47 / 255, opacity: 0.78),
         // playGradientTop #D68A6E
         playGradientTop: Color(red: 0.839, green: 0.541, blue: 0.431),
         // playGradientBot #B06A4F
