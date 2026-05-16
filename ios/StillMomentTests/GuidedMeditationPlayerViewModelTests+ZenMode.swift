@@ -35,7 +35,7 @@ extension GuidedMeditationPlayerViewModelTests {
         XCTAssertTrue(self.sut.isZenMode, "Tab bar must be hidden during playback")
     }
 
-    func testZenModeIsInactiveWhenPaused() async {
+    func testZenModeRemainsActiveWhenPaused() async {
         // Given: simulate paused state
         let expectation = self.expectation(description: "State updates to paused")
         self.sut.$playbackState
@@ -50,8 +50,9 @@ extension GuidedMeditationPlayerViewModelTests {
         self.mockPlayerService.state.send(.paused)
         await fulfillment(of: [expectation], timeout: 1.0)
 
-        // Then: tab bar should return when paused
-        XCTAssertFalse(self.sut.isZenMode, "Tab bar must return when playback is paused")
+        // Then: tab bar must stay hidden while paused — the player is still the active surface,
+        // not a navigation context to switch tabs from
+        XCTAssertTrue(self.sut.isZenMode, "Tab bar must stay hidden while playback is paused")
     }
 
     func testZenModeIsActiveWhenCompleted() async {

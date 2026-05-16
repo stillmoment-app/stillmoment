@@ -128,8 +128,6 @@ struct GuidedMeditationPlayerView: View {
     private var dismiss
     @Environment(\.themeColors)
     private var theme
-    @Environment(\.accessibilityReduceMotion)
-    private var reduceMotion
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
     @StateObject private var viewModel: GuidedMeditationPlayerViewModel
 
@@ -171,11 +169,10 @@ struct GuidedMeditationPlayerView: View {
 
             Spacer(minLength: 12)
 
-            // Atemkreis
-            BreathingCircleView(
+            // Ring + Inhalt (Pause-Button oder Countdown)
+            PlayerRingView(
                 phase: self.viewModel.phase,
-                progress: self.viewModel.progress,
-                reduceMotion: self.reduceMotion
+                progress: self.viewModel.progress
             ) {
                 self.circleContent
             }
@@ -221,9 +218,13 @@ struct GuidedMeditationPlayerView: View {
             }
             .transition(.opacity)
         case .playing:
-            GlassPauseButton(isPlaying: self.viewModel.isPlaying) {
-                HapticFeedback.impact(.soft)
-                self.viewModel.togglePlayPause()
+            ZStack {
+                PlayerCenterDisc()
+
+                GlassPauseButton(isPlaying: self.viewModel.isPlaying) {
+                    HapticFeedback.impact(.soft)
+                    self.viewModel.togglePlayPause()
+                }
             }
             .transition(.opacity)
         }
@@ -240,7 +241,9 @@ struct GuidedMeditationPlayerView: View {
         case .playing:
             Text(String(
                 format: NSLocalizedString(
-                    "guided_meditations.player.remainingTime.format",
+                    self.viewModel.isPlaying
+                        ? "guided_meditations.player.remainingTime.format"
+                        : "guided_meditations.player.remainingTime.format.paused",
                     comment: ""
                 ),
                 self.viewModel.formattedRemainingMinutes
