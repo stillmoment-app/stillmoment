@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Player · Kerzenschein 2.0 · Theme Pair Preview</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --page-bg: #0a0807;
+    --ink: #E8E2D6;
+    --ink-2: #9c8f80;
+    --ink-3: #6b5f55;
+    --rule: rgba(232, 226, 214, 0.08);
+    --rule-strong: rgba(232, 226, 214, 0.16);
+    --hl: #DA8E72;
+
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+
+  /* Dark · Lifted Warm */
+  [data-v="dark"] {
+    --t-bg-top: #1A100C;
+    --t-bg-mid: #321F19;
+    --t-bg-bot: #5D3A2F;
+    --t-accent: #C77D63;
+    --t-accent-glow: #D68A6E;
+    --t-ink: #E5DCCD;
+    --t-ink-2: #A68A80;
+    --t-ink-3: #6F6358;
+
+    --pl-pause-bg: rgba(15, 8, 5, 0.55);
+    --pl-pause-bg-pause: rgba(15, 8, 5, 0.62);
+    --pl-pause-border: rgba(214,138,110,0.35);
+    --pl-pause-border-pause: rgba(214,138,110,0.50);
+    --pl-center-disc:
+      radial-gradient(circle at 50% 50%,
+        rgba(214,138,110,0.10) 0%,
+        rgba(199,125,99,0.04) 50%,
+        rgba(199,125,99,0)   80%);
+  }
+
+  /* Light · Sunrise Confident */
+  [data-v="light"] {
+    --t-bg-top: #FBEEDB;
+    --t-bg-mid: #F6CDA8;
+    --t-bg-bot: #E8A074;
+    --t-accent: #A2503E;
+    --t-accent-glow: #A2503E;
+    --t-ink: #3A2418;
+    --t-ink-2: #7A4E3C;
+    --t-ink-3: #9C7762;
+
+    --pl-pause-bg: rgba(255, 246, 230, 0.55);
+    --pl-pause-bg-pause: rgba(255, 246, 230, 0.70);
+    --pl-pause-border: rgba(162, 80, 62, 0.45);
+    --pl-pause-border-pause: rgba(162, 80, 62, 0.65);
+    --pl-center-disc:
+      radial-gradient(circle at 50% 50%,
+        rgba(162, 80, 62, 0.07) 0%,
+        rgba(162, 80, 62, 0.03) 50%,
+        rgba(162, 80, 62, 0)   80%);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .doc { max-width: 1280px; margin: 0 auto; padding: 56px 48px 96px; }
+
+  .doc-meta {
+    display: flex; align-items: baseline; gap: 18px;
+    color: var(--ink-3); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .doc-meta .dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--hl); display: inline-block;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 44px; line-height: 1.1; letter-spacing: -0.01em;
+    margin: 0 0 14px; color: var(--ink); max-width: 920px;
+  }
+  h1 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .lede {
+    font-family: var(--font-display); font-size: 17px; font-weight: 300;
+    line-height: 1.55; color: var(--ink-2);
+    max-width: 720px; margin: 0 0 56px;
+  }
+  .lede em { font-style: italic; color: var(--hl); }
+
+  .pair {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--rule);
+  }
+  .pair-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 36px;
+  }
+  .pair-name {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 26px; color: var(--hl);
+  }
+  .pair-meta {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .triplet {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    justify-items: center;
+  }
+  .frame { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .frame-tag {
+    font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); display: flex; gap: 12px; align-items: center;
+  }
+  .frame-tag .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--ink-3); display: inline-block;
+  }
+  .frame-tag .dot.live { background: var(--hl); box-shadow: 0 0 6px var(--hl); }
+
+  /* Phone */
+  .phone {
+    width: 320px;
+    height: 692px;
+    border-radius: 50px;
+    padding: 9px;
+    background: linear-gradient(160deg, #1c1612 0%, #0c0907 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 50px 90px -28px rgba(0,0,0,0.75),
+      inset 0 0 0 2px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 42px; overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg,
+      var(--t-bg-top) 0%,
+      var(--t-bg-mid) 55%,
+      var(--t-bg-bot) 100%);
+    color: var(--t-ink);
+    font-family: var(--font-ui);
+  }
+  .phone-screen::before {
+    content: ""; position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    width: 102px; height: 28px; background: #000; border-radius: 16px;
+    z-index: 30;
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 46px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 17px 28px 0;
+    font-size: 13px; font-weight: 500;
+    color: var(--t-ink); z-index: 20;
+  }
+  .status-icons { display: flex; gap: 5px; align-items: center; opacity: 0.92; }
+
+  .close-btn {
+    position: absolute; top: 56px; left: 18px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-ink); z-index: 12;
+  }
+  [data-v="dark"] .close-btn {
+    background: rgba(235, 226, 214, 0.06);
+    border-color: rgba(235, 226, 214, 0.05);
+  }
+  .close-btn svg { display: block; }
+
+  .track-block {
+    position: absolute; top: 112px; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: center;
+    z-index: 11; padding: 0 28px;
+  }
+  .track-artist {
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--t-ink-3); margin-bottom: 8px;
+  }
+  .track-title {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: 22px; line-height: 1.2;
+    color: var(--t-ink);
+    text-align: center;
+    letter-spacing: -0.005em;
+  }
+
+  .ringbox {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px; height: 280px;
+  }
+  .ring-svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+  }
+
+  .pause-btn {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--pl-pause-bg);
+    border: 1px solid var(--pl-pause-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 4;
+  }
+  .center-disc {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: var(--pl-center-disc);
+    z-index: 3;
+    pointer-events: none;
+  }
+  .pause-btn.is-paused {
+    background: var(--pl-pause-bg-pause);
+    border-color: var(--pl-pause-border-pause);
+  }
+
+  .remain {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 124px;
+    text-align: center;
+    font-size: 12px; letter-spacing: 0.18em;
+    color: var(--t-ink-3);
+    font-variant-numeric: tabular-nums;
+    z-index: 11;
+  }
+
+  .prep-num {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 88px; line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--t-ink);
+    font-variant-numeric: tabular-nums;
+    z-index: 4;
+  }
+  .prep-label {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(50% + 56px);
+    text-align: center;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--t-ink-3);
+    z-index: 4;
+  }
+  .prep-hint {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 124px;
+    text-align: center;
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--t-ink-3);
+    z-index: 11;
+  }
+
+  .pair-note {
+    margin-top: 28px;
+    font-family: var(--font-display); font-size: 14px;
+    color: var(--ink-2); line-height: 1.55;
+    max-width: 880px;
+  }
+  .pair-note em { font-style: italic; color: var(--hl); }
+  .pair-note code {
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 12px;
+    color: var(--ink);
+    background: rgba(232, 226, 214, 0.05);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  .footer {
+    margin-top: 96px; padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+</style>
+</head>
+<body>
+<div class="doc" data-screen-label="Player · Kerzenschein 2.0 · Theme Pair Preview">
+
+  <div class="doc-meta">
+    <span>Still Moment</span><span class="dot"></span>
+    <span>Player · Kerzenschein 2.0</span><span class="dot"></span>
+    <span>Theme Pair Preview</span>
+  </div>
+
+  <h1>Player · <em>Theme Pair Preview</em></h1>
+  <p class="lede">
+    Visuelle Referenz für die Kerzenschein-2.0-Anpassung des Players. Beide Modi nutzen identische
+    Geometrie und identisches Verhalten — nur die Tokens unterscheiden sich. Der atmende Halo
+    ist in beiden Modi <em>raus</em>; im Pre-Roll zeigt der Ring keinen Sitzungs-Fortschritt.
+    Details + Engineering-Spec in der nebenstehenden <code>README.md</code>.
+  </p>
+
+
+  <!-- ============================================================= DARK -->
+  <section class="pair">
+    <div class="pair-head">
+      <div class="pair-name">Dark · Lifted Warm</div>
+      <div class="pair-meta">Pre-Roll · Haupt · Pause</div>
+    </div>
+
+    <div class="triplet">
+
+      <!-- DARK · PRE-ROLL -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar"><span>09:41</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+              </svg>
+              <div class="center-disc"></div>
+              <div class="prep-num">9</div>
+              <div class="prep-label">Vorbereitung</div>
+            </div>
+            <div class="prep-hint">Gleich geht's los</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot"></span> Pre-Roll · 9 s</div>
+      </div>
+
+      <!-- DARK · HAUPT -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar"><span>09:42</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="400 817"
+                  transform="rotate(-90 140 140)"/>
+                <circle cx="148.4" cy="269.7" r="6" fill="var(--t-accent)"
+                  style="filter: drop-shadow(0 0 9px var(--t-accent));"/>
+              </svg>
+              <div class="center-disc"></div>
+              <button class="pause-btn" aria-label="Pause">
+                <svg width="26" height="26" viewBox="0 0 26 26">
+                  <rect x="6" y="4" width="4.5" height="18" rx="1.5" fill="var(--t-accent-glow)"/>
+                  <rect x="15.5" y="4" width="4.5" height="18" rx="1.5" fill="var(--t-accent-glow)"/>
+                </svg>
+              </button>
+            </div>
+            <div class="remain">NOCH 8:32 MIN</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot live"></span> Haupt · läuft</div>
+      </div>
+
+      <!-- DARK · PAUSE -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar"><span>09:43</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="400 817"
+                  transform="rotate(-90 140 140)"/>
+                <circle cx="148.4" cy="269.7" r="6" fill="var(--t-accent)"
+                  style="filter: drop-shadow(0 0 9px var(--t-accent));"/>
+              </svg>
+              <div class="center-disc"></div>
+              <button class="pause-btn is-paused" aria-label="Weiter">
+                <svg width="26" height="26" viewBox="0 0 26 26">
+                  <path d="M9 5 L21 13 L9 21 Z" fill="var(--t-accent-glow)" stroke="var(--t-accent-glow)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="remain">PAUSIERT · NOCH 8:32 MIN</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot"></span> Pause · friert ein</div>
+      </div>
+
+    </div>
+
+    <p class="pair-note">
+      <em>Lifted Warm.</em> Pause-Button ist dunkles Glas (<code>rgba(15,8,5,0.55)</code> +
+      <code>blur(8px)</code>) mit warmem 1 px Border. Glyph in <code>--t-accent-glow</code>
+      (#D68A6E). Ring + Knubbel in <code>--t-accent</code> (#C77D63), Knubbel mit weichem
+      Drop-Shadow im selben Hue.
+    </p>
+  </section>
+
+
+  <!-- ============================================================= LIGHT -->
+  <section class="pair">
+    <div class="pair-head">
+      <div class="pair-name">Light · Sunrise Confident</div>
+      <div class="pair-meta">Pre-Roll · Haupt · Pause</div>
+    </div>
+
+    <div class="triplet">
+
+      <!-- LIGHT · PRE-ROLL -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar"><span>09:41</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+              </svg>
+              <div class="center-disc"></div>
+              <div class="prep-num">9</div>
+              <div class="prep-label">Vorbereitung</div>
+            </div>
+            <div class="prep-hint">Gleich geht's los</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot"></span> Pre-Roll · 9 s</div>
+      </div>
+
+      <!-- LIGHT · HAUPT -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar"><span>09:42</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="400 817"
+                  transform="rotate(-90 140 140)"/>
+                <circle cx="148.4" cy="269.7" r="6" fill="var(--t-accent)"
+                  style="filter: drop-shadow(0 0 9px var(--t-accent));"/>
+              </svg>
+              <div class="center-disc"></div>
+              <button class="pause-btn" aria-label="Pause">
+                <svg width="26" height="26" viewBox="0 0 26 26">
+                  <rect x="6" y="4" width="4.5" height="18" rx="1.5" fill="var(--t-accent-glow)"/>
+                  <rect x="15.5" y="4" width="4.5" height="18" rx="1.5" fill="var(--t-accent-glow)"/>
+                </svg>
+              </button>
+            </div>
+            <div class="remain">NOCH 8:32 MIN</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot live"></span> Haupt · läuft</div>
+      </div>
+
+      <!-- LIGHT · PAUSE -->
+      <div class="frame">
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar"><span>09:43</span><span class="status-icons">●●● ⌃ ▮</span></div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+            <div class="track-block">
+              <div class="track-artist">Christine Braehler</div>
+              <div class="track-title">Herzenskraft aufbauen</div>
+            </div>
+            <div class="ringbox">
+              <svg class="ring-svg" viewBox="0 0 280 280">
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                <circle cx="140" cy="140" r="130" fill="none"
+                  stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="400 817"
+                  transform="rotate(-90 140 140)"/>
+                <circle cx="148.4" cy="269.7" r="6" fill="var(--t-accent)"
+                  style="filter: drop-shadow(0 0 9px var(--t-accent));"/>
+              </svg>
+              <div class="center-disc"></div>
+              <button class="pause-btn is-paused" aria-label="Weiter">
+                <svg width="26" height="26" viewBox="0 0 26 26">
+                  <path d="M9 5 L21 13 L9 21 Z" fill="var(--t-accent-glow)" stroke="var(--t-accent-glow)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="remain">PAUSIERT · NOCH 8:32 MIN</div>
+          </div>
+        </div>
+        <div class="frame-tag"><span class="dot"></span> Pause · friert ein</div>
+      </div>
+
+    </div>
+
+    <p class="pair-note">
+      <em>Sunrise Confident.</em> Pause-Button ist <em>helles</em> Glas
+      (<code>rgba(255,246,230,0.55)</code> + <code>blur(8px)</code>) — kein dunkler Fleck im
+      warmen Verlauf. Glyph in <code>--t-accent</code> (#A2503E), gleicher Hue wie Ring + Knubbel.
+      <code>--t-ink-3</code> (Restzeit, Artist, „GLEICH GEHT'S LOS") wird zu
+      <code>#9C7762</code> — leise warme Mid-Tone-Tinte gegen den Cream-Grund.
+    </p>
+  </section>
+
+
+  <div class="footer">
+    <div>Still Moment · Player · Kerzenschein 2.0 · Theme Pair Preview</div>
+    <div>v1 · Mai 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
