@@ -1,6 +1,6 @@
 # Ticket shared-096: Player-Refinement Kerzenschein 2.0
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — Player-View bekommt KS-2.0-Background-Gradient, der atmende Glow wird komplett entfernt (auch der Reduced-Motion-Pfad), Ring uebernimmt die KS-2.0-Norm aus Timer-Idle (1px Track + 1.5px Arc mit wandernder Perle), Pre-Roll zeigt keinen Sitzungs-Arc mehr. Risiko: Player-Ring darf nicht versehentlich an die geteilte Atemkreis-Komponente angefasst werden, die noch fuer Timer-Idle genutzt wird.
 **Phase**: 4-Polish
