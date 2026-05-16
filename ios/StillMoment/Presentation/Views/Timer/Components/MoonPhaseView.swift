@@ -140,14 +140,14 @@ struct MoonPhaseView: View {
     private var discMidColor: Color {
         switch self.colorScheme {
         case .light: Color(red: 232 / 255, green: 200 / 255, blue: 150 / 255) // #E8C896
-        default: Color(red: 229 / 255, green: 200 / 255, blue: 168 / 255) // #E5C8A8
+        default: Color(red: 213 / 255, green: 168 / 255, blue: 120 / 255) // #D5A878
         }
     }
 
     private var discToColor: Color {
         switch self.colorScheme {
         case .light: Color(red: 154 / 255, green: 106 / 255, blue: 66 / 255) // #9A6A42
-        default: Color(red: 184 / 255, green: 148 / 255, blue: 120 / 255) // #B89478
+        default: Color(red: 139 / 255, green: 95 / 255, blue: 62 / 255) // #8B5F3E
         }
     }
 

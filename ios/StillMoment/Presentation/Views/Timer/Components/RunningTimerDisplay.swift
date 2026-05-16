@@ -8,15 +8,13 @@
 
 import SwiftUI
 
-/// Layout-Komponente fuer die laufende Sitzung: Zeit-Block (Eyebrow
-/// „VERBLEIBEND", grosse MM:SS, kursives „von X Minuten") im oberen
-/// Drittel, Mondphase im unteren Drittel.
+/// Layout-Komponente fuer die laufende Sitzung: Zeit-Block oben,
+/// Mondphase unten — vertikal nach dem Goldenen Schnitt verteilt
+/// (Text-Mitte ~30 %, Mond-Mitte ~62 % der verfuegbaren Hoehe).
 ///
-/// Die Komponente liest die Anzeige-Werte vom uebergeordneten View und ist
-/// rein praesentational. Layout folgt dem Mondphasen-Handoff: TextBlock zentriert
-/// oben, MoonPhaseView ueber `Spacer(maxHeight: .infinity)` ins untere Drittel
-/// gedrueckt. Mond-Durchmesser skaliert proportional (220 pt Standard, 180 pt
-/// auf kompakten Geraeten).
+/// Die Komponente liest die Anzeige-Werte vom uebergeordneten View und
+/// ist rein praesentational. Mond-Durchmesser skaliert proportional
+/// (220 pt Standard, 180 pt auf kompakten Geraeten).
 struct RunningTimerDisplay: View {
     // MARK: Internal
 
@@ -28,35 +26,33 @@ struct RunningTimerDisplay: View {
     var isCompactHeight: Bool = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: self.topSpacing)
-                .frame(maxHeight: self.topSpacing)
+        GeometryReader { proxy in
+            ZStack {
+                self.textColumn
+                    .position(
+                        x: proxy.size.width / 2,
+                        y: proxy.size.height * Self.textCenterRatio
+                    )
 
-            self.textColumn
-
-            Spacer(minLength: 16)
-
-            MoonPhaseView(
-                progress: self.progress,
-                reduceMotion: self.reduceMotion,
-                outerSize: self.moonSize
-            )
-
-            Spacer(minLength: self.bottomSpacing)
-                .frame(maxHeight: self.bottomSpacing)
+                MoonPhaseView(
+                    progress: self.progress,
+                    reduceMotion: self.reduceMotion,
+                    outerSize: self.moonSize
+                )
+                .position(
+                    x: proxy.size.width / 2,
+                    y: proxy.size.height * Self.moonCenterRatio
+                )
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: Private
 
-    private var topSpacing: CGFloat {
-        self.isCompactHeight ? 24 : 40
-    }
-
-    private var bottomSpacing: CGFloat {
-        self.isCompactHeight ? 16 : 32
-    }
+    /// Goldener Schnitt: 1/Phi ≈ 0.382. Komplementaer dazu 0.618.
+    private static let textCenterRatio: CGFloat = 0.30
+    private static let moonCenterRatio: CGFloat = 0.62
 
     private var moonSize: CGFloat {
         self.isCompactHeight ? 180 : 220
