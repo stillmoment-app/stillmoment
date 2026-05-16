@@ -50,6 +50,7 @@ struct GuidedMeditationsListView: View {
                 self.emptyStateView
             } else {
                 self.searchableLibraryContent
+                    .bottomFadeMask()
             }
 
             if self.viewModel.isMigrating {
@@ -262,6 +263,7 @@ struct GuidedMeditationsListView: View {
                 Section {
                     ForEach(section.meditations) { meditation in
                         self.meditationRow(for: meditation)
+                            .listRowSeparatorTint(self.theme.divider)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
                                     self.meditationToDelete = meditation
@@ -314,9 +316,7 @@ struct GuidedMeditationsListView: View {
     private func playButton(for meditation: GuidedMeditation) -> some View {
         let isThisPreviewing = self.viewModel.previewingMeditationId == meditation.id
 
-        return Image(systemName: isThisPreviewing ? "stop.circle.fill" : "play.circle.fill")
-            .font(.system(size: 28))
-            .foregroundColor(self.theme.interactive)
+        return PlayButtonCircle(isPlaying: isThisPreviewing)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
             .onTapGesture {

@@ -21,7 +21,8 @@ extension CGFloat {
 enum ButtonStyles {}
 
 extension ButtonStyles {
-    /// Primary button style with terracotta background and shadow
+    /// Primary button style — plastic capsule with vertical gradient + inner
+    /// highlight rim + warm drop shadow (shared-094 Kerzenschein 2.0).
     struct WarmPrimary: ButtonStyle {
         let colors: ThemeColors
 
@@ -29,16 +30,41 @@ extension ButtonStyles {
             configuration.label
                 .font(.system(size: 18, weight: .medium, design: .rounded))
                 .foregroundColor(self.colors.textOnInteractive)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 32)
                 .padding(.vertical, 14)
                 .background(
-                    RoundedRectangle(cornerRadius: .buttonCornerRadiusPrimary)
-                        .fill(self.colors.interactive)
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    self.colors.playGradientTop,
+                                    self.colors.playGradientBot
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .overlay(
+                            // Inner highlight rim — 1pt linear gradient at top
+                            // edge, fading downward.
+                            Capsule()
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.white.opacity(0.22),
+                                            Color.white.opacity(0)
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .center
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
                         .shadow(
-                            color: self.colors.interactive.opacity(.opacityShadow),
-                            radius: 20,
+                            color: self.colors.playGradientBot.opacity(0.35),
+                            radius: 12,
                             x: 0,
-                            y: 8
+                            y: 4
                         )
                 )
                 .scaleEffect(configuration.isPressed ? 0.96 : 1.0)

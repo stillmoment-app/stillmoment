@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mondphase — Pair Preview · Dark + Light</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --page-bg: #0a0807;
+    --ink: #E8E2D6;
+    --ink-2: #9c8f80;
+    --ink-3: #6b5f55;
+    --rule: rgba(232, 226, 214, 0.08);
+    --rule-strong: rgba(232, 226, 214, 0.16);
+    --hl: #DA8E72;
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 100px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 400;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 48px; line-height: 1.1; letter-spacing: -0.01em;
+    margin: 14px 0 0; color: var(--ink); max-width: 920px;
+  }
+  h1 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .lede {
+    font-family: var(--font-display); font-size: 19px; font-weight: 300;
+    line-height: 1.55; color: var(--ink-2);
+    max-width: 720px; margin: 22px 0 0;
+  }
+
+  .section { margin-top: 88px; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 32px; padding-bottom: 22px; margin-bottom: 56px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-head h2 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 30px; margin: 0; letter-spacing: -0.005em; color: var(--ink);
+  }
+  .section-head h2 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .section-meta { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+
+  /* === Pair === */
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    justify-items: center;
+    align-items: start;
+  }
+  .pair-cell { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .pair-head { text-align: center; }
+  .pair-tag {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 8px;
+  }
+  .pair-name {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 28px; color: var(--hl);
+  }
+  .pair-sub {
+    font-family: var(--font-display); font-size: 14.5px;
+    color: var(--ink-2); margin-top: 14px; max-width: 360px;
+    line-height: 1.5;
+  }
+  .pair-sub code {
+    font-family: var(--font-ui); color: var(--ink);
+    font-size: 12.5px; background: rgba(232,226,214,0.06);
+    padding: 1px 5px; border-radius: 4px;
+  }
+
+  /* === Phone === */
+  .phone {
+    width: 340px;
+    height: 736px;
+    border-radius: 52px;
+    padding: 9px;
+    background: linear-gradient(160deg, #1c1612 0%, #0c0907 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 50px 90px -28px rgba(0,0,0,0.75),
+      inset 0 0 0 2px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 44px; overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg,
+      var(--t-bg-top) 0%,
+      var(--t-bg-mid) 55%,
+      var(--t-bg-bot) 100%);
+  }
+  .phone-screen::before {
+    content: ""; position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    width: 104px; height: 28px; background: #000; border-radius: 16px;
+    z-index: 30;
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 46px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 17px 28px 0;
+    font-size: 13px; font-weight: 500;
+    color: var(--t-ink); z-index: 20;
+  }
+  .status-icons { display: flex; gap: 5px; align-items: center; opacity: 0.92; }
+  .close-btn {
+    position: absolute; top: 56px; right: 22px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--t-close-bg);
+    border: 1px solid var(--t-close-border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-ink);
+    z-index: 12;
+  }
+
+  /* Time block */
+  .time-block {
+    position: absolute; left: 0; right: 0; top: 116px;
+    text-align: center; z-index: 10;
+  }
+  .time-eyebrow {
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--t-ink-2); margin-bottom: 6px;
+    font-family: var(--font-ui); font-weight: 500;
+  }
+  .time-num {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 60px; line-height: 1; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--t-ink);
+  }
+  .time-sub {
+    margin-top: 12px;
+    font-family: var(--font-display); font-style: italic; font-size: 12.5px;
+    color: var(--t-ink-2);
+  }
+
+  /* Moon visual */
+  .moon-halo {
+    position: absolute; left: 50%; top: 482px;
+    transform: translate(-50%, -50%);
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      var(--moon-halo-from) 0%,
+      var(--moon-halo-to) 40%,
+      transparent 70%);
+    pointer-events: none;
+    z-index: 4;
+  }
+  .moon-svg {
+    position: absolute;
+    left: 50%; top: 482px;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* ====== DARK — Lifted Warm ====== */
+  [data-v="dark"] {
+    --t-bg-top: #1A100C;
+    --t-bg-mid: #321F19;
+    --t-bg-bot: #5D3A2F;
+    --t-ink: #E5DCCD;
+    --t-ink-2: #A68A80;
+    --t-close-bg: rgba(235,226,214,0.06);
+    --t-close-border: rgba(235,226,214,0.05);
+
+    /* Moon */
+    --moon-disc-from: #F4E2C8;
+    --moon-disc-mid:  #E5C8A8;
+    --moon-disc-to:   #B89478;
+    --moon-shadow:    #1A100C;
+    --moon-ring:      rgba(244,226,200,0.16);
+    --moon-halo-from: rgba(242, 200, 168, var(--moon-halo, 0.02));
+    --moon-halo-to:   rgba(199, 125, 99, calc(var(--moon-halo, 0.02) * 0.5));
+  }
+
+  /* ====== LIGHT — Sunrise Confident ====== */
+  [data-v="light"] {
+    --t-bg-top: #FBEEDB;
+    --t-bg-mid: #F6CDA8;
+    --t-bg-bot: #E8A074;
+    --t-ink: #3A2418;
+    --t-ink-2: #7A4E3C;
+    --t-close-bg: rgba(58,36,24,0.06);
+    --t-close-border: rgba(58,36,24,0.08);
+
+    /* Moon */
+    --moon-disc-from: #FFF3DD;
+    --moon-disc-mid:  #E8C896;
+    --moon-disc-to:   #9A6A42;
+    --moon-shadow:    #3A2418;
+    --moon-ring:      rgba(58,36,24,0.18);
+    --moon-halo-from: rgba(252, 232, 200, var(--moon-halo, 0.02));
+    --moon-halo-to:   rgba(184, 95, 70, calc(var(--moon-halo, 0.02) * 0.5));
+  }
+
+  /* === Keyframes section === */
+  .keyframes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 56px;
+  }
+  .kf-cell { text-align: center; }
+  .kf-label {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 10px;
+  }
+  .kf-title {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 17px; color: var(--hl); margin-bottom: 18px;
+  }
+  .kf-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .kf-mini {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+  }
+  .kf-mini[data-v="dark"] {
+    background: radial-gradient(circle at 50% 30%, #3a2218 0%, #1a100c 100%);
+  }
+  .kf-mini[data-v="light"] {
+    background: radial-gradient(circle at 50% 30%, #fbeedb 0%, #f6cda8 100%);
+  }
+  .kf-mini svg { width: 100%; height: 100%; display: block; }
+  .kf-mode-tag {
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3); margin-top: 8px;
+  }
+  .kf-meta {
+    margin-top: 16px;
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--ink-2); line-height: 1.6;
+  }
+  .kf-meta code {
+    font-family: var(--font-ui); color: var(--ink);
+    background: rgba(232,226,214,0.06);
+    padding: 1px 5px; border-radius: 4px;
+    font-size: 11.5px;
+  }
+
+  /* === Tokens table === */
+  .tokens {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .tok-col h3 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--hl);
+    margin: 0 0 18px;
+  }
+  table.tok-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-ui); font-size: 13px;
+  }
+  table.tok-table th {
+    text-align: left;
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 400;
+    padding: 0 0 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  table.tok-table td {
+    padding: 11px 0;
+    color: var(--ink); font-weight: 300;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  table.tok-table td.slot {
+    color: var(--ink-2);
+    font-size: 12.5px;
+  }
+  .swatch {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--rule-strong);
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  .val-mono {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  /* === Math card === */
+  .math-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .math-card {
+    background: rgba(232,226,214,0.025);
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    padding: 28px 32px;
+  }
+  .math-card h3 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--hl);
+    margin: 0 0 14px;
+  }
+  .math-card p {
+    margin: 0 0 14px;
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.65;
+  }
+  .math-card pre {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 0 0 14px;
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+  .math-card pre .comment { color: var(--ink-3); }
+  .math-card pre .accent  { color: var(--hl); }
+
+  /* === Controls — single bar drives both moons === */
+  .controls {
+    display: flex; align-items: center; gap: 18px;
+    margin: 48px auto 0;
+    max-width: 720px;
+    padding: 16px 24px;
+    background: rgba(232,226,214,0.03);
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+  }
+  .ctl-btn {
+    background: rgba(232,226,214,0.06);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .ctl-btn:hover { background: rgba(232,226,214,0.10); }
+  .scrubber {
+    -webkit-appearance: none; appearance: none;
+    flex: 1;
+    height: 2px;
+    background: rgba(232,226,214,0.14);
+    border-radius: 1px;
+    outline: none; cursor: pointer;
+  }
+  .scrubber::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--hl);
+    border: 1px solid #fff2;
+    cursor: grab;
+    box-shadow: 0 0 12px rgba(218, 142, 114, 0.4);
+  }
+  .scrubber::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--hl);
+    border: 1px solid #fff2;
+    cursor: grab;
+  }
+  .ctl-meta {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-3); flex-shrink: 0;
+    min-width: 110px; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .speed-row {
+    display: flex; gap: 6px; align-items: center;
+    justify-content: center;
+    margin: 16px 0 0;
+    font-size: 11px; color: var(--ink-3);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .speed-btn {
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-2);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: inherit; font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+  }
+  .speed-btn:hover { color: var(--ink); }
+  .speed-btn.active {
+    background: rgba(218,142,114,0.16);
+    border-color: rgba(218,142,114,0.4);
+    color: var(--hl);
+  }
+
+  .footer {
+    margin-top: 96px;
+    padding-top: 30px;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">Still Moment · Running Timer · Mondphase</div>
+    <h1>Vom <em>Neumond</em> zum <em>Vollmond</em> — über eine Sitzung hinweg.</h1>
+    <p class="lede">
+      Der Schatten wandert nach links, der Mond füllt sich. Am Ende driftet die
+      schwarze Scheibe komplett aus dem Bild — kein Rest, kein Akku, kein Pegel.
+      Eine vertraute, stille Geste, die in Kerzenschein-Dark und Sunrise-Light
+      gleich gut funktioniert.
+    </p>
+  </div>
+
+  <!-- PAIR -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Running <em>·</em> Theme Pair</h2>
+      <div class="section-meta">Synchrone Animation · Dark + Light</div>
+    </div>
+
+    <div class="pair">
+
+      <!-- DARK -->
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Dark Mode</div>
+          <div class="pair-name">Lifted Warm</div>
+          <div class="pair-sub">
+            Schatten in <code>#1A100C</code> (= bg-top). Warmer Cream-Mond auf
+            tiefem Kakao. Halo wärmt den Raum um den Vollmond auf, ohne grell zu werden.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar">
+              <span>09:41</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+
+            <div class="time-block">
+              <div class="time-eyebrow">verbleibend</div>
+              <div class="time-num" data-time>10:00</div>
+              <div class="time-sub">von 10 Minuten</div>
+            </div>
+
+            <div class="moon-halo" data-halo></div>
+            <svg class="moon-svg" width="220" height="220" viewBox="-110 -110 220 220">
+              <defs>
+                <radialGradient id="moon-disc-dark" cx="0.35" cy="0.35" r="0.8">
+                  <stop offset="0%"   stop-color="var(--moon-disc-from)"/>
+                  <stop offset="60%"  stop-color="var(--moon-disc-mid)"/>
+                  <stop offset="100%" stop-color="var(--moon-disc-to)"/>
+                </radialGradient>
+              </defs>
+              <circle cx="0" cy="0" r="90" fill="url(#moon-disc-dark)"/>
+              <circle data-shadow cx="0" cy="0" r="90" fill="var(--moon-shadow)"/>
+              <circle cx="0" cy="0" r="90" fill="none" stroke="var(--moon-ring)" stroke-width="0.7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIGHT -->
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Light Mode</div>
+          <div class="pair-name">Sunrise Confident</div>
+          <div class="pair-sub">
+            Schatten in <code>#3A2418</code> (= textPrimary, kein Reinschwarz).
+            Tieferer Disc-Verlauf, damit der Mond gegen den Apricot-Verlauf
+            Plastizität behält. Halo in warmem Cream-Apricot.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar">
+              <span>09:41</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <button class="close-btn" aria-label="Schließen">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 6 L18 18"/><path d="M18 6 L6 18"/></svg>
+            </button>
+
+            <div class="time-block">
+              <div class="time-eyebrow">verbleibend</div>
+              <div class="time-num" data-time>10:00</div>
+              <div class="time-sub">von 10 Minuten</div>
+            </div>
+
+            <div class="moon-halo" data-halo></div>
+            <svg class="moon-svg" width="220" height="220" viewBox="-110 -110 220 220">
+              <defs>
+                <radialGradient id="moon-disc-light" cx="0.35" cy="0.35" r="0.8">
+                  <stop offset="0%"   stop-color="var(--moon-disc-from)"/>
+                  <stop offset="60%"  stop-color="var(--moon-disc-mid)"/>
+                  <stop offset="100%" stop-color="var(--moon-disc-to)"/>
+                </radialGradient>
+              </defs>
+              <circle cx="0" cy="0" r="90" fill="url(#moon-disc-light)"/>
+              <circle data-shadow cx="0" cy="0" r="90" fill="var(--moon-shadow)"/>
+              <circle cx="0" cy="0" r="90" fill="none" stroke="var(--moon-ring)" stroke-width="0.7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Single controls bar drives both -->
+    <div class="controls">
+      <button class="ctl-btn" id="play-btn" aria-label="Play/Pause">
+        <svg id="play-ic" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="display:none">
+          <path d="M8 5 L8 19 L19 12 Z"/>
+        </svg>
+        <svg id="pause-ic" viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+          <path d="M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z"/>
+        </svg>
+      </button>
+      <input type="range" min="0" max="1000" value="0" class="scrubber" id="scrub"/>
+      <div class="ctl-meta">
+        <span id="pct">0 %</span> verstrichen
+      </div>
+    </div>
+    <div class="speed-row">
+      <span>Geschwindigkeit</span>
+      <button class="speed-btn" data-speed="0.5">¼×</button>
+      <button class="speed-btn active" data-speed="1">1×</button>
+      <button class="speed-btn" data-speed="2">2×</button>
+      <button class="speed-btn" data-speed="4">4×</button>
+    </div>
+  </section>
+
+  <!-- KEYFRAMES -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Keyframes <em>·</em> drei Stationen</h2>
+      <div class="section-meta">Start · Mitte · Ende</div>
+    </div>
+
+    <div class="keyframes">
+
+      <div class="kf-cell">
+        <div class="kf-label">10:00 · Start</div>
+        <div class="kf-title">Neumond</div>
+        <div class="kf-row">
+          <div>
+            <div class="kf-mini" data-v="dark">
+              <svg viewBox="-110 -110 220 220">
+                <defs><radialGradient id="kf-d-1" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#F4E2C8"/><stop offset="60%" stop-color="#E5C8A8"/><stop offset="100%" stop-color="#B89478"/></radialGradient></defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-d-1)"/>
+                <circle cx="0" cy="0" r="90" fill="#1A100C"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Dark</div>
+          </div>
+          <div>
+            <div class="kf-mini" data-v="light">
+              <svg viewBox="-110 -110 220 220">
+                <defs><radialGradient id="kf-l-1" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#FFF3DD"/><stop offset="60%" stop-color="#E8C896"/><stop offset="100%" stop-color="#9A6A42"/></radialGradient></defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-l-1)"/>
+                <circle cx="0" cy="0" r="90" fill="#3A2418"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Light</div>
+          </div>
+        </div>
+        <div class="kf-meta">
+          <code>cx = 0</code> · Schatten exakt über dem Mond. Halo <code>α = 0.02</code>.
+        </div>
+      </div>
+
+      <div class="kf-cell">
+        <div class="kf-label">05:00 · Mitte</div>
+        <div class="kf-title">Halbmond</div>
+        <div class="kf-row">
+          <div>
+            <div class="kf-mini" data-v="dark">
+              <svg viewBox="-110 -110 220 220">
+                <defs><radialGradient id="kf-d-2" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#F4E2C8"/><stop offset="60%" stop-color="#E5C8A8"/><stop offset="100%" stop-color="#B89478"/></radialGradient></defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-d-2)"/>
+                <circle cx="-100" cy="0" r="90" fill="#1A100C"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Dark</div>
+          </div>
+          <div>
+            <div class="kf-mini" data-v="light">
+              <svg viewBox="-110 -110 220 220">
+                <defs><radialGradient id="kf-l-2" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#FFF3DD"/><stop offset="60%" stop-color="#E8C896"/><stop offset="100%" stop-color="#9A6A42"/></radialGradient></defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-l-2)"/>
+                <circle cx="-100" cy="0" r="90" fill="#3A2418"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Light</div>
+          </div>
+        </div>
+        <div class="kf-meta">
+          <code>cx = −100</code> · Schattenkante in der Mondmitte. Halo <code>α ≈ 0.26</code>.
+        </div>
+      </div>
+
+      <div class="kf-cell">
+        <div class="kf-label">00:00 · Ende</div>
+        <div class="kf-title">Vollmond</div>
+        <div class="kf-row">
+          <div>
+            <div class="kf-mini" data-v="dark">
+              <svg viewBox="-110 -110 220 220">
+                <defs>
+                  <radialGradient id="kf-d-3" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#F4E2C8"/><stop offset="60%" stop-color="#E5C8A8"/><stop offset="100%" stop-color="#B89478"/></radialGradient>
+                </defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-d-3)"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Dark</div>
+          </div>
+          <div>
+            <div class="kf-mini" data-v="light">
+              <svg viewBox="-110 -110 220 220">
+                <defs>
+                  <radialGradient id="kf-l-3" cx="0.35" cy="0.35" r="0.8"><stop offset="0%" stop-color="#FFF3DD"/><stop offset="60%" stop-color="#E8C896"/><stop offset="100%" stop-color="#9A6A42"/></radialGradient>
+                </defs>
+                <circle cx="0" cy="0" r="90" fill="url(#kf-l-3)"/>
+              </svg>
+            </div>
+            <div class="kf-mode-tag">Light</div>
+          </div>
+        </div>
+        <div class="kf-meta">
+          <code>cx = −200</code> · Schatten komplett aus dem Bild. Halo <code>α = 0.50</code>.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MATH -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Mechanik <em>·</em> die zwei Formeln</h2>
+      <div class="section-meta">Linear · Smoothstep</div>
+    </div>
+
+    <div class="math-grid">
+
+      <div class="math-card">
+        <h3>Schatten-Position</h3>
+        <p>
+          Linear interpoliert. Die letzten 10 % der Sitzung (cx <code>−180 → −200</code>)
+          räumen die schwarze Scheibe komplett aus dem Bildausschnitt — kein dunkler
+          Rest am Ende.
+        </p>
+<pre><span class="comment">// progress ∈ [0, 1]</span>
+<span class="accent">cx</span> = -progress * 200
+
+<span class="comment">// progress 0.0  → cx     0  (Neumond)</span>
+<span class="comment">// progress 0.5  → cx  −100  (Halbmond)</span>
+<span class="comment">// progress 0.9  → cx  −180  (Vollmond)</span>
+<span class="comment">// progress 1.0  → cx  −200  (raus)</span></pre>
+      </div>
+
+      <div class="math-card">
+        <h3>Halo-Intensität</h3>
+        <p>
+          Smoothstep — am Anfang fast unsichtbar, hält sich lang zurück, erblüht erst
+          gegen Ende. Linear wäre zu aufdringlich und würde die Aufmerksamkeit von der
+          Atmung wegziehen.
+        </p>
+<pre><span class="accent">eased</span> = p * p * (3 - 2 * p)
+<span class="accent">α</span>    = 0.02 + eased * 0.48
+
+<span class="comment">// α ∈ [0.02 … 0.50]
+// p=0.25 → α ≈ 0.10
+// p=0.50 → α ≈ 0.26
+// p=0.75 → α ≈ 0.42</span></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TOKENS -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Tokens <em>·</em> Moon-spezifisch</h2>
+      <div class="section-meta">Zusätzlich zu Kerzenschein 2.0</div>
+    </div>
+
+    <div class="tokens">
+      <div class="tok-col">
+        <h3>Dark · Lifted Warm</h3>
+        <table class="tok-table">
+          <thead>
+            <tr><th>Slot</th><th>Wert</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="slot">moonDiscFrom</td><td><span class="swatch" style="background:#F4E2C8"></span><span class="val-mono">#F4E2C8</span></td></tr>
+            <tr><td class="slot">moonDiscMid</td><td><span class="swatch" style="background:#E5C8A8"></span><span class="val-mono">#E5C8A8</span></td></tr>
+            <tr><td class="slot">moonDiscTo</td><td><span class="swatch" style="background:#B89478"></span><span class="val-mono">#B89478</span></td></tr>
+            <tr><td class="slot">moonShadow</td><td><span class="swatch" style="background:#1A100C"></span><span class="val-mono">#1A100C</span></td></tr>
+            <tr><td class="slot">moonRing</td><td><span class="swatch" style="background:rgba(244,226,200,0.16)"></span><span class="val-mono">rgba(244,226,200,0.16)</span></td></tr>
+            <tr><td class="slot">haloFrom</td><td><span class="swatch" style="background:rgba(242,200,168,0.5)"></span><span class="val-mono">rgba(242,200,168, α)</span></td></tr>
+            <tr><td class="slot">haloTo</td><td><span class="swatch" style="background:rgba(199,125,99,0.3)"></span><span class="val-mono">rgba(199,125,99, α/2)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tok-col">
+        <h3>Light · Sunrise Confident</h3>
+        <table class="tok-table">
+          <thead>
+            <tr><th>Slot</th><th>Wert</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="slot">moonDiscFrom</td><td><span class="swatch" style="background:#FFF3DD"></span><span class="val-mono">#FFF3DD</span></td></tr>
+            <tr><td class="slot">moonDiscMid</td><td><span class="swatch" style="background:#E8C896"></span><span class="val-mono">#E8C896</span></td></tr>
+            <tr><td class="slot">moonDiscTo</td><td><span class="swatch" style="background:#9A6A42"></span><span class="val-mono">#9A6A42</span></td></tr>
+            <tr><td class="slot">moonShadow</td><td><span class="swatch" style="background:#3A2418"></span><span class="val-mono">#3A2418</span></td></tr>
+            <tr><td class="slot">moonRing</td><td><span class="swatch" style="background:rgba(58,36,24,0.18)"></span><span class="val-mono">rgba(58,36,24,0.18)</span></td></tr>
+            <tr><td class="slot">haloFrom</td><td><span class="swatch" style="background:rgba(252,232,200,0.5)"></span><span class="val-mono">rgba(252,232,200, α)</span></td></tr>
+            <tr><td class="slot">haloTo</td><td><span class="swatch" style="background:rgba(184,95,70,0.3)"></span><span class="val-mono">rgba(184,95,70, α/2)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>Still Moment · Running Timer — Mondphase</div>
+    <div>v1.0 · Pair · Dark + Light</div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const SESSION_MIN = 10;
+  const BASE_DUR_MS = 15000;
+
+  const shadows = document.querySelectorAll('[data-shadow]');
+  const halos   = document.querySelectorAll('[data-halo]');
+  const times   = document.querySelectorAll('[data-time]');
+  const $scrub  = document.getElementById('scrub');
+  const $pct    = document.getElementById('pct');
+  const $play   = document.getElementById('play-btn');
+  const $playIc = document.getElementById('play-ic');
+  const $pauseIc= document.getElementById('pause-ic');
+
+  let progress = 0;
+  let playing = true;
+  let speed = 1;
+  let lastFrame = null;
+  let scrubbing = false;
+
+  function render(p) {
+    const cx = -p * 200;
+    shadows.forEach(s => s.setAttribute('cx', cx.toFixed(1)));
+
+    const eased = p * p * (3 - 2 * p);
+    const alpha = 0.02 + eased * 0.48;
+    halos.forEach(h => h.style.setProperty('--moon-halo', alpha.toFixed(3)));
+
+    const totalSec = SESSION_MIN * 60;
+    const remain = Math.max(0, Math.round((1 - p) * totalSec));
+    const mm = Math.floor(remain / 60);
+    const ss = remain % 60;
+    const t = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+    times.forEach(el => el.textContent = t);
+
+    if (!scrubbing) $scrub.value = Math.round(p * 1000);
+    $pct.textContent = `${Math.round(p * 100)} %`;
+  }
+
+  function tick(t) {
+    if (lastFrame === null) lastFrame = t;
+    const dt = t - lastFrame;
+    lastFrame = t;
+    if (playing && !scrubbing) {
+      progress += (dt / BASE_DUR_MS) * speed;
+      if (progress >= 1) progress = 0;
+    }
+    render(progress);
+    requestAnimationFrame(tick);
+  }
+
+  $play.addEventListener('click', () => {
+    playing = !playing;
+    $playIc.style.display = playing ? 'none' : '';
+    $pauseIc.style.display = playing ? '' : 'none';
+  });
+  $scrub.addEventListener('pointerdown', () => scrubbing = true);
+  $scrub.addEventListener('pointerup',   () => scrubbing = false);
+  $scrub.addEventListener('input', e => {
+    progress = parseInt(e.target.value, 10) / 1000;
+    render(progress);
+  });
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      speed = parseFloat(btn.dataset.speed);
+    });
+  });
+
+  render(0);
+  requestAnimationFrame(tick);
+})();
+</script>
+
+</body>
+</html>

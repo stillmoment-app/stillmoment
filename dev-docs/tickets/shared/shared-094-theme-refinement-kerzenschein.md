@@ -22,7 +22,7 @@ Die aktuelle Palette ist nach dem Reduzieren auf ein Theme (shared-093) bewusst 
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-093    |
+| iOS       | [x]    | shared-093    |
 | Android   | [ ]    | shared-093    |
 
 ---

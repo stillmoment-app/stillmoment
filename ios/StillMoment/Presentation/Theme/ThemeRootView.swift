@@ -27,7 +27,7 @@ struct ThemeRootView<Content: View>: View {
         self.content
             .environment(\.themeColors, self.resolvedColors)
             .tint(self.resolvedColors.interactive)
-            .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
+            .toolbarBackground(self.tabBarTint, for: .tabBar)
             .toolbarBackground(.visible, for: .tabBar)
             .preferredColorScheme(self.themeManager.preferredColorScheme)
             .id(self.resolvedColors)
@@ -39,7 +39,46 @@ struct ThemeRootView<Content: View>: View {
             }
     }
 
+    /// Tabbar-Hintergrund nach Handover (shared-094).
+    ///
+    /// Durchgehende, opake Bar (kein iOS-26-Pill) — passend zur App-Philosophie
+    /// und vermeidet den iOS-26-Scroll-Edge-Effekt, bei dem Content unter
+    /// transparenten Bars durchschimmern wuerde.
+    private var tabBarTint: Color {
+        self.resolvedColors.tabBarBackground
+    }
+
+    // MARK: - Tab Bar Appearance
+
+    /// Konfiguriert `UITabBarAppearance` mit opakem Hintergrund in unserem
+    /// warmen Tint und setzt die Item-Tints (aktiv = Akzent, inaktiv =
+    /// textSecondary). Sowohl `standardAppearance` als auch `scrollEdgeAppearance`
+    /// werden gesetzt — auf iOS 18 wechselt das System sonst auf das hellgrau-
+    /// weisse Standard-Material, sobald Content die Tabbar beruehrt.
+    /// `UIAppearance` wirkt auf neue Instanzen; `.id(resolvedColors)` erzwingt
+    /// den Neuaufbau bei Theme-Wechsel.
     private static func applyTabBarAppearance(_ colors: ThemeColors) {
-        UITabBar.appearance().unselectedItemTintColor = UIColor(colors.textSecondary).withAlphaComponent(0.5)
+        let interactive = UIColor(colors.interactive)
+        let textSecondary = UIColor(colors.textSecondary).withAlphaComponent(0.6)
+
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(colors.tabBarBackground)
+
+        for itemAppearance in [
+            appearance.stackedLayoutAppearance,
+            appearance.inlineLayoutAppearance,
+            appearance.compactInlineLayoutAppearance
+        ] {
+            itemAppearance.normal.iconColor = textSecondary
+            itemAppearance.normal.titleTextAttributes = [.foregroundColor: textSecondary]
+            itemAppearance.selected.iconColor = interactive
+            itemAppearance.selected.titleTextAttributes = [.foregroundColor: interactive]
+        }
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().tintColor = interactive
+        UITabBar.appearance().unselectedItemTintColor = textSecondary
     }
 }
