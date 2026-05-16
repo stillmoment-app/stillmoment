@@ -2,19 +2,21 @@
 //  RunningTimerDisplay.swift
 //  Still Moment
 //
-//  Presentation Layer — Hauptphase des Timers: Vessel + Restzeit (ios-046).
+//  Presentation Layer — Hauptphase des Timers: Zeit-Block oben, Mondphase
+//  unten (shared-095).
 //
 
 import SwiftUI
 
-/// Layout-Komponente fuer die laufende Sitzung: Sanduhr-Vessel links,
-/// Restzeit-Block rechts (Eyebrow „VERBLEIBEND", grosse MM:SS, kursives
-/// „von X Minuten").
+/// Layout-Komponente fuer die laufende Sitzung: Zeit-Block (Eyebrow
+/// „VERBLEIBEND", grosse MM:SS, kursives „von X Minuten") im oberen
+/// Drittel, Mondphase im unteren Drittel.
 ///
 /// Die Komponente liest die Anzeige-Werte vom uebergeordneten View und ist
-/// rein praesentational. Layout-Maße folgen dem Handoff (110 × 360 pt
-/// Vessel, 36 pt Gap, 64 pt Restzeit) und skalieren auf kompakten
-/// Geraeten proportional.
+/// rein praesentational. Layout folgt dem Mondphasen-Handoff: TextBlock zentriert
+/// oben, MoonPhaseView ueber `Spacer(maxHeight: .infinity)` ins untere Drittel
+/// gedrueckt. Mond-Durchmesser skaliert proportional (220 pt Standard, 180 pt
+/// auf kompakten Geraeten).
 struct RunningTimerDisplay: View {
     // MARK: Internal
 
@@ -26,37 +28,42 @@ struct RunningTimerDisplay: View {
     var isCompactHeight: Bool = false
 
     var body: some View {
-        HStack(alignment: .center, spacing: self.horizontalSpacing) {
-            VesselView(
-                progress: self.progress,
-                reduceMotion: self.reduceMotion,
-                width: self.vesselWidth,
-                height: self.vesselHeight
-            )
+        VStack(spacing: 0) {
+            Spacer(minLength: self.topSpacing)
+                .frame(maxHeight: self.topSpacing)
 
             self.textColumn
+
+            Spacer(minLength: 16)
+
+            MoonPhaseView(
+                progress: self.progress,
+                reduceMotion: self.reduceMotion,
+                outerSize: self.moonSize
+            )
+
+            Spacer(minLength: self.bottomSpacing)
+                .frame(maxHeight: self.bottomSpacing)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: Private
 
-    @Environment(\.themeColors)
-    private var theme
-
-    private var vesselWidth: CGFloat {
-        self.isCompactHeight ? 92 : 110
+    private var topSpacing: CGFloat {
+        self.isCompactHeight ? 24 : 40
     }
 
-    private var vesselHeight: CGFloat {
-        self.isCompactHeight ? 304 : 360
+    private var bottomSpacing: CGFloat {
+        self.isCompactHeight ? 16 : 32
     }
 
-    private var horizontalSpacing: CGFloat {
-        self.isCompactHeight ? 24 : 36
+    private var moonSize: CGFloat {
+        self.isCompactHeight ? 180 : 220
     }
 
     private var textColumn: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 0) {
             Text("timer.running.remaining", bundle: .main)
                 .themeFont(.cardLabel, color: \.textSecondary)
                 .tracking(2.4)
@@ -74,9 +81,10 @@ struct RunningTimerDisplay: View {
             Text(self.durationLabel)
                 .themeFont(.bodySecondary)
                 .italic()
-                .padding(.top, 18)
+                .padding(.top, 12)
                 .accessibilityHidden(true)
         }
+        .multilineTextAlignment(.center)
     }
 }
 
@@ -84,7 +92,7 @@ struct RunningTimerDisplay: View {
 
 #if DEBUG
 @available(iOS 17.0, *)
-#Preview("Running — Start (leer)") {
+#Preview("Running — Start (Dark)") {
     ZStack {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         RunningTimerDisplay(
@@ -95,10 +103,11 @@ struct RunningTimerDisplay: View {
             reduceMotion: false
         )
     }
+    .preferredColorScheme(.dark)
 }
 
 @available(iOS 17.0, *)
-#Preview("Running — halb gefuellt") {
+#Preview("Running — Halbzeit (Dark)") {
     ZStack {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         RunningTimerDisplay(
@@ -109,10 +118,26 @@ struct RunningTimerDisplay: View {
             reduceMotion: false
         )
     }
+    .preferredColorScheme(.dark)
 }
 
 @available(iOS 17.0, *)
-#Preview("Running — kompakt (SE)") {
+#Preview("Running — Ende (Light)") {
+    ZStack {
+        Color(red: 1.00, green: 0.89, blue: 0.84).ignoresSafeArea()
+        RunningTimerDisplay(
+            progress: 1.0,
+            remainingTimeText: "00:00",
+            durationLabel: "von 10 Minuten",
+            accessibilityTimeValue: "Sitzung beendet",
+            reduceMotion: false
+        )
+    }
+    .preferredColorScheme(.light)
+}
+
+@available(iOS 17.0, *)
+#Preview("Running — kompakt (SE, Dark)") {
     ZStack {
         Color(red: 0.10, green: 0.06, blue: 0.04).ignoresSafeArea()
         RunningTimerDisplay(
@@ -124,5 +149,6 @@ struct RunningTimerDisplay: View {
             isCompactHeight: true
         )
     }
+    .preferredColorScheme(.dark)
 }
 #endif

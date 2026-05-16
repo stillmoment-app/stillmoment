@@ -142,17 +142,10 @@ struct TimerView: View {
     }
 
     private func sessionLayout(geometry: GeometryProxy) -> some View {
-        // Session-Modus: BreathingCircle + Restzeit-Label vertikal zentriert.
-        // Kein Begruessungs-Headline, kein Begin-Button.
-        VStack(spacing: 0) {
-            Spacer(minLength: 16)
-                .frame(maxHeight: .infinity)
-
-            self.timerDisplay(geometry: geometry)
-
-            Spacer(minLength: 16)
-                .frame(maxHeight: .infinity)
-        }
+        // Session-Modus: PreRoll zentriert, Running fuellt die volle Hoehe
+        // (Mondphase positioniert sich intern ins untere Drittel).
+        self.timerDisplay(geometry: geometry)
+            .frame(maxHeight: .infinity)
     }
 
     // MARK: - Idle Screen
@@ -258,7 +251,13 @@ struct TimerView: View {
         return Group {
             switch self.viewModel.phase {
             case .preRoll:
-                self.preRollDisplay(isCompactHeight: isCompactHeight)
+                // PreRoll bleibt vertikal zentriert — Atemkreis + Hint
+                // sitzen mittig auf dem Screen.
+                VStack(spacing: 0) {
+                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+                    self.preRollDisplay(isCompactHeight: isCompactHeight)
+                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+                }
             case .playing:
                 RunningTimerDisplay(
                     progress: self.viewModel.progress,
