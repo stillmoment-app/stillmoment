@@ -1,6 +1,6 @@
 # Ticket shared-096: Player-Refinement Kerzenschein 2.0
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — Player-View bekommt KS-2.0-Background-Gradient, der atmende Glow wird komplett entfernt (auch der Reduced-Motion-Pfad), Ring uebernimmt die KS-2.0-Norm aus Timer-Idle (1px Track + 1.5px Arc mit wandernder Perle), Pre-Roll zeigt keinen Sitzungs-Arc mehr. Risiko: Player-Ring darf nicht versehentlich an die geteilte Atemkreis-Komponente angefasst werden, die noch fuer Timer-Idle genutzt wird.
 **Phase**: 4-Polish
@@ -65,6 +65,7 @@ Referenz: `handoffs/claude_code_handoff_player_ks2/README.md` (High-Fidelity-Spe
 - [ ] Der Pause-Glyph wechselt zum Play-Glyph (Cross-Fade ca. 200 ms — Verhalten wie vorher)
 - [ ] Restzeit-Label zeigt zusaetzlich ein „Pausiert"-Prefix vor der Restzeit, damit der Pause-Zustand auch ohne Glyph-Blick erkennbar ist
 - [ ] Das „Pausiert"-Prefix verschwindet beim Resume und die Restzeit-Anzeige zeigt wieder das Standard-Format
+- [ ] Tab-Bar bleibt waehrend Pause verborgen (Zen-Mode aktiv) — der Player ist auch im Pause-Zustand die aktive Flaeche, der naechste Schritt soll Resume oder Schliessen sein, kein Tab-Wechsel
 
 ### Light + Dark Mode
 

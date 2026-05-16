@@ -251,6 +251,7 @@
 "guided_meditations.player.preroll.label" = "Preparation";
 "guided_meditations.player.preroll.hint" = "STARTING IN A MOMENT";
 "guided_meditations.player.remainingTime.format" = "%@ MIN LEFT";
+"guided_meditations.player.remainingTime.format.paused" = "PAUSED · %@ MIN LEFT";
 
 // MARK: - Player Completion
 

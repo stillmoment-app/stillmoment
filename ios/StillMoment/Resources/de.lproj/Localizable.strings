@@ -251,6 +251,7 @@
 "guided_meditations.player.preroll.label" = "Vorbereitung";
 "guided_meditations.player.preroll.hint" = "GLEICH GEHT'S LOS";
 "guided_meditations.player.remainingTime.format" = "NOCH %@ MIN";
+"guided_meditations.player.remainingTime.format.paused" = "PAUSIERT · NOCH %@ MIN";
 
 // MARK: - Player Completion
 

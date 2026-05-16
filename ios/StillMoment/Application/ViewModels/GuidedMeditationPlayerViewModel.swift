@@ -110,6 +110,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playbackState == .playing
     }
 
+    /// Whether playback is paused (distinct from idle/loading/finished/failed).
+    ///
+    /// Used by the view to switch the remaining-time label format — only `.paused`
+    /// should show the "PAUSIERT"-Prefix, not transient states like `.loading`.
+    var isPaused: Bool {
+        self.playbackState == .paused
+    }
+
     /// Whether the guided meditation has completed naturally (audio reached end)
     var isCompleted: Bool {
         self.playbackState == .finished
@@ -136,10 +144,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     /// Whether Zen Mode is active: tab bar should be hidden during active session
     ///
-    /// Active when preparation countdown is running, meditation is playing,
-    /// or the completion/thank-you screen is shown.
+    /// Active when preparation countdown is running, meditation is playing or
+    /// paused, or the completion/thank-you screen is shown. Pause keeps the
+    /// player as the active surface — switching tabs is not the intended action.
     var isZenMode: Bool {
-        self.isPreparing || self.isPlaying || self.isCompleted
+        self.isPreparing || self.isPlaying || self.playbackState == .paused || self.isCompleted
     }
 
     /// Remaining countdown seconds (for UI)
