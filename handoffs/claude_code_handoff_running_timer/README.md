@@ -6,9 +6,11 @@ Dies ist der **Running-Screen** einer Meditations-App ("Still Moment") — was a
 
 **Kerngedanke: Stille als Designentscheidung.** Es gibt **keine visuelle Atembewegung**. Eine Meditations-App, die per Animation vorgibt, wann ein- und ausgeatmet wird, führt den inneren Prozess. Wer meditiert, atmet selbst. Die App ist still und begleitet — sie taktet nicht.
 
-Auf dem Screen bewegt sich pro Sitzung nur eine Sache: **der Flüssigkeitspegel im Glas sinkt linear** über die gesamte Sitzungsdauer (z.B. 360 px in 10 min ≈ 0,6 px/s — nicht wahrnehmbar pro Frame, deutlich nach Minuten). Daneben tickt die Restzeit im Sekundentakt nach unten.
+**Richtung des Pegels: er steigt.** Über die Sitzung füllt sich das Glas von unten nach oben. Metapher: Meditation füllt dich auf, sie verbraucht dich nicht. (Eine frühere Version sank — sah aus wie ein leer laufender Akku, falsche Botschaft.) Die Restzeit daneben zählt parallel runter (praktische Information), das Visual erzählt die andere, sinnstiftende Geschichte.
 
-Das Visual ist eine vertikale **Glas-Capsule** mit warmem Verlauf (Honig → Kupfer), dünnem Meniskus-Glanz an der Wasserlinie und einem schmalen Glas-Reflex links. Rechts daneben: Restzeit (Newsreader, 64 px), darüber das Eyebrow „verbleibend", darunter eine kursive Zeile „von 10 Minuten" zur Verortung.
+Auf dem Screen bewegt sich pro Sitzung nur eine Sache: **der Flüssigkeitspegel im Glas steigt linear** über die gesamte Sitzungsdauer (z.B. 360 px in 10 min ≈ 0,6 px/s — nicht wahrnehmbar pro Frame, deutlich nach Minuten). Daneben tickt die Restzeit im Sekundentakt nach unten.
+
+Das Visual ist eine vertikale **Glas-Capsule** mit warmem Verlauf (Honig oben → Kupfer unten, an die Glas-Geometrie referenziert). Der Pegel schiebt sich von unten in den Gradient hinein — bei wenig Füllung sieht man nur die tiefen Kupfertöne, gegen Sitzungsende kommen die honigfarbenen Spitzentöne dazu. Ein dünner Meniskus-Glanz markiert die wandernde Wasserlinie, ein schmaler Glas-Reflex links bleibt statisch. Rechts daneben: Restzeit (Newsreader, 64 px), darüber das Eyebrow „verbleibend", darunter eine kursive Zeile „von 10 Minuten" zur Verortung.
 
 ## Über die Design-Dateien
 
@@ -75,12 +77,12 @@ Datei: `timer-running-sanduhr.jsx`
 - **Glas-Tiefen-Shadow:** `inset 0 0 30px rgba(0,0,0,0.4)`
 - **Innen-SVG:** 110 × 360
 - **Fluid-Pegel (gradient):**
-  - Rechteck, x=0, y=`360*(1-progress)`, width=110, height=`360*progress` (von oben gesehen: Auffüllung sinkt von voll auf null über die Sitzung; bei Start ist die Flasche voll, am Ende leer)
-  - Fill: `linearGradient` (id `sv-fluid`), x1=0 y1=0 → x2=0 y2=1
-    - 0 %: `rgba(232,178,148,0.85)` — Honig oben
+  - Rechteck, x=0, y=`360*(1-progress)`, width=110, height=`360*progress` (von unten gesehen: Füllung wächst von null bei Start auf voll am Ende der Sitzung)
+  - Fill: `linearGradient` (id `sv-fluid`), x1=0 y1=0 → x2=0 y2=1 — **referenziert auf das Glas, nicht auf die Flüssigkeit**. Der Pegel wandert durch den Gradient hindurch: anfangs sind nur die unteren tiefen Töne sichtbar, gegen Ende auch die hellen oberen.
+    - 0 % (Glas-Top): `rgba(232,178,148,0.85)` — Honig
     - 40 %: `rgba(214,138,110,0.85)` — Kupfer
-    - 100 %: `rgba(176,106,79,0.95)` — tiefer Kupfer unten
-- **Meniskus-Glanz:** Ellipse cx=55, cy=`top + 1.5`, rx=46.2, ry=1.5, fill `rgba(255,230,210,0.55)`. Sitzt **auf** der Oberkante des Pegels.
+    - 100 % (Glas-Bottom): `rgba(176,106,79,0.95)` — tiefer Kupfer
+- **Meniskus-Glanz:** Ellipse cx=55, cy=`top + 1.5`, rx=46.2, ry=1.5, fill `rgba(255,230,210,0.55)`. Sitzt **auf** der wandernden Oberkante des Pegels. Bei `fillH < 2 px` ausblenden (sonst sichtbar bevor Füllung beginnt).
 - **Glas-Reflex (Seitenglanz):** absolutes Div, top:8, left:12, bottom:8, width:6, border-radius:6, `linear-gradient(180deg, rgba(255,255,255,0.18), transparent)`. Bleibt statisch.
 
 #### 2. Text-Block (rechts vom Vessel)
@@ -102,7 +104,7 @@ Statusbar (`SM.StatusBar`) und Phone-Wrapper (`SM.Phone`) aus `shell.jsx`. Phone
 
 | Trigger | Effekt |
 |---|---|
-| Sitzung läuft | Pegel sinkt **linear** von voll (progress=0) auf leer (progress=1) über die Sitzungsdauer. **Eine** Animation, keine Easing-Kurve. |
+| Sitzung läuft | Pegel **steigt linear** von leer (progress=0) auf voll (progress=1) über die Sitzungsdauer. **Eine** Animation, keine Easing-Kurve. |
 | Restzeit | Tickt einmal pro Sekunde herunter. Newsreader-Tabular-Nums halten Wertbreite konstant. |
 | Tap auf X | Schließt die Sitzung (Bestätigungs-Dialog außerhalb dieses Handoffs). |
 | Sitzung endet | Pegel auf 0, Gong, Übergang zum Danke-Screen (außerhalb dieses Handoffs). |
@@ -111,8 +113,8 @@ Statusbar (`SM.StatusBar`) und Phone-Wrapper (`SM.Phone`) aus `shell.jsx`. Phone
 **Was sich NICHT bewegt:**
 - Glas-Container — statisch.
 - Glas-Reflex — statisch.
-- Meniskus — folgt nur dem Pegel (nicht eigenständig bewegt, kein Wellenschwingen).
-- Fluid-Gradient — die Farben sind absolut zur Glas-Höhe, nicht zur Flüssigkeit. Wenn der Pegel sinkt, wandert die obere helle Hälfte nicht mit; sie bleibt da, wo sie geometrisch hingehört. Das ist gewollt — der Spiegel wandert durch den Gradient hindurch.
+- Meniskus — folgt nur der steigenden Oberkante (kein eigenständiges Schwingen, kein Wellen-Loop).
+- Fluid-Gradient — die Farben sind absolut zur Glas-Höhe, nicht zur Flüssigkeit. Wenn der Pegel steigt, kommen neue Farbtöne von oben dazu; der untere Teil bleibt unverändert. Der Spiegel wandert durch den Gradient nach oben.
 
 ## State
 
@@ -209,7 +211,7 @@ struct Vessel: View {
             .init(color: Color(red: 176/255, green: 106/255, blue:  79/255).opacity(0.95), location: 1.0),
           ],
           startPoint: .top, endPoint: .bottom))
-        .frame(height: height * (1 - progress))
+        .frame(height: height * progress) // FILL, nicht DRAIN
         .animation(.linear(duration: 1.0), value: progress) // 1-Sek-Ticks
       // Meniskus + Reflex hier overlayen
     }
@@ -331,6 +333,7 @@ Animation via `ObjectAnimator.ofFloat(view, "progress", 0f, 1f).apply { duration
 ## Was sich gegenüber dem alten Stand ändert (Kontext)
 
 1. **Keine atmende Animation mehr.** Vorher: Ring skalierte 0,97 → 1,01 in 8-s-Zyklen. Jetzt: still. Argument: die App taktet den Atem nicht.
-2. **Visual ist kein Ring mehr, sondern ein Glas.** Räumlicher Verlauf statt zirkulärer Indikator. Stärkere metaphorische Verbindung zu „Zeit, die rinnt".
-3. **Restzeit ist groß und prominent**, nicht klein und unten.
-4. **Keine Sitzungs-/Phasen-Labels mehr** im Footer („Atem · Geführt" / „Phase 2 von 4 · Bauchatmung"). Wer meditiert, weiß was läuft. Bei geführten Sitzungen gibt die Stimme den Rest. Visuelle Stille = Aufmerksamkeits-Stille.
+2. **Visual ist kein Ring mehr, sondern ein Glas.** Räumlicher Verlauf statt zirkulärer Indikator. Sieht weniger nach Stoppuhr aus.
+3. **Pegel steigt** über die Sitzung statt zu sinken. Vorher las sich das wie ein entleerender Akku — falsche Botschaft. Jetzt: du füllst dich auf.
+4. **Restzeit ist groß und prominent**, nicht klein und unten.
+5. **Keine Sitzungs-/Phasen-Labels mehr** im Footer („Atem · Geführt" / „Phase 2 von 4 · Bauchatmung"). Wer meditiert, weiß was läuft. Bei geführten Sitzungen gibt die Stimme den Rest. Visuelle Stille = Aufmerksamkeits-Stille.

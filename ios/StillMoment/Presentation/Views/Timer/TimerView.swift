@@ -117,33 +117,6 @@ struct TimerView: View {
         self.viewModel.isZenMode
     }
 
-    // MARK: - Accessibility Helpers
-
-    private var accessibilityTimeValue: String {
-        let minutes = self.viewModel.remainingSeconds / 60
-        let seconds = self.viewModel.remainingSeconds % 60
-
-        var components: [String] = []
-
-        if minutes > 0 {
-            let minutesKey = minutes == 1 ? "time.minute" : "time.minutes"
-            components.append(String(format: NSLocalizedString(minutesKey, comment: ""), minutes))
-        }
-
-        if seconds > 0 {
-            let secondsKey = seconds == 1 ? "time.second" : "time.seconds"
-            components.append(String(format: NSLocalizedString(secondsKey, comment: ""), seconds))
-        }
-
-        if components.isEmpty {
-            return NSLocalizedString("time.zeroRemaining", comment: "")
-        }
-
-        let andSeparator = NSLocalizedString("common.and", comment: "")
-        let remaining = NSLocalizedString("time.remaining", comment: "")
-        return components.joined(separator: " \(andSeparator) ") + " \(remaining)"
-    }
-
     // MARK: - Layouts
 
     private func idleLayout(geometry: GeometryProxy, isCompactHeight: Bool) -> some View {
@@ -281,70 +254,57 @@ struct TimerView: View {
 
     private func timerDisplay(geometry: GeometryProxy) -> some View {
         let isCompactHeight = geometry.size.height < 700
-        let circleSize: CGFloat = isCompactHeight ? 240 : 280
 
-        return VStack(spacing: 12) {
-            BreathingCircleView(
-                phase: self.viewModel.phase,
-                progress: self.viewModel.progress,
-                reduceMotion: self.reduceMotion,
-                outerSize: circleSize
-            ) {
-                self.circleContent
+        return Group {
+            switch self.viewModel.phase {
+            case .preRoll:
+                self.preRollDisplay(isCompactHeight: isCompactHeight)
+            case .playing:
+                RunningTimerDisplay(
+                    progress: self.viewModel.progress,
+                    remainingTimeText: self.viewModel.formattedRemainingMMSS,
+                    durationLabel: self.viewModel.runningSubLabel,
+                    accessibilityTimeValue: self.viewModel.accessibilityRemainingTimeValue,
+                    reduceMotion: self.reduceMotion,
+                    isCompactHeight: isCompactHeight
+                )
             }
-
-            self.bottomLabel
         }
         .animation(.easeInOut(duration: 0.4), value: self.viewModel.phase)
     }
 
-    @ViewBuilder private var circleContent: some View {
-        switch self.viewModel.phase {
-        case .preRoll:
-            VStack(spacing: 6) {
-                Text("\(self.viewModel.remainingPreparationSeconds)")
-                    .themeFont(.playerCountdown, size: 72)
-                    .monospacedDigit()
-                    .accessibilityIdentifier("timer.display.time")
-                    .accessibilityLabel(String(
-                        format: NSLocalizedString("accessibility.preparation", comment: ""),
-                        self.viewModel.remainingPreparationSeconds
-                    ))
+    private func preRollDisplay(isCompactHeight: Bool) -> some View {
+        let circleSize: CGFloat = isCompactHeight ? 240 : 280
 
-                Text("guided_meditations.player.preroll.label")
-                    .themeFont(.playerTimestamp)
-                    .foregroundColor(self.theme.textSecondary)
+        return VStack(spacing: 12) {
+            BreathingCircleView(
+                phase: .preRoll,
+                progress: 0,
+                reduceMotion: self.reduceMotion,
+                outerSize: circleSize
+            ) {
+                VStack(spacing: 6) {
+                    Text("\(self.viewModel.remainingPreparationSeconds)")
+                        .themeFont(.playerCountdown, size: 72)
+                        .monospacedDigit()
+                        .accessibilityIdentifier("timer.display.time")
+                        .accessibilityLabel(String(
+                            format: NSLocalizedString("accessibility.preparation", comment: ""),
+                            self.viewModel.remainingPreparationSeconds
+                        ))
+
+                    Text("guided_meditations.player.preroll.label")
+                        .themeFont(.playerTimestamp)
+                        .foregroundColor(self.theme.textSecondary)
+                }
+                .transition(.opacity)
             }
-            .transition(.opacity)
-        case .playing:
-            EmptyView()
-        }
-    }
 
-    @ViewBuilder private var bottomLabel: some View {
-        switch self.viewModel.phase {
-        case .preRoll:
             Text("guided_meditations.player.preroll.hint")
                 .themeFont(.playerTimestamp)
                 .foregroundColor(self.theme.textSecondary)
                 .textCase(.uppercase)
                 .transition(.opacity)
-        case .playing:
-            Text(String(
-                format: NSLocalizedString(
-                    "guided_meditations.player.remainingTime.format",
-                    comment: ""
-                ),
-                self.viewModel.formattedRemainingMinutes
-            ))
-            .themeFont(.playerRemainingTime)
-            .monospacedDigit()
-            .textCase(.uppercase)
-            .tracking(1.5)
-            .accessibilityIdentifier("timer.display.time")
-            .accessibilityLabel("guided_meditations.player.remainingTime")
-            .accessibilityValue(self.accessibilityTimeValue)
-            .transition(.opacity)
         }
     }
 

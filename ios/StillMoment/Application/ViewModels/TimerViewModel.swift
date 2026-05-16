@@ -140,6 +140,55 @@ final class TimerViewModel: ObservableObject {
         return String(format: "%d:%02d", minutes, seconds)
     }
 
+    /// Restzeit fuer den Sanduhr-Running-Screen (ios-046).
+    ///
+    /// Format `MM:SS` mit Minuten-Padding. Tabulare Ziffern stellt die View
+    /// per `.monospacedDigit()` sicher.
+    var formattedRemainingMMSS: String {
+        let minutes = self.remainingSeconds / 60
+        let seconds = self.remainingSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    /// Sub-Label "von X Minuten" unter der grossen Restzeit (ios-046).
+    ///
+    /// Singular fuer 1 Minute, sonst Plural. Bezieht sich auf die
+    /// Sitzungs-Gesamtdauer, nicht auf die Restzeit.
+    var runningSubLabel: String {
+        let totalMinutes = self.totalSeconds / 60
+        let key = totalMinutes == 1
+            ? "timer.running.duration.singular"
+            : "timer.running.duration.plural"
+        return String(format: NSLocalizedString(key, comment: ""), totalMinutes)
+    }
+
+    /// Sprachliche Beschreibung der Restzeit fuer Screen Reader.
+    /// Z. B. „7 Minuten und 30 Sekunden verbleibend".
+    var accessibilityRemainingTimeValue: String {
+        let minutes = self.remainingSeconds / 60
+        let seconds = self.remainingSeconds % 60
+
+        var components: [String] = []
+
+        if minutes > 0 {
+            let minutesKey = minutes == 1 ? "time.minute" : "time.minutes"
+            components.append(String(format: NSLocalizedString(minutesKey, comment: ""), minutes))
+        }
+
+        if seconds > 0 {
+            let secondsKey = seconds == 1 ? "time.second" : "time.seconds"
+            components.append(String(format: NSLocalizedString(secondsKey, comment: ""), seconds))
+        }
+
+        if components.isEmpty {
+            return NSLocalizedString("time.zeroRemaining", comment: "")
+        }
+
+        let andSeparator = NSLocalizedString("common.and", comment: "")
+        let remaining = NSLocalizedString("time.remaining", comment: "")
+        return components.joined(separator: " \(andSeparator) ") + " \(remaining)"
+    }
+
     /// Returns true if timer can be started
     var canStart: Bool {
         self.timer == nil && self.selectedMinutes > 0

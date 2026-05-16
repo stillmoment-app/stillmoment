@@ -97,11 +97,19 @@ final class TypographyTests: XCTestCase {
         )
     }
 
-    func testTimerRunningIsFixedThin60() {
+    func testTimerRunningIsFixedThin64() {
+        // ios-046: Restzeit-Display im Sanduhr-Running-Screen.
+        // 64 pt entspricht dem Handoff (Newsreader 64/300).
         XCTAssertEqual(
             TypographyRole.timerRunning.fontSpec,
-            .fixed(size: 60, weight: .thin, design: .rounded)
+            .fixed(size: 64, weight: .thin, design: .rounded)
         )
+    }
+
+    func testTimerRunningHasNegativeTracking() {
+        // ios-046: Restzeit braucht negatives Tracking (~-0.02em bei 64 pt),
+        // damit die grosse Ziffer kompakt wirkt.
+        XCTAssertLessThan(TypographyRole.timerRunning.tracking, 0)
     }
 
     func testScreenTitleIsFixedLight28() {
