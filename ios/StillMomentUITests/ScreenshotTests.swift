@@ -45,8 +45,8 @@ final class ScreenshotTests: XCTestCase {
         // Disable preparation time for faster screenshots (timer starts immediately)
         self.app.launchArguments += ["-DisablePreparation"]
 
-        // Theme/appearance override comes from Snapfile launch_arguments via setupSnapshot()
-        // (e.g., make screenshots THEME=candlelight MODE=dark)
+        // Appearance override comes from Snapfile launch_arguments via setupSnapshot()
+        // (e.g., make screenshots MODE=dark)
 
         self.app.launch()
 
@@ -110,7 +110,7 @@ final class ScreenshotTests: XCTestCase {
         snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 2: Timer running state (Candlelight Dark theme)
+    /// Screenshot 2: Timer running state
     func testScreenshot02_timerRunning() {
         self.navigateToTimerTab()
 

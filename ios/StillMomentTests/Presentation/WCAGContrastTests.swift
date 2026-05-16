@@ -187,40 +187,20 @@ final class WCAGContrastTests: XCTestCase {
 
     // MARK: - Tests per Palette
 
-    func testCandlelightLightContrast() {
-        self.assertAllCombinations(.candlelightLight, name: "Candlelight Light")
+    func testLightContrast() {
+        self.assertAllCombinations(.light, name: "Light")
     }
 
-    func testCandlelightDarkContrast() {
-        self.assertAllCombinations(.candlelightDark, name: "Candlelight Dark")
-    }
-
-    func testForestLightContrast() {
-        self.assertAllCombinations(.forestLight, name: "Forest Light")
-    }
-
-    func testForestDarkContrast() {
-        self.assertAllCombinations(.forestDark, name: "Forest Dark")
-    }
-
-    func testMoonLightContrast() {
-        self.assertAllCombinations(.moonLight, name: "Moon Light")
-    }
-
-    func testMoonDarkContrast() {
-        self.assertAllCombinations(.moonDark, name: "Moon Dark")
+    func testDarkContrast() {
+        self.assertAllCombinations(.dark, name: "Dark")
     }
 
     // MARK: - Control Track Contrast (WCAG SC 1.4.11)
 
     func testControlTrackContrastAgainstCardBackground() {
         let palettes: [(ThemeColors, String)] = [
-            (.candlelightLight, "Candlelight Light"),
-            (.candlelightDark, "Candlelight Dark"),
-            (.forestLight, "Forest Light"),
-            (.forestDark, "Forest Dark"),
-            (.moonLight, "Moon Light"),
-            (.moonDark, "Moon Dark")
+            (.light, "Light"),
+            (.dark, "Dark")
         ]
         for (palette, name) in palettes {
             self.assertContrast(
@@ -239,39 +219,27 @@ final class WCAGContrastTests: XCTestCase {
     // MARK: - Card Border Visibility (Dark Mode)
 
     func testDarkModeCardBorderIsLighterThanCardBackground() {
-        let darkPalettes: [(ThemeColors, String)] = [
-            (.candlelightDark, "Candlelight Dark"),
-            (.forestDark, "Forest Dark"),
-            (.moonDark, "Moon Dark")
-        ]
-        for (palette, name) in darkPalettes {
-            let borderLum = self.luminanceFromColor(palette.cardBorder)
-            let cardLum = self.luminanceFromColor(palette.cardBackground)
-            XCTAssertGreaterThan(
-                borderLum,
-                cardLum,
-                "\(name): cardBorder should be lighter than cardBackground for visual separation"
-            )
-        }
+        let palette = ThemeColors.dark
+        let borderLum = self.luminanceFromColor(palette.cardBorder)
+        let cardLum = self.luminanceFromColor(palette.cardBackground)
+        XCTAssertGreaterThan(
+            borderLum,
+            cardLum,
+            "Dark: cardBorder should be lighter than cardBackground for visual separation"
+        )
     }
 
     func testLightModeCardBorderIsClear() {
-        let lightPalettes: [(ThemeColors, String)] = [
-            (.candlelightLight, "Candlelight Light"),
-            (.forestLight, "Forest Light"),
-            (.moonLight, "Moon Light")
-        ]
-        for (palette, name) in lightPalettes {
-            let uiColor = UIColor(palette.cardBorder)
-            var alpha: CGFloat = 0
-            uiColor.getRed(nil, green: nil, blue: nil, alpha: &alpha)
-            XCTAssertEqual(
-                alpha,
-                0,
-                accuracy: 0.01,
-                "\(name): cardBorder should be clear in light mode (shadow provides separation)"
-            )
-        }
+        let palette = ThemeColors.light
+        let uiColor = UIColor(palette.cardBorder)
+        var alpha: CGFloat = 0
+        uiColor.getRed(nil, green: nil, blue: nil, alpha: &alpha)
+        XCTAssertEqual(
+            alpha,
+            0,
+            accuracy: 0.01,
+            "Light: cardBorder should be clear in light mode (shadow provides separation)"
+        )
     }
 
     private func luminanceFromColor(_ color: Color) -> CGFloat {

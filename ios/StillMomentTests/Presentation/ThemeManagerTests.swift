@@ -18,31 +18,17 @@ final class ThemeManagerTests: XCTestCase {
         super.setUp()
         self.sut = ThemeManager()
         // Reset to default to avoid test pollution from @AppStorage
-        self.sut.selectedTheme = .default
         self.sut.appearanceMode = .default
     }
 
-    func testDefaultThemeIsCandlelight() {
-        XCTAssertEqual(self.sut.selectedTheme, .candlelight)
-    }
-
-    func testResolvedColorsReturnsCorrectPaletteForLightMode() {
-        self.sut.selectedTheme = .forest
+    func testResolvedColorsReturnsLightPaletteForLightMode() {
         let colors = self.sut.resolvedColors(for: .light)
-        XCTAssertEqual(colors, .forestLight)
+        XCTAssertEqual(colors, .light)
     }
 
-    func testResolvedColorsReturnsCorrectPaletteForDarkMode() {
-        self.sut.selectedTheme = .candlelight
+    func testResolvedColorsReturnsDarkPaletteForDarkMode() {
         let colors = self.sut.resolvedColors(for: .dark)
-        XCTAssertEqual(colors, .candlelightDark)
-    }
-
-    func testThemeSwitchChangesResolvedColors() {
-        let before = self.sut.resolvedColors(for: .light)
-        self.sut.selectedTheme = .forest
-        let after = self.sut.resolvedColors(for: .light)
-        XCTAssertNotEqual(before, after)
+        XCTAssertEqual(colors, .dark)
     }
 
     // MARK: - Appearance Mode

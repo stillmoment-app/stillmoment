@@ -8,9 +8,9 @@
 import SwiftUI
 import UIKit
 
-/// Reusable settings section for app-wide settings (theme and appearance selection).
+/// Reusable settings section for app-wide settings (appearance selection).
 ///
-/// Used in the App Settings tab to provide theme and appearance controls.
+/// Used in the App Settings tab to provide appearance controls.
 struct GeneralSettingsSection: View {
     @EnvironmentObject private var themeManager: ThemeManager
 
@@ -19,23 +19,6 @@ struct GeneralSettingsSection: View {
 
     var body: some View {
         Section {
-            Picker(selection: self.$themeManager.selectedTheme) {
-                ForEach(ColorTheme.allCases, id: \.self) { colorTheme in
-                    Label(colorTheme.localizedName, systemImage: colorTheme.iconName)
-                        .tag(colorTheme)
-                }
-            } label: {
-                Text("settings.theme.title", bundle: .main)
-                    .themeFont(.settingsLabel)
-            }
-            .pickerStyle(.menu)
-            .onChange(of: self.themeManager.selectedTheme) { _ in
-                HapticFeedback.selection()
-            }
-            .accessibilityIdentifier("settings.picker.theme")
-            .accessibilityLabel("settings.theme.title")
-            .cardRowBackground()
-
             Picker(selection: self.$themeManager.appearanceMode) {
                 ForEach(AppearanceMode.allCases, id: \.self) { mode in
                     Text(mode.localizedName)
