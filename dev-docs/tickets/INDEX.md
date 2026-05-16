@@ -121,6 +121,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-094](shared/shared-094-theme-refinement-kerzenschein.md) | Theme-Refinement Kerzenschein 2.0 | 4-Polish | [x] | [ ] |
 | [shared-095](shared/shared-095-running-timer-mondphase.md) | Running-Timer-Visualisierung Mondphase | 4-Polish | [x] | [ ] |
 | [shared-096](shared/shared-096-player-kerzenschein-refinement.md) | Player-Refinement Kerzenschein 2.0 | 4-Polish | [ ] | [ ] |
+| [shared-097](shared/shared-097-danke-screen-kerzenschein.md) | Danke-Screen Refinement Kerzenschein 2.0 | 4-Polish | [ ] | [ ] |
 
 ---
 
