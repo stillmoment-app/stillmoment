@@ -110,6 +110,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.playbackState == .playing
     }
 
+    /// Whether playback is paused (distinct from idle/loading/finished/failed).
+    ///
+    /// Used by the view to switch the remaining-time label format — only `.paused`
+    /// should show the "PAUSIERT"-Prefix, not transient states like `.loading`.
+    var isPaused: Bool {
+        self.playbackState == .paused
+    }
+
     /// Whether the guided meditation has completed naturally (audio reached end)
     var isCompleted: Bool {
         self.playbackState == .finished

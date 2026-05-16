@@ -241,9 +241,9 @@ struct GuidedMeditationPlayerView: View {
         case .playing:
             Text(String(
                 format: NSLocalizedString(
-                    self.viewModel.isPlaying
-                        ? "guided_meditations.player.remainingTime.format"
-                        : "guided_meditations.player.remainingTime.format.paused",
+                    self.viewModel.isPaused
+                        ? "guided_meditations.player.remainingTime.format.paused"
+                        : "guided_meditations.player.remainingTime.format",
                     comment: ""
                 ),
                 self.viewModel.formattedRemainingMinutes

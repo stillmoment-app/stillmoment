@@ -65,6 +65,7 @@ Referenz: `handoffs/claude_code_handoff_player_ks2/README.md` (High-Fidelity-Spe
 - [ ] Der Pause-Glyph wechselt zum Play-Glyph (Cross-Fade ca. 200 ms — Verhalten wie vorher)
 - [ ] Restzeit-Label zeigt zusaetzlich ein „Pausiert"-Prefix vor der Restzeit, damit der Pause-Zustand auch ohne Glyph-Blick erkennbar ist
 - [ ] Das „Pausiert"-Prefix verschwindet beim Resume und die Restzeit-Anzeige zeigt wieder das Standard-Format
+- [ ] Tab-Bar bleibt waehrend Pause verborgen (Zen-Mode aktiv) — der Player ist auch im Pause-Zustand die aktive Flaeche, der naechste Schritt soll Resume oder Schliessen sein, kein Tab-Wechsel
 
 ### Light + Dark Mode
 
