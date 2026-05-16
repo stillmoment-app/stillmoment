@@ -50,9 +50,7 @@ struct GuidedMeditationsListView: View {
                 self.emptyStateView
             } else {
                 self.searchableLibraryContent
-                    .overlay(alignment: .bottom) {
-                        SoftFadeOverlay()
-                    }
+                    .bottomFadeMask()
             }
 
             if self.viewModel.isMigrating {
