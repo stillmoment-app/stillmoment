@@ -172,6 +172,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-045](ios/ios-045-idle-ring-thin.md) | Idle-Ring in Running-Sprache (duenn) | 4-Polish | [x] | - |
 | [ios-046](ios/ios-046-running-timer-sanduhr-vessel.md) | Running-Timer-Display "Sanduhr-Vessel" | 4-Polish | [x] | - |
 | [ios-047](ios/ios-047-screenshot-running-timer-mondphase.md) | Running-Timer-Screenshot mit sichtbarer Mondphase | 4-Polish | [ ] | - |
+| [ios-048](ios/ios-048-typografie-newsreader-geist.md) | Typografie Newsreader + Geist nachziehen | 4-Polish | [ ] | - |
 
 ---
 

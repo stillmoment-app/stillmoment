@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kerzenschein 2.0 — Final Pair</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --page-bg: #0a0807;
+    --ink: #E8E2D6;
+    --ink-2: #9c8f80;
+    --ink-3: #6b5f55;
+    --rule: rgba(232, 226, 214, 0.08);
+    --rule-strong: rgba(232, 226, 214, 0.16);
+    --hl: #DA8E72;
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 100px; }
+
+  .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); font-weight: 400; }
+  h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 48px; line-height: 1.1; letter-spacing: -0.01em;
+    margin: 14px 0 0; color: var(--ink); max-width: 920px;
+  }
+  h1 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .lede {
+    font-family: var(--font-display); font-size: 19px; font-weight: 300;
+    line-height: 1.55; color: var(--ink-2);
+    max-width: 720px; margin: 22px 0 0;
+  }
+
+  .section { margin-top: 88px; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 32px; padding-bottom: 22px; margin-bottom: 56px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-head h2 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 30px; margin: 0; letter-spacing: -0.005em; color: var(--ink);
+  }
+  .section-head h2 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .section-meta { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+
+  /* === Pair === */
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    justify-items: center;
+    align-items: start;
+  }
+  .pair-cell { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .pair-head { text-align: center; }
+  .pair-tag {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 8px;
+  }
+  .pair-name {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 28px; color: var(--hl);
+  }
+  .pair-sub {
+    font-family: var(--font-display); font-size: 14.5px;
+    color: var(--ink-2); margin-top: 14px; max-width: 360px;
+    line-height: 1.5;
+  }
+
+  /* === Phone === */
+  .phone {
+    width: 340px;
+    height: 736px;
+    border-radius: 52px;
+    padding: 9px;
+    background: linear-gradient(160deg, #1c1612 0%, #0c0907 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 50px 90px -28px rgba(0,0,0,0.75),
+      inset 0 0 0 2px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .phone-screen {
+    width: 100%; height: 100%;
+    border-radius: 44px; overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg,
+      var(--t-bg-top) 0%,
+      var(--t-bg-mid) 55%,
+      var(--t-bg-bot) 100%);
+  }
+  .phone-screen::before {
+    content: ""; position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    width: 104px; height: 28px; background: #000; border-radius: 16px;
+    z-index: 30;
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 46px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 17px 28px 0;
+    font-size: 13px; font-weight: 500;
+    color: var(--t-ink); z-index: 20;
+  }
+  .status-icons { display: flex; gap: 5px; align-items: center; opacity: 0.92; }
+
+  .app {
+    position: relative; z-index: 10;
+    width: 100%; height: 100%;
+    padding: 60px 22px 0;
+    display: flex; flex-direction: column;
+    color: var(--t-ink);
+    font-family: var(--font-ui);
+    overflow: hidden;
+  }
+
+  .lib-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 6px 4px 16px;
+    flex-shrink: 0;
+  }
+  .lib-head-title {
+    font-family: var(--font-ui); font-weight: 400; font-size: 19px;
+    color: var(--t-ink);
+  }
+  .lib-head-pill {
+    display: flex;
+    background: var(--t-surface);
+    border: 1px solid var(--t-border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--t-card-shadow);
+  }
+  .lib-pill-btn {
+    width: 34px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-ink); font-size: 16px;
+  }
+  .lib-pill-btn + .lib-pill-btn { border-left: 1px solid var(--t-border); }
+
+  .lib-search {
+    background: var(--t-surface);
+    border: 1px solid var(--t-border);
+    border-radius: 16px;
+    padding: 11px 16px;
+    color: var(--t-ink-2);
+    font-size: 13px;
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 18px;
+    flex-shrink: 0;
+    box-shadow: var(--t-card-shadow);
+  }
+  .scrollarea { flex: 1; min-height: 0; overflow: hidden; position: relative; }
+  .lib-author {
+    font-family: var(--font-ui); font-weight: 400; font-size: 14px;
+    color: var(--t-ink); margin: 16px 4px 10px;
+  }
+  .lib-author:first-of-type { margin-top: 0; }
+  .group {
+    background: var(--t-surface);
+    border: 1px solid var(--t-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--t-card-shadow);
+  }
+  .lib-track {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px; gap: 14px;
+  }
+  .lib-track + .lib-track { border-top: 1px solid var(--t-divider); }
+  .lib-track-text { flex: 1; min-width: 0; }
+  .lib-track-title {
+    font-family: var(--font-ui); font-weight: 400; font-size: 14px;
+    color: var(--t-ink); line-height: 1.3;
+  }
+  .lib-track-time { margin-top: 5px; font-size: 12px; color: var(--t-ink-2); }
+  .play-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--t-play-bg);
+    color: var(--t-on-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+    box-shadow: var(--t-play-shadow);
+    position: relative;
+  }
+  .play-btn::before {
+    content: ""; position: absolute; inset: 1px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 45%);
+    pointer-events: none;
+  }
+  .play-btn svg { display: block; position: relative; z-index: 1; }
+
+  /* Soft fade — same mechanism for both modes,
+     paints from transparent through fade-mid to bg-bot */
+  .fade-mask {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 140px;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      var(--t-fade-mid) 55%,
+      var(--t-bg-bot) 92%);
+    pointer-events: none;
+    z-index: 22;
+  }
+
+  .tabbar {
+    position: absolute;
+    bottom: 26px; left: 26px; right: 26px;
+    height: 58px;
+    background: var(--t-tabbar);
+    border: 1px solid var(--t-border);
+    border-radius: 29px;
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 8px;
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    z-index: 25;
+    box-shadow: var(--t-card-shadow);
+  }
+  .tab {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--t-ink-2);
+    font-size: 10px;
+    padding: 7px 0;
+    border-radius: 22px;
+  }
+  .tab.active { background: var(--t-accent-fill); color: var(--t-accent); }
+  .tab-glyph svg { display: block; }
+
+  /* ====== DARK — Lifted Warm ====== */
+  [data-v="dark"] {
+    --t-bg-top: #1A100C;
+    --t-bg-mid: #321F19;
+    --t-bg-bot: #5D3A2F;
+    --t-surface: #2E211A;             /* warmer, lifted */
+    --t-border: #4E382C;              /* warm border, sichtbar */
+    --t-divider: rgba(242,228,211,0.10);
+    --t-tabbar: rgba(46,33,26,0.88);
+    --t-accent: #C77D63;
+    --t-on-accent: #1A100C;
+    --t-accent-fill: rgba(199,125,99,0.18);
+    --t-ink: #E5DCCD;
+    --t-ink-2: #A68A80;
+    --t-card-shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.30);
+    --t-play-bg: linear-gradient(180deg, #D68A6E 0%, #B06A4F 100%);
+    --t-play-shadow: 0 4px 12px rgba(196,122,94,0.4);
+    --t-fade-mid: rgba(93,58,47,0.78);
+    --t-ring-track: rgba(235,226,214,0.10);
+  }
+
+  /* ====== LIGHT — Sunrise Confident ======
+     Gleicher Mechanismus, gespiegelt:
+       • Karte heller als bg-top (statt heller als bg-mid)
+       • Warmer Border (gleicher Hue, anderes Alpha)
+       • Warmer Doppelschatten (im Dark optional, im Light strukturell) */
+  [data-v="light"] {
+    --t-bg-top: #FBEEDB;
+    --t-bg-mid: #F6CDA8;
+    --t-bg-bot: #E8A074;
+    --t-surface: #FFF6E6;
+    --t-border: rgba(120,55,28,0.11);
+    --t-divider: rgba(120,55,28,0.14);
+    --t-tabbar: rgba(255,246,230,0.86);
+    --t-accent: #A2503E;
+    --t-on-accent: #FFF6E6;
+    --t-accent-fill: rgba(162,80,62,0.12);
+    --t-ink: #3A2418;
+    --t-ink-2: #7A4E3C;
+    --t-card-shadow: 0 1px 2px rgba(120,55,28,0.06), 0 6px 16px rgba(120,55,28,0.10);
+    --t-play-bg: linear-gradient(180deg, #B85F46 0%, #7E3A2D 100%);
+    --t-play-shadow: 0 4px 12px rgba(126,58,45,0.32);
+    --t-fade-mid: rgba(232,160,116,0.72);
+    --t-ring-track: rgba(120,55,28,0.13);
+  }
+
+  /* ===== Principles ===== */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .principle { background: var(--page-bg); padding: 32px 28px; }
+  .principle-num {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 32px; color: var(--hl); line-height: 1;
+    margin-bottom: 14px;
+  }
+  .principle-title {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 22px; color: var(--ink); margin: 0 0 14px;
+    line-height: 1.25;
+  }
+  .principle-text {
+    font-family: var(--font-display); font-size: 15.5px;
+    line-height: 1.55; color: var(--ink-2); margin: 0;
+  }
+  .principle-mapping {
+    margin-top: 18px;
+    border-top: 1px dashed var(--rule-strong);
+    padding-top: 14px;
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 12px;
+    font-size: 12.5px;
+  }
+  .principle-mapping dt {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3); align-self: start; padding-top: 2px;
+  }
+  .principle-mapping dd {
+    margin: 0; color: var(--ink); font-family: var(--font-ui);
+  }
+  .principle-mapping dd code {
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--ink-2);
+    background: rgba(232,226,214,0.04);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* ===== Token table — Dark | Light pair ===== */
+  .tokens {
+    margin-top: 56px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .tokens-head {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 1.6fr;
+    background: rgba(232,226,214,0.04);
+    padding: 14px 22px;
+    font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tokens-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 1.6fr;
+    padding: 14px 22px;
+    border-top: 1px solid var(--rule);
+    align-items: center;
+    font-size: 13px;
+  }
+  .tokens-row:first-of-type { border-top: none; }
+  .tok-name { font-family: var(--font-ui); color: var(--ink-2); font-size: 12px; }
+  .tok-cell {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-ui);
+    font-size: 11.5px; letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .tok-sw {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+  }
+  /* === Typography section === */
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .type-card {
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 36px 36px 32px;
+    background: linear-gradient(180deg, rgba(232,226,214,0.02) 0%, rgba(232,226,214,0) 100%);
+    display: flex; flex-direction: column;
+    min-height: 360px;
+  }
+  .type-card .role-tag {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 400;
+  }
+  .type-card .face-name {
+    margin-top: 10px;
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 400;
+    font-size: 28px; color: var(--hl);
+    line-height: 1.1;
+  }
+  .type-card .var-name {
+    margin-top: 6px;
+    font-family: var(--font-ui);
+    font-size: 12px; color: var(--ink-3);
+  }
+  .type-card .glyphs {
+    margin: 28px 0 4px;
+    line-height: 1; color: var(--ink);
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  .type-card.display .glyphs { font-family: var(--font-display); }
+  .type-card.ui .glyphs { font-family: var(--font-ui); }
+  .type-card .glyph-xl { font-size: 88px; font-weight: 300; letter-spacing: -0.02em; }
+  .type-card .glyph-xl em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .type-card .glyph-sm { font-size: 28px; font-weight: 400; color: var(--ink-2); }
+  .type-card .sample-line {
+    margin-top: 26px;
+    font-size: 19px; line-height: 1.45; color: var(--ink-2);
+    max-width: 36ch;
+  }
+  .type-card.display .sample-line { font-family: var(--font-display); font-weight: 300; }
+  .type-card.display .sample-line em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .type-card.ui .sample-line { font-family: var(--font-ui); font-weight: 300; font-size: 15px; }
+
+  .type-card .weight-row {
+    margin-top: auto;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+  }
+  .type-card.display .weight-row { font-family: var(--font-display); }
+  .type-card.ui .weight-row { font-family: var(--font-ui); }
+  .type-card .weight-cell { display: flex; flex-direction: column; gap: 4px; }
+  .type-card .weight-num { font-size: 24px; color: var(--ink); line-height: 1; }
+  .type-card .weight-label {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .role-table {
+    margin-top: 32px;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .role-table-head, .role-table-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 1fr 140px;
+    gap: 24px;
+    padding: 14px 22px;
+    align-items: center;
+  }
+  .role-table-head {
+    background: rgba(232,226,214,0.03);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .role-table-row {
+    border-bottom: 1px solid var(--rule);
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .role-table-row:last-child { border-bottom: none; }
+  .role-where { font-family: var(--font-ui); color: var(--ink-2); }
+  .role-spec { font-family: var(--font-ui); color: var(--ink-3); font-size: 12px; letter-spacing: 0.04em; }
+  .role-sample-display { font-family: var(--font-display); font-weight: 300; font-size: 18px; color: var(--ink); }
+  .role-sample-display em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .role-sample-ui { font-family: var(--font-ui); font-weight: 400; font-size: 14px; color: var(--ink); }
+  .role-tag-pill {
+    justify-self: start;
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-2);
+    padding: 4px 10px;
+    border: 1px solid var(--rule-strong);
+    border-radius: 100px;
+  }
+  .role-tag-pill.display { color: var(--hl); border-color: rgba(218,142,114,0.35); }
+
+  .type-rules {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .type-rule {
+    padding: 24px 24px 22px;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+  }
+  .type-rule h4 {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--ink);
+  }
+  .type-rule p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 14px; font-weight: 300;
+    color: var(--ink-2); line-height: 1.55;
+  }
+  .type-rule p code,
+  .type-rule h4 code {
+    font-family: var(--font-ui); font-style: normal;
+    font-size: 12px; color: var(--ink);
+    background: rgba(232,226,214,0.04);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  .tokens-note {
+    padding: 4px 22px 16px;
+    font-family: var(--font-display);
+    font-size: 13px; font-style: italic;
+    color: var(--ink-2); line-height: 1.45;
+  }
+
+  .footer {
+    margin-top: 88px; padding-top: 24px; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between;
+    color: var(--ink-3); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+
+  /* ===== Timer Idle screen ===== */
+  .ti {
+    position: relative; z-index: 23;
+    width: 100%; height: 100%;
+    padding: 52px 22px 0;
+    display: flex; flex-direction: column;
+    color: var(--t-ink);
+    font-family: var(--font-ui);
+    overflow: hidden;
+  }
+  .ti-headline {
+    text-align: center;
+    margin-top: 18px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.2;
+    color: var(--t-ink);
+    padding: 0 28px;
+  }
+  .ti-ring {
+    margin: 20px auto 0;
+    width: 204px; height: 204px;
+    position: relative;
+  }
+  .ti-ring svg { display: block; }
+  .ti-ring-value {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .ti-ring-num {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 68px;
+    line-height: 1;
+    color: var(--t-ink);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .ti-ring-unit {
+    margin-top: 8px;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--t-ink-2);
+  }
+  .ti-settings {
+    margin: 22px 26px 0;
+    display: flex; flex-direction: column;
+    border-top: 1px solid var(--t-divider);
+  }
+  .ti-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--t-divider);
+  }
+  .ti-row-label {
+    font-family: var(--font-ui);
+    font-size: 13.5px;
+    color: var(--t-ink);
+  }
+  .ti-row-right {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .ti-row-value {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 13.5px;
+    color: var(--t-accent);
+  }
+  .ti-row-chev {
+    color: var(--t-ink-2);
+    opacity: 0.6;
+    font-size: 10px;
+  }
+  .ti-cta-wrap {
+    position: absolute;
+    bottom: 96px;
+    left: 0; right: 0;
+    display: flex; justify-content: center;
+    z-index: 23;
+  }
+  .ti-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 32px;
+    border-radius: 100px;
+    background: var(--t-play-bg);
+    color: var(--t-on-accent);
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: 15px;
+    box-shadow: var(--t-play-shadow);
+    border: none;
+    position: relative;
+  }
+  .ti-cta::before {
+    content: ""; position: absolute; inset: 1px;
+    border-radius: 100px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 50%);
+    pointer-events: none;
+  }
+  .ti-cta svg { display: block; position: relative; z-index: 1; }
+  .ti-cta span { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="eyebrow">Kerzenschein 2.0 · Final Pair · Dark + Light</div>
+    <h1>Ein Mechanismus, <em>zwei Modi.</em></h1>
+    <p class="lede">
+      Dark als <em>Lifted Warm</em>, Light als <em>Sunrise Confident</em>. Beide
+      lösen die Karte über denselben Drei-Schritt: Helligkeits-Lift gegen den
+      Gradient, warmer Border statt grau, warmer Schatten. Beide mit weichem
+      Bottom-Fade, der in den Akzent-Stop ausläuft.
+    </p>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Typografie · <em>Newsreader + Geist</em></h2>
+      <div class="section-meta">2 Familien · 1 System</div>
+    </div>
+
+    <p style="margin: -24px 0 32px; font-family: var(--font-display); font-style: italic; font-size: 16px; color: var(--ink-2); max-width: 760px; line-height: 1.55;">
+      Kerzenschein nutzt genau <em>zwei</em> Schriftfamilien — eine Serif für
+      Stimme &amp; Inhalt, eine Sans für Funktion &amp; Steuerung. Jede hat einen
+      klar abgegrenzten Aufgabenbereich; sie werden nie austauschbar verwendet.
+    </p>
+
+    <div class="type-grid">
+
+      <!-- DISPLAY -->
+      <div class="type-card display">
+        <div class="role-tag">Display · Stimme</div>
+        <div class="face-name">Newsreader</div>
+        <div class="var-name">var(--font-display) · Google Fonts · Fallback: Georgia, serif</div>
+
+        <div class="glyphs">
+          <span class="glyph-xl">Aa<em>Aa</em></span>
+          <span class="glyph-sm">Gg Rr 1234</span>
+        </div>
+
+        <div class="sample-line">
+          Ein Mechanismus, <em>zwei Modi.</em> Dark als Lifted Warm,
+          Light als Sunrise Confident.
+        </div>
+
+        <div class="weight-row">
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:300;">300</span>
+            <span class="weight-label">Light · Headlines, Numerik</span>
+          </div>
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:400; font-style:italic; color: var(--hl);">400</span>
+            <span class="weight-label">Italic · Akzent in <code style="font-family:var(--font-ui); color:var(--ink-2); font-size:9.5px;">&lt;em&gt;</code></span>
+          </div>
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:400;">400</span>
+            <span class="weight-label">Regular · Body, Werte</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- UI -->
+      <div class="type-card ui">
+        <div class="role-tag">UI · Funktion</div>
+        <div class="face-name" style="font-style: normal; color: var(--ink);">Geist</div>
+        <div class="var-name">var(--font-ui) · Google Fonts · Fallback: -apple-system, system-ui, sans-serif</div>
+
+        <div class="glyphs">
+          <span class="glyph-xl">Aa</span>
+          <span class="glyph-sm">Gg Rr 1234</span>
+        </div>
+
+        <div class="sample-line">
+          Library · Settings · Intervall 5 Min. · Hintergrund Regen ·
+          BACKGROUNDPRIMARY · #1A100C
+        </div>
+
+        <div class="weight-row">
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:300;">300</span>
+            <span class="weight-label">Light · Body-Default</span>
+          </div>
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:400;">400</span>
+            <span class="weight-label">Regular · Labels, Titel</span>
+          </div>
+          <div class="weight-cell">
+            <span class="weight-num" style="font-weight:500;">500</span>
+            <span class="weight-label">Medium · CTAs, Statusbar</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ROLE TABLE -->
+    <div class="role-table">
+      <div class="role-table-head">
+        <div>Slot</div>
+        <div>Beispiel</div>
+        <div>Wo es lebt</div>
+        <div>Familie</div>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">H1 / Headline<br/>48 / 1.1 / -0.01em / 300</div>
+        <div class="role-sample-display">Ein Mechanismus, <em>zwei Modi.</em></div>
+        <div class="role-where">Sektionstitel der Designspec</div>
+        <span class="role-tag-pill display">Newsreader</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Lede / Body-Display<br/>15.5–19 / 1.55 / 300</div>
+        <div class="role-sample-display">Beide lösen die Karte über denselben Drei-Schritt.</div>
+        <div class="role-where">Erklärtexte, Prinzipien, Captions</div>
+        <span class="role-tag-pill display">Newsreader</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Italic-Akzent<br/>color: var(--hl) · 400</div>
+        <div class="role-sample-display"><em>Lifted Warm</em> · <em>Sunrise Confident</em></div>
+        <div class="role-where">Eigennamen, Hervorhebungen via <code style="font-family:var(--font-ui); color:var(--ink-2); font-size:11px;">&lt;em&gt;</code></div>
+        <span class="role-tag-pill display">Newsreader</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Numerik (Timer)<br/>68 / 1.0 / 300</div>
+        <div class="role-sample-display" style="font-size: 28px; letter-spacing: -0.01em;">15:00</div>
+        <div class="role-where">Ring-Zentrum im Timer-Idle</div>
+        <span class="role-tag-pill display">Newsreader</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Library Title / Row<br/>14–19 / 400</div>
+        <div class="role-sample-ui">Kerzenschein · Sanduhr · Atemraum</div>
+        <div class="role-where">Library-Header, Track-Title, Author</div>
+        <span class="role-tag-pill">Geist</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Row-Label<br/>13.5 / 400</div>
+        <div class="role-sample-ui">Intervall · Hintergrund · Glocke</div>
+        <div class="role-where">Settings-Zeilen im Timer-Idle</div>
+        <span class="role-tag-pill">Geist</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Eyebrow / Caps<br/>10–11 / 0.18–0.28em / 400</div>
+        <div class="role-sample-ui" style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3);">Kerzenschein 2.0 · Final Pair</div>
+        <div class="role-where">Eyebrows, Ring-Unit, Slot-Header</div>
+        <span class="role-tag-pill">Geist</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">CTA / Play<br/>15 / 500</div>
+        <div class="role-sample-ui" style="font-weight: 500;">Sitzung starten</div>
+        <div class="role-where">Primärer Button, Statusbar-Time</div>
+        <span class="role-tag-pill">Geist</span>
+      </div>
+
+      <div class="role-table-row">
+        <div class="role-spec">Code / Token<br/>11.5–12 / 400 / 0.04em</div>
+        <div class="role-sample-ui" style="font-size: 12px; color: var(--ink-2); background: rgba(232,226,214,0.04); padding: 2px 6px; border-radius: 4px; justify-self: start;">#2E211A</div>
+        <div class="role-where">Hex-Werte, Token-Namen, Variablen</div>
+        <span class="role-tag-pill">Geist</span>
+      </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="type-rules">
+      <div class="type-rule">
+        <h4>Serif spricht, Sans <em>steuert</em></h4>
+        <p>
+          Newsreader trägt die Haltung — Titel, Erklärung, Numerik. Geist
+          übernimmt alles, was geklickt, gelesen oder als technischer Wert
+          gelesen wird: Labels, Buttons, Hex-Codes, Eyebrows.
+        </p>
+      </div>
+      <div class="type-rule">
+        <h4>Italic ist <em>Farbe</em>, kein Stil</h4>
+        <p>
+          Newsreader-Italic wird ausschließlich für Eigennamen und Akzente
+          via <code>&lt;em&gt;</code> verwendet — immer in <code>var(--hl)</code>.
+          Niemals dekorativ. Niemals in Geist.
+        </p>
+      </div>
+      <div class="type-rule">
+        <h4>Light ist der <em>Default</em></h4>
+        <p>
+          Beide Familien starten bei Weight 300. Regular (400) markiert
+          benannte Elemente, Medium (500) bleibt dem Play-CTA und der
+          Systemzeit vorbehalten. 600 ist verfügbar, wird aber nicht genutzt.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIR -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Library <em>·</em> Track List</h2>
+      <div class="section-meta">Cards · Soft Fade · beide Modi</div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Dark Mode</div>
+          <div class="pair-name">Lifted Warm</div>
+          <div class="pair-sub">
+            Karte <code style="font-family: var(--font-ui); color: var(--ink);">#2E211A</code> ist wärmer und einen Tick heller als der mittlere
+            Gradient-Stop — trennt sich sauber gegen Kakao oben <em>und</em> Mahagoni unten.
+            Warmer Border, kein neutrales Grau.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar">
+              <span>11:16</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="app">
+              <div class="lib-head">
+                <div class="lib-head-title">Geführte Meditationen</div>
+                <div class="lib-head-pill">
+                  <div class="lib-pill-btn">+</div>
+                  <div class="lib-pill-btn">ⓘ</div>
+                </div>
+              </div>
+              <div class="lib-search"><span>⌕</span>Nach Titel suchen</div>
+              <div class="scrollarea">
+                <div class="lib-author">Christine Braehler</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">MSC Liebende Güte für ein geliebtes Wesen</div>
+                      <div class="lib-track-time">21:15</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">MSC Weicher Werden, Zulassen</div>
+                      <div class="lib-track-time">21:47</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+                <div class="lib-author">Jon Salzberg</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">Present Moment Awareness</div>
+                      <div class="lib-track-time">25:48</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+                <div class="lib-author">Sarah Kornfield</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">Body Scan for Beginners</div>
+                      <div class="lib-track-time">15:42</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fade-mask"></div>
+            <div class="tabbar">
+              <div class="tab active">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="8" x2="3" y2="8"/><line x1="5.5" y1="5.5" x2="5.5" y2="10.5"/><line x1="8" y1="3" x2="8" y2="13"/><line x1="10.5" y1="5.5" x2="10.5" y2="10.5"/><line x1="13" y1="7" x2="13" y2="9"/></svg></div>
+                <span>Meditationen</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="9" r="5"/><path d="M8 9 L8 6 M8 9 L10.5 7" stroke-linecap="round"/><path d="M6.5 2 H9.5" stroke-linecap="round"/></svg></div>
+                <span>Timer</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="2.5" y1="4" x2="13.5" y2="4"/><line x1="2.5" y1="8" x2="13.5" y2="8"/><line x1="2.5" y1="12" x2="13.5" y2="12"/><circle cx="10" cy="4" r="1.4" fill="currentColor"/><circle cx="5" cy="8" r="1.4" fill="currentColor"/><circle cx="11" cy="12" r="1.4" fill="currentColor"/></svg></div>
+                <span>Einstellungen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Light Mode</div>
+          <div class="pair-name">Sunrise Confident</div>
+          <div class="pair-sub">
+            Karte <code style="font-family: var(--font-ui); color: var(--ink);">#FFF6E6</code> ist heller als bg-top, mit warmem Doppelschatten —
+            spiegelverkehrt zu Lifted Warm. Gesättigter Sunrise-Verlauf statt Pastell,
+            festere Tinte, plastischer Play-Button.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar">
+              <span>11:16</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="app">
+              <div class="lib-head">
+                <div class="lib-head-title">Geführte Meditationen</div>
+                <div class="lib-head-pill">
+                  <div class="lib-pill-btn">+</div>
+                  <div class="lib-pill-btn">ⓘ</div>
+                </div>
+              </div>
+              <div class="lib-search"><span>⌕</span>Nach Titel suchen</div>
+              <div class="scrollarea">
+                <div class="lib-author">Christine Braehler</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">MSC Liebende Güte für ein geliebtes Wesen</div>
+                      <div class="lib-track-time">21:15</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">MSC Weicher Werden, Zulassen</div>
+                      <div class="lib-track-time">21:47</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+                <div class="lib-author">Jon Salzberg</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">Present Moment Awareness</div>
+                      <div class="lib-track-time">25:48</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+                <div class="lib-author">Sarah Kornfield</div>
+                <div class="group">
+                  <div class="lib-track">
+                    <div class="lib-track-text">
+                      <div class="lib-track-title">Body Scan for Beginners</div>
+                      <div class="lib-track-time">15:42</div>
+                    </div>
+                    <div class="play-btn"><svg width="10" height="11" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fade-mask"></div>
+            <div class="tabbar">
+              <div class="tab active">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="8" x2="3" y2="8"/><line x1="5.5" y1="5.5" x2="5.5" y2="10.5"/><line x1="8" y1="3" x2="8" y2="13"/><line x1="10.5" y1="5.5" x2="10.5" y2="10.5"/><line x1="13" y1="7" x2="13" y2="9"/></svg></div>
+                <span>Meditationen</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="9" r="5"/><path d="M8 9 L8 6 M8 9 L10.5 7" stroke-linecap="round"/><path d="M6.5 2 H9.5" stroke-linecap="round"/></svg></div>
+                <span>Timer</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="2.5" y1="4" x2="13.5" y2="4"/><line x1="2.5" y1="8" x2="13.5" y2="8"/><line x1="2.5" y1="12" x2="13.5" y2="12"/><circle cx="10" cy="4" r="1.4" fill="currentColor"/><circle cx="5" cy="8" r="1.4" fill="currentColor"/><circle cx="11" cy="12" r="1.4" fill="currentColor"/></svg></div>
+                <span>Einstellungen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMER IDLE PAIR -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Timer · Idle <em>mit Settings</em></h2>
+      <div class="section-meta">Headline · Ring · Liste · CTA — beide Modi</div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Dark Mode</div>
+          <div class="pair-name">Lifted Warm</div>
+          <div class="pair-sub">
+            Ring im Stil des laufenden Timers: 1px Track in Akzent-Soft, 1.5px
+            Progress-Arc, wandernde Perle mit weichem Kupfer-Glow. Settings-Liste
+            ohne Karten — nur ruhige Trenner. Wert-Spalte trägt den Akzent.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="dark">
+            <div class="status-bar">
+              <span>09:41</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="ti">
+              <div class="ti-headline">Wie viel Zeit schenkst du dir?</div>
+              <div class="ti-ring">
+                <svg width="204" height="204" viewBox="0 0 236 236">
+                  <!-- base ring · 1px hauchdünn -->
+                  <circle cx="118" cy="118" r="91" fill="none"
+                    stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                  <!-- progress arc · 1.5px, weiches Ende -->
+                  <circle cx="118" cy="118" r="91" fill="none"
+                    stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5" stroke-linecap="round"
+                    stroke-dasharray="171.5 571.77"
+                    transform="rotate(-90 118 118)"/>
+                  <!-- wandernde Perle mit Glow -->
+                  <circle cx="204.5" cy="146.1" r="5" fill="var(--t-accent)"
+                    style="filter: drop-shadow(0 0 8px var(--t-accent));"/>
+                </svg>
+                <div class="ti-ring-value">
+                  <div class="ti-ring-num">18</div>
+                  <div class="ti-ring-unit">Minuten</div>
+                </div>
+              </div>
+              <div class="ti-settings">
+                <div class="ti-row">
+                  <span class="ti-row-label">Vorbereitung</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">15 Sek.</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Gong</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">Tempelglocke</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Intervall</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">5 Min.</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Hintergrund</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">Regen</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+              </div>
+              <div class="ti-cta-wrap">
+                <button class="ti-cta">
+                  <svg width="11" height="13" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg>
+                  <span>Beginnen</span>
+                </button>
+              </div>
+            </div>
+            <div class="fade-mask"></div>
+            <div class="tabbar">
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="8" x2="3" y2="8"/><line x1="5.5" y1="5.5" x2="5.5" y2="10.5"/><line x1="8" y1="3" x2="8" y2="13"/><line x1="10.5" y1="5.5" x2="10.5" y2="10.5"/><line x1="13" y1="7" x2="13" y2="9"/></svg></div>
+                <span>Meditationen</span>
+              </div>
+              <div class="tab active">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="9" r="5"/><path d="M8 9 L8 6 M8 9 L10.5 7" stroke-linecap="round"/><path d="M6.5 2 H9.5" stroke-linecap="round"/></svg></div>
+                <span>Timer</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="2.5" y1="4" x2="13.5" y2="4"/><line x1="2.5" y1="8" x2="13.5" y2="8"/><line x1="2.5" y1="12" x2="13.5" y2="12"/><circle cx="10" cy="4" r="1.4" fill="currentColor"/><circle cx="5" cy="8" r="1.4" fill="currentColor"/><circle cx="11" cy="12" r="1.4" fill="currentColor"/></svg></div>
+                <span>Einstellungen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair-cell">
+        <div class="pair-head">
+          <div class="pair-tag">Light Mode</div>
+          <div class="pair-name">Sunrise Confident</div>
+          <div class="pair-sub">
+            Gleiche hauchdünne Ring-Geometrie, Progress-Arc zieht in die tiefere
+            Terrakotta <code style="font-family: var(--font-ui); color: var(--ink);">#A2503E</code>. Liste mit zarten warmen Trennern statt grau —
+            die Hue-Familie hält zusammen.
+          </div>
+        </div>
+        <div class="phone">
+          <div class="phone-screen" data-v="light">
+            <div class="status-bar">
+              <span>09:41</span>
+              <div class="status-icons">
+                <svg width="14" height="10" viewBox="0 0 13 9" fill="currentColor"><path d="M6.5 1.5a5 5 0 0 1 3.54 1.46l-.7.7a4 4 0 0 0-5.68 0l-.7-.7A5 5 0 0 1 6.5 1.5z"/></svg>
+                <svg width="20" height="10" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="14" height="8" rx="1.5"/><rect x="2" y="2" width="11" height="5" rx="0.5" fill="currentColor"/><rect x="15.5" y="3" width="1.5" height="3" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+            <div class="ti">
+              <div class="ti-headline">Wie viel Zeit schenkst du dir?</div>
+              <div class="ti-ring">
+                <svg width="204" height="204" viewBox="0 0 236 236">
+                  <!-- base ring · 1px hauchdünn -->
+                  <circle cx="118" cy="118" r="91" fill="none"
+                    stroke="var(--t-accent)" stroke-opacity="0.32" stroke-width="1"/>
+                  <!-- progress arc · 1.5px, weiches Ende -->
+                  <circle cx="118" cy="118" r="91" fill="none"
+                    stroke="var(--t-accent)" stroke-opacity="0.72" stroke-width="1.5" stroke-linecap="round"
+                    stroke-dasharray="171.5 571.77"
+                    transform="rotate(-90 118 118)"/>
+                  <!-- wandernde Perle mit Glow -->
+                  <circle cx="204.5" cy="146.1" r="5" fill="var(--t-accent)"
+                    style="filter: drop-shadow(0 0 8px var(--t-accent));"/>
+                </svg>
+                <div class="ti-ring-value">
+                  <div class="ti-ring-num">18</div>
+                  <div class="ti-ring-unit">Minuten</div>
+                </div>
+              </div>
+              <div class="ti-settings">
+                <div class="ti-row">
+                  <span class="ti-row-label">Vorbereitung</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">15 Sek.</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Gong</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">Tempelglocke</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Intervall</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">5 Min.</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+                <div class="ti-row">
+                  <span class="ti-row-label">Hintergrund</span>
+                  <span class="ti-row-right">
+                    <span class="ti-row-value">Regen</span>
+                    <span class="ti-row-chev">›</span>
+                  </span>
+                </div>
+              </div>
+              <div class="ti-cta-wrap">
+                <button class="ti-cta">
+                  <svg width="11" height="13" viewBox="0 0 9 10" fill="currentColor"><path d="M0 0 L9 5 L0 10 Z"/></svg>
+                  <span>Beginnen</span>
+                </button>
+              </div>
+            </div>
+            <div class="fade-mask"></div>
+            <div class="tabbar">
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="3" y1="8" x2="3" y2="8"/><line x1="5.5" y1="5.5" x2="5.5" y2="10.5"/><line x1="8" y1="3" x2="8" y2="13"/><line x1="10.5" y1="5.5" x2="10.5" y2="10.5"/><line x1="13" y1="7" x2="13" y2="9"/></svg></div>
+                <span>Meditationen</span>
+              </div>
+              <div class="tab active">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="9" r="5"/><path d="M8 9 L8 6 M8 9 L10.5 7" stroke-linecap="round"/><path d="M6.5 2 H9.5" stroke-linecap="round"/></svg></div>
+                <span>Timer</span>
+              </div>
+              <div class="tab">
+                <div class="tab-glyph"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="2.5" y1="4" x2="13.5" y2="4"/><line x1="2.5" y1="8" x2="13.5" y2="8"/><line x1="2.5" y1="12" x2="13.5" y2="12"/><circle cx="10" cy="4" r="1.4" fill="currentColor"/><circle cx="5" cy="8" r="1.4" fill="currentColor"/><circle cx="11" cy="12" r="1.4" fill="currentColor"/></svg></div>
+                <span>Einstellungen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRINCIPLES — geteilt -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Drei Mechanismen, <em>gespiegelt</em></h2>
+      <div class="section-meta">Lifted Warm → Sunrise Confident</div>
+    </div>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-num">01</div>
+        <h3 class="principle-title">Helligkeits-Lift gegen den Gradient</h3>
+        <p class="principle-text">
+          Die Karte muss sich gegen <em>alle</em> Gradient-Stops trennen.
+          Der Trick: nicht gegen einen Stop optimieren, sondern eine Karten-Helligkeit
+          wählen, die mittig zwischen den extremsten Stops liegt — so trennt
+          sie sich nach oben wie nach unten.
+        </p>
+        <dl class="principle-mapping">
+          <dt>Dark</dt><dd>Karte <code>#2E211A</code> heller als bg-mid <code>#321F19</code></dd>
+          <dt>Light</dt><dd>Karte <code>#FFF6E6</code> heller als bg-top <code>#FBEEDB</code></dd>
+        </dl>
+      </div>
+      <div class="principle">
+        <div class="principle-num">02</div>
+        <h3 class="principle-title">Warmer Border statt neutral</h3>
+        <p class="principle-text">
+          Ein grauer Border würde im warmen Kontext »kühl« und nicht zugehörig
+          wirken. Im Dark sichtbar als Schoko-Linie, im Light als sehr leiser
+          warmer Hauch — beides der gleiche Hue (Kupfer/Erde), nur anderes Alpha.
+        </p>
+        <dl class="principle-mapping">
+          <dt>Dark</dt><dd>solid <code>#4E382C</code></dd>
+          <dt>Light</dt><dd><code>rgba(120,55,28,0.11)</code></dd>
+        </dl>
+      </div>
+      <div class="principle">
+        <div class="principle-num">03</div>
+        <h3 class="principle-title">Warmer Doppelschatten</h3>
+        <p class="principle-text">
+          Im Dark optional — Lift trägt schon viel allein. Im Light strukturell
+          obligatorisch, weil weniger Luminance-Spielraum existiert. Beide
+          nutzen den gleichen Doppel-Shadow: scharfer Kontakt + weicher Body,
+          beide warm getönt.
+        </p>
+        <dl class="principle-mapping">
+          <dt>Dark</dt><dd><code>0 1px 2px / 0 8px 20px @ rgba(0,0,0,0.25–0.30)</code></dd>
+          <dt>Light</dt><dd><code>0 1px 2px / 0 6px 16px @ rgba(120,55,28,0.06–0.10)</code></dd>
+        </dl>
+      </div>
+    </div>
+
+    <p style="margin-top: 32px; font-family: var(--font-display); font-style: italic; font-size: 16px; color: var(--ink-2); max-width: 720px; line-height: 1.55;">
+      Soft fade läuft in beiden Modi vom transparenten Top über
+      <code style="font-family: var(--font-ui); color: var(--ink); font-style: normal;">--t-fade-mid</code> in
+      <code style="font-family: var(--font-ui); color: var(--ink); font-style: normal;">--t-bg-bot</code> aus. So
+      verschwindet die Tabbar nicht in einer harten Kante, sondern atmet in den
+      Akzent-Stop des Gradients hinein — Dark wie Light.
+    </p>
+  </section>
+
+  <!-- TOKEN PAIR -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Token-Pair <em>Dark · Light</em></h2>
+      <div class="section-meta">ThemeColors+Palettes.swift</div>
+    </div>
+
+    <div class="tokens">
+      <div class="tokens-head">
+        <div>Slot</div>
+        <div>Dark · Lifted Warm</div>
+        <div>Light · Sunrise Confident</div>
+      </div>
+
+      <div class="tokens-row">
+        <div class="tok-name">backgroundPrimary</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#1A100C;"></span>#1A100C</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#FBEEDB;"></span>#FBEEDB</div>
+      </div>
+      <div class="tokens-note">Top des Verlaufs. Hell-Variante gesättigter Cream statt fast-weiß.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">backgroundSecondary</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#321F19;"></span>#321F19</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#F6CDA8;"></span>#F6CDA8</div>
+      </div>
+      <div class="tokens-note">Mitte des Verlaufs. Echter Pfirsich statt Pastell.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">accentBackground</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#5D3A2F;"></span>#5D3A2F</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#E8A074;"></span>#E8A074</div>
+      </div>
+      <div class="tokens-note">Boden des Verlaufs — auch Ziel-Ton für den Soft-Fade.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">cardBackground</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#2E211A;"></span>#2E211A</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#FFF6E6;"></span>#FFF6E6</div>
+      </div>
+      <div class="tokens-note">Karte heller als bg-mid (Dark) / bg-top (Light) — der Lift-Mechanismus.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">cardBorder</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#4E382C;"></span>#4E382C</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:rgba(120,55,28,0.11); border:1px solid rgba(255,255,255,0.04);"></span>rgba(120,55,28,0.11)</div>
+      </div>
+      <div class="tokens-note">Warmer Hue in beiden Modi — Kupfer/Erde, anderes Alpha.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">cardShadow</div>
+        <div class="tok-cell" style="font-size: 11px;">0 1px 2px · 0 8px 20px @ rgba(0,0,0,0.25–0.30)</div>
+        <div class="tok-cell" style="font-size: 11px;">0 1px 2px · 0 6px 16px @ rgba(120,55,28,0.06–0.10)</div>
+      </div>
+      <div class="tokens-note">Doppelschatten. Im Dark optional, im Light strukturell.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">textPrimary</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#E5DCCD;"></span>#E5DCCD</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#3A2418;"></span>#3A2418</div>
+      </div>
+      <div class="tokens-note">Tinte mit warmer Note — kein Schwarz/Weiß, beide getönt.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">textSecondary</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#A68A80;"></span>#A68A80</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#7A4E3C;"></span>#7A4E3C</div>
+      </div>
+      <div class="tokens-note">Warmes Erdbraun in beiden Richtungen.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">interactive</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#C77D63;"></span>#C77D63</div>
+        <div class="tok-cell"><span class="tok-sw" style="background:#A2503E;"></span>#A2503E</div>
+      </div>
+      <div class="tokens-note">Akzent zieht im Light tiefer, damit er gegen den hellen Grund standhält.</div>
+
+      <div class="tokens-row">
+        <div class="tok-name">playButton</div>
+        <div class="tok-cell" style="font-size: 11px;"><span class="tok-sw" style="background: linear-gradient(180deg, #D68A6E 0%, #B06A4F 100%);"></span>#D68A6E → #B06A4F</div>
+        <div class="tok-cell" style="font-size: 11px;"><span class="tok-sw" style="background: linear-gradient(180deg, #B85F46 0%, #7E3A2D 100%);"></span>#B85F46 → #7E3A2D</div>
+      </div>
+      <div class="tokens-note">Plastischer Kupfer-Kiesel. Im Light tieferer Bottom-Stop für Kontrast.</div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <div>Still Moment · Kerzenschein 2.0 — Final Pair</div>
+    <div>v1.0 · Lifted Warm + Sunrise Confident</div>
+  </div>
+
+</div>
+
+</body>
+</html>
