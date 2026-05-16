@@ -1,6 +1,6 @@
 # Ticket ios-046: Running-Timer-Display — Akku-Vessel
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-046.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Reines Visual-Redesign der laufenden Sitzung, keine Domain- oder Audio-Aenderung. Risiko liegt in der linearen Pegel-Animation ueber lange Sitzungsdauern (bis 60 min) inkl. korrekter Resume-Berechnung nach App-Suspend, sowie im sauberen Trennen von der heutigen Atemkreis-Visualisierung, die der Player weiterhin nutzt.
