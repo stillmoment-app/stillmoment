@@ -84,9 +84,7 @@ struct SearchResultsListView: View {
 
     private func playButton(for meditation: GuidedMeditation) -> some View {
         let isThisPreviewing = self.previewingMeditationId == meditation.id
-        return Image(systemName: isThisPreviewing ? "stop.circle.fill" : "play.circle.fill")
-            .font(.system(size: 28))
-            .foregroundColor(self.theme.interactive)
+        return PlayButtonCircle(isPlaying: isThisPreviewing)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
             .onTapGesture {

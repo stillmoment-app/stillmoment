@@ -64,8 +64,13 @@ struct TimerView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .background(
-                self.theme.backgroundGradient
-                    .ignoresSafeArea()
+                ZStack(alignment: .bottom) {
+                    self.theme.backgroundGradient
+                    if self.viewModel.timerState == .idle {
+                        SoftFadeOverlay()
+                    }
+                }
+                .ignoresSafeArea()
             )
         }
         .navigationBarTitleDisplayMode(.inline)

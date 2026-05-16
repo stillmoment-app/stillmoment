@@ -27,8 +27,6 @@ struct ThemeRootView<Content: View>: View {
         self.content
             .environment(\.themeColors, self.resolvedColors)
             .tint(self.resolvedColors.interactive)
-            .toolbarBackground(self.resolvedColors.backgroundSecondary, for: .tabBar)
-            .toolbarBackground(.visible, for: .tabBar)
             .preferredColorScheme(self.themeManager.preferredColorScheme)
             .id(self.resolvedColors)
             .onChange(of: self.resolvedColors) { colors in
@@ -39,7 +37,20 @@ struct ThemeRootView<Content: View>: View {
             }
     }
 
+    // MARK: - Tab Bar Appearance
+
+    /// iOS-26-vertraegliche Tabbar-Konfiguration nach dem Handover-Fallback
+    /// (shared-094): nur `tintColor` + `unselectedItemTintColor` setzen. Keine
+    /// `selectionIndicatorImage`-Pille, kein eigener `backgroundEffect`, keine
+    /// `toolbarBackground`-Ueberschreibung — das laesst die System-Pill-Geometrie
+    /// in iOS 26 unbeschadet und die System-Animation greift wie vorgesehen.
+    ///
+    /// `UIAppearance` wirkt nur auf neue `UITabBar`-Instanzen. `ThemeRootView`
+    /// erzwingt ueber `.id(resolvedColors)` einen Neuaufbau bei Theme-Wechsel.
     private static func applyTabBarAppearance(_ colors: ThemeColors) {
-        UITabBar.appearance().unselectedItemTintColor = UIColor(colors.textSecondary).withAlphaComponent(0.5)
+        let interactive = UIColor(colors.interactive)
+        let textSecondary = UIColor(colors.textSecondary).withAlphaComponent(0.6)
+        UITabBar.appearance().tintColor = interactive
+        UITabBar.appearance().unselectedItemTintColor = textSecondary
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import XCTest
 @testable import StillMoment
 
@@ -64,11 +65,11 @@ final class ThemeColorsTests: XCTestCase {
         }
     }
 
-    // MARK: - Settings List Tokens (shared-089)
+    // MARK: - Settings List Tokens (shared-089 / shared-094)
 
-    func testSettingsDividerDerivesFromControlTrack() {
+    func testSettingsDividerIsAliasOfDivider() {
         let theme = ThemeColors.light
-        XCTAssertEqual(theme.settingsDivider, theme.controlTrack.opacity(0.30))
+        XCTAssertEqual(theme.settingsDivider, theme.divider)
     }
 
     func testSettingsValueAccentMatchesInteractive() {
@@ -79,8 +80,63 @@ final class ThemeColorsTests: XCTestCase {
     func testSettingsTokensFollowThemeAcrossPalettes() {
         let palettes: [ThemeColors] = [.light, .dark]
         for theme in palettes {
-            XCTAssertEqual(theme.settingsDivider, theme.controlTrack.opacity(0.30))
+            XCTAssertEqual(theme.settingsDivider, theme.divider)
             XCTAssertEqual(theme.settingsValueAccent, theme.interactive)
         }
+    }
+
+    // MARK: - Refinement Tokens (shared-094)
+
+    func testPlayGradientDiffersBetweenLightAndDark() {
+        XCTAssertNotEqual(ThemeColors.light.playGradientTop, ThemeColors.dark.playGradientTop)
+        XCTAssertNotEqual(ThemeColors.light.playGradientBot, ThemeColors.dark.playGradientBot)
+    }
+
+    func testPlayGradientTopIsLighterThanBottom() {
+        let palettes: [(ThemeColors, String)] = [(.light, "Light"), (.dark, "Dark")]
+        for (palette, name) in palettes {
+            let topLum = Self.luminance(of: palette.playGradientTop)
+            let botLum = Self.luminance(of: palette.playGradientBot)
+            XCTAssertGreaterThan(
+                topLum,
+                botLum,
+                "\(name): playGradientTop should be lighter than playGradientBot for plastic effect"
+            )
+        }
+    }
+
+    func testDividerIsSetInBothPalettes() {
+        for palette in [ThemeColors.light, ThemeColors.dark] {
+            let uiColor = UIColor(palette.divider)
+            var alpha: CGFloat = 0
+            uiColor.getRed(nil, green: nil, blue: nil, alpha: &alpha)
+            XCTAssertGreaterThan(alpha, 0, "Divider must not be clear")
+        }
+    }
+
+    func testDividerDiffersBetweenLightAndDark() {
+        XCTAssertNotEqual(ThemeColors.light.divider, ThemeColors.dark.divider)
+    }
+
+    func testTextOnInteractiveLightIsWarmCream() {
+        // textOnInteractive im Light Mode ist warmes Cream (= cardBackground),
+        // nicht reines Weiss — visueller Zusammenhalt mit dem Akzent-Gradient.
+        let theme = ThemeColors.light
+        XCTAssertEqual(theme.textOnInteractive, theme.cardBackground)
+    }
+
+    private static func luminance(of color: Color) -> CGFloat {
+        let uiColor = UIColor(color)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        func linearize(_ channel: CGFloat) -> CGFloat {
+            channel <= 0.04045
+                ? channel / 12.92
+                : pow((channel + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linearize(red) + 0.7152 * linearize(green) + 0.0722 * linearize(blue)
     }
 }

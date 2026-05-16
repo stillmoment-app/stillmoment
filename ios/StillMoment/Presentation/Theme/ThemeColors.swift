@@ -33,6 +33,25 @@ struct ThemeColors: Equatable, Hashable {
     let ringTrack: Color
     let accentBackground: Color
 
+    // MARK: - Refinement Tokens (shared-094)
+
+    /// Trennlinien-Farbe in warmer Akzent-Familie. Gleichzeitig Quelle fuer
+    /// `settingsDivider` und `listRowSeparatorTint` zwischen mehreren Tracks
+    /// derselben Lehrerin. Light: warmer Kupfer-Hauch, Dark: helles Cream
+    /// mit niedriger Opacity.
+    let divider: Color
+
+    /// Mittlerer Stop des Bottom-Fades, ueber den die Scroll-Region in den
+    /// Akzent-Stop des Hintergrunds auslaeuft. Light: Apricot-Smoke, Dark:
+    /// Mahagoni-Smoke.
+    let fadeMid: Color
+
+    /// Oberer Stop des vertikalen Verlaufs auf dem plastischen Play-Button.
+    let playGradientTop: Color
+
+    /// Unterer Stop des vertikalen Verlaufs auf dem plastischen Play-Button.
+    let playGradientBot: Color
+
     // MARK: - Feedback Colors
 
     let error: Color
@@ -78,10 +97,10 @@ struct ThemeColors: Equatable, Hashable {
     // MARK: - Settings List Tokens (shared-089)
 
     /// Trennlinien-Farbe fuer die flache Settings-Liste auf dem Idle-Screen.
-    /// Analog zur Track-Rolle des Atemkreis-Rings, nur dezenter — definiert
-    /// die Zeilen-Grenzen, ohne mit der Hauptachse (Atemkreis) zu konkurrieren.
+    /// Alias auf `divider` — Settings-Trenner und Library-Track-Trenner sollen
+    /// denselben Hue/Helligkeitseindruck haben.
     var settingsDivider: Color {
-        self.controlTrack.opacity(0.30)
+        self.divider
     }
 
     /// Akzent fuer den Wert-Text rechts in der Listenzeile. Identisch mit

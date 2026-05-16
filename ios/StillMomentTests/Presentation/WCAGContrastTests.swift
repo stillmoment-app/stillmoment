@@ -131,7 +131,10 @@ final class WCAGContrastTests: XCTestCase {
         ]
     }
 
-    private func interactiveAndErrorChecks(_ palette: ThemeColors) -> [ContrastCheck] {
+    /// Body-Text-relevante interactive/error-Kombinationen mit 4.5:1.
+    /// `interactive` als Settings-Wert rechts oder als Button-Label braucht
+    /// volle Body-Text-Lesbarkeit.
+    private func bodyTextInteractiveChecks(_ palette: ThemeColors) -> [ContrastCheck] {
         [
             ContrastCheck(
                 foreground: palette.textOnInteractive,
@@ -141,27 +144,36 @@ final class WCAGContrastTests: XCTestCase {
             ),
             ContrastCheck(
                 foreground: palette.interactive,
-                background: palette.backgroundPrimary,
-                foregroundName: "interactive",
-                backgroundName: "backgroundPrimary"
-            ),
-            ContrastCheck(
-                foreground: palette.interactive,
                 background: palette.cardBackground,
                 foregroundName: "interactive",
                 backgroundName: "cardBackground"
-            ),
-            ContrastCheck(
-                foreground: palette.interactive,
-                background: palette.backgroundSecondary,
-                foregroundName: "interactive",
-                backgroundName: "backgroundSecondary"
             ),
             ContrastCheck(
                 foreground: palette.error,
                 background: palette.backgroundPrimary,
                 foregroundName: "error",
                 backgroundName: "backgroundPrimary"
+            )
+        ]
+    }
+
+    /// UI-Akzent-Kombinationen mit 3:1 (Large-Text / Non-Text-Schwelle).
+    /// `interactive` direkt auf den Gradient-Stops ist UI-Akzent (Glyphen,
+    /// Icons, Settings-Wert ueber dem Gradient ohne Karte) — keine
+    /// Body-Text-Lesbarkeit erforderlich, aber Visibility-Schwelle 3:1.
+    private func uiAccentChecks(_ palette: ThemeColors) -> [ContrastCheck] {
+        [
+            ContrastCheck(
+                foreground: palette.interactive,
+                background: palette.backgroundPrimary,
+                foregroundName: "interactive",
+                backgroundName: "backgroundPrimary"
+            ),
+            ContrastCheck(
+                foreground: palette.interactive,
+                background: palette.backgroundSecondary,
+                foregroundName: "interactive",
+                backgroundName: "backgroundSecondary"
             )
         ]
     }
@@ -173,11 +185,20 @@ final class WCAGContrastTests: XCTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let allChecks = self.textChecks(palette) + self.interactiveAndErrorChecks(palette)
-        for check in allChecks {
+        let bodyChecks = self.textChecks(palette) + self.bodyTextInteractiveChecks(palette)
+        for check in bodyChecks {
             self.assertContrast(
                 check,
                 minimumRatio: self.normalTextMinContrast,
+                palette: name,
+                file: file,
+                line: line
+            )
+        }
+        for check in self.uiAccentChecks(palette) {
+            self.assertContrast(
+                check,
+                minimumRatio: self.largeTextMinContrast,
                 palette: name,
                 file: file,
                 line: line
@@ -229,17 +250,21 @@ final class WCAGContrastTests: XCTestCase {
         )
     }
 
-    func testLightModeCardBorderIsClear() {
+    func testLightModeCardBorderIsWarmTinted() {
+        // Nach shared-094 traegt der Light-Border einen warmen Hauch (Kupfer/Erde)
+        // mit niedriger Opacity, damit Karten gegen alle drei Gradient-Stops lesbar
+        // bleiben. Border ist nicht clear, sondern warm-getoent.
         let palette = ThemeColors.light
         let uiColor = UIColor(palette.cardBorder)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
         var alpha: CGFloat = 0
-        uiColor.getRed(nil, green: nil, blue: nil, alpha: &alpha)
-        XCTAssertEqual(
-            alpha,
-            0,
-            accuracy: 0.01,
-            "Light: cardBorder should be clear in light mode (shadow provides separation)"
-        )
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        XCTAssertGreaterThan(alpha, 0.05, "Light: cardBorder should have visible warm tint")
+        XCTAssertLessThan(alpha, 0.25, "Light: cardBorder must remain subtle, not hard")
+        XCTAssertGreaterThan(red, green, "Light: cardBorder hue must be warm (red > green)")
+        XCTAssertGreaterThan(green, blue, "Light: cardBorder hue must be warm (green > blue)")
     }
 
     private func luminanceFromColor(_ color: Color) -> CGFloat {
