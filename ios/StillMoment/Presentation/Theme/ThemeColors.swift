@@ -96,27 +96,15 @@ struct ThemeColors: Equatable, Hashable {
 // MARK: - Theme Resolution
 
 extension ThemeColors {
-    private static let palettes: [ColorTheme: (light: ThemeColors, dark: ThemeColors)] = [
-        .candlelight: (light: .candlelightLight, dark: .candlelightDark),
-        .forest: (light: .forestLight, dark: .forestDark),
-        .moon: (light: .moonLight, dark: .moonDark)
-    ]
-
-    static func resolve(theme: ColorTheme, colorScheme: ColorScheme) -> ThemeColors {
-        guard let palette = palettes[theme] else {
-            return .candlelightLight
-        }
-        if colorScheme == .dark {
-            return palette.dark
-        }
-        return palette.light
+    static func resolve(colorScheme: ColorScheme) -> ThemeColors {
+        colorScheme == .dark ? .dark : .light
     }
 }
 
 // MARK: - Environment Key
 
 private struct ThemeColorsKey: EnvironmentKey {
-    static let defaultValue: ThemeColors = .candlelightLight
+    static let defaultValue: ThemeColors = .light
 }
 
 extension EnvironmentValues {

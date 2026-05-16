@@ -101,10 +101,6 @@
 // MARK: - Appearance Settings
 
 "settings.general.header" = "Erscheinungsbild";
-"settings.theme.title" = "Farbthema";
-"settings.theme.candlelight" = "Kerzenschein";
-"settings.theme.forest" = "Wald";
-"settings.theme.moon" = "Mondlicht";
 
 "settings.appearance.title" = "Darstellung";
 "settings.appearance.system" = "System";

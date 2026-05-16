@@ -105,19 +105,18 @@ screenshot-setup: ## Setup Ruby/Fastlane environment (one-time)
 	@bundle install --path vendor/bundle
 	@echo "✅ Screenshot setup complete!"
 
-THEME ?= candlelight
 MODE ?= dark
 
-screenshots: ## Generate all screenshots (THEME=candlelight MODE=dark default)
-	@echo "📸 Generating screenshots with Fastlane ($(THEME)/$(MODE))..."
+screenshots: ## Generate all screenshots (MODE=dark default)
+	@echo "📸 Generating screenshots with Fastlane (MODE=$(MODE))..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "❌ Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
 	fi
-	@SCREENSHOT_THEME=$(THEME) SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshots
+	@SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshots
 	@echo "✅ Screenshots generated in docs/images/screenshots/"
 
-screenshot-single: ## Run single screenshot (TEST=... THEME=moon MODE=dark optional)
+screenshot-single: ## Run single screenshot (TEST=... MODE=dark optional)
 	@if [ -z "$(TEST)" ]; then \
 		echo "Usage: make screenshot-single TEST=testScreenshot05_SettingsView"; \
 		exit 1; \
@@ -127,7 +126,7 @@ screenshot-single: ## Run single screenshot (TEST=... THEME=moon MODE=dark optio
 		exit 1; \
 	fi
 	@echo "📸 Running screenshot: $(TEST) (EN + DE via Fastlane)..."
-	@SCREENSHOT_THEME=$(THEME) SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshot_single test:$(TEST)
+	@SCREENSHOT_MODE=$(MODE) bundle exec fastlane screenshot_single test:$(TEST)
 	@echo "✅ Screenshots → docs/images/screenshots/"
 
 release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)

@@ -124,7 +124,7 @@ struct DownloadOverlayView: View {
         Color.gray
         DownloadOverlayView {}
     }
-    .environment(\.themeColors, .candlelightLight)
+    .environment(\.themeColors, .light)
     .preferredColorScheme(.light)
 }
 
@@ -133,7 +133,7 @@ struct DownloadOverlayView: View {
         Color.gray
         DownloadOverlayView {}
     }
-    .environment(\.themeColors, .candlelightDark)
+    .environment(\.themeColors, .dark)
     .preferredColorScheme(.dark)
 }
 #endif
