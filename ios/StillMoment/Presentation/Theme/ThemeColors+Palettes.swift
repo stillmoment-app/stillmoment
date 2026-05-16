@@ -4,8 +4,8 @@
 //
 //  Presentation Layer - Concrete color values for the single theme in light + dark mode.
 //
-//  All colors are inline RGB (sRGB color space). Verfeinerung erfolgt in einem
-//  separaten Refinement-Schritt; die Werte stammen aus dem fruehen Kerzenschein-Theme.
+//  All colors are inline RGB (sRGB color space). Values currently match the
+//  former Candlelight palette; refinement happens in a separate follow-up step.
 //
 
 import SwiftUI
