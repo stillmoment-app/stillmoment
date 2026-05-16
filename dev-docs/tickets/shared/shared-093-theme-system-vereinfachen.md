@@ -1,6 +1,6 @@
 # Ticket shared-093: Theme-System auf ein Theme reduzieren
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS DONE, Android offen)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mechanisches Aufraeumen ueber mehrere Layer (Domain, Presentation, Settings-UI, Localization, Tests). Persistierte Theme-Auswahl muss beim Update graceful ignoriert werden. Risiko: Kontrast-/Snapshot-Tests die ueber alle Themes iterieren; tote Localization-Keys; Screenshot-Fixtures die ein bestimmtes Theme erwarten.
 **Phase**: 2-Architektur
@@ -22,7 +22,7 @@ Drei Themes parallel pflegen kostet Energie ohne erkennbaren Nutzen fuer den Use
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
