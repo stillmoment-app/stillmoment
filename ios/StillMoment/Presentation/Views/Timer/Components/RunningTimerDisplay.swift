@@ -76,7 +76,6 @@ struct RunningTimerDisplay: View {
 
             Text(self.durationLabel)
                 .themeFont(.bodySecondary)
-                .italic()
                 .padding(.top, 12)
                 .accessibilityHidden(true)
         }

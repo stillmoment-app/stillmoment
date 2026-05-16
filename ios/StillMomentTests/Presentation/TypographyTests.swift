@@ -93,7 +93,7 @@ final class TypographyTests: XCTestCase {
     func testTimerCountdownIsFixedUltraLight100() {
         XCTAssertEqual(
             TypographyRole.timerCountdown.fontSpec,
-            .fixed(size: 100, weight: .ultraLight, design: .rounded)
+            .fixed(size: 100, weight: .ultraLight)
         )
     }
 
@@ -102,7 +102,7 @@ final class TypographyTests: XCTestCase {
         // 64 pt entspricht dem Handoff (Newsreader 64/300).
         XCTAssertEqual(
             TypographyRole.timerRunning.fontSpec,
-            .fixed(size: 64, weight: .thin, design: .rounded)
+            .fixed(size: 64, weight: .thin)
         )
     }
 
@@ -115,35 +115,35 @@ final class TypographyTests: XCTestCase {
     func testScreenTitleIsFixedLight28() {
         XCTAssertEqual(
             TypographyRole.screenTitle.fontSpec,
-            .fixed(size: 28, weight: .light, design: .rounded)
+            .fixed(size: 28, weight: .light)
         )
     }
 
     func testSettingsLabelIsFixedRegular17() {
         XCTAssertEqual(
             TypographyRole.settingsLabel.fontSpec,
-            .fixed(size: 17, weight: .regular, design: .rounded)
+            .fixed(size: 17, weight: .regular)
         )
     }
 
     func testListTitleIsDynamicHeadlineWithoutWeight() {
         XCTAssertEqual(
             TypographyRole.listTitle.fontSpec,
-            .dynamic(style: .headline, weight: nil, design: .rounded)
+            .dynamic(style: .headline, weight: nil)
         )
     }
 
     func testDialogTitleIsFixedLight18() {
         XCTAssertEqual(
             TypographyRole.dialogTitle.fontSpec,
-            .fixed(size: 18, weight: .light, design: .rounded)
+            .fixed(size: 18, weight: .light)
         )
     }
 
     func testDialogBodyIsFixedRegular12() {
         XCTAssertEqual(
             TypographyRole.dialogBody.fontSpec,
-            .fixed(size: 12, weight: .regular, design: .rounded)
+            .fixed(size: 12, weight: .regular)
         )
     }
 
@@ -152,7 +152,7 @@ final class TypographyTests: XCTestCase {
     func testCardLabelIsFixedRegular11() {
         XCTAssertEqual(
             TypographyRole.cardLabel.fontSpec,
-            .fixed(size: 11, weight: .regular, design: .rounded)
+            .fixed(size: 11, weight: .regular)
         )
     }
 
@@ -164,7 +164,7 @@ final class TypographyTests: XCTestCase {
         // 62 px ist die kompakte Untergrenze; Views skalieren bis 76 ueber size-Override.
         XCTAssertEqual(
             TypographyRole.dialValue.fontSpec,
-            .fixed(size: 62, weight: .light, design: .rounded)
+            .fixed(size: 62, weight: .light)
         )
     }
 
@@ -179,7 +179,7 @@ final class TypographyTests: XCTestCase {
     func testDialUnitIsFixedRegular10() {
         XCTAssertEqual(
             TypographyRole.dialUnit.fontSpec,
-            .fixed(size: 10, weight: .regular, design: .rounded)
+            .fixed(size: 10, weight: .regular)
         )
     }
 
@@ -235,16 +235,98 @@ final class TypographyTests: XCTestCase {
         XCTAssertEqual(TypographyRole.playerTeacher.textColor, \ThemeColors.interactive)
     }
 
-    // MARK: - Design Consistency
+    // MARK: - Font Family Mapping (ios-048)
 
-    func testAllRolesUseRoundedDesign() {
-        for role in self.allRoles {
-            switch role.fontSpec {
-            case let .fixed(_, _, design):
-                XCTAssertEqual(design, .rounded, "Role \(role) should use rounded design")
-            case let .dynamic(_, _, design):
-                XCTAssertEqual(design, .rounded, "Role \(role) should use rounded design")
-            }
+    /// Display-Rollen (Handoff: "Stimme, Inhalt, Numerik") werden in Newsreader (Serif) gesetzt.
+    func testDisplayRolesUseNewsreaderFamily() {
+        let displayRoles: [TypographyRole] = [
+            .timerCountdown, .timerRunning,
+            .screenTitle, .inlineNavigationTitle, .sectionTitle,
+            .bodyPrimary, .bodySecondary,
+            .playerTitle, .playerTeacher, .playerCountdown,
+            .dialogTitle,
+            .dialValue
+        ]
+        for role in displayRoles {
+            XCTAssertEqual(role.fontFamily, .display, "Role \(role) should use the display family (Newsreader)")
         }
+    }
+
+    /// UI-Rollen (Handoff: "Labels, Werte, Steuerung") werden in Geist (Sans) gesetzt.
+    func testUIRolesUseGeistFamily() {
+        let uiRoles: [TypographyRole] = [
+            .caption,
+            .settingsLabel, .settingsDescription,
+            .playerTimestamp, .playerRemainingTime,
+            .listTitle, .listSubtitle, .listBody, .listSectionTitle, .listActionLabel,
+            .editLabel, .editCaption,
+            .dialogBody,
+            .cardLabel,
+            .dialUnit
+        ]
+        for role in uiRoles {
+            XCTAssertEqual(role.fontFamily, .ui, "Role \(role) should use the ui family (Geist)")
+        }
+    }
+
+    /// Jede Rolle muss explizit einer Familie zugeordnet sein — die Aufteilung
+    /// in Display+UI deckt alle 27 Rollen ab.
+    func testEveryRoleHasFontFamily() {
+        for role in self.allRoles {
+            let family = role.fontFamily
+            XCTAssertTrue(family == .display || family == .ui, "Role \(role) must be display or ui")
+        }
+    }
+
+    // MARK: - Family PostScript Name Mapping
+
+    func testDisplayFamilyMapsLightWeightsToNewsreaderLight() {
+        // ultraLight/thin/light klemmen auf Newsreader 300 (Light).
+        let lightWeights: [Font.Weight] = [.ultraLight, .thin, .light]
+        for weight in lightWeights {
+            XCTAssertEqual(
+                TypographyRole.Family.display.postScriptName(for: weight),
+                "Newsreader16pt-Light"
+            )
+        }
+    }
+
+    func testDisplayFamilyMapsRegularToNewsreaderRegular() {
+        XCTAssertEqual(
+            TypographyRole.Family.display.postScriptName(for: .regular),
+            "Newsreader16pt-Regular"
+        )
+    }
+
+    func testDisplayFamilyMapsHeavyWeightsToNewsreaderMedium() {
+        // medium/semibold/bold/heavy klemmen auf Newsreader 500 (Medium).
+        let heavyWeights: [Font.Weight] = [.medium, .semibold, .bold, .heavy]
+        for weight in heavyWeights {
+            XCTAssertEqual(
+                TypographyRole.Family.display.postScriptName(for: weight),
+                "Newsreader16pt-Medium"
+            )
+        }
+    }
+
+    func testUIFamilyMapsLightWeightsToGeistLight() {
+        XCTAssertEqual(
+            TypographyRole.Family.ui.postScriptName(for: .light),
+            "Geist-Light"
+        )
+    }
+
+    func testUIFamilyMapsRegularToGeistRegular() {
+        XCTAssertEqual(
+            TypographyRole.Family.ui.postScriptName(for: .regular),
+            "Geist-Regular"
+        )
+    }
+
+    func testUIFamilyMapsHeavyWeightsToGeistMedium() {
+        XCTAssertEqual(
+            TypographyRole.Family.ui.postScriptName(for: .semibold),
+            "Geist-Medium"
+        )
     }
 }

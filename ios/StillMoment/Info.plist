@@ -54,5 +54,15 @@
 	<string>https://stillmoment.app/support.html</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Newsreader16pt-Light.ttf</string>
+		<string>Newsreader16pt-Regular.ttf</string>
+		<string>Newsreader16pt-Medium.ttf</string>
+		<string>Newsreader16pt-Italic.ttf</string>
+		<string>Geist-Light.ttf</string>
+		<string>Geist-Regular.ttf</string>
+		<string>Geist-Medium.ttf</string>
+	</array>
 </dict>
 </plist>
