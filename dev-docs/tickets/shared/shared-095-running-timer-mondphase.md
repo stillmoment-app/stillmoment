@@ -22,7 +22,7 @@ Die Mondphase erzaehlt Sitzungsdauer durch ein ruhiges Naturbild. Keine pulsiere
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-094    |
+| iOS       | [x]    | shared-094    |
 | Android   | [ ]    | iOS first     |
 
 ---
