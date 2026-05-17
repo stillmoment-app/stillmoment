@@ -117,6 +117,12 @@ struct TimerView: View {
         self.viewModel.isZenMode
     }
 
+    private var preRollDurationLabel: String {
+        let minutes = self.viewModel.selectedMinutes
+        let key = minutes == 1 ? "timer.preroll.duration.singular" : "timer.preroll.duration.plural"
+        return String(format: NSLocalizedString(key, comment: ""), minutes)
+    }
+
     // MARK: - Layouts
 
     private func idleLayout(geometry: GeometryProxy, isCompactHeight: Bool) -> some View {
@@ -232,12 +238,26 @@ struct TimerView: View {
         return Group {
             switch self.viewModel.phase {
             case .preRoll:
-                // PreRoll bleibt vertikal zentriert — Atemkreis + Hint
-                // sitzen mittig auf dem Screen.
+                // Layout parallel zu Guided-PreRoll: Modus + Dauer oben,
+                // Atemkreis mittig. Ueberschrift positioniert sich wie
+                // Lehrer + Meditations-Titel im Guided-Player.
                 VStack(spacing: 0) {
-                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+                    VStack(spacing: 8) {
+                        Text("timer.preroll.mode", bundle: .main)
+                            .textStyle(.bodyItalic, color: \.interactive)
+
+                        Text(self.preRollDurationLabel)
+                            .textStyle(.title, color: \.textPrimary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+
+                    Spacer(minLength: 12)
+
                     self.preRollDisplay(isCompactHeight: isCompactHeight)
-                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+
+                    Spacer(minLength: 12)
                 }
             case .playing:
                 RunningTimerDisplay(
@@ -256,36 +276,28 @@ struct TimerView: View {
     private func preRollDisplay(isCompactHeight: Bool) -> some View {
         let circleSize: CGFloat = isCompactHeight ? 240 : 280
 
-        return VStack(spacing: 12) {
-            BreathingCircleView(
-                phase: .preRoll,
-                progress: 0,
-                reduceMotion: self.reduceMotion,
-                outerSize: circleSize
-            ) {
-                VStack(spacing: 6) {
-                    DisplayNumeral(
-                        text: "\(self.viewModel.remainingPreparationSeconds)",
-                        containerDiameter: circleSize
-                    )
-                    .foregroundColor(self.theme.textPrimary)
-                    .accessibilityIdentifier("timer.display.time")
-                    .accessibilityLabel(String(
-                        format: NSLocalizedString("accessibility.preparation", comment: ""),
-                        self.viewModel.remainingPreparationSeconds
-                    ))
+        return BreathingCircleView(
+            phase: .preRoll,
+            progress: 0,
+            reduceMotion: self.reduceMotion,
+            outerSize: circleSize
+        ) {
+            VStack(spacing: 6) {
+                DisplayNumeral(
+                    text: "\(self.viewModel.remainingPreparationSeconds)",
+                    containerDiameter: circleSize
+                )
+                .foregroundColor(self.theme.textPrimary)
+                .accessibilityIdentifier("timer.display.time")
+                .accessibilityLabel(String(
+                    format: NSLocalizedString("accessibility.preparation", comment: ""),
+                    self.viewModel.remainingPreparationSeconds
+                ))
 
-                    Text("guided_meditations.player.preroll.label")
-                        .textStyle(.micro, color: \.textSecondary)
-                }
-                .transition(.opacity)
+                Text("guided_meditations.player.preroll.label")
+                    .textStyle(.micro, color: \.textSecondary)
             }
-
-            Text("guided_meditations.player.preroll.hint")
-                .textStyle(.micro, color: \.textSecondary)
-                .foregroundColor(self.theme.textSecondary)
-                .textCase(.uppercase)
-                .transition(.opacity)
+            .transition(.opacity)
         }
     }
 
