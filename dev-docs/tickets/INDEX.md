@@ -175,7 +175,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-048](ios/ios-048-typografie-newsreader-geist.md) | Typografie Newsreader + Geist nachziehen | 4-Polish | [x] | - |
 | [ios-049](ios/ios-049-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) im Einstellungen-Bereich | 5-QA | [ ] | ios-048 |
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | ios-048 |
-| [ios-051](ios/ios-051-library-header-suchfeld-sichtbar.md) | Library-Header — Suchfeld immer sichtbar, Titel raus | 4-Polish | [ ] | ios-041 |
+| [ios-051](ios/ios-051-library-header-suchfeld-sichtbar.md) | Library-Header — Suchfeld immer sichtbar, Titel raus | 4-Polish | [x] | ios-041 |
 
 ---
 

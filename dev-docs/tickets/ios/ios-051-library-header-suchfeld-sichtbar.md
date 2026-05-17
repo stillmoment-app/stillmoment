@@ -1,6 +1,6 @@
 # Ticket ios-051: Library-Header — Such-Trigger immer sichtbar, Titel raus
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-051.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: mittel — Toolbar-Umbau und Wechsel weg von `.searchable()` hin zu einer eigenen Header-Bar; die Such-Logik aus ios-041 bleibt unveraendert
