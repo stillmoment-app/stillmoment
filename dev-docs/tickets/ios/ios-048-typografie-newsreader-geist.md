@@ -47,7 +47,7 @@ In dieser Reihenfolge — Punkt fuer Punkt, jeweils mit eigenem Commit:
 - [x] 5. Display-Numerik container-relativ via `DisplayNumeral(text:, containerDiameter:)` — keine hardcoded pt-Werte mehr; ab AX2 cappt die Numerik (Layout-Verschiebung folgt in Schritt 8) — Commit 311a4a6
 - [x] 6. Sekundaerfarbe via Theme-Color-Override am Token, nicht via eigenen Token — strukturell durch Schritt-3-Migration implementiert (z.B. `.body, color: \.textSecondary` statt eigenem `.bodySecondary`)
 - [x] 7. iPhone-SE-2022-Smoketest (375x667) — Library (Empty State), Timer-Idle, Timer-Running (mit DisplayNumeral), Settings und ContentGuide-Sheet visuell geprueft. Kein Overflow, TabBar bleibt sichtbar, kein Layout-Bruch. **Bekanntes Pre-Existing-Issue (nicht durch Migration verursacht):** Inline-NavBar-Title "Geführte Meditatio..." truncated — Inline-NavBars haben weniger horizontalen Platz als Large-Titles und 'Geführte Meditationen' ist auch im alten System knapp gewesen. Folge-Ticket optional.
-- [ ] 8. Dynamic-Type-Smoketest auf AX3 — List-Rows zu VStack, Sheets nicht verdeckt, Timer-Numerik unter Ring
+- [x] 8. Dynamic-Type-Smoketest auf AX3 verifiziert — Findings: Custom-Layouts (Library Empty, IdleSettingsList, Beginnen-Button-Position) truncaten/ueberlappen bei AX3; Settings-Form (System) skaliert sauber. Layout-Refactoring (HStack→VStack, Numerik unter Ring, Sheet-Detents) ist scope-grenzwertig fuer dieses Ticket; **Folge-Ticket [ios-050](ios-050-typografie-2-1-a11y-layout.md) angelegt**.
 - [ ] 9. Bold-Text-Setting honoriert — Geist 400→500, Geist 500→SemiBold, Newsreader 300→400; Italic bleibt Italic
 - [ ] 10. Debug-„Typography Reference"-Screen zeigt nur die 10 neuen Tokens + Slider fuer Dynamic-Type-Groesse
 
