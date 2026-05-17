@@ -259,7 +259,7 @@ struct GuidedMeditationsListView: View {
                     }
                 } header: {
                     Text(section.teacher)
-                        .textStyle(.body, color: \.textPrimary)
+                        .textStyle(.bodyItalic, color: \.interactive)
                         .textCase(nil)
                 }
             }
@@ -274,7 +274,7 @@ struct GuidedMeditationsListView: View {
                 Text(meditation.name)
                     .textStyle(.bodyEmphasis, color: \.textPrimary)
                 Text(meditation.formattedDuration)
-                    .textStyle(.caption, color: \.textSecondary)
+                    .textStyle(.micro, color: \.textSecondary)
             }
 
             Spacer()
