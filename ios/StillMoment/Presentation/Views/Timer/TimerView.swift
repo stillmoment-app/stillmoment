@@ -283,18 +283,19 @@ struct TimerView: View {
                 outerSize: circleSize
             ) {
                 VStack(spacing: 6) {
-                    Text("\(self.viewModel.remainingPreparationSeconds)")
-                        .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
-                        .monospacedDigit()
-                        .accessibilityIdentifier("timer.display.time")
-                        .accessibilityLabel(String(
-                            format: NSLocalizedString("accessibility.preparation", comment: ""),
-                            self.viewModel.remainingPreparationSeconds
-                        ))
+                    DisplayNumeral(
+                        text: "\(self.viewModel.remainingPreparationSeconds)",
+                        containerDiameter: circleSize
+                    )
+                    .foregroundColor(self.theme.textPrimary)
+                    .accessibilityIdentifier("timer.display.time")
+                    .accessibilityLabel(String(
+                        format: NSLocalizedString("accessibility.preparation", comment: ""),
+                        self.viewModel.remainingPreparationSeconds
+                    ))
 
                     Text("guided_meditations.player.preroll.label")
                         .textStyle(.micro, color: \.textSecondary)
-                        .foregroundColor(self.theme.textSecondary)
                 }
                 .transition(.opacity)
             }

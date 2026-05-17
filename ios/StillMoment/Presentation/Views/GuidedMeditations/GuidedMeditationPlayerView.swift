@@ -141,6 +141,8 @@ struct GuidedMeditationPlayerView: View {
     /// aufblitzt, bevor die Pre-Roll-Phase greift.
     @State private var didKickOff = false
 
+    private static let ringDiameter: CGFloat = 280
+
     private var isZenMode: Bool {
         self.viewModel.isZenMode
     }
@@ -172,7 +174,8 @@ struct GuidedMeditationPlayerView: View {
             // Ring + Inhalt (Pause-Button oder Countdown)
             PlayerRingView(
                 phase: self.viewModel.phase,
-                progress: self.viewModel.progress
+                progress: self.viewModel.progress,
+                outerSize: Self.ringDiameter
             ) {
                 self.circleContent
             }
@@ -198,18 +201,21 @@ struct GuidedMeditationPlayerView: View {
         switch self.viewModel.phase {
         case .preRoll:
             VStack(spacing: 6) {
-                Text("\(self.viewModel.remainingCountdownSeconds)")
-                    .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
-                    .accessibilityIdentifier("player.countdown")
-                    .accessibilityLabel(
-                        String(
-                            format: NSLocalizedString(
-                                "guided_meditations.player.countdown",
-                                comment: ""
-                            ),
-                            self.viewModel.remainingCountdownSeconds
-                        )
+                DisplayNumeral(
+                    text: "\(self.viewModel.remainingCountdownSeconds)",
+                    containerDiameter: Self.ringDiameter
+                )
+                .foregroundColor(self.theme.textPrimary)
+                .accessibilityIdentifier("player.countdown")
+                .accessibilityLabel(
+                    String(
+                        format: NSLocalizedString(
+                            "guided_meditations.player.countdown",
+                            comment: ""
+                        ),
+                        self.viewModel.remainingCountdownSeconds
                     )
+                )
 
                 Text("guided_meditations.player.preroll.label")
                     .textStyle(.micro, color: \.textSecondary)

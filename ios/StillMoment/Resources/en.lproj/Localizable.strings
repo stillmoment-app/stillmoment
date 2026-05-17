@@ -255,7 +255,7 @@
 
 // MARK: - Player Completion
 
-"guided_meditations.player.completion.headline" = "Thank you for taking this moment for yourself.";
+"guided_meditations.player.completion.headline" = "Thank you for giving yourself this time.";
 "completion.button.done" = "Done";
 
 "accessibility.guidedMeditations.hint" = "Open guided meditations library";
