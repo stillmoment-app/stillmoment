@@ -136,11 +136,12 @@ final class TypographyTests: XCTestCase {
         )
     }
 
-    func testListActionLabelIsFixedRegular16() {
-        // Track-Titel: Geist Regular 16 — kein Medium-Weight, der bold wirken wuerde.
+    func testListActionLabelIsFixedRegular15() {
+        // Track-Titel: Geist Regular 15 — "minimal groesser" als Author-Header (14),
+        // damit kein groessen-induzierter Weight-Eindruck entsteht.
         XCTAssertEqual(
             TypographyRole.listActionLabel.fontSpec,
-            .fixed(size: 16, weight: .regular)
+            .fixed(size: 15, weight: .regular)
         )
     }
 

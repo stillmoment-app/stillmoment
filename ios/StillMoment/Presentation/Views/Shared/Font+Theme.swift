@@ -147,12 +147,13 @@ extension TypographyRole {
         // dem Meditationstitel oben konkurrieren.
         case .playerRemainingTime: .fixed(size: 14, weight: .medium)
         // List — Geist Regular 400 across the board (Handoff: "Sans steuert").
-        // Sizes folgen direkt der Library-Spec: Author-Header 14, Track-Titel 16.
+        // Sizes nach Library-Spec: Author-Header 14, Track-Titel 15 ("minimal groesser",
+        // damit die Hierarchie aus Farbe/Spacing kommt, nicht aus Weight).
         case .listTitle: .fixed(size: 14, weight: .regular)
         case .listSubtitle: .dynamic(style: .subheadline, weight: .regular)
         case .listBody: .dynamic(style: .body, weight: .regular)
         case .listSectionTitle: .dynamic(style: .title2, weight: .medium)
-        case .listActionLabel: .fixed(size: 16, weight: .regular)
+        case .listActionLabel: .fixed(size: 15, weight: .regular)
         // Edit
         case .editLabel: .dynamic(style: .subheadline, weight: .medium)
         case .editCaption: .dynamic(style: .caption, weight: .regular)
