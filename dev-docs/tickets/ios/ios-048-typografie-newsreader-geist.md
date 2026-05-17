@@ -14,9 +14,13 @@
 
 Die zwei im Handoff "Kerzenschein 2.0" festgelegten Schrift-Familien einziehen: **Newsreader** (Serif) traegt Display, Inhalt und Numerik, **Geist** (Sans) traegt UI, Labels und technische Werte. Die Rollen-Zuordnung folgt der Tabelle im Handoff.
 
+**Erweiterung (Typografie 2.1):** Das durch den ersten Schritt entstandene 27-Rollen-System wird auf **10 Tokens** reduziert (`display`, `title`, `screenTitle`, `section`, `body`, `bodyEmphasis`, `bodyItalic`, `caption`, `micro`, `eyebrow`). Jeder Token bindet ueber `UIFontMetrics` an einen iOS-TextStyle und skaliert mit Dynamic Type. Display-Numerik (Timer) wird container-relativ statt fixe pt-Werte. Alte Style-Namen werden geloescht, nicht deprecated.
+
 ## Warum
 
 Seit den Theme-Refinements (shared-094 bis shared-097) ist das Farb- und Layout-System aus dem Handoff in die App gewandert — die Typografie aber nicht. Die App nutzt weiterhin durchgehend SF Rounded. Damit fehlt der Charakter des Designs: Serif als Stimme (Titel, Erklaerung, Ziffern), Sans als Steuerung (Labels, Buttons, Werte).
+
+Der erste Migrationsschritt (Newsreader+Geist einziehen) hat das System auf 27 Rollen aufgeblaeht und mischt feste pt-Werte mit Dynamic-Type-Bindungen. Bei Accessibility-Einstellungen (AX3+) brechen Layouts. Typografie 2.1 raeumt das auf: weniger Tokens, Dynamic Type ist Quelle der Wahrheit, klare Spielregel fuer Display-Numerik.
 
 ---
 
@@ -31,6 +35,21 @@ Seit den Theme-Refinements (shared-094 bis shared-097) ist das Farb- und Layout-
 - [ ] Dynamic Type skaliert weiterhin korrekt (Texte werden bei groesseren Stufen groesser, brechen Layout nicht)
 - [ ] Dark Mode: Lesbarkeit/Kontrast nicht schlechter als vorher — Halation-Kompensation greift weiter
 - [ ] Numerik (Timer-Ziffern) zeigt einheitliche Ziffernbreite (tabular figures), damit die Anzeige beim Herunterzaehlen nicht springt
+
+### Typografie 2.1 (Acceptance-Checkliste aus `handoffs/Typografie 2.1 - Plan.html`)
+
+In dieser Reihenfolge — Punkt fuer Punkt, jeweils mit eigenem Commit:
+
+- [ ] 1. Schriften registriert (Newsreader-Light/-Regular/-Italic, Geist-Regular/-Medium/-SemiBold in `UIAppFonts`; Debug-Print verifiziert)
+- [ ] 2. `TextStyle.swift` existiert mit 10 Cases (`display`, `title`, `screenTitle`, `section`, `body`, `bodyEmphasis`, `bodyItalic`, `caption`, `micro`, `eyebrow`)
+- [ ] 3. `.textStyle(_)`-Modifier ersetzt alle `.font(_)`/`.themeFont(_)`-Aufrufe (Ausnahme: `DisplayNumeral`)
+- [ ] 4. Alte Style-Namen geloescht (nicht deprecated): `.timerCountdown`, `.playerTitle`, `.bodyPrimary`, `.bodySecondary`, `.listSubtitle`, `.editLabel` etc.
+- [ ] 5. Display-Numerik container-relativ via `DisplayNumeral(text:, ringDiameter:)` — keine hardcoded pt-Werte mehr; ab AX2 Numerik unter dem Ring
+- [ ] 6. Sekundaerfarbe via `.foregroundStyle(.secondary)`, nicht via eigenen Token
+- [ ] 7. iPhone-SE-2022-Smoketest (375x667) — kein Truncate, kein Overflow, Tab-Bar nicht verdeckt
+- [ ] 8. Dynamic-Type-Smoketest auf AX3 — List-Rows zu VStack, Sheets nicht verdeckt, Timer-Numerik unter Ring
+- [ ] 9. Bold-Text-Setting honoriert — Geist 400→500, Geist 500→SemiBold, Newsreader 300→400; Italic bleibt Italic
+- [ ] 10. Debug-„Typography Reference"-Screen zeigt nur die 10 neuen Tokens + Slider fuer Dynamic-Type-Groesse
 
 ### Tests
 
@@ -56,8 +75,9 @@ Seit den Theme-Refinements (shared-094 bis shared-097) ist das Farb- und Layout-
 ## Referenz
 
 - Handoff: `handoffs/handoff_typografie/Kerzenschein 2.0 Final.html` (Sektion "Typografie · Newsreader + Geist", Rollen-Tabelle)
+- **Typografie 2.1 Plan (Source of Truth fuer Reduktion auf 10 Tokens):** `handoffs/Typografie 2.1 - Plan.html`
 - Vorherige Refinement-Tickets: shared-094, shared-095, shared-096, shared-097
-- Bestehendes Typografie-System: `ios/StillMoment/Presentation/Views/Shared/Font+Theme.swift`
+- Bestehendes Typografie-System: `ios/StillMoment/Presentation/Views/Shared/Font+Theme.swift` (wird durch `TextStyle.swift` ersetzt)
 - Bestehende Tests: `ios/StillMomentTests/Presentation/TypographyTests.swift`
 
 ---

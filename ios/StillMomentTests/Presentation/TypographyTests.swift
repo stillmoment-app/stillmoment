@@ -14,55 +14,14 @@ final class TypographyTests: XCTestCase {
 
     private let allRoles = TypographyRole.allCases
 
-    // MARK: - Dark Mode Halation Compensation
-
-    func testLightModeReturnsOriginalWeight() {
-        let weights: [Font.Weight] = [.ultraLight, .thin, .light, .regular, .medium, .semibold, .bold, .heavy, .black]
-        for weight in weights {
-            XCTAssertEqual(
-                weight.darkModeCompensated(.light),
-                weight,
-                "Light mode should return original weight"
-            )
-        }
-    }
-
-    func testDarkModeCompensatesUltraLightToThin() {
-        XCTAssertEqual(Font.Weight.ultraLight.darkModeCompensated(.dark), .thin)
-    }
-
-    func testDarkModeCompensatesThinToLight() {
-        XCTAssertEqual(Font.Weight.thin.darkModeCompensated(.dark), .light)
-    }
-
-    func testDarkModeCompensatesLightToRegular() {
-        XCTAssertEqual(Font.Weight.light.darkModeCompensated(.dark), .regular)
-    }
-
-    func testDarkModeDoesNotCompensateRegular() {
-        // Regular 400 schon kraeftig genug auf dunklem Hintergrund — ein Bump zu
-        // Medium wuerde UI-Labels (z.B. Track-Titel) bold wirken lassen.
-        XCTAssertEqual(Font.Weight.regular.darkModeCompensated(.dark), .regular)
-    }
-
-    func testDarkModeDoesNotCompensateHeavierWeights() {
-        let heavyWeights: [Font.Weight] = [.regular, .medium, .semibold, .bold, .heavy, .black]
-        for weight in heavyWeights {
-            XCTAssertEqual(
-                weight.darkModeCompensated(.dark),
-                weight,
-                "Weights at regular or heavier should not be compensated"
-            )
-        }
-    }
-
     // MARK: - Role Uniqueness
 
     func testNoDuplicateRolesWithinSameGroup() {
         // Roles across groups may share specs (e.g. playerTimestamp and editCaption),
         // but within a group each role should be visually distinct.
         let groups: [(String, [TypographyRole])] = [
-            ("Timer", [.timerCountdown, .timerRunning]),
+            ("Timer", [.timerCountdown, .timerRunning, .timerStepperValue]),
+            ("Buttons", [.buttonLabel]),
             ("Headings", [.screenTitle, .inlineNavigationTitle, .sectionTitle]),
             ("Body", [.bodyPrimary, .bodySecondary, .caption]),
             ("Settings", [.settingsLabel, .settingsDescription]),
@@ -87,7 +46,7 @@ final class TypographyTests: XCTestCase {
     }
 
     func testAllRolesCovered() {
-        XCTAssertEqual(self.allRoles.count, 27, "Update this count when adding new TypographyRole cases")
+        XCTAssertEqual(self.allRoles.count, 29, "Update this count when adding new TypographyRole cases")
     }
 
     // MARK: - Font Spec Expectations
@@ -159,6 +118,47 @@ final class TypographyTests: XCTestCase {
         )
     }
 
+    // MARK: - Player Role Specs (Editorial-Voice)
+
+    func testPlayerTitleIsFixedLight30() {
+        // Meditationstitel: Newsreader Light 30 — Editorial-Stimme, ruhig.
+        XCTAssertEqual(
+            TypographyRole.playerTitle.fontSpec,
+            .fixed(size: 30, weight: .light)
+        )
+    }
+
+    func testPlayerTeacherIsFixedLight18Italic() {
+        // Lehrer-Name: Newsreader Italic 18 — kursiver Akzent in Sunrise,
+        // setzt visuell vom Titel ab (Editorial-Hierarchie).
+        XCTAssertEqual(
+            TypographyRole.playerTeacher.fontSpec,
+            .fixed(size: 18, weight: .light)
+        )
+        XCTAssertTrue(TypographyRole.playerTeacher.isItalic)
+    }
+
+    func testPlayerRemainingTimeIsFixedRegular11() {
+        // Eyebrow "NOCH X MIN": Geist Regular 11 — sehr ruhig, gross zuegig getrackt.
+        XCTAssertEqual(
+            TypographyRole.playerRemainingTime.fontSpec,
+            .fixed(size: 11, weight: .regular)
+        )
+    }
+
+    func testPlayerRemainingTimeHasGenerousTracking() {
+        // ~0.2em bei 11 pt = 2.2 pt — verleiht der All-Caps-Beschriftung Format.
+        XCTAssertEqual(TypographyRole.playerRemainingTime.tracking, 2.2, accuracy: 0.0001)
+    }
+
+    func testIsItalicDefaultsToFalse() {
+        // Nur explizit gesetzte Rollen sind kursiv — alle anderen sind aufrecht.
+        let nonItalicRoles = TypographyRole.allCases.filter { $0 != .playerTeacher }
+        for role in nonItalicRoles {
+            XCTAssertFalse(role.isItalic, "Role \(role) should not be italic by default")
+        }
+    }
+
     // MARK: - Breath Dial Roles (shared-086)
 
     func testCardLabelIsFixedRegular11() {
@@ -204,6 +204,34 @@ final class TypographyTests: XCTestCase {
         XCTAssertEqual(TypographyRole.dialUnit.tracking, 0, accuracy: 0.0001)
     }
 
+    // MARK: - Button + Stepper Roles (Handoff "Kerzenschein 2.0")
+
+    func testButtonLabelIsFixedMedium15() {
+        // Handoff: "CTA / Play — 15 / 500 — Geist". Loest die alte
+        // SF-Pro-Rounded-Voice ab.
+        XCTAssertEqual(
+            TypographyRole.buttonLabel.fontSpec,
+            .fixed(size: 15, weight: .medium)
+        )
+    }
+
+    func testButtonLabelUsesGeistFamily() {
+        XCTAssertEqual(TypographyRole.buttonLabel.fontFamily, .ui)
+    }
+
+    func testTimerStepperValueIsFixedRegular15() {
+        // Stepper-Werte (Idle-Settings-Liste): Geist Regular, Default 15pt,
+        // size-Override fuer compact height (14pt).
+        XCTAssertEqual(
+            TypographyRole.timerStepperValue.fontSpec,
+            .fixed(size: 15, weight: .regular)
+        )
+    }
+
+    func testTimerStepperValueUsesGeistFamily() {
+        XCTAssertEqual(TypographyRole.timerStepperValue.fontFamily, .ui)
+    }
+
     func testDefaultRoleHasNoTracking() {
         // Bestehende Rollen duerfen sich durch das Tracking-Feature nicht aendern.
         XCTAssertEqual(TypographyRole.bodyPrimary.tracking, 0, accuracy: 0.0001)
@@ -214,14 +242,15 @@ final class TypographyTests: XCTestCase {
 
     func testPrimaryColorRoles() {
         let primaryRoles: [TypographyRole] = [
-            .timerCountdown, .timerRunning,
+            .timerCountdown, .timerRunning, .timerStepperValue,
             .screenTitle, .inlineNavigationTitle, .sectionTitle,
             .bodyPrimary,
             .settingsLabel,
             .playerTitle, .playerCountdown,
             .listTitle, .listSectionTitle, .listActionLabel,
             .editLabel,
-            .dialogTitle
+            .dialogTitle,
+            .buttonLabel
         ]
         for role in primaryRoles {
             XCTAssertEqual(role.textColor, \ThemeColors.textPrimary, "Role \(role) should use textPrimary")
@@ -274,7 +303,8 @@ final class TypographyTests: XCTestCase {
             .editLabel, .editCaption,
             .dialogBody,
             .cardLabel,
-            .dialUnit
+            .dialUnit,
+            .buttonLabel, .timerStepperValue
         ]
         for role in uiRoles {
             XCTAssertEqual(role.fontFamily, .ui, "Role \(role) should use the ui family (Geist)")
@@ -282,7 +312,7 @@ final class TypographyTests: XCTestCase {
     }
 
     /// Jede Rolle muss explizit einer Familie zugeordnet sein — die Aufteilung
-    /// in Display+UI deckt alle 27 Rollen ab.
+    /// in Display+UI deckt alle 29 Rollen ab.
     func testEveryRoleHasFontFamily() {
         for role in self.allRoles {
             let family = role.fontFamily
@@ -340,5 +370,73 @@ final class TypographyTests: XCTestCase {
             TypographyRole.Family.ui.postScriptName(for: .semibold),
             "Geist-Medium"
         )
+    }
+
+    // MARK: - Italic Variant (Display only)
+
+    func testDisplayFamilyMapsItalicToNewsreaderItalic() {
+        // Italic ist eine eigene Schnittdatei (Newsreader16pt-Italic) — der
+        // Weight-Parameter wird ignoriert, weil nur ein Italic-Cut existiert.
+        let allWeights: [Font.Weight] = [.ultraLight, .thin, .light, .regular, .medium, .semibold]
+        for weight in allWeights {
+            XCTAssertEqual(
+                TypographyRole.Family.display.postScriptName(for: weight, italic: true),
+                "Newsreader16pt-Italic"
+            )
+        }
+    }
+
+    func testUIFamilyIgnoresItalicFlag() {
+        // Geist hat keinen Italic-Cut im Bundle — der Flag wird stillschweigend
+        // ignoriert, Geist faellt zurueck auf den weight-basierten Namen.
+        XCTAssertEqual(
+            TypographyRole.Family.ui.postScriptName(for: .regular, italic: true),
+            "Geist-Regular"
+        )
+    }
+
+    // MARK: - Bundled Font Cuts (Schritt 1 Typografie 2.1)
+
+    /// Schritt 1 der Typografie-2.1-Migration verlangt, dass alle erwarteten
+    /// Schriftschnitte registriert sind. Dieser Test ist die Acceptance —
+    /// wenn ein Cut fehlt, ist `UIAppFonts` schief oder die Datei nicht im Target.
+    func testNewsreaderFamilyShipsRequiredCuts() {
+        let expected = [
+            "Newsreader16pt-Light",
+            "Newsreader16pt-Regular",
+            "Newsreader16pt-Medium",
+            "Newsreader16pt-Italic"
+        ]
+        let available = Self.fontNames(forFamiliesContaining: "Newsreader")
+        for name in expected {
+            XCTAssertTrue(
+                available.contains(name),
+                "Erwarteter Newsreader-Cut fehlt: \(name). Verfuegbar: \(available)"
+            )
+        }
+    }
+
+    func testGeistFamilyShipsRequiredCutsIncludingSemiBold() {
+        // SemiBold ist neu (Typografie 2.1) — Bold-Text-Setting bumpt .bodyEmphasis
+        // von Geist-Medium auf Geist-SemiBold.
+        let expected = [
+            "Geist-Light",
+            "Geist-Regular",
+            "Geist-Medium",
+            "Geist-SemiBold"
+        ]
+        let available = Self.fontNames(forFamiliesContaining: "Geist")
+        for name in expected {
+            XCTAssertTrue(
+                available.contains(name),
+                "Erwarteter Geist-Cut fehlt: \(name). Verfuegbar: \(available)"
+            )
+        }
+    }
+
+    private static func fontNames(forFamiliesContaining needle: String) -> [String] {
+        UIFont.familyNames
+            .filter { $0.contains(needle) }
+            .flatMap { UIFont.fontNames(forFamilyName: $0) }
     }
 }

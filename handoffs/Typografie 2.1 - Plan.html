@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Typografie 2.1 — Plan für Claude Code</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --page-bg: #0a0807;
+    --surface: #100d0b;
+    --surface-2: #16110e;
+    --ink: #E8E2D6;
+    --ink-2: #9c8f80;
+    --ink-3: #6b5f55;
+    --ink-4: #463d36;
+    --rule: rgba(232, 226, 214, 0.08);
+    --rule-strong: rgba(232, 226, 214, 0.16);
+    --hl: #DA8E72;
+    --good: #7da585;
+    --warn: #d0a06b;
+    --bad: #c87864;
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 64px 48px 100px; }
+
+  .eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); font-weight: 400; }
+
+  /* === Hero === */
+  h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 56px; line-height: 1.05; letter-spacing: -0.015em;
+    margin: 14px 0 0; color: var(--ink); max-width: 980px;
+  }
+  h1 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .lede {
+    font-family: var(--font-display); font-size: 20px; font-weight: 300;
+    line-height: 1.55; color: var(--ink-2);
+    max-width: 760px; margin: 26px 0 0;
+  }
+  .meta-row {
+    margin-top: 28px;
+    display: flex; gap: 28px; flex-wrap: wrap;
+    font-family: var(--font-ui);
+    font-size: 11.5px; letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+  .meta-row strong { color: var(--ink-2); font-weight: 500; }
+
+  /* === Sections === */
+  .section { margin-top: 96px; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 32px; padding-bottom: 22px; margin-bottom: 48px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-head h2 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 32px; margin: 0; letter-spacing: -0.005em; color: var(--ink);
+  }
+  .section-head h2 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .section-meta { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); font-family: var(--font-ui); }
+  .section-intro {
+    font-family: var(--font-display);
+    font-style: italic; font-size: 16px;
+    color: var(--ink-2); max-width: 760px;
+    line-height: 1.6;
+    margin: -16px 0 36px;
+  }
+
+  /* === Principles === */
+  .principles {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  .principle {
+    border: 1px solid var(--rule);
+    padding: 30px 26px;
+    background: var(--surface);
+    border-radius: 10px;
+  }
+  .principle .num {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 30px; color: var(--hl); line-height: 1;
+    margin-bottom: 16px;
+  }
+  .principle h3 {
+    font-family: var(--font-display); font-weight: 300; font-style: italic;
+    font-size: 22px; line-height: 1.25; color: var(--ink);
+    margin: 0 0 12px;
+  }
+  .principle p {
+    margin: 0;
+    font-family: var(--font-display); font-size: 15px; font-weight: 300;
+    color: var(--ink-2); line-height: 1.55;
+  }
+  .principle p code {
+    font-family: var(--font-mono); font-size: 12.5px;
+    color: var(--ink); background: rgba(232,226,214,0.05);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* === Token Table === */
+  .tokens {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .tok-header {
+    display: grid;
+    grid-template-columns: 130px 1fr 160px 130px 140px;
+    padding: 14px 26px;
+    background: rgba(232,226,214,0.03);
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .tok-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 160px 130px 140px;
+    align-items: center;
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .tok-row:last-child { border-bottom: none; }
+  .tok-name {
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--ink);
+  }
+  .tok-name .dot { color: var(--hl); }
+  .tok-sample { min-height: 36px; display: flex; align-items: center; color: var(--ink); }
+  .tok-sample.display-l { font-family: var(--font-display); font-weight: 300; font-size: 48px; line-height: 1; letter-spacing: -0.01em; }
+  .tok-sample.title-l { font-family: var(--font-display); font-weight: 300; font-size: 30px; letter-spacing: -0.005em; }
+  .tok-sample.screen-l { font-family: var(--font-display); font-weight: 300; font-size: 26px; }
+  .tok-sample.section-l { font-family: var(--font-display); font-weight: 300; font-size: 21px; }
+  .tok-sample.body-l { font-family: var(--font-ui); font-weight: 400; font-size: 17px; }
+  .tok-sample.body-em { font-family: var(--font-ui); font-weight: 500; font-size: 17px; }
+  .tok-sample.body-it { font-family: var(--font-display); font-weight: 400; font-style: italic; font-size: 18px; color: var(--hl); }
+  .tok-sample.caption-l { font-family: var(--font-ui); font-weight: 400; font-size: 14px; color: var(--ink-2); }
+  .tok-sample.micro-l { font-family: var(--font-ui); font-weight: 400; font-size: 11px; color: var(--ink-3); }
+  .tok-sample.eyebrow-l { font-family: var(--font-ui); font-weight: 400; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); }
+
+  .tok-meta {
+    font-family: var(--font-ui); font-size: 11.5px;
+    color: var(--ink-3); letter-spacing: 0.04em;
+  }
+  .tok-meta strong { color: var(--ink-2); font-weight: 400; }
+  .tok-family {
+    font-family: var(--font-ui); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .tok-family.serif { color: var(--hl); }
+  .tok-where {
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--ink-3); line-height: 1.4;
+  }
+
+  /* === Migration Map === */
+  .migration {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .mig-header {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr 1fr;
+    padding: 14px 26px;
+    background: rgba(232,226,214,0.03);
+    font-family: var(--font-ui); font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mig-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr 1fr;
+    align-items: center;
+    padding: 14px 26px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  .mig-row:last-child { border-bottom: none; }
+  .mig-old { font-family: var(--font-mono); color: var(--ink-3); font-size: 12.5px; }
+  .mig-old .spec { color: var(--ink-4); }
+  .mig-arrow { color: var(--hl); font-family: var(--font-display); font-style: italic; }
+  .mig-new { font-family: var(--font-mono); color: var(--ink); font-size: 13px; }
+  .mig-new .dot { color: var(--hl); }
+  .mig-note { font-family: var(--font-ui); font-size: 11.5px; color: var(--ink-3); }
+
+  .group-header {
+    grid-column: 1 / -1;
+    padding: 14px 0 4px;
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* === Device Behavior === */
+  .devices {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .device {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 24px 22px 28px;
+    display: flex; flex-direction: column;
+  }
+  .device .dev-name {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--ink);
+  }
+  .device .dev-size {
+    margin-top: 4px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--ink-3);
+  }
+  .device .dev-bar {
+    margin-top: 14px;
+    height: 4px; background: rgba(232,226,214,0.06);
+    border-radius: 2px; position: relative; overflow: hidden;
+  }
+  .device .dev-bar > span {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--hl);
+    border-radius: 2px;
+  }
+  .device .dev-vals {
+    margin-top: 22px;
+    display: grid; grid-template-columns: 1fr auto; gap: 10px 16px;
+    font-size: 12px;
+    font-family: var(--font-ui);
+  }
+  .device .dev-vals .k { color: var(--ink-3); }
+  .device .dev-vals .v { color: var(--ink); font-family: var(--font-mono); font-size: 12px; text-align: right; }
+
+  /* === A11y Scale === */
+  .a11y-scale {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 28px 32px;
+  }
+  .a11y-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 80px;
+    gap: 20px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .a11y-row:last-child { border-bottom: none; }
+  .a11y-label {
+    font-family: var(--font-ui); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .a11y-bar {
+    height: 8px; background: rgba(232,226,214,0.05);
+    border-radius: 4px; position: relative;
+  }
+  .a11y-bar > span {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--ink-4), var(--hl));
+    border-radius: 4px;
+  }
+  .a11y-val {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--ink-2); text-align: right;
+  }
+  .a11y-val.cap { color: var(--warn); }
+  .a11y-note {
+    margin-top: 22px; padding-top: 22px;
+    border-top: 1px dashed var(--rule);
+    font-family: var(--font-display); font-style: italic;
+    font-size: 14px; color: var(--ink-2);
+    line-height: 1.6;
+  }
+
+  /* === Code === */
+  .code-card {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .code-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 24px;
+    background: rgba(232,226,214,0.03);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .code-head .filename {
+    font-family: var(--font-mono); font-size: 12px;
+    letter-spacing: 0; text-transform: none; color: var(--ink-2);
+  }
+  pre.code {
+    margin: 0;
+    padding: 24px 28px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    overflow-x: auto;
+    white-space: pre;
+    tab-size: 4;
+  }
+  pre.code .kw { color: #c89878; }
+  pre.code .ty { color: #b4c599; }
+  pre.code .st { color: #d6b48a; }
+  pre.code .cm { color: var(--ink-4); font-style: italic; }
+  pre.code .at { color: #9bbcd4; }
+  pre.code .num { color: #d09660; }
+
+  /* === Checklist === */
+  .checklist {
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 14px 0;
+  }
+  .check-row {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    padding: 16px 30px;
+    border-bottom: 1px solid var(--rule);
+    align-items: start;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px; margin-top: 2px;
+    border: 1.5px solid var(--ink-3); border-radius: 4px;
+    background: transparent;
+  }
+  .check-text { font-family: var(--font-ui); font-size: 14px; color: var(--ink); line-height: 1.45; }
+  .check-text strong { font-weight: 500; color: var(--ink); }
+  .check-text .sub {
+    display: block; margin-top: 4px;
+    font-family: var(--font-display); font-style: italic;
+    font-size: 13.5px; color: var(--ink-2);
+  }
+  .check-text code {
+    font-family: var(--font-mono); font-size: 12px;
+    color: var(--ink-2); background: rgba(232,226,214,0.04);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* === Callout === */
+  .callout {
+    border-left: 3px solid var(--hl);
+    padding: 18px 24px;
+    background: rgba(218, 142, 114, 0.06);
+    border-radius: 0 8px 8px 0;
+    margin: 28px 0;
+    font-family: var(--font-display);
+    font-size: 15px; font-style: italic;
+    color: var(--ink); line-height: 1.55;
+  }
+  .callout strong { font-family: var(--font-ui); font-style: normal; font-weight: 500; color: var(--hl); letter-spacing: 0.02em; }
+
+  /* === Footer === */
+  .doc-footer {
+    margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    color: var(--ink-3); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    font-family: var(--font-ui);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HERO ============ -->
+  <div class="eyebrow">Still Moment · Kerzenschein 2.0 · Typografie 2.1</div>
+  <h1>Ein <em>kleineres</em>, robusteres Typo-System — gebaut auf Dynamic Type.</h1>
+  <p class="lede">
+    Das aktuelle System hat 26 Styles, mischt feste pt-Werte mit semantischen iOS-Namen
+    und bricht bei Accessibility-Einstellungen. Dieser Plan reduziert auf <em>10 Tokens</em>,
+    macht alle skalierbar nach Apples Dynamic-Type-Mechanik und definiert klar, wo wir
+    bewusst <em>nicht</em> mitskalieren — damit nichts überläuft.
+  </p>
+
+  <div class="meta-row">
+    <span><strong>Geräte-Range</strong> · iPhone SE 2022 (375pt) → iPhone 17 Pro Max (440pt)</span>
+    <span><strong>Dynamic Type</strong> · xSmall → AX5</span>
+    <span><strong>Familien</strong> · Newsreader 300 / 400 · Geist 400 / 500</span>
+  </div>
+
+  <!-- ============ PRINZIPIEN ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Drei <em>Prinzipien</em></h2>
+      <div class="section-meta">Tragen das ganze System</div>
+    </div>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="num">01</div>
+        <h3>Dynamic Type ist die Quelle der Wahrheit.</h3>
+        <p>
+          Jeder Token wird über <code>UIFontMetrics</code> an eine iOS-TextStyle gebunden
+          und skaliert mit den System­einstellungen. Keine harten pt-Werte mehr für UI-Text.
+          Ausnahme nur für <em>display-Numerik</em> (Timer), die ist container-relativ.
+        </p>
+      </div>
+      <div class="principle">
+        <div class="num">02</div>
+        <h3>Zehn Tokens, niemals mehr.</h3>
+        <p>
+          <code>display</code> · <code>title</code> · <code>screenTitle</code> ·
+          <code>section</code> · <code>body</code> · <code>bodyEmphasis</code> ·
+          <code>bodyItalic</code> · <code>caption</code> · <code>micro</code> ·
+          <code>eyebrow</code>. Wenn ein Screen einen elften will, ist der Screen falsch
+          entworfen, nicht das System.
+        </p>
+      </div>
+      <div class="principle">
+        <div class="num">03</div>
+        <h3>Serif spricht, Sans steuert.</h3>
+        <p>
+          Newsreader (300, 400 italic) für alles Erzählende: Titel, Numerik, Akzente.
+          Geist (400, 500) für alles Funktionale: Labels, Werte, CTAs, Captions.
+          Italic ist <em>Farbe</em>, kein Style: nur via <code>&lt;em&gt;</code> oder
+          <code>bodyItalic</code> in <code>var(--hl)</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TOKENS ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Die <em>zehn</em> Tokens</h2>
+      <div class="section-meta">Quelle: TextStyle.swift</div>
+    </div>
+    <p class="section-intro">
+      Jeder Token = eine Dynamic-Type-Basis + eine Schriftfamilie + ein Gewicht. Größenangabe
+      ist die Basis-Größe bei Default-Einstellung („Large", AX-aus). Bei jeder anderen
+      Einstellung ändert iOS die Größe — der Token bleibt derselbe.
+    </p>
+
+    <div class="tokens">
+      <div class="tok-header">
+        <div>Token</div>
+        <div>Sample</div>
+        <div>Dynamic-Type-Basis</div>
+        <div>Familie / Weight</div>
+        <div>Verwendung</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>display</div>
+        <div class="tok-sample display-l">15:00</div>
+        <div class="tok-meta">container-relativ <br/><strong>~64–104pt</strong> · capped @ AX1</div>
+        <div class="tok-family serif">Newsreader · 300</div>
+        <div class="tok-where">Timer-Countdown (idle &amp; running), Dial-Value</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>title</div>
+        <div class="tok-sample title-l">Player-Titel</div>
+        <div class="tok-meta">.largeTitle <br/><strong>34pt</strong></div>
+        <div class="tok-family serif">Newsreader · 300</div>
+        <div class="tok-where">Player-Track-Title, Cover-Headlines</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>screenTitle</div>
+        <div class="tok-sample screen-l">Einstellungen</div>
+        <div class="tok-meta">.title1 <br/><strong>28pt</strong></div>
+        <div class="tok-family serif">Newsreader · 300</div>
+        <div class="tok-where">Screen-Header (Large-Title), Inline-NavBar</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>section</div>
+        <div class="tok-sample section-l">Erinnerungen</div>
+        <div class="tok-meta">.title3 <br/><strong>20pt</strong></div>
+        <div class="tok-family serif">Newsreader · 300</div>
+        <div class="tok-where">List-Section-Title, Dialog-Title, Section-Divider</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>body</div>
+        <div class="tok-sample body-l">Stille beobachten.</div>
+        <div class="tok-meta">.body <br/><strong>17pt</strong></div>
+        <div class="tok-family">Geist · 400</div>
+        <div class="tok-where">Standardtext, List-Row-Title, Settings-Label, Dialog-Body</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>bodyEmphasis</div>
+        <div class="tok-sample body-em">Meditation starten</div>
+        <div class="tok-meta">.body <br/><strong>17pt</strong></div>
+        <div class="tok-family">Geist · 500</div>
+        <div class="tok-where">Primäre CTAs, Tab-Bar-aktiv, List-Action-Label</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>bodyItalic</div>
+        <div class="tok-sample body-it">— Anna Maria Berg</div>
+        <div class="tok-meta">.body <br/><strong>17pt</strong></div>
+        <div class="tok-family serif">Newsreader · 400i</div>
+        <div class="tok-where">Player-Teacher, Eigennamen, Akzent in <code style="font-family:var(--font-mono); font-size:11px;">&lt;em&gt;</code></div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>caption</div>
+        <div class="tok-sample caption-l">Sanfter Hintergrund-Sound</div>
+        <div class="tok-meta">.subheadline <br/><strong>15pt</strong></div>
+        <div class="tok-family">Geist · 400</div>
+        <div class="tok-where">List-Subtitle, Settings-Description, Secondary Text</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>micro</div>
+        <div class="tok-sample micro-l">12:34 · Min</div>
+        <div class="tok-meta">.caption2 <br/><strong>11pt</strong></div>
+        <div class="tok-family">Geist · 400</div>
+        <div class="tok-where">Timestamps, Units (Min/Sek), Card-Labels, Edit-Caption</div>
+      </div>
+
+      <div class="tok-row">
+        <div class="tok-name"><span class="dot">.</span>eyebrow</div>
+        <div class="tok-sample eyebrow-l">Heute · 14. März</div>
+        <div class="tok-meta">.caption2 <br/><strong>11pt · tracking 0.22em</strong></div>
+        <div class="tok-family">Geist · 400 UPPER</div>
+        <div class="tok-where">Tracked-Caps-Labels, Section-Eyebrows, Edit-Label</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Merke:</strong> Es gibt keinen <code>bodyPrimary</code> / <code>bodySecondary</code>-Split mehr.
+      Sekundärer Text ist <em>nicht</em> ein anderer Token, sondern derselbe Token mit
+      Sekundärfarbe (<code>.foregroundStyle(.secondary)</code>). Größe und Gewicht
+      kommunizieren Hierarchie, Farbe kommuniziert Status.
+    </div>
+  </section>
+
+  <!-- ============ MIGRATION ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Migration <em>alt → neu</em></h2>
+      <div class="section-meta">26 → 10</div>
+    </div>
+    <p class="section-intro">
+      Jeder bestehende Style bekommt genau ein neues Ziel. Wo <em>secondary</em> steht,
+      heißt das: gleicher Token, aber Foreground auf <code>.secondary</code> setzen.
+    </p>
+
+    <div class="migration">
+      <div class="mig-header">
+        <div>Alt</div>
+        <div></div>
+        <div>Neu</div>
+        <div>Anmerkung</div>
+      </div>
+
+      <div class="group-header" style="padding: 18px 26px 8px;">Timer &amp; Player</div>
+
+      <div class="mig-row">
+        <div class="mig-old">.timerCountdown <span class="spec">· 100pt ultraLight</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>display</div>
+        <div class="mig-note">container-relativ, capped bei AX1</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.timerRunning <span class="spec">· 64pt thin</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>display</div>
+        <div class="mig-note">selber Token, kleinerer Container</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.dialValue <span class="spec">· 62pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>display</div>
+        <div class="mig-note">Dial-Modal</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.dialUnit <span class="spec">· 10pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>eyebrow</div>
+        <div class="mig-note">tracked caps</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.playerCountdown <span class="spec">· 32pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>title</div>
+        <div class="mig-note">Newsreader-Numerik · monospaced-digits</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.playerTitle <span class="spec">· 30pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>title</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.playerTeacher <span class="spec">· 18pt light italic</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>bodyItalic</div>
+        <div class="mig-note">Newsreader italic, color <code>.hl</code></div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.playerRemainingTime <span class="spec">· 11pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>micro</div>
+        <div class="mig-note">monospaced-digits</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.playerTimestamp <span class="spec">· caption regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>micro</div>
+        <div class="mig-note">—</div>
+      </div>
+
+      <div class="group-header" style="padding: 18px 26px 8px;">Screens &amp; Sections</div>
+
+      <div class="mig-row">
+        <div class="mig-old">.screenTitle <span class="spec">· 28pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>screenTitle</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.inlineNavigationTitle <span class="spec">· headline auto</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>screenTitle</div>
+        <div class="mig-note">in <code>.toolbar</code>-Modifier</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.sectionTitle <span class="spec">· 20pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>section</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.listSectionTitle <span class="spec">· title2 medium</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>section</div>
+        <div class="mig-note">selber Token, kein „medium"-Variant</div>
+      </div>
+
+      <div class="group-header" style="padding: 18px 26px 8px;">Body, Listen, Settings</div>
+
+      <div class="mig-row">
+        <div class="mig-old">.bodyPrimary <span class="spec">· 16pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>body</div>
+        <div class="mig-note">+1pt auf 17pt System-Standard</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.bodySecondary <span class="spec">· 15pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>caption</div>
+        <div class="mig-note">+ <code>.secondary</code> falls Sekundärfarbe</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.caption <span class="spec">· caption regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>micro</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.settingsLabel <span class="spec">· 17pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>body</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.settingsDescription <span class="spec">· 13pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>caption</div>
+        <div class="mig-note">+ <code>.secondary</code></div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.listTitle <span class="spec">· 14pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>body</div>
+        <div class="mig-note">war zu klein für Touch-Listen</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.listSubtitle <span class="spec">· subheadline regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>caption</div>
+        <div class="mig-note">+ <code>.secondary</code></div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.listBody <span class="spec">· body regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>body</div>
+        <div class="mig-note">—</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.listActionLabel <span class="spec">· 15pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>bodyEmphasis</div>
+        <div class="mig-note">CTAs sollen klarer ranken</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.cardLabel <span class="spec">· 11pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>micro</div>
+        <div class="mig-note">—</div>
+      </div>
+
+      <div class="group-header" style="padding: 18px 26px 8px;">Dialoge &amp; Edit</div>
+
+      <div class="mig-row">
+        <div class="mig-old">.dialogTitle <span class="spec">· 18pt light</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>section</div>
+        <div class="mig-note">20pt statt 18pt — Lesbarkeit</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.dialogBody <span class="spec">· 12pt regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>body</div>
+        <div class="mig-note">12pt war zu klein — auf 17pt System-Default</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.editLabel <span class="spec">· subheadline medium</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>eyebrow</div>
+        <div class="mig-note">tracked caps statt medium-weight</div>
+      </div>
+      <div class="mig-row">
+        <div class="mig-old">.editCaption <span class="spec">· caption regular</span></div>
+        <div class="mig-arrow">→</div>
+        <div class="mig-new"><span class="dot">.</span>caption</div>
+        <div class="mig-note">+ <code>.secondary</code></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEVICES ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Geräte-<em>Range</em></h2>
+      <div class="section-meta">375 → 440 pt</div>
+    </div>
+    <p class="section-intro">
+      Innerhalb dieser Spanne darf <em>kein</em> Layout brechen. Die kleinsten Geräte
+      (SE 2022) sind die Stresstest-Referenz — hier ist Wrap-, Truncate- und Container-Verhalten
+      zu prüfen, nicht nur auf dem Pro Max.
+    </p>
+
+    <div class="devices">
+      <div class="device">
+        <div class="dev-name">iPhone SE 2022</div>
+        <div class="dev-size">375 × 667 pt · @2x</div>
+        <div class="dev-bar"><span style="width: 100%;"></span></div>
+        <div class="dev-vals">
+          <span class="k">Ring-⌀</span><span class="v">240 pt</span>
+          <span class="k">Display-Numerik</span><span class="v">64 pt</span>
+          <span class="k">Safe-Area-Bottom</span><span class="v">0 pt</span>
+          <span class="k">Safe-Area-Top</span><span class="v">20 pt</span>
+        </div>
+      </div>
+      <div class="device">
+        <div class="dev-name">iPhone 13 mini</div>
+        <div class="dev-size">375 × 812 pt · @3x</div>
+        <div class="dev-bar"><span style="width: 100%;"></span></div>
+        <div class="dev-vals">
+          <span class="k">Ring-⌀</span><span class="v">260 pt</span>
+          <span class="k">Display-Numerik</span><span class="v">72 pt</span>
+          <span class="k">Safe-Area-Bottom</span><span class="v">34 pt</span>
+          <span class="k">Safe-Area-Top</span><span class="v">50 pt</span>
+        </div>
+      </div>
+      <div class="device">
+        <div class="dev-name">iPhone 15 / 17</div>
+        <div class="dev-size">393 × 852 pt · @3x</div>
+        <div class="dev-bar"><span style="width: 100%;"></span></div>
+        <div class="dev-vals">
+          <span class="k">Ring-⌀</span><span class="v">280 pt</span>
+          <span class="k">Display-Numerik</span><span class="v">88 pt</span>
+          <span class="k">Safe-Area-Bottom</span><span class="v">34 pt</span>
+          <span class="k">Safe-Area-Top</span><span class="v">59 pt</span>
+        </div>
+      </div>
+      <div class="device">
+        <div class="dev-name">iPhone 17 Pro Max</div>
+        <div class="dev-size">440 × 956 pt · @3x</div>
+        <div class="dev-bar"><span style="width: 100%;"></span></div>
+        <div class="dev-vals">
+          <span class="k">Ring-⌀</span><span class="v">320 pt</span>
+          <span class="k">Display-Numerik</span><span class="v">104 pt</span>
+          <span class="k">Safe-Area-Bottom</span><span class="v">34 pt</span>
+          <span class="k">Safe-Area-Top</span><span class="v">62 pt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Regel:</strong> Die Display-Numerik (Timer-Countdown, Dial-Value) wird
+      <em>nicht</em> als feste pt-Größe gesetzt, sondern als <code>ringDiameter × 0.32</code>
+      berechnet — mit einem Floor von 56pt und einem Ceiling von 120pt. So passt sie
+      auf jedem Gerät, ohne dass ein Magic-Number-Wert pro Screen-Class nötig wäre.
+    </div>
+  </section>
+
+  <!-- ============ ACCESSIBILITY ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Verhalten unter <em>Accessibility</em></h2>
+      <div class="section-meta">xSmall → AX5</div>
+    </div>
+    <p class="section-intro">
+      Apple definiert 12 Größen: 7 normale (xSmall → xxxLarge) und 5 Accessibility-Größen
+      (AX1 → AX5). Unsere Regeln pro Token:
+    </p>
+
+    <div class="a11y-scale">
+      <div class="a11y-row">
+        <div class="a11y-label">xSmall</div>
+        <div class="a11y-bar"><span style="width: 12%;"></span></div>
+        <div class="a11y-val">~82 %</div>
+      </div>
+      <div class="a11y-row">
+        <div class="a11y-label">Large (Default)</div>
+        <div class="a11y-bar"><span style="width: 30%;"></span></div>
+        <div class="a11y-val">100 %</div>
+      </div>
+      <div class="a11y-row">
+        <div class="a11y-label">xxxLarge</div>
+        <div class="a11y-bar"><span style="width: 48%;"></span></div>
+        <div class="a11y-val">123 %</div>
+      </div>
+      <div class="a11y-row">
+        <div class="a11y-label">AX1</div>
+        <div class="a11y-bar"><span style="width: 60%;"></span></div>
+        <div class="a11y-val cap">~135 %</div>
+      </div>
+      <div class="a11y-row">
+        <div class="a11y-label">AX3</div>
+        <div class="a11y-bar"><span style="width: 78%;"></span></div>
+        <div class="a11y-val">194 %</div>
+      </div>
+      <div class="a11y-row">
+        <div class="a11y-label">AX5</div>
+        <div class="a11y-bar"><span style="width: 100%;"></span></div>
+        <div class="a11y-val">235 %</div>
+      </div>
+
+      <div class="a11y-note">
+        Alle Tokens skalieren bis AX5. <strong style="color:var(--hl); font-style:normal;">Ausnahme</strong>:
+        <code style="font-family:var(--font-mono);">.display</code> (Timer-Numerik)
+        cappt bei AX1 — sonst sprengt sie den Ring. Stattdessen wird ab AX2 die Numerik
+        unter den Ring verschoben und das Ring-Inneres bleibt leer. Erinnerungs-Sheets,
+        Player-Sheet und Settings-Listen wechseln ab AX3 von Multi-Column-Layouts zu
+        gestapelten Layouts (<code style="font-family:var(--font-mono);">.dynamicTypeSize(.x) ⇒ VStack</code>).
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Bold Text Setting:</strong> Wenn der User „Fett gedruckter Text" aktiviert,
+      verschiebt iOS die System-Fonts um einen Weight nach oben. Unsere Custom-Fonts
+      ignorieren das standardmäßig — also müssen wir
+      <code>@Environment(\.legibilityWeight)</code> abfragen und Geist 400 → 500,
+      Newsreader 300 → 400 mappen. Newsreader 400 bleibt 400 (kein 500-Weight verfügbar).
+    </div>
+  </section>
+
+  <!-- ============ SWIFTUI ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>SwiftUI-<em>Implementation</em></h2>
+      <div class="section-meta">copy &amp; ship</div>
+    </div>
+    <p class="section-intro">
+      Ein einziges File definiert das ganze System: <code>TextStyle.swift</code>.
+      View-Modifier <code>.textStyle(.body)</code> ersetzt alle bisherigen
+      <code>.font(.system(size: 16))</code>-Aufrufe.
+    </p>
+
+    <div class="code-card" style="margin-bottom: 28px;">
+      <div class="code-head">
+        <span>Font Registration</span>
+        <span class="filename">App.swift</span>
+      </div>
+<pre class="code"><span class="cm">// 1. Fonts in Info.plist registrieren (UIAppFonts):</span>
+<span class="cm">//    Newsreader-Light.ttf, Newsreader-Regular.ttf,</span>
+<span class="cm">//    Newsreader-LightItalic.ttf, Newsreader-Italic.ttf,</span>
+<span class="cm">//    Geist-Regular.ttf, Geist-Medium.ttf</span>
+<span class="cm">//</span>
+<span class="cm">// 2. Im DEBUG einmal beim App-Start prüfen:</span>
+
+<span class="kw">#if DEBUG</span>
+<span class="kw">init</span>() {
+    <span class="kw">for</span> family <span class="kw">in</span> <span class="ty">UIFont</span>.familyNames.sorted() {
+        <span class="kw">print</span>(<span class="st">"</span>\(family)<span class="st">"</span>)
+        <span class="kw">for</span> name <span class="kw">in</span> <span class="ty">UIFont</span>.fontNames(forFamilyName: family) {
+            <span class="kw">print</span>(<span class="st">"   </span>\(name)<span class="st">"</span>)
+        }
+    }
+}
+<span class="kw">#endif</span></pre>
+    </div>
+
+    <div class="code-card" style="margin-bottom: 28px;">
+      <div class="code-head">
+        <span>Token-Definition</span>
+        <span class="filename">TextStyle.swift</span>
+      </div>
+<pre class="code"><span class="kw">import</span> <span class="ty">SwiftUI</span>
+
+<span class="kw">enum</span> <span class="ty">TextStyle</span> {
+    <span class="kw">case</span> display       <span class="cm">// container-relativ — siehe .displayFont(in:)</span>
+    <span class="kw">case</span> title         <span class="cm">// .largeTitle  · Newsreader 300</span>
+    <span class="kw">case</span> screenTitle   <span class="cm">// .title1      · Newsreader 300</span>
+    <span class="kw">case</span> section       <span class="cm">// .title3      · Newsreader 300</span>
+    <span class="kw">case</span> body          <span class="cm">// .body        · Geist 400</span>
+    <span class="kw">case</span> bodyEmphasis  <span class="cm">// .body        · Geist 500</span>
+    <span class="kw">case</span> bodyItalic    <span class="cm">// .body        · Newsreader 400 italic</span>
+    <span class="kw">case</span> caption       <span class="cm">// .subheadline · Geist 400</span>
+    <span class="kw">case</span> micro         <span class="cm">// .caption2    · Geist 400</span>
+    <span class="kw">case</span> eyebrow       <span class="cm">// .caption2    · Geist 400 UPPER tracked</span>
+
+    <span class="kw">var</span> textStyle: <span class="ty">Font</span>.<span class="ty">TextStyle</span> {
+        <span class="kw">switch</span> <span class="kw">self</span> {
+        <span class="kw">case</span> .display, .title:           <span class="kw">return</span> .largeTitle
+        <span class="kw">case</span> .screenTitle:                <span class="kw">return</span> .title
+        <span class="kw">case</span> .section:                    <span class="kw">return</span> .title3
+        <span class="kw">case</span> .body, .bodyEmphasis, .bodyItalic:
+                                          <span class="kw">return</span> .body
+        <span class="kw">case</span> .caption:                    <span class="kw">return</span> .subheadline
+        <span class="kw">case</span> .micro, .eyebrow:            <span class="kw">return</span> .caption2
+        }
+    }
+
+    <span class="kw">var</span> baseSize: <span class="ty">CGFloat</span> {
+        <span class="kw">switch</span> <span class="kw">self</span> {
+        <span class="kw">case</span> .display:       <span class="kw">return</span> <span class="num">88</span>   <span class="cm">// override per Container</span>
+        <span class="kw">case</span> .title:         <span class="kw">return</span> <span class="num">30</span>
+        <span class="kw">case</span> .screenTitle:   <span class="kw">return</span> <span class="num">26</span>
+        <span class="kw">case</span> .section:       <span class="kw">return</span> <span class="num">20</span>
+        <span class="kw">case</span> .body, .bodyEmphasis, .bodyItalic:
+                              <span class="kw">return</span> <span class="num">17</span>
+        <span class="kw">case</span> .caption:       <span class="kw">return</span> <span class="num">14</span>
+        <span class="kw">case</span> .micro, .eyebrow: <span class="kw">return</span> <span class="num">11</span>
+        }
+    }
+
+    <span class="kw">var</span> fontName: <span class="ty">String</span> {
+        <span class="kw">switch</span> <span class="kw">self</span> {
+        <span class="kw">case</span> .display, .title, .screenTitle, .section:
+                              <span class="kw">return</span> <span class="st">"Newsreader-Light"</span>
+        <span class="kw">case</span> .body, .caption, .micro, .eyebrow:
+                              <span class="kw">return</span> <span class="st">"Geist-Regular"</span>
+        <span class="kw">case</span> .bodyEmphasis: <span class="kw">return</span> <span class="st">"Geist-Medium"</span>
+        <span class="kw">case</span> .bodyItalic:   <span class="kw">return</span> <span class="st">"Newsreader-Italic"</span>
+        }
+    }
+
+    <span class="kw">var</span> tracking: <span class="ty">CGFloat</span> {
+        <span class="kw">switch</span> <span class="kw">self</span> {
+        <span class="kw">case</span> .title, .screenTitle: <span class="kw">return</span> -<span class="num">0.4</span>
+        <span class="kw">case</span> .eyebrow:             <span class="kw">return</span>  <span class="num">2.4</span>   <span class="cm">// 0.22em @ 11pt</span>
+        <span class="kw">default</span>:                   <span class="kw">return</span>  <span class="num">0</span>
+        }
+    }
+
+    <span class="kw">var</span> uppercase: <span class="ty">Bool</span> { <span class="kw">self</span> == .eyebrow }
+}</pre>
+    </div>
+
+    <div class="code-card" style="margin-bottom: 28px;">
+      <div class="code-head">
+        <span>View-Modifier</span>
+        <span class="filename">TextStyle+View.swift</span>
+      </div>
+<pre class="code"><span class="kw">extension</span> <span class="ty">View</span> {
+    <span class="kw">func</span> textStyle(_ style: <span class="ty">TextStyle</span>, monospacedDigits: <span class="ty">Bool</span> = <span class="kw">false</span>) -&gt; <span class="kw">some</span> <span class="ty">View</span> {
+        <span class="kw">modifier</span>(<span class="ty">TextStyleModifier</span>(style: style, monoDigits: monospacedDigits))
+    }
+}
+
+<span class="kw">struct</span> <span class="ty">TextStyleModifier</span>: <span class="ty">ViewModifier</span> {
+    <span class="kw">let</span> style: <span class="ty">TextStyle</span>
+    <span class="kw">let</span> monoDigits: <span class="ty">Bool</span>
+    @<span class="at">Environment</span>(\.legibilityWeight) <span class="kw">private var</span> legibility
+
+    <span class="kw">func</span> body(content: <span class="ty">Content</span>) -&gt; <span class="kw">some</span> <span class="ty">View</span> {
+        <span class="kw">let</span> name = effectiveFontName()
+        <span class="kw">let</span> font = <span class="ty">Font</span>.custom(name, size: style.baseSize, relativeTo: style.textStyle)
+
+        content
+            .font(monoDigits ? font.monospacedDigit() : font)
+            .tracking(style.tracking)
+            .textCase(style.uppercase ? .uppercase : <span class="kw">nil</span>)
+    }
+
+    <span class="kw">private func</span> effectiveFontName() -&gt; <span class="ty">String</span> {
+        <span class="cm">// Bold Text Setting → Weight um einen Schritt rauf</span>
+        <span class="kw">if</span> legibility == .bold {
+            <span class="kw">switch</span> style {
+            <span class="kw">case</span> .body, .caption, .micro, .eyebrow: <span class="kw">return</span> <span class="st">"Geist-Medium"</span>
+            <span class="kw">case</span> .bodyEmphasis:                     <span class="kw">return</span> <span class="st">"Geist-SemiBold"</span>
+            <span class="kw">case</span> .display, .title, .screenTitle, .section:
+                                                     <span class="kw">return</span> <span class="st">"Newsreader-Regular"</span>
+            <span class="kw">case</span> .bodyItalic:                       <span class="kw">return</span> <span class="st">"Newsreader-Italic"</span>
+            }
+        }
+        <span class="kw">return</span> style.fontName
+    }
+}</pre>
+    </div>
+
+    <div class="code-card" style="margin-bottom: 28px;">
+      <div class="code-head">
+        <span>Display-Numerik · container-relativ</span>
+        <span class="filename">DisplayNumeral.swift</span>
+      </div>
+<pre class="code"><span class="cm">// Statt fixe 100pt für die Timer-Numerik: ringDiameter × 0.32, gefloort/geceilt.</span>
+<span class="cm">// Bei AX2+ wird die Numerik unter den Ring gerendert (siehe Timer-Spec).</span>
+
+<span class="kw">struct</span> <span class="ty">DisplayNumeral</span>: <span class="ty">View</span> {
+    <span class="kw">let</span> text: <span class="ty">String</span>
+    <span class="kw">let</span> ringDiameter: <span class="ty">CGFloat</span>
+    @<span class="at">ScaledMetric</span>(relativeTo: .largeTitle) <span class="kw">private var</span> scale: <span class="ty">CGFloat</span> = <span class="num">1</span>
+    @<span class="at">Environment</span>(\.dynamicTypeSize) <span class="kw">private var</span> dynType
+
+    <span class="kw">var</span> body: <span class="kw">some</span> <span class="ty">View</span> {
+        <span class="ty">Text</span>(text)
+            .font(.custom(<span class="st">"Newsreader-Light"</span>,
+                          size: cappedSize,
+                          relativeTo: .largeTitle))
+            .monospacedDigit()
+            .kerning(-<span class="num">1.5</span>)
+            .lineLimit(<span class="num">1</span>)
+            .minimumScaleFactor(<span class="num">0.7</span>)
+    }
+
+    <span class="kw">private var</span> cappedSize: <span class="ty">CGFloat</span> {
+        <span class="kw">let</span> raw = ringDiameter * <span class="num">0.32</span>
+        <span class="kw">let</span> floored = max(raw, <span class="num">56</span>)
+        <span class="kw">let</span> ceiled = min(floored, <span class="num">120</span>)
+        <span class="cm">// Bei AX1 noch leicht hochskalieren, danach cappen</span>
+        <span class="kw">return</span> dynType &gt;= .accessibility2 ? ceiled : ceiled * scale
+    }
+}</pre>
+    </div>
+
+    <div class="code-card">
+      <div class="code-head">
+        <span>Verwendung in Views</span>
+        <span class="filename">Beispiel: List-Row</span>
+      </div>
+<pre class="code"><span class="ty">VStack</span>(alignment: .leading, spacing: <span class="num">4</span>) {
+    <span class="ty">Text</span>(track.title)
+        .textStyle(.body)
+
+    <span class="ty">Text</span>(track.subtitle)
+        .textStyle(.caption)
+        .foregroundStyle(.secondary)   <span class="cm">// Hierarchie über Farbe, nicht Größe</span>
+
+    <span class="ty">Text</span>(track.duration)
+        .textStyle(.micro, monospacedDigits: <span class="kw">true</span>)
+        .foregroundStyle(.tertiary)
+}</pre>
+    </div>
+  </section>
+
+  <!-- ============ CHECKLISTE ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Acceptance-<em>Checkliste</em></h2>
+      <div class="section-meta">Für Claude Code</div>
+    </div>
+    <p class="section-intro">
+      Wenn alle Punkte abgehakt sind, ist das System fertig migriert. In Reihenfolge —
+      Punkt 1 erst, dann Punkt 2, dann Punkt 3 … kein Parallelarbeiten, sonst
+      bricht das Projekt zwischen den Schritten.
+    </p>
+
+    <div class="checklist">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>1 · Schriften registriert.</strong>
+          <span class="sub">
+            Newsreader-Light, -Regular, -LightItalic, -Italic und Geist-Regular,
+            -Medium, -SemiBold liegen im Projekt und sind in <code>Info.plist</code>
+            unter <code>UIAppFonts</code> aufgeführt. Debug-Print zeigt sie im Log.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>2 · <code>TextStyle.swift</code> existiert.</strong>
+          <span class="sub">
+            Enum mit den 10 Cases, <code>fontName</code>-, <code>baseSize</code>-,
+            <code>textStyle</code>-, <code>tracking</code>- und <code>uppercase</code>-Properties
+            wie im Snippet oben.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>3 · <code>.textStyle(_)</code>-Modifier ersetzt alle <code>.font(_)</code>-Aufrufe.</strong>
+          <span class="sub">
+            Globale Suche: kein <code>.font(.system(size:</code>, kein
+            <code>.font(.custom(</code> mehr in View-Code. Einzige Ausnahmen:
+            <code>DisplayNumeral.swift</code> und vielleicht ein Mono-Helper für Code.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>4 · Alte Style-Namen entfernt.</strong>
+          <span class="sub">
+            <code>.timerCountdown</code>, <code>.playerTitle</code>, <code>.bodyPrimary</code>,
+            <code>.bodySecondary</code>, <code>.listSubtitle</code>, <code>.editLabel</code> usw.
+            sind gelöscht — nicht deprecated, gelöscht. Compiler-Fehler weisen automatisch
+            auf alle Restbestände hin. Migration-Map oben ist die Übersetzung.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>5 · Display-Numerik ist container-relativ.</strong>
+          <span class="sub">
+            Timer-Countdown, Timer-Running und Dial-Value rendern über
+            <code>DisplayNumeral(text:, ringDiameter:)</code>. Keine hardcoded 100/64/62pt-Werte
+            mehr. Bei AX2+ verschiebt sich die Numerik unter den Ring.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>6 · Sekundärfarbe via <code>.foregroundStyle(.secondary)</code>, nicht via Token.</strong>
+          <span class="sub">
+            Wenn ein Text sekundär wirken soll, bleibt der Token gleich — nur die Farbe ändert
+            sich. Niemals <code>.body</code>+kleinere Schrift, um „weniger wichtig" zu sagen.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>7 · iPhone-SE-2022-Smoketest.</strong>
+          <span class="sub">
+            Alle Haupt-Screens (Timer-Idle, Timer-Running, Player, Library, Settings,
+            Dialog-Sheets) auf SE 2022 (375 × 667) durchklicken. Kein Truncate auf
+            primärem Titel, kein Overflow, Tab-Bar nicht von Inhalten verdeckt.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>8 · Dynamic-Type-Smoketest auf AX3.</strong>
+          <span class="sub">
+            Mit <code>Environment(\.dynamicTypeSize, .accessibility3)</code> in der Preview
+            jeden Hauptscreen rendern. List-Rows wechseln zu VStack, Settings-Layout bleibt
+            scrollbar, Timer zeigt Numerik unterhalb des Rings, Bottom-Sheets werden
+            nicht von der Tab-Bar überdeckt.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>9 · Bold-Text-Setting honoriert.</strong>
+          <span class="sub">
+            Mit <code>Environment(\.legibilityWeight, .bold)</code> in Preview: Geist-Text
+            wird Medium, Newsreader-Light wird Regular. Italic bleibt Italic.
+            Keine fetten serifen Titel — Newsreader 500 existiert nicht im Asset-Set.
+          </span>
+        </div>
+      </div>
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-text">
+          <strong>10 · Typography-Reference-Screen aktualisiert.</strong>
+          <span class="sub">
+            Der bestehende Debug-Screen („Typography Reference") zeigt jetzt nur noch
+            die 10 Tokens, jeweils mit Name, Sample, Dynamic-Type-Basis und Family/Weight.
+            Slider zum Schalten von Dynamic-Type-Größe (xS, L, AX1, AX3, AX5) eingebaut.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <div class="doc-footer">
+    <span>Still Moment · Typografie 2.1</span>
+    <span>Plan-Spec · Für Claude Code</span>
+    <span>26 → 10 Tokens · Dynamic Type · 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
