@@ -50,7 +50,7 @@ struct MeditationCompletionView: View {
                 Button(action: self.onBack) {
                     Text("completion.button.done", bundle: .main)
                 }
-                .warmGlassButton()
+                .warmPrimaryButton()
                 .accessibilityIdentifier("completion.button.done")
                 .accessibilityLabel(self.backAccessibilityLabel)
                 .padding(.bottom, 56)
