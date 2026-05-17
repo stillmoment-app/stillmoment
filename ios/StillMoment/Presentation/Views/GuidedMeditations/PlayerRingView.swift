@@ -136,7 +136,7 @@ private extension Double {
 
         PlayerRingView(phase: .preRoll, progress: 0) {
             Text("8")
-                .font(.system(size: 72, weight: .light, design: .rounded))
+                .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
         }
     }
 }

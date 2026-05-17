@@ -50,7 +50,7 @@ struct SettingsView: View {
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Text("settings.title", bundle: .main)
-                            .themeFont(.inlineNavigationTitle)
+                            .textStyle(.screenTitle, color: \.textPrimary)
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
@@ -85,9 +85,9 @@ struct SettingsView: View {
             Toggle(isOn: self.$settings.preparationTimeEnabled) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("settings.preparationTime.title", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                     Text("settings.preparationTime.description", bundle: .main)
-                        .themeFont(.settingsDescription)
+                        .textStyle(.caption, color: \.textSecondary)
                 }
             }
             .themedToggle()
@@ -106,7 +106,7 @@ struct SettingsView: View {
                     Text("settings.preparationTime.45s", bundle: .main).tag(45)
                 } label: {
                     Text("settings.preparationTime.duration", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                 }
                 .pickerStyle(.menu)
                 .accessibilityIdentifier("settings.picker.preparationTimeSeconds")
@@ -135,7 +135,7 @@ struct SettingsView: View {
                 }
             } label: {
                 Text("settings.startGong.title", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
             }
             .pickerStyle(.menu)
             .onChange(of: self.settings.startGongSoundId) { newValue in
@@ -169,9 +169,9 @@ struct SettingsView: View {
             Toggle(isOn: self.$settings.intervalGongsEnabled) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("settings.intervalGongs.title", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                     Text(self.intervalGongsDescription)
-                        .themeFont(.settingsDescription)
+                        .textStyle(.caption, color: \.textSecondary)
                 }
             }
             .themedToggle()
@@ -217,13 +217,13 @@ struct SettingsView: View {
         Stepper(value: self.$settings.intervalMinutes, in: 1...60) {
             HStack {
                 Text("settings.intervalGongs.interval", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
                 Spacer()
                 Text(String(
                     format: NSLocalizedString("settings.intervalGongs.stepper", comment: ""),
                     self.settings.intervalMinutes
                 ))
-                .themeFont(.settingsLabel, color: \.textSecondary)
+                .textStyle(.body, color: \.textSecondary)
             }
         }
         .onChange(of: self.settings.intervalMinutes) { _ in
@@ -272,7 +272,7 @@ struct SettingsView: View {
             }
         } label: {
             Text("settings.intervalGongs.sound", bundle: .main)
-                .themeFont(.settingsLabel)
+                .textStyle(.body, color: \.textPrimary)
         }
         .pickerStyle(.menu)
         .onChange(of: self.settings.intervalSoundId) { newValue in
@@ -311,7 +311,7 @@ struct SettingsView: View {
                 }
             } label: {
                 Text("settings.backgroundAudio.sound", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
             }
             .pickerStyle(.menu)
             .onChange(of: self.settings.backgroundSoundId) { newValue in

@@ -67,15 +67,14 @@ private struct IdleSettingsListRow: View {
         Button(action: self.item.action) {
             HStack(spacing: 12) {
                 Text(self.item.label)
-                    .themeFont(.bodyPrimary, size: self.labelSize)
+                    .textStyle(.body, color: \.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.tail)
 
                 Spacer(minLength: 8)
 
                 Text(self.item.value)
-                    .font(.system(size: self.valueSize, weight: .regular, design: .rounded))
-                    .foregroundColor(self.theme.settingsValueAccent)
+                    .textStyle(.body, color: \.settingsValueAccent)
                     .lineLimit(1)
                     .truncationMode(.tail)
 

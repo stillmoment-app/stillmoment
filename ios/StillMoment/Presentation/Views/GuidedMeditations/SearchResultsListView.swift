@@ -56,7 +56,7 @@ struct SearchResultsListView: View {
 
     private var countHeader: some View {
         Text(String(format: NSLocalizedString("library.search.results.count", comment: ""), self.meditations.count))
-            .themeFont(.caption, color: \.textSecondary)
+            .textStyle(.micro, color: \.textSecondary)
             .textCase(nil)
     }
 
@@ -64,14 +64,14 @@ struct SearchResultsListView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 HighlightedText(text: meditation.name, query: self.query)
-                    .themeFont(.listActionLabel)
+                    .textStyle(.bodyEmphasis, color: \.textPrimary)
                 HStack(spacing: 6) {
                     HighlightedText(text: meditation.teacher, query: self.query)
-                        .themeFont(.listSubtitle, color: \.textSecondary)
+                        .textStyle(.caption, color: \.textSecondary)
                     Text(verbatim: "·")
-                        .themeFont(.listSubtitle, color: \.textSecondary)
+                        .textStyle(.caption, color: \.textSecondary)
                     Text(meditation.formattedDuration)
-                        .themeFont(.listSubtitle, color: \.textSecondary)
+                        .textStyle(.caption, color: \.textSecondary)
                 }
             }
             Spacer()

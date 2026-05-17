@@ -26,13 +26,16 @@ struct AppSettingsView: View {
                 GeneralSettingsSection()
                 GuidedMeditationSettingsSection()
                 self.infoSection
+                #if DEBUG
+                self.debugSection
+                #endif
             }
             .scrollContentBackground(.hidden)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("tab.settings", bundle: .main)
-                        .themeFont(.inlineNavigationTitle)
+                        .textStyle(.screenTitle, color: \.textPrimary)
                 }
             }
         }
@@ -46,7 +49,7 @@ struct AppSettingsView: View {
                 SoundAttributionsView()
             } label: {
                 Text("app.settings.soundAttributions.title", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
             }
             .accessibilityIdentifier("app.settings.row.soundAttributions")
             .accessibilityHint(
@@ -57,7 +60,7 @@ struct AppSettingsView: View {
             if let url = self.privacyURL {
                 Link(destination: url) {
                     Text("app.settings.privacy.title", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                 }
                 .accessibilityIdentifier("app.settings.row.privacy")
                 .accessibilityHint(
@@ -68,10 +71,10 @@ struct AppSettingsView: View {
 
             HStack {
                 Text("app.settings.version.label", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
                 Spacer()
                 Text(self.appVersion)
-                    .themeFont(.settingsLabel, color: \.textSecondary)
+                    .textStyle(.body, color: \.textSecondary)
             }
             .cardRowBackground()
         } header: {
@@ -79,6 +82,25 @@ struct AppSettingsView: View {
                 .foregroundColor(self.theme.textSecondary)
         }
     }
+
+    // MARK: - Debug Section (DEBUG-only)
+
+    #if DEBUG
+    private var debugSection: some View {
+        Section {
+            NavigationLink {
+                DebugTypographyReferenceView()
+            } label: {
+                Text("Typography Reference")
+                    .textStyle(.body, color: \.textPrimary)
+            }
+            .cardRowBackground()
+        } header: {
+            Text("Debug")
+                .foregroundColor(self.theme.textSecondary)
+        }
+    }
+    #endif
 
     // MARK: - Private
 

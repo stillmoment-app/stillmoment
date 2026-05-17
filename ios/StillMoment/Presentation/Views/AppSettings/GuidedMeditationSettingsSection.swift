@@ -31,9 +31,9 @@ struct GuidedMeditationSettingsSection: View {
             Toggle(isOn: self.$preparationTimeEnabled) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("guided_meditations.settings.preparationTime.title", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                     Text("guided_meditations.settings.preparationTime.description", bundle: .main)
-                        .themeFont(.settingsDescription)
+                        .textStyle(.caption, color: \.textSecondary)
                 }
             }
             .themedToggle()
@@ -50,7 +50,7 @@ struct GuidedMeditationSettingsSection: View {
                     }
                 } label: {
                     Text("guided_meditations.settings.preparationTime.duration", bundle: .main)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                 }
                 .pickerStyle(.menu)
                 .accessibilityIdentifier("guidedMeditation.picker.preparationTimeSeconds")

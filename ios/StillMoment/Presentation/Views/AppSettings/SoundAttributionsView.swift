@@ -31,7 +31,7 @@ struct SoundAttributionsView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("app.settings.soundAttributions.page.title", bundle: .main)
-                        .themeFont(.inlineNavigationTitle)
+                        .textStyle(.screenTitle, color: \.textPrimary)
                 }
             }
         }
@@ -96,11 +96,11 @@ struct SoundAttributionsView: View {
     private func soundRow(name: String, url: URL?) -> some View {
         HStack {
             Text(name)
-                .themeFont(.settingsLabel)
+                .textStyle(.body, color: \.textPrimary)
             if let url {
                 Spacer()
                 Link(NSLocalizedString("app.settings.soundAttributions.source", comment: ""), destination: url)
-                    .themeFont(.settingsLabel, color: \.interactive)
+                    .textStyle(.body, color: \.interactive)
             }
         }
         .cardRowBackground()

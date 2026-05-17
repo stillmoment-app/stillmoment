@@ -28,8 +28,7 @@ extension ButtonStyles {
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(self.colors.textOnInteractive)
+                .textStyle(.bodyEmphasis, color: \.textOnInteractive)
                 .padding(.horizontal, 32)
                 .padding(.vertical, 14)
                 .background(
@@ -78,8 +77,7 @@ extension ButtonStyles {
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(self.colors.textPrimary)
+                .textStyle(.body, color: \.textPrimary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
                 .background(

@@ -61,12 +61,12 @@ struct RunningTimerDisplay: View {
     private var textColumn: some View {
         VStack(spacing: 0) {
             Text("timer.running.remaining", bundle: .main)
-                .themeFont(.cardLabel, color: \.textSecondary)
+                .textStyle(.micro, color: \.textSecondary)
                 .tracking(2.4)
                 .accessibilityHidden(true)
 
             Text(self.remainingTimeText)
-                .themeFont(.timerRunning)
+                .textStyle(.display, monospacedDigits: true, color: \.textPrimary)
                 .monospacedDigit()
                 .lineLimit(1)
                 .padding(.top, 6)
@@ -75,7 +75,7 @@ struct RunningTimerDisplay: View {
                 .accessibilityValue(self.accessibilityTimeValue)
 
             Text(self.durationLabel)
-                .themeFont(.bodySecondary)
+                .textStyle(.caption, color: \.textSecondary)
                 .padding(.top, 12)
                 .accessibilityHidden(true)
         }

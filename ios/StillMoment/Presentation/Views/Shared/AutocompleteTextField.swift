@@ -123,7 +123,7 @@ struct AutocompleteTextField: View {
                 } label: {
                     HStack {
                         HighlightedText(text: suggestion, query: self.text)
-                            .themeFont(.bodyPrimary)
+                            .textStyle(.body, color: \.textPrimary)
                         Spacer()
                     }
                     .padding(.horizontal, 4)

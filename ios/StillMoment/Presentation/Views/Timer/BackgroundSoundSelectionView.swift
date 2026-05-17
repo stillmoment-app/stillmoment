@@ -44,7 +44,7 @@ struct BackgroundSoundSelectionView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("praxis.editor.background.title", bundle: .main)
-                    .themeFont(.inlineNavigationTitle)
+                    .textStyle(.screenTitle, color: \.textPrimary)
             }
         }
         .onDisappear {
@@ -134,7 +134,7 @@ struct BackgroundSoundSelectionView: View {
         Section {
             if self.viewModel.customSoundscapes.isEmpty {
                 Text("custom.audio.empty.sounds", bundle: .main)
-                    .themeFont(.settingsDescription)
+                    .textStyle(.caption, color: \.textSecondary)
                     .foregroundColor(self.theme.textSecondary)
                     .cardRowBackground()
             } else {
@@ -158,9 +158,9 @@ struct BackgroundSoundSelectionView: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(file.name)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                     Text(file.formattedDuration)
-                        .themeFont(.settingsDescription)
+                        .textStyle(.caption, color: \.textSecondary)
                         .foregroundColor(self.theme.textSecondary)
                 }
                 Spacer()
@@ -219,7 +219,7 @@ struct BackgroundSoundSelectionView: View {
                 .frame(width: 24)
                 .accessibilityHidden(true)
             Text(sound.name)
-                .themeFont(.settingsLabel)
+                .textStyle(.body, color: \.textPrimary)
             Spacer()
         }
         .contentShape(Rectangle())

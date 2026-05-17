@@ -66,7 +66,7 @@ struct GuidedMeditationsListView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("guided_meditations.title", bundle: .main)
-                    .themeFont(.inlineNavigationTitle)
+                    .textStyle(.screenTitle, color: \.textPrimary)
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -283,7 +283,7 @@ struct GuidedMeditationsListView: View {
                     }
                 } header: {
                     Text(section.teacher)
-                        .themeFont(.listTitle)
+                        .textStyle(.body, color: \.textPrimary)
                         .textCase(nil)
                 }
             }
@@ -296,9 +296,9 @@ struct GuidedMeditationsListView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(meditation.name)
-                    .themeFont(.listActionLabel)
+                    .textStyle(.bodyEmphasis, color: \.textPrimary)
                 Text(meditation.formattedDuration)
-                    .themeFont(.listSubtitle)
+                    .textStyle(.caption, color: \.textSecondary)
             }
 
             Spacer()
@@ -346,9 +346,9 @@ private extension GuidedMeditationsListView {
             ProgressView()
                 .scaleEffect(1.5)
             Text("guided_meditations.migration.title")
-                .themeFont(.listTitle)
+                .textStyle(.body, color: \.textPrimary)
             Text("guided_meditations.migration.message")
-                .themeFont(.listSubtitle)
+                .textStyle(.caption, color: \.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(32)
@@ -367,13 +367,13 @@ private extension GuidedMeditationsListView {
                 .padding(.bottom, 32)
 
             Text("guided_meditations.empty.title")
-                .themeFont(.screenTitle)
+                .textStyle(.screenTitle, color: \.textPrimary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 280)
                 .padding(.bottom, 14)
 
             Text("guided_meditations.empty.message")
-                .themeFont(.bodySecondary, color: \.textSecondary)
+                .textStyle(.caption, color: \.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
                 .padding(.bottom, 36)
@@ -391,7 +391,7 @@ private extension GuidedMeditationsListView {
                 self.viewModel.openGuideSheet(languageCode: self.currentLanguageCode)
             } label: {
                 Text("guided_meditations.empty.findSources")
-                    .themeFont(.bodySecondary, color: \.interactive)
+                    .textStyle(.caption, color: \.interactive)
                     .underline(true, color: self.theme.interactive.opacity(.opacitySecondary))
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)

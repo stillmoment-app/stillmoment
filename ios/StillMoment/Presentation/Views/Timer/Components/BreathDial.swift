@@ -112,12 +112,12 @@ struct BreathDial: View {
     private var centerText: some View {
         VStack(spacing: 2) {
             Text("\(self.value)")
-                .themeFont(.dialValue, size: self.dialValueSize)
+                .textStyle(.display, monospacedDigits: true, color: \.textPrimary)
                 .monospacedDigit()
                 .accessibilityIdentifier("timer.dial.value")
 
             Text(NSLocalizedString("timer.dial.unit", comment: ""))
-                .themeFont(.dialUnit)
+                .textStyle(.eyebrow, color: \.textSecondary)
         }
         .allowsHitTesting(false)
     }

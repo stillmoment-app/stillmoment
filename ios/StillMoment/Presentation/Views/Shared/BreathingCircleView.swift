@@ -250,8 +250,7 @@ private extension Double {
             reduceMotion: false
         ) {
             Text("6")
-                .font(.system(size: 72, weight: .light, design: .rounded))
-                .foregroundColor(.white)
+                .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
         }
     }
 }

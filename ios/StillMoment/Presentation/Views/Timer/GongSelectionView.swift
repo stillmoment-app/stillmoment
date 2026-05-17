@@ -39,7 +39,7 @@ struct GongSelectionView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("praxis.editor.startGong.title", bundle: .main)
-                    .themeFont(.inlineNavigationTitle)
+                    .textStyle(.screenTitle, color: \.textPrimary)
             }
         }
         .onDisappear {
@@ -67,7 +67,7 @@ struct GongSelectionView: View {
                 let isSelected = self.viewModel.startGongSoundId == sound.id
                 HStack {
                     Text(sound.name)
-                        .themeFont(.settingsLabel)
+                        .textStyle(.body, color: \.textPrimary)
                     Spacer()
                     if isSelected {
                         Image(systemName: "checkmark")

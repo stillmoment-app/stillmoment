@@ -60,7 +60,7 @@ struct ContentGuideSheet: View {
     private var titleRow: some View {
         HStack(alignment: .center) {
             Text("guided_meditations.guide.title")
-                .themeFont(.screenTitle)
+                .textStyle(.screenTitle, color: \.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
             Button(action: self.onDismiss) {
@@ -81,7 +81,7 @@ struct ContentGuideSheet: View {
 
     private var intro: some View {
         Text("guided_meditations.guide.intro")
-            .themeFont(.bodySecondary, color: \.textSecondary)
+            .textStyle(.caption, color: \.textSecondary)
             .padding(.bottom, 24)
     }
 
@@ -195,10 +195,10 @@ private struct ImportBannerCard: View {
     private var text: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(LocalizedStringKey(self.titleKey))
-                .themeFont(.listTitle)
+                .textStyle(.body, color: \.textPrimary)
                 .multilineTextAlignment(.leading)
             Text(LocalizedStringKey(self.subtitleKey))
-                .themeFont(.bodySecondary, color: \.textSecondary)
+                .textStyle(.caption, color: \.textSecondary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -226,10 +226,10 @@ private struct SourceRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     self.titleLine
                     Text(self.source.description)
-                        .themeFont(.bodySecondary, color: \.textSecondary)
+                        .textStyle(.caption, color: \.textSecondary)
                         .multilineTextAlignment(.leading)
                     Text(self.source.host)
-                        .themeFont(.caption, color: \.textSecondary)
+                        .textStyle(.micro, color: \.textSecondary)
                         .opacity(.opacitySecondary)
                 }
                 Spacer(minLength: 12)
@@ -277,15 +277,15 @@ private struct SourceRow: View {
         if let author = self.source.author {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(self.source.name)
-                    .themeFont(.listTitle)
+                    .textStyle(.body, color: \.textPrimary)
                 Text("·")
-                    .themeFont(.bodySecondary, color: \.textSecondary)
+                    .textStyle(.caption, color: \.textSecondary)
                 Text(author)
-                    .themeFont(.bodySecondary, color: \.textSecondary)
+                    .textStyle(.caption, color: \.textSecondary)
             }
         } else {
             Text(self.source.name)
-                .themeFont(.listTitle)
+                .textStyle(.body, color: \.textPrimary)
         }
     }
 }

@@ -32,14 +32,14 @@ struct SearchHistoryListView: View {
     private var header: some View {
         HStack {
             Text("library.search.history.title", bundle: .main)
-                .themeFont(.listSubtitle, color: \.textSecondary)
+                .textStyle(.caption, color: \.textSecondary)
             Spacer()
             if !self.history.isEmpty {
                 Button {
                     self.onClear()
                 } label: {
                     Text("library.search.history.clear", bundle: .main)
-                        .themeFont(.bodySecondary, color: \.interactive)
+                        .textStyle(.caption, color: \.interactive)
                 }
                 .accessibilityIdentifier("library.search.history.clear")
             }
@@ -68,7 +68,7 @@ struct SearchHistoryListView: View {
                     .foregroundColor(self.theme.textSecondary)
                     .frame(width: 20)
                 Text(term)
-                    .themeFont(.bodyPrimary)
+                    .textStyle(.body, color: \.textPrimary)
                 Spacer()
                 Image(systemName: "arrow.up.left")
                     .font(.system(size: 13, weight: .regular))

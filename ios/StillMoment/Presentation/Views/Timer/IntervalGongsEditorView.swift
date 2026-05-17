@@ -35,7 +35,7 @@ struct IntervalGongsEditorView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("praxis.editor.intervalGongs.title", bundle: .main)
-                    .themeFont(.inlineNavigationTitle)
+                    .textStyle(.screenTitle, color: \.textPrimary)
             }
         }
         .onDisappear {
@@ -63,7 +63,7 @@ struct IntervalGongsEditorView: View {
         Section {
             Toggle(isOn: self.$viewModel.intervalGongsEnabled) {
                 Text("settings.intervalGongs.title", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
             }
             .themedToggle()
             .cardRowBackground()
@@ -84,13 +84,13 @@ struct IntervalGongsEditorView: View {
         Stepper(value: self.$viewModel.intervalMinutes, in: 1...60) {
             HStack {
                 Text("settings.intervalGongs.interval", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
                 Spacer()
                 Text(String(
                     format: NSLocalizedString("settings.intervalGongs.stepper", comment: ""),
                     self.viewModel.intervalMinutes
                 ))
-                .themeFont(.settingsLabel, color: \.textSecondary)
+                .textStyle(.body, color: \.textSecondary)
             }
         }
         .onChange(of: self.viewModel.intervalMinutes) { _ in
@@ -135,7 +135,7 @@ struct IntervalGongsEditorView: View {
             }
         } label: {
             Text("settings.intervalGongs.sound", bundle: .main)
-                .themeFont(.settingsLabel)
+                .textStyle(.body, color: \.textPrimary)
         }
         .pickerStyle(.menu)
         .onChange(of: self.viewModel.intervalSoundId) { newValue in
