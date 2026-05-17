@@ -63,7 +63,8 @@ struct GuidedMeditationSettingsSection: View {
             }
         } header: {
             Text("app.settings.guidedMeditations.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 

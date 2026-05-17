@@ -59,7 +59,8 @@ struct SoundAttributionsView: View {
             )
         } header: {
             Text("app.settings.soundAttributions.gongs.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -71,7 +72,8 @@ struct SoundAttributionsView: View {
             )
         } header: {
             Text("app.settings.soundAttributions.interval.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -87,7 +89,8 @@ struct SoundAttributionsView: View {
             )
         } header: {
             Text("app.settings.soundAttributions.background.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 

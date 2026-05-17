@@ -120,7 +120,8 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.preparationTime.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -158,7 +159,8 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.gong.title", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -188,7 +190,8 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.intervalGongs.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -347,7 +350,8 @@ struct SettingsView: View {
             }
         } header: {
             Text("settings.backgroundAudio.title", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 }

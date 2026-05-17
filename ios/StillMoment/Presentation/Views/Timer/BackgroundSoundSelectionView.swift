@@ -144,7 +144,8 @@ struct BackgroundSoundSelectionView: View {
             }
         } header: {
             Text("custom.audio.section.mySounds", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 

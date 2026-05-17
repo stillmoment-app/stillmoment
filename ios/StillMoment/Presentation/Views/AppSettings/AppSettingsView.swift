@@ -79,7 +79,8 @@ struct AppSettingsView: View {
             .cardRowBackground()
         } header: {
             Text("app.settings.info.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 
@@ -97,7 +98,8 @@ struct AppSettingsView: View {
             .cardRowBackground()
         } header: {
             Text("Debug")
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
     #endif

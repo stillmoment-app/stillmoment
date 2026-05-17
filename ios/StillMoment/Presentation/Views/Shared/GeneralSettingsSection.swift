@@ -39,7 +39,8 @@ struct GeneralSettingsSection: View {
             .cardRowBackground()
         } header: {
             Text("settings.general.header", bundle: .main)
-                .foregroundColor(self.theme.textSecondary)
+                .textStyle(.section, color: \.textSecondary)
+                .textCase(nil)
         }
     }
 }
