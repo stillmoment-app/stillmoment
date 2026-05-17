@@ -2,12 +2,11 @@
 //  LibrarySearchContentView.swift
 //  Still Moment
 //
-//  Presentation - Bridge zwischen `.searchable` und den 4 Suchzustaenden (ios-041).
+//  Presentation - Rendert die 4 Suchzustaende (ios-041, refaktoriert ios-051).
 //
-//  Diese View liest `@Environment(\.isSearching)` und reicht den Wert an das
-//  ViewModel weiter — das geht nur in einer View, die ein Child der
-//  `.searchable`-Hierarchie ist. Der Body wechselt zwischen idle/history/
-//  results/empty basierend auf dem abgeleiteten `searchState`.
+//  Liest ausschliesslich `viewModel.searchState` und rendert den passenden
+//  State. Das `isSearching`-Flag wird seit ios-051 vom Header via `@FocusState`
+//  direkt am ViewModel gesetzt — kein `@Environment(\.isSearching)` mehr noetig.
 //
 
 import SwiftUI
@@ -21,17 +20,7 @@ struct LibrarySearchContentView<IdleContent: View>: View {
     let onDeleteMeditation: (GuidedMeditation) -> Void
     @ViewBuilder let idleContent: () -> IdleContent
 
-    @Environment(\.isSearching)
-    private var isSearching
-
     var body: some View {
-        self.stateContent
-            .onChange(of: self.isSearching) { newValue in
-                self.viewModel.isSearching = newValue
-            }
-    }
-
-    @ViewBuilder private var stateContent: some View {
         switch self.viewModel.searchState {
         case .idle:
             self.idleContent()

@@ -156,6 +156,25 @@ final class LibraryFlowUITests: XCTestCase {
         }
     }
 
+    // MARK: - Flow Test: Library Header Empty State (ios-051)
+
+    /// Verifies the always-visible Library header bar is hidden when the library
+    /// is empty — the empty state already provides its own import CTA.
+    func testLibraryHeaderHiddenInEmptyState() {
+        self.navigateToLibraryTab()
+
+        let importButton = self.app.buttons["library.button.import.emptyState"]
+        XCTAssertTrue(importButton.waitForExistence(timeout: 3.0), "Empty state should be visible")
+
+        let searchField = self.app.textFields["library.search.field"]
+        let addButton = self.app.buttons["library.button.add"]
+        let guideButton = self.app.buttons["library.button.guide"]
+
+        XCTAssertFalse(searchField.exists, "Search field should be hidden in empty state")
+        XCTAssertFalse(addButton.exists, "Add button (header) should be hidden in empty state")
+        XCTAssertFalse(guideButton.exists, "Guide button (header) should be hidden in empty state")
+    }
+
     // MARK: - Flow Test 3: Setting Rows
 
     /// Tests navigation from settings list rows into their detail views (shared-089)

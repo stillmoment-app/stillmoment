@@ -62,35 +62,19 @@ struct GuidedMeditationsListView: View {
                     .background(self.theme.textPrimary.opacity(.opacityOverlay))
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("guided_meditations.title", bundle: .main)
-                    .textStyle(.screenTitle, color: \.textPrimary)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if !self.viewModel.meditations.isEmpty {
+                LibraryHeaderView(
+                    viewModel: self.viewModel,
+                    onAdd: { self.viewModel.showDocumentPicker() },
+                    onInfo: { self.viewModel.openGuideSheet(languageCode: self.currentLanguageCode) },
+                    onSubmit: { self.viewModel.submitSearch() }
+                )
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    self.viewModel.showDocumentPicker()
-                } label: {
-                    Image(systemName: "plus")
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .foregroundColor(self.theme.textSecondary)
-                .accessibilityLabel("guided_meditations.add")
-                .accessibilityHint("accessibility.library.add.hint")
-                .accessibilityIdentifier("library.button.add")
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    self.viewModel.openGuideSheet(languageCode: self.currentLanguageCode)
-                } label: {
-                    Image(systemName: "info.circle")
-                        .frame(minWidth: 44, minHeight: 44)
-                }
-                .foregroundColor(self.theme.textSecondary)
-                .accessibilityLabel("guided_meditations.guide.info")
-                .accessibilityIdentifier("library.button.guide")
-            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .onDisappear {
+            self.viewModel.resetSearch()
         }
         .sheet(isPresented: self.$viewModel.showingDocumentPicker) {
             DocumentPicker { url in
@@ -247,14 +231,6 @@ struct GuidedMeditationsListView: View {
             },
             idleContent: { self.meditationsList }
         )
-        .searchable(
-            text: self.$viewModel.searchQuery,
-            placement: .automatic,
-            prompt: Text("library.search.prompt", bundle: .main)
-        )
-        .onSubmit(of: .search) {
-            self.viewModel.submitSearch()
-        }
     }
 
     private var meditationsList: some View {
