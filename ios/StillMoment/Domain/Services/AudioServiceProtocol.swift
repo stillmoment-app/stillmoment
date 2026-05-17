@@ -90,6 +90,11 @@ protocol AudioServiceProtocol {
     /// Emits 0 when no preview is active; emits the duration once after a preview starts.
     var meditationPreviewDurationPublisher: AnyPublisher<TimeInterval, Never> { get }
 
+    /// Fires once when a meditation preview reaches its natural end
+    /// (via `AVAudioPlayerDelegate.audioPlayerDidFinishPlaying`).
+    /// Does NOT fire when the preview is stopped explicitly via `stopMeditationPreview()`.
+    var meditationPreviewCompletionPublisher: AnyPublisher<Void, Never> { get }
+
     /// Stops any currently playing sound
     func stop()
 }

@@ -85,17 +85,20 @@ extension AudioService {
 private extension AudioService {
     /// Polls AVAudioPlayer.currentTime every 100 ms and pushes it to the position subject.
     /// Idle when no preview is active.
+    ///
+    /// Manually registered in `.common` mode so the slider keeps updating while the
+    /// user scrolls the list — `Timer.scheduledTimer` only adds to `.default`, which
+    /// is paused during UIKit/SwiftUI scroll tracking.
     func startMeditationPreviewPositionTimer() {
         self.stopMeditationPreviewPositionTimer()
-        self.meditationPreviewTimer = Timer.scheduledTimer(
-            withTimeInterval: 0.1,
-            repeats: true
-        ) { [weak self] _ in
+        let timer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self, let player = self.meditationPreviewPlayer else {
                 return
             }
             self.meditationPreviewPositionSubject.send(player.currentTime)
         }
+        RunLoop.main.add(timer, forMode: .common)
+        self.meditationPreviewTimer = timer
     }
 
     func stopMeditationPreviewPositionTimer() {
@@ -106,8 +109,11 @@ private extension AudioService {
     /// Called by the AVAudioPlayerDelegate when audio reaches the natural end.
     /// Treats it like a Stop tap — fade-out is unnecessary here, but using the same
     /// path keeps the lifecycle consistent (session release, subjects reset).
+    /// Additionally fires the completion publisher so the ViewModel can clear its
+    /// `previewingMeditationId` (Stop-Button → Play-Button, Slider blendet aus).
     func handleMeditationPreviewDidFinish() {
         Logger.audio.info("Meditation preview finished playing")
         self.stopMeditationPreview()
+        self.meditationPreviewCompletionSubject.send()
     }
 }

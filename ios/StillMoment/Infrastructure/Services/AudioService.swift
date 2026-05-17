@@ -79,6 +79,10 @@ final class AudioService: AudioServiceProtocol {
         self.meditationPreviewDurationSubject.eraseToAnyPublisher()
     }
 
+    var meditationPreviewCompletionPublisher: AnyPublisher<Void, Never> {
+        self.meditationPreviewCompletionSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Public Methods
 
     /// Configures the audio session for timer use and starts a silent keep-alive audio loop.
@@ -292,6 +296,7 @@ final class AudioService: AudioServiceProtocol {
     var meditationPreviewTimer: Timer?
     let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
+    let meditationPreviewCompletionSubject = PassthroughSubject<Void, Never>()
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
 

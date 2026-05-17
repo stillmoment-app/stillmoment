@@ -43,6 +43,15 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         audioService.meditationPreviewDurationPublisher
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$previewDuration)
+
+        // Natural end of a preview must flip Stop-Button back to Play and hide the slider.
+        // The service-side stop already resets position/duration; we only own the id here.
+        audioService.meditationPreviewCompletionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.previewingMeditationId = nil
+            }
+            .store(in: &self.cancellables)
     }
 
     // MARK: Internal
@@ -407,4 +416,5 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let meditationSourceRepository: MeditationSourceRepositoryProtocol
     private let searchHistoryStore: SearchHistoryStore
+    private var cancellables = Set<AnyCancellable>()
 }

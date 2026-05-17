@@ -69,6 +69,33 @@ extension GuidedMeditationsListViewModelTests {
         XCTAssertEqual(self.mockAudioService.lastSeekMeditationPreviewTime ?? -1, 123.4, accuracy: 0.001)
     }
 
+    // MARK: - Natürliches Ende setzt previewingMeditationId zurueck
+
+    func testPreviewingMeditationIdResetsOnNaturalCompletion() async {
+        // Given — eine Preview laeuft fuer eine konkrete Meditation
+        var cancellables = Set<AnyCancellable>()
+        let meditationId = UUID()
+        self.sut.previewingMeditationId = meditationId
+
+        let expectation = self.expectation(description: "previewingMeditationId resets to nil")
+        self.sut.$previewingMeditationId
+            .dropFirst()
+            .sink { value in
+                if value == nil {
+                    expectation.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        // When — Service signalisiert natuerliches Ende
+        self.mockAudioService.meditationPreviewCompletionSubject.send(())
+
+        // Then
+        await fulfillment(of: [expectation], timeout: 1.0)
+        XCTAssertNil(self.sut.previewingMeditationId)
+        cancellables.removeAll()
+    }
+
     // MARK: - Position wird auf 0 zurueckgesetzt nach Stop
 
     func testPositionResetsToZeroOnPreviewStop() async {

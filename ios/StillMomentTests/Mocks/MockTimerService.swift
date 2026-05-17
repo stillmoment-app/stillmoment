@@ -155,12 +155,17 @@ final class MockAudioService: AudioServiceProtocol {
 
     let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
+    let meditationPreviewCompletionSubject = PassthroughSubject<Void, Never>()
     var meditationPreviewPositionPublisher: AnyPublisher<TimeInterval, Never> {
         self.meditationPreviewPositionSubject.eraseToAnyPublisher()
     }
 
     var meditationPreviewDurationPublisher: AnyPublisher<TimeInterval, Never> {
         self.meditationPreviewDurationSubject.eraseToAnyPublisher()
+    }
+
+    var meditationPreviewCompletionPublisher: AnyPublisher<Void, Never> {
+        self.meditationPreviewCompletionSubject.eraseToAnyPublisher()
     }
 
     var seekMeditationPreviewCalled = false

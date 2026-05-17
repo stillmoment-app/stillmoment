@@ -13,6 +13,12 @@ import SwiftUI
 /// Apple-Music-Style: waehrend des Drags folgt der Slider dem Finger ueber einen
 /// lokalen State; beim Loslassen wird einmal `onSeek` aufgerufen und das Audio
 /// springt zur neuen Position. Audio laeuft durchgehend weiter.
+///
+/// Pattern: der Slider haelt seinen eigenen `draftTime`-State und wird nur dann mit
+/// dem extern eintreffenden `currentTime` synchronisiert, wenn der User gerade
+/// NICHT draggt. Computed-Bindings auf einen optionalen Drag-Wert haben sich als
+/// fragil erwiesen — der UISlider hat seinen Wert beim Loslassen festgehalten und
+/// nicht mehr mit dem ViewModel mitgelaufen.
 struct MeditationPreviewProgressRow: View {
     /// Aktuelle Wiedergabeposition in Sekunden (vom ViewModel).
     let currentTime: TimeInterval
@@ -24,23 +30,25 @@ struct MeditationPreviewProgressRow: View {
     @Environment(\.themeColors)
     private var theme
 
-    /// Lokal verfolgte Drag-Position. Aktiv `nil`, solange der User nicht draggt —
-    /// dann zeigt der Slider die vom ViewModel kommende `currentTime`.
-    @State private var draggedTime: TimeInterval?
+    /// Aktueller Slider-Wert. Wird waehrend des Drags vom Slider gesetzt; ausserhalb
+    /// des Drags vom `currentTime` getrieben (siehe `.onChange`).
+    @State private var draftTime: TimeInterval = 0
+    /// `true` waehrend einer aktiven Drag-Geste — blockt waehrenddessen Sync von aussen.
+    @State private var isDragging: Bool = false
 
     var body: some View {
         HStack(spacing: 12) {
-            Text(Self.formatTime(self.displayedTime))
+            Text(Self.formatTime(self.draftTime))
                 .textStyle(.caption, monospacedDigits: true, color: \.textSecondary)
                 .frame(minWidth: 36, alignment: .leading)
 
             Slider(
-                value: self.sliderBinding,
+                value: self.$draftTime,
                 in: 0...max(self.duration, 0.001)
             ) { editing in
-                if !editing, let target = self.draggedTime {
-                    self.onSeek(target)
-                    self.draggedTime = nil
+                self.isDragging = editing
+                if !editing {
+                    self.onSeek(self.draftTime)
                 }
             }
             .tint(self.theme.interactive)
@@ -52,17 +60,14 @@ struct MeditationPreviewProgressRow: View {
                 .frame(minWidth: 36, alignment: .trailing)
         }
         .padding(.top, 6)
-    }
-
-    private var displayedTime: TimeInterval {
-        self.draggedTime ?? self.currentTime
-    }
-
-    private var sliderBinding: Binding<Double> {
-        Binding(
-            get: { self.displayedTime },
-            set: { newValue in self.draggedTime = newValue }
-        )
+        .onAppear {
+            self.draftTime = self.currentTime
+        }
+        .onChange(of: self.currentTime) { newValue in
+            if !self.isDragging {
+                self.draftTime = newValue
+            }
+        }
     }
 
     private static func formatTime(_ time: TimeInterval) -> String {
