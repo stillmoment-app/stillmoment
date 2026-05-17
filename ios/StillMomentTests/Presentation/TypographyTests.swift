@@ -39,17 +39,19 @@ final class TypographyTests: XCTestCase {
         XCTAssertEqual(Font.Weight.light.darkModeCompensated(.dark), .regular)
     }
 
-    func testDarkModeCompensatesRegularToMedium() {
-        XCTAssertEqual(Font.Weight.regular.darkModeCompensated(.dark), .medium)
+    func testDarkModeDoesNotCompensateRegular() {
+        // Regular 400 schon kraeftig genug auf dunklem Hintergrund — ein Bump zu
+        // Medium wuerde UI-Labels (z.B. Track-Titel) bold wirken lassen.
+        XCTAssertEqual(Font.Weight.regular.darkModeCompensated(.dark), .regular)
     }
 
     func testDarkModeDoesNotCompensateHeavierWeights() {
-        let heavyWeights: [Font.Weight] = [.medium, .semibold, .bold, .heavy, .black]
+        let heavyWeights: [Font.Weight] = [.regular, .medium, .semibold, .bold, .heavy, .black]
         for weight in heavyWeights {
             XCTAssertEqual(
                 weight.darkModeCompensated(.dark),
                 weight,
-                "Weights heavier than regular should not be compensated"
+                "Weights at regular or heavier should not be compensated"
             )
         }
     }
@@ -126,10 +128,19 @@ final class TypographyTests: XCTestCase {
         )
     }
 
-    func testListTitleIsDynamicHeadlineWithoutWeight() {
+    func testListTitleIsFixedRegular14() {
+        // Author-Header in der Library: Geist Regular 14 — kein Bold, kein Headline-Style.
         XCTAssertEqual(
             TypographyRole.listTitle.fontSpec,
-            .dynamic(style: .headline, weight: nil)
+            .fixed(size: 14, weight: .regular)
+        )
+    }
+
+    func testListActionLabelIsFixedRegular16() {
+        // Track-Titel: Geist Regular 16 — kein Medium-Weight, der bold wirken wuerde.
+        XCTAssertEqual(
+            TypographyRole.listActionLabel.fontSpec,
+            .fixed(size: 16, weight: .regular)
         )
     }
 

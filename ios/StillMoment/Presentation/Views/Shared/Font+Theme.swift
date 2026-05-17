@@ -146,13 +146,13 @@ extension TypographyRole {
         // Restzeit-Label im Atemkreis-Player — sekundaer, ruhig, soll nicht mit
         // dem Meditationstitel oben konkurrieren.
         case .playerRemainingTime: .fixed(size: 14, weight: .medium)
-        // List — Dynamic Type for accessibility
-        // .headline is inherently semibold — halation compensation not needed (only ≤regular is adjusted)
-        case .listTitle: .dynamic(style: .headline, weight: nil)
+        // List — Geist Regular 400 across the board (Handoff: "Sans steuert").
+        // Sizes folgen direkt der Library-Spec: Author-Header 14, Track-Titel 16.
+        case .listTitle: .fixed(size: 14, weight: .regular)
         case .listSubtitle: .dynamic(style: .subheadline, weight: .regular)
         case .listBody: .dynamic(style: .body, weight: .regular)
         case .listSectionTitle: .dynamic(style: .title2, weight: .medium)
-        case .listActionLabel: .dynamic(style: .body, weight: .medium)
+        case .listActionLabel: .fixed(size: 16, weight: .regular)
         // Edit
         case .editLabel: .dynamic(style: .subheadline, weight: .medium)
         case .editCaption: .dynamic(style: .caption, weight: .regular)
@@ -256,6 +256,9 @@ extension TypographyRole {
 extension Font.Weight {
     /// Returns one step heavier weight in dark mode to compensate for halation
     /// (light text on dark backgrounds appears thinner than dark text on light backgrounds).
+    /// Only the thin range needs compensation — Regular and heavier already render
+    /// strongly on dark backgrounds; bumping them further would make UI labels read
+    /// as bold instead of named-but-restful elements.
     func darkModeCompensated(_ colorScheme: ColorScheme) -> Font.Weight {
         guard colorScheme == .dark else {
             return self
@@ -264,7 +267,6 @@ extension Font.Weight {
         case .ultraLight: return .thin
         case .thin: return .light
         case .light: return .regular
-        case .regular: return .medium
         default: return self
         }
     }
