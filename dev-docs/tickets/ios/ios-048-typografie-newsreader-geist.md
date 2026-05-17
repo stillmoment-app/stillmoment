@@ -1,7 +1,7 @@
 
 # Ticket ios-048: Typografie Newsreader + Geist nachziehen
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-048.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Zwei neue Schrift-Familien (Newsreader Serif + Geist Sans) ins App-Bundle einbinden und das bestehende Typografie-System auf zwei Familien aufteilen statt einer einzigen System-Font. Risiko liegt in Dynamic Type (Custom Fonts skalieren anders), Dark-Mode-Halation (Halation-Kompensation muss mit Custom-Weights weiter greifen) und visueller Regression in allen Views.
