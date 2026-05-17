@@ -28,13 +28,13 @@ Der erste Migrationsschritt (Newsreader+Geist einziehen) hat das System auf 27 R
 
 ### Feature
 
-- [ ] Display-Texte erscheinen in Newsreader (Serif): Hero-/Screen-Titel, Section-Titel, Body-Display/Lede, Timer-Ziffern (Idle + Running), Player-Countdown, Dialog-Titel, Dial-Wert
-- [ ] UI-Texte erscheinen in Geist (Sans): Library-Titel, Track-Listen-Titel/Untertitel, Settings-Labels, Row-Labels, Eyebrows/Caps, CTA-Buttons, Card-Labels, Dial-Einheit, Code/Token-Snippets
-- [ ] Default-Gewicht 300 (light), Regular 400 fuer benannte Elemente, Medium 500 nur fuer Play-CTA und Systemzeit — wie im Handoff
-- [ ] Italic-Akzent ausschliesslich fuer Hervorhebungen in Akzent-/Highlight-Farbe, nie als dekorativer Stil
-- [ ] Dynamic Type skaliert weiterhin korrekt (Texte werden bei groesseren Stufen groesser, brechen Layout nicht)
-- [ ] Dark Mode: Lesbarkeit/Kontrast nicht schlechter als vorher — Halation-Kompensation greift weiter
-- [ ] Numerik (Timer-Ziffern) zeigt einheitliche Ziffernbreite (tabular figures), damit die Anzeige beim Herunterzaehlen nicht springt
+- [x] Display-Texte erscheinen in Newsreader (Serif): Hero-/Screen-Titel, Section-Titel, Body-Italic (Lehrer-Name), Timer-Ziffern (Idle + Running via `DisplayNumeral`), Player-Countdown, Dialog-Titel, Dial-Wert — gemappt auf Tokens `.display`, `.title`, `.screenTitle`, `.section`, `.bodyItalic`
+- [x] UI-Texte erscheinen in Geist (Sans): Library-Titel, Track-Listen-Titel/Untertitel, Settings-Labels, Row-Labels, Eyebrows/Caps, CTA-Buttons, Card-Labels, Dial-Einheit, Timestamps — gemappt auf `.body`, `.bodyEmphasis`, `.caption`, `.micro`, `.eyebrow`
+- [x] Gewichte folgen Handoff: Newsreader Light 300 fuer Display-Tokens, Geist Regular 400 fuer Body/Caption/Micro/Eyebrow, Geist Medium 500 fuer `.bodyEmphasis` (CTAs)
+- [x] Italic-Akzent als eigener Token `.bodyItalic` (Newsreader16pt-Italic) — kein dekoratives `.italic()` mehr; nur fuer Hervorhebungen / Eigennamen in Akzentfarbe
+- [x] Dynamic Type skaliert: jeder Token bindet ueber `UIFontMetrics` an einen `Font.TextStyle`. Layout-Anpassungen ab AX2+ ausgelagert nach [ios-050](ios-050-typografie-2-1-a11y-layout.md)
+- [x] Dark Mode bleibt lesbar — Halation-Kompensation entfaellt bewusst (siehe CHANGELOG-Eintrag): Newsreader Light traegt auf dunklem Hintergrund durch Serif-Optik; falls eine Rolle zu duenn wirkt, gezielt eine Stufe schwerer im Spec statt globalem Modus-Bump
+- [x] Numerik via `.textStyle(.display, monospacedDigits: true)` bzw. `.textStyle(.body, monospacedDigits: true)` — tabular Figures als Modifier-Parameter pro Aufrufstelle
 
 ### Typografie 2.1 (Acceptance-Checkliste aus `handoffs/Typografie 2.1 - Plan.html`)
 
@@ -53,13 +53,14 @@ In dieser Reihenfolge — Punkt fuer Punkt, jeweils mit eigenem Commit:
 
 ### Tests
 
-- [ ] Unit-Tests in TypographyTests validieren Font-Familien-Zuordnung pro Rolle (Display-Rollen → Newsreader, UI-Rollen → Geist)
-- [ ] Bestehende Typografie-Tests bleiben gruen (Weight, Size, Farbe, Halation-Kompensation)
+- [x] `TextStyleTests` validiert das 10-Token-System: Anzahl, Dynamic-Type-Mapping, Base-Sizes, Font-Familien-Zuordnung (Serif-Tokens → Newsreader, Sans-Tokens → Geist), Tracking/Casing, Bold-Text-Bump
+- [x] `DisplayNumeralTests` validiert die container-relative Numerik (Diameter × Faktor, AX1-Cap, Tabular Figures)
+- [x] Alte `TypographyTests.swift` mit Schritt 4 geloescht (Stale-Tests gegen die abgeloeste TypographyRole-API); ersetzt durch obige Tests
 
 ### Dokumentation
 
-- [ ] CHANGELOG.md (Typografie sichtbar geaendert)
-- [ ] Memory-Eintrag fuer Typography System aktualisieren (Custom-Font-Wechsel)
+- [x] CHANGELOG.md (mehrere Eintraege unter [Unreleased] → Typografie, Player-Editorial-Voice, Halation-Entfernung, Buttons + Stepper auf Geist, Debug-Reference-View)
+- [x] Memory-Eintrag aktualisiert: `MEMORY.md` Abschnitt „Typography System (Typografie 2.1 — TextStyle.swift)"
 
 ---
 
@@ -77,8 +78,9 @@ In dieser Reihenfolge — Punkt fuer Punkt, jeweils mit eigenem Commit:
 - Handoff: `handoffs/handoff_typografie/Kerzenschein 2.0 Final.html` (Sektion "Typografie · Newsreader + Geist", Rollen-Tabelle)
 - **Typografie 2.1 Plan (Source of Truth fuer Reduktion auf 10 Tokens):** `handoffs/Typografie 2.1 - Plan.html`
 - Vorherige Refinement-Tickets: shared-094, shared-095, shared-096, shared-097
-- Bestehendes Typografie-System: `ios/StillMoment/Presentation/Views/Shared/Font+Theme.swift` (wird durch `TextStyle.swift` ersetzt)
-- Bestehende Tests: `ios/StillMomentTests/Presentation/TypographyTests.swift`
+- Aktuelles Typografie-System: `ios/StillMoment/Presentation/Views/Shared/TextStyle.swift` (10 Tokens) + `View+TextStyle.swift` (ViewModifier-Bridge) + `DisplayNumeral.swift` (container-relative Numerik)
+- Tests: `ios/StillMomentTests/Presentation/TextStyleTests.swift` + `DisplayNumeralTests.swift`
+- Debug-Hilfe: `ios/StillMoment/Presentation/Views/Debug/DebugTypographyReferenceView.swift` (Settings → Debug → Typography Reference, nur Debug-Build)
 
 ---
 
