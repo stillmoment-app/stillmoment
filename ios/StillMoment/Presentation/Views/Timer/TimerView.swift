@@ -120,24 +120,39 @@ struct TimerView: View {
     // MARK: - Layouts
 
     private func idleLayout(geometry: GeometryProxy, isCompactHeight: Bool) -> some View {
-        // Im idle-Zustand verteilt sich der Restraum so:
-        // Top und unter Beginnen wachsen, der Spalt Liste→Beginnen
-        // bleibt klein. Beginnen ist dadurch optisch der Liste
-        // zugehoerig, der Inhalt rueckt vertikal zur Mitte.
-        VStack(spacing: 0) {
-            Spacer(minLength: 8)
-                .frame(maxHeight: .infinity)
+        // Organische Aufteilung der vier Bloecke (Headline → Dial → Liste → Button)
+        // ueber die volle Hoehe: Headline fix unter der Safe-Area, Button fix
+        // ueber der Tab-Bar, drei plain Spacer dazwischen verteilen den Restraum.
+        // Alle drei Spacer sind identisch konfiguriert (kein `.frame(maxHeight:)`),
+        // damit SwiftUI sie gleichgewichtig waechst — siehe Memory-Notiz
+        // zur Spacer-Verteilung in Vollhoehen-Layouts.
+        let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
 
-            self.idleScreen(geometry: geometry)
+        return VStack(spacing: 0) {
+            Text("timer.idle.headline", bundle: .main)
+                .textStyle(.screenTitle, color: \.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.top, isCompactHeight ? 16 : 24)
 
-            Spacer(minLength: 16)
-                .frame(maxHeight: isCompactHeight ? 24 : 36)
+            Spacer(minLength: 24)
+
+            BreathDial(
+                value: self.$viewModel.selectedMinutes,
+                diameter: dialDiameter
+            )
+
+            Spacer(minLength: 24)
+
+            self.idleSettingsList(isCompactHeight: isCompactHeight)
+                .padding(.horizontal, 24)
+
+            Spacer(minLength: 24)
 
             self.controlButtons
                 .padding(.horizontal)
 
-            Spacer(minLength: 16)
-                .frame(maxHeight: .infinity)
+            Spacer(minLength: 24)
         }
     }
 
@@ -146,40 +161,6 @@ struct TimerView: View {
         // (Mondphase positioniert sich intern ins untere Drittel).
         self.timerDisplay(geometry: geometry)
             .frame(maxHeight: .infinity)
-    }
-
-    // MARK: - Idle Screen
-
-    private func idleScreen(geometry: GeometryProxy) -> some View {
-        let isCompactHeight = geometry.size.height < 700
-        // Dial-Durchmesser: 180 px auf SE, 220 px auf grossen Geraeten.
-        let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
-        // Section-Spacing: kompakter auf kleinen Geraeten, atmend auf grossen.
-        // Atemkreis-zur-Liste bekommt deutlich mehr Atem als Headline-zum-Atemkreis,
-        // damit Atemkreis und Liste sich visuell als getrennte Bloecke lesen.
-        let headlineToDialSpacing: CGFloat = isCompactHeight ? 18 : 28
-        let dialToListSpacing: CGFloat = isCompactHeight ? 32 : 72
-
-        return VStack(spacing: 0) {
-            Text("timer.idle.headline", bundle: .main)
-                .textStyle(.section, color: \.textPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-
-            Spacer(minLength: headlineToDialSpacing)
-                .frame(maxHeight: headlineToDialSpacing)
-
-            BreathDial(
-                value: self.$viewModel.selectedMinutes,
-                diameter: dialDiameter
-            )
-
-            Spacer(minLength: dialToListSpacing)
-                .frame(maxHeight: dialToListSpacing)
-
-            self.idleSettingsList(isCompactHeight: isCompactHeight)
-                .padding(.horizontal, 24)
-        }
     }
 
     private func idleSettingsList(isCompactHeight: Bool) -> some View {
