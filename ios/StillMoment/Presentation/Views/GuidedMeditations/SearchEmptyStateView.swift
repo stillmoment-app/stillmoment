@@ -22,11 +22,11 @@ struct SearchEmptyStateView: View {
             self.glyph
                 .padding(.bottom, 18)
             Text("library.search.empty.title", bundle: .main)
-                .themeFont(.screenTitle)
+                .textStyle(.screenTitle, color: \.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 6)
             Text(self.subtitleText)
-                .themeFont(.bodySecondary, color: \.textSecondary)
+                .textStyle(.caption, color: \.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .padding(.horizontal, 36)

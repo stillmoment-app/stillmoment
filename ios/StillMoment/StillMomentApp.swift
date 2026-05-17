@@ -60,6 +60,10 @@ struct StillMomentApp: App {
             PreparationTimeConfigurer.disable()
         }
 
+        #if DEBUG
+        Self.dumpBundledFontsIfNeeded()
+        #endif
+
         // One-time silent cleanup of legacy attunement data (shared-088).
         // Runs before any repository load so persisted state is already clean.
         AttunementCleanupMigration.runIfNeeded()
@@ -277,6 +281,30 @@ struct StillMomentApp: App {
             }
         }
     }
+
+    #if DEBUG
+    /// Logs every PostScript-Name iOS hat für unsere zwei Custom-Familien geladen.
+    /// Wenn ein erwarteter Cut hier fehlt, ist der Bundle-Eintrag schief — z.B.
+    /// fehlt in `UIAppFonts` oder die Datei wurde nicht ins Target kopiert.
+    /// Läuft nur einmal pro App-Lifetime (statisches Flag).
+    private static var didDumpFonts = false
+
+    /// Dumps Newsreader- und Geist-PostScript-Namen einmalig bei App-Start (DEBUG only).
+    /// Erwarteter Output enthaelt: Newsreader16pt-{Light,Regular,Medium,Italic},
+    /// Geist-{Light,Regular,Medium,SemiBold}.
+    private static func dumpBundledFontsIfNeeded() {
+        guard !self.didDumpFonts else {
+            return
+        }
+        self.didDumpFonts = true
+
+        let interesting = ["Newsreader", "Geist"]
+        for family in UIFont.familyNames.sorted() where interesting.contains(where: { family.contains($0) }) {
+            let names = UIFont.fontNames(forFamilyName: family).sorted().joined(separator: ", ")
+            Logger.infrastructure.info("Bundled font family \(family): \(names)")
+        }
+    }
+    #endif
 
     /// Handles a file URL received via "Open with" (CFBundleDocumentTypes).
     ///

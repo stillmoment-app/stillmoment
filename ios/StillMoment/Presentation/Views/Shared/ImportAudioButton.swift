@@ -27,7 +27,7 @@ struct ImportAudioButton: View {
                 NSLocalizedString("custom.audio.import.button", comment: ""),
                 systemImage: "plus.circle"
             )
-            .themeFont(.settingsLabel)
+            .textStyle(.body, color: \.textPrimary)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)

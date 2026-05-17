@@ -126,7 +126,7 @@ struct GuidedMeditationEditSheet: View {
     private var teacherField: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("guided_meditations.edit.teacher")
-                .themeFont(.editLabel)
+                .textStyle(.eyebrow, color: \.textPrimary)
 
             AutocompleteTextField(
                 text: self.$editState.editedTeacher,
@@ -146,7 +146,7 @@ struct GuidedMeditationEditSheet: View {
     private var nameField: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("guided_meditations.edit.name")
-                .themeFont(.editLabel)
+                .textStyle(.eyebrow, color: \.textPrimary)
 
             ClearableTextField(
                 "guided_meditations.edit.namePlaceholder",
@@ -173,7 +173,7 @@ struct GuidedMeditationEditSheet: View {
                     + Text(verbatim: "  ·  ")
                     + Text(self.meditation.formattedDuration)
             )
-            .themeFont(.editCaption, color: \.textSecondary)
+            .textStyle(.caption, color: \.textSecondary)
             .lineLimit(2)
             .multilineTextAlignment(.leading)
             .fixedSize(horizontal: false, vertical: true)

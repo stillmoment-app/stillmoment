@@ -56,7 +56,7 @@ struct TimerView: View {
 
                 if let error = viewModel.errorMessage {
                     Text(error)
-                        .themeFont(.caption, color: \.error)
+                        .textStyle(.micro, color: \.error)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.bottom, 8)
@@ -162,7 +162,7 @@ struct TimerView: View {
 
         return VStack(spacing: 0) {
             Text("timer.idle.headline", bundle: .main)
-                .themeFont(.sectionTitle)
+                .textStyle(.section, color: \.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
 
@@ -284,7 +284,7 @@ struct TimerView: View {
             ) {
                 VStack(spacing: 6) {
                     Text("\(self.viewModel.remainingPreparationSeconds)")
-                        .themeFont(.playerCountdown, size: 72)
+                        .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
                         .monospacedDigit()
                         .accessibilityIdentifier("timer.display.time")
                         .accessibilityLabel(String(
@@ -293,14 +293,14 @@ struct TimerView: View {
                         ))
 
                     Text("guided_meditations.player.preroll.label")
-                        .themeFont(.playerTimestamp)
+                        .textStyle(.micro, color: \.textSecondary)
                         .foregroundColor(self.theme.textSecondary)
                 }
                 .transition(.opacity)
             }
 
             Text("guided_meditations.player.preroll.hint")
-                .themeFont(.playerTimestamp)
+                .textStyle(.micro, color: \.textSecondary)
                 .foregroundColor(self.theme.textSecondary)
                 .textCase(.uppercase)
                 .transition(.opacity)

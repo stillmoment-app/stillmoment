@@ -42,7 +42,7 @@ struct MeditationCompletionView: View {
                     .padding(.bottom, glowToHeadline)
 
                 Text("guided_meditations.player.completion.headline", bundle: .main)
-                    .themeFont(.screenTitle, size: isCompactHeight ? 32 : nil)
+                    .textStyle(.screenTitle, color: \.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, headlineToButton)
                     .accessibilityAddTraits(.isHeader)

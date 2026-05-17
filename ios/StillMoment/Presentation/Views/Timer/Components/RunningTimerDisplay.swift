@@ -25,6 +25,9 @@ struct RunningTimerDisplay: View {
     let reduceMotion: Bool
     var isCompactHeight: Bool = false
 
+    @Environment(\.themeColors)
+    private var theme
+
     var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -61,22 +64,18 @@ struct RunningTimerDisplay: View {
     private var textColumn: some View {
         VStack(spacing: 0) {
             Text("timer.running.remaining", bundle: .main)
-                .themeFont(.cardLabel, color: \.textSecondary)
-                .tracking(2.4)
+                .textStyle(.eyebrow, color: \.textSecondary)
                 .accessibilityHidden(true)
 
-            Text(self.remainingTimeText)
-                .themeFont(.timerRunning)
-                .monospacedDigit()
-                .lineLimit(1)
+            DisplayNumeral(text: self.remainingTimeText, containerDiameter: self.moonSize)
+                .foregroundColor(self.theme.textPrimary)
                 .padding(.top, 6)
                 .accessibilityIdentifier("timer.display.time")
                 .accessibilityLabel("guided_meditations.player.remainingTime")
                 .accessibilityValue(self.accessibilityTimeValue)
 
             Text(self.durationLabel)
-                .themeFont(.bodySecondary)
-                .italic()
+                .textStyle(.caption, color: \.textSecondary)
                 .padding(.top, 12)
                 .accessibilityHidden(true)
         }

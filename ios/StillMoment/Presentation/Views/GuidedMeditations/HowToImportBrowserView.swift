@@ -39,12 +39,12 @@ struct HowToImportBrowserView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("guided_meditations.guide.howto.eyebrow")
-                .themeFont(.caption, color: \.interactive)
+                .textStyle(.micro, color: \.interactive)
                 .textCase(.uppercase)
                 .tracking(1.6)
                 .accessibilityHidden(true)
             Text("guided_meditations.guide.howto.browser.title")
-                .themeFont(.screenTitle)
+                .textStyle(.screenTitle, color: \.textPrimary)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("library.guideSheet.howto.browser.title")
         }
@@ -53,7 +53,7 @@ struct HowToImportBrowserView: View {
 
     private var intro: some View {
         Text("guided_meditations.guide.howto.browser.intro")
-            .themeFont(.bodySecondary, color: \.textSecondary)
+            .textStyle(.caption, color: \.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .padding(.bottom, 20)
     }

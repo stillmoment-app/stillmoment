@@ -26,7 +26,7 @@ struct GeneralSettingsSection: View {
                 }
             } label: {
                 Text("settings.appearance.title", bundle: .main)
-                    .themeFont(.settingsLabel)
+                    .textStyle(.body, color: \.textPrimary)
             }
             .pickerStyle(.menu)
             .onChange(of: self.themeManager.appearanceMode) { _ in

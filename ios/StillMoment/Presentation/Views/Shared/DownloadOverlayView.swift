@@ -41,13 +41,13 @@ struct DownloadOverlayView: View {
                 .padding(.bottom, Self.animationBottomSpacing)
 
             Text(NSLocalizedString("share.download.loading", comment: ""))
-                .themeFont(.dialogTitle)
+                .textStyle(.section, color: \.textPrimary)
                 .multilineTextAlignment(.center)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.bottom, Self.titleBottomSpacing)
 
             Text(NSLocalizedString("share.download.body", comment: ""))
-                .themeFont(.dialogBody)
+                .textStyle(.body, color: \.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineSpacing(Self.bodyLineSpacing)
                 .padding(.bottom, Self.bodyBottomSpacing)
@@ -79,7 +79,7 @@ struct DownloadOverlayView: View {
     private var cancelPill: some View {
         Button(action: self.onCancel) {
             Text(NSLocalizedString("share.download.cancel", comment: ""))
-                .themeFont(.dialogBody, color: \.interactive)
+                .textStyle(.body, color: \.interactive)
                 .padding(.horizontal, Self.pillHorizontalPadding)
                 .padding(.vertical, Self.pillVerticalPadding)
                 .background(

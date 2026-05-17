@@ -49,7 +49,7 @@ struct HowToImportStepCard: View {
                 .fill(self.theme.accentBubbleBackground)
                 .frame(width: 32, height: 32)
             Text("\(self.stepNumber)")
-                .themeFont(.bodyPrimary, size: 14, color: \.interactive)
+                .textStyle(.body, color: \.interactive)
         }
     }
 
@@ -60,10 +60,10 @@ struct HowToImportStepCard: View {
                     .font(.system(size: 18, weight: .regular))
                     .foregroundColor(self.theme.textSecondary)
                 Text(LocalizedStringKey(self.titleKey))
-                    .themeFont(.listTitle)
+                    .textStyle(.body, color: \.textPrimary)
             }
             Text(LocalizedStringKey(self.bodyKey))
-                .themeFont(.bodySecondary, color: \.textSecondary)
+                .textStyle(.caption, color: \.textSecondary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }

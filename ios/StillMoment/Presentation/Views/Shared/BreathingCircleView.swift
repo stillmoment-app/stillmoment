@@ -160,13 +160,14 @@ struct BreathingCircleView<Content: View>: View {
     }
 
     /// Opacity des Glow:
-    /// - Pre-Roll: gedaempft (0.55) — Glow „schlaeft" noch.
+    /// - Pre-Roll: 0 — nur statischer Track + Countdown sichtbar (matcht den
+    ///   Header-Docstring der Komponente).
     /// - Reduced Motion: konstanter Mittelwert.
     /// - Hauptphase normal: pulsiert zwischen 0.55 und 1.0 (Δ 45 % — gut sichtbar).
     private var glowOpacity: Double {
         switch self.phase {
         case .preRoll:
-            return 0.55
+            return 0
         case .playing:
             if self.reduceMotion {
                 return 0.78
@@ -250,8 +251,7 @@ private extension Double {
             reduceMotion: false
         ) {
             Text("6")
-                .font(.system(size: 72, weight: .light, design: .rounded))
-                .foregroundColor(.white)
+                .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
         }
     }
 }

@@ -42,7 +42,7 @@ struct PreparationTimeSelectionView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("settings.preparationTime.title", bundle: .main)
-                    .themeFont(.inlineNavigationTitle)
+                    .textStyle(.screenTitle, color: \.textPrimary)
             }
         }
     }
@@ -63,7 +63,7 @@ struct PreparationTimeSelectionView: View {
         let isSelected = self.viewModel.isPreparationTimeSelected(seconds: seconds)
         return HStack {
             Text(label)
-                .themeFont(.settingsLabel)
+                .textStyle(.body, color: \.textPrimary)
             Spacer()
             if isSelected {
                 Image(systemName: "checkmark")

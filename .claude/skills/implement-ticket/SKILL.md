@@ -47,6 +47,10 @@ Jedes Akzeptanzkriterium einzeln umsetzen. **Vor jedem Kriterium kurz entscheide
 
 - **Testbares Verhalten** (Domain-Logik, ViewModels, Reducer, Mapping) → TDD-Zyklus unten.
 - **Nicht-testbar** (reine Theme-/Layout-Anpassung, neue Localization-Keys, Asset-Tausch) → direkt implementieren + manuell verifizieren. Begruendung kurz festhalten.
+  - **iOS UI-Aenderungen visuell verifizieren:** Skill `/screenshot-ios` nutzen
+    (Scripts `scripts/screenshot-ios/dump_ui.sh` und `shot.sh`). Screenshot vor
+    und nach der Aenderung machen, mit `Read` oeffnen. Nicht neu erfinden —
+    der Skill bringt die ueberlebten Defaults mit.
 
 Tests sind **fachlich** (domain-focused), nicht technisch:
 ```

@@ -150,14 +150,14 @@ struct GuidedMeditationPlayerView: View {
             // Lehrer + Titel
             VStack(spacing: 8) {
                 Text(self.viewModel.meditation.teacher)
-                    .themeFont(.playerTeacher)
+                    .textStyle(.bodyItalic, color: \.interactive)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                     .accessibilityLabel("guided_meditations.player.teacher")
                     .accessibilityValue(self.viewModel.meditation.teacher)
 
                 Text(self.viewModel.meditation.name)
-                    .themeFont(.playerTitle)
+                    .textStyle(.title, color: \.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
@@ -199,8 +199,7 @@ struct GuidedMeditationPlayerView: View {
         case .preRoll:
             VStack(spacing: 6) {
                 Text("\(self.viewModel.remainingCountdownSeconds)")
-                    .themeFont(.playerCountdown, size: 72)
-                    .monospacedDigit()
+                    .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
                     .accessibilityIdentifier("player.countdown")
                     .accessibilityLabel(
                         String(
@@ -213,8 +212,7 @@ struct GuidedMeditationPlayerView: View {
                     )
 
                 Text("guided_meditations.player.preroll.label")
-                    .themeFont(.playerTimestamp)
-                    .foregroundColor(self.theme.textSecondary)
+                    .textStyle(.micro, color: \.textSecondary)
             }
             .transition(.opacity)
         case .playing:
@@ -234,9 +232,7 @@ struct GuidedMeditationPlayerView: View {
         switch self.viewModel.phase {
         case .preRoll:
             Text("guided_meditations.player.preroll.hint")
-                .themeFont(.playerTimestamp)
-                .foregroundColor(self.theme.textSecondary)
-                .textCase(.uppercase)
+                .textStyle(.eyebrow, color: \.textSecondary)
                 .accessibilityIdentifier("player.text.preRollHint")
         case .playing:
             Text(String(
@@ -248,10 +244,7 @@ struct GuidedMeditationPlayerView: View {
                 ),
                 self.viewModel.formattedRemainingMinutes
             ))
-            .themeFont(.playerRemainingTime)
-            .monospacedDigit()
-            .textCase(.uppercase)
-            .tracking(1.5)
+            .textStyle(.eyebrow, monospacedDigits: true, color: \.textSecondary)
             .accessibilityIdentifier("player.text.remainingTime")
             .accessibilityLabel("guided_meditations.player.remainingTime")
             .accessibilityValue(self.viewModel.formattedRemainingTime)

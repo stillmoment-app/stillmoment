@@ -111,27 +111,14 @@ struct BreathDial: View {
 
     private var centerText: some View {
         VStack(spacing: 2) {
-            Text("\(self.value)")
-                .themeFont(.dialValue, size: self.dialValueSize)
-                .monospacedDigit()
+            DisplayNumeral(text: "\(self.value)", containerDiameter: self.diameter)
+                .foregroundColor(self.theme.textPrimary)
                 .accessibilityIdentifier("timer.dial.value")
 
             Text(NSLocalizedString("timer.dial.unit", comment: ""))
-                .themeFont(.dialUnit)
+                .textStyle(.eyebrow, color: \.textSecondary)
         }
         .allowsHitTesting(false)
-    }
-
-    /// Big-Number skaliert proportional zur Dial-Groesse — 62 px bei D=180,
-    /// 76 px bei D=220.
-    private var dialValueSize: CGFloat {
-        let minSize: CGFloat = 62
-        let maxSize: CGFloat = 76
-        let minDiameter: CGFloat = 180
-        let maxDiameter: CGFloat = 220
-        let clampedDiameter = min(max(self.diameter, minDiameter), maxDiameter)
-        let ratio = (clampedDiameter - minDiameter) / (maxDiameter - minDiameter)
-        return minSize + ratio * (maxSize - minSize)
     }
 
     // MARK: - Gesten
