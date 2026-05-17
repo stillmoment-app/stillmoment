@@ -121,7 +121,7 @@ struct LibraryHeaderView: View {
                     )
                 )
                 .shadow(
-                    color: Color(red: 120 / 255, green: 55 / 255, blue: 28 / 255).opacity(0.08),
+                    color: self.theme.cardShadow,
                     radius: 2,
                     x: 0,
                     y: 1

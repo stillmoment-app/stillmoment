@@ -47,6 +47,12 @@ struct ThemeColors: Equatable, Hashable {
     /// Unterer Stop des vertikalen Verlaufs auf dem plastischen Play-Button.
     let playGradientBot: Color
 
+    /// Schatten unter gehobenen Capsule-Pillen und Karten in Light Mode.
+    /// In Dark Mode `.clear` — dort traegt die Karte stattdessen einen
+    /// `cardBorder`-Stroke (Border-Strategie), weil Shadows auf dunklem
+    /// Hintergrund keinen sichtbaren Effekt haben.
+    let cardShadow: Color
+
     // MARK: - Feedback Colors
 
     let error: Color

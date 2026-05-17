@@ -58,7 +58,7 @@ struct LibraryActionPill: View {
             Image(systemName: systemName)
                 .font(.system(size: 17, weight: .regular))
                 .foregroundColor(self.theme.textPrimary)
-                .frame(minWidth: 44, minHeight: 40)
+                .frame(minWidth: 44, minHeight: 44)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -79,7 +79,7 @@ struct LibraryActionPill: View {
             capsule
                 .fill(self.theme.cardBackground)
                 .shadow(
-                    color: Color(red: 120 / 255, green: 55 / 255, blue: 28 / 255).opacity(0.08),
+                    color: self.theme.cardShadow,
                     radius: 2,
                     x: 0,
                     y: 1
