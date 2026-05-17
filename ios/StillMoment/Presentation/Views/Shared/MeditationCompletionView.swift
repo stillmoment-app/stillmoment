@@ -77,6 +77,7 @@ struct MeditationCompletionView: View {
         .ignoresSafeArea()
 
         MeditationCompletionView {}
+            .environment(\.themeColors, .dark)
     }
 }
 

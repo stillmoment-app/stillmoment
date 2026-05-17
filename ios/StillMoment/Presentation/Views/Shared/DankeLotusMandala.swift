@@ -155,6 +155,7 @@ struct DankeLotusMandala: View {
         Color(red: 0.10, green: 0.06, blue: 0.05).ignoresSafeArea()
         DankeLotusMandala()
             .frame(width: 160, height: 160)
+            .environment(\.themeColors, .dark)
     }
 }
 
