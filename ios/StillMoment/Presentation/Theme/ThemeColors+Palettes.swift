@@ -43,6 +43,8 @@ extension ThemeColors {
         playGradientTop: Color(red: 0.722, green: 0.373, blue: 0.275),
         // playGradientBot #7E3A2D
         playGradientBot: Color(red: 0.494, green: 0.227, blue: 0.176),
+        // cardShadow rgba(120, 55, 28, 0.08) — warmer, sehr subtiler Pillen-Schatten
+        cardShadow: Color(red: 120 / 255, green: 55 / 255, blue: 28 / 255, opacity: 0.08),
         error: Color(red: 0.729, green: 0.102, blue: 0.102)
     )
 
@@ -76,6 +78,8 @@ extension ThemeColors {
         playGradientTop: Color(red: 0.839, green: 0.541, blue: 0.431),
         // playGradientBot #B06A4F
         playGradientBot: Color(red: 0.690, green: 0.416, blue: 0.310),
+        // cardShadow .clear — Dark Mode nutzt Border-Strategie statt Shadow
+        cardShadow: .clear,
         error: Color(red: 0.878, green: 0.380, blue: 0.318)
     )
 }

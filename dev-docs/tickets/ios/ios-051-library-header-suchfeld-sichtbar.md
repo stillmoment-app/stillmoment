@@ -1,6 +1,6 @@
 # Ticket ios-051: Library-Header — Such-Trigger immer sichtbar, Titel raus
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Plan**: [Implementierungsplan](../plans/ios-051.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: mittel — Toolbar-Umbau und Wechsel weg von `.searchable()` hin zu einer eigenen Header-Bar; die Such-Logik aus ios-041 bleibt unveraendert
@@ -34,7 +34,7 @@ Die heutige Toolbar zeigt den Title "Bibliothek" — bei groesseren Dynamic-Type
 
 ### Such-Pille — Idle-Zustand
 
-- [ ] Such-Pille zeigt links eine Lupe (16 pt), daneben den Platzhalter-Text "Nach Titel oder Sprecher suchen" / "Search by title or teacher" in Sekundaerfarbe
+- [ ] Such-Pille zeigt links eine Lupe (16 pt), daneben den Platzhalter-Text "Suchen" / "Search" in Sekundaerfarbe (gekuerzt gegenueber dem ios-041-Prompt, weil der laengere Text in der 40-pt-Pille neben Lupe und Clear-X abgeschnitten wurde)
 - [ ] Tap auf die Such-Pille setzt den Fokus ins Suchfeld, blendet die Tastatur ein und zeigt den History-State (wie bisher in ios-041)
 - [ ] Tap-Flaeche bedeckt die gesamte Pille (Lupe + Platzhalter)
 
@@ -71,7 +71,7 @@ Die heutige Toolbar zeigt den Title "Bibliothek" — bei groesseren Dynamic-Type
 
 ### Lokalisierung
 
-- [ ] Such-Prompt bleibt aus ios-041: "Nach Titel oder Sprecher suchen" / "Search by title or teacher"
+- [ ] Such-Prompt aus ios-041 wird gekuerzt: `library.search.prompt` wird auf "Suchen" / "Search" reduziert (war "Nach Titel oder Sprecher suchen" / "Search by title or teacher" — passt nicht in die 40-pt-Pille neben Lupe und Clear-X, war abgeschnitten)
 - [ ] "Abbrechen" / "Cancel" — falls noch nicht vorhanden, neuer String `common.cancel` (Wiederverwendung pruefen)
 - [ ] Der entfallende Toolbar-Title "Bibliothek" bleibt im String-Catalog (`guided_meditations.title`) als TabBar-Label erhalten — nur die Verwendung in der Toolbar entfaellt
 

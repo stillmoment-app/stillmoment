@@ -274,7 +274,7 @@
 
 // MARK: - Library Search (ios-041)
 
-"library.search.prompt" = "Search by title or teacher";
+"library.search.prompt" = "Search";
 "library.search.results.count" = "%d results";
 "library.search.empty.title" = "No results";
 "library.search.empty.message" = "No matches for \"%@\"";
@@ -282,6 +282,9 @@
 "library.search.history.clear" = "Clear";
 
 "accessibility.library.search.history.entry" = "Search again: %@";
+"accessibility.library.search.field" = "Search library";
+"accessibility.library.search.clear" = "Clear input";
+"accessibility.library.search.cancel" = "Cancel search";
 
 // MARK: - Autocomplete
 

@@ -15,9 +15,11 @@ import SwiftUI
 /// 2. **Mond-Disc** — radialer Verlauf mit verschobenem Zentrum (oben-links),
 ///    erzeugt subtile Beleuchtung ohne Krater oder Flecken.
 /// 3. **Schatten-Disc** — schwarze Scheibe gleicher Groesse, deren x-Offset
-///    linear mit dem Progress nach links driftet (`-progress × outerSize × 200/180`).
-///    Der ZStack aus Mond + Schatten wird auf einen Circle maskiert; sobald der
-///    Schatten den Mond verlaesst (progress nahe 1), bleibt nur der Vollmond.
+///    linear mit dem Progress nach links driftet (`-progress × outerSize`).
+///    Bei Halbzeit steht die Schattenkante senkrecht in der Mondmitte
+///    (Halbmond); bei progress = 1 ist der Schatten links tangential zum
+///    Mond — der ZStack aus Mond + Schatten wird auf einen Circle maskiert,
+///    der Schatten verlaesst den Clip vollstaendig.
 ///
 /// Die Farben sind aus dem Handoff "claude_code_handoff_running_timer_mondphase"
 /// final und pixelgenau. Sie sind in der View hardcoded und folgen dem
@@ -60,11 +62,18 @@ struct MoonPhaseView: View {
         self.outerSize * 1.6
     }
 
-    /// Linear, kein Easing — wie im Handoff spezifiziert. Die `200/180`-Skalierung
-    /// raeumt am Ende den Bildausschnitt: bei progress=1 liegt der Schatten
-    /// vollstaendig links ausserhalb des Mond-Clips.
+    /// Linear, kein Easing — wie im Handoff spezifiziert.
     private var shadowOffset: CGFloat {
-        -CGFloat(self.clampedProgress) * self.outerSize * (200.0 / 180.0)
+        Self.shadowOffset(progress: self.clampedProgress, outerSize: self.outerSize)
+    }
+
+    /// Pure Geometrie — testbar. Schiebt den Schatten linear nach links:
+    /// `offset = -progress × 2 × moonRadius`. Bei `progress = 0.5` steht die
+    /// Schattenkante senkrecht in der Mondmitte (Halbmond — AK aus shared-095),
+    /// bei `progress = 1.0` ist der Schatten links tangential zum Mond.
+    static func shadowOffset(progress: Double, outerSize: CGFloat) -> CGFloat {
+        let clamped = max(0, min(1, progress))
+        return -CGFloat(clamped) * outerSize
     }
 
     /// Smoothstep `x²·(3 − 2x)`: Halo bleibt in der ersten Sitzungshaelfte

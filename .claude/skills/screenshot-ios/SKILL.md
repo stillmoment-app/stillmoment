@@ -59,30 +59,43 @@ und wird in der Tabelle weggelassen.
 | `dump_ui.sh [name]` | Accessibility-Hierarchie nach `tmp/<name>` (default `ui.json`) | Pfad auf stdout |
 | `shot.sh [name]` | Screenshot nach `tmp/<name>`, auf 1800px resized (default `ios.png`) | Pfad auf stdout |
 | `tap.sh <x> <y>` | Tippt an Koordinate | — |
+| `tap_by_id.sh <AXUniqueId>` | Dumpt UI, sucht Element, tippt Mittelpunkt | — |
+| `tap_by_label.sh <AXLabel>` | Wie `tap_by_id.sh`, aber via lokalisiertes Label | — |
 | `swipe.sh <sx> <sy> <ex> <ey>` | Wischt von Start zu Ende | — |
 | `type.sh <text>` | Tippt Text in fokussiertes Feld | — |
 | `button.sh <name>` | Druckt Hardware-Button (home, lock, ...) | — |
 
+**Bevorzugt `tap_by_id.sh`** wenn das Ziel einen stabilen
+`accessibilityIdentifier` traegt. Spart den manuellen Loop dump → grep → Read →
+Mittelpunkt rechnen → `tap.sh`. Bei 0/>1 Treffern bricht das Script mit Hint ab.
+`tap_by_label.sh` ist der Fallback, wenn nur ein lokalisiertes VoiceOver-Label
+verfuegbar ist — fragil bei Sprachwechseln.
+
 ## Standard-Loop
 
 ```bash
-# 1. UI-Hierarchie holen und lesen
-scripts/screenshot-ios/dump_ui.sh  # → schreibt tmp/ui.json
-# → mit Read-Tool oeffnen, AXFrame finden, Mittelpunkt berechnen:
-#   tap-x = x + width/2 ; tap-y = y + height/2
+# 1. Interagieren — stabiler accessibilityIdentifier vorhanden?
+scripts/screenshot-ios/tap_by_id.sh library.search.field
 
-# 2. Interagieren
-scripts/screenshot-ios/tap.sh 201 582
-
-# 3. Visuell verifizieren
+# 2. Visuell verifizieren
 scripts/screenshot-ios/shot.sh   # → schreibt tmp/ios.png, gibt Pfad aus
 # → mit Read-Tool oeffnen
 
 # Wiederholen ab 1.
 ```
 
-**Goldene Regel:** Nach jeder Interaktion frisch `dump_ui.sh` — gecachte Koordinaten
-sind nach einem Frame schon falsch.
+**Fallback ohne Identifier — Koordinaten-Loop:**
+
+```bash
+scripts/screenshot-ios/dump_ui.sh  # → schreibt tmp/ui.json
+# → mit Read-Tool oeffnen, AXFrame finden, Mittelpunkt berechnen:
+#   tap-x = x + width/2 ; tap-y = y + height/2
+scripts/screenshot-ios/tap.sh 201 582
+```
+
+**Goldene Regel:** Nach jeder Interaktion frisch dumpen — gecachte Koordinaten
+sind nach einem Frame schon falsch. `tap_by_id.sh`/`tap_by_label.sh` machen das
+intern automatisch.
 
 ## Fallen, die diese Scripts NICHT loesen
 

@@ -43,11 +43,16 @@ Automatisch bei:
 **Mit Ticket-Referenz:**
 1. Ticket-Datei per Glob suchen (Dateiname kann von ID abweichen): `dev-docs/tickets/**/*{ticket-id}*.md`
 2. Akzeptanzkriterien extrahieren
-3. Diff bestimmen: `git diff $(git merge-base main HEAD) HEAD --stat`
+3. Diff bestimmen: `git -C <repo> diff main...HEAD --stat`
 
 **Ohne Ticket-Referenz:**
 1. Relevante Dateien mit Glob/Grep finden
 2. Diff trotzdem gegen `main` ermitteln
+
+**Permission-Pattern fuer Diffs:**
+- Immer Drei-Punkt-Notation `main...HEAD` verwenden — zeigt Aenderungen seit dem Branch von `main`, ohne `$(git merge-base ...)`-Substitution.
+- `$(...)`-Command-Substitution triggert die Sicherheitsabfrage und ist daher verboten.
+- Beispiele: `git -C /path/to/repo diff main...HEAD`, `git -C /path/to/repo diff main...HEAD --stat`, `git -C /path/to/repo log main..HEAD --oneline` (Zwei-Punkt fuer Commits, Drei-Punkt fuer Diff).
 
 Bei sehr grossem Diff: Code-Lesen kann an `Explore`-Subagent delegiert werden, um den Hauptkontext freizuhalten. Keine starre Schwelle - Fingerspitzengefuehl.
 
@@ -57,7 +62,7 @@ Bei sehr grossem Diff: Code-Lesen kann an `Explore`-Subagent delegiert werden, u
 
 In einer Runde parallel starten:
 
-1. **Diff lesen** (Hauptkontext): `git diff $(git merge-base main HEAD) HEAD` → Review-Fokus
+1. **Diff lesen** (Hauptkontext): `git -C <repo> diff main...HEAD` → Review-Fokus (Drei-Punkt-Notation, keine `$(...)`-Substitution)
 2. **Statische Pruefungen** (`Bash`-Subagent): `make -C ios check` ODER `make -C android lint`. Prompt: "Run X in Y, return only RESULT and any errors".
 3. **Test-Lauf** (`Bash`-Subagent): `make -C {platform} test-unit-agent` mit `timeout: 300000`. **Kein Review ohne grüne Tests** - rote Tests sind Nacharbeit, bevor weitergereviewt wird.
 4. **Memory-Mapping** (Hauptkontext): MEMORY.md gegen Diff-Themen mappen. Konkrete Trigger:

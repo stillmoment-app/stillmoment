@@ -274,7 +274,7 @@
 
 // MARK: - Library Search (ios-041)
 
-"library.search.prompt" = "Nach Titel oder Sprecher suchen";
+"library.search.prompt" = "Suchen";
 "library.search.results.count" = "%d Treffer";
 "library.search.empty.title" = "Nichts gefunden";
 "library.search.empty.message" = "Keine Treffer für „%@“";
@@ -282,6 +282,9 @@
 "library.search.history.clear" = "Leeren";
 
 "accessibility.library.search.history.entry" = "Erneut suchen: %@";
+"accessibility.library.search.field" = "Bibliothek durchsuchen";
+"accessibility.library.search.clear" = "Eingabe löschen";
+"accessibility.library.search.cancel" = "Suche abbrechen";
 
 // MARK: - Autocomplete
 
