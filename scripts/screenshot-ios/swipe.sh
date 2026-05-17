@@ -3,7 +3,10 @@
 # Swipe from (start-x, start-y) to (end-x, end-y) on the booted iOS simulator.
 #
 # Usage:
-#   scripts/screenshot-ios/swipe.sh <start-x> <start-y> <end-x> <end-y>
+#   scripts/screenshot-ios/swipe.sh [--udid <UDID>] <start-x> <start-y> <end-x> <end-y>
+#
+# --udid <UDID>: optional, targets a specific booted simulator. Defaults to
+# SM_IOS_UDID env var, then auto-detect.
 #
 # Notes:
 # - --duration 0.5 --delta 5 are hardcoded. Without them axe ignores fast
@@ -18,13 +21,19 @@
 
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
-  echo "usage: $0 <start-x> <start-y> <end-x> <end-y>" >&2
-  exit 1
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "${1:-}" == "--udid" ]]; then
+  UDID="$("$SCRIPT_DIR/udid.sh" --udid "${2:-}")"
+  shift 2
+else
+  UDID="$("$SCRIPT_DIR/udid.sh")"
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-UDID="$("$SCRIPT_DIR/udid.sh")"
+if [[ $# -ne 4 ]]; then
+  echo "usage: $0 [--udid <UDID>] <start-x> <start-y> <end-x> <end-y>" >&2
+  exit 1
+fi
 
 axe swipe \
   --start-x "$1" --start-y "$2" \

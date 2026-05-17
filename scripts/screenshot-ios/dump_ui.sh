@@ -4,8 +4,11 @@
 # and write it to a file under tmp/ for inspection.
 #
 # Usage:
-#   scripts/screenshot-ios/dump_ui.sh [output-name]
+#   scripts/screenshot-ios/dump_ui.sh [--udid <UDID>] [output-name]
 #
+# - --udid <UDID>  Optional: target a specific booted simulator. Useful when
+#                  multiple simulators are booted. Defaults to SM_IOS_UDID env
+#                  var, then auto-detect.
 # - [output-name]  Optional filename (without path). Defaults to "ui.json".
 #
 # Reads:
@@ -27,7 +30,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TMP_DIR="$REPO_ROOT/tmp"
 
-UDID="$("$SCRIPT_DIR/udid.sh")"
+if [[ "${1:-}" == "--udid" ]]; then
+  UDID="$("$SCRIPT_DIR/udid.sh" --udid "${2:-}")"
+  shift 2
+else
+  UDID="$("$SCRIPT_DIR/udid.sh")"
+fi
 OUTPUT_NAME="${1:-ui.json}"
 
 mkdir -p "$TMP_DIR"

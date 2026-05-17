@@ -4,8 +4,11 @@
 # and print the absolute path of the resized file.
 #
 # Usage:
-#   scripts/screenshot-ios/shot.sh [output-name]
+#   scripts/screenshot-ios/shot.sh [--udid <UDID>] [output-name]
 #
+# - --udid <UDID>  Optional: target a specific booted simulator. Useful when
+#                  multiple simulators are booted. Defaults to SM_IOS_UDID env
+#                  var, then auto-detect.
 # - [output-name]  Optional filename (without path). Defaults to "ios.png".
 #
 # Why the resize: the Anthropic API rejects images >2000px in multi-image
@@ -22,7 +25,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TMP_DIR="$REPO_ROOT/tmp"
 
-UDID="$("$SCRIPT_DIR/udid.sh")"
+if [[ "${1:-}" == "--udid" ]]; then
+  UDID="$("$SCRIPT_DIR/udid.sh" --udid "${2:-}")"
+  shift 2
+else
+  UDID="$("$SCRIPT_DIR/udid.sh")"
+fi
 OUTPUT_NAME="${1:-ios.png}"
 
 mkdir -p "$TMP_DIR"

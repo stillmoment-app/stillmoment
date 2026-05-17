@@ -16,19 +16,46 @@ Nicht jedes Mal neue Wege probieren — diese Scripts sind der Weg.
 - iOS Simulator gebootet. Falls nicht: XcodeBuildMCP `boot_sim` aufrufen, oder
   `xcrun simctl boot <UDID>`.
 - `axe` installiert (`brew install axe`).
-- Bei mehreren gebooteten Simulatoren: `SM_IOS_UDID=<UDID>` exportieren um zu
-  disambiguieren. Aktuell gebootete: `xcrun simctl list devices booted`.
+
+## Simulator-Auswahl
+
+Alle Scripts akzeptieren `--udid <UDID>` als erstes Arg-Paar. Resolution-Order
+(hoechste Prioritaet zuerst):
+
+1. `--udid <UDID>` Flag (explizit, pro Aufruf)
+2. `SM_IOS_UDID` env var (Session-Default fuer Menschen)
+3. Auto-Detect: einziger gebooteter Simulator
+4. Mehrere gebootet: erster + Warnung auf stderr
+
+**Booted-Simulatoren mit Namen auflisten:**
+```bash
+xcrun simctl list devices booted | grep -E "^\s+\S"
+# Beispiel:
+#   iPhone 16 Plus (54B045BE-A7D9-4083-93C2-03DF719754DE) (Booted)
+#   iPhone 16 Pro  (91211B93-0475-4FED-8C71-09D140199C36) (Booted)
+```
+
+**Empfehlung fuer Claude Code:** Bei mehreren Booted-Simulatoren immer `--udid`
+nutzen. Kein `export SM_IOS_UDID=... && script` Compound-Chain — das triggert
+unnoetig eine Permission-Abfrage.
+
+```bash
+scripts/screenshot-ios/dump_ui.sh --udid 54B045BE-A7D9-4083-93C2-03DF719754DE ui-lib.json
+scripts/screenshot-ios/tap.sh    --udid 54B045BE-A7D9-4083-93C2-03DF719754DE 201 582
+```
 
 ## Scripts
 
 Alle Scripts liegen unter `scripts/screenshot-ios/` und sind ausfuehrbar.
-Alle ermitteln die Simulator-UDID automatisch (oder via `SM_IOS_UDID`).
 Alle setzen sinnvolle Defaults (`--post-delay 1`, `--duration 0.5 --delta 5`)
 hartcodiert ein — diese Werte sind durch Schmerzen erkauft, nicht anfassen.
 
+`[--udid <UDID>]` ist bei jedem Konsumer-Script optional, kommt immer zuerst
+und wird in der Tabelle weggelassen.
+
 | Script | Zweck | Output |
 |--------|-------|--------|
-| `udid.sh` | Liefert UDID des gebooteten Simulators | stdout |
+| `udid.sh` | Liefert UDID des gebooteten Simulators (akzeptiert `--udid` als Pass-Through) | stdout |
 | `dump_ui.sh [name]` | Accessibility-Hierarchie nach `tmp/<name>` (default `ui.json`) | Pfad auf stdout |
 | `shot.sh [name]` | Screenshot nach `tmp/<name>`, auf 1800px resized (default `ios.png`) | Pfad auf stdout |
 | `tap.sh <x> <y>` | Tippt an Koordinate | — |
