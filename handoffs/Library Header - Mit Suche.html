@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Library Header · Mit Suche</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&family=Geist:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+  :root {
+    --page-bg: #0a0807;
+    --ink: #E8E2D6;
+    --ink-2: #9c8f80;
+    --ink-3: #6b5f55;
+    --rule: rgba(232, 226, 214, 0.08);
+    --hl: #DA8E72;
+
+    --t-bg: #F2D7C2;
+    --t-bg-2: #F0CFB6;
+    --t-card: #FBEDDC;
+    --t-card-rule: rgba(122, 60, 36, 0.10);
+    --t-ink: #3D1F0F;
+    --t-ink-2: #7A4C36;
+    --t-ink-3: #A07761;
+    --t-accent: #8B3A1F;
+    --t-tab-bg: rgba(255, 240, 224, 0.55);
+    --t-tab-active: #FBEDDC;
+    --t-pill-bg: rgba(251, 237, 220, 0.78);
+    --t-pill-rule: rgba(122, 60, 36, 0.18);
+
+    --font-display: 'Newsreader', Georgia, serif;
+    --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page-bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .page { max-width: 1200px; margin: 0 auto; padding: 56px 40px 96px; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 400;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 44px; line-height: 1.08; letter-spacing: -0.012em;
+    margin: 14px 0 0; color: var(--ink); max-width: 880px;
+  }
+  h1 em { font-style: italic; color: var(--hl); font-weight: 400; }
+  .lede {
+    font-family: var(--font-display); font-size: 18px; font-weight: 300;
+    line-height: 1.55; color: var(--ink-2);
+    max-width: 720px; margin: 22px 0 0;
+  }
+
+  /* ============ DECISION ============ */
+  .decision {
+    margin-top: 44px;
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--hl);
+    border-radius: 0 10px 10px 0;
+    padding: 24px 28px;
+    background: rgba(218, 142, 114, 0.05);
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .decision .tag {
+    font-family: var(--font-ui); font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--hl); padding-top: 4px;
+  }
+  .decision h2 {
+    margin: 0 0 10px;
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 22px; color: var(--ink); letter-spacing: -0.005em;
+  }
+  .decision p {
+    margin: 0;
+    font-family: var(--font-display); font-size: 15.5px; font-weight: 300;
+    line-height: 1.6; color: var(--ink-2);
+  }
+  .decision p code, .decision p strong code {
+    font-family: var(--font-ui); font-size: 12.5px;
+    color: var(--ink); background: rgba(232,226,214,0.06);
+    padding: 1px 6px; border-radius: 4px;
+  }
+  .decision p strong {
+    font-family: var(--font-ui); font-style: normal; font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ============ COMPARE ============ */
+  .compare {
+    margin-top: 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .phone-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .phone-tag {
+    display: flex; align-items: baseline; gap: 14px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .phone-tag .badge {
+    font-family: var(--font-ui); font-size: 10px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 5px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+  }
+  .phone-tag .badge.now {
+    color: var(--hl); border-color: rgba(218, 142, 114, 0.4);
+    background: rgba(218, 142, 114, 0.08);
+  }
+  .phone-tag .label {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 16px; color: var(--ink-2);
+  }
+
+  /* ============ PHONE ============ */
+  .phone {
+    width: 392px;
+    height: 800px;
+    border-radius: 50px;
+    background: linear-gradient(178deg, var(--t-bg) 0%, var(--t-bg-2) 100%);
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 30px 80px -20px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(232,226,214,0.05),
+      0 0 0 9px #1c1410,
+      0 0 0 11px #2a2018;
+    color: var(--t-ink);
+    font-family: var(--font-ui);
+    font-weight: 400;
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 11px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 32px;
+    background: #0a0807;
+    border-radius: 22px;
+    z-index: 100;
+  }
+  .status-bar {
+    height: 54px;
+    padding: 17px 28px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-ui); font-weight: 500;
+    font-size: 14px; color: var(--t-ink);
+    position: relative; z-index: 10;
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+  .status-bar .icons svg { width: 17px; height: 11px; }
+  .status-bar .icons .battery {
+    width: 27px; height: 12px;
+    border: 1.2px solid var(--t-ink);
+    border-radius: 3px;
+    position: relative; padding: 1px;
+  }
+  .status-bar .icons .battery::after {
+    content: "";
+    position: absolute; right: -3px; top: 3px;
+    width: 2px; height: 5px;
+    background: var(--t-ink);
+    border-radius: 0 1px 1px 0;
+  }
+  .status-bar .icons .battery > span {
+    display: block; width: 95%; height: 100%;
+    background: var(--t-ink); border-radius: 1px;
+  }
+
+  /* ============ HEADER ============ */
+  /* Drei einzelne Pillen im Idle */
+  .pill-btn {
+    height: 40px;
+    background: var(--t-pill-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 999px;
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-ink);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(122,60,36,0.05);
+    flex-shrink: 0;
+  }
+  .pill-btn.search {
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 0 18px 0 14px;
+    text-align: left;
+  }
+  .pill-btn.search svg.lupe {
+    width: 16px; height: 16px;
+    color: var(--t-ink-3);
+    flex-shrink: 0;
+  }
+  .pill-btn.search .label {
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 14.5px;
+    color: var(--t-ink-3);
+  }
+  .pill-btn.icon {
+    width: 44px;
+  }
+  .pill-btn.icon svg { width: 17px; height: 17px; }
+  .cancel-btn {
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 15px;
+    color: var(--t-accent);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 2px;
+    flex-shrink: 0;
+  }
+
+  .header-row {
+    padding: 12px 22px 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .search-pill {
+    flex: 1;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--t-pill-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 999px;
+    padding: 8px 16px 8px 14px;
+    height: 40px;
+    box-shadow: 0 1px 2px rgba(122,60,36,0.05);
+  }
+  .search-pill svg {
+    width: 16px; height: 16px;
+    color: var(--t-ink-3);
+    flex-shrink: 0;
+  }
+  .search-pill input,
+  .search-pill .placeholder,
+  .search-pill .typed {
+    flex: 1; min-width: 0;
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 14.5px; color: var(--t-ink);
+    background: transparent; border: none; outline: none;
+    line-height: 1;
+  }
+  .search-pill .placeholder { color: var(--t-ink-3); }
+  .search-pill .typed { color: var(--t-ink); }
+  .search-pill.active {
+    background: rgba(255, 250, 240, 0.92);
+    box-shadow: 0 1px 2px rgba(122,60,36,0.05),
+                0 0 0 1.5px rgba(139,58,31,0.15);
+  }
+  .search-pill .clear {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: rgba(122,60,36,0.18);
+    color: var(--t-card);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .search-pill .clear svg { width: 9px; height: 9px; color: var(--t-card); }
+  .search-pill .caret {
+    width: 1.5px; height: 16px;
+    background: var(--t-accent);
+    animation: blink 1.1s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .lib-actions {
+    display: flex; align-items: center;
+    background: var(--t-pill-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 999px;
+    padding: 4px;
+    height: 40px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(122,60,36,0.05);
+  }
+  .lib-pill-btn {
+    width: 36px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--t-ink);
+    border: none; background: transparent;
+    cursor: pointer;
+  }
+  .lib-pill-btn + .lib-pill-btn { border-left: 1px solid var(--t-pill-rule); }
+  .lib-pill-btn svg { width: 17px; height: 17px; }
+
+  /* ============ CONTENT ============ */
+  .lib-content {
+    padding: 0 22px;
+    overflow: hidden;
+  }
+  .author {
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 14.5px; color: var(--t-ink);
+    margin: 18px 4px 12px;
+  }
+  .author .match {
+    color: var(--t-accent);
+    font-weight: 500;
+  }
+
+  /* Treffer-Eyebrow */
+  .results-eyebrow {
+    margin: 18px 6px 10px;
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--t-ink-3);
+  }
+
+  /* Treffer-Zeile (flach, Author als Subtitle) */
+  .result-row {
+    display: flex; align-items: center;
+    padding: 13px 16px;
+    gap: 12px;
+  }
+  .result-row + .result-row { border-top: 1px solid var(--t-card-rule); }
+  .result-text { flex: 1; min-width: 0; }
+  .result-title {
+    font-family: var(--font-display); font-weight: 400;
+    font-size: 15px; line-height: 1.3; color: var(--t-ink);
+  }
+  .result-sub {
+    margin-top: 2px;
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 12px; color: var(--t-ink-2);
+  }
+  .result-title .match,
+  .result-sub .match {
+    color: var(--t-accent);
+    background: rgba(139, 58, 31, 0.14);
+    border-radius: 3px;
+    padding: 0 1px;
+  }
+  .play-mini {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #d68a6e, #b06a4f);
+    color: #2a1208;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(196,122,94,0.35);
+  }
+  .play-mini svg { width: 13px; height: 13px; margin-left: 1px; }
+  .track-group {
+    background: var(--t-card);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(122,60,36,0.06);
+  }
+  .track {
+    display: flex; align-items: center;
+    padding: 16px 18px;
+    gap: 14px;
+  }
+  .track + .track { border-top: 1px solid var(--t-card-rule); }
+  .track-text { flex: 1; min-width: 0; }
+  .track-title {
+    font-family: var(--font-ui); font-weight: 500;
+    font-size: 15px; color: var(--t-ink); line-height: 1.3;
+  }
+  .track-title .match {
+    background: rgba(139, 58, 31, 0.14);
+    color: var(--t-accent);
+    border-radius: 3px;
+    padding: 0 2px;
+  }
+  .track-time {
+    margin-top: 4px;
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 12.5px; color: var(--t-ink-2);
+  }
+  .play-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--t-accent);
+    color: #FBEDDC;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(139,58,31,0.3);
+  }
+  .play-btn svg { width: 13px; height: 13px; margin-left: 2px; }
+
+  .tab-bar {
+    position: absolute;
+    bottom: 22px; left: 22px; right: 22px;
+    background: var(--t-tab-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 4px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    box-shadow: 0 6px 24px rgba(122,60,36,0.12);
+  }
+  .tab {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 10px 0 9px;
+    border-radius: 28px;
+    color: var(--t-ink-3);
+    font-family: var(--font-ui); font-weight: 400;
+    font-size: 10.5px;
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab.active { background: var(--t-tab-active); color: var(--t-accent); }
+
+  /* ============ NOTES ============ */
+  .notes {
+    margin-top: 72px;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+  }
+  .note {
+    border: 1px solid var(--rule);
+    background: rgba(232,226,214,0.02);
+    border-radius: 10px;
+    padding: 22px 24px 24px;
+  }
+  .note .num {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 22px; color: var(--hl); line-height: 1;
+  }
+  .note h3 {
+    margin: 12px 0 8px;
+    font-family: var(--font-display); font-weight: 300; font-style: italic;
+    font-size: 18px; line-height: 1.3; color: var(--ink);
+  }
+  .note p {
+    margin: 0;
+    font-family: var(--font-display); font-weight: 300;
+    font-size: 14px; line-height: 1.55; color: var(--ink-2);
+  }
+  .note p code {
+    font-family: var(--font-ui); font-size: 11.5px;
+    color: var(--ink); background: rgba(232,226,214,0.05);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ============ SWIFT NOTE ============ */
+  .swift-note {
+    margin-top: 56px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .swift-note .head {
+    padding: 16px 26px;
+    background: rgba(232,226,214,0.03);
+    border-bottom: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .swift-note .head .title {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 16px; color: var(--ink);
+  }
+  .swift-note .head .badge {
+    font-family: var(--font-ui); font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--hl);
+  }
+  .swift-note .body {
+    padding: 24px 28px 28px;
+  }
+  .swift-note .body p {
+    margin: 0;
+    font-family: var(--font-display); font-size: 15px; font-weight: 300;
+    line-height: 1.65; color: var(--ink-2);
+  }
+  .swift-note .body p + p { margin-top: 12px; }
+  .swift-note .body strong {
+    font-family: var(--font-ui); font-style: normal; font-weight: 500;
+    color: var(--ink);
+  }
+  .swift-note .body code {
+    font-family: var(--font-ui); font-size: 12px;
+    color: var(--ink); background: rgba(232,226,214,0.05);
+    padding: 1px 6px; border-radius: 4px;
+  }
+  pre.code {
+    margin: 18px 0 0;
+    padding: 20px 24px;
+    font-family: 'Geist Mono', ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: rgba(232,226,214,0.025);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  pre.code .kw { color: #c89878; }
+  pre.code .ty { color: #b4c599; }
+  pre.code .st { color: #d6b48a; }
+  pre.code .cm { color: #463d36; font-style: italic; }
+  pre.code .at { color: #9bbcd4; }
+  pre.code .num { color: #d09660; }
+
+  .footer {
+    margin-top: 80px; padding-top: 22px; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    color: var(--ink-3); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">Still Moment · Library-Header · Mit Suche</div>
+  <h1>Drei Pillen. <em>Drei Screens.</em></h1>
+  <p class="lede">
+    Suchen, Hinzufügen, Info — jede Aktion ist eine eigene Pille im Header,
+    jede Pille öffnet einen eigenen Screen. Klare Navigations-Map ohne
+    Inline-Modi, jede Route mit ihrem eigenen State, ihrem eigenen Layout.
+  </p>
+
+  <div class="decision">
+    <div class="tag">Entscheidung</div>
+    <div>
+      <h2>Drei Pillen-Buttons — jede ist eine Navigation.</h2>
+      <p>
+        Im Library-Header sitzen drei eigenständige Pillen: »Suchen« links,
+        »+« und »i« rechts. Tap auf eine führt zu einem eigenen Screen —
+        kein Inline-Mode, kein State-Wechsel im selben View. Die Suchpille
+        ist im Idle ein <strong>Button</strong>, der wie ein Suchfeld
+        <em>aussieht</em>: Lupe, »Suchen«-Label, Capsule. Erst auf dem
+        Such-Screen ist sie ein echtes TextField mit Fokus, Caret, Filter.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ COMPARE ============ -->
+  <div class="compare">
+
+    <!-- IDLE -->
+    <div class="phone-wrap">
+      <div class="phone-tag">
+        <span class="badge">Library · Idle</span>
+        <span class="label">Drei Pillen-Buttons im Header</span>
+      </div>
+
+      <div class="phone">
+        <div class="status-bar">
+          <span>14:56</span>
+          <div class="icons">
+            <svg viewBox="0 0 17 11" fill="currentColor"><circle cx="2" cy="9" r="1.2"/><circle cx="6" cy="9" r="1.2"/><circle cx="10" cy="9" r="1.2"/><circle cx="14" cy="9" r="1.2"/></svg>
+            <svg viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 1.5 C5.5 1.5 3 3 1 4.5 L8.5 11 L16 4.5 C14 3 11.5 1.5 8.5 1.5 Z"/></svg>
+            <div class="battery"><span></span></div>
+          </div>
+        </div>
+
+        <div class="header-row">
+          <button class="pill-btn search">
+            <svg class="lupe" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <circle cx="7" cy="7" r="5"/>
+              <line x1="10.7" y1="10.7" x2="14" y2="14"/>
+            </svg>
+            <span class="label">Suchen</span>
+          </button>
+          <button class="pill-btn icon">
+            <svg viewBox="0 0 17 17" stroke="currentColor" stroke-width="1.6" fill="none"><line x1="8.5" y1="2.5" x2="8.5" y2="14.5"/><line x1="2.5" y1="8.5" x2="14.5" y2="8.5"/></svg>
+          </button>
+          <button class="pill-btn icon">
+            <svg viewBox="0 0 17 17" stroke="currentColor" stroke-width="1.4" fill="none"><circle cx="8.5" cy="8.5" r="6.5"/><line x1="8.5" y1="7" x2="8.5" y2="11.5"/><circle cx="8.5" cy="5" r="0.8" fill="currentColor"/></svg>
+          </button>
+        </div>
+
+        <div class="lib-content">
+          <div class="author">Jon Salzberg</div>
+          <div class="track-group">
+            <div class="track">
+              <div class="track-text">
+                <div class="track-title">Present Moment Awareness</div>
+                <div class="track-time">25:48</div>
+              </div>
+              <div class="play-btn"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+          </div>
+
+          <div class="author">Sarah Kornfield</div>
+          <div class="track-group">
+            <div class="track">
+              <div class="track-text">
+                <div class="track-title">Body Scan for Beginners</div>
+                <div class="track-time">15:42</div>
+              </div>
+              <div class="play-btn"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+            <div class="track">
+              <div class="track-text">
+                <div class="track-title">Mindful Breathing</div>
+                <div class="track-time">7:33</div>
+              </div>
+              <div class="play-btn"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+            <div class="track">
+              <div class="track-text">
+                <div class="track-title">Evening Wind Down</div>
+                <div class="track-time">19:05</div>
+              </div>
+              <div class="play-btn"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <line x1="4" y1="11" x2="4" y2="14"/>
+              <line x1="8" y1="6" x2="8" y2="16"/>
+              <line x1="12" y1="3" x2="12" y2="19"/>
+              <line x1="16" y1="7" x2="16" y2="15"/>
+              <line x1="20" y1="10" x2="20" y2="12"/>
+            </svg>
+            Meditationen
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="12" r="7.5"/>
+              <line x1="11" y1="12" x2="11" y2="7.5" stroke-linecap="round"/>
+              <line x1="11" y1="3" x2="11" y2="1.5" stroke-linecap="round"/>
+              <line x1="9" y1="1.5" x2="13" y2="1.5" stroke-linecap="round"/>
+            </svg>
+            Timer
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <line x1="3" y1="6" x2="14" y2="6"/>
+              <line x1="18" y1="6" x2="19" y2="6"/>
+              <line x1="3" y1="11" x2="6" y2="11"/>
+              <line x1="10" y1="11" x2="19" y2="11"/>
+              <line x1="3" y1="16" x2="13" y2="16"/>
+              <line x1="17" y1="16" x2="19" y2="16"/>
+              <circle cx="16" cy="6" r="1.7" fill="currentColor"/>
+              <circle cx="8" cy="11" r="1.7" fill="currentColor"/>
+              <circle cx="15" cy="16" r="1.7" fill="currentColor"/>
+            </svg>
+            Einstellungen
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE -->
+    <div class="phone-wrap">
+      <div class="phone-tag">
+        <span class="badge now">Search-Screen · gepusht</span>
+        <span class="label">Eigener Screen mit Fokus, Filter, Abbrechen</span>
+      </div>
+
+      <div class="phone">
+        <div class="status-bar">
+          <span>14:56</span>
+          <div class="icons">
+            <svg viewBox="0 0 17 11" fill="currentColor"><circle cx="2" cy="9" r="1.2"/><circle cx="6" cy="9" r="1.2"/><circle cx="10" cy="9" r="1.2"/><circle cx="14" cy="9" r="1.2"/></svg>
+            <svg viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 1.5 C5.5 1.5 3 3 1 4.5 L8.5 11 L16 4.5 C14 3 11.5 1.5 8.5 1.5 Z"/></svg>
+            <div class="battery"><span></span></div>
+          </div>
+        </div>
+
+        <div class="header-row active">
+          <div class="search-pill active">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--t-accent);">
+              <circle cx="7" cy="7" r="5"/>
+              <line x1="10.7" y1="10.7" x2="14" y2="14"/>
+            </svg>
+            <span class="typed">ath</span>
+            <span class="caret"></span>
+            <button class="clear">
+              <svg viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <line x1="1.5" y1="1.5" x2="7.5" y2="7.5"/>
+                <line x1="7.5" y1="1.5" x2="1.5" y2="7.5"/>
+              </svg>
+            </button>
+          </div>
+          <button class="cancel-btn">Abbrechen</button>
+        </div>
+
+        <div class="lib-content">
+          <div class="results-eyebrow">4 Treffer</div>
+          <div class="track-group">
+            <div class="result-row">
+              <div class="result-text">
+                <div class="result-title">Awareness of Bre<span class="match">ath</span> and Body</div>
+                <div class="result-sub">Elisabeth Slator · 13:02</div>
+              </div>
+              <div class="play-mini"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+            <div class="result-row">
+              <div class="result-text">
+                <div class="result-title">Awareness of Bre<span class="match">ath</span> Guided</div>
+                <div class="result-sub">Elisabeth Slator · 11:35</div>
+              </div>
+              <div class="play-mini"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+            <div class="result-row">
+              <div class="result-text">
+                <div class="result-title">Mindful Bre<span class="match">ath</span>ing</div>
+                <div class="result-sub">Sarah Kornfield · 7:33</div>
+              </div>
+              <div class="play-mini"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+            <div class="result-row">
+              <div class="result-text">
+                <div class="result-title">Conscious Bre<span class="match">ath</span></div>
+                <div class="result-sub">Tara Goldstein · 11:20</div>
+              </div>
+              <div class="play-mini"><svg viewBox="0 0 13 13" fill="currentColor"><path d="M2 1.5 L11 6.5 L2 11.5 Z"/></svg></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <line x1="4" y1="11" x2="4" y2="14"/>
+              <line x1="8" y1="6" x2="8" y2="16"/>
+              <line x1="12" y1="3" x2="12" y2="19"/>
+              <line x1="16" y1="7" x2="16" y2="15"/>
+              <line x1="20" y1="10" x2="20" y2="12"/>
+            </svg>
+            Meditationen
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="12" r="7.5"/>
+              <line x1="11" y1="12" x2="11" y2="7.5" stroke-linecap="round"/>
+              <line x1="11" y1="3" x2="11" y2="1.5" stroke-linecap="round"/>
+              <line x1="9" y1="1.5" x2="13" y2="1.5" stroke-linecap="round"/>
+            </svg>
+            Timer
+          </div>
+          <div class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <line x1="3" y1="6" x2="14" y2="6"/>
+              <line x1="18" y1="6" x2="19" y2="6"/>
+              <line x1="3" y1="11" x2="6" y2="11"/>
+              <line x1="10" y1="11" x2="19" y2="11"/>
+              <line x1="3" y1="16" x2="13" y2="16"/>
+              <line x1="17" y1="16" x2="19" y2="16"/>
+              <circle cx="16" cy="6" r="1.7" fill="currentColor"/>
+              <circle cx="8" cy="11" r="1.7" fill="currentColor"/>
+              <circle cx="15" cy="16" r="1.7" fill="currentColor"/>
+            </svg>
+            Einstellungen
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ NOTES ============ -->
+  <div class="notes">
+    <div class="note">
+      <div class="num">01</div>
+      <h3>Suchpille ist im Idle ein Button, kein Eingabefeld.</h3>
+      <p>
+        Sie sieht aus wie ein Suchfeld (Lupe, „Suchen“-Label, Capsule), aber
+        Tap → Push auf den Such-Screen. Kein Fokus, kein Caret, kein Filter
+        auf dieser Ebene. Macht das Verhalten deterministisch über alle
+        iOS-Versionen — und entkoppelt Library-Layout von Search-Layout.
+      </p>
+    </div>
+    <div class="note">
+      <div class="num">02</div>
+      <h3>Search-Screen ist eigene Route, kein Inline-Mode.</h3>
+      <p>
+        Tap auf die Suchpille pusht einen <code>SearchView</code>. Der hat
+        sein eigenes Layout, seinen eigenen State, sein eigenes Filter-Modell.
+        Rechts oben „Abbrechen“ popt zurück. Vorteil: Library und Suche
+        können sich unabhängig weiterentwickeln — Filter, Tags, Voice-Search
+        nur in <code>SearchView</code>, nicht in der Library.
+      </p>
+    </div>
+    <div class="note">
+      <div class="num">03</div>
+      <h3>Flache Trefferliste, Lehrer im Subtitle.</h3>
+      <p>
+        Im Such-Modus wird <em>nicht</em> nach Lehrer gruppiert — das wäre
+        redundant zur Standard-Bibliothek. Stattdessen flache Liste mit
+        Titel (Newsreader 15) und Lehrer · Dauer als Untertitel.
+        Match-Highlight greift in beiden Feldern. Oben Eyebrow
+        <code>4 Treffer</code> in tracked caps.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ SWIFT NOTE ============ -->
+  <div class="swift-note">
+    <div class="head">
+      <span class="title">SwiftUI-Skizze · für Claude Code</span>
+      <span class="badge">Pattern</span>
+    </div>
+    <div class="body">
+      <p>
+        <strong>Kein <code>.searchable()</code></strong>. Stattdessen TextField direkt in
+        der Capsule, gebunden an einen <code>@State var query</code>. Der Filter
+        läuft in einer <code>filteredTracks</code>-Computed-Property — kein Backend, kein
+        Submit-Roundtrip.
+      </p>
+
+<pre class="code"><span class="kw">struct</span> <span class="ty">LibraryHeader</span>: <span class="ty">View</span> {
+    @<span class="at">Binding</span> <span class="kw">var</span> query: <span class="ty">String</span>
+    <span class="kw">let</span> onAdd: () -&gt; <span class="ty">Void</span>
+    <span class="kw">let</span> onInfo: () -&gt; <span class="ty">Void</span>
+    @<span class="at">FocusState</span> <span class="kw">private var</span> searchFocused: <span class="ty">Bool</span>
+
+    <span class="kw">var</span> body: <span class="kw">some</span> <span class="ty">View</span> {
+        <span class="ty">HStack</span>(spacing: <span class="num">10</span>) {
+            <span class="cm">// Search-Pille — flex, füllt verfügbaren Raum</span>
+            <span class="ty">HStack</span>(spacing: <span class="num">10</span>) {
+                <span class="ty">Image</span>(systemName: <span class="st">"magnifyingglass"</span>)
+                    .foregroundStyle(searchFocused ? <span class="ty">Color</span>.accent : .secondary)
+
+                <span class="ty">TextField</span>(<span class="st">"Suchen"</span>, text: $query)
+                    .textStyle(.body)
+                    .focused($searchFocused)
+                    .submitLabel(.search)
+
+                <span class="kw">if</span> !query.isEmpty {
+                    <span class="ty">Button</span> { query = <span class="st">""</span> } <span class="kw">label</span>: {
+                        <span class="ty">Image</span>(systemName: <span class="st">"xmark.circle.fill"</span>)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .padding(.horizontal, <span class="num">14</span>)
+            .frame(height: <span class="num">40</span>)
+            .background(.regularMaterial, in: <span class="ty">Capsule</span>())
+            .overlay {
+                <span class="kw">if</span> searchFocused {
+                    <span class="ty">Capsule</span>().stroke(.accent.opacity(<span class="num">0.15</span>), lineWidth: <span class="num">1.5</span>)
+                }
+            }
+            .animation(.snappy(duration: <span class="num">0.2</span>), value: query.isEmpty)
+
+            <span class="cm">// Action-Pille — bleibt wie heute</span>
+            <span class="ty">LibraryActionPill</span>(onAdd: onAdd, onInfo: onInfo)
+        }
+        .padding(.horizontal, <span class="num">22</span>)
+        .padding(.top, <span class="num">12</span>)
+        .padding(.bottom, <span class="num">8</span>)
+    }
+}</pre>
+
+      <p style="margin-top: 18px;">
+        Einbau im Library-Screen: das ist genau das View, das via
+        <code>.safeAreaInset(edge: .top)</code> über dem ScrollView hängt — wie
+        im vorigen Vorschlag. <code>query</code> wandert per Binding in das Parent-ViewModel,
+        und <code>filteredTracks</code> ist ein Computed über <code>tracks.filter { … }</code>.
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Still Moment · Library-Header · Mit Suche</span>
+    <span>v2.1 · Anhang zum Typografie-Plan</span>
+    <span>Mai 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
