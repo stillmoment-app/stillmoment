@@ -75,7 +75,7 @@ struct ContentGuideSheet: View {
             .accessibilityLabel("guided_meditations.guide.close")
             .accessibilityIdentifier("library.guideSheet.close")
         }
-        .padding(.top, 8)
+        .padding(.top, 20)
         .padding(.bottom, 10)
     }
 
