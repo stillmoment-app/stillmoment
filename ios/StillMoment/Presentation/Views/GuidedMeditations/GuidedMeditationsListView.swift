@@ -223,6 +223,9 @@ struct GuidedMeditationsListView: View {
             onStopPreview: {
                 self.viewModel.stopPreview()
             },
+            onSeekPreview: { time in
+                self.viewModel.seekPreview(to: time)
+            },
             onEditMeditation: { meditation in
                 self.viewModel.showEditSheet(for: meditation)
             },
@@ -269,20 +272,35 @@ struct GuidedMeditationsListView: View {
     }
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(meditation.name)
-                    .textStyle(.bodyEmphasis, color: \.textPrimary)
-                Text(meditation.formattedDuration)
-                    .textStyle(.micro, color: \.textSecondary)
+        let isThisPreviewing = self.viewModel.previewingMeditationId == meditation.id
+
+        return VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(meditation.name)
+                        .textStyle(.bodyEmphasis, color: \.textPrimary)
+                    Text(meditation.formattedDuration)
+                        .textStyle(.micro, color: \.textSecondary)
+                }
+
+                Spacer()
+
+                self.playButton(for: meditation)
             }
 
-            Spacer()
-
-            self.playButton(for: meditation)
+            if isThisPreviewing {
+                MeditationPreviewProgressRow(
+                    currentTime: self.viewModel.previewCurrentTime,
+                    duration: self.viewModel.previewDuration
+                ) { time in
+                    self.viewModel.seekPreview(to: time)
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
         .padding(.vertical, 4)
         .cardRowBackground()
+        .animation(.easeInOut(duration: 0.25), value: isThisPreviewing)
         .accessibilityIdentifier("library.row.meditation.\(meditation.id.uuidString)")
     }
 

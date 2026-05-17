@@ -15,9 +15,12 @@ struct SearchResultsListView: View {
     let meditations: [GuidedMeditation]
     let query: String
     let previewingMeditationId: UUID?
+    let previewCurrentTime: TimeInterval
+    let previewDuration: TimeInterval
     let onOpenMeditation: (GuidedMeditation) -> Void
     let onStartPreview: (GuidedMeditation) -> Void
     let onStopPreview: () -> Void
+    let onSeekPreview: (TimeInterval) -> Void
     let onEditMeditation: (GuidedMeditation) -> Void
     let onDeleteMeditation: (GuidedMeditation) -> Void
 
@@ -61,24 +64,38 @@ struct SearchResultsListView: View {
     }
 
     private func row(for meditation: GuidedMeditation) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HighlightedText(text: meditation.name, query: self.query)
-                    .textStyle(.bodyEmphasis, color: \.textPrimary)
-                HStack(spacing: 6) {
-                    HighlightedText(text: meditation.teacher, query: self.query)
-                        .textStyle(.caption, color: \.textSecondary)
-                    Text(verbatim: "·")
-                        .textStyle(.caption, color: \.textSecondary)
-                    Text(meditation.formattedDuration)
-                        .textStyle(.caption, color: \.textSecondary)
+        let isThisPreviewing = self.previewingMeditationId == meditation.id
+
+        return VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HighlightedText(text: meditation.name, query: self.query)
+                        .textStyle(.bodyEmphasis, color: \.textPrimary)
+                    HStack(spacing: 6) {
+                        HighlightedText(text: meditation.teacher, query: self.query)
+                            .textStyle(.caption, color: \.textSecondary)
+                        Text(verbatim: "·")
+                            .textStyle(.caption, color: \.textSecondary)
+                        Text(meditation.formattedDuration)
+                            .textStyle(.caption, color: \.textSecondary)
+                    }
                 }
+                Spacer()
+                self.playButton(for: meditation)
             }
-            Spacer()
-            self.playButton(for: meditation)
+
+            if isThisPreviewing {
+                MeditationPreviewProgressRow(
+                    currentTime: self.previewCurrentTime,
+                    duration: self.previewDuration,
+                    onSeek: self.onSeekPreview
+                )
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
         .padding(.vertical, 4)
         .cardRowBackground()
+        .animation(.easeInOut(duration: 0.25), value: isThisPreviewing)
         .accessibilityIdentifier("library.search.row.\(meditation.id.uuidString)")
     }
 

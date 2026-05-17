@@ -270,6 +270,7 @@
 "accessibility.library.preview.hint" = "Press and hold to listen to a preview of this meditation";
 "accessibility.library.stop" = "Stop preview";
 "accessibility.library.stop.hint" = "Stops the running preview";
+"accessibility.library.preview.position" = "Preview position";
 "accessibility.sound.select.hint" = "Selects this sound and plays a preview";
 
 // MARK: - Library Search (ios-041)

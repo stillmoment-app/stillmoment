@@ -16,6 +16,7 @@ struct LibrarySearchContentView<IdleContent: View>: View {
     let onOpenMeditation: (GuidedMeditation) -> Void
     let onStartPreview: (GuidedMeditation) -> Void
     let onStopPreview: () -> Void
+    let onSeekPreview: (TimeInterval) -> Void
     let onEditMeditation: (GuidedMeditation) -> Void
     let onDeleteMeditation: (GuidedMeditation) -> Void
     @ViewBuilder let idleContent: () -> IdleContent
@@ -39,12 +40,15 @@ struct LibrarySearchContentView<IdleContent: View>: View {
                 meditations: self.viewModel.searchResults,
                 query: self.viewModel.searchQuery,
                 previewingMeditationId: self.viewModel.previewingMeditationId,
+                previewCurrentTime: self.viewModel.previewCurrentTime,
+                previewDuration: self.viewModel.previewDuration,
                 onOpenMeditation: { meditation in
                     self.viewModel.recordSearchCommittedByOpening()
                     self.onOpenMeditation(meditation)
                 },
                 onStartPreview: self.onStartPreview,
                 onStopPreview: self.onStopPreview,
+                onSeekPreview: self.onSeekPreview,
                 onEditMeditation: self.onEditMeditation,
                 onDeleteMeditation: self.onDeleteMeditation
             )

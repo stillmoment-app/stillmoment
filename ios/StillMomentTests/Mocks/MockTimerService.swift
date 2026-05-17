@@ -153,6 +153,19 @@ final class MockAudioService: AudioServiceProtocol {
         self.gongCompletionSubject.eraseToAnyPublisher()
     }
 
+    let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
+    let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
+    var meditationPreviewPositionPublisher: AnyPublisher<TimeInterval, Never> {
+        self.meditationPreviewPositionSubject.eraseToAnyPublisher()
+    }
+
+    var meditationPreviewDurationPublisher: AnyPublisher<TimeInterval, Never> {
+        self.meditationPreviewDurationSubject.eraseToAnyPublisher()
+    }
+
+    var seekMeditationPreviewCalled = false
+    var lastSeekMeditationPreviewTime: TimeInterval?
+
     var configureAudioSessionCalled = false
     var activateTimerSessionCalled = false
     var deactivateTimerSessionCalled = false
@@ -297,6 +310,13 @@ final class MockAudioService: AudioServiceProtocol {
     func stopMeditationPreview() {
         self.stopMeditationPreviewCalled = true
         self.audioCallOrder.append("stopMeditationPreview")
+    }
+
+    func seekMeditationPreview(to time: TimeInterval) {
+        self.seekMeditationPreviewCalled = true
+        self.lastSeekMeditationPreviewTime = time
+        self.audioCallOrder.append("seekMeditationPreview")
+        self.meditationPreviewPositionSubject.send(time)
     }
 
     func stop() {

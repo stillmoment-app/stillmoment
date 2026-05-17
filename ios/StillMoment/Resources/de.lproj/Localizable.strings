@@ -270,6 +270,7 @@
 "accessibility.library.preview.hint" = "Gedrückt halten, um eine Vorschau dieser Meditation zu hören";
 "accessibility.library.stop" = "Vorschau stoppen";
 "accessibility.library.stop.hint" = "Stoppt die laufende Vorschau";
+"accessibility.library.preview.position" = "Vorhör-Position";
 "accessibility.sound.select.hint" = "Wählt diesen Sound aus und spielt eine Vorschau";
 
 // MARK: - Library Search (ios-041)

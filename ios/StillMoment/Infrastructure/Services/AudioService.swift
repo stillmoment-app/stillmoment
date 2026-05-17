@@ -71,6 +71,14 @@ final class AudioService: AudioServiceProtocol {
         self.gongCompletionSubject.eraseToAnyPublisher()
     }
 
+    var meditationPreviewPositionPublisher: AnyPublisher<TimeInterval, Never> {
+        self.meditationPreviewPositionSubject.eraseToAnyPublisher()
+    }
+
+    var meditationPreviewDurationPublisher: AnyPublisher<TimeInterval, Never> {
+        self.meditationPreviewDurationSubject.eraseToAnyPublisher()
+    }
+
     // MARK: - Public Methods
 
     /// Configures the audio session for timer use and starts a silent keep-alive audio loop.
@@ -280,6 +288,10 @@ final class AudioService: AudioServiceProtocol {
     private var previewPlayer: AVAudioPlayer?
     private var backgroundPreviewPlayer: AVAudioPlayer?
     var meditationPreviewPlayer: AVAudioPlayer?
+    var meditationPreviewDelegate: GongPlayerDelegate?
+    var meditationPreviewTimer: Timer?
+    let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
+    let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
     private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
 
