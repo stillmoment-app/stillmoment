@@ -200,7 +200,6 @@ struct GuidedMeditationPlayerView: View {
             VStack(spacing: 6) {
                 Text("\(self.viewModel.remainingCountdownSeconds)")
                     .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
-                    .monospacedDigit()
                     .accessibilityIdentifier("player.countdown")
                     .accessibilityLabel(
                         String(
@@ -214,7 +213,6 @@ struct GuidedMeditationPlayerView: View {
 
                 Text("guided_meditations.player.preroll.label")
                     .textStyle(.micro, color: \.textSecondary)
-                    .foregroundColor(self.theme.textSecondary)
             }
             .transition(.opacity)
         case .playing:
@@ -234,9 +232,7 @@ struct GuidedMeditationPlayerView: View {
         switch self.viewModel.phase {
         case .preRoll:
             Text("guided_meditations.player.preroll.hint")
-                .textStyle(.micro, color: \.textSecondary)
-                .foregroundColor(self.theme.textSecondary)
-                .textCase(.uppercase)
+                .textStyle(.eyebrow, color: \.textSecondary)
                 .accessibilityIdentifier("player.text.preRollHint")
         case .playing:
             Text(String(
@@ -248,9 +244,7 @@ struct GuidedMeditationPlayerView: View {
                 ),
                 self.viewModel.formattedRemainingMinutes
             ))
-            .textStyle(.micro, color: \.textSecondary)
-            .monospacedDigit()
-            .textCase(.uppercase)
+            .textStyle(.eyebrow, monospacedDigits: true, color: \.textSecondary)
             .accessibilityIdentifier("player.text.remainingTime")
             .accessibilityLabel("guided_meditations.player.remainingTime")
             .accessibilityValue(self.viewModel.formattedRemainingTime)

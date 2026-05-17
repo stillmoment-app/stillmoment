@@ -47,15 +47,11 @@ private struct TextStyleModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         let font = self.resolvedFont
-        let typed = content
+        content
             .font(self.monospacedDigits ? font.monospacedDigit() : font)
             .tracking(self.style.tracking)
             .textCase(self.style.uppercase ? .uppercase : nil)
-
-        if let color = self.color {
-            return AnyView(typed.foregroundColor(self.theme[keyPath: color]))
-        }
-        return AnyView(typed)
+            .foregroundColor(self.color.map { self.theme[keyPath: $0] })
     }
 
     private var resolvedFont: Font {

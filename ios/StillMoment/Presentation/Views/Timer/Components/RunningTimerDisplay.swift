@@ -64,8 +64,7 @@ struct RunningTimerDisplay: View {
     private var textColumn: some View {
         VStack(spacing: 0) {
             Text("timer.running.remaining", bundle: .main)
-                .textStyle(.micro, color: \.textSecondary)
-                .tracking(2.4)
+                .textStyle(.eyebrow, color: \.textSecondary)
                 .accessibilityHidden(true)
 
             DisplayNumeral(text: self.remainingTimeText, containerDiameter: self.moonSize)
