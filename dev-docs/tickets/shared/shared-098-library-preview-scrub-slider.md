@@ -1,6 +1,6 @@
 # Ticket shared-098: Library-Preview mit Scrub-Slider
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Komplexitaet**: Klein. Audio-Wiedergabe-Position muss als beobachtbarer Wert nach aussen sichtbar werden, Slider greift darauf zu. Apple-Music-Style Scrubbing ist auf beiden Plattformen idiomatisch.
 **Phase**: 3-Feature
@@ -24,7 +24,7 @@ Der Meditations-Player selbst bleibt bewusst minimal (eine Geste, kein Slider) �
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-075    |
+| iOS       | [x]    | shared-075    |
 | Android   | [ ]    | shared-075    |
 
 ---
@@ -51,7 +51,7 @@ Der Meditations-Player selbst bleibt bewusst minimal (eine Geste, kein Slider) �
 ### Tests
 - [ ] Unit Tests iOS — Vorhoer-Wiedergabe-Position wird beobachtbar exponiert; Seek aktualisiert die Position und Audio spielt weiter.
 - [ ] Unit Tests Android — analog.
-- [ ] UI- / Screenshot-Test iOS: Long-Press → Slider sichtbar; Drag → angezeigter Wert aktualisiert.
+- ~~UI- / Screenshot-Test iOS: Long-Press → Slider sichtbar; Drag → angezeigter Wert aktualisiert.~~ Gestrichen: Drag-Pfad ist unit-getestet (ViewModel → AudioService.seek), Sichtbarkeit strukturell trivial (`if isThisPreviewing { MeditationPreviewProgressRow(...) }`), und UI-Tests mit aktivem AVAudioPlayer im Simulator sind erfahrungsgemaess flaky (Audio-Session-Konflikte, Timing).
 
 ### Dokumentation
 - [ ] CHANGELOG.md (user-sichtbare Aenderung)
