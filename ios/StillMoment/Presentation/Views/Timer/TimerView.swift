@@ -117,27 +117,48 @@ struct TimerView: View {
         self.viewModel.isZenMode
     }
 
+    private var preRollDurationLabel: String {
+        let minutes = self.viewModel.selectedMinutes
+        let key = minutes == 1 ? "timer.preroll.duration.singular" : "timer.preroll.duration.plural"
+        return String(format: NSLocalizedString(key, comment: ""), minutes)
+    }
+
     // MARK: - Layouts
 
     private func idleLayout(geometry: GeometryProxy, isCompactHeight: Bool) -> some View {
-        // Im idle-Zustand verteilt sich der Restraum so:
-        // Top und unter Beginnen wachsen, der Spalt Liste→Beginnen
-        // bleibt klein. Beginnen ist dadurch optisch der Liste
-        // zugehoerig, der Inhalt rueckt vertikal zur Mitte.
-        VStack(spacing: 0) {
-            Spacer(minLength: 8)
-                .frame(maxHeight: .infinity)
+        // Organische Aufteilung der vier Bloecke (Headline → Dial → Liste → Button)
+        // ueber die volle Hoehe: Headline fix unter der Safe-Area, Button fix
+        // ueber der Tab-Bar, drei plain Spacer dazwischen verteilen den Restraum.
+        // Alle drei Spacer sind identisch konfiguriert (kein `.frame(maxHeight:)`),
+        // damit SwiftUI sie gleichgewichtig waechst — siehe Memory-Notiz
+        // zur Spacer-Verteilung in Vollhoehen-Layouts.
+        let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
 
-            self.idleScreen(geometry: geometry)
+        return VStack(spacing: 0) {
+            Text("timer.idle.headline", bundle: .main)
+                .textStyle(.screenTitle, color: \.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.top, isCompactHeight ? 16 : 24)
 
-            Spacer(minLength: 16)
-                .frame(maxHeight: isCompactHeight ? 24 : 36)
+            Spacer(minLength: 24)
+
+            BreathDial(
+                value: self.$viewModel.selectedMinutes,
+                diameter: dialDiameter
+            )
+
+            Spacer(minLength: 24)
+
+            self.idleSettingsList(isCompactHeight: isCompactHeight)
+                .padding(.horizontal, 24)
+
+            Spacer(minLength: 24)
 
             self.controlButtons
                 .padding(.horizontal)
 
-            Spacer(minLength: 16)
-                .frame(maxHeight: .infinity)
+            Spacer(minLength: 24)
         }
     }
 
@@ -146,40 +167,6 @@ struct TimerView: View {
         // (Mondphase positioniert sich intern ins untere Drittel).
         self.timerDisplay(geometry: geometry)
             .frame(maxHeight: .infinity)
-    }
-
-    // MARK: - Idle Screen
-
-    private func idleScreen(geometry: GeometryProxy) -> some View {
-        let isCompactHeight = geometry.size.height < 700
-        // Dial-Durchmesser: 180 px auf SE, 220 px auf grossen Geraeten.
-        let dialDiameter: CGFloat = isCompactHeight ? 180 : 220
-        // Section-Spacing: kompakter auf kleinen Geraeten, atmend auf grossen.
-        // Atemkreis-zur-Liste bekommt deutlich mehr Atem als Headline-zum-Atemkreis,
-        // damit Atemkreis und Liste sich visuell als getrennte Bloecke lesen.
-        let headlineToDialSpacing: CGFloat = isCompactHeight ? 18 : 28
-        let dialToListSpacing: CGFloat = isCompactHeight ? 32 : 72
-
-        return VStack(spacing: 0) {
-            Text("timer.idle.headline", bundle: .main)
-                .textStyle(.section, color: \.textPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-
-            Spacer(minLength: headlineToDialSpacing)
-                .frame(maxHeight: headlineToDialSpacing)
-
-            BreathDial(
-                value: self.$viewModel.selectedMinutes,
-                diameter: dialDiameter
-            )
-
-            Spacer(minLength: dialToListSpacing)
-                .frame(maxHeight: dialToListSpacing)
-
-            self.idleSettingsList(isCompactHeight: isCompactHeight)
-                .padding(.horizontal, 24)
-        }
     }
 
     private func idleSettingsList(isCompactHeight: Bool) -> some View {
@@ -251,12 +238,26 @@ struct TimerView: View {
         return Group {
             switch self.viewModel.phase {
             case .preRoll:
-                // PreRoll bleibt vertikal zentriert — Atemkreis + Hint
-                // sitzen mittig auf dem Screen.
+                // Layout parallel zu Guided-PreRoll: Modus + Dauer oben,
+                // Atemkreis mittig. Ueberschrift positioniert sich wie
+                // Lehrer + Meditations-Titel im Guided-Player.
                 VStack(spacing: 0) {
-                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+                    VStack(spacing: 8) {
+                        Text("timer.preroll.mode", bundle: .main)
+                            .textStyle(.bodyItalic, color: \.interactive)
+
+                        Text(self.preRollDurationLabel)
+                            .textStyle(.title, color: \.textPrimary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+
+                    Spacer(minLength: 12)
+
                     self.preRollDisplay(isCompactHeight: isCompactHeight)
-                    Spacer(minLength: 16).frame(maxHeight: .infinity)
+
+                    Spacer(minLength: 12)
                 }
             case .playing:
                 RunningTimerDisplay(
@@ -275,36 +276,28 @@ struct TimerView: View {
     private func preRollDisplay(isCompactHeight: Bool) -> some View {
         let circleSize: CGFloat = isCompactHeight ? 240 : 280
 
-        return VStack(spacing: 12) {
-            BreathingCircleView(
-                phase: .preRoll,
-                progress: 0,
-                reduceMotion: self.reduceMotion,
-                outerSize: circleSize
-            ) {
-                VStack(spacing: 6) {
-                    DisplayNumeral(
-                        text: "\(self.viewModel.remainingPreparationSeconds)",
-                        containerDiameter: circleSize
-                    )
-                    .foregroundColor(self.theme.textPrimary)
-                    .accessibilityIdentifier("timer.display.time")
-                    .accessibilityLabel(String(
-                        format: NSLocalizedString("accessibility.preparation", comment: ""),
-                        self.viewModel.remainingPreparationSeconds
-                    ))
+        return BreathingCircleView(
+            phase: .preRoll,
+            progress: 0,
+            reduceMotion: self.reduceMotion,
+            outerSize: circleSize
+        ) {
+            VStack(spacing: 6) {
+                DisplayNumeral(
+                    text: "\(self.viewModel.remainingPreparationSeconds)",
+                    containerDiameter: circleSize
+                )
+                .foregroundColor(self.theme.textPrimary)
+                .accessibilityIdentifier("timer.display.time")
+                .accessibilityLabel(String(
+                    format: NSLocalizedString("accessibility.preparation", comment: ""),
+                    self.viewModel.remainingPreparationSeconds
+                ))
 
-                    Text("guided_meditations.player.preroll.label")
-                        .textStyle(.micro, color: \.textSecondary)
-                }
-                .transition(.opacity)
+                Text("guided_meditations.player.preroll.label")
+                    .textStyle(.micro, color: \.textSecondary)
             }
-
-            Text("guided_meditations.player.preroll.hint")
-                .textStyle(.micro, color: \.textSecondary)
-                .foregroundColor(self.theme.textSecondary)
-                .textCase(.uppercase)
-                .transition(.opacity)
+            .transition(.opacity)
         }
     }
 

@@ -237,9 +237,7 @@ struct GuidedMeditationPlayerView: View {
     @ViewBuilder private var bottomLabel: some View {
         switch self.viewModel.phase {
         case .preRoll:
-            Text("guided_meditations.player.preroll.hint")
-                .textStyle(.eyebrow, color: \.textSecondary)
-                .accessibilityIdentifier("player.text.preRollHint")
+            EmptyView()
         case .playing:
             Text(String(
                 format: NSLocalizedString(

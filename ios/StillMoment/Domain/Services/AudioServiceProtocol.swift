@@ -77,6 +77,24 @@ protocol AudioServiceProtocol {
     /// Stops any currently playing meditation preview (with fade-out)
     func stopMeditationPreview()
 
+    /// Seeks the running meditation preview to a target position.
+    /// Audio keeps playing without pause; no-op when no preview is active.
+    /// - Parameter time: Target playback position in seconds.
+    func seekMeditationPreview(to time: TimeInterval)
+
+    /// Current playback position of the running meditation preview in seconds.
+    /// Emits 0 when no preview is active; updates roughly every 100 ms while playing.
+    var meditationPreviewPositionPublisher: AnyPublisher<TimeInterval, Never> { get }
+
+    /// Total duration of the running meditation preview in seconds.
+    /// Emits 0 when no preview is active; emits the duration once after a preview starts.
+    var meditationPreviewDurationPublisher: AnyPublisher<TimeInterval, Never> { get }
+
+    /// Fires once when a meditation preview reaches its natural end
+    /// (via `AVAudioPlayerDelegate.audioPlayerDidFinishPlaying`).
+    /// Does NOT fire when the preview is stopped explicitly via `stopMeditationPreview()`.
+    var meditationPreviewCompletionPublisher: AnyPublisher<Void, Never> { get }
+
     /// Stops any currently playing sound
     func stop()
 }

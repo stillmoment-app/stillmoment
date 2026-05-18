@@ -249,8 +249,12 @@
 "guided_meditations.player.preparationTime" = "Vorbereitungszeit";
 "guided_meditations.player.countdown" = "%d Sekunden bis die Meditation beginnt";
 "guided_meditations.player.preroll.label" = "Vorbereitung";
-"guided_meditations.player.preroll.hint" = "GLEICH GEHT'S LOS";
 "guided_meditations.player.remainingTime.format" = "NOCH %@ MIN";
+
+// Timer PreRoll-Header (Layout-Pendant zu Guided: Modus + Dauer)
+"timer.preroll.mode" = "Freie Meditation";
+"timer.preroll.duration.singular" = "%d Minute";
+"timer.preroll.duration.plural" = "%d Minuten";
 "guided_meditations.player.remainingTime.format.paused" = "PAUSIERT · NOCH %@ MIN";
 
 // MARK: - Player Completion
@@ -270,6 +274,7 @@
 "accessibility.library.preview.hint" = "Gedrückt halten, um eine Vorschau dieser Meditation zu hören";
 "accessibility.library.stop" = "Vorschau stoppen";
 "accessibility.library.stop.hint" = "Stoppt die laufende Vorschau";
+"accessibility.library.preview.position" = "Vorhör-Position";
 "accessibility.sound.select.hint" = "Wählt diesen Sound aus und spielt eine Vorschau";
 
 // MARK: - Library Search (ios-041)

@@ -35,6 +35,23 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.meditationSourceRepository = meditationSourceRepository
         self.searchHistoryStore = searchHistoryStore
         self.searchHistory = searchHistoryStore.load()
+
+        // Mirror the running preview's playback state for the UI scrub-slider (shared-098).
+        audioService.meditationPreviewPositionPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &self.$previewCurrentTime)
+        audioService.meditationPreviewDurationPublisher
+            .receive(on: DispatchQueue.main)
+            .assign(to: &self.$previewDuration)
+
+        // Natural end of a preview must flip Stop-Button back to Play and hide the slider.
+        // The service-side stop already resets position/duration; we only own the id here.
+        audioService.meditationPreviewCompletionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.previewingMeditationId = nil
+            }
+            .store(in: &self.cancellables)
     }
 
     // MARK: Internal
@@ -51,6 +68,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var guideSources: [MeditationSource] = []
     @Published var meditationToEdit: GuidedMeditation?
     @Published var previewingMeditationId: UUID?
+
+    /// Aktuelle Wiedergabeposition der laufenden Vorhoer-Wiedergabe in Sekunden.
+    /// Wird vom AudioService gefuettert, Ruecksetzung auf 0 bei Stop.
+    @Published var previewCurrentTime: TimeInterval = 0
+    /// Gesamtdauer der laufenden Vorhoer-Wiedergabe in Sekunden. 0 falls keine Preview laeuft.
+    @Published var previewDuration: TimeInterval = 0
 
     /// Zwischenstand zwischen Import und Save im Edit-Sheet (ios-043).
     ///
@@ -307,6 +330,13 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.previewingMeditationId = nil
     }
 
+    /// Springt die laufende Vorhoer-Wiedergabe an eine neue Position.
+    ///
+    /// - Parameter time: Zielposition in Sekunden. Wird im Service auf die Audio-Laenge geklemmt.
+    func seekPreview(to time: TimeInterval) {
+        self.audioService.seekMeditationPreview(to: time)
+    }
+
     /// Loads curated meditation sources for the given language and shows the guide sheet.
     ///
     /// - Parameter languageCode: Active language code (`"de"`, `"en"`, …). Falls back to English when unknown.
@@ -386,4 +416,5 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let meditationSourceRepository: MeditationSourceRepositoryProtocol
     private let searchHistoryStore: SearchHistoryStore
+    private var cancellables = Set<AnyCancellable>()
 }
