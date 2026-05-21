@@ -1,6 +1,6 @@
 # Ticket shared-100: Idle-Ring in Running-Sprache duenn (Android-Sync)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Klein — visuelle Anpassung einer bestehenden Compose-Komponente, Drag-Logik und TalkBack-Verhalten bleiben unveraendert.
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Idle und Running wirken auf Android aktuell wie zwei verschiedene Apps: Idle hat
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `ios-045` |
-| Android   | [ ]    | Dieses Ticket |
+| Android   | [x]    | -                               |
 
 ---
 

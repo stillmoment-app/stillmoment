@@ -1,10 +1,7 @@
 package com.stillmoment.presentation.ui.timer.components
 
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -17,7 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -41,61 +40,95 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.presentation.ui.common.RingMetrics
 import com.stillmoment.presentation.ui.theme.DisplayNumeralText
-import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.util.rememberIsReducedMotion
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * BreathDial — Atemkreis-Picker fuer den Timer-Idle-Screen (shared-086 / shared-089).
+ * BreathDial — Atemkreis-Picker fuer den Timer-Idle-Screen (shared-086 / shared-100).
  *
- * Track-Ring + Aktiv-Bogen (Trim ab 12-Uhr) + Drag-Tropfen mit pulsierendem Halo +
- * zentrale Big-Number + "Minuten"-Label. Drag-Geste setzt Wert kontinuierlich
- * ueber [BreathDialGeometry.valueFromPoint]; Tap in der Mitte (innerhalb von
- * 50 % des Ring-Radius) wird ignoriert, damit die Big Number nicht als
- * Hit-Target wirkt.
+ * Visuell identisch zur Running-Sprache des `PlayerRing` (shared-096) — duenner
+ * Track (1 dp), duenner Aktiv-Bogen (1.5 dp) und kleine gefuellte Akzent-Perle
+ * mit weichem statischen Halo. Keine Atem-Animation, kein pulsierender Glow —
+ * der Idle-Ring ist eine ruhige Auswahl-Geste.
+ *
+ * **Bead-Grow auf Drag (shared-100):** Die Ruhe-Perle ist klein (12 dp), damit
+ * das Feedback beim Anfassen spuerbar ist, waechst sie waehrend des aktiven
+ * Drag auf ca. 18 dp und kehrt nach Loslassen zurueck.
+ *
+ * **Hit-Area (shared-100):** Eine aeussere Wrapper-Box ist um 48 dp groesser
+ * als der sichtbare Ring — das Anfassen der duennen Perle wird nicht zur
+ * Praezisionsuebung.
+ *
+ * Drag-Geste setzt Wert kontinuierlich ueber [BreathDialGeometry.valueFromPoint];
+ * Tap in der Mitte (innerhalb von 50 % des Ring-Radius) wird ignoriert, damit
+ * die Big Number nicht als Hit-Target wirkt.
  *
  * Pendant zu iOS BreathDial.swift — gleiche Geometrie, gleiche Skala 1..60.
  */
 @Composable
 fun BreathDial(value: Int, onValueChange: (Int) -> Unit, diameter: Dp, modifier: Modifier = Modifier) {
-    val reduceMotion = rememberIsReducedMotion()
-    val ringWidth = ringWidthFor(diameter)
+    var isDragging by remember { mutableStateOf(false) }
+    val ringWidth = RingMetrics.ARC_STROKE_DP.dp
+
+    val beadDiameter by animateFloatAsState(
+        targetValue = if (isDragging) BEAD_DRAG_DIAMETER_DP else RingMetrics.BEAD_DIAMETER_DP.toFloat(),
+        animationSpec = tween(durationMillis = BEAD_GROW_DURATION_MS, easing = EaseOutCubic),
+        label = "breathDialBeadDiameter",
+    )
 
     Box(
         modifier = modifier
-            .size(diameter)
-            .testTag("timer.dial")
-            .dialDragModifier(value, onValueChange, ringWidth)
-            .dialAccessibilityModifier(value, onValueChange),
-        contentAlignment = Alignment.Center
+            .size(diameter + HIT_AREA_PADDING_DP.dp * 2)
+            .dialDragModifier(
+                value = value,
+                onValueChange = onValueChange,
+                ringWidth = ringWidth,
+                onDraggingChange = { isDragging = it },
+            )
+            .dialAccessibilityModifier(value = value, onValueChange = onValueChange),
+        contentAlignment = Alignment.Center,
     ) {
-        DialRingsAndDroplet(
-            value = value,
-            diameter = diameter,
-            ringWidth = ringWidth,
-            reduceMotion = reduceMotion
-        )
-        DialCenterText(value = value, diameter = diameter)
+        Box(
+            modifier = Modifier
+                .size(diameter)
+                .testTag("timer.dial"),
+            contentAlignment = Alignment.Center,
+        ) {
+            DialRingsAndBead(
+                value = value,
+                diameter = diameter,
+                ringWidth = ringWidth,
+                beadDiameterDp = beadDiameter,
+            )
+            DialCenterText(value = value, diameter = diameter)
+        }
     }
 }
 
 @Composable
-private fun Modifier.dialDragModifier(value: Int, onValueChange: (Int) -> Unit, ringWidth: Dp): Modifier {
+private fun Modifier.dialDragModifier(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    ringWidth: Dp,
+    onDraggingChange: (Boolean) -> Unit,
+): Modifier {
     val currentValue by rememberUpdatedState(value)
     val currentOnChange by rememberUpdatedState(onValueChange)
+    val currentOnDraggingChange by rememberUpdatedState(onDraggingChange)
     return this.pointerInput(Unit) {
         awaitEachGesture {
             val down = awaitFirstDown(requireUnconsumed = false)
+            currentOnDraggingChange(true)
             updateValueFromTouch(
                 position = down.position,
                 size = this.size,
                 ringWidthPx = ringWidth.toPx(),
                 currentValue = currentValue,
-                onValueChange = currentOnChange
+                onValueChange = currentOnChange,
             )
             var pressed = true
             while (pressed) {
@@ -107,13 +140,14 @@ private fun Modifier.dialDragModifier(value: Int, onValueChange: (Int) -> Unit, 
                             size = this.size,
                             ringWidthPx = ringWidth.toPx(),
                             currentValue = currentValue,
-                            onValueChange = currentOnChange
+                            onValueChange = currentOnChange,
                         )
                         change.consume()
                     }
                 }
                 pressed = event.changes.any { it.pressed }
             }
+            currentOnDraggingChange(false)
         }
     }
 }
@@ -130,7 +164,7 @@ private fun Modifier.dialAccessibilityModifier(value: Int, onValueChange: (Int) 
         progressBarRangeInfo = ProgressBarRangeInfo(
             current = value.toFloat(),
             range = BreathDialGeometry.MIN_MINUTES.toFloat()..BreathDialGeometry.MAX_MINUTES.toFloat(),
-            steps = BreathDialGeometry.MAX_MINUTES - BreathDialGeometry.MIN_MINUTES - 1
+            steps = BreathDialGeometry.MAX_MINUTES - BreathDialGeometry.MIN_MINUTES - 1,
         )
         setProgress { newValue ->
             val clamped = BreathDialGeometry.clampValue(newValue.roundToInt())
@@ -149,7 +183,7 @@ private fun updateValueFromTouch(
     size: androidx.compose.ui.unit.IntSize,
     ringWidthPx: Float,
     currentValue: Int,
-    onValueChange: (Int) -> Unit
+    onValueChange: (Int) -> Unit,
 ) {
     val centerX = size.width / 2f
     val centerY = size.height / 2f
@@ -161,109 +195,95 @@ private fun updateValueFromTouch(
         pointX = position.x,
         pointY = position.y,
         centerX = centerX,
-        centerY = centerY
+        centerY = centerY,
     )
     if (newValue != currentValue) {
         onValueChange(newValue)
     }
 }
 
-// region Ring + Droplet
+// region Ring + Bead
 
 @Composable
-private fun DialRingsAndDroplet(value: Int, diameter: Dp, ringWidth: Dp, reduceMotion: Boolean) {
-    val colors = LocalStillMomentColors.current
-    val backgroundColor = MaterialTheme.colorScheme.background
-    val haloRadiusPx = haloAnimatedRadiusPx(reduceMotion)
+private fun DialRingsAndBead(value: Int, diameter: Dp, ringWidth: Dp, beadDiameterDp: Float) {
+    val accentColor = MaterialTheme.colorScheme.primary
 
     Canvas(modifier = Modifier.size(diameter)) {
-        val ringWidthPx = ringWidth.toPx()
-        val ringRadius = (size.minDimension - ringWidthPx) / 2f
+        val arcStrokePx = ringWidth.toPx()
+        val trackStrokePx = RingMetrics.TRACK_STROKE_DP.dp.toPx().coerceAtLeast(1f)
+        val ringRadius = (size.minDimension - arcStrokePx) / 2f
         val center = Offset(size.width / 2f, size.height / 2f)
 
-        drawTrackRing(center, ringRadius, ringWidthPx, colors.controlTrack)
-        drawActiveArc(center, ringRadius, ringWidthPx, value, colors.dialActiveArc)
+        drawTrackRing(
+            center = center,
+            ringRadius = ringRadius,
+            strokePx = trackStrokePx,
+            accentColor = accentColor,
+        )
+        drawActiveArc(
+            center = center,
+            ringRadius = ringRadius,
+            strokePx = arcStrokePx,
+            value = value,
+            accentColor = accentColor,
+        )
 
-        val (dropX, dropY) = BreathDialGeometry.dropletPosition(
+        val (beadX, beadY) = BreathDialGeometry.dropletPosition(
             value = value,
             centerX = center.x,
             centerY = center.y,
-            radius = ringRadius
+            radius = ringRadius,
         )
-        val dropletCenter = Offset(dropX, dropY)
-        drawHalo(dropletCenter, haloRadiusPx, colors.dialDropletHalo)
-        drawDropletBody(
-            dropletCenter,
-            coreColor = colors.dialDropletCore,
-            backgroundColor = backgroundColor
+        drawBead(
+            center = Offset(beadX, beadY),
+            diameterPx = beadDiameterDp.dp.toPx(),
+            accentColor = accentColor,
         )
     }
 }
 
-private fun DrawScope.drawTrackRing(center: Offset, ringRadius: Float, ringWidthPx: Float, color: Color) {
+private fun DrawScope.drawTrackRing(center: Offset, ringRadius: Float, strokePx: Float, accentColor: Color) {
     drawCircle(
-        color = color,
+        color = accentColor.copy(alpha = RingMetrics.TRACK_ALPHA),
         radius = ringRadius,
         center = center,
-        style = Stroke(width = ringWidthPx)
+        style = Stroke(width = strokePx),
     )
 }
 
-private fun DrawScope.drawActiveArc(center: Offset, ringRadius: Float, ringWidthPx: Float, value: Int, color: Color) {
+private fun DrawScope.drawActiveArc(
+    center: Offset,
+    ringRadius: Float,
+    strokePx: Float,
+    value: Int,
+    accentColor: Color,
+) {
     val sweepAngle = (BreathDialGeometry.arcProgress(value) * 360.0).toFloat()
     val arcSize = Size(ringRadius * 2f, ringRadius * 2f)
     val topLeft = Offset(center.x - ringRadius, center.y - ringRadius)
     drawArc(
-        brush = SolidColor(color),
+        brush = SolidColor(accentColor.copy(alpha = RingMetrics.ARC_ALPHA)),
         startAngle = -90f,
         sweepAngle = sweepAngle,
         useCenter = false,
         topLeft = topLeft,
         size = arcSize,
-        style = Stroke(width = ringWidthPx, cap = StrokeCap.Round)
+        style = Stroke(width = strokePx, cap = StrokeCap.Round),
     )
 }
 
-@Composable
-private fun haloAnimatedRadiusPx(reduceMotion: Boolean): Float {
-    val density = LocalDensity.current
-    if (reduceMotion) {
-        return with(density) { HALO_STATIC_RADIUS_DP.dp.toPx() }
-    }
-    val transition = rememberInfiniteTransition(label = "breathDialHalo")
-    val animated by transition.animateFloat(
-        initialValue = HALO_MIN_RADIUS_DP,
-        targetValue = HALO_MAX_RADIUS_DP,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = HALO_PULSE_DURATION_MS, easing = EaseInOut),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breathDialHaloRadius"
-    )
-    return with(density) { animated.dp.toPx() }
-}
-
-private fun DrawScope.drawHalo(center: Offset, radiusPx: Float, color: Color) {
+private fun DrawScope.drawBead(center: Offset, diameterPx: Float, accentColor: Color) {
+    val radiusPx = diameterPx / 2f
     drawCircle(
-        color = color,
-        radius = radiusPx,
-        center = center
-    )
-}
-
-private fun DrawScope.drawDropletBody(center: Offset, coreColor: Color, backgroundColor: Color) {
-    val outerRadiusPx = DROPLET_OUTER_RADIUS_DP.dp.toPx()
-    val coreRadiusPx = DROPLET_CORE_RADIUS_DP.dp.toPx()
-    val strokeWidthPx = DROPLET_STROKE_WIDTH_DP.dp.toPx()
-
-    drawCircle(color = backgroundColor, radius = outerRadiusPx, center = center)
-    drawCircle(
-        color = coreColor,
-        radius = outerRadiusPx,
+        color = accentColor.copy(alpha = RingMetrics.BEAD_HALO_ALPHA),
+        radius = radiusPx * RingMetrics.BEAD_HALO_MULTIPLIER,
         center = center,
-        style = Stroke(width = strokeWidthPx)
     )
-    drawCircle(color = coreColor, radius = coreRadiusPx, center = center)
+    drawCircle(
+        color = accentColor,
+        radius = radiusPx,
+        center = center,
+    )
 }
 
 // endregion
@@ -274,42 +294,29 @@ private fun DrawScope.drawDropletBody(center: Offset, coreColor: Color, backgrou
 private fun DialCenterText(value: Int, diameter: Dp) {
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         DisplayNumeralText(
             text = value.toString(),
             containerDiameter = diameter,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.testTag("timer.dial.value")
+            modifier = Modifier.testTag("timer.dial.value"),
         )
         Text(
             text = stringResource(R.string.timer_dial_unit).uppercase(),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
 
 // endregion
 
-// region Sizing helpers
-
-private fun ringWidthFor(diameter: Dp): Dp {
-    val computed = diameter.value * 16f / 220f
-    return computed.coerceAtLeast(13f).dp
-}
-
-// endregion
-
 // region Constants
 
-private const val DROPLET_OUTER_RADIUS_DP = 14f
-private const val DROPLET_CORE_RADIUS_DP = 6.5f
-private const val DROPLET_STROKE_WIDTH_DP = 1.8f
-private const val HALO_MAX_RADIUS_DP = 26f
-private const val HALO_MIN_RADIUS_DP = 18f
-private const val HALO_STATIC_RADIUS_DP = 22f
-private const val HALO_PULSE_DURATION_MS = 1300
+private const val BEAD_DRAG_DIAMETER_DP = 18f
+private const val BEAD_GROW_DURATION_MS = 150
+private const val HIT_AREA_PADDING_DP = 24
 
 // endregion

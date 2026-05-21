@@ -60,10 +60,6 @@ data class StillMomentColors(
     val settingsValueAccent: Color,
     /** Active arc color of the BreathDial picker (shared-086) */
     val dialActiveArc: Color,
-    /** Halo color (with alpha) around the BreathDial droplet (shared-086) */
-    val dialDropletHalo: Color,
-    /** Core fill color of the BreathDial droplet (shared-086) */
-    val dialDropletCore: Color,
     /** Top stop of the plastic play-button gradient (shared-094) */
     val playGradientTop: Color,
     /** Bottom stop of the plastic play-button gradient (shared-094) */
@@ -169,8 +165,6 @@ private fun buildStillMomentColors(
     settingsDivider = divider,
     settingsValueAccent = interactive,
     dialActiveArc = interactive,
-    dialDropletHalo = interactive.copy(alpha = 0.18f),
-    dialDropletCore = interactive,
     playGradientTop = playGradientTop,
     playGradientBot = playGradientBot,
     textOnInteractive = textOnInteractive,
