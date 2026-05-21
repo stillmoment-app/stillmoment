@@ -126,7 +126,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-099](shared/shared-099-typografie-newsreader-geist-android.md) | Typografie Newsreader + Geist (Android-Sync zu ios-048) | 4-Polish | via ios-048 | [x] |
 | [shared-100](shared/shared-100-idle-ring-duenn-android.md) | Idle-Ring duenn in Running-Sprache (Android-Sync zu ios-045) | 4-Polish | via ios-045 | [x] |
 | [shared-101](shared/shared-101-library-search-android.md) | Library-Suche (Android-Sync zu ios-041) | 3-Feature | via ios-041 | [x] |
-| [shared-102](shared/shared-102-library-header-search-android.md) | Library-Header mit immer sichtbarem Suchfeld (Android-Sync zu ios-051) | 4-Polish | via ios-051 | [ ] |
+| [shared-102](shared/shared-102-library-header-search-android.md) | Library-Header mit immer sichtbarem Suchfeld (Android-Sync zu ios-051) | 4-Polish | via ios-051 | [x] |
 | [shared-103](shared/shared-103-share-import-verbesserungen-android.md) | Share-Import-Verbesserungen (Android-Sync zu ios-042/043/044) | 3-Feature | via ios-042/043/044 | [ ] |
 
 ---

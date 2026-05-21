@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,16 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -53,8 +51,6 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.LibrarySearchState
-import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
-import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -122,6 +118,7 @@ fun GuidedMeditationsListScreen(
         onSearchSubmit = viewModel::submitSearch,
         onHistoryEntrySelect = viewModel::selectHistoryEntry,
         onClearHistory = viewModel::clearHistory,
+        onResetSearch = viewModel::resetSearch,
         modifier = modifier
     )
 }
@@ -149,11 +146,10 @@ internal fun GuidedMeditationsListScreenContent(
     onSearchFocusChange: (Boolean) -> Unit = {},
     onSearchSubmit: () -> Unit = {},
     onHistoryEntrySelect: (String) -> Unit = {},
-    onClearHistory: () -> Unit = {}
+    onClearHistory: () -> Unit = {},
+    onResetSearch: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val importDescription = stringResource(R.string.accessibility_import_meditation)
-    val guideDescription = stringResource(R.string.guided_meditations_guide_info)
 
     // rememberUpdatedState to safely use lambda in LaunchedEffect
     val currentOnClearError by rememberUpdatedState(onClearError)
@@ -163,64 +159,31 @@ internal fun GuidedMeditationsListScreenContent(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             containerColor = Color.Transparent
         ) { padding ->
+            // shared-102: Kein StillMomentTopAppBar mehr. Der Body sitzt direkt
+            // unter der StatusBar (Scaffold-Padding ist die Safe-Area), der neue
+            // LibraryHeaderBar wandert in LibraryWithHeader und bleibt durch die
+            // Column { Header; Body }-Struktur fix beim Scrollen.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Custom TopAppBar (compact, iOS-style)
-                StillMomentTopAppBar(
-                    title = stringResource(R.string.guided_meditations_title),
-                    actions = {
-                        IconButton(
-                            onClick = onImportClick,
-                            modifier = Modifier.semantics {
-                                contentDescription = importDescription
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        IconButton(
-                            onClick = onOpenGuide,
-                            modifier = Modifier.semantics {
-                                contentDescription = guideDescription
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                LibraryBody(
+                    uiState = uiState,
+                    onMeditationClick = onMeditationClick,
+                    onImportClick = onImportClick,
+                    onEditClick = onEditClick,
+                    onConfirmDelete = onConfirmDelete,
+                    onPreviewStart = onPreviewStart,
+                    onStopPreview = onStopPreview,
+                    onOpenGuide = onOpenGuide,
+                    onSearchQueryChange = onSearchQueryChange,
+                    onSearchFocusChange = onSearchFocusChange,
+                    onSearchSubmit = onSearchSubmit,
+                    onHistoryEntrySelect = onHistoryEntrySelect,
+                    onClearHistory = onClearHistory,
+                    onResetSearch = onResetSearch
                 )
-
-                // Content below the app bar
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = TopAppBarHeight)
-                ) {
-                    LibraryBody(
-                        uiState = uiState,
-                        onMeditationClick = onMeditationClick,
-                        onImportClick = onImportClick,
-                        onEditClick = onEditClick,
-                        onConfirmDelete = onConfirmDelete,
-                        onPreviewStart = onPreviewStart,
-                        onStopPreview = onStopPreview,
-                        onOpenGuide = onOpenGuide,
-                        onSearchQueryChange = onSearchQueryChange,
-                        onSearchFocusChange = onSearchFocusChange,
-                        onSearchSubmit = onSearchSubmit,
-                        onHistoryEntrySelect = onHistoryEntrySelect,
-                        onClearHistory = onClearHistory
-                    )
-                }
             }
         }
 
@@ -284,12 +247,13 @@ internal fun GuidedMeditationsListScreenContent(
 }
 
 /**
- * Switches the body content based on [uiState] (shared-101).
+ * Switches the body content based on [uiState] (shared-101, shared-102).
  *
  * - Loading + empty groups → spinner
- * - Library empty → existing EmptyLibraryState (no search bar)
- * - Library non-empty → LibrarySearchBar + body switch nach [LibrarySearchState]:
- *   Idle = gruppierte Liste, History/Results/Empty = Such-spezifische Views.
+ * - Library empty → existing EmptyLibraryState (no header bar)
+ * - Library non-empty → fixed [LibraryHeaderBar] + body switch nach
+ *   [LibrarySearchState]: Idle = gruppierte Liste, History/Results/Empty =
+ *   Such-spezifische Views.
  */
 @Suppress("LongParameterList")
 @Composable
@@ -306,7 +270,8 @@ private fun LibraryBody(
     onSearchFocusChange: (Boolean) -> Unit,
     onSearchSubmit: () -> Unit,
     onHistoryEntrySelect: (String) -> Unit,
-    onClearHistory: () -> Unit
+    onClearHistory: () -> Unit,
+    onResetSearch: () -> Unit
 ) {
     when {
         uiState.isLoading && uiState.groups.isEmpty() -> {
@@ -318,24 +283,29 @@ private fun LibraryBody(
             }
         }
         uiState.isEmpty -> {
+            // shared-102: Im Empty-State KEIN Header — der bestehende
+            // EmptyLibraryState mit Import-Button und Quellen-Link bleibt 1:1.
             EmptyLibraryState(
                 onImportClick = onImportClick,
                 onFindSourcesClick = onOpenGuide
             )
         }
         else -> {
-            LibraryWithSearchBar(
+            LibraryWithHeader(
                 uiState = uiState,
                 onMeditationClick = onMeditationClick,
                 onEditClick = onEditClick,
                 onConfirmDelete = onConfirmDelete,
                 onPreviewStart = onPreviewStart,
                 onStopPreview = onStopPreview,
+                onImportClick = onImportClick,
+                onOpenGuide = onOpenGuide,
                 onSearchQueryChange = onSearchQueryChange,
                 onSearchFocusChange = onSearchFocusChange,
                 onSearchSubmit = onSearchSubmit,
                 onHistoryEntrySelect = onHistoryEntrySelect,
-                onClearHistory = onClearHistory
+                onClearHistory = onClearHistory,
+                onResetSearch = onResetSearch
             )
         }
     }
@@ -343,25 +313,34 @@ private fun LibraryBody(
 
 @Suppress("LongParameterList")
 @Composable
-private fun LibraryWithSearchBar(
+private fun LibraryWithHeader(
     uiState: GuidedMeditationsListUiState,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onConfirmDelete: (GuidedMeditation) -> Unit,
     onPreviewStart: (GuidedMeditation) -> Unit,
     onStopPreview: () -> Unit,
+    onImportClick: () -> Unit,
+    onOpenGuide: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onSearchFocusChange: (Boolean) -> Unit,
     onSearchSubmit: () -> Unit,
     onHistoryEntrySelect: (String) -> Unit,
-    onClearHistory: () -> Unit
+    onClearHistory: () -> Unit,
+    onResetSearch: () -> Unit
 ) {
-    androidx.compose.foundation.layout.Column(modifier = Modifier.fillMaxSize()) {
-        LibrarySearchBar(
+    // shared-102: Column { Header; Body } — der Header sitzt fix oben, der Body
+    // mit LazyColumn scrollt darunter. Keine Header-Animation, kein TopAppBar.
+    Column(modifier = Modifier.fillMaxSize()) {
+        LibraryHeaderBar(
             query = uiState.searchQuery,
+            isSearchFocused = uiState.isSearchFocused,
             onQueryChange = onSearchQueryChange,
             onFocusChange = onSearchFocusChange,
-            onSubmit = onSearchSubmit
+            onSubmit = onSearchSubmit,
+            onAdd = onImportClick,
+            onInfo = onOpenGuide,
+            onResetSearch = onResetSearch
         )
         Box(modifier = Modifier.fillMaxSize()) {
             when (uiState.searchState) {
