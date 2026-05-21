@@ -60,6 +60,12 @@ struct StillMomentApp: App {
             PreparationTimeConfigurer.disable()
         }
 
+        // UI tests use -DurationMinutes <n> to override the session duration —
+        // necessary for ios-047 so the moon-phase visualisation shows progress.
+        if let minutes = Self.parseDurationMinutesArgument() {
+            DurationConfigurer.setDuration(minutes)
+        }
+
         #if DEBUG
         Self.dumpBundledFontsIfNeeded()
         #endif
@@ -280,6 +286,20 @@ struct StillMomentApp: App {
                 break
             }
         }
+    }
+
+    /// Parses `-DurationMinutes <n>` from launch arguments.
+    /// Returns the parsed Int, or nil if the argument is missing or malformed.
+    private static func parseDurationMinutesArgument() -> Int? {
+        let args = ProcessInfo.processInfo.arguments
+        guard
+            let flagIndex = args.firstIndex(of: "-DurationMinutes"),
+            args.indices.contains(flagIndex + 1),
+            let minutes = Int(args[flagIndex + 1])
+        else {
+            return nil
+        }
+        return minutes
     }
 
     #if DEBUG

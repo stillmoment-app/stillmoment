@@ -110,23 +110,48 @@ final class ScreenshotTests: XCTestCase {
         snapshot("01_TimerIdle", timeWaitingForIdle: 0)
     }
 
-    /// Screenshot 2: Timer running state
+    /// Screenshot 2: Timer running state with visible moon-phase progress (ios-047).
+    ///
+    /// Uses `-DurationMinutes 1` to shorten the session so ~25 % progress is reached
+    /// within ~15 s of wall-clock time. Waits for the display to count down into the
+    /// 00:43 – 00:45 range (shadow visibly moved, halo dezent, not yet half-moon).
     func testScreenshot02_timerRunning() {
+        // ios-047: relaunch with a short session so the moon-phase visualisation has
+        // moved noticeably by the time the snapshot is taken.
+        self.app.terminate()
+        self.app.launchArguments += ["-DurationMinutes", "1"]
+        self.app.launch()
+
         self.navigateToTimerTab()
 
         let startButton = self.app.buttons["timer.button.start"]
         XCTAssertTrue(startButton.waitForExistence(timeout: 2.0), "Start button should exist")
 
-        // Default selectedMinutes ist 10 — Atemkreis liefert den gewuenschten Wert direkt.
         let dial = self.app.descendants(matching: .any)["timer.dial"]
         XCTAssertTrue(dial.waitForExistence(timeout: 2.0), "Dial should exist")
 
-        // Start timer
         startButton.tap()
 
-        // Wait for timer display to appear
         let timerDisplay = self.app.staticTexts["timer.display.time"]
         XCTAssertTrue(timerDisplay.waitForExistence(timeout: 2.0), "Timer display should appear")
+
+        // Wait until ~25 % of the session has elapsed — accessibilityValue starts with
+        // the remaining seconds ("45 Sekunden verbleibend" / "45 seconds remaining"),
+        // so BEGINSWITH matches independent of language. 43-45 s remaining = 25-28 %
+        // progress: shadow visibly moved, no half-moon yet.
+        let progressReached = NSPredicate(
+            format: "value BEGINSWITH '45' OR value BEGINSWITH '44' OR value BEGINSWITH '43'"
+        )
+        let progressExpectation = XCTNSPredicateExpectation(
+            predicate: progressReached,
+            object: timerDisplay
+        )
+        let result = XCTWaiter().wait(for: [progressExpectation], timeout: 30.0)
+        XCTAssertEqual(
+            result,
+            .completed,
+            "Timer did not reach ~25% progress within 30s (last value: \(timerDisplay.value ?? "nil"))"
+        )
 
         snapshot("02_TimerRunning", timeWaitingForIdle: 0)
     }
