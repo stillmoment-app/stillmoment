@@ -61,11 +61,14 @@ fun SearchResultsList(
     query: String,
     results: ImmutableList<GuidedMeditation>,
     previewingMeditationId: String?,
+    previewCurrentTimeMs: Long,
+    previewDurationMs: Long,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onDeleteMeditation: (GuidedMeditation) -> Unit,
     onPreviewStart: (GuidedMeditation) -> Unit,
     onStopPreview: () -> Unit,
+    onSeekPreview: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -96,11 +99,14 @@ fun SearchResultsList(
                 meditation = meditation,
                 query = query,
                 isPreviewActive = meditation.id == previewingMeditationId,
+                previewCurrentTimeMs = previewCurrentTimeMs,
+                previewDurationMs = previewDurationMs,
                 onMeditationClick = onMeditationClick,
                 onEditClick = onEditClick,
                 onDeleteMeditation = onDeleteMeditation,
                 onPreviewStart = onPreviewStart,
-                onStopPreview = onStopPreview
+                onStopPreview = onStopPreview,
+                onSeekPreview = onSeekPreview
             )
         }
     }
@@ -133,11 +139,14 @@ private fun SearchResultItem(
     meditation: GuidedMeditation,
     query: String,
     isPreviewActive: Boolean,
+    previewCurrentTimeMs: Long,
+    previewDurationMs: Long,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onDeleteMeditation: (GuidedMeditation) -> Unit,
     onPreviewStart: (GuidedMeditation) -> Unit,
-    onStopPreview: () -> Unit
+    onStopPreview: () -> Unit,
+    onSeekPreview: (Long) -> Unit
 ) {
     // android-078: rememberSwipeToDismissBoxState cached die confirmValueChange-Lambda —
     // rememberUpdatedState verhindert dass eine stale meditation-Referenz haengen bleibt.
@@ -172,7 +181,10 @@ private fun SearchResultItem(
             onStopPreview = onStopPreview,
             isPreviewActive = isPreviewActive,
             searchQuery = query,
-            showTeacherSubtitle = true
+            showTeacherSubtitle = true,
+            previewCurrentTimeMs = previewCurrentTimeMs,
+            previewDurationMs = previewDurationMs,
+            onSeekPreview = onSeekPreview
         )
     }
 }

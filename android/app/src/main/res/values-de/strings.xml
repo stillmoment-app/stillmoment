@@ -120,6 +120,7 @@
     <string name="accessibility_edit_meditation">Meditation bearbeiten</string>
     <string name="accessibility_start_preview">Meditation vorschauen</string>
     <string name="accessibility_stop_preview">Vorschau stoppen</string>
+    <string name="accessibility_library_preview_position">Vorhoer-Position</string>
     <string name="accessibility_meditation_item">%1$s, Dauer %2$s</string>
 
 
