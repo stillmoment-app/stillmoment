@@ -65,10 +65,9 @@ import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorUiState
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 
@@ -177,8 +176,8 @@ private fun EditorTopAppBar(onBack: () -> Unit) {
         title = {
             Text(
                 text = stringResource(R.string.praxis_editor_title),
-                style = TypographyRole.ScreenTitle.textStyle(),
-                color = TypographyRole.ScreenTitle.textColor()
+                style = TextStyle.screenTitle.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         navigationIcon = {
@@ -253,8 +252,8 @@ private fun PreparationToggleRow(enabled: Boolean, onEnable: (Boolean) -> Unit) 
     ) {
         Text(
             text = stringResource(R.string.settings_preparation_description),
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -418,8 +417,8 @@ private fun EditorSectionTitle(text: String, icon: ImageVector) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = text,
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor()
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -462,13 +461,13 @@ private fun NavigationRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = TypographyRole.SettingsLabel.textStyle(),
-                color = TypographyRole.SettingsLabel.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = summary,
-                style = TypographyRole.SettingsDescription.textStyle(),
-                color = TypographyRole.SettingsDescription.textColor()
+                style = TextStyle.caption.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Icon(

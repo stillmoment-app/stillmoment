@@ -72,10 +72,9 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -352,8 +351,8 @@ private fun BackgroundSoundRow(
 
         Text(
             text = name,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
     }
@@ -393,8 +392,8 @@ private fun MySoundsSection(
 private fun MySoundsSectionHeader() {
     Text(
         text = stringResource(R.string.custom_audio_section_my_sounds),
-        style = TypographyRole.SettingsLabel.textStyle(),
-        color = TypographyRole.SettingsDescription.textColor(),
+        style = TextStyle.body.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
     )
 }
@@ -412,8 +411,8 @@ private fun MySoundsEmptyCard() {
     ) {
         Text(
             text = stringResource(R.string.custom_audio_empty_sounds),
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(16.dp)
         )
     }
@@ -575,13 +574,13 @@ private fun CustomAudioRowInfo(name: String, durationText: String, modifier: Mod
     Column(modifier = modifier) {
         Text(
             text = name,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor()
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = durationText,
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor()
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -686,7 +685,7 @@ internal fun CustomAudioDeleteDialog(
                     Text(
                         text = stringResource(R.string.custom_audio_delete_warning_praxis),
                         color = MaterialTheme.colorScheme.error,
-                        style = TypographyRole.SettingsDescription.textStyle()
+                        style = TextStyle.caption.toComposeTextStyle()
                     )
                 }
             }

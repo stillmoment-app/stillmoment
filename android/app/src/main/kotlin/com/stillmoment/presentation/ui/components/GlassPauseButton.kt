@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -32,7 +33,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
-import com.stillmoment.presentation.ui.theme.LocalIsDarkTheme
 
 /**
  * 80×80 Glas-Style-Button mit Pause/Play-Glyph.
@@ -55,7 +55,11 @@ fun GlassPauseButton(isPlaying: Boolean, onClick: () -> Unit, modifier: Modifier
     // Backdrop-Blur-Fallback: in Dark-Mode hebt sich ein helles, leicht
     // staerkeres Overlay vom dunklen Gradient ab; in Light-Mode reicht ein
     // schwaecheres Overlay, sonst wirkt die Glas-Flaeche zu milchig.
-    val glassFillAlpha = if (LocalIsDarkTheme.current) 0.15f else 0.10f
+    // Dark-Detection via Luminance des aktuellen Theme-Hintergrunds —
+    // funktioniert unabhaengig von LocalIsDarkTheme (das wir mit shared-099
+    // geloescht haben) und respektiert den Theme-Override im Preview.
+    val isDarkBackground = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val glassFillAlpha = if (isDarkBackground) 0.15f else 0.10f
 
     Box(
         contentAlignment = Alignment.Center,

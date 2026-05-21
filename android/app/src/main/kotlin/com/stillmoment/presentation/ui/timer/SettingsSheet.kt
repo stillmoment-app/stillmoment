@@ -73,10 +73,9 @@ import com.stillmoment.presentation.ui.localizedDescription
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -157,8 +156,8 @@ private fun SettingsSheetHeader(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(R.string.settings_title),
-            style = TypographyRole.ScreenTitle.textStyle(),
-            color = TypographyRole.ScreenTitle.textColor(),
+            style = TextStyle.screenTitle.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         TextButton(
@@ -265,8 +264,8 @@ private fun PreparationTimeToggle(settings: MeditationSettings, onSettingsChange
     ) {
         Text(
             text = stringResource(R.string.settings_preparation_description),
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -454,8 +453,8 @@ private fun BackgroundSoundMenuItem(title: String, description: String, onClick:
                 Text(title)
                 Text(
                     description,
-                    style = TypographyRole.SettingsDescription.textStyle(),
-                    color = TypographyRole.SettingsDescription.textColor()
+                    style = TextStyle.caption.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
@@ -645,8 +644,8 @@ private fun IntervalGongsToggleRow(settings: MeditationSettings, onSettingsChang
     ) {
         Text(
             text = stringResource(R.string.settings_interval_gongs_description),
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -693,8 +692,8 @@ private fun IntervalMinutesStepper(minutes: Int, onMinutesChange: (Int) -> Unit)
     ) {
         Text(
             text = stringResource(R.string.settings_interval_minutes),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -711,8 +710,8 @@ private fun IntervalMinutesStepper(minutes: Int, onMinutesChange: (Int) -> Unit)
 
         Text(
             text = stringResource(R.string.settings_interval_minutes_format, minutes),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .width(56.dp)
                 .testTag("settings.label.intervalMinutes"),
@@ -877,8 +876,8 @@ private fun IntervalDescription(settings: MeditationSettings) {
 
     Text(
         text = description,
-        style = TypographyRole.SettingsDescription.textStyle(),
-        color = TypographyRole.SettingsDescription.textColor(),
+        style = TextStyle.caption.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
             .fillMaxWidth()
             .testTag("settings.label.intervalDescription")
@@ -889,8 +888,8 @@ private fun IntervalDescription(settings: MeditationSettings) {
 private fun SectionTitle(text: String) {
     Text(
         text = text,
-        style = TypographyRole.SectionTitle.textStyle(),
-        color = TypographyRole.SectionTitle.textColor(),
+        style = TextStyle.section.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(bottom = 8.dp)
     )
 }

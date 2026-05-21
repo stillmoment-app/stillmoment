@@ -34,9 +34,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * Flache Settings-Liste fuer den Timer-Idle-Screen (shared-089).
@@ -113,8 +112,8 @@ private fun IdleSettingsListRow(item: IdleSettingsListItem, isCompactHeight: Boo
     ) {
         Text(
             text = item.label,
-            style = TypographyRole.BodyPrimary.textStyle(sizeOverride = labelSizeFor(isCompactHeight).sp),
-            color = TypographyRole.BodyPrimary.textColor(),
+            style = TextStyle.body.toComposeTextStyle().copy(fontSize = labelSizeFor(isCompactHeight).sp),
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)

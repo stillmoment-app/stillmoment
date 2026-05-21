@@ -54,10 +54,9 @@ import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -339,8 +338,8 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = teacher,
-            style = TypographyRole.ListSectionTitle.textStyle(),
-            color = TypographyRole.ListSectionTitle.textColor()
+            style = TextStyle.eyebrow.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

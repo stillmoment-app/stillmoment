@@ -35,9 +35,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * Empty state for the guided-meditations library.
@@ -70,16 +69,16 @@ private fun EmptyStateHeadline() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.guided_meditations_empty_title),
-            style = TypographyRole.ScreenTitle.textStyle(),
-            color = TypographyRole.ScreenTitle.textColor(),
+            style = TextStyle.screenTitle.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 280.dp)
         )
         Spacer(modifier = Modifier.height(14.dp))
         Text(
             text = stringResource(R.string.guided_meditations_empty_description),
-            style = TypographyRole.BodySecondary.textStyle(),
-            color = TypographyRole.BodySecondary.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 300.dp)
         )
@@ -117,7 +116,7 @@ private fun FindSourcesButton(onClick: () -> Unit) {
     TextButton(onClick = onClick) {
         Text(
             text = stringResource(R.string.guided_meditations_empty_find_sources),
-            style = TypographyRole.BodySecondary.textStyle(),
+            style = TextStyle.body.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.primary,
             textDecoration = TextDecoration.Underline
         )

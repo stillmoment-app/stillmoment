@@ -42,9 +42,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * Modal overlay shown while a URL share/import download is in progress.
@@ -142,8 +141,8 @@ private fun ModalCard(
 
         Text(
             text = texts.title,
-            style = TypographyRole.DialogTitle.textStyle(),
-            color = TypographyRole.DialogTitle.textColor(),
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics { heading() }
         )
@@ -152,8 +151,8 @@ private fun ModalCard(
 
         Text(
             text = texts.body,
-            style = TypographyRole.DialogBody.textStyle(),
-            color = TypographyRole.DialogBody.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
@@ -203,7 +202,7 @@ private fun CancelGhostPill(
     ) {
         Text(
             text = label,
-            style = TypographyRole.ListActionLabel.textStyle()
+            style = TextStyle.bodyEmphasis.toComposeTextStyle()
         )
     }
 }

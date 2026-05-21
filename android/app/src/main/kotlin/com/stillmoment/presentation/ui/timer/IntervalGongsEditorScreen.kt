@@ -65,11 +65,10 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorUiState
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -202,8 +201,8 @@ private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, mod
     ) {
         Text(
             text = stringResource(R.string.settings_interval_gongs),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -302,8 +301,8 @@ private fun IntervalStepper(minutes: Int, onMinutesChange: (Int) -> Unit, modifi
     ) {
         Text(
             text = stringResource(R.string.settings_interval_minutes),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -320,8 +319,8 @@ private fun IntervalStepper(minutes: Int, onMinutesChange: (Int) -> Unit, modifi
 
         Text(
             text = stringResource(R.string.settings_interval_minutes_format, minutes),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .width(56.dp)
                 .testTag("intervalEditor.label.minutes"),
@@ -474,8 +473,8 @@ private fun IntervalSoundRow(
 
         Text(
             text = name,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
 
@@ -574,8 +573,8 @@ private fun IntervalDescriptionText(
 
     Text(
         text = description,
-        style = TypographyRole.SettingsDescription.textStyle(),
-        color = TypographyRole.SettingsDescription.textColor(),
+        style = TextStyle.caption.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
             .fillMaxWidth()
             .testTag("intervalEditor.label.description")

@@ -29,9 +29,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.ImportAudioType
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * Bottom sheet for selecting the import type when sharing an audio file with the app.
@@ -53,8 +52,8 @@ fun ImportTypeSelectionSheet(onTypeSelect: (ImportAudioType) -> Unit, onDismiss:
         ) {
             Text(
                 text = stringResource(R.string.import_type_title),
-                style = TypographyRole.ScreenTitle.textStyle(),
-                color = TypographyRole.ScreenTitle.textColor(),
+                style = TextStyle.screenTitle.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.semantics { heading() }
             )
 
@@ -101,13 +100,13 @@ private fun ImportTypeRow(icon: ImageVector, title: String, description: String,
         Column {
             Text(
                 text = title,
-                style = TypographyRole.SettingsLabel.textStyle(),
-                color = TypographyRole.SettingsLabel.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = description,
-                style = TypographyRole.SettingsDescription.textStyle(),
-                color = TypographyRole.SettingsDescription.textColor()
+                style = TextStyle.caption.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

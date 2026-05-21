@@ -43,9 +43,8 @@ import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationSource
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -102,8 +101,8 @@ internal fun ContentGuideSheetContent(
     ) {
         Text(
             text = stringResource(R.string.guided_meditations_guide_title),
-            style = TypographyRole.ScreenTitle.textStyle(),
-            color = TypographyRole.ScreenTitle.textColor(),
+            style = TextStyle.screenTitle.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.semantics { heading() }
         )
 
@@ -111,8 +110,8 @@ internal fun ContentGuideSheetContent(
 
         Text(
             text = stringResource(R.string.guided_meditations_guide_intro),
-            style = TypographyRole.BodySecondary.textStyle(),
-            color = TypographyRole.BodySecondary.textColor()
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -175,14 +174,14 @@ private fun SourceRow(source: MeditationSource, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = source.description,
-                style = TypographyRole.BodySecondary.textStyle(),
-                color = TypographyRole.BodySecondary.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = source.host,
-                style = TypographyRole.Caption.textStyle(),
-                color = TypographyRole.Caption.textColor().copy(alpha = 0.7f)
+                style = TextStyle.caption.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }
         Spacer(modifier = Modifier.width(12.dp))
@@ -201,27 +200,27 @@ private fun SourceTitleLine(source: MeditationSource) {
     if (author == null) {
         Text(
             text = source.name,
-            style = TypographyRole.ListTitle.textStyle(),
-            color = TypographyRole.ListTitle.textColor()
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface
         )
     } else {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
                 text = source.name,
-                style = TypographyRole.ListTitle.textStyle(),
-                color = TypographyRole.ListTitle.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "·",
-                style = TypographyRole.BodySecondary.textStyle(),
-                color = TypographyRole.BodySecondary.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = author,
-                style = TypographyRole.BodySecondary.textStyle(),
-                color = TypographyRole.BodySecondary.textColor()
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

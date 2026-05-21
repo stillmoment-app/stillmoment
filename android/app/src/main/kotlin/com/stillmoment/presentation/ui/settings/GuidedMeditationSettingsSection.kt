@@ -39,10 +39,9 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * Settings section for guided meditation configuration.
@@ -59,8 +58,8 @@ fun GuidedMeditationSettingsSection(
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.app_settings_guided_meditations_header),
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor(),
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -117,8 +116,8 @@ private fun PreparationTimeToggleRow(
             text = stringResource(
                 R.string.guided_meditations_settings_preparation_description
             ),
-            style = TypographyRole.SettingsDescription.textStyle(),
-            color = TypographyRole.SettingsDescription.textColor(),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))

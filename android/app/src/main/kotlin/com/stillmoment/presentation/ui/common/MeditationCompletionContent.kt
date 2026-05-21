@@ -29,9 +29,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.stillmoment.R
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * "Thank you" completion screen shown when a guided meditation has finished.
@@ -98,10 +97,10 @@ internal fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Mo
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         Text(
             text = stringResource(R.string.completion_headline),
-            style = TypographyRole.ScreenTitle.textStyle(
-                sizeOverride = if (isCompactHeight) 32.sp else TextUnit.Unspecified
+            style = TextStyle.screenTitle.toComposeTextStyle().copy(
+                fontSize = if (isCompactHeight) 32.sp else TextUnit.Unspecified
             ),
-            color = TypographyRole.ScreenTitle.textColor(),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics { heading() }
         )
@@ -110,10 +109,10 @@ internal fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Mo
 
         Text(
             text = stringResource(R.string.completion_subtitle),
-            style = TypographyRole.BodySecondary.textStyle(
-                sizeOverride = if (isCompactHeight) 14.sp else TextUnit.Unspecified
+            style = TextStyle.body.toComposeTextStyle().copy(
+                fontSize = if (isCompactHeight) 14.sp else TextUnit.Unspecified
             ),
-            color = TypographyRole.BodySecondary.textColor(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp)
         )

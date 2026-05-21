@@ -35,10 +35,9 @@ import com.stillmoment.R
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -153,8 +152,8 @@ private fun AttributionSection(header: String, sounds: ImmutableList<SoundEntry>
     Column(modifier = modifier.padding(bottom = 16.dp)) {
         Text(
             text = header,
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor(),
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -193,8 +192,8 @@ private fun SoundRow(sound: SoundEntry, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = sound.name,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -206,7 +205,7 @@ private fun SoundRow(sound: SoundEntry, modifier: Modifier = Modifier) {
         ) {
             Text(
                 text = stringResource(R.string.sound_attributions_source),
-                style = TypographyRole.SettingsLabel.textStyle(),
+                style = TextStyle.body.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.primary
             )
         }

@@ -63,9 +63,8 @@ import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.util.rememberIsReducedMotion
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -223,6 +222,7 @@ private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modi
             BreathingCircleSlot(
                 phase = uiState.phase,
                 countdownSeconds = uiState.remainingPreparationSeconds,
+                circleSize = circleSize,
                 reduceMotion = reduceMotion
             )
         }
@@ -246,7 +246,12 @@ private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modi
 }
 
 @Composable
-private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, reduceMotion: Boolean) {
+private fun BreathingCircleSlot(
+    phase: MeditationPhase,
+    countdownSeconds: Int,
+    circleSize: androidx.compose.ui.unit.Dp,
+    reduceMotion: Boolean
+) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
     val countdownDescription = stringResource(
         R.string.accessibility_countdown_seconds,
@@ -264,6 +269,7 @@ private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, r
         when (current) {
             MeditationPhase.PreRoll -> PreRollCircleContent(
                 countdownSeconds = countdownSeconds,
+                containerDiameter = circleSize,
                 modifier = Modifier
                     .testTag("timer.display.countdown")
                     .semantics {
@@ -333,10 +339,10 @@ private fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Mod
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         Text(
             text = stringResource(R.string.completion_headline),
-            style = TypographyRole.ScreenTitle.textStyle(
-                sizeOverride = if (isCompactHeight) 32.sp else TextUnit.Unspecified
+            style = TextStyle.screenTitle.toComposeTextStyle().copy(
+                fontSize = if (isCompactHeight) 32.sp else TextUnit.Unspecified
             ),
-            color = TypographyRole.ScreenTitle.textColor(),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics { heading() }
         )
@@ -345,10 +351,10 @@ private fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Mod
 
         Text(
             text = stringResource(R.string.completion_subtitle),
-            style = TypographyRole.BodySecondary.textStyle(
-                sizeOverride = if (isCompactHeight) 14.sp else TextUnit.Unspecified
+            style = TextStyle.body.toComposeTextStyle().copy(
+                fontSize = if (isCompactHeight) 14.sp else TextUnit.Unspecified
             ),
-            color = TypographyRole.BodySecondary.textColor(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
