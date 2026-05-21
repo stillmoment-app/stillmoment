@@ -58,10 +58,15 @@ fun PreRollCircleContent(countdownSeconds: Int, containerDiameter: Dp, modifier:
 
 /**
  * Label unter dem Atemkreis: Pre-Roll-Hint ("GLEICH GEHT'S LOS") oder Restzeit-Label
- * ("NOCH 8:32 MIN"). Cross-Fade beim Phase-Wechsel — bei [reduceMotion] ohne Fade.
+ * ("NOCH 8:32 MIN" / "PAUSIERT · NOCH 8:32 MIN"). Cross-Fade beim Phase-Wechsel —
+ * bei [reduceMotion] ohne Fade.
  *
  * Geteilt zwischen Player und Timer. Aufrufer setzt testTags via [hintModifier]
  * (Pre-Roll) bzw. [remainingModifier] (Hauptphase).
+ *
+ * @param isPaused Nur fuer den Player relevant. Bei `true` rendert
+ *   [RemainingTimeLabel] das Format mit "PAUSIERT"-Prefix. Default `false` —
+ *   der Timer hat keinen Pause-Zustand und bleibt damit abwaerts-kompatibel.
  */
 @Composable
 fun MeditationBottomLabel(
@@ -70,7 +75,8 @@ fun MeditationBottomLabel(
     reduceMotion: Boolean,
     modifier: Modifier = Modifier,
     hintModifier: Modifier = Modifier,
-    remainingModifier: Modifier = Modifier
+    remainingModifier: Modifier = Modifier,
+    isPaused: Boolean = false,
 ) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
 
@@ -87,7 +93,8 @@ fun MeditationBottomLabel(
             MeditationPhase.PreRoll -> PreRollHint(modifier = hintModifier)
             MeditationPhase.Playing -> RemainingTimeLabel(
                 formattedRemainingMinutes = formattedRemainingMinutes,
-                modifier = remainingModifier
+                isPaused = isPaused,
+                modifier = remainingModifier,
             )
         }
     }
@@ -105,11 +112,13 @@ private fun PreRollHint(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun RemainingTimeLabel(formattedRemainingMinutes: String, modifier: Modifier = Modifier) {
-    val text = stringResource(
-        R.string.guided_meditations_player_remaining_time_format,
-        formattedRemainingMinutes
-    )
+private fun RemainingTimeLabel(formattedRemainingMinutes: String, isPaused: Boolean, modifier: Modifier = Modifier) {
+    val formatRes = if (isPaused) {
+        R.string.guided_meditations_player_remaining_time_format_paused
+    } else {
+        R.string.guided_meditations_player_remaining_time_format
+    }
+    val text = stringResource(formatRes, formattedRemainingMinutes)
     Text(
         text = text,
         style = TextStyle.micro.toComposeTextStyle(monospacedDigits = true),
