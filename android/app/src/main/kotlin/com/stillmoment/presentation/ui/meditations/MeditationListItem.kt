@@ -45,7 +45,14 @@ import com.stillmoment.presentation.ui.theme.toComposeTextStyle
  * - Tap on stop button → stop running preview
  * - Row text (title, duration) is not tappable — only scrollable
  * - Edit and delete via swipe actions (managed by parent)
+ *
+ * Optional Such-Parameter (shared-101):
+ * - [searchQuery] != null aktiviert Match-Highlight in Titel + Lehrer-Untertitel.
+ * - [showTeacherSubtitle] = true zeigt den Lehrernamen unter dem Titel statt nur die Dauer.
+ *   In der gruppierten Liste laesst man das aus, weil dort der Section-Header den Lehrer
+ *   bereits anzeigt.
  */
+@Suppress("LongParameterList")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MeditationListItem(
@@ -54,7 +61,9 @@ fun MeditationListItem(
     onPreviewStart: () -> Unit,
     onStopPreview: () -> Unit,
     isPreviewActive: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    searchQuery: String? = null,
+    showTeacherSubtitle: Boolean = false
 ) {
     val itemDescription = stringResource(
         R.string.accessibility_meditation_item,
@@ -86,7 +95,12 @@ fun MeditationListItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            MeditationInfo(meditation = meditation, modifier = Modifier.weight(1f))
+            MeditationInfo(
+                meditation = meditation,
+                searchQuery = searchQuery,
+                showTeacherSubtitle = showTeacherSubtitle,
+                modifier = Modifier.weight(1f)
+            )
             Spacer(modifier = Modifier.width(8.dp))
             MeditationPlayButton(
                 isPreviewActive = isPreviewActive,
@@ -99,15 +113,51 @@ fun MeditationListItem(
 }
 
 @Composable
-private fun MeditationInfo(meditation: GuidedMeditation, modifier: Modifier = Modifier) {
+private fun MeditationInfo(
+    meditation: GuidedMeditation,
+    searchQuery: String?,
+    showTeacherSubtitle: Boolean,
+    modifier: Modifier = Modifier
+) {
     Column(modifier = modifier) {
-        Text(
-            text = meditation.effectiveName,
-            style = TextStyle.body.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        if (searchQuery.isNullOrEmpty()) {
+            Text(
+                text = meditation.effectiveName,
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        } else {
+            HighlightedText(
+                text = meditation.effectiveName,
+                query = searchQuery,
+                style = TextStyle.body.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
+        }
+
+        if (showTeacherSubtitle) {
+            if (searchQuery.isNullOrEmpty()) {
+                Text(
+                    text = meditation.effectiveTeacher,
+                    style = TextStyle.bodyItalic.toComposeTextStyle(),
+                    color = LocalStillMomentColors.current.interactive,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else {
+                HighlightedText(
+                    text = meditation.effectiveTeacher,
+                    query = searchQuery,
+                    style = TextStyle.bodyItalic.toComposeTextStyle(),
+                    color = LocalStillMomentColors.current.interactive,
+                    maxLines = 1
+                )
+            }
+        }
+
         Text(
             text = meditation.formattedDuration,
             style = TextStyle.caption.toComposeTextStyle(),

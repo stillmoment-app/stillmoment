@@ -472,8 +472,18 @@ private fun StillMomentNavContent(
                 listViewModel.showEditSheet(meditation)
             }
 
+            // shared-101: Library-Suche zuruecksetzen, sobald der Tab in den Hintergrund
+            // geht (anderer Tab gewaehlt) oder die Library wieder im Vordergrund auftaucht.
+            // NavBackStackEntries haben eigenen Lifecycle: ON_PAUSE feuert beim Tab-Wechsel,
+            // bevor der Backstack-Eintrag dispose'd wird (saveState = true behaelt ihn am
+            // Leben). Damit landet die Library auf Rueckkehr im Idle-Zustand.
+            ResetLibrarySearchOnPause(viewModel = listViewModel)
+
             GuidedMeditationsListScreen(
-                onMeditationClick = { navController.navigate(Screen.Player.createRoute(it)) },
+                onMeditationClick = { meditation ->
+                    listViewModel.recordSearchCommittedByOpening()
+                    navController.navigate(Screen.Player.createRoute(meditation))
+                },
                 viewModel = listViewModel
             )
         }
@@ -502,6 +512,30 @@ private fun StillMomentNavContent(
         }
 
         playerComposable(navController, onMeditationFinish, onMeditationLoad)
+    }
+}
+
+/**
+ * shared-101: Setzt die Library-Suche zurueck, sobald der Library-Screen den Fokus
+ * verliert (Tab-Wechsel, Sheet vorne, Player oeffnet sich). Bei Rueckkehr ist die
+ * Library im Idle-Zustand.
+ *
+ * Nutzt den NavBackStackEntry-Lifecycle (Compose-Local), nicht den der Activity —
+ * `ON_PAUSE` feuert genau beim Tab-Wechsel, waehrend der Backstack-Eintrag selbst
+ * via `saveState = true` erhalten bleibt.
+ */
+@Composable
+private fun ResetLibrarySearchOnPause(viewModel: GuidedMeditationsListViewModel) {
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val currentViewModel by rememberUpdatedState(viewModel)
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_PAUSE) {
+                currentViewModel.resetSearch()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 }
 

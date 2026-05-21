@@ -1,6 +1,6 @@
 # Ticket shared-101: Library-Suche (Android-Sync)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — Such-Logik (Tokens, Diakritika, Ranking) + Historie-Persistenz + neuer UI-State und Match-Highlight im Treffer-Text. Such-Engine ist auf iOS bereits als pure Domain-Funktion testbar geschrieben; Compose bietet Material 3 SearchBar als idiomatischen Container.
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ Sobald die persoenliche Sammlung waechst, wird Browsen muehsam. Eine kleine, ein
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `ios-041` |
-| Android   | [ ]    | Dieses Ticket |
+| Android   | [x]    | -                               |
 
 ---
 

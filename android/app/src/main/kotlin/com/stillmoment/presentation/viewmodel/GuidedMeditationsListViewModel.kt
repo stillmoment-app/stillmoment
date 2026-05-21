@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.LibrarySearchState
 import com.stillmoment.domain.models.MeditationSource
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
+import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.LibrarySearchEngine
+import com.stillmoment.domain.services.SearchHistory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -28,6 +32,8 @@ import kotlinx.coroutines.launch
 data class GuidedMeditationsListUiState(
     /** Meditations grouped by teacher */
     val groups: ImmutableList<GuidedMeditationGroup> = persistentListOf(),
+    /** Flat meditation list (for search; identical content to groups but ungrouped) */
+    val allMeditations: ImmutableList<GuidedMeditation> = persistentListOf(),
     /** Whether data is being loaded */
     val isLoading: Boolean = true,
     /** Error message if any */
@@ -46,6 +52,13 @@ data class GuidedMeditationsListUiState(
     val showGuideSheet: Boolean = false,
     /** Curated sources for the current locale (Content Guide) */
     val guideSources: ImmutableList<MeditationSource> = persistentListOf(),
+    // MARK: - Library search (shared-101)
+    /** Current search query (raw user input, not trimmed) */
+    val searchQuery: String = "",
+    /** Whether the search field currently holds focus */
+    val isSearchFocused: Boolean = false,
+    /** Persisted search history (newest first, max 6 entries) */
+    val searchHistory: ImmutableList<String> = persistentListOf()
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -58,6 +71,31 @@ data class GuidedMeditationsListUiState(
     /** List of unique teacher names for autocomplete */
     val availableTeachers: ImmutableList<String>
         get() = groups.map { it.teacher }.distinct().sorted().toImmutableList()
+
+    /**
+     * Currently visible search results for the query — empty if no query.
+     *
+     * Computed via [LibrarySearchEngine.search] over [allMeditations].
+     */
+    val searchResults: ImmutableList<GuidedMeditation>
+        get() = LibrarySearchEngine.search(allMeditations, searchQuery).toImmutableList()
+
+    /**
+     * Derived view state for the library body switch.
+     *
+     * - Empty query, not focused → [LibrarySearchState.Idle] (gruppierte Liste).
+     * - Empty query, focused → [LibrarySearchState.History].
+     * - Query with hits → [LibrarySearchState.Results].
+     * - Query without hits → [LibrarySearchState.Empty].
+     */
+    val searchState: LibrarySearchState
+        get() {
+            val trimmed = searchQuery.trim()
+            if (trimmed.isEmpty()) {
+                return if (isSearchFocused) LibrarySearchState.History else LibrarySearchState.Idle
+            }
+            return if (searchResults.isEmpty()) LibrarySearchState.Empty else LibrarySearchState.Results
+        }
 }
 
 /**
@@ -66,19 +104,22 @@ data class GuidedMeditationsListUiState(
  * Manages the list of guided meditations, import functionality,
  * and edit/delete operations.
  */
+@Suppress("TooManyFunctions") // ViewModel orchestrates library + search + import + preview flows
 @HiltViewModel
 class GuidedMeditationsListViewModel
 @Inject
 constructor(
     private val repository: GuidedMeditationRepository,
     private val audioService: AudioServiceProtocol,
-    private val meditationSourceRepository: MeditationSourceRepository
+    private val meditationSourceRepository: MeditationSourceRepository,
+    private val searchHistoryRepository: SearchHistoryRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
 
     init {
         observeMeditations()
+        observeSearchHistory()
     }
 
     /**
@@ -86,16 +127,27 @@ constructor(
      */
     private fun observeMeditations() {
         viewModelScope.launch {
-            repository.meditationsFlow
-                .map { meditations -> meditations.groupByTeacher().toImmutableList() }
-                .collect { groups ->
-                    _uiState.update {
-                        it.copy(
-                            groups = groups,
-                            isLoading = false
-                        )
-                    }
+            repository.meditationsFlow.collect { meditations ->
+                val groups = meditations.groupByTeacher().toImmutableList()
+                _uiState.update {
+                    it.copy(
+                        groups = groups,
+                        allMeditations = meditations.toImmutableList(),
+                        isLoading = false
+                    )
                 }
+            }
+        }
+    }
+
+    /**
+     * Observes the persisted search history (shared-101) and mirrors it into UI state.
+     */
+    private fun observeSearchHistory() {
+        viewModelScope.launch {
+            searchHistoryRepository.historyFlow.collect { history ->
+                _uiState.update { it.copy(searchHistory = history.toImmutableList()) }
+            }
         }
     }
 
@@ -273,6 +325,88 @@ constructor(
         _uiState.update { it.copy(showGuideSheet = false) }
     }
 
+    // MARK: - Library Search (shared-101)
+
+    /**
+     * Updates the search query (live filter — no debounce, runs on every key stroke).
+     */
+    fun updateSearchQuery(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+    }
+
+    /**
+     * Marks the search field as focused / unfocused.
+     */
+    fun setSearchFocused(focused: Boolean) {
+        _uiState.update { it.copy(isSearchFocused = focused) }
+    }
+
+    /**
+     * Confirms the current query via IME-Done (Search-Action).
+     *
+     * - Hits → commit to history.
+     * - No hits → ignored (history remains untouched, see ticket AC).
+     */
+    fun submitSearch() {
+        val state = _uiState.value
+        if (state.searchResults.isEmpty()) {
+            return
+        }
+        commitCurrentQueryToHistory(state.searchQuery)
+    }
+
+    /**
+     * Called when the user opens a search result.
+     *
+     * - Commits the query to history (only if hits existed).
+     * - Resets the search field so the library returns to Idle on the way back.
+     */
+    fun recordSearchCommittedByOpening() {
+        val state = _uiState.value
+        if (state.searchResults.isNotEmpty()) {
+            commitCurrentQueryToHistory(state.searchQuery)
+        }
+        resetSearch()
+    }
+
+    /**
+     * Sets the search query from a tapped history entry (re-runs the search immediately).
+     */
+    fun selectHistoryEntry(term: String) {
+        _uiState.update { it.copy(searchQuery = term) }
+    }
+
+    /**
+     * Clears the entire search history.
+     */
+    fun clearHistory() {
+        viewModelScope.launch {
+            searchHistoryRepository.clear()
+        }
+    }
+
+    /**
+     * Resets the search field (query + focus) — used on tab change and after opening a result.
+     */
+    fun resetSearch() {
+        _uiState.update { it.copy(searchQuery = "", isSearchFocused = false) }
+    }
+
+    private fun commitCurrentQueryToHistory(query: String) {
+        val currentHistory = _uiState.value.searchHistory
+        val updated = SearchHistory.prepend(
+            history = currentHistory,
+            term = query,
+            limit = SEARCH_HISTORY_LIMIT
+        )
+        if (updated == currentHistory) {
+            return
+        }
+        viewModelScope.launch {
+            searchHistoryRepository.save(updated)
+        }
+    }
+
     // MARK: - Error Handling
 
     /**
@@ -285,5 +419,10 @@ constructor(
     override fun onCleared() {
         super.onCleared()
         audioService.stopMeditationPreview()
+    }
+
+    companion object {
+        /** Maximum entries in the persistent search history (shared-101). */
+        const val SEARCH_HISTORY_LIMIT = 6
     }
 }

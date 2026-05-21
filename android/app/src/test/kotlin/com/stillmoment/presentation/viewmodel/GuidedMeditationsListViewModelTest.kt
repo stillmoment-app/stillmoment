@@ -6,6 +6,7 @@ import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.MeditationSource
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
+import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -39,6 +40,7 @@ class GuidedMeditationsListViewModelTest {
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
     private lateinit var mockAudioService: AudioServiceProtocol
     private lateinit var fakeSourceRepository: FakeMeditationSourceRepository
+    private lateinit var fakeSearchHistoryRepository: FakeSearchHistoryRepository
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
@@ -47,7 +49,13 @@ class GuidedMeditationsListViewModelTest {
         fakeRepository = FakeGuidedMeditationRepository()
         mockAudioService = mock()
         fakeSourceRepository = FakeMeditationSourceRepository()
-        viewModel = GuidedMeditationsListViewModel(fakeRepository, mockAudioService, fakeSourceRepository)
+        fakeSearchHistoryRepository = FakeSearchHistoryRepository()
+        viewModel = GuidedMeditationsListViewModel(
+            repository = fakeRepository,
+            audioService = mockAudioService,
+            meditationSourceRepository = fakeSourceRepository,
+            searchHistoryRepository = fakeSearchHistoryRepository
+        )
     }
 
     @AfterEach
@@ -754,6 +762,182 @@ class GuidedMeditationsListViewModelTest {
     }
 
     // ============================================================
+    // MARK: - Library Search (shared-101)
+    // ============================================================
+
+    @Nested
+    inner class LibrarySearchStateTransitions {
+        @Test
+        fun `state is Idle when query empty and not focused`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation()))
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(
+                com.stillmoment.domain.models.LibrarySearchState.Idle,
+                state.searchState
+            )
+        }
+
+        @Test
+        fun `state is History when query empty and focused`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation()))
+            advanceUntilIdle()
+            viewModel.setSearchFocused(true)
+
+            assertEquals(
+                com.stillmoment.domain.models.LibrarySearchState.History,
+                viewModel.uiState.value.searchState
+            )
+        }
+
+        @Test
+        fun `state is Results when query has hits`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atemmeditation")))
+            advanceUntilIdle()
+            viewModel.setSearchFocused(true)
+            viewModel.updateSearchQuery("Atem")
+
+            assertEquals(
+                com.stillmoment.domain.models.LibrarySearchState.Results,
+                viewModel.uiState.value.searchState
+            )
+        }
+
+        @Test
+        fun `state is Empty when query has no hits`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atemmeditation")))
+            advanceUntilIdle()
+            viewModel.setSearchFocused(true)
+            viewModel.updateSearchQuery("xyz123")
+
+            assertEquals(
+                com.stillmoment.domain.models.LibrarySearchState.Empty,
+                viewModel.uiState.value.searchState
+            )
+        }
+    }
+
+    @Nested
+    inner class LibrarySearchHistoryCommit {
+        @Test
+        fun `submitSearch commits to history when results exist`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atem")))
+            advanceUntilIdle()
+
+            viewModel.updateSearchQuery("atem")
+            viewModel.submitSearch()
+            advanceUntilIdle()
+
+            assertEquals(listOf("atem"), viewModel.uiState.value.searchHistory.toList())
+        }
+
+        @Test
+        fun `submitSearch does not commit when no results`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atem")))
+            advanceUntilIdle()
+
+            viewModel.updateSearchQuery("xyz123")
+            viewModel.submitSearch()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.searchHistory.isEmpty())
+        }
+
+        @Test
+        fun `recordSearchCommittedByOpening commits and resets`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atem")))
+            advanceUntilIdle()
+            viewModel.setSearchFocused(true)
+            viewModel.updateSearchQuery("atem")
+
+            viewModel.recordSearchCommittedByOpening()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertEquals(listOf("atem"), state.searchHistory.toList())
+            assertEquals("", state.searchQuery)
+            assertFalse(state.isSearchFocused)
+        }
+
+        @Test
+        fun `recordSearchCommittedByOpening does not commit when no results`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atem")))
+            advanceUntilIdle()
+            viewModel.updateSearchQuery("xyz123")
+
+            viewModel.recordSearchCommittedByOpening()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.searchHistory.isEmpty())
+        }
+
+        @Test
+        fun `duplicate query moves to top with new casing`() = runTest {
+            fakeRepository.emitMeditations(listOf(createTestMeditation(name = "Atem")))
+            fakeSearchHistoryRepository.seed(listOf("atem", "tara"))
+            advanceUntilIdle()
+
+            viewModel.updateSearchQuery("ATEM")
+            viewModel.submitSearch()
+            advanceUntilIdle()
+
+            assertEquals(listOf("ATEM", "tara"), viewModel.uiState.value.searchHistory.toList())
+        }
+
+        @Test
+        fun `clearHistory empties the persistent store`() = runTest {
+            fakeSearchHistoryRepository.seed(listOf("a", "b", "c"))
+            advanceUntilIdle()
+            assertEquals(3, viewModel.uiState.value.searchHistory.size)
+
+            viewModel.clearHistory()
+            advanceUntilIdle()
+
+            assertTrue(viewModel.uiState.value.searchHistory.isEmpty())
+        }
+    }
+
+    @Nested
+    inner class LibrarySearchResetBehaviour {
+        @Test
+        fun `resetSearch clears query and focus`() = runTest {
+            viewModel.setSearchFocused(true)
+            viewModel.updateSearchQuery("atem")
+            assertEquals("atem", viewModel.uiState.value.searchQuery)
+
+            viewModel.resetSearch()
+
+            val state = viewModel.uiState.value
+            assertEquals("", state.searchQuery)
+            assertFalse(state.isSearchFocused)
+        }
+
+        @Test
+        fun `resetSearch keeps history intact`() = runTest {
+            fakeSearchHistoryRepository.seed(listOf("atem"))
+            advanceUntilIdle()
+            viewModel.updateSearchQuery("body")
+
+            viewModel.resetSearch()
+            advanceUntilIdle()
+
+            assertEquals(listOf("atem"), viewModel.uiState.value.searchHistory.toList())
+        }
+
+        @Test
+        fun `selectHistoryEntry sets query without focus change`() = runTest {
+            viewModel.setSearchFocused(true)
+
+            viewModel.selectHistoryEntry("Tara")
+
+            val state = viewModel.uiState.value
+            assertEquals("Tara", state.searchQuery)
+            assertTrue(state.isSearchFocused)
+        }
+    }
+
+    // ============================================================
     // MARK: - Test Helpers
     // ============================================================
 
@@ -851,6 +1035,29 @@ class FakeMeditationSourceRepository : MeditationSourceRepository {
 
     override fun sources(languageCode: String): List<MeditationSource> {
         return catalog[languageCode] ?: catalog["en"].orEmpty()
+    }
+}
+
+// ============================================================
+// MARK: - Fake Search History Repository
+// ============================================================
+
+class FakeSearchHistoryRepository : SearchHistoryRepository {
+    private val _history = MutableStateFlow<List<String>>(emptyList())
+
+    override val historyFlow: Flow<List<String>>
+        get() = _history
+
+    override suspend fun save(history: List<String>) {
+        _history.value = history
+    }
+
+    override suspend fun clear() {
+        _history.value = emptyList()
+    }
+
+    fun seed(history: List<String>) {
+        _history.value = history
     }
 }
 

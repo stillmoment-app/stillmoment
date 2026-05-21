@@ -302,4 +302,18 @@
         <item quantity="one">of %d minute</item>
         <item quantity="other">of %d minutes</item>
     </plurals>
+
+    <!-- Library Search (shared-101) -->
+    <string name="library_search_prompt">Search by title or teacher</string>
+    <plurals name="library_search_result_count">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+    <string name="library_search_empty_title">No results</string>
+    <string name="library_search_empty_message">No matches for “%1$s”</string>
+    <string name="library_search_history_header">Recent searches</string>
+    <string name="library_search_history_clear">Clear</string>
+    <string name="accessibility_library_search_field">Search library</string>
+    <string name="accessibility_library_search_clear">Clear search</string>
+    <string name="accessibility_library_search_history_entry">Search again: %1$s</string>
 </resources>
