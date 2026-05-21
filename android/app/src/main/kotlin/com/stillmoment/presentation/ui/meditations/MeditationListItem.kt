@@ -3,6 +3,7 @@ package com.stillmoment.presentation.ui.meditations
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.liftedCardShadow
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
@@ -62,18 +64,24 @@ fun MeditationListItem(
         meditation.effectiveName,
         meditation.formattedDuration
     )
+    val theme = LocalStillMomentColors.current
+    val isDark = isSystemInDarkTheme()
+    val cardShape = RoundedCornerShape(12.dp)
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .liftedCardShadow(isDark = isDark, cardShadow = theme.cardShadow, shape = cardShape)
             .semantics { contentDescription = itemDescription },
         colors = CardDefaults.cardColors(
-            containerColor = LocalStillMomentColors.current.cardBackground
+            containerColor = theme.cardBackground
         ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = BorderStroke(0.5.dp, LocalStillMomentColors.current.cardBorder)
+        shape = cardShape,
+        // shared-094: explicit Modifier.liftedCardShadow carries the lift in light mode.
+        // CardDefaults default elevation would stack on top — set to 0 so we control it.
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(0.5.dp, theme.cardBorder)
     ) {
         Row(
             modifier = Modifier
