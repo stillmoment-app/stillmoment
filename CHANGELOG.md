@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-05-21
+
 ### Added (iOS)
 - **Vorhoeren mit Fortschritts-Slider in der Bibliothek** - Wenn man eine Meditation in der Bibliothek per Long-Press auf den Play-Button vorhoert, blendet sich unter der Zeile jetzt animiert ein schmaler Fortschritts-Slider mit Zeit-Labels ein (aktuelle Position links, Gesamtdauer rechts). Per Drag am Slider-Punkt springt man an jede Stelle der Meditation — Audio laeuft durchgehend weiter, ohne Pause oder Knacken (Apple-Music-Style Scrubbing). Damit kann man eine neue Meditation kurz an verschiedenen Stellen probieren, bevor man sie zum ersten Mal startet — vorher war nur der Anfang hoerbar. Der Slider verschwindet wieder bei Tap auf den Stop-Button, beim Vorhoeren einer anderen Zeile, beim Tab-Wechsel oder wenn das Audio das Ende erreicht. Funktioniert in der normalen Liste und in den Suchergebnissen. Der Meditations-Player selbst bleibt unangetastet — Vorhoeren passiert ausschliesslich in der Bibliothek. (Ticket: shared-098)
 

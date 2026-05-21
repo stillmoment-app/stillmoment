@@ -1,31 +1,25 @@
-Still Moment is your personal meditation app: import your own recordings, shape the timer to your liking — no subscription, no ads, no tracking. A gift, not a product.
+Still Moment is your personal meditation app: import your own recordings, shape the timer to your liking — no subscription, no ads, no tracking.
 
-YOUR LIBRARY, YOUR TASTE
-You know which voices work for you. Still Moment helps you collect their meditations and have them always at hand.
+YOUR PERSONAL MEDITATION LIBRARY
+Your favourite meditations, always at hand. Offline and tracking-free.
 • Import your own recordings — from your files or shared directly from the browser
-• Organised by teacher — find what you're looking for quickly
-• Listen with screen locked — put the phone down and let go
-• Your files stay on your device
+• Quick search — by title or teacher
+• Preview before you start — jump to any point in a recording
 
-YOUR TIMER, YOUR PACE
-Silence on your terms. No rigid format — shape the timer the way that feels right for you.
-• 1 to 60 minutes — you decide the duration
-• Gentle countdown to settle in
-• Singing bowls for start, end, and intervals — choose what invites you in
-• Background sound: complete silence or gentle forest sounds
-• Volume adjusted to your feeling
+YOUR TIMER
+Shape the meditation timer to feel right for you.
+• Duration: 1 to 60 minutes
+• Adjustable preparation time
+• Singing bowls for start, end, and interval gongs
+• Background sound: silence, rain, forest sounds, or your own
 
 CALM, CLEAR, WITHOUT DISTRACTION
-Still Moment is intentionally simple. No points system, no statistics, no notifications pulling you out of stillness. Just space for your practice — designed in warm earth tones that don't agitate.
+Still Moment is intentionally simple. No points system, no statistics, no notifications pulling you out of stillness.
 
 YOUR MEDITATION, YOUR DATA, YOUR DEVICE
 Still Moment collects absolutely zero data. Everything stays on your device, where it belongs.
 • No tracking, no analytics, no ads
 • 100% offline — no internet required
 • No account, no sign-up, no subscription
-• Open source — verify our privacy claims yourself
-
-FREE & OPEN SOURCE
-Still Moment is built by a meditation practitioner, offered freely as a gift to the community. No premium features, no upsells, no hidden costs. The complete source code is available for anyone to review.
 
 Download Still Moment and gift yourself the pause you deserve.

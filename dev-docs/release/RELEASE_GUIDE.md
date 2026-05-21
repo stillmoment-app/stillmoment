@@ -92,6 +92,5 @@ cd ios && make release-prepare VERSION=1.8.1
 | Release Notes Skill | `/release-notes` |
 | Fastlane iOS Setup | `../guides/fastlane-ios.md` |
 | Technisches Changelog | `../../CHANGELOG.md` |
-| Gemeinsame Store-Texte | `STORE_CONTENT_SHARED.md` |
-| iOS App Store | `STORE_CONTENT_IOS.md` |
-| Android Play Store | `STORE_CONTENT_ANDROID.md` |
+| Store-Texte iOS | `../../ios/fastlane/metadata/` |
+| Store-Texte Android | `../../android/fastlane/metadata/android/` |

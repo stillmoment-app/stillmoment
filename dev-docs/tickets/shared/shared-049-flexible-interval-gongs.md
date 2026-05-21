@@ -100,7 +100,6 @@ Aktuell sind nur 3 feste Intervall-Optionen (3, 5, 10 Minuten) verfuegbar, die i
 - [ ] `dev-docs/architecture/ddd.md` — "Intervall-Gong-Zyklus" Section: 3 Modi dokumentieren, `shouldPlayIntervalGong()` Logik, 5-Sekunden-Schutz
 - [ ] `dev-docs/architecture/audio-system.md` — "alle 3/5/10 Minuten" → flexibel 1-60, drei Abspielmodi, separater Sound
 - [ ] `dev-docs/concepts/timer-presets.md` — `TimerPreset` Datenmodell um neue Felder erweitern
-- [ ] `dev-docs/release/STORE_CONTENT_IOS.md` — Feature-Beschreibung "3/5/10" → "1-60 min"
 
 ---
 

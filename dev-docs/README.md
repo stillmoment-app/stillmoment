@@ -55,7 +55,6 @@ Alles rund um App-Releases.
 | [release/RELEASE_NOTES.md](release/RELEASE_NOTES.md) | User-facing Release Notes |
 | [release/TEST_PLAN_IOS.md](release/TEST_PLAN_IOS.md) | Manuelle Tests vor iOS-Release |
 | [release/TEST_PLAN_ANDROID.md](release/TEST_PLAN_ANDROID.md) | Manuelle Tests vor Android-Release |
-| [release/STORE_CONTENT_*.md](release/) | App Store / Play Store Texte |
 
 ---
 
