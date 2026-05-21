@@ -13,7 +13,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,12 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-
-/**
- * CompositionLocal providing the current dark theme state.
- * Used by TypographyRole.textStyle() for dark mode halation compensation.
- */
-val LocalIsDarkTheme = compositionLocalOf { false }
 
 /**
  * Additional semantic colors not covered by Material 3 ColorScheme.
@@ -210,7 +203,6 @@ fun StillMomentTheme(darkTheme: Boolean = false, content: @Composable () -> Unit
     }
 
     CompositionLocalProvider(
-        LocalIsDarkTheme provides darkTheme,
         LocalStillMomentColors provides stillMomentColors
     ) {
         MaterialTheme(
