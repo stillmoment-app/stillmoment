@@ -1,6 +1,6 @@
 # Ticket shared-095: Running-Timer-Visualisierung Mondphase
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Hoch — praezise Animation mit gemischtem Easing (linear fuer Schatten, smoothstep fuer Halo), Erweiterung der Theme-Tokens um Mond-spezifische Slots, Reduce-Motion-Verhalten, Snapshot-Tests in Light + Dark.
 **Phase**: 4-Polish
@@ -23,7 +23,7 @@ Die Mondphase erzaehlt Sitzungsdauer durch ein ruhiges Naturbild. Keine pulsiere
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-094    |
-| Android   | [~]    | iOS first     |
+| Android   | [x]    | shared-094    |
 
 ---
 
