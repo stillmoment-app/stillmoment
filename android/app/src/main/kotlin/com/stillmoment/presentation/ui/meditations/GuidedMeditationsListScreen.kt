@@ -465,8 +465,8 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = teacher,
-            style = TextStyle.eyebrow.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurface
+            style = TextStyle.bodyItalic.toComposeTextStyle(),
+            color = LocalStillMomentColors.current.interactive
         )
     }
 }

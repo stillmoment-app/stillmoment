@@ -142,8 +142,8 @@ private fun MeditationInfo(
             if (searchQuery.isNullOrEmpty()) {
                 Text(
                     text = meditation.effectiveTeacher,
-                    style = TextStyle.caption.toComposeTextStyle(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = TextStyle.bodyItalic.toComposeTextStyle(),
+                    color = LocalStillMomentColors.current.interactive,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -151,8 +151,8 @@ private fun MeditationInfo(
                 HighlightedText(
                     text = meditation.effectiveTeacher,
                     query = searchQuery,
-                    style = TextStyle.caption.toComposeTextStyle(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = TextStyle.bodyItalic.toComposeTextStyle(),
+                    color = LocalStillMomentColors.current.interactive,
                     maxLines = 1
                 )
             }
