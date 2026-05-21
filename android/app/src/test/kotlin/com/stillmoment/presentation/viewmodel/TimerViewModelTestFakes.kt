@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 
@@ -34,8 +37,23 @@ class FakeAudioService : AudioServiceProtocol {
     var backgroundPreviewStopped = false
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
+    var lastSeekPreviewPositionMs: Long? = null
 
     override val gongCompletionFlow: SharedFlow<Unit> = MutableSharedFlow()
+
+    // shared-098 — preview position / duration / completion flows.
+    // Exposed as mutable backing flows so tests can drive emissions.
+    val previewPositionBacking = MutableStateFlow(0L)
+    override val meditationPreviewPositionFlow: StateFlow<Long> =
+        previewPositionBacking.asStateFlow()
+
+    val previewDurationBacking = MutableStateFlow(0L)
+    override val meditationPreviewDurationFlow: StateFlow<Long> =
+        previewDurationBacking.asStateFlow()
+
+    val previewCompletionBacking = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val meditationPreviewCompletionFlow: SharedFlow<Unit> =
+        previewCompletionBacking.asSharedFlow()
 
     override fun playGongPreview(soundId: String, volume: Float) {
         lastGongPreviewSoundId = soundId
@@ -66,6 +84,10 @@ class FakeAudioService : AudioServiceProtocol {
 
     override fun stopMeditationPreview() {
         // no-op for timer tests
+    }
+
+    override fun seekMeditationPreview(positionMs: Long) {
+        lastSeekPreviewPositionMs = positionMs
     }
 }
 

@@ -48,6 +48,10 @@ data class GuidedMeditationsListUiState(
     val meditationToDelete: GuidedMeditation? = null,
     /** ID of the meditation currently being previewed, or null if none */
     val previewingMeditationId: String? = null,
+    /** Current playback position of the active library preview (ms). 0 when idle (shared-098). */
+    val previewCurrentTimeMs: Long = 0L,
+    /** Total duration of the active library preview (ms). 0 when idle (shared-098). */
+    val previewDurationMs: Long = 0L,
     /** Whether the Content Guide sheet is shown */
     val showGuideSheet: Boolean = false,
     /** Curated sources for the current locale (Content Guide) */
@@ -120,6 +124,9 @@ constructor(
     init {
         observeMeditations()
         observeSearchHistory()
+        observePreviewPosition()
+        observePreviewDuration()
+        observePreviewCompletion()
     }
 
     /**
@@ -147,6 +154,42 @@ constructor(
         viewModelScope.launch {
             searchHistoryRepository.historyFlow.collect { history ->
                 _uiState.update { it.copy(searchHistory = history.toImmutableList()) }
+            }
+        }
+    }
+
+    /**
+     * Mirrors the AudioService preview position into UI state (shared-098).
+     * The slider in the library item reads `previewCurrentTimeMs` to render.
+     */
+    private fun observePreviewPosition() {
+        viewModelScope.launch {
+            audioService.meditationPreviewPositionFlow.collect { positionMs ->
+                _uiState.update { it.copy(previewCurrentTimeMs = positionMs) }
+            }
+        }
+    }
+
+    /**
+     * Mirrors the AudioService preview duration into UI state (shared-098).
+     */
+    private fun observePreviewDuration() {
+        viewModelScope.launch {
+            audioService.meditationPreviewDurationFlow.collect { durationMs ->
+                _uiState.update { it.copy(previewDurationMs = durationMs) }
+            }
+        }
+    }
+
+    /**
+     * Listens for natural end-of-file completions (shared-098) and flips the
+     * preview back to idle so the play button switches from stop to play and
+     * the slider fades out.
+     */
+    private fun observePreviewCompletion() {
+        viewModelScope.launch {
+            audioService.meditationPreviewCompletionFlow.collect {
+                _uiState.update { it.copy(previewingMeditationId = null) }
             }
         }
     }
@@ -304,6 +347,16 @@ constructor(
         if (_uiState.value.previewingMeditationId == null) return
         _uiState.update { it.copy(previewingMeditationId = null) }
         audioService.stopMeditationPreview()
+    }
+
+    /**
+     * Scrubs the active library preview to a new position (shared-098).
+     * Apple-Music-style: audio keeps playing through the seek.
+     *
+     * @param positionMs Target position in milliseconds; the service clamps to `[0, duration]`.
+     */
+    fun seekPreview(positionMs: Long) {
+        audioService.seekMeditationPreview(positionMs)
     }
 
     // MARK: - Content Guide

@@ -43,6 +43,19 @@ interface MediaPlayerProtocol {
     val currentPosition: Int
 
     /**
+     * Gets the total duration of the loaded media.
+     *
+     * Stable after the player has been prepared. `MediaPlayer.create(...)` calls
+     * `prepare()` internally, so the value is available right after construction
+     * for resource- and content-URI-backed players. Returns `-1` (and never
+     * crashes) when the underlying media is not yet prepared or has no known
+     * duration.
+     *
+     * @return Total duration in milliseconds
+     */
+    val duration: Int
+
+    /**
      * Checks if the player is currently playing.
      */
     val isPlaying: Boolean

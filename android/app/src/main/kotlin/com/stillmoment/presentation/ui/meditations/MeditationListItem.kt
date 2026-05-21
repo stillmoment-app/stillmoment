@@ -1,5 +1,11 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -63,7 +69,10 @@ fun MeditationListItem(
     isPreviewActive: Boolean,
     modifier: Modifier = Modifier,
     searchQuery: String? = null,
-    showTeacherSubtitle: Boolean = false
+    showTeacherSubtitle: Boolean = false,
+    previewCurrentTimeMs: Long = 0L,
+    previewDurationMs: Long = 0L,
+    onSeekPreview: (Long) -> Unit = {}
 ) {
     val itemDescription = stringResource(
         R.string.accessibility_meditation_item,
@@ -89,28 +98,47 @@ fun MeditationListItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(0.5.dp, theme.cardBorder)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp)
         ) {
-            MeditationInfo(
-                meditation = meditation,
-                searchQuery = searchQuery,
-                showTeacherSubtitle = showTeacherSubtitle,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            MeditationPlayButton(
-                isPreviewActive = isPreviewActive,
-                onPlayClick = onPlayClick,
-                onPreviewStart = onPreviewStart,
-                onStopPreview = onStopPreview
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MeditationInfo(
+                    meditation = meditation,
+                    searchQuery = searchQuery,
+                    showTeacherSubtitle = showTeacherSubtitle,
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                MeditationPlayButton(
+                    isPreviewActive = isPreviewActive,
+                    onPlayClick = onPlayClick,
+                    onPreviewStart = onPreviewStart,
+                    onStopPreview = onStopPreview
+                )
+            }
+            // shared-098: scrub slider fades in below the row while a preview
+            // is running on THIS item; verschwindet wieder bei stop / switch /
+            // tab change / audio end (each path clears `isPreviewActive`).
+            AnimatedVisibility(
+                visible = isPreviewActive,
+                enter = fadeIn(tween(PREVIEW_SLIDER_ANIMATION_MS)) +
+                    expandVertically(tween(PREVIEW_SLIDER_ANIMATION_MS)),
+                exit = fadeOut(tween(PREVIEW_SLIDER_ANIMATION_MS)) +
+                    shrinkVertically(tween(PREVIEW_SLIDER_ANIMATION_MS))
+            ) {
+                MeditationPreviewProgressRow(
+                    currentTimeMs = previewCurrentTimeMs,
+                    durationMs = previewDurationMs,
+                    onSeek = onSeekPreview
+                )
+            }
         }
     }
 }
+
+private const val PREVIEW_SLIDER_ANIMATION_MS = 250
 
 @Composable
 private fun MeditationInfo(

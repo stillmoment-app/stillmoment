@@ -111,6 +111,7 @@ fun GuidedMeditationsListScreen(
         onClearError = viewModel::clearError,
         onPreviewStart = viewModel::startPreview,
         onStopPreview = viewModel::stopPreview,
+        onSeekPreview = viewModel::seekPreview,
         onOpenGuide = { viewModel.openGuideSheet(languageCode) },
         onCloseGuide = viewModel::closeGuideSheet,
         onSearchQueryChange = viewModel::updateSearchQuery,
@@ -147,7 +148,8 @@ internal fun GuidedMeditationsListScreenContent(
     onSearchSubmit: () -> Unit = {},
     onHistoryEntrySelect: (String) -> Unit = {},
     onClearHistory: () -> Unit = {},
-    onResetSearch: () -> Unit = {}
+    onResetSearch: () -> Unit = {},
+    onSeekPreview: (Long) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -182,7 +184,8 @@ internal fun GuidedMeditationsListScreenContent(
                     onSearchSubmit = onSearchSubmit,
                     onHistoryEntrySelect = onHistoryEntrySelect,
                     onClearHistory = onClearHistory,
-                    onResetSearch = onResetSearch
+                    onResetSearch = onResetSearch,
+                    onSeekPreview = onSeekPreview
                 )
             }
         }
@@ -271,7 +274,8 @@ private fun LibraryBody(
     onSearchSubmit: () -> Unit,
     onHistoryEntrySelect: (String) -> Unit,
     onClearHistory: () -> Unit,
-    onResetSearch: () -> Unit
+    onResetSearch: () -> Unit,
+    onSeekPreview: (Long) -> Unit
 ) {
     when {
         uiState.isLoading && uiState.groups.isEmpty() -> {
@@ -305,7 +309,8 @@ private fun LibraryBody(
                 onSearchSubmit = onSearchSubmit,
                 onHistoryEntrySelect = onHistoryEntrySelect,
                 onClearHistory = onClearHistory,
-                onResetSearch = onResetSearch
+                onResetSearch = onResetSearch,
+                onSeekPreview = onSeekPreview
             )
         }
     }
@@ -327,7 +332,8 @@ private fun LibraryWithHeader(
     onSearchSubmit: () -> Unit,
     onHistoryEntrySelect: (String) -> Unit,
     onClearHistory: () -> Unit,
-    onResetSearch: () -> Unit
+    onResetSearch: () -> Unit,
+    onSeekPreview: (Long) -> Unit
 ) {
     // shared-102: Column { Header; Body } — der Header sitzt fix oben, der Body
     // mit LazyColumn scrollt darunter. Keine Header-Animation, kein TopAppBar.
@@ -347,11 +353,14 @@ private fun LibraryWithHeader(
                 LibrarySearchState.Idle -> MeditationsList(
                     groups = uiState.groups,
                     previewingMeditationId = uiState.previewingMeditationId,
+                    previewCurrentTimeMs = uiState.previewCurrentTimeMs,
+                    previewDurationMs = uiState.previewDurationMs,
                     onMeditationClick = onMeditationClick,
                     onEditClick = onEditClick,
                     onDeleteMeditation = onConfirmDelete,
                     onPreviewStart = onPreviewStart,
-                    onStopPreview = onStopPreview
+                    onStopPreview = onStopPreview,
+                    onSeekPreview = onSeekPreview
                 )
                 LibrarySearchState.History -> SearchHistoryList(
                     history = uiState.searchHistory,
@@ -362,11 +371,14 @@ private fun LibraryWithHeader(
                     query = uiState.searchQuery,
                     results = uiState.searchResults,
                     previewingMeditationId = uiState.previewingMeditationId,
+                    previewCurrentTimeMs = uiState.previewCurrentTimeMs,
+                    previewDurationMs = uiState.previewDurationMs,
                     onMeditationClick = onMeditationClick,
                     onEditClick = onEditClick,
                     onDeleteMeditation = onConfirmDelete,
                     onPreviewStart = onPreviewStart,
-                    onStopPreview = onStopPreview
+                    onStopPreview = onStopPreview,
+                    onSeekPreview = onSeekPreview
                 )
                 LibrarySearchState.Empty -> SearchEmptyState(query = uiState.searchQuery)
             }
@@ -380,11 +392,14 @@ private fun LibraryWithHeader(
 private fun MeditationsList(
     groups: ImmutableList<GuidedMeditationGroup>,
     previewingMeditationId: String?,
+    previewCurrentTimeMs: Long,
+    previewDurationMs: Long,
     onMeditationClick: (GuidedMeditation) -> Unit,
     onEditClick: (GuidedMeditation) -> Unit,
     onDeleteMeditation: (GuidedMeditation) -> Unit,
     onPreviewStart: (GuidedMeditation) -> Unit,
     onStopPreview: () -> Unit,
+    onSeekPreview: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val theme = LocalStillMomentColors.current
@@ -420,9 +435,12 @@ private fun MeditationsList(
                 SwipeToEditDeleteItem(
                     meditation = meditation,
                     isPreviewActive = meditation.id == previewingMeditationId,
+                    previewCurrentTimeMs = previewCurrentTimeMs,
+                    previewDurationMs = previewDurationMs,
                     onPlayClick = { onMeditationClick(meditation) },
                     onPreviewStart = { onPreviewStart(meditation) },
                     onStopPreview = onStopPreview,
+                    onSeekPreview = onSeekPreview,
                     onEditClick = { onEditClick(meditation) },
                     onDelete = { onDeleteMeditation(meditation) }
                 )
@@ -456,9 +474,12 @@ private fun SectionHeader(teacher: String, modifier: Modifier = Modifier) {
 private fun SwipeToEditDeleteItem(
     meditation: GuidedMeditation,
     isPreviewActive: Boolean,
+    previewCurrentTimeMs: Long,
+    previewDurationMs: Long,
     onPlayClick: () -> Unit,
     onPreviewStart: () -> Unit,
     onStopPreview: () -> Unit,
+    onSeekPreview: (Long) -> Unit,
     onEditClick: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -497,7 +518,10 @@ private fun SwipeToEditDeleteItem(
             onPlayClick = onPlayClick,
             onPreviewStart = onPreviewStart,
             onStopPreview = onStopPreview,
-            isPreviewActive = isPreviewActive
+            isPreviewActive = isPreviewActive,
+            previewCurrentTimeMs = previewCurrentTimeMs,
+            previewDurationMs = previewDurationMs,
+            onSeekPreview = onSeekPreview
         )
     }
 }
@@ -639,11 +663,14 @@ private fun GuidedMeditationsListScreenWithDataPreview() {
             MeditationsList(
                 groups = groups,
                 previewingMeditationId = "2",
+                previewCurrentTimeMs = 42_000L,
+                previewDurationMs = 600_000L,
                 onMeditationClick = {},
                 onEditClick = {},
                 onDeleteMeditation = {},
                 onPreviewStart = {},
-                onStopPreview = {}
+                onStopPreview = {},
+                onSeekPreview = {}
             )
         }
     }

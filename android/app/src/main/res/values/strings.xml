@@ -120,6 +120,7 @@
     <string name="accessibility_edit_meditation">Edit meditation</string>
     <string name="accessibility_start_preview">Preview meditation</string>
     <string name="accessibility_stop_preview">Stop preview</string>
+    <string name="accessibility_library_preview_position">Preview position</string>
     <string name="accessibility_meditation_item">%1$s, duration %2$s</string>
 
 

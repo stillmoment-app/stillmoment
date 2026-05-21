@@ -13,7 +13,10 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -27,6 +30,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 /**
  * Unit tests for GuidedMeditationsListViewModel.
@@ -39,6 +43,9 @@ class GuidedMeditationsListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeGuidedMeditationRepository
     private lateinit var mockAudioService: AudioServiceProtocol
+    private lateinit var previewPositionFlow: MutableStateFlow<Long>
+    private lateinit var previewDurationFlow: MutableStateFlow<Long>
+    private lateinit var previewCompletionFlow: MutableSharedFlow<Unit>
     private lateinit var fakeSourceRepository: FakeMeditationSourceRepository
     private lateinit var fakeSearchHistoryRepository: FakeSearchHistoryRepository
     private lateinit var viewModel: GuidedMeditationsListViewModel
@@ -48,6 +55,21 @@ class GuidedMeditationsListViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeGuidedMeditationRepository()
         mockAudioService = mock()
+        // shared-098: the ViewModel collects three preview flows in init —
+        // mockito-kotlin's default `null` would NPE the collect. Seed them
+        // explicitly so the ViewModel can be constructed.
+        previewPositionFlow = MutableStateFlow(0L)
+        previewDurationFlow = MutableStateFlow(0L)
+        previewCompletionFlow = MutableSharedFlow(extraBufferCapacity = 1)
+        whenever(mockAudioService.meditationPreviewPositionFlow).thenReturn(
+            previewPositionFlow.asStateFlow()
+        )
+        whenever(mockAudioService.meditationPreviewDurationFlow).thenReturn(
+            previewDurationFlow.asStateFlow()
+        )
+        whenever(mockAudioService.meditationPreviewCompletionFlow).thenReturn(
+            previewCompletionFlow.asSharedFlow()
+        )
         fakeSourceRepository = FakeMeditationSourceRepository()
         fakeSearchHistoryRepository = FakeSearchHistoryRepository()
         viewModel = GuidedMeditationsListViewModel(
@@ -758,6 +780,52 @@ class GuidedMeditationsListViewModelTest {
 
             // Then
             verify(mockAudioService, never()).stopMeditationPreview()
+        }
+
+        // shared-098 — slider mirroring + seek + completion
+
+        @Test
+        fun `uiState mirrors preview position from audio service`() = runTest {
+            // When
+            previewPositionFlow.value = 12_345L
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(12_345L, viewModel.uiState.value.previewCurrentTimeMs)
+        }
+
+        @Test
+        fun `uiState mirrors preview duration from audio service`() = runTest {
+            // When
+            previewDurationFlow.value = 600_000L
+            advanceUntilIdle()
+
+            // Then
+            assertEquals(600_000L, viewModel.uiState.value.previewDurationMs)
+        }
+
+        @Test
+        fun `seekPreview forwards position to audio service`() {
+            // When
+            viewModel.seekPreview(42_000L)
+
+            // Then
+            verify(mockAudioService).seekMeditationPreview(42_000L)
+        }
+
+        @Test
+        fun `preview completion event clears previewingMeditationId`() = runTest {
+            // Given: a preview is active
+            val meditation = createTestMeditation(id = "med-x")
+            viewModel.startPreview(meditation)
+            assertEquals("med-x", viewModel.uiState.value.previewingMeditationId)
+
+            // When: audio reaches its natural end
+            previewCompletionFlow.emit(Unit)
+            advanceUntilIdle()
+
+            // Then: the preview is considered idle again, so the slider can fade out
+            assertNull(viewModel.uiState.value.previewingMeditationId)
         }
     }
 
