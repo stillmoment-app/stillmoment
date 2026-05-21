@@ -1,6 +1,6 @@
 # Ticket ios-047: Running-Timer-Screenshot mit sichtbarer Mondphase
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig — Configurer analog zu `PreparationTimeConfigurer` und Wartezeit im UI-Test. Risiko: Test wird flaky, wenn die Wartezeit zu knapp gegen den Snapshot-Trigger faellt.
 **Abhaengigkeiten**: shared-095
