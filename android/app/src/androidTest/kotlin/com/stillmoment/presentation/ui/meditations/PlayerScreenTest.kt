@@ -56,7 +56,6 @@ class PlayerScreenTest {
                 GuidedMeditationPlayerScreenContent(
                     meditation = meditation,
                     uiState = uiState,
-                    reduceMotion = false,
                     onBack = {},
                     onTogglePlayPause = {},
                     onClearError = {}

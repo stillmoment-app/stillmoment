@@ -50,7 +50,6 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.MeditationPhase
 import com.stillmoment.domain.models.PreparationCountdown
-import com.stillmoment.presentation.ui.common.BreathingCircle
 import com.stillmoment.presentation.ui.common.MeditationBottomLabel
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
@@ -58,17 +57,18 @@ import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.GlassPauseButton
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.meditations.components.PlayerCenterDisc
+import com.stillmoment.presentation.ui.meditations.components.PlayerRing
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.util.rememberIsReducedMotion
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
 
 private const val COMPLETION_ANIMATION_DURATION_MS = 400
 private const val COMPACT_HEIGHT_DP = 700
-private const val BREATHING_CIRCLE_COMPACT_DP = 240
-private const val BREATHING_CIRCLE_DEFAULT_DP = 280
+private const val PLAYER_RING_COMPACT_DP = 240
+private const val PLAYER_RING_DEFAULT_DP = 280
 
 /**
  * Atemkreis-Player fuer Guided Meditations.
@@ -90,7 +90,6 @@ fun GuidedMeditationPlayerScreen(
     val uiState by viewModel.uiState.collectAsState()
     val currentOnMeditationCompleted by rememberUpdatedState(onMeditationFinish)
     val currentOnNewMeditationLoaded by rememberUpdatedState(onMeditationLoad)
-    val reduceMotion = rememberIsReducedMotion()
 
     LaunchedEffect(meditation.id) {
         viewModel.loadMeditation(meditation)
@@ -115,7 +114,6 @@ fun GuidedMeditationPlayerScreen(
     GuidedMeditationPlayerScreenContent(
         meditation = meditation,
         uiState = uiState,
-        reduceMotion = reduceMotion,
         onBack = onBack,
         onTogglePlayPause = viewModel::togglePlayPause,
         onClearError = viewModel::clearError,
@@ -127,7 +125,6 @@ fun GuidedMeditationPlayerScreen(
 internal fun GuidedMeditationPlayerScreenContent(
     meditation: GuidedMeditation,
     uiState: PlayerUiState,
-    reduceMotion: Boolean,
     onBack: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onClearError: () -> Unit,
@@ -144,7 +141,6 @@ internal fun GuidedMeditationPlayerScreenContent(
             ActiveSessionLayer(
                 meditation = meditation,
                 uiState = uiState,
-                reduceMotion = reduceMotion,
                 onBack = onBack,
                 onTogglePlayPause = onTogglePlayPause,
                 modifier = Modifier
@@ -171,7 +167,6 @@ internal fun GuidedMeditationPlayerScreenContent(
 private fun ActiveSessionLayer(
     meditation: GuidedMeditation,
     uiState: PlayerUiState,
-    reduceMotion: Boolean,
     onBack: () -> Unit,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
@@ -182,7 +177,6 @@ private fun ActiveSessionLayer(
             PlayerBody(
                 meditation = meditation,
                 uiState = uiState,
-                reduceMotion = reduceMotion,
                 onTogglePlayPause = onTogglePlayPause,
                 modifier = Modifier
                     .fillMaxSize()
@@ -254,15 +248,14 @@ private fun CompletionOverlay(visible: Boolean, onBack: () -> Unit) {
 private fun PlayerBody(
     meditation: GuidedMeditation,
     uiState: PlayerUiState,
-    reduceMotion: Boolean,
     onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
     val circleSize = if (configuration.screenHeightDp < COMPACT_HEIGHT_DP) {
-        BREATHING_CIRCLE_COMPACT_DP.dp
+        PLAYER_RING_COMPACT_DP.dp
     } else {
-        BREATHING_CIRCLE_DEFAULT_DP.dp
+        PLAYER_RING_DEFAULT_DP.dp
     }
 
     Column(
@@ -273,10 +266,9 @@ private fun PlayerBody(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BreathingCircle(
+        PlayerRing(
             phase = uiState.phase,
             progress = uiState.progress,
-            reduceMotion = reduceMotion,
             outerSize = circleSize
         ) {
             CircleContent(
@@ -284,7 +276,6 @@ private fun PlayerBody(
                 isPlaying = uiState.isPlaying,
                 countdownSeconds = uiState.countdownRemainingSeconds,
                 circleSize = circleSize,
-                reduceMotion = reduceMotion,
                 onTogglePlayPause = onTogglePlayPause
             )
         }
@@ -294,9 +285,10 @@ private fun PlayerBody(
         MeditationBottomLabel(
             phase = uiState.phase,
             formattedRemainingMinutes = uiState.formattedRemainingMinutes,
-            reduceMotion = reduceMotion,
+            reduceMotion = false,
             hintModifier = Modifier.testTag("player.text.preRollHint"),
-            remainingModifier = Modifier.testTag("player.text.remainingTime")
+            remainingModifier = Modifier.testTag("player.text.remainingTime"),
+            isPaused = !uiState.isPlaying,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -346,11 +338,8 @@ private fun CircleContent(
     isPlaying: Boolean,
     countdownSeconds: Int,
     circleSize: androidx.compose.ui.unit.Dp,
-    reduceMotion: Boolean,
     onTogglePlayPause: () -> Unit
 ) {
-    val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
-
     val countdownDescription = stringResource(
         R.string.accessibility_countdown_seconds,
         countdownSeconds
@@ -359,8 +348,8 @@ private fun CircleContent(
     AnimatedContent(
         targetState = phase,
         transitionSpec = {
-            fadeIn(animationSpec = tween(transitionDuration)) togetherWith
-                fadeOut(animationSpec = tween(transitionDuration))
+            fadeIn(animationSpec = tween(PHASE_TRANSITION_MS)) togetherWith
+                fadeOut(animationSpec = tween(PHASE_TRANSITION_MS))
         },
         label = "circleContent"
     ) { current ->
@@ -374,10 +363,13 @@ private fun CircleContent(
                         contentDescription = countdownDescription
                     }
             )
-            MeditationPhase.Playing -> GlassPauseButton(
-                isPlaying = isPlaying,
-                onClick = onTogglePlayPause
-            )
+            MeditationPhase.Playing -> Box(contentAlignment = Alignment.Center) {
+                PlayerCenterDisc()
+                GlassPauseButton(
+                    isPlaying = isPlaying,
+                    onClick = onTogglePlayPause
+                )
+            }
         }
     }
 }
@@ -406,7 +398,6 @@ private fun GuidedMeditationPlayerScreenPreview() {
                 progress = 0.25f,
                 isPlaying = true
             ),
-            reduceMotion = false,
             onBack = {},
             onTogglePlayPause = {},
             onClearError = {}
@@ -436,7 +427,6 @@ private fun GuidedMeditationPlayerScreenPausedPreview() {
                 progress = 0.5f,
                 isPlaying = false
             ),
-            reduceMotion = false,
             onBack = {},
             onTogglePlayPause = {},
             onClearError = {}
@@ -470,7 +460,6 @@ private fun GuidedMeditationPlayerScreenPreRollPreview() {
                     remainingSeconds = 10
                 )
             ),
-            reduceMotion = false,
             onBack = {},
             onTogglePlayPause = {},
             onClearError = {}
@@ -501,7 +490,6 @@ private fun GuidedMeditationPlayerScreenCompletedPreview() {
                 isPlaying = false,
                 isCompleted = true
             ),
-            reduceMotion = false,
             onBack = {},
             onTogglePlayPause = {},
             onClearError = {}
