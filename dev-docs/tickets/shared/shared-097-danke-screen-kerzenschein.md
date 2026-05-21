@@ -25,7 +25,7 @@ Referenz: `handoffs/claude_code_handoff_danke_ks2/README.md` (High-Fidelity-Spec
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-096    |
-| Android   | [ ]    | shared-096 (Android) |
+| Android   | [x]    | shared-096 (Android) |
 
 ---
 
