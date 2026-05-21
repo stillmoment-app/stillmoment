@@ -302,4 +302,18 @@
         <item quantity="one">von %d Minute</item>
         <item quantity="other">von %d Minuten</item>
     </plurals>
+
+    <!-- Library Search (shared-101) -->
+    <string name="library_search_prompt">Nach Titel oder Sprecher suchen</string>
+    <plurals name="library_search_result_count">
+        <item quantity="one">%d Treffer</item>
+        <item quantity="other">%d Treffer</item>
+    </plurals>
+    <string name="library_search_empty_title">Nichts gefunden</string>
+    <string name="library_search_empty_message">Keine Treffer für „%1$s“</string>
+    <string name="library_search_history_header">Zuletzt gesucht</string>
+    <string name="library_search_history_clear">Leeren</string>
+    <string name="accessibility_library_search_field">Bibliothek durchsuchen</string>
+    <string name="accessibility_library_search_clear">Suche leeren</string>
+    <string name="accessibility_library_search_history_entry">Erneut suchen: %1$s</string>
 </resources>
