@@ -1,6 +1,6 @@
 # Ticket shared-099: Typografie Newsreader + Geist (Android-Sync)
 
-**Status**: [~] IN PROGRESS — Android implementiert, Close ausstehend
+**Status**: [x] DONE
 **Plan**: [shared-099-android.md](../plans/shared-099-android.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Zwei neue Schrift-Familien (Newsreader Serif + Geist Sans) ins App-Bundle einbinden und das bestehende Compose-Typografie-System auf zwei Familien aufteilen statt einer einzigen System-Font. Risiko liegt in der Token-Reduktion (existierende `TypographyRole`-Aufrufstellen umstellen), Dynamic-Type-aequivalenter Skalierung (Compose nutzt `sp` + System-Font-Scale) und visueller Regression in allen Views.
@@ -25,7 +25,7 @@ Editorial-Voice fuer Display-Texte (Serif) gibt der App Charakter, technische UI
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `ios-048` |
-| Android   | [~]    | Implementierung abgeschlossen, ausstehend: `/close-ticket` |
+| Android   | [x]    | -                               |
 
 ---
 
