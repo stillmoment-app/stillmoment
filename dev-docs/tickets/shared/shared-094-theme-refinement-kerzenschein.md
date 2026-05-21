@@ -1,10 +1,11 @@
 # Ticket shared-094: Theme-Refinement Kerzenschein 2.0
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mechanisch — zentralisiertes Theme-System ist nach shared-093 vorhanden, Refinement laeuft hauptsaechlich ueber Token-Werte plus zwei neue Tokens und einen wiederverwendbaren Shadow/Fade-Mechanismus. Risiko liegt in stillen visuellen Regressionen auf Screens, die nicht Teil der Validierung sind (Player, Settings-Sheets, Onboarding, Completion).
 **Phase**: 4-Polish
 **Plan (iOS)**: [Implementierungsplan](../plans/shared-094-ios.md)
+**Plan (Android)**: [Implementierungsplan](../plans/shared-094-android.md)
 
 ---
 
@@ -23,7 +24,7 @@ Die aktuelle Palette ist nach dem Reduzieren auf ein Theme (shared-093) bewusst 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-093    |
-| Android   | [ ]    | shared-093    |
+| Android   | [x]    | shared-093    |
 
 ---
 

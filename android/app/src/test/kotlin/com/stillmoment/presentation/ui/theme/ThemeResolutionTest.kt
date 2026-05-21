@@ -54,9 +54,15 @@ class ThemeResolutionTest {
         }
 
         @Test
-        fun `light has transparent cardBorder`() {
+        fun `light has visible warm cardBorder`() {
             val colors = resolveStillMomentColors(darkTheme = false)
-            assertEquals(Color.Transparent, colors.cardBorder, "Light should have transparent cardBorder")
+            // shared-094: light cardBorder is no longer Transparent; it carries a warm
+            // copper hint (alpha 0.11 in the 78371C accent family).
+            assertNotEquals(
+                Color.Transparent,
+                colors.cardBorder,
+                "Light should have a visible warm cardBorder after shared-094"
+            )
         }
 
         @Test
@@ -96,13 +102,15 @@ class ThemeResolutionTest {
         }
 
         @Test
-        fun `settingsDivider derives from controlTrack with reduced alpha`() {
+        fun `settingsDivider equals divider in shared-094`() {
+            // shared-094: settingsDivider and the new generic divider point at the
+            // same warm-tinted value — the two slots intentionally share Hue/Alpha.
             listOf(false, true).forEach { dark ->
                 val colors = resolveStillMomentColors(darkTheme = dark)
                 assertEquals(
-                    colors.controlTrack.copy(alpha = 0.30f),
+                    colors.divider,
                     colors.settingsDivider,
-                    "settingsDivider should be controlTrack at alpha 0.30 for dark=$dark"
+                    "settingsDivider should equal divider after shared-094 (dark=$dark)"
                 )
             }
         }
@@ -124,6 +132,115 @@ class ThemeResolutionTest {
             }
         }
     }
+
+    // region shared-094 — Refinement tokens
+
+    @Nested
+    inner class Shared094Tokens {
+        @Test
+        fun `playGradient top and bot differ in light`() {
+            val colors = resolveStillMomentColors(darkTheme = false)
+            assertNotEquals(
+                colors.playGradientTop,
+                colors.playGradientBot,
+                "Light playGradient should have two distinct stops"
+            )
+        }
+
+        @Test
+        fun `playGradient top and bot differ in dark`() {
+            val colors = resolveStillMomentColors(darkTheme = true)
+            assertNotEquals(
+                colors.playGradientTop,
+                colors.playGradientBot,
+                "Dark playGradient should have two distinct stops"
+            )
+        }
+
+        @Test
+        fun `divider differs between light and dark`() {
+            val light = resolveStillMomentColors(darkTheme = false)
+            val dark = resolveStillMomentColors(darkTheme = true)
+            assertNotEquals(
+                light.divider,
+                dark.divider,
+                "divider should differ between light and dark (warm copper vs cream)"
+            )
+        }
+
+        @Test
+        fun `accentBannerBackground derives from interactive at alpha 0_10`() {
+            listOf(false, true).forEach { dark ->
+                val colors = resolveStillMomentColors(darkTheme = dark)
+                val interactive = colors.settingsValueAccent
+                assertEquals(
+                    interactive.copy(alpha = 0.10f),
+                    colors.accentBannerBackground,
+                    "accentBannerBackground should be interactive @ alpha 0.10 (dark=$dark)"
+                )
+            }
+        }
+
+        @Test
+        fun `accentBannerBorder derives from interactive at alpha 0_28`() {
+            listOf(false, true).forEach { dark ->
+                val colors = resolveStillMomentColors(darkTheme = dark)
+                val interactive = colors.settingsValueAccent
+                assertEquals(
+                    interactive.copy(alpha = 0.28f),
+                    colors.accentBannerBorder,
+                    "accentBannerBorder should be interactive @ alpha 0.28 (dark=$dark)"
+                )
+            }
+        }
+
+        @Test
+        fun `accentBubbleBackground derives from interactive at alpha 0_18`() {
+            listOf(false, true).forEach { dark ->
+                val colors = resolveStillMomentColors(darkTheme = dark)
+                val interactive = colors.settingsValueAccent
+                assertEquals(
+                    interactive.copy(alpha = 0.18f),
+                    colors.accentBubbleBackground,
+                    "accentBubbleBackground should be interactive @ alpha 0.18 (dark=$dark)"
+                )
+            }
+        }
+
+        @Test
+        fun `tabBarBackground equals cardBackground`() {
+            listOf(false, true).forEach { dark ->
+                val colors = resolveStillMomentColors(darkTheme = dark)
+                assertEquals(
+                    colors.cardBackground,
+                    colors.tabBarBackground,
+                    "tabBarBackground should equal cardBackground (dark=$dark)"
+                )
+            }
+        }
+
+        @Test
+        fun `cardShadow is transparent in dark mode`() {
+            val colors = resolveStillMomentColors(darkTheme = true)
+            assertEquals(
+                Color.Transparent,
+                colors.cardShadow,
+                "Dark mode uses border strategy — cardShadow must be transparent"
+            )
+        }
+
+        @Test
+        fun `cardShadow is non-transparent in light mode`() {
+            val colors = resolveStillMomentColors(darkTheme = false)
+            assertNotEquals(
+                Color.Transparent,
+                colors.cardShadow,
+                "Light mode carries the lift via cardShadow — must be tinted"
+            )
+        }
+    }
+
+    // endregion
 
     // endregion
 }

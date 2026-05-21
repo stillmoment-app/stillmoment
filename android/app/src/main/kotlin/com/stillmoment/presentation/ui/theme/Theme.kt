@@ -34,9 +34,14 @@ data class StillMomentColors(
     val controlTrack: Color,
     /** Card background color (Light ~= bgPrimary, Dark = own value) */
     val cardBackground: Color,
-    /** Card border: Light = Transparent, Dark = subtle stroke */
+    /** Card border: warm-tinted in both modes (shared-094) */
     val cardBorder: Color,
-    /** Divider color for the flat settings list on the timer idle screen (shared-089) */
+    /**
+     * Generic warm divider in the accent family (shared-094).
+     * Used between cards of the same teacher block and as the settings-list divider.
+     */
+    val divider: Color,
+    /** Divider color for the flat settings list (shared-089/094 — alias of divider) */
     val settingsDivider: Color,
     /** Accent color for the value text in the flat settings list (shared-089) */
     val settingsValueAccent: Color,
@@ -45,7 +50,26 @@ data class StillMomentColors(
     /** Halo color (with alpha) around the BreathDial droplet (shared-086) */
     val dialDropletHalo: Color,
     /** Core fill color of the BreathDial droplet (shared-086) */
-    val dialDropletCore: Color
+    val dialDropletCore: Color,
+    /** Top stop of the plastic play-button gradient (shared-094) */
+    val playGradientTop: Color,
+    /** Bottom stop of the plastic play-button gradient (shared-094) */
+    val playGradientBot: Color,
+    /** Foreground (text + icon) color used on top of `interactive` / play gradient (shared-094) */
+    val textOnInteractive: Color,
+    /** Warm contact/body shadow color for lifted cards in light mode (shared-094) */
+    val cardShadow: Color,
+    /** Tab bar background — matches cardBackground (shared-094) */
+    val tabBarBackground: Color,
+    /**
+     * Accent banner background — interactive @ alpha 0.10 (shared-094).
+     * Vorlage fuer das spaetere Android-Pendant zu shared-039b.
+     */
+    val accentBannerBackground: Color,
+    /** Accent banner border — interactive @ alpha 0.28 (shared-094) */
+    val accentBannerBorder: Color,
+    /** Accent bubble background — interactive @ alpha 0.18 (shared-094) */
+    val accentBubbleBackground: Color
 )
 
 /**
@@ -58,7 +82,12 @@ val LocalStillMomentColors = staticCompositionLocalOf {
         controlTrack = SmLightControlTrack,
         cardBackground = SmLightCardBackground,
         cardBorder = SmLightCardBorder,
-        interactive = SmLightInteractive
+        interactive = SmLightInteractive,
+        divider = SmLightDivider,
+        playGradientTop = SmLightPlayGradientTop,
+        playGradientBot = SmLightPlayGradientBot,
+        cardShadow = SmLightCardShadow,
+        textOnInteractive = SmLightTextOnInteractive
     )
 }
 
@@ -72,7 +101,12 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         controlTrack = SmDarkControlTrack,
         cardBackground = SmDarkCardBackground,
         cardBorder = SmDarkCardBorder,
-        interactive = SmDarkInteractive
+        interactive = SmDarkInteractive,
+        divider = SmDarkDivider,
+        playGradientTop = SmDarkPlayGradientTop,
+        playGradientBot = SmDarkPlayGradientBot,
+        cardShadow = SmDarkCardShadow,
+        textOnInteractive = SmDarkTextOnInteractive
     )
 } else {
     buildStillMomentColors(
@@ -80,31 +114,52 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         controlTrack = SmLightControlTrack,
         cardBackground = SmLightCardBackground,
         cardBorder = SmLightCardBorder,
-        interactive = SmLightInteractive
+        interactive = SmLightInteractive,
+        divider = SmLightDivider,
+        playGradientTop = SmLightPlayGradientTop,
+        playGradientBot = SmLightPlayGradientBot,
+        cardShadow = SmLightCardShadow,
+        textOnInteractive = SmLightTextOnInteractive
     )
 }
 
 /**
- * Builds [StillMomentColors] with derived shared-086/089 tokens. Centralised so the
- * derivation rules (alpha for divider/halo, primary as accent/arc/core) live in one
- * place and stay consistent across both light and dark variants.
+ * Builds [StillMomentColors] with derived shared-086/089/094 tokens. Centralised so the
+ * derivation rules (alpha for divider/halo, primary as accent/arc/core, accent banner
+ * alphas 0.10/0.28/0.18) live in one place and stay consistent across both variants.
  */
+@Suppress("LongParameterList") // Theme color builder bundles all source values explicitly
 private fun buildStillMomentColors(
     progress: Color,
     controlTrack: Color,
     cardBackground: Color,
     cardBorder: Color,
-    interactive: Color
+    interactive: Color,
+    divider: Color,
+    playGradientTop: Color,
+    playGradientBot: Color,
+    cardShadow: Color,
+    textOnInteractive: Color
 ): StillMomentColors = StillMomentColors(
     progress = progress,
     controlTrack = controlTrack,
     cardBackground = cardBackground,
     cardBorder = cardBorder,
-    settingsDivider = controlTrack.copy(alpha = 0.30f),
+    divider = divider,
+    // shared-094: settingsDivider and the generic divider intentionally share Hue + Alpha.
+    settingsDivider = divider,
     settingsValueAccent = interactive,
     dialActiveArc = interactive,
     dialDropletHalo = interactive.copy(alpha = 0.18f),
-    dialDropletCore = interactive
+    dialDropletCore = interactive,
+    playGradientTop = playGradientTop,
+    playGradientBot = playGradientBot,
+    textOnInteractive = textOnInteractive,
+    cardShadow = cardShadow,
+    tabBarBackground = cardBackground,
+    accentBannerBackground = interactive.copy(alpha = 0.10f),
+    accentBannerBorder = interactive.copy(alpha = 0.28f),
+    accentBubbleBackground = interactive.copy(alpha = 0.18f)
 )
 
 /**
@@ -117,7 +172,8 @@ private fun buildStillMomentColors(
 private val StillMomentLightScheme =
     lightColorScheme(
         primary = SmLightInteractive,
-        onPrimary = Color.White,
+        // shared-094: warm cream on the play gradient (was pure white before).
+        onPrimary = SmLightTextOnInteractive,
         primaryContainer = SmLightAccentBg,
         onPrimaryContainer = SmLightTextPrimary,
         secondary = SmLightTextSecondary,

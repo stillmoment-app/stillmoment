@@ -153,7 +153,8 @@ class WCAGContrastTest {
         name = "Light",
         textPrimary = SmLightTextPrimary,
         textSecondary = SmLightTextSecondary,
-        textOnInteractive = Color.White,
+        // shared-094: warm cream cup (#FFF6E6) on the play gradient — not pure white.
+        textOnInteractive = SmLightTextOnInteractive,
         interactive = SmLightInteractive,
         backgroundPrimary = SmLightBgPrimary,
         backgroundSecondary = SmLightBgSecondary,
@@ -219,6 +220,67 @@ class WCAGContrastTest {
                 "cardBackground",
                 "Dark"
             )
+        }
+    }
+
+    // endregion
+
+    // region shared-094 — Play Gradient + Card Border
+
+    private fun lerpChannel(a: Float, b: Float, t: Float): Float = a + (b - a) * t
+
+    private fun lerpColor(top: Color, bottom: Color, t: Float): Color = Color(
+        red = lerpChannel(top.red, bottom.red, t),
+        green = lerpChannel(top.green, bottom.green, t),
+        blue = lerpChannel(top.blue, bottom.blue, t),
+        alpha = 1.0f
+    )
+
+    @Nested
+    inner class PlayGradientContrast {
+        @Test
+        fun `light play gradient midpoint vs textOnInteractive`() {
+            val midpoint = lerpColor(SmLightPlayGradientTop, SmLightPlayGradientBot, 0.5f)
+            assertContrast(
+                SmLightTextOnInteractive,
+                midpoint,
+                NORMAL_TEXT_MIN_CONTRAST,
+                "textOnInteractive",
+                "playGradient midpoint",
+                "Light"
+            )
+        }
+
+        @Test
+        fun `dark play gradient midpoint vs textOnInteractive`() {
+            val midpoint = lerpColor(SmDarkPlayGradientTop, SmDarkPlayGradientBot, 0.5f)
+            assertContrast(
+                SmDarkTextOnInteractive,
+                midpoint,
+                NORMAL_TEXT_MIN_CONTRAST,
+                "textOnInteractive",
+                "playGradient midpoint",
+                "Dark"
+            )
+        }
+    }
+
+    @Nested
+    inner class CardBorderTint {
+        @Test
+        fun `light cardBorder is warm tinted with low alpha`() {
+            // shared-094: cardBorder is rgba(120, 55, 28, 0.11) in the warm copper family.
+            // Red dominates, blue stays clearly below green and red, alpha in [0.08, 0.16].
+            val border = SmLightCardBorder
+            assertTrue(border.red > border.blue) {
+                "cardBorder red (${border.red}) should dominate blue (${border.blue})"
+            }
+            assertTrue(border.red > border.green) {
+                "cardBorder red (${border.red}) should dominate green (${border.green})"
+            }
+            assertTrue(border.alpha in 0.08f..0.16f) {
+                "cardBorder alpha (${border.alpha}) should sit in warm-hint band 0.08..0.16"
+            }
         }
     }
 

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
@@ -25,6 +24,7 @@ import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -87,6 +87,7 @@ import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
 import com.stillmoment.presentation.ui.timer.PraxisEditorScreen
 import com.stillmoment.presentation.ui.timer.PreparationTimeSelectionScreen
@@ -1088,11 +1089,22 @@ private fun StillMomentBottomBar(
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+    val theme = LocalStillMomentColors.current
+    // shared-094: full-width opaque bar with a warm top divider — matches the
+    // iOS plan update from "centered pill" to "edge-to-edge bar". The active
+    // tab uses the interactive accent, inactive tabs read onSurfaceVariant
+    // (mapped to textSecondary). The opaque containerColor sits on
+    // tabBarBackground (= cardBackground), so the bar carries the same warm
+    // material the cards do.
+    Box(modifier = modifier.fillMaxWidth()) {
+        HorizontalDivider(
+            color = theme.cardBorder,
+            thickness = 0.5.dp,
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)
+        )
         NavigationBar(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.widthIn(max = 280.dp)
+            containerColor = theme.tabBarBackground,
+            contentColor = theme.settingsValueAccent
         ) {
             tabs.forEach { tabItem ->
                 val selected = currentDestination?.hierarchy?.any { it.route == tabItem.screen.route } == true
@@ -1115,11 +1127,11 @@ private fun StillMomentBottomBar(
                     },
                     colors =
                     NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor = theme.settingsValueAccent,
+                        selectedTextColor = theme.settingsValueAccent,
                         unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        indicatorColor = theme.settingsValueAccent.copy(alpha = 0.12f)
                     ),
                     modifier =
                     Modifier.semantics {
