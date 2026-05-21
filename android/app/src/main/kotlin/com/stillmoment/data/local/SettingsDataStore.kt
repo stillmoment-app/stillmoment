@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.ColorTheme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,8 +27,12 @@ internal val Context.appSettingsDataStore: DataStore<Preferences> by preferences
 )
 
 /**
- * DataStore for app-level settings (tab, theme, appearance).
+ * DataStore for app-level settings (tab, appearance).
  * Timer-related settings are persisted via PraxisDataStore.
+ *
+ * The legacy `selected_theme` preference (shared-093) is intentionally not read
+ * anywhere — bytes remain in `settings.preferences_pb` for users who upgrade
+ * from a multi-theme version and are silently ignored.
  */
 @Singleton
 class SettingsDataStore
@@ -39,7 +42,6 @@ constructor(
 ) {
     private object Keys {
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
-        val SELECTED_THEME = stringPreferencesKey("selected_theme")
         val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
     }
 
@@ -67,32 +69,6 @@ constructor(
     suspend fun setSelectedTab(tab: AppTab) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.SELECTED_TAB] = tab.route
-        }
-    }
-
-    /**
-     * Flow for the selected color theme.
-     * Emits the saved theme or ColorTheme.DEFAULT for new installations.
-     */
-    val selectedThemeFlow: Flow<ColorTheme> =
-        context.appSettingsDataStore.data
-            .map { preferences ->
-                ColorTheme.fromString(preferences[Keys.SELECTED_THEME])
-            }
-
-    /**
-     * Get the selected color theme.
-     */
-    suspend fun getSelectedTheme(): ColorTheme {
-        return selectedThemeFlow.first()
-    }
-
-    /**
-     * Save the selected color theme.
-     */
-    suspend fun setSelectedTheme(theme: ColorTheme) {
-        context.appSettingsDataStore.edit { preferences ->
-            preferences[Keys.SELECTED_THEME] = theme.name
         }
     }
 

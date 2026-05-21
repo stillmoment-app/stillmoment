@@ -282,41 +282,26 @@ class TypographyTest {
 
         @Test
         fun `TextPrimary resolves to onSurface`() {
-            val scheme = resolveColorScheme(
-                com.stillmoment.domain.models.ColorTheme.CANDLELIGHT,
-                darkTheme = false
-            )
+            val scheme = resolveColorScheme(darkTheme = false)
             assertEquals(scheme.onSurface, ThemeColorRole.TextPrimary.resolve(scheme))
         }
 
         @Test
         fun `TextSecondary resolves to onSurfaceVariant`() {
-            val scheme = resolveColorScheme(
-                com.stillmoment.domain.models.ColorTheme.CANDLELIGHT,
-                darkTheme = false
-            )
+            val scheme = resolveColorScheme(darkTheme = false)
             assertEquals(scheme.onSurfaceVariant, ThemeColorRole.TextSecondary.resolve(scheme))
         }
 
         @Test
         fun `Interactive resolves to primary`() {
-            val scheme = resolveColorScheme(
-                com.stillmoment.domain.models.ColorTheme.CANDLELIGHT,
-                darkTheme = false
-            )
+            val scheme = resolveColorScheme(darkTheme = false)
             assertEquals(scheme.primary, ThemeColorRole.Interactive.resolve(scheme))
         }
 
         @Test
-        fun `color resolution uses correct theme colors`() {
-            val lightScheme = resolveColorScheme(
-                com.stillmoment.domain.models.ColorTheme.CANDLELIGHT,
-                darkTheme = false
-            )
-            val darkScheme = resolveColorScheme(
-                com.stillmoment.domain.models.ColorTheme.CANDLELIGHT,
-                darkTheme = true
-            )
+        fun `color resolution uses correct light vs dark colors`() {
+            val lightScheme = resolveColorScheme(darkTheme = false)
+            val darkScheme = resolveColorScheme(darkTheme = true)
 
             assertNotEquals(
                 ThemeColorRole.TextPrimary.resolve(lightScheme),

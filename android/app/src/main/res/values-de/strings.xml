@@ -178,10 +178,6 @@
 
     <!-- Appearance Settings -->
     <string name="settings_general_header">Erscheinungsbild</string>
-    <string name="settings_theme_title">Farbthema</string>
-    <string name="settings_theme_candlelight">Kerzenschein</string>
-    <string name="settings_theme_forest">Wald</string>
-    <string name="settings_theme_moon">Mondlicht</string>
 
     <!-- Appearance Mode -->
     <string name="settings_appearance_title">Darstellung</string>
@@ -189,8 +185,7 @@
     <string name="settings_appearance_light">Hell</string>
     <string name="settings_appearance_dark">Dunkel</string>
 
-    <!-- Theme Accessibility -->
-    <string name="accessibility_theme_picker">Farbthema auswählen</string>
+    <!-- Appearance Accessibility -->
     <string name="accessibility_appearance_picker">Darstellungsmodus auswählen</string>
 
     <!-- File Open Errors -->

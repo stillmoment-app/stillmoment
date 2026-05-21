@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
- * WCAG 2.1 AA contrast validation for all theme palettes.
+ * WCAG 2.1 AA contrast validation for the Still Moment palette.
  * Ensures text-on-background combinations meet minimum contrast ratios.
  *
  * Reference: https://www.w3.org/TR/WCAG21/#contrast-minimum
@@ -149,70 +149,26 @@ class WCAGContrastTest {
 
     // region Palette definitions
 
-    private val candlelightLight = PaletteColors(
-        name = "Candlelight Light",
-        textPrimary = CdLightTextPrimary,
-        textSecondary = CdLightTextSecondary,
+    private val light = PaletteColors(
+        name = "Light",
+        textPrimary = SmLightTextPrimary,
+        textSecondary = SmLightTextSecondary,
         textOnInteractive = Color.White,
-        interactive = CdLightInteractive,
-        backgroundPrimary = CdLightBgPrimary,
-        backgroundSecondary = CdLightBgSecondary,
-        error = CdLightError
+        interactive = SmLightInteractive,
+        backgroundPrimary = SmLightBgPrimary,
+        backgroundSecondary = SmLightBgSecondary,
+        error = SmLightError
     )
 
-    private val candlelightDark = PaletteColors(
-        name = "Candlelight Dark",
-        textPrimary = CdDarkTextPrimary,
-        textSecondary = CdDarkTextSecondary,
-        textOnInteractive = CdDarkTextOnInteractive,
-        interactive = CdDarkInteractive,
-        backgroundPrimary = CdDarkBgPrimary,
-        backgroundSecondary = CdDarkBgSecondary,
-        error = CdDarkError
-    )
-
-    private val forestLight = PaletteColors(
-        name = "Forest Light",
-        textPrimary = FoLightTextPrimary,
-        textSecondary = FoLightTextSecondary,
-        textOnInteractive = FoLightTextOnInteractive,
-        interactive = FoLightInteractive,
-        backgroundPrimary = FoLightBgPrimary,
-        backgroundSecondary = FoLightBgSecondary,
-        error = FoLightError
-    )
-
-    private val forestDark = PaletteColors(
-        name = "Forest Dark",
-        textPrimary = FoDarkTextPrimary,
-        textSecondary = FoDarkTextSecondary,
-        textOnInteractive = FoDarkTextOnInteractive,
-        interactive = FoDarkInteractive,
-        backgroundPrimary = FoDarkBgPrimary,
-        backgroundSecondary = FoDarkBgSecondary,
-        error = FoDarkError
-    )
-
-    private val moonLight = PaletteColors(
-        name = "Moon Light",
-        textPrimary = MnLightTextPrimary,
-        textSecondary = MnLightTextSecondary,
-        textOnInteractive = MnLightTextOnInteractive,
-        interactive = MnLightInteractive,
-        backgroundPrimary = MnLightBgPrimary,
-        backgroundSecondary = MnLightBgSecondary,
-        error = MnLightError
-    )
-
-    private val moonDark = PaletteColors(
-        name = "Moon Dark",
-        textPrimary = MnDarkTextPrimary,
-        textSecondary = MnDarkTextSecondary,
-        textOnInteractive = MnDarkTextOnInteractive,
-        interactive = MnDarkInteractive,
-        backgroundPrimary = MnDarkBgPrimary,
-        backgroundSecondary = MnDarkBgSecondary,
-        error = MnDarkError
+    private val dark = PaletteColors(
+        name = "Dark",
+        textPrimary = SmDarkTextPrimary,
+        textSecondary = SmDarkTextSecondary,
+        textOnInteractive = SmDarkTextOnInteractive,
+        interactive = SmDarkInteractive,
+        backgroundPrimary = SmDarkBgPrimary,
+        backgroundSecondary = SmDarkBgSecondary,
+        error = SmDarkError
     )
 
     // endregion
@@ -220,50 +176,18 @@ class WCAGContrastTest {
     // region Tests per Palette
 
     @Nested
-    inner class CandlelightLightContrast {
+    inner class LightContrast {
         @Test
         fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(candlelightLight)
+            assertAllCombinations(light)
         }
     }
 
     @Nested
-    inner class CandlelightDarkContrast {
+    inner class DarkContrast {
         @Test
         fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(candlelightDark)
-        }
-    }
-
-    @Nested
-    inner class ForestLightContrast {
-        @Test
-        fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(forestLight)
-        }
-    }
-
-    @Nested
-    inner class ForestDarkContrast {
-        @Test
-        fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(forestDark)
-        }
-    }
-
-    @Nested
-    inner class MoonLightContrast {
-        @Test
-        fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(moonLight)
-        }
-    }
-
-    @Nested
-    inner class MoonDarkContrast {
-        @Test
-        fun `all combinations meet WCAG AA`() {
-            assertAllCombinations(moonDark)
+            assertAllCombinations(dark)
         }
     }
 
@@ -274,74 +198,26 @@ class WCAGContrastTest {
     @Nested
     inner class ControlTrackContrast {
         @Test
-        fun `candlelight light controlTrack vs cardBackground`() {
+        fun `light controlTrack vs cardBackground`() {
             assertContrast(
-                CdLightControlTrack,
-                CdLightCardBackground,
+                SmLightControlTrack,
+                SmLightCardBackground,
                 NON_TEXT_MIN_CONTRAST,
                 "controlTrack",
                 "cardBackground",
-                "Candlelight Light"
+                "Light"
             )
         }
 
         @Test
-        fun `candlelight dark controlTrack vs cardBackground`() {
+        fun `dark controlTrack vs cardBackground`() {
             assertContrast(
-                CdDarkControlTrack,
-                CdDarkCardBackground,
+                SmDarkControlTrack,
+                SmDarkCardBackground,
                 NON_TEXT_MIN_CONTRAST,
                 "controlTrack",
                 "cardBackground",
-                "Candlelight Dark"
-            )
-        }
-
-        @Test
-        fun `forest light controlTrack vs cardBackground`() {
-            assertContrast(
-                FoLightControlTrack,
-                FoLightCardBackground,
-                NON_TEXT_MIN_CONTRAST,
-                "controlTrack",
-                "cardBackground",
-                "Forest Light"
-            )
-        }
-
-        @Test
-        fun `forest dark controlTrack vs cardBackground`() {
-            assertContrast(
-                FoDarkControlTrack,
-                FoDarkCardBackground,
-                NON_TEXT_MIN_CONTRAST,
-                "controlTrack",
-                "cardBackground",
-                "Forest Dark"
-            )
-        }
-
-        @Test
-        fun `moon light controlTrack vs cardBackground`() {
-            assertContrast(
-                MnLightControlTrack,
-                MnLightCardBackground,
-                NON_TEXT_MIN_CONTRAST,
-                "controlTrack",
-                "cardBackground",
-                "Moon Light"
-            )
-        }
-
-        @Test
-        fun `moon dark controlTrack vs cardBackground`() {
-            assertContrast(
-                MnDarkControlTrack,
-                MnDarkCardBackground,
-                NON_TEXT_MIN_CONTRAST,
-                "controlTrack",
-                "cardBackground",
-                "Moon Dark"
+                "Dark"
             )
         }
     }

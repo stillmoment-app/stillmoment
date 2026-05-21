@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.stillmoment.domain.models.ColorTheme
 
 /**
  * CompositionLocal providing the current dark theme state.
@@ -60,76 +59,40 @@ data class StillMomentColors(
  */
 val LocalStillMomentColors = staticCompositionLocalOf {
     buildStillMomentColors(
-        progress = CdLightProgress,
-        controlTrack = CdLightControlTrack,
-        cardBackground = CdLightCardBackground,
-        cardBorder = CdLightCardBorder,
-        interactive = CdLightInteractive
+        progress = SmLightProgress,
+        controlTrack = SmLightControlTrack,
+        cardBackground = SmLightCardBackground,
+        cardBorder = SmLightCardBorder,
+        interactive = SmLightInteractive
     )
 }
 
 /**
- * Resolve StillMomentColors for the given theme and dark mode combination.
+ * Resolve StillMomentColors for the given dark mode state.
  * Internal visibility for testability.
  */
-internal fun resolveStillMomentColors(theme: ColorTheme, darkTheme: Boolean): StillMomentColors = when (theme) {
-    ColorTheme.CANDLELIGHT -> if (darkTheme) {
-        buildStillMomentColors(
-            progress = CdDarkProgress,
-            controlTrack = CdDarkControlTrack,
-            cardBackground = CdDarkCardBackground,
-            cardBorder = CdDarkCardBorder,
-            interactive = CdDarkInteractive
-        )
-    } else {
-        buildStillMomentColors(
-            progress = CdLightProgress,
-            controlTrack = CdLightControlTrack,
-            cardBackground = CdLightCardBackground,
-            cardBorder = CdLightCardBorder,
-            interactive = CdLightInteractive
-        )
-    }
-    ColorTheme.FOREST -> if (darkTheme) {
-        buildStillMomentColors(
-            progress = FoDarkProgress,
-            controlTrack = FoDarkControlTrack,
-            cardBackground = FoDarkCardBackground,
-            cardBorder = FoDarkCardBorder,
-            interactive = FoDarkInteractive
-        )
-    } else {
-        buildStillMomentColors(
-            progress = FoLightProgress,
-            controlTrack = FoLightControlTrack,
-            cardBackground = FoLightCardBackground,
-            cardBorder = FoLightCardBorder,
-            interactive = FoLightInteractive
-        )
-    }
-    ColorTheme.MOON -> if (darkTheme) {
-        buildStillMomentColors(
-            progress = MnDarkProgress,
-            controlTrack = MnDarkControlTrack,
-            cardBackground = MnDarkCardBackground,
-            cardBorder = MnDarkCardBorder,
-            interactive = MnDarkInteractive
-        )
-    } else {
-        buildStillMomentColors(
-            progress = MnLightProgress,
-            controlTrack = MnLightControlTrack,
-            cardBackground = MnLightCardBackground,
-            cardBorder = MnLightCardBorder,
-            interactive = MnLightInteractive
-        )
-    }
+internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = if (darkTheme) {
+    buildStillMomentColors(
+        progress = SmDarkProgress,
+        controlTrack = SmDarkControlTrack,
+        cardBackground = SmDarkCardBackground,
+        cardBorder = SmDarkCardBorder,
+        interactive = SmDarkInteractive
+    )
+} else {
+    buildStillMomentColors(
+        progress = SmLightProgress,
+        controlTrack = SmLightControlTrack,
+        cardBackground = SmLightCardBackground,
+        cardBorder = SmLightCardBorder,
+        interactive = SmLightInteractive
+    )
 }
 
 /**
  * Builds [StillMomentColors] with derived shared-086/089 tokens. Centralised so the
  * derivation rules (alpha for divider/halo, primary as accent/arc/core) live in one
- * place and stay consistent across all six theme/mode combinations.
+ * place and stay consistent across both light and dark variants.
  */
 private fun buildStillMomentColors(
     progress: Color,
@@ -150,207 +113,83 @@ private fun buildStillMomentColors(
 )
 
 /**
- * Still Moment Theme - Multiple color themes with Material 3.
- * Supports light/dark variants for each theme.
+ * Still Moment Theme — single curated palette with Light + Dark variants.
  * Color values taken 1:1 from iOS ThemeColors+Palettes.swift.
  */
 
 // region Color Schemes
 
-private val CandlelightLightScheme =
+private val StillMomentLightScheme =
     lightColorScheme(
-        primary = CdLightInteractive,
+        primary = SmLightInteractive,
         onPrimary = Color.White,
-        primaryContainer = CdLightAccentBg,
-        onPrimaryContainer = CdLightTextPrimary,
-        secondary = CdLightTextSecondary,
+        primaryContainer = SmLightAccentBg,
+        onPrimaryContainer = SmLightTextPrimary,
+        secondary = SmLightTextSecondary,
         onSecondary = Color.White,
-        secondaryContainer = CdLightBgPrimary,
-        onSecondaryContainer = CdLightTextPrimary,
-        tertiary = CdLightInteractive,
+        secondaryContainer = SmLightBgPrimary,
+        onSecondaryContainer = SmLightTextPrimary,
+        tertiary = SmLightInteractive,
         onTertiary = Color.White,
-        background = CdLightBgSecondary,
-        onBackground = CdLightTextPrimary,
-        surface = CdLightBgSecondary,
-        onSurface = CdLightTextPrimary,
-        surfaceVariant = CdLightBgPrimary,
-        onSurfaceVariant = CdLightTextSecondary,
-        surfaceContainerLowest = CdLightBgPrimary,
-        surfaceContainerLow = CdLightBgPrimary,
-        surfaceContainer = CdLightBgPrimary,
-        surfaceContainerHigh = CdLightBgPrimary,
-        surfaceContainerHighest = CdLightBgPrimary,
-        error = CdLightError,
+        background = SmLightBgSecondary,
+        onBackground = SmLightTextPrimary,
+        surface = SmLightBgSecondary,
+        onSurface = SmLightTextPrimary,
+        surfaceVariant = SmLightBgPrimary,
+        onSurfaceVariant = SmLightTextSecondary,
+        surfaceContainerLowest = SmLightBgPrimary,
+        surfaceContainerLow = SmLightBgPrimary,
+        surfaceContainer = SmLightBgPrimary,
+        surfaceContainerHigh = SmLightBgPrimary,
+        surfaceContainerHighest = SmLightBgPrimary,
+        error = SmLightError,
         onError = Color.White,
-        outline = CdLightRingTrack,
-        outlineVariant = CdLightRingTrack
+        outline = SmLightRingTrack,
+        outlineVariant = SmLightRingTrack
     )
 
-private val CandlelightDarkScheme =
+private val StillMomentDarkScheme =
     darkColorScheme(
-        primary = CdDarkInteractive,
-        onPrimary = CdDarkTextOnInteractive,
-        primaryContainer = CdDarkAccentBg,
-        onPrimaryContainer = CdDarkTextPrimary,
-        secondary = CdDarkTextSecondary,
-        onSecondary = CdDarkTextOnInteractive,
-        secondaryContainer = CdDarkBgPrimary,
-        onSecondaryContainer = CdDarkTextPrimary,
-        tertiary = CdDarkInteractive,
-        onTertiary = CdDarkTextOnInteractive,
-        background = CdDarkBgSecondary,
-        onBackground = CdDarkTextPrimary,
-        surface = CdDarkBgSecondary,
-        onSurface = CdDarkTextPrimary,
-        surfaceVariant = CdDarkBgPrimary,
-        onSurfaceVariant = CdDarkTextSecondary,
-        surfaceContainerLowest = CdDarkBgPrimary,
-        surfaceContainerLow = CdDarkBgPrimary,
-        surfaceContainer = CdDarkBgPrimary,
-        surfaceContainerHigh = CdDarkBgPrimary,
-        surfaceContainerHighest = CdDarkBgPrimary,
-        error = CdDarkError,
+        primary = SmDarkInteractive,
+        onPrimary = SmDarkTextOnInteractive,
+        primaryContainer = SmDarkAccentBg,
+        onPrimaryContainer = SmDarkTextPrimary,
+        secondary = SmDarkTextSecondary,
+        onSecondary = SmDarkTextOnInteractive,
+        secondaryContainer = SmDarkBgPrimary,
+        onSecondaryContainer = SmDarkTextPrimary,
+        tertiary = SmDarkInteractive,
+        onTertiary = SmDarkTextOnInteractive,
+        background = SmDarkBgSecondary,
+        onBackground = SmDarkTextPrimary,
+        surface = SmDarkBgSecondary,
+        onSurface = SmDarkTextPrimary,
+        surfaceVariant = SmDarkBgPrimary,
+        onSurfaceVariant = SmDarkTextSecondary,
+        surfaceContainerLowest = SmDarkBgPrimary,
+        surfaceContainerLow = SmDarkBgPrimary,
+        surfaceContainer = SmDarkBgPrimary,
+        surfaceContainerHigh = SmDarkBgPrimary,
+        surfaceContainerHighest = SmDarkBgPrimary,
+        error = SmDarkError,
         onError = Color.White,
-        outline = CdDarkRingTrack,
-        outlineVariant = CdDarkRingTrack
-    )
-
-private val ForestLightScheme =
-    lightColorScheme(
-        primary = FoLightInteractive,
-        onPrimary = FoLightTextOnInteractive,
-        primaryContainer = FoLightAccentBg,
-        onPrimaryContainer = FoLightTextPrimary,
-        secondary = FoLightTextSecondary,
-        onSecondary = FoLightTextOnInteractive,
-        secondaryContainer = FoLightBgPrimary,
-        onSecondaryContainer = FoLightTextPrimary,
-        tertiary = FoLightInteractive,
-        onTertiary = FoLightTextOnInteractive,
-        background = FoLightBgSecondary,
-        onBackground = FoLightTextPrimary,
-        surface = FoLightBgSecondary,
-        onSurface = FoLightTextPrimary,
-        surfaceVariant = FoLightBgPrimary,
-        onSurfaceVariant = FoLightTextSecondary,
-        surfaceContainerLowest = FoLightBgPrimary,
-        surfaceContainerLow = FoLightBgPrimary,
-        surfaceContainer = FoLightBgPrimary,
-        surfaceContainerHigh = FoLightBgPrimary,
-        surfaceContainerHighest = FoLightBgPrimary,
-        error = FoLightError,
-        onError = Color.White,
-        outline = FoLightRingTrack,
-        outlineVariant = FoLightRingTrack
-    )
-
-private val ForestDarkScheme =
-    darkColorScheme(
-        primary = FoDarkInteractive,
-        onPrimary = FoDarkTextOnInteractive,
-        primaryContainer = FoDarkAccentBg,
-        onPrimaryContainer = FoDarkTextPrimary,
-        secondary = FoDarkTextSecondary,
-        onSecondary = FoDarkTextOnInteractive,
-        secondaryContainer = FoDarkBgPrimary,
-        onSecondaryContainer = FoDarkTextPrimary,
-        tertiary = FoDarkInteractive,
-        onTertiary = FoDarkTextOnInteractive,
-        background = FoDarkBgSecondary,
-        onBackground = FoDarkTextPrimary,
-        surface = FoDarkBgSecondary,
-        onSurface = FoDarkTextPrimary,
-        surfaceVariant = FoDarkBgPrimary,
-        onSurfaceVariant = FoDarkTextSecondary,
-        surfaceContainerLowest = FoDarkBgPrimary,
-        surfaceContainerLow = FoDarkBgPrimary,
-        surfaceContainer = FoDarkBgPrimary,
-        surfaceContainerHigh = FoDarkBgPrimary,
-        surfaceContainerHighest = FoDarkBgPrimary,
-        error = FoDarkError,
-        onError = Color.White,
-        outline = FoDarkRingTrack,
-        outlineVariant = FoDarkRingTrack
-    )
-
-private val MoonLightScheme =
-    lightColorScheme(
-        primary = MnLightInteractive,
-        onPrimary = MnLightTextOnInteractive,
-        primaryContainer = MnLightAccentBg,
-        onPrimaryContainer = MnLightTextPrimary,
-        secondary = MnLightTextSecondary,
-        onSecondary = MnLightTextOnInteractive,
-        secondaryContainer = MnLightBgPrimary,
-        onSecondaryContainer = MnLightTextPrimary,
-        tertiary = MnLightInteractive,
-        onTertiary = MnLightTextOnInteractive,
-        background = MnLightBgSecondary,
-        onBackground = MnLightTextPrimary,
-        surface = MnLightBgSecondary,
-        onSurface = MnLightTextPrimary,
-        surfaceVariant = MnLightBgPrimary,
-        onSurfaceVariant = MnLightTextSecondary,
-        surfaceContainerLowest = MnLightBgPrimary,
-        surfaceContainerLow = MnLightBgPrimary,
-        surfaceContainer = MnLightBgPrimary,
-        surfaceContainerHigh = MnLightBgPrimary,
-        surfaceContainerHighest = MnLightBgPrimary,
-        error = MnLightError,
-        onError = Color.White,
-        outline = MnLightRingTrack,
-        outlineVariant = MnLightRingTrack
-    )
-
-private val MoonDarkScheme =
-    darkColorScheme(
-        primary = MnDarkInteractive,
-        onPrimary = MnDarkTextOnInteractive,
-        primaryContainer = MnDarkAccentBg,
-        onPrimaryContainer = MnDarkTextPrimary,
-        secondary = MnDarkTextSecondary,
-        onSecondary = MnDarkTextOnInteractive,
-        secondaryContainer = MnDarkBgPrimary,
-        onSecondaryContainer = MnDarkTextPrimary,
-        tertiary = MnDarkInteractive,
-        onTertiary = MnDarkTextOnInteractive,
-        background = MnDarkBgSecondary,
-        onBackground = MnDarkTextPrimary,
-        surface = MnDarkBgSecondary,
-        onSurface = MnDarkTextPrimary,
-        surfaceVariant = MnDarkBgPrimary,
-        onSurfaceVariant = MnDarkTextSecondary,
-        surfaceContainerLowest = MnDarkBgPrimary,
-        surfaceContainerLow = MnDarkBgPrimary,
-        surfaceContainer = MnDarkBgPrimary,
-        surfaceContainerHigh = MnDarkBgPrimary,
-        surfaceContainerHighest = MnDarkBgPrimary,
-        error = MnDarkError,
-        onError = MnDarkTextOnInteractive,
-        outline = MnDarkRingTrack,
-        outlineVariant = MnDarkRingTrack
+        outline = SmDarkRingTrack,
+        outlineVariant = SmDarkRingTrack
     )
 
 // endregion
 
 /**
- * Resolve the Material3 ColorScheme for the given theme and dark mode combination.
+ * Resolve the Material3 ColorScheme for the given dark mode state.
  * Internal visibility for testability.
  */
-internal fun resolveColorScheme(theme: ColorTheme, darkTheme: Boolean): ColorScheme = when (theme) {
-    ColorTheme.CANDLELIGHT -> if (darkTheme) CandlelightDarkScheme else CandlelightLightScheme
-    ColorTheme.FOREST -> if (darkTheme) ForestDarkScheme else ForestLightScheme
-    ColorTheme.MOON -> if (darkTheme) MoonDarkScheme else MoonLightScheme
-}
+internal fun resolveColorScheme(darkTheme: Boolean): ColorScheme =
+    if (darkTheme) StillMomentDarkScheme else StillMomentLightScheme
 
 @Composable
-fun StillMomentTheme(
-    colorTheme: ColorTheme = ColorTheme.DEFAULT,
-    darkTheme: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = resolveColorScheme(colorTheme, darkTheme)
-    val stillMomentColors = resolveStillMomentColors(colorTheme, darkTheme)
+fun StillMomentTheme(darkTheme: Boolean = false, content: @Composable () -> Unit) {
+    val colorScheme = resolveColorScheme(darkTheme)
+    val stillMomentColors = resolveStillMomentColors(darkTheme)
     val view = LocalView.current
 
     if (!view.isInEditMode) {
@@ -383,7 +222,7 @@ fun StillMomentTheme(
 }
 
 /**
- * Consistent Switch colors across all themes.
+ * Consistent Switch colors across the app.
  * Uses primary/onPrimary for checked state (M3 convention) and
  * onSurface/controlTrack for unchecked state to ensure contrast in dark mode.
  */

@@ -72,7 +72,6 @@ import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.CustomAudioFile
 import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.FileOpenError
@@ -161,11 +160,9 @@ data class TabItem(
 )
 
 /**
- * Bundles theme and appearance settings passed through the navigation graph.
+ * Bundles the appearance settings passed through the navigation graph.
  */
 data class SettingsSheetState(
-    val selectedTheme: ColorTheme,
-    val onThemeChange: (ColorTheme) -> Unit,
     val selectedAppearanceMode: AppearanceMode,
     val onAppearanceModeChange: (AppearanceMode) -> Unit
 )
@@ -232,12 +229,9 @@ fun StillMomentNavHost(
     val snackbarHostState = remember { SnackbarHostState() }
     val savedTab by produceState<AppTab?>(initialValue = null) { value = settingsDataStore.getSelectedTab() }
     val startDestination = savedTab?.route ?: return
-    val selectedTheme by settingsDataStore.selectedThemeFlow.collectAsState(initial = ColorTheme.DEFAULT)
     val selectedAppearanceMode by settingsDataStore.appearanceModeFlow
         .collectAsState(initial = AppearanceMode.DEFAULT)
     val settingsState = SettingsSheetState(
-        selectedTheme = selectedTheme,
-        onThemeChange = { scope.launch { settingsDataStore.setSelectedTheme(it) } },
         selectedAppearanceMode = selectedAppearanceMode,
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
@@ -484,8 +478,6 @@ private fun StillMomentNavContent(
                 val appSettingsViewModel: AppSettingsViewModel = hiltViewModel()
                 val appSettingsUiState by appSettingsViewModel.uiState.collectAsState()
                 AppSettingsScreen(
-                    selectedTheme = settingsState.selectedTheme,
-                    onThemeChange = settingsState.onThemeChange,
                     selectedAppearanceMode = settingsState.selectedAppearanceMode,
                     onAppearanceModeChange = settingsState.onAppearanceModeChange,
                     guidedSettings = appSettingsUiState.guidedSettings,

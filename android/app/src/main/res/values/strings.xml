@@ -178,10 +178,6 @@
 
     <!-- Appearance Settings -->
     <string name="settings_general_header">Appearance</string>
-    <string name="settings_theme_title">Theme</string>
-    <string name="settings_theme_candlelight">Candlelight</string>
-    <string name="settings_theme_forest">Forest</string>
-    <string name="settings_theme_moon">Moonlight</string>
 
     <!-- Appearance Mode -->
     <string name="settings_appearance_title">Appearance</string>
@@ -189,8 +185,7 @@
     <string name="settings_appearance_light">Light</string>
     <string name="settings_appearance_dark">Dark</string>
 
-    <!-- Theme Accessibility -->
-    <string name="accessibility_theme_picker">Choose color theme</string>
+    <!-- Appearance Accessibility -->
     <string name="accessibility_appearance_picker">Choose appearance mode</string>
 
     <!-- File Open Errors -->

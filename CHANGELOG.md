@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed (Android)
+- **Theme-Auswahl entfaellt — eine kuratierte Palette in Hell + Dunkel** - Der Theme-Picker in den Einstellungen (Kerzenschein, Wald, Mondlicht) ist weg. Es bleibt eine einzige Farbpalette, die unveraendert die bisherigen Kerzenschein-Werte uebernimmt und sich automatisch an die gewaehlte Darstellung (System/Hell/Dunkel) anpasst. Die Erscheinungsbild-Auswahl Hell/Dunkel/System bleibt unangetastet. Wer zuvor Wald oder Mondlicht gewaehlt hatte, sieht nach dem Update die neue (einzige) Palette — kein Hinweis, kein Crash. Hintergrund: drei Themes parallel zu pflegen kostet Energie ohne erkennbaren Nutzen; eine sorgfaeltig kuratierte Palette passt besser zur App-Philosophie und schafft Raum fuer ein folgendes Refinement. (Ticket: shared-093)
+
 ## [2.3.0] - 2026-05-21
 
 ### Added (iOS)
