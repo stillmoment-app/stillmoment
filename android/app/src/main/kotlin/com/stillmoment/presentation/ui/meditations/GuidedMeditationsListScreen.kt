@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +54,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
@@ -296,6 +298,7 @@ private fun MeditationsList(
     onStopPreview: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val theme = LocalStillMomentColors.current
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
@@ -306,11 +309,20 @@ private fun MeditationsList(
                 SectionHeader(teacher = group.teacher)
             }
 
-            // Meditations in group
-            items(
+            // Meditations in group — divider between consecutive tracks of the
+            // same teacher (shared-094). Different teachers are split by the
+            // SectionHeader, so the divider sits only within a group.
+            itemsIndexed(
                 items = group.meditations,
-                key = { it.id }
-            ) { meditation ->
+                key = { _, meditation -> meditation.id }
+            ) { index, meditation ->
+                if (index > 0) {
+                    HorizontalDivider(
+                        color = theme.divider,
+                        thickness = 0.5.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
                 SwipeToEditDeleteItem(
                     meditation = meditation,
                     isPreviewActive = meditation.id == previewingMeditationId,
