@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import com.stillmoment.BuildConfig
 import com.stillmoment.R
 import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.GuidedMeditationSettings
 import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
@@ -50,12 +49,10 @@ private const val PRIVACY_URL = "https://stillmoment-app.github.io/stillmoment/p
 
 /**
  * App-wide settings screen displayed as a tab root.
- * Contains Appearance section (theme, appearance mode) and Info & Legal section.
+ * Contains Appearance section (appearance mode) and Info & Legal section.
  */
 @Composable
 fun AppSettingsScreen(
-    selectedTheme: ColorTheme,
-    onThemeChange: (ColorTheme) -> Unit,
     selectedAppearanceMode: AppearanceMode,
     onAppearanceModeChange: (AppearanceMode) -> Unit,
     guidedSettings: GuidedMeditationSettings,
@@ -78,8 +75,6 @@ fun AppSettingsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 GeneralSettingsSection(
-                    selectedTheme = selectedTheme,
-                    onThemeChange = onThemeChange,
                     selectedAppearanceMode = selectedAppearanceMode,
                     onAppearanceModeChange = onAppearanceModeChange
                 )
@@ -238,8 +233,6 @@ private fun VersionRow(modifier: Modifier = Modifier) {
 private fun AppSettingsScreenPreview() {
     StillMomentTheme {
         AppSettingsScreen(
-            selectedTheme = ColorTheme.CANDLELIGHT,
-            onThemeChange = {},
             selectedAppearanceMode = AppearanceMode.SYSTEM,
             onAppearanceModeChange = {},
             guidedSettings = GuidedMeditationSettings.Default,

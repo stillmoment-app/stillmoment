@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.ColorTheme
 import com.stillmoment.domain.models.UrlAudioValidator
 import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
@@ -93,8 +92,6 @@ class MainActivity : ComponentActivity() {
         handleIncomingIntent(intent)
 
         setContent {
-            val colorTheme by settingsDataStore.selectedThemeFlow
-                .collectAsState(initial = ColorTheme.DEFAULT)
             val appearanceMode by settingsDataStore.appearanceModeFlow
                 .collectAsState(initial = AppearanceMode.DEFAULT)
             val systemDarkTheme = isSystemInDarkTheme()
@@ -104,7 +101,7 @@ class MainActivity : ComponentActivity() {
                 null -> systemDarkTheme
             }
 
-            StillMomentTheme(colorTheme = colorTheme, darkTheme = darkTheme) {
+            StillMomentTheme(darkTheme = darkTheme) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     WarmGradientBackground()
                     StillMomentNavHost(
