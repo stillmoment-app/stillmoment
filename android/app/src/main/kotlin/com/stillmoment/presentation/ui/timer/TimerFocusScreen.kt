@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -48,6 +50,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,9 +65,11 @@ import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
 import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.theme.DisplayNumeralText
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
+import com.stillmoment.presentation.ui.timer.components.MoonPhase
 import com.stillmoment.presentation.util.rememberIsReducedMotion
 import com.stillmoment.presentation.viewmodel.TimerUiState
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -73,6 +78,9 @@ private const val ANIMATION_DURATION_MS = 400
 private const val COMPACT_HEIGHT_DP = 700
 private const val BREATHING_CIRCLE_COMPACT_DP = 240
 private const val BREATHING_CIRCLE_DEFAULT_DP = 280
+private const val MOON_PHASE_COMPACT_DP = 180
+private const val MOON_PHASE_DEFAULT_DP = 220
+private const val SECONDS_PER_MINUTE = 60
 
 /**
  * Timer Focus Screen — distraction-free view during active meditation.
@@ -203,6 +211,22 @@ private fun FocusScreenLayout(
 
 @Composable
 private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modifier: Modifier = Modifier) {
+    when (uiState.phase) {
+        MeditationPhase.PreRoll -> PreRollDisplay(
+            uiState = uiState,
+            reduceMotion = reduceMotion,
+            modifier = modifier
+        )
+        MeditationPhase.Playing -> RunningTimerDisplay(
+            uiState = uiState,
+            reduceMotion = reduceMotion,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun PreRollDisplay(uiState: TimerUiState, reduceMotion: Boolean, modifier: Modifier = Modifier) {
     val configuration = LocalConfiguration.current
     val circleSize = if (configuration.screenHeightDp < COMPACT_HEIGHT_DP) {
         BREATHING_CIRCLE_COMPACT_DP.dp
@@ -245,13 +269,92 @@ private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modi
     }
 }
 
+/**
+ * Layout der laufenden Sitzung (Hauptphase): Zeit-Block oben, Mond unten.
+ *
+ * Verteilung ueber `Spacer(weight)` 1:2:1 — der Zeit-Block sitzt im oberen
+ * Drittel, der Mond mittig im unteren Drittel. Mond-Durchmesser 220 dp auf
+ * Standard-Geraeten, 180 dp auf Compact-Hoehe (< 700 dp Screen-Hoehe).
+ *
+ * Pendant zu iOS' `RunningTimerDisplay` (shared-095).
+ */
 @Composable
-private fun BreathingCircleSlot(
-    phase: MeditationPhase,
-    countdownSeconds: Int,
-    circleSize: androidx.compose.ui.unit.Dp,
-    reduceMotion: Boolean
+private fun RunningTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modifier: Modifier = Modifier) {
+    val configuration = LocalConfiguration.current
+    val moonSize = if (configuration.screenHeightDp < COMPACT_HEIGHT_DP) {
+        MOON_PHASE_COMPACT_DP.dp
+    } else {
+        MOON_PHASE_DEFAULT_DP.dp
+    }
+    val totalMinutes = (uiState.totalSeconds / SECONDS_PER_MINUTE).coerceAtLeast(1)
+    val durationLabel = pluralStringResource(R.plurals.timer_running_duration, totalMinutes, totalMinutes)
+
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.weight(1f))
+
+        RunningTimeBlock(
+            remainingTimeText = uiState.formattedRemainingMinutes,
+            durationLabel = durationLabel,
+            moonSize = moonSize
+        )
+
+        Spacer(modifier = Modifier.weight(2f))
+
+        MoonPhase(
+            progress = uiState.progress,
+            reduceMotion = reduceMotion,
+            outerSize = moonSize,
+            modifier = Modifier.testTag("timer.display.moon")
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun RunningTimeBlock(
+    remainingTimeText: String,
+    durationLabel: String,
+    moonSize: Dp,
+    modifier: Modifier = Modifier
 ) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(R.string.timer_running_remaining),
+            style = TextStyle.eyebrow.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        DisplayNumeralText(
+            text = remainingTimeText,
+            containerDiameter = moonSize,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .testTag("timer.display.remainingTime")
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = durationLabel,
+            style = TextStyle.bodyItalic.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, circleSize: Dp, reduceMotion: Boolean) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
     val countdownDescription = stringResource(
         R.string.accessibility_countdown_seconds,

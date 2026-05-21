@@ -295,4 +295,11 @@
     <string name="import_type_guided_description">Zur Meditationsbibliothek hinzufügen</string>
     <string name="import_type_soundscape">Klangkulisse</string>
     <string name="import_type_soundscape_description">Als Hintergrundklang verwenden</string>
+
+    <!-- Timer Running Phase (shared-095) -->
+    <string name="timer_running_remaining">VERBLEIBEND</string>
+    <plurals name="timer_running_duration">
+        <item quantity="one">von %d Minute</item>
+        <item quantity="other">von %d Minuten</item>
+    </plurals>
 </resources>
