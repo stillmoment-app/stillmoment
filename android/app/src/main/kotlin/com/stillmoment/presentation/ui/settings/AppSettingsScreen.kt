@@ -57,7 +57,8 @@ fun AppSettingsScreen(
     guidedSettings: GuidedMeditationSettings,
     onGuidedSettingsChange: (GuidedMeditationSettings) -> Unit,
     onSoundAttributionsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDebugTypographyClick: () -> Unit = {},
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         WarmGradientBackground()
@@ -90,10 +91,61 @@ fun AppSettingsScreen(
                 InfoLegalSection(
                     onSoundAttributionsClick = onSoundAttributionsClick
                 )
+
+                if (BuildConfig.DEBUG) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    DebugSection(onDebugTypographyClick = onDebugTypographyClick)
+                }
             }
         }
     }
 }
+
+// region Debug Section (only in DEBUG builds)
+
+@Composable
+private fun DebugSection(onDebugTypographyClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LocalStillMomentColors.current
+
+    Column(modifier = modifier.padding(bottom = 16.dp)) {
+        Text(
+            text = "Debug",
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = colors.cardBackground),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            border = BorderStroke(0.5.dp, colors.cardBorder)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onDebugTypographyClick)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Text(
+                    text = "Typography Reference",
+                    style = TextStyle.body.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+// endregion
 
 // region Info & Legal Section
 

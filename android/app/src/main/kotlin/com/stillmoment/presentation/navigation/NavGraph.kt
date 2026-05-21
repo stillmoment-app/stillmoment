@@ -129,6 +129,9 @@ sealed class Screen(val route: String) {
 
     data object SoundAttributions : Screen("soundAttributions")
 
+    /** Debug-only Typography Reference Screen (shared-099). */
+    data object DebugTypography : Screen("debugTypography")
+
     data object PraxisEditor : Screen("praxisEditor")
 
     data object SelectBackground : Screen("selectBackground")
@@ -482,11 +485,17 @@ private fun StillMomentNavContent(
                     onAppearanceModeChange = settingsState.onAppearanceModeChange,
                     guidedSettings = appSettingsUiState.guidedSettings,
                     onGuidedSettingsChange = appSettingsViewModel::updateGuidedSettings,
-                    onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) }
+                    onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) },
+                    onDebugTypographyClick = { navController.navigate(Screen.DebugTypography.route) }
                 )
             }
             composable(Screen.SoundAttributions.route) {
                 SoundAttributionsScreen(onBack = { navController.popBackStack() })
+            }
+            if (com.stillmoment.BuildConfig.DEBUG) {
+                composable(Screen.DebugTypography.route) {
+                    com.stillmoment.presentation.ui.debug.DebugTypographyReferenceScreen()
+                }
             }
         }
 

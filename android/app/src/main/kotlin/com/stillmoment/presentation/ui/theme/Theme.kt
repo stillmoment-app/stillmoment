@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package com.stillmoment.presentation.ui.theme
 
 import android.app.Activity
