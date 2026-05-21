@@ -120,7 +120,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-093](shared/shared-093-theme-system-vereinfachen.md) | Theme-System auf ein Theme reduzieren | 2-Architektur | [x] | [x] |
 | [shared-094](shared/shared-094-theme-refinement-kerzenschein.md) | Theme-Refinement Kerzenschein 2.0 | 4-Polish | [x] | [x] |
 | [shared-095](shared/shared-095-running-timer-mondphase.md) | Running-Timer-Visualisierung Mondphase | 4-Polish | [x] | [x] |
-| [shared-096](shared/shared-096-player-kerzenschein-refinement.md) | Player-Refinement Kerzenschein 2.0 | 4-Polish | [x] | [ ] |
+| [shared-096](shared/shared-096-player-kerzenschein-refinement.md) | Player-Refinement Kerzenschein 2.0 | 4-Polish | [x] | [x] |
 | [shared-097](shared/shared-097-danke-screen-kerzenschein.md) | Danke-Screen Refinement Kerzenschein 2.0 | 4-Polish | [x] | [ ] |
 | [shared-098](shared/shared-098-library-preview-scrub-slider.md) | Library-Preview mit Scrub-Slider | 3-Feature | [x] | [ ] |
 | [shared-099](shared/shared-099-typografie-newsreader-geist-android.md) | Typografie Newsreader + Geist (Android-Sync zu ios-048) | 4-Polish | via ios-048 | [x] |

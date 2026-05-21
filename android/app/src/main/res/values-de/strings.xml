@@ -125,6 +125,7 @@
 
     <!-- Guided Meditations Player (shared-087) -->
     <string name="guided_meditations_player_remaining_time_format">NOCH %1$s MIN</string>
+    <string name="guided_meditations_player_remaining_time_format_paused">PAUSIERT · NOCH %1$s MIN</string>
     <string name="guided_meditations_player_preroll_hint">GLEICH GEHT\'S LOS</string>
     <string name="guided_meditations_player_preroll_label">Vorbereitung</string>
 
