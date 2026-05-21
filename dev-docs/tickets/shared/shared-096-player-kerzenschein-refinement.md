@@ -25,7 +25,7 @@ Referenz: `handoffs/claude_code_handoff_player_ks2/README.md` (High-Fidelity-Spe
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-094    |
-| Android   | [~]    | shared-094 (Android) |
+| Android   | [x]    | shared-094 (Android) |
 
 ---
 
