@@ -278,10 +278,13 @@ private struct SourceRow: View {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(self.source.name)
                     .textStyle(.body, color: \.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("·")
                     .textStyle(.caption, color: \.textSecondary)
+                    .layoutPriority(1)
                 Text(author)
                     .textStyle(.caption, color: \.textSecondary)
+                    .layoutPriority(1)
             }
         } else {
             Text(self.source.name)

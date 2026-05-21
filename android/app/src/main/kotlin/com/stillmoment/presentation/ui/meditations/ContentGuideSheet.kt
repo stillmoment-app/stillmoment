@@ -208,7 +208,8 @@ private fun SourceTitleLine(source: MeditationSource) {
             Text(
                 text = source.name,
                 style = TextStyle.body.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f, fill = false)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
