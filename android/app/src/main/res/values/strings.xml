@@ -295,4 +295,11 @@
     <string name="import_type_guided_description">Add to meditation library</string>
     <string name="import_type_soundscape">Soundscape</string>
     <string name="import_type_soundscape_description">Use as background sound</string>
+
+    <!-- Timer Running Phase (shared-095) -->
+    <string name="timer_running_remaining">REMAINING</string>
+    <plurals name="timer_running_duration">
+        <item quantity="one">of %d minute</item>
+        <item quantity="other">of %d minutes</item>
+    </plurals>
 </resources>
