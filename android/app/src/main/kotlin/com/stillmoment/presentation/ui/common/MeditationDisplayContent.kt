@@ -120,8 +120,8 @@ private fun RemainingTimeLabel(formattedRemainingMinutes: String, isPaused: Bool
     }
     val text = stringResource(formatRes, formattedRemainingMinutes)
     Text(
-        text = text,
-        style = TextStyle.micro.toComposeTextStyle(monospacedDigits = true),
+        text = TextStyle.eyebrow.applyCase(text),
+        style = TextStyle.eyebrow.toComposeTextStyle(monospacedDigits = true),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center

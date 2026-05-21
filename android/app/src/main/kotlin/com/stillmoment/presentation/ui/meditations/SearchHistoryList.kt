@@ -73,7 +73,7 @@ private fun HistoryHeader(isClearable: Boolean, onClear: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
-            text = stringResource(R.string.library_search_history_header),
+            text = TextStyle.eyebrow.applyCase(stringResource(R.string.library_search_history_header)),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurface
         )

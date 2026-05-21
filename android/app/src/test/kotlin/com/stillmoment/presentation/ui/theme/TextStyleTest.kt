@@ -172,6 +172,24 @@ class TextStyleTest {
                 )
             }
         }
+
+        @Test
+        fun `applyCase uppercases text for eyebrow`() {
+            assertEquals("HEUTE", TextStyle.eyebrow.applyCase("Heute"))
+        }
+
+        @Test
+        fun `applyCase leaves text unchanged for non-uppercase tokens`() {
+            TextStyle.entries
+                .filter { it != TextStyle.eyebrow }
+                .forEach { token ->
+                    assertEquals(
+                        "Heute",
+                        token.applyCase("Heute"),
+                        "$token should not transform text"
+                    )
+                }
+        }
     }
 
     @Nested

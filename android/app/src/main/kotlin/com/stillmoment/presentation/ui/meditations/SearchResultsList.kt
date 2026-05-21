@@ -125,7 +125,7 @@ private fun ResultsHeader(count: Int) {
             }
     ) {
         Text(
-            text = headerText,
+            text = TextStyle.eyebrow.applyCase(headerText),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurface
         )
