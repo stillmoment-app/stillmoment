@@ -117,17 +117,15 @@ class ThemeResolutionTest {
 
         @Test
         fun `dial active arc matches primary interactive`() {
+            // shared-100: dialDropletCore/dialDropletHalo wurden entfernt — der duenne
+            // BreathDial liest Bead-Werte aus RingMetrics, nicht mehr ueber Theme-Tokens.
+            // Nur dialActiveArc bleibt als semantischer Token (Bogen).
             listOf(false, true).forEach { dark ->
                 val colors = resolveStillMomentColors(darkTheme = dark)
                 assertEquals(
                     colors.settingsValueAccent,
                     colors.dialActiveArc,
                     "dialActiveArc should match settingsValueAccent for dark=$dark"
-                )
-                assertEquals(
-                    colors.settingsValueAccent,
-                    colors.dialDropletCore,
-                    "dialDropletCore should match settingsValueAccent for dark=$dark"
                 )
             }
         }
