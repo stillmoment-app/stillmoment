@@ -21,18 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.domain.models.MeditationPhase
+import com.stillmoment.presentation.ui.common.RingMetrics
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import kotlin.math.cos
 import kotlin.math.sin
 
 private const val DEFAULT_OUTER_SIZE_DP = 280
-private const val TRACK_STROKE_DP = 1
-private const val ARC_STROKE_DP = 1.5f
-private const val BEAD_DIAMETER_DP = 12
-private const val BEAD_HALO_MULTIPLIER = 1.8f
-private const val BEAD_HALO_ALPHA = 0.35f
-private const val TRACK_ALPHA = 0.32f
-private const val ARC_ALPHA = 0.72f
 private const val PROGRESS_ANIMATION_DURATION_MS = 1000
 
 /**
@@ -103,13 +97,13 @@ fun PlayerRing(
 }
 
 private fun DrawScope.drawTrack(accentColor: Color) {
-    val stroke = TRACK_STROKE_DP.dp.toPx().coerceAtLeast(1f)
+    val stroke = RingMetrics.TRACK_STROKE_DP.dp.toPx().coerceAtLeast(1f)
     val diameter = size.minDimension - stroke
     val topLeft = Offset(stroke / 2f, stroke / 2f)
     val arcSize = Size(diameter, diameter)
 
     drawArc(
-        color = accentColor.copy(alpha = TRACK_ALPHA),
+        color = accentColor.copy(alpha = RingMetrics.TRACK_ALPHA),
         startAngle = 0f,
         sweepAngle = 360f,
         useCenter = false,
@@ -120,7 +114,7 @@ private fun DrawScope.drawTrack(accentColor: Color) {
 }
 
 private fun DrawScope.drawProgressArc(progress: Float, accentColor: Color) {
-    val stroke = ARC_STROKE_DP.dp.toPx()
+    val stroke = RingMetrics.ARC_STROKE_DP.dp.toPx()
     val diameter = size.minDimension - stroke
     val topLeft = Offset(stroke / 2f, stroke / 2f)
     val arcSize = Size(diameter, diameter)
@@ -128,7 +122,7 @@ private fun DrawScope.drawProgressArc(progress: Float, accentColor: Color) {
     if (sweep <= 0f) return
 
     drawArc(
-        color = accentColor.copy(alpha = ARC_ALPHA),
+        color = accentColor.copy(alpha = RingMetrics.ARC_ALPHA),
         startAngle = -90f,
         sweepAngle = sweep,
         useCenter = false,
@@ -139,7 +133,7 @@ private fun DrawScope.drawProgressArc(progress: Float, accentColor: Color) {
 }
 
 private fun DrawScope.drawProgressBead(progress: Float, accentColor: Color) {
-    val stroke = ARC_STROKE_DP.dp.toPx()
+    val stroke = RingMetrics.ARC_STROKE_DP.dp.toPx()
     val beadOffset = PlayerRingGeometry.beadOffset(
         progress = progress,
         outerSize = size.minDimension,
@@ -149,11 +143,11 @@ private fun DrawScope.drawProgressBead(progress: Float, accentColor: Color) {
         x = size.width / 2f + beadOffset.x,
         y = size.height / 2f + beadOffset.y,
     )
-    val beadRadius = BEAD_DIAMETER_DP.dp.toPx() / 2f
+    val beadRadius = RingMetrics.BEAD_DIAMETER_DP.dp.toPx() / 2f
 
     drawCircle(
-        color = accentColor.copy(alpha = BEAD_HALO_ALPHA),
-        radius = beadRadius * BEAD_HALO_MULTIPLIER,
+        color = accentColor.copy(alpha = RingMetrics.BEAD_HALO_ALPHA),
+        radius = beadRadius * RingMetrics.BEAD_HALO_MULTIPLIER,
         center = center,
     )
     drawCircle(
