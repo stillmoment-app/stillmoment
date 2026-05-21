@@ -35,9 +35,8 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * List item displaying a single guided meditation.
@@ -99,15 +98,15 @@ private fun MeditationInfo(meditation: GuidedMeditation, modifier: Modifier = Mo
     Column(modifier = modifier) {
         Text(
             text = meditation.effectiveName,
-            style = TypographyRole.ListTitle.textStyle(),
-            color = TypographyRole.ListTitle.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = meditation.formattedDuration,
-            style = TypographyRole.ListSubtitle.textStyle(),
-            color = TypographyRole.ListSubtitle.textColor()
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -26,9 +27,8 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /**
  * General settings section with the appearance mode picker.
@@ -43,8 +43,8 @@ fun GeneralSettingsSection(
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.settings_general_header),
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor(),
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -76,8 +76,8 @@ private fun AppearanceModePicker(selectedMode: AppearanceMode, onModeChange: (Ap
     Column {
         Text(
             text = stringResource(R.string.settings_appearance_title),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 

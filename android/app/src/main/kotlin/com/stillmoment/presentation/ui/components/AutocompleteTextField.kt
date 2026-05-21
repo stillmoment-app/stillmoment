@@ -37,9 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -192,8 +191,8 @@ private fun SuggestionItem(
     ) {
         Text(
             text = suggestion,
-            style = TypographyRole.BodyPrimary.textStyle(),
-            color = TypographyRole.BodyPrimary.textColor()
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

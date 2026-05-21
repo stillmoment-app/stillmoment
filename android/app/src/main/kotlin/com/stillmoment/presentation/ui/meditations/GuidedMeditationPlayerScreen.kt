@@ -59,9 +59,8 @@ import com.stillmoment.presentation.ui.components.GlassPauseButton
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.util.rememberIsReducedMotion
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
@@ -317,8 +316,8 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
     ) {
         Text(
             text = meditation.effectiveTeacher,
-            style = TypographyRole.PlayerTeacher.textStyle(),
-            color = TypographyRole.PlayerTeacher.textColor(),
+            style = TextStyle.bodyItalic.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier.semantics {
@@ -330,8 +329,8 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
 
         Text(
             text = meditation.effectiveName,
-            style = TypographyRole.PlayerTitle.textStyle(),
-            color = TypographyRole.PlayerTitle.textColor(),
+            style = TextStyle.title.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 2,
             modifier = Modifier.semantics {

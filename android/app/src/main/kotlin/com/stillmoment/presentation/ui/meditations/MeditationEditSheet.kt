@@ -40,9 +40,8 @@ import com.stillmoment.domain.models.EditSheetState
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -118,8 +117,8 @@ private fun MeditationEditSheetContent(
         // Title
         Text(
             text = stringResource(R.string.guided_meditations_edit_title),
-            style = TypographyRole.ScreenTitle.textStyle(),
-            color = TypographyRole.ScreenTitle.textColor(),
+            style = TextStyle.screenTitle.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.semantics { heading() }
         )
 
@@ -179,13 +178,13 @@ private fun MeditationEditSheetContent(
             ) {
                 Text(
                     text = stringResource(R.string.guided_meditations_edit_file),
-                    style = TypographyRole.EditLabel.textStyle(),
-                    color = TypographyRole.EditCaption.textColor()
+                    style = TextStyle.bodyEmphasis.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = meditation.fileName,
-                    style = TypographyRole.EditLabel.textStyle(),
-                    color = TypographyRole.EditLabel.textColor(),
+                    style = TextStyle.bodyEmphasis.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
@@ -202,13 +201,13 @@ private fun MeditationEditSheetContent(
             ) {
                 Text(
                     text = stringResource(R.string.guided_meditations_edit_duration),
-                    style = TypographyRole.EditLabel.textStyle(),
-                    color = TypographyRole.EditCaption.textColor()
+                    style = TextStyle.bodyEmphasis.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = meditation.formattedDuration,
-                    style = TypographyRole.EditLabel.textStyle(),
-                    color = TypographyRole.EditLabel.textColor()
+                    style = TextStyle.bodyEmphasis.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }

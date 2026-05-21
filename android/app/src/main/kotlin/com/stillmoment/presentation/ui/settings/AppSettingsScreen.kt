@@ -40,10 +40,9 @@ import com.stillmoment.presentation.ui.components.GeneralSettingsSection
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 private const val PRIVACY_URL = "https://stillmoment-app.github.io/stillmoment/privacy.html"
 
@@ -106,8 +105,8 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
     Column(modifier = modifier.padding(bottom = 16.dp)) {
         Text(
             text = stringResource(R.string.app_settings_info_header),
-            style = TypographyRole.SectionTitle.textStyle(),
-            color = TypographyRole.SectionTitle.textColor(),
+            style = TextStyle.section.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -164,8 +163,8 @@ private fun SoundAttributionsRow(onClick: () -> Unit, modifier: Modifier = Modif
     ) {
         Text(
             text = stringResource(R.string.app_settings_sound_attributions),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Icon(
@@ -190,8 +189,8 @@ private fun PrivacyPolicyRow(onClick: () -> Unit, modifier: Modifier = Modifier)
     ) {
         Text(
             text = stringResource(R.string.app_settings_privacy),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Icon(
@@ -212,14 +211,14 @@ private fun VersionRow(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(R.string.app_settings_version_label),
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Text(
             text = BuildConfig.VERSION_NAME,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.BodySecondary.textColor()
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

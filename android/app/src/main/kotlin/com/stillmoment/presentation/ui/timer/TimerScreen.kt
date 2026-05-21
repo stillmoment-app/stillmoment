@@ -39,9 +39,8 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.ui.timer.components.BreathDial
 import com.stillmoment.presentation.ui.timer.components.IdleSettingsList
 import com.stillmoment.presentation.ui.timer.components.IdleSettingsListItem
@@ -146,8 +145,8 @@ private fun TimerScreenLayout(
 
             Text(
                 text = stringResource(R.string.timer_idle_headline),
-                style = TypographyRole.ScreenTitle.textStyle(),
-                color = TypographyRole.ScreenTitle.textColor(),
+                style = TextStyle.screenTitle.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.semantics { heading() }
             )
@@ -180,7 +179,7 @@ private fun TimerScreenLayout(
             uiState.errorMessage?.let { error ->
                 Text(
                     text = error,
-                    style = TypographyRole.Caption.textStyle(),
+                    style = TextStyle.caption.toComposeTextStyle(),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 16.dp)

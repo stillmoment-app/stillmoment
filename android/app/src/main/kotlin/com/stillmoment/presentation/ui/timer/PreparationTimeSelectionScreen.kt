@@ -38,10 +38,9 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
-import com.stillmoment.presentation.ui.theme.TypographyRole
+import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 
 /**
@@ -173,8 +172,8 @@ private fun PreparationOptionRow(
     ) {
         Text(
             text = label,
-            style = TypographyRole.SettingsLabel.textStyle(),
-            color = TypographyRole.SettingsLabel.textColor(),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         if (isSelected) {
