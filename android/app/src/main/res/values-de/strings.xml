@@ -106,6 +106,12 @@
     <string name="guided_meditations_edit_file">Datei</string>
     <string name="guided_meditations_edit_duration">Dauer</string>
 
+    <!-- shared-103: Edit-sheet prefill UI -->
+    <string name="guided_meditations_import_action">Importieren</string>
+    <string name="guided_meditations_edit_teacher_placeholder">Wer leitet die Meditation an?</string>
+    <string name="guided_meditations_edit_name_placeholder">Wie heißt diese Meditation?</string>
+    <string name="accessibility_clear_field">Feld leeren</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Vorbereitungszeit</string>
     <string name="guided_meditations_settings_preparation_description">Zeit zum Ankommen bevor das Audio startet</string>
@@ -289,13 +295,6 @@
     <string name="download_error_no_link_title">Kein Link gefunden</string>
     <string name="download_error_no_link_message">In dem geteilten Inhalt war kein Link enthalten.</string>
     <string name="download_error_close">Schließen</string>
-
-    <!-- Import Type Selection -->
-    <string name="import_type_title">Importieren als\u2026</string>
-    <string name="import_type_guided">Geführte Meditation</string>
-    <string name="import_type_guided_description">Zur Meditationsbibliothek hinzufügen</string>
-    <string name="import_type_soundscape">Klangkulisse</string>
-    <string name="import_type_soundscape_description">Als Hintergrundklang verwenden</string>
 
     <!-- Timer Running Phase (shared-095) -->
     <string name="timer_running_remaining">VERBLEIBEND</string>

@@ -106,6 +106,12 @@
     <string name="guided_meditations_edit_file">File</string>
     <string name="guided_meditations_edit_duration">Duration</string>
 
+    <!-- shared-103: Edit-sheet prefill UI -->
+    <string name="guided_meditations_import_action">Import</string>
+    <string name="guided_meditations_edit_teacher_placeholder">Who is leading this meditation?</string>
+    <string name="guided_meditations_edit_name_placeholder">What is this meditation called?</string>
+    <string name="accessibility_clear_field">Clear field</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Preparation Time</string>
     <string name="guided_meditations_settings_preparation_description">Time to settle in before the audio starts</string>
@@ -291,11 +297,6 @@
     <string name="download_error_close">Close</string>
 
     <!-- Import Type Selection -->
-    <string name="import_type_title">Import as\u2026</string>
-    <string name="import_type_guided">Guided Meditation</string>
-    <string name="import_type_guided_description">Add to meditation library</string>
-    <string name="import_type_soundscape">Soundscape</string>
-    <string name="import_type_soundscape_description">Use as background sound</string>
 
     <!-- Timer Running Phase (shared-095) -->
     <string name="timer_running_remaining">REMAINING</string>

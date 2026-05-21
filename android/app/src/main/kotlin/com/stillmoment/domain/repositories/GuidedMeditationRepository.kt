@@ -1,15 +1,19 @@
 package com.stillmoment.domain.repositories
 
-import android.net.Uri
+import com.stillmoment.domain.models.AudioMetadata
 import com.stillmoment.domain.models.GuidedMeditation
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing guided meditation files.
  *
- * This interface defines the contract for importing, storing, and managing
- * guided meditation audio files. Implementation handles SAF (Storage Access
- * Framework) for file access and DataStore for persistence.
+ * Persists library entries to local storage, copies imported audio into the
+ * app container on save, and exposes a flow of the current library.
+ *
+ * Persistence happens explicitly via [addMeditation] — the caller (typically
+ * the ViewModel after the user confirms the import edit sheet) decides when a
+ * pending import becomes a library entry. Metadata extraction is delegated to
+ * a separate service via [extractMetadata].
  */
 interface GuidedMeditationRepository {
     /**
@@ -19,15 +23,40 @@ interface GuidedMeditationRepository {
     val meditationsFlow: Flow<List<GuidedMeditation>>
 
     /**
-     * Imports a meditation from an audio file.
+     * Reads metadata (duration, artist, title) for the given URI.
      *
-     * Takes a Content URI from the file picker, extracts metadata (duration,
-     * artist, title from ID3 tags), and persists the meditation.
+     * Used by the import flow to drive the prefill cascade before the user
+     * confirms the save.
      *
-     * @param uri Content URI from Storage Access Framework
-     * @return Result containing the imported GuidedMeditation or an error
+     * @param uri URI string of the source audio file
      */
-    suspend fun importMeditation(uri: Uri): Result<GuidedMeditation>
+    suspend fun extractMetadata(uri: String): AudioMetadata
+
+    /**
+     * Resolves the file name behind a content URI (`DISPLAY_NAME` for SAF URIs,
+     * last path segment for file URIs).
+     */
+    suspend fun getFileName(uri: String): String
+
+    /**
+     * Adds a meditation to the library.
+     *
+     * Copies the source file into app-internal storage and persists the entry
+     * with the caller-provided teacher and name (already prefilled or edited).
+     *
+     * @param sourceUri URI string of the source audio file (will be copied)
+     * @param fileName Original file name to preserve for display
+     * @param metadata Previously extracted metadata for the file (duration etc.)
+     * @param teacher Teacher name to persist
+     * @param name Meditation title to persist
+     */
+    suspend fun addMeditation(
+        sourceUri: String,
+        fileName: String,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ): Result<GuidedMeditation>
 
     /**
      * Deletes a meditation from the library.
@@ -41,8 +70,6 @@ interface GuidedMeditationRepository {
 
     /**
      * Updates a meditation's metadata.
-     *
-     * Used for updating custom teacher/name fields set by the user.
      *
      * @param meditation Updated meditation object
      */

@@ -106,8 +106,23 @@ fun GuidedMeditationsListScreen(
         onConfirmDelete = viewModel::confirmDelete,
         onExecuteDelete = viewModel::executeDelete,
         onCancelDelete = viewModel::cancelDelete,
-        onDismissEditSheet = viewModel::hideEditSheet,
-        onSaveMeditation = viewModel::updateMeditation,
+        onDismissEditSheet = {
+            // Treat dismiss as Cancel when the sheet sits in import mode so a
+            // swipe-down discards the pending source instead of leaving it
+            // hanging around in ViewModel state.
+            if (uiState.pendingImport != null) {
+                viewModel.cancelImport()
+            } else {
+                viewModel.hideEditSheet()
+            }
+        },
+        onSaveMeditation = { updated ->
+            if (uiState.pendingImport != null) {
+                viewModel.saveImportedMeditation(updated.teacher, updated.name)
+            } else {
+                viewModel.updateMeditation(updated)
+            }
+        },
         onClearError = viewModel::clearError,
         onPreviewStart = viewModel::startPreview,
         onStopPreview = viewModel::stopPreview,
@@ -190,10 +205,16 @@ internal fun GuidedMeditationsListScreenContent(
             }
         }
 
-        // Edit Sheet
+        // Edit Sheet — same composable in IMPORT or EDIT mode.
         if (uiState.showEditSheet && uiState.selectedMeditation != null) {
+            val mode = if (uiState.pendingImport != null) {
+                com.stillmoment.domain.models.EditSheetMode.IMPORT
+            } else {
+                com.stillmoment.domain.models.EditSheetMode.EDIT
+            }
             MeditationEditSheet(
                 meditation = uiState.selectedMeditation,
+                mode = mode,
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation,
                 availableTeachers = uiState.availableTeachers
@@ -219,7 +240,7 @@ internal fun GuidedMeditationsListScreenContent(
                     Text(
                         text = stringResource(
                             R.string.guided_meditations_delete_message,
-                            uiState.meditationToDelete.effectiveName
+                            uiState.meditationToDelete.name
                         )
                     )
                 },

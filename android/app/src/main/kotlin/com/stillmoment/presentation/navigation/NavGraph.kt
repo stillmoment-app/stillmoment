@@ -67,21 +67,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.stillmoment.R
-import com.stillmoment.data.FileOpenException
 import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
-import com.stillmoment.domain.models.CustomAudioFile
-import com.stillmoment.domain.models.CustomAudioType
-import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
-import com.stillmoment.domain.models.ImportAudioType
 import com.stillmoment.domain.models.UrlAudioDownloadError
-import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.ui.common.DownloadProgressModal
-import com.stillmoment.presentation.ui.common.ImportTypeSelectionSheet
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
@@ -200,17 +193,18 @@ private val tabs = persistentListOf(
 
 /**
  * Main navigation host for Still Moment.
- * Features TabView navigation with Timer, Library, and Settings tabs.
- * Remembers the last selected tab across app restarts.
+ *
+ * Share-Import flow (shared-103): a shared audio file is imported directly as
+ * a meditation — the previous Meditation/Soundscape choice sheet is gone.
+ * Soundscape imports happen exclusively via Settings > Hintergrund-Sound.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongMethod") // Top-level navigation host coordinates import flow, sheet, and nav state
+@Suppress("LongMethod") // Top-level navigation host coordinates import flow and nav state
 @Composable
 fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
-    customAudioRepository: CustomAudioRepository? = null,
     urlAudioDownloader: UrlAudioDownloaderProtocol? = null,
     pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
@@ -219,14 +213,8 @@ fun StillMomentNavHost(
     invalidShareSignal: StateFlow<Boolean> = MutableStateFlow(false),
     onClearInvalidShareSignal: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
-    // Activity-scoped ViewModel — `LocalViewModelStoreOwner` at this composable's call
-    // site is the host Activity, so the ViewModel lives until the activity is destroyed.
-    // Its SavedStateHandle persists across system-initiated process death (shared-080).
     overlayViewModel: CompletionOverlayViewModel = hiltViewModel()
 ) {
-    // Snapshot the marker at app start: later setMarker() calls (while the player
-    // is still active) must not flip this overlay on. The overlay is only meant
-    // for the case where a meditation finished while the app was suspended.
     var showCompletionOverlay by remember { mutableStateOf(overlayViewModel.isMarkerSetInitially) }
 
     val scope = rememberCoroutineScope()
@@ -239,16 +227,8 @@ fun StillMomentNavHost(
         selectedAppearanceMode = selectedAppearanceMode,
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
-    val pendingImportedMeditation = remember { MutableStateFlow<GuidedMeditation?>(null) }
-    val pendingImportedCustomAudio = remember { MutableStateFlow<CustomAudioFile?>(null) }
+    val pendingMeditationImportUri = remember { MutableStateFlow<Uri?>(null) }
     val stopMeditationSignal = remember { MutableStateFlow(false) }
-
-    // Import type selection sheet state
-    var showImportTypeSheet by remember { mutableStateOf(false) }
-    var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
-
-    // URL-download progress overlay state — hoisted so the modal can render as a
-    // sibling of NavHostScaffold (covering the bottom bar) instead of as a Dialog.
     var isDownloading by remember { mutableStateOf(false) }
 
     FileOpenEffect(
@@ -257,12 +237,8 @@ fun StillMomentNavHost(
         onClearFileUri = onClearFileUri,
         snackbarHostState = snackbarHostState,
         onValidFile = { uri ->
-            pendingImportUri = uri
-            // Intentional: stop any running meditation before showing the type selection sheet.
-            // If the user dismisses the sheet, the meditation stays stopped — the file open action
-            // itself is the decision, no confirmation dialog for meditation abort.
             stopMeditationSignal.value = true
-            showImportTypeSheet = true
+            pendingMeditationImportUri.value = uri
         }
     )
 
@@ -272,9 +248,8 @@ fun StillMomentNavHost(
         onClearDownloadUrl = onClearDownloadUrl,
         onDownloadingChange = { isDownloading = it },
         onDownloadSuccess = { uri ->
-            pendingImportUri = uri
             stopMeditationSignal.value = true
-            showImportTypeSheet = true
+            pendingMeditationImportUri.value = uri
         }
     )
 
@@ -283,21 +258,11 @@ fun StillMomentNavHost(
         onClearSignal = onClearInvalidShareSignal
     )
 
-    ImportTypeSheetEffect(
-        showSheet = showImportTypeSheet,
-        pendingUri = pendingImportUri,
-        fileOpenHandler = fileOpenHandler,
-        customAudioRepository = customAudioRepository,
+    MeditationImportNavigationEffect(
+        pendingImportUri = pendingMeditationImportUri,
         navController = navController,
-        snackbarHostState = snackbarHostState,
         settingsDataStore = settingsDataStore,
-        scope = scope,
-        onMeditationImport = { pendingImportedMeditation.value = it },
-        onCustomAudioImport = { pendingImportedCustomAudio.value = it },
-        onDismiss = {
-            showImportTypeSheet = false
-            pendingImportUri = null
-        }
+        scope = scope
     )
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -306,10 +271,8 @@ fun StillMomentNavHost(
             snackbarHostState = snackbarHostState,
             startDestination = startDestination,
             settingsState = settingsState,
-            pendingImportedMeditation = pendingImportedMeditation,
-            onClearImportedMeditation = { pendingImportedMeditation.value = null },
-            pendingImportedCustomAudio = pendingImportedCustomAudio,
-            onClearImportedCustomAudio = { pendingImportedCustomAudio.value = null },
+            pendingMeditationImportUri = pendingMeditationImportUri,
+            onClearPendingImport = { pendingMeditationImportUri.value = null },
             stopMeditationSignal = stopMeditationSignal,
             onConsumeStopSignal = { stopMeditationSignal.value = false },
             onMeditationFinish = { overlayViewModel.setMarker() },
@@ -324,11 +287,6 @@ fun StillMomentNavHost(
             }
         )
 
-        // Download progress modal — covers the entire host (incl. bottom bar)
-        // while a URL share/import download is in flight. Cancel cancels the
-        // active download via the protocol's cancel API. 200ms fade smooths
-        // the hand-off into the type-selection sheet on success and the
-        // dismissal on cancel.
         AnimatedVisibility(
             visible = isDownloading,
             enter = fadeIn(animationSpec = tween(durationMillis = 200)),
@@ -337,14 +295,10 @@ fun StillMomentNavHost(
             DownloadProgressModal(
                 onCancel = {
                     urlAudioDownloader?.cancel()
-                    // Cancel propagates as Result.failure(CancellationException),
-                    // which DownloadUrlEffect filters out — no error dialog will show.
                 }
             )
         }
 
-        // Top-level completion overlay — covers the entire NavHost when the previous
-        // meditation finished while the app was suspended/terminated. See shared-080.
         if (showCompletionOverlay) {
             MeditationCompletionContent(
                 onBack = {
@@ -365,10 +319,8 @@ private fun NavHostScaffold(
     snackbarHostState: SnackbarHostState,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: StateFlow<GuidedMeditation?>,
-    onClearImportedMeditation: () -> Unit,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit,
+    pendingMeditationImportUri: StateFlow<Uri?>,
+    onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
     onMeditationFinish: () -> Unit,
@@ -379,11 +331,6 @@ private fun NavHostScaffold(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Screens with their own inner Scaffold manage system-bar insets themselves.
-    // NavHostScaffold must NOT pass its padding to these screens, otherwise
-    // full-screen overlays (completion screens) cannot cover the navigation bar area,
-    // causing background colour bleed-through (green bar at the bottom).
-    // Rule: screens that have an inner Scaffold AND hide the bottom bar.
     val screenManagesOwnInsets = currentDestination?.route?.let { route ->
         route == Screen.TimerFocus.route ||
             route == Screen.PraxisEditor.route ||
@@ -424,10 +371,8 @@ private fun NavHostScaffold(
                 navController,
                 startDestination,
                 settingsState,
-                pendingImportedMeditation,
-                onClearImportedMeditation,
-                pendingImportedCustomAudio,
-                onClearImportedCustomAudio,
+                pendingMeditationImportUri,
+                onClearPendingImport,
                 stopMeditationSignal,
                 onConsumeStopSignal,
                 onMeditationFinish,
@@ -443,10 +388,8 @@ private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingImportedMeditation: StateFlow<GuidedMeditation?>,
-    onClearImportedMeditation: () -> Unit,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit,
+    pendingMeditationImportUri: StateFlow<Uri?>,
+    onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
     onMeditationFinish: () -> Unit,
@@ -456,27 +399,20 @@ private fun StillMomentNavContent(
         timerNavGraph(
             navController = navController,
             stopMeditationSignal = stopMeditationSignal,
-            onConsumeStopSignal = onConsumeStopSignal,
-            pendingImportedCustomAudio = pendingImportedCustomAudio,
-            onClearImportedCustomAudio = onClearImportedCustomAudio
+            onConsumeStopSignal = onConsumeStopSignal
         )
 
         composable(Screen.Library.route) {
-            val importedMeditation by pendingImportedMeditation.collectAsState()
+            val importedUri by pendingMeditationImportUri.collectAsState()
             val listViewModel: GuidedMeditationsListViewModel = hiltViewModel()
-            val currentOnClear by rememberUpdatedState(onClearImportedMeditation)
+            val currentOnClear by rememberUpdatedState(onClearPendingImport)
 
-            LaunchedEffect(importedMeditation) {
-                val meditation = importedMeditation ?: return@LaunchedEffect
+            LaunchedEffect(importedUri) {
+                val uri = importedUri ?: return@LaunchedEffect
                 currentOnClear()
-                listViewModel.showEditSheet(meditation)
+                listViewModel.importMeditation(uri)
             }
 
-            // shared-101: Library-Suche zuruecksetzen, sobald der Tab in den Hintergrund
-            // geht (anderer Tab gewaehlt) oder die Library wieder im Vordergrund auftaucht.
-            // NavBackStackEntries haben eigenen Lifecycle: ON_PAUSE feuert beim Tab-Wechsel,
-            // bevor der Backstack-Eintrag dispose'd wird (saveState = true behaelt ihn am
-            // Leben). Damit landet die Library auf Rueckkehr im Idle-Zustand.
             ResetLibrarySearchOnPause(viewModel = listViewModel)
 
             GuidedMeditationsListScreen(
@@ -517,12 +453,7 @@ private fun StillMomentNavContent(
 
 /**
  * shared-101: Setzt die Library-Suche zurueck, sobald der Library-Screen den Fokus
- * verliert (Tab-Wechsel, Sheet vorne, Player oeffnet sich). Bei Rueckkehr ist die
- * Library im Idle-Zustand.
- *
- * Nutzt den NavBackStackEntry-Lifecycle (Compose-Local), nicht den der Activity —
- * `ON_PAUSE` feuert genau beim Tab-Wechsel, waehrend der Backstack-Eintrag selbst
- * via `saveState = true` erhalten bleibt.
+ * verliert.
  */
 @Composable
 private fun ResetLibrarySearchOnPause(viewModel: GuidedMeditationsListViewModel) {
@@ -542,14 +473,12 @@ private fun ResetLibrarySearchOnPause(viewModel: GuidedMeditationsListViewModel)
 private fun NavGraphBuilder.timerNavGraph(
     navController: NavHostController,
     stopMeditationSignal: StateFlow<Boolean>,
-    onConsumeStopSignal: () -> Unit,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit
+    onConsumeStopSignal: () -> Unit
 ) {
     navigation(startDestination = Screen.Timer.route, route = Screen.TimerGraph.route) {
         timerIdleAndFocusComposables(navController, stopMeditationSignal, onConsumeStopSignal)
         praxisEditorComposable(navController)
-        timerSubScreenComposables(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
+        timerSubScreenComposables(navController)
     }
 }
 
@@ -564,7 +493,6 @@ private fun NavGraphBuilder.timerIdleAndFocusComposables(
         }
         val sharedViewModel: TimerViewModel = hiltViewModel(parentEntry)
 
-        // Observe stop meditation signal from file import flow
         val shouldStop by stopMeditationSignal.collectAsState()
         val currentOnConsumeStop by rememberUpdatedState(onConsumeStopSignal)
         LaunchedEffect(shouldStop) {
@@ -620,24 +548,13 @@ private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostControl
     }
 }
 
-private fun NavGraphBuilder.timerSubScreenComposables(
-    navController: NavHostController,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit
-) {
-    selectBackgroundComposable(navController, pendingImportedCustomAudio, onClearImportedCustomAudio)
+private fun NavGraphBuilder.timerSubScreenComposables(navController: NavHostController) {
+    selectBackgroundComposable(navController)
     selectGongComposable(navController)
     intervalGongsComposable(navController)
     preparationTimeComposable(navController)
 }
 
-/**
- * Resolve the TimerGraph-scoped [PraxisEditorViewModel] + [TimerViewModel]
- * pair. Compose-rules' `ViewModelInjection` rule prefers `hiltViewModel` only
- * in default parameters; here we deliberately need the ViewModel from a
- * specific NavBackStackEntry (TimerGraph), which the default-parameter path
- * cannot express.
- */
 @Suppress("ComposableNaming") // Returns ViewModels — naming convention not applicable.
 @Composable
 private fun rememberTimerScopedEditorViewModels(
@@ -665,20 +582,12 @@ private fun saveAndPop(
     navController.popBackStack()
 }
 
-private fun NavGraphBuilder.selectBackgroundComposable(
-    navController: NavHostController,
-    pendingImportedCustomAudio: StateFlow<CustomAudioFile?>,
-    onClearImportedCustomAudio: () -> Unit
-) {
+private fun NavGraphBuilder.selectBackgroundComposable(navController: NavHostController) {
     composable(Screen.SelectBackground.route) { backStackEntry ->
         val (editorViewModel, timerViewModel) = rememberTimerScopedEditorViewModels(navController, backStackEntry)
-        val pendingFile by pendingImportedCustomAudio.collectAsState()
-        val currentOnClear by rememberUpdatedState(onClearImportedCustomAudio)
         SelectBackgroundSoundScreen(
             onBack = { saveAndPop(navController, editorViewModel, timerViewModel) },
-            viewModel = editorViewModel,
-            initialFileToRename = pendingFile?.takeIf { it.type == CustomAudioType.SOUNDSCAPE },
-            onConsumeInitialRename = currentOnClear
+            viewModel = editorViewModel
         )
     }
 }
@@ -737,22 +646,8 @@ private fun NavGraphBuilder.playerComposable(
     }
 }
 
-/**
- * Captured failure state for the download flow. `notAudio` distinguishes
- * NotAudio (no retry — the URL won't change) from network/server errors
- * (retry-able), so the error dialog can offer the right action.
- */
 private data class DownloadFailure(val url: String, val notAudio: Boolean)
 
-/**
- * Handles URL download when an audio URL is shared via text (e.g. Chrome).
- *
- * Drives the [isDownloading] state via [onDownloadingChange] so the host can render
- * the [DownloadProgressModal] as a top-level overlay. On success, passes the local
- * file URI to [onDownloadSuccess]. On failure: a NotAudio dialog (no retry) for
- * non-audio URLs, a retry dialog for genuine network/HTTP errors. User-initiated
- * cancellation (CancellationException) is filtered out — no error dialog appears.
- */
 @Composable
 private fun DownloadUrlEffect(
     urlAudioDownloader: UrlAudioDownloaderProtocol?,
@@ -771,9 +666,6 @@ private fun DownloadUrlEffect(
     LaunchedEffect(downloadUrl) {
         val url = downloadUrl ?: return@LaunchedEffect
         val downloader = urlAudioDownloader ?: return@LaunchedEffect
-        // Clear AFTER the download finishes; clearing first would mutate `downloadUrl`
-        // mid-flight and cause LaunchedEffect to cancel its own coroutine, leaving
-        // the loading state stuck on screen.
         currentOnDownloadingChange(true)
         failure = null
         val result = downloader.download(url)
@@ -781,8 +673,6 @@ private fun DownloadUrlEffect(
         result.fold(
             onSuccess = { uri -> currentOnDownloadSuccess(uri) },
             onFailure = { error ->
-                // User-initiated cancel surfaces as CancellationException — silently
-                // dismiss without showing the error dialog.
                 if (error !is CancellationException) {
                     failure = DownloadFailure(url = url, notAudio = error is UrlAudioDownloadError.NotAudio)
                 }
@@ -810,11 +700,6 @@ private fun DownloadUrlEffect(
     }
 }
 
-/**
- * Dialog shown when the shared URL didn't point to an audio file
- * (e.g. text/html, video). Only a Close action — retrying the same
- * URL won't help.
- */
 @Composable
 private fun NotAudioErrorDialog(onDismiss: () -> Unit) {
     val title = stringResource(R.string.download_error_not_audio_title)
@@ -830,12 +715,6 @@ private fun NotAudioErrorDialog(onDismiss: () -> Unit) {
     )
 }
 
-/**
- * Silent-fail guard for text/plain shares without a usable URL (free text,
- * mailto:, blank). Shows the same dialog shape as [NotAudioErrorDialog]
- * so the URL-share-fail UX stays uniform — the user always sees a
- * Title + Message + Close affordance, never nothing.
- */
 @Composable
 private fun InvalidShareEffect(invalidShareSignal: StateFlow<Boolean>, onClearSignal: () -> Unit) {
     val signal by invalidShareSignal.collectAsState()
@@ -845,11 +724,6 @@ private fun InvalidShareEffect(invalidShareSignal: StateFlow<Boolean>, onClearSi
     }
 }
 
-/**
- * Dialog shown when the shared text/plain payload contained no usable
- * HTTP/HTTPS link (free text, mailto:, blank). Same shape as
- * [NotAudioErrorDialog] — Title + Message + Close.
- */
 @Composable
 private fun NoLinkErrorDialog(onDismiss: () -> Unit) {
     val title = stringResource(R.string.download_error_no_link_title)
@@ -865,10 +739,6 @@ private fun NoLinkErrorDialog(onDismiss: () -> Unit) {
     )
 }
 
-/**
- * Dialog shown for retry-able download failures (network errors, HTTP 5xx, etc.).
- * Offers Retry + Cancel — a retry dispatches a fresh download for the same URL.
- */
 @Suppress("LongParameterList") // Retry dialog coordinates download state across multiple callbacks
 @Composable
 private fun RetryableErrorDialog(
@@ -917,8 +787,9 @@ private fun RetryableErrorDialog(
 
 /**
  * Validates file format when a file is shared with the app.
- * On valid format, invokes [onValidFile] so the caller can show the type selection sheet.
- * On invalid format, shows an error snackbar.
+ *
+ * On valid format, invokes [onValidFile] so the caller can route the URI to
+ * the library import. On invalid format, shows an error snackbar.
  */
 @Composable
 private fun FileOpenEffect(
@@ -954,167 +825,31 @@ private fun FileOpenEffect(
 }
 
 /**
- * Handles the import type selection sheet and subsequent import + navigation.
- * Shows [ImportTypeSelectionSheet] when [showSheet] is true.
- * On type selection, imports the file and navigates to the appropriate screen.
+ * Routes a validated shared URI to the Library tab; the Library composable
+ * itself calls `viewModel.importMeditation(uri)` and is responsible for
+ * clearing the pending URI when it has handed the work off.
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongParameterList") // Coordinates import flow across multiple subsystems
 @Composable
-private fun ImportTypeSheetEffect(
-    showSheet: Boolean,
-    pendingUri: Uri?,
-    fileOpenHandler: FileOpenHandler?,
-    customAudioRepository: CustomAudioRepository?,
+private fun MeditationImportNavigationEffect(
+    pendingImportUri: StateFlow<Uri?>,
     navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
     settingsDataStore: SettingsDataStore,
-    scope: kotlinx.coroutines.CoroutineScope,
-    onMeditationImport: (GuidedMeditation) -> Unit,
-    onCustomAudioImport: (CustomAudioFile) -> Unit,
-    onDismiss: () -> Unit
+    scope: kotlinx.coroutines.CoroutineScope
 ) {
-    val currentOnMeditationImport by rememberUpdatedState(onMeditationImport)
-    val currentOnCustomAudioImport by rememberUpdatedState(onCustomAudioImport)
-    val currentOnDismiss by rememberUpdatedState(onDismiss)
-
-    // Resolve strings in composable scope so suspend functions don't need navController.context
-    val errorAlreadyImported = stringResource(R.string.error_already_imported)
-    val errorImportFailed = stringResource(R.string.error_import_failed)
-
-    if (showSheet) {
-        ImportTypeSelectionSheet(
-            onTypeSelect = { importType ->
-                currentOnDismiss()
-                val uri = pendingUri ?: return@ImportTypeSelectionSheet
-                scope.launch {
-                    handleImportTypeSelection(
-                        importType = importType,
-                        uri = uri,
-                        fileOpenHandler = fileOpenHandler,
-                        customAudioRepository = customAudioRepository,
-                        navController = navController,
-                        snackbarHostState = snackbarHostState,
-                        settingsDataStore = settingsDataStore,
-                        onMeditationImport = currentOnMeditationImport,
-                        onCustomAudioImport = currentOnCustomAudioImport,
-                        errorAlreadyImported = errorAlreadyImported,
-                        errorImportFailed = errorImportFailed
-                    )
-                }
-            },
-            onDismiss = currentOnDismiss
-        )
-    }
-}
-
-/**
- * Handles file import based on the selected type.
- * Navigates to the appropriate screen after successful import.
- */
-@Suppress("LongParameterList") // Import handler dispatches to different flows based on type
-private suspend fun handleImportTypeSelection(
-    importType: ImportAudioType,
-    uri: Uri,
-    fileOpenHandler: FileOpenHandler?,
-    customAudioRepository: CustomAudioRepository?,
-    navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
-    settingsDataStore: SettingsDataStore,
-    onMeditationImport: (GuidedMeditation) -> Unit,
-    onCustomAudioImport: (CustomAudioFile) -> Unit,
-    errorAlreadyImported: String,
-    errorImportFailed: String
-) {
-    when (importType) {
-        ImportAudioType.GUIDED_MEDITATION -> handleGuidedMeditationImport(
-            uri = uri,
-            fileOpenHandler = fileOpenHandler,
-            navController = navController,
-            snackbarHostState = snackbarHostState,
-            onMeditationImport = onMeditationImport,
-            errorAlreadyImported = errorAlreadyImported,
-            errorImportFailed = errorImportFailed
-        )
-        ImportAudioType.SOUNDSCAPE -> handleCustomAudioImport(
-            uri = uri,
-            audioType = CustomAudioType.SOUNDSCAPE,
-            customAudioRepository = customAudioRepository,
-            navController = navController,
-            snackbarHostState = snackbarHostState,
-            settingsDataStore = settingsDataStore,
-            targetScreen = Screen.SelectBackground,
-            onCustomAudioImport = onCustomAudioImport,
-            errorImportFailed = errorImportFailed
-        )
-    }
-}
-
-private suspend fun handleGuidedMeditationImport(
-    uri: Uri,
-    fileOpenHandler: FileOpenHandler?,
-    navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
-    onMeditationImport: (GuidedMeditation) -> Unit,
-    errorAlreadyImported: String,
-    errorImportFailed: String
-) {
-    val handler = fileOpenHandler ?: return
-
-    navController.navigate(Screen.Library.route) {
-        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-        launchSingleTop = true
-        restoreState = true
-    }
-
-    val result = handler.handleFileOpen(uri)
-    result.fold(
-        onSuccess = { meditation -> onMeditationImport(meditation) },
-        onFailure = { error ->
-            val message = when ((error as? FileOpenException)?.error) {
-                FileOpenError.ALREADY_IMPORTED -> errorAlreadyImported
-                FileOpenError.UNSUPPORTED_FORMAT, FileOpenError.IMPORT_FAILED, null -> errorImportFailed
-            }
-            snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
+    val pending by pendingImportUri.collectAsState()
+    LaunchedEffect(pending) {
+        if (pending == null) {
+            return@LaunchedEffect
         }
-    )
-}
-
-@Suppress("LongParameterList") // Import + navigate + error display requires these dependencies
-private suspend fun handleCustomAudioImport(
-    uri: Uri,
-    audioType: CustomAudioType,
-    customAudioRepository: CustomAudioRepository?,
-    navController: NavHostController,
-    snackbarHostState: SnackbarHostState,
-    settingsDataStore: SettingsDataStore,
-    targetScreen: Screen,
-    onCustomAudioImport: (CustomAudioFile) -> Unit,
-    errorImportFailed: String
-) {
-    val repository = customAudioRepository ?: return
-
-    val result = repository.importFile(uri, audioType)
-    result.fold(
-        onSuccess = { file ->
-            onCustomAudioImport(file)
-            settingsDataStore.setSelectedTab(AppTab.TIMER)
-            navController.navigate(Screen.TimerGraph.route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-            navController.navigate(Screen.PraxisEditor.route)
-            navController.navigate(targetScreen.route)
-        },
-        onFailure = { error ->
-            val errorMessage = error.message ?: errorImportFailed
-            snackbarHostState.showSnackbar(
-                message = errorMessage,
-                duration = SnackbarDuration.Short
-            )
+        scope.launch {
+            settingsDataStore.setSelectedTab(AppTab.LIBRARY)
         }
-    )
+        navController.navigate(Screen.Library.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 }
 
 @Composable
@@ -1125,12 +860,6 @@ private fun StillMomentBottomBar(
     modifier: Modifier = Modifier
 ) {
     val theme = LocalStillMomentColors.current
-    // shared-094: full-width opaque bar with a warm top divider — matches the
-    // iOS plan update from "centered pill" to "edge-to-edge bar". The active
-    // tab uses the interactive accent, inactive tabs read onSurfaceVariant
-    // (mapped to textSecondary). The opaque containerColor sits on
-    // tabBarBackground (= cardBackground), so the bar carries the same warm
-    // material the cards do.
     Box(modifier = modifier.fillMaxWidth()) {
         HorizontalDivider(
             color = theme.cardBorder,
