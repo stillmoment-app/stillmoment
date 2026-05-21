@@ -1,20 +1,14 @@
 package com.stillmoment.presentation.ui.timer
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,15 +17,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -44,8 +31,8 @@ import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
+import com.stillmoment.presentation.ui.components.WarmPrimaryButton
 import com.stillmoment.presentation.ui.localizedName
-import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.bottomFadeMask
@@ -201,62 +188,16 @@ private fun TimerScreenLayout(
 
 @Composable
 private fun StartButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val contentDescription = stringResource(R.string.accessibility_start_button)
-    val theme = LocalStillMomentColors.current
-
-    // shared-094: plastic "Beginnen" button — vertical gradient (playGradientTop ->
-    // playGradientBot), warm drop shadow (12 dp via playGradientBot @ alpha 0.35),
-    // and a 1 dp inner highlight rim along the top. The button is a Box rather
-    // than Material3 Button because we replace the entire visual styling and
-    // don't need the ripple/state-layer machinery here.
-    Box(
-        modifier = modifier
-            .height(56.dp)
-            .shadow(
-                elevation = 12.dp,
-                shape = CircleShape,
-                ambientColor = theme.playGradientBot.copy(alpha = 0.18f),
-                spotColor = theme.playGradientBot.copy(alpha = 0.35f)
-            )
-            .clip(CircleShape)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(theme.playGradientTop, theme.playGradientBot)
-                ),
-                shape = CircleShape
-            )
-            .drawWithContent {
-                drawContent()
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to Color.White.copy(alpha = 0.22f),
-                            0.5f to Color.Transparent,
-                            1.0f to Color.Transparent
-                        )
-                    )
-                )
-            }
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { this.contentDescription = contentDescription }
-            .padding(horizontal = 32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Filled.PlayArrow,
-                contentDescription = null,
-                tint = theme.textOnInteractive,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.size(8.dp))
-            Text(
-                text = stringResource(R.string.button_start),
-                style = MaterialTheme.typography.labelLarge,
-                color = theme.textOnInteractive
-            )
-        }
-    }
+    // shared-097: shared plastischer "warmer" Primary-CTA — gleicher Stil wie
+    // der "Fertig"-Button auf dem Danke-Screen, damit Start- und End-Punkt der
+    // Praxis dasselbe Vokabular sprechen.
+    WarmPrimaryButton(
+        text = stringResource(R.string.button_start),
+        onClick = onClick,
+        contentDescription = stringResource(R.string.accessibility_start_button),
+        modifier = modifier,
+        leadingIcon = Icons.Filled.PlayArrow
+    )
 }
 
 // region Card-Label Helpers (shared-089)

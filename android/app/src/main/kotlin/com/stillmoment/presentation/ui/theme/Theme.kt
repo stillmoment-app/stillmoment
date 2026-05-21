@@ -28,6 +28,19 @@ import androidx.core.view.WindowCompat
  * These map to iOS ThemeColors roles that have no Material 3 equivalent.
  */
 data class StillMomentColors(
+    /**
+     * Warm interactive/accent color — the single source of truth for warm
+     * accents that drive the app (CTAs, ring arcs, lotus petals, droplet core).
+     * Matches iOS `theme.interactive`. Direct alias of `MaterialTheme.colorScheme.primary`,
+     * exposed here so call sites can stay in the `LocalStillMomentColors` vocabulary.
+     */
+    val interactive: Color,
+    /**
+     * Primary text color (warm ink). Matches iOS `theme.textPrimary`. Alias of
+     * `MaterialTheme.colorScheme.onSurface`, exposed here so headlines/body copy
+     * stay in the `LocalStillMomentColors` vocabulary.
+     */
+    val textPrimary: Color,
     /** Timer ring progress color */
     val progress: Color,
     /** Toggle/Slider inactive track color (WCAG >= 3:1 vs cardBackground) */
@@ -83,6 +96,7 @@ val LocalStillMomentColors = staticCompositionLocalOf {
         cardBackground = SmLightCardBackground,
         cardBorder = SmLightCardBorder,
         interactive = SmLightInteractive,
+        textPrimary = SmLightTextPrimary,
         divider = SmLightDivider,
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
@@ -102,6 +116,7 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         cardBackground = SmDarkCardBackground,
         cardBorder = SmDarkCardBorder,
         interactive = SmDarkInteractive,
+        textPrimary = SmDarkTextPrimary,
         divider = SmDarkDivider,
         playGradientTop = SmDarkPlayGradientTop,
         playGradientBot = SmDarkPlayGradientBot,
@@ -115,6 +130,7 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         cardBackground = SmLightCardBackground,
         cardBorder = SmLightCardBorder,
         interactive = SmLightInteractive,
+        textPrimary = SmLightTextPrimary,
         divider = SmLightDivider,
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
@@ -135,12 +151,15 @@ private fun buildStillMomentColors(
     cardBackground: Color,
     cardBorder: Color,
     interactive: Color,
+    textPrimary: Color,
     divider: Color,
     playGradientTop: Color,
     playGradientBot: Color,
     cardShadow: Color,
     textOnInteractive: Color
 ): StillMomentColors = StillMomentColors(
+    interactive = interactive,
+    textPrimary = textPrimary,
     progress = progress,
     controlTrack = controlTrack,
     cardBackground = cardBackground,

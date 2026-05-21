@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,12 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
@@ -44,16 +38,13 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationPhase
@@ -61,6 +52,7 @@ import com.stillmoment.domain.models.MeditationTimer
 import com.stillmoment.domain.models.TimerState
 import com.stillmoment.presentation.ui.common.BreathingCircle
 import com.stillmoment.presentation.ui.common.MeditationBottomLabel
+import com.stillmoment.presentation.ui.common.MeditationCompletionContent
 import com.stillmoment.presentation.ui.common.PHASE_TRANSITION_MS
 import com.stillmoment.presentation.ui.common.PreRollCircleContent
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
@@ -163,8 +155,9 @@ internal fun TimerFocusScreenContent(
                     animationSpec = tween(ANIMATION_DURATION_MS)
                 )
         ) {
-            TimerCompletionContent(
+            MeditationCompletionContent(
                 onBack = onCompletionBack,
+                backAccessibilityLabel = stringResource(R.string.accessibility_back_to_timer),
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -382,107 +375,6 @@ private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, c
             )
             MeditationPhase.Playing -> Spacer(modifier = Modifier.size(0.dp))
         }
-    }
-}
-
-@Composable
-private fun TimerCompletionContent(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val configuration = LocalConfiguration.current
-    val isCompactHeight = configuration.screenHeightDp < COMPACT_HEIGHT_DP
-
-    Box(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-
-            CompletionHeartIcon(isCompactHeight = isCompactHeight)
-
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 24.dp else 32.dp))
-
-            CompletionMessage(isCompactHeight = isCompactHeight)
-
-            Spacer(modifier = Modifier.height(if (isCompactHeight) 48.dp else 64.dp))
-
-            CompletionBackButton(onClick = onBack)
-
-            Spacer(modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun CompletionHeartIcon(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
-    val containerSize = if (isCompactHeight) 72.dp else 80.dp
-    val iconSize = if (isCompactHeight) 32.dp else 40.dp
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(containerSize)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-            modifier = Modifier.size(iconSize)
-        )
-    }
-}
-
-@Composable
-private fun CompletionMessage(isCompactHeight: Boolean, modifier: Modifier = Modifier) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
-        Text(
-            text = stringResource(R.string.completion_headline),
-            style = TextStyle.screenTitle.toComposeTextStyle().copy(
-                fontSize = if (isCompactHeight) 32.sp else TextUnit.Unspecified
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.semantics { heading() }
-        )
-
-        Spacer(modifier = Modifier.height(if (isCompactHeight) 12.dp else 16.dp))
-
-        Text(
-            text = stringResource(R.string.completion_subtitle),
-            style = TextStyle.body.toComposeTextStyle().copy(
-                fontSize = if (isCompactHeight) 14.sp else TextUnit.Unspecified
-            ),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-    }
-}
-
-@Composable
-private fun CompletionBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val backDescription = stringResource(R.string.accessibility_back_to_timer)
-
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .height(52.dp)
-            .semantics { contentDescription = backDescription },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = CircleShape
-    ) {
-        Text(
-            text = stringResource(R.string.button_back),
-            style = MaterialTheme.typography.labelLarge
-        )
     }
 }
 

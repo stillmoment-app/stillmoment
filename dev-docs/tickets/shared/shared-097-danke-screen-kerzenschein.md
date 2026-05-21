@@ -1,6 +1,6 @@
 # Ticket shared-097: Danke-Screen Refinement Kerzenschein 2.0
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — bestehende `MeditationCompletionView` wird visuell neu aufgesetzt: pulsierender Glow-Kreis weicht einem statischen Doppel-Lotus-Mandala, Headline-Text wird ersetzt. Der Abschluss-Button bleibt der bestehende warme Primary-CTA wie im Timer-Idle („Beginnen"-Pendant), damit Start- und Abschluss-Aktion dieselbe Sprache sprechen. Da `MeditationCompletionView` die einzige zentrale Abschluss-View ist, profitieren Timer-Ende, Guided-Meditation-Ende und der Pending-Termination-Recovery-Overlay aus einem einzigen Umbau.
 **Phase**: 4-Polish
@@ -25,7 +25,7 @@ Referenz: `handoffs/claude_code_handoff_danke_ks2/README.md` (High-Fidelity-Spec
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-096    |
-| Android   | [ ]    | shared-096 (Android) |
+| Android   | [x]    | shared-096 (Android) |
 
 ---
 
