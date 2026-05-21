@@ -1,9 +1,14 @@
 package com.stillmoment.presentation.viewmodel
 
+import android.net.Uri
+import com.stillmoment.data.FileOpenException
 import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.domain.models.AudioMetadata
+import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
@@ -29,6 +34,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -170,11 +176,11 @@ class GuidedMeditationsListViewModelTest {
 
         private fun seedPendingImport() {
             val draft = meditation(teacher = "", name = "")
-            val pending = com.stillmoment.domain.models.PendingImport(
+            val pending = PendingImport(
                 uri = "content://test/draft.mp3",
                 fileName = "draft.mp3",
                 metadata = AudioMetadata(duration = 600_000L, artist = null, title = null),
-                prefill = com.stillmoment.domain.models.ImportPrefill(teacher = null, name = null)
+                prefill = ImportPrefill(teacher = null, name = null)
             )
             viewModel.javaClass.getDeclaredField("_uiState").apply {
                 isAccessible = true
@@ -186,6 +192,78 @@ class GuidedMeditationsListViewModelTest {
                     showEditSheet = true
                 )
             }
+        }
+    }
+
+    // MARK: - Import failure mapping (B1)
+
+    @Nested
+    inner class ImportFailureMapping {
+        @Test
+        fun `ALREADY_IMPORTED maps to LibraryError AlreadyImported`() = runTest {
+            stubImportFailure(FileOpenError.ALREADY_IMPORTED)
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.AlreadyImported, viewModel.uiState.value.error)
+            assertNull(viewModel.uiState.value.pendingImport)
+        }
+
+        @Test
+        fun `UNSUPPORTED_FORMAT maps to LibraryError UnsupportedFormat`() = runTest {
+            stubImportFailure(FileOpenError.UNSUPPORTED_FORMAT)
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.UnsupportedFormat, viewModel.uiState.value.error)
+        }
+
+        @Test
+        fun `IMPORT_FAILED maps to LibraryError ImportFailed`() = runTest {
+            stubImportFailure(FileOpenError.IMPORT_FAILED)
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.ImportFailed, viewModel.uiState.value.error)
+        }
+
+        @Test
+        fun `non-FileOpenException failure also maps to ImportFailed`() = runTest {
+            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
+                .thenReturn(Result.failure(RuntimeException("boom")))
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            assertEquals(LibraryError.ImportFailed, viewModel.uiState.value.error)
+        }
+
+        @Test
+        fun `successful import clears error and seeds pendingImport`() = runTest {
+            val pending = PendingImport(
+                uri = "content://test/import.mp3",
+                fileName = "import.mp3",
+                metadata = AudioMetadata(duration = 600_000L, artist = "Tara Brach", title = "Body Scan"),
+                prefill = ImportPrefill(teacher = "Tara Brach", name = "Body Scan")
+            )
+            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
+                .thenReturn(Result.success(pending))
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertNull(state.error)
+            assertNotNull(state.pendingImport)
+            assertTrue(state.showEditSheet)
+        }
+
+        private suspend fun stubImportFailure(error: FileOpenError) {
+            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
+                .thenReturn(Result.failure(FileOpenException(error)))
         }
     }
 
@@ -514,7 +592,7 @@ class GuidedMeditationsListViewModelTest {
                 isAccessible = true
                 @Suppress("UNCHECKED_CAST")
                 val flow = get(viewModel) as MutableStateFlow<GuidedMeditationsListUiState>
-                flow.value = flow.value.copy(error = "boom")
+                flow.value = flow.value.copy(error = LibraryError.ImportFailed)
             }
             assertNotNull(viewModel.uiState.value.error)
 

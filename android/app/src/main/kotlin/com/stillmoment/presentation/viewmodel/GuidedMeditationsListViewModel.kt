@@ -40,8 +40,12 @@ data class GuidedMeditationsListUiState(
     val allMeditations: ImmutableList<GuidedMeditation> = persistentListOf(),
     /** Whether data is being loaded */
     val isLoading: Boolean = true,
-    /** Error message if any */
-    val error: String? = null,
+    /**
+     * UI-level error from the import flow, or `null` when nothing went wrong.
+     * The composable layer resolves each [LibraryError] case to a localized
+     * string via `stringResource(...)`.
+     */
+    val error: LibraryError? = null,
     /** Currently selected meditation for editing */
     val selectedMeditation: GuidedMeditation? = null,
     /** Whether the edit sheet is shown */
@@ -217,12 +221,12 @@ constructor(
                     )
                 }
             }.onFailure { error ->
-                val message = when ((error as? FileOpenException)?.error) {
-                    FileOpenError.ALREADY_IMPORTED -> "ALREADY_IMPORTED"
-                    FileOpenError.UNSUPPORTED_FORMAT -> "UNSUPPORTED_FORMAT"
-                    FileOpenError.IMPORT_FAILED, null -> "IMPORT_FAILED"
+                val libraryError = when ((error as? FileOpenException)?.error) {
+                    FileOpenError.ALREADY_IMPORTED -> LibraryError.AlreadyImported
+                    FileOpenError.UNSUPPORTED_FORMAT -> LibraryError.UnsupportedFormat
+                    FileOpenError.IMPORT_FAILED, null -> LibraryError.ImportFailed
                 }
-                _uiState.update { it.copy(error = message) }
+                _uiState.update { it.copy(error = libraryError) }
             }
         }
     }
@@ -240,8 +244,11 @@ constructor(
                 metadata = pending.metadata,
                 teacher = teacher.trim(),
                 name = name.trim()
-            ).onFailure { error ->
-                _uiState.update { it.copy(error = error.message ?: "Import failed") }
+            ).onFailure {
+                // Repository failures during the save step are surfaced as the
+                // generic "Import failed" message — the exact reason (IO,
+                // metadata, copy) is not actionable for the user.
+                _uiState.update { it.copy(error = LibraryError.ImportFailed) }
             }
             _uiState.update {
                 it.copy(

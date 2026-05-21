@@ -59,6 +59,7 @@ import com.stillmoment.presentation.ui.theme.bottomFadeMask
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
+import com.stillmoment.presentation.viewmodel.LibraryError
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -260,14 +261,24 @@ internal fun GuidedMeditationsListScreenContent(
             )
         }
 
-        // Error handling via Snackbar
-        LaunchedEffect(uiState.error) {
-            uiState.error?.let { error ->
-                snackbarHostState.showSnackbar(error)
+        // Error handling via Snackbar. LibraryError → localized string lives in
+        // the UI layer so the ViewModel stays Android-resource-agnostic.
+        val errorMessage = uiState.error?.let { libraryError ->
+            stringResource(libraryError.messageRes())
+        }
+        LaunchedEffect(errorMessage) {
+            errorMessage?.let { message ->
+                snackbarHostState.showSnackbar(message)
                 currentOnClearError()
             }
         }
     }
+}
+
+private fun LibraryError.messageRes(): Int = when (this) {
+    LibraryError.AlreadyImported -> R.string.error_already_imported
+    LibraryError.UnsupportedFormat -> R.string.error_unsupported_format
+    LibraryError.ImportFailed -> R.string.error_import_failed
 }
 
 /**
