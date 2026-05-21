@@ -2,9 +2,18 @@ package com.stillmoment.presentation.ui.meditations
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +24,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +39,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,12 +65,20 @@ import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
+private const val GUIDE_ANIMATION_DURATION_MS = 250
+private const val GUIDE_SLIDE_FRACTION = 8
+
 /**
  * Modal bottom sheet listing curated, free meditation sources for the current locale.
  *
  * Reachable from the empty-state secondary CTA and from the info icon in the
  * library top app bar. Source content lives in `assets/meditation_sources.json`;
  * taps open the URL in the system browser.
+ *
+ * Since shared-104 the sheet also hosts two how-to banners directly below the
+ * intro that lead into a three-step import guide (Browser-Share or Files-Picker).
+ * Sub-navigation is state-based inside the same sheet via [AnimatedContent] —
+ * the sheet itself stays open while only its content slides horizontally.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,8 +117,56 @@ internal fun ContentGuideSheetContent(
     onSourceClick: (MeditationSource) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var activeGuide by remember { mutableStateOf<HowToImportGuideKind?>(null) }
+
+    BackHandler(enabled = activeGuide != null) {
+        activeGuide = null
+    }
+
+    AnimatedContent(
+        targetState = activeGuide,
+        transitionSpec = {
+            val push = targetState != null
+            val direction = if (push) 1 else -1
+            (
+                slideInHorizontally(
+                    animationSpec = tween(GUIDE_ANIMATION_DURATION_MS),
+                    initialOffsetX = { width -> direction * width / GUIDE_SLIDE_FRACTION }
+                ) + fadeIn(animationSpec = tween(GUIDE_ANIMATION_DURATION_MS))
+                )
+                .togetherWith(
+                    slideOutHorizontally(
+                        animationSpec = tween(GUIDE_ANIMATION_DURATION_MS),
+                        targetOffsetX = { width -> -direction * width / GUIDE_SLIDE_FRACTION }
+                    ) + fadeOut(animationSpec = tween(GUIDE_ANIMATION_DURATION_MS))
+                )
+        },
+        label = "content_guide_sheet_switch",
+        modifier = modifier.fillMaxWidth()
+    ) { guide ->
+        if (guide == null) {
+            GuideListContent(
+                sources = sources,
+                onSourceClick = onSourceClick,
+                onBannerClick = { activeGuide = it }
+            )
+        } else {
+            GuideDetailContent(
+                kind = guide,
+                onBack = { activeGuide = null }
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuideListContent(
+    sources: ImmutableList<MeditationSource>,
+    onSourceClick: (MeditationSource) -> Unit,
+    onBannerClick: (HowToImportGuideKind) -> Unit
+) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 22.dp)
@@ -116,7 +189,72 @@ internal fun ContentGuideSheetContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        ImportBannerStack(onBannerClick = onBannerClick)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         SourceCard(sources = sources, onSourceClick = onSourceClick)
+    }
+}
+
+@Composable
+private fun ImportBannerStack(onBannerClick: (HowToImportGuideKind) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        ImportBannerCard(
+            icon = Icons.Filled.Public,
+            title = stringResource(R.string.guided_meditations_guide_banner_browser_title),
+            subtitle = stringResource(R.string.guided_meditations_guide_banner_browser_subtitle),
+            onClick = { onBannerClick(HowToImportGuideKind.BROWSER) }
+        )
+        ImportBannerCard(
+            icon = Icons.Filled.Folder,
+            title = stringResource(R.string.guided_meditations_guide_banner_files_title),
+            subtitle = stringResource(R.string.guided_meditations_guide_banner_files_subtitle),
+            onClick = { onBannerClick(HowToImportGuideKind.FILES) }
+        )
+    }
+}
+
+@Composable
+private fun GuideDetailContent(kind: HowToImportGuideKind, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 22.dp)
+            .padding(top = 4.dp, bottom = 32.dp)
+    ) {
+        GuideDetailHeader(onBack = onBack)
+        Spacer(modifier = Modifier.height(8.dp))
+        HowToImportGuideScreen(kind = kind)
+    }
+}
+
+@Composable
+private fun GuideDetailHeader(onBack: () -> Unit) {
+    val backLabel = stringResource(R.string.guided_meditations_guide_howto_back)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .clickable(role = Role.Button, onClick = onBack)
+                .semantics {
+                    role = Role.Button
+                    contentDescription = backLabel
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -259,6 +397,18 @@ private fun ContentGuideSheetPreview() {
     StillMomentTheme {
         Box(modifier = Modifier.background(Color.Black)) {
             ContentGuideSheetContent(sources = sources, onSourceClick = {})
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "How-to Browser (DE)")
+@Composable
+private fun HowToImportBrowserPreview() {
+    StillMomentTheme {
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
+            Column(modifier = Modifier.padding(22.dp)) {
+                HowToImportGuideScreen(kind = HowToImportGuideKind.BROWSER)
+            }
         }
     }
 }

@@ -98,6 +98,32 @@
     <string name="guided_meditations_guide_close">Close</string>
     <string name="guided_meditations_guide_open_source">Open source in browser</string>
     <string name="guided_meditations_guide_info">Content guide</string>
+
+    <!-- shared-104: Import how-to banners + step-by-step guides -->
+    <string name="guided_meditations_guide_banner_browser_title">How to import from the browser</string>
+    <string name="guided_meditations_guide_banner_browser_subtitle">Touch and hold link → Share → Still Moment.</string>
+    <string name="guided_meditations_guide_banner_files_title">How to import from your files</string>
+    <string name="guided_meditations_guide_banner_files_subtitle">Tap “+” → Pick a recording.</string>
+    <string name="guided_meditations_guide_howto_eyebrow">How-to</string>
+    <string name="guided_meditations_guide_howto_step_count">Step %1$d of 3</string>
+    <string name="guided_meditations_guide_howto_back">Back</string>
+    <string name="guided_meditations_guide_howto_browser_title">How to import from the browser</string>
+    <string name="guided_meditations_guide_howto_browser_intro">On many websites, you can send a meditation directly to Still Moment — no need to download it first.</string>
+    <string name="guided_meditations_guide_howto_browser_step1_title">Share from the browser</string>
+    <string name="guided_meditations_guide_howto_browser_step1_body">Touch and hold the link to the recording until a menu appears. Choose “Share…”.</string>
+    <string name="guided_meditations_guide_howto_browser_step2_title">Pick Still Moment</string>
+    <string name="guided_meditations_guide_howto_browser_step2_body">Pick Still Moment from the suggested apps. A short confirmation appears — tap “OK”.</string>
+    <string name="guided_meditations_guide_howto_browser_step3_title">Finish in the app</string>
+    <string name="guided_meditations_guide_howto_browser_step3_body">Open Still Moment. The import starts automatically — enter title, teacher and type.</string>
+    <string name="guided_meditations_guide_howto_files_title">How to import from your files</string>
+    <string name="guided_meditations_guide_howto_files_intro">If the recording is already on your device, you can add it directly from the library.</string>
+    <string name="guided_meditations_guide_howto_files_step1_title">Tap “+” in the library</string>
+    <string name="guided_meditations_guide_howto_files_step1_body">Tap “+” at the top right. The Files app opens automatically.</string>
+    <string name="guided_meditations_guide_howto_files_step2_title">Pick a recording</string>
+    <string name="guided_meditations_guide_howto_files_step2_body">Find the recording, e.g. in the Downloads folder, and tap it.</string>
+    <string name="guided_meditations_guide_howto_files_step3_title">Finish</string>
+    <string name="guided_meditations_guide_howto_files_step3_body">The import starts automatically — enter title, teacher and type.</string>
+
     <string name="guided_meditations_delete_title">Delete Meditation</string>
     <string name="guided_meditations_delete_message">Are you sure you want to delete \"%1$s\"?</string>
     <string name="guided_meditations_edit_title">Edit Meditation</string>
