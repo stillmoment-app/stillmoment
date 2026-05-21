@@ -1,6 +1,6 @@
 # Ticket shared-104: Import-Anleitungen im Content Guide (Android-Sync)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: UI-only. Banner-Karten und zwei Anleitungs-Screens werden 1:1 vom iOS-Pendant (`shared-039b`) uebernommen. Die einzige nicht-triviale Frage ist, wie die Sub-Screens aus dem `ModalBottomSheet` heraus erreicht werden — Compose Material 3 hat keinen eingebauten NavigationStack im Sheet. Risiko liegt darin, dass die gewaehlte Navigationsform sich beim Drag-down-Verhalten und der Back-Geste sauber anfuehlt.
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Neue Nutzer kennen die App-internen Import-Wege nicht. Sie sehen den Quellen-She
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `shared-039b` |
-| Android   | [ ]    | Dieses Ticket |
+| Android   | [x]    | Dieses Ticket |
 
 ---
 
