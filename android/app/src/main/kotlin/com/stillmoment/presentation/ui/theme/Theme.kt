@@ -55,6 +55,8 @@ data class StillMomentColors(
     val playGradientTop: Color,
     /** Bottom stop of the plastic play-button gradient (shared-094) */
     val playGradientBot: Color,
+    /** Foreground (text + icon) color used on top of `interactive` / play gradient (shared-094) */
+    val textOnInteractive: Color,
     /** Warm contact/body shadow color for lifted cards in light mode (shared-094) */
     val cardShadow: Color,
     /** Tab bar background — matches cardBackground (shared-094) */
@@ -84,7 +86,8 @@ val LocalStillMomentColors = staticCompositionLocalOf {
         divider = SmLightDivider,
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
-        cardShadow = SmLightCardShadow
+        cardShadow = SmLightCardShadow,
+        textOnInteractive = SmLightTextOnInteractive
     )
 }
 
@@ -102,7 +105,8 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         divider = SmDarkDivider,
         playGradientTop = SmDarkPlayGradientTop,
         playGradientBot = SmDarkPlayGradientBot,
-        cardShadow = SmDarkCardShadow
+        cardShadow = SmDarkCardShadow,
+        textOnInteractive = SmDarkTextOnInteractive
     )
 } else {
     buildStillMomentColors(
@@ -114,7 +118,8 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         divider = SmLightDivider,
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
-        cardShadow = SmLightCardShadow
+        cardShadow = SmLightCardShadow,
+        textOnInteractive = SmLightTextOnInteractive
     )
 }
 
@@ -133,7 +138,8 @@ private fun buildStillMomentColors(
     divider: Color,
     playGradientTop: Color,
     playGradientBot: Color,
-    cardShadow: Color
+    cardShadow: Color,
+    textOnInteractive: Color
 ): StillMomentColors = StillMomentColors(
     progress = progress,
     controlTrack = controlTrack,
@@ -148,6 +154,7 @@ private fun buildStillMomentColors(
     dialDropletCore = interactive,
     playGradientTop = playGradientTop,
     playGradientBot = playGradientBot,
+    textOnInteractive = textOnInteractive,
     cardShadow = cardShadow,
     tabBarBackground = cardBackground,
     accentBannerBackground = interactive.copy(alpha = 0.10f),
@@ -165,7 +172,8 @@ private fun buildStillMomentColors(
 private val StillMomentLightScheme =
     lightColorScheme(
         primary = SmLightInteractive,
-        onPrimary = Color.White,
+        // shared-094: warm cream on the play gradient (was pure white before).
+        onPrimary = SmLightTextOnInteractive,
         primaryContainer = SmLightAccentBg,
         onPrimaryContainer = SmLightTextPrimary,
         secondary = SmLightTextSecondary,

@@ -13,12 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayCircle
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.presentation.ui.components.PlayButtonCircle
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -128,13 +125,15 @@ private fun MeditationPlayButton(
     onStopPreview: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
-    val playIcon = if (isPreviewActive) Icons.Default.Stop else Icons.Default.PlayCircle
     val buttonDescription = if (isPreviewActive) {
         stringResource(R.string.accessibility_stop_preview)
     } else {
         stringResource(R.string.accessibility_start_preview)
     }
 
+    // shared-094: plastic 36 dp PlayButtonCircle replaces the flat Icon.
+    // combinedClickable stays on the surrounding Box so tap = play and
+    // long-press = preview wiring continues to live in one place.
     Box(
         modifier = Modifier
             .size(40.dp)
@@ -150,12 +149,7 @@ private fun MeditationPlayButton(
             ),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = playIcon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
+        PlayButtonCircle(isPlaying = isPreviewActive)
     }
 }
 
