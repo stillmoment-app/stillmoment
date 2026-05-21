@@ -9,18 +9,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.MeditationPhase
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.DisplayNumeralText
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
 /** Cross-Fade-Dauer fuer Phase-Uebergaenge im Atemkreis-Display (Pre-Roll <-> Hauptphase). */
 const val PHASE_TRANSITION_MS = 400
@@ -29,25 +31,27 @@ const val PHASE_TRANSITION_MS = 400
  * Inhalt im Atemkreis waehrend der Pre-Roll-Phase: Countdown-Zahl + "Vorbereitung"-Label.
  *
  * Geteilt zwischen Player und Timer. Aufrufer setzt testTag/contentDescription via [modifier].
+ *
+ * @param containerDiameter Durchmesser des umgebenden Atemkreises — wird an
+ *   [DisplayNumeralText] weitergereicht, damit die Countdown-Ziffer
+ *   container-relativ skaliert (Plan shared-099, AK-1).
  */
 @Composable
-fun PreRollCircleContent(countdownSeconds: Int, modifier: Modifier = Modifier) {
+fun PreRollCircleContent(countdownSeconds: Int, containerDiameter: Dp, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        Text(
+        DisplayNumeralText(
             text = countdownSeconds.toString(),
-            style = TypographyRole.PlayerCountdown.textStyle().copy(
-                fontFeatureSettings = "tnum"
-            ),
-            color = TypographyRole.PlayerCountdown.textColor()
+            containerDiameter = containerDiameter,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = stringResource(R.string.guided_meditations_player_preroll_label),
-            style = TypographyRole.PlayerTimestamp.textStyle(),
-            color = TypographyRole.PlayerTimestamp.textColor()
+            style = TextStyle.micro.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -93,8 +97,8 @@ fun MeditationBottomLabel(
 private fun PreRollHint(modifier: Modifier = Modifier) {
     Text(
         text = stringResource(R.string.guided_meditations_player_preroll_hint),
-        style = TypographyRole.PlayerTimestamp.textStyle(),
-        color = TypographyRole.PlayerTimestamp.textColor(),
+        style = TextStyle.micro.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )
@@ -108,10 +112,8 @@ private fun RemainingTimeLabel(formattedRemainingMinutes: String, modifier: Modi
     )
     Text(
         text = text,
-        style = TypographyRole.PlayerTimestamp.textStyle().copy(
-            fontFeatureSettings = "tnum"
-        ),
-        color = TypographyRole.PlayerTimestamp.textColor(),
+        style = TextStyle.micro.toComposeTextStyle(monospacedDigits = true),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )

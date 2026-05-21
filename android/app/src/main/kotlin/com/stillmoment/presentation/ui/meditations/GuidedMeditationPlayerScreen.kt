@@ -284,6 +284,7 @@ private fun PlayerBody(
                 phase = uiState.phase,
                 isPlaying = uiState.isPlaying,
                 countdownSeconds = uiState.countdownRemainingSeconds,
+                circleSize = circleSize,
                 reduceMotion = reduceMotion,
                 onTogglePlayPause = onTogglePlayPause
             )
@@ -345,6 +346,7 @@ private fun CircleContent(
     phase: MeditationPhase,
     isPlaying: Boolean,
     countdownSeconds: Int,
+    circleSize: androidx.compose.ui.unit.Dp,
     reduceMotion: Boolean,
     onTogglePlayPause: () -> Unit
 ) {
@@ -366,6 +368,7 @@ private fun CircleContent(
         when (current) {
             MeditationPhase.PreRoll -> PreRollCircleContent(
                 countdownSeconds = countdownSeconds,
+                containerDiameter = circleSize,
                 modifier = Modifier
                     .testTag("player.countdown")
                     .semantics {

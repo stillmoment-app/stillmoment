@@ -223,6 +223,7 @@ private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modi
             BreathingCircleSlot(
                 phase = uiState.phase,
                 countdownSeconds = uiState.remainingPreparationSeconds,
+                circleSize = circleSize,
                 reduceMotion = reduceMotion
             )
         }
@@ -246,7 +247,12 @@ private fun FocusTimerDisplay(uiState: TimerUiState, reduceMotion: Boolean, modi
 }
 
 @Composable
-private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, reduceMotion: Boolean) {
+private fun BreathingCircleSlot(
+    phase: MeditationPhase,
+    countdownSeconds: Int,
+    circleSize: androidx.compose.ui.unit.Dp,
+    reduceMotion: Boolean
+) {
     val transitionDuration = if (reduceMotion) 0 else PHASE_TRANSITION_MS
     val countdownDescription = stringResource(
         R.string.accessibility_countdown_seconds,
@@ -264,6 +270,7 @@ private fun BreathingCircleSlot(phase: MeditationPhase, countdownSeconds: Int, r
         when (current) {
             MeditationPhase.PreRoll -> PreRollCircleContent(
                 countdownSeconds = countdownSeconds,
+                containerDiameter = circleSize,
                 modifier = Modifier
                     .testTag("timer.display.countdown")
                     .semantics {

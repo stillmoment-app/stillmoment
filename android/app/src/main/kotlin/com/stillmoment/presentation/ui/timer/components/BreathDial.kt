@@ -37,16 +37,14 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.stillmoment.R
+import com.stillmoment.presentation.ui.theme.DisplayNumeralText
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
-import com.stillmoment.presentation.ui.theme.TypographyRole
-import com.stillmoment.presentation.ui.theme.textColor
-import com.stillmoment.presentation.ui.theme.textStyle
+import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.util.rememberIsReducedMotion
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -274,25 +272,20 @@ private fun DrawScope.drawDropletBody(center: Offset, coreColor: Color, backgrou
 
 @Composable
 private fun DialCenterText(value: Int, diameter: Dp) {
-    val valueSize = dialValueSizeFor(diameter)
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
+        DisplayNumeralText(
             text = value.toString(),
-            style = TypographyRole.DialValue.textStyle(sizeOverride = valueSize.sp).copy(
-                letterSpacing = (-1).sp,
-                fontWeight = FontWeight.Light
-            ),
-            color = TypographyRole.DialValue.textColor(),
-            textAlign = TextAlign.Center,
+            containerDiameter = diameter,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.testTag("timer.dial.value")
         )
         Text(
             text = stringResource(R.string.timer_dial_unit).uppercase(),
-            style = TypographyRole.DialUnit.textStyle().copy(letterSpacing = 2.sp),
-            color = TypographyRole.DialUnit.textColor(),
+            style = TextStyle.eyebrow.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }
@@ -305,16 +298,6 @@ private fun DialCenterText(value: Int, diameter: Dp) {
 private fun ringWidthFor(diameter: Dp): Dp {
     val computed = diameter.value * 16f / 220f
     return computed.coerceAtLeast(13f).dp
-}
-
-private fun dialValueSizeFor(diameter: Dp): Float {
-    val minSize = 62f
-    val maxSize = 76f
-    val minDiameter = 180f
-    val maxDiameter = 220f
-    val clamped = diameter.value.coerceIn(minDiameter, maxDiameter)
-    val ratio = (clamped - minDiameter) / (maxDiameter - minDiameter)
-    return minSize + ratio * (maxSize - minSize)
 }
 
 // endregion
