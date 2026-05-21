@@ -25,9 +25,6 @@ data class EditSheetState(
 ) {
     /**
      * Whether changes have been made compared to original values.
-     *
-     * Compares against the original teacher/name (not effective values),
-     * since customTeacher/customName should only be set when different from original.
      */
     val hasChanges: Boolean
         get() =
@@ -47,21 +44,14 @@ data class EditSheetState(
     /**
      * Creates an updated meditation with the edited values.
      *
-     * Only sets customTeacher/customName if values differ from original.
-     * If the edited value matches the original, custom fields are set to null.
+     * Values are trimmed; the result is written directly to `teacher` / `name`.
      *
      * @return Updated meditation with applied changes
      */
     fun applyChanges(): GuidedMeditation {
         return originalMeditation.copy(
-            customTeacher =
-            editedTeacher.takeIf {
-                it.isNotBlank() && it != originalMeditation.teacher
-            },
-            customName =
-            editedName.takeIf {
-                it.isNotBlank() && it != originalMeditation.name
-            }
+            teacher = editedTeacher.trim(),
+            name = editedName.trim()
         )
     }
 
@@ -69,16 +59,14 @@ data class EditSheetState(
         /**
          * Creates an EditSheetState from a meditation.
          *
-         * Initializes edited values with effective values (custom if set, otherwise original).
-         *
          * @param meditation The meditation to edit
          * @return New EditSheetState initialized with the meditation's values
          */
         fun fromMeditation(meditation: GuidedMeditation): EditSheetState {
             return EditSheetState(
                 originalMeditation = meditation,
-                editedTeacher = meditation.effectiveTeacher,
-                editedName = meditation.effectiveName
+                editedTeacher = meditation.teacher,
+                editedName = meditation.name
             )
         }
     }

@@ -193,10 +193,8 @@ class GuidedMeditationRepositoryImplTest {
                         fileUri = "content://test/uri",
                         fileName = "test.mp3",
                         duration = 300_000L,
-                        teacher = "Original Teacher",
-                        name = "Original Name",
-                        customTeacher = "Custom Teacher",
-                        customName = "Custom Name",
+                        teacher = "Teacher",
+                        name = "Name",
                         dateAdded = 1234567890L
                     )
                 )
@@ -211,31 +209,6 @@ class GuidedMeditationRepositoryImplTest {
         }
     }
 
-    // MARK: - Default Values Tests
-
-    @Nested
-    inner class DefaultValuesTests {
-        @Test
-        fun `default teacher is Unknown when not provided`() {
-            // This test documents the expected default behavior
-            val defaultTeacher = "Unknown"
-            assertEquals("Unknown", defaultTeacher)
-        }
-
-        @Test
-        fun `meditation without metadata uses filename as name`() {
-            // Given
-            val fileName = "Loving Kindness Meditation.mp3"
-            val expectedName = "Loving Kindness Meditation"
-
-            // When - simulating what repository does
-            val name = fileName.substringBeforeLast(".")
-
-            // Then
-            assertEquals(expectedName, name)
-        }
-    }
-
     // MARK: - Test Helpers
 
     private fun createTestMeditation(
@@ -245,8 +218,6 @@ class GuidedMeditationRepositoryImplTest {
         duration: Long = 600_000L,
         teacher: String = "Test Teacher",
         name: String = "Test Meditation",
-        customTeacher: String? = null,
-        customName: String? = null,
         dateAdded: Long = System.currentTimeMillis()
     ): GuidedMeditation = GuidedMeditation(
         id = id,
@@ -255,8 +226,6 @@ class GuidedMeditationRepositoryImplTest {
         duration = duration,
         teacher = teacher,
         name = name,
-        customTeacher = customTeacher,
-        customName = customName,
         dateAdded = dateAdded
     )
 }

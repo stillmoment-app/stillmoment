@@ -100,8 +100,8 @@ constructor(
             )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(meditation.effectiveName)
-            .setContentText(meditation.effectiveTeacher)
+            .setContentTitle(meditation.name)
+            .setContentText(meditation.teacher)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(contentIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

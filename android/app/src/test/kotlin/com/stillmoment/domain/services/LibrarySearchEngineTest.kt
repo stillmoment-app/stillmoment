@@ -144,20 +144,6 @@ class LibrarySearchEngineTest {
             val result = LibrarySearchEngine.search(listOf(older, newer), "tara body")
             assertEquals(listOf(newer, older), result)
         }
-
-        @Test
-        fun `uses effective name override when set`() {
-            val item = meditation(name = "Original", teacher = "Tara").withCustomName("Renamed")
-            val result = LibrarySearchEngine.search(listOf(item), "renamed")
-            assertEquals(listOf(item), result)
-        }
-
-        @Test
-        fun `uses effective teacher override when set`() {
-            val item = meditation(name = "Body Scan", teacher = "Original").withCustomTeacher("Renamed")
-            val result = LibrarySearchEngine.search(listOf(item), "renamed")
-            assertEquals(listOf(item), result)
-        }
     }
 
     @Nested

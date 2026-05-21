@@ -76,7 +76,7 @@ fun MeditationListItem(
 ) {
     val itemDescription = stringResource(
         R.string.accessibility_meditation_item,
-        meditation.effectiveName,
+        meditation.name,
         meditation.formattedDuration
     )
     val theme = LocalStillMomentColors.current
@@ -150,7 +150,7 @@ private fun MeditationInfo(
     Column(modifier = modifier) {
         if (searchQuery.isNullOrEmpty()) {
             Text(
-                text = meditation.effectiveName,
+                text = meditation.name,
                 style = TextStyle.body.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -158,7 +158,7 @@ private fun MeditationInfo(
             )
         } else {
             HighlightedText(
-                text = meditation.effectiveName,
+                text = meditation.name,
                 query = searchQuery,
                 style = TextStyle.body.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurface,
@@ -169,7 +169,7 @@ private fun MeditationInfo(
         if (showTeacherSubtitle) {
             if (searchQuery.isNullOrEmpty()) {
                 Text(
-                    text = meditation.effectiveTeacher,
+                    text = meditation.teacher,
                     style = TextStyle.bodyItalic.toComposeTextStyle(),
                     color = LocalStillMomentColors.current.interactive,
                     maxLines = 1,
@@ -177,7 +177,7 @@ private fun MeditationInfo(
                 )
             } else {
                 HighlightedText(
-                    text = meditation.effectiveTeacher,
+                    text = meditation.teacher,
                     query = searchQuery,
                     style = TextStyle.bodyItalic.toComposeTextStyle(),
                     color = LocalStillMomentColors.current.interactive,
