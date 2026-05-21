@@ -3,7 +3,10 @@ package com.stillmoment.domain.models
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -41,8 +44,6 @@ class GuidedMeditationTest {
             assertEquals(duration, meditation.duration)
             assertEquals(teacher, meditation.teacher)
             assertEquals(name, meditation.name)
-            assertNull(meditation.customTeacher)
-            assertNull(meditation.customName)
             assertTrue(meditation.dateAdded > 0)
         }
 
@@ -54,53 +55,6 @@ class GuidedMeditationTest {
 
             // Then
             assertNotEquals(meditation1.id, meditation2.id)
-        }
-    }
-
-    @Nested
-    inner class EffectiveValues {
-        @Test
-        fun `effectiveTeacher returns original when no custom set`() {
-            // Given
-            val meditation = createTestMeditation(teacher = "Original Teacher")
-
-            // When/Then
-            assertEquals("Original Teacher", meditation.effectiveTeacher)
-        }
-
-        @Test
-        fun `effectiveTeacher returns custom when set`() {
-            // Given
-            val meditation =
-                createTestMeditation(
-                    teacher = "Original Teacher",
-                    customTeacher = "Custom Teacher"
-                )
-
-            // When/Then
-            assertEquals("Custom Teacher", meditation.effectiveTeacher)
-        }
-
-        @Test
-        fun `effectiveName returns original when no custom set`() {
-            // Given
-            val meditation = createTestMeditation(name = "Original Name")
-
-            // When/Then
-            assertEquals("Original Name", meditation.effectiveName)
-        }
-
-        @Test
-        fun `effectiveName returns custom when set`() {
-            // Given
-            val meditation =
-                createTestMeditation(
-                    name = "Original Name",
-                    customName = "Custom Name"
-                )
-
-            // When/Then
-            assertEquals("Custom Name", meditation.effectiveName)
         }
     }
 
@@ -153,65 +107,6 @@ class GuidedMeditationTest {
     }
 
     @Nested
-    inner class WithMethods {
-        @Test
-        fun `withCustomTeacher creates copy with new teacher`() {
-            // Given
-            val original = createTestMeditation(teacher = "Original")
-
-            // When
-            val updated = original.withCustomTeacher("Custom")
-
-            // Then
-            assertEquals("Custom", updated.customTeacher)
-            assertEquals("Custom", updated.effectiveTeacher)
-            assertEquals(original.id, updated.id) // Same ID
-            assertEquals(original.teacher, updated.teacher) // Original unchanged
-        }
-
-        @Test
-        fun `withCustomTeacher with null clears custom teacher`() {
-            // Given
-            val original = createTestMeditation(customTeacher = "Custom")
-
-            // When
-            val updated = original.withCustomTeacher(null)
-
-            // Then
-            assertNull(updated.customTeacher)
-            assertEquals(original.teacher, updated.effectiveTeacher)
-        }
-
-        @Test
-        fun `withCustomName creates copy with new name`() {
-            // Given
-            val original = createTestMeditation(name = "Original")
-
-            // When
-            val updated = original.withCustomName("Custom")
-
-            // Then
-            assertEquals("Custom", updated.customName)
-            assertEquals("Custom", updated.effectiveName)
-            assertEquals(original.id, updated.id) // Same ID
-            assertEquals(original.name, updated.name) // Original unchanged
-        }
-
-        @Test
-        fun `withCustomName with null clears custom name`() {
-            // Given
-            val original = createTestMeditation(customName = "Custom")
-
-            // When
-            val updated = original.withCustomName(null)
-
-            // Then
-            assertNull(updated.customName)
-            assertEquals(original.name, updated.effectiveName)
-        }
-    }
-
-    @Nested
     inner class Serialization {
         @Test
         fun `meditation can be serialized to JSON`() {
@@ -236,8 +131,7 @@ class GuidedMeditationTest {
             val original =
                 createTestMeditation(
                     teacher = "Test Teacher",
-                    name = "Test Meditation",
-                    customTeacher = "Custom Teacher"
+                    name = "Test Meditation"
                 )
             val json = Json.encodeToString(original)
 
@@ -249,7 +143,6 @@ class GuidedMeditationTest {
             assertEquals(original.fileUri, restored.fileUri)
             assertEquals(original.teacher, restored.teacher)
             assertEquals(original.name, restored.name)
-            assertEquals(original.customTeacher, restored.customTeacher)
             assertEquals(original.duration, restored.duration)
         }
 
@@ -264,8 +157,6 @@ class GuidedMeditationTest {
                     duration = 300_000L,
                     teacher = "Teacher",
                     name = "Name",
-                    customTeacher = "Custom Teacher",
-                    customName = "Custom Name",
                     dateAdded = 1234567890L
                 )
 
@@ -303,7 +194,7 @@ class GuidedMeditationTest {
     @Nested
     inner class GroupByTeacherTests {
         @Test
-        fun `groupByTeacher groups meditations by effective teacher`() {
+        fun `groupByTeacher groups meditations by teacher`() {
             // Given
             val meditations =
                 listOf(
@@ -321,26 +212,6 @@ class GuidedMeditationTest {
             assertEquals(2, groups[0].count)
             assertEquals("Teacher B", groups[1].teacher)
             assertEquals(1, groups[1].count)
-        }
-
-        @Test
-        fun `groupByTeacher uses customTeacher when set`() {
-            // Given
-            val meditations =
-                listOf(
-                    createTestMeditation(teacher = "Original", customTeacher = "Custom A"),
-                    createTestMeditation(teacher = "Original", customTeacher = "Custom B"),
-                    createTestMeditation(teacher = "Original")
-                )
-
-            // When
-            val groups = meditations.groupByTeacher()
-
-            // Then
-            assertEquals(3, groups.size)
-            assertTrue(groups.any { it.teacher == "Custom A" })
-            assertTrue(groups.any { it.teacher == "Custom B" })
-            assertTrue(groups.any { it.teacher == "Original" })
         }
 
         @Test
@@ -377,9 +248,9 @@ class GuidedMeditationTest {
 
             // Then
             assertEquals(1, groups.size)
-            assertEquals("Alpha", groups[0].meditations[0].effectiveName)
-            assertEquals("Middle", groups[0].meditations[1].effectiveName)
-            assertEquals("Zebra", groups[0].meditations[2].effectiveName)
+            assertEquals("Alpha", groups[0].meditations[0].name)
+            assertEquals("Middle", groups[0].meditations[1].name)
+            assertEquals("Zebra", groups[0].meditations[2].name)
         }
 
         @Test
@@ -401,22 +272,17 @@ class GuidedMeditationTest {
         id: String = java.util.UUID.randomUUID().toString(),
         fileUri: String = "content://test/uri",
         fileName: String = "test.mp3",
-        duration: Long = 600_000L, // 10 minutes
+        duration: Long = 600_000L,
         teacher: String = "Test Teacher",
         name: String = "Test Meditation",
-        customTeacher: String? = null,
-        customName: String? = null,
         dateAdded: Long = System.currentTimeMillis()
-    ): GuidedMeditation =
-        GuidedMeditation(
-            id = id,
-            fileUri = fileUri,
-            fileName = fileName,
-            duration = duration,
-            teacher = teacher,
-            name = name,
-            customTeacher = customTeacher,
-            customName = customName,
-            dateAdded = dateAdded
-        )
+    ): GuidedMeditation = GuidedMeditation(
+        id = id,
+        fileUri = fileUri,
+        fileName = fileName,
+        duration = duration,
+        teacher = teacher,
+        name = name,
+        dateAdded = dateAdded
+    )
 }

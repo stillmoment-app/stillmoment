@@ -308,26 +308,26 @@ private fun MeditationInfoHeader(meditation: GuidedMeditation, modifier: Modifie
             .padding(top = 16.dp)
     ) {
         Text(
-            text = meditation.effectiveTeacher,
+            text = meditation.teacher,
             style = TextStyle.bodyItalic.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
             maxLines = 1,
             modifier = Modifier.semantics {
-                contentDescription = "$teacherLabel: ${meditation.effectiveTeacher}"
+                contentDescription = "$teacherLabel: ${meditation.teacher}"
             }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = meditation.effectiveName,
+            text = meditation.name,
             style = TextStyle.title.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             maxLines = 2,
             modifier = Modifier.semantics {
-                contentDescription = "$titleLabel: ${meditation.effectiveName}"
+                contentDescription = "$titleLabel: ${meditation.name}"
             }
         )
     }

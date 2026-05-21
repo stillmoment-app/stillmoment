@@ -3,6 +3,7 @@ package com.stillmoment.data.local
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -43,6 +44,13 @@ constructor(
     private object Keys {
         val SELECTED_TAB = stringPreferencesKey("selected_tab")
         val APPEARANCE_MODE = stringPreferencesKey("appearance_mode")
+
+        /**
+         * shared-103: marks whether the one-shot migration that folds
+         * `customTeacher` / `customName` into `teacher` / `name` has run for the
+         * current install. Idempotent — subsequent app starts skip the sweep.
+         */
+        val GUIDED_OVERRIDES_MIGRATED_V1 = booleanPreferencesKey("guided_meditations_override_migrated_v1")
     }
 
     /**
@@ -95,6 +103,24 @@ constructor(
     suspend fun setAppearanceMode(mode: AppearanceMode) {
         context.appSettingsDataStore.edit { preferences ->
             preferences[Keys.APPEARANCE_MODE] = mode.name
+        }
+    }
+
+    /**
+     * Returns whether the shared-103 override-cleanup migration already ran for
+     * this install.
+     */
+    suspend fun isGuidedOverridesMigrated(): Boolean {
+        return context.appSettingsDataStore.data
+            .first()[Keys.GUIDED_OVERRIDES_MIGRATED_V1] == true
+    }
+
+    /**
+     * Marks the shared-103 override-cleanup migration as complete.
+     */
+    suspend fun markGuidedOverridesMigrated() {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[Keys.GUIDED_OVERRIDES_MIGRATED_V1] = true
         }
     }
 }

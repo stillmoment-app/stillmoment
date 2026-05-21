@@ -96,8 +96,8 @@ constructor(
 
         _mediaSession?.setMetadata(
             MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.effectiveName)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.effectiveTeacher)
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, meditation.name)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, meditation.teacher)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, meditation.duration)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, appIcon)
                 .build()

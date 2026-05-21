@@ -123,6 +123,29 @@ constructor(
         }
     }
 
+    /**
+     * Reads the raw persisted JSON (or `null` when nothing has been written yet).
+     *
+     * Used by the shared-103 override-cleanup migration to parse against the
+     * legacy schema before the regular decode runs.
+     */
+    suspend fun readRawJson(): String? {
+        return context.meditationsDataStore.data
+            .first()[Keys.MEDITATIONS]
+    }
+
+    /**
+     * Writes a pre-serialized JSON list back to the store.
+     *
+     * Used by the shared-103 override-cleanup migration; production code should
+     * prefer the typed `addMeditation` / `updateMeditation` paths.
+     */
+    suspend fun writeRawJson(jsonString: String) {
+        context.meditationsDataStore.edit { preferences ->
+            preferences[Keys.MEDITATIONS] = jsonString
+        }
+    }
+
     private fun getMeditations(preferences: Preferences): List<GuidedMeditation> {
         val jsonString = preferences[Keys.MEDITATIONS] ?: "[]"
         return try {

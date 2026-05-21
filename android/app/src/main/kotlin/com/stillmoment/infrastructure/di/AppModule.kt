@@ -18,6 +18,7 @@ import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
+import com.stillmoment.domain.services.AudioMetadataService
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
@@ -41,6 +42,7 @@ import com.stillmoment.infrastructure.audio.VibrationService
 import com.stillmoment.infrastructure.audio.VolumeAnimator
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
+import com.stillmoment.infrastructure.services.AndroidAudioMetadataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -179,6 +181,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSearchHistoryRepository(impl: SearchHistoryDataStore): SearchHistoryRepository {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioMetadataService(impl: AndroidAudioMetadataService): AudioMetadataService {
         return impl
     }
 }

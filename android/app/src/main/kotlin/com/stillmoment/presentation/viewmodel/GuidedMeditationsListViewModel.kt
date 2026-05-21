@@ -3,10 +3,15 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stillmoment.data.FileOpenException
+import com.stillmoment.data.FileOpenHandler
+import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.LibrarySearchState
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
@@ -22,7 +27,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -36,12 +40,18 @@ data class GuidedMeditationsListUiState(
     val allMeditations: ImmutableList<GuidedMeditation> = persistentListOf(),
     /** Whether data is being loaded */
     val isLoading: Boolean = true,
-    /** Error message if any */
-    val error: String? = null,
+    /**
+     * UI-level error from the import flow, or `null` when nothing went wrong.
+     * The composable layer resolves each [LibraryError] case to a localized
+     * string via `stringResource(...)`.
+     */
+    val error: LibraryError? = null,
     /** Currently selected meditation for editing */
     val selectedMeditation: GuidedMeditation? = null,
     /** Whether the edit sheet is shown */
     val showEditSheet: Boolean = false,
+    /** Pending import waiting for the user to confirm in the edit sheet (shared-103) */
+    val pendingImport: PendingImport? = null,
     /** Whether delete confirmation is shown */
     val showDeleteConfirmation: Boolean = false,
     /** Meditation pending deletion (awaiting confirmation) */
@@ -78,19 +88,12 @@ data class GuidedMeditationsListUiState(
 
     /**
      * Currently visible search results for the query — empty if no query.
-     *
-     * Computed via [LibrarySearchEngine.search] over [allMeditations].
      */
     val searchResults: ImmutableList<GuidedMeditation>
         get() = LibrarySearchEngine.search(allMeditations, searchQuery).toImmutableList()
 
     /**
      * Derived view state for the library body switch.
-     *
-     * - Empty query, not focused → [LibrarySearchState.Idle] (gruppierte Liste).
-     * - Empty query, focused → [LibrarySearchState.History].
-     * - Query with hits → [LibrarySearchState.Results].
-     * - Query without hits → [LibrarySearchState.Empty].
      */
     val searchState: LibrarySearchState
         get() {
@@ -116,7 +119,8 @@ constructor(
     private val repository: GuidedMeditationRepository,
     private val audioService: AudioServiceProtocol,
     private val meditationSourceRepository: MeditationSourceRepository,
-    private val searchHistoryRepository: SearchHistoryRepository
+    private val searchHistoryRepository: SearchHistoryRepository,
+    private val fileOpenHandler: FileOpenHandler
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -147,9 +151,6 @@ constructor(
         }
     }
 
-    /**
-     * Observes the persisted search history (shared-101) and mirrors it into UI state.
-     */
     private fun observeSearchHistory() {
         viewModelScope.launch {
             searchHistoryRepository.historyFlow.collect { history ->
@@ -158,10 +159,6 @@ constructor(
         }
     }
 
-    /**
-     * Mirrors the AudioService preview position into UI state (shared-098).
-     * The slider in the library item reads `previewCurrentTimeMs` to render.
-     */
     private fun observePreviewPosition() {
         viewModelScope.launch {
             audioService.meditationPreviewPositionFlow.collect { positionMs ->
@@ -170,9 +167,6 @@ constructor(
         }
     }
 
-    /**
-     * Mirrors the AudioService preview duration into UI state (shared-098).
-     */
     private fun observePreviewDuration() {
         viewModelScope.launch {
             audioService.meditationPreviewDurationFlow.collect { durationMs ->
@@ -181,11 +175,6 @@ constructor(
         }
     }
 
-    /**
-     * Listens for natural end-of-file completions (shared-098) and flips the
-     * preview back to idle so the play button switches from stop to play and
-     * the slider fades out.
-     */
     private fun observePreviewCompletion() {
         viewModelScope.launch {
             audioService.meditationPreviewCompletionFlow.collect {
@@ -194,40 +183,99 @@ constructor(
         }
     }
 
-    // MARK: - Import
+    // MARK: - Import (shared-103)
 
     /**
-     * Imports a meditation from the given URI.
+     * Starts the share-import flow. Validates the file, extracts metadata,
+     * computes prefill against the current library, and opens the edit sheet
+     * in IMPORT mode. Persistence happens on save (see [saveImportedMeditation]).
      *
-     * @param uri Content URI from file picker
+     * @param uri Content URI from the share intent
      */
     fun importMeditation(uri: Uri) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(error = null) }
+            val result = fileOpenHandler.validateAndPrepareImport(uri)
+            result.onSuccess { pending ->
+                // Re-compute the prefill so it picks up the *current* known
+                // teachers. FileOpenHandler stays library-agnostic.
+                val refinedPrefill = ImportPrefill.compute(
+                    metadata = pending.metadata,
+                    fileName = pending.fileName,
+                    knownTeachers = _uiState.value.availableTeachers
+                )
+                val refined = pending.copy(prefill = refinedPrefill)
+                val draft = GuidedMeditation(
+                    fileUri = refined.uri,
+                    fileName = refined.fileName,
+                    duration = refined.metadata.duration,
+                    teacher = refined.prefill.teacher ?: "",
+                    name = refined.prefill.name ?: ""
+                )
+                _uiState.update {
+                    it.copy(
+                        pendingImport = refined,
+                        selectedMeditation = draft,
+                        showEditSheet = true,
+                        error = null
+                    )
+                }
+            }.onFailure { error ->
+                val libraryError = when ((error as? FileOpenException)?.error) {
+                    FileOpenError.ALREADY_IMPORTED -> LibraryError.AlreadyImported
+                    FileOpenError.UNSUPPORTED_FORMAT -> LibraryError.UnsupportedFormat
+                    FileOpenError.IMPORT_FAILED, null -> LibraryError.ImportFailed
+                }
+                _uiState.update { it.copy(error = libraryError) }
+            }
+        }
+    }
 
-            repository.importMeditation(uri)
-                .onSuccess { meditation ->
-                    _uiState.update { it.copy(isLoading = false) }
-                    showEditSheet(meditation)
-                }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(
-                            error = error.message ?: "Import failed",
-                            isLoading = false
-                        )
-                    }
-                }
+    /**
+     * Persists the pending import using the (potentially edited) values from
+     * the edit sheet. Closes the sheet and clears the pending state.
+     */
+    fun saveImportedMeditation(teacher: String, name: String) {
+        val pending = _uiState.value.pendingImport ?: return
+        viewModelScope.launch {
+            repository.addMeditation(
+                sourceUri = pending.uri,
+                fileName = pending.fileName,
+                metadata = pending.metadata,
+                teacher = teacher.trim(),
+                name = name.trim()
+            ).onFailure {
+                // Repository failures during the save step are surfaced as the
+                // generic "Import failed" message — the exact reason (IO,
+                // metadata, copy) is not actionable for the user.
+                _uiState.update { it.copy(error = LibraryError.ImportFailed) }
+            }
+            _uiState.update {
+                it.copy(
+                    pendingImport = null,
+                    selectedMeditation = null,
+                    showEditSheet = false
+                )
+            }
+        }
+    }
+
+    /**
+     * Discards the pending import without persisting anything. Used by the
+     * Cancel button and modal-swipe-down in the import edit sheet.
+     */
+    fun cancelImport() {
+        _uiState.update {
+            it.copy(
+                pendingImport = null,
+                selectedMeditation = null,
+                showEditSheet = false
+            )
         }
     }
 
     // MARK: - Delete
 
-    /**
-     * Shows delete confirmation dialog.
-     *
-     * @param meditation Meditation to delete
-     */
     fun confirmDelete(meditation: GuidedMeditation) {
         _uiState.update {
             it.copy(
@@ -237,9 +285,6 @@ constructor(
         }
     }
 
-    /**
-     * Cancels the delete operation.
-     */
     fun cancelDelete() {
         _uiState.update {
             it.copy(
@@ -249,9 +294,6 @@ constructor(
         }
     }
 
-    /**
-     * Executes the delete operation for the pending meditation.
-     */
     fun executeDelete() {
         val meditation = _uiState.value.meditationToDelete ?: return
 
@@ -269,21 +311,20 @@ constructor(
     // MARK: - Edit
 
     /**
-     * Shows the edit sheet for a meditation.
-     *
-     * @param meditation Meditation to edit
+     * Shows the edit sheet for a meditation (Edit mode).
      */
     fun showEditSheet(meditation: GuidedMeditation) {
         _uiState.update {
             it.copy(
                 selectedMeditation = meditation,
-                showEditSheet = true
+                showEditSheet = true,
+                pendingImport = null
             )
         }
     }
 
     /**
-     * Hides the edit sheet.
+     * Hides the edit sheet (Edit mode — does not affect [pendingImport]).
      */
     fun hideEditSheet() {
         _uiState.update {
@@ -295,9 +336,7 @@ constructor(
     }
 
     /**
-     * Updates a meditation's metadata.
-     *
-     * @param meditation Updated meditation object
+     * Updates a meditation's metadata (Edit mode).
      */
     fun updateMeditation(meditation: GuidedMeditation) {
         viewModelScope.launch {
@@ -306,100 +345,44 @@ constructor(
         }
     }
 
-    /**
-     * Updates the custom teacher name for the selected meditation.
-     *
-     * @param teacher New teacher name (null to reset to original)
-     */
-    fun updateCustomTeacher(teacher: String?) {
-        val meditation = _uiState.value.selectedMeditation ?: return
-        val updated = meditation.withCustomTeacher(teacher?.takeIf { it.isNotBlank() })
-        _uiState.update { it.copy(selectedMeditation = updated) }
-    }
-
-    /**
-     * Updates the custom name for the selected meditation.
-     *
-     * @param name New name (null to reset to original)
-     */
-    fun updateCustomName(name: String?) {
-        val meditation = _uiState.value.selectedMeditation ?: return
-        val updated = meditation.withCustomName(name?.takeIf { it.isNotBlank() })
-        _uiState.update { it.copy(selectedMeditation = updated) }
-    }
-
     // MARK: - Preview
 
-    /**
-     * Starts a meditation preview. Stops any previously running preview.
-     *
-     * @param meditation Meditation to preview
-     */
     fun startPreview(meditation: GuidedMeditation) {
         _uiState.update { it.copy(previewingMeditationId = meditation.id) }
         audioService.playMeditationPreview(meditation.fileUri)
     }
 
-    /**
-     * Stops the current meditation preview. Idempotent.
-     */
     fun stopPreview() {
         if (_uiState.value.previewingMeditationId == null) return
         _uiState.update { it.copy(previewingMeditationId = null) }
         audioService.stopMeditationPreview()
     }
 
-    /**
-     * Scrubs the active library preview to a new position (shared-098).
-     * Apple-Music-style: audio keeps playing through the seek.
-     *
-     * @param positionMs Target position in milliseconds; the service clamps to `[0, duration]`.
-     */
     fun seekPreview(positionMs: Long) {
         audioService.seekMeditationPreview(positionMs)
     }
 
     // MARK: - Content Guide
 
-    /**
-     * Loads the curated meditation sources for the given language and shows the guide sheet.
-     *
-     * @param languageCode Active language code (`"de"`, `"en"`, ...).
-     */
     fun openGuideSheet(languageCode: String) {
         val sources = meditationSourceRepository.sources(languageCode).toImmutableList()
         _uiState.update { it.copy(guideSources = sources, showGuideSheet = true) }
     }
 
-    /**
-     * Hides the Content Guide sheet.
-     */
     fun closeGuideSheet() {
         _uiState.update { it.copy(showGuideSheet = false) }
     }
 
     // MARK: - Library Search (shared-101)
 
-    /**
-     * Updates the search query (live filter — no debounce, runs on every key stroke).
-     */
     fun updateSearchQuery(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    /**
-     * Marks the search field as focused / unfocused.
-     */
     fun setSearchFocused(focused: Boolean) {
         _uiState.update { it.copy(isSearchFocused = focused) }
     }
 
-    /**
-     * Confirms the current query via IME-Done (Search-Action).
-     *
-     * - Hits → commit to history.
-     * - No hits → ignored (history remains untouched, see ticket AC).
-     */
     fun submitSearch() {
         val state = _uiState.value
         if (state.searchResults.isEmpty()) {
@@ -408,12 +391,6 @@ constructor(
         commitCurrentQueryToHistory(state.searchQuery)
     }
 
-    /**
-     * Called when the user opens a search result.
-     *
-     * - Commits the query to history (only if hits existed).
-     * - Resets the search field so the library returns to Idle on the way back.
-     */
     fun recordSearchCommittedByOpening() {
         val state = _uiState.value
         if (state.searchResults.isNotEmpty()) {
@@ -422,25 +399,16 @@ constructor(
         resetSearch()
     }
 
-    /**
-     * Sets the search query from a tapped history entry (re-runs the search immediately).
-     */
     fun selectHistoryEntry(term: String) {
         _uiState.update { it.copy(searchQuery = term) }
     }
 
-    /**
-     * Clears the entire search history.
-     */
     fun clearHistory() {
         viewModelScope.launch {
             searchHistoryRepository.clear()
         }
     }
 
-    /**
-     * Resets the search field (query + focus) — used on tab change and after opening a result.
-     */
     fun resetSearch() {
         _uiState.update { it.copy(searchQuery = "", isSearchFocused = false) }
     }
@@ -462,9 +430,6 @@ constructor(
 
     // MARK: - Error Handling
 
-    /**
-     * Clears the current error message.
-     */
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

@@ -1,6 +1,6 @@
 # Ticket shared-103: Share-Import-Verbesserungen (Android-Sync)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Komplexitaet**: Mittel — buendelt drei zusammenhaengende iOS-Tickets (`ios-042`/`ios-043`/`ios-044`). Pipeline aus Sanitize-Funktion, Filename-Preprocessing und Garbage-Detection ist Domain-rein, aber die Persistenz-Reihenfolge im ViewModel muss umgebaut werden (Persist erst beim Save, nicht beim Import). Edit-Sheet bekommt zusaetzlich X-Clear-Button, Pflichtfeld-Validation und Match-Highlight im Autocomplete.
 **Phase**: 3-Feature
@@ -30,7 +30,7 @@ Die Typ-Auswahl im Share-Pfad ist ein zusaetzlicher Klick ohne Mehrwert — Hint
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `ios-042` + `ios-043` + `ios-044` |
-| Android   | [ ]    | Dieses Ticket (buendelt die drei iOS-Schritte) |
+| Android   | [x]    | -                                                       |
 
 ---
 

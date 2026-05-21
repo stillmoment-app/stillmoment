@@ -1,13 +1,15 @@
 package com.stillmoment.data.repositories
 
 import android.content.Context
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import com.stillmoment.data.local.GuidedMeditationDataStore
+import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.domain.models.AudioMetadata
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
+import com.stillmoment.domain.services.AudioMetadataService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.IOException
@@ -16,60 +18,79 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
- * Holds extracted metadata from an audio file.
- */
-private data class MediaMetadata(
-    val duration: Long,
-    val artist: String?,
-    val title: String?
-)
-
-/**
- * Implementation of GuidedMeditationRepository.
+ * Implementation of [GuidedMeditationRepository].
  *
- * Handles importing audio files via Storage Access Framework (SAF),
- * extracting metadata from ID3 tags, and persisting to DataStore.
+ * Responsibilities:
+ * 1. Persists library entries via [GuidedMeditationDataStore].
+ * 2. Copies imported audio files into app-internal storage on save.
+ * 3. Runs the shared-103 override-cleanup migration once per install
+ *    ([migrateLegacyOverridesIfNeeded]) before the first flow emission.
+ *
+ * Metadata extraction is delegated to [AudioMetadataService] — this class no
+ * longer touches `MediaMetadataRetriever` directly.
  */
 @Singleton
 class GuidedMeditationRepositoryImpl
 @Inject
 constructor(
     @ApplicationContext private val context: Context,
-    private val dataStore: GuidedMeditationDataStore
+    private val dataStore: GuidedMeditationDataStore,
+    private val settingsDataStore: SettingsDataStore,
+    private val audioMetadataService: AudioMetadataService
 ) : GuidedMeditationRepository {
-    override val meditationsFlow: Flow<List<GuidedMeditation>> = dataStore.meditationsFlow
+    private val migrationMutex = Mutex()
 
-    override suspend fun importMeditation(uri: Uri): Result<GuidedMeditation> {
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val meditationsFlow: Flow<List<GuidedMeditation>> = flow {
+        migrateLegacyOverridesIfNeeded()
+        emit(Unit)
+    }.flatMapConcat {
+        dataStore.meditationsFlow
+    }.flowOn(Dispatchers.IO)
+
+    override suspend fun extractMetadata(uri: String): AudioMetadata {
+        return audioMetadataService.extract(uri)
+    }
+
+    override suspend fun addMeditation(
+        sourceUri: String,
+        fileName: String,
+        metadata: AudioMetadata,
+        teacher: String,
+        name: String
+    ): Result<GuidedMeditation> {
         return withContext(Dispatchers.IO) {
             try {
-                // 1. Get file name from URI
-                val originalFileName = getFileName(uri)
-                Log.d(TAG, "Importing meditation: $originalFileName from $uri")
-
-                // 2. Extract metadata from audio file (while we still have access)
-                val metadata = extractMetadata(uri)
-
-                // 3. Copy file to app-internal storage (ensures persistent access)
-                val localFile = copyFileToInternalStorage(uri, originalFileName)
+                Log.d(TAG, "Adding meditation: $fileName from $sourceUri")
+                val localFile = copyFileToInternalStorage(Uri.parse(sourceUri), fileName)
                 val localUri = Uri.fromFile(localFile)
-                Log.d(TAG, "Copied to internal storage: ${localFile.absolutePath}")
-
-                // 4. Create meditation object with local file URI
-                val meditation =
-                    GuidedMeditation(
-                        fileUri = localUri.toString(),
-                        fileName = originalFileName,
-                        duration = metadata.duration,
-                        teacher = metadata.artist ?: DEFAULT_TEACHER,
-                        name = metadata.title ?: fileNameWithoutExtension(originalFileName)
-                    )
-
-                // 5. Persist to DataStore
+                val meditation = GuidedMeditation(
+                    fileUri = localUri.toString(),
+                    fileName = fileName,
+                    duration = metadata.duration,
+                    teacher = teacher,
+                    name = name
+                )
                 dataStore.addMeditation(meditation)
-
                 Result.success(meditation)
             } catch (e: SecurityException) {
                 Log.e(TAG, "Permission denied for file access", e)
@@ -120,6 +141,43 @@ constructor(
 
     override suspend fun getMeditation(id: String): GuidedMeditation? {
         return dataStore.getMeditation(id)
+    }
+
+    override suspend fun getFileName(uri: String): String {
+        return getFileName(Uri.parse(uri))
+    }
+
+    /**
+     * One-shot override-cleanup migration (shared-103).
+     *
+     * Reads the raw stored JSON, parses it against a permissive schema that
+     * still understands `customTeacher` / `customName`, folds the override
+     * values into `teacher` / `name`, and writes the canonical schema back.
+     *
+     * Idempotent — guarded by a flag in [SettingsDataStore]; subsequent app
+     * starts skip the sweep entirely.
+     */
+    suspend fun migrateLegacyOverridesIfNeeded() {
+        migrationMutex.withLock {
+            if (settingsDataStore.isGuidedOverridesMigrated()) {
+                return@withLock
+            }
+            try {
+                val rawJson = dataStore.readRawJson()
+                if (rawJson == null) {
+                    settingsDataStore.markGuidedOverridesMigrated()
+                    return@withLock
+                }
+                val migrated = foldLegacyOverrides(rawJson)
+                if (migrated != null) {
+                    dataStore.writeRawJson(migrated)
+                }
+                settingsDataStore.markGuidedOverridesMigrated()
+            } catch (e: SerializationException) {
+                Log.w(TAG, "Override-cleanup migration: failed to parse legacy JSON", e)
+                settingsDataStore.markGuidedOverridesMigrated()
+            }
+        }
     }
 
     /**
@@ -179,59 +237,78 @@ constructor(
         return fileName
     }
 
-    /**
-     * Extracts metadata from an audio file using MediaMetadataRetriever.
-     * Reads duration, artist (ID3: ARTIST), and title (ID3: TITLE).
-     */
-    private fun extractMetadata(uri: Uri): MediaMetadata {
-        val retriever = MediaMetadataRetriever()
-        return try {
-            retriever.setDataSource(context, uri)
-
-            MediaMetadata(
-                duration =
-                retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_DURATION
-                )?.toLongOrNull() ?: 0L,
-                artist =
-                retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_ARTIST
-                )?.takeIf { it.isNotBlank() },
-                title =
-                retriever.extractMetadata(
-                    MediaMetadataRetriever.METADATA_KEY_TITLE
-                )?.takeIf { it.isNotBlank() }
-            )
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "Invalid data source for metadata extraction", e)
-            MediaMetadata(
-                duration = 0L,
-                artist = null,
-                title = null
-            )
-        } catch (e: IllegalStateException) {
-            Log.w(TAG, "MediaMetadataRetriever in invalid state", e)
-            MediaMetadata(
-                duration = 0L,
-                artist = null,
-                title = null
-            )
-        } finally {
-            retriever.release()
-        }
-    }
-
-    /**
-     * Removes file extension from filename for use as default name.
-     */
-    private fun fileNameWithoutExtension(fileName: String): String {
-        return fileName.substringBeforeLast(".")
-    }
-
     companion object {
         private const val TAG = "GuidedMeditationRepo"
-        private const val DEFAULT_TEACHER = "Unknown"
         private const val MEDITATIONS_DIR = "meditations"
+
+        /**
+         * Lenient JSON config for the legacy-fold migration. Mirrors the
+         * production config (`ignoreUnknownKeys`) so the parser tolerates extra
+         * fields written by future versions.
+         */
+        private val MIGRATION_JSON = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
+
+        /**
+         * Pure transformation: take a raw JSON list, fold legacy override
+         * fields (`customTeacher` / `customName`) into the canonical
+         * `teacher` / `name` slots, return the rewritten JSON.
+         *
+         * Returns `null` when no entry carried legacy keys — the caller can
+         * then skip the write entirely. Idempotent: a second call on
+         * already-migrated JSON returns `null`.
+         *
+         * `internal` for testability; called only from
+         * [migrateLegacyOverridesIfNeeded].
+         */
+        internal fun foldLegacyOverrides(rawJson: String): String? {
+            val parsed = MIGRATION_JSON.parseToJsonElement(rawJson)
+            val list = parsed.jsonArray
+            var didChange = false
+            val rewritten = buildJsonArray {
+                for (entry in list) {
+                    val obj = entry.jsonObject
+                    val hasLegacyKeys = obj.containsKey("customTeacher") || obj.containsKey("customName")
+                    if (!hasLegacyKeys) {
+                        add(obj)
+                        continue
+                    }
+                    didChange = true
+                    add(foldEntry(obj))
+                }
+            }
+            return if (didChange) MIGRATION_JSON.encodeToString(JsonElement.serializer(), rewritten) else null
+        }
+
+        private fun foldEntry(obj: JsonObject): JsonObject {
+            val customTeacher = obj["customTeacher"]?.jsonPrimitiveOrNull()
+            val customName = obj["customName"]?.jsonPrimitiveOrNull()
+            val newTeacher = customTeacher?.takeIf { it.isNotBlank() }
+                ?: obj["teacher"]?.jsonPrimitiveOrNull()
+                ?: ""
+            val newName = customName?.takeIf { it.isNotBlank() }
+                ?: obj["name"]?.jsonPrimitiveOrNull()
+                ?: ""
+            return buildJsonObject {
+                obj.forEach { (key, value) ->
+                    when (key) {
+                        "customTeacher", "customName" -> Unit
+                        "teacher" -> put("teacher", JsonPrimitive(newTeacher))
+                        "name" -> put("name", JsonPrimitive(newName))
+                        else -> put(key, value)
+                    }
+                }
+            }
+        }
+
+        private fun JsonElement.jsonPrimitiveOrNull(): String? {
+            return runCatching { jsonPrimitive.contentOrNull }.getOrNull()
+        }
+
+        private val JsonPrimitive.contentOrNull: String?
+            get() = if (isString) content else null
     }
 }
 

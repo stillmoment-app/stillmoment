@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import com.stillmoment.domain.models.FileOpenError
-import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.services.LoggerProtocol
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,13 +15,19 @@ import kotlinx.coroutines.flow.first
 /**
  * Handles importing audio files received via "Open with" file association.
  *
- * This handler is triggered when the user opens an MP3 or M4A file
- * from a file manager and chooses Still Moment.
+ * Triggered when the user opens an MP3 or M4A file from a file manager and
+ * chooses Still Moment, or when the user shares an audio file with the app.
  *
- * Flow:
+ * Flow (shared-103):
  * 1. Validate file format (MP3/M4A only via MIME type)
  * 2. Check for duplicates (same filename + file size)
- * 3. Import via GuidedMeditationRepository
+ * 3. Extract metadata + return [PendingImport] — persistence is the caller's
+ *    responsibility (typically the ViewModel after the user confirms the
+ *    import edit sheet).
+ *
+ * Note: this handler no longer persists library entries directly. That
+ * responsibility moved into the ViewModel so the import can be cancelled
+ * without leaving file leftovers or stub entries behind.
  */
 @Singleton
 class FileOpenHandler
@@ -62,10 +68,6 @@ constructor(
     /**
      * Validates that the given URI points to a supported audio format.
      * Does NOT check for duplicates or import the file.
-     * Used by the type-selection flow where import type is chosen first.
-     *
-     * @param uri Content URI to validate
-     * @return Result.success if format is supported, Result.failure with UNSUPPORTED_FORMAT otherwise
      */
     fun validateFileFormat(uri: Uri): Result<Unit> {
         if (!canHandle(uri)) {
@@ -76,45 +78,62 @@ constructor(
     }
 
     /**
-     * Handles a file open request from the system.
+     * Validates the file and prepares the data the import edit sheet needs.
      *
-     * Validates the format, checks for duplicates, and imports the file
-     * into the meditation library.
+     * Performs format validation, duplicate detection, and metadata extraction;
+     * persistence happens only after the user confirms the edit sheet via the
+     * ViewModel.
      *
      * @param uri Content URI to the audio file
-     * @return Result with the imported GuidedMeditation or a FileOpenError
+     * @return [PendingImport] on success; [FileOpenException] with the relevant
+     *         [FileOpenError] on failure.
      */
-    suspend fun handleFileOpen(uri: Uri): Result<GuidedMeditation> {
-        logger.d(TAG, "Processing file URI: $uri")
+    suspend fun validateAndPrepareImport(uri: Uri): Result<PendingImport> {
+        logger.d(TAG, "Validating file URI: $uri")
 
         if (!canHandle(uri)) {
             logger.w(TAG, "Rejected file with unsupported format: $uri")
             return Result.failure(FileOpenException(FileOpenError.UNSUPPORTED_FORMAT))
         }
 
-        if (isDuplicate(uri)) {
-            logger.d(TAG, "File already imported: ${getFileName(uri)}")
+        val fileName = getFileName(uri)
+        if (isDuplicate(uri, fileName)) {
+            logger.d(TAG, "File already imported: $fileName")
             return Result.failure(FileOpenException(FileOpenError.ALREADY_IMPORTED))
         }
 
-        val importResult = repository.importMeditation(uri)
-        return importResult.fold(
-            onSuccess = {
-                logger.d(TAG, "Import success: ${it.fileName}")
-                Result.success(it)
-            },
-            onFailure = {
-                logger.e(TAG, "Import failed for $uri", it)
-                Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED, it))
-            }
-        )
+        return try {
+            val metadata = repository.extractMetadata(uri.toString())
+            val prefill = com.stillmoment.domain.models.ImportPrefill.compute(
+                metadata = metadata,
+                fileName = fileName,
+                knownTeachers = emptyList()
+            )
+            // knownTeachers stays empty here — the ViewModel re-computes the
+            // prefill once it has access to the current library to seed
+            // teacher autocomplete. That keeps the handler free of library
+            // state.
+            Result.success(
+                PendingImport(
+                    uri = uri.toString(),
+                    fileName = fileName,
+                    metadata = metadata,
+                    prefill = prefill
+                )
+            )
+        } catch (e: SecurityException) {
+            logger.e(TAG, "Permission denied while extracting metadata for $uri", e)
+            Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED, e))
+        } catch (e: IllegalArgumentException) {
+            logger.e(TAG, "Invalid file format while extracting metadata for $uri", e)
+            Result.failure(FileOpenException(FileOpenError.IMPORT_FAILED, e))
+        }
     }
 
     /**
      * Checks whether a file with the same name and size is already in the library.
      */
-    private suspend fun isDuplicate(uri: Uri): Boolean {
-        val incomingFileName = getFileName(uri)
+    private suspend fun isDuplicate(uri: Uri, incomingFileName: String): Boolean {
         val incomingSize = getFileSize(uri)
 
         val existing = repository.meditationsFlow.first()

@@ -32,8 +32,7 @@ object LibrarySearchEngine {
     /**
      * Filtert und sortiert Meditationen nach Relevanz.
      *
-     * - Such-Targets sind `effectiveName` und `effectiveTeacher` — die UI-sichtbaren
-     *   Texte (Custom-Overrides ueberschreiben den ID3-Tag, siehe shared-094).
+     * - Such-Targets sind `name` und `teacher` — die UI-sichtbaren Texte.
      */
     fun search(meditations: List<GuidedMeditation>, query: String): List<GuidedMeditation> {
         val queryTokens = tokens(query)
@@ -92,8 +91,8 @@ object LibrarySearchEngine {
      * Substring-Titel, Substring-Lehrer.
      */
     private fun bestBucket(token: String, meditation: GuidedMeditation): MatchBucket? {
-        val title = meditation.effectiveName
-        val teacher = meditation.effectiveTeacher
+        val title = meditation.name
+        val teacher = meditation.teacher
 
         return when {
             hasWordStartMatch(token, title) -> MatchBucket.WordStartInTitle

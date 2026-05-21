@@ -10,7 +10,9 @@ import kotlinx.serialization.Serializable
  * This model stores references to external audio files via Content URIs (SAF),
  * allowing the app to access files in the user's file system without copying them.
  *
- * Metadata can be customized by the user, overriding values read from ID3 tags.
+ * `teacher` and `name` are the single source of truth — there is no override
+ * mechanism. Legacy entries with `customTeacher` / `customName` are folded
+ * during repository init (see `migrateLegacyOverridesIfNeeded`).
  */
 @Serializable
 data class GuidedMeditation(
@@ -22,29 +24,13 @@ data class GuidedMeditation(
     val fileName: String,
     /** Duration in milliseconds (read from audio file) */
     val duration: Long,
-    /** Teacher/Artist name (from ID3 tag or default) */
+    /** Teacher/Artist name (single source of truth) */
     val teacher: String,
-    /** Meditation name/title (from ID3 tag or file name) */
+    /** Meditation name/title (single source of truth) */
     val name: String,
-    /** Custom teacher name set by user (overrides ID3 tag) */
-    val customTeacher: String? = null,
-    /** Custom meditation name set by user (overrides ID3 tag) */
-    val customName: String? = null,
     /** Timestamp when the meditation was added to the library */
     val dateAdded: Long = System.currentTimeMillis()
 ) {
-    /**
-     * Returns the effective teacher name (custom if set, otherwise original)
-     */
-    val effectiveTeacher: String
-        get() = customTeacher ?: teacher
-
-    /**
-     * Returns the effective meditation name (custom if set, otherwise original)
-     */
-    val effectiveName: String
-        get() = customName ?: name
-
     /**
      * Formatted duration string (MM:SS or HH:MM:SS)
      */
@@ -61,14 +47,4 @@ data class GuidedMeditation(
                 String.format(Locale.ROOT, "%d:%02d", minutes, seconds)
             }
         }
-
-    /**
-     * Creates a copy with a custom teacher name
-     */
-    fun withCustomTeacher(teacher: String?): GuidedMeditation = copy(customTeacher = teacher)
-
-    /**
-     * Creates a copy with a custom meditation name
-     */
-    fun withCustomName(name: String?): GuidedMeditation = copy(customName = name)
 }

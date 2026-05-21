@@ -19,7 +19,6 @@ import com.stillmoment.data.FileOpenHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.UrlAudioValidator
-import com.stillmoment.domain.repositories.CustomAudioRepository
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
@@ -41,9 +40,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var fileOpenHandler: FileOpenHandler
-
-    @Inject
-    lateinit var customAudioRepository: CustomAudioRepository
 
     @Inject
     lateinit var urlAudioDownloader: UrlAudioDownloaderProtocol
@@ -107,7 +103,6 @@ class MainActivity : ComponentActivity() {
                     StillMomentNavHost(
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
-                        customAudioRepository = customAudioRepository,
                         urlAudioDownloader = urlAudioDownloader,
                         pendingFileUri = pendingFileUri,
                         onClearFileUri = ::consumePendingFileUri,

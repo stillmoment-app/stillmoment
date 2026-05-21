@@ -1,6 +1,9 @@
 package com.stillmoment.domain.models
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -19,40 +22,21 @@ class EditSheetStateTest {
     @Nested
     inner class Initialization {
         @Test
-        fun `fromMeditation initializes with effective values`() {
+        fun `fromMeditation initializes with meditation values`() {
             // Given
             val meditation =
                 createTestMeditation(
-                    teacher = "Original Teacher",
-                    name = "Original Name"
+                    teacher = "Tara Brach",
+                    name = "Body Scan"
                 )
 
             // When
             val state = EditSheetState.fromMeditation(meditation)
 
             // Then
-            assertEquals("Original Teacher", state.editedTeacher)
-            assertEquals("Original Name", state.editedName)
+            assertEquals("Tara Brach", state.editedTeacher)
+            assertEquals("Body Scan", state.editedName)
             assertSame(meditation, state.originalMeditation)
-        }
-
-        @Test
-        fun `fromMeditation uses custom values when set`() {
-            // Given
-            val meditation =
-                createTestMeditation(
-                    teacher = "Original Teacher",
-                    name = "Original Name",
-                    customTeacher = "Custom Teacher",
-                    customName = "Custom Name"
-                )
-
-            // When
-            val state = EditSheetState.fromMeditation(meditation)
-
-            // Then
-            assertEquals("Custom Teacher", state.editedTeacher)
-            assertEquals("Custom Name", state.editedName)
         }
     }
 
@@ -111,22 +95,6 @@ class EditSheetStateTest {
                     .copy(editedTeacher = "New Teacher", editedName = "New Name")
 
             // When/Then
-            assertTrue(state.hasChanges)
-        }
-
-        @Test
-        fun `hasChanges compares against original not custom values`() {
-            // Given - meditation with custom values
-            val meditation =
-                createTestMeditation(
-                    teacher = "Original",
-                    customTeacher = "Custom"
-                )
-            // State initialized with custom value
-            val state = EditSheetState.fromMeditation(meditation)
-
-            // When - hasChanges should be true because "Custom" != "Original"
-            // Then
             assertTrue(state.hasChanges)
         }
     }
@@ -219,7 +187,7 @@ class EditSheetStateTest {
     @Nested
     inner class ApplyChanges {
         @Test
-        fun `applyChanges sets customTeacher when different from original`() {
+        fun `applyChanges writes teacher directly`() {
             // Given
             val meditation = createTestMeditation(teacher = "Original")
             val state =
@@ -230,12 +198,11 @@ class EditSheetStateTest {
             val updated = state.applyChanges()
 
             // Then
-            assertEquals("Changed", updated.customTeacher)
-            assertEquals("Original", updated.teacher) // Original unchanged
+            assertEquals("Changed", updated.teacher)
         }
 
         @Test
-        fun `applyChanges sets customName when different from original`() {
+        fun `applyChanges writes name directly`() {
             // Given
             val meditation = createTestMeditation(name = "Original")
             val state =
@@ -246,106 +213,23 @@ class EditSheetStateTest {
             val updated = state.applyChanges()
 
             // Then
-            assertEquals("Changed", updated.customName)
-            assertEquals("Original", updated.name) // Original unchanged
+            assertEquals("Changed", updated.name)
         }
 
         @Test
-        fun `applyChanges does not set customTeacher when same as original`() {
+        fun `applyChanges trims teacher and name`() {
             // Given
-            val meditation = createTestMeditation(teacher = "Same")
-            val state = EditSheetState.fromMeditation(meditation)
+            val meditation = createTestMeditation(teacher = "T", name = "N")
+            val state =
+                EditSheetState.fromMeditation(meditation)
+                    .copy(editedTeacher = "  Tara  ", editedName = "  Body Scan  ")
 
             // When
             val updated = state.applyChanges()
 
             // Then
-            assertNull(updated.customTeacher)
-        }
-
-        @Test
-        fun `applyChanges does not set customName when same as original`() {
-            // Given
-            val meditation = createTestMeditation(name = "Same")
-            val state = EditSheetState.fromMeditation(meditation)
-
-            // When
-            val updated = state.applyChanges()
-
-            // Then
-            assertNull(updated.customName)
-        }
-
-        @Test
-        fun `applyChanges clears customTeacher when reset to original`() {
-            // Given - meditation had custom value
-            val meditation =
-                createTestMeditation(
-                    teacher = "Original",
-                    customTeacher = "Was Custom"
-                )
-            // User edited back to original
-            val state =
-                EditSheetState.fromMeditation(meditation)
-                    .copy(editedTeacher = "Original")
-
-            // When
-            val updated = state.applyChanges()
-
-            // Then - custom should be cleared
-            assertNull(updated.customTeacher)
-            assertEquals("Original", updated.effectiveTeacher)
-        }
-
-        @Test
-        fun `applyChanges clears customName when reset to original`() {
-            // Given - meditation had custom value
-            val meditation =
-                createTestMeditation(
-                    name = "Original",
-                    customName = "Was Custom"
-                )
-            // User edited back to original
-            val state =
-                EditSheetState.fromMeditation(meditation)
-                    .copy(editedName = "Original")
-
-            // When
-            val updated = state.applyChanges()
-
-            // Then - custom should be cleared
-            assertNull(updated.customName)
-            assertEquals("Original", updated.effectiveName)
-        }
-
-        @Test
-        fun `applyChanges does not set customTeacher when blank`() {
-            // Given
-            val meditation = createTestMeditation(teacher = "Original")
-            val state =
-                EditSheetState.fromMeditation(meditation)
-                    .copy(editedTeacher = "   ")
-
-            // When
-            val updated = state.applyChanges()
-
-            // Then - blank should not be saved
-            assertNull(updated.customTeacher)
-        }
-
-        @Test
-        fun `applyChanges does not set customName when blank`() {
-            // Given
-            val meditation = createTestMeditation(name = "Original")
-            val state =
-                EditSheetState.fromMeditation(meditation)
-                    .copy(editedName = "")
-
-            // When
-            val updated = state.applyChanges()
-
-            // Then - empty should not be saved
-            assertNull(updated.customName)
+            assertEquals("Tara", updated.teacher)
+            assertEquals("Body Scan", updated.name)
         }
 
         @Test
@@ -370,17 +254,13 @@ class EditSheetStateTest {
 
     private fun createTestMeditation(
         teacher: String = "Test Teacher",
-        name: String = "Test Meditation",
-        customTeacher: String? = null,
-        customName: String? = null
+        name: String = "Test Meditation"
     ): GuidedMeditation = GuidedMeditation(
         fileUri = "content://test/uri",
         fileName = "test.mp3",
         duration = 600_000L,
         teacher = teacher,
-        name = name,
-        customTeacher = customTeacher,
-        customName = customName
+        name = name
     )
 
     private fun createTestState(editedTeacher: String = "Teacher", editedName: String = "Name"): EditSheetState =

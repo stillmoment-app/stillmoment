@@ -17,17 +17,17 @@ data class GuidedMeditationGroup(
 }
 
 /**
- * Groups a list of guided meditations by their effective teacher name.
+ * Groups a list of guided meditations by teacher name.
  *
  * @return List of GuidedMeditationGroup sorted alphabetically by teacher name.
  *         Meditations within each group are sorted alphabetically by name.
  */
 fun List<GuidedMeditation>.groupByTeacher(): List<GuidedMeditationGroup> {
-    return groupBy { it.effectiveTeacher }
+    return groupBy { it.teacher }
         .map { (teacher, meditations) ->
             GuidedMeditationGroup(
                 teacher = teacher,
-                meditations = meditations.sortedBy { it.effectiveName }
+                meditations = meditations.sortedBy { it.name }
             )
         }
         .sortedBy { it.teacher }
