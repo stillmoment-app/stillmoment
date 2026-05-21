@@ -68,14 +68,18 @@ final class LibraryFlowUITests: XCTestCase {
         _ = importButton.waitForExistence(timeout: 2.0) || addButton.waitForExistence(timeout: 1.0)
     }
 
-    /// Open the Content Guide sheet via the navigation bar info button.
-    /// Waits on a known sheet element (the close button) instead of the sheet container,
-    /// since SwiftUI containers do not always surface accessibilityIdentifiers reliably.
+    /// Open the Content Guide sheet via the empty-state "find sources" link.
+    /// UI tests run with a clean install, so the library is empty and the header
+    /// bar (with its info pill) is hidden by design (ios-051). The empty state
+    /// exposes the same guide sheet via the underlined CTA.
     private func openContentGuideSheet() {
         self.navigateToLibraryTab()
-        let guideButton = self.app.buttons["library.button.guide"]
-        XCTAssertTrue(guideButton.waitForExistence(timeout: 2.0), "Guide button should exist")
-        guideButton.tap()
+        let findSourcesButton = self.app.buttons["library.button.findSources.emptyState"]
+        XCTAssertTrue(
+            findSourcesButton.waitForExistence(timeout: 2.0),
+            "Find sources button should exist in empty state"
+        )
+        findSourcesButton.tap()
         let closeButton = self.app.buttons["library.guideSheet.close"]
         XCTAssertTrue(closeButton.waitForExistence(timeout: 2.0), "Guide sheet should appear")
     }
