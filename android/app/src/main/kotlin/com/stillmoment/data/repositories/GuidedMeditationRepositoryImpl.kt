@@ -181,57 +181,6 @@ constructor(
     }
 
     /**
-     * Pure transformation: take a raw JSON list, fold legacy override fields,
-     * return the canonical JSON. Returns `null` when no changes were necessary.
-     */
-    private fun foldLegacyOverrides(rawJson: String): String? {
-        val parsed = MIGRATION_JSON.parseToJsonElement(rawJson)
-        val list = parsed.jsonArray
-        var didChange = false
-        val rewritten = buildJsonArray {
-            for (entry in list) {
-                val obj = entry.jsonObject
-                val hasLegacyKeys = obj.containsKey("customTeacher") || obj.containsKey("customName")
-                if (!hasLegacyKeys) {
-                    add(obj)
-                    continue
-                }
-                didChange = true
-                add(foldEntry(obj))
-            }
-        }
-        return if (didChange) MIGRATION_JSON.encodeToString(JsonElement.serializer(), rewritten) else null
-    }
-
-    private fun foldEntry(obj: JsonObject): JsonObject {
-        val customTeacher = obj["customTeacher"]?.jsonPrimitiveOrNull()
-        val customName = obj["customName"]?.jsonPrimitiveOrNull()
-        val newTeacher = customTeacher?.takeIf { it.isNotBlank() }
-            ?: obj["teacher"]?.jsonPrimitiveOrNull()
-            ?: ""
-        val newName = customName?.takeIf { it.isNotBlank() }
-            ?: obj["name"]?.jsonPrimitiveOrNull()
-            ?: ""
-        return buildJsonObject {
-            obj.forEach { (key, value) ->
-                when (key) {
-                    "customTeacher", "customName" -> Unit
-                    "teacher" -> put("teacher", JsonPrimitive(newTeacher))
-                    "name" -> put("name", JsonPrimitive(newName))
-                    else -> put(key, value)
-                }
-            }
-        }
-    }
-
-    private fun JsonElement.jsonPrimitiveOrNull(): String? {
-        return runCatching { jsonPrimitive.contentOrNull }.getOrNull()
-    }
-
-    private val JsonPrimitive.contentOrNull: String?
-        get() = if (isString) content else null
-
-    /**
      * Copies a file from a SAF content URI to app-internal storage.
      * This ensures the file remains accessible after app restart regardless of
      * whether the original URI supports persistable permissions.
@@ -301,6 +250,65 @@ constructor(
             ignoreUnknownKeys = true
             encodeDefaults = true
         }
+
+        /**
+         * Pure transformation: take a raw JSON list, fold legacy override
+         * fields (`customTeacher` / `customName`) into the canonical
+         * `teacher` / `name` slots, return the rewritten JSON.
+         *
+         * Returns `null` when no entry carried legacy keys — the caller can
+         * then skip the write entirely. Idempotent: a second call on
+         * already-migrated JSON returns `null`.
+         *
+         * `internal` for testability; called only from
+         * [migrateLegacyOverridesIfNeeded].
+         */
+        internal fun foldLegacyOverrides(rawJson: String): String? {
+            val parsed = MIGRATION_JSON.parseToJsonElement(rawJson)
+            val list = parsed.jsonArray
+            var didChange = false
+            val rewritten = buildJsonArray {
+                for (entry in list) {
+                    val obj = entry.jsonObject
+                    val hasLegacyKeys = obj.containsKey("customTeacher") || obj.containsKey("customName")
+                    if (!hasLegacyKeys) {
+                        add(obj)
+                        continue
+                    }
+                    didChange = true
+                    add(foldEntry(obj))
+                }
+            }
+            return if (didChange) MIGRATION_JSON.encodeToString(JsonElement.serializer(), rewritten) else null
+        }
+
+        private fun foldEntry(obj: JsonObject): JsonObject {
+            val customTeacher = obj["customTeacher"]?.jsonPrimitiveOrNull()
+            val customName = obj["customName"]?.jsonPrimitiveOrNull()
+            val newTeacher = customTeacher?.takeIf { it.isNotBlank() }
+                ?: obj["teacher"]?.jsonPrimitiveOrNull()
+                ?: ""
+            val newName = customName?.takeIf { it.isNotBlank() }
+                ?: obj["name"]?.jsonPrimitiveOrNull()
+                ?: ""
+            return buildJsonObject {
+                obj.forEach { (key, value) ->
+                    when (key) {
+                        "customTeacher", "customName" -> Unit
+                        "teacher" -> put("teacher", JsonPrimitive(newTeacher))
+                        "name" -> put("name", JsonPrimitive(newName))
+                        else -> put(key, value)
+                    }
+                }
+            }
+        }
+
+        private fun JsonElement.jsonPrimitiveOrNull(): String? {
+            return runCatching { jsonPrimitive.contentOrNull }.getOrNull()
+        }
+
+        private val JsonPrimitive.contentOrNull: String?
+            get() = if (isString) content else null
     }
 }
 
