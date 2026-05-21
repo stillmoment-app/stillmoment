@@ -58,6 +58,7 @@ import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
+import com.stillmoment.presentation.ui.theme.bottomFadeMask
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListUiState
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
@@ -300,8 +301,13 @@ private fun MeditationsList(
 ) {
     val theme = LocalStillMomentColors.current
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .bottomFadeMask(),
+        // shared-094: keep the last card visible above the fade start by
+        // extending the bottom content padding (140 dp fade region * 18 %
+        // opaque + breathing room). The horizontal/top padding is unchanged.
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 80.dp)
     ) {
         groups.forEach { group ->
             // Section Header

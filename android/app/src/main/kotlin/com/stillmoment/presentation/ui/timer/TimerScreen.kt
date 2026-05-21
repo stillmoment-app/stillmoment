@@ -48,6 +48,7 @@ import com.stillmoment.presentation.ui.localizedName
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
+import com.stillmoment.presentation.ui.theme.bottomFadeMask
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.ui.timer.components.BreathDial
 import com.stillmoment.presentation.ui.timer.components.IdleSettingsList
@@ -146,7 +147,8 @@ private fun TimerScreenLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = TopAppBarHeight)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .bottomFadeMask(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1f))
