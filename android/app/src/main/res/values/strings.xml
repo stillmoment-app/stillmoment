@@ -147,8 +147,7 @@
     <string name="accessibility_close_focus">Close and end meditation</string>
 
     <!-- Timer Completion -->
-    <string name="completion_headline">Thank you</string>
-    <string name="completion_subtitle">Thank you for taking this time for yourself.</string>
+    <string name="completion_headline">Thank you for giving yourself this time.</string>
     <string name="accessibility_back_to_timer">Back to timer</string>
     <string name="accessibility_back_to_library">Back to library</string>
 

@@ -351,6 +351,7 @@ fun StillMomentNavHost(
                     overlayViewModel.clearMarker()
                     showCompletionOverlay = false
                 },
+                backAccessibilityLabel = stringResource(R.string.accessibility_back_to_library),
                 modifier = Modifier.fillMaxSize()
             )
         }

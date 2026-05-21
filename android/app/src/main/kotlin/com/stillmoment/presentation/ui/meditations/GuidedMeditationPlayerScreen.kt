@@ -239,6 +239,7 @@ private fun CompletionOverlay(visible: Boolean, onBack: () -> Unit) {
     ) {
         MeditationCompletionContent(
             onBack = onBack,
+            backAccessibilityLabel = stringResource(R.string.accessibility_back_to_library),
             modifier = Modifier.fillMaxSize()
         )
     }
