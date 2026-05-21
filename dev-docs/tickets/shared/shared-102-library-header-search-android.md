@@ -1,6 +1,6 @@
 # Ticket shared-102: Library-Header mit immer sichtbarem Suchfeld (Android-Sync)
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — Toolbar-Umbau und Wechsel von eingebettetem Suchfeld (`shared-101`) hin zu einer eigenen Header-Bar mit zwei Pillen; die Such-Logik aus `shared-101` bleibt unveraendert.
 **Phase**: 4-Polish
@@ -22,7 +22,7 @@ Die heutige Top-App-Bar zeigt den Title "Bibliothek" — bei groesserer Font-Sca
 | Plattform | Status | Anmerkung |
 |-----------|--------|-----------|
 | iOS       | [x]    | Bereits umgesetzt via `ios-051` |
-| Android   | [ ]    | Dieses Ticket |
+| Android   | [x]    | -                               |
 
 **Abhaengigkeit**: shared-101 (Library-Suche Android)
 
