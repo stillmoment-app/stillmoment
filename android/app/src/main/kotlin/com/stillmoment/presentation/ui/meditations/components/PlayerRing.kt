@@ -1,10 +1,14 @@
 package com.stillmoment.presentation.ui.meditations.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,6 +33,7 @@ private const val BEAD_HALO_MULTIPLIER = 1.8f
 private const val BEAD_HALO_ALPHA = 0.35f
 private const val TRACK_ALPHA = 0.32f
 private const val ARC_ALPHA = 0.72f
+private const val PROGRESS_ANIMATION_DURATION_MS = 1000
 
 /**
  * Ring-Komponente des Guided-Meditation-Players im KS-2.0-Vokabular (shared-096).
@@ -50,10 +55,14 @@ private const val ARC_ALPHA = 0.72f
  * keine Player-spezifischen Annahmen.
  *
  * Keine Atem-Animation, kein `rememberInfiniteTransition`, kein
- * `reduceMotion`-Branch — nichts bewegt sich ausser der Perle, die mit jedem
- * `progress`-Update an eine neue Position springt.
+ * `reduceMotion`-Branch — nichts bewegt sich ausser der Perle, deren Position
+ * via `animateFloatAsState` linear ueber 1 s zwischen den 1-Hz-`progress`-
+ * Updates interpoliert wird (Cross-Fade), sodass die Wanderung glatt wirkt.
+ * Im Pause-Zustand zaehlt `progress` nicht weiter und die Perle friert
+ * automatisch ein; im Pre-Roll werden Bogen und Perle uebersprungen.
  *
- * Pendant zu iOS' `PlayerRingView`.
+ * Pendant zu iOS' `PlayerRingView` (dort
+ * `.animation(.linear(duration: 1.0), value: self.progress)`).
  *
  * @param phase Aktuelle Player-Phase. In [MeditationPhase.PreRoll] werden Bogen
  *   und Perle uebersprungen; nur die Track-Linie ist sichtbar.
@@ -72,6 +81,11 @@ fun PlayerRing(
     content: @Composable () -> Unit,
 ) {
     val accentColor = MaterialTheme.colorScheme.primary
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = PROGRESS_ANIMATION_DURATION_MS, easing = LinearEasing),
+        label = "PlayerRingProgress",
+    )
 
     Box(
         modifier = modifier.size(outerSize),
@@ -80,8 +94,8 @@ fun PlayerRing(
         Canvas(modifier = Modifier.size(outerSize)) {
             drawTrack(accentColor = accentColor)
             if (phase == MeditationPhase.Playing) {
-                drawProgressArc(progress = progress, accentColor = accentColor)
-                drawProgressBead(progress = progress, accentColor = accentColor)
+                drawProgressArc(progress = animatedProgress, accentColor = accentColor)
+                drawProgressBead(progress = animatedProgress, accentColor = accentColor)
             }
         }
         content()
