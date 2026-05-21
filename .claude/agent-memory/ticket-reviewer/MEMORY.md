@@ -23,6 +23,9 @@
 - `make test-unit-agent` returns RESULT: PASS/FAIL with counts (agent-optimized)
 - Bash timeout for test commands: always 300000ms
 
+## Android Typography 2.1 (shared-099)
+- [Android Typografie 2.1 — 10-Token-System](project_android_typography_system.md) — TextStyle.kt, DisplayNumeral-Logik, Bold-Text-Mapping, Marker-Konstanten für FontFamily-Tests
+
 ## Architecture Notes
 - `FileOpenHandler` is `@MainActor ObservableObject` injected as `@EnvironmentObject`
 - `shouldStopMeditation` flag is set in `prepareImport`, cleared in `cancelPendingImport` or by `TimerView.onChange`
