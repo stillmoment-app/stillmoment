@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.presentation.ui.components.WarmPrimaryButton
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
@@ -56,7 +56,7 @@ fun MeditationCompletionContent(onBack: () -> Unit, backAccessibilityLabel: Stri
             Text(
                 text = stringResource(R.string.completion_headline),
                 style = TextStyle.screenTitle.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = LocalStillMomentColors.current.textPrimary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .widthIn(max = 240.dp)
@@ -78,6 +78,7 @@ fun MeditationCompletionContent(onBack: () -> Unit, backAccessibilityLabel: Stri
 
 // region Previews
 
+@Suppress("UnusedPrivateMember") // @Preview Composables sind nur fuer Android Studio.
 @Preview(name = "Completion — Phone Large", widthDp = 411, heightDp = 915, showBackground = true)
 @Composable
 private fun MeditationCompletionPhoneLargePreview() {

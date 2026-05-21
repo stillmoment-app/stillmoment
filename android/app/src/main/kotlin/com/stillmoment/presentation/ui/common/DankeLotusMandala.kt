@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,14 +17,16 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 
 /**
  * Statisches Doppel-Lotus-Mandala fuer den Danke-Screen (shared-097).
  *
  * 16 Petals (8 outer + 8 inner um 22.5° versetzt) plus zentraler Punkt und
- * Outline-Ring. Akzent-Farbe aus dem aktuellen Theme (`primary`), kein
- * Pulsieren, keine Animation — die Sitzung ist vorbei, der Screen ist ruhig.
+ * Outline-Ring. Akzent-Farbe aus dem warmen `interactive`-Token (Pendant zu
+ * iOS' `theme.interactive`), kein Pulsieren, keine Animation — die Sitzung ist
+ * vorbei, der Screen ist ruhig.
  *
  * Pendant zu iOS' `DankeLotusMandala.swift`. Geometrie 1:1 aus dem Handoff
  * (`handoffs/claude_code_handoff_danke_ks2`).
@@ -34,7 +35,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
  * `LotusMandalaGeometry.VIEW_BOX_SIZE` (170 Einheiten).
  */
 @Composable
-fun DankeLotusMandala(modifier: Modifier = Modifier, color: Color = MaterialTheme.colorScheme.primary) {
+fun DankeLotusMandala(modifier: Modifier = Modifier, color: Color = LocalStillMomentColors.current.interactive) {
     Canvas(modifier = modifier) {
         val side = minOf(size.width, size.height)
         val scale = side / LotusMandalaGeometry.VIEW_BOX_SIZE
