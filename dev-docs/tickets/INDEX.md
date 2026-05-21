@@ -122,7 +122,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-095](shared/shared-095-running-timer-mondphase.md) | Running-Timer-Visualisierung Mondphase | 4-Polish | [x] | [x] |
 | [shared-096](shared/shared-096-player-kerzenschein-refinement.md) | Player-Refinement Kerzenschein 2.0 | 4-Polish | [x] | [x] |
 | [shared-097](shared/shared-097-danke-screen-kerzenschein.md) | Danke-Screen Refinement Kerzenschein 2.0 | 4-Polish | [x] | [x] |
-| [shared-098](shared/shared-098-library-preview-scrub-slider.md) | Library-Preview mit Scrub-Slider | 3-Feature | [x] | [ ] |
+| [shared-098](shared/shared-098-library-preview-scrub-slider.md) | Library-Preview mit Scrub-Slider | 3-Feature | [x] | [x] |
 | [shared-099](shared/shared-099-typografie-newsreader-geist-android.md) | Typografie Newsreader + Geist (Android-Sync zu ios-048) | 4-Polish | via ios-048 | [x] |
 | [shared-100](shared/shared-100-idle-ring-duenn-android.md) | Idle-Ring duenn in Running-Sprache (Android-Sync zu ios-045) | 4-Polish | via ios-045 | [x] |
 | [shared-101](shared/shared-101-library-search-android.md) | Library-Suche (Android-Sync zu ios-041) | 3-Feature | via ios-041 | [x] |

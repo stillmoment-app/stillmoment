@@ -1,6 +1,6 @@
 # Ticket shared-098: Library-Preview mit Scrub-Slider
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Klein. Audio-Wiedergabe-Position muss als beobachtbarer Wert nach aussen sichtbar werden, Slider greift darauf zu. Apple-Music-Style Scrubbing ist auf beiden Plattformen idiomatisch.
 **Phase**: 3-Feature
@@ -25,7 +25,7 @@ Der Meditations-Player selbst bleibt bewusst minimal (eine Geste, kein Slider) â
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-075    |
-| Android   | [ ]    | shared-075    |
+| Android   | [x]    | shared-075    |
 
 ---
 
