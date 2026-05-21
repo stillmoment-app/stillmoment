@@ -82,7 +82,7 @@ private fun HistoryHeader(isClearable: Boolean, onClear: () -> Unit) {
             TextButton(onClick = onClear) {
                 Text(
                     text = stringResource(R.string.library_search_history_clear),
-                    style = TextStyle.body.toComposeTextStyle(),
+                    style = TextStyle.caption.toComposeTextStyle(),
                     color = theme.interactive
                 )
             }

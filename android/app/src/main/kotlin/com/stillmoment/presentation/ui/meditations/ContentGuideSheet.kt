@@ -110,7 +110,7 @@ internal fun ContentGuideSheetContent(
 
         Text(
             text = stringResource(R.string.guided_meditations_guide_intro),
-            style = TextStyle.body.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -213,13 +213,13 @@ private fun SourceTitleLine(source: MeditationSource) {
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "·",
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = author,
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
