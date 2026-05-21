@@ -52,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
+import com.stillmoment.domain.models.LibrarySearchState
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
@@ -116,6 +117,11 @@ fun GuidedMeditationsListScreen(
         onStopPreview = viewModel::stopPreview,
         onOpenGuide = { viewModel.openGuideSheet(languageCode) },
         onCloseGuide = viewModel::closeGuideSheet,
+        onSearchQueryChange = viewModel::updateSearchQuery,
+        onSearchFocusChange = viewModel::setSearchFocused,
+        onSearchSubmit = viewModel::submitSearch,
+        onHistoryEntrySelect = viewModel::selectHistoryEntry,
+        onClearHistory = viewModel::clearHistory,
         modifier = modifier
     )
 }
@@ -138,7 +144,12 @@ internal fun GuidedMeditationsListScreenContent(
     onStopPreview: () -> Unit,
     onOpenGuide: () -> Unit,
     onCloseGuide: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSearchQueryChange: (String) -> Unit = {},
+    onSearchFocusChange: (Boolean) -> Unit = {},
+    onSearchSubmit: () -> Unit = {},
+    onHistoryEntrySelect: (String) -> Unit = {},
+    onClearHistory: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val importDescription = stringResource(R.string.accessibility_import_meditation)
@@ -194,35 +205,21 @@ internal fun GuidedMeditationsListScreenContent(
                         .fillMaxSize()
                         .padding(top = TopAppBarHeight)
                 ) {
-                    when {
-                        uiState.isLoading && uiState.groups.isEmpty() -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        uiState.isEmpty -> {
-                            EmptyLibraryState(
-                                onImportClick = onImportClick,
-                                onFindSourcesClick = onOpenGuide
-                            )
-                        }
-                        else -> {
-                            MeditationsList(
-                                groups = uiState.groups,
-                                previewingMeditationId = uiState.previewingMeditationId,
-                                onMeditationClick = onMeditationClick,
-                                onEditClick = onEditClick,
-                                onDeleteMeditation = onConfirmDelete,
-                                onPreviewStart = onPreviewStart,
-                                onStopPreview = onStopPreview
-                            )
-                        }
-                    }
+                    LibraryBody(
+                        uiState = uiState,
+                        onMeditationClick = onMeditationClick,
+                        onImportClick = onImportClick,
+                        onEditClick = onEditClick,
+                        onConfirmDelete = onConfirmDelete,
+                        onPreviewStart = onPreviewStart,
+                        onStopPreview = onStopPreview,
+                        onOpenGuide = onOpenGuide,
+                        onSearchQueryChange = onSearchQueryChange,
+                        onSearchFocusChange = onSearchFocusChange,
+                        onSearchSubmit = onSearchSubmit,
+                        onHistoryEntrySelect = onHistoryEntrySelect,
+                        onClearHistory = onClearHistory
+                    )
                 }
             }
         }
@@ -281,6 +278,118 @@ internal fun GuidedMeditationsListScreenContent(
             uiState.error?.let { error ->
                 snackbarHostState.showSnackbar(error)
                 currentOnClearError()
+            }
+        }
+    }
+}
+
+/**
+ * Switches the body content based on [uiState] (shared-101).
+ *
+ * - Loading + empty groups → spinner
+ * - Library empty → existing EmptyLibraryState (no search bar)
+ * - Library non-empty → LibrarySearchBar + body switch nach [LibrarySearchState]:
+ *   Idle = gruppierte Liste, History/Results/Empty = Such-spezifische Views.
+ */
+@Suppress("LongParameterList")
+@Composable
+private fun LibraryBody(
+    uiState: GuidedMeditationsListUiState,
+    onMeditationClick: (GuidedMeditation) -> Unit,
+    onImportClick: () -> Unit,
+    onEditClick: (GuidedMeditation) -> Unit,
+    onConfirmDelete: (GuidedMeditation) -> Unit,
+    onPreviewStart: (GuidedMeditation) -> Unit,
+    onStopPreview: () -> Unit,
+    onOpenGuide: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchFocusChange: (Boolean) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onHistoryEntrySelect: (String) -> Unit,
+    onClearHistory: () -> Unit
+) {
+    when {
+        uiState.isLoading && uiState.groups.isEmpty() -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+        }
+        uiState.isEmpty -> {
+            EmptyLibraryState(
+                onImportClick = onImportClick,
+                onFindSourcesClick = onOpenGuide
+            )
+        }
+        else -> {
+            LibraryWithSearchBar(
+                uiState = uiState,
+                onMeditationClick = onMeditationClick,
+                onEditClick = onEditClick,
+                onConfirmDelete = onConfirmDelete,
+                onPreviewStart = onPreviewStart,
+                onStopPreview = onStopPreview,
+                onSearchQueryChange = onSearchQueryChange,
+                onSearchFocusChange = onSearchFocusChange,
+                onSearchSubmit = onSearchSubmit,
+                onHistoryEntrySelect = onHistoryEntrySelect,
+                onClearHistory = onClearHistory
+            )
+        }
+    }
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun LibraryWithSearchBar(
+    uiState: GuidedMeditationsListUiState,
+    onMeditationClick: (GuidedMeditation) -> Unit,
+    onEditClick: (GuidedMeditation) -> Unit,
+    onConfirmDelete: (GuidedMeditation) -> Unit,
+    onPreviewStart: (GuidedMeditation) -> Unit,
+    onStopPreview: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onSearchFocusChange: (Boolean) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onHistoryEntrySelect: (String) -> Unit,
+    onClearHistory: () -> Unit
+) {
+    androidx.compose.foundation.layout.Column(modifier = Modifier.fillMaxSize()) {
+        LibrarySearchBar(
+            query = uiState.searchQuery,
+            onQueryChange = onSearchQueryChange,
+            onFocusChange = onSearchFocusChange,
+            onSubmit = onSearchSubmit
+        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (uiState.searchState) {
+                LibrarySearchState.Idle -> MeditationsList(
+                    groups = uiState.groups,
+                    previewingMeditationId = uiState.previewingMeditationId,
+                    onMeditationClick = onMeditationClick,
+                    onEditClick = onEditClick,
+                    onDeleteMeditation = onConfirmDelete,
+                    onPreviewStart = onPreviewStart,
+                    onStopPreview = onStopPreview
+                )
+                LibrarySearchState.History -> SearchHistoryList(
+                    history = uiState.searchHistory,
+                    onEntryClick = onHistoryEntrySelect,
+                    onClear = onClearHistory
+                )
+                LibrarySearchState.Results -> SearchResultsList(
+                    query = uiState.searchQuery,
+                    results = uiState.searchResults,
+                    previewingMeditationId = uiState.previewingMeditationId,
+                    onMeditationClick = onMeditationClick,
+                    onEditClick = onEditClick,
+                    onDeleteMeditation = onConfirmDelete,
+                    onPreviewStart = onPreviewStart,
+                    onStopPreview = onStopPreview
+                )
+                LibrarySearchState.Empty -> SearchEmptyState(query = uiState.searchQuery)
             }
         }
     }
