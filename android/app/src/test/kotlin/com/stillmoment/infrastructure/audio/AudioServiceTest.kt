@@ -34,7 +34,13 @@ import org.mockito.kotlin.wheneverBlocking
 /**
  * Unit tests for AudioService.
  * Tests gong playback and background audio management.
+ *
+ * LargeClass suppressed: AudioService is a single class covering gong, background,
+ * preview and meditation-preview audio (shared-098 added the slider tests), so
+ * the test suite naturally mirrors that shape. Splitting per concern would mean
+ * duplicating the heavy `setUp` (mock factory, capture handlers).
  */
+@Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class AudioServiceTest {
     private val testDispatcher = StandardTestDispatcher()
@@ -827,6 +833,210 @@ class AudioServiceTest {
 
         // Then
         verify(mockCoordinator, never()).releaseAudioSession(any())
+    }
+
+    // MARK: - Meditation Preview Slider (shared-098)
+
+    @Test
+    fun `playMeditationPreview seeds duration flow from player`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(120_000)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then
+        assertEquals(120_000L, sut.meditationPreviewDurationFlow.value)
+    }
+
+    @Test
+    fun `playMeditationPreview clamps negative duration to zero`() {
+        // Given: a not-yet-prepared player returns -1
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(-1)
+
+        // When
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // Then
+        assertEquals(0L, sut.meditationPreviewDurationFlow.value)
+    }
+
+    @Test
+    fun `meditation preview position polling updates flow over time`() {
+        // Given: a player that advances by 100ms per poll
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+        whenever(mockMeditationPlayer.currentPosition).thenReturn(0, 100, 200, 300, 400)
+
+        try {
+            // When
+            sut.playMeditationPreview("content://test/meditation.mp3")
+            // Advance the dispatcher to drive the polling loop a few ticks forward.
+            testDispatcher.scheduler.advanceTimeBy(350L)
+            testDispatcher.scheduler.runCurrent()
+
+            // Then: the loop must have polled `currentPosition` at least once
+            assertTrue(
+                sut.meditationPreviewPositionFlow.value >= 100L,
+                "expected position to advance, got ${sut.meditationPreviewPositionFlow.value}"
+            )
+        } finally {
+            // Stop the loop so runTest tear-down does not wait on it forever.
+            sut.release()
+        }
+    }
+
+    @Test
+    fun `seekMeditationPreview forwards to player seekTo and updates position flow`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // When
+        sut.seekMeditationPreview(30_000L)
+
+        // Then
+        verify(mockMeditationPlayer).seekTo(30_000)
+        assertEquals(30_000L, sut.meditationPreviewPositionFlow.value)
+    }
+
+    @Test
+    fun `seekMeditationPreview clamps target to duration`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // When: caller asks for a position beyond the end of the file
+        sut.seekMeditationPreview(120_000L)
+
+        // Then: the player was instructed to seek to duration, not past it
+        verify(mockMeditationPlayer).seekTo(60_000)
+        assertEquals(60_000L, sut.meditationPreviewPositionFlow.value)
+    }
+
+    @Test
+    fun `seekMeditationPreview clamps negative target to zero`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+        sut.playMeditationPreview("content://test/meditation.mp3")
+
+        // When
+        sut.seekMeditationPreview(-1_000L)
+
+        // Then
+        verify(mockMeditationPlayer).seekTo(0)
+        assertEquals(0L, sut.meditationPreviewPositionFlow.value)
+    }
+
+    @Test
+    fun `seekMeditationPreview is a no-op when no preview is active`() {
+        // When
+        sut.seekMeditationPreview(10_000L)
+
+        // Then: no crash, position flow still at 0
+        assertEquals(0L, sut.meditationPreviewPositionFlow.value)
+    }
+
+    @Test
+    fun `meditation preview completion releases player and resets flow values`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        val listenerCaptor = argumentCaptor<() -> Unit>()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+
+        try {
+            sut.playMeditationPreview("content://test/meditation.mp3")
+            verify(mockMeditationPlayer).setOnCompletionListener(listenerCaptor.capture())
+            assertEquals(60_000L, sut.meditationPreviewDurationFlow.value)
+
+            // When: completion listener fires
+            listenerCaptor.firstValue.invoke()
+
+            // Then: player released, duration / position reset, session released
+            verify(mockMeditationPlayer).release()
+            assertEquals(0L, sut.meditationPreviewPositionFlow.value)
+            assertEquals(0L, sut.meditationPreviewDurationFlow.value)
+            verify(mockCoordinator).releaseAudioSession(AudioSource.PREVIEW)
+        } finally {
+            sut.release()
+        }
+    }
+
+    @Test
+    fun `meditation preview completion emits on completion flow`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        val listenerCaptor = argumentCaptor<() -> Unit>()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+
+        try {
+            // The completion flow uses `tryEmit` + `extraBufferCapacity = 1`,
+            // so we can synchronously read replayCache-equivalents via a flow
+            // capture: start a collector job on a fresh scope, attach it before
+            // triggering the listener.
+            val received = java.util.concurrent.atomic.AtomicInteger(0)
+            val collectorThread = Thread {
+                kotlinx.coroutines.runBlocking {
+                    sut.meditationPreviewCompletionFlow.collect {
+                        received.incrementAndGet()
+                    }
+                }
+            }
+            collectorThread.isDaemon = true
+            collectorThread.start()
+            // Give the collector thread a moment to attach.
+            Thread.sleep(50)
+
+            sut.playMeditationPreview("content://test/meditation.mp3")
+            verify(mockMeditationPlayer).setOnCompletionListener(listenerCaptor.capture())
+
+            // When: completion listener fires
+            listenerCaptor.firstValue.invoke()
+            // Allow the collector thread to process the emission.
+            Thread.sleep(50)
+
+            // Then
+            assertEquals(1, received.get())
+            collectorThread.interrupt()
+        } finally {
+            sut.release()
+        }
+    }
+
+    @Test
+    fun `stopMeditationPreview resets position and duration flows after fade-out`() {
+        // Given
+        val mockMeditationPlayer: MediaPlayerProtocol = mock()
+        whenever(mockMediaPlayerFactory.createFromContentUri(any())).thenReturn(mockMeditationPlayer)
+        whenever(mockMeditationPlayer.duration).thenReturn(60_000)
+
+        try {
+            sut.playMeditationPreview("content://test/meditation.mp3")
+            assertEquals(60_000L, sut.meditationPreviewDurationFlow.value)
+
+            // When: stop triggers fade-out which resets flows up-front
+            sut.stopMeditationPreview()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Then
+            assertEquals(0L, sut.meditationPreviewPositionFlow.value)
+            assertEquals(0L, sut.meditationPreviewDurationFlow.value)
+        } finally {
+            sut.release()
+        }
     }
 
     @Test

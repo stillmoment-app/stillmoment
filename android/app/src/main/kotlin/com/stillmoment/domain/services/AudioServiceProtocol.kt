@@ -1,6 +1,7 @@
 package com.stillmoment.domain.services
 
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Protocol for timer audio service.
@@ -19,6 +20,31 @@ import kotlinx.coroutines.flow.SharedFlow
 interface AudioServiceProtocol {
     /** Emits when a start/completion gong finishes playing */
     val gongCompletionFlow: SharedFlow<Unit>
+
+    /**
+     * Current playback position of the active meditation preview in milliseconds.
+     *
+     * Updates roughly every 100 ms while a preview is playing (shared-098).
+     * Drops back to 0 when the preview stops, switches or finishes.
+     */
+    val meditationPreviewPositionFlow: StateFlow<Long>
+
+    /**
+     * Total duration of the active meditation preview in milliseconds.
+     *
+     * Set when [playMeditationPreview] starts a new preview, cleared back to 0
+     * on stop / switch / completion. UI uses this to scale the slider range.
+     */
+    val meditationPreviewDurationFlow: StateFlow<Long>
+
+    /**
+     * Emits exactly once when an active meditation preview reaches the natural
+     * end of the audio file. Does NOT fire on explicit [stopMeditationPreview].
+     *
+     * ViewModel collects this to clear `previewingMeditationId` so the play
+     * button flips back and the slider fades out (shared-098).
+     */
+    val meditationPreviewCompletionFlow: SharedFlow<Unit>
 
     /**
      * Play a gong sound preview. Automatically stops any previous preview.
@@ -70,4 +96,13 @@ interface AudioServiceProtocol {
      * Idempotent - safe to call even if no preview is playing.
      */
     fun stopMeditationPreview()
+
+    /**
+     * Seek the active meditation preview to the given position. Audio keeps
+     * playing through the seek (Apple-Music-style scrubbing, shared-098).
+     * Idempotent / no-op when no preview is active.
+     *
+     * @param positionMs Target position in milliseconds, clamped to `[0, duration]`.
+     */
+    fun seekMeditationPreview(positionMs: Long)
 }

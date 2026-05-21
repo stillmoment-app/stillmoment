@@ -21,8 +21,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -76,12 +80,29 @@ constructor(
     private var meditationPreviewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewJob: Job? = null
     private var meditationPreviewFadeJob: Job? = null
+    private var meditationPreviewPositionJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var targetVolume: Float = DEFAULT_AMBIENT_VOLUME
 
     // Completion flows for ViewModel to observe
     private val _gongCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     override val gongCompletionFlow: SharedFlow<Unit> = _gongCompletionFlow.asSharedFlow()
+
+    // shared-098: meditation-preview position / duration / completion flows.
+    // Position polls roughly every 100 ms while a preview plays so the slider
+    // in the library list moves with the audio. Reset to 0 on stop / switch /
+    // completion so AnimatedVisibility can fade the slider out.
+    private val _meditationPreviewPositionFlow = MutableStateFlow(0L)
+    override val meditationPreviewPositionFlow: StateFlow<Long> =
+        _meditationPreviewPositionFlow.asStateFlow()
+
+    private val _meditationPreviewDurationFlow = MutableStateFlow(0L)
+    override val meditationPreviewDurationFlow: StateFlow<Long> =
+        _meditationPreviewDurationFlow.asStateFlow()
+
+    private val _meditationPreviewCompletionFlow = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    override val meditationPreviewCompletionFlow: SharedFlow<Unit> =
+        _meditationPreviewCompletionFlow.asSharedFlow()
 
     companion object {
         private const val TAG = "AudioService"
@@ -97,6 +118,9 @@ constructor(
 
         /** Duration for meditation preview fade-out (~0.3s, consistent with iOS) */
         private const val MEDITATION_PREVIEW_FADE_OUT_DURATION_MS = 300L
+
+        /** Polling interval for meditation preview position updates (10 Hz, shared-098) */
+        private const val MEDITATION_PREVIEW_POSITION_POLL_MS = 100L
 
         /** Number of steps for fade-out animation */
         private const val FADE_OUT_STEPS = 10
@@ -600,16 +624,87 @@ constructor(
             meditationPreviewPlayer = player.apply {
                 setVolume(1.0f, 1.0f)
                 setOnCompletionListener {
-                    release()
-                    meditationPreviewPlayer = null
-                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
+                    handleMeditationPreviewDidFinish(this)
                 }
                 start()
             }
-            logger.d(TAG, "Playing meditation preview: $fileUri")
+            // shared-098: seed duration + start position polling so the slider
+            // can render right after the long-press without waiting one tick.
+            _meditationPreviewDurationFlow.value = player.duration.toLong().coerceAtLeast(0L)
+            _meditationPreviewPositionFlow.value = player.currentPosition.toLong().coerceAtLeast(0L)
+            startMeditationPreviewPositionLoop()
+            logger.d(TAG, "Playing meditation preview: $fileUri, duration: ${player.duration}")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play meditation preview - invalid state: ${e.message}")
         }
+    }
+
+    /**
+     * Called when the meditation preview reaches the natural end of the file
+     * (shared-098). Mirrors the iOS `audioPlayerDidFinishPlaying` path: emit a
+     * completion event so the ViewModel can clear `previewingMeditationId`,
+     * then run the same cleanup as the stop path (release, session, reset).
+     */
+    private fun handleMeditationPreviewDidFinish(player: MediaPlayerProtocol) {
+        logger.d(TAG, "Meditation preview finished playing")
+        stopMeditationPreviewPositionLoop()
+        _meditationPreviewPositionFlow.value = 0L
+        _meditationPreviewDurationFlow.value = 0L
+        player.release()
+        if (meditationPreviewPlayer === player) {
+            meditationPreviewPlayer = null
+            coordinator.releaseAudioSession(AudioSource.PREVIEW)
+        }
+        _meditationPreviewCompletionFlow.tryEmit(Unit)
+    }
+
+    override fun seekMeditationPreview(positionMs: Long) {
+        val player = meditationPreviewPlayer ?: return
+        try {
+            val durationMs = player.duration.toLong().coerceAtLeast(0L)
+            val clamped = positionMs.coerceIn(0L, durationMs)
+            player.seekTo(clamped.toInt())
+            // Push the seek-target into the position flow immediately so the
+            // UI doesn't have to wait up to one polling-tick (100 ms) to catch up.
+            _meditationPreviewPositionFlow.value = clamped
+            logger.d(TAG, "Seek meditation preview to ${clamped}ms")
+        } catch (e: IllegalStateException) {
+            logger.e(TAG, "Failed to seek meditation preview - invalid state: ${e.message}")
+        }
+    }
+
+    /**
+     * Polls `meditationPreviewPlayer.currentPosition` every 100 ms (10 Hz) and
+     * pushes the value into the position flow so the library slider can track
+     * playback. The loop terminates as soon as the player is null.
+     */
+    private fun startMeditationPreviewPositionLoop() {
+        meditationPreviewPositionJob?.cancel()
+        meditationPreviewPositionJob = mainScope.launch {
+            var keepGoing = true
+            while (isActive && keepGoing) {
+                val player = meditationPreviewPlayer
+                if (player == null) {
+                    keepGoing = false
+                } else {
+                    try {
+                        _meditationPreviewPositionFlow.value =
+                            player.currentPosition.toLong().coerceAtLeast(0L)
+                    } catch (e: IllegalStateException) {
+                        logger.d(TAG, "Preview position poll - player released: ${e.message}")
+                        keepGoing = false
+                    }
+                }
+                if (keepGoing) {
+                    delay(MEDITATION_PREVIEW_POSITION_POLL_MS)
+                }
+            }
+        }
+    }
+
+    private fun stopMeditationPreviewPositionLoop() {
+        meditationPreviewPositionJob?.cancel()
+        meditationPreviewPositionJob = null
     }
 
     /**
@@ -632,6 +727,12 @@ constructor(
      * Must be called from a coroutine context.
      */
     private suspend fun fadeOutMeditationPreview(player: MediaPlayerProtocol) {
+        // shared-098: stop the polling loop and reset position/duration up
+        // front so the slider can fade out in parallel with the audio fade.
+        stopMeditationPreviewPositionLoop()
+        _meditationPreviewPositionFlow.value = 0L
+        _meditationPreviewDurationFlow.value = 0L
+
         fadeOutPlayer(player, MEDITATION_PREVIEW_FADE_OUT_DURATION_MS)
         safeRelease(player, "meditation preview after fade")
 
@@ -648,6 +749,11 @@ constructor(
      * Used when switching to a new preview or during conflict cleanup.
      */
     private fun hardStopMeditationPreview() {
+        // shared-098: cancel the position-polling loop + reset slider values
+        // before we tear down the player.
+        stopMeditationPreviewPositionLoop()
+        _meditationPreviewPositionFlow.value = 0L
+        _meditationPreviewDurationFlow.value = 0L
         if (safeRelease(meditationPreviewPlayer, "meditation preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
@@ -665,6 +771,11 @@ constructor(
         backgroundPreviewJob = null
         meditationPreviewFadeJob?.cancel()
         meditationPreviewFadeJob = null
+        // shared-098: also stop the position-polling loop + reset slider values
+        // when another source takes over (timer / guided meditation).
+        stopMeditationPreviewPositionLoop()
+        _meditationPreviewPositionFlow.value = 0L
+        _meditationPreviewDurationFlow.value = 0L
 
         safeRelease(previewPlayer, "gong preview cleanup")
         previewPlayer = null

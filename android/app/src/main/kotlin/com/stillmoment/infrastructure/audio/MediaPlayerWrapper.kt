@@ -46,6 +46,9 @@ class MediaPlayerWrapper(
     override val currentPosition: Int
         get() = mediaPlayer.currentPosition
 
+    override val duration: Int
+        get() = mediaPlayer.duration
+
     override val isPlaying: Boolean
         get() = mediaPlayer.isPlaying
 
