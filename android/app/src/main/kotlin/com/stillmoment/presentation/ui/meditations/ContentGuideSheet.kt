@@ -110,7 +110,7 @@ internal fun ContentGuideSheetContent(
 
         Text(
             text = stringResource(R.string.guided_meditations_guide_intro),
-            style = TextStyle.body.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -174,13 +174,13 @@ private fun SourceRow(source: MeditationSource, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = source.description,
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = source.host,
-                style = TextStyle.caption.toComposeTextStyle(),
+                style = TextStyle.micro.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
         }
@@ -208,18 +208,19 @@ private fun SourceTitleLine(source: MeditationSource) {
             Text(
                 text = source.name,
                 style = TextStyle.body.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f, fill = false)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = "·",
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = author,
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

@@ -77,7 +77,7 @@ private fun EmptyStateHeadline() {
         Spacer(modifier = Modifier.height(14.dp))
         Text(
             text = stringResource(R.string.guided_meditations_empty_description),
-            style = TextStyle.body.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(max = 300.dp)
@@ -116,7 +116,7 @@ private fun FindSourcesButton(onClick: () -> Unit) {
     TextButton(onClick = onClick) {
         Text(
             text = stringResource(R.string.guided_meditations_empty_find_sources),
-            style = TextStyle.body.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.primary,
             textDecoration = TextDecoration.Underline
         )

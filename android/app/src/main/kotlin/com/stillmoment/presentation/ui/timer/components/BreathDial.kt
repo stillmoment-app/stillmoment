@@ -303,7 +303,7 @@ private fun DialCenterText(value: Int, diameter: Dp) {
             modifier = Modifier.testTag("timer.dial.value"),
         )
         Text(
-            text = stringResource(R.string.timer_dial_unit).uppercase(),
+            text = TextStyle.eyebrow.applyCase(stringResource(R.string.timer_dial_unit)),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

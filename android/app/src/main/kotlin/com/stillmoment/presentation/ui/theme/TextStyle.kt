@@ -200,6 +200,17 @@ enum class TextStyle(
     }
 
     /**
+     * Wendet die im Token hinterlegte Casing-Regel auf den uebergebenen Text an.
+     *
+     * Pendant zu iOS' `.textCase(.uppercase)` im `TextStyleModifier`. Da Composes
+     * `TextStyle` keine `textCase`-Property hat, muss die Transformation am
+     * Text-Argument passieren. Aufrufer geben den Original-String — Tokens mit
+     * `uppercase = true` (heute nur `.eyebrow`) bekommen `String.uppercase()`,
+     * alle anderen bleiben unveraendert.
+     */
+    fun applyCase(text: String): String = if (uppercase) text.uppercase() else text
+
+    /**
      * Effektive Familie bei aktivem System-Bold-Text-Setting.
      *
      * Familie wechselt **nicht** zwischen Cuts derselben Familie. Newsreader

@@ -82,7 +82,7 @@ fun MeditationPreviewProgressRow(
     ) {
         Text(
             text = formatSecondsToTimeLabel(draftSeconds.toLong()),
-            style = TextStyle.caption.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(monospacedDigits = true),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
             modifier = Modifier.widthIn(min = 36.dp)
@@ -110,7 +110,7 @@ fun MeditationPreviewProgressRow(
         )
         Text(
             text = formatSecondsToTimeLabel(durationSeconds.toLong()),
-            style = TextStyle.caption.toComposeTextStyle(),
+            style = TextStyle.caption.toComposeTextStyle(monospacedDigits = true),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.End,
             modifier = Modifier.widthIn(min = 36.dp)

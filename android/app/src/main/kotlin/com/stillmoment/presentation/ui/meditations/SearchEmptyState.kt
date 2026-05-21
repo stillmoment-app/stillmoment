@@ -65,7 +65,7 @@ fun SearchEmptyState(query: String, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = title,
-                style = TextStyle.section.toComposeTextStyle(),
+                style = TextStyle.screenTitle.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
@@ -73,7 +73,7 @@ fun SearchEmptyState(query: String, modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
-                style = TextStyle.body.toComposeTextStyle(),
+                style = TextStyle.caption.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )

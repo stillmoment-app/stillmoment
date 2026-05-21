@@ -127,7 +127,7 @@ private fun ReferenceControls(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "Font Scale".uppercase(),
+            text = TextStyle.eyebrow.applyCase("Font Scale"),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -248,5 +248,5 @@ private fun sampleText(token: TextStyle): String = when (token) {
     TextStyle.bodyItalic -> "— Anna Maria Berg"
     TextStyle.caption -> "Sanfter Hintergrund-Sound"
     TextStyle.micro -> "12:34 · Min"
-    TextStyle.eyebrow -> "Heute · 14. Maerz".uppercase()
+    TextStyle.eyebrow -> TextStyle.eyebrow.applyCase("Heute · 14. Maerz")
 }

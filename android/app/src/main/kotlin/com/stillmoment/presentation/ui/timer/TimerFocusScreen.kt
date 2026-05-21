@@ -316,7 +316,7 @@ private fun RunningTimeBlock(
         modifier = modifier.fillMaxWidth()
     ) {
         Text(
-            text = stringResource(R.string.timer_running_remaining),
+            text = TextStyle.eyebrow.applyCase(stringResource(R.string.timer_running_remaining)),
             style = TextStyle.eyebrow.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
