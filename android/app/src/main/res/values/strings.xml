@@ -304,7 +304,8 @@
     </plurals>
 
     <!-- Library Search (shared-101) -->
-    <string name="library_search_prompt">Search by title or teacher</string>
+    <!-- shared-102: short prompt fits inside the 40 dp pill next to magnifier + clear-X. -->
+    <string name="library_search_prompt">Search</string>
     <plurals name="library_search_result_count">
         <item quantity="one">%d result</item>
         <item quantity="other">%d results</item>
@@ -316,4 +317,6 @@
     <string name="accessibility_library_search_field">Search library</string>
     <string name="accessibility_library_search_clear">Clear search</string>
     <string name="accessibility_library_search_history_entry">Search again: %1$s</string>
+    <!-- shared-102: header cancel button replaces the action pill while searching. -->
+    <string name="accessibility_library_search_cancel">Cancel search</string>
 </resources>
