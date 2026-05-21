@@ -135,10 +135,13 @@ final class ScreenshotTests: XCTestCase {
         let timerDisplay = self.app.staticTexts["timer.display.time"]
         XCTAssertTrue(timerDisplay.waitForExistence(timeout: 2.0), "Timer display should appear")
 
-        // Wait until ~25 % of the session has elapsed — display in 00:43-00:45 means
-        // the moon shadow has visibly moved without reaching half-moon. Display-based
-        // predicate is robust to slow simulator/CI initialization.
-        let progressReached = NSPredicate(format: "label IN { '00:45', '00:44', '00:43' }")
+        // Wait until ~25 % of the session has elapsed — accessibilityValue starts with
+        // the remaining seconds ("45 Sekunden verbleibend" / "45 seconds remaining"),
+        // so BEGINSWITH matches independent of language. 43-45 s remaining = 25-28 %
+        // progress: shadow visibly moved, no half-moon yet.
+        let progressReached = NSPredicate(
+            format: "value BEGINSWITH '45' OR value BEGINSWITH '44' OR value BEGINSWITH '43'"
+        )
         let progressExpectation = XCTNSPredicateExpectation(
             predicate: progressReached,
             object: timerDisplay
@@ -147,7 +150,7 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertEqual(
             result,
             .completed,
-            "Timer did not reach ~25% progress within 30s (last label: \(timerDisplay.label))"
+            "Timer did not reach ~25% progress within 30s (last value: \(timerDisplay.value ?? "nil"))"
         )
 
         snapshot("02_TimerRunning", timeWaitingForIdle: 0)
