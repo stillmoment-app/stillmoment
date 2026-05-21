@@ -296,8 +296,6 @@
     <string name="download_error_no_link_message">We couldn’t find a link in the shared content.</string>
     <string name="download_error_close">Close</string>
 
-    <!-- Import Type Selection -->
-
     <!-- Timer Running Phase (shared-095) -->
     <string name="timer_running_remaining">REMAINING</string>
     <plurals name="timer_running_duration">
