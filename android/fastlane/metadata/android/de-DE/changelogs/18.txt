@@ -1,0 +1,4 @@
+- Suchfunktion in der Bibliothek
+- Vereinfachter Import von Meditationen
+- Überarbeitetes Erscheinungsbild
+- Verbessertes Vorhören mit Sprung an jede Stelle

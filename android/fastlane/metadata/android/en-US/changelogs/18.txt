@@ -1,0 +1,4 @@
+- Search in your library
+- Simplified import of meditations
+- Refreshed look and feel
+- Improved preview — jump to any point

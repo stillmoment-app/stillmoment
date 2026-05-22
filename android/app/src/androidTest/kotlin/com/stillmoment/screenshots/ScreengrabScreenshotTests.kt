@@ -15,6 +15,7 @@ import com.stillmoment.MainActivity
 import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.data.local.PraxisDataStore
 import com.stillmoment.data.local.SettingsDataStore
+import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.Praxis
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -101,6 +102,7 @@ class ScreengrabScreenshotTests {
         }
 
         runBlocking {
+            settingsDataStore.setAppearanceMode(AppearanceMode.DARK)
             settingsDataStore.setSelectedTab(com.stillmoment.domain.models.AppTab.TIMER)
             praxisDataStore.save(
                 Praxis.Default.copy(
@@ -250,6 +252,13 @@ class ScreengrabScreenshotTests {
 
         // Wait for library to fully render (DataStore flow is async)
         waitForLibraryLoaded()
+
+        // All five fixture titles must be visible before UiAutomator captures.
+        // Without this gate the system-level screenshot can race ahead of the
+        // final layout pass and capture an empty LazyColumn frame.
+        waitForNodeDisplayed(hasText("Body Scan", substring = true, ignoreCase = true))
+        waitForNodeDisplayed(hasText("Loving Kindness", substring = true, ignoreCase = true))
+        waitForNodeDisplayed(hasText("Evening Wind Down", substring = true, ignoreCase = true))
 
         takeScreenshot("03_LibraryList")
     }
