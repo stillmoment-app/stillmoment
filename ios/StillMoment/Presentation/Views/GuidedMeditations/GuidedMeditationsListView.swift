@@ -187,9 +187,10 @@ struct GuidedMeditationsListView: View {
     private var editSheetContent: some View {
         ThemeRootView {
             if let meditation = viewModel.meditationToEdit {
+                let isImport = self.viewModel.pendingImport != nil
                 GuidedMeditationEditSheet(
                     meditation: meditation,
-                    mode: self.viewModel.pendingImport != nil ? .importMode : .edit,
+                    mode: isImport ? .importMode : .edit,
                     availableTeachers: self.viewModel.uniqueTeachers,
                     onSave: { updated in
                         self.viewModel.handleEditSheetSave(updated)
@@ -197,6 +198,16 @@ struct GuidedMeditationsListView: View {
                     onCancel: {
                         // Dismissing the sheet triggers `onDismiss`, which handles cancelImport.
                         self.viewModel.showingEditSheet = false
+                    },
+                    // "Listen from here" needs the file in the library — not available mid-import
+                    onPreviewFrom: isImport ? nil : { time in
+                        if self.viewModel.previewingMeditationId != meditation.id {
+                            self.viewModel.startPreview(for: meditation)
+                        }
+                        self.viewModel.seekPreview(to: time)
+                    },
+                    onStopPreview: isImport ? nil : {
+                        self.viewModel.stopPreview()
                     }
                 )
             }
@@ -205,6 +216,7 @@ struct GuidedMeditationsListView: View {
 
     private func handleEditSheetDismiss() {
         // Catches both Cancel-tap and interactive swipe-down dismiss.
+        self.viewModel.stopPreview()
         if self.viewModel.pendingImport != nil {
             self.viewModel.cancelImport()
         }

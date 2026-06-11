@@ -6,7 +6,7 @@ CLAUDE-OPTIMIZED: Strukturiert fuer schnelles AI-Nachschlagen
 - Detailsektionen nach Domain gruppiert (aus User-Perspektive)
 - Jeder Eintrag mit Cross-Platform Dateireferenzen
 
-Last Updated: 2026-02-23
+Last Updated: 2026-06-11
 -->
 
 ## Quick Reference
@@ -34,6 +34,7 @@ Last Updated: 2026-02-23
 | `TimerEffect` | Enum | Timer | Side Effects des Reducers |
 | `TimerEvent` | Enum | Timer | Domain Events aus tick() (preparationCompleted, meditationCompleted, intervalGongDue) |
 | `TimerState` | Enum | Timer | Zustandsautomat (Idle/Running/etc.) |
+| Trim-Punkte (`trimStart`/`trimEnd`) | Attribute | Guided Meditations | Optionale Start-/Endpunkte pro Meditation; Wiedergabe laeuft nur im effektiven Bereich |
 
 ---
 
@@ -544,21 +545,28 @@ Eine vom User importierte gefuehrte Meditation. Das Abspielen der Audio-Datei is
 | `id` | UUID | Eindeutige ID |
 | `localFilePath` | String? | Relativer Pfad |
 | `fileName` | String | Original-Dateiname |
-| `duration` | TimeInterval | Dauer in Sekunden |
-| `teacher` | String | Lehrer (aus ID3) |
-| `name` | String | Name (aus ID3) |
-| `customTeacher` | String? | Benutzerdefinierter Lehrer |
-| `customName` | String? | Benutzerdefinierter Name |
+| `duration` | TimeInterval | Dateilaenge in Sekunden |
+| `teacher` | String | Lehrer (aus ID3 oder user-editiert; einzige Wahrheit seit shared-103) |
+| `name` | String | Name (aus ID3 oder user-editiert; einzige Wahrheit seit shared-103) |
+| `trimStart` | TimeInterval? | Optionaler Startpunkt der Wiedergabe (shared-105; nil = Dateianfang) |
+| `trimEnd` | TimeInterval? | Optionaler Endpunkt der Wiedergabe (shared-105; nil = Dateiende) |
 | `dateAdded` | Date | Hinzugefuegt am |
 
 **Computed Properties:**
 
 | Property | Beschreibung |
 |----------|--------------|
-| `effectiveTeacher` | customTeacher ?? teacher |
-| `effectiveName` | customName ?? name |
-| `formattedDuration` | MM:SS oder HH:MM:SS |
-| `fileURL` | Vollstaendiger Pfad |
+| `effectiveStart` | trimStart ?? 0 — wo die Wiedergabe tatsaechlich beginnt |
+| `effectiveEnd` | trimEnd ?? duration — wo die Wiedergabe tatsaechlich endet |
+| `effectiveDuration` | effectiveEnd − effectiveStart — die Zeit, die der User tatsaechlich meditiert |
+| `formattedDuration` | Effektive Dauer als MM:SS oder HH:MM:SS (Library + Player) |
+| `formattedFileDuration` | Volle Dateilaenge als MM:SS oder HH:MM:SS (Datei-Info im Edit-Sheet) |
+
+**Trim-Punkte (shared-105):**
+Nicht-destruktiv — die Audio-Datei wird nie veraendert. Playback startet bei `effectiveStart`,
+endet bei `effectiveEnd` (gleicher Completion-Pfad wie ein natuerliches Dateiende, auch auf dem
+Lock Screen). Seek/Skip clampen auf den effektiven Bereich. Legacy-Eintraege ohne Trim-Keys
+laden unveraendert (`decodeIfPresent`).
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/GuidedMeditation.swift`
@@ -606,13 +614,17 @@ Kapselt Zustand und Validierungslogik fuer das Editieren von GuidedMeditation-Me
 | `originalMeditation` | GuidedMeditation | Original |
 | `editedTeacher` | String | Bearbeiteter Teacher |
 | `editedName` | String | Bearbeiteter Name |
+| `editedTrimStartText` | String | Trim-Start als Text (m:ss, h:mm:ss oder Minuten; leer = kein Trim) |
+| `editedTrimEndText` | String | Trim-Ende als Text (m:ss, h:mm:ss oder Minuten; leer = kein Trim) |
 
 **Computed Properties:**
 
 | Property | Beschreibung |
 |----------|--------------|
-| `hasChanges` | Aenderungen vorhanden? |
-| `isValid` | Eingaben gueltig? |
+| `hasChanges` | Aenderungen vorhanden (inkl. Trim-Punkte)? |
+| `isValid` | Eingaben gueltig (Pflichtfelder + Trim-Konsistenz)? |
+| `isTrimInputValid` | Trim-Felder parsen und beschreiben einen Bereich innerhalb der Datei? |
+| `trimStartValue` / `trimEndValue` | Geparste Trim-Werte in Sekunden (nil bei leer/unparsebar) |
 
 **Methoden:**
 

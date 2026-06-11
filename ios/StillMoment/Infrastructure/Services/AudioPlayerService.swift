@@ -79,6 +79,14 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             // Setup time observer for progress tracking
             self.setupTimeObserver()
 
+            // shared-105: start playback at the trim start and finish at the trim end
+            if meditation.effectiveStart > 0 {
+                let startTime = CMTime(seconds: meditation.effectiveStart, preferredTimescale: 600)
+                await self.player?.seek(to: startTime)
+                self.currentTime.send(meditation.effectiveStart)
+            }
+            self.setupTrimEndObserver(for: meditation, fileDuration: durationSeconds)
+
             // iOS REQUIREMENT: Now Playing info MUST be set AFTER audio session is activated.
             // Setting Now Playing info before session activation can cause:
             // - Lock screen controls to not appear
@@ -125,7 +133,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         // - Metadata may not display correctly
         // This is why we deferred setup from load() to play()
         if let meditation = currentMeditation {
-            self.setupNowPlayingInfo(for: meditation, duration: self.duration.value)
+            self.setupNowPlayingInfo(for: meditation, duration: meditation.effectiveDuration)
             Logger.audio.info("Now Playing info configured (session active)")
         }
 
@@ -142,8 +150,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     func stop() {
         self.player?.pause()
-        self.player?.seek(to: .zero)
-        self.currentTime.send(0)
+        let start = self.currentMeditation?.effectiveStart ?? 0
+        self.player?.seek(to: CMTime(seconds: start, preferredTimescale: 600))
+        self.currentTime.send(start)
         self.state.send(.idle)
         self.clearNowPlayingInfo()
         self.disableRemoteCommandCenter()
@@ -155,10 +164,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
             throw AudioPlayerError.playbackFailed(reason: "No audio loaded")
         }
 
-        let cmTime = CMTime(seconds: time, preferredTimescale: 600)
+        // Keep seeking inside the effective (trimmed) range — also covers lock screen seeks
+        let lowerBound = self.currentMeditation?.effectiveStart ?? 0
+        let upperBound = self.currentMeditation?.effectiveEnd ?? self.duration.value
+        let clamped = min(max(time, lowerBound), upperBound)
+
+        let cmTime = CMTime(seconds: clamped, preferredTimescale: 600)
         player.seek(to: cmTime) { [weak self] finished in
             if finished {
-                self?.currentTime.send(time)
+                self?.currentTime.send(clamped)
                 self?.updateNowPlayingPlaybackInfo()
             }
         }
@@ -167,72 +181,6 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     func configureAudioSession() throws {
         // Request audio session through coordinator
         _ = try self.coordinator.requestAudioSession(for: .guidedMeditation)
-    }
-
-    func setupRemoteCommandCenter() {
-        let commandCenter = MPRemoteCommandCenter.shared()
-        self.setupPlayPauseCommands(commandCenter)
-        self.setupSeekCommands(commandCenter)
-        self.setupSkipCommands(commandCenter)
-    }
-
-    private func setupPlayPauseCommands(_ commandCenter: MPRemoteCommandCenter) {
-        commandCenter.playCommand.isEnabled = true
-        commandCenter.playCommand.addTarget { [weak self] _ in
-            try? self?.play()
-            return .success
-        }
-
-        commandCenter.pauseCommand.isEnabled = true
-        commandCenter.pauseCommand.addTarget { [weak self] _ in
-            self?.pause()
-            return .success
-        }
-
-        // Toggle command for wired headphones (EarPods) and some CarPlay configurations
-        commandCenter.togglePlayPauseCommand.isEnabled = true
-        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
-            guard let self else {
-                return .commandFailed
-            }
-            self.state.value == .playing ? self.pause() : (try? self.play())
-            return .success
-        }
-    }
-
-    private func setupSeekCommands(_ commandCenter: MPRemoteCommandCenter) {
-        commandCenter.changePlaybackPositionCommand.isEnabled = true
-        commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
-            guard let event = event as? MPChangePlaybackPositionCommandEvent else {
-                return .commandFailed
-            }
-            try? self?.seek(to: event.positionTime)
-            return .success
-        }
-    }
-
-    private func setupSkipCommands(_ commandCenter: MPRemoteCommandCenter) {
-        commandCenter.skipForwardCommand.isEnabled = true
-        commandCenter.skipForwardCommand.preferredIntervals = [15]
-        commandCenter.skipForwardCommand.addTarget { [weak self] _ in
-            guard let self, self.player != nil else {
-                return .commandFailed
-            }
-            let newTime = min(self.currentTime.value + 15, self.duration.value)
-            try? self.seek(to: newTime)
-            return .success
-        }
-
-        commandCenter.skipBackwardCommand.isEnabled = true
-        commandCenter.skipBackwardCommand.preferredIntervals = [15]
-        commandCenter.skipBackwardCommand.addTarget { [weak self] _ in
-            guard let self, self.player != nil else {
-                return .commandFailed
-            }
-            let newTime = max(self.currentTime.value - 15, 0)
-            try? self.seek(to: newTime)
-            return .success
-        }
     }
 
     // MARK: - Silent Background Audio
@@ -312,7 +260,7 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
 
         if let meditation = currentMeditation {
-            self.setupNowPlayingInfo(for: meditation, duration: self.duration.value)
+            self.setupNowPlayingInfo(for: meditation, duration: meditation.effectiveDuration)
             Logger.audio.info("Now Playing info configured (session active)")
         }
 
@@ -335,6 +283,12 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         if let token = timeObserverToken {
             self.player?.removeTimeObserver(token)
             self.timeObserverToken = nil
+        }
+
+        // Remove trim end observer
+        if let token = trimEndObserverToken {
+            self.player?.removeTimeObserver(token)
+            self.trimEndObserverToken = nil
         }
 
         // Stop player
@@ -364,12 +318,15 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     // MARK: Private
 
+    // Internal (not private) so AudioPlayerService+LockScreen.swift can read them
+    let nowPlayingProvider: NowPlayingInfoProvider
+    private(set) var currentMeditation: GuidedMeditation?
+
     private let coordinator: AudioSessionCoordinatorProtocol
-    private let nowPlayingProvider: NowPlayingInfoProvider
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private var player: AVPlayer?
     private var timeObserverToken: Any?
-    private var currentMeditation: GuidedMeditation?
+    private var trimEndObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
 
     /// Silent background audio player for keeping audio session active during countdown
@@ -379,26 +336,6 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     /// Reset to false in cleanup() to allow reconfiguration after full cleanup.
     /// Prevents duplicate configuration on pause/resume cycles within same session.
     private var remoteCommandsConfigured = false
-
-    /// Disables all remote command center controls
-    private func disableRemoteCommandCenter() {
-        let commandCenter = MPRemoteCommandCenter.shared()
-
-        commandCenter.playCommand.isEnabled = false
-        commandCenter.pauseCommand.isEnabled = false
-        commandCenter.togglePlayPauseCommand.isEnabled = false
-        commandCenter.changePlaybackPositionCommand.isEnabled = false
-        commandCenter.skipForwardCommand.isEnabled = false
-        commandCenter.skipBackwardCommand.isEnabled = false
-
-        // Remove all targets to clean up properly
-        commandCenter.playCommand.removeTarget(nil)
-        commandCenter.pauseCommand.removeTarget(nil)
-        commandCenter.togglePlayPauseCommand.removeTarget(nil)
-        commandCenter.changePlaybackPositionCommand.removeTarget(nil)
-        commandCenter.skipForwardCommand.removeTarget(nil)
-        commandCenter.skipBackwardCommand.removeTarget(nil)
-    }
 
     // MARK: - Private Helpers
 
@@ -421,40 +358,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         }
     }
 
-    private func setupNowPlayingInfo(for meditation: GuidedMeditation, duration: TimeInterval) {
-        var nowPlayingInfo = [String: Any]()
-        nowPlayingInfo[MPMediaItemPropertyTitle] = meditation.name
-        nowPlayingInfo[MPMediaItemPropertyArtist] = meditation.teacher
-        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
-
-        if let artworkImage = UIImage(named: "LockScreenArtwork") {
-            let artwork = MPMediaItemArtwork(boundsSize: artworkImage.size) { _ in artworkImage }
-            nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-        }
-
-        self.nowPlayingProvider.nowPlayingInfo = nowPlayingInfo
-    }
-
-    private func updateNowPlayingPlaybackInfo() {
-        guard var nowPlayingInfo = self.nowPlayingProvider.nowPlayingInfo else {
-            return
-        }
-
-        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = self.currentTime.value
-        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.state.value == .playing ? 1.0 : 0.0
-
-        self.nowPlayingProvider.nowPlayingInfo = nowPlayingInfo
-    }
-
-    /// Clears Now Playing info from lock screen and control center
-    private func clearNowPlayingInfo() {
-        self.nowPlayingProvider.nowPlayingInfo = nil
-    }
-
     private func handlePlaybackFinished() {
         self.state.send(.finished)
-        self.currentTime.send(self.duration.value)
+        self.currentTime.send(self.currentMeditation?.effectiveEnd ?? self.duration.value)
 
         // Clear lock screen widget when playback finishes naturally
         self.clearNowPlayingInfo()
@@ -462,6 +368,29 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
         // Release audio session when playback finishes
         self.coordinator.releaseAudioSession(for: .guidedMeditation)
+    }
+
+    /// Treats reaching the trim end like the natural end of the file (shared-105).
+    ///
+    /// Uses an AVPlayer boundary time observer so the cut also happens with the
+    /// screen locked — no UI-level polling involved.
+    private func setupTrimEndObserver(for meditation: GuidedMeditation, fileDuration: TimeInterval) {
+        guard let trimEnd = meditation.trimEnd, trimEnd < fileDuration else {
+            return
+        }
+
+        let boundary = NSValue(time: CMTime(seconds: trimEnd, preferredTimescale: 600))
+        self.trimEndObserverToken = self.player?.addBoundaryTimeObserver(
+            forTimes: [boundary],
+            queue: .main
+        ) { [weak self] in
+            guard let self, self.state.value == .playing else {
+                return
+            }
+            Logger.audio.info("Trim end reached, finishing playback", metadata: ["trimEnd": trimEnd])
+            self.player?.pause()
+            self.handlePlaybackFinished()
+        }
     }
 
     private func setupNotifications() {

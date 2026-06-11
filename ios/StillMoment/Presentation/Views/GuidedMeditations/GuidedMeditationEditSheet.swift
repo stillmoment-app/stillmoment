@@ -52,13 +52,17 @@ struct GuidedMeditationEditSheet: View {
         mode: GuidedMeditationEditSheetMode = .edit,
         availableTeachers: [String] = [],
         onSave: @escaping (GuidedMeditation) -> Void,
-        onCancel: @escaping () -> Void
+        onCancel: @escaping () -> Void,
+        onPreviewFrom: ((TimeInterval) -> Void)? = nil,
+        onStopPreview: (() -> Void)? = nil
     ) {
         self.meditation = meditation
         self.mode = mode
         self.availableTeachers = availableTeachers
         self.onSave = onSave
         self.onCancel = onCancel
+        self.onPreviewFrom = onPreviewFrom
+        self.onStopPreview = onStopPreview
 
         _editState = State(initialValue: EditSheetState(meditation: meditation))
     }
@@ -70,6 +74,10 @@ struct GuidedMeditationEditSheet: View {
     let availableTeachers: [String]
     let onSave: (GuidedMeditation) -> Void
     let onCancel: () -> Void
+
+    /// Starts the library preview at the given second ("listen from here"); nil hides the buttons
+    let onPreviewFrom: ((TimeInterval) -> Void)?
+    let onStopPreview: (() -> Void)?
 
     var body: some View {
         NavigationView {
@@ -85,6 +93,12 @@ struct GuidedMeditationEditSheet: View {
                         self.nameField
                     } footer: {
                         self.fileInfoFooter
+                    }
+                    Section {
+                        self.trimStartField
+                        self.trimEndField
+                    } footer: {
+                        self.trimFooter
                     }
                 }
                 .scrollContentBackground(.hidden)
@@ -171,7 +185,7 @@ struct GuidedMeditationEditSheet: View {
             (
                 Text(self.meditation.fileName)
                     + Text(verbatim: "  ·  ")
-                    + Text(self.meditation.formattedDuration)
+                    + Text(self.meditation.formattedFileDuration)
             )
             .textStyle(.caption, color: \.textSecondary)
             .lineLimit(2)
@@ -183,13 +197,137 @@ struct GuidedMeditationEditSheet: View {
         .accessibilityElement(children: .combine)
     }
 
+    // MARK: - Trim Subviews
+
+    private var trimStartField: some View {
+        self.trimField(
+            field: .start,
+            text: self.$editState.editedTrimStartText,
+            focus: self.$trimStartFocused
+        )
+    }
+
+    private var trimEndField: some View {
+        self.trimField(
+            field: .end,
+            text: self.$editState.editedTrimEndText,
+            focus: self.$trimEndFocused
+        )
+    }
+
+    private func trimField(
+        field: TrimField,
+        text: Binding<String>,
+        focus: FocusState<Bool>.Binding
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(field.labelKey)
+                .textStyle(.eyebrow, color: \.textPrimary)
+
+            HStack(spacing: 12) {
+                ClearableTextField(
+                    "guided_meditations.edit.trimPlaceholder",
+                    text: text,
+                    focus: focus,
+                    accessibilityLabel: field.labelKey,
+                    accessibilityIdentifier: field.fieldIdentifier,
+                    submitLabel: .done
+                )
+                .keyboardType(.numbersAndPunctuation)
+
+                if self.onPreviewFrom != nil, let previewTime = self.previewTime(for: field) {
+                    self.previewButton(for: field, time: previewTime)
+                }
+            }
+        }
+    }
+
+    /// Where "listen from here" starts for a field — before the end cut you hear the lead-up
+    private func previewTime(for field: TrimField) -> TimeInterval? {
+        switch field {
+        case .start:
+            self.editState.trimStartValue
+        case .end:
+            self.editState.trimEndValue.map { max($0 - Self.endPreviewLeadIn, 0) }
+        }
+    }
+
+    private func previewButton(for field: TrimField, time: TimeInterval) -> some View {
+        let isPreviewingThis = self.previewingField == field
+
+        return Button {
+            if isPreviewingThis {
+                self.previewingField = nil
+                self.onStopPreview?()
+            } else {
+                self.previewingField = field
+                self.onPreviewFrom?(time)
+            }
+        } label: {
+            Image(systemName: isPreviewingThis ? "stop.circle.fill" : "play.circle")
+                .font(.system(size: 24))
+                .foregroundColor(self.theme.interactive)
+                .frame(minWidth: 44, minHeight: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isPreviewingThis
+            ? "accessibility.editSheet.stopPreview"
+            : "guided_meditations.edit.preview")
+        .accessibilityHint("accessibility.editSheet.preview.hint")
+        .accessibilityIdentifier("editSheet.button.preview.\(field == .start ? "start" : "end")")
+    }
+
+    private var trimFooter: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if !self.editState.isTrimInputValid {
+                HStack(alignment: .top, spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 11))
+                        .padding(.top, 2)
+                    Text("guided_meditations.edit.trimInvalid")
+                }
+                .foregroundColor(self.theme.textPrimary)
+                .textStyle(.caption, color: \.textPrimary)
+            }
+            Text("guided_meditations.edit.trimHint")
+                .textStyle(.caption, color: \.textSecondary)
+        }
+        .padding(.top, 8)
+    }
+
     // MARK: Private
+
+    /// Which trim field is currently previewing ("listen from here")
+    private enum TrimField {
+        case start
+        case end
+
+        var labelKey: LocalizedStringKey {
+            switch self {
+            case .start: "guided_meditations.edit.trimStart"
+            case .end: "guided_meditations.edit.trimEnd"
+            }
+        }
+
+        var fieldIdentifier: String {
+            switch self {
+            case .start: "editSheet.field.trimStart"
+            case .end: "editSheet.field.trimEnd"
+            }
+        }
+    }
+
+    /// Seconds before the trim end the preview starts, so the cut placement is audible
+    private static let endPreviewLeadIn: TimeInterval = 10
 
     @Environment(\.themeColors)
     private var theme
     @State private var editState: EditSheetState
+    @State private var previewingField: TrimField?
     @FocusState private var teacherFocused: Bool
     @FocusState private var nameFocused: Bool
+    @FocusState private var trimStartFocused: Bool
+    @FocusState private var trimEndFocused: Bool
 
     private func attemptSave() {
         guard self.editState.isValid else {

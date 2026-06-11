@@ -83,9 +83,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.formatTime(self.currentTime)
     }
 
-    /// Formatted remaining time string (MM:SS or HH:MM:SS)
+    /// Formatted remaining time string (MM:SS or HH:MM:SS) — counts down to the trim end
     var formattedRemainingTime: String {
-        let remaining = max(duration - self.currentTime, 0)
+        let remaining = max(self.meditation.effectiveEnd - self.currentTime, 0)
         return self.formatTime(remaining)
     }
 
@@ -97,12 +97,14 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.formattedRemainingTime
     }
 
-    /// Progress as a value between 0 and 1
+    /// Progress within the effective (trimmed) range as a value between 0 and 1
     var progress: Double {
-        guard self.duration > 0 else {
+        let effectiveDuration = self.meditation.effectiveDuration
+        guard effectiveDuration > 0 else {
             return 0
         }
-        return self.currentTime / self.duration
+        let elapsed = self.currentTime - self.meditation.effectiveStart
+        return min(max(elapsed / effectiveDuration, 0), 1)
     }
 
     /// Whether the player is currently playing
@@ -207,8 +209,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
                 try self.playerService.play()
                 Logger.audioPlayer.debug("Started playback")
             case .finished:
-                // Reset to beginning and play
-                try self.playerService.seek(to: 0)
+                // Reset to the effective beginning (skips a trimmed intro) and play
+                try self.playerService.seek(to: self.meditation.effectiveStart)
                 try self.playerService.play()
                 Logger.audioPlayer.debug("Restarted playback")
             default:
@@ -239,19 +241,19 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         }
     }
 
-    /// Skips forward by a given number of seconds
+    /// Skips forward by a given number of seconds (stops at the trim end)
     ///
     /// - Parameter seconds: Seconds to skip forward
     func skipForward(by seconds: TimeInterval = 10) {
-        let newTime = min(currentTime + seconds, self.duration)
+        let newTime = min(currentTime + seconds, self.meditation.effectiveEnd)
         self.seek(to: newTime)
     }
 
-    /// Skips backward by a given number of seconds
+    /// Skips backward by a given number of seconds (stops at the trim start)
     ///
     /// - Parameter seconds: Seconds to skip backward
     func skipBackward(by seconds: TimeInterval = 10) {
-        let newTime = max(currentTime - seconds, 0)
+        let newTime = max(currentTime - seconds, self.meditation.effectiveStart)
         self.seek(to: newTime)
     }
 
