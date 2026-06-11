@@ -141,6 +141,18 @@ protocol AudioPlayerServiceProtocol {
     /// - Throws: AudioPlayerError if playback fails
     func transitionFromSilentToPlayback() throws
 
+    /// Configures an end gong that plays when playback finishes (shared-106)
+    ///
+    /// When configured, the service plays the gong after the meditation ends
+    /// (natural file end or trim end) and keeps the audio session active until
+    /// the gong finished — required for the gong to ring out on the lock screen.
+    /// Call after `load(url:meditation:)`; `cleanup()` resets the configuration.
+    ///
+    /// - Parameters:
+    ///   - soundId: Gong sound ID from the timer settings (Praxis)
+    ///   - volume: Gong volume from the timer settings (0.0–1.0)
+    func configureEndGong(soundId: String, volume: Float)
+
     /// Cleans up resources (call when done with player)
     func cleanup()
 }

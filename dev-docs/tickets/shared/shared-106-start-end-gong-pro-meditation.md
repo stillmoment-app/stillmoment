@@ -21,7 +21,7 @@ Der Gong rahmt die Meditation rituell, egal ob still oder gefuehrt. Besonders be
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---
