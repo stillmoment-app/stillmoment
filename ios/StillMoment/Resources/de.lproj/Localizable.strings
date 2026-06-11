@@ -225,6 +225,16 @@
 "guided_meditations.edit.duration" = "Dauer";
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
 
+// Trim-Punkte (shared-105)
+"guided_meditations.edit.trimStart" = "Beginnen bei";
+"guided_meditations.edit.trimEnd" = "Beenden bei";
+"guided_meditations.edit.trimPlaceholder" = "z. B. 1:30";
+"guided_meditations.edit.trimHint" = "Überspringe eine Einleitung oder Schlussworte: Die Wiedergabe läuft nur zwischen diesen Punkten. Leer lassen, um alles zu hören — die Datei selbst bleibt unverändert.";
+"guided_meditations.edit.trimInvalid" = "Der Anfang muss vor dem Ende liegen, beide innerhalb der Aufnahme.";
+"guided_meditations.edit.preview" = "Ab hier anhören";
+"accessibility.editSheet.stopPreview" = "Anhören stoppen";
+"accessibility.editSheet.preview.hint" = "Spielt die Aufnahme an der eingegebenen Stelle ab, um die Position zu prüfen";
+
 "guided_meditations.import.action" = "Importieren";
 
 "guided_meditations.player.teacher" = "Lehrer";

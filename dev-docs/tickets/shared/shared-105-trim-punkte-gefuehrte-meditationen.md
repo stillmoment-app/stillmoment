@@ -1,6 +1,6 @@
 # Ticket shared-105: Trim-Punkte fuer gefuehrte Meditationen
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Datenmodell und Persistenz sind einfache Ergaenzungen; die Risiken liegen im Wiedergabe-Verhalten (Ende am Endpunkt muss auch bei gesperrtem Bildschirm zuverlaessig greifen) und in der Validierung der Zeitangaben.
 **Phase**: 3-Feature
@@ -21,7 +21,7 @@ Importierte Audio-Dateien enthalten oft Einleitungen oder Abschluss-Saetze (teil
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | -             |
 
 ---

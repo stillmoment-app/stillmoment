@@ -22,7 +22,9 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         duration: TimeInterval,
         teacher: String,
         name: String,
-        dateAdded: Date = Date()
+        dateAdded: Date = Date(),
+        trimStart: TimeInterval? = nil,
+        trimEnd: TimeInterval? = nil
     ) {
         self.id = id
         self.localFilePath = localFilePath
@@ -32,6 +34,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.teacher = teacher
         self.name = name
         self.dateAdded = dateAdded
+        self.trimStart = trimStart
+        self.trimEnd = trimEnd
     }
 
     /// Legacy initializer for security-scoped bookmarks (migration support)
@@ -42,7 +46,9 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         duration: TimeInterval,
         teacher: String,
         name: String,
-        dateAdded: Date = Date()
+        dateAdded: Date = Date(),
+        trimStart: TimeInterval? = nil,
+        trimEnd: TimeInterval? = nil
     ) {
         self.id = id
         self.localFilePath = nil
@@ -52,6 +58,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.teacher = teacher
         self.name = name
         self.dateAdded = dateAdded
+        self.trimStart = trimStart
+        self.trimEnd = trimEnd
     }
 
     // MARK: - Codable
@@ -74,6 +82,10 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
 
         self.teacher = legacyCustomTeacher ?? originalTeacher
         self.name = legacyCustomName ?? originalName
+
+        // Trim points were added in shared-105; older entries have no such keys
+        self.trimStart = try container.decodeIfPresent(TimeInterval.self, forKey: .trimStart)
+        self.trimEnd = try container.decodeIfPresent(TimeInterval.self, forKey: .trimEnd)
     }
 
     /// Encodes the meditation without the legacy `customTeacher`/`customName` fields.
@@ -87,6 +99,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         try container.encode(self.teacher, forKey: .teacher)
         try container.encode(self.name, forKey: .name)
         try container.encode(self.dateAdded, forKey: .dateAdded)
+        try container.encodeIfPresent(self.trimStart, forKey: .trimStart)
+        try container.encodeIfPresent(self.trimEnd, forKey: .trimEnd)
     }
 
     // MARK: Internal
@@ -115,17 +129,36 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
     /// Date when the meditation was added to the library
     let dateAdded: Date
 
-    /// Formatted duration string (MM:SS or HH:MM:SS)
-    var formattedDuration: String {
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-        let seconds = Int(duration) % 60
+    /// Playback start offset in seconds (nil = play from file start).
+    /// Non-destructive: the audio file itself is never modified (shared-105).
+    var trimStart: TimeInterval?
 
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return String(format: "%d:%02d", minutes, seconds)
-        }
+    /// Playback end offset in seconds (nil = play to file end).
+    var trimEnd: TimeInterval?
+
+    /// Where playback effectively begins (file start unless trimmed)
+    var effectiveStart: TimeInterval {
+        self.trimStart ?? 0
+    }
+
+    /// Where playback effectively ends (file end unless trimmed)
+    var effectiveEnd: TimeInterval {
+        self.trimEnd ?? self.duration
+    }
+
+    /// The duration the user actually meditates (trimmed range)
+    var effectiveDuration: TimeInterval {
+        max(self.effectiveEnd - self.effectiveStart, 0)
+    }
+
+    /// Formatted effective duration (MM:SS or HH:MM:SS) — shown in library and player
+    var formattedDuration: String {
+        Self.format(self.effectiveDuration)
+    }
+
+    /// Formatted full file length — reference while editing trim points
+    var formattedFileDuration: String {
+        Self.format(self.duration)
     }
 
     /// Returns true if this meditation needs migration from bookmark to local file
@@ -142,7 +175,9 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
             duration: self.duration,
             teacher: self.teacher,
             name: self.name,
-            dateAdded: self.dateAdded
+            dateAdded: self.dateAdded,
+            trimStart: self.trimStart,
+            trimEnd: self.trimEnd
         )
     }
 
@@ -157,8 +192,22 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         case teacher
         case name
         case dateAdded
+        case trimStart
+        case trimEnd
         // Legacy keys (read-only during migration; no longer encoded)
         case customTeacher
         case customName
+    }
+
+    private static func format(_ seconds: TimeInterval) -> String {
+        let hours = Int(seconds) / 3600
+        let minutes = (Int(seconds) % 3600) / 60
+        let secs = Int(seconds) % 60
+
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, secs)
+        } else {
+            return String(format: "%d:%02d", minutes, secs)
+        }
     }
 }
