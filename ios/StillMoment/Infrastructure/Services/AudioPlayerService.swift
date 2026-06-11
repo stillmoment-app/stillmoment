@@ -26,11 +26,13 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     init(
         coordinator: AudioSessionCoordinatorProtocol,
         nowPlayingProvider: NowPlayingInfoProvider = SystemNowPlayingInfoProvider(),
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository()
+        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
+        gongPlayer: MeditationGongPlayerProtocol = MeditationGongPlayer()
     ) {
         self.coordinator = coordinator
         self.nowPlayingProvider = nowPlayingProvider
         self.soundRepository = soundRepository
+        self.gongPlayer = gongPlayer
         super.init()
         self.setupNotifications()
         self.registerConflictHandler()
@@ -276,6 +278,10 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     }
 
     func cleanup() {
+        // Stop a ringing end gong and reset its configuration (shared-106)
+        self.gongPlayer.stop()
+        self.endGongConfiguration = nil
+
         // Stop silent background audio
         self.stopSilentBackgroundAudio()
 
@@ -322,7 +328,13 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
     let nowPlayingProvider: NowPlayingInfoProvider
     private(set) var currentMeditation: GuidedMeditation?
 
-    private let coordinator: AudioSessionCoordinatorProtocol
+    // Internal (not private) so AudioPlayerService+Gong.swift can access them
+    let coordinator: AudioSessionCoordinatorProtocol
+    let gongPlayer: MeditationGongPlayerProtocol
+
+    /// End gong configuration (shared-106); nil = playback ends without gong
+    var endGongConfiguration: (soundId: String, volume: Float)?
+
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private var player: AVPlayer?
     private var timeObserverToken: Any?
@@ -366,8 +378,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         self.clearNowPlayingInfo()
         self.disableRemoteCommandCenter()
 
-        // Release audio session when playback finishes
-        self.coordinator.releaseAudioSession(for: .guidedMeditation)
+        // shared-106: the end gong must ring out in the still-active session
+        // before the session is released (precedent: lock screen gong bug)
+        self.releaseSessionAfterEndGong()
     }
 
     /// Treats reaching the trim end like the natural end of the file (shared-105).

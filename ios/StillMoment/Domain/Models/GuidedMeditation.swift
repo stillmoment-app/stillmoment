@@ -24,7 +24,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         name: String,
         dateAdded: Date = Date(),
         trimStart: TimeInterval? = nil,
-        trimEnd: TimeInterval? = nil
+        trimEnd: TimeInterval? = nil,
+        gongEnabled: Bool = false
     ) {
         self.id = id
         self.localFilePath = localFilePath
@@ -36,6 +37,7 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.dateAdded = dateAdded
         self.trimStart = trimStart
         self.trimEnd = trimEnd
+        self.gongEnabled = gongEnabled
     }
 
     /// Legacy initializer for security-scoped bookmarks (migration support)
@@ -48,7 +50,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         name: String,
         dateAdded: Date = Date(),
         trimStart: TimeInterval? = nil,
-        trimEnd: TimeInterval? = nil
+        trimEnd: TimeInterval? = nil,
+        gongEnabled: Bool = false
     ) {
         self.id = id
         self.localFilePath = nil
@@ -60,6 +63,7 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         self.dateAdded = dateAdded
         self.trimStart = trimStart
         self.trimEnd = trimEnd
+        self.gongEnabled = gongEnabled
     }
 
     // MARK: - Codable
@@ -86,6 +90,9 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         // Trim points were added in shared-105; older entries have no such keys
         self.trimStart = try container.decodeIfPresent(TimeInterval.self, forKey: .trimStart)
         self.trimEnd = try container.decodeIfPresent(TimeInterval.self, forKey: .trimEnd)
+
+        // Start/end gong was added in shared-106; older entries play without gong
+        self.gongEnabled = try container.decodeIfPresent(Bool.self, forKey: .gongEnabled) ?? false
     }
 
     /// Encodes the meditation without the legacy `customTeacher`/`customName` fields.
@@ -101,6 +108,7 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         try container.encode(self.dateAdded, forKey: .dateAdded)
         try container.encodeIfPresent(self.trimStart, forKey: .trimStart)
         try container.encodeIfPresent(self.trimEnd, forKey: .trimEnd)
+        try container.encode(self.gongEnabled, forKey: .gongEnabled)
     }
 
     // MARK: Internal
@@ -135,6 +143,10 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
 
     /// Playback end offset in seconds (nil = play to file end).
     var trimEnd: TimeInterval?
+
+    /// Whether a gong marks the start and end of playback (shared-106).
+    /// Sound and volume follow the timer settings (Praxis).
+    var gongEnabled: Bool
 
     /// Where playback effectively begins (file start unless trimmed)
     var effectiveStart: TimeInterval {
@@ -177,7 +189,8 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
             name: self.name,
             dateAdded: self.dateAdded,
             trimStart: self.trimStart,
-            trimEnd: self.trimEnd
+            trimEnd: self.trimEnd,
+            gongEnabled: self.gongEnabled
         )
     }
 
@@ -194,6 +207,7 @@ struct GuidedMeditation: Identifiable, Codable, Equatable, Hashable {
         case dateAdded
         case trimStart
         case trimEnd
+        case gongEnabled
         // Legacy keys (read-only during migration; no longer encoded)
         case customTeacher
         case customName

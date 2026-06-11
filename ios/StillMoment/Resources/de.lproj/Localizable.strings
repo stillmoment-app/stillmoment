@@ -235,6 +235,11 @@
 "accessibility.editSheet.stopPreview" = "Anhören stoppen";
 "accessibility.editSheet.preview.hint" = "Spielt die Aufnahme an der eingegebenen Stelle ab, um die Position zu prüfen";
 
+// Start-/End-Gong (shared-106)
+"guided_meditations.edit.gong" = "Gong am Anfang und Ende";
+"guided_meditations.edit.gongHint" = "Ein Gong leitet die Meditation ein und schließt sie ab. Klang und Lautstärke folgen den Gong-Einstellungen des Timers.";
+"accessibility.editSheet.gong.hint" = "Spielt einen Gong am Anfang und am Ende der Wiedergabe";
+
 "guided_meditations.import.action" = "Importieren";
 
 "guided_meditations.player.teacher" = "Lehrer";

@@ -550,6 +550,7 @@ Eine vom User importierte gefuehrte Meditation. Das Abspielen der Audio-Datei is
 | `name` | String | Name (aus ID3 oder user-editiert; einzige Wahrheit seit shared-103) |
 | `trimStart` | TimeInterval? | Optionaler Startpunkt der Wiedergabe (shared-105; nil = Dateianfang) |
 | `trimEnd` | TimeInterval? | Optionaler Endpunkt der Wiedergabe (shared-105; nil = Dateiende) |
+| `gongEnabled` | Bool | Gong am Anfang und Ende der Wiedergabe (shared-106; Default false) |
 | `dateAdded` | Date | Hinzugefuegt am |
 
 **Computed Properties:**
@@ -567,6 +568,13 @@ Nicht-destruktiv — die Audio-Datei wird nie veraendert. Playback startet bei `
 endet bei `effectiveEnd` (gleicher Completion-Pfad wie ein natuerliches Dateiende, auch auf dem
 Lock Screen). Seek/Skip clampen auf den effektiven Bereich. Legacy-Eintraege ohne Trim-Keys
 laden unveraendert (`decodeIfPresent`).
+
+**Start-/End-Gong (shared-106):**
+`gongEnabled` rahmt die Wiedergabe mit einem Gong: Start-Gong → kurze Atempause (2 s) → Audio;
+am effektiven Ende spielt der End-Gong vollstaendig aus, bevor die Audio-Session freigegeben
+wird (Lock-Screen-sicher). Klang/Lautstaerke folgen den Timer-Einstellungen (`Praxis`).
+Wiedergabe via `MeditationGongPlayerProtocol` (Domain) / `MeditationGongPlayer` (Infrastructure).
+Legacy-Eintraege ohne Key laden als `false`.
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/GuidedMeditation.swift`
@@ -616,6 +624,7 @@ Kapselt Zustand und Validierungslogik fuer das Editieren von GuidedMeditation-Me
 | `editedName` | String | Bearbeiteter Name |
 | `editedTrimStartText` | String | Trim-Start als Text (m:ss, h:mm:ss oder Minuten; leer = kein Trim) |
 | `editedTrimEndText` | String | Trim-Ende als Text (m:ss, h:mm:ss oder Minuten; leer = kein Trim) |
+| `editedGongEnabled` | Bool | Bearbeiteter Gong-Schalter (shared-106) |
 
 **Computed Properties:**
 

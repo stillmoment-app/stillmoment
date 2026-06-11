@@ -24,6 +24,9 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
     var silentBackgroundAudioStarted = false
     var silentBackgroundAudioStopped = false
     var transitionFromSilentToPlaybackCalled = false
+    var configureEndGongCalled = false
+    var endGongSoundId: String?
+    var endGongVolume: Float?
 
     func load(url: URL, meditation: GuidedMeditation) async throws {
         if self.loadShouldThrow {
@@ -78,6 +81,12 @@ final class MockAudioPlayerService: AudioPlayerServiceProtocol {
         self.playCalled = true
         self.state.send(.playing)
         self.silentBackgroundAudioStopped = true
+    }
+
+    func configureEndGong(soundId: String, volume: Float) {
+        self.configureEndGongCalled = true
+        self.endGongSoundId = soundId
+        self.endGongVolume = volume
     }
 
     func cleanup() {

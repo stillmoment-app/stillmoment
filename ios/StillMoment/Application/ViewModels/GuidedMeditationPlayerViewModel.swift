@@ -43,13 +43,17 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         preparationTimeSeconds: Int? = nil,
         playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
         meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        clock: ClockProtocol = SystemClock()
+        clock: ClockProtocol = SystemClock(),
+        gongPlayer: MeditationGongPlayerProtocol = MeditationGongPlayer(),
+        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository()
     ) {
         self.meditation = meditation
         self.preparationTimeSeconds = preparationTimeSeconds
         self.playerService = playerService
         self.meditationService = meditationService
         self.clock = clock
+        self.gongPlayer = gongPlayer
+        self.praxisRepository = praxisRepository
 
         self.setupBindings()
         // Remote controls will be configured in play() after audio session is activated
@@ -190,6 +194,15 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
         do {
             try await self.playerService.load(url: fileURL, meditation: self.meditation)
+            // shared-106: end gong plays at the trim end / file end on the lock screen;
+            // sound and volume follow the timer settings (Praxis)
+            if self.meditation.gongEnabled {
+                let praxis = self.praxisRepository.load()
+                self.playerService.configureEndGong(
+                    soundId: praxis.startGongSoundId,
+                    volume: praxis.gongVolume
+                )
+            }
             Logger.audioPlayer.info("Audio loaded successfully")
         } catch {
             Logger.audioPlayer.error("Failed to load audio", error: error)
@@ -261,6 +274,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     func cleanup() {
         self.countdownTimer?.cancel()
         self.countdownTimer = nil
+        self.breathPauseTimer?.cancel()
+        self.breathPauseTimer = nil
+        self.gongPlayer.stop()
         self.playerService.cleanup()
         self.cancellables.removeAll()
         Logger.audioPlayer.debug("Cleaned up player resources")
@@ -274,8 +290,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     /// - First call without preparation time: plays immediately
     /// - Subsequent calls: toggles play/pause (no countdown)
     func startPlayback() {
-        // Don't start if already counting down
-        guard !self.isPreparing else {
+        // Don't start if already counting down or while the start gong sequence runs
+        guard !self.isPreparing, !self.isStartGongSequenceActive else {
             return
         }
 
@@ -291,6 +307,8 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         // First start - use countdown if configured
         if let prepTime = preparationTimeSeconds {
             self.startCountdown(seconds: prepTime)
+        } else if self.meditation.gongEnabled {
+            self.startGongSequence()
         } else {
             self.togglePlayPause()
         }
@@ -300,11 +318,21 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+    /// Breath pause between start gong and meditation audio (shared-106)
+    private static let breathPauseSeconds: TimeInterval = 2.0
+
     private let playerService: AudioPlayerServiceProtocol
     private let meditationService: GuidedMeditationServiceProtocol
     private let clock: ClockProtocol
+    private let gongPlayer: MeditationGongPlayerProtocol
+    private let praxisRepository: PraxisRepository
     private var cancellables = Set<AnyCancellable>()
     private var countdownTimer: AnyCancellable?
+    private var breathPauseTimer: AnyCancellable?
+
+    /// True while the start gong rings and during the following breath pause —
+    /// blocks further startPlayback taps until the meditation audio runs
+    private var isStartGongSequenceActive = false
 
     // MARK: - Private Methods
 
@@ -378,17 +406,66 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             self.countdownTimer?.cancel()
             self.countdownTimer = nil
             self.countdownState = .finished
-            // Use atomic transition to prevent audio gap when screen is locked.
-            // This starts playback BEFORE stopping silent audio, ensuring iOS
-            // never suspends the app due to lack of audio.
-            do {
-                try self.playerService.transitionFromSilentToPlayback()
-            } catch {
-                Logger.audioPlayer.error("Failed to transition to playback", error: error)
-                self.errorMessage = NSLocalizedString("error.playbackFailed", comment: "Playback error")
+            if self.meditation.gongEnabled {
+                // shared-106: gong rings in the still-active silent-audio session,
+                // then the breath pause and the atomic transition follow
+                self.isStartGongSequenceActive = true
+                self.playStartGongThenTransition()
+            } else {
+                self.transitionToPlayback()
             }
         } else {
             self.countdownState = .active(ticked)
         }
+    }
+
+    /// Uses the atomic transition to prevent an audio gap when the screen is locked:
+    /// playback starts BEFORE silent audio stops, so iOS never suspends the app.
+    private func transitionToPlayback() {
+        do {
+            try self.playerService.transitionFromSilentToPlayback()
+        } catch {
+            Logger.audioPlayer.error("Failed to transition to playback", error: error)
+            self.errorMessage = NSLocalizedString("error.playbackFailed", comment: "Playback error")
+        }
+    }
+
+    // MARK: - Start Gong Sequence (shared-106)
+
+    /// Starts the meditation with a gong: silent keep-alive → gong → breath pause → audio.
+    ///
+    /// Reuses the countdown machinery (silent background audio + atomic transition)
+    /// so the whole sequence survives a locked screen.
+    private func startGongSequence() {
+        self.isStartGongSequenceActive = true
+        do {
+            try self.playerService.startSilentBackgroundAudio()
+        } catch {
+            Logger.audioPlayer.error("Failed to start silent background audio", error: error)
+        }
+        self.playStartGongThenTransition()
+    }
+
+    private func playStartGongThenTransition() {
+        let praxis = self.praxisRepository.load()
+        self.gongPlayer.play(
+            soundId: praxis.startGongSoundId,
+            volume: praxis.gongVolume
+        ) { [weak self] in
+            self?.startBreathPause()
+        }
+    }
+
+    private func startBreathPause() {
+        self.breathPauseTimer = self.clock.schedule(interval: Self.breathPauseSeconds) { [weak self] in
+            self?.finishBreathPause()
+        }
+    }
+
+    private func finishBreathPause() {
+        self.breathPauseTimer?.cancel()
+        self.breathPauseTimer = nil
+        self.isStartGongSequenceActive = false
+        self.transitionToPlayback()
     }
 }

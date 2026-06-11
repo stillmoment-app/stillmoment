@@ -32,7 +32,8 @@ enum GuidedMeditationTestHelpers {
         fileURL: URL,
         teacher: String = "Test Teacher",
         name: String = "Test Meditation",
-        duration: TimeInterval = 600
+        duration: TimeInterval = 600,
+        gongEnabled: Bool = false
     ) -> GuidedMeditation {
         let meditationId = UUID()
         let localFileName = "\(meditationId.uuidString).mp3"
@@ -52,7 +53,8 @@ enum GuidedMeditationTestHelpers {
             fileName: "test.mp3",
             duration: duration,
             teacher: teacher,
-            name: name
+            name: name,
+            gongEnabled: gongEnabled
         )
     }
 

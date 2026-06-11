@@ -21,6 +21,7 @@ struct EditSheetState {
         self.editedName = meditation.name
         self.editedTrimStartText = meditation.trimStart.map(Self.formatTime) ?? ""
         self.editedTrimEndText = meditation.trimEnd.map(Self.formatTime) ?? ""
+        self.editedGongEnabled = meditation.gongEnabled
     }
 
     // MARK: Internal
@@ -37,12 +38,16 @@ struct EditSheetState {
     /// Trim end as text (m:ss, h:mm:ss, or plain minutes; empty = no trim)
     var editedTrimEndText: String
 
+    /// Whether a gong should mark the start and end of playback (shared-106)
+    var editedGongEnabled: Bool
+
     /// Whether the user changed teacher, name, or trim points compared to the initial values.
     var hasChanges: Bool {
         self.editedTeacher != self.originalMeditation.teacher ||
             self.editedName != self.originalMeditation.name ||
             self.parsedTrimStart.value != self.originalMeditation.trimStart ||
-            self.parsedTrimEnd.value != self.originalMeditation.trimEnd
+            self.parsedTrimEnd.value != self.originalMeditation.trimEnd ||
+            self.editedGongEnabled != self.originalMeditation.gongEnabled
     }
 
     /// Whether all fields contain valid input (non-empty teacher/name, consistent trim points).
@@ -97,6 +102,7 @@ struct EditSheetState {
         updated.name = self.editedName
         updated.trimStart = self.parsedTrimStart.value
         updated.trimEnd = self.parsedTrimEnd.value
+        updated.gongEnabled = self.editedGongEnabled
         return updated
     }
 

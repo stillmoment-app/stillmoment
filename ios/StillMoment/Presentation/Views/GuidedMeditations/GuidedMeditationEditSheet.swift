@@ -100,6 +100,11 @@ struct GuidedMeditationEditSheet: View {
                     } footer: {
                         self.trimFooter
                     }
+                    Section {
+                        self.gongToggle
+                    } footer: {
+                        self.gongFooter
+                    }
                 }
                 .scrollContentBackground(.hidden)
                 .modifier(CompactSectionSpacingModifier())
@@ -275,6 +280,24 @@ struct GuidedMeditationEditSheet: View {
             : "guided_meditations.edit.preview")
         .accessibilityHint("accessibility.editSheet.preview.hint")
         .accessibilityIdentifier("editSheet.button.preview.\(field == .start ? "start" : "end")")
+    }
+
+    // MARK: - Gong Subviews (shared-106)
+
+    private var gongToggle: some View {
+        Toggle(isOn: self.$editState.editedGongEnabled) {
+            Text("guided_meditations.edit.gong")
+                .textStyle(.body, color: \.textPrimary)
+        }
+        .themedToggle()
+        .accessibilityIdentifier("editSheet.toggle.gong")
+        .accessibilityHint("accessibility.editSheet.gong.hint")
+    }
+
+    private var gongFooter: some View {
+        Text("guided_meditations.edit.gongHint")
+            .textStyle(.caption, color: \.textSecondary)
+            .padding(.top, 8)
     }
 
     private var trimFooter: some View {
