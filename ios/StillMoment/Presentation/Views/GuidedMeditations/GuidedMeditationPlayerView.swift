@@ -257,10 +257,6 @@ struct GuidedMeditationPlayerView: View {
                     }
                 }
 
-            self.scrubHint
-                .padding(.top, 10)
-                .opacity(self.viewModel.isDragging ? 0 : 1)
-
             Spacer(minLength: 16)
 
             self.centralLine
@@ -283,16 +279,6 @@ struct GuidedMeditationPlayerView: View {
             .padding(.bottom, 32)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    /// "← → Ziehen zum Spulen" — hidden while dragging.
-    private var scrubHint: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "arrow.left.arrow.right")
-            Text("guided_meditations.player.scrub.hint")
-        }
-        .textStyle(.eyebrow, color: \.textSecondary)
-        .accessibilityHidden(true)
     }
 
     /// Central resting line — the live position while dragging, otherwise the remaining-time

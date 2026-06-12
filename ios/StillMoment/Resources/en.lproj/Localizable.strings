@@ -289,7 +289,6 @@
 "guided_meditations.player.skipBackward" = "Skip backward 15 seconds";
 
 // Waveform player "tape head" (shared-109)
-"guided_meditations.player.scrub.hint" = "Drag to scrub";
 "guided_meditations.player.remaining.format" = "%@ LEFT";
 "guided_meditations.player.remaining.paused" = "PAUSED";
 "guided_meditations.player.remaining.finished" = "FINISHED";

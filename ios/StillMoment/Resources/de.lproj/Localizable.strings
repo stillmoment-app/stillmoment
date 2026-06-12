@@ -289,7 +289,6 @@
 "guided_meditations.player.skipBackward" = "15 Sekunden zurückspulen";
 
 // Waveform-Player „Tonkopf" (shared-109)
-"guided_meditations.player.scrub.hint" = "Ziehen zum Spulen";
 "guided_meditations.player.remaining.format" = "NOCH %@";
 "guided_meditations.player.remaining.paused" = "PAUSIERT";
 "guided_meditations.player.remaining.finished" = "BEENDET";
