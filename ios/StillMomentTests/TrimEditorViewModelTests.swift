@@ -344,9 +344,12 @@ final class TrimEditorViewModelTests: XCTestCase {
     }
 
     func testPlayFromEndPointRunsPastEndToFileEnd() async {
-        let sut = self.makeSUT()
+        // The end audition parks the playhead AT the mark; pressing ▶ there is the
+        // deliberate escape hatch to listen past the end point.
+        let sut = self.makeSUT(previewDurations: .test)
         sut.movePoint(.end, to: 600)
         sut.markDragEnded()
+        try? await Task.sleep(nanoseconds: 200_000_000)
 
         sut.togglePlayback()
         self.audio.meditationPreviewPositionSubject.send(700)

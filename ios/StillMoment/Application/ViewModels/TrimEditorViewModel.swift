@@ -27,10 +27,11 @@ struct TrimPreviewDurations {
 /// Playback model (handoff "touch-robuste Punkt-Bedienung"): the playhead is its own,
 /// always-present position. Dragging it (`seek`) pauses playback first and moves only
 /// the playhead; releasing the drag starts playback from the new position. Releasing a
-/// mark drag or nudging anchors the playhead at the mark and auditions the cut with a
-/// short auto-preview; ▶ plays from the playhead, ⏸ pauses and keeps it. Playback
-/// pauses automatically at the end point, unless it was anchored at or after the end
-/// point (so the end position itself can be auditioned).
+/// mark drag or nudging auditions the cut with a short auto-preview inside the audible
+/// window (start: first seconds of the range; end: last seconds up to the mark) and
+/// parks the playhead at the mark; ▶ plays from the playhead, ⏸ pauses and keeps it.
+/// Playback pauses automatically at the end point, unless it starts at or after the
+/// end point (the deliberate escape hatch to listen past the cut).
 @MainActor
 final class TrimEditorViewModel: ObservableObject {
     // MARK: Lifecycle
@@ -130,10 +131,10 @@ final class TrimEditorViewModel: ObservableObject {
         self.editorState = self.editorState.moving(point, to: time)
     }
 
-    /// Mark drag released — anchors the playhead at the mark, auditions the cut, and
+    /// Mark drag released — auditions the cut, parks the playhead at the mark, and
     /// recenters the zoom window on the released mark (only when already zoomed).
     func markDragEnded() {
-        self.playPreview(from: self.editorState.activeValue, for: self.previewDurations.afterMarkDrag)
+        self.auditionActivePoint(for: self.previewDurations.afterMarkDrag)
         self.recenterWindowOnActivePoint()
     }
 
@@ -141,7 +142,7 @@ final class TrimEditorViewModel: ObservableObject {
     /// zoomed window centered on the mark.
     func nudgeActivePoint(by delta: TimeInterval) {
         self.editorState = self.editorState.nudgingActivePoint(by: delta)
-        self.playPreview(from: self.editorState.activeValue, for: self.previewDurations.afterNudge)
+        self.auditionActivePoint(for: self.previewDurations.afterNudge)
         self.recenterWindowOnActivePoint()
     }
 
@@ -323,9 +324,30 @@ final class TrimEditorViewModel: ObservableObject {
         }
     }
 
-    /// Auditions the cut: plays a short preview from `position`, then stops and parks
-    /// the playhead back at `position`. Replaces a running playback or preview.
-    private func playPreview(from position: TimeInterval, for duration: TimeInterval) {
+    /// Auditions the cut at the active point inside the audible window: the start
+    /// plays the first seconds of the range, the end plays the last seconds UP TO the
+    /// mark — the preview never plays audio the selection cuts off.
+    private func auditionActivePoint(for duration: TimeInterval) {
+        switch self.editorState.activePoint {
+        case .start:
+            self.playPreview(from: self.editorState.start, for: duration)
+        case .end:
+            let end = self.editorState.end
+            self.playPreview(
+                from: max(end - duration, self.editorState.start),
+                for: duration,
+                parkingAt: end
+            )
+        }
+    }
+
+    /// Plays a short preview from `position`, then stops and parks the playhead at
+    /// `parkingAt` (default: back at `position`). Replaces a running playback or preview.
+    private func playPreview(
+        from position: TimeInterval,
+        for duration: TimeInterval,
+        parkingAt park: TimeInterval? = nil
+    ) {
         self.cancelPreview()
         self.pausePlayback()
         self.playheadTime = position
@@ -334,12 +356,13 @@ final class TrimEditorViewModel: ObservableObject {
             return
         }
         self.isPreviewing = true
+        let parkPosition = park ?? position
         self.previewTask = Task { [weak self] in
             try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
             guard !Task.isCancelled else {
                 return
             }
-            self?.finishPreview(parkingPlayheadAt: position)
+            self?.finishPreview(parkingPlayheadAt: parkPosition)
         }
     }
 
