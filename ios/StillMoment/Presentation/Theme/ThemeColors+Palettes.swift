@@ -45,7 +45,11 @@ extension ThemeColors {
         playGradientBot: Color(red: 0.494, green: 0.227, blue: 0.176),
         // cardShadow rgba(120, 55, 28, 0.08) — warmer, sehr subtiler Pillen-Schatten
         cardShadow: Color(red: 120 / 255, green: 55 / 255, blue: 28 / 255, opacity: 0.08),
-        error: Color(red: 0.729, green: 0.102, blue: 0.102)
+        error: Color(red: 0.729, green: 0.102, blue: 0.102),
+        // playheadAccent #5E7A6B — tiefes Sage, lesbar auf Cream
+        playheadAccent: Color(red: 0.369, green: 0.478, blue: 0.420),
+        // playheadAccentHi #7FA08E
+        playheadAccentHi: Color(red: 0.498, green: 0.627, blue: 0.557)
     )
 
     /// Lifted Warm — Karten heben sich gegen alle drei Gradient-Stops,
@@ -80,6 +84,10 @@ extension ThemeColors {
         playGradientBot: Color(red: 0.690, green: 0.416, blue: 0.310),
         // cardShadow .clear — Dark Mode nutzt Border-Strategie statt Shadow
         cardShadow: .clear,
-        error: Color(red: 0.878, green: 0.380, blue: 0.318)
+        error: Color(red: 0.878, green: 0.380, blue: 0.318),
+        // playheadAccent #8AA896 — Sage aus dem Handoff
+        playheadAccent: Color(red: 0.541, green: 0.659, blue: 0.588),
+        // playheadAccentHi #A7C2B1
+        playheadAccentHi: Color(red: 0.655, green: 0.761, blue: 0.694)
     )
 }

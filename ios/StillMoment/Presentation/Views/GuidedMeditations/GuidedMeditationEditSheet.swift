@@ -51,18 +51,18 @@ struct GuidedMeditationEditSheet: View {
         meditation: GuidedMeditation,
         mode: GuidedMeditationEditSheetMode = .edit,
         availableTeachers: [String] = [],
+        audioService: AudioServiceProtocol = AudioService(),
+        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
         onSave: @escaping (GuidedMeditation) -> Void,
-        onCancel: @escaping () -> Void,
-        onPreviewFrom: ((TimeInterval) -> Void)? = nil,
-        onStopPreview: (() -> Void)? = nil
+        onCancel: @escaping () -> Void
     ) {
         self.meditation = meditation
         self.mode = mode
         self.availableTeachers = availableTeachers
+        self.audioService = audioService
+        self.waveformProvider = waveformProvider
         self.onSave = onSave
         self.onCancel = onCancel
-        self.onPreviewFrom = onPreviewFrom
-        self.onStopPreview = onStopPreview
 
         _editState = State(initialValue: EditSheetState(meditation: meditation))
     }
@@ -74,10 +74,6 @@ struct GuidedMeditationEditSheet: View {
     let availableTeachers: [String]
     let onSave: (GuidedMeditation) -> Void
     let onCancel: () -> Void
-
-    /// Starts the library preview at the given second ("listen from here"); nil hides the buttons
-    let onPreviewFrom: ((TimeInterval) -> Void)?
-    let onStopPreview: (() -> Void)?
 
     var body: some View {
         NavigationView {
@@ -94,11 +90,12 @@ struct GuidedMeditationEditSheet: View {
                     } footer: {
                         self.fileInfoFooter
                     }
-                    Section {
-                        self.trimStartField
-                        self.trimEndField
-                    } footer: {
-                        self.trimFooter
+                    if self.mode == .edit {
+                        Section {
+                            self.playbackRangeCard
+                        } footer: {
+                            self.playbackRangeFooter
+                        }
                     }
                     Section {
                         self.gongToggle
@@ -136,6 +133,14 @@ struct GuidedMeditationEditSheet: View {
             }
             .onAppear {
                 self.applyAutofocus()
+                self.loadMiniWaveform()
+            }
+            .onDisappear {
+                self.miniWaveformTask?.cancel()
+                self.miniWaveformTask = nil
+            }
+            .sheet(isPresented: self.$showingTrimEditor) {
+                self.trimEditorSheet
             }
         }
     }
@@ -202,84 +207,58 @@ struct GuidedMeditationEditSheet: View {
         .accessibilityElement(children: .combine)
     }
 
-    // MARK: - Trim Subviews
+    // MARK: - Playback Range Subviews (shared-107)
 
-    private var trimStartField: some View {
-        self.trimField(
-            field: .start,
-            text: self.$editState.editedTrimStartText,
-            focus: self.$trimStartFocused
+    private var playbackRangeCard: some View {
+        PlaybackRangeCard(
+            fileDuration: self.meditation.duration,
+            trimStart: self.editState.editedTrimStart,
+            trimEnd: self.editState.editedTrimEnd,
+            waveform: self.miniWaveform,
+            onOpenEditor: { self.showingTrimEditor = true },
+            onRemoveTrim: {
+                self.editState.editedTrimStart = nil
+                self.editState.editedTrimEnd = nil
+            }
         )
     }
 
-    private var trimEndField: some View {
-        self.trimField(
-            field: .end,
-            text: self.$editState.editedTrimEndText,
-            focus: self.$trimEndFocused
-        )
+    private var playbackRangeFooter: some View {
+        Text("playback_range.help")
+            .textStyle(.caption, color: \.textSecondary)
+            .padding(.top, 8)
     }
 
-    private func trimField(
-        field: TrimField,
-        text: Binding<String>,
-        focus: FocusState<Bool>.Binding
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(field.labelKey)
-                .textStyle(.eyebrow, color: \.textPrimary)
-
-            HStack(spacing: 12) {
-                ClearableTextField(
-                    "guided_meditations.edit.trimPlaceholder",
-                    text: text,
-                    focus: focus,
-                    accessibilityLabel: field.labelKey,
-                    accessibilityIdentifier: field.fieldIdentifier,
-                    submitLabel: .done
-                )
-                .keyboardType(.numbersAndPunctuation)
-
-                if self.onPreviewFrom != nil, let previewTime = self.previewTime(for: field) {
-                    self.previewButton(for: field, time: previewTime)
+    /// Full-screen waveform editor, seeded from the *pending* (uncommitted) trim values so
+    /// reopening it reflects edits that have not been saved yet (shared-107).
+    private var trimEditorSheet: some View {
+        ThemeRootView {
+            TrimEditorSheet(
+                meditation: self.meditationWithPendingTrim,
+                audioService: self.audioService,
+                waveformProvider: self.waveformProvider,
+                onDone: { start, end in
+                    self.editState.editedTrimStart = start
+                    self.editState.editedTrimEnd = end
+                    self.showingTrimEditor = false
+                },
+                onCancel: {
+                    self.showingTrimEditor = false
                 }
-            }
+            )
         }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
     }
 
-    /// Where "listen from here" starts for a field — before the end cut you hear the lead-up
-    private func previewTime(for field: TrimField) -> TimeInterval? {
-        switch field {
-        case .start:
-            self.editState.trimStartValue
-        case .end:
-            self.editState.trimEndValue.map { max($0 - Self.endPreviewLeadIn, 0) }
-        }
-    }
-
-    private func previewButton(for field: TrimField, time: TimeInterval) -> some View {
-        let isPreviewingThis = self.previewingField == field
-
-        return Button {
-            if isPreviewingThis {
-                self.previewingField = nil
-                self.onStopPreview?()
-            } else {
-                self.previewingField = field
-                self.onPreviewFrom?(time)
-            }
-        } label: {
-            Image(systemName: isPreviewingThis ? "stop.circle.fill" : "play.circle")
-                .font(.system(size: 24))
-                .foregroundColor(self.theme.interactive)
-                .frame(minWidth: 44, minHeight: 44)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(isPreviewingThis
-            ? "accessibility.editSheet.stopPreview"
-            : "guided_meditations.edit.preview")
-        .accessibilityHint("accessibility.editSheet.preview.hint")
-        .accessibilityIdentifier("editSheet.button.preview.\(field == .start ? "start" : "end")")
+    /// A copy of the meditation carrying the edit sheet's pending trim values. The editor
+    /// seeds `TrimEditorState` from `effectiveStart`/`effectiveEnd`, so this is the cleanest
+    /// way to reflect uncommitted edits without adding a separate editor parameter.
+    private var meditationWithPendingTrim: GuidedMeditation {
+        var copy = self.meditation
+        copy.trimStart = self.editState.editedTrimStart
+        copy.trimEnd = self.editState.editedTrimEnd
+        return copy
     }
 
     // MARK: - Gong Subviews (shared-106)
@@ -300,57 +279,19 @@ struct GuidedMeditationEditSheet: View {
             .padding(.top, 8)
     }
 
-    private var trimFooter: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if !self.editState.isTrimInputValid {
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 11))
-                        .padding(.top, 2)
-                    Text("guided_meditations.edit.trimInvalid")
-                }
-                .foregroundColor(self.theme.textPrimary)
-                .textStyle(.caption, color: \.textPrimary)
-            }
-            Text("guided_meditations.edit.trimHint")
-                .textStyle(.caption, color: \.textSecondary)
-        }
-        .padding(.top, 8)
-    }
-
     // MARK: Private
-
-    /// Which trim field is currently previewing ("listen from here")
-    private enum TrimField {
-        case start
-        case end
-
-        var labelKey: LocalizedStringKey {
-            switch self {
-            case .start: "guided_meditations.edit.trimStart"
-            case .end: "guided_meditations.edit.trimEnd"
-            }
-        }
-
-        var fieldIdentifier: String {
-            switch self {
-            case .start: "editSheet.field.trimStart"
-            case .end: "editSheet.field.trimEnd"
-            }
-        }
-    }
-
-    /// Seconds before the trim end the preview starts, so the cut placement is audible
-    private static let endPreviewLeadIn: TimeInterval = 10
 
     @Environment(\.themeColors)
     private var theme
     @State private var editState: EditSheetState
-    @State private var previewingField: TrimField?
+    @State private var showingTrimEditor = false
+    @State private var miniWaveform: MeditationWaveform?
+    @State private var miniWaveformTask: Task<Void, Never>?
     @FocusState private var teacherFocused: Bool
     @FocusState private var nameFocused: Bool
-    @FocusState private var trimStartFocused: Bool
-    @FocusState private var trimEndFocused: Bool
+
+    private let audioService: AudioServiceProtocol
+    private let waveformProvider: WaveformProviderProtocol
 
     private func attemptSave() {
         guard self.editState.isValid else {
@@ -366,6 +307,22 @@ struct GuidedMeditationEditSheet: View {
         // Slight delay lets the sheet finish presenting before the keyboard pops up.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
             self.nameFocused = true
+        }
+    }
+
+    /// Loads the waveform for the mini display in the trimmed card state (edit mode only).
+    ///
+    /// Best-effort: on failure the card simply renders the trimmed row without bars (handoff
+    /// "no spinner in the form"). Cache hits return instantly; misses generate off-main.
+    private func loadMiniWaveform() {
+        guard self.mode == .edit, self.miniWaveform == nil else {
+            return
+        }
+        let meditation = self.meditation
+        let provider = self.waveformProvider
+        self.miniWaveformTask?.cancel()
+        self.miniWaveformTask = Task { @MainActor in
+            self.miniWaveform = try? await provider.waveform(for: meditation)
         }
     }
 

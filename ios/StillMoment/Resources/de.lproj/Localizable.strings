@@ -225,20 +225,45 @@
 "guided_meditations.edit.duration" = "Dauer";
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
 
-// Trim-Punkte (shared-105)
-"guided_meditations.edit.trimStart" = "Beginnen bei";
-"guided_meditations.edit.trimEnd" = "Beenden bei";
-"guided_meditations.edit.trimPlaceholder" = "z. B. 1:30";
-"guided_meditations.edit.trimHint" = "Überspringe eine Einleitung oder Schlussworte: Die Wiedergabe läuft nur zwischen diesen Punkten. Leer lassen, um alles zu hören — die Datei selbst bleibt unverändert.";
-"guided_meditations.edit.trimInvalid" = "Der Anfang muss vor dem Ende liegen, beide innerhalb der Aufnahme.";
-"guided_meditations.edit.preview" = "Ab hier anhören";
-"accessibility.editSheet.stopPreview" = "Anhören stoppen";
-"accessibility.editSheet.preview.hint" = "Spielt die Aufnahme an der eingegebenen Stelle ab, um die Position zu prüfen";
-
 // Start-/End-Gong (shared-106)
 "guided_meditations.edit.gong" = "Gong am Anfang und Ende";
 "guided_meditations.edit.gongHint" = "Ein Gong leitet die Meditation ein und schließt sie ab. Klang und Lautstärke folgen den Gong-Einstellungen des Timers.";
 "accessibility.editSheet.gong.hint" = "Spielt einen Gong am Anfang und am Ende der Wiedergabe";
+
+// Wiedergabe-Bereich Karte (shared-107)
+"playback_range.label" = "Wiedergabe-Bereich";
+"playback_range.wholeFile" = "Ganze Datei · %@";
+"playback_range.choose" = "Bereich wählen";
+"playback_range.range" = "%@ – %@";
+"playback_range.audible" = "%@ hörbar";
+"playback_range.remove" = "Zuschnitt entfernen";
+"playback_range.help" = "Einleitung und Schlussworte überspringen — die Wiedergabe läuft nur zwischen diesen Punkten. Die Datei bleibt unverändert.";
+"playback_range.a11y.openHint" = "Öffnet den Editor, um den Wiedergabe-Bereich festzulegen";
+"playback_range.a11y.removeHint" = "Setzt den Zuschnitt zurück, die ganze Datei wird wiedergegeben";
+
+// Wellenform-Trim-Editor (shared-107)
+"trim_editor.title" = "Zuschneiden";
+"trim_editor.done" = "Fertig";
+"trim_editor.subtitle" = "%@ · %@";
+"trim_editor.label.beginsAt" = "Beginnt bei";
+"trim_editor.label.endsAt" = "Endet bei";
+"trim_editor.audible" = "Hörbar: %@ – %@ · %@";
+"trim_editor.card.start" = "Anfang";
+"trim_editor.card.end" = "Ende";
+"trim_editor.nudge.minus" = "−1s";
+"trim_editor.nudge.plus" = "+1s";
+"trim_editor.lane.playhead" = "Abspielposition";
+"trim_editor.hint" = "Oben ziehen: Abspielposition · unten ziehen: gewählter Punkt\n▶ spielt ab der Abspielposition";
+"trim_editor.wholeFile" = "Ganze Datei verwenden";
+"trim_editor.a11y.back" = "Zurück, Änderungen verwerfen";
+"trim_editor.a11y.playhead" = "Abspielposition";
+"trim_editor.a11y.startHandle" = "Anfangspunkt";
+"trim_editor.a11y.endHandle" = "Endpunkt";
+"trim_editor.a11y.nudgeBack" = "Eine Sekunde früher";
+"trim_editor.a11y.nudgeForward" = "Eine Sekunde später";
+"trim_editor.a11y.play" = "Vorhören";
+"trim_editor.a11y.pause" = "Pause";
+"trim_editor.a11y.cardHint" = "Wählt diesen Punkt zum Bearbeiten aus";
 
 "guided_meditations.import.action" = "Importieren";
 

@@ -33,19 +33,18 @@ struct SearchResultsListView: View {
                 ForEach(self.meditations) { meditation in
                     self.row(for: meditation)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button {
+                                self.onEditMeditation(meditation)
+                            } label: {
+                                Label("guided_meditations.edit", systemImage: "square.and.pencil")
+                            }
+                            .tint(self.theme.interactive)
+
                             Button(role: .destructive) {
                                 self.onDeleteMeditation(meditation)
                             } label: {
                                 Label("guided_meditations.delete.confirm", systemImage: "trash")
                             }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button {
-                                self.onEditMeditation(meditation)
-                            } label: {
-                                Label("guided_meditations.edit", systemImage: "pencil")
-                            }
-                            .tint(self.theme.interactive)
                         }
                 }
             } header: {

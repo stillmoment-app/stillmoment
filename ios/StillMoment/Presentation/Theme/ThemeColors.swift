@@ -57,6 +57,28 @@ struct ThemeColors: Equatable, Hashable {
 
     let error: Color
 
+    // MARK: - Trim Editor Tokens (shared-107)
+
+    /// Sage-Akzent der Abspielposition im Trim-Editor. Bewusst eine ANDERE
+    /// Farbfamilie als `interactive` (Kupfer), damit Playhead und Trim-Marken
+    /// auf der Spur nie verwechselbar sind (handoff "touch-robuste Punkt-Bedienung").
+    let playheadAccent: Color
+
+    /// Helle Variante des Sage-Akzents — oberer Gradient-Stop des Greifers,
+    /// Playhead-Linie und Hintergrund der Zeit-Blase beim Ziehen.
+    let playheadAccentHi: Color
+
+    /// Text auf der hellen Sage-Blase. Fester dunkler Tannen-Ton — auf beiden
+    /// Paletten liegt die Blase im hellen Sage, der Kontrast bleibt gleich.
+    var textOnPlayhead: Color {
+        Color(red: 0.075, green: 0.145, blue: 0.110)
+    }
+
+    /// Zarte Sage-Bahn in der Playhead-Lane.
+    var playheadTrack: Color {
+        self.playheadAccent.opacity(0.18)
+    }
+
     // MARK: - Gradient
 
     var backgroundGradient: LinearGradient {

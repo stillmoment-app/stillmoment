@@ -27,13 +27,15 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
         audioService: AudioServiceProtocol = AudioService(),
         meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository(),
-        searchHistoryStore: SearchHistoryStore = UserDefaultsSearchHistoryStore()
+        searchHistoryStore: SearchHistoryStore = UserDefaultsSearchHistoryStore(),
+        waveformProvider: WaveformProviderProtocol = WaveformProvider()
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
         self.audioService = audioService
         self.meditationSourceRepository = meditationSourceRepository
         self.searchHistoryStore = searchHistoryStore
+        self.waveformProvider = waveformProvider
         self.searchHistory = searchHistoryStore.load()
 
         // Mirror the running preview's playback state for the UI scrub-slider (shared-098).
@@ -108,6 +110,17 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     var uniqueTeachers: [String] {
         let teachers = Set(meditations.map(\.teacher))
         return teachers.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+    }
+
+    /// Shared audio service for the trim editor, so editor preview and library preview use
+    /// the same instance (shared-107). Read-only — the editor receives it via constructor injection.
+    var editorAudioService: AudioServiceProtocol {
+        self.audioService
+    }
+
+    /// Shared waveform provider for the trim editor and the edit-sheet mini waveform (shared-107).
+    var editorWaveformProvider: WaveformProviderProtocol {
+        self.waveformProvider
     }
 
     // MARK: - Public Methods
@@ -238,13 +251,16 @@ final class GuidedMeditationsListViewModel: ObservableObject {
             self.showingEditSheet = false
         }
         do {
-            _ = try self.meditationService.addMeditation(
+            let imported = try self.meditationService.addMeditation(
                 from: pending.url,
                 metadata: pending.metadata,
                 teacher: edited.teacher,
                 name: edited.name
             )
             self.meditations = try self.meditationService.loadMeditations()
+            // Precompute the waveform in the background so the trim editor opens instantly
+            // later (shared-107). Fire-and-forget — the import does not wait for it.
+            self.waveformProvider.precompute(for: imported)
             Logger.guidedMeditation.info(
                 "Successfully imported meditation",
                 metadata: ["fileName": pending.url.lastPathComponent]
@@ -262,6 +278,8 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         do {
             try self.meditationService.deleteMeditation(id: meditation.id)
             self.meditations.removeAll { $0.id == meditation.id }
+            // Drop the cached waveform alongside the audio file (shared-107).
+            self.waveformProvider.removeCached(id: meditation.id)
             Logger.guidedMeditation.info("Deleted meditation", metadata: ["id": meditation.id.uuidString])
         } catch {
             Logger.guidedMeditation.error("Failed to delete meditation", error: error)
@@ -416,5 +434,6 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let meditationSourceRepository: MeditationSourceRepositoryProtocol
     private let searchHistoryStore: SearchHistoryStore
+    private let waveformProvider: WaveformProviderProtocol
     private var cancellables = Set<AnyCancellable>()
 }

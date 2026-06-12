@@ -23,6 +23,8 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
     var mockAudioService: MockAudioService!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMeditationSourceRepository: MockMeditationSourceRepository!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockWaveformProvider: MockWaveformProvider!
 
     override func setUp() {
         super.setUp()
@@ -30,16 +32,19 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         self.mockMetadataService = MockAudioMetadataService()
         self.mockAudioService = MockAudioService()
         self.mockMeditationSourceRepository = MockMeditationSourceRepository()
+        self.mockWaveformProvider = MockWaveformProvider()
         self.sut = GuidedMeditationsListViewModel(
             meditationService: self.mockMeditationService,
             metadataService: self.mockMetadataService,
             audioService: self.mockAudioService,
-            meditationSourceRepository: self.mockMeditationSourceRepository
+            meditationSourceRepository: self.mockMeditationSourceRepository,
+            waveformProvider: self.mockWaveformProvider
         )
     }
 
     override func tearDown() {
         self.sut = nil
+        self.mockWaveformProvider = nil
         self.mockMeditationSourceRepository = nil
         self.mockAudioService = nil
         self.mockMetadataService = nil
@@ -123,6 +128,8 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
         XCTAssertTrue(self.sut.meditations.isEmpty)
         XCTAssertTrue(self.mockMeditationService.meditations.isEmpty)
         XCTAssertNil(self.sut.errorMessage)
+        // The cached waveform is dropped alongside the audio file (shared-107).
+        XCTAssertEqual(self.mockWaveformProvider.removedCachedIds, [meditation.id])
     }
 
     func testDeleteMeditationFailure() async {
