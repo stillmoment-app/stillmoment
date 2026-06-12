@@ -147,46 +147,36 @@ struct GuidedMeditationPlayerView: View {
         self.viewModel.isZenMode
     }
 
-    @ViewBuilder private var playerContent: some View {
-        VStack(spacing: 0) {
-            // Lehrer + Titel
-            VStack(spacing: 8) {
-                Text(self.viewModel.meditation.teacher)
-                    .textStyle(.bodyItalic, color: \.interactive)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .accessibilityLabel("guided_meditations.player.teacher")
-                    .accessibilityValue(self.viewModel.meditation.teacher)
+    /// Lehrer + Titel — in beiden Phasen oben.
+    private var titleBlock: some View {
+        VStack(spacing: 8) {
+            Text(self.viewModel.meditation.teacher)
+                .textStyle(.bodyItalic, color: \.interactive)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .accessibilityLabel("guided_meditations.player.teacher")
+                .accessibilityValue(self.viewModel.meditation.teacher)
 
-                Text(self.viewModel.meditation.name)
-                    .textStyle(.title, color: \.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-                    .accessibilityLabel("guided_meditations.player.title")
-                    .accessibilityValue(self.viewModel.meditation.name)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
-
-            Spacer(minLength: 12)
-
-            // Ring + Inhalt (Pause-Button oder Countdown)
-            PlayerRingView(
-                phase: self.viewModel.phase,
-                progress: self.viewModel.progress,
-                outerSize: Self.ringDiameter
-            ) {
-                self.circleContent
-            }
-
-            Spacer(minLength: 12)
-
-            // Hint (Pre-Roll) oder Restzeit-Label (Hauptphase)
-            self.bottomLabel
-                .padding(.bottom, 32)
+            Text(self.viewModel.meditation.name)
+                .textStyle(.title, color: \.textPrimary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .accessibilityLabel("guided_meditations.player.title")
+                .accessibilityValue(self.viewModel.meditation.name)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 24)
+    }
+
+    @ViewBuilder private var playerContent: some View {
+        switch self.viewModel.phase {
+        case .preRoll:
+            self.preRollContent
+                .transition(.opacity)
+        case .playing:
+            self.waveformContent
+                .transition(.opacity)
+        }
 
         // Loading overlay
         if self.viewModel.playbackState == .loading {
@@ -197,61 +187,141 @@ struct GuidedMeditationPlayerView: View {
         }
     }
 
-    @ViewBuilder private var circleContent: some View {
-        switch self.viewModel.phase {
-        case .preRoll:
-            VStack(spacing: 6) {
-                DisplayNumeral(
-                    text: "\(self.viewModel.remainingCountdownSeconds)",
-                    containerDiameter: Self.ringDiameter
-                )
-                .foregroundColor(self.theme.textPrimary)
-                .accessibilityIdentifier("player.countdown")
-                .accessibilityLabel(
-                    String(
-                        format: NSLocalizedString(
-                            "guided_meditations.player.countdown",
-                            comment: ""
-                        ),
-                        self.viewModel.remainingCountdownSeconds
+    // MARK: Pre-Roll (unchanged breath circle, shared-109 keeps the flow intact)
+
+    private var preRollContent: some View {
+        VStack(spacing: 0) {
+            self.titleBlock
+                .padding(.top, 16)
+
+            Spacer(minLength: 12)
+
+            PlayerRingView(
+                phase: .preRoll,
+                progress: self.viewModel.progress,
+                outerSize: Self.ringDiameter
+            ) {
+                VStack(spacing: 6) {
+                    DisplayNumeral(
+                        text: "\(self.viewModel.remainingCountdownSeconds)",
+                        containerDiameter: Self.ringDiameter
                     )
-                )
+                    .foregroundColor(self.theme.textPrimary)
+                    .accessibilityIdentifier("player.countdown")
+                    .accessibilityLabel(
+                        String(
+                            format: NSLocalizedString("guided_meditations.player.countdown", comment: ""),
+                            self.viewModel.remainingCountdownSeconds
+                        )
+                    )
 
-                Text("guided_meditations.player.preroll.label")
-                    .textStyle(.micro, color: \.textSecondary)
-            }
-            .transition(.opacity)
-        case .playing:
-            ZStack {
-                PlayerCenterDisc()
-
-                GlassPauseButton(isPlaying: self.viewModel.isPlaying) {
-                    HapticFeedback.impact(.soft)
-                    self.viewModel.togglePlayPause()
+                    Text("guided_meditations.player.preroll.label")
+                        .textStyle(.micro, color: \.textSecondary)
                 }
             }
-            .transition(.opacity)
+
+            Spacer(minLength: 12)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: Playing — Waveform "Tonkopf" (shared-109)
+
+    private var waveformContent: some View {
+        VStack(spacing: 0) {
+            self.titleBlock
+                .padding(.top, 8)
+
+            Spacer(minLength: 16)
+
+            WaveformWindowView(viewModel: self.viewModel)
+                .accessibilityElement()
+                .accessibilityLabel("guided_meditations.player.scrub.a11y.label")
+                .accessibilityValue(String(
+                    format: NSLocalizedString("guided_meditations.player.livePosition.value", comment: ""),
+                    self.viewModel.formattedPosition,
+                    self.viewModel.formattedEffectiveDuration
+                ))
+                .accessibilityAddTraits(.allowsDirectInteraction)
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: self.viewModel.skipForward()
+                    case .decrement: self.viewModel.skipBackward()
+                    @unknown default: break
+                    }
+                }
+
+            self.scrubHint
+                .padding(.top, 10)
+                .opacity(self.viewModel.isDragging ? 0 : 1)
+
+            Spacer(minLength: 16)
+
+            self.centralLine
+                .frame(minHeight: 40)
+
+            WaveformMiniOverview(viewModel: self.viewModel)
+                .padding(.horizontal, 36)
+                .padding(.top, 14)
+                .accessibilityElement()
+                .accessibilityLabel("guided_meditations.player.miniOverview.a11y.label")
+
+            Spacer(minLength: 16)
+
+            WaveformTransportButton(isPlaying: self.viewModel.isPlaying) {
+                self.viewModel.togglePlayPause()
+            }
+            .accessibilityLabel(self.viewModel.isPlaying
+                ? "guided_meditations.player.pause"
+                : "guided_meditations.player.play")
+            .padding(.bottom, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// "← → Ziehen zum Spulen" — hidden while dragging.
+    private var scrubHint: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "arrow.left.arrow.right")
+            Text("guided_meditations.player.scrub.hint")
+        }
+        .textStyle(.eyebrow, color: \.textSecondary)
+        .accessibilityHidden(true)
+    }
+
+    /// Central resting line — the live position while dragging, otherwise the remaining-time
+    /// line with its paused/finished special states (AK-4).
+    @ViewBuilder private var centralLine: some View {
+        if self.viewModel.isDragging {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(self.viewModel.formattedPosition)
+                    .textStyle(.title, monospacedDigits: true, color: \.textPrimary)
+                Text(verbatim: "/")
+                    .textStyle(.body, color: \.textSecondary)
+                Text(self.viewModel.formattedEffectiveDuration)
+                    .textStyle(.body, monospacedDigits: true, color: \.textSecondary)
+            }
+            .accessibilityElement(children: .combine)
+        } else {
+            self.remainingLine
+                .textStyle(.eyebrow, monospacedDigits: true, color: \.textSecondary)
+                .accessibilityIdentifier("player.text.remainingTime")
+                .accessibilityLabel("guided_meditations.player.remainingTime")
+                .accessibilityValue(self.viewModel.formattedRemainingTime)
         }
     }
 
-    @ViewBuilder private var bottomLabel: some View {
-        switch self.viewModel.phase {
-        case .preRoll:
-            EmptyView()
-        case .playing:
+    @ViewBuilder private var remainingLine: some View {
+        switch self.viewModel.remainingLineState {
+        case let .remaining(time):
             Text(String(
-                format: NSLocalizedString(
-                    self.viewModel.isPaused
-                        ? "guided_meditations.player.remainingTime.format.paused"
-                        : "guided_meditations.player.remainingTime.format",
-                    comment: ""
-                ),
-                self.viewModel.formattedRemainingMinutes
+                format: NSLocalizedString("guided_meditations.player.remaining.format", comment: ""),
+                time
             ))
-            .textStyle(.eyebrow, monospacedDigits: true, color: \.textSecondary)
-            .accessibilityIdentifier("player.text.remainingTime")
-            .accessibilityLabel("guided_meditations.player.remainingTime")
-            .accessibilityValue(self.viewModel.formattedRemainingTime)
+        case .paused:
+            Text("guided_meditations.player.remaining.paused")
+        case .finished:
+            Text("guided_meditations.player.remaining.finished")
         }
     }
 }

@@ -25,6 +25,16 @@ enum PreparationCountdownState: Equatable {
     case finished
 }
 
+/// State of the central resting line below the wave (shared-109).
+///
+/// `remaining` carries the already-formatted `mm:ss` remaining time; `paused` and
+/// `finished` are special states the view renders as plain words.
+enum RemainingLineState: Equatable {
+    case remaining(String)
+    case paused
+    case finished
+}
+
 /// ViewModel for the Guided Meditation Player View
 ///
 /// Manages:
@@ -43,6 +53,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         preparationTimeSeconds: Int? = nil,
         playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
         meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
+        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
         clock: ClockProtocol = SystemClock(),
         gongPlayer: MeditationGongPlayerProtocol = MeditationGongPlayer(),
         praxisRepository: PraxisRepository = UserDefaultsPraxisRepository()
@@ -51,6 +62,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.preparationTimeSeconds = preparationTimeSeconds
         self.playerService = playerService
         self.meditationService = meditationService
+        self.waveformProvider = waveformProvider
         self.clock = clock
         self.gongPlayer = gongPlayer
         self.praxisRepository = praxisRepository
@@ -70,6 +82,26 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     @Published var duration: TimeInterval = 0
     @Published var errorMessage: String?
     @Published private(set) var completionEvent: CompletionEvent?
+
+    // MARK: - Waveform (shared-109)
+
+    /// Precomputed waveform of the whole file (nil while loading or after a failure).
+    /// The samples span the full `meditation.duration`, not the trimmed range.
+    @Published private(set) var waveform: MeditationWaveform?
+
+    /// True when waveform generation failed (e.g. exotic format). The player stays fully
+    /// functional — the window renders a plain baseline instead of amplitudes.
+    @Published private(set) var waveformLoadFailed = false
+
+    // MARK: - Scrub (shared-109)
+
+    /// True while the user is dragging the wave to scrub. Pauses the pulse and replaces
+    /// the remaining-time line with the large live position.
+    @Published private(set) var isDragging = false
+
+    /// Live position during a drag (absolute file time, clamped to the trim range).
+    /// Drives the window center and the live-position readout while dragging.
+    @Published private(set) var dragPosition: TimeInterval = 0
 
     // MARK: - Preparation Countdown
 
@@ -322,12 +354,21 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
 
     private let playerService: AudioPlayerServiceProtocol
     private let meditationService: GuidedMeditationServiceProtocol
+    private let waveformProvider: WaveformProviderProtocol
     private let clock: ClockProtocol
     private let gongPlayer: MeditationGongPlayerProtocol
     private let praxisRepository: PraxisRepository
     private var cancellables = Set<AnyCancellable>()
     private var countdownTimer: AnyCancellable?
     private var breathPauseTimer: AnyCancellable?
+
+    /// Position at which the current drag began (absolute file time, clamped to the trim
+    /// range). The view maps the cumulative drag translation against this fixed anchor.
+    private(set) var dragStartTime: TimeInterval = 0
+
+    /// Whether playback was running when the current drag began — decides whether to resume
+    /// on release.
+    private var dragWasPlaying = false
 
     /// True while the start gong rings and during the following breath pause —
     /// blocks further startPlayback taps until the meditation audio runs
@@ -465,5 +506,123 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         self.breathPauseTimer = nil
         self.isStartGongSequenceActive = false
         self.transitionToPlayback()
+    }
+}
+
+// MARK: - Waveform Window & Scrub (shared-109)
+
+extension GuidedMeditationPlayerViewModel {
+    // MARK: Window geometry inputs
+
+    /// Playable range (absolute file time) the scrub is clamped to: the trimmed range,
+    /// or the whole file when no trim is set.
+    var scrubBounds: ClosedRange<TimeInterval> {
+        let lower = self.meditation.effectiveStart
+        let upper = max(self.meditation.effectiveEnd, lower)
+        return lower...upper
+    }
+
+    /// The absolute time the window is centered on: the live drag position while scrubbing,
+    /// otherwise the real audio position (source of truth for clean background recovery).
+    var displayTime: TimeInterval {
+        self.isDragging ? self.dragPosition : self.currentTime
+    }
+
+    /// Current position relative to the trim start (`mm:ss`). Follows the live drag while
+    /// scrubbing and the audio position otherwise — used for the live readout and the
+    /// scrub slider's accessibility value.
+    var formattedPosition: String {
+        let relative = max(self.displayTime - self.meditation.effectiveStart, 0)
+        return self.formatTime(relative)
+    }
+
+    /// Total playable length (trimmed), shown as `position / total` while dragging (`mm:ss`).
+    var formattedEffectiveDuration: String {
+        self.formatTime(self.meditation.effectiveDuration)
+    }
+
+    /// State of the central resting line below the wave (AK-4). While dragging the view
+    /// shows the live position instead.
+    var remainingLineState: RemainingLineState {
+        if self.isCompleted {
+            return .finished
+        }
+        if self.isPaused {
+            return .paused
+        }
+        return .remaining(self.formattedRemainingTime)
+    }
+
+    // MARK: Waveform loading (AK-1, AK-8)
+
+    /// Loads the precomputed waveform for the scrolling window.
+    ///
+    /// Runs independently of `loadAudio()` so a cold cache (first open, on-demand
+    /// generation) never blocks playback. On failure the window falls back to a plain
+    /// baseline — scrub, times and the mini overview stay fully functional.
+    func loadWaveform() async {
+        do {
+            let loaded = try await self.waveformProvider.waveform(for: self.meditation)
+            self.waveform = loaded
+            self.waveformLoadFailed = false
+        } catch {
+            Logger.audioPlayer.error("Failed to load waveform", error: error)
+            self.waveform = nil
+            self.waveformLoadFailed = true
+        }
+    }
+
+    // MARK: Scrub intents (AK-2, AK-3)
+
+    /// Begins a scrub: grabbing the wave pauses playback and anchors the drag at the
+    /// current position (clamped into the trim range).
+    func beginScrub() {
+        let anchored = self.clampToScrubBounds(self.currentTime)
+        self.dragStartTime = anchored
+        self.dragPosition = anchored
+        self.dragWasPlaying = self.isPlaying
+        self.isDragging = true
+        if self.isPlaying {
+            self.playerService.pause()
+            Logger.audioPlayer.debug("Scrub began — paused playback")
+        }
+    }
+
+    /// Updates the live drag position to an absolute file time, clamped to the trim range.
+    func scrub(to time: TimeInterval) {
+        self.dragPosition = self.clampToScrubBounds(time)
+    }
+
+    /// Ends a scrub: seeks to the live position and resumes playback if it was running
+    /// before the grab (and the position is not at the very end).
+    func endScrub() {
+        let target = self.dragPosition
+        self.isDragging = false
+        self.seek(to: target)
+        if self.dragWasPlaying, target < self.meditation.effectiveEnd {
+            do {
+                try self.playerService.play()
+                Logger.audioPlayer.debug("Scrub ended — resumed playback")
+            } catch {
+                Logger.audioPlayer.error("Failed to resume after scrub", error: error)
+                self.errorMessage = NSLocalizedString("error.playbackFailed", comment: "Playback error")
+            }
+        }
+        self.dragWasPlaying = false
+    }
+
+    /// Seeks to a fraction (0…1) of the trimmed track — the mini overview's absolute seek.
+    ///
+    /// Position `p` maps to `effectiveStart + p · effectiveDuration`, so a tap always lands
+    /// inside the playable range regardless of trim (AK-5).
+    func seek(toFraction fraction: Double) {
+        let clamped = min(max(fraction, 0), 1)
+        let target = self.meditation.effectiveStart + clamped * self.meditation.effectiveDuration
+        self.seek(to: target)
+    }
+
+    /// Clamps an absolute file time into the playable (trimmed) range.
+    private func clampToScrubBounds(_ time: TimeInterval) -> TimeInterval {
+        min(max(time, self.scrubBounds.lowerBound), self.scrubBounds.upperBound)
     }
 }

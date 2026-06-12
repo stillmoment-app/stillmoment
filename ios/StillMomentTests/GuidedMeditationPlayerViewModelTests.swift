@@ -20,6 +20,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockMeditationService: MockGuidedMeditationService!
     // swiftlint:disable:next implicitly_unwrapped_optional
+    var mockWaveformProvider: MockWaveformProvider!
+    // swiftlint:disable:next implicitly_unwrapped_optional
     var cancellables: Set<AnyCancellable>!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var tempFileURL: URL!
@@ -28,6 +30,7 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         super.setUp()
         self.mockPlayerService = MockAudioPlayerService()
         self.mockMeditationService = MockGuidedMeditationService()
+        self.mockWaveformProvider = MockWaveformProvider()
         self.cancellables = Set<AnyCancellable>()
 
         // Create temporary file for tests
@@ -37,7 +40,8 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: self.mockPlayerService,
-            meditationService: self.mockMeditationService
+            meditationService: self.mockMeditationService,
+            waveformProvider: self.mockWaveformProvider
         )
     }
 
@@ -48,6 +52,7 @@ final class GuidedMeditationPlayerViewModelTests: XCTestCase {
         self.sut = nil
         self.mockPlayerService = nil
         self.mockMeditationService = nil
+        self.mockWaveformProvider = nil
         // Clean up temp file and UserDefaults
         GuidedMeditationTestHelpers.cleanupTemporaryFile(self.tempFileURL)
         self.tempFileURL = nil
