@@ -81,14 +81,17 @@ struct WaveformMiniOverview: View {
             return
         }
         // Slice the trimmed range out of the full-resolution waveform, then reduce to the
-        // overview bar count — the overview shows exactly the playable track.
-        let samples = self.viewModel.waveform?
+        // overview bar count. Reduce by AVERAGE, not peak: each overview bar spans ~10 s of
+        // a long track, and a peak (max) would fill every bar — speech pauses would vanish.
+        // Averaging keeps the energy envelope, so longer pauses show up as valleys, matching
+        // the gaps the fine-grained window above shows.
+        let trimmed = self.viewModel.waveform?
             .windowed(
                 fromFraction: self.viewModel.meditation.effectiveStart / duration,
                 toFraction: self.viewModel.meditation.effectiveEnd / duration
             )
-            .downsampled(to: Self.displayBarCount)
             .samples ?? []
+        let samples = self.averagedSamples(trimmed, to: Self.displayBarCount)
         guard !samples.isEmpty else {
             return
         }
@@ -109,11 +112,26 @@ struct WaveformMiniOverview: View {
         }
     }
 
+    /// Reduces samples to `count` bars by AVERAGE (energy envelope), preserving pauses.
+    private func averagedSamples(_ samples: [Float], to count: Int) -> [Float] {
+        guard count > 0, samples.count > count else {
+            return samples
+        }
+        var result = [Float](repeating: 0, count: count)
+        for bucket in 0..<count {
+            let start = bucket * samples.count / count
+            let end = max(start + 1, (bucket + 1) * samples.count / count)
+            let slice = samples[start..<min(end, samples.count)]
+            result[bucket] = slice.reduce(0, +) / Float(slice.count)
+        }
+        return result
+    }
+
     private func marker(width: CGFloat) -> some View {
         Rectangle()
-            .fill(self.theme.playheadAccentHi)
+            .fill(self.theme.playGradientBot)
             .frame(width: 2)
-            .shadow(color: self.theme.playheadAccent.opacity(0.7), radius: 4)
+            .shadow(color: self.theme.playGradientTop.opacity(0.8), radius: 4)
             .offset(x: width * CGFloat(self.progress) - 1)
     }
 

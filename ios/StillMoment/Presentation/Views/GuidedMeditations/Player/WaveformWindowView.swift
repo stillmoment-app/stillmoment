@@ -36,15 +36,29 @@ struct WaveformWindowView: View {
             .gesture(self.scrubGesture(width: width))
         }
         .frame(height: Self.windowHeight)
+        .onChange(of: self.viewModel.isPlaying) { playing in
+            // Anchor the interpolation when playback (re)starts.
+            if playing {
+                self.reanchor(to: self.viewModel.displayTime)
+            }
+        }
         .onChange(of: self.viewModel.displayTime) { newValue in
-            // Re-anchor the interpolation on every real position tick so the smooth scroll
-            // never drifts more than one tick away from the audio's true position.
-            self.anchorTime = newValue
-            self.anchorDate = Date()
+            // Re-anchor only on a *real* jump (seek, scrub end, background recovery).
+            // The 0.5 s position ticks arrive with wall-clock jitter; re-anchoring on every
+            // one of them would snap the scroll back a few hundredths each tick (stutter).
+            // Ignoring sub-threshold differences lets the interpolation run smoothly while
+            // still snapping to the audio's true position after a genuine jump.
+            guard self.viewModel.isPlaying, !self.viewModel.isDragging else {
+                self.reanchor(to: newValue)
+                return
+            }
+            let projected = self.anchorTime + Date().timeIntervalSince(self.anchorDate)
+            if abs(projected - newValue) > Self.reanchorThreshold {
+                self.reanchor(to: newValue)
+            }
         }
         .onChange(of: self.scenePhase) { _ in
-            self.anchorTime = self.viewModel.displayTime
-            self.anchorDate = Date()
+            self.reanchor(to: self.viewModel.displayTime)
         }
         .accessibilityHidden(true)
     }
@@ -71,6 +85,9 @@ struct WaveformWindowView: View {
     private static let maxHalfFactor: CGFloat = 0.40
     private static let minHalfHeight: CGFloat = 0.8
     private static let edgeFadeWidth: CGFloat = 56
+    /// Position jump (seconds) above which the smooth scroll re-anchors to the true audio
+    /// position. Comfortably larger than one tick interval so jitter never triggers it.
+    private static let reanchorThreshold: TimeInterval = 0.75
 
     private var isAnimationPaused: Bool {
         !self.viewModel.isPlaying
@@ -88,6 +105,12 @@ struct WaveformWindowView: View {
         }
         let interpolated = self.anchorTime + date.timeIntervalSince(self.anchorDate)
         return min(interpolated, self.viewModel.scrubBounds.upperBound)
+    }
+
+    /// Resets the interpolation anchor to a known true position.
+    private func reanchor(to time: TimeInterval) {
+        self.anchorTime = time
+        self.anchorDate = Date()
     }
 
     // MARK: Canvas
@@ -115,44 +138,84 @@ struct WaveformWindowView: View {
             return
         }
         let duration = self.viewModel.duration > 0 ? self.viewModel.duration : self.viewModel.meditation.duration
-        guard duration > 0 else {
-            return
-        }
-        let bounds = self.viewModel.scrubBounds
-        let center = size.width / 2
         let density = PlayheadWindowGeometry.pxPerSec(windowSec: Self.windowSec, width: size.width)
-        guard density > 0 else {
+        guard duration > 0, density > 0 else {
             return
         }
-        let cy = size.height / 2
-        let maxHalf = size.height * Self.maxHalfFactor
-        let sampleCount = samples.count
+        let secPerSample = duration / TimeInterval(samples.count)
 
-        var positionX: CGFloat = 0
-        while positionX <= size.width {
-            let sec = now + TimeInterval((positionX - center) / density)
-            // Outside the playable (trimmed) range → no bar.
-            if sec >= bounds.lowerBound, sec <= bounds.upperBound {
-                let index = min(max(Int(sec / duration * TimeInterval(sampleCount)), 0), sampleCount - 1)
-                let amp = CGFloat(samples[index])
-                let half = max(Self.minHalfHeight, amp * maxHalf)
-                let isPast = sec <= now
-                let baseAlpha: CGFloat = isPast ? (0.55 + 0.45 * amp) : 0.16
-                let alpha = baseAlpha * self.edgeFade(at: positionX, width: size.width)
-                let color = isPast ? self.theme.interactive : self.theme.textPrimary
-                let rect = CGRect(
-                    x: positionX - Self.barWidth / 2,
-                    y: cy - half,
-                    width: Self.barWidth,
-                    height: half * 2
-                )
-                context.fill(
-                    Path(roundedRect: rect, cornerRadius: Self.barWidth / 2),
-                    with: .color(color.opacity(alpha))
-                )
-            }
-            positionX += Self.barStep
+        // Each bar is a fixed sample (fixed time + amplitude) whose x slides with `now`, so
+        // the whole wave scrolls as one rigid band — not fixed bars re-sampling their height
+        // every frame (which "jellies"). Bars are grouped into fixed global buckets so the
+        // on-screen density stays ~constant across file lengths; bucket boundaries are global
+        // multiples of `step`, so which bars are drawn never shifts while scrolling.
+        let pxPerSample = CGFloat(secPerSample) * density
+        let step = max(1, Int((Self.barStep / max(pxPerSample, 0.0001)).rounded(.up)))
+        let halfWindowSamples = Int((Self.windowSec / 2 / secPerSample).rounded(.up)) + step
+        let centerIndex = Int(now / secPerSample)
+        let firstIndex = max(centerIndex - halfWindowSamples, 0)
+        let lastIndex = min(centerIndex + halfWindowSamples, samples.count - 1)
+        guard firstIndex <= lastIndex else {
+            return
         }
+
+        let metrics = BarMetrics(
+            now: now,
+            center: size.width / 2,
+            density: density,
+            cy: size.height / 2,
+            maxHalf: size.height * Self.maxHalfFactor,
+            bounds: self.viewModel.scrubBounds,
+            width: size.width,
+            secPerSample: secPerSample
+        )
+        for bucketStart in stride(from: firstIndex - (firstIndex % step), through: lastIndex, by: step) {
+            self.drawBar(in: context, bucketStart: bucketStart, samples: samples, step: step, metrics: metrics)
+        }
+    }
+
+    /// Draws one bar for the fixed bucket starting at `bucketStart`. Past bars (left of the
+    /// now-line) are copper, upcoming bars a pale `textPrimary`; both fade out at the edges.
+    private func drawBar(
+        in context: GraphicsContext,
+        bucketStart: Int,
+        samples: [Float],
+        step: Int,
+        metrics: BarMetrics
+    ) {
+        let sampleTime = TimeInterval(bucketStart) * metrics.secPerSample
+        // Outside the playable (trimmed) range → no bar.
+        guard sampleTime >= metrics.bounds.lowerBound, sampleTime <= metrics.bounds.upperBound else {
+            return
+        }
+        let positionX = metrics.center + CGFloat(sampleTime - metrics.now) * metrics.density
+        let amp = self.peakAmplitude(in: samples, from: bucketStart, step: step)
+        let half = max(Self.minHalfHeight, amp * metrics.maxHalf)
+        let isPast = sampleTime <= metrics.now
+        let baseAlpha: CGFloat = isPast ? (0.55 + 0.45 * amp) : 0.16
+        let alpha = baseAlpha * self.edgeFade(at: positionX, width: metrics.width)
+        guard alpha > 0 else {
+            return
+        }
+        let color = isPast ? self.theme.interactive : self.theme.textPrimary
+        let rect = CGRect(
+            x: positionX - Self.barWidth / 2,
+            y: metrics.cy - half,
+            width: Self.barWidth,
+            height: half * 2
+        )
+        context.fill(Path(roundedRect: rect, cornerRadius: Self.barWidth / 2), with: .color(color.opacity(alpha)))
+    }
+
+    /// Loudest sample in the fixed bucket `[start, start+step)` — keeps short peaks visible
+    /// when several samples collapse into one bar.
+    private func peakAmplitude(in samples: [Float], from start: Int, step: Int) -> CGFloat {
+        let end = min(start + step, samples.count)
+        var peak: Float = 0
+        for index in start..<end where samples[index] > peak {
+            peak = samples[index]
+        }
+        return CGFloat(peak)
     }
 
     /// Linear alpha ramp toward 0 within `edgeFadeWidth` of either edge — the wave dissolves
@@ -163,27 +226,29 @@ struct WaveformWindowView: View {
         return max(0, min(leftFade, rightFade))
     }
 
-    // MARK: Now-line + marker (Sage, never copper — see plan decision 1)
+    // MARK: Now-line + marker
 
+    /// Now-line in deep copper (`playGradientBot`) with a lighter copper glow
+    /// (`playGradientTop`) so the dark core lifts off the copper past-wave.
     private var nowLine: some View {
         Rectangle()
-            .fill(self.theme.playheadAccentHi)
+            .fill(self.theme.playGradientBot)
             .frame(width: 2)
-            .shadow(color: self.theme.playheadAccent.opacity(0.8), radius: 12)
+            .shadow(color: self.theme.playGradientTop.opacity(0.9), radius: 12)
     }
 
     private func marker(width: CGFloat) -> some View {
         ZStack {
             // Triangle at the top of the line.
             Triangle()
-                .fill(self.theme.playheadAccentHi)
+                .fill(self.theme.playGradientBot)
                 .frame(width: 10, height: 6)
                 .frame(maxHeight: .infinity, alignment: .top)
                 .offset(y: -2)
 
             // Pulsing dot at the bottom — only while actively playing.
             Circle()
-                .fill(self.theme.playheadAccentHi)
+                .fill(self.theme.playGradientTop)
                 .frame(width: 7, height: 7)
                 .scaleEffect(self.pulsing ? 1.6 : 1.0)
                 .opacity(self.pulsing ? 0.0 : 1.0)
@@ -230,6 +295,20 @@ struct WaveformWindowView: View {
                 self.viewModel.endScrub()
             }
     }
+}
+
+// MARK: - BarMetrics
+
+/// Per-frame render constants shared by every bar of one `drawBars` pass.
+private struct BarMetrics {
+    let now: TimeInterval
+    let center: CGFloat
+    let density: CGFloat
+    let cy: CGFloat
+    let maxHalf: CGFloat
+    let bounds: ClosedRange<TimeInterval>
+    let width: CGFloat
+    let secPerSample: TimeInterval
 }
 
 // MARK: - Triangle

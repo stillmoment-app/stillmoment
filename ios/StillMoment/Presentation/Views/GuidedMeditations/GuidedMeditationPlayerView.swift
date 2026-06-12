@@ -101,6 +101,12 @@ struct GuidedMeditationPlayerView: View {
                 self.viewModel.startPlayback()
                 self.didKickOff = true
             }
+            // Waveform parallel laden — Generierung (kalter Cache) darf den
+            // Audio-Start nicht blockieren; schlaegt sie fehl, zeigt das Fenster
+            // die schlichte Mittellinie (Fallback), Player bleibt nutzbar.
+            Task {
+                await self.viewModel.loadWaveform()
+            }
         }
         .onDisappear {
             self.viewModel.cleanup()
