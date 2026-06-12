@@ -58,18 +58,18 @@ final class PlayerViewModelGongTests: XCTestCase {
     // MARK: - Start Gong (without preparation time)
 
     func testStartPlayback_withGong_playsGongBeforeAudio() async {
-        // Given
-        self.sut = self.createViewModel(gongEnabled: true)
+        // Given: the meditation has its own sound, different from the timer settings
+        self.sut = self.createViewModel(gongEnabled: true, gongSoundId: "deep-resonance")
         await self.sut.loadAudio()
 
         // When
         self.sut.startPlayback()
 
-        // Then: silent keep-alive runs, gong plays with the timer settings' sound,
-        // but the meditation audio has not started yet
+        // Then: silent keep-alive runs, gong plays the meditation's own sound at
+        // the timer settings' volume, but the meditation audio has not started yet
         XCTAssertTrue(self.mockPlayerService.silentBackgroundAudioStarted)
         XCTAssertEqual(self.mockGongPlayer.playCallCount, 1)
-        XCTAssertEqual(self.mockGongPlayer.playedSoundId, "classic-bowl")
+        XCTAssertEqual(self.mockGongPlayer.playedSoundId, "deep-resonance")
         XCTAssertEqual(self.mockGongPlayer.playedVolume, 0.5)
         XCTAssertFalse(self.mockPlayerService.playCalled)
         XCTAssertFalse(self.mockPlayerService.transitionFromSilentToPlaybackCalled)
@@ -191,16 +191,33 @@ final class PlayerViewModelGongTests: XCTestCase {
     // MARK: - End Gong Configuration
 
     func testLoadAudio_withGong_configuresEndGong() async {
-        // Given
-        self.sut = self.createViewModel(gongEnabled: true)
+        // Given: the meditation has its own sound, different from the timer settings
+        self.sut = self.createViewModel(gongEnabled: true, gongSoundId: "deep-resonance")
 
         // When
         await self.sut.loadAudio()
 
-        // Then: end gong follows the timer settings
+        // Then: end gong rings with the meditation's own sound at the timer volume
         XCTAssertTrue(self.mockPlayerService.configureEndGongCalled)
-        XCTAssertEqual(self.mockPlayerService.endGongSoundId, "classic-bowl")
+        XCTAssertEqual(self.mockPlayerService.endGongSoundId, "deep-resonance")
         XCTAssertEqual(self.mockPlayerService.endGongVolume, 0.5)
+    }
+
+    func testChangedTimerGongSound_doesNotAffectMeditationGong() async {
+        // Given: the user later picks a different gong in the timer settings
+        self.mockPraxisRepository.currentPraxis = Praxis(
+            startGongSoundId: "clear-strike",
+            gongVolume: 0.5
+        )
+        self.sut = self.createViewModel(gongEnabled: true, gongSoundId: "temple-bell")
+        await self.sut.loadAudio()
+
+        // When
+        self.sut.startPlayback()
+
+        // Then: the meditation keeps its own sound
+        XCTAssertEqual(self.mockGongPlayer.playedSoundId, "temple-bell")
+        XCTAssertEqual(self.mockPlayerService.endGongSoundId, "temple-bell")
     }
 
     func testLoadAudio_withoutGong_doesNotConfigureEndGong() async {
@@ -218,11 +235,13 @@ final class PlayerViewModelGongTests: XCTestCase {
 
     private func createViewModel(
         gongEnabled: Bool,
+        gongSoundId: String = GongSound.defaultSoundId,
         preparationTimeSeconds: Int? = nil
     ) -> GuidedMeditationPlayerViewModel {
         let meditation = GuidedMeditationTestHelpers.createTestMeditation(
             fileURL: self.tempFileURL,
-            gongEnabled: gongEnabled
+            gongEnabled: gongEnabled,
+            gongSoundId: gongSoundId
         )
         return GuidedMeditationPlayerViewModel(
             meditation: meditation,

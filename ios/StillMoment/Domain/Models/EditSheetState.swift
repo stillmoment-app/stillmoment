@@ -26,6 +26,7 @@ struct EditSheetState {
         self.editedTrimStart = meditation.trimStart
         self.editedTrimEnd = meditation.trimEnd
         self.editedGongEnabled = meditation.gongEnabled
+        self.editedGongSoundId = meditation.gongSoundId
     }
 
     // MARK: Internal
@@ -45,13 +46,17 @@ struct EditSheetState {
     /// Whether a gong should mark the start and end of playback (shared-106)
     var editedGongEnabled: Bool
 
-    /// Whether the user changed teacher, name, trim points, or the gong toggle.
+    /// Gong sound chosen for this meditation (independent of the timer settings)
+    var editedGongSoundId: String
+
+    /// Whether the user changed teacher, name, trim points, or the gong settings.
     var hasChanges: Bool {
         self.editedTeacher != self.originalMeditation.teacher ||
             self.editedName != self.originalMeditation.name ||
             self.editedTrimStart != self.originalMeditation.trimStart ||
             self.editedTrimEnd != self.originalMeditation.trimEnd ||
-            self.editedGongEnabled != self.originalMeditation.gongEnabled
+            self.editedGongEnabled != self.originalMeditation.gongEnabled ||
+            self.editedGongSoundId != self.originalMeditation.gongSoundId
     }
 
     /// Whether all fields contain valid input (non-empty teacher/name, consistent trim points).
@@ -69,6 +74,7 @@ struct EditSheetState {
         updated.trimStart = self.editedTrimStart
         updated.trimEnd = self.editedTrimEnd
         updated.gongEnabled = self.editedGongEnabled
+        updated.gongSoundId = self.editedGongSoundId
         return updated
     }
 

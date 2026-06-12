@@ -33,6 +33,17 @@ final class EditSheetStateGongTests: XCTestCase {
         XCTAssertFalse(state.editedGongEnabled)
     }
 
+    func testGongSoundPrefilledFromMeditation() {
+        // Given
+        let meditation = self.makeMeditation(gongEnabled: true, gongSoundId: "deep-resonance")
+
+        // When
+        let state = EditSheetState(meditation: meditation)
+
+        // Then
+        XCTAssertEqual(state.editedGongSoundId, "deep-resonance")
+    }
+
     // MARK: - Change Detection
 
     func testTogglingGongCountsAsChange() {
@@ -59,6 +70,19 @@ final class EditSheetStateGongTests: XCTestCase {
 
         // Then
         XCTAssertFalse(state.hasChanges)
+    }
+
+    func testChangingGongSoundCountsAsChange() {
+        // Given
+        let meditation = self.makeMeditation(gongEnabled: true)
+        var state = EditSheetState(meditation: meditation)
+        XCTAssertFalse(state.hasChanges)
+
+        // When
+        state.editedGongSoundId = "clear-strike"
+
+        // Then
+        XCTAssertTrue(state.hasChanges)
     }
 
     // MARK: - Applying Changes
@@ -89,16 +113,33 @@ final class EditSheetStateGongTests: XCTestCase {
         XCTAssertFalse(updated.gongEnabled)
     }
 
+    func testChangingGongSoundAppliesIt() {
+        // Given
+        let meditation = self.makeMeditation(gongEnabled: true)
+        var state = EditSheetState(meditation: meditation)
+
+        // When
+        state.editedGongSoundId = "classic-bowl"
+
+        // Then
+        let updated = state.applyChanges()
+        XCTAssertEqual(updated.gongSoundId, "classic-bowl")
+    }
+
     // MARK: - Helpers
 
-    private func makeMeditation(gongEnabled: Bool) -> GuidedMeditation {
+    private func makeMeditation(
+        gongEnabled: Bool,
+        gongSoundId: String = GongSound.defaultSoundId
+    ) -> GuidedMeditation {
         GuidedMeditation(
             localFilePath: "test.mp3",
             fileName: "test.mp3",
             duration: 600,
             teacher: "Test Teacher",
             name: "Test Meditation",
-            gongEnabled: gongEnabled
+            gongEnabled: gongEnabled,
+            gongSoundId: gongSoundId
         )
     }
 }

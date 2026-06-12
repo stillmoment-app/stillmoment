@@ -5,6 +5,7 @@
 //  Presentation Layer - Guided Meditation Edit Sheet (ios-044)
 //
 
+import OSLog
 import SwiftUI
 
 /// Mode of operation for `GuidedMeditationEditSheet`.
@@ -53,6 +54,7 @@ struct GuidedMeditationEditSheet: View {
         availableTeachers: [String] = [],
         audioService: AudioServiceProtocol = AudioService(),
         waveformProvider: WaveformProviderProtocol = WaveformProvider(),
+        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
         onSave: @escaping (GuidedMeditation) -> Void,
         onCancel: @escaping () -> Void
     ) {
@@ -61,6 +63,7 @@ struct GuidedMeditationEditSheet: View {
         self.availableTeachers = availableTeachers
         self.audioService = audioService
         self.waveformProvider = waveformProvider
+        self.praxisRepository = praxisRepository
         self.onSave = onSave
         self.onCancel = onCancel
 
@@ -99,6 +102,12 @@ struct GuidedMeditationEditSheet: View {
                     }
                     Section {
                         self.gongToggle
+                        if self.editState.editedGongEnabled {
+                            MeditationGongSoundPicker(
+                                selectedSoundId: self.$editState.editedGongSoundId,
+                                onPreview: self.playGongPreview
+                            )
+                        }
                     } footer: {
                         self.gongFooter
                     }
@@ -138,6 +147,7 @@ struct GuidedMeditationEditSheet: View {
             .onDisappear {
                 self.miniWaveformTask?.cancel()
                 self.miniWaveformTask = nil
+                self.audioService.stopGongPreview()
             }
             .fullScreenCover(isPresented: self.$showingTrimEditor) {
                 self.trimEditorSheet
@@ -294,6 +304,19 @@ struct GuidedMeditationEditSheet: View {
 
     private let audioService: AudioServiceProtocol
     private let waveformProvider: WaveformProviderProtocol
+    private let praxisRepository: PraxisRepository
+
+    /// Plays a preview of the selected gong at the timer settings' gong volume.
+    private func playGongPreview(_ sound: GongSound) {
+        do {
+            try self.audioService.playGongPreview(
+                soundId: sound.id,
+                volume: self.praxisRepository.load().gongVolume
+            )
+        } catch {
+            Logger.viewModel.error("Failed to play gong preview", error: error)
+        }
+    }
 
     private func attemptSave() {
         guard self.editState.isValid else {

@@ -80,6 +80,10 @@ extension GongSound {
     /// Defined explicitly (not derived from allSounds) to ensure vibration remains last.
     static let allIntervalSounds: [GongSound] = Array(allSounds.dropLast()) + [softIntervalTone, vibrationSound]
 
+    /// Sounds selectable per guided meditation (shared-106): same gongs as the
+    /// timer, deliberately without the vibration option.
+    static let allMeditationGongSounds: [GongSound] = allSounds.filter { $0.id != vibrationId }
+
     /// Default gong sound (Temple Bell)
     static let defaultSound: GongSound = allSounds.first { $0.id == defaultSoundId } ?? allSounds[0]
 

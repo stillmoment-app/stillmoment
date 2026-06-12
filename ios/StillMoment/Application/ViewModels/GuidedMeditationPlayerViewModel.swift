@@ -195,12 +195,11 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         do {
             try await self.playerService.load(url: fileURL, meditation: self.meditation)
             // shared-106: end gong plays at the trim end / file end on the lock screen;
-            // sound and volume follow the timer settings (Praxis)
+            // the sound is chosen per meditation, the volume follows the timer settings
             if self.meditation.gongEnabled {
-                let praxis = self.praxisRepository.load()
                 self.playerService.configureEndGong(
-                    soundId: praxis.startGongSoundId,
-                    volume: praxis.gongVolume
+                    soundId: self.meditation.gongSoundId,
+                    volume: self.praxisRepository.load().gongVolume
                 )
             }
             Logger.audioPlayer.info("Audio loaded successfully")
@@ -447,10 +446,9 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     }
 
     private func playStartGongThenTransition() {
-        let praxis = self.praxisRepository.load()
         self.gongPlayer.play(
-            soundId: praxis.startGongSoundId,
-            volume: praxis.gongVolume
+            soundId: self.meditation.gongSoundId,
+            volume: self.praxisRepository.load().gongVolume
         ) { [weak self] in
             self?.startBreathPause()
         }
