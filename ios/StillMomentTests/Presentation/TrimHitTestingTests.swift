@@ -11,22 +11,22 @@ import XCTest
 
 /// Fachliche Erwartung: Auf der schmalen Spur konkurrieren drei ziehbare Elemente
 /// (Abspielposition + 2 Marken) um denselben Fingertipp. Die Aufloesung ist rein
-/// geometrisch: Lane + obere Spurzone treffen immer die Abspielposition, die untere
-/// Zone die Marken — bei Clustern gewinnt die aktive Marke.
+/// geometrisch innerhalb der Wellenform: die obere Zone (45 %) trifft immer die
+/// Abspielposition, die untere Zone die Marken — bei Clustern gewinnt die aktive Marke.
 final class TrimHitTestingTests: XCTestCase {
     // MARK: - Vertical zones
 
-    func testTouchInPlayheadLaneTargetsPlayheadRegardlessOfMarks() {
-        // Given a touch in the lane exactly on the start mark's x
+    func testTouchAtTheTopTargetsPlayheadRegardlessOfMarks() {
+        // Given a touch near the top edge exactly on the start mark's x
         let session = self.beginDrag(x: 100, y: 10, startX: 100, endX: 300, activePoint: .end)
 
-        // Then the playhead wins — the lane belongs to it alone
+        // Then the playhead wins — the upper zone belongs to it alone
         XCTAssertEqual(session.target, .playhead)
     }
 
     func testTouchInUpperWaveformZoneTargetsPlayhead() {
-        // Given a touch just above the 45 % split line (lane 34 + 108 * 0.45 = 82.6)
-        let session = self.beginDrag(x: 200, y: 80, startX: 100, endX: 300, activePoint: .start)
+        // Given a touch just above the 45 % split line (108 * 0.45 = 48.6)
+        let session = self.beginDrag(x: 200, y: 47, startX: 100, endX: 300, activePoint: .start)
 
         // Then it moves the playhead
         XCTAssertEqual(session.target, .playhead)
@@ -34,7 +34,7 @@ final class TrimHitTestingTests: XCTestCase {
 
     func testTouchInLowerWaveformZoneTargetsMark() {
         // Given a touch just below the split line
-        let session = self.beginDrag(x: 200, y: 90, startX: 100, endX: 300, activePoint: .start)
+        let session = self.beginDrag(x: 200, y: 50, startX: 100, endX: 300, activePoint: .start)
 
         // Then it acts on a mark, never on the playhead
         XCTAssertEqual(session.target, .mark(.start))
@@ -63,7 +63,7 @@ final class TrimHitTestingTests: XCTestCase {
 
     func testClusterIsAlwaysWonByTheActiveMark() {
         // Given start and end sit on top of each other and the finger lands between them
-        let session = self.beginDrag(x: 150, y: 120, startX: 145, endX: 155, activePoint: .end)
+        let session = self.beginDrag(x: 150, y: 80, startX: 145, endX: 155, activePoint: .end)
 
         // Then the active mark wins — never grabs the wrong one
         XCTAssertEqual(session.target, .mark(.end))
@@ -72,7 +72,7 @@ final class TrimHitTestingTests: XCTestCase {
 
     func testDirectGrabOnStartMarkKeepsRelativeOffset() {
         // Given the finger lands 12 px beside the isolated start mark
-        let session = self.beginDrag(x: 112, y: 120, startX: 100, endX: 300, activePoint: .end)
+        let session = self.beginDrag(x: 112, y: 80, startX: 100, endX: 300, activePoint: .end)
 
         // Then start is grabbed directly (relative, no jump) and becomes the drag target
         XCTAssertEqual(session.target, .mark(.start))
@@ -80,7 +80,7 @@ final class TrimHitTestingTests: XCTestCase {
     }
 
     func testDirectGrabOnEndMark() {
-        let session = self.beginDrag(x: 295, y: 120, startX: 100, endX: 300, activePoint: .start)
+        let session = self.beginDrag(x: 295, y: 80, startX: 100, endX: 300, activePoint: .start)
 
         XCTAssertEqual(session.target, .mark(.end))
         XCTAssertEqual(session.offset, 5, accuracy: 0.001)
@@ -88,7 +88,7 @@ final class TrimHitTestingTests: XCTestCase {
 
     func testWhenBothMarksInReachTheActiveOneWinsEvenIfFarther() {
         // Given both marks within grab range, start clearly closer, but end is active
-        let session = self.beginDrag(x: 105, y: 120, startX: 100, endX: 125, activePoint: .end)
+        let session = self.beginDrag(x: 105, y: 80, startX: 100, endX: 125, activePoint: .end)
 
         // Then the active mark wins the touch (Prinzip B) — predictable in tight clusters
         XCTAssertEqual(session.target, .mark(.end))
@@ -97,7 +97,7 @@ final class TrimHitTestingTests: XCTestCase {
 
     func testEmptyAreaMovesTheActiveMarkThere() {
         // Given a touch on free waveform area far from both marks
-        let session = self.beginDrag(x: 200, y: 120, startX: 50, endX: 350, activePoint: .end)
+        let session = self.beginDrag(x: 200, y: 80, startX: 50, endX: 350, activePoint: .end)
 
         // Then the active mark jumps to the finger (offset 0)
         XCTAssertEqual(session.target, .mark(.end))
@@ -117,7 +117,6 @@ final class TrimHitTestingTests: XCTestCase {
         TrimHitTesting.beginDrag(
             at: CGPoint(x: x, y: y),
             in: TrimTrackGeometry(
-                laneHeight: 34,
                 waveformHeight: 108,
                 headX: headX,
                 startX: startX,

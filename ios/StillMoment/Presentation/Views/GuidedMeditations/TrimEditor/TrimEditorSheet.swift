@@ -58,7 +58,7 @@ struct TrimEditorSheet: View {
                     start: self.state.start,
                     end: self.state.end,
                     activePoint: self.state.activePoint
-                ) { self.viewModel.selectPoint($0) }
+                ) { self.viewModel.focusPoint($0) }
                 TrimTransportRow(
                     isPlaying: self.viewModel.isPlaying,
                     onNudge: { self.viewModel.nudgeActivePoint(by: $0) },
@@ -71,6 +71,7 @@ struct TrimEditorSheet: View {
             .padding(.horizontal, 22)
             .padding(.top, 8)
             .padding(.bottom, 24)
+            .animation(.easeOut(duration: 0.18), value: self.viewModel.isZoomed)
         }
         .onAppear { self.viewModel.loadWaveform() }
         .onDisappear { self.viewModel.viewDisappeared() }
@@ -119,12 +120,17 @@ struct TrimEditorSheet: View {
         }
     }
 
-    /// Explains the vertical touch split of the track in user language.
+    /// Explains the track in user language — overview teaches the zoom, the zoomed
+    /// view points at fine dragging and the ±1s nudge.
     private var zoneHintText: some View {
-        Text("trim_editor.hint")
+        Text(self.hintKey)
             .textStyle(.caption, color: \.textSecondary)
             .multilineTextAlignment(.center)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var hintKey: LocalizedStringKey {
+        self.viewModel.isZoomed ? "trim_editor.hint.zoomed" : "trim_editor.hint.overview"
     }
 
     private var wholeFileLink: some View {

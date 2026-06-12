@@ -25,6 +25,9 @@ struct TrimWaveformView: View {
     let start: TimeInterval
     let end: TimeInterval
     let playheadTime: TimeInterval?
+    /// Visible time window (zoom, shared-108). nil renders the whole file — the mini
+    /// card variant and the overview never pass one.
+    var window: ClosedRange<TimeInterval>?
     /// Rendered height; the editor uses the default, the mini card variant passes 44.
     var height: CGFloat = TrimWaveformView.height
 
@@ -76,8 +79,26 @@ struct TrimWaveformView: View {
             .frame(height: 2)
     }
 
+    /// The window all rendering maps through — the whole file unless zoomed.
+    private var effectiveWindow: ClosedRange<TimeInterval> {
+        self.window ?? 0...max(self.duration, 0)
+    }
+
     private func drawBars(in context: GraphicsContext, size: CGSize) {
-        let samples = self.waveform?.downsampled(to: Self.displayBarCount).samples ?? []
+        let visibleWindow = self.effectiveWindow
+        let span = visibleWindow.upperBound - visibleWindow.lowerBound
+        guard self.duration > 0, span > 0 else {
+            return
+        }
+        // Slice the window's samples out of the full-resolution waveform, then reduce
+        // to the display bar count — a zoomed window shows real detail, not wider bars.
+        let samples = self.waveform?
+            .windowed(
+                fromFraction: visibleWindow.lowerBound / self.duration,
+                toFraction: visibleWindow.upperBound / self.duration
+            )
+            .downsampled(to: Self.displayBarCount)
+            .samples ?? []
         guard !samples.isEmpty else {
             return
         }
@@ -93,7 +114,7 @@ struct TrimWaveformView: View {
             let positionY = (size.height - barHeight) / 2
             let rect = CGRect(x: positionX, y: positionY, width: barWidth, height: barHeight)
             let path = Path(roundedRect: rect, cornerRadius: Self.barCornerRadius)
-            let barTime = self.duration * (Double(index) / Double(count))
+            let barTime = visibleWindow.lowerBound + span * (Double(index) / Double(count))
             let isInRange = barTime >= self.start && barTime <= self.end
             context.fill(path, with: .color(isInRange ? inAccent : dimmed))
         }
@@ -102,8 +123,8 @@ struct TrimWaveformView: View {
     @ViewBuilder
     private func rangeHighlight(width: CGFloat) -> some View {
         if self.duration > 0 {
-            let startX = TrimGeometry.x(for: self.start, duration: self.duration, width: width)
-            let endX = TrimGeometry.x(for: self.end, duration: self.duration, width: width)
+            let startX = TrimGeometry.x(for: self.start, window: self.effectiveWindow, width: width)
+            let endX = TrimGeometry.x(for: self.end, window: self.effectiveWindow, width: width)
             RoundedRectangle(cornerRadius: 4)
                 .fill(self.theme.interactive.opacity(0.12))
                 .overlay(
@@ -118,8 +139,8 @@ struct TrimWaveformView: View {
 
     @ViewBuilder
     private func playhead(width: CGFloat) -> some View {
-        if let playheadTime, self.duration > 0 {
-            let positionX = TrimGeometry.x(for: playheadTime, duration: self.duration, width: width)
+        if let playheadTime, self.duration > 0, TrimGeometry.isTime(playheadTime, inWindow: self.effectiveWindow) {
+            let positionX = TrimGeometry.x(for: playheadTime, window: self.effectiveWindow, width: width)
             // Sage, not copper — the playhead must never be confusable with the marks.
             Rectangle()
                 .fill(self.theme.playheadAccentHi)

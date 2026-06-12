@@ -22,10 +22,9 @@ struct TrimDragSession: Equatable {
     let offset: CGFloat
 }
 
-/// Pixel layout of the track at finger-down: zone heights plus the x-positions of the
-/// three draggable elements.
+/// Pixel layout of the waveform track at finger-down: its height plus the x-positions
+/// of the three draggable elements.
 struct TrimTrackGeometry {
-    let laneHeight: CGFloat
     let waveformHeight: CGFloat
     let headX: CGFloat
     let startX: CGFloat
@@ -36,7 +35,7 @@ struct TrimTrackGeometry {
 /// touch-robuste Punkt-Bedienung"). All grips are purely visual; a single pointer-down
 /// is resolved here from x/y alone:
 ///
-/// - Lane + upper 45 % of the waveform → playhead.
+/// - Upper 45 % of the waveform → playhead.
 /// - Lower zone → marks: a direct grab within `grabRadius` wins; when both marks are
 ///   in reach (cluster) the *active* mark always wins; free area moves the active mark.
 enum TrimHitTesting {
@@ -45,14 +44,14 @@ enum TrimHitTesting {
     /// Fraction of the waveform height belonging to the playhead (upper) zone.
     static let verticalSplit: CGFloat = 0.45
 
-    /// Resolves a pointer-down inside the track (lane + waveform) into a drag session.
+    /// Resolves a pointer-down inside the waveform track into a drag session.
     /// `location` is relative to the track's top-left corner.
     static func beginDrag(
         at location: CGPoint,
         in geometry: TrimTrackGeometry,
         activePoint: TrimPoint
     ) -> TrimDragSession {
-        let playheadZoneMaxY = geometry.laneHeight + geometry.waveformHeight * Self.verticalSplit
+        let playheadZoneMaxY = geometry.waveformHeight * Self.verticalSplit
         if location.y < playheadZoneMaxY {
             let offset = abs(location.x - geometry.headX) <= Self.grabRadius ? geometry.headX - location.x : 0
             return TrimDragSession(target: .playhead, offset: offset)

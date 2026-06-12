@@ -42,4 +42,18 @@ struct MeditationWaveform: Codable, Equatable {
         }
         return MeditationWaveform(samples: peaks)
     }
+
+    /// Cuts out the sample range covered by a fractional window of the file — the
+    /// zoomed trim editor (shared-108) renders this slice instead of the full
+    /// waveform, so an 18 % window keeps ~400 of 2200 samples (real detail).
+    /// Fractions are clamped to `[0, 1]`; partially covered edge samples are included.
+    func windowed(fromFraction: Double, toFraction: Double) -> MeditationWaveform {
+        let count = Double(self.samples.count)
+        let lower = Int((min(max(fromFraction, 0), 1) * count).rounded(.down))
+        let upper = Int((min(max(toFraction, 0), 1) * count).rounded(.up))
+        guard lower < upper else {
+            return MeditationWaveform(samples: [])
+        }
+        return MeditationWaveform(samples: Array(self.samples[lower..<upper]))
+    }
 }

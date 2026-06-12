@@ -252,9 +252,12 @@
 "trim_editor.card.end" = "Ende";
 "trim_editor.nudge.minus" = "−1s";
 "trim_editor.nudge.plus" = "+1s";
-"trim_editor.lane.playhead" = "Abspielposition";
-"trim_editor.hint" = "Oben ziehen: Abspielposition · unten ziehen: gewählter Punkt\n▶ spielt ab der Abspielposition";
+"trim_editor.hint.overview" = "Anfang/Ende antippen = heranzoomen · oben ziehen: Abspielposition";
+"trim_editor.hint.zoomed" = "Detailansicht — fein ziehen, ±1s für die Sekunde";
 "trim_editor.wholeFile" = "Ganze Datei verwenden";
+"trim_editor.zoomOut" = "Ganze Datei";
+"trim_editor.edgeChip.start" = "Anfang %@";
+"trim_editor.edgeChip.end" = "Ende %@";
 "trim_editor.a11y.back" = "Zurück, Änderungen verwerfen";
 "trim_editor.a11y.playhead" = "Abspielposition";
 "trim_editor.a11y.startHandle" = "Anfangspunkt";
@@ -263,7 +266,12 @@
 "trim_editor.a11y.nudgeForward" = "Eine Sekunde später";
 "trim_editor.a11y.play" = "Vorhören";
 "trim_editor.a11y.pause" = "Pause";
-"trim_editor.a11y.cardHint" = "Wählt diesen Punkt zum Bearbeiten aus";
+"trim_editor.a11y.cardHint" = "Wählt diesen Punkt aus und zoomt heran";
+"trim_editor.a11y.minimap" = "Übersicht";
+"trim_editor.a11y.minimapValue" = "Ausschnitt %1$@ bis %2$@";
+"trim_editor.a11y.zoomOut" = "Ganze Datei anzeigen";
+"trim_editor.a11y.edgeChip.start" = "Anfangspunkt bei %@ anzeigen";
+"trim_editor.a11y.edgeChip.end" = "Endpunkt bei %@ anzeigen";
 
 "guided_meditations.import.action" = "Importieren";
 

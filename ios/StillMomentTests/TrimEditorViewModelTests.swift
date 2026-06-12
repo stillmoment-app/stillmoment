@@ -218,6 +218,43 @@ final class TrimEditorViewModelTests: XCTestCase {
         XCTAssertEqual(sut.playheadTime, 300)
     }
 
+    func testPlayheadDragEndStartsPlaybackFromPlayhead() {
+        let sut = self.makeSUT()
+        sut.seek(to: 300)
+
+        sut.playheadDragEnded()
+
+        XCTAssertTrue(sut.isPlaying)
+        XCTAssertFalse(sut.isPreviewing)
+        XCTAssertTrue(self.audio.playMeditationPreviewCalled)
+        XCTAssertEqual(self.audio.lastSeekMeditationPreviewTime, 300)
+    }
+
+    func testPlayheadDragWhilePlayingResumesFromNewPosition() {
+        let sut = self.makeSUT()
+        sut.togglePlayback()
+
+        // Dragging seeks (pauses first), releasing resumes from the new position.
+        sut.seek(to: 300)
+        sut.playheadDragEnded()
+
+        XCTAssertTrue(sut.isPlaying)
+        XCTAssertEqual(self.audio.lastSeekMeditationPreviewTime, 300)
+    }
+
+    func testPlayheadDragEndPastEndPointRunsToFileEnd() async {
+        let sut = self.makeSUT()
+        sut.movePoint(.end, to: 600)
+        sut.seek(to: 700)
+
+        sut.playheadDragEnded()
+        self.audio.meditationPreviewPositionSubject.send(800)
+        await self.drainMainQueue()
+
+        XCTAssertTrue(sut.isPlaying)
+        XCTAssertEqual(sut.playheadTime, 800)
+    }
+
     func testSeekClampsToFileBounds() {
         let sut = self.makeSUT()
 
@@ -307,9 +344,12 @@ final class TrimEditorViewModelTests: XCTestCase {
     }
 
     func testPlayFromEndPointRunsPastEndToFileEnd() async {
-        let sut = self.makeSUT()
+        // The end audition parks the playhead AT the mark; pressing ▶ there is the
+        // deliberate escape hatch to listen past the end point.
+        let sut = self.makeSUT(previewDurations: .test)
         sut.movePoint(.end, to: 600)
         sut.markDragEnded()
+        try? await Task.sleep(nanoseconds: 200_000_000)
 
         sut.togglePlayback()
         self.audio.meditationPreviewPositionSubject.send(700)
