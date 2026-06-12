@@ -9,14 +9,15 @@ import XCTest
 @testable import StillMoment
 
 final class GuidedMeditationGongTests: XCTestCase {
-    // MARK: - Default
+    // MARK: - Defaults
 
-    func testGongIsDisabledByDefault() {
+    func testGongsAreDisabledByDefault() {
         // Given
         let meditation = self.makeMeditation()
 
         // Then
-        XCTAssertFalse(meditation.gongEnabled)
+        XCTAssertFalse(meditation.startGongEnabled)
+        XCTAssertFalse(meditation.endGongEnabled)
     }
 
     func testGongSoundDefaultsToStandardGong() {
@@ -42,7 +43,7 @@ final class GuidedMeditationGongTests: XCTestCase {
 
     // MARK: - Persistence Compatibility
 
-    func testLegacyMeditationWithoutGongFieldDecodesAsDisabled() throws {
+    func testLegacyMeditationWithoutGongFieldsDecodesAsDisabled() throws {
         // Given: persisted JSON from a version before the gong setting existed
         let json = """
             {
@@ -60,13 +61,14 @@ final class GuidedMeditationGongTests: XCTestCase {
         let data = try XCTUnwrap(json.data(using: .utf8))
         let meditation = try JSONDecoder().decode(GuidedMeditation.self, from: data)
 
-        // Then: plays without gong, with the standard sound preselected
-        XCTAssertFalse(meditation.gongEnabled)
+        // Then: plays without gongs, with the standard sound preselected
+        XCTAssertFalse(meditation.startGongEnabled)
+        XCTAssertFalse(meditation.endGongEnabled)
         XCTAssertEqual(meditation.gongSoundId, GongSound.defaultSoundId)
     }
 
-    func testMeditationFromBaseVersionWithoutSoundFieldDecodesAsStandardGong() throws {
-        // Given: persisted JSON from the first gong version (no per-meditation sound yet)
+    func testMeditationWithLegacyCombinedGongFlagDecodesWithBothGongsEnabled() throws {
+        // Given: persisted JSON from the version with a single combined gong toggle
         let json = """
             {
                 "id": "550E8400-E29B-41D4-A716-446655440000",
@@ -84,40 +86,52 @@ final class GuidedMeditationGongTests: XCTestCase {
         let data = try XCTUnwrap(json.data(using: .utf8))
         let meditation = try JSONDecoder().decode(GuidedMeditation.self, from: data)
 
-        // Then: gong stays enabled and rings with the standard sound
-        XCTAssertTrue(meditation.gongEnabled)
+        // Then: the combined setting carries over to both gongs
+        XCTAssertTrue(meditation.startGongEnabled)
+        XCTAssertTrue(meditation.endGongEnabled)
         XCTAssertEqual(meditation.gongSoundId, GongSound.defaultSoundId)
     }
 
-    func testGongSettingSurvivesEncodingRoundtrip() throws {
-        // Given
-        let original = self.makeMeditation(gongEnabled: true, gongSoundId: "deep-resonance")
+    func testGongSettingsSurviveEncodingRoundtrip() throws {
+        // Given: only the end gong is enabled, with a custom sound
+        let original = self.makeMeditation(
+            startGongEnabled: false,
+            endGongEnabled: true,
+            gongSoundId: "deep-resonance"
+        )
 
         // When
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(GuidedMeditation.self, from: data)
 
         // Then
-        XCTAssertTrue(decoded.gongEnabled)
+        XCTAssertFalse(decoded.startGongEnabled)
+        XCTAssertTrue(decoded.endGongEnabled)
         XCTAssertEqual(decoded.gongSoundId, "deep-resonance")
     }
 
-    func testMigrationToLocalFilePreservesGongSetting() {
+    func testMigrationToLocalFilePreservesGongSettings() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true, gongSoundId: "clear-strike")
+        let meditation = self.makeMeditation(
+            startGongEnabled: true,
+            endGongEnabled: false,
+            gongSoundId: "clear-strike"
+        )
 
         // When
         let migrated = meditation.withLocalFilePath("new/path.mp3")
 
         // Then
-        XCTAssertTrue(migrated.gongEnabled)
+        XCTAssertTrue(migrated.startGongEnabled)
+        XCTAssertFalse(migrated.endGongEnabled)
         XCTAssertEqual(migrated.gongSoundId, "clear-strike")
     }
 
     // MARK: - Helpers
 
     private func makeMeditation(
-        gongEnabled: Bool = false,
+        startGongEnabled: Bool = false,
+        endGongEnabled: Bool = false,
         gongSoundId: String = GongSound.defaultSoundId
     ) -> GuidedMeditation {
         GuidedMeditation(
@@ -126,7 +140,8 @@ final class GuidedMeditationGongTests: XCTestCase {
             duration: 600,
             teacher: "Test Teacher",
             name: "Test Meditation",
-            gongEnabled: gongEnabled,
+            startGongEnabled: startGongEnabled,
+            endGongEnabled: endGongEnabled,
             gongSoundId: gongSoundId
         )
     }

@@ -101,8 +101,9 @@ struct GuidedMeditationEditSheet: View {
                         }
                     }
                     Section {
-                        self.gongToggle
-                        if self.editState.editedGongEnabled {
+                        self.startGongToggle
+                        self.endGongToggle
+                        if self.editState.editedStartGongEnabled || self.editState.editedEndGongEnabled {
                             MeditationGongSoundPicker(
                                 selectedSoundId: self.$editState.editedGongSoundId,
                                 onPreview: self.playGongPreview
@@ -275,14 +276,24 @@ struct GuidedMeditationEditSheet: View {
 
     // MARK: - Gong Subviews (shared-106)
 
-    private var gongToggle: some View {
-        Toggle(isOn: self.$editState.editedGongEnabled) {
-            Text("guided_meditations.edit.gong")
+    private var startGongToggle: some View {
+        Toggle(isOn: self.$editState.editedStartGongEnabled) {
+            Text("guided_meditations.edit.startGong")
                 .textStyle(.body, color: \.textPrimary)
         }
         .themedToggle()
-        .accessibilityIdentifier("editSheet.toggle.gong")
-        .accessibilityHint("accessibility.editSheet.gong.hint")
+        .accessibilityIdentifier("editSheet.toggle.startGong")
+        .accessibilityHint("accessibility.editSheet.startGong.hint")
+    }
+
+    private var endGongToggle: some View {
+        Toggle(isOn: self.$editState.editedEndGongEnabled) {
+            Text("guided_meditations.edit.endGong")
+                .textStyle(.body, color: \.textPrimary)
+        }
+        .themedToggle()
+        .accessibilityIdentifier("editSheet.toggle.endGong")
+        .accessibilityHint("accessibility.editSheet.endGong.hint")
     }
 
     private var gongFooter: some View {

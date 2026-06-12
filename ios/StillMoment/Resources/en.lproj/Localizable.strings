@@ -226,9 +226,11 @@
 "guided_meditations.edit.fileInfo" = "File Information";
 
 // Start/end gong (shared-106)
-"guided_meditations.edit.gong" = "Gong at start and end";
-"guided_meditations.edit.gongHint" = "A gong opens and closes the meditation. The volume follows the timer's gong settings.";
-"accessibility.editSheet.gong.hint" = "Plays a gong at the start and end of playback";
+"guided_meditations.edit.startGong" = "Gong at start";
+"guided_meditations.edit.endGong" = "Gong at end";
+"guided_meditations.edit.gongHint" = "A gong can open and close the meditation. The volume follows the timer's gong settings.";
+"accessibility.editSheet.startGong.hint" = "Plays a gong at the start of playback";
+"accessibility.editSheet.endGong.hint" = "Plays a gong at the end of playback";
 
 // Playback range card (shared-107)
 "playback_range.label" = "Playback Range";

@@ -2,7 +2,7 @@
 //  EditSheetStateGongTests.swift
 //  Still Moment
 //
-//  Domain Tests - Gong setting in the edit sheet (shared-106)
+//  Domain Tests - Gong settings in the edit sheet (shared-106)
 //
 
 import XCTest
@@ -11,31 +11,33 @@ import XCTest
 final class EditSheetStateGongTests: XCTestCase {
     // MARK: - Prefill
 
-    func testGongTogglePrefilledFromMeditation() {
-        // Given
-        let meditation = self.makeMeditation(gongEnabled: true)
+    func testGongTogglesPrefilledFromMeditation() {
+        // Given: only the start gong is enabled
+        let meditation = self.makeMeditation(startGongEnabled: true, endGongEnabled: false)
 
         // When
         let state = EditSheetState(meditation: meditation)
 
         // Then
-        XCTAssertTrue(state.editedGongEnabled)
+        XCTAssertTrue(state.editedStartGongEnabled)
+        XCTAssertFalse(state.editedEndGongEnabled)
     }
 
-    func testGongToggleOffWhenMeditationHasNoGong() {
+    func testGongTogglesOffWhenMeditationHasNoGongs() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: false)
+        let meditation = self.makeMeditation()
 
         // When
         let state = EditSheetState(meditation: meditation)
 
         // Then
-        XCTAssertFalse(state.editedGongEnabled)
+        XCTAssertFalse(state.editedStartGongEnabled)
+        XCTAssertFalse(state.editedEndGongEnabled)
     }
 
     func testGongSoundPrefilledFromMeditation() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true, gongSoundId: "deep-resonance")
+        let meditation = self.makeMeditation(startGongEnabled: true, gongSoundId: "deep-resonance")
 
         // When
         let state = EditSheetState(meditation: meditation)
@@ -46,14 +48,27 @@ final class EditSheetStateGongTests: XCTestCase {
 
     // MARK: - Change Detection
 
-    func testTogglingGongCountsAsChange() {
+    func testTogglingStartGongCountsAsChange() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: false)
+        let meditation = self.makeMeditation()
         var state = EditSheetState(meditation: meditation)
         XCTAssertFalse(state.hasChanges)
 
         // When
-        state.editedGongEnabled = true
+        state.editedStartGongEnabled = true
+
+        // Then
+        XCTAssertTrue(state.hasChanges)
+    }
+
+    func testTogglingEndGongCountsAsChange() {
+        // Given
+        let meditation = self.makeMeditation()
+        var state = EditSheetState(meditation: meditation)
+        XCTAssertFalse(state.hasChanges)
+
+        // When
+        state.editedEndGongEnabled = true
 
         // Then
         XCTAssertTrue(state.hasChanges)
@@ -61,12 +76,12 @@ final class EditSheetStateGongTests: XCTestCase {
 
     func testTogglingGongBackIsNoChange() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true)
+        let meditation = self.makeMeditation(startGongEnabled: true, endGongEnabled: true)
         var state = EditSheetState(meditation: meditation)
 
         // When
-        state.editedGongEnabled = false
-        state.editedGongEnabled = true
+        state.editedStartGongEnabled = false
+        state.editedStartGongEnabled = true
 
         // Then
         XCTAssertFalse(state.hasChanges)
@@ -74,7 +89,7 @@ final class EditSheetStateGongTests: XCTestCase {
 
     func testChangingGongSoundCountsAsChange() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true)
+        let meditation = self.makeMeditation(startGongEnabled: true)
         var state = EditSheetState(meditation: meditation)
         XCTAssertFalse(state.hasChanges)
 
@@ -87,35 +102,37 @@ final class EditSheetStateGongTests: XCTestCase {
 
     // MARK: - Applying Changes
 
-    func testEnablingGongAppliesIt() {
-        // Given
-        let meditation = self.makeMeditation(gongEnabled: false)
+    func testEnablingGongsIndependentlyAppliesThem() {
+        // Given: the user enables only the end gong
+        let meditation = self.makeMeditation()
         var state = EditSheetState(meditation: meditation)
 
         // When
-        state.editedGongEnabled = true
+        state.editedEndGongEnabled = true
 
         // Then
         let updated = state.applyChanges()
-        XCTAssertTrue(updated.gongEnabled)
+        XCTAssertFalse(updated.startGongEnabled)
+        XCTAssertTrue(updated.endGongEnabled)
     }
 
     func testDisablingGongAppliesIt() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true)
+        let meditation = self.makeMeditation(startGongEnabled: true, endGongEnabled: true)
         var state = EditSheetState(meditation: meditation)
 
         // When
-        state.editedGongEnabled = false
+        state.editedStartGongEnabled = false
 
         // Then
         let updated = state.applyChanges()
-        XCTAssertFalse(updated.gongEnabled)
+        XCTAssertFalse(updated.startGongEnabled)
+        XCTAssertTrue(updated.endGongEnabled)
     }
 
     func testChangingGongSoundAppliesIt() {
         // Given
-        let meditation = self.makeMeditation(gongEnabled: true)
+        let meditation = self.makeMeditation(startGongEnabled: true)
         var state = EditSheetState(meditation: meditation)
 
         // When
@@ -129,7 +146,8 @@ final class EditSheetStateGongTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeMeditation(
-        gongEnabled: Bool,
+        startGongEnabled: Bool = false,
+        endGongEnabled: Bool = false,
         gongSoundId: String = GongSound.defaultSoundId
     ) -> GuidedMeditation {
         GuidedMeditation(
@@ -138,7 +156,8 @@ final class EditSheetStateGongTests: XCTestCase {
             duration: 600,
             teacher: "Test Teacher",
             name: "Test Meditation",
-            gongEnabled: gongEnabled,
+            startGongEnabled: startGongEnabled,
+            endGongEnabled: endGongEnabled,
             gongSoundId: gongSoundId
         )
     }

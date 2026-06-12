@@ -226,9 +226,11 @@
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
 
 // Start-/End-Gong (shared-106)
-"guided_meditations.edit.gong" = "Gong am Anfang und Ende";
-"guided_meditations.edit.gongHint" = "Ein Gong leitet die Meditation ein und schließt sie ab. Die Lautstärke folgt den Gong-Einstellungen des Timers.";
-"accessibility.editSheet.gong.hint" = "Spielt einen Gong am Anfang und am Ende der Wiedergabe";
+"guided_meditations.edit.startGong" = "Gong am Anfang";
+"guided_meditations.edit.endGong" = "Gong am Ende";
+"guided_meditations.edit.gongHint" = "Ein Gong kann die Meditation einleiten und abschließen. Die Lautstärke folgt den Gong-Einstellungen des Timers.";
+"accessibility.editSheet.startGong.hint" = "Spielt einen Gong am Anfang der Wiedergabe";
+"accessibility.editSheet.endGong.hint" = "Spielt einen Gong am Ende der Wiedergabe";
 
 // Wiedergabe-Bereich Karte (shared-107)
 "playback_range.label" = "Wiedergabe-Bereich";

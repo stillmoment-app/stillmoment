@@ -1,6 +1,23 @@
 # Plan shared-106 (iOS): Start-/End-Gong pro Meditation
 
-## Aenderungsrequest (2026-06-12): Klangauswahl pro Meditation
+## Aenderungsrequest 2 (2026-06-12): Start/Ende unabhaengig schaltbar
+
+Aufbauend auf Aenderungsrequest 1 (Commit a7f5e30). Umbau:
+
+1. **Domain:** `gongEnabled: Bool` wird zu `startGongEnabled: Bool` +
+   `endGongEnabled: Bool` (Default je `false`). Decoding: neue Keys via
+   `decodeIfPresent`; Fallback auf Legacy-Key `gongEnabled` (true → beide an).
+   Encoding nur noch neue Keys. `gongSoundId` bleibt gemeinsam.
+2. **EditSheetState:** `editedStartGongEnabled` + `editedEndGongEnabled`.
+3. **ViewModel:** Start-Gong-Sequenz nur bei `startGongEnabled`
+   (startPlayback + Countdown-Ende); `configureEndGong` nur bei
+   `endGongEnabled`.
+4. **UI:** Zwei Toggles "Gong am Anfang" / "Gong am Ende"; Klangauswahl
+   sichtbar sobald mindestens einer aktiv.
+5. **Lokalisierung:** `guided_meditations.edit.startGong` / `.endGong` +
+   Accessibility-Hints; alter Key `guided_meditations.edit.gong` entfaellt.
+
+## Aenderungsrequest 1 (2026-06-12): Klangauswahl pro Meditation
 
 Die Basis-Implementierung (unten) ist gemergt (Commit 2667f61). Umbau:
 

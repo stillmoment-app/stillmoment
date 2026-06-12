@@ -196,7 +196,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             try await self.playerService.load(url: fileURL, meditation: self.meditation)
             // shared-106: end gong plays at the trim end / file end on the lock screen;
             // the sound is chosen per meditation, the volume follows the timer settings
-            if self.meditation.gongEnabled {
+            if self.meditation.endGongEnabled {
                 self.playerService.configureEndGong(
                     soundId: self.meditation.gongSoundId,
                     volume: self.praxisRepository.load().gongVolume
@@ -306,7 +306,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
         // First start - use countdown if configured
         if let prepTime = preparationTimeSeconds {
             self.startCountdown(seconds: prepTime)
-        } else if self.meditation.gongEnabled {
+        } else if self.meditation.startGongEnabled {
             self.startGongSequence()
         } else {
             self.togglePlayPause()
@@ -405,7 +405,7 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
             self.countdownTimer?.cancel()
             self.countdownTimer = nil
             self.countdownState = .finished
-            if self.meditation.gongEnabled {
+            if self.meditation.startGongEnabled {
                 // shared-106: gong rings in the still-active silent-audio session,
                 // then the breath pause and the atomic transition follow
                 self.isStartGongSequenceActive = true
