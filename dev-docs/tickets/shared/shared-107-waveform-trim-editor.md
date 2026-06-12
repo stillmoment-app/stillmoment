@@ -1,6 +1,6 @@
 # Ticket shared-107: Waveform-Trim-Editor fuer den Wiedergabe-Bereich
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel-Hoch. Die Trim-Logik (Domain, Persistenz, Player-Verhalten) existiert aus shared-105 — Risiken liegen in der Waveform-Berechnung (Decode-Dauer bei 1h-Dateien, Caching, Lazy-Fallback) und in der Gesten-Praezision des Editors (Drag-Griffe, Clamping, Vorhoeren).
 **Phase**: 3-Feature
@@ -23,7 +23,7 @@ Design-Handoff (massgeblich fuer Layout, Masse, Interaktionen): `handoffs/design
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-105 (iOS done) |
+| iOS       | [x]    | shared-105 (iOS done) |
 | Android   | [ ]    | shared-105 (Android offen) |
 
 ---
