@@ -1,6 +1,6 @@
 # Ticket shared-109: Waveform Player „Tonkopf"
 
-**Status**: [ ] TODO
+**Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Plan (iOS)**: [Implementierungsplan](../plans/shared-109-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Hoch — kontinuierlich scrollendes Canvas-Rendering (gecachte Waveform), Drag-Scrub mit Pausier-/Fortsetz-Logik, Anbindung an echte Audio-Position als Source of Truth, korrektes Fenster-Mapping bei gesetztem Trim. Risiko liegt im fluessigen Scrollen ohne Akku-/Performance-Probleme und in der Accessibility (Welle dekorativ, Scrub als Slider).
@@ -22,7 +22,7 @@ Eine gesprochene Meditation soll auf den ersten Blick als Audio-Sitzung erkennba
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
+| iOS       | [x]    | -             |
 | Android   | [ ]    | iOS zuerst    |
 
 iOS wird zuerst umgesetzt, Android danach mit der iOS-Implementierung als Referenz.
