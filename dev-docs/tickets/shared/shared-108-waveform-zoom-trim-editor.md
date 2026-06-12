@@ -1,6 +1,7 @@
 # Ticket shared-108: Zoom in die Waveform des Trim-Editors
 
 **Status**: [ ] TODO
+**Plan**: [Implementierungsplan iOS](../plans/shared-108-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel — die Voraussetzung (hoeher aufgeloeste Waveform-Daten, 2200 Peaks) ist mit shared-107 erledigt. Kern ist das Fenster-Mapping `[winLo, winHi]` fuer alle Spur-Interaktionen, der Auto-Zoom per Karten-Tap und die Minimap mit Pan und Edge-Chips.
 **Phase**: 3-Feature
