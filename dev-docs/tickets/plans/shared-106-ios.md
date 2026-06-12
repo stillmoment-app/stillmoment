@@ -1,5 +1,47 @@
 # Plan shared-106 (iOS): Start-/End-Gong pro Meditation
 
+## Aenderungsrequest 2 (2026-06-12): Start/Ende unabhaengig schaltbar
+
+Aufbauend auf Aenderungsrequest 1 (Commit a7f5e30). Umbau:
+
+1. **Domain:** `gongEnabled: Bool` wird zu `startGongEnabled: Bool` +
+   `endGongEnabled: Bool` (Default je `false`). Decoding: neue Keys via
+   `decodeIfPresent`; Fallback auf Legacy-Key `gongEnabled` (true → beide an).
+   Encoding nur noch neue Keys. `gongSoundId` bleibt gemeinsam.
+2. **EditSheetState:** `editedStartGongEnabled` + `editedEndGongEnabled`.
+3. **ViewModel:** Start-Gong-Sequenz nur bei `startGongEnabled`
+   (startPlayback + Countdown-Ende); `configureEndGong` nur bei
+   `endGongEnabled`.
+4. **UI:** Zwei Toggles "Gong am Anfang" / "Gong am Ende"; Klangauswahl
+   sichtbar sobald mindestens einer aktiv.
+5. **Lokalisierung:** `guided_meditations.edit.startGong` / `.endGong` +
+   Accessibility-Hints; alter Key `guided_meditations.edit.gong` entfaellt.
+
+## Aenderungsrequest 1 (2026-06-12): Klangauswahl pro Meditation
+
+Die Basis-Implementierung (unten) ist gemergt (Commit 2667f61). Umbau:
+
+1. **Domain:** `GuidedMeditation.gongSoundId: String` (Default
+   `GongSound.defaultSoundId`, `decodeIfPresent ?? default` fuer Bestandsdaten),
+   beide Inits + `withLocalFilePath` tragen es weiter. Neu:
+   `GongSound.allMeditationGongSounds` = `allSounds` ohne Vibration (Vibration
+   entfaellt bewusst fuer Meditationen).
+2. **EditSheetState:** `editedGongSoundId` (Prefill/hasChanges/applyChanges).
+3. **ViewModel:** `playStartGongThenTransition` und `configureEndGong` nutzen
+   `meditation.gongSoundId`; Lautstaerke weiterhin `praxis.gongVolume`
+   (kein eigener Regler pro Meditation — bewusste Entscheidung).
+4. **UI:** Im Edit-Sheet unter dem Toggle (nur bei aktivem Toggle) Klang-Rows
+   wie `GongSelectionView` (Checkmark, Tap = Auswahl + Preview via bereits
+   injiziertem `audioService.playGongPreview`, Volume aus `PraxisRepository`).
+   `stopGongPreview()` bei Disappear. Footer-Hint anpassen (Klang pro
+   Meditation, Lautstaerke folgt Timer-Einstellungen).
+5. **Lokalisierung:** `guided_meditations.edit.gongHint` (DE/EN) anpassen;
+   `accessibility.sound.select.hint` und `gong.*`-Namen existieren bereits.
+6. **Tests:** Erweiterung der bestehenden Gong-Testdateien
+   (GuidedMeditationGongTests, EditSheetStateGongTests,
+   PlayerViewModelGongTests, GuidedMeditationServiceTests+Gong);
+   Helper `createTestMeditation` bekommt `gongSoundId`-Parameter.
+
 ## Stand & Wiedereinstieg (2026-06-11)
 
 - **shared-105 (Trim-Punkte, iOS) ist FERTIG und auf main gemergt** (Commit a595cf5,

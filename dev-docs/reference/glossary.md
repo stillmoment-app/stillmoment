@@ -572,11 +572,15 @@ Lock Screen). Seek/Skip clampen auf den effektiven Bereich. Legacy-Eintraege ohn
 laden unveraendert (`decodeIfPresent`).
 
 **Start-/End-Gong (shared-106):**
-`gongEnabled` rahmt die Wiedergabe mit einem Gong: Start-Gong → kurze Atempause (2 s) → Audio;
-am effektiven Ende spielt der End-Gong vollstaendig aus, bevor die Audio-Session freigegeben
-wird (Lock-Screen-sicher). Klang/Lautstaerke folgen den Timer-Einstellungen (`Praxis`).
+`startGongEnabled` und `endGongEnabled` rahmen die Wiedergabe unabhaengig voneinander mit
+einem Gong: Start-Gong → kurze Atempause (2 s) → Audio; am effektiven Ende spielt der
+End-Gong vollstaendig aus, bevor die Audio-Session freigegeben wird (Lock-Screen-sicher).
+Der Klang ist pro Meditation waehlbar und gilt fuer beide Gongs (`gongSoundId`,
+`GongSound.allMeditationGongSounds` — gleiche Gongs wie der Timer, ohne Vibration); die
+Lautstaerke folgt den Timer-Einstellungen (`Praxis.gongVolume`).
 Wiedergabe via `MeditationGongPlayerProtocol` (Domain) / `MeditationGongPlayer` (Infrastructure).
-Legacy-Eintraege ohne Key laden als `false`.
+Legacy-Eintraege ohne Keys laden als `false` bzw. Standard-Gong; das fruehere kombinierte
+`gongEnabled`-Flag laedt mit beiden Gongs aktiviert.
 
 **Datei-Referenzen:**
 - iOS: `ios/StillMoment/Domain/Models/GuidedMeditation.swift`

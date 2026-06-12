@@ -2,32 +2,33 @@
 //  GuidedMeditationServiceTests+Gong.swift
 //  Still Moment
 //
-//  Persistence tests for the per-meditation gong setting (shared-106)
+//  Persistence tests for the per-meditation gong settings (shared-106)
 //
 
 import XCTest
 @testable import StillMoment
 
 extension GuidedMeditationServiceTests {
-    func testGongSettingPersistsAcrossSaveAndLoad() throws {
-        // Given
+    func testGongSettingsPersistAcrossSaveAndLoad() throws {
+        // Given: only the end gong is enabled
         guard let sut else {
             XCTFail("SUT not initialized")
             return
         }
         var meditation = self.createTestMeditation(teacher: "Teacher", name: "With Gong")
-        meditation.gongEnabled = true
+        meditation.endGongEnabled = true
 
         // When
         try sut.saveMeditations([meditation])
         let loaded = try sut.loadMeditations()
 
         // Then
-        XCTAssertEqual(loaded.first?.gongEnabled, true)
+        XCTAssertEqual(loaded.first?.startGongEnabled, false)
+        XCTAssertEqual(loaded.first?.endGongEnabled, true)
     }
 
     func testUpdateMeditationPersistsGongChange() throws {
-        // Given: a meditation persisted without gong
+        // Given: a meditation persisted without gongs
         guard let sut else {
             XCTFail("SUT not initialized")
             return
@@ -35,17 +36,36 @@ extension GuidedMeditationServiceTests {
         let meditation = self.createTestMeditation(teacher: "Teacher", name: "No Gong")
         try sut.saveMeditations([meditation])
 
-        // When: user enables the gong in the edit sheet
+        // When: user enables the start gong in the edit sheet
         var edited = meditation
-        edited.gongEnabled = true
+        edited.startGongEnabled = true
         try sut.updateMeditation(edited)
 
         // Then
         let loaded = try sut.loadMeditations()
-        XCTAssertEqual(loaded.first?.gongEnabled, true)
+        XCTAssertEqual(loaded.first?.startGongEnabled, true)
+        XCTAssertEqual(loaded.first?.endGongEnabled, false)
     }
 
-    func testMeditationWithoutGongStaysDisabledAfterReload() throws {
+    func testGongSoundChoicePersistsAcrossSaveAndLoad() throws {
+        // Given: the user picked a sound for this meditation in the edit sheet
+        guard let sut else {
+            XCTFail("SUT not initialized")
+            return
+        }
+        var meditation = self.createTestMeditation(teacher: "Teacher", name: "Own Sound")
+        meditation.startGongEnabled = true
+        meditation.gongSoundId = "deep-resonance"
+
+        // When
+        try sut.saveMeditations([meditation])
+        let loaded = try sut.loadMeditations()
+
+        // Then
+        XCTAssertEqual(loaded.first?.gongSoundId, "deep-resonance")
+    }
+
+    func testMeditationWithoutGongsStaysDisabledAfterReload() throws {
         // Given
         guard let sut else {
             XCTFail("SUT not initialized")
@@ -58,6 +78,7 @@ extension GuidedMeditationServiceTests {
         let loaded = try sut.loadMeditations()
 
         // Then
-        XCTAssertEqual(loaded.first?.gongEnabled, false)
+        XCTAssertEqual(loaded.first?.startGongEnabled, false)
+        XCTAssertEqual(loaded.first?.endGongEnabled, false)
     }
 }

@@ -25,7 +25,9 @@ struct EditSheetState {
         self.editedName = meditation.name
         self.editedTrimStart = meditation.trimStart
         self.editedTrimEnd = meditation.trimEnd
-        self.editedGongEnabled = meditation.gongEnabled
+        self.editedStartGongEnabled = meditation.startGongEnabled
+        self.editedEndGongEnabled = meditation.endGongEnabled
+        self.editedGongSoundId = meditation.gongSoundId
     }
 
     // MARK: Internal
@@ -42,16 +44,24 @@ struct EditSheetState {
     /// Playback end offset in seconds (nil = no trim); set by the trim editor.
     var editedTrimEnd: TimeInterval?
 
-    /// Whether a gong should mark the start and end of playback (shared-106)
-    var editedGongEnabled: Bool
+    /// Whether a gong should mark the start of playback (shared-106)
+    var editedStartGongEnabled: Bool
 
-    /// Whether the user changed teacher, name, trim points, or the gong toggle.
+    /// Whether a gong should mark the end of playback (independent of the start gong)
+    var editedEndGongEnabled: Bool
+
+    /// Gong sound chosen for this meditation (independent of the timer settings)
+    var editedGongSoundId: String
+
+    /// Whether the user changed teacher, name, trim points, or the gong settings.
     var hasChanges: Bool {
         self.editedTeacher != self.originalMeditation.teacher ||
             self.editedName != self.originalMeditation.name ||
             self.editedTrimStart != self.originalMeditation.trimStart ||
             self.editedTrimEnd != self.originalMeditation.trimEnd ||
-            self.editedGongEnabled != self.originalMeditation.gongEnabled
+            self.editedStartGongEnabled != self.originalMeditation.startGongEnabled ||
+            self.editedEndGongEnabled != self.originalMeditation.endGongEnabled ||
+            self.editedGongSoundId != self.originalMeditation.gongSoundId
     }
 
     /// Whether all fields contain valid input (non-empty teacher/name, consistent trim points).
@@ -68,7 +78,9 @@ struct EditSheetState {
         updated.name = self.editedName
         updated.trimStart = self.editedTrimStart
         updated.trimEnd = self.editedTrimEnd
-        updated.gongEnabled = self.editedGongEnabled
+        updated.startGongEnabled = self.editedStartGongEnabled
+        updated.endGongEnabled = self.editedEndGongEnabled
+        updated.gongSoundId = self.editedGongSoundId
         return updated
     }
 
