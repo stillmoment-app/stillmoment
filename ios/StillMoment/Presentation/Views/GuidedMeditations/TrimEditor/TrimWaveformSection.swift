@@ -8,15 +8,16 @@
 
 import SwiftUI
 
-/// The interactive trim track: the sage playhead lane on top, the waveform with the
-/// two copper trim marks below, and the axis labels underneath. While zoomed, a
-/// whole-file minimap appears above the track.
+/// The interactive trim track: one waveform, visually split like its touch zones —
+/// the sage playhead grabber lives in the upper zone, the copper trim marks in the
+/// lower zone — with the axis labels underneath. While zoomed, a whole-file minimap
+/// plus the "Ganze Datei" zoom-out chip appear above the track.
 ///
-/// All grips are purely visual — one single drag gesture covers lane + waveform and
-/// resolves geometrically (via `TrimHitTesting`) what the finger acts on: the lane and
-/// the upper 45 % of the waveform move the playhead, the lower zone moves a mark (in
-/// clusters the active mark always wins). This removes any competition between
-/// overlapping hit areas on the narrow track (handoff "touch-robuste Punkt-Bedienung").
+/// All grips are purely visual — one single drag gesture covers the waveform and
+/// resolves geometrically (via `TrimHitTesting`) what the finger acts on: the upper
+/// 45 % moves the playhead, the lower zone moves a mark (in clusters the active mark
+/// always wins). This removes any competition between overlapping hit areas on the
+/// narrow track (handoff "touch-robuste Punkt-Bedienung").
 ///
 /// Every time↔x mapping goes through the ViewModel's visible window (shared-108) —
 /// in the overview that window is the whole file. Marks outside the window render as
@@ -55,40 +56,61 @@ struct TrimWaveformSection: View {
         self.viewModel.window
     }
 
+    /// Minimap plus the zoom-out chip share one row — both only exist while zoomed,
+    /// and the row keeps the zoomed layout compact (no extra chip row).
     private var minimap: some View {
-        TrimMinimapView(
-            start: self.state.start,
-            end: self.state.end,
-            playheadTime: self.viewModel.playheadTime,
-            window: self.window,
-            duration: self.state.duration
-        ) { self.viewModel.panWindow(toCenter: $0) }
-            .transition(.opacity)
+        HStack(spacing: 10) {
+            TrimMinimapView(
+                start: self.state.start,
+                end: self.state.end,
+                playheadTime: self.viewModel.playheadTime,
+                window: self.window,
+                duration: self.state.duration
+            ) { self.viewModel.panWindow(toCenter: $0) }
+            self.zoomOutChip
+        }
+        .transition(.opacity)
+    }
+
+    private var zoomOutChip: some View {
+        Button {
+            self.viewModel.zoomOut()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "minus.magnifyingglass")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(self.theme.textSecondary)
+                Text("trim_editor.zoomOut")
+                    .textStyle(.caption, color: \.textPrimary)
+            }
+            .padding(.horizontal, 11)
+            .padding(.vertical, 5)
+            .background(Capsule().fill(self.theme.cardBackground))
+            .overlay(
+                Capsule()
+                    .strokeBorder(self.theme.cardBorder, lineWidth: 1)
+            )
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(Text("trim_editor.a11y.zoomOut"))
+        .accessibilityIdentifier("trimEditor.zoomOut")
     }
 
     private var track: some View {
-        VStack(spacing: 0) {
-            TrimPlayheadLane(
-                playheadTime: self.viewModel.playheadTime,
-                window: self.window,
-                trackWidth: self.trackWidth,
-                isDragging: self.dragSession?.target == .playhead
-            ) { self.viewModel.seek(to: self.viewModel.playheadTime + $0) }
-            self.waveform
-        }
-        .background(
-            GeometryReader { proxy in
-                Color.clear.onAppear { self.trackWidth = proxy.size.width }
-                    .onChange(of: proxy.size.width) { self.trackWidth = $0 }
-            }
-        )
-        .contentShape(Rectangle())
-        // High priority so dragging on the track wins over the sheet's interactive
-        // swipe-to-dismiss.
-        .highPriorityGesture(self.trackGesture)
-        // Chips sit on top of the gesture in hit-test order, so their taps win.
-        .overlay(alignment: .leading) { self.edgeChips(atLeadingEdge: true) }
-        .overlay(alignment: .trailing) { self.edgeChips(atLeadingEdge: false) }
+        self.waveform
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.onAppear { self.trackWidth = proxy.size.width }
+                        .onChange(of: proxy.size.width) { self.trackWidth = $0 }
+                }
+            )
+            .contentShape(Rectangle())
+            // High priority so dragging on the track wins over any container gestures.
+            .highPriorityGesture(self.trackGesture)
+            // Chips sit on top of the gesture in hit-test order, so their taps win.
+            .overlay(alignment: .leading) { self.edgeChips(atLeadingEdge: true) }
+            .overlay(alignment: .trailing) { self.edgeChips(atLeadingEdge: false) }
     }
 
     private var waveform: some View {
@@ -105,6 +127,14 @@ struct TrimWaveformSection: View {
         .overlay(self.zoneHint)
         .overlay(alignment: .leading) {
             self.marks
+        }
+        .overlay {
+            TrimPlayheadGrabber(
+                playheadTime: self.viewModel.playheadTime,
+                window: self.window,
+                trackWidth: self.trackWidth,
+                isDragging: self.dragSession?.target == .playhead
+            ) { self.viewModel.seek(to: self.viewModel.playheadTime + $0) }
         }
     }
 
@@ -168,8 +198,6 @@ struct TrimWaveformSection: View {
             }
         }
         .padding(.horizontal, 4)
-        // Vertically centered on the waveform zone, not the whole track.
-        .offset(y: TrimPlayheadLane.height / 2)
     }
 
     private func showsChip(for point: TrimPoint, atLeadingEdge leading: Bool) -> Bool {
@@ -219,7 +247,6 @@ struct TrimWaveformSection: View {
         TrimHitTesting.beginDrag(
             at: location,
             in: TrimTrackGeometry(
-                laneHeight: TrimPlayheadLane.height,
                 waveformHeight: TrimWaveformView.height,
                 headX: self.trackX(for: self.viewModel.playheadTime),
                 startX: self.trackX(for: self.state.start),

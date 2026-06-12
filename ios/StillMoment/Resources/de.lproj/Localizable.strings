@@ -252,7 +252,6 @@
 "trim_editor.card.end" = "Ende";
 "trim_editor.nudge.minus" = "−1s";
 "trim_editor.nudge.plus" = "+1s";
-"trim_editor.lane.playhead" = "Abspielposition";
 "trim_editor.hint.overview" = "Anfang/Ende antippen = heranzoomen · oben ziehen: Abspielposition";
 "trim_editor.hint.zoomed" = "Detailansicht — fein ziehen, ±1s für die Sekunde";
 "trim_editor.wholeFile" = "Ganze Datei verwenden";

@@ -1,39 +1,39 @@
 //
-//  TrimPlayheadLane.swift
+//  TrimPlayheadGrabber.swift
 //  Still Moment
 //
-//  Presentation Layer — dedicated playhead lane above the waveform (shared-107).
+//  Presentation Layer — sage playhead grabber in the waveform's upper zone (shared-108).
 //
 
 import SwiftUI
 
-/// The narrow labelled lane above the waveform where the sage playhead grabber lives.
+/// The sage playhead grabber, rendered as a full-size overlay over the waveform and
+/// positioned in the upper (playhead) touch zone. The full-height playhead line is
+/// drawn by `TrimWaveformView`; this is only the grip.
 ///
 /// Purely visual — the actual dragging is resolved geometrically by the single track
-/// gesture in `TrimWaveformSection` (the whole lane belongs to the playhead). Exposed
-/// as an adjustable accessibility element (±1 s seeks).
-struct TrimPlayheadLane: View {
+/// gesture in `TrimWaveformSection` (the upper 45 % of the waveform belongs to the
+/// playhead). Exposed as an adjustable accessibility element (±1 s seeks), also while
+/// the playhead is outside the zoom window and the grip is hidden.
+struct TrimPlayheadGrabber: View {
     // MARK: Internal
 
-    static let height: CGFloat = 34
-
     let playheadTime: TimeInterval
-    /// Visible time window (zoom, shared-108) — the whole file in the overview.
-    /// An off-window playhead shows no grabber (never glued to the edge).
+    /// Visible time window (zoom, shared-108) — an off-window playhead shows no grip
+    /// (never glued to the edge).
     let window: ClosedRange<TimeInterval>
     let trackWidth: CGFloat
     let isDragging: Bool
     let onNudge: (TimeInterval) -> Void
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            self.label
-            self.rail
+        ZStack(alignment: .topLeading) {
             if self.trackWidth > 0, TrimGeometry.isTime(self.playheadTime, inWindow: self.window) {
                 self.grabber
             }
         }
-        .frame(height: Self.height)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .allowsHitTesting(false)
         .accessibilityElement()
         .accessibilityLabel(Text("trim_editor.a11y.playhead"))
         .accessibilityValue(Text(EditSheetState.formatTime(self.playheadTime)))
@@ -52,23 +52,15 @@ struct TrimPlayheadLane: View {
     private var theme
 
     private static let grabberSize = CGSize(width: 32, height: 20)
+    private static let tipSize = CGSize(width: 10, height: 6)
 
     private var headX: CGFloat {
         TrimGeometry.x(for: self.playheadTime, window: self.window, width: self.trackWidth)
     }
 
-    private var label: some View {
-        Text("trim_editor.lane.playhead")
-            .textStyle(.eyebrow)
-            .foregroundColor(self.theme.playheadAccent.opacity(0.7))
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-
-    private var rail: some View {
-        Capsule()
-            .fill(self.theme.playheadTrack)
-            .frame(height: 2)
-            .padding(.bottom, 2)
+    /// Vertical center of the playhead (upper) touch zone.
+    private var zoneCenterY: CGFloat {
+        TrimWaveformView.height * TrimHitTesting.verticalSplit / 2
     }
 
     private var grabber: some View {
@@ -91,7 +83,7 @@ struct TrimPlayheadLane: View {
                 .shadow(color: self.theme.cardShadow, radius: 4, y: 2)
             Triangle()
                 .fill(self.theme.playheadAccent)
-                .frame(width: 10, height: 6)
+                .frame(width: Self.tipSize.width, height: Self.tipSize.height)
         }
         .overlay(alignment: .top) {
             if self.isDragging {
@@ -105,7 +97,10 @@ struct TrimPlayheadLane: View {
                 .offset(y: -30)
             }
         }
-        .offset(x: self.headX - Self.grabberSize.width / 2)
+        .offset(
+            x: self.headX - Self.grabberSize.width / 2,
+            y: self.zoneCenterY - (Self.grabberSize.height + Self.tipSize.height) / 2
+        )
     }
 
     private var grip: some View {

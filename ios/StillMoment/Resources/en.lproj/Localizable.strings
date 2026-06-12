@@ -252,7 +252,6 @@
 "trim_editor.card.end" = "End";
 "trim_editor.nudge.minus" = "−1s";
 "trim_editor.nudge.plus" = "+1s";
-"trim_editor.lane.playhead" = "Playback position";
 "trim_editor.hint.overview" = "Tap start/end to zoom in · drag the top: playback position";
 "trim_editor.hint.zoomed" = "Detail view — drag finely, ±1s for the exact second";
 "trim_editor.wholeFile" = "Use whole file";

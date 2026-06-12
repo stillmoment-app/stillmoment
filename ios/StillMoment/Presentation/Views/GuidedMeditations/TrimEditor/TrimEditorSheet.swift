@@ -59,10 +59,6 @@ struct TrimEditorSheet: View {
                     end: self.state.end,
                     activePoint: self.state.activePoint
                 ) { self.viewModel.focusPoint($0) }
-                if self.viewModel.isZoomed {
-                    self.zoomOutChip
-                        .transition(.opacity)
-                }
                 TrimTransportRow(
                     isPlaying: self.viewModel.isPlaying,
                     onNudge: { self.viewModel.nudgeActivePoint(by: $0) },
@@ -135,33 +131,6 @@ struct TrimEditorSheet: View {
 
     private var hintKey: LocalizedStringKey {
         self.viewModel.isZoomed ? "trim_editor.hint.zoomed" : "trim_editor.hint.overview"
-    }
-
-    /// Chip that zooms back to the overview — marks and playhead stay untouched
-    /// (unlike the "Ganze Datei verwenden" link, which resets the marks).
-    private var zoomOutChip: some View {
-        Button {
-            self.viewModel.zoomOut()
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "minus.magnifyingglass")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(self.theme.textSecondary)
-                Text("trim_editor.zoomOut")
-                    .textStyle(.caption, color: \.textPrimary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(Capsule().fill(self.theme.cardBackground))
-            .overlay(
-                Capsule()
-                    .strokeBorder(self.theme.cardBorder, lineWidth: 1)
-            )
-            .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Text("trim_editor.a11y.zoomOut"))
-        .accessibilityIdentifier("trimEditor.zoomOut")
     }
 
     private var wholeFileLink: some View {

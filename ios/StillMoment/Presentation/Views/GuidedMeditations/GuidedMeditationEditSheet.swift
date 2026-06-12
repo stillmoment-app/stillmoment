@@ -139,7 +139,7 @@ struct GuidedMeditationEditSheet: View {
                 self.miniWaveformTask?.cancel()
                 self.miniWaveformTask = nil
             }
-            .sheet(isPresented: self.$showingTrimEditor) {
+            .fullScreenCover(isPresented: self.$showingTrimEditor) {
                 self.trimEditorSheet
             }
         }
@@ -231,6 +231,10 @@ struct GuidedMeditationEditSheet: View {
 
     /// Full-screen waveform editor, seeded from the *pending* (uncommitted) trim values so
     /// reopening it reflects edits that have not been saved yet (shared-107).
+    ///
+    /// Presented as a full-screen cover, not a sheet: the editor is a focused work
+    /// surface full of drag gestures — accidental swipe-to-dismiss must be impossible,
+    /// and the zoomed state (shared-108) needs the full height.
     private var trimEditorSheet: some View {
         ThemeRootView {
             TrimEditorSheet(
@@ -247,8 +251,6 @@ struct GuidedMeditationEditSheet: View {
                 }
             )
         }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
     }
 
     /// A copy of the meditation carrying the edit sheet's pending trim values. The editor
