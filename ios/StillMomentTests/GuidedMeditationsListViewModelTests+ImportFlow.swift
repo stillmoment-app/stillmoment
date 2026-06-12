@@ -129,6 +129,8 @@ extension GuidedMeditationsListViewModelTests {
         XCTAssertNil(self.sut.pendingImport)
         XCTAssertFalse(self.sut.showingEditSheet)
         XCTAssertNil(self.sut.errorMessage)
+        // The waveform is precomputed in the background for the persisted meditation (shared-107).
+        XCTAssertEqual(self.mockWaveformProvider.precomputedMeditationIds, [self.sut.meditations.first?.id])
     }
 
     func testSaveImportedMeditationFailureSetsErrorAndKeepsLibraryEmpty() async {
@@ -147,6 +149,8 @@ extension GuidedMeditationsListViewModelTests {
         // Then — Persistenz schlaegt fehl, Library bleibt leer, Error gesetzt.
         XCTAssertTrue(self.sut.meditations.isEmpty)
         XCTAssertNotNil(self.sut.errorMessage)
+        // A failed import must not kick off a waveform precompute.
+        XCTAssertTrue(self.mockWaveformProvider.precomputedMeditationIds.isEmpty)
     }
 
     // MARK: - Helpers (file-local)

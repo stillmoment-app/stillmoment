@@ -2,7 +2,7 @@
 //  EditSheetStateTrimTests.swift
 //  Still Moment
 //
-//  Domain Tests - Trim point editing in the edit sheet (shared-105)
+//  Domain Tests - Trim point handling in the edit sheet (shared-105, shared-107)
 //
 
 import XCTest
@@ -11,7 +11,7 @@ import XCTest
 final class EditSheetStateTrimTests: XCTestCase {
     // MARK: - Prefill
 
-    func testTrimFieldsPrefilledFromMeditation() {
+    func testTrimPointsPrefilledFromMeditation() {
         // Given
         let meditation = self.makeMeditation(duration: 600, trimStart: 90, trimEnd: 480)
 
@@ -19,11 +19,11 @@ final class EditSheetStateTrimTests: XCTestCase {
         let state = EditSheetState(meditation: meditation)
 
         // Then
-        XCTAssertEqual(state.editedTrimStartText, "1:30")
-        XCTAssertEqual(state.editedTrimEndText, "8:00")
+        XCTAssertEqual(state.editedTrimStart, 90)
+        XCTAssertEqual(state.editedTrimEnd, 480)
     }
 
-    func testTrimFieldsEmptyWhenMeditationHasNoTrim() {
+    func testTrimPointsNilWhenMeditationHasNoTrim() {
         // Given
         let meditation = self.makeMeditation(duration: 600)
 
@@ -31,17 +31,17 @@ final class EditSheetStateTrimTests: XCTestCase {
         let state = EditSheetState(meditation: meditation)
 
         // Then
-        XCTAssertEqual(state.editedTrimStartText, "")
-        XCTAssertEqual(state.editedTrimEndText, "")
+        XCTAssertNil(state.editedTrimStart)
+        XCTAssertNil(state.editedTrimEnd)
     }
 
     // MARK: - Applying Changes
 
-    func testEmptyTrimFieldsMeanNoTrim() {
+    func testNilTrimPointsMeanNoTrim() {
         // Given
         var state = self.makeState(duration: 600)
-        state.editedTrimStartText = ""
-        state.editedTrimEndText = ""
+        state.editedTrimStart = nil
+        state.editedTrimEnd = nil
 
         // Then
         XCTAssertTrue(state.isValid)
@@ -53,8 +53,8 @@ final class EditSheetStateTrimTests: XCTestCase {
     func testSettingTrimPointsAppliesThem() {
         // Given
         var state = self.makeState(duration: 600)
-        state.editedTrimStartText = "0:45"
-        state.editedTrimEndText = "9:00"
+        state.editedTrimStart = 45
+        state.editedTrimEnd = 540
 
         // Then
         XCTAssertTrue(state.isValid)
@@ -64,13 +64,13 @@ final class EditSheetStateTrimTests: XCTestCase {
     }
 
     func testClearingTrimRemovesIt() {
-        // Given
+        // Given a trimmed meditation
         let meditation = self.makeMeditation(duration: 600, trimStart: 90, trimEnd: 480)
         var state = EditSheetState(meditation: meditation)
 
-        // When
-        state.editedTrimStartText = ""
-        state.editedTrimEndText = ""
+        // When clearing both points (e.g. "Zuschnitt entfernen")
+        state.editedTrimStart = nil
+        state.editedTrimEnd = nil
 
         // Then
         XCTAssertTrue(state.hasChanges)
@@ -84,7 +84,7 @@ final class EditSheetStateTrimTests: XCTestCase {
         var state = self.makeState(duration: 600)
 
         // When
-        state.editedTrimStartText = "0:30"
+        state.editedTrimStart = 30
 
         // Then
         XCTAssertTrue(state.hasChanges)
@@ -99,13 +99,13 @@ final class EditSheetStateTrimTests: XCTestCase {
         XCTAssertFalse(state.hasChanges)
     }
 
-    // MARK: - Validation
+    // MARK: - Defensive Validation
 
     func testStartMustBeBeforeEnd() {
         // Given
         var state = self.makeState(duration: 600)
-        state.editedTrimStartText = "5:00"
-        state.editedTrimEndText = "4:00"
+        state.editedTrimStart = 300
+        state.editedTrimEnd = 240
 
         // Then
         XCTAssertFalse(state.isValid)
@@ -114,7 +114,7 @@ final class EditSheetStateTrimTests: XCTestCase {
     func testEndBeyondFileDurationIsInvalid() {
         // Given
         var state = self.makeState(duration: 600)
-        state.editedTrimEndText = "11:00"
+        state.editedTrimEnd = 660
 
         // Then
         XCTAssertFalse(state.isValid)
@@ -123,39 +123,20 @@ final class EditSheetStateTrimTests: XCTestCase {
     func testStartBeyondFileDurationIsInvalid() {
         // Given
         var state = self.makeState(duration: 600)
-        state.editedTrimStartText = "10:00"
+        state.editedTrimStart = 600
 
         // Then
         XCTAssertFalse(state.isValid)
     }
 
-    func testGarbageInputIsInvalid() {
+    func testConsistentTrimWithinDurationIsValid() {
         // Given
-        var state = self.makeState(duration: 600)
-        state.editedTrimStartText = "abc"
-
-        // Then
-        XCTAssertFalse(state.isValid)
-    }
-
-    func testHoursFormatIsParsed() {
-        // Given: 90-minute file
         var state = self.makeState(duration: 5400)
-        state.editedTrimEndText = "1:02:03"
+        state.editedTrimEnd = 3723
 
         // Then
         XCTAssertTrue(state.isValid)
         XCTAssertEqual(state.applyChanges().trimEnd, 3723)
-    }
-
-    func testPlainMinutesAreParsed() {
-        // Given
-        var state = self.makeState(duration: 600)
-        state.editedTrimStartText = "2"
-
-        // Then: a single number means minutes
-        XCTAssertTrue(state.isValid)
-        XCTAssertEqual(state.applyChanges().trimStart, 120)
     }
 
     // MARK: - Helpers

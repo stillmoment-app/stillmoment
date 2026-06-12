@@ -192,22 +192,14 @@ struct GuidedMeditationsListView: View {
                     meditation: meditation,
                     mode: isImport ? .importMode : .edit,
                     availableTeachers: self.viewModel.uniqueTeachers,
+                    audioService: self.viewModel.editorAudioService,
+                    waveformProvider: self.viewModel.editorWaveformProvider,
                     onSave: { updated in
                         self.viewModel.handleEditSheetSave(updated)
                     },
                     onCancel: {
                         // Dismissing the sheet triggers `onDismiss`, which handles cancelImport.
                         self.viewModel.showingEditSheet = false
-                    },
-                    // "Listen from here" needs the file in the library — not available mid-import
-                    onPreviewFrom: isImport ? nil : { time in
-                        if self.viewModel.previewingMeditationId != meditation.id {
-                            self.viewModel.startPreview(for: meditation)
-                        }
-                        self.viewModel.seekPreview(to: time)
-                    },
-                    onStopPreview: isImport ? nil : {
-                        self.viewModel.stopPreview()
                     }
                 )
             }
@@ -256,20 +248,19 @@ struct GuidedMeditationsListView: View {
                         self.meditationRow(for: meditation)
                             .listRowSeparatorTint(self.theme.divider)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button {
+                                    self.viewModel.showEditSheet(for: meditation)
+                                } label: {
+                                    Label("guided_meditations.edit", systemImage: "square.and.pencil")
+                                }
+                                .tint(self.theme.interactive)
+                                .accessibilityIdentifier("library.row.swipe.edit")
+
                                 Button(role: .destructive) {
                                     self.meditationToDelete = meditation
                                 } label: {
                                     Label("guided_meditations.delete.confirm", systemImage: "trash")
                                 }
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button {
-                                    self.viewModel.showEditSheet(for: meditation)
-                                } label: {
-                                    Label("guided_meditations.edit", systemImage: "pencil")
-                                }
-                                .tint(self.theme.interactive)
-                                .accessibilityIdentifier("library.row.swipe.edit")
                             }
                     }
                 } header: {

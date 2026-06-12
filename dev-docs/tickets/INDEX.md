@@ -131,6 +131,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-104](shared/shared-104-import-anleitungen-android.md) | Import-Anleitungen im Content Guide (Android-Sync zu shared-039b) | 4-Polish | via shared-039b | [x] |
 | [shared-105](shared/shared-105-trim-punkte-gefuehrte-meditationen.md) | Trim-Punkte fuer gefuehrte Meditationen | 3-Feature | [x] | [ ] |
 | [shared-106](shared/shared-106-start-end-gong-pro-meditation.md) | Start- und End-Gong pro Meditation | 3-Feature | [x] | [ ] |
+| [shared-107](shared/shared-107-waveform-trim-editor.md) | Waveform-Trim-Editor fuer den Wiedergabe-Bereich | 3-Feature | [x] | [ ] |
+| [shared-108](shared/shared-108-waveform-zoom-trim-editor.md) | Zoom in die Waveform des Trim-Editors | 3-Feature | [ ] | [ ] |
 
 ---
 

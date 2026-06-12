@@ -35,6 +35,8 @@ Last Updated: 2026-06-11
 | `TimerEvent` | Enum | Timer | Domain Events aus tick() (preparationCompleted, meditationCompleted, intervalGongDue) |
 | `TimerState` | Enum | Timer | Zustandsautomat (Idle/Running/etc.) |
 | Trim-Punkte (`trimStart`/`trimEnd`) | Attribute | Guided Meditations | Optionale Start-/Endpunkte pro Meditation; Wiedergabe laeuft nur im effektiven Bereich |
+| Wellenform (`MeditationWaveform`) | Value Object | Guided Meditations | Vorberechnete Amplituden-Darstellung (220 Peaks) fuer den Trim-Editor |
+| Wiedergabe-Bereich | Konzept | Guided Meditations | Das Trim-Punkte-Paar als begrenzter Wiedergabe-Bereich (nicht-destruktiv) |
 
 ---
 
@@ -580,7 +582,59 @@ Legacy-Eintraege ohne Key laden als `false`.
 - iOS: `ios/StillMoment/Domain/Models/GuidedMeditation.swift`
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/GuidedMeditation.kt`
 
-**Siehe auch:** `AudioMetadata`, `EditSheetState`
+**Siehe auch:** `AudioMetadata`, `EditSheetState`, Wiedergabe-Bereich, Wellenform
+
+---
+
+### Wiedergabe-Bereich
+
+**Typ:** Konzept (UI-Begriff fuer das Trim-Punkte-Paar)
+**Pattern:** Non-destructive Range
+
+**Beschreibung:**
+Der User-sichtbare Begriff fuer den durch `trimStart`/`trimEnd` (shared-105) begrenzten
+Wiedergabe-Bereich einer Meditation. Im Edit-Sheet ersetzt die Karte "Wiedergabe-Bereich"
+(shared-107) die frueheren mm:ss-Textfelder und oeffnet einen Vollbild-Wellenform-Editor, in
+dem zwei ziehbare Griffe Anfang und Ende setzen. Die Abspielposition (Playhead) hat dort eine
+eigene Lane in Salbeigruen oberhalb der Wellenform; Beruehrungen auf der Spur werden rein
+geometrisch aufgeloest (`TrimHitTesting`: oben Playhead, unten Marken, im Cluster gewinnt die
+aktive Marke). Nicht-destruktiv: die Audio-Datei bleibt
+unveraendert, der Bereich ist jederzeit aenderbar oder entfernbar. Zwischen Anfang und Ende
+gilt ein Mindestabstand von 25 s; ist der Bereich praktisch die ganze Datei (start <= 1 s und
+end >= Dauer − 1 s), wird kein Zuschnitt gespeichert. Die effektive Wiedergabe-Logik selbst
+lebt in `GuidedMeditation.effectiveStart`/`effectiveEnd`/`effectiveDuration`.
+
+**Datei-Referenzen:**
+- iOS Editor-State: `ios/StillMoment/Domain/Models/TrimEditorState.swift`
+- iOS Editor-UI: `ios/StillMoment/Presentation/Views/GuidedMeditations/TrimEditor/`
+- Android: noch offen (shared-105 Android Voraussetzung)
+
+**Siehe auch:** `GuidedMeditation` (Trim-Punkte), Wellenform, `EditSheetState`
+
+---
+
+### Wellenform
+
+**Typ:** Value Object (`MeditationWaveform`)
+**Pattern:** Precomputed, cached Representation
+
+**Beschreibung:**
+Vorberechnete, normalisierte Amplituden-Darstellung einer Meditation fuer den Trim-Editor
+(shared-107). Haelt eine feste Anzahl Peak-Werte (`barCount` = 220), jeweils normalisiert auf
+`[0, 1]`, fuer die Balken-Darstellung der Wellenform. In der Wellenform heben sich dichte
+Sprach-Bloecke (Einleitung, Schlussworte) sichtbar von der stillen Meditation ab. Die Daten
+sind klein (~220 Floats), werden beim Import im Hintergrund berechnet und pro Meditation
+gecacht; fehlen sie (Bestands-Meditation nach Update), werden sie beim ersten Oeffnen einmalig
+berechnet. Da die Audio-Datei nie veraendert wird (nicht-destruktive Invariante), braucht der
+Cache keine Invalidierung. Schlaegt die Dekodierung fehl, zeigt der Editor statt Balken eine
+schlichte Linie — die Funktion bleibt erhalten.
+
+**Datei-Referenzen:**
+- iOS Modell: `ios/StillMoment/Domain/Models/MeditationWaveform.swift`
+- iOS Provider/Cache/Generierung: `ios/StillMoment/Domain/Services/WaveformProviderProtocol.swift`, `WaveformCacheServiceProtocol.swift`, `WaveformGenerationServiceProtocol.swift`
+- Android: noch offen (shared-105 Android Voraussetzung)
+
+**Siehe auch:** Wiedergabe-Bereich, `GuidedMeditation`
 
 ---
 
