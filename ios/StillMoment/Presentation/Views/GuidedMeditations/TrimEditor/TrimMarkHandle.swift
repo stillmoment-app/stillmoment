@@ -22,7 +22,8 @@ struct TrimMarkHandle: View {
     let isActive: Bool
     let isDragging: Bool
     let trackWidth: CGFloat
-    let duration: TimeInterval
+    /// Visible time window (zoom, shared-108) — the whole file in the overview.
+    let window: ClosedRange<TimeInterval>
     let onNudge: (TimeInterval) -> Void
     let accessibilityLabelText: String
 
@@ -71,7 +72,7 @@ struct TrimMarkHandle: View {
     private static let knobCenterFraction: CGFloat = 0.74
 
     private var markX: CGFloat {
-        TrimGeometry.x(for: self.time, duration: self.duration, width: self.trackWidth)
+        TrimGeometry.x(for: self.time, window: self.window, width: self.trackWidth)
     }
 
     private var markGradient: LinearGradient {

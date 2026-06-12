@@ -50,6 +50,7 @@ final class TrimEditorViewModel: ObservableObject {
         let state = TrimEditorState(meditation: meditation)
         self.editorState = state
         self.playheadTime = state.start
+        self.window = 0...max(state.duration, 0)
 
         self.bindPreviewPublishers()
     }
@@ -67,6 +68,15 @@ final class TrimEditorViewModel: ObservableObject {
     @Published private(set) var isPreviewing = false
     /// Playback position in seconds — always present, seeded with the start point.
     @Published private(set) var playheadTime: TimeInterval
+    /// Visible time window of the track (zoom, shared-108). In the overview it is the
+    /// whole file; all track interactions map through it.
+    @Published private(set) var window: ClosedRange<TimeInterval>
+
+    /// True while the window shows less than the whole file — drives minimap,
+    /// zoom-out chip, and the context-dependent hint.
+    var isZoomed: Bool {
+        self.window.upperBound - self.window.lowerBound < self.editorState.duration - 1
+    }
 
     /// True while the waveform is still being generated/loaded and has not failed.
     var isLoadingWaveform: Bool {
@@ -119,15 +129,19 @@ final class TrimEditorViewModel: ObservableObject {
         self.editorState = self.editorState.moving(point, to: time)
     }
 
-    /// Mark drag released — anchors the playhead at the mark and auditions the cut.
+    /// Mark drag released — anchors the playhead at the mark, auditions the cut, and
+    /// recenters the zoom window on the released mark (only when already zoomed).
     func markDragEnded() {
         self.playPreview(from: self.editorState.activeValue, for: self.previewDurations.afterMarkDrag)
+        self.recenterWindowOnActivePoint()
     }
 
-    /// Nudges the active point by a delta (±1 s) and auditions the new cut.
+    /// Nudges the active point by a delta (±1 s), auditions the new cut, and keeps a
+    /// zoomed window centered on the mark.
     func nudgeActivePoint(by delta: TimeInterval) {
         self.editorState = self.editorState.nudgingActivePoint(by: delta)
         self.playPreview(from: self.editorState.activeValue, for: self.previewDurations.afterNudge)
+        self.recenterWindowOnActivePoint()
     }
 
     /// Resets the selection to the full file and parks the playhead at 0, paused.
@@ -137,6 +151,30 @@ final class TrimEditorViewModel: ObservableObject {
         self.editorState = self.editorState.usingWholeFile()
         self.playheadTime = 0
         self.playsToFileEnd = false
+        self.window = self.wholeFileWindow
+    }
+
+    // MARK: - Zoom (shared-108)
+
+    /// Card or edge-chip tap: selects the point and frames it in a zoom window —
+    /// also from the overview. Short files never zoom (`frame` returns the whole file).
+    func focusPoint(_ point: TrimPoint) {
+        self.selectPoint(point)
+        self.window = TrimZoomWindow.frame(
+            around: self.editorState.activeValue,
+            point: point,
+            duration: self.editorState.duration
+        )
+    }
+
+    /// "Ganze Datei" chip: zooms back to the overview, marks and playhead untouched.
+    func zoomOut() {
+        self.window = self.wholeFileWindow
+    }
+
+    /// Minimap tap/drag: moves the zoom window so it is centered on `center`.
+    func panWindow(toCenter center: TimeInterval) {
+        self.window = TrimZoomWindow.pan(toCenter: center, duration: self.editorState.duration)
     }
 
     // MARK: - Seeking (playhead lane / upper zone)
@@ -189,6 +227,23 @@ final class TrimEditorViewModel: ObservableObject {
     /// True when the current playback was anchored at/after the end point — it then runs
     /// to the file end instead of pausing at the end point (auditioning the end position).
     private var playsToFileEnd = false
+
+    private var wholeFileWindow: ClosedRange<TimeInterval> {
+        0...max(self.editorState.duration, 0)
+    }
+
+    /// Reframes a zoomed window around the active mark (after drag end / nudge).
+    /// In the overview the window stays the whole file — no accidental zoom-in.
+    private func recenterWindowOnActivePoint() {
+        guard self.isZoomed else {
+            return
+        }
+        self.window = TrimZoomWindow.frame(
+            around: self.editorState.activeValue,
+            point: self.editorState.activePoint,
+            duration: self.editorState.duration
+        )
+    }
 
     private func bindPreviewPublishers() {
         self.audioService.meditationPreviewPositionPublisher

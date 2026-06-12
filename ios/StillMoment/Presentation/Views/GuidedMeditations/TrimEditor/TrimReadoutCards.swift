@@ -8,8 +8,9 @@
 import SwiftUI
 
 /// The two "Anfang"/"Ende" cards below the waveform. Tapping a card selects the
-/// corresponding point as active; the active card is highlighted. Exposed as buttons
-/// with the `.isSelected` trait for the active one.
+/// corresponding point as active and zooms the track onto it (shared-108) — a small
+/// magnifier icon signals the zoom affordance. The active card is highlighted.
+/// Exposed as buttons with the `.isSelected` trait for the active one.
 struct TrimReadoutCards: View {
     // MARK: Internal
 
@@ -45,8 +46,7 @@ struct TrimReadoutCards: View {
             self.onSelect(point)
         } label: {
             VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                    .textStyle(.eyebrow, color: \.textSecondary)
+                self.labelRow(label: label, isActive: isActive)
                 Text(EditSheetState.formatTime(value))
                     .textStyle(.title, monospacedDigits: true)
                     .foregroundColor(isActive ? self.theme.interactive : self.theme.textPrimary)
@@ -72,5 +72,21 @@ struct TrimReadoutCards: View {
         .accessibilityValue(Text(EditSheetState.formatTime(value)))
         .accessibilityHint(Text("trim_editor.a11y.cardHint"))
         .accessibilityAddTraits(isActive ? [.isSelected] : [])
+    }
+
+    /// Card label plus the magnifier signalling that tapping zooms onto the point.
+    private func labelRow(label: LocalizedStringKey, isActive: Bool) -> some View {
+        HStack {
+            Text(label)
+                .textStyle(.eyebrow, color: \.textSecondary)
+            Spacer(minLength: 4)
+            Image(systemName: "plus.magnifyingglass")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(
+                    isActive
+                        ? self.theme.interactive
+                        : self.theme.textSecondary.opacity(0.7)
+                )
+        }
     }
 }

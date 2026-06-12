@@ -18,7 +18,9 @@ struct TrimPlayheadLane: View {
     static let height: CGFloat = 34
 
     let playheadTime: TimeInterval
-    let duration: TimeInterval
+    /// Visible time window (zoom, shared-108) — the whole file in the overview.
+    /// An off-window playhead shows no grabber (never glued to the edge).
+    let window: ClosedRange<TimeInterval>
     let trackWidth: CGFloat
     let isDragging: Bool
     let onNudge: (TimeInterval) -> Void
@@ -27,7 +29,7 @@ struct TrimPlayheadLane: View {
         ZStack(alignment: .bottomLeading) {
             self.label
             self.rail
-            if self.trackWidth > 0 {
+            if self.trackWidth > 0, TrimGeometry.isTime(self.playheadTime, inWindow: self.window) {
                 self.grabber
             }
         }
@@ -52,7 +54,7 @@ struct TrimPlayheadLane: View {
     private static let grabberSize = CGSize(width: 32, height: 20)
 
     private var headX: CGFloat {
-        TrimGeometry.x(for: self.playheadTime, duration: self.duration, width: self.trackWidth)
+        TrimGeometry.x(for: self.playheadTime, window: self.window, width: self.trackWidth)
     }
 
     private var label: some View {
