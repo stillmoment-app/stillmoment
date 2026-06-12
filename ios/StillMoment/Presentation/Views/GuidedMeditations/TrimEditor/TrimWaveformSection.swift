@@ -233,8 +233,13 @@ struct TrimWaveformSection: View {
                 self.applyDrag(session: session, locationX: value.location.x)
             }
             .onEnded { _ in
-                if case .mark = self.dragSession?.target {
+                switch self.dragSession?.target {
+                case .mark:
                     self.viewModel.markDragEnded()
+                case .playhead:
+                    self.viewModel.playheadDragEnded()
+                case nil:
+                    break
                 }
                 self.dragSession = nil
             }

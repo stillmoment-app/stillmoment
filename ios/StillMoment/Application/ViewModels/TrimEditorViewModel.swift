@@ -26,10 +26,11 @@ struct TrimPreviewDurations {
 ///
 /// Playback model (handoff "touch-robuste Punkt-Bedienung"): the playhead is its own,
 /// always-present position. Dragging it (`seek`) pauses playback first and moves only
-/// the playhead. Releasing a mark drag or nudging anchors the playhead at the mark and
-/// auditions the cut with a short auto-preview; ▶ plays from the playhead, ⏸ pauses and
-/// keeps it. Playback pauses automatically at the end point, unless it was anchored at
-/// or after the end point (so the end position itself can be auditioned).
+/// the playhead; releasing the drag starts playback from the new position. Releasing a
+/// mark drag or nudging anchors the playhead at the mark and auditions the cut with a
+/// short auto-preview; ▶ plays from the playhead, ⏸ pauses and keeps it. Playback
+/// pauses automatically at the end point, unless it was anchored at or after the end
+/// point (so the end position itself can be auditioned).
 @MainActor
 final class TrimEditorViewModel: ObservableObject {
     // MARK: Lifecycle
@@ -187,6 +188,13 @@ final class TrimEditorViewModel: ObservableObject {
         self.pausePlayback()
         self.playheadTime = min(max(time, 0), self.editorState.duration)
         self.playsToFileEnd = self.playheadTime >= self.editorState.end
+    }
+
+    /// Playhead drag released — playback starts from the new position so the user
+    /// immediately hears where they landed (no extra ▶ tap needed).
+    func playheadDragEnded() {
+        self.cancelPreview()
+        self.startPlayback()
     }
 
     // MARK: - Playback
