@@ -288,6 +288,14 @@
 "guided_meditations.player.skipForward" = "Skip forward 15 seconds";
 "guided_meditations.player.skipBackward" = "Skip backward 15 seconds";
 
+// Waveform player "tape head" (shared-109)
+"guided_meditations.player.remaining.format" = "%@ LEFT";
+"guided_meditations.player.remaining.paused" = "PAUSED";
+"guided_meditations.player.remaining.finished" = "FINISHED";
+"guided_meditations.player.livePosition.value" = "%1$@ of %2$@";
+"guided_meditations.player.scrub.a11y.label" = "Playback position";
+"guided_meditations.player.miniOverview.a11y.label" = "Overall progress";
+
 // Settings
 "guided_meditations.settings.preparationTime.title" = "Preparation Time";
 "guided_meditations.settings.preparationTime.description" = "Time to settle before the meditation starts";
