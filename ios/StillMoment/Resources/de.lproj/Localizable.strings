@@ -225,6 +225,11 @@
 "guided_meditations.edit.duration" = "Dauer";
 "guided_meditations.edit.fileInfo" = "Datei-Informationen";
 
+// Discard-Schutz beim Verlassen des Editors (shared-110)
+"guided_meditations.edit.discard.title" = "Änderungen verwerfen?";
+"guided_meditations.edit.discard.confirm" = "Verwerfen";
+"guided_meditations.edit.discard.keepEditing" = "Weiter bearbeiten";
+
 // Start-/End-Gong (shared-106)
 "guided_meditations.edit.startGong" = "Gong am Anfang";
 "guided_meditations.edit.endGong" = "Gong am Ende";

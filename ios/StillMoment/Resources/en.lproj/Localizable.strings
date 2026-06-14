@@ -225,6 +225,11 @@
 "guided_meditations.edit.duration" = "Duration";
 "guided_meditations.edit.fileInfo" = "File Information";
 
+// Discard protection when leaving the editor (shared-110)
+"guided_meditations.edit.discard.title" = "Discard changes?";
+"guided_meditations.edit.discard.confirm" = "Discard";
+"guided_meditations.edit.discard.keepEditing" = "Keep Editing";
+
 // Start/end gong (shared-106)
 "guided_meditations.edit.startGong" = "Gong at start";
 "guided_meditations.edit.endGong" = "Gong at end";

@@ -96,11 +96,17 @@ struct GuidedMeditationsListView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
-        .sheet(
-            isPresented: self.$viewModel.showingEditSheet,
-            onDismiss: self.handleEditSheetDismiss
-        ) {
+        .navigationDestination(isPresented: self.$viewModel.showingEditSheet) {
             self.editSheetContent
+        }
+        .onChange(of: self.viewModel.showingEditSheet) { isPresented in
+            // Editor als Vollbild-Screen (shared-110): jedes Verlassen laeuft ueber
+            // `showingEditSheet = false` (Swipe-Back ist im Editor deaktiviert), daher
+            // erledigt der Pop-Cleanup hier, was vorher `sheet(onDismiss:)` getan hat.
+            guard !isPresented else {
+                return
+            }
+            self.handleEditSheetDismiss()
         }
         .navigationDestination(for: GuidedMeditation.self) { meditation in
             GuidedMeditationPlayerView(
@@ -198,7 +204,7 @@ struct GuidedMeditationsListView: View {
                         self.viewModel.handleEditSheetSave(updated)
                     },
                     onCancel: {
-                        // Dismissing the sheet triggers `onDismiss`, which handles cancelImport.
+                        // Popping the screen flips `showingEditSheet`, whose onChange runs cancelImport.
                         self.viewModel.showingEditSheet = false
                     }
                 )
@@ -207,7 +213,7 @@ struct GuidedMeditationsListView: View {
     }
 
     private func handleEditSheetDismiss() {
-        // Catches both Cancel-tap and interactive swipe-down dismiss.
+        // Runs after the editor screen is popped (Cancel-tap or discard confirmation).
         self.viewModel.stopPreview()
         if self.viewModel.pendingImport != nil {
             self.viewModel.cancelImport()
