@@ -2,16 +2,21 @@
 //  GongSelectionView.swift
 //  Still Moment
 //
-//  Presentation Layer - Start/End gong selection for Praxis editor
+//  Presentation Layer - Start/End gong selection for Praxis editor (redesigned, shared-115).
 //
 
 import SwiftUI
 import UIKit
 
-/// Selection list for choosing the start and end gong sound with volume control.
+/// Selection screen for choosing the start and end gong sound with volume control.
 ///
-/// Shows all available gong sounds with a checkmark on the selected one.
-/// Tapping a sound selects it and plays a preview. Volume slider is always visible.
+/// Card-based layout (shared-115): an eyebrow-labelled "KLANG" card lists every
+/// available sound with a preview button, name and character-carrying mini
+/// waveform; the selected row is tinted and checked. Below, a "LAUTSTÄRKE" card
+/// carries the volume slider — except for the vibration option, which hides the
+/// volume card and shows an explanatory helper text instead.
+///
+/// Tapping a row selects + previews; tapping the preview button only previews.
 struct GongSelectionView: View {
     // MARK: Lifecycle
 
@@ -26,17 +31,24 @@ struct GongSelectionView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            List {
-                self.soundsSection
-                if self.viewModel.startGongSoundId != GongSound.vibrationId {
-                    self.volumeSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    self.soundSection
+                    if self.isVibrationSelected {
+                        self.vibrationHelper
+                    }
+                    if GongSelectionLogic.isVolumeCardVisible(soundId: self.viewModel.startGongSoundId) {
+                        self.volumeSection
+                    }
                 }
+                .padding(.horizontal, 18)
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
         }
         .screenTitleBar("praxis.editor.startGong.title")
         .onDisappear {
+            self.previewTask?.cancel()
             self.viewModel.stopAllPreviews()
         }
     }
@@ -47,58 +59,88 @@ struct GongSelectionView: View {
     private var theme
     @ObservedObject private var viewModel: PraxisSettingsViewModel
 
+    /// ID of the row whose preview is currently sounding (drives the ring).
+    @State private var previewingSoundId: String?
+    @State private var previewTask: Task<Void, Never>?
+
+    private var isVibrationSelected: Bool {
+        self.viewModel.startGongSoundId == GongSound.vibrationId
+    }
+
     private var supportsVibration: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
     }
 
     private var availableSounds: [GongSound] {
-        self.supportsVibration ? GongSound.allSounds : GongSound.allSounds.filter { $0.id != GongSound.vibrationId }
+        self.supportsVibration
+            ? GongSound.allSounds
+            : GongSound.allSounds.filter { $0.id != GongSound.vibrationId }
     }
 
-    private var soundsSection: some View {
-        Section {
-            ForEach(self.availableSounds) { sound in
-                let isSelected = self.viewModel.startGongSoundId == sound.id
-                HStack {
-                    Text(sound.name)
-                        .textStyle(.body, color: \.textPrimary)
-                    Spacer()
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(self.theme.interactive)
-                            .accessibilityHidden(true)
-                    }
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    self.viewModel.startGongSoundId = sound.id
-                    self.viewModel.playGongPreview(
-                        soundId: sound.id,
-                        volume: self.viewModel.gongVolume
-                    )
-                }
-                .cardRowBackground()
-                .accessibilityElement(children: .combine)
-                .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
-                .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-                .accessibilityIdentifier("praxis.gong.\(sound.id)")
-            }
+    private var soundSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.sound")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            self.soundCard
         }
     }
 
-    private var volumeSection: some View {
-        Section {
-            VolumeSliderRow(
-                volume: self.$viewModel.gongVolume,
-                accessibilityTitleKey: "settings.gongVolume.title",
-                accessibilityIdentifier: "praxis.editor.slider.gongVolume",
-                accessibilityHintKey: "accessibility.gongVolume.hint"
-            ) {
-                self.viewModel.playGongPreview(
-                    soundId: self.viewModel.startGongSoundId,
-                    volume: self.viewModel.gongVolume
+    private var soundCard: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(self.availableSounds.enumerated()), id: \.element.id) { index, sound in
+                if index > 0 {
+                    Divider()
+                        .overlay(self.theme.divider)
+                }
+                GongSoundRow(
+                    sound: sound,
+                    isSelected: self.viewModel.startGongSoundId == sound.id,
+                    isPreviewing: self.previewingSoundId == sound.id,
+                    onSelect: {
+                        self.viewModel.startGongSoundId = sound.id
+                        self.preview(soundId: sound.id)
+                    },
+                    onPreview: {
+                        self.preview(soundId: sound.id)
+                    }
                 )
             }
+        }
+        .modifier(GongCardBackground())
+    }
+
+    private var vibrationHelper: some View {
+        Text("praxis.gong.vibration.helper")
+            .textStyle(.body, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+    }
+
+    private var volumeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.volume")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            GongVolumeCard(volume: self.$viewModel.gongVolume) {
+                self.preview(soundId: self.viewModel.startGongSoundId)
+            }
+        }
+        .padding(.top, 18)
+    }
+
+    /// Plays a preview and drives the ring for ~1.5s.
+    private func preview(soundId: String) {
+        self.viewModel.playGongPreview(soundId: soundId, volume: self.viewModel.gongVolume)
+        self.previewingSoundId = soundId
+        self.previewTask?.cancel()
+        self.previewTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard !Task.isCancelled, self.previewingSoundId == soundId
+            else { return }
+            self.previewingSoundId = nil
         }
     }
 }
