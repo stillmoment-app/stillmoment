@@ -31,13 +31,7 @@ struct IntervalGongsEditorView: View {
             }
             .scrollContentBackground(.hidden)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("praxis.editor.intervalGongs.title", bundle: .main)
-                    .textStyle(.screenTitle, color: \.textPrimary)
-            }
-        }
+        .screenTitleBar("praxis.editor.intervalGongs.title")
         .onDisappear {
             self.viewModel.stopAllPreviews()
         }

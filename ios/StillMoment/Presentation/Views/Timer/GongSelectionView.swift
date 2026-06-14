@@ -35,13 +35,7 @@ struct GongSelectionView: View {
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("praxis.editor.startGong.title", bundle: .main)
-                    .textStyle(.screenTitle, color: \.textPrimary)
-            }
-        }
+        .screenTitleBar("praxis.editor.startGong.title")
         .onDisappear {
             self.viewModel.stopAllPreviews()
         }
