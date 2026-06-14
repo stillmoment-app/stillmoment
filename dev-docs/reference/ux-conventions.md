@@ -10,15 +10,20 @@ legt fest, welches Muster wir wann wählen, damit die App sich überall gleich a
 Es beschreibt das **Ziel**, nicht den heutigen Code. Stellen, an denen die
 Implementierung abweicht, werden als Tickets geführt, nicht hier.
 
+**Beim Planen eines neuen Features ist die erste Frage:** *Welcher der zwei
+Archetypen (§2) ist das?* Daraus folgen Navigation, Speicher-Semantik,
+Discard-Schutz und das Verhalten von Sub-Flächen automatisch — sie sind keine
+unabhängigen Entscheidungen.
+
 **Oberste Regel** (aus `CLAUDE.md`): Beide Plattformen verhalten sich identisch —
 gleiche Features, gleiche UX, gleiche Edge Cases. Plattform-Unterschiede sind nur
-dort erlaubt, wo das native Framework es erzwingt (siehe [Cross-Platform](#cross-platform)).
+dort erlaubt, wo das native Framework es erzwingt (siehe [§5 Cross-Platform](#cross-platform)).
 
 ---
 
-## Grundprinzipien
+## 1. Grundprinzipien
 
-1. **Editoren sind abgeschlossene Aufgaben.** Es ist immer nur eine View vorne.
+1. **Eine Fläche, eine abgeschlossene Aufgabe.** Es ist immer nur eine View vorne.
    Wer einen Editor oder ein Sheet verlässt, hat dort alle Aktionen beendet —
    gespeichert oder verworfen. Zwei bearbeitende Views überschneiden sich nie.
    (App-weiter Constraint dahinter: Während ein Timer läuft oder eine Meditation
@@ -32,63 +37,90 @@ dort erlaubt, wo das native Framework es erzwingt (siehe [Cross-Platform](#cross
 
 ---
 
-## 1. Navigation: Sheet vs. Screen vs. Inline
+## 2. Die zwei Archetypen — die eine Entscheidung {#archetypen}
 
-**Entscheidungsregel:**
+Fast jede UX-Frage in dieser App entscheidet sich an *einer* Weiche: Ist die Fläche
+ein **Nutzungs-Screen** oder ein **Editor**? Alles Weitere — Navigation, Speichern,
+Abbrechen, Sub-Flächen — folgt aus dieser Einordnung.
 
-| Aufgabe | Muster | iOS | Android |
-|---------|--------|-----|---------|
-| **Kern-Feature** (Timer-Fokus, Meditations-Player) | Vollbild-**Screen** mit Navigation, X-Icon zum Beenden | Navigation-Destination | Navigation-Screen |
-| **Editor mit mehreren Feldern/Sektionen** (Meditation bearbeiten + Import) | Vollbild-**Screen** | Navigation-Destination | Navigation-Screen |
-| **Kurze, einzelne Eingabe** (z.B. Umbenennen) | **Sheet / Dialog** | `.sheet` | `ModalBottomSheet` / Dialog |
-| **Einzelne Einstellung / Auswahl** (Theme, Sound-Auswahl, Timer-Einstellungen wie Vorbereitungszeit/Gong/Intervall/Hintergrundton) | **Inline** in Liste/Form oder eigener Auswahl-Screen | Form-Row / Push | Settings-Row / Screen |
-| **Bestätigung / Zerstörerische Aktion** (Löschen, Verwerfen) | **Alert / ConfirmationDialog** | `confirmationDialog` | `AlertDialog` |
+**Entscheidungsfrage:**
+
+> *Öffne ich einen dedizierten Editor, um ein benanntes Objekt als Ganzes zu
+> bearbeiten?* → **Editor (§4).**
+> *Stelle ich auf einem Nutzungs-Screen einzelne Schalter / Auswahlen ein?* →
+> **Nutzungs-Screen (§3).**
+
+**Maßgeblich ist die Fläche/Absicht, nicht der Inhaltstyp** (shared-111): Auch wenn
+hinter den Timer-Einstellungen technisch *ein* Konfigurationsobjekt steht, ist der
+Timer kein Editor — jede Einstellung steht für sich und wird sofort übernommen.
+Entscheidend ist, ob der User mehrere Felder als *Einheit* bestätigt (Editor) oder
+einzelne Schalter auf einem Nutzungs-Screen umlegt (Nutzungs-Screen).
+
+|                         | **Nutzungs-Screen** (§3)                                        | **Editor** (§4)                          |
+| ----------------------- | --------------------------------------------------------------- | ---------------------------------------- |
+| **Beispiele**           | Timer + seine Einstellungen, App-Settings, Theme-/Sound-Auswahl | Meditation bearbeiten, Import, Trim      |
+| **Was wird bearbeitet** | einzelne Einstellungen, jede für sich                           | ein benanntes Objekt als Ganzes          |
+| **Navigation**          | inline in Liste/Form oder eigener Auswahl-Screen                | Vollbild-**Screen**                      |
+| **Speichern**           | Auto-Save bei Änderung/Auswahl                                  | explizit Save/Cancel                     |
+| **Abbrechen**           | gibt es nicht — „Zurück" = fertig                               | Cancel verwirft                          |
+| **Discard-Schutz**      | nein (nichts geht verloren)                                     | ja, einmal beim Verlassen mit Änderungen |
+| **Sub-Flächen**         | übernehmen sofort, „Zurück" = fertig                            | erben den Editor-Puffer, nur „Zurück"    |
 
 **Begründung** (shared-036): Sheets signalisieren „temporär, kommt zurück" und eignen
 sich für kurze Einzelaufgaben. Kern-Features und Editoren mit mehreren Feldern sind
 Vollbild-Screens, damit sie sich ernst und fokussiert anfühlen und Platz für ihre
 Sektionen haben.
 
-**Meditation bearbeiten & Import** sind ein Editor mit mehreren Sektionen (Metadaten,
-Wiedergabe-Bereich, Gong-Einstellungen) → **Screen**. Das vermeidet auch
-Modal-im-Modal-Konstruktionen (ein Vollbild-Sub-Editor, der aus einem Sheet aufgeht).
-
-> Der **Timer** ist bewusst *kein* solcher Editor: Seine Einstellungen werden inline auf
-> dem Timer-Screen gestellt und sofort gespeichert — siehe §2 und
-> das Gegenbeispiel in [§6](#verschachtelt).
+**Container ≠ Semantik:** Die Einordnung bestimmt das *Verhalten*, nicht die
+*Darstellung*. Eine Fläche darf Vollbild-Cover, Sheet, Push oder inline sein — je
+nachdem, wie viel Platz ihr Inhalt braucht. Eine kurze Einzeleingabe (z. B.
+Umbenennen) ist als Sheet/Dialog ein Nutzungs-Screen; der Trim-Editor ist als
+Vollbild-Fläche trotzdem eine Editor-Sub-Fläche (§4).
 
 ---
 
-## 2. Speicher-Semantik: Explizit Save vs. Auto-Save
+## 3. Archetyp A — Nutzungs-Screen {#nutzungs-screen}
 
-Die zentrale Konvention. Sie entscheidet sich an der Art des Inhalts:
+Ein Screen, auf dem der User die App *benutzt* und dabei einzelne Einstellungen
+justiert. Der Timer ist der Leitfall.
 
-| Inhalt | Semantik | Cancel? | Beispiele |
-|--------|----------|---------|-----------|
-| **Dedizierter Editor für ein benanntes Objekt** | **Explizit Save/Cancel** | Ja, verwirft | Meditation-Edit, Import |
-| **Einzelne Einstellung umschalten** | **Auto-Save on-change** | Nein | App-Settings, Timer-Einstellungen |
-| **Auswahl aus einer Liste** | **Auto-Save bei Auswahl** | Nein (Back = fertig) | Hintergrund-Sound, Theme |
+**Verhalten:**
+- **Navigation:** Einstellungen werden inline auf dem Screen gestellt oder über
+  einen eigenen Auswahl-Screen (z. B. Hintergrundton, Theme).
+- **Speichern:** Auto-Save. Jede Änderung wird sofort übernommen und persistiert.
+- **Kein Cancel, kein Discard:** „Zurück" bedeutet „fertig". Es gibt nichts zu
+  verwerfen, weil nichts in der Schwebe ist.
 
-**Kernunterscheidung — maßgeblich ist die Fläche/Absicht, nicht der Inhaltstyp:**
-*Öffne ich einen dedizierten Editor, um ein benanntes Objekt als Ganzes zu bearbeiten
-(Meditation)?* → explizit Save/Cancel, weil der User mehrere Felder als Einheit bestätigt.
-*Stelle ich auf einem Nutzungs-Screen einzelne Schalter / Auswahlen ein
-(Timer-Einstellungen)?* → Auto-Save, weil jede Änderung für sich steht — auch wenn die
-Einstellungen zusammen die eine gespeicherte Timer-Konfiguration bilden. Entscheidend ist
-also nicht, ob technisch ein Objekt dahintersteht, sondern ob es ein Editor oder ein
-Nutzungs-Screen ist.
+**Sub-Einstellungen** (aus dem Screen geöffnet, z. B. Vorbereitungszeit, Gong,
+Intervall, Hintergrundton): verhalten sich genauso — sofort übernehmen, „Zurück" =
+fertig. Sie erben die Auto-Save-Semantik ihres Eltern-Screens (§4 erklärt das
+allgemeine Erben-Prinzip für beide Archetypen).
 
-**Soll für Editoren** (explizit Save):
-- Save-Button rechts in der Toolbar, validiert (deaktiviert/Fehler bei ungültig).
-- Cancel-Button links (X-Icon).
-- Speichern ist die *einzige* Persistierung — Verlassen ohne Save verwirft
-  (mit Schutz, siehe §3).
+**Timer im Detail:** Vorbereitungszeit, Gong, Intervall und Hintergrundton bilden
+zusammen die eine gespeicherte Timer-Konfiguration — aber sie werden einzeln und
+sofort gespeichert. Es gibt bewusst *keinen* Timer-Editor mit Save/Cancel
+(shared-111): Der Timer ist ein Nutzungs-Screen, kein Editor.
 
 ---
 
-## 3. Abbrechen & Schutz vor Datenverlust
+## 4. Archetyp B — Editor {#editor}
 
-**Soll:** Ein Editor mit **ungespeicherten Änderungen** fragt beim Schließen nach.
+Ein dedizierter Editor, um ein benanntes Objekt (eine Meditation) als Ganzes zu
+bearbeiten. Mehrere Felder/Sektionen werden gemeinsam bestätigt.
+
+### Navigation & Speicher-Semantik
+
+- **Navigation:** Vollbild-**Screen** (iOS Navigation-Destination, Android
+  Navigation-Screen). Das gibt den Sektionen (Metadaten, Wiedergabe-Bereich,
+  Gong-Einstellungen) Platz und vermeidet Modal-im-Modal-Konstruktionen.
+- **Save:** Save-Button rechts in der Toolbar, validiert (deaktiviert/Fehler bei
+  ungültig). Speichern ist die *einzige* Persistierung.
+- **Cancel:** Cancel-Button links (X-Icon). Verlassen ohne Save verwirft — mit
+  Schutz (siehe unten).
+
+### Abbrechen & Schutz vor Datenverlust
+
+Ein Editor mit **ungespeicherten Änderungen** fragt beim Schließen nach.
 
 | Situation | Verhalten |
 |-----------|-----------|
@@ -96,20 +128,15 @@ Nutzungs-Screen ist.
 | Editor **mit** ungespeicherten Änderungen schließen (X, Swipe, Back) | **Confirmation**: „Änderungen verwerfen?" / „Weiter bearbeiten" |
 | Speichern bei ungültiger Eingabe | Save deaktiviert / Inline-Fehler, kein Schließen |
 
-**Umsetzung nativ identisch im Verhalten:**
+Nativ identisch im *Verhalten*:
 - iOS: Swipe-/Back-Geste bei „dirty"-State abfangen + `confirmationDialog` mit
   „Verwerfen"/„Weiter bearbeiten".
 - Android: `BackHandler` bei „dirty"-State + `AlertDialog` mit gleichen Optionen.
 
-> Für Flächen, die *aus* einem Editor geöffnet werden (z. B. Trim), greift der Schutz
-> **einmal** beim äußeren Editor — siehe [§6](#verschachtelt).
+### Import vs. Edit — dieselbe Komponente
 
----
-
-## 4. Import vs. Edit (Guided Meditations)
-
-**Soll:** Import und Edit teilen sich **dieselbe Komponente** (Mode-Flag). Sie
-unterscheiden sich nur in:
+Import und Edit teilen sich **dieselbe Komponente** (Mode-Flag). Sie unterscheiden
+sich nur in:
 
 | Aspekt | Import | Edit |
 |--------|--------|------|
@@ -120,19 +147,44 @@ unterscheiden sich nur in:
 
 **Begründung** (shared-031, ios-043): Nach Import öffnet sich automatisch der Editor
 mit Prefill; bis Save ist nichts persistiert (Pending-State, Security-Scope bleibt
-offen). Das ist konsistent gelöst und soll so bleiben.
+offen). Auch das ist konsequent die Editor-Semantik: Cancel = nichts passiert ist.
 
-> ℹ️ **Trim** ist heute (iOS) im Import-Modus ausgeblendet, nur im nachträglichen
-> Edit verfügbar. Trim-spezifische Konventionen werden separat behandelt
-> (Feature kommt später) und sind **nicht** Teil dieses Dokuments.
+### Sub-Flächen eines Editors (Trim)
+
+Sobald eine Fläche *aus* dem Editor geöffnet wird (z. B. Trim), stellt sich die
+Frage, wer über Speichern und Verwerfen entscheidet.
+
+**Regel: Eine Sub-Fläche erbt die Speicher-Semantik ihres Eltern — sie führt keine
+eigene ein.** Beim Editor heißt das:
+
+- **Kein** verschachteltes Save/Cancel: Die Sub-Fläche hat **kein** eigenes
+  „Speichern" und **kein** eigenes „Verwerfen", nur **„Zurück"** (eine Ebene hoch).
+- Sie bearbeitet direkt den *Puffer* des Editors; ihre Änderungen zählen zum
+  Dirty-State des Editors.
+- **Keine** zweite Discard-Rückfrage: Der Schutz greift **einmal**, beim äußersten
+  expliziten Editor.
+
+> Allgemein: Der Persistenz-Punkt ist immer der nächste „Editor"-Vorfahre. Gibt es
+> keinen, ist es Auto-Save (Nutzungs-Screen, §3). Genau eine Ebene besitzt die
+> Persistenz.
+
+**Trim im Detail:** Der Trim-Editor wird aus dem Meditation-Editor geöffnet → nur
+„Zurück"; die gesetzte Wiedergabe-Auswahl fließt in den Editor-Puffer und markiert
+ihn als verändert. „Ganze Datei verwenden" setzt den Schnitt *innerhalb* von Trim
+zurück. Gespeichert oder verworfen wird ausschließlich über den Editor (Save bzw. X
+mit Rückfrage).
+
+> ℹ️ Trim ist heute (iOS) im Import-Modus ausgeblendet, nur im nachträglichen Edit
+> verfügbar. Trim-spezifische Konventionen (Waveform, Plattform-Konsistenz) werden
+> separat behandelt (Feature kommt später) und sind **nicht** Teil dieses Dokuments.
 
 ---
 
 ## 5. Cross-Platform {#cross-platform}
 
 **Identisch im Verhalten** (muss gleich sein):
-- Wann gespeichert / abgebrochen wird (Save-Semantik aus §2).
-- Ob es eine Discard-Confirmation gibt (§3).
+- Welcher Archetyp eine Fläche ist (§2) und damit ihre Save-Semantik (§3/§4).
+- Ob es eine Discard-Confirmation gibt (§4).
 - Welche Felder editierbar sind, Validierungsregeln, Prefill-Logik.
 - Verfügbarkeit von Features (ein Feature existiert auf beiden oder keiner Plattform).
 
@@ -141,43 +193,3 @@ offen). Das ist konsistent gelöst und soll so bleiben.
 - Confirmation-Mechanik: iOS `confirmationDialog`/Action Sheet vs. Android `AlertDialog`.
 - Button-Platzierung nach jeweiliger Plattform-Konvention (beide: Cancel links, Save rechts in der Top-Bar).
 - Back-Geste (Android System-Back) vs. Swipe-/Back-Navigation (iOS).
-
-<!-- Trim/Waveform-Konsistenz (iOS vs. Android) wird separat behandelt, kommt später. -->
-
----
-
-## 6. Verschachtelte Flächen: Sub-Editoren & Sub-Einstellungen {#verschachtelt}
-
-§2 regelt die Speicher-Semantik *einer* Fläche. Sobald eine Fläche *aus* einer anderen
-geöffnet wird (z. B. der Trim-Editor aus dem Meditation-Editor), stellt sich die Frage
-neu: Wer entscheidet über Speichern und Verwerfen?
-
-**Regel: Eine Sub-Fläche erbt die Speicher-Semantik ihres Eltern — sie führt keine eigene ein.**
-
-| Geöffnet aus … | Verhalten der Sub-Fläche | Affordance |
-|----------------|--------------------------|------------|
-| **Explizitem Save/Cancel-Editor** (§2, „benanntes Objekt") | Bearbeitet direkt den *Puffer* des Editors; ihre Änderungen zählen zum Dirty-State des Editors | Nur **„Zurück"** (eine Ebene hoch) |
-| **Auto-Save-Screen** (§2, „Einstellung/Auswahl") | Übernimmt sofort wie jede Einstellung | „Zurück" = fertig |
-
-**Folge — genau eine Ebene besitzt die Persistenz:**
-
-- **Kein** verschachteltes Save/Cancel: Die Sub-Fläche eines Editors hat **kein** eigenes
-  „Speichern" und **kein** eigenes „Verwerfen".
-- **Keine** zweite Discard-Rückfrage: Der Schutz aus §3 greift **einmal**, beim äußersten
-  expliziten Editor.
-- Der Persistenz-Punkt ist immer der nächste „explizite Editor"-Vorfahre. Gibt es keinen,
-  ist es Auto-Save.
-
-**Container ≠ Semantik:** Die Regel betrifft nur die *Speicher-Logik*, nicht die
-Darstellung. Eine Sub-Fläche darf Vollbild-Cover, Sheet oder Push sein — je nachdem, wie
-viel Platz ihr Inhalt braucht (Trim z. B. volle Höhe für die Waveform).
-
-**Beispiel Trim (Library):** Der Trim-Editor wird aus dem Meditation-Editor (explizit
-Save/Cancel) geöffnet → nur „Zurück"; die gesetzte Wiedergabe-Auswahl fließt in den
-Editor-Puffer und markiert ihn als verändert. „Ganze Datei verwenden" setzt den Schnitt
-*innerhalb* von Trim zurück. Gespeichert oder verworfen wird ausschließlich über den
-Editor (Save bzw. X mit Rückfrage, §3).
-
-**Gegenbeispiel Timer:** Vorbereitungszeit, Gong, Intervall und Hintergrundton werden aus
-dem Timer-Screen geöffnet, der *kein* expliziter Editor ist → jede Änderung wird sofort
-übernommen, „Zurück" = fertig, kein Discard-Thema.
