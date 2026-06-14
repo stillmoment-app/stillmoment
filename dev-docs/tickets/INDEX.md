@@ -137,7 +137,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-110](shared/shared-110-editor-screen-discard-schutz.md) | Meditation-Editor als Vollbild-Screen mit Discard-Schutz | 2-Architektur | [x] | [x] |
 | [shared-111](shared/shared-111-praxis-editor-explizit-speichern.md) | ~~Praxis-Editor mit explizitem Speichern/Abbrechen~~ WONTFIX (kein Praxis-Editor existiert; Timer ist bewusst Inline-Auto-Save) | 4-Polish | — | — |
 | [shared-112](shared/shared-112-trim-zurueck-dirtied-editor.md) | Trim-Editor — nur „Zurück", Änderungen markieren den Editor | 4-Polish | [ ] | [ ] |
-| [shared-113](shared/shared-113-toten-praxis-editor-code-entfernen.md) | Toten Praxis-Editor-Code entfernen & ViewModel umbenennen | 4-Polish | [ ] | [ ] |
+| [shared-113](shared/shared-113-toten-praxis-editor-code-entfernen.md) | Toten Praxis-Editor-Code entfernen & ViewModel umbenennen | 4-Polish | [x] | [x] |
 
 ---
 

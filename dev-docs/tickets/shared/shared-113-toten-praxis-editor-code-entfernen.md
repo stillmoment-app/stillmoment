@@ -1,6 +1,6 @@
 # Ticket shared-113: Toten Praxis-Editor-Code entfernen & ViewModel umbenennen
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Mechanisches Aufraeumen + Rename. Risiko v.a. im breiten Rename ueber mehrere Setting-Views und Tests. Kein Verhaltens-Aenderung fuer den Nutzer.
 **Phase**: 4-Polish
@@ -40,25 +40,25 @@ App nicht existiert). Aufraeumen haelt Code und `ux-conventions.md`/`glossary.md
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | nur Teil 2 (Rename) |
-| Android   | [ ]    | Teil 1 + Teil 2 |
+| iOS       | [x]    | nur Teil 2 (Rename) |
+| Android   | [x]    | Teil 1 + Teil 2 |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Android: `PraxisEditorScreen.kt` und alle zugehoerigen NavGraph-Eintraege entfernt; App baut und navigiert unveraendert.
-- [ ] `TimerViewModel.applyPraxisUpdate(...)` entfernt, falls durch die Loeschung verwaist.
-- [ ] `PraxisEditorViewModel` auf beiden Plattformen umbenannt; keine Referenz auf den alten Namen mehr.
-- [ ] Kein Nutzer-sichtbares Verhalten aendert sich (reine Coderef-Aenderung).
+- [x] Android: `PraxisEditorScreen.kt` und alle zugehoerigen NavGraph-Eintraege entfernt; App baut und navigiert unveraendert.
+- [x] `TimerViewModel.applyPraxisUpdate(...)` NICHT entfernt — bei der Analyse zeigte sich, dass es **nicht** verwaist ist (wird von `saveAndPop` fuer die erhaltenen Sub-Screens Background/Gong/Intervall/Vorbereitung genutzt). Bewusst behalten.
+- [x] `PraxisEditorViewModel` auf beiden Plattformen umbenannt (→ `PraxisSettingsViewModel`, Android zusaetzlich `PraxisEditorUiState` → `PraxisSettingsUiState`); keine Referenz auf den alten Namen mehr (ausser historischer CHANGELOG-Eintrag fuer ios-040).
+- [x] Kein Nutzer-sichtbares Verhalten aendert sich (reine Coderef-Aenderung).
 
 ### Tests
-- [ ] Unit Tests iOS gruen (Testklassen mitumbenannt)
-- [ ] Unit Tests Android gruen
+- [x] Unit Tests iOS gruen (Testklassen mitumbenannt) — 1261/1261
+- [x] Unit Tests Android gruen — 1000/1000
 
 ### Dokumentation
-- [ ] CHANGELOG.md (intern/refactor — kein Nutzer-Eintrag noetig, ggf. weglassen)
+- [x] CHANGELOG.md — bewusst weggelassen (reines internes Refactoring ohne Nutzer-Sicht)
 
 ---
 
