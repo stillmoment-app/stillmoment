@@ -30,8 +30,8 @@ enum TestFixtureSeeder {
 
     /// Test fixture definitions
     ///
-    /// Each fixture maps to a silent MP3 file in Resources/TestFixtures/
-    /// with realistic duration for authentic screenshots.
+    /// Each fixture maps to an MP3 file with real audio in Resources/TestFixtures/,
+    /// so the waveform renders authentically, with realistic duration for screenshots.
     static let fixtures: [TestFixture] = [
         TestFixture(
             resourceName: "test-mindful-breathing",
