@@ -24,11 +24,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
- * Unit tests for PraxisEditorViewModel.
+ * Unit tests for PraxisSettingsViewModel.
  * Tests loading, editing, saving, validation, and audio preview delegation.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class PraxisEditorViewModelTest {
+class PraxisSettingsViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeAudioService: FakeAudioService
@@ -49,8 +49,8 @@ class PraxisEditorViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): PraxisEditorViewModel {
-        return PraxisEditorViewModel(
+    private fun createViewModel(): PraxisSettingsViewModel {
+        return PraxisSettingsViewModel(
             praxisRepository = fakePraxisRepository,
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,

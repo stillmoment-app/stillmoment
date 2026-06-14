@@ -69,8 +69,8 @@ import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.stillMomentSwitchColors
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.viewmodel.PraxisEditorUiState
-import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import com.stillmoment.presentation.viewmodel.PraxisSettingsUiState
+import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -84,7 +84,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun IntervalGongsEditorScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PraxisEditorViewModel = hiltViewModel()
+    viewModel: PraxisSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -140,7 +140,7 @@ fun IntervalGongsEditorScreen(
 @Suppress("LongParameterList") // Editor card aggregates callbacks for all interval gong sub-controls
 @Composable
 private fun IntervalGongsCard(
-    uiState: PraxisEditorUiState,
+    uiState: PraxisSettingsUiState,
     onToggle: (Boolean) -> Unit,
     onMinutesChange: (Int) -> Unit,
     onModeChange: (IntervalMode) -> Unit,
@@ -230,7 +230,7 @@ private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, mod
 
 @Composable
 private fun IntervalEnabledContent(
-    uiState: PraxisEditorUiState,
+    uiState: PraxisSettingsUiState,
     onMinutesChange: (Int) -> Unit,
     onModeChange: (IntervalMode) -> Unit,
     onSoundSelect: (String) -> Unit,
