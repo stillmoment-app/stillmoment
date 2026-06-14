@@ -1,6 +1,6 @@
 # Ticket shared-110: Meditation-Editor als Vollbild-Screen mit Discard-Schutz
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE → **[~] IN PROGRESS**
+**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE → **[x] DONE**
 **Prioritaet**: MITTEL
 **Komplexitaet**: Navigations-Umbau (Sheet/BottomSheet → Vollbild-Screen) auf beiden Plattformen; Risiko liegt im Zusammenspiel mit dem bestehenden Trim-Editor (heute fullScreenCover) und im Import-Flow, der dieselbe Komponente nutzt.
 **Phase**: 2-Architektur
@@ -22,29 +22,29 @@ Der Editor zum Bearbeiten gefuehrter Meditationen (und der inhaltsgleiche Import
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
 ## Akzeptanzkriterien
 
 ### Feature (beide Plattformen)
-- [ ] Der Meditation-Editor wird als Vollbild-Screen praesentiert (nicht als Sheet/BottomSheet).
-- [ ] Der Import oeffnet denselben Editor als Vollbild-Screen.
-- [ ] Save (rechts) und Cancel (links) bleiben in der Top-Bar; Save validiert wie bisher.
-- [ ] Verlassen ohne Aenderungen schliesst sofort und kommentarlos.
-- [ ] Verlassen mit ungespeicherten Aenderungen (X, Back, Swipe/Geste) zeigt eine Rueckfrage mit "Verwerfen" / "Weiter bearbeiten".
-- [ ] Der Trim-Editor bleibt erreichbar und verliert keine Funktion durch den Umbau.
-- [ ] Lokalisiert (DE + EN).
-- [ ] Visuell konsistent zwischen iOS und Android.
+- [x] Der Meditation-Editor wird als Vollbild-Screen praesentiert (nicht als Sheet/BottomSheet).
+- [x] Der Import oeffnet denselben Editor als Vollbild-Screen.
+- [x] Save (rechts) und Cancel (links) bleiben in der Top-Bar; Save validiert wie bisher.
+- [x] Verlassen ohne Aenderungen schliesst sofort und kommentarlos.
+- [x] Verlassen mit ungespeicherten Aenderungen (X, Back, Swipe/Geste) zeigt eine Rueckfrage mit "Verwerfen" / "Weiter bearbeiten".
+- [x] Der Trim-Editor bleibt erreichbar und verliert keine Funktion durch den Umbau. (iOS: fullScreenCover aus dem Screen; Android: Trim nicht vorhanden — n/a)
+- [x] Lokalisiert (DE + EN).
+- [x] Visuell konsistent zwischen iOS und Android.
 
 ### Tests
-- [ ] Unit Tests iOS
-- [ ] Unit Tests Android
+- [x] Unit Tests iOS
+- [x] Unit Tests Android
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 

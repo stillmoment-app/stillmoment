@@ -134,7 +134,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-107](shared/shared-107-waveform-trim-editor.md) | Waveform-Trim-Editor fuer den Wiedergabe-Bereich | 3-Feature | [x] | [ ] |
 | [shared-108](shared/shared-108-waveform-zoom-trim-editor.md) | Zoom in die Waveform des Trim-Editors | 3-Feature | [x] | [ ] |
 | [shared-109](shared/shared-109-waveform-player-tonkopf.md) | Waveform Player „Tonkopf" | 3-Feature | [x] | [ ] |
-| [shared-110](shared/shared-110-editor-screen-discard-schutz.md) | Meditation-Editor als Vollbild-Screen mit Discard-Schutz | 2-Architektur | [ ] | [ ] |
+| [shared-110](shared/shared-110-editor-screen-discard-schutz.md) | Meditation-Editor als Vollbild-Screen mit Discard-Schutz | 2-Architektur | [x] | [x] |
 | [shared-111](shared/shared-111-praxis-editor-explizit-speichern.md) | Praxis-Editor mit explizitem Speichern/Abbrechen | 4-Polish | [ ] | [ ] |
 | [shared-112](shared/shared-112-trim-zurueck-dirtied-editor.md) | Trim-Editor — nur „Zurück", Änderungen markieren den Editor | 4-Polish | [ ] | [ ] |
 
