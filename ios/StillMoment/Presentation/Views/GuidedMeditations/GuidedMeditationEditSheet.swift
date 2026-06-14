@@ -156,10 +156,12 @@ struct GuidedMeditationEditSheet: View {
         .fullScreenCover(isPresented: self.$showingTrimEditor) {
             self.trimEditorSheet
         }
-        .confirmationDialog(
+        // Alert statt confirmationDialog: iOS 26 rendert confirmationDialog als Popover und
+        // blendet den .cancel-Button ("Weiter bearbeiten") aus. Beim Discard-Schutz ist der
+        // explizite Ausweg aber Pflicht — ein Alert zeigt beide Buttons auf iOS 18 wie 26.
+        .alert(
             "guided_meditations.edit.discard.title",
-            isPresented: self.$showingDiscardConfirmation,
-            titleVisibility: .visible
+            isPresented: self.$showingDiscardConfirmation
         ) {
             Button("guided_meditations.edit.discard.confirm", role: .destructive) {
                 self.onCancel()
