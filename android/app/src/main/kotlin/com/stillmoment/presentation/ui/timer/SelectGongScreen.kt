@@ -52,7 +52,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -66,7 +66,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun SelectGongScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PraxisEditorViewModel = hiltViewModel()
+    viewModel: PraxisSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

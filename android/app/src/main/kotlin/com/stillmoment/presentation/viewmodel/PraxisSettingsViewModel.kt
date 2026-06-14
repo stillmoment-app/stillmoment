@@ -22,12 +22,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * UI State for the Praxis Editor screen.
+ * UI State for the Praxis Settings screen.
  *
  * Holds all editable fields of a Praxis configuration.
  * Each field maps directly to a Praxis property.
  */
-data class PraxisEditorUiState(
+data class PraxisSettingsUiState(
     val isLoading: Boolean = true,
     val durationMinutes: Int = Praxis.DEFAULT_DURATION_MINUTES,
     val preparationTimeEnabled: Boolean = Praxis.DEFAULT_PREPARATION_TIME_ENABLED,
@@ -55,7 +55,7 @@ data class PraxisEditorUiState(
         praxis: Praxis,
         builtInSounds: List<BackgroundSound>,
         resolvedBackgroundSoundName: String?
-    ): PraxisEditorUiState = copy(
+    ): PraxisSettingsUiState = copy(
         isLoading = false,
         durationMinutes = praxis.durationMinutes,
         preparationTimeEnabled = praxis.preparationTimeEnabled,
@@ -83,7 +83,7 @@ data class PraxisEditorUiState(
  */
 @Suppress("TooManyFunctions") // Editor ViewModel naturally has one setter per field
 @HiltViewModel
-class PraxisEditorViewModel
+class PraxisSettingsViewModel
 @Inject
 constructor(
     private val praxisRepository: PraxisRepository,
@@ -92,8 +92,8 @@ constructor(
     private val soundCatalogRepository: SoundCatalogRepository,
     private val soundscapeResolver: SoundscapeResolverProtocol
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(PraxisEditorUiState())
-    val uiState: StateFlow<PraxisEditorUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PraxisSettingsUiState())
+    val uiState: StateFlow<PraxisSettingsUiState> = _uiState.asStateFlow()
 
     /** Stored Praxis ID, used when saving back. */
     private var praxisId: String = ""

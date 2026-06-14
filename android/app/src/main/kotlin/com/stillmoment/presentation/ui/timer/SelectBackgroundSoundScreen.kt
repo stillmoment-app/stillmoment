@@ -75,7 +75,7 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -101,7 +101,7 @@ private fun iconForBackgroundSound(soundId: String): ImageVector = when (soundId
 fun SelectBackgroundSoundScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PraxisEditorViewModel = hiltViewModel(),
+    viewModel: PraxisSettingsViewModel = hiltViewModel(),
     initialFileToRename: CustomAudioFile? = null,
     onConsumeInitialRename: () -> Unit = {}
 ) {

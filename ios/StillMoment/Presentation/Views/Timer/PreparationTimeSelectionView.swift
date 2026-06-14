@@ -5,7 +5,7 @@
 //  Presentation Layer - Preparation time selection (shared-083)
 //
 //  Pushed detail view that lists "Off" and the six supported seconds values.
-//  Tapping a row writes through PraxisEditorViewModel; auto-save persists.
+//  Tapping a row writes through PraxisSettingsViewModel; auto-save persists.
 //
 
 import SwiftUI
@@ -16,7 +16,7 @@ import SwiftUI
 struct PreparationTimeSelectionView: View {
     // MARK: Lifecycle
 
-    init(viewModel: PraxisEditorViewModel) {
+    init(viewModel: PraxisSettingsViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
@@ -51,7 +51,7 @@ struct PreparationTimeSelectionView: View {
 
     @Environment(\.themeColors)
     private var theme
-    @ObservedObject private var viewModel: PraxisEditorViewModel
+    @ObservedObject private var viewModel: PraxisSettingsViewModel
 
     private static let supportedSeconds: [Int] = [5, 10, 15, 20, 30, 45]
 
@@ -89,7 +89,7 @@ struct PreparationTimeSelectionView: View {
 #Preview("Preparation Time Selection") {
     NavigationStack {
         PreparationTimeSelectionView(
-            viewModel: PraxisEditorViewModel(praxis: .default) { _ in }
+            viewModel: PraxisSettingsViewModel(praxis: .default) { _ in }
         )
     }
 }

@@ -21,11 +21,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 
 /**
- * Unit tests for PraxisEditorViewModel custom audio methods.
+ * Unit tests for PraxisSettingsViewModel custom audio methods.
  * Tests import, delete, error handling, and praxis reset behavior.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class PraxisEditorViewModelCustomAudioTest {
+class PraxisSettingsViewModelCustomAudioTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakePraxisRepository: FakePraxisRepository
     private lateinit var fakeAudioService: FakeAudioService
@@ -46,8 +46,8 @@ class PraxisEditorViewModelCustomAudioTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): PraxisEditorViewModel {
-        return PraxisEditorViewModel(
+    private fun createViewModel(): PraxisSettingsViewModel {
+        return PraxisSettingsViewModel(
             praxisRepository = fakePraxisRepository,
             audioService = fakeAudioService,
             customAudioRepository = fakeCustomAudioRepository,

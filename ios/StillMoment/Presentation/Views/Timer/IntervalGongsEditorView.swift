@@ -15,7 +15,7 @@ import UIKit
 struct IntervalGongsEditorView: View {
     // MARK: Lifecycle
 
-    init(viewModel: PraxisEditorViewModel) {
+    init(viewModel: PraxisSettingsViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
@@ -47,7 +47,7 @@ struct IntervalGongsEditorView: View {
 
     @Environment(\.themeColors)
     private var theme
-    @ObservedObject private var viewModel: PraxisEditorViewModel
+    @ObservedObject private var viewModel: PraxisSettingsViewModel
 
     private var supportsVibration: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -172,7 +172,7 @@ struct IntervalGongsEditorView: View {
 @available(iOS 17.0, *)
 #Preview("Interval Gongs Editor") {
     NavigationStack {
-        IntervalGongsEditorView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
+        IntervalGongsEditorView(viewModel: PraxisSettingsViewModel(praxis: .default) { _ in })
     }
 }
 #endif

@@ -11,7 +11,7 @@ import SwiftUI
 
 struct SettingDetailRoot: View {
     let destination: SettingDestination
-    @ObservedObject var viewModel: PraxisEditorViewModel
+    @ObservedObject var viewModel: PraxisSettingsViewModel
 
     var body: some View {
         switch self.destination {

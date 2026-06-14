@@ -1,5 +1,5 @@
 //
-//  PraxisEditorViewModel.swift
+//  PraxisSettingsViewModel.swift
 //  Still Moment
 //
 //  Application Layer - ViewModel for editing the current Praxis configuration
@@ -9,12 +9,12 @@ import Combine
 import Foundation
 import OSLog
 
-/// ViewModel for the Praxis editor screen.
+/// ViewModel backing the inline timer Praxis settings.
 ///
 /// Manages editing fields for the single current Praxis configuration,
 /// audio preview playback, and save operations with repository persistence.
 @MainActor
-final class PraxisEditorViewModel: ObservableObject {
+final class PraxisSettingsViewModel: ObservableObject {
     // MARK: Lifecycle
 
     init(

@@ -1,5 +1,5 @@
 //
-//  PraxisEditorViewModelLiveSaveTests.swift
+//  PraxisSettingsViewModelLiveSaveTests.swift
 //  Still Moment
 //
 //  Tests for live-save behaviour: every setter mutation persists the
@@ -10,9 +10,9 @@ import XCTest
 @testable import StillMoment
 
 @MainActor
-final class PraxisEditorViewModelLiveSaveTests: XCTestCase {
+final class PraxisSettingsViewModelLiveSaveTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
-    private var sut: PraxisEditorViewModel!
+    private var sut: PraxisSettingsViewModel!
     // swiftlint:disable:next implicitly_unwrapped_optional
     private var mockRepository: MockPraxisRepository!
     // swiftlint:disable:next implicitly_unwrapped_optional
@@ -25,7 +25,7 @@ final class PraxisEditorViewModelLiveSaveTests: XCTestCase {
         self.mockRepository = MockPraxisRepository()
         self.mockAudioService = MockAudioService()
         self.mockSoundRepository = MockBackgroundSoundRepository()
-        self.sut = PraxisEditorViewModel(
+        self.sut = PraxisSettingsViewModel(
             praxis: .default,
             repository: self.mockRepository,
             audioService: self.mockAudioService,

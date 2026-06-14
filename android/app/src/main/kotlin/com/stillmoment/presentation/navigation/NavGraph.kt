@@ -82,7 +82,6 @@ import com.stillmoment.presentation.ui.settings.AppSettingsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
-import com.stillmoment.presentation.ui.timer.PraxisEditorScreen
 import com.stillmoment.presentation.ui.timer.PreparationTimeSelectionScreen
 import com.stillmoment.presentation.ui.timer.SelectBackgroundSoundScreen
 import com.stillmoment.presentation.ui.timer.SelectGongScreen
@@ -91,7 +90,7 @@ import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.AppSettingsViewModel
 import com.stillmoment.presentation.viewmodel.CompletionOverlayViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
-import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -125,8 +124,6 @@ sealed class Screen(val route: String) {
 
     /** Debug-only Typography Reference Screen (shared-099). */
     data object DebugTypography : Screen("debugTypography")
-
-    data object PraxisEditor : Screen("praxisEditor")
 
     data object SelectBackground : Screen("selectBackground")
 
@@ -333,7 +330,6 @@ private fun NavHostScaffold(
 
     val screenManagesOwnInsets = currentDestination?.route?.let { route ->
         route == Screen.TimerFocus.route ||
-            route == Screen.PraxisEditor.route ||
             route.startsWith("player")
     } == true
 
@@ -477,7 +473,6 @@ private fun NavGraphBuilder.timerNavGraph(
 ) {
     navigation(startDestination = Screen.Timer.route, route = Screen.TimerGraph.route) {
         timerIdleAndFocusComposables(navController, stopMeditationSignal, onConsumeStopSignal)
-        praxisEditorComposable(navController)
         timerSubScreenComposables(navController)
     }
 }
@@ -527,27 +522,6 @@ private fun NavGraphBuilder.timerIdleAndFocusComposables(
     }
 }
 
-private fun NavGraphBuilder.praxisEditorComposable(navController: NavHostController) {
-    composable(Screen.PraxisEditor.route) { backStackEntry ->
-        val timerEntry = remember(backStackEntry) {
-            navController.getBackStackEntry(Screen.TimerGraph.route)
-        }
-        val editorViewModel: PraxisEditorViewModel = hiltViewModel(timerEntry)
-        val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
-
-        PraxisEditorScreen(
-            onNavigateBack = { praxis ->
-                timerViewModel.applyPraxisUpdate(praxis)
-                navController.popBackStack(Screen.Timer.route, false)
-            },
-            onNavigateToBackground = { navController.navigate(Screen.SelectBackground.route) },
-            onNavigateToGong = { navController.navigate(Screen.SelectGong.route) },
-            onNavigateToIntervalGongs = { navController.navigate(Screen.IntervalGongs.route) },
-            viewModel = editorViewModel
-        )
-    }
-}
-
 private fun NavGraphBuilder.timerSubScreenComposables(navController: NavHostController) {
     selectBackgroundComposable(navController)
     selectGongComposable(navController)
@@ -560,13 +534,13 @@ private fun NavGraphBuilder.timerSubScreenComposables(navController: NavHostCont
 private fun rememberTimerScopedEditorViewModels(
     navController: NavHostController,
     backStackEntry: androidx.navigation.NavBackStackEntry
-): Pair<PraxisEditorViewModel, TimerViewModel> {
+): Pair<PraxisSettingsViewModel, TimerViewModel> {
     val timerEntry = remember(backStackEntry) {
         navController.getBackStackEntry(Screen.TimerGraph.route)
     }
 
     @Suppress("ViewModelInjection")
-    val editorViewModel: PraxisEditorViewModel = hiltViewModel(timerEntry)
+    val editorViewModel: PraxisSettingsViewModel = hiltViewModel(timerEntry)
 
     @Suppress("ViewModelInjection")
     val timerViewModel: TimerViewModel = hiltViewModel(timerEntry)
@@ -575,7 +549,7 @@ private fun rememberTimerScopedEditorViewModels(
 
 private fun saveAndPop(
     navController: NavHostController,
-    editorViewModel: PraxisEditorViewModel,
+    editorViewModel: PraxisSettingsViewModel,
     timerViewModel: TimerViewModel
 ) {
     timerViewModel.applyPraxisUpdate(editorViewModel.save())

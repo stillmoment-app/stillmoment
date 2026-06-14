@@ -41,7 +41,7 @@ import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
-import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
+import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 
 /**
  * Detail screen for picking the preparation time (shared-089).
@@ -54,7 +54,7 @@ import com.stillmoment.presentation.viewmodel.PraxisEditorViewModel
 fun PreparationTimeSelectionScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PraxisEditorViewModel = hiltViewModel()
+    viewModel: PraxisSettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

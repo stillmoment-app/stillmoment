@@ -1,17 +1,17 @@
 //
-//  PraxisEditorViewModelTests.swift
+//  PraxisSettingsViewModelTests.swift
 //  Still Moment
 //
-//  Tests for PraxisEditorViewModel
+//  Tests for PraxisSettingsViewModel
 //
 
 import XCTest
 @testable import StillMoment
 
 @MainActor
-final class PraxisEditorViewModelTests: XCTestCase {
+final class PraxisSettingsViewModelTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
-    var sut: PraxisEditorViewModel!
+    var sut: PraxisSettingsViewModel!
     // swiftlint:disable:next implicitly_unwrapped_optional
     var mockRepository: MockPraxisRepository!
     // swiftlint:disable:next implicitly_unwrapped_optional
@@ -61,8 +61,8 @@ final class PraxisEditorViewModelTests: XCTestCase {
 
     // MARK: - Helpers
 
-    private func createSUT(praxis: Praxis) -> PraxisEditorViewModel {
-        PraxisEditorViewModel(
+    private func createSUT(praxis: Praxis) -> PraxisSettingsViewModel {
+        PraxisSettingsViewModel(
             praxis: praxis,
             repository: self.mockRepository,
             audioService: self.mockAudioService,
