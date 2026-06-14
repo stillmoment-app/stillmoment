@@ -1,6 +1,6 @@
 # Ticket shared-114: Top-Bar-Navigations-Boilerplate zentralisieren
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [x] DONE
 **Plan**: [iOS](../plans/shared-114-ios.md) | [Android](../plans/shared-114-android.md)
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Reines internes Refactoring ohne User-sichtbare Aenderung. Risiko liegt allein in unbeabsichtigten optischen Abweichungen (Titel-Farbe, Back-Icon, Insets) — abgesichert durch bestehende Tests/Screenshots. Breite (viele Screens), aber pro Stelle mechanisch.
@@ -31,8 +31,8 @@ macht die richtige Loesung zum Default und verhindert diese Regression.
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
