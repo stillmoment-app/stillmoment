@@ -250,7 +250,6 @@
 
 // Waveform trim editor (shared-107)
 "trim_editor.title" = "Trim";
-"trim_editor.done" = "Done";
 "trim_editor.subtitle" = "%@ · %@";
 "trim_editor.label.beginsAt" = "Begins at";
 "trim_editor.label.endsAt" = "Ends at";
@@ -265,7 +264,7 @@
 "trim_editor.zoomOut" = "Whole file";
 "trim_editor.edgeChip.start" = "Start %@";
 "trim_editor.edgeChip.end" = "End %@";
-"trim_editor.a11y.back" = "Back, discard changes";
+"trim_editor.a11y.back" = "Back";
 "trim_editor.a11y.playhead" = "Playback position";
 "trim_editor.a11y.startHandle" = "Start point";
 "trim_editor.a11y.endHandle" = "End point";

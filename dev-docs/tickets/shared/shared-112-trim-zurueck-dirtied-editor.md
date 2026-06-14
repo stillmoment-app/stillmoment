@@ -1,9 +1,10 @@
 # Ticket shared-112: Trim-Editor — nur „Zurück", Änderungen markieren den Editor als verändert
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [~] IN PROGRESS
 **Prioritaet**: MITTEL
 **Komplexitaet**: Klein. Reine Button-/Semantik-Änderung im bestehenden Trim-Editor; baut auf dem Discard-Schutz des Meditation-Editors (shared-110) auf.
 **Phase**: 4-Polish
+**Plan**: [Implementierungsplan (iOS)](../plans/shared-112-ios.md)
 
 ---
 

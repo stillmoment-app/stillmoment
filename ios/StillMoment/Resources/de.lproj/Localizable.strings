@@ -250,7 +250,6 @@
 
 // Wellenform-Trim-Editor (shared-107)
 "trim_editor.title" = "Zuschneiden";
-"trim_editor.done" = "Fertig";
 "trim_editor.subtitle" = "%@ · %@";
 "trim_editor.label.beginsAt" = "Beginnt bei";
 "trim_editor.label.endsAt" = "Endet bei";
@@ -265,7 +264,7 @@
 "trim_editor.zoomOut" = "Ganze Datei";
 "trim_editor.edgeChip.start" = "Anfang %@";
 "trim_editor.edgeChip.end" = "Ende %@";
-"trim_editor.a11y.back" = "Zurück, Änderungen verwerfen";
+"trim_editor.a11y.back" = "Zurück";
 "trim_editor.a11y.playhead" = "Abspielposition";
 "trim_editor.a11y.startHandle" = "Anfangspunkt";
 "trim_editor.a11y.endHandle" = "Endpunkt";
