@@ -99,6 +99,42 @@ final class EditSheetStateTrimTests: XCTestCase {
         XCTAssertFalse(state.hasChanges)
     }
 
+    // MARK: - Returning from the Trim Editor (shared-112)
+
+    /// The trim editor's only exit is "Zurück", which writes the current selection into the
+    /// editor buffer. A selection that differs from the original must mark the editor changed,
+    /// so leaving the outer editor triggers its discard prompt (no separate trim prompt).
+    func testReturningFromTrimWithChangedSelectionMarksEditorChanged() {
+        // Given an untrimmed meditation open in the editor
+        let meditation = self.makeMeditation(duration: 600)
+        var state = EditSheetState(meditation: meditation)
+
+        // When the trim editor returns a new selection into the buffer
+        state.editedTrimStart = 30
+        state.editedTrimEnd = 540
+
+        // Then the editor is dirty and persists the selection
+        XCTAssertTrue(state.hasChanges)
+        let updated = state.applyChanges()
+        XCTAssertEqual(updated.trimStart, 30)
+        XCTAssertEqual(updated.trimEnd, 540)
+    }
+
+    /// "Ganze Datei verwenden" inside the trim editor resets the cut to the whole file. If the
+    /// meditation had no trim to begin with, returning with that selection leaves the editor clean.
+    func testReturningFromTrimWithUnchangedSelectionLeavesEditorClean() {
+        // Given an untrimmed meditation
+        let meditation = self.makeMeditation(duration: 600)
+        var state = EditSheetState(meditation: meditation)
+
+        // When the trim editor returns the whole-file selection (nil/nil) into the buffer
+        state.editedTrimStart = nil
+        state.editedTrimEnd = nil
+
+        // Then the editor stays unchanged
+        XCTAssertFalse(state.hasChanges)
+    }
+
     // MARK: - Defensive Validation
 
     func testStartMustBeBeforeEnd() {

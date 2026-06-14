@@ -11,8 +11,9 @@ import SwiftUI
 /// waveform with two draggable handles. Layout follows the design handoff "View 2":
 /// nav row, title + readout, waveform + axis, readout cards, transport, whole-file link.
 ///
-/// `onDone` receives the resolved trim points to persist (nil when the selection is
-/// practically the whole file). `onCancel` discards the selection.
+/// The only exit is "Zurück" (shared-112): `onBack` carries the current selection into the
+/// outer editor's buffer (nil when the selection is practically the whole file). There is no
+/// separate commit or discard — saving and discarding happen exclusively in the outer editor.
 struct TrimEditorSheet: View {
     // MARK: Lifecycle
 
@@ -20,14 +21,12 @@ struct TrimEditorSheet: View {
         meditation: GuidedMeditation,
         audioService: AudioServiceProtocol = AudioService(),
         waveformProvider: WaveformProviderProtocol = WaveformProvider(),
-        onDone: @escaping (TimeInterval?, TimeInterval?) -> Void,
-        onCancel: @escaping () -> Void
+        onBack: @escaping (TimeInterval?, TimeInterval?) -> Void
     ) {
         self.fileDuration = meditation.duration
         self.title = meditation.name
         self.teacher = meditation.teacher
-        self.onDone = onDone
-        self.onCancel = onCancel
+        self.onBack = onBack
         self._viewModel = StateObject(wrappedValue: TrimEditorViewModel(
             meditation: meditation,
             audioService: audioService,
@@ -88,19 +87,23 @@ struct TrimEditorSheet: View {
     private let fileDuration: TimeInterval
     private let title: String
     private let teacher: String
-    private let onDone: (TimeInterval?, TimeInterval?) -> Void
-    private let onCancel: () -> Void
+    private let onBack: (TimeInterval?, TimeInterval?) -> Void
 
     private var state: TrimEditorState {
         self.viewModel.editorState
     }
 
+    /// Single "Zurück" control (shared-112): it carries the current selection into the outer
+    /// editor's buffer rather than discarding it. No "Fertig"/"Verwerfen" — the outer editor
+    /// owns the save/discard decision.
     private var navRow: some View {
         ZStack {
             Text("trim_editor.title")
                 .textStyle(.section, color: \.textPrimary)
             HStack {
-                Button(action: self.onCancel) {
+                Button {
+                    self.onBack(self.state.resultTrimStart, self.state.resultTrimEnd)
+                } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(self.theme.textSecondary)
@@ -108,14 +111,8 @@ struct TrimEditorSheet: View {
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel(Text("trim_editor.a11y.back"))
+                .accessibilityIdentifier("trimEditor.back")
                 Spacer()
-                Button {
-                    self.onDone(self.state.resultTrimStart, self.state.resultTrimEnd)
-                } label: {
-                    Text("trim_editor.done")
-                        .textStyle(.body, color: \.interactive)
-                }
-                .accessibilityIdentifier("trimEditor.done")
             }
         }
     }
@@ -156,10 +153,8 @@ struct TrimEditorSheet: View {
             name: "Evening Wind Down"
         ),
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider(),
-        onDone: { _, _ in },
-        onCancel: {}
-    )
+        waveformProvider: PreviewWaveformProvider()
+    ) { _, _ in }
 }
 
 #Preview("Trim Editor — Trimmed") {
@@ -175,10 +170,8 @@ struct TrimEditorSheet: View {
     return TrimEditorSheet(
         meditation: meditation,
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider(),
-        onDone: { _, _ in },
-        onCancel: {}
-    )
+        waveformProvider: PreviewWaveformProvider()
+    ) { _, _ in }
 }
 
 #Preview("Trim Editor — Decode Failed") {
@@ -191,8 +184,6 @@ struct TrimEditorSheet: View {
             name: "Evening Wind Down"
         ),
         audioService: MockPreviewAudioService(),
-        waveformProvider: PreviewWaveformProvider(shouldFail: true),
-        onDone: { _, _ in },
-        onCancel: {}
-    )
+        waveformProvider: PreviewWaveformProvider(shouldFail: true)
+    ) { _, _ in }
 }

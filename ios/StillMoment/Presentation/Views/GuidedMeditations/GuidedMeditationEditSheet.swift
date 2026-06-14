@@ -263,16 +263,15 @@ struct GuidedMeditationEditSheet: View {
             TrimEditorSheet(
                 meditation: self.meditationWithPendingTrim,
                 audioService: self.audioService,
-                waveformProvider: self.waveformProvider,
-                onDone: { start, end in
-                    self.editState.editedTrimStart = start
-                    self.editState.editedTrimEnd = end
-                    self.showingTrimEditor = false
-                },
-                onCancel: {
-                    self.showingTrimEditor = false
-                }
-            )
+                waveformProvider: self.waveformProvider
+            ) { start, end in
+                // "Zurück" übernimmt die Auswahl in den Puffer (shared-112). Save/Discard
+                // entscheidet ausschliesslich der äussere Editor — eine geänderte Auswahl
+                // markiert ihn via EditSheetState.hasChanges als verändert.
+                self.editState.editedTrimStart = start
+                self.editState.editedTrimEnd = end
+                self.showingTrimEditor = false
+            }
         }
     }
 
