@@ -266,7 +266,7 @@ Konfiguration fuer Intervall-Gong-Erkennung, die an `MeditationTimer.tick(interv
 **Pattern:** Configuration Object with Identity
 
 **Beschreibung:**
-Eine benannte, speicherbare Timer-Konfiguration. "Praxis" (meditierte Praxis) repraesentiert eine vollstaendige Sammlung von Timer-Einstellungen, die gespeichert, abgerufen und wiederverwendet werden kann. Mehrere Praxen ermoeglichen schnelles Umschalten zwischen verschiedenen Meditationskonfigurationen.
+Die speicherbare Timer-Konfiguration. "Praxis" (meditierte Praxis) repraesentiert die vollstaendige Sammlung von Timer-Einstellungen, die persistiert wird. Es gibt **genau eine** Praxis — keine Mehrfach-Presets, kein Umschalten und keinen eigenen Editor-Screen. Sie wird inline auf dem Timer-Screen bearbeitet und bei jeder Aenderung sofort gespeichert (Auto-Save, siehe `dev-docs/reference/ux-conventions.md` §2).
 
 Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern — keine neuen Konfigurationsoptionen.
 
@@ -275,7 +275,7 @@ Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern 
 | Property | Typ | Beschreibung |
 |----------|-----|--------------|
 | `id` | UUID | Eindeutige ID |
-| `name` | String | Anzeigename (z.B. "Standard", "Morgenmeditation") |
+| `name` | String | Interner Name der Default-Konfiguration (z.B. "Standard"); nicht nutzerseitig editierbar |
 | `durationMinutes` | Int | Vorbelegte Dauer (1-60) — session-only anpassbar |
 | `preparationTimeEnabled` | Bool | Vorbereitungszeit aktiviert? |
 | `preparationTimeSeconds` | Int | Vorbereitungszeit (5, 10, 15, 20, 30, 45s) |
@@ -296,7 +296,7 @@ Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern 
 | `shortDescription` | Kurzbeschreibung (z.B. "10 Min · Stille · Tempelglocke · 15s Vorbereitung") |
 
 **Invarianten:**
-- Mindestens eine Praxis muss immer existieren (PraxisRepository verhindert Loeschen der letzten)
+- Es existiert genau eine Praxis; sie wird beim ersten Zugriff (`load()`) als Default angelegt und nie geloescht
 - durationMinutes: 1...60
 - Alle Volumes: 0.0...1.0
 - Alle Aenderungen erzeugen neue Instanzen (immutabel)
@@ -314,25 +314,14 @@ Praxis-Felder sind 1:1 identisch mit den bestehenden MeditationSettings-Feldern 
 **Pattern:** Repository
 
 **Beschreibung:**
-CRUD-Protokoll fuer Praxis-Persistenz. Implementierungen verbergen den Speichermechanismus. Invariante: Mindestens eine Praxis muss immer existieren.
+Protokoll fuer die Persistenz der einen Praxis. Implementierungen verbergen den Speichermechanismus. Kein Multi-Preset-CRUD — es gibt genau eine Konfiguration.
 
 **Methoden:**
 
 | Methode | Beschreibung |
 |---------|--------------|
-| `loadAll()` | Alle Praxen laden (erstellt Default bei Erstinstallation/Migration) |
-| `load(byId:)` | Praxis per ID laden |
-| `save(_:)` | Praxis speichern (erstellen oder aktualisieren) |
-| `delete(id:)` | Praxis loeschen (throws wenn letzte) |
-| `activePraxisId` | Aktive Praxis-ID (nil wenn nicht gesetzt) |
-| `setActivePraxisId(_:)` | Aktive Praxis-ID setzen |
-
-**Fehler:**
-
-| Fehler | Beschreibung |
-|--------|--------------|
-| `cannotDeleteLastPraxis` | Letzte Praxis kann nicht geloescht werden |
-| `praxisNotFound(UUID)` | Praxis mit dieser ID nicht gefunden |
+| `load()` | Die gespeicherte Praxis laden; legt beim ersten Aufruf (Neuinstallation/Migration) eine Default-Praxis an |
+| `save(_:)` | Die Praxis speichern, ersetzt die bestehende Konfiguration |
 
 **Implementierungen:**
 - iOS: `ios/StillMoment/Infrastructure/Services/UserDefaultsPraxisRepository.swift` (JSON in UserDefaults)

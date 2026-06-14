@@ -39,9 +39,9 @@ dort erlaubt, wo das native Framework es erzwingt (siehe [Cross-Platform](#cross
 | Aufgabe | Muster | iOS | Android |
 |---------|--------|-----|---------|
 | **Kern-Feature** (Timer-Fokus, Meditations-Player) | Vollbild-**Screen** mit Navigation, X-Icon zum Beenden | Navigation-Destination | Navigation-Screen |
-| **Editor mit mehreren Feldern/Sektionen** (Meditation bearbeiten + Import, Praxis/Timer-Konfiguration) | Vollbild-**Screen** | Navigation-Destination | Navigation-Screen |
+| **Editor mit mehreren Feldern/Sektionen** (Meditation bearbeiten + Import) | Vollbild-**Screen** | Navigation-Destination | Navigation-Screen |
 | **Kurze, einzelne Eingabe** (z.B. Umbenennen) | **Sheet / Dialog** | `.sheet` | `ModalBottomSheet` / Dialog |
-| **Einzelne Einstellung / Auswahl** (Theme, Sound-Auswahl, Vorbereitungszeit) | **Inline** in Liste/Form oder eigener Auswahl-Screen | Form-Row / Push | Settings-Row / Screen |
+| **Einzelne Einstellung / Auswahl** (Theme, Sound-Auswahl, Timer-Einstellungen wie Vorbereitungszeit/Gong/Intervall/Hintergrundton) | **Inline** in Liste/Form oder eigener Auswahl-Screen | Form-Row / Push | Settings-Row / Screen |
 | **Bestätigung / Zerstörerische Aktion** (Löschen, Verwerfen) | **Alert / ConfirmationDialog** | `confirmationDialog` | `AlertDialog` |
 
 **Begründung** (shared-036): Sheets signalisieren „temporär, kommt zurück" und eignen
@@ -50,9 +50,12 @@ Vollbild-Screens, damit sie sich ernst und fokussiert anfühlen und Platz für i
 Sektionen haben.
 
 **Meditation bearbeiten & Import** sind ein Editor mit mehreren Sektionen (Metadaten,
-Wiedergabe-Bereich, Gong-Einstellungen) → **Screen**, identisch zum Praxis-Editor. Das
-vermeidet auch Modal-im-Modal-Konstruktionen (ein Vollbild-Sub-Editor, der aus einem
-Sheet aufgeht).
+Wiedergabe-Bereich, Gong-Einstellungen) → **Screen**. Das vermeidet auch
+Modal-im-Modal-Konstruktionen (ein Vollbild-Sub-Editor, der aus einem Sheet aufgeht).
+
+> Der **Timer** ist bewusst *kein* solcher Editor: Seine Einstellungen werden inline auf
+> dem Timer-Screen gestellt und sofort gespeichert — siehe §2 und
+> das Gegenbeispiel in [§6](#verschachtelt).
 
 ---
 
@@ -62,13 +65,18 @@ Die zentrale Konvention. Sie entscheidet sich an der Art des Inhalts:
 
 | Inhalt | Semantik | Cancel? | Beispiele |
 |--------|----------|---------|-----------|
-| **Benanntes Objekt aus mehreren Feldern** | **Explizit Save/Cancel** | Ja, verwirft | Meditation-Edit, Import, Praxis-Editor |
-| **Einzelne Einstellung umschalten** | **Auto-Save on-change** | Nein | App-Settings, Vorbereitungszeit |
+| **Dedizierter Editor für ein benanntes Objekt** | **Explizit Save/Cancel** | Ja, verwirft | Meditation-Edit, Import |
+| **Einzelne Einstellung umschalten** | **Auto-Save on-change** | Nein | App-Settings, Timer-Einstellungen |
 | **Auswahl aus einer Liste** | **Auto-Save bei Auswahl** | Nein (Back = fertig) | Hintergrund-Sound, Theme |
 
-**Kernunterscheidung:** *Bearbeite ich ein zusammenhängendes Objekt?* → explizit
-Save/Cancel, weil der User mehrere Felder als Einheit bestätigt. *Stelle ich einen
-einzelnen Schalter / eine Auswahl ein?* → Auto-Save, weil jede Änderung für sich steht.
+**Kernunterscheidung — maßgeblich ist die Fläche/Absicht, nicht der Inhaltstyp:**
+*Öffne ich einen dedizierten Editor, um ein benanntes Objekt als Ganzes zu bearbeiten
+(Meditation)?* → explizit Save/Cancel, weil der User mehrere Felder als Einheit bestätigt.
+*Stelle ich auf einem Nutzungs-Screen einzelne Schalter / Auswahlen ein
+(Timer-Einstellungen)?* → Auto-Save, weil jede Änderung für sich steht — auch wenn die
+Einstellungen zusammen die eine gespeicherte Timer-Konfiguration bilden. Entscheidend ist
+also nicht, ob technisch ein Objekt dahintersteht, sondern ob es ein Editor oder ein
+Nutzungs-Screen ist.
 
 **Soll für Editoren** (explizit Save):
 - Save-Button rechts in der Toolbar, validiert (deaktiviert/Fehler bei ungültig).
