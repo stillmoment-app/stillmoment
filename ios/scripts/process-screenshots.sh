@@ -43,8 +43,10 @@ get_output_name() {
         "02_TimerRunning")  echo "timer-running" ;;
         "03_LibraryList")   echo "library-list" ;;
         "04_PlayerView")    echo "player-view" ;;
-        "05_SettingsView")  echo "timer-settings" ;;
         "06_EditSheet")     echo "library-edit" ;;
+        "08_GongSelection") echo "gong-selection" ;;
+        "09_Soundscape")    echo "soundscape" ;;
+        "13_ImportGuide")   echo "import-guide" ;;
         *)                  echo "" ;;
     esac
 }
@@ -82,7 +84,7 @@ for lang_dir in "$FASTLANE_SCREENSHOTS"/*/; do
     echo -e "${BLUE}Processing language: ${lang}${NC}"
 
     # Process each known screenshot
-    for src_name in "01_TimerIdle" "02_TimerRunning" "03_LibraryList" "04_PlayerView" "05_SettingsView" "06_EditSheet"; do
+    for src_name in "01_TimerIdle" "02_TimerRunning" "03_LibraryList" "04_PlayerView" "06_EditSheet" "08_GongSelection" "09_Soundscape" "13_ImportGuide"; do
         dst_name=$(get_output_name "$src_name")
         if [ -z "$dst_name" ]; then
             continue

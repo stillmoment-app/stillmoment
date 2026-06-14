@@ -5,8 +5,8 @@
 Konsolidierte Design-Referenz für Still Moment: App-Beschreibung, Screens, Farb-Tokens,
 Typografie und Richtlinien. Aus dem Code extrahiert — bei Code-Änderungen aktualisieren.
 
-Die zugehörigen Screenshots (`library.png`, `player.png`, `edit.png`, `timer-idle.png`,
-`timer-running.png`, `settings.png`) können als Bilddateien zusätzlich ins Projekt gelegt werden.
+Die zugehörigen Screenshots liegen in `screens/` (iPhone 17 Pro Max, de-DE, Dark Mode) und
+decken alle 15 dokumentierten Screens ab.
 
 Quellen: `ThemeColors+Palettes.swift`, `TextStyle.swift`, `CLAUDE.md`, `ux-conventions.md`.
 
@@ -37,16 +37,37 @@ währenddessen passiert nichts anderes.
 
 ## Screens
 
-| Screen | Rolle |
-|--------|-------|
-| Bibliothek | Kern-Feature, Tab 1 — persönliche Sammlung eigener Audios |
-| Player | Wiedergabe geführter Meditationen |
-| Bearbeiten | Metadaten (Titel, Lehrer), Wiedergabebereich (Trim), Gong-Rahmen |
-| Timer | Stille Meditation, Tab 2 — 1–60 Min, Vorbereitung, Gongs, Soundscape, Intervalle |
-| Timer läuft | Großer Countdown + kreisförmiger Fortschrittsring |
-| Einstellungen | Erscheinungsbild (System/Hell/Dunkel), Sprache |
+Screenshots in `screens/` (iPhone 17 Pro Max, de-DE, Dark Mode) — 15 Screens.
 
-Screenshots: `assets/screens/` (iPhone, de-DE).
+### Bibliothek (Tab 1 — Kern-Feature)
+
+| Screen | Datei | Rolle |
+|--------|-------|-------|
+| Bibliothek | `library.png` | Persönliche Sammlung eigener Audios, nach Lehrer gruppiert |
+| Leere Bibliothek | `empty-library.png` | Erststart vor dem ersten Import |
+| Suche | `library-search.png` | Volltextsuche über die Sammlung |
+| Import-Anleitung | `import-guide.png` | Woher eigene MP3s kommen (Browser/Dateien + Quellen) |
+| Player | `player.png` | Wiedergabe: scrollendes Waveform, Restzeit, Mini-Übersicht, Pause |
+| Bearbeiten | `edit.png` | Metadaten (Titel, Lehrer), Dateibezug |
+| Trim-Editor | `trim-editor.png` | Wiedergabebereich (Anfang/Ende) zuschneiden |
+
+### Timer (Tab 2 — Stille Meditation)
+
+| Screen | Datei | Rolle |
+|--------|-------|-------|
+| Timer | `timer-idle.png` | 1–60 Min, Atemkreis, Konfig-Zeilen |
+| Timer läuft | `timer-running.png` | Großer Countdown + Mondphasen-Fortschritt |
+| Vorbereitungszeit | `preparation.png` | Einstimm-Zeit vor dem Start |
+| Gong-Auswahl | `gong-selection.png` | Start-/End-Gong: Klang-Karten + Lautstärke |
+| Intervall-Gongs | `interval-gongs.png` | Wiederkehrende Gongs während der Sitzung |
+| Soundscape | `soundscape.png` | Hintergrundklang (Stille, Wald, Regen, eigene) |
+
+### Einstellungen (Tab 3) & Übergreifend
+
+| Screen | Datei | Rolle |
+|--------|-------|-------|
+| Einstellungen | `app-settings.png` | Erscheinungsbild (System/Hell/Dunkel), Vorbereitung, Info |
+| Abschluss | `completion.png` | Dank-Bildschirm nach Ende einer Sitzung (Timer & Player) |
 
 ---
 
