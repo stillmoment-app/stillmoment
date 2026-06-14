@@ -338,6 +338,7 @@
 "accessibility.library.stop.hint" = "Stops the running preview";
 "accessibility.library.preview.position" = "Preview position";
 "accessibility.sound.select.hint" = "Selects this sound and plays a preview";
+"accessibility.gong.preview" = "Preview %@";
 
 // MARK: - Library Search (ios-041)
 
@@ -387,6 +388,9 @@
 "praxis.editor.background.silence" = "Silence";
 "praxis.editor.startGong.title" = "Start & End Gong";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
+"praxis.gong.section.sound" = "Sound";
+"praxis.gong.section.volume" = "Volume";
+"praxis.gong.vibration.helper" = "Instead of a sound your device gives a gentle pulse — silent, ideal for quiet spaces.";
 "common.off" = "Off";
 "common.on" = "On";
 

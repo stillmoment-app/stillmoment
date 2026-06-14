@@ -194,6 +194,7 @@
     <string name="accessibility_interval_enabled">Intervall-Gongs aktiviert, alle %d Minuten</string>
     <string name="accessibility_interval_disabled">Intervall-Gongs deaktiviert</string>
     <string name="accessibility_sound_selected">%s ausgewählt</string>
+    <string name="accessibility_gong_preview">%s vorhören</string>
     <string name="accessibility_interval_option">%d Minuten Intervall</string>
     <string name="accessibility_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
     <string name="accessibility_preparation_disabled">Vorbereitungszeit deaktiviert</string>
@@ -281,6 +282,9 @@
     <string name="praxis_editor_background_silence">Stille</string>
     <string name="praxis_editor_start_gong_row">Start &amp; Ende</string>
     <string name="praxis_editor_start_gong_title">Start &amp; Ende</string>
+    <string name="praxis_gong_section_sound">Klang</string>
+    <string name="praxis_gong_section_volume">Lautstärke</string>
+    <string name="praxis_gong_vibration_helper">Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.</string>
     <string name="praxis_editor_interval_gongs_row">Intervall-Gongs</string>
     <string name="praxis_editor_interval_gongs_title">Intervall-Gongs</string>
 
