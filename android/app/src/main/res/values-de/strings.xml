@@ -138,6 +138,11 @@
     <string name="guided_meditations_edit_name_placeholder">Wie heißt diese Meditation?</string>
     <string name="accessibility_clear_field">Feld leeren</string>
 
+    <!-- shared-110: Rückfrage beim Verlassen des Editors mit ungespeicherten Änderungen -->
+    <string name="guided_meditations_edit_discard_title">Änderungen verwerfen?</string>
+    <string name="guided_meditations_edit_discard_confirm">Verwerfen</string>
+    <string name="guided_meditations_edit_discard_keep_editing">Weiter bearbeiten</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Vorbereitungszeit</string>
     <string name="guided_meditations_settings_preparation_description">Zeit zum Ankommen bevor das Audio startet</string>

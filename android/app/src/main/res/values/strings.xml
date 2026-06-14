@@ -138,6 +138,11 @@
     <string name="guided_meditations_edit_name_placeholder">What is this meditation called?</string>
     <string name="accessibility_clear_field">Clear field</string>
 
+    <!-- shared-110: Discard-confirmation when leaving the editor with unsaved changes -->
+    <string name="guided_meditations_edit_discard_title">Discard changes?</string>
+    <string name="guided_meditations_edit_discard_confirm">Discard</string>
+    <string name="guided_meditations_edit_discard_keep_editing">Keep Editing</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Preparation Time</string>
     <string name="guided_meditations_settings_preparation_description">Time to settle in before the audio starts</string>
