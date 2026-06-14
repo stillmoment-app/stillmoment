@@ -1,10 +1,11 @@
 # Ticket shared-113: Toten Praxis-Editor-Code entfernen & ViewModel umbenennen
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [~] IN PROGRESS
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Mechanisches Aufraeumen + Rename. Risiko v.a. im breiten Rename ueber mehrere Setting-Views und Tests. Kein Verhaltens-Aenderung fuer den Nutzer.
 **Phase**: 4-Polish
 **Ursprung**: shared-111 (WONTFIX) — Praxis-Editor als UI-Konzept gestrichen
+**Plan**: [iOS](../plans/shared-113-ios.md) · [Android](../plans/shared-113-android.md)
 
 ---
 

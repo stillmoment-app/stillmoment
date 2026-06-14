@@ -12,14 +12,14 @@ import XCTest
 @MainActor
 final class PreparationTimeSelectionTests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
-    private var sut: PraxisEditorViewModel!
+    private var sut: PraxisSettingsViewModel!
     // swiftlint:disable:next implicitly_unwrapped_optional
     private var mockRepository: MockPraxisRepository!
 
     override func setUp() {
         super.setUp()
         self.mockRepository = MockPraxisRepository()
-        self.sut = PraxisEditorViewModel(
+        self.sut = PraxisSettingsViewModel(
             praxis: .default,
             repository: self.mockRepository,
             audioService: MockAudioService(),

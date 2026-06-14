@@ -1,15 +1,15 @@
 //
-//  PraxisEditorViewModelCustomAudioTests.swift
+//  PraxisSettingsViewModelCustomAudioTests.swift
 //  Still Moment
 //
-//  Tests for PraxisEditorViewModel custom audio management
+//  Tests for PraxisSettingsViewModel custom audio management
 //
 
 import XCTest
 @testable import StillMoment
 
 @MainActor
-final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
+final class PraxisSettingsViewModelCustomAudioTests: XCTestCase {
     // MARK: - Properties
 
     private var mockCustomAudioRepo: MockCustomAudioRepository?
@@ -35,10 +35,10 @@ final class PraxisEditorViewModelCustomAudioTests: XCTestCase {
         praxis: Praxis = .default,
         customAudioRepo: MockCustomAudioRepository? = nil,
         praxisRepo: MockPraxisRepository? = nil
-    ) -> PraxisEditorViewModel {
+    ) -> PraxisSettingsViewModel {
         let audioRepo = customAudioRepo ?? self.mockCustomAudioRepo ?? MockCustomAudioRepository()
         let repo = praxisRepo ?? self.mockPraxisRepo ?? MockPraxisRepository()
-        return PraxisEditorViewModel(
+        return PraxisSettingsViewModel(
             praxis: praxis,
             repository: repo,
             audioService: MockAudioService(),

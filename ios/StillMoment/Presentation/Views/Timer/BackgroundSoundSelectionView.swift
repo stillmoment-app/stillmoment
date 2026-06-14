@@ -15,7 +15,7 @@ import SwiftUI
 struct BackgroundSoundSelectionView: View {
     // MARK: Lifecycle
 
-    init(viewModel: PraxisEditorViewModel) {
+    init(viewModel: PraxisSettingsViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
@@ -103,7 +103,7 @@ struct BackgroundSoundSelectionView: View {
 
     @Environment(\.themeColors)
     private var theme
-    @ObservedObject private var viewModel: PraxisEditorViewModel
+    @ObservedObject private var viewModel: PraxisSettingsViewModel
     @State private var showImportPicker = false
     @State private var fileToDelete: CustomAudioFile?
     @State private var showDeleteConfirmation = false
@@ -261,7 +261,7 @@ struct BackgroundSoundSelectionView: View {
 @available(iOS 17.0, *)
 #Preview("Background Sound Selection") {
     NavigationStack {
-        BackgroundSoundSelectionView(viewModel: PraxisEditorViewModel(praxis: .default) { _ in })
+        BackgroundSoundSelectionView(viewModel: PraxisSettingsViewModel(praxis: .default) { _ in })
     }
 }
 #endif

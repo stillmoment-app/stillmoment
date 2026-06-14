@@ -44,7 +44,7 @@ final class TimerViewModel: ObservableObject {
         // sessionEditor is constructed with a placeholder onSaved because Swift
         // forbids `[weak self]` until every stored property is initialised.
         // The real callback is wired up below, once `self` is fully usable.
-        self.sessionEditor = PraxisEditorViewModel(
+        self.sessionEditor = PraxisSettingsViewModel(
             praxis: praxis,
             repository: praxisRepository,
             audioService: audioService,
@@ -87,7 +87,7 @@ final class TimerViewModel: ObservableObject {
     /// views can be reached without any lazy-init / race-condition gymnastics
     /// in the View layer. Live-save handles persistence; `onSaved` updates
     /// `currentPraxis` here on every change.
-    let sessionEditor: PraxisEditorViewModel
+    let sessionEditor: PraxisSettingsViewModel
 
     // MARK: - Computed Properties (Forwarded from MeditationTimer)
 

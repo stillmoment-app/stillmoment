@@ -8,8 +8,7 @@
 import Foundation
 
 /// Destination type for `NavigationStack(path:)`-based routing from the timer
-/// config screen to the four setting detail views. Replaces the previous
-/// PraxisEditor-Index-Screen.
+/// config screen to the four setting detail views.
 enum SettingDestination: Hashable {
     case preparation
     case background
