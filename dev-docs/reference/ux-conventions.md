@@ -93,6 +93,9 @@ einzelnen Schalter / eine Auswahl ein?* → Auto-Save, weil jede Änderung für 
   „Verwerfen"/„Weiter bearbeiten".
 - Android: `BackHandler` bei „dirty"-State + `AlertDialog` mit gleichen Optionen.
 
+> Für Flächen, die *aus* einem Editor geöffnet werden (z. B. Trim), greift der Schutz
+> **einmal** beim äußeren Editor — siehe [§6](#verschachtelt).
+
 ---
 
 ## 4. Import vs. Edit (Guided Meditations)
@@ -132,3 +135,41 @@ offen). Das ist konsistent gelöst und soll so bleiben.
 - Back-Geste (Android System-Back) vs. Swipe-/Back-Navigation (iOS).
 
 <!-- Trim/Waveform-Konsistenz (iOS vs. Android) wird separat behandelt, kommt später. -->
+
+---
+
+## 6. Verschachtelte Flächen: Sub-Editoren & Sub-Einstellungen {#verschachtelt}
+
+§2 regelt die Speicher-Semantik *einer* Fläche. Sobald eine Fläche *aus* einer anderen
+geöffnet wird (z. B. der Trim-Editor aus dem Meditation-Editor), stellt sich die Frage
+neu: Wer entscheidet über Speichern und Verwerfen?
+
+**Regel: Eine Sub-Fläche erbt die Speicher-Semantik ihres Eltern — sie führt keine eigene ein.**
+
+| Geöffnet aus … | Verhalten der Sub-Fläche | Affordance |
+|----------------|--------------------------|------------|
+| **Explizitem Save/Cancel-Editor** (§2, „benanntes Objekt") | Bearbeitet direkt den *Puffer* des Editors; ihre Änderungen zählen zum Dirty-State des Editors | Nur **„Zurück"** (eine Ebene hoch) |
+| **Auto-Save-Screen** (§2, „Einstellung/Auswahl") | Übernimmt sofort wie jede Einstellung | „Zurück" = fertig |
+
+**Folge — genau eine Ebene besitzt die Persistenz:**
+
+- **Kein** verschachteltes Save/Cancel: Die Sub-Fläche eines Editors hat **kein** eigenes
+  „Speichern" und **kein** eigenes „Verwerfen".
+- **Keine** zweite Discard-Rückfrage: Der Schutz aus §3 greift **einmal**, beim äußersten
+  expliziten Editor.
+- Der Persistenz-Punkt ist immer der nächste „explizite Editor"-Vorfahre. Gibt es keinen,
+  ist es Auto-Save.
+
+**Container ≠ Semantik:** Die Regel betrifft nur die *Speicher-Logik*, nicht die
+Darstellung. Eine Sub-Fläche darf Vollbild-Cover, Sheet oder Push sein — je nachdem, wie
+viel Platz ihr Inhalt braucht (Trim z. B. volle Höhe für die Waveform).
+
+**Beispiel Trim (Library):** Der Trim-Editor wird aus dem Meditation-Editor (explizit
+Save/Cancel) geöffnet → nur „Zurück"; die gesetzte Wiedergabe-Auswahl fließt in den
+Editor-Puffer und markiert ihn als verändert. „Ganze Datei verwenden" setzt den Schnitt
+*innerhalb* von Trim zurück. Gespeichert oder verworfen wird ausschließlich über den
+Editor (Save bzw. X mit Rückfrage, §3).
+
+**Gegenbeispiel Timer:** Vorbereitungszeit, Gong, Intervall und Hintergrundton werden aus
+dem Timer-Screen geöffnet, der *kein* expliziter Editor ist → jede Änderung wird sofort
+übernommen, „Zurück" = fertig, kein Discard-Thema.
