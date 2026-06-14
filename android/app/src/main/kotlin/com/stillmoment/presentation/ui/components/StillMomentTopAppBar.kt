@@ -7,14 +7,20 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.stillmoment.R
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 
@@ -30,7 +36,8 @@ val TopAppBarHeight: Dp = 44.dp
  * Features:
  * - 44dp height (iOS standard nav bar height)
  * - Absolutely centered title (like iOS - title floats above nav/actions)
- * - Optional navigation icon (left side, e.g. back button)
+ * - Optional navigation icon (left side, e.g. back button) — takes precedence
+ * - Optional standard back button via [onNavigateBack] (rendered when [navigationIcon] is null)
  * - Optional action buttons (right side)
  * - Transparent background (gradient shows through)
  */
@@ -39,6 +46,7 @@ fun StillMomentTopAppBar(
     modifier: Modifier = Modifier,
     title: String = "",
     navigationIcon: @Composable (() -> Unit)? = null,
+    onNavigateBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     Box(
@@ -75,7 +83,11 @@ fun StillMomentTopAppBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                navigationIcon?.invoke()
+                when {
+                    navigationIcon != null -> navigationIcon()
+                    onNavigateBack != null -> DefaultBackButton(onClick = onNavigateBack)
+                    else -> {}
+                }
             }
 
             // Action buttons (right side)
@@ -85,5 +97,20 @@ fun StillMomentTopAppBar(
                 actions()
             }
         }
+    }
+}
+
+/**
+ * Standard back button rendered by [StillMomentTopAppBar] when only [onNavigateBack] is given.
+ * Matches the previously duplicated navigation icon across screens.
+ */
+@Composable
+private fun DefaultBackButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(R.string.button_back),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
