@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-/// Atemkreis-Player fuer Guided Meditations.
+/// Waveform-Player fuer Guided Meditations.
 ///
-/// Komplett auf eine Geste reduziert: Pause/Play in der Hauptphase ist die einzige
-/// sichtbare Bedienung. Auto-Start beim Oeffnen — Pre-Roll oder Audio startet
-/// sofort, kein initialer Play-Tap. Lehrer + Titel oben, Atemkreis zentriert,
-/// Restzeit-Label unten, Schliessen-Button oben links.
+/// Lehrer + Titel oben, darunter ein scrollendes Waveform-Fenster (±30 s) mit
+/// Scrub-Geste, die verbleibende Zeit und eine Mini-Uebersicht ueber den ganzen
+/// Track, unten ein Pause/Play-Button, oben links Schliessen. Auto-Start beim
+/// Oeffnen — Pre-Roll oder Audio startet sofort, kein initialer Play-Tap.
 struct GuidedMeditationPlayerView: View {
     // MARK: Lifecycle
 
@@ -267,6 +267,7 @@ struct GuidedMeditationPlayerView: View {
                 .padding(.top, 14)
                 .accessibilityElement()
                 .accessibilityLabel("guided_meditations.player.miniOverview.a11y.label")
+                .accessibilityIdentifier("player.miniOverview")
 
             Spacer(minLength: 16)
 

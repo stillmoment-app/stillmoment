@@ -45,6 +45,12 @@ final class ScreenshotTests: XCTestCase {
         // Disable preparation time for faster screenshots (timer starts immediately)
         self.app.launchArguments += ["-DisablePreparation"]
 
+        // The empty-library screenshot needs a cleared library; a later launch without
+        // the flag re-seeds via seedIfNeeded, so order between tests does not matter.
+        if self.name.contains("emptyLibrary") {
+            self.app.launchArguments += ["-EmptyLibrary"]
+        }
+
         // Appearance override comes from Snapfile launch_arguments via setupSnapshot()
         // (e.g., make screenshots MODE=dark)
 
@@ -88,6 +94,16 @@ final class ScreenshotTests: XCTestCase {
 
         let libraryVisible = addButton.waitForExistence(timeout: 5.0) || emptyStateButton.exists
         XCTAssertTrue(libraryVisible, "Library content not visible after navigation")
+    }
+
+    /// Navigate to App Settings tab (appearance + language + attributions)
+    private func navigateToSettingsTab() {
+        let settingsTab = self.app.tabBars.buttons.element(boundBy: TabIndex.settings)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 10.0), "Settings tab not found")
+        settingsTab.tap()
+
+        let attributionsRow = self.app.buttons["app.settings.row.soundAttributions"]
+        XCTAssertTrue(attributionsRow.waitForExistence(timeout: 5.0), "Settings content not visible")
     }
 
     // MARK: - Screenshot Tests
@@ -180,24 +196,33 @@ final class ScreenshotTests: XCTestCase {
         // Navigate to Library tab
         self.navigateToLibraryTab()
 
-        // Tap the first meditation row's play button
-        let playImages = self.app.images.matching(
-            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation.'")
+        // Open the player via the play button. It is an image that carries the row's
+        // identifier (library.row.meditation.<id>); a tap navigates into the player,
+        // a long press would start an in-list preview instead.
+        let playButtons = self.app.images.matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
         )
-        let firstPlayImage = playImages.element(boundBy: 0)
+        let firstPlayButton = playButtons.firstMatch
         let emptyState = self.app.buttons["library.button.import.emptyState"]
         XCTAssertTrue(
-            firstPlayImage.waitForExistence(timeout: 5.0),
+            firstPlayButton.waitForExistence(timeout: 5.0),
             "No meditation play button found. Empty state visible: \(emptyState.exists)"
         )
-        firstPlayImage.tap()
+        firstPlayButton.tap()
 
-        // Wait for player sheet to appear (auto-start: pause button visible once
-        // the main phase is reached — short wait covers the optional pre-roll).
-        let pauseButton = self.app.buttons["player.button.playPause"]
-        XCTAssertTrue(pauseButton.waitForExistence(timeout: 8.0), "Player did not appear")
+        // Auto-start begins playback; the remaining-time line confirms the player content.
+        let remainingTime = self.app.staticTexts["player.text.remainingTime"]
+        XCTAssertTrue(remainingTime.waitForExistence(timeout: 12.0), "Player content did not appear")
 
-        // Auto-Start triggers Zen Mode — kein Tap noetig
+        // Seek forward so the player shows a meditation in progress rather than at the start.
+        // The full-track mini overview ("Gesamtfortschritt") is an absolute seek: tapping at a
+        // fraction of its width jumps there. A single tap at ~1/3 is far more reliable than
+        // dragging the fine-grained waveform window (synthesized drags barely register there).
+        let miniOverview = self.app.otherElements["player.miniOverview"]
+        if miniOverview.waitForExistence(timeout: 3.0) {
+            miniOverview.coordinate(withNormalizedOffset: CGVector(dx: 0.33, dy: 0.5)).tap()
+        }
+
         Thread.sleep(forTimeInterval: 0.8)
 
         snapshot("04_PlayerView", timeWaitingForIdle: 0)
@@ -251,5 +276,188 @@ final class ScreenshotTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.3)
 
         snapshot("05_SettingsView", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 7: Preparation time selection (timer detail screen)
+    func testScreenshot07_preparation() {
+        self.navigateToTimerTab()
+
+        let preparationRow = self.app.buttons["timer.row.preparation"]
+        XCTAssertTrue(preparationRow.waitForExistence(timeout: 3.0), "Preparation row not found")
+        preparationRow.tap()
+
+        let offOption = self.app.buttons["praxis.preparation.off"]
+        XCTAssertTrue(offOption.waitForExistence(timeout: 5.0), "Preparation selection did not appear")
+
+        Thread.sleep(forTimeInterval: 0.3)
+
+        snapshot("07_Preparation", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 8: Gong selection — redesigned card layout with waveform (shared-115)
+    func testScreenshot08_gongSelection() {
+        self.navigateToTimerTab()
+
+        let gongRow = self.app.buttons["timer.row.gong"]
+        XCTAssertTrue(gongRow.waitForExistence(timeout: 3.0), "Gong row not found")
+        gongRow.tap()
+
+        // The sound rows (praxis.gong.<id>) always render — robust anchor for "screen appeared".
+        let gongSoundRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'praxis.gong.'")
+        )
+        XCTAssertTrue(gongSoundRows.firstMatch.waitForExistence(timeout: 5.0), "Gong selection did not appear")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("08_GongSelection", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 9: Soundscape / background sound selection (timer detail screen)
+    func testScreenshot09_soundscape() {
+        self.navigateToTimerTab()
+
+        let backgroundRow = self.app.buttons["timer.row.background"]
+        XCTAssertTrue(backgroundRow.waitForExistence(timeout: 3.0), "Background row not found")
+        backgroundRow.tap()
+
+        // The sound rows (praxis.background.<id>) always render — robust anchor for "screen appeared".
+        let soundRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'praxis.background.'")
+        )
+        XCTAssertTrue(soundRows.firstMatch.waitForExistence(timeout: 5.0), "Soundscape selection did not appear")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("09_Soundscape", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 10: App settings (appearance + language)
+    func testScreenshot10_appSettings() {
+        self.navigateToSettingsTab()
+
+        Thread.sleep(forTimeInterval: 0.3)
+
+        snapshot("10_AppSettings", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 11: Sound attributions (Pixabay credits, pushed from settings)
+    func testScreenshot11_soundAttributions() {
+        self.navigateToSettingsTab()
+
+        let attributionsRow = self.app.buttons["app.settings.row.soundAttributions"]
+        XCTAssertTrue(attributionsRow.waitForExistence(timeout: 3.0), "Attributions row not found")
+        attributionsRow.tap()
+
+        // Pushed screen — the navigation back button confirms we left the list.
+        let backButton = self.app.navigationBars.buttons.firstMatch
+        XCTAssertTrue(backButton.waitForExistence(timeout: 5.0), "Attributions screen did not appear")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("11_SoundAttributions", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 12: Library search with results
+    func testScreenshot12_librarySearch() {
+        self.navigateToLibraryTab()
+
+        let searchField = self.app.textFields["library.search.field"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5.0), "Search field not found")
+        searchField.tap()
+        searchField.typeText("b")
+
+        let resultRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.search.row'")
+        )
+        XCTAssertTrue(resultRows.firstMatch.waitForExistence(timeout: 5.0), "No search results appeared")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("12_LibrarySearch", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 13: Import guide sheet (how to add own MP3s)
+    func testScreenshot13_importGuide() {
+        self.navigateToLibraryTab()
+
+        let guideButton = self.app.buttons["library.button.guide"]
+        XCTAssertTrue(guideButton.waitForExistence(timeout: 5.0), "Guide button not found")
+        guideButton.tap()
+
+        let browserBanner = self.app.buttons["library.guideSheet.banner.browser"]
+        XCTAssertTrue(browserBanner.waitForExistence(timeout: 5.0), "Guide sheet did not appear")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("13_ImportGuide", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 14: Trim editor (playback range), opened from the edit sheet
+    func testScreenshot14_trimEditor() {
+        self.navigateToLibraryTab()
+
+        let meditationRows = self.app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'library.row.meditation'")
+        )
+        let firstRow = meditationRows.firstMatch
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 5.0), "Library should contain test meditations")
+
+        firstRow.swipeLeft()
+
+        let editButton = self.app.buttons["library.row.swipe.edit"]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 3.0), "Edit swipe action not visible")
+        editButton.tap()
+
+        let playbackCard = self.app.buttons["editSheet.card.playbackRange"]
+        XCTAssertTrue(playbackCard.waitForExistence(timeout: 5.0), "Playback range card not found")
+        playbackCard.tap()
+
+        let trimSheet = self.app.descendants(matching: .any)["trimEditor.sheet"]
+        XCTAssertTrue(trimSheet.waitForExistence(timeout: 5.0), "Trim editor did not appear")
+
+        // Let the waveform render before capturing.
+        Thread.sleep(forTimeInterval: 1.0)
+
+        snapshot("14_TrimEditor", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 15: Completion screen (Danke lotus mandala) after a session ends.
+    ///
+    /// Uses `-DurationMinutes 1` plus disabled preparation so the timer finishes
+    /// within ~60 s and the completion view appears.
+    func testScreenshot15_completion() {
+        self.app.terminate()
+        self.app.launchArguments += ["-DurationMinutes", "1"]
+        self.app.launch()
+
+        self.navigateToTimerTab()
+
+        let startButton = self.app.buttons["timer.button.start"]
+        XCTAssertTrue(startButton.waitForExistence(timeout: 3.0), "Start button should exist")
+        startButton.tap()
+
+        // Wait for the natural end — the done button only exists on the completion screen.
+        let doneButton = self.app.buttons["completion.button.done"]
+        XCTAssertTrue(doneButton.waitForExistence(timeout: 90.0), "Completion screen did not appear")
+
+        Thread.sleep(forTimeInterval: 0.6)
+
+        snapshot("15_Completion", timeWaitingForIdle: 0)
+    }
+
+    /// Screenshot 16: Empty library (first launch, before any import).
+    ///
+    /// The library is cleared via the `-EmptyLibrary` launch argument (set in setUp for
+    /// this test); a later launch without the flag re-seeds, so test order does not matter.
+    func testScreenshot16_emptyLibrary() {
+        self.navigateToLibraryTab()
+
+        let emptyImport = self.app.buttons["library.button.import.emptyState"]
+        XCTAssertTrue(emptyImport.waitForExistence(timeout: 5.0), "Empty library state did not appear")
+
+        Thread.sleep(forTimeInterval: 0.4)
+
+        snapshot("16_EmptyLibrary", timeWaitingForIdle: 0)
     }
 }

@@ -93,9 +93,15 @@ struct StillMomentApp: App {
             inboxDirectoryURL: inboxDir
         ))
 
-        // Seed test fixtures for screenshot automation (Screenshots target only)
+        // Seed test fixtures for screenshot automation (Screenshots target only).
+        // -EmptyLibrary clears the library instead (for the empty-state screenshot);
+        // a later launch without the flag re-seeds via seedIfNeeded.
         #if SCREENSHOTS_BUILD
-        TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
+        if ProcessInfo.processInfo.arguments.contains("-EmptyLibrary") {
+            try? GuidedMeditationService().saveMeditations([])
+        } else {
+            TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
+        }
         #endif
     }
 
