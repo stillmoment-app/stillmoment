@@ -1,6 +1,6 @@
 # Ticket shared-112: Trim-Editor — nur „Zurück", Änderungen markieren den Editor als verändert
 
-**Status**: [~] IN PROGRESS
+**Status**: [~] IN PROGRESS (iOS done, Android offen)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Klein. Reine Button-/Semantik-Änderung im bestehenden Trim-Editor; baut auf dem Discard-Schutz des Meditation-Editors (shared-110) auf.
 **Phase**: 4-Polish
@@ -24,7 +24,7 @@ Heute verwirft der „Zurück"/„<"-Button im Trim-Editor die Auswahl **komment
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-110 (Editor-Discard-Schutz, erledigt) |
+| iOS       | [x]    | shared-110 (Editor-Discard-Schutz, erledigt) |
 | Android   | [ ]    | Android-Trim existiert noch nicht (shared-105 ff.) — erst umsetzen, sobald Trim auf Android landet |
 
 ---
@@ -32,18 +32,18 @@ Heute verwirft der „Zurück"/„<"-Button im Trim-Editor die Auswahl **komment
 ## Akzeptanzkriterien
 
 ### Feature (iOS; Android sobald Trim existiert)
-- [ ] Der Trim-Editor zeigt nur einen „Zurück"-Button („<"-Chevron), kein „Fertig" und kein „Verwerfen".
-- [ ] „Zurück" übernimmt die aktuelle Trim-Auswahl in den Editor-Puffer (kein stilles Verwerfen).
-- [ ] Eine gegenüber dem Original geänderte Trim-Auswahl markiert den Meditation-Editor als verändert (Dirty-State).
-- [ ] Verlassen des äußeren Editors mit geänderter Trim-Auswahl löst die Discard-Rückfrage des Editors aus (§3) — es gibt keine zweite, eigene Trim-Rückfrage.
-- [ ] „Ganze Datei verwenden" bleibt der Weg, den Schnitt *innerhalb* von Trim zurückzusetzen.
-- [ ] A11y-Label des Zurück-Buttons ist neutral („Zurück"), nicht mehr „Änderungen verwerfen".
+- [x] Der Trim-Editor zeigt nur einen „Zurück"-Button („<"-Chevron), kein „Fertig" und kein „Verwerfen".
+- [x] „Zurück" übernimmt die aktuelle Trim-Auswahl in den Editor-Puffer (kein stilles Verwerfen).
+- [x] Eine gegenüber dem Original geänderte Trim-Auswahl markiert den Meditation-Editor als verändert (Dirty-State).
+- [x] Verlassen des äußeren Editors mit geänderter Trim-Auswahl löst die Discard-Rückfrage des Editors aus (§3) — es gibt keine zweite, eigene Trim-Rückfrage.
+- [x] „Ganze Datei verwenden" bleibt der Weg, den Schnitt *innerhalb* von Trim zurückzusetzen.
+- [x] A11y-Label des Zurück-Buttons ist neutral („Zurück"), nicht mehr „Änderungen verwerfen".
 
 ### Tests
-- [ ] Unit Tests iOS (hasChanges spiegelt Trim-Änderung; Buffer-Übernahme bei Zurück)
+- [x] Unit Tests iOS (hasChanges spiegelt Trim-Änderung; Buffer-Übernahme bei Zurück)
 
 ### Dokumentation
-- [ ] CHANGELOG.md
+- [x] CHANGELOG.md
 
 ---
 
