@@ -79,80 +79,92 @@ struct GuidedMeditationEditSheet: View {
     let onCancel: () -> Void
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                self.theme.backgroundGradient
-                    .ignoresSafeArea()
+        ZStack {
+            self.theme.backgroundGradient
+                .ignoresSafeArea()
 
-                Form {
+            Form {
+                Section {
+                    self.teacherField
+                }
+                Section {
+                    self.nameField
+                } footer: {
+                    self.fileInfoFooter
+                }
+                if self.mode == .edit {
                     Section {
-                        self.teacherField
-                    }
-                    Section {
-                        self.nameField
+                        self.playbackRangeCard
                     } footer: {
-                        self.fileInfoFooter
-                    }
-                    if self.mode == .edit {
-                        Section {
-                            self.playbackRangeCard
-                        } footer: {
-                            self.playbackRangeFooter
-                        }
-                    }
-                    Section {
-                        self.startGongToggle
-                        self.endGongToggle
-                        if self.editState.editedStartGongEnabled || self.editState.editedEndGongEnabled {
-                            MeditationGongSoundPicker(
-                                selectedSoundId: self.$editState.editedGongSoundId,
-                                onPreview: self.playGongPreview
-                            )
-                        }
-                    } footer: {
-                        self.gongFooter
+                        self.playbackRangeFooter
                     }
                 }
-                .scrollContentBackground(.hidden)
-                .modifier(CompactSectionSpacingModifier())
+                Section {
+                    self.startGongToggle
+                    self.endGongToggle
+                    if self.editState.editedStartGongEnabled || self.editState.editedEndGongEnabled {
+                        MeditationGongSoundPicker(
+                            selectedSoundId: self.$editState.editedGongSoundId,
+                            onPreview: self.playGongPreview
+                        )
+                    }
+                } footer: {
+                    self.gongFooter
+                }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        self.onCancel()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .medium))
-                    }
-                    .foregroundColor(self.theme.textSecondary)
-                    .accessibilityLabel("common.cancel")
-                    .accessibilityIdentifier("editSheet.button.cancel")
-                    .accessibilityHint("accessibility.editSheet.cancel.hint")
+            .scrollContentBackground(.hidden)
+            .modifier(CompactSectionSpacingModifier())
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        // Vollbild-Screen (shared-110): kein System-Back. Eigener X-Button fuehrt den
+        // Discard-Check aus; das Ausblenden deaktiviert zugleich die Swipe-Back-Geste,
+        // sodass ungespeicherte Aenderungen nie still verschwinden.
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button {
+                    self.attemptCancel()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .medium))
                 }
+                .foregroundColor(self.theme.textSecondary)
+                .accessibilityLabel("common.cancel")
+                .accessibilityIdentifier("editSheet.button.cancel")
+                .accessibilityHint("accessibility.editSheet.cancel.hint")
+            }
 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString(self.mode.saveButtonKey, comment: "")) {
-                        self.attemptSave()
-                    }
-                    .tint(self.theme.interactive)
-                    .accessibilityIdentifier("editSheet.button.save")
-                    .accessibilityHint("accessibility.editSheet.save.hint")
-                    .disabled(!self.editState.isValid)
+            ToolbarItem(placement: .confirmationAction) {
+                Button(NSLocalizedString(self.mode.saveButtonKey, comment: "")) {
+                    self.attemptSave()
                 }
+                .tint(self.theme.interactive)
+                .accessibilityIdentifier("editSheet.button.save")
+                .accessibilityHint("accessibility.editSheet.save.hint")
+                .disabled(!self.editState.isValid)
             }
-            .onAppear {
-                self.applyAutofocus()
-                self.loadMiniWaveform()
+        }
+        .onAppear {
+            self.applyAutofocus()
+            self.loadMiniWaveform()
+        }
+        .onDisappear {
+            self.miniWaveformTask?.cancel()
+            self.miniWaveformTask = nil
+            self.audioService.stopGongPreview()
+        }
+        .fullScreenCover(isPresented: self.$showingTrimEditor) {
+            self.trimEditorSheet
+        }
+        .confirmationDialog(
+            "guided_meditations.edit.discard.title",
+            isPresented: self.$showingDiscardConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("guided_meditations.edit.discard.confirm", role: .destructive) {
+                self.onCancel()
             }
-            .onDisappear {
-                self.miniWaveformTask?.cancel()
-                self.miniWaveformTask = nil
-                self.audioService.stopGongPreview()
-            }
-            .fullScreenCover(isPresented: self.$showingTrimEditor) {
-                self.trimEditorSheet
-            }
+            Button("guided_meditations.edit.discard.keepEditing", role: .cancel) {}
         }
     }
 
@@ -308,6 +320,7 @@ struct GuidedMeditationEditSheet: View {
     private var theme
     @State private var editState: EditSheetState
     @State private var showingTrimEditor = false
+    @State private var showingDiscardConfirmation = false
     @State private var miniWaveform: MeditationWaveform?
     @State private var miniWaveformTask: Task<Void, Never>?
     @FocusState private var teacherFocused: Bool
@@ -334,6 +347,16 @@ struct GuidedMeditationEditSheet: View {
             return
         }
         self.onSave(self.editState.applyChanges())
+    }
+
+    /// Discard-Schutz (shared-110): bei ungespeicherten Aenderungen erst die Rueckfrage
+    /// zeigen, sonst sofort und kommentarlos schliessen.
+    private func attemptCancel() {
+        if self.editState.hasChanges {
+            self.showingDiscardConfirmation = true
+        } else {
+            self.onCancel()
+        }
     }
 
     private func applyAutofocus() {

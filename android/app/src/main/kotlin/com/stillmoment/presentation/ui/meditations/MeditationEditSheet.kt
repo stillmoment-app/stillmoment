@@ -1,30 +1,37 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.InsertDriveFile
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,17 +65,22 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 /**
- * Bottom sheet for editing or importing a guided meditation (shared-103).
+ * Fullscreen editor for editing or importing a guided meditation (shared-103, shared-110).
  *
- * The composable is structurally identical in both modes; the mode only
- * controls the save-button label and the auto-focus rule. Persistence
- * (`addMeditation` vs. `updateMeditation`) is the caller's responsibility via
- * the `onSave` closure.
+ * Presented as a fullscreen screen (not a bottom sheet, shared-110): an editor with several
+ * fields is a focused, self-contained task (ux-conventions §1). Save/Cancel are explicit
+ * (§2); leaving with unsaved changes asks for confirmation via [DiscardDialog] (§3). The
+ * same dirty-check guards both the X button and the system back gesture
+ * (`BackHandler` → [attemptDismiss]).
+ *
+ * The composable is structurally identical in both modes; the mode only controls the
+ * save-button label and the auto-focus rule. Persistence (`addMeditation` vs.
+ * `updateMeditation`) is the caller's responsibility via the `onSave` closure.
  *
  * @param meditation Draft (Import) or persisted (Edit) meditation
  * @param mode IMPORT or EDIT — see [EditSheetMode]
  * @param availableTeachers List of existing teacher names for autocomplete
- * @param onDismiss Callback when the sheet is dismissed without saving
+ * @param onDismiss Callback when the editor is left without saving (after the discard check)
  * @param onSave Callback receiving the edited meditation when the user confirms
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,24 +93,44 @@ fun MeditationEditSheet(
     mode: EditSheetMode = EditSheetMode.EDIT,
     availableTeachers: ImmutableList<String> = persistentListOf()
 ) {
-    val sheetState = rememberModalBottomSheetState()
-
     var editState by remember(meditation) {
         mutableStateOf(EditSheetState.fromMeditation(meditation))
     }
+    var showDiscardDialog by remember(meditation) { mutableStateOf(false) }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-        modifier = modifier
-    ) {
-        MeditationEditSheetContent(
+    // Shared dirty-check for the X button and the system back gesture: leaving with
+    // unsaved changes asks first, otherwise the editor closes immediately and silently.
+    val attemptDismiss = {
+        if (editState.hasChanges) {
+            showDiscardDialog = true
+        } else {
+            onDismiss()
+        }
+    }
+
+    BackHandler { attemptDismiss() }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            EditorTopBar(
+                mode = mode,
+                saveEnabled = editState.isValid,
+                onCancel = attemptDismiss,
+                onSave = {
+                    if (editState.isValid) {
+                        onSave(editState.applyChanges())
+                    }
+                }
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        MeditationEditContent(
             meditation = meditation,
             mode = mode,
             teacherText = editState.editedTeacher,
             nameText = editState.editedName,
-            isValid = editState.isValid,
             availableTeachers = availableTeachers,
             onTeacherChange = { editState = editState.copy(editedTeacher = it) },
             onNameChange = { editState = editState.copy(editedName = it) },
@@ -107,24 +139,100 @@ fun MeditationEditSheet(
                     onSave(editState.applyChanges())
                 }
             },
-            onCancel = onDismiss
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
+
+    if (showDiscardDialog) {
+        DiscardDialog(
+            onConfirmDiscard = {
+                showDiscardDialog = false
+                onDismiss()
+            },
+            onKeepEditing = { showDiscardDialog = false }
         )
     }
 }
 
-@Suppress("LongParameterList") // Sheet content coordinates many UI inputs
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MeditationEditSheetContent(
+private fun EditorTopBar(mode: EditSheetMode, saveEnabled: Boolean, onCancel: () -> Unit, onSave: () -> Unit) {
+    val theme = LocalStillMomentColors.current
+    val cancelLabel = stringResource(R.string.common_cancel)
+    val saveText = when (mode) {
+        EditSheetMode.IMPORT -> stringResource(R.string.guided_meditations_import_action)
+        EditSheetMode.EDIT -> stringResource(R.string.common_save)
+    }
+    CenterAlignedTopAppBar(
+        title = {},
+        navigationIcon = {
+            IconButton(
+                onClick = onCancel,
+                modifier = Modifier.semantics { contentDescription = cancelLabel }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        actions = {
+            Button(
+                onClick = onSave,
+                enabled = saveEnabled,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = theme.interactive,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.padding(end = 12.dp)
+            ) {
+                Text(
+                    text = saveText,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
+    )
+}
+
+@Composable
+private fun DiscardDialog(onConfirmDiscard: () -> Unit, onKeepEditing: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onKeepEditing,
+        title = {
+            Text(text = stringResource(R.string.guided_meditations_edit_discard_title))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirmDiscard) {
+                Text(
+                    text = stringResource(R.string.guided_meditations_edit_discard_confirm),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onKeepEditing) {
+                Text(text = stringResource(R.string.guided_meditations_edit_discard_keep_editing))
+            }
+        }
+    )
+}
+
+@Suppress("LongParameterList") // Editor body coordinates many UI inputs
+@Composable
+private fun MeditationEditContent(
     meditation: GuidedMeditation,
     mode: EditSheetMode,
     teacherText: String,
     nameText: String,
-    isValid: Boolean,
     availableTeachers: ImmutableList<String>,
     onTeacherChange: (String) -> Unit,
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
-    onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val teacherFocus = remember { FocusRequester() }
@@ -138,19 +246,11 @@ private fun MeditationEditSheetContent(
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(bottom = 24.dp)
     ) {
-        EditSheetToolbar(
-            mode = mode,
-            saveEnabled = isValid,
-            onCancel = onCancel,
-            onSave = onSave
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         EditSheetTeacherField(
             value = teacherText,
             availableTeachers = availableTeachers,
@@ -171,47 +271,6 @@ private fun MeditationEditSheetContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         EditSheetFileInfoFooter(meditation = meditation)
-    }
-}
-
-@Composable
-private fun EditSheetToolbar(mode: EditSheetMode, saveEnabled: Boolean, onCancel: () -> Unit, onSave: () -> Unit) {
-    val theme = LocalStillMomentColors.current
-    val cancelLabel = stringResource(R.string.common_cancel)
-    val saveText = when (mode) {
-        EditSheetMode.IMPORT -> stringResource(R.string.guided_meditations_import_action)
-        EditSheetMode.EDIT -> stringResource(R.string.common_save)
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = onCancel,
-            modifier = Modifier.semantics { contentDescription = cancelLabel }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            onClick = onSave,
-            enabled = saveEnabled,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = theme.interactive,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Text(
-                text = saveText,
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
     }
 }
 
@@ -339,17 +398,15 @@ private fun MeditationEditSheetDefaultPreview() {
     )
     StillMomentTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            MeditationEditSheetContent(
+            MeditationEditContent(
                 meditation = meditation,
                 mode = EditSheetMode.EDIT,
                 teacherText = meditation.teacher,
                 nameText = meditation.name,
-                isValid = true,
                 availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
                 onTeacherChange = {},
                 onNameChange = {},
-                onSave = {},
-                onCancel = {}
+                onSave = {}
             )
         }
     }
@@ -368,17 +425,15 @@ private fun MeditationEditSheetImportPreview() {
     )
     StillMomentTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            MeditationEditSheetContent(
+            MeditationEditContent(
                 meditation = meditation,
                 mode = EditSheetMode.IMPORT,
                 teacherText = "",
                 nameText = "",
-                isValid = false,
                 availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield"),
                 onTeacherChange = {},
                 onNameChange = {},
-                onSave = {},
-                onCancel = {}
+                onSave = {}
             )
         }
     }

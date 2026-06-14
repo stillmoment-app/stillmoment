@@ -206,7 +206,9 @@ internal fun GuidedMeditationsListScreenContent(
             }
         }
 
-        // Edit Sheet — same composable in IMPORT or EDIT mode.
+        // Editor — fullscreen overlay (shared-110), same composable in IMPORT or EDIT mode.
+        // It owns its own dirty-check + discard dialog; onDismiss only fires once leaving
+        // is confirmed, so the existing cancelImport/hideEditSheet routing stays unchanged.
         if (uiState.showEditSheet && uiState.selectedMeditation != null) {
             val mode = if (uiState.pendingImport != null) {
                 com.stillmoment.domain.models.EditSheetMode.IMPORT
