@@ -27,13 +27,7 @@ struct SoundAttributionsView: View {
                 self.backgroundSoundsSection
             }
             .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("app.settings.soundAttributions.page.title", bundle: .main)
-                        .textStyle(.screenTitle, color: \.textPrimary)
-                }
-            }
+            .screenTitleBar("app.settings.soundAttributions.page.title")
         }
     }
 

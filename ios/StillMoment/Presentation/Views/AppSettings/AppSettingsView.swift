@@ -31,13 +31,7 @@ struct AppSettingsView: View {
                 #endif
             }
             .scrollContentBackground(.hidden)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("tab.settings", bundle: .main)
-                        .textStyle(.screenTitle, color: \.textPrimary)
-                }
-            }
+            .screenTitleBar("tab.settings")
         }
     }
 

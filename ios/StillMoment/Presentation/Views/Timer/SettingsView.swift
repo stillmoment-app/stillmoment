@@ -46,12 +46,8 @@ struct SettingsView: View {
                     self.backgroundAudioSection
                 }
                 .scrollContentBackground(.hidden)
-                .navigationBarTitleDisplayMode(.inline)
+                .screenTitleBar("settings.title")
                 .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("settings.title", bundle: .main)
-                            .textStyle(.screenTitle, color: \.textPrimary)
-                    }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(NSLocalizedString("button.done", comment: "")) {
                             self.onDismiss()

@@ -40,13 +40,7 @@ struct BackgroundSoundSelectionView: View {
                 self.importButton
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("praxis.editor.background.title", bundle: .main)
-                    .textStyle(.screenTitle, color: \.textPrimary)
-            }
-        }
+        .screenTitleBar("praxis.editor.background.title")
         .onDisappear {
             self.viewModel.stopAllPreviews()
         }

@@ -38,13 +38,7 @@ struct PreparationTimeSelectionView: View {
             .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("settings.preparationTime.title", bundle: .main)
-                    .textStyle(.screenTitle, color: \.textPrimary)
-            }
-        }
+        .screenTitleBar("settings.preparationTime.title")
     }
 
     // MARK: Private
