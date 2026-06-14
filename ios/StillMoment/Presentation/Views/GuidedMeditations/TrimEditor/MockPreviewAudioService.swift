@@ -11,7 +11,9 @@ import Foundation
 #if DEBUG
 /// Preview audio service — no-op playback so the editor previews never touch the audio
 /// session. Only the publishers the editor binds to carry meaningful values.
-@MainActor
+///
+/// Deliberately not `@MainActor`: it mirrors the real `AudioService` (a nonisolated class),
+/// so the conformance to `AudioServiceProtocol` stays free of actor-crossing.
 final class MockPreviewAudioService: AudioServiceProtocol {
     var meditationPreviewPositionPublisher: AnyPublisher<TimeInterval, Never> {
         self.positionSubject.eraseToAnyPublisher()

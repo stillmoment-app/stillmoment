@@ -86,9 +86,17 @@ final class WaveformProvider: WaveformProviderProtocol {
 
     // MARK: Private
 
-    private let generationService: WaveformGenerationServiceProtocol
-    private let cacheService: WaveformCacheServiceProtocol
-    private let meditationService: GuidedMeditationServiceProtocol
+    // The injected dependencies are immutable and assigned once by the `nonisolated init`
+    // (required so `WaveformProvider()` works as a default argument, which Swift always
+    // evaluates in a nonisolated context). They are only ever read from this type's
+    // @MainActor methods, so `nonisolated(unsafe)` is safe: there is no concurrent access.
+    // SwiftLint's modifier_order wants `nonisolated` before `private`; SwiftFormat's
+    // modifierOrder disagrees, so it is disabled for this block to break the tie.
+    // swiftformat:disable modifierOrder
+    nonisolated(unsafe) private let generationService: WaveformGenerationServiceProtocol
+    nonisolated(unsafe) private let cacheService: WaveformCacheServiceProtocol
+    nonisolated(unsafe) private let meditationService: GuidedMeditationServiceProtocol
+    // swiftformat:enable modifierOrder
 
     /// Active generation tasks keyed by meditation id; entries are removed when finished.
     private var inFlight: [UUID: Task<MeditationWaveform, Error>] = [:]
