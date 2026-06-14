@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Still Moment — Design-Referenz</title>
+<style>
+  /* ---- Fonts (Original-App-Schriften) ---- */
+  @font-face { font-family:"Geist"; src:url("fonts/Geist-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Geist"; src:url("fonts/Geist-Medium.ttf") format("truetype"); font-weight:500; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Geist"; src:url("fonts/Geist-SemiBold.ttf") format("truetype"); font-weight:600; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Newsreader"; src:url("fonts/Newsreader-Light.ttf") format("truetype"); font-weight:300; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Newsreader"; src:url("fonts/Newsreader-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
+  @font-face { font-family:"Newsreader"; src:url("fonts/Newsreader-Italic.ttf") format("truetype"); font-weight:300; font-style:italic; font-display:swap; }
+
+  :root{
+    --bg-primary:#FBEEDB; --bg-secondary:#F6CDA8; --card:#FFF6E6;
+    --card-border:rgba(120,55,28,.11); --text-primary:#3A2418; --text-secondary:#7A4E3C;
+    --interactive:#A2503E; --accent-bg:#E8A074;
+    --sans:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --serif:"Newsreader",Georgia,serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans); color:var(--text-primary);
+    background:linear-gradient(180deg,var(--bg-primary) 0%,var(--bg-secondary) 55%,var(--accent-bg) 100%);
+    background-attachment:fixed; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    line-height:1.5;
+  }
+  .wrap{max-width:940px; margin:0 auto; padding:64px 28px 96px;}
+
+  .eyebrow{font-size:11px; font-weight:400; letter-spacing:.22em; text-transform:uppercase; color:var(--text-secondary);}
+  h1{font-family:var(--serif); font-weight:300; font-size:52px; line-height:1; letter-spacing:-.5px; margin:14px 0 6px;}
+  h2{font-family:var(--serif); font-weight:300; font-size:30px; margin:0 0 4px; letter-spacing:-.3px;}
+  h3{font-family:var(--sans); font-weight:500; font-size:15px; margin:26px 0 10px;}
+  .tagline{font-family:var(--serif); font-style:italic; font-weight:300; font-size:21px; color:var(--text-secondary); margin:0 0 26px;}
+  p{max-width:64ch;}
+  a{color:var(--interactive);}
+  strong{font-weight:500;}
+
+  section{margin-top:64px;}
+  .sec-head{margin-bottom:24px; border-bottom:1px solid var(--card-border); padding-bottom:14px;}
+  .sec-head .mono{font-family:var(--mono); font-size:11px; color:var(--text-secondary);}
+
+  .card{background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    box-shadow:0 6px 22px rgba(120,55,28,.08); padding:24px 26px;}
+
+  /* values grid */
+  .vals{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:8px;}
+  .val{background:var(--card); border:1px solid var(--card-border); border-radius:12px; padding:14px 16px;}
+  .val .t{font-weight:500; font-size:14px;}
+  .val .d{font-size:13px; color:var(--text-secondary); margin-top:3px;}
+  .monk{margin-top:20px; font-family:var(--serif); font-style:italic; font-size:18px; color:var(--interactive);}
+
+  /* screens */
+  .screens{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .shot{text-align:center;}
+  .shot img{width:100%; border-radius:18px; border:1px solid var(--card-border); box-shadow:0 8px 26px rgba(120,55,28,.14); display:block;}
+  .shot .cap{margin-top:10px; font-weight:500; font-size:13px;}
+  .shot .sub{font-size:12px; color:var(--text-secondary);}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; font-size:13px; background:var(--card);
+    border:1px solid var(--card-border); border-radius:14px; overflow:hidden;}
+  th{text-align:left; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-secondary);
+    font-weight:600; padding:11px 12px; border-bottom:1px solid var(--card-border); background:rgba(120,55,28,.04);}
+  td{padding:10px 12px; border-bottom:1px solid var(--card-border); vertical-align:middle;}
+  tr:last-child td{border-bottom:0;}
+  .tok{font-family:var(--mono); font-size:11px; color:var(--text-primary);}
+  .hex{font-family:var(--mono); font-size:11px; color:var(--text-secondary); white-space:nowrap;}
+  .use{color:var(--text-secondary);}
+  .chip{display:inline-block; width:22px; height:22px; border-radius:5px; border:1px solid rgba(0,0,0,.12); vertical-align:middle;}
+  .swatch{display:flex; align-items:center; gap:9px; white-space:nowrap;}
+
+  /* type */
+  .type-row{display:flex; align-items:baseline; gap:24px; padding:16px 0; border-bottom:1px solid var(--card-border);}
+  .type-row:last-child{border-bottom:0;}
+  .type-meta{flex:0 0 158px;}
+  .type-meta .name{font-family:var(--mono); font-size:12px; font-weight:600; color:var(--text-primary);}
+  .type-meta .spec{font-family:var(--mono); font-size:10px; color:var(--text-secondary); margin-top:3px; line-height:1.5;}
+  .type-sample{flex:1; min-width:0;}
+
+  .note{font-size:12px; color:var(--text-secondary); margin-top:10px;}
+  ul.clean{padding-left:0; list-style:none; max-width:64ch;}
+  ul.clean li{padding:9px 0 9px 26px; position:relative; border-bottom:1px solid var(--card-border);}
+  ul.clean li:last-child{border-bottom:0;}
+  ul.clean li::before{content:"◦"; position:absolute; left:6px; color:var(--interactive); font-size:16px; line-height:1.3;}
+  .footer{margin-top:72px; padding-top:18px; border-top:1px solid var(--card-border); font-size:12px; color:var(--text-secondary);}
+  @media (max-width:720px){ .screens{grid-template-columns:repeat(2,1fr);} .vals{grid-template-columns:1fr;} h1{font-size:42px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header>
+    <div class="eyebrow">Design-Referenz · iOS &amp; Android</div>
+    <h1>Still Moment</h1>
+    <div class="tagline">Deine Meditationen, dein Raum.</div>
+    <p>Still Moment ist eine App für geführte Meditationen aus den <strong>eigenen MP3s</strong>
+      und für stille Meditation mit einem anpassbaren Timer. Die <strong>Bibliothek</strong> —
+      der Aufbau einer persönlichen Sammlung aus eigenen Audiodateien — ist das Kern-Feature;
+      der Stille-Meditations-Timer ist die Ergänzung. Alles läuft lokal auf dem Gerät:
+      kein Konto, keine Cloud, keine Ablenkung.</p>
+    <p>Der typische Ablauf: Meditation starten, Handy weglegen, der Sperrbildschirm geht an —
+      währenddessen passiert nichts anderes. Diese Referenz fasst zusammen, woran sich jede
+      Design-Entscheidung misst, und dokumentiert Farb-Tokens und Typografie der App.</p>
+  </header>
+
+  <!-- ============ WERTE ============ -->
+  <section>
+    <div class="sec-head"><h2>Produkt-Werte</h2><span class="mono">CLAUDE.md · Product Philosophy</span></div>
+    <div class="vals">
+      <div class="val"><div class="t">Privacy ist nicht verhandelbar</div><div class="d">Kein Tracking, keine Analytics, keine Server.</div></div>
+      <div class="val"><div class="t">Kein Monetarisierungsdruck</div><div class="d">Keine Ads, kein Abo, keine In-App-Käufe.</div></div>
+      <div class="val"><div class="t">Einfachheit vor Features</div><div class="d">Keine Gamification, keine Streaks, kein Social.</div></div>
+      <div class="val"><div class="t">Eine Pause, keine Notification</div><div class="d">Die App soll sich wie ein Innehalten anfühlen.</div></div>
+    </div>
+    <div class="monk">Im Zweifel: Würde ein Mönch zustimmen? Weniger ist mehr.</div>
+  </section>
+
+  <!-- ============ SCREENS ============ -->
+  <section>
+    <div class="sec-head"><h2>Screens</h2><span class="mono">iPhone · de-DE</span></div>
+    <div class="screens">
+      <div class="shot"><img src="screens/library.png" alt="Bibliothek"><div class="cap">Bibliothek</div><div class="sub">Kern-Feature · Tab 1</div></div>
+      <div class="shot"><img src="screens/player.png" alt="Player"><div class="cap">Player</div><div class="sub">Geführte Meditation</div></div>
+      <div class="shot"><img src="screens/edit.png" alt="Bearbeiten"><div class="cap">Bearbeiten</div><div class="sub">Metadaten &amp; Trim</div></div>
+      <div class="shot"><img src="screens/timer-idle.png" alt="Timer Leerlauf"><div class="cap">Timer</div><div class="sub">Stille Meditation · Tab 2</div></div>
+      <div class="shot"><img src="screens/timer-running.png" alt="Timer läuft"><div class="cap">Timer läuft</div><div class="sub">Countdown &amp; Fortschrittsring</div></div>
+      <div class="shot"><img src="screens/settings.png" alt="Einstellungen"><div class="cap">Einstellungen</div><div class="sub">Erscheinungsbild &amp; Sprache</div></div>
+    </div>
+  </section>
+
+  <!-- ============ FARBEN ============ -->
+  <section>
+    <div class="sec-head"><h2>Farb-Tokens</h2><span class="mono">ThemeColors+Palettes.swift · semantisch, @Environment(\.themeColors)</span></div>
+    <p>Eine warme Palette („Candlelight") in zwei Varianten — <strong>Hell</strong> und <strong>Dunkel</strong>.
+      Views referenzieren ausschließlich semantische Rollen, nie direkte Werte. Statische
+      <span class="tok">Color</span>-Properties wären nicht reaktiv; das Theme kommt über das Environment.</p>
+
+    <h3>Text &amp; Interaktiv</h3>
+    <table>
+      <tr><th>Rolle</th><th>Hell</th><th>Dunkel</th><th>Verwendung</th></tr>
+      <tr><td class="tok">textPrimary</td><td><div class="swatch"><span class="chip" style="background:#3A2418"></span><span class="hex">#3A2418</span></div></td><td><div class="swatch"><span class="chip" style="background:#E5DCCD"></span><span class="hex">#E5DCCD</span></div></td><td class="use">Haupttext, Überschriften</td></tr>
+      <tr><td class="tok">textSecondary</td><td><div class="swatch"><span class="chip" style="background:#7A4E3C"></span><span class="hex">#7A4E3C</span></div></td><td><div class="swatch"><span class="chip" style="background:#A68A80"></span><span class="hex">#A68A80</span></div></td><td class="use">Nebentext, Section-Header, Hinweise</td></tr>
+      <tr><td class="tok">interactive</td><td><div class="swatch"><span class="chip" style="background:#A2503E"></span><span class="hex">#A2503E</span></div></td><td><div class="swatch"><span class="chip" style="background:#C77D63"></span><span class="hex">#C77D63</span></div></td><td class="use">Buttons, Icons, Slider, Links, Lehrer-Name</td></tr>
+      <tr><td class="tok">textOnInteractive</td><td><div class="swatch"><span class="chip" style="background:#FFF6E6"></span><span class="hex">#FFF6E6</span></div></td><td><div class="swatch"><span class="chip" style="background:#1A100C"></span><span class="hex">#1A100C</span></div></td><td class="use">Text auf farbigen Buttons</td></tr>
+      <tr><td class="tok">progress</td><td><div class="swatch"><span class="chip" style="background:#A2503E"></span><span class="hex">#A2503E</span></div></td><td><div class="swatch"><span class="chip" style="background:#C77D63"></span><span class="hex">#C77D63</span></div></td><td class="use">Timer-Ring, Fortschritt (= interactive)</td></tr>
+      <tr><td class="tok">controlTrack</td><td><div class="swatch"><span class="chip" style="background:#949379"></span><span class="hex">#949379</span></div></td><td><div class="swatch"><span class="chip" style="background:#826F60"></span><span class="hex">#826F60</span></div></td><td class="use">Inaktive Toggle-/Slider-Bahn (≥ 3:1)</td></tr>
+      <tr><td class="tok">error</td><td><div class="swatch"><span class="chip" style="background:#BA1A1A"></span><span class="hex">#BA1A1A</span></div></td><td><div class="swatch"><span class="chip" style="background:#E06161"></span><span class="hex">#E06161</span></div></td><td class="use">Fehlermeldungen</td></tr>
+    </table>
+
+    <h3>Flächen &amp; Hintergründe</h3>
+    <table>
+      <tr><th>Rolle</th><th>Hell</th><th>Dunkel</th><th>Verwendung</th></tr>
+      <tr><td class="tok">backgroundPrimary</td><td><div class="swatch"><span class="chip" style="background:#FBEEDB"></span><span class="hex">#FBEEDB</span></div></td><td><div class="swatch"><span class="chip" style="background:#1A100C"></span><span class="hex">#1A100C</span></div></td><td class="use">Primärer Screen-Hintergrund</td></tr>
+      <tr><td class="tok">backgroundSecondary</td><td><div class="swatch"><span class="chip" style="background:#F6CDA8"></span><span class="hex">#F6CDA8</span></div></td><td><div class="swatch"><span class="chip" style="background:#321F19"></span><span class="hex">#321F19</span></div></td><td class="use">Sekundär, Gradient-Stop</td></tr>
+      <tr><td class="tok">cardBackground</td><td><div class="swatch"><span class="chip" style="background:#FFF6E6"></span><span class="hex">#FFF6E6</span></div></td><td><div class="swatch"><span class="chip" style="background:#2E211A"></span><span class="hex">#2E211A</span></div></td><td class="use">Karten, TabBar (= tabBarBackground)</td></tr>
+      <tr><td class="tok">cardBorder</td><td><div class="swatch"><span class="chip" style="background:#FFF6E6"></span><span class="hex">rgba(120,55,28,.11)</span></div></td><td><div class="swatch"><span class="chip" style="background:#4E382C"></span><span class="hex">#4E382C</span></div></td><td class="use">Karten-Rahmen</td></tr>
+      <tr><td class="tok">ringTrack</td><td><div class="swatch"><span class="chip" style="background:#C8B5A1"></span><span class="hex">#C8B5A1</span></div></td><td><div class="swatch"><span class="chip" style="background:#A16C4E"></span><span class="hex">#A16C4E</span></div></td><td class="use">Timer-Ring Hintergrund</td></tr>
+      <tr><td class="tok">accentBackground</td><td><div class="swatch"><span class="chip" style="background:#E8A074"></span><span class="hex">#E8A074</span></div></td><td><div class="swatch"><span class="chip" style="background:#5D3A2F"></span><span class="hex">#5D3A2F</span></div></td><td class="use">Dekorativer Akzent, Gradient-Stop</td></tr>
+    </table>
+
+    <h3>Refinement-Tokens</h3>
+    <table>
+      <tr><th>Rolle</th><th>Hell</th><th>Dunkel</th><th>Verwendung</th></tr>
+      <tr><td class="tok">divider</td><td><div class="swatch"><span class="chip" style="background:#FFF6E6"></span><span class="hex">rgba(120,55,28,.14)</span></div></td><td><div class="swatch"><span class="chip" style="background:#2E211A"></span><span class="hex">rgba(242,228,211,.10)</span></div></td><td class="use">Trennlinien (Akzent-Familie)</td></tr>
+      <tr><td class="tok">playGradientTop</td><td><div class="swatch"><span class="chip" style="background:#B85F46"></span><span class="hex">#B85F46</span></div></td><td><div class="swatch"><span class="chip" style="background:#D68A6E"></span><span class="hex">#D68A6E</span></div></td><td class="use">Play-Button Gradient oben</td></tr>
+      <tr><td class="tok">playGradientBot</td><td><div class="swatch"><span class="chip" style="background:#7E3A2D"></span><span class="hex">#7E3A2D</span></div></td><td><div class="swatch"><span class="chip" style="background:#B06A4F"></span><span class="hex">#B06A4F</span></div></td><td class="use">Play-Button Gradient unten</td></tr>
+      <tr><td class="tok">playheadAccent</td><td><div class="swatch"><span class="chip" style="background:#5E7A6B"></span><span class="hex">#5E7A6B</span></div></td><td><div class="swatch"><span class="chip" style="background:#8AA896"></span><span class="hex">#8AA896</span></div></td><td class="use">Sage-Akzent Abspielposition (Trim)</td></tr>
+      <tr><td class="tok">playheadAccentHi</td><td><div class="swatch"><span class="chip" style="background:#7FA08E"></span><span class="hex">#7FA08E</span></div></td><td><div class="swatch"><span class="chip" style="background:#A7C2B1"></span><span class="hex">#A7C2B1</span></div></td><td class="use">Heller Sage-Akzent (Greifer, Linie)</td></tr>
+    </table>
+
+    <h3>Abgeleitete &amp; Opacity-Tokens</h3>
+    <p class="note">Berechnet zur Laufzeit aus Basis-Rollen — garantiert Konsistenz:
+      <span class="tok">accentBannerBackground</span> = interactive @ .10 ·
+      <span class="tok">accentBubbleBackground</span> = interactive @ .18 ·
+      <span class="tok">dialActiveArc / dialDropletCore / settingsValueAccent</span> = interactive ·
+      <span class="tok">dialDropletHalo</span> = interactive @ .18 ·
+      <span class="tok">settingsDivider</span> = divider ·
+      <span class="tok">tabBarBackground</span> = cardBackground ·
+      <span class="tok">playheadTrack</span> = playheadAccent @ .18 ·
+      <span class="tok">textOnPlayhead</span> = #132E1C ·
+      <span class="tok">backgroundGradient</span> = primary → secondary → accentBackground.</p>
+    <p class="note">Opacity-Skala:
+      <span class="tok">overlay .20</span> ·
+      <span class="tok">shadow .30</span> ·
+      <span class="tok">secondary .50</span> ·
+      <span class="tok">tertiary .70</span> ·
+      <span class="tok">cardShadow .08</span>.
+      Alle Text-auf-Hintergrund-Kombinationen erfüllen <strong>WCAG 2.1 AA</strong> (automatisiert getestet).</p>
+  </section>
+
+  <!-- ============ TYPOGRAFIE ============ -->
+  <section>
+    <div class="sec-head"><h2>Typografie</h2><span class="mono">Typografie 2.1 · TextStyle.swift · 10 Tokens</span></div>
+    <p>Zehn Tokens, niemals mehr. Hierarchie entsteht über <strong>Farbe</strong>, nicht über neue Tokens —
+      sekundärer Text ist derselbe Token mit Sekundärfarbe. Jeder Token bindet über
+      <span class="tok">UIFontMetrics</span> an einen System-TextStyle und skaliert mit Dynamic Type.
+      <strong>Newsreader</strong> (Serif) trägt die ruhigen, großen Flächen, <strong>Geist</strong> (Sans) die funktionalen.</p>
+
+    <div class="card" style="margin-top:18px;">
+      <div class="type-row">
+        <div class="type-meta"><div class="name">display</div><div class="spec">Newsreader Light · 88pt*<br>largeTitle · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--serif); font-weight:300; font-size:62px; line-height:1;">12:00</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">title</div><div class="spec">Newsreader Light · 30pt<br>largeTitle · tracking −0.4</div></div>
+        <div class="type-sample" style="font-family:var(--serif); font-weight:300; font-size:30px; letter-spacing:-.4px;">Morgendliche Stille</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">screenTitle</div><div class="spec">Newsreader Light · 26pt<br>title · tracking −0.4</div></div>
+        <div class="type-sample" style="font-family:var(--serif); font-weight:300; font-size:26px; letter-spacing:-.4px;">Bibliothek</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">section</div><div class="spec">Newsreader Light · 20pt<br>title3 · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--serif); font-weight:300; font-size:20px;">Hintergrund-Klang</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">body</div><div class="spec">Geist Regular · 17pt<br>body · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--sans); font-weight:400; font-size:17px;">Wähle eine Meditation aus deiner Sammlung.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">bodyEmphasis</div><div class="spec">Geist Medium · 17pt<br>body · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--sans); font-weight:500; font-size:17px;">Meditation starten</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">bodyItalic</div><div class="spec">Newsreader Italic · 17pt<br>body · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--serif); font-style:italic; font-weight:300; font-size:17px;">Jon Kabat-Zinn</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">caption</div><div class="spec">Geist Regular · 14pt<br>subheadline · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--sans); font-weight:400; font-size:14px; color:var(--text-secondary);">Untertitel, Beschreibungen, Meta-Infos</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">micro</div><div class="spec">Geist Regular · 11pt<br>caption2 · tracking 0</div></div>
+        <div class="type-sample" style="font-family:var(--sans); font-weight:400; font-size:11px; color:var(--text-secondary);">12:00 · MP3 · 2026</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta"><div class="name">eyebrow</div><div class="spec">Geist Regular · 11pt<br>caption2 · tracking 2.4 · CAPS</div></div>
+        <div class="type-sample" style="font-family:var(--sans); font-weight:400; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--text-secondary);">Deine Bibliothek</div>
+      </div>
+    </div>
+    <p class="note">* <span class="tok">display</span> ist container-relativ (Timer-Countdown / Dial), nicht an eine feste pt-Größe gebunden — hier verkleinert dargestellt. Alle pt-Werte gelten bei Dynamic-Type-Stufe „Large".</p>
+
+    <h3>Schriftfamilien &amp; Bold-Text-Mapping</h3>
+    <table>
+      <tr><th>Standard</th><th>bei „Fetter Text" (Accessibility)</th><th>Tokens</th></tr>
+      <tr><td class="tok">Geist Regular</td><td class="tok">Geist Medium</td><td class="use">body · caption · micro · eyebrow</td></tr>
+      <tr><td class="tok">Geist Medium</td><td class="tok">Geist SemiBold</td><td class="use">bodyEmphasis</td></tr>
+      <tr><td class="tok">Newsreader Light</td><td class="tok">Newsreader Regular</td><td class="use">display · title · screenTitle · section</td></tr>
+      <tr><td class="tok">Newsreader Italic</td><td class="tok">Newsreader Italic</td><td class="use">bodyItalic (kein Bold-Italic-Schnitt)</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ RICHTLINIEN ============ -->
+  <section>
+    <div class="sec-head"><h2>Design-Richtlinien</h2><span class="mono">ux-conventions.md · CLAUDE.md</span></div>
+    <ul class="clean">
+      <li><strong>Eine Fläche, eine Aufgabe.</strong> Kein Modal-im-Modal, keine überladenen Screens. Zustandsübergänge sind explizit und sichtbar.</li>
+      <li><strong>Lock-Screen-First.</strong> Der Standard-Use-Case ist: starten, Handy weglegen. Features müssen mit gesperrtem Bildschirm funktionieren — Vordergrund-only reicht nicht.</li>
+      <li><strong>Kein Tab-Wechsel während einer Meditation.</strong> Läuft Timer oder Wiedergabe, ist Navigation gesperrt. Immer nur eine View vorne.</li>
+      <li><strong>Hierarchie via Farbe, nicht via Token.</strong> Zehn Typo-Tokens genügen. Braucht ein Screen einen elften, ist der Screen falsch entworfen.</li>
+      <li><strong>Semantische Farben, nie direkte Werte.</strong> <span class="tok">.textPrimary</span> statt <span class="tok">.warmBlack</span>. Theme kommt reaktiv über das Environment.</li>
+      <li><strong>Hell = Schatten, Dunkel = Rahmen.</strong> Im Dark Mode sind Schatten wirkungslos; Karten bekommen stattdessen einen feinen Border.</li>
+      <li><strong>Sanfte, lineare Bewegung.</strong> Der Timer-Ring läuft ohne Easing, kein Bounce, nichts „Verspieltes". Ruhe vor Effekt.</li>
+      <li><strong>Warme, nicht-technische Sprache.</strong> Die Zielgruppe ist nicht technisch. Keine Dringlichkeit — die App ist eine Pause, keine Notification.</li>
+      <li><strong>Beide Plattformen verhalten sich identisch.</strong> Gleiche Features, gleiche UX, gleiche Edge-Cases (iOS SwiftUI ↔ Android Compose).</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    Still Moment · Design-Referenz · automatisch aus dem Code extrahiert
+    (ThemeColors+Palettes.swift, TextStyle.swift, CLAUDE.md, ux-conventions.md).
+    Bei Code-Änderungen aktualisieren. Verwandt: <span class="mono">dev-docs/reference/color-system.md</span>.
+  </div>
+
+</div>
+</body>
+</html>
