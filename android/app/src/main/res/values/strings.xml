@@ -194,6 +194,7 @@
     <string name="accessibility_interval_enabled">Interval gongs enabled, every %d minutes</string>
     <string name="accessibility_interval_disabled">Interval gongs disabled</string>
     <string name="accessibility_sound_selected">%s selected</string>
+    <string name="accessibility_gong_preview">Preview %s</string>
     <string name="accessibility_interval_option">%d minutes interval</string>
     <string name="accessibility_preparation_enabled">Preparation time enabled, %d seconds</string>
     <string name="accessibility_preparation_disabled">Preparation time disabled</string>
@@ -281,6 +282,9 @@
     <string name="praxis_editor_background_silence">Silence</string>
     <string name="praxis_editor_start_gong_row">Start &amp; End Gong</string>
     <string name="praxis_editor_start_gong_title">Start &amp; End Gong</string>
+    <string name="praxis_gong_section_sound">Sound</string>
+    <string name="praxis_gong_section_volume">Volume</string>
+    <string name="praxis_gong_vibration_helper">Instead of a sound your device gives a gentle pulse — silent, ideal for quiet spaces.</string>
     <string name="praxis_editor_interval_gongs_row">Interval Gongs</string>
     <string name="praxis_editor_interval_gongs_title">Interval Gongs</string>
 
