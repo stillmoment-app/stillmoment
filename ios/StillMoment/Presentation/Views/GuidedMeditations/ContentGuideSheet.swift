@@ -303,7 +303,6 @@ private let previewSources: [MeditationSource] = [
         author: nil,
         description: "Guided meditations, RAIN practice. Direct MP3.",
         host: "tarabrach.com",
-        // swiftlint:disable:next force_unwrapping
         url: URL(string: "https://www.tarabrach.com/guided-meditations/")!
     ),
     MeditationSource(
@@ -312,7 +311,6 @@ private let previewSources: [MeditationSource] = [
         author: "Gil Fronsdal",
         description: "Vipassana tradition. Direct MP3.",
         host: "audiodharma.org",
-        // swiftlint:disable:next force_unwrapping
         url: URL(string: "https://www.audiodharma.org/")!
     )
 ]

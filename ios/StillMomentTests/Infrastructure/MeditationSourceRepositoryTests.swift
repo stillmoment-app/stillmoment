@@ -149,7 +149,6 @@ final class MeditationSourceRepositoryTests: XCTestCase {
             author: nil,
             description: "desc",
             host: "h",
-            // swiftlint:disable:next force_unwrapping
             url: URL(string: "https://example.com/")!
         )
     }
