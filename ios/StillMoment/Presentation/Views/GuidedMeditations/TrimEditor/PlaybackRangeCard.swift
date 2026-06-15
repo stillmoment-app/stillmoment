@@ -93,10 +93,10 @@ struct PlaybackRangeCard: View {
         .accessibilityIdentifier("editSheet.card.playbackRange")
     }
 
+    /// The section now carries its own "Wiedergabebereich" header (shared-116), so the
+    /// card only needs the chevron as a tap affordance.
     private var header: some View {
         HStack {
-            Text("playback_range.label")
-                .textStyle(.eyebrow, color: \.textSecondary)
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))

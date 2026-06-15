@@ -86,15 +86,17 @@ struct GuidedMeditationEditSheet: View {
             Form {
                 Section {
                     self.teacherField
-                }
-                Section {
                     self.nameField
+                } header: {
+                    self.sectionHeader("guided_meditations.edit.section.info")
                 } footer: {
                     self.fileInfoFooter
                 }
                 if self.mode == .edit {
                     Section {
                         self.playbackRangeCard
+                    } header: {
+                        self.sectionHeader("guided_meditations.edit.section.playbackRange")
                     } footer: {
                         self.playbackRangeFooter
                     }
@@ -102,14 +104,22 @@ struct GuidedMeditationEditSheet: View {
                 Section {
                     self.startGongToggle
                     self.endGongToggle
-                    if self.editState.editedStartGongEnabled || self.editState.editedEndGongEnabled {
+                } header: {
+                    self.sectionHeader("guided_meditations.edit.section.gong")
+                } footer: {
+                    self.gongFooter
+                }
+                if self.isSoundListVisible {
+                    Section {
                         MeditationGongSoundPicker(
                             selectedSoundId: self.$editState.editedGongSoundId,
                             onPreview: self.playGongPreview
                         )
+                    } header: {
+                        Text("praxis.gong.section.sound")
+                            .textStyle(.eyebrow, color: \.textSecondary)
+                            .textCase(nil)
                     }
-                } footer: {
-                    self.gongFooter
                 }
             }
             .scrollContentBackground(.hidden)
@@ -171,6 +181,22 @@ struct GuidedMeditationEditSheet: View {
     }
 
     // MARK: - Subviews
+
+    /// Whether the gong sound list is shown — only when at least one gong is enabled.
+    private var isSoundListVisible: Bool {
+        GongSelectionLogic.isSoundListVisible(
+            startGongEnabled: self.editState.editedStartGongEnabled,
+            endGongEnabled: self.editState.editedEndGongEnabled
+        )
+    }
+
+    /// Newsreader-styled (`.section`) form header. `.textCase(nil)` keeps grouped-list
+    /// headers from being uppercased, preserving the serif voice.
+    private func sectionHeader(_ key: LocalizedStringKey) -> some View {
+        Text(key)
+            .textStyle(.section, color: \.textPrimary)
+            .textCase(nil)
+    }
 
     private var teacherField: some View {
         VStack(alignment: .leading, spacing: 8) {
