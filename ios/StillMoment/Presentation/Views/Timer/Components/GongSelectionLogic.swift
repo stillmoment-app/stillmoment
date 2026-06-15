@@ -16,4 +16,10 @@ enum GongSelectionLogic {
     static func isVolumeCardVisible(soundId: String) -> Bool {
         soundId != GongSound.vibrationId
     }
+
+    /// The meditation editor's sound list (shared-116) is shown only when at least
+    /// one gong is enabled — otherwise there is no sound to pick.
+    static func isSoundListVisible(startGongEnabled: Bool, endGongEnabled: Bool) -> Bool {
+        startGongEnabled || endGongEnabled
+    }
 }

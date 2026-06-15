@@ -225,6 +225,11 @@
 "guided_meditations.edit.duration" = "Duration";
 "guided_meditations.edit.fileInfo" = "File Information";
 
+// Editor section headers (shared-116)
+"guided_meditations.edit.section.info" = "Information";
+"guided_meditations.edit.section.playbackRange" = "Playback Range";
+"guided_meditations.edit.section.gong" = "Additional Gong";
+
 // Discard protection when leaving the editor (shared-110)
 "guided_meditations.edit.discard.title" = "Discard changes?";
 "guided_meditations.edit.discard.confirm" = "Discard";

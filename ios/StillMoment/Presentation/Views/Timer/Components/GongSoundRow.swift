@@ -19,6 +19,11 @@ struct GongSoundRow: View {
     let onSelect: () -> Void
     let onPreview: () -> Void
 
+    /// Prefix for the row's accessibility identifiers. Defaults to the timer screen's
+    /// `praxis.gong` anchor; the meditation editor passes its own prefix so both screens
+    /// can be addressed independently in UI tests.
+    var identifierPrefix: String = "praxis.gong"
+
     @Environment(\.themeColors)
     private var theme
 
@@ -48,7 +53,7 @@ struct GongSoundRow: View {
         .accessibilityLabel(Text(self.sound.name))
         .accessibilityHint(Text("accessibility.sound.select.hint"))
         .accessibilityAddTraits(self.isSelected ? [.isButton, .isSelected] : .isButton)
-        .accessibilityIdentifier("praxis.gong.\(self.sound.id)")
+        .accessibilityIdentifier("\(self.identifierPrefix).\(self.sound.id)")
     }
 
     // MARK: - Private
@@ -75,6 +80,6 @@ struct GongSoundRow: View {
                 )
             )
         )
-        .accessibilityIdentifier("praxis.gong.preview.\(self.sound.id)")
+        .accessibilityIdentifier("\(self.identifierPrefix).preview.\(self.sound.id)")
     }
 }
