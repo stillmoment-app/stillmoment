@@ -4,6 +4,7 @@
 **Prioritaet**: MITTEL
 **Komplexitaet**: Gering auf iOS (Wiederverwendung der shared-115-Komponenten + Form-Section-Header). Auf Android abhaengig davon, dass der per-Meditation-Gong ueberhaupt existiert (shared-106 ist dort offen).
 **Phase**: 4-Polish
+**Plan (iOS)**: [Implementierungsplan](../plans/shared-116-ios.md)
 
 ---
 
