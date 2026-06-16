@@ -32,10 +32,18 @@ interface AudioPlayerServiceProtocol {
     /**
      * Plays audio from the given URI.
      *
+     * Trim points (shared-105) make playback non-destructive: playback starts at
+     * [trimStartMs] (after prepare) and ends at [trimEndMs] via the progress loop,
+     * triggering the same completion path as the natural file end. Positions reported
+     * in [playbackState] stay in absolute file time; range-relative display is the
+     * caller's concern.
+     *
      * @param uri Content URI of the audio file
-     * @param duration Expected duration in milliseconds (for progress calculation)
+     * @param duration Full file duration in milliseconds (for progress calculation)
+     * @param trimStartMs Playback start offset in ms, or null to start at the file start
+     * @param trimEndMs Playback end offset in ms, or null to play to the file end
      */
-    fun play(uri: Uri, duration: Long)
+    fun play(uri: Uri, duration: Long, trimStartMs: Long? = null, trimEndMs: Long? = null)
 
     /**
      * Pauses the current playback.

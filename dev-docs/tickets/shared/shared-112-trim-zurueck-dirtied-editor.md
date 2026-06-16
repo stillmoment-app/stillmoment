@@ -1,6 +1,6 @@
 # Ticket shared-112: Trim-Editor — nur „Zurück", Änderungen markieren den Editor als verändert
 
-**Status**: [~] IN PROGRESS (iOS done, Android offen)
+**Status**: [x] DONE (iOS + Android)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Klein. Reine Button-/Semantik-Änderung im bestehenden Trim-Editor; baut auf dem Discard-Schutz des Meditation-Editors (shared-110) auf.
 **Phase**: 4-Polish
@@ -25,7 +25,7 @@ Heute verwirft der „Zurück"/„<"-Button im Trim-Editor die Auswahl **komment
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-110 (Editor-Discard-Schutz, erledigt) |
-| Android   | [ ]    | Android-Trim existiert noch nicht (shared-105 ff.) — erst umsetzen, sobald Trim auf Android landet |
+| Android   | [x]    | Android-Parität Phase C (2026-06-16); finale Save-Semantik direkt gebaut („Zurück" dirtied EditSheetState) |
 
 ---
 

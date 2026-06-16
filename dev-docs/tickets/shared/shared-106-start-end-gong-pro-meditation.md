@@ -1,6 +1,6 @@
 # Ticket shared-106: Start- und End-Gong pro Meditation
 
-**Status**: [~] IN PROGRESS (iOS done, Android offen)
+**Status**: [x] DONE (iOS + Android)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. UI und Persistenz sind einfach; das Risiko liegt in der Audio-Koordination am Ende der Wiedergabe — der End-Gong muss auf dem Lock Screen vollstaendig ausklingen, bevor die Audio-Wiedergabe freigegeben wird.
 **Phase**: 3-Feature
@@ -22,7 +22,7 @@ Der Gong rahmt die Meditation rituell, egal ob still oder gefuehrt. Besonders be
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | inkl. Aenderungsrequests 1+2 (2026-06-12) |
-| Android   | [ ]    | -             |
+| Android   | [x]    | Android-Parität Phase B (2026-06-16) |
 
 ---
 

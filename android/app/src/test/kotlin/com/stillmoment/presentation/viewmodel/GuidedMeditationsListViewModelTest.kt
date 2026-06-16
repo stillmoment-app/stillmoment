@@ -8,11 +8,17 @@ import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.domain.models.PendingImport
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
+import com.stillmoment.domain.services.LoggerProtocol
+import com.stillmoment.domain.services.WaveformGenerationException
+import com.stillmoment.domain.services.WaveformProviderProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -39,6 +45,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Unit tests for GuidedMeditationsListViewModel.
@@ -58,6 +65,9 @@ class GuidedMeditationsListViewModelTest {
     private lateinit var fakeSourceRepository: FakeMeditationSourceRepository
     private lateinit var fakeSearchHistoryRepository: FakeSearchHistoryRepository
     private lateinit var mockFileOpenHandler: FileOpenHandler
+    private lateinit var mockPraxisRepository: PraxisRepository
+    private lateinit var mockWaveformProvider: WaveformProviderProtocol
+    private lateinit var mockLogger: LoggerProtocol
     private lateinit var viewModel: GuidedMeditationsListViewModel
 
     @BeforeEach
@@ -83,12 +93,19 @@ class GuidedMeditationsListViewModelTest {
         // unit tests we work via the Fake repository directly and stub the
         // handler with a mock that callers can wire as needed.
         mockFileOpenHandler = mock()
+        mockPraxisRepository = mock()
+        wheneverBlocking { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
+        mockWaveformProvider = mock()
+        mockLogger = mock()
         viewModel = GuidedMeditationsListViewModel(
             repository = fakeRepository,
             audioService = mockAudioService,
             meditationSourceRepository = fakeSourceRepository,
             searchHistoryRepository = fakeSearchHistoryRepository,
-            fileOpenHandler = mockFileOpenHandler
+            fileOpenHandler = mockFileOpenHandler,
+            praxisRepository = mockPraxisRepository,
+            waveformProvider = mockWaveformProvider,
+            logger = mockLogger
         )
     }
 
@@ -151,7 +168,15 @@ class GuidedMeditationsListViewModelTest {
             advanceUntilIdle()
             seedPendingImport()
 
-            viewModel.saveImportedMeditation(teacher = "Tara Brach", name = "Body Scan")
+            viewModel.saveImportedMeditation(
+                GuidedMeditation(
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan"
+                )
+            )
             advanceUntilIdle()
 
             val saved = fakeRepository.addedMeditations
@@ -160,6 +185,57 @@ class GuidedMeditationsListViewModelTest {
             assertEquals("Body Scan", saved.first().name)
             assertNull(viewModel.uiState.value.pendingImport)
             assertFalse(viewModel.uiState.value.showEditSheet)
+        }
+
+        @Test
+        fun `saveImportedMeditation persists the chosen gong settings in one step`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            seedPendingImport()
+
+            viewModel.saveImportedMeditation(
+                GuidedMeditation(
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan",
+                    startGongEnabled = true,
+                    endGongEnabled = true,
+                    gongSoundId = "deep-resonance"
+                )
+            )
+            advanceUntilIdle()
+
+            // The entry is persisted complete in a single add — no separate update
+            // step that could leave a gong-less entry behind if it failed.
+            val saved = fakeRepository.addedMeditations
+            assertEquals(1, saved.size)
+            assertTrue(saved.first().startGongEnabled)
+            assertTrue(saved.first().endGongEnabled)
+            assertEquals("deep-resonance", saved.first().gongSoundId)
+            assertFalse(fakeRepository.updateWasCalled)
+        }
+
+        @Test
+        fun `saveImportedMeditation precomputes the waveform after a successful import`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            seedPendingImport()
+
+            viewModel.saveImportedMeditation(
+                GuidedMeditation(
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Tara Brach",
+                    name = "Body Scan"
+                )
+            )
+            advanceUntilIdle()
+
+            val imported = fakeRepository.addedMeditations.first()
+            verify(mockWaveformProvider).precompute(imported)
         }
 
         @Test
@@ -332,6 +408,43 @@ class GuidedMeditationsListViewModelTest {
             val state = viewModel.uiState.value
             assertNull(state.selectedMeditation)
             assertFalse(state.showEditSheet)
+        }
+
+        @Test
+        fun `showEditSheet loads the waveform into state for the mini bars`() = runTest {
+            val item = meditation(id = "med-wave")
+            val waveform = MeditationWaveform(List(MeditationWaveform.SAMPLE_COUNT) { 0.5f })
+            wheneverBlocking { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
+
+            viewModel.showEditSheet(item)
+            advanceUntilIdle()
+
+            assertEquals(waveform, viewModel.uiState.value.editorWaveform)
+        }
+
+        @Test
+        fun `showEditSheet leaves waveform null when generation fails`() = runTest {
+            val item = meditation(id = "med-fail")
+            wheneverBlocking { mockWaveformProvider.waveform(item) }
+                .thenAnswer { throw WaveformGenerationException.DecodingFailed("boom") }
+
+            viewModel.showEditSheet(item)
+            advanceUntilIdle()
+
+            assertNull(viewModel.uiState.value.editorWaveform)
+        }
+
+        @Test
+        fun `hideEditSheet clears the loaded waveform`() = runTest {
+            val item = meditation(id = "med-wave")
+            val waveform = MeditationWaveform(List(MeditationWaveform.SAMPLE_COUNT) { 0.5f })
+            wheneverBlocking { mockWaveformProvider.waveform(item) }.thenReturn(waveform)
+            viewModel.showEditSheet(item)
+            advanceUntilIdle()
+
+            viewModel.hideEditSheet()
+
+            assertNull(viewModel.uiState.value.editorWaveform)
         }
 
         @Test
@@ -685,14 +798,20 @@ class FakeGuidedMeditationRepository : GuidedMeditationRepository {
         fileName: String,
         metadata: AudioMetadata,
         teacher: String,
-        name: String
+        name: String,
+        startGongEnabled: Boolean,
+        endGongEnabled: Boolean,
+        gongSoundId: String
     ): Result<GuidedMeditation> {
         val item = GuidedMeditation(
             fileUri = sourceUri,
             fileName = fileName,
             duration = metadata.duration,
             teacher = teacher,
-            name = name
+            name = name,
+            startGongEnabled = startGongEnabled,
+            endGongEnabled = endGongEnabled,
+            gongSoundId = gongSoundId
         )
         addedMeditations += item
         _meditations.value = _meditations.value + item

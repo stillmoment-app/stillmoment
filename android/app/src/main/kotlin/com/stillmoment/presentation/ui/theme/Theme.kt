@@ -78,7 +78,17 @@ data class StillMomentColors(
     /** Accent banner border — interactive @ alpha 0.28 (shared-094) */
     val accentBannerBorder: Color,
     /** Accent bubble background — interactive @ alpha 0.18 (shared-094) */
-    val accentBubbleBackground: Color
+    val accentBubbleBackground: Color,
+    /**
+     * Sage playhead accent of the trim editor (shared-107). Deliberately a DIFFERENT
+     * colour family than [interactive] (copper) so the playback position and the trim
+     * marks are never confusable on the narrow track.
+     */
+    val playheadAccent: Color,
+    /** Bright sage variant — playhead line, grabber gradient top, drag time bubble. */
+    val playheadAccentHi: Color,
+    /** Text on the bright sage bubble — fixed dark fir tone, same on both palettes. */
+    val textOnPlayhead: Color
 )
 
 /**
@@ -97,7 +107,9 @@ val LocalStillMomentColors = staticCompositionLocalOf {
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
         cardShadow = SmLightCardShadow,
-        textOnInteractive = SmLightTextOnInteractive
+        textOnInteractive = SmLightTextOnInteractive,
+        playheadAccent = SmLightPlayheadAccent,
+        playheadAccentHi = SmLightPlayheadAccentHi
     )
 }
 
@@ -117,7 +129,9 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         playGradientTop = SmDarkPlayGradientTop,
         playGradientBot = SmDarkPlayGradientBot,
         cardShadow = SmDarkCardShadow,
-        textOnInteractive = SmDarkTextOnInteractive
+        textOnInteractive = SmDarkTextOnInteractive,
+        playheadAccent = SmDarkPlayheadAccent,
+        playheadAccentHi = SmDarkPlayheadAccentHi
     )
 } else {
     buildStillMomentColors(
@@ -131,7 +145,9 @@ internal fun resolveStillMomentColors(darkTheme: Boolean): StillMomentColors = i
         playGradientTop = SmLightPlayGradientTop,
         playGradientBot = SmLightPlayGradientBot,
         cardShadow = SmLightCardShadow,
-        textOnInteractive = SmLightTextOnInteractive
+        textOnInteractive = SmLightTextOnInteractive,
+        playheadAccent = SmLightPlayheadAccent,
+        playheadAccentHi = SmLightPlayheadAccentHi
     )
 }
 
@@ -152,7 +168,9 @@ private fun buildStillMomentColors(
     playGradientTop: Color,
     playGradientBot: Color,
     cardShadow: Color,
-    textOnInteractive: Color
+    textOnInteractive: Color,
+    playheadAccent: Color,
+    playheadAccentHi: Color
 ): StillMomentColors = StillMomentColors(
     interactive = interactive,
     textPrimary = textPrimary,
@@ -172,7 +190,10 @@ private fun buildStillMomentColors(
     tabBarBackground = cardBackground,
     accentBannerBackground = interactive.copy(alpha = 0.10f),
     accentBannerBorder = interactive.copy(alpha = 0.28f),
-    accentBubbleBackground = interactive.copy(alpha = 0.18f)
+    accentBubbleBackground = interactive.copy(alpha = 0.18f),
+    playheadAccent = playheadAccent,
+    playheadAccentHi = playheadAccentHi,
+    textOnPlayhead = SmTextOnPlayhead
 )
 
 /**

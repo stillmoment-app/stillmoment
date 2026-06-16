@@ -14,4 +14,12 @@ object GongSelectionLogic {
      * Vibration (die keine Lautstaerke kennt und stattdessen einen Helper-Text zeigt).
      */
     fun isVolumeCardVisible(soundId: String): Boolean = soundId != GongSound.VIBRATION_ID
+
+    /**
+     * Der Klang-Picker im Meditations-Editor erscheint, sobald mindestens einer der
+     * beiden Gongs (Anfang/Ende) aktiv ist — beide Gongs teilen denselben Klang
+     * (shared-106). 1:1 Pendant zu iOS' `GongSelectionLogic.isSoundListVisible`.
+     */
+    fun isSoundListVisible(startGongEnabled: Boolean, endGongEnabled: Boolean): Boolean =
+        startGongEnabled || endGongEnabled
 }

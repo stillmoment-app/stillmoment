@@ -99,6 +99,204 @@ class EditSheetStateTest {
         }
     }
 
+    // MARK: - Gong Field Tests (shared-106)
+
+    @Nested
+    inner class GongFields {
+        @Test
+        fun `fromMeditation initializes with meditation gong values`() {
+            // Given
+            val meditation =
+                createTestMeditation().copy(
+                    startGongEnabled = true,
+                    endGongEnabled = true,
+                    gongSoundId = "deep-resonance"
+                )
+
+            // When
+            val state = EditSheetState.fromMeditation(meditation)
+
+            // Then
+            assertTrue(state.editedStartGongEnabled)
+            assertTrue(state.editedEndGongEnabled)
+            assertEquals("deep-resonance", state.editedGongSoundId)
+        }
+
+        @Test
+        fun `hasChanges is true when start gong toggled`() {
+            // Given
+            val meditation = createTestMeditation().copy(startGongEnabled = false)
+            val state =
+                EditSheetState.fromMeditation(meditation)
+                    .copy(editedStartGongEnabled = true)
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is true when end gong toggled`() {
+            // Given
+            val meditation = createTestMeditation().copy(endGongEnabled = false)
+            val state =
+                EditSheetState.fromMeditation(meditation)
+                    .copy(editedEndGongEnabled = true)
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is true when gong sound changed`() {
+            // Given
+            val meditation = createTestMeditation().copy(gongSoundId = "temple-bell")
+            val state =
+                EditSheetState.fromMeditation(meditation)
+                    .copy(editedGongSoundId = "clear-strike")
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is false when gong fields unchanged`() {
+            // Given
+            val meditation =
+                createTestMeditation().copy(
+                    startGongEnabled = true,
+                    endGongEnabled = false,
+                    gongSoundId = "classic-bowl"
+                )
+            val state = EditSheetState.fromMeditation(meditation)
+
+            // When/Then
+            assertFalse(state.hasChanges)
+        }
+
+        @Test
+        fun `applyChanges writes gong fields`() {
+            // Given
+            val meditation = createTestMeditation()
+            val state =
+                EditSheetState.fromMeditation(meditation)
+                    .copy(
+                        editedStartGongEnabled = true,
+                        editedEndGongEnabled = true,
+                        editedGongSoundId = "deep-resonance"
+                    )
+
+            // When
+            val updated = state.applyChanges()
+
+            // Then
+            assertTrue(updated.startGongEnabled)
+            assertTrue(updated.endGongEnabled)
+            assertEquals("deep-resonance", updated.gongSoundId)
+        }
+    }
+
+    // MARK: - Trim Field Tests (shared-112)
+
+    @Nested
+    inner class TrimFields {
+        @Test
+        fun `fromMeditation initializes with meditation trim values`() {
+            // Given
+            val meditation = createTestMeditation().copy(trimStartMs = 5_000L, trimEndMs = 540_000L)
+
+            // When
+            val state = EditSheetState.fromMeditation(meditation)
+
+            // Then
+            assertEquals(5_000L, state.editedTrimStartMs)
+            assertEquals(540_000L, state.editedTrimEndMs)
+        }
+
+        @Test
+        fun `fromMeditation initializes untrimmed as null`() {
+            // Given
+            val meditation = createTestMeditation()
+
+            // When
+            val state = EditSheetState.fromMeditation(meditation)
+
+            // Then
+            assertEquals(null, state.editedTrimStartMs)
+            assertEquals(null, state.editedTrimEndMs)
+        }
+
+        @Test
+        fun `hasChanges is true when trim start set`() {
+            // Given
+            val meditation = createTestMeditation()
+            val state = EditSheetState.fromMeditation(meditation).copy(editedTrimStartMs = 5_000L)
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is true when trim end set`() {
+            // Given
+            val meditation = createTestMeditation()
+            val state = EditSheetState.fromMeditation(meditation).copy(editedTrimEndMs = 540_000L)
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is true when trim removed`() {
+            // Given
+            val meditation = createTestMeditation().copy(trimStartMs = 5_000L, trimEndMs = 540_000L)
+            val state = EditSheetState.fromMeditation(meditation)
+                .copy(editedTrimStartMs = null, editedTrimEndMs = null)
+
+            // When/Then
+            assertTrue(state.hasChanges)
+        }
+
+        @Test
+        fun `hasChanges is false when trim unchanged`() {
+            // Given
+            val meditation = createTestMeditation().copy(trimStartMs = 5_000L, trimEndMs = 540_000L)
+            val state = EditSheetState.fromMeditation(meditation)
+
+            // When/Then
+            assertFalse(state.hasChanges)
+        }
+
+        @Test
+        fun `applyChanges writes trim fields`() {
+            // Given
+            val meditation = createTestMeditation()
+            val state = EditSheetState.fromMeditation(meditation)
+                .copy(editedTrimStartMs = 5_000L, editedTrimEndMs = 540_000L)
+
+            // When
+            val updated = state.applyChanges()
+
+            // Then
+            assertEquals(5_000L, updated.trimStartMs)
+            assertEquals(540_000L, updated.trimEndMs)
+        }
+
+        @Test
+        fun `applyChanges clears trim fields when null`() {
+            // Given
+            val meditation = createTestMeditation().copy(trimStartMs = 5_000L, trimEndMs = 540_000L)
+            val state = EditSheetState.fromMeditation(meditation)
+                .copy(editedTrimStartMs = null, editedTrimEndMs = null)
+
+            // When
+            val updated = state.applyChanges()
+
+            // Then
+            assertEquals(null, updated.trimStartMs)
+            assertEquals(null, updated.trimEndMs)
+        }
+    }
+
     // MARK: - isValid Tests
 
     @Nested

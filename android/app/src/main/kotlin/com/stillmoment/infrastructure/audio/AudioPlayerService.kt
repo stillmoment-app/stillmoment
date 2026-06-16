@@ -65,6 +65,15 @@ constructor(
     private var mediaPlayer: MediaPlayerProtocol? = null
     private var onCompletionCallback: (() -> Unit)? = null
 
+    /** Effective playback start in absolute file time (0 unless trimmed). */
+    private var effectiveStartMs: Long = 0L
+
+    /** Effective playback end in absolute file time (file end unless trimmed). */
+    private var effectiveEndMs: Long = Long.MAX_VALUE
+
+    /** Guards the end-boundary completion path from firing more than once per playback. */
+    private var hasReachedEndBoundary: Boolean = false
+
     private val _playbackState = MutableStateFlow(PlaybackState())
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
@@ -97,19 +106,31 @@ constructor(
 
                 override fun onStop() = stop()
 
-                override fun onSeekTo(position: Long) = seekTo(position)
+                // Lock-screen seek is relative to the trimmed range; convert to absolute
+                // file time (shared-105). seekTo clamps it to the trim range.
+                override fun onSeekTo(position: Long) = seekTo(effectiveStartMs + position)
             }
         )
 
         // Update metadata
         mediaSessionManager.updateMetadata(meditation)
 
-        // Play the audio
-        play(Uri.parse(meditation.fileUri), meditation.duration)
+        // Play the audio, honouring the trim range (shared-105)
+        play(
+            Uri.parse(meditation.fileUri),
+            meditation.duration,
+            meditation.trimStartMs,
+            meditation.trimEndMs
+        )
     }
 
-    override fun play(uri: Uri, duration: Long) {
+    override fun play(uri: Uri, duration: Long, trimStartMs: Long?, trimEndMs: Long?) {
         stopMediaPlayer()
+
+        // Resolve the trim range into absolute file time (null = file edge).
+        effectiveStartMs = trimStartMs ?: 0L
+        effectiveEndMs = trimEndMs ?: duration
+        hasReachedEndBoundary = false
 
         try {
             mediaPlayer = createMediaPlayer(uri, duration)
@@ -196,30 +217,25 @@ constructor(
 
     private fun configureListeners(player: MediaPlayerProtocol, duration: Long) {
         player.setOnPreparedListener {
-            player.start()
-            _playbackState.update {
-                it.copy(
-                    isPlaying = true,
-                    currentPosition = 0L,
-                    duration = duration,
-                    error = null
-                )
+            // Seek to the trim start before playback begins (shared-105).
+            // The player is prepared here, so seekTo is in a valid state.
+            if (effectiveStartMs > 0L) {
+                // MediaPlayer.seekTo is asynchronous — starting immediately would
+                // play stale intro audio until the seek lands. Defer start() to the
+                // seek-complete callback so playback truly begins at the trim start.
+                // One-shot: clear the listener after firing so later user seeks
+                // (skip/scrub) don't re-trigger playback start.
+                player.setOnSeekCompleteListener {
+                    player.setOnSeekCompleteListener {}
+                    beginPlayback(player, duration)
+                }
+                player.seekTo(effectiveStartMs.toInt())
+            } else {
+                beginPlayback(player, duration)
             }
-            startProgressUpdates()
-            updateMediaSessionState()
-            startForegroundService()
         }
         player.setOnCompletionListener {
-            _playbackState.update {
-                it.copy(
-                    isPlaying = false,
-                    currentPosition = duration
-                )
-            }
-            stopProgressUpdates()
-            updateMediaSessionState()
-            stopForegroundService()
-            onCompletionCallback?.invoke()
+            handleCompletion(duration)
         }
         player.setOnErrorListener { what, extra ->
             setPlaybackError("Playback error: $what, $extra")
@@ -227,6 +243,46 @@ constructor(
             stopForegroundService()
             true
         }
+    }
+
+    /**
+     * Starts playback and brings up the progress loop, media session and foreground
+     * service. Called directly from the prepared callback for untrimmed playback, or
+     * from the seek-complete callback once a trim-start seek has landed (shared-105).
+     */
+    private fun beginPlayback(player: MediaPlayerProtocol, duration: Long) {
+        player.start()
+        _playbackState.update {
+            it.copy(
+                isPlaying = true,
+                currentPosition = effectiveStartMs,
+                duration = duration,
+                error = null
+            )
+        }
+        startProgressUpdates()
+        updateMediaSessionState()
+        startForegroundService()
+    }
+
+    /**
+     * Runs the regular completion path: stop progress, release the session/service,
+     * fire the completion callback. Shared by the natural file-end listener and the
+     * trim end-boundary check so a trimmed end behaves exactly like a file end.
+     *
+     * @param fileDuration Full file duration in ms (the reported end position is clamped to it)
+     */
+    private fun handleCompletion(fileDuration: Long) {
+        _playbackState.update {
+            it.copy(
+                isPlaying = false,
+                currentPosition = effectiveEndMs.coerceAtMost(fileDuration)
+            )
+        }
+        stopProgressUpdates()
+        updateMediaSessionState()
+        stopForegroundService()
+        onCompletionCallback?.invoke()
     }
 
     private fun setPlaybackError(message: String) {
@@ -258,8 +314,10 @@ constructor(
     }
 
     override fun seekTo(position: Long) {
-        mediaPlayer?.seekTo(position.toInt())
-        _playbackState.update { it.copy(currentPosition = position) }
+        // Keep seeks inside the trimmed range (shared-105) — covers player and lock-screen seeks.
+        val clamped = position.coerceIn(effectiveStartMs, effectiveEndMs.coerceAtLeast(effectiveStartMs))
+        mediaPlayer?.seekTo(clamped.toInt())
+        _playbackState.update { it.copy(currentPosition = clamped) }
         updateMediaSessionState()
     }
 
@@ -270,6 +328,9 @@ constructor(
         stopForegroundService()
         coordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
         currentMeditation = null
+        effectiveStartMs = 0L
+        effectiveEndMs = Long.MAX_VALUE
+        hasReachedEndBoundary = false
         _playbackState.update {
             PlaybackState()
         }
@@ -311,9 +372,9 @@ constructor(
         mediaPlayer?.let { player ->
             try {
                 if (player.isPlaying) {
-                    _playbackState.update {
-                        it.copy(currentPosition = player.currentPosition.toLong())
-                    }
+                    val position = player.currentPosition.toLong()
+                    _playbackState.update { it.copy(currentPosition = position) }
+                    checkEndBoundary(player, position)
                 }
             } catch (e: IllegalStateException) {
                 logger.d(TAG, "Progress update skipped - player in invalid state: ${e.message}")
@@ -321,12 +382,34 @@ constructor(
         }
     }
 
+    /**
+     * Trim end boundary (shared-105): MediaPlayer has no native end-boundary observer,
+     * so the 500 ms progress loop checks it. Once the position reaches the trim end,
+     * the player is paused and the regular completion path runs — exactly like a file end.
+     * Runs in the foreground service, so it also fires with the screen locked.
+     */
+    private fun checkEndBoundary(player: MediaPlayerProtocol, position: Long) {
+        if (hasReachedEndBoundary || position < effectiveEndMs) {
+            return
+        }
+        hasReachedEndBoundary = true
+        if (player.isPlaying) {
+            player.pause()
+        }
+        handleCompletion(_playbackState.value.duration)
+    }
+
     private fun updateMediaSessionState() {
         val state = _playbackState.value
+        // The lock screen shows time relative to the trimmed range (shared-105):
+        // position is offset by the trim start, duration is the effective length.
+        val relativePosition = (state.currentPosition - effectiveStartMs).coerceAtLeast(0L)
+        val effectiveDuration = (effectiveEndMs.coerceAtMost(state.duration) - effectiveStartMs)
+            .coerceAtLeast(0L)
         mediaSessionManager.updatePlaybackState(
             isPlaying = state.isPlaying,
-            position = state.currentPosition,
-            duration = state.duration
+            position = relativePosition,
+            duration = effectiveDuration
         )
     }
 

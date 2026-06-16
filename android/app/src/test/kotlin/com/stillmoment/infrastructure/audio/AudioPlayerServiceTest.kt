@@ -18,6 +18,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
@@ -395,6 +396,156 @@ class AudioPlayerServiceTest {
         // Then: Player is stopped
         verify(mockMediaPlayer).stop()
         verify(mockMediaPlayer).release()
+    }
+
+    // MARK: - Trim Tests (shared-105)
+
+    @Test
+    fun `onPrepared seeks to trim start before playing`() {
+        // Given - meditation trimmed to start at 0:30
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        val seekCompleteCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = 30_000L, trimEndMs = null)
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+
+        // When: Prepared callback fires, then the seek completes
+        preparedCaptor.firstValue.invoke()
+        verify(mockMediaPlayer).setOnSeekCompleteListener(seekCompleteCaptor.capture())
+        seekCompleteCaptor.firstValue.invoke()
+
+        // Then: Audio is positioned at the trim start before playback begins
+        verify(mockMediaPlayer).seekTo(30_000)
+        verify(mockMediaPlayer).start()
+    }
+
+    @Test
+    fun `onPrepared waits for seek complete before starting when trimmed`() {
+        // Given - meditation trimmed to start at 0:30
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = 30_000L, trimEndMs = null)
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+
+        // When: only the prepared callback fired, seek not yet complete
+        preparedCaptor.firstValue.invoke()
+
+        // Then: the seek was issued but playback has NOT started yet
+        // (MediaPlayer.seekTo is async; starting now would play stale intro audio)
+        verify(mockMediaPlayer).seekTo(30_000)
+        verify(mockMediaPlayer, never()).start()
+    }
+
+    @Test
+    fun `onPrepared reports trim start as current position`() = runTest {
+        // Given
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        val seekCompleteCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = 30_000L, trimEndMs = null)
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+
+        // When - prepared fires and the trim-start seek completes
+        preparedCaptor.firstValue.invoke()
+        verify(mockMediaPlayer).setOnSeekCompleteListener(seekCompleteCaptor.capture())
+        seekCompleteCaptor.firstValue.invoke()
+
+        // Then - reported position is the (absolute) trim start
+        val state = sut.playbackState.first()
+        assertEquals(30_000L, state.currentPosition)
+    }
+
+    @Test
+    fun `onPrepared does not seek without trim start`() {
+        // Given - no trim
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L)
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+
+        // When
+        preparedCaptor.firstValue.invoke()
+
+        // Then - no seek issued; playback starts at the file start
+        verify(mockMediaPlayer, never()).seekTo(any())
+        verify(mockMediaPlayer).start()
+    }
+
+    @Test
+    fun `progress reaching trim end triggers completion`() {
+        // Given - meditation trimmed to end at 9:00 of a 10:00 file, playing
+        var completionCalled = false
+        sut.setOnCompletionListener { completionCalled = true }
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        val progressCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = null, trimEndMs = 540_000L)
+
+        // Prepare so duration is known and progress loop is registered
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+        preparedCaptor.firstValue.invoke()
+        verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
+
+        // When: a progress tick lands at/after the trim end
+        whenever(mockMediaPlayer.currentPosition).thenReturn(540_100)
+        progressCaptor.firstValue.invoke()
+
+        // Then: regular completion path runs
+        assertTrue(completionCalled)
+        verify(mockMediaPlayer).pause()
+        verify(mockProgressScheduler).stop()
+    }
+
+    @Test
+    fun `progress before trim end does not trigger completion`() {
+        // Given
+        var completionCalled = false
+        sut.setOnCompletionListener { completionCalled = true }
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        val progressCaptor = argumentCaptor<() -> Unit>()
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = null, trimEndMs = 540_000L)
+
+        val preparedCaptor = argumentCaptor<() -> Unit>()
+        verify(mockMediaPlayer).setOnPreparedListener(preparedCaptor.capture())
+        preparedCaptor.firstValue.invoke()
+        verify(mockProgressScheduler).start(eq(500L), progressCaptor.capture())
+
+        // When: tick well before the trim end
+        whenever(mockMediaPlayer.currentPosition).thenReturn(300_000)
+        progressCaptor.firstValue.invoke()
+
+        // Then: no completion yet
+        assertFalse(completionCalled)
+    }
+
+    @Test
+    fun `seekTo clamps below trim start to the trim start`() = runTest {
+        // Given - trim range [30s, 540s]
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = 30_000L, trimEndMs = 540_000L)
+
+        // When: seek before the trim start (e.g. lock-screen skip back into intro)
+        sut.seekTo(5_000L)
+
+        // Then: clamped to the trim start
+        verify(mockMediaPlayer).seekTo(30_000)
+        assertEquals(30_000L, sut.playbackState.first().currentPosition)
+    }
+
+    @Test
+    fun `seekTo clamps above trim end to the trim end`() = runTest {
+        // Given - trim range [30s, 540s]
+        val uri = mockUri("file", "/test/audio.mp3")
+        sut.play(uri, 600_000L, trimStartMs = 30_000L, trimEndMs = 540_000L)
+
+        // When: seek past the trim end (e.g. skip forward into outro)
+        sut.seekTo(590_000L)
+
+        // Then: clamped to the trim end
+        verify(mockMediaPlayer).seekTo(540_000)
+        assertEquals(540_000L, sut.playbackState.first().currentPosition)
     }
 
     // MARK: - Pause Handler Tests

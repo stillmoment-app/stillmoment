@@ -21,7 +21,21 @@ data class EditSheetState(
     /** Current edited teacher value */
     val editedTeacher: String,
     /** Current edited name value */
-    val editedName: String
+    val editedName: String,
+    /** Current edited start-gong toggle (shared-106) */
+    val editedStartGongEnabled: Boolean = false,
+    /** Current edited end-gong toggle (shared-106) */
+    val editedEndGongEnabled: Boolean = false,
+    /** Current edited gong sound ID (shared-106) */
+    val editedGongSoundId: String = GongSound.DEFAULT_SOUND_ID,
+    /**
+     * Current edited playback start offset in ms (shared-112); null = play from file start.
+     * Carried back from the trim editor's "Zurück", written to [GuidedMeditation.trimStartMs]
+     * by [applyChanges]. The trim editor never saves itself — only the outer editor does.
+     */
+    val editedTrimStartMs: Long? = null,
+    /** Current edited playback end offset in ms (shared-112); null = play to file end. */
+    val editedTrimEndMs: Long? = null
 ) {
     /**
      * Whether changes have been made compared to original values.
@@ -29,7 +43,12 @@ data class EditSheetState(
     val hasChanges: Boolean
         get() =
             editedTeacher != originalMeditation.teacher ||
-                editedName != originalMeditation.name
+                editedName != originalMeditation.name ||
+                editedStartGongEnabled != originalMeditation.startGongEnabled ||
+                editedEndGongEnabled != originalMeditation.endGongEnabled ||
+                editedGongSoundId != originalMeditation.gongSoundId ||
+                editedTrimStartMs != originalMeditation.trimStartMs ||
+                editedTrimEndMs != originalMeditation.trimEndMs
 
     /**
      * Whether the current values are valid for saving.
@@ -51,7 +70,12 @@ data class EditSheetState(
     fun applyChanges(): GuidedMeditation {
         return originalMeditation.copy(
             teacher = editedTeacher.trim(),
-            name = editedName.trim()
+            name = editedName.trim(),
+            startGongEnabled = editedStartGongEnabled,
+            endGongEnabled = editedEndGongEnabled,
+            gongSoundId = editedGongSoundId,
+            trimStartMs = editedTrimStartMs,
+            trimEndMs = editedTrimEndMs
         )
     }
 
@@ -66,7 +90,12 @@ data class EditSheetState(
             return EditSheetState(
                 originalMeditation = meditation,
                 editedTeacher = meditation.teacher,
-                editedName = meditation.name
+                editedName = meditation.name,
+                editedStartGongEnabled = meditation.startGongEnabled,
+                editedEndGongEnabled = meditation.endGongEnabled,
+                editedGongSoundId = meditation.gongSoundId,
+                editedTrimStartMs = meditation.trimStartMs,
+                editedTrimEndMs = meditation.trimEndMs
             )
         }
     }
