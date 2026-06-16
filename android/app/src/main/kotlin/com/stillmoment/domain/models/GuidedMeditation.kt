@@ -29,22 +29,47 @@ data class GuidedMeditation(
     /** Meditation name/title (single source of truth) */
     val name: String,
     /** Timestamp when the meditation was added to the library */
-    val dateAdded: Long = System.currentTimeMillis()
-) {
+    val dateAdded: Long = System.currentTimeMillis(),
     /**
-     * Formatted duration string (MM:SS or HH:MM:SS)
+     * Playback start offset in milliseconds (null = play from file start).
+     * Non-destructive: the audio file itself is never modified (shared-105).
+     */
+    val trimStartMs: Long? = null,
+    /** Playback end offset in milliseconds (null = play to file end). */
+    val trimEndMs: Long? = null
+) {
+    /** Where playback effectively begins (file start unless trimmed) */
+    val effectiveStartMs: Long
+        get() = trimStartMs ?: 0L
+
+    /** Where playback effectively ends (file end unless trimmed) */
+    val effectiveEndMs: Long
+        get() = trimEndMs ?: duration
+
+    /** The duration the user actually meditates (trimmed range, never negative) */
+    val effectiveDurationMs: Long
+        get() = (effectiveEndMs - effectiveStartMs).coerceAtLeast(0L)
+
+    /**
+     * Formatted effective duration (MM:SS or HH:MM:SS) — shown in library and player.
      */
     val formattedDuration: String
-        get() {
-            val totalSeconds = duration / 1000
-            val hours = totalSeconds / 3600
-            val minutes = (totalSeconds % 3600) / 60
-            val seconds = totalSeconds % 60
+        get() = format(effectiveDurationMs)
 
-            return if (hours > 0) {
-                String.format(Locale.ROOT, "%d:%02d:%02d", hours, minutes, seconds)
-            } else {
-                String.format(Locale.ROOT, "%d:%02d", minutes, seconds)
-            }
+    /** Formatted full file length — reference while editing trim points (Phase C). */
+    val formattedFileDuration: String
+        get() = format(duration)
+
+    private fun format(ms: Long): String {
+        val totalSeconds = ms / 1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
+
+        return if (hours > 0) {
+            String.format(Locale.ROOT, "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(Locale.ROOT, "%d:%02d", minutes, seconds)
         }
+    }
 }

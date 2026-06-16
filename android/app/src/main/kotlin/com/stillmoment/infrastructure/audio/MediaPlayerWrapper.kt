@@ -70,6 +70,10 @@ class MediaPlayerWrapper(
         mediaPlayer.setOnCompletionListener { listener() }
     }
 
+    override fun setOnSeekCompleteListener(listener: () -> Unit) {
+        mediaPlayer.setOnSeekCompleteListener { listener() }
+    }
+
     override fun setOnErrorListener(listener: (what: Int, extra: Int) -> Boolean) {
         mediaPlayer.setOnErrorListener { _, what, extra -> listener(what, extra) }
     }

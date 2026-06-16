@@ -140,10 +140,17 @@ constructor(
         viewModelScope.launch {
             audioPlayerService.playbackState.collect { state ->
                 _uiState.update {
+                    val meditation = it.meditation
+                    // The service reports absolute file time; the UI shows the trimmed
+                    // range relative to its start (shared-105). Without a meditation
+                    // (e.g. before load) fall back to the raw values.
+                    val relativePosition = relativePosition(meditation, state.currentPosition)
+                    val effectiveDuration = meditation?.effectiveDurationMs ?: state.duration
                     it.copy(
                         isPlaying = state.isPlaying,
-                        currentPosition = state.currentPosition,
-                        progress = state.progress,
+                        currentPosition = relativePosition,
+                        duration = effectiveDuration,
+                        progress = progressFor(relativePosition, effectiveDuration),
                         error = state.error,
                         // Clear loading state when playback starts or error occurs
                         isLoading = if (state.isPlaying || state.error != null) false else it.isLoading
@@ -151,6 +158,19 @@ constructor(
                 }
             }
         }
+    }
+
+    /** Converts an absolute file position into a range-relative display position. */
+    private fun relativePosition(meditation: GuidedMeditation?, absolutePosition: Long): Long {
+        val start = meditation?.effectiveStartMs ?: 0L
+        return (absolutePosition - start).coerceAtLeast(0L)
+    }
+
+    private fun progressFor(relativePosition: Long, effectiveDuration: Long): Float {
+        if (effectiveDuration <= 0) {
+            return 0f
+        }
+        return (relativePosition.toFloat() / effectiveDuration).coerceIn(0f, 1f)
     }
 
     /**
@@ -194,7 +214,7 @@ constructor(
         _uiState.update {
             it.copy(
                 meditation = meditation,
-                duration = meditation.duration,
+                duration = meditation.effectiveDurationMs,
                 currentPosition = 0L,
                 progress = 0f,
                 isPlaying = false,
@@ -294,9 +314,9 @@ constructor(
         // Set loading state before starting playback
         _uiState.update { it.copy(isLoading = true) }
 
-        // Start playback
+        // Start playback, honouring the trim range (shared-105)
         val uri = Uri.parse(meditation.fileUri)
-        audioPlayerService.play(uri, meditation.duration)
+        audioPlayerService.play(uri, meditation.duration, meditation.trimStartMs, meditation.trimEndMs)
 
         _uiState.update { it.copy(isCompleted = false) }
     }
@@ -336,16 +356,21 @@ constructor(
     /**
      * Seeks to a specific position.
      *
-     * @param position Position in milliseconds
+     * @param position Range-relative position in milliseconds (0 = trim start)
      */
     fun seekTo(position: Long) {
-        val duration = _uiState.value.duration
-        val clampedPosition = position.coerceIn(0L, duration)
-        audioPlayerService.seekTo(clampedPosition)
+        val effectiveDuration = _uiState.value.duration
+        val relativePosition = position.coerceIn(0L, effectiveDuration)
+
+        // Translate the relative position to absolute file time for the service,
+        // which clamps it to the trim range itself (shared-105).
+        val start = _uiState.value.meditation?.effectiveStartMs ?: 0L
+        audioPlayerService.seekTo(start + relativePosition)
+
         _uiState.update {
             it.copy(
-                currentPosition = clampedPosition,
-                progress = if (duration > 0) clampedPosition.toFloat() / duration else 0f,
+                currentPosition = relativePosition,
+                progress = progressFor(relativePosition, effectiveDuration),
                 isCompleted = false
             )
         }

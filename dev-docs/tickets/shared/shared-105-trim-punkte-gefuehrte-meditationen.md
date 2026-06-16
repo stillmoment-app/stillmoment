@@ -22,7 +22,9 @@ Importierte Audio-Dateien enthalten oft Einleitungen oder Abschluss-Saetze (teil
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | -             |
+| Android   | [~]    | Editor-UI = Android-Parität Phase C |
+
+**Android-Fortschritt:** Phase A (Trim-Fundament) umgesetzt — Datenmodell (`trimStartMs`/`trimEndMs`, `effective*`-Properties, effektive vs. volle Dauer), nicht-destruktives getrimmtes Playback (Seek-to-Start nach Seek-Complete, End-Boundary via Progress-Loop auch bei gesperrtem Bildschirm, Bereichs-Klemmung für Skip/Lock-Screen-Seek, bereichs-relative Anzeige), Backward-Compat-Persistenz. **Kein Editor-UI** — die Eingabe der Trim-Punkte kommt mit dem Wellenform-Editor in Android-Parität Phase C; erst dann ist shared-105 auf Android user-sichtbar abgeschlossen.
 
 ---
 

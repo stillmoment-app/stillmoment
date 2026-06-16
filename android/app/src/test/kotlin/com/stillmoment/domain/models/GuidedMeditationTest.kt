@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -107,6 +108,133 @@ class GuidedMeditationTest {
     }
 
     @Nested
+    inner class TrimPoints {
+        @Test
+        fun `trim points default to null`() {
+            // Given/When
+            val meditation = createTestMeditation()
+
+            // Then
+            assertNull(meditation.trimStartMs)
+            assertNull(meditation.trimEndMs)
+        }
+
+        @Test
+        fun `effective start is zero without trim`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L)
+
+            // When/Then
+            assertEquals(0L, meditation.effectiveStartMs)
+        }
+
+        @Test
+        fun `effective start is the trim start when set`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L, trimStartMs = 30_000L)
+
+            // When/Then
+            assertEquals(30_000L, meditation.effectiveStartMs)
+        }
+
+        @Test
+        fun `effective end is the file duration without trim`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L)
+
+            // When/Then
+            assertEquals(600_000L, meditation.effectiveEndMs)
+        }
+
+        @Test
+        fun `effective end is the trim end when set`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L, trimEndMs = 540_000L)
+
+            // When/Then
+            assertEquals(540_000L, meditation.effectiveEndMs)
+        }
+
+        @Test
+        fun `effective duration is the trimmed range`() {
+            // Given - 20 min file trimmed to 14 min audible range
+            val meditation =
+                createTestMeditation(
+                    duration = 1_200_000L,
+                    trimStartMs = 60_000L,
+                    trimEndMs = 900_000L
+                )
+
+            // When/Then - 900_000 - 60_000 = 840_000 ms = 14:00
+            assertEquals(840_000L, meditation.effectiveDurationMs)
+        }
+
+        @Test
+        fun `effective duration is the full file without trim`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L)
+
+            // When/Then
+            assertEquals(600_000L, meditation.effectiveDurationMs)
+        }
+
+        @Test
+        fun `effective duration never goes negative`() {
+            // Given - inverted trim points (defensive: end before start)
+            val meditation =
+                createTestMeditation(
+                    duration = 600_000L,
+                    trimStartMs = 400_000L,
+                    trimEndMs = 100_000L
+                )
+
+            // When/Then
+            assertEquals(0L, meditation.effectiveDurationMs)
+        }
+    }
+
+    @Nested
+    inner class FormattedFileDuration {
+        @Test
+        fun `formatted duration shows the trimmed range`() {
+            // Given - 20 min file, 14 min audible range
+            val meditation =
+                createTestMeditation(
+                    duration = 1_200_000L,
+                    trimStartMs = 60_000L,
+                    trimEndMs = 900_000L
+                )
+
+            // When/Then - effective range is 14:00
+            assertEquals("14:00", meditation.formattedDuration)
+        }
+
+        @Test
+        fun `formatted file duration shows the full file length`() {
+            // Given - 20 min file, 14 min audible range
+            val meditation =
+                createTestMeditation(
+                    duration = 1_200_000L,
+                    trimStartMs = 60_000L,
+                    trimEndMs = 900_000L
+                )
+
+            // When/Then - full file is 20:00
+            assertEquals("20:00", meditation.formattedFileDuration)
+        }
+
+        @Test
+        fun `formatted file duration equals formatted duration without trim`() {
+            // Given
+            val meditation = createTestMeditation(duration = 600_000L)
+
+            // When/Then
+            assertEquals("10:00", meditation.formattedDuration)
+            assertEquals("10:00", meditation.formattedFileDuration)
+        }
+    }
+
+    @Nested
     inner class Serialization {
         @Test
         fun `meditation can be serialized to JSON`() {
@@ -166,6 +294,60 @@ class GuidedMeditationTest {
 
             // Then
             assertEquals(original, restored)
+        }
+
+        @Test
+        fun `serialization roundtrip preserves trim points`() {
+            // Given
+            val original =
+                GuidedMeditation(
+                    id = "test-id-123",
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 1_200_000L,
+                    teacher = "Teacher",
+                    name = "Name",
+                    dateAdded = 1234567890L,
+                    trimStartMs = 60_000L,
+                    trimEndMs = 900_000L
+                )
+
+            // When
+            val json = Json.encodeToString(original)
+            val restored = Json.decodeFromString<GuidedMeditation>(json)
+
+            // Then
+            assertEquals(original, restored)
+            assertEquals(60_000L, restored.trimStartMs)
+            assertEquals(900_000L, restored.trimEndMs)
+        }
+
+        @Test
+        fun `legacy JSON without trim keys decodes to null trim points`() {
+            // Given - JSON from before shared-105 (no trim keys at all).
+            // Uses lenient parsing like the production DataStore does.
+            val legacyJson =
+                """
+                {
+                    "id": "legacy-id",
+                    "fileUri": "content://test/uri",
+                    "fileName": "legacy.mp3",
+                    "duration": 600000,
+                    "teacher": "Teacher",
+                    "name": "Old Meditation",
+                    "dateAdded": 1234567890
+                }
+                """.trimIndent()
+            val lenientJson = Json { ignoreUnknownKeys = true }
+
+            // When
+            val restored = lenientJson.decodeFromString<GuidedMeditation>(legacyJson)
+
+            // Then - full file plays, no trim
+            assertNull(restored.trimStartMs)
+            assertNull(restored.trimEndMs)
+            assertEquals(600_000L, restored.effectiveDurationMs)
+            assertEquals("10:00", restored.formattedDuration)
         }
     }
 
@@ -275,7 +457,9 @@ class GuidedMeditationTest {
         duration: Long = 600_000L,
         teacher: String = "Test Teacher",
         name: String = "Test Meditation",
-        dateAdded: Long = System.currentTimeMillis()
+        dateAdded: Long = System.currentTimeMillis(),
+        trimStartMs: Long? = null,
+        trimEndMs: Long? = null
     ): GuidedMeditation = GuidedMeditation(
         id = id,
         fileUri = fileUri,
@@ -283,6 +467,8 @@ class GuidedMeditationTest {
         duration = duration,
         teacher = teacher,
         name = name,
-        dateAdded = dateAdded
+        dateAdded = dateAdded,
+        trimStartMs = trimStartMs,
+        trimEndMs = trimEndMs
     )
 }

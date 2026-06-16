@@ -88,6 +88,17 @@ interface MediaPlayerProtocol {
     fun setOnCompletionListener(listener: () -> Unit)
 
     /**
+     * Sets the listener for seek completion.
+     *
+     * `MediaPlayer.seekTo` is asynchronous; this listener fires once the player
+     * has actually reached the requested position. Used to defer `start()` until
+     * a trim-start seek has landed, so no stale intro audio is played (shared-105).
+     *
+     * @param listener Called when a seek operation completes
+     */
+    fun setOnSeekCompleteListener(listener: () -> Unit)
+
+    /**
      * Sets the listener for errors.
      *
      * @param listener Called with error codes when an error occurs, returns true if handled
