@@ -11,6 +11,7 @@ import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.LibrarySearchState
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
@@ -19,7 +20,10 @@ import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.LibrarySearchEngine
+import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.SearchHistory
+import com.stillmoment.domain.services.WaveformGenerationException
+import com.stillmoment.domain.services.WaveformProviderProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -51,6 +55,12 @@ data class GuidedMeditationsListUiState(
     val selectedMeditation: GuidedMeditation? = null,
     /** Whether the edit sheet is shown */
     val showEditSheet: Boolean = false,
+    /**
+     * Cached waveform for the meditation currently being edited (shared-107). Drives the
+     * mini bars in the playback-range card. `null` until loaded, on a decode failure, or in
+     * import mode (no cached waveform yet) — the card then shows its fallback line.
+     */
+    val editorWaveform: MeditationWaveform? = null,
     /** Pending import waiting for the user to confirm in the edit sheet (shared-103) */
     val pendingImport: PendingImport? = null,
     /** Whether delete confirmation is shown */
@@ -122,7 +132,9 @@ constructor(
     private val meditationSourceRepository: MeditationSourceRepository,
     private val searchHistoryRepository: SearchHistoryRepository,
     private val fileOpenHandler: FileOpenHandler,
-    private val praxisRepository: PraxisRepository
+    private val praxisRepository: PraxisRepository,
+    private val waveformProvider: WaveformProviderProtocol,
+    private val logger: LoggerProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -251,7 +263,11 @@ constructor(
                 startGongEnabled = edited.startGongEnabled,
                 endGongEnabled = edited.endGongEnabled,
                 gongSoundId = edited.gongSoundId
-            ).onFailure {
+            ).onSuccess { imported ->
+                // Precompute the waveform in the background so the trim editor opens
+                // without a decode wait (Phase C). Import itself stays fast.
+                waveformProvider.precompute(imported)
+            }.onFailure {
                 // Repository failures during the save step are surfaced as the
                 // generic "Import failed" message — the exact reason (IO,
                 // metadata, copy) is not actionable for the user.
@@ -261,7 +277,8 @@ constructor(
                 it.copy(
                     pendingImport = null,
                     selectedMeditation = null,
-                    showEditSheet = false
+                    showEditSheet = false,
+                    editorWaveform = null
                 )
             }
         }
@@ -276,7 +293,8 @@ constructor(
             it.copy(
                 pendingImport = null,
                 selectedMeditation = null,
-                showEditSheet = false
+                showEditSheet = false,
+                editorWaveform = null
             )
         }
     }
@@ -306,6 +324,8 @@ constructor(
 
         viewModelScope.launch {
             repository.deleteMeditation(meditation.id)
+            // Drop the cached waveform so a re-import of the same file regenerates it.
+            waveformProvider.removeCached(meditation.id)
             _uiState.update {
                 it.copy(
                     meditationToDelete = null,
@@ -325,8 +345,30 @@ constructor(
             it.copy(
                 selectedMeditation = meditation,
                 showEditSheet = true,
-                pendingImport = null
+                pendingImport = null,
+                editorWaveform = null
             )
+        }
+        loadEditorWaveform(meditation)
+    }
+
+    /**
+     * Loads the cached waveform for the meditation under edit so the playback-range card can
+     * draw real mini bars (shared-107). A cache hit is instant; a miss generates in the
+     * background. Any decoding failure leaves [GuidedMeditationsListUiState.editorWaveform]
+     * null, so the card falls back to its flat line and the sheet never blocks or crashes.
+     */
+    private fun loadEditorWaveform(meditation: GuidedMeditation) {
+        viewModelScope.launch {
+            try {
+                val waveform = waveformProvider.waveform(meditation)
+                // Ignore the result if the user already closed or switched the sheet.
+                _uiState.update {
+                    if (it.selectedMeditation?.id == meditation.id) it.copy(editorWaveform = waveform) else it
+                }
+            } catch (e: WaveformGenerationException) {
+                logger.e(TAG, "Failed to load waveform for edit sheet", e)
+            }
         }
     }
 
@@ -337,7 +379,8 @@ constructor(
         _uiState.update {
             it.copy(
                 selectedMeditation = null,
-                showEditSheet = false
+                showEditSheet = false,
+                editorWaveform = null
             )
         }
     }
@@ -465,5 +508,7 @@ constructor(
     companion object {
         /** Maximum entries in the persistent search history (shared-101). */
         const val SEARCH_HISTORY_LIMIT = 6
+
+        private const val TAG = "GuidedMeditationsList"
     }
 }

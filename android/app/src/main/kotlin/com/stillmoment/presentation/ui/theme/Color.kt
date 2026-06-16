@@ -33,6 +33,11 @@ val SmLightPlayGradientTop = Color(0xFFB85F46)
 val SmLightPlayGradientBot = Color(0xFF7E3A2D)
 val SmLightCardShadow = Color(0x1478371C) // rgba(120, 55, 28, 0.08) — soft warm shadow
 
+// Trim editor (shared-107): sage playhead accent — a DIFFERENT colour family than
+// the copper `interactive` so the playhead is never confusable with the trim marks.
+val SmLightPlayheadAccent = Color(0xFF5E7A6B) // deep sage, readable on cream
+val SmLightPlayheadAccentHi = Color(0xFF7FA08E) // bright sage variant
+
 // endregion
 
 // region Dark — Lifted Warm (shared-094)
@@ -54,5 +59,12 @@ val SmDarkDivider = Color(0x1AF2E4D3) // rgba(242, 228, 211, 0.10) — light cre
 val SmDarkPlayGradientTop = Color(0xFFD68A6E)
 val SmDarkPlayGradientBot = Color(0xFFB06A4F)
 val SmDarkCardShadow = Color.Transparent // dark uses border strategy instead of shadow
+
+// Trim editor (shared-107): sage playhead accent — see light variant.
+val SmDarkPlayheadAccent = Color(0xFF8AA896) // sage from the handoff
+val SmDarkPlayheadAccentHi = Color(0xFFA7C2B1) // bright sage variant
+
+// Fixed dark fir tone for text on the bright sage bubble — same on both palettes (#13251C).
+val SmTextOnPlayhead = Color(0xFF13251C)
 
 // endregion

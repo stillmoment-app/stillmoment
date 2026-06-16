@@ -27,7 +27,15 @@ data class EditSheetState(
     /** Current edited end-gong toggle (shared-106) */
     val editedEndGongEnabled: Boolean = false,
     /** Current edited gong sound ID (shared-106) */
-    val editedGongSoundId: String = GongSound.DEFAULT_SOUND_ID
+    val editedGongSoundId: String = GongSound.DEFAULT_SOUND_ID,
+    /**
+     * Current edited playback start offset in ms (shared-112); null = play from file start.
+     * Carried back from the trim editor's "Zurück", written to [GuidedMeditation.trimStartMs]
+     * by [applyChanges]. The trim editor never saves itself — only the outer editor does.
+     */
+    val editedTrimStartMs: Long? = null,
+    /** Current edited playback end offset in ms (shared-112); null = play to file end. */
+    val editedTrimEndMs: Long? = null
 ) {
     /**
      * Whether changes have been made compared to original values.
@@ -38,7 +46,9 @@ data class EditSheetState(
                 editedName != originalMeditation.name ||
                 editedStartGongEnabled != originalMeditation.startGongEnabled ||
                 editedEndGongEnabled != originalMeditation.endGongEnabled ||
-                editedGongSoundId != originalMeditation.gongSoundId
+                editedGongSoundId != originalMeditation.gongSoundId ||
+                editedTrimStartMs != originalMeditation.trimStartMs ||
+                editedTrimEndMs != originalMeditation.trimEndMs
 
     /**
      * Whether the current values are valid for saving.
@@ -63,7 +73,9 @@ data class EditSheetState(
             name = editedName.trim(),
             startGongEnabled = editedStartGongEnabled,
             endGongEnabled = editedEndGongEnabled,
-            gongSoundId = editedGongSoundId
+            gongSoundId = editedGongSoundId,
+            trimStartMs = editedTrimStartMs,
+            trimEndMs = editedTrimEndMs
         )
     }
 
@@ -81,7 +93,9 @@ data class EditSheetState(
                 editedName = meditation.name,
                 editedStartGongEnabled = meditation.startGongEnabled,
                 editedEndGongEnabled = meditation.endGongEnabled,
-                editedGongSoundId = meditation.gongSoundId
+                editedGongSoundId = meditation.gongSoundId,
+                editedTrimStartMs = meditation.trimStartMs,
+                editedTrimEndMs = meditation.trimEndMs
             )
         }
     }

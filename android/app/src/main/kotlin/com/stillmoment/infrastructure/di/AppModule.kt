@@ -18,6 +18,7 @@ import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.repositories.SoundCatalogRepository
 import com.stillmoment.domain.repositories.TimerRepository
 import com.stillmoment.domain.services.AudioFocusManagerProtocol
+import com.stillmoment.domain.services.AudioFrameReader
 import com.stillmoment.domain.services.AudioMetadataService
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioServiceProtocol
@@ -31,10 +32,14 @@ import com.stillmoment.domain.services.TimerForegroundServiceProtocol
 import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.domain.services.VibrationServiceProtocol
 import com.stillmoment.domain.services.VolumeAnimatorProtocol
+import com.stillmoment.domain.services.WaveformCacheServiceProtocol
+import com.stillmoment.domain.services.WaveformGenerationServiceProtocol
+import com.stillmoment.domain.services.WaveformProviderProtocol
 import com.stillmoment.infrastructure.audio.AudioFocusManager
 import com.stillmoment.infrastructure.audio.AudioPlayerService
 import com.stillmoment.infrastructure.audio.AudioService
 import com.stillmoment.infrastructure.audio.AudioSessionCoordinator
+import com.stillmoment.infrastructure.audio.MediaCodecAudioFrameReader
 import com.stillmoment.infrastructure.audio.MediaPlayerFactory
 import com.stillmoment.infrastructure.audio.MeditationGongPlayer
 import com.stillmoment.infrastructure.audio.ProgressScheduler
@@ -42,9 +47,13 @@ import com.stillmoment.infrastructure.audio.SoundscapeResolver
 import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
 import com.stillmoment.infrastructure.audio.VibrationService
 import com.stillmoment.infrastructure.audio.VolumeAnimator
+import com.stillmoment.infrastructure.audio.WaveformCacheService
+import com.stillmoment.infrastructure.audio.WaveformGenerationService
+import com.stillmoment.infrastructure.audio.WaveformProvider
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
 import com.stillmoment.infrastructure.services.AndroidAudioMetadataService
+import com.stillmoment.presentation.viewmodel.TrimPreviewDurations
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -197,4 +206,35 @@ object AppModule {
     fun provideAudioMetadataService(impl: AndroidAudioMetadataService): AudioMetadataService {
         return impl
     }
+
+    @Provides
+    @Singleton
+    fun provideAudioFrameReader(impl: MediaCodecAudioFrameReader): AudioFrameReader {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideWaveformGenerationService(impl: WaveformGenerationService): WaveformGenerationServiceProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideWaveformCacheService(impl: WaveformCacheService): WaveformCacheServiceProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideWaveformProvider(
+        generationService: WaveformGenerationServiceProtocol,
+        cacheService: WaveformCacheServiceProtocol,
+        logger: LoggerProtocol
+    ): WaveformProviderProtocol {
+        return WaveformProvider(generationService, cacheService, logger)
+    }
+
+    @Provides
+    fun provideTrimPreviewDurations(): TrimPreviewDurations = TrimPreviewDurations.Standard
 }

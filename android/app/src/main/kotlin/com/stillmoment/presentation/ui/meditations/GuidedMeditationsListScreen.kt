@@ -225,6 +225,7 @@ internal fun GuidedMeditationsListScreenContent(
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation,
                 availableTeachers = uiState.availableTeachers,
+                waveform = uiState.editorWaveform,
                 onPreviewGong = onPreviewGong,
                 onStopGongPreview = onStopGongPreview
             )

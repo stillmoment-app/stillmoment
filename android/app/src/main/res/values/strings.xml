@@ -153,6 +153,46 @@
     <string name="accessibility_edit_sheet_start_gong_hint">Plays a gong at the start of playback</string>
     <string name="accessibility_edit_sheet_end_gong_hint">Plays a gong at the end of playback</string>
 
+    <!-- shared-107/108/112: Playback range card + trim editor -->
+    <string name="playback_range_label">Playback Range</string>
+    <string name="playback_range_whole_file">Whole file · %1$s</string>
+    <string name="playback_range_choose">Choose range</string>
+    <string name="playback_range_range">%1$s – %2$s</string>
+    <string name="playback_range_audible">%1$s audible</string>
+    <string name="playback_range_remove">Remove trim</string>
+    <string name="playback_range_help">Skip intro and closing words — playback runs only between these points. The file stays unchanged.</string>
+    <string name="playback_range_a11y_open_hint">Opens the editor to set the playback range</string>
+    <string name="playback_range_a11y_remove_hint">Resets the trim so the whole file plays</string>
+
+    <string name="trim_editor_title">Trim</string>
+    <string name="trim_editor_subtitle">%1$s · %2$s</string>
+    <string name="trim_editor_label_begins_at">Begins at</string>
+    <string name="trim_editor_label_ends_at">Ends at</string>
+    <string name="trim_editor_audible">Audible: %1$s – %2$s · %3$s</string>
+    <string name="trim_editor_card_start">Begin</string>
+    <string name="trim_editor_card_end">End</string>
+    <string name="trim_editor_nudge_minus">−1s</string>
+    <string name="trim_editor_nudge_plus">+1s</string>
+    <string name="trim_editor_hint_overview">Tap start/end to zoom in · drag the top: playback position</string>
+    <string name="trim_editor_hint_zoomed">Detail view — drag finely, ±1s for the exact second</string>
+    <string name="trim_editor_whole_file">Use whole file</string>
+    <string name="trim_editor_zoom_out">Whole file</string>
+    <string name="trim_editor_edge_chip_start">Start %1$s</string>
+    <string name="trim_editor_edge_chip_end">End %1$s</string>
+    <string name="trim_editor_a11y_back">Back</string>
+    <string name="trim_editor_a11y_playhead">Playback position</string>
+    <string name="trim_editor_a11y_start_handle">Start point</string>
+    <string name="trim_editor_a11y_end_handle">End point</string>
+    <string name="trim_editor_a11y_nudge_back">One second earlier</string>
+    <string name="trim_editor_a11y_nudge_forward">One second later</string>
+    <string name="trim_editor_a11y_play">Listen</string>
+    <string name="trim_editor_a11y_pause">Pause</string>
+    <string name="trim_editor_a11y_card_hint">Selects this point and zooms in</string>
+    <string name="trim_editor_a11y_minimap">Overview</string>
+    <string name="trim_editor_a11y_zoom_out">Show whole file</string>
+    <string name="trim_editor_a11y_edge_chip_start">Show start point at %1$s</string>
+    <string name="trim_editor_a11y_edge_chip_end">Show end point at %1$s</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Preparation Time</string>
     <string name="guided_meditations_settings_preparation_description">Time to settle in before the audio starts</string>

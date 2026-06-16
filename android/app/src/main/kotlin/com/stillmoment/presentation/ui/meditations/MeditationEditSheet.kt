@@ -62,7 +62,10 @@ import com.stillmoment.domain.models.EditSheetMode
 import com.stillmoment.domain.models.EditSheetState
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.GuidedMeditation
+import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
+import com.stillmoment.presentation.ui.meditations.components.PlaybackRangeCard
+import com.stillmoment.presentation.ui.meditations.trimeditor.TrimEditorScreen
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -91,6 +94,8 @@ import kotlinx.coroutines.delay
  * @param meditation Draft (Import) or persisted (Edit) meditation
  * @param mode IMPORT or EDIT — see [EditSheetMode]
  * @param availableTeachers List of existing teacher names for autocomplete
+ * @param waveform Cached waveform of the edited file, or null while loading / on failure /
+ *   in import mode — the playback-range card then shows its fallback line (shared-107)
  * @param onDismiss Callback when the editor is left without saving (after the discard check)
  * @param onSave Callback receiving the edited meditation when the user confirms
  */
@@ -103,6 +108,7 @@ fun MeditationEditSheet(
     modifier: Modifier = Modifier,
     mode: EditSheetMode = EditSheetMode.EDIT,
     availableTeachers: ImmutableList<String> = persistentListOf(),
+    waveform: MeditationWaveform? = null,
     onPreviewGong: (String) -> Unit = {},
     onStopGongPreview: () -> Unit = {}
 ) {
@@ -110,21 +116,12 @@ fun MeditationEditSheet(
         mutableStateOf(EditSheetState.fromMeditation(meditation))
     }
     var showDiscardDialog by remember(meditation) { mutableStateOf(false) }
+    var showTrimEditor by remember(meditation) { mutableStateOf(false) }
 
-    // Shared dirty-check for the X button and the system back gesture: leaving with
-    // unsaved changes asks first, otherwise the editor closes immediately and silently.
-    val attemptDismiss = {
-        if (editState.hasChanges) {
-            showDiscardDialog = true
-        } else {
-            onDismiss()
-        }
-    }
-    val save = {
-        if (editState.isValid) {
-            onSave(editState.applyChanges())
-        }
-    }
+    // Shared dirty-check for the X button and the system back gesture: leaving with unsaved
+    // changes asks first, otherwise the editor closes immediately and silently.
+    val attemptDismiss = { if (editState.hasChanges) showDiscardDialog = true else onDismiss() }
+    val save = { if (editState.isValid) onSave(editState.applyChanges()) }
 
     BackHandler { attemptDismiss() }
     StopGongPreviewOnDispose(onStopGongPreview)
@@ -139,35 +136,58 @@ fun MeditationEditSheet(
         MeditationEditContent(
             meditation = meditation,
             mode = mode,
-            fields = EditSheetFields(
-                teacherText = editState.editedTeacher,
-                nameText = editState.editedName,
-                startGongEnabled = editState.editedStartGongEnabled,
-                endGongEnabled = editState.editedEndGongEnabled,
-                gongSoundId = editState.editedGongSoundId
-            ),
+            fields = editState.toFields(),
             availableTeachers = availableTeachers,
-            callbacks = EditSheetCallbacks(
-                onTeacherChange = { editState = editState.copy(editedTeacher = it) },
-                onNameChange = { editState = editState.copy(editedName = it) },
-                onStartGongChange = { editState = editState.copy(editedStartGongEnabled = it) },
-                onEndGongChange = { editState = editState.copy(editedEndGongEnabled = it) },
-                onGongSoundChange = { editState = editState.copy(editedGongSoundId = it) },
+            waveform = waveform,
+            callbacks = editCallbacks(
+                state = editState,
+                setState = { editState = it },
                 onPreviewGong = onPreviewGong,
-                onSave = save
+                onSave = save,
+                onOpenTrimEditor = { showTrimEditor = true }
             ),
             modifier = Modifier.padding(paddingValues)
         )
     }
 
+    EditSheetModals(
+        showDiscardDialog = showDiscardDialog,
+        showTrimEditor = showTrimEditor,
+        // The trim editor edits a meditation whose trim reflects the editor's pending buffer,
+        // so reopening shows the last unsaved selection (shared-112).
+        trimEditorMeditation = meditation.copy(
+            trimStartMs = editState.editedTrimStartMs,
+            trimEndMs = editState.editedTrimEndMs
+        ),
+        onConfirmDiscard = {
+            showDiscardDialog = false
+            onDismiss()
+        },
+        onKeepEditing = { showDiscardDialog = false },
+        onTrimBack = { trimStartMs, trimEndMs ->
+            editState = editState.copy(editedTrimStartMs = trimStartMs, editedTrimEndMs = trimEndMs)
+            showTrimEditor = false
+        }
+    )
+}
+
+/** Discard-Dialog (shared-110) + Vollbild-Trim-Editor-Overlay (shared-107/108/112). */
+@Composable
+private fun EditSheetModals(
+    showDiscardDialog: Boolean,
+    showTrimEditor: Boolean,
+    trimEditorMeditation: GuidedMeditation,
+    onConfirmDiscard: () -> Unit,
+    onKeepEditing: () -> Unit,
+    onTrimBack: (Long?, Long?) -> Unit
+) {
     if (showDiscardDialog) {
-        DiscardDialog(
-            onConfirmDiscard = {
-                showDiscardDialog = false
-                onDismiss()
-            },
-            onKeepEditing = { showDiscardDialog = false }
-        )
+        DiscardDialog(onConfirmDiscard = onConfirmDiscard, onKeepEditing = onKeepEditing)
+    }
+    // "Zurück" carries the selection into the buffer and marks the editor dirty; it never
+    // saves on its own — the outer editor owns save/discard.
+    if (showTrimEditor) {
+        TrimEditorScreen(meditation = trimEditorMeditation, onBack = onTrimBack)
     }
 }
 
@@ -259,7 +279,42 @@ private data class EditSheetFields(
     val nameText: String,
     val startGongEnabled: Boolean,
     val endGongEnabled: Boolean,
-    val gongSoundId: String
+    val gongSoundId: String,
+    val trimStartMs: Long? = null,
+    val trimEndMs: Long? = null
+)
+
+/**
+ * Builds the editor's interaction callbacks. Field mutations route through [setState] with a
+ * `copy` of the current [state]; the trim "remove" resets both points (shared-112).
+ */
+private fun editCallbacks(
+    state: EditSheetState,
+    setState: (EditSheetState) -> Unit,
+    onPreviewGong: (String) -> Unit,
+    onSave: () -> Unit,
+    onOpenTrimEditor: () -> Unit
+) = EditSheetCallbacks(
+    onTeacherChange = { setState(state.copy(editedTeacher = it)) },
+    onNameChange = { setState(state.copy(editedName = it)) },
+    onStartGongChange = { setState(state.copy(editedStartGongEnabled = it)) },
+    onEndGongChange = { setState(state.copy(editedEndGongEnabled = it)) },
+    onGongSoundChange = { setState(state.copy(editedGongSoundId = it)) },
+    onPreviewGong = onPreviewGong,
+    onSave = onSave,
+    onOpenTrimEditor = onOpenTrimEditor,
+    onRemoveTrim = { setState(state.copy(editedTrimStartMs = null, editedTrimEndMs = null)) }
+)
+
+/** Maps the editor state to the bundled UI fields. */
+private fun EditSheetState.toFields() = EditSheetFields(
+    teacherText = editedTeacher,
+    nameText = editedName,
+    startGongEnabled = editedStartGongEnabled,
+    endGongEnabled = editedEndGongEnabled,
+    gongSoundId = editedGongSoundId,
+    trimStartMs = editedTrimStartMs,
+    trimEndMs = editedTrimEndMs
 )
 
 /** Interaktions-Callbacks des Editors, gebündelt zur Begrenzung der Parameterzahl. */
@@ -271,7 +326,9 @@ private data class EditSheetCallbacks(
     val onEndGongChange: (Boolean) -> Unit,
     val onGongSoundChange: (String) -> Unit,
     val onPreviewGong: (String) -> Unit,
-    val onSave: () -> Unit
+    val onSave: () -> Unit,
+    val onOpenTrimEditor: () -> Unit = {},
+    val onRemoveTrim: () -> Unit = {}
 )
 
 @Composable
@@ -281,7 +338,8 @@ private fun MeditationEditContent(
     fields: EditSheetFields,
     availableTeachers: ImmutableList<String>,
     callbacks: EditSheetCallbacks,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    waveform: MeditationWaveform? = null
 ) {
     val teacherFocus = remember { FocusRequester() }
     val nameFocus = remember { FocusRequester() }
@@ -325,6 +383,17 @@ private fun MeditationEditContent(
 
         Spacer(modifier = Modifier.height(28.dp))
 
+        PlaybackRangeSection(
+            fileDurationMs = meditation.duration,
+            trimStartMs = fields.trimStartMs,
+            trimEndMs = fields.trimEndMs,
+            waveform = waveform,
+            onOpenEditor = callbacks.onOpenTrimEditor,
+            onRemoveTrim = callbacks.onRemoveTrim
+        )
+
+        Spacer(modifier = Modifier.height(28.dp))
+
         GongSection(
             startGongEnabled = fields.startGongEnabled,
             endGongEnabled = fields.endGongEnabled,
@@ -333,6 +402,41 @@ private fun MeditationEditContent(
             onEndGongChange = callbacks.onEndGongChange,
             onGongSoundChange = callbacks.onGongSoundChange,
             onPreviewGong = callbacks.onPreviewGong
+        )
+    }
+}
+
+/**
+ * "Wiedergabebereich"-Abschnitt (shared-107): Section-Header (Key aus Phase B) plus die
+ * [PlaybackRangeCard] und der erklärende Hinweistext. Ersetzt die in Phase A bewusst
+ * weggelassenen mm:ss-Felder.
+ */
+@Composable
+private fun PlaybackRangeSection(
+    fileDurationMs: Long,
+    trimStartMs: Long?,
+    trimEndMs: Long?,
+    onOpenEditor: () -> Unit,
+    onRemoveTrim: () -> Unit,
+    modifier: Modifier = Modifier,
+    waveform: MeditationWaveform? = null
+) {
+    Column(modifier = modifier) {
+        EditSheetSectionHeader(textRes = R.string.guided_meditations_edit_section_playback_range)
+        Spacer(modifier = Modifier.height(12.dp))
+        PlaybackRangeCard(
+            fileDurationMs = fileDurationMs,
+            trimStartMs = trimStartMs,
+            trimEndMs = trimEndMs,
+            waveform = waveform,
+            onOpenEditor = onOpenEditor,
+            onRemoveTrim = onRemoveTrim
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.playback_range_help),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
