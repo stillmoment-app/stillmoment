@@ -1,6 +1,6 @@
 # Ticket shared-116: Meditation-Editor — Klang-Auswahl als Karten-Picker + Section-Überschriften
 
-**Status**: [~] IN PROGRESS (iOS abgeschlossen, Android offen)
+**Status**: [x] DONE (iOS + Android)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Gering auf iOS (Wiederverwendung der shared-115-Komponenten + Form-Section-Header). Auf Android abhaengig davon, dass der per-Meditation-Gong ueberhaupt existiert (shared-106 ist dort offen).
 **Phase**: 4-Polish
@@ -30,7 +30,7 @@ Editor eine klarere, ruhigere Gliederung.
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-115 (vorhanden) |
-| Android   | [~]    | Karten-Picker + Section-Header „Informationen"/„Zusätzlicher Gong" in Android-Parität Phase B (2026-06-16); Section-Header „Wiedergabebereich" folgt mit dem Trim-Editor in Phase C |
+| Android   | [x]    | Karten-Picker + Section-Header „Informationen"/„Zusätzlicher Gong" in Android-Parität Phase B; Section-Header „Wiedergabebereich" mit dem Trim-Editor in Phase C (2026-06-16) |
 
 ---
 

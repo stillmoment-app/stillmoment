@@ -1,6 +1,6 @@
 # Ticket shared-105: Trim-Punkte fuer gefuehrte Meditationen
 
-**Status**: [~] IN PROGRESS (iOS done, Android offen)
+**Status**: [x] DONE (iOS + Android)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Datenmodell und Persistenz sind einfache Ergaenzungen; die Risiken liegen im Wiedergabe-Verhalten (Ende am Endpunkt muss auch bei gesperrtem Bildschirm zuverlaessig greifen) und in der Validierung der Zeitangaben.
 **Phase**: 3-Feature
@@ -22,9 +22,9 @@ Importierte Audio-Dateien enthalten oft Einleitungen oder Abschluss-Saetze (teil
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [~]    | Editor-UI = Android-Parität Phase C |
+| Android   | [x]    | Phase A Trim-Fundament + Editor-UI via shared-107 (Android-Parität Phase C, 2026-06-16) |
 
-**Android-Fortschritt:** Phase A (Trim-Fundament) umgesetzt — Datenmodell (`trimStartMs`/`trimEndMs`, `effective*`-Properties, effektive vs. volle Dauer), nicht-destruktives getrimmtes Playback (Seek-to-Start nach Seek-Complete, End-Boundary via Progress-Loop auch bei gesperrtem Bildschirm, Bereichs-Klemmung für Skip/Lock-Screen-Seek, bereichs-relative Anzeige), Backward-Compat-Persistenz. **Kein Editor-UI** — die Eingabe der Trim-Punkte kommt mit dem Wellenform-Editor in Android-Parität Phase C; erst dann ist shared-105 auf Android user-sichtbar abgeschlossen.
+**Android-Fortschritt:** Phase A (Trim-Fundament) umgesetzt — Datenmodell (`trimStartMs`/`trimEndMs`, `effective*`-Properties, effektive vs. volle Dauer), nicht-destruktives getrimmtes Playback (Seek-to-Start nach Seek-Complete, End-Boundary via Progress-Loop auch bei gesperrtem Bildschirm, Bereichs-Klemmung für Skip/Lock-Screen-Seek, bereichs-relative Anzeige), Backward-Compat-Persistenz. Das Editor-UI (Eingabe der Trim-Punkte) kam mit dem Wellenform-Editor in Android-Parität Phase C (shared-107) — seitdem ist shared-105 auf Android user-sichtbar abgeschlossen.
 
 ---
 

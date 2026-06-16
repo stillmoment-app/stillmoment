@@ -129,18 +129,18 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-102](shared/shared-102-library-header-search-android.md) | Library-Header mit immer sichtbarem Suchfeld (Android-Sync zu ios-051) | 4-Polish | via ios-051 | [x] |
 | [shared-103](shared/shared-103-share-import-verbesserungen-android.md) | Share-Import-Verbesserungen (Android-Sync zu ios-042/043/044) | 3-Feature | via ios-042/043/044 | [x] |
 | [shared-104](shared/shared-104-import-anleitungen-android.md) | Import-Anleitungen im Content Guide (Android-Sync zu shared-039b) | 4-Polish | via shared-039b | [x] |
-| [shared-105](shared/shared-105-trim-punkte-gefuehrte-meditationen.md) | Trim-Punkte fuer gefuehrte Meditationen | 3-Feature | [x] | [ ] |
-| [shared-106](shared/shared-106-start-end-gong-pro-meditation.md) | Start- und End-Gong pro Meditation | 3-Feature | [x] | [ ] |
-| [shared-107](shared/shared-107-waveform-trim-editor.md) | Waveform-Trim-Editor fuer den Wiedergabe-Bereich | 3-Feature | [x] | [ ] |
-| [shared-108](shared/shared-108-waveform-zoom-trim-editor.md) | Zoom in die Waveform des Trim-Editors | 3-Feature | [x] | [ ] |
-| [shared-109](shared/shared-109-waveform-player-tonkopf.md) | Waveform Player „Tonkopf" | 3-Feature | [x] | [ ] |
+| [shared-105](shared/shared-105-trim-punkte-gefuehrte-meditationen.md) | Trim-Punkte fuer gefuehrte Meditationen | 3-Feature | [x] | [x] |
+| [shared-106](shared/shared-106-start-end-gong-pro-meditation.md) | Start- und End-Gong pro Meditation | 3-Feature | [x] | [x] |
+| [shared-107](shared/shared-107-waveform-trim-editor.md) | Waveform-Trim-Editor fuer den Wiedergabe-Bereich | 3-Feature | [x] | [x] |
+| [shared-108](shared/shared-108-waveform-zoom-trim-editor.md) | Zoom in die Waveform des Trim-Editors | 3-Feature | [x] | [x] |
+| [shared-109](shared/shared-109-waveform-player-tonkopf.md) | Waveform Player „Tonkopf" | 3-Feature | [x] | [x] |
 | [shared-110](shared/shared-110-editor-screen-discard-schutz.md) | Meditation-Editor als Vollbild-Screen mit Discard-Schutz | 2-Architektur | [x] | [x] |
 | [shared-111](shared/shared-111-praxis-editor-explizit-speichern.md) | ~~Praxis-Editor mit explizitem Speichern/Abbrechen~~ WONTFIX (kein Praxis-Editor existiert; Timer ist bewusst Inline-Auto-Save) | 4-Polish | — | — |
-| [shared-112](shared/shared-112-trim-zurueck-dirtied-editor.md) | Trim-Editor — nur „Zurück", Änderungen markieren den Editor | 4-Polish | [x] | [ ] |
+| [shared-112](shared/shared-112-trim-zurueck-dirtied-editor.md) | Trim-Editor — nur „Zurück", Änderungen markieren den Editor | 4-Polish | [x] | [x] |
 | [shared-113](shared/shared-113-toten-praxis-editor-code-entfernen.md) | Toten Praxis-Editor-Code entfernen & ViewModel umbenennen | 4-Polish | [x] | [x] |
 | [shared-114](shared/shared-114-topbar-navigation-boilerplate.md) | Top-Bar-Navigations-Boilerplate zentralisieren | 4-Polish | [x] | [x] |
 | [shared-115](shared/shared-115-gong-auswahl-redesign.md) | Gong-Auswahl "Start & Ende" Redesign | 4-Polish | [x] | [x] |
-| [shared-116](shared/shared-116-meditation-editor-gong-klang-picker.md) | Meditation-Editor — Klang-Auswahl als Karten-Picker + Section-Überschriften | 4-Polish | [x] | [ ] |
+| [shared-116](shared/shared-116-meditation-editor-gong-klang-picker.md) | Meditation-Editor — Klang-Auswahl als Karten-Picker + Section-Überschriften | 4-Polish | [x] | [x] |
 | [shared-117](shared/shared-117-lautstaerke-normalisierung.md) | Lautstärke-Normalisierung gefuehrter Meditationen | 3-Feature | [ ] | [ ] |
 
 ---
