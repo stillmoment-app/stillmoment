@@ -33,8 +33,14 @@ final class WaveformGenerationService: WaveformGenerationServiceProtocol {
             throw WaveformGenerationError.decodingFailed(reason: error.localizedDescription)
         }
 
-        let format = audioFile.processingFormat
-        let totalFrames = Int(audioFile.length)
+        return try await self.generateWaveform(from: audioFile, name: fileURL.lastPathComponent)
+    }
+
+    /// Decodes a waveform from an already-opened reader. Split out from `generateWaveform(for:)`
+    /// so the chunk loop can be exercised with a fake reader (see `AudioFrameReader`).
+    func generateWaveform(from reader: AudioFrameReader, name: String) async throws -> MeditationWaveform {
+        let format = reader.processingFormat
+        let totalFrames = Int(reader.length)
 
         guard totalFrames > 0 else {
             Logger.audio.warning("Waveform generation: file has no frames, returning empty waveform")
@@ -45,9 +51,9 @@ final class WaveformGenerationService: WaveformGenerationServiceProtocol {
             bucketCount: MeditationWaveform.sampleCount,
             totalFrameCount: totalFrames
         )
-        try await self.decodeChunks(of: audioFile, format: format, into: &accumulator)
+        try await self.decodeChunks(of: reader, format: format, into: &accumulator)
 
-        Logger.audio.info("Waveform generated for \(fileURL.lastPathComponent) (\(totalFrames) frames)")
+        Logger.audio.info("Waveform generated for \(name) (\(totalFrames) frames)")
         return accumulator.finalize()
     }
 
@@ -56,7 +62,7 @@ final class WaveformGenerationService: WaveformGenerationServiceProtocol {
     /// Reads the audio file roughly one second at a time, feeding each chunk to the accumulator.
     /// Reads are bounded by the remaining frame count so the loop never over-reads past EOF.
     private func decodeChunks(
-        of audioFile: AVAudioFile,
+        of reader: AudioFrameReader,
         format: AVAudioFormat,
         into accumulator: inout WaveformAccumulator
     ) async throws {
@@ -65,15 +71,27 @@ final class WaveformGenerationService: WaveformGenerationServiceProtocol {
             throw WaveformGenerationError.decodingFailed(reason: "Could not allocate PCM buffer")
         }
 
-        while audioFile.framePosition < audioFile.length {
+        var hasDecodedAudio = false
+        while reader.framePosition < reader.length {
             try Task.checkCancellation()
 
-            let remaining = AVAudioFrameCount(audioFile.length - audioFile.framePosition)
+            let remaining = AVAudioFrameCount(reader.length - reader.framePosition)
             let framesToRead = min(chunkFrameCount, remaining)
 
             do {
-                try audioFile.read(into: buffer, frameCount: framesToRead)
+                try reader.read(into: buffer, frameCount: framesToRead)
             } catch {
+                // `AVAudioFile.length` on MP3 counts encoder padding the decoder cannot
+                // actually reach, so the final read throws. If we already decoded audio,
+                // treat it as end-of-file and finalize with what we have rather than
+                // discarding the entire waveform. A failure on the very first read is a
+                // genuine decoding error and still propagates.
+                if hasDecodedAudio {
+                    Logger.audio.warning(
+                        "Waveform generation: read failed near end of file, finalizing with decoded frames"
+                    )
+                    break
+                }
                 throw WaveformGenerationError.decodingFailed(reason: error.localizedDescription)
             }
 
@@ -84,6 +102,7 @@ final class WaveformGenerationService: WaveformGenerationServiceProtocol {
 
             let monoSamples = self.monoSamples(from: buffer, frameLength: frameLength)
             accumulator.append(samples: monoSamples)
+            hasDecodedAudio = true
         }
     }
 

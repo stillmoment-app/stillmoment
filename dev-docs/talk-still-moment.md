@@ -7,6 +7,20 @@
 
 ---
 
+## Talk-Beschreibung
+
+**1370 Commits später: Learnings aus der Produktentwicklung mit Vibe Coding**
+
+Wie weit kommt man bei der App-Entwicklung mit Vibe Coding
+
+- ohne den Code zu lesen
+- ohne Wissen über die Programmiersprache
+- ohne Wissen über UI-Entwicklungspatterns
+
+Und was muss man stattdessen tun und wissen?
+
+---
+
 ## Kernbotschaft (ein Satz)
 
 > „In acht Monaten habe ich aus einem Wochenend-Timer zwei live ausgelieferte Apps gemacht — und dabei drei Dinge gelernt, die ich vorher nicht konnte: wie man mit KI-Agenten Software baut, wie man ein Produkt formt statt nur Features zu stapeln, und wie die App-Stores von Apple und Google wirklich ticken."
