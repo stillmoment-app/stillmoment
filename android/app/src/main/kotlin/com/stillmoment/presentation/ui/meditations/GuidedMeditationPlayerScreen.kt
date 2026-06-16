@@ -59,11 +59,16 @@ import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.components.TopAppBarHeight
 import com.stillmoment.presentation.ui.meditations.components.PlayerCenterDisc
 import com.stillmoment.presentation.ui.meditations.components.PlayerRing
+import com.stillmoment.presentation.ui.meditations.components.PlayerScrubCallbacks
+import com.stillmoment.presentation.ui.meditations.components.PlayerTrackOverview
+import com.stillmoment.presentation.ui.meditations.components.PlayerWaveform
+import com.stillmoment.presentation.ui.meditations.components.WaveformWindowSpec
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.viewmodel.GuidedMeditationPlayerViewModel
 import com.stillmoment.presentation.viewmodel.PlayerUiState
+import com.stillmoment.presentation.viewmodel.RemainingLineState
 
 private const val COMPLETION_ANIMATION_DURATION_MS = 400
 private const val COMPACT_HEIGHT_DP = 700
@@ -99,6 +104,12 @@ fun GuidedMeditationPlayerScreen(
         viewModel.startPlayback()
     }
 
+    // Waveform parallel laden — Generierung (kalter Cache) darf den Audio-Start nicht
+    // blockieren; schlaegt sie fehl, zeigt das Fenster die schlichte Mittellinie (shared-109).
+    LaunchedEffect(meditation.id) {
+        viewModel.loadWaveform()
+    }
+
     LaunchedEffect(uiState.isCompleted) {
         if (uiState.isCompleted) {
             currentOnMeditationCompleted()
@@ -117,7 +128,13 @@ fun GuidedMeditationPlayerScreen(
         onBack = onBack,
         onTogglePlayPause = viewModel::togglePlayPause,
         onClearError = viewModel::clearError,
-        modifier = modifier
+        modifier = modifier,
+        scrub = PlayerScrubCallbacks(
+            onStart = viewModel::beginScrub,
+            onScrubTo = viewModel::scrubToMs,
+            onEnd = viewModel::endScrub
+        ),
+        onSeekToFraction = viewModel::seekToFraction
     )
 }
 
@@ -128,7 +145,9 @@ internal fun GuidedMeditationPlayerScreenContent(
     onBack: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onClearError: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrub: PlayerScrubCallbacks = PlayerScrubCallbacks({}, {}, {}),
+    onSeekToFraction: (Float) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val currentOnClearError by rememberUpdatedState(onClearError)
@@ -143,6 +162,8 @@ internal fun GuidedMeditationPlayerScreenContent(
                 uiState = uiState,
                 onBack = onBack,
                 onTogglePlayPause = onTogglePlayPause,
+                scrub = scrub,
+                onSeekToFraction = onSeekToFraction,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -169,6 +190,8 @@ private fun ActiveSessionLayer(
     uiState: PlayerUiState,
     onBack: () -> Unit,
     onTogglePlayPause: () -> Unit,
+    scrub: PlayerScrubCallbacks,
+    onSeekToFraction: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -178,6 +201,8 @@ private fun ActiveSessionLayer(
                 meditation = meditation,
                 uiState = uiState,
                 onTogglePlayPause = onTogglePlayPause,
+                scrub = scrub,
+                onSeekToFraction = onSeekToFraction,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = TopAppBarHeight)
@@ -250,6 +275,33 @@ private fun PlayerBody(
     meditation: GuidedMeditation,
     uiState: PlayerUiState,
     onTogglePlayPause: () -> Unit,
+    scrub: PlayerScrubCallbacks,
+    onSeekToFraction: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (uiState.phase) {
+        MeditationPhase.PreRoll -> PreRollBody(
+            meditation = meditation,
+            uiState = uiState,
+            onTogglePlayPause = onTogglePlayPause,
+            modifier = modifier
+        )
+        MeditationPhase.Playing -> WaveformBody(
+            meditation = meditation,
+            uiState = uiState,
+            onTogglePlayPause = onTogglePlayPause,
+            scrub = scrub,
+            onSeekToFraction = onSeekToFraction,
+            modifier = modifier
+        )
+    }
+}
+
+@Composable
+private fun PreRollBody(
+    meditation: GuidedMeditation,
+    uiState: PlayerUiState,
+    onTogglePlayPause: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -293,6 +345,118 @@ private fun PlayerBody(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun WaveformBody(
+    meditation: GuidedMeditation,
+    uiState: PlayerUiState,
+    onTogglePlayPause: () -> Unit,
+    scrub: PlayerScrubCallbacks,
+    onSeekToFraction: (Float) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val fileDuration = meditation.duration.coerceAtLeast(1L)
+    val scrubLabel = stringResource(R.string.guided_meditations_player_scrub_a11y_label)
+    val scrubValue = stringResource(
+        R.string.guided_meditations_player_live_position_value,
+        uiState.formattedDisplayPosition,
+        uiState.formattedDuration
+    )
+    val overviewLabel = stringResource(R.string.guided_meditations_player_mini_overview_a11y_label)
+
+    Column(
+        modifier = modifier.padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MeditationInfoHeader(meditation = meditation)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        PlayerWaveform(
+            waveform = uiState.waveform,
+            waveformLoadFailed = uiState.waveformLoadFailed,
+            spec = WaveformWindowSpec(
+                positionMs = uiState.displayPositionMs,
+                boundsMs = uiState.scrubBoundsMs,
+                trackStartMs = meditation.effectiveStartMs,
+                trackDurationMs = meditation.duration,
+                isPlaying = uiState.isPlaying,
+                isDragging = uiState.isDragging
+            ),
+            scrub = scrub,
+            modifier = Modifier
+                .testTag("player.waveform")
+                .semantics {
+                    contentDescription = "$scrubLabel: $scrubValue"
+                }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        RestingLine(uiState = uiState)
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        PlayerTrackOverview(
+            waveform = uiState.waveform,
+            waveformLoadFailed = uiState.waveformLoadFailed,
+            progress = uiState.progress,
+            trimStartFraction = meditation.effectiveStartMs.toDouble() / fileDuration,
+            trimEndFraction = meditation.effectiveEndMs.toDouble() / fileDuration,
+            onSeekToFraction = onSeekToFraction,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .testTag("player.miniOverview")
+                .semantics {
+                    contentDescription = overviewLabel
+                }
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        GlassPauseButton(
+            isPlaying = uiState.isPlaying,
+            onClick = onTogglePlayPause
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+@Composable
+private fun RestingLine(uiState: PlayerUiState, modifier: Modifier = Modifier) {
+    val text = when (val state = uiState.remainingLineState) {
+        is RemainingLineState.Remaining ->
+            stringResource(R.string.guided_meditations_player_remaining_format, state.time)
+        RemainingLineState.Paused ->
+            stringResource(R.string.guided_meditations_player_remaining_paused)
+        RemainingLineState.Finished ->
+            stringResource(R.string.guided_meditations_player_remaining_finished)
+    }
+    val positionLabel = stringResource(
+        R.string.guided_meditations_player_live_position_value,
+        uiState.formattedDisplayPosition,
+        uiState.formattedDuration
+    )
+
+    if (uiState.isDragging) {
+        Text(
+            text = positionLabel,
+            style = TextStyle.title.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = modifier.testTag("player.text.livePosition")
+        )
+    } else {
+        Text(
+            text = text,
+            style = TextStyle.eyebrow.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = modifier.testTag("player.text.remainingTime")
+        )
     }
 }
 

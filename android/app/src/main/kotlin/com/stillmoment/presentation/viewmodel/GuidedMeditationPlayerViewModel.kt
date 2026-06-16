@@ -6,13 +6,17 @@ import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.MeditationPhase
+import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
 import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MeditationGongPlayerProtocol
+import com.stillmoment.domain.services.WaveformGenerationException
+import com.stillmoment.domain.services.WaveformProviderProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
@@ -23,6 +27,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/**
+ * State of the central resting line below the wave (shared-109).
+ *
+ * [Remaining] carries the already-formatted `mm:ss` remaining time; [Paused] and [Finished]
+ * are special states the view renders as plain words. Mirrors iOS `RemainingLineState`.
+ */
+sealed class RemainingLineState {
+    data class Remaining(val time: String) : RemainingLineState()
+    data object Paused : RemainingLineState()
+    data object Finished : RemainingLineState()
+}
 
 /**
  * UI State for the Guided Meditation Player screen.
@@ -45,7 +61,27 @@ data class PlayerUiState(
     /** Whether playback has completed */
     val isCompleted: Boolean = false,
     /** Active preparation countdown, null when not counting down */
-    val preparationCountdown: PreparationCountdown? = null
+    val preparationCountdown: PreparationCountdown? = null,
+    /**
+     * Precomputed waveform of the whole file (null while loading or after a failure).
+     * The samples span the full `meditation.duration`, not the trimmed range (shared-109).
+     */
+    val waveform: MeditationWaveform? = null,
+    /**
+     * True when waveform generation failed (e.g. exotic format). The player stays fully
+     * functional — the window renders a plain baseline instead of amplitudes (shared-109).
+     */
+    val waveformLoadFailed: Boolean = false,
+    /**
+     * True while the user is dragging the wave to scrub. Pauses the pulse and replaces the
+     * remaining-time line with the large live position (shared-109).
+     */
+    val isDragging: Boolean = false,
+    /**
+     * Live position during a drag (range-relative ms, 0 = trim start, clamped to the
+     * effective duration). Drives the window center and the live-position readout (shared-109).
+     */
+    val dragPositionMs: Long = 0L
 ) {
     /** Whether preparation countdown is currently active (not finished) */
     val isPreparing: Boolean
@@ -90,6 +126,37 @@ data class PlayerUiState(
     val formattedRemainingMinutes: String
         get() = formattedRemaining
 
+    // MARK: - Waveform window & scrub (shared-109)
+
+    /**
+     * Playable range (range-relative ms) the scrub is clamped to: `[0, effectiveDuration]`.
+     * Position 0 is the trim start; the upper bound is the trimmed length.
+     */
+    val scrubBoundsMs: LongRange
+        get() = 0L..duration.coerceAtLeast(0L)
+
+    /**
+     * The range-relative position the window is centered on: the live drag position while
+     * scrubbing, otherwise the real audio position (source of truth for clean recovery).
+     */
+    val displayPositionMs: Long
+        get() = if (isDragging) dragPositionMs else currentPosition
+
+    /** Current position relative to the trim start (`mm:ss`), following the live drag. */
+    val formattedDisplayPosition: String
+        get() = formatTime(displayPositionMs)
+
+    /**
+     * State of the central resting line below the wave (shared-109). While dragging the view
+     * shows the live position instead.
+     */
+    val remainingLineState: RemainingLineState
+        get() = when {
+            isCompleted -> RemainingLineState.Finished
+            !isPlaying && !isLoading && !isPreparing && currentPosition > 0L -> RemainingLineState.Paused
+            else -> RemainingLineState.Remaining(formattedRemaining)
+        }
+
     private fun formatTime(ms: Long): String {
         val totalSeconds = (ms / 1000).coerceAtLeast(0)
         val hours = totalSeconds / 3600
@@ -111,6 +178,7 @@ data class PlayerUiState(
  * Coordinates with AudioSessionCoordinator to handle audio conflicts
  * with the timer feature.
  */
+@Suppress("TooManyFunctions") // ViewModel orchestrates playback, countdown, gong + scrub flows
 @HiltViewModel
 class GuidedMeditationPlayerViewModel
 @Inject
@@ -119,7 +187,9 @@ constructor(
     private val audioSessionCoordinator: AudioSessionCoordinatorProtocol,
     private val settingsRepository: GuidedMeditationSettingsRepository,
     private val gongPlayer: MeditationGongPlayerProtocol,
-    private val praxisRepository: PraxisRepository
+    private val praxisRepository: PraxisRepository,
+    private val waveformProvider: WaveformProviderProtocol,
+    private val logger: LoggerProtocol
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
@@ -141,6 +211,15 @@ constructor(
 
     /** Job for the start-gong sequence (gong + breath pause). */
     private var startGongJob: Job? = null
+
+    /** Job loading the waveform; cancelled on reload (shared-109). */
+    private var waveformJob: Job? = null
+
+    /**
+     * Whether playback was running when the current drag began — decides whether to resume
+     * on release (shared-109).
+     */
+    private var dragWasPlaying = false
 
     /**
      * True while the start gong rings and during the following breath pause —
@@ -246,7 +325,11 @@ constructor(
                 isPlaying = false,
                 isCompleted = false,
                 error = null,
-                preparationCountdown = null
+                preparationCountdown = null,
+                waveform = null,
+                waveformLoadFailed = false,
+                isDragging = false,
+                dragPositionMs = 0L
             )
         }
 
@@ -447,24 +530,77 @@ constructor(
         seekTo(position)
     }
 
+    // MARK: - Waveform & Scrub (shared-109)
+
     /**
-     * Skips forward by the specified amount.
+     * Loads the precomputed waveform for the scrolling window.
      *
-     * @param seconds Seconds to skip (default 10)
+     * Runs independently of [play] so a cold cache (first open, on-demand generation) never
+     * blocks playback. On failure the window falls back to a plain baseline — scrub, times and
+     * the mini overview stay fully functional.
      */
-    fun skipForward(seconds: Int = 10) {
-        val newPosition = _uiState.value.currentPosition + (seconds * 1000L)
-        seekTo(newPosition)
+    fun loadWaveform() {
+        val current = _uiState.value
+        if (current.waveform != null || current.waveformLoadFailed) {
+            return
+        }
+        val meditation = current.meditation ?: return
+        waveformJob?.cancel()
+        waveformJob = viewModelScope.launch {
+            try {
+                val loaded = waveformProvider.waveform(meditation)
+                _uiState.update { it.copy(waveform = loaded, waveformLoadFailed = false) }
+            } catch (e: WaveformGenerationException) {
+                logger.e(TAG, "Failed to load waveform for player", e)
+                _uiState.update { it.copy(waveform = null, waveformLoadFailed = true) }
+            }
+        }
     }
 
     /**
-     * Skips backward by the specified amount.
-     *
-     * @param seconds Seconds to skip (default 10)
+     * Begins a scrub: grabbing the wave pauses playback and anchors the drag at the current
+     * range-relative position (clamped into `[0, effectiveDuration]`).
      */
-    fun skipBackward(seconds: Int = 10) {
-        val newPosition = _uiState.value.currentPosition - (seconds * 1000L)
-        seekTo(newPosition)
+    fun beginScrub() {
+        val current = _uiState.value
+        val anchored = current.currentPosition.coerceIn(current.scrubBoundsMs)
+        dragWasPlaying = current.isPlaying
+        _uiState.update { it.copy(isDragging = true, dragPositionMs = anchored) }
+        if (current.isPlaying) {
+            pause()
+        }
+    }
+
+    /**
+     * Updates the live drag position to a range-relative time, clamped to the effective range.
+     *
+     * @param positionMs Range-relative position in milliseconds (0 = trim start)
+     */
+    fun scrubToMs(positionMs: Long) {
+        _uiState.update { it.copy(dragPositionMs = positionMs.coerceIn(it.scrubBoundsMs)) }
+    }
+
+    /**
+     * Ends a scrub: seeks to the live position and resumes playback if it was running before
+     * the grab (and the position is not at the very end).
+     */
+    fun endScrub() {
+        val current = _uiState.value
+        val target = current.dragPositionMs
+        _uiState.update { it.copy(isDragging = false) }
+        seekTo(target)
+        if (dragWasPlaying && target < current.duration) {
+            resume()
+        }
+        dragWasPlaying = false
+    }
+
+    /**
+     * Seeks to a fraction (0…1) of the trimmed track — the mini overview's absolute seek.
+     * Fraction `f` maps to a range-relative position `f · effectiveDuration` (shared-109).
+     */
+    fun seekToFraction(fraction: Float) {
+        seekToProgress(fraction)
     }
 
     /**
@@ -487,6 +623,9 @@ constructor(
         startGongJob = null
         gongPlayer.stop()
         isStartGongSequenceActive = false
+
+        waveformJob?.cancel()
+        waveformJob = null
 
         audioPlayerService.stop()
         audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
@@ -534,5 +673,7 @@ constructor(
     companion object {
         /** Breath pause between the start gong and the meditation audio. Matches iOS' 2.0 s (shared-106). */
         private const val BREATH_PAUSE_MS = 2000L
+
+        private const val TAG = "GuidedMeditationPlayer"
     }
 }

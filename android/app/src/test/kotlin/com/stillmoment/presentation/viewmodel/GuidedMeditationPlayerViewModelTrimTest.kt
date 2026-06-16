@@ -77,7 +77,9 @@ class GuidedMeditationPlayerViewModelTrimTest {
                 mockCoordinator,
                 mockSettingsRepository,
                 mockGongPlayer,
-                mockPraxisRepository
+                mockPraxisRepository,
+                mock(),
+                mock()
             )
     }
 
@@ -146,32 +148,24 @@ class GuidedMeditationPlayerViewModelTrimTest {
         }
 
         @Test
-        fun `skip forward never leaves the trim range`() = runTest(testDispatcher) {
+        fun `seekTo never leaves the trim range (upper bound)`() = runTest(testDispatcher) {
             loadTrimmed()
             advanceUntilIdle()
 
-            // Near the end of the trimmed range (13:50 relative = 14:50 absolute)
-            fakePlayer.emit(PlaybackState(isPlaying = true, currentPosition = 890_000L, duration = 1_200_000L))
-            advanceUntilIdle()
-
-            // Skip forward 30s would overshoot the 14:00 effective end
-            viewModel.skipForward(30)
+            // A relative target beyond the 14:00 effective end (15:00 relative overshoots)
+            viewModel.seekTo(900_000L)
 
             // Clamped to the effective end (14:00 relative = 15:00 absolute)
             assertEquals(900_000L, fakePlayer.lastSeekTo)
         }
 
         @Test
-        fun `skip backward never leaves the trim range`() = runTest(testDispatcher) {
+        fun `seekTo never leaves the trim range (lower bound)`() = runTest(testDispatcher) {
             loadTrimmed()
             advanceUntilIdle()
 
-            // Just after the trimmed start (0:05 relative = 1:05 absolute)
-            fakePlayer.emit(PlaybackState(isPlaying = true, currentPosition = 65_000L, duration = 1_200_000L))
-            advanceUntilIdle()
-
-            // Skip back 10s would underflow before the 1:00 start
-            viewModel.skipBackward(10)
+            // A negative relative target underflows before the trim start
+            viewModel.seekTo(-50_000L)
 
             // Clamped to the effective start (0:00 relative = 1:00 absolute)
             assertEquals(60_000L, fakePlayer.lastSeekTo)

@@ -217,13 +217,19 @@
     <string name="guided_meditations_player_preroll_hint">GLEICH GEHT\'S LOS</string>
     <string name="guided_meditations_player_preroll_label">Vorbereitung</string>
 
+    <!-- Waveform Player "Tonkopf" resting line + accessibility (shared-109) -->
+    <string name="guided_meditations_player_remaining_format">NOCH %1$s</string>
+    <string name="guided_meditations_player_remaining_paused">PAUSIERT</string>
+    <string name="guided_meditations_player_remaining_finished">BEENDET</string>
+    <string name="guided_meditations_player_scrub_a11y_label">Abspielposition</string>
+    <string name="guided_meditations_player_live_position_value">%1$s von %2$s</string>
+    <string name="guided_meditations_player_mini_overview_a11y_label">Gesamtfortschritt</string>
+
     <!-- Player Accessibility -->
     <string name="accessibility_player_progress">Wiedergabefortschritt: %d Prozent</string>
     <string name="accessibility_seek_slider">Suchleiste</string>
     <string name="accessibility_play_button">Meditation abspielen</string>
     <string name="accessibility_pause_button_player">Meditation pausieren</string>
-    <string name="accessibility_skip_forward">10 Sekunden vorspulen</string>
-    <string name="accessibility_skip_backward">10 Sekunden zurückspulen</string>
     <string name="accessibility_player_teacher">Lehrer</string>
     <string name="accessibility_player_title">Meditationstitel</string>
 

@@ -84,7 +84,9 @@ class GuidedMeditationPlayerViewModelGongTest {
                 mockCoordinator,
                 mockSettingsRepository,
                 fakeGong,
-                mockPraxisRepository
+                mockPraxisRepository,
+                mock(),
+                mock()
             )
     }
 

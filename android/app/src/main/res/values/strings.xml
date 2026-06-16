@@ -217,13 +217,19 @@
     <string name="guided_meditations_player_preroll_hint">STARTING IN A MOMENT</string>
     <string name="guided_meditations_player_preroll_label">Preparation</string>
 
+    <!-- Waveform Player "Tonkopf" resting line + accessibility (shared-109) -->
+    <string name="guided_meditations_player_remaining_format">%1$s LEFT</string>
+    <string name="guided_meditations_player_remaining_paused">PAUSED</string>
+    <string name="guided_meditations_player_remaining_finished">FINISHED</string>
+    <string name="guided_meditations_player_scrub_a11y_label">Playback position</string>
+    <string name="guided_meditations_player_live_position_value">%1$s of %2$s</string>
+    <string name="guided_meditations_player_mini_overview_a11y_label">Overall progress</string>
+
     <!-- Player Accessibility -->
     <string name="accessibility_player_progress">Playback progress: %d percent</string>
     <string name="accessibility_seek_slider">Seek slider</string>
     <string name="accessibility_play_button">Play meditation</string>
     <string name="accessibility_pause_button_player">Pause meditation</string>
-    <string name="accessibility_skip_forward">Skip forward 10 seconds</string>
-    <string name="accessibility_skip_backward">Skip backward 10 seconds</string>
     <string name="accessibility_player_teacher">Teacher</string>
     <string name="accessibility_player_title">Meditation title</string>
 
