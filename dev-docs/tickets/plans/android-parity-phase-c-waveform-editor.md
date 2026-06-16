@@ -21,6 +21,18 @@ iOS bekommt Samples geschenkt (`AVAudioFile` → `AVAudioPCMBuffer`). Android ha
 
 Ergebnis des Spikes bestimmt, ob die unten skizzierte Architektur 1:1 trägt oder angepasst werden muss. Erst danach Phase C final planen/umsetzen.
 
+### ✅ Spike-Befund (2026-06-16, Emulator Pixel_8 API 36)
+
+Wegwerf-Spike (`PcmDecodingSpikeTest`, danach gelöscht) hat `MediaExtractor` + `MediaCodec` mit `forest_ambience.mp3` (213 s, 44,1 kHz, **Stereo**) verifiziert:
+
+- **Dekodierung funktioniert** mit dem synchronen Decode-Loop. PCM-Output ist standardmäßig **16-bit signed Little-Endian**. `sampleRate`/`channelCount` werden aus dem **Output**-`MediaFormat` (nach `INFO_OUTPUT_FORMAT_CHANGED`) gelesen — nicht aus dem Input-Format, das bei Stereo abweichen kann.
+- **Speicher bleibt beschränkt:** Heap-Delta ~200–300 KB **unabhängig von der Dateilänge**, größter Output-Chunk wenige KB. Das Streaming-Bucketing (Peak je Bucket, nie ganze PCM halten) trägt 1:1.
+- **Performance:** ~35× Echtzeit auf dem Emulator → **60-Min-Datei ≈ 100 s Wallzeit** (Stereo/44,1 kHz; Mono/22 kHz war ~38×). Reale Geräte sind schneller. **Bestätigt:** Vorberechnung im Hintergrund nach Import ist Pflicht; Cache-Miss beim ersten Öffnen braucht einen Ladezustand.
+- **Bucketing 1:1 zu iOS `WaveformAccumulator`** (2200 Buckets, Peak je Bucket, Normalisierung gegen Global-Max) — verifiziert: 2200/2200 Buckets gefüllt, Max = 1,0. Mono-Downmix = **erster Kanal** (wie iOS). `totalFrameCount` für die Bucket-Zuordnung wird auf Android aus `durationUs * sampleRate / 1e6` geschätzt (iOS hat exakte `AVAudioFile.length`).
+- **⚠️ Wichtig für Tests:** Die Screenshot-Test-Fixtures (`androidTest/assets/testfixtures/test-*.mp3`) sind **synthetische Stille** (korrekte Dauer, aber alle Samples 0). Sie taugen **nicht** zur Verifikation echter Wellenform-Inhalte. Unit-Tests laufen über den **Fake-`AudioFrameReader`** (wie geplant); jede On-Device-Verifikation braucht eine echte Audiodatei (z. B. `res/raw/forest_ambience.mp3`).
+
+**Verdikt:** Die unten skizzierte Architektur trägt **1:1, keine strukturelle Änderung**. Verfeinerung: Der `AudioFrameReader`-Seam liefert `sampleRate` + `channelCount` (aus dem Output-Format) und zieht Frame-Chunks (Mono, Kanal 0); `WaveformGenerationService` kapselt `MediaExtractor`/`MediaCodec` dahinter.
+
 ## Annahmen
 
 - **Architektur spiegelt iOS' Waveform-Stack**, mit Android-Decoder statt AVFoundation:
