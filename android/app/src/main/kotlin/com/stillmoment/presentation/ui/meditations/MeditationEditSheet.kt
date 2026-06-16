@@ -29,14 +29,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +48,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -55,14 +60,20 @@ import androidx.compose.ui.unit.dp
 import com.stillmoment.R
 import com.stillmoment.domain.models.EditSheetMode
 import com.stillmoment.domain.models.EditSheetState
+import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.presentation.ui.components.AutocompleteTextField
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
+import com.stillmoment.presentation.ui.timer.GongSelectionLogic
+import com.stillmoment.presentation.ui.timer.components.GongSoundCard
+import com.stillmoment.presentation.ui.timer.components.PREVIEW_RING_DURATION_MS
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
 
 /**
  * Fullscreen editor for editing or importing a guided meditation (shared-103, shared-110).
@@ -91,7 +102,9 @@ fun MeditationEditSheet(
     onSave: (GuidedMeditation) -> Unit,
     modifier: Modifier = Modifier,
     mode: EditSheetMode = EditSheetMode.EDIT,
-    availableTeachers: ImmutableList<String> = persistentListOf()
+    availableTeachers: ImmutableList<String> = persistentListOf(),
+    onPreviewGong: (String) -> Unit = {},
+    onStopGongPreview: () -> Unit = {}
 ) {
     var editState by remember(meditation) {
         mutableStateOf(EditSheetState.fromMeditation(meditation))
@@ -107,38 +120,42 @@ fun MeditationEditSheet(
             onDismiss()
         }
     }
+    val save = {
+        if (editState.isValid) {
+            onSave(editState.applyChanges())
+        }
+    }
 
     BackHandler { attemptDismiss() }
+    StopGongPreviewOnDispose(onStopGongPreview)
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            EditorTopBar(
-                mode = mode,
-                saveEnabled = editState.isValid,
-                onCancel = attemptDismiss,
-                onSave = {
-                    if (editState.isValid) {
-                        onSave(editState.applyChanges())
-                    }
-                }
-            )
+            EditorTopBar(mode = mode, saveEnabled = editState.isValid, onCancel = attemptDismiss, onSave = save)
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         MeditationEditContent(
             meditation = meditation,
             mode = mode,
-            teacherText = editState.editedTeacher,
-            nameText = editState.editedName,
+            fields = EditSheetFields(
+                teacherText = editState.editedTeacher,
+                nameText = editState.editedName,
+                startGongEnabled = editState.editedStartGongEnabled,
+                endGongEnabled = editState.editedEndGongEnabled,
+                gongSoundId = editState.editedGongSoundId
+            ),
             availableTeachers = availableTeachers,
-            onTeacherChange = { editState = editState.copy(editedTeacher = it) },
-            onNameChange = { editState = editState.copy(editedName = it) },
-            onSave = {
-                if (editState.isValid) {
-                    onSave(editState.applyChanges())
-                }
-            },
+            callbacks = EditSheetCallbacks(
+                onTeacherChange = { editState = editState.copy(editedTeacher = it) },
+                onNameChange = { editState = editState.copy(editedName = it) },
+                onStartGongChange = { editState = editState.copy(editedStartGongEnabled = it) },
+                onEndGongChange = { editState = editState.copy(editedEndGongEnabled = it) },
+                onGongSoundChange = { editState = editState.copy(editedGongSoundId = it) },
+                onPreviewGong = onPreviewGong,
+                onSave = save
+            ),
             modifier = Modifier.padding(paddingValues)
         )
     }
@@ -151,6 +168,19 @@ fun MeditationEditSheet(
             },
             onKeepEditing = { showDiscardDialog = false }
         )
+    }
+}
+
+/**
+ * Stoppt einen laufenden Gong-Vorhör-Preview, wenn der Editor verlassen wird.
+ * `rememberUpdatedState` haelt die aktuelle Lambda-Referenz, ohne den Effekt neu
+ * zu starten (detekt LambdaParameterInRestartableEffect).
+ */
+@Composable
+private fun StopGongPreviewOnDispose(onStopGongPreview: () -> Unit) {
+    val currentStop by rememberUpdatedState(onStopGongPreview)
+    DisposableEffect(Unit) {
+        onDispose { currentStop() }
     }
 }
 
@@ -222,24 +252,42 @@ private fun DiscardDialog(onConfirmDiscard: () -> Unit, onKeepEditing: () -> Uni
     )
 }
 
-@Suppress("LongParameterList") // Editor body coordinates many UI inputs
+/** Editierbare Felder des Editors, gebündelt zur Begrenzung der Parameterzahl. */
+@androidx.compose.runtime.Immutable
+private data class EditSheetFields(
+    val teacherText: String,
+    val nameText: String,
+    val startGongEnabled: Boolean,
+    val endGongEnabled: Boolean,
+    val gongSoundId: String
+)
+
+/** Interaktions-Callbacks des Editors, gebündelt zur Begrenzung der Parameterzahl. */
+@androidx.compose.runtime.Immutable
+private data class EditSheetCallbacks(
+    val onTeacherChange: (String) -> Unit,
+    val onNameChange: (String) -> Unit,
+    val onStartGongChange: (Boolean) -> Unit,
+    val onEndGongChange: (Boolean) -> Unit,
+    val onGongSoundChange: (String) -> Unit,
+    val onPreviewGong: (String) -> Unit,
+    val onSave: () -> Unit
+)
+
 @Composable
 private fun MeditationEditContent(
     meditation: GuidedMeditation,
     mode: EditSheetMode,
-    teacherText: String,
-    nameText: String,
+    fields: EditSheetFields,
     availableTeachers: ImmutableList<String>,
-    onTeacherChange: (String) -> Unit,
-    onNameChange: (String) -> Unit,
-    onSave: () -> Unit,
+    callbacks: EditSheetCallbacks,
     modifier: Modifier = Modifier
 ) {
     val teacherFocus = remember { FocusRequester() }
     val nameFocus = remember { FocusRequester() }
 
     LaunchedEffect(mode, meditation.id) {
-        if (mode == EditSheetMode.IMPORT && nameText.isBlank()) {
+        if (mode == EditSheetMode.IMPORT && fields.nameText.isBlank()) {
             nameFocus.requestFocus()
         }
     }
@@ -251,10 +299,13 @@ private fun MeditationEditContent(
             .padding(horizontal = 20.dp)
             .padding(bottom = 24.dp)
     ) {
+        EditSheetSectionHeader(textRes = R.string.guided_meditations_edit_section_info)
+        Spacer(modifier = Modifier.height(12.dp))
+
         EditSheetTeacherField(
-            value = teacherText,
+            value = fields.teacherText,
             availableTeachers = availableTeachers,
-            onValueChange = onTeacherChange,
+            onValueChange = callbacks.onTeacherChange,
             teacherFocus = teacherFocus,
             onImeNext = { nameFocus.requestFocus() }
         )
@@ -262,15 +313,147 @@ private fun MeditationEditContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         EditSheetNameField(
-            value = nameText,
-            onValueChange = onNameChange,
+            value = fields.nameText,
+            onValueChange = callbacks.onNameChange,
             nameFocus = nameFocus,
-            onImeAction = onSave
+            onImeAction = callbacks.onSave
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         EditSheetFileInfoFooter(meditation = meditation)
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        GongSection(
+            startGongEnabled = fields.startGongEnabled,
+            endGongEnabled = fields.endGongEnabled,
+            gongSoundId = fields.gongSoundId,
+            onStartGongChange = callbacks.onStartGongChange,
+            onEndGongChange = callbacks.onEndGongChange,
+            onGongSoundChange = callbacks.onGongSoundChange,
+            onPreviewGong = callbacks.onPreviewGong
+        )
+    }
+}
+
+@Composable
+private fun EditSheetSectionHeader(textRes: Int, modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(textRes),
+        style = TextStyle.section.toComposeTextStyle(),
+        color = LocalStillMomentColors.current.textPrimary,
+        modifier = modifier
+    )
+}
+
+/**
+ * "Zusätzlicher Gong"-Abschnitt (shared-106): zwei Schalter (Anfang/Ende) und —
+ * sobald mindestens einer aktiv ist — der geteilte Karten-Klang-Picker (ohne
+ * Vibration, ohne Lautstärke-Regler). 1:1 Pendant zur iOS-Editor-Section.
+ */
+@Suppress("LongParameterList") // Section coordinates two toggles plus the picker
+@Composable
+private fun GongSection(
+    startGongEnabled: Boolean,
+    endGongEnabled: Boolean,
+    gongSoundId: String,
+    onStartGongChange: (Boolean) -> Unit,
+    onEndGongChange: (Boolean) -> Unit,
+    onGongSoundChange: (String) -> Unit,
+    onPreviewGong: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Meditation gongs exclude vibration (no haptic option, no volume slider).
+    val sounds = remember { GongSound.allSounds.filter { it.id != GongSound.VIBRATION_ID }.toImmutableList() }
+
+    // ID der Zeile, deren Vorhören gerade klingt (treibt den Ring) — wie im Timer-Picker.
+    var previewingSoundId by remember { mutableStateOf<String?>(null) }
+    var previewTick by remember { mutableIntStateOf(0) }
+    LaunchedEffect(previewTick) {
+        if (previewingSoundId != null) {
+            delay(PREVIEW_RING_DURATION_MS)
+            previewingSoundId = null
+        }
+    }
+    val preview: (String) -> Unit = { soundId ->
+        onPreviewGong(soundId)
+        previewingSoundId = soundId
+        previewTick++
+    }
+
+    Column(modifier = modifier) {
+        EditSheetSectionHeader(textRes = R.string.guided_meditations_edit_section_gong)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        GongToggleRow(
+            labelRes = R.string.guided_meditations_edit_start_gong,
+            hintRes = R.string.accessibility_edit_sheet_start_gong_hint,
+            checked = startGongEnabled,
+            onCheckedChange = onStartGongChange,
+            testTag = "editSheet.toggle.startGong"
+        )
+        GongToggleRow(
+            labelRes = R.string.guided_meditations_edit_end_gong,
+            hintRes = R.string.accessibility_edit_sheet_end_gong_hint,
+            checked = endGongEnabled,
+            onCheckedChange = onEndGongChange,
+            testTag = "editSheet.toggle.endGong"
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.guided_meditations_edit_gong_hint),
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        if (GongSelectionLogic.isSoundListVisible(startGongEnabled, endGongEnabled)) {
+            Spacer(modifier = Modifier.height(16.dp))
+            GongSoundCard(
+                sounds = sounds,
+                selectedSoundId = gongSoundId,
+                previewingSoundId = previewingSoundId,
+                onSelect = { soundId ->
+                    onGongSoundChange(soundId)
+                    preview(soundId)
+                },
+                onPreview = preview,
+                testTagPrefix = "editSheetGong"
+            )
+        }
+    }
+}
+
+@Composable
+private fun GongToggleRow(
+    labelRes: Int,
+    hintRes: Int,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    testTag: String,
+    modifier: Modifier = Modifier
+) {
+    val hint = stringResource(hintRes)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .semantics { contentDescription = hint },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(labelRes),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = LocalStillMomentColors.current.textPrimary,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.testTag(testTag)
+        )
     }
 }
 
@@ -401,12 +584,9 @@ private fun MeditationEditSheetDefaultPreview() {
             MeditationEditContent(
                 meditation = meditation,
                 mode = EditSheetMode.EDIT,
-                teacherText = meditation.teacher,
-                nameText = meditation.name,
+                fields = previewFields(meditation.teacher, meditation.name),
                 availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield", "Jon Kabat-Zinn"),
-                onTeacherChange = {},
-                onNameChange = {},
-                onSave = {}
+                callbacks = previewCallbacks()
             )
         }
     }
@@ -428,13 +608,28 @@ private fun MeditationEditSheetImportPreview() {
             MeditationEditContent(
                 meditation = meditation,
                 mode = EditSheetMode.IMPORT,
-                teacherText = "",
-                nameText = "",
+                fields = previewFields("", ""),
                 availableTeachers = persistentListOf("Tara Brach", "Jack Kornfield"),
-                onTeacherChange = {},
-                onNameChange = {},
-                onSave = {}
+                callbacks = previewCallbacks()
             )
         }
     }
 }
+
+private fun previewFields(teacher: String, name: String) = EditSheetFields(
+    teacherText = teacher,
+    nameText = name,
+    startGongEnabled = false,
+    endGongEnabled = false,
+    gongSoundId = GongSound.DEFAULT_SOUND_ID
+)
+
+private fun previewCallbacks() = EditSheetCallbacks(
+    onTeacherChange = {},
+    onNameChange = {},
+    onStartGongChange = {},
+    onEndGongChange = {},
+    onGongSoundChange = {},
+    onPreviewGong = {},
+    onSave = {}
+)

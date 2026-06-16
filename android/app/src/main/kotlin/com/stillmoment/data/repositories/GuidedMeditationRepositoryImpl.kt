@@ -76,7 +76,10 @@ constructor(
         fileName: String,
         metadata: AudioMetadata,
         teacher: String,
-        name: String
+        name: String,
+        startGongEnabled: Boolean,
+        endGongEnabled: Boolean,
+        gongSoundId: String
     ): Result<GuidedMeditation> {
         return withContext(Dispatchers.IO) {
             try {
@@ -88,7 +91,10 @@ constructor(
                     fileName = fileName,
                     duration = metadata.duration,
                     teacher = teacher,
-                    name = name
+                    name = name,
+                    startGongEnabled = startGongEnabled,
+                    endGongEnabled = endGongEnabled,
+                    gongSoundId = gongSoundId
                 )
                 dataStore.addMeditation(meditation)
                 Result.success(meditation)

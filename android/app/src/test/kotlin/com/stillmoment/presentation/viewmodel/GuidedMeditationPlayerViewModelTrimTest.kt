@@ -3,9 +3,12 @@ package com.stillmoment.presentation.viewmodel
 import android.net.Uri
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationSettings
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import com.stillmoment.domain.services.PlaybackState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,6 +29,7 @@ import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.wheneverBlocking
 
 /**
  * Behavioral tests for the trim-aware playback mapping (shared-105):
@@ -40,6 +44,8 @@ class GuidedMeditationPlayerViewModelTrimTest {
     private lateinit var fakePlayer: FakeAudioPlayerService
     private lateinit var mockCoordinator: AudioSessionCoordinatorProtocol
     private lateinit var mockSettingsRepository: GuidedMeditationSettingsRepository
+    private lateinit var mockGongPlayer: MeditationGongPlayerProtocol
+    private lateinit var mockPraxisRepository: PraxisRepository
     private lateinit var viewModel: GuidedMeditationPlayerViewModel
 
     // 20-min file, audible range 1:00..15:00 → effective 14:00
@@ -60,13 +66,18 @@ class GuidedMeditationPlayerViewModelTrimTest {
         fakePlayer = FakeAudioPlayerService()
         mockCoordinator = mock()
         mockSettingsRepository = mock()
+        mockGongPlayer = mock()
+        mockPraxisRepository = mock()
         whenever(mockCoordinator.requestAudioSession(any())).thenReturn(true)
+        wheneverBlocking { mockPraxisRepository.load() }.thenReturn(Praxis.Default)
 
         viewModel =
             GuidedMeditationPlayerViewModel(
                 fakePlayer,
                 mockCoordinator,
-                mockSettingsRepository
+                mockSettingsRepository,
+                mockGongPlayer,
+                mockPraxisRepository
             )
     }
 

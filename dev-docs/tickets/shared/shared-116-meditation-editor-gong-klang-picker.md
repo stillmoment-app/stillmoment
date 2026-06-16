@@ -30,7 +30,7 @@ Editor eine klarere, ruhigere Gliederung.
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | shared-115 (vorhanden) |
-| Android   | [ ]    | shared-106 (per-Meditation-Gong, dort noch offen) |
+| Android   | [~]    | Karten-Picker + Section-Header „Informationen"/„Zusätzlicher Gong" in Android-Parität Phase B (2026-06-16); Section-Header „Wiedergabebereich" folgt mit dem Trim-Editor in Phase C |
 
 ---
 

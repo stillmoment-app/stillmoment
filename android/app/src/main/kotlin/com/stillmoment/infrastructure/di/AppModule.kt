@@ -24,6 +24,7 @@ import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
 import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MediaPlayerFactoryProtocol
+import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import com.stillmoment.domain.services.ProgressSchedulerProtocol
 import com.stillmoment.domain.services.SoundscapeResolverProtocol
 import com.stillmoment.domain.services.TimerForegroundServiceProtocol
@@ -35,6 +36,7 @@ import com.stillmoment.infrastructure.audio.AudioPlayerService
 import com.stillmoment.infrastructure.audio.AudioService
 import com.stillmoment.infrastructure.audio.AudioSessionCoordinator
 import com.stillmoment.infrastructure.audio.MediaPlayerFactory
+import com.stillmoment.infrastructure.audio.MeditationGongPlayer
 import com.stillmoment.infrastructure.audio.ProgressScheduler
 import com.stillmoment.infrastructure.audio.SoundscapeResolver
 import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
@@ -111,6 +113,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideMediaPlayerFactory(impl: MediaPlayerFactory): MediaPlayerFactoryProtocol {
+        return impl
+    }
+
+    @Provides
+    @Singleton
+    fun provideMeditationGongPlayer(impl: MeditationGongPlayer): MeditationGongPlayerProtocol {
         return impl
     }
 

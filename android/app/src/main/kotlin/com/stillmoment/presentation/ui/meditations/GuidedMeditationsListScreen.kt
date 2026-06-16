@@ -119,7 +119,7 @@ fun GuidedMeditationsListScreen(
         },
         onSaveMeditation = { updated ->
             if (uiState.pendingImport != null) {
-                viewModel.saveImportedMeditation(updated.teacher, updated.name)
+                viewModel.saveImportedMeditation(updated)
             } else {
                 viewModel.updateMeditation(updated)
             }
@@ -128,6 +128,8 @@ fun GuidedMeditationsListScreen(
         onPreviewStart = viewModel::startPreview,
         onStopPreview = viewModel::stopPreview,
         onSeekPreview = viewModel::seekPreview,
+        onPreviewGong = viewModel::previewGong,
+        onStopGongPreview = viewModel::stopGongPreview,
         onOpenGuide = { viewModel.openGuideSheet(languageCode) },
         onCloseGuide = viewModel::closeGuideSheet,
         onSearchQueryChange = viewModel::updateSearchQuery,
@@ -165,7 +167,9 @@ internal fun GuidedMeditationsListScreenContent(
     onHistoryEntrySelect: (String) -> Unit = {},
     onClearHistory: () -> Unit = {},
     onResetSearch: () -> Unit = {},
-    onSeekPreview: (Long) -> Unit = {}
+    onSeekPreview: (Long) -> Unit = {},
+    onPreviewGong: (String) -> Unit = {},
+    onStopGongPreview: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -220,7 +224,9 @@ internal fun GuidedMeditationsListScreenContent(
                 mode = mode,
                 onDismiss = onDismissEditSheet,
                 onSave = onSaveMeditation,
-                availableTeachers = uiState.availableTeachers
+                availableTeachers = uiState.availableTeachers,
+                onPreviewGong = onPreviewGong,
+                onStopGongPreview = onStopGongPreview
             )
         }
 

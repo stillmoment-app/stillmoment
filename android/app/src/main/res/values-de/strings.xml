@@ -143,6 +143,16 @@
     <string name="guided_meditations_edit_discard_confirm">Verwerfen</string>
     <string name="guided_meditations_edit_discard_keep_editing">Weiter bearbeiten</string>
 
+    <!-- shared-106: Editor-Section-Titel + Start-/End-Gong pro Meditation -->
+    <string name="guided_meditations_edit_section_info">Informationen</string>
+    <string name="guided_meditations_edit_section_playback_range">Wiedergabebereich</string>
+    <string name="guided_meditations_edit_section_gong">Zusätzlicher Gong</string>
+    <string name="guided_meditations_edit_start_gong">Gong am Anfang</string>
+    <string name="guided_meditations_edit_end_gong">Gong am Ende</string>
+    <string name="guided_meditations_edit_gong_hint">Ein Gong kann die Meditation einleiten und abschließen. Die Lautstärke folgt den Gong-Einstellungen des Timers.</string>
+    <string name="accessibility_edit_sheet_start_gong_hint">Spielt einen Gong am Anfang der Wiedergabe</string>
+    <string name="accessibility_edit_sheet_end_gong_hint">Spielt einen Gong am Ende der Wiedergabe</string>
+
     <!-- Guided Meditations Settings -->
     <string name="guided_meditations_settings_preparation_time">Vorbereitungszeit</string>
     <string name="guided_meditations_settings_preparation_description">Zeit zum Ankommen bevor das Audio startet</string>

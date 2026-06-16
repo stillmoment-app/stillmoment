@@ -1,6 +1,7 @@
 package com.stillmoment.domain.repositories
 
 import com.stillmoment.domain.models.AudioMetadata
+import com.stillmoment.domain.models.GongSound
 import com.stillmoment.domain.models.GuidedMeditation
 import kotlinx.coroutines.flow.Flow
 
@@ -44,18 +45,27 @@ interface GuidedMeditationRepository {
      * Copies the source file into app-internal storage and persists the entry
      * with the caller-provided teacher and name (already prefilled or edited).
      *
+     * The gong settings (shared-106) are persisted together with the entry in the
+     * same operation, so an import can never leave a gong-less entry behind.
+     *
      * @param sourceUri URI string of the source audio file (will be copied)
      * @param fileName Original file name to preserve for display
      * @param metadata Previously extracted metadata for the file (duration etc.)
      * @param teacher Teacher name to persist
      * @param name Meditation title to persist
+     * @param startGongEnabled Whether a start gong rings when playback begins
+     * @param endGongEnabled Whether an end gong rings when playback finishes
+     * @param gongSoundId Identifier of the gong sound used for both gongs
      */
     suspend fun addMeditation(
         sourceUri: String,
         fileName: String,
         metadata: AudioMetadata,
         teacher: String,
-        name: String
+        name: String,
+        startGongEnabled: Boolean = false,
+        endGongEnabled: Boolean = false,
+        gongSoundId: String = GongSound.DEFAULT_SOUND_ID
     ): Result<GuidedMeditation>
 
     /**

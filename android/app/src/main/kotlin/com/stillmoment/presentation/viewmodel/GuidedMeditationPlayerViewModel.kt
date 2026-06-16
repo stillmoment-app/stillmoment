@@ -6,10 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.stillmoment.domain.models.AudioSource
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.MeditationPhase
+import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.models.PreparationCountdown
 import com.stillmoment.domain.repositories.GuidedMeditationSettingsRepository
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.services.AudioPlayerServiceProtocol
 import com.stillmoment.domain.services.AudioSessionCoordinatorProtocol
+import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
@@ -114,7 +117,9 @@ class GuidedMeditationPlayerViewModel
 constructor(
     private val audioPlayerService: AudioPlayerServiceProtocol,
     private val audioSessionCoordinator: AudioSessionCoordinatorProtocol,
-    private val settingsRepository: GuidedMeditationSettingsRepository
+    private val settingsRepository: GuidedMeditationSettingsRepository,
+    private val gongPlayer: MeditationGongPlayerProtocol,
+    private val praxisRepository: PraxisRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
@@ -122,11 +127,26 @@ constructor(
     /** Preparation time in seconds (null = disabled) */
     private var preparationTimeSeconds: Int? = null
 
+    /**
+     * Gong volume from the timer settings (Praxis), loaded with the meditation.
+     * The per-meditation gong follows the timer's gong volume, not a stored value (shared-106).
+     */
+    private var gongVolume: Float = Praxis.DEFAULT_GONG_VOLUME
+
     /** Tracks whether the session has started (countdown or playback began) */
     private var hasSessionStarted = false
 
     /** Job for the countdown timer */
     private var countdownJob: Job? = null
+
+    /** Job for the start-gong sequence (gong + breath pause). */
+    private var startGongJob: Job? = null
+
+    /**
+     * True while the start gong rings and during the following breath pause —
+     * blocks further startPlayback taps until the meditation audio runs (shared-106).
+     */
+    private var isStartGongSequenceActive = false
 
     init {
         observePlaybackState()
@@ -208,6 +228,12 @@ constructor(
         countdownJob?.cancel()
         countdownJob = null
 
+        // Cancel any pending start-gong sequence
+        startGongJob?.cancel()
+        startGongJob = null
+        gongPlayer.stop()
+        isStartGongSequenceActive = false
+
         // Reset session state
         hasSessionStarted = false
 
@@ -227,6 +253,9 @@ constructor(
         // Load settings sequentially so startPlayback() sees the value.
         val settings = settingsRepository.getSettings()
         preparationTimeSeconds = settings.effectivePreparationTimeSeconds
+
+        // The per-meditation gong follows the timer's gong volume (shared-106).
+        gongVolume = praxisRepository.load().gongVolume
     }
 
     /**
@@ -237,12 +266,12 @@ constructor(
      * - Subsequent calls: toggles play/pause (no countdown)
      */
     fun startPlayback() {
-        // Don't start if already counting down
-        if (_uiState.value.isPreparing) {
+        // Don't start while counting down or while the start-gong sequence runs
+        if (_uiState.value.isPreparing || isStartGongSequenceActive) {
             return
         }
 
-        // If session already started, just toggle play/pause (no countdown on resume)
+        // If session already started, just toggle play/pause (no countdown/gong on resume)
         if (hasSessionStarted) {
             togglePlayPause()
             return
@@ -251,12 +280,12 @@ constructor(
         // Mark session as started
         hasSessionStarted = true
 
-        // First start - use countdown if configured
+        // First start - use countdown if configured, otherwise start gong (if any), otherwise play
         val prepTime = preparationTimeSeconds
-        if (prepTime != null && prepTime > 0) {
-            startCountdown(prepTime)
-        } else {
-            togglePlayPause()
+        when {
+            prepTime != null && prepTime > 0 -> startCountdown(prepTime)
+            _uiState.value.meditation?.startGongEnabled == true -> startGongSequence()
+            else -> togglePlayPause()
         }
     }
 
@@ -287,7 +316,39 @@ constructor(
         if (ticked.isFinished) {
             countdownJob?.cancel()
             countdownJob = null
-            // Start MP3 after countdown
+            // After the countdown: ring the start gong (if any), then play (shared-106)
+            if (_uiState.value.meditation?.startGongEnabled == true) {
+                startGongSequence()
+            } else {
+                play()
+            }
+        }
+    }
+
+    // MARK: - Start Gong Sequence (shared-106)
+
+    /**
+     * Rings the start gong, waits a breath pause, then begins audio playback.
+     *
+     * Mirrors iOS: the gong marks the start of the session; resume and restart do
+     * not ring it again (only the first [startPlayback] reaches here).
+     */
+    private fun startGongSequence() {
+        isStartGongSequenceActive = true
+        val meditation = _uiState.value.meditation ?: run {
+            isStartGongSequenceActive = false
+            return
+        }
+        gongPlayer.play(meditation.gongSoundId, gongVolume) {
+            startBreathPause()
+        }
+    }
+
+    private fun startBreathPause() {
+        startGongJob?.cancel()
+        startGongJob = viewModelScope.launch {
+            delay(BREATH_PAUSE_MS)
+            isStartGongSequenceActive = false
             play()
         }
     }
@@ -421,6 +482,12 @@ constructor(
         countdownJob?.cancel()
         countdownJob = null
 
+        // Cancel any pending start-gong sequence and stop a ringing gong
+        startGongJob?.cancel()
+        startGongJob = null
+        gongPlayer.stop()
+        isStartGongSequenceActive = false
+
         audioPlayerService.stop()
         audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
         _uiState.update {
@@ -444,10 +511,28 @@ constructor(
                 currentPosition = it.duration
             )
         }
+        // shared-106: ring the end gong before releasing the audio session, so it
+        // stays audible — also on the lock screen — until it has fully rung out.
+        // The completion screen is already shown above. The session must be released
+        // in every completion path exactly once: after the gong rings out when one is
+        // enabled, or immediately otherwise (without this the GUIDED_MEDITATION session
+        // would leak and block the timer audio after a gong-free meditation).
+        if (_uiState.value.meditation?.endGongEnabled == true) {
+            gongPlayer.play(_uiState.value.meditation?.gongSoundId ?: Praxis.DEFAULT_GONG_SOUND_ID, gongVolume) {
+                audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+            }
+        } else {
+            audioSessionCoordinator.releaseAudioSession(AudioSource.GUIDED_MEDITATION)
+        }
     }
 
     override fun onCleared() {
         super.onCleared()
         stop()
+    }
+
+    companion object {
+        /** Breath pause between the start gong and the meditation audio. Matches iOS' 2.0 s (shared-106). */
+        private const val BREATH_PAUSE_MS = 2000L
     }
 }

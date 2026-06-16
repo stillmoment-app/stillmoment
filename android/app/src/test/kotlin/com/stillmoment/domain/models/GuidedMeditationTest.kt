@@ -4,6 +4,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -320,6 +321,60 @@ class GuidedMeditationTest {
             assertEquals(original, restored)
             assertEquals(60_000L, restored.trimStartMs)
             assertEquals(900_000L, restored.trimEndMs)
+        }
+
+        @Test
+        fun `serialization roundtrip preserves gong fields`() {
+            // Given
+            val original =
+                GuidedMeditation(
+                    id = "test-id-123",
+                    fileUri = "content://test/uri",
+                    fileName = "test.mp3",
+                    duration = 600_000L,
+                    teacher = "Teacher",
+                    name = "Name",
+                    dateAdded = 1234567890L,
+                    startGongEnabled = true,
+                    endGongEnabled = true,
+                    gongSoundId = "deep-resonance"
+                )
+
+            // When
+            val json = Json.encodeToString(original)
+            val restored = Json.decodeFromString<GuidedMeditation>(json)
+
+            // Then
+            assertEquals(original, restored)
+            assertTrue(restored.startGongEnabled)
+            assertTrue(restored.endGongEnabled)
+            assertEquals("deep-resonance", restored.gongSoundId)
+        }
+
+        @Test
+        fun `legacy JSON without gong keys decodes to gong defaults`() {
+            // Given - JSON from before shared-106 (no gong keys at all).
+            val legacyJson =
+                """
+                {
+                    "id": "legacy-id",
+                    "fileUri": "content://test/uri",
+                    "fileName": "legacy.mp3",
+                    "duration": 600000,
+                    "teacher": "Teacher",
+                    "name": "Old Meditation",
+                    "dateAdded": 1234567890
+                }
+                """.trimIndent()
+            val lenientJson = Json { ignoreUnknownKeys = true }
+
+            // When
+            val restored = lenientJson.decodeFromString<GuidedMeditation>(legacyJson)
+
+            // Then - both gongs off, standard sound, no gong plays
+            assertFalse(restored.startGongEnabled)
+            assertFalse(restored.endGongEnabled)
+            assertEquals(GongSound.DEFAULT_SOUND_ID, restored.gongSoundId)
         }
 
         @Test

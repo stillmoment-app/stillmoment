@@ -15,6 +15,7 @@ import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.models.groupByTeacher
 import com.stillmoment.domain.repositories.GuidedMeditationRepository
 import com.stillmoment.domain.repositories.MeditationSourceRepository
+import com.stillmoment.domain.repositories.PraxisRepository
 import com.stillmoment.domain.repositories.SearchHistoryRepository
 import com.stillmoment.domain.services.AudioServiceProtocol
 import com.stillmoment.domain.services.LibrarySearchEngine
@@ -120,7 +121,8 @@ constructor(
     private val audioService: AudioServiceProtocol,
     private val meditationSourceRepository: MeditationSourceRepository,
     private val searchHistoryRepository: SearchHistoryRepository,
-    private val fileOpenHandler: FileOpenHandler
+    private val fileOpenHandler: FileOpenHandler,
+    private val praxisRepository: PraxisRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GuidedMeditationsListUiState())
     val uiState: StateFlow<GuidedMeditationsListUiState> = _uiState.asStateFlow()
@@ -235,15 +237,20 @@ constructor(
      * Persists the pending import using the (potentially edited) values from
      * the edit sheet. Closes the sheet and clears the pending state.
      */
-    fun saveImportedMeditation(teacher: String, name: String) {
+    fun saveImportedMeditation(edited: GuidedMeditation) {
         val pending = _uiState.value.pendingImport ?: return
         viewModelScope.launch {
+            // Persist the entry complete with its gong settings (shared-106) in a
+            // single operation, so a failure can never leave a gong-less entry behind.
             repository.addMeditation(
                 sourceUri = pending.uri,
                 fileName = pending.fileName,
                 metadata = pending.metadata,
-                teacher = teacher.trim(),
-                name = name.trim()
+                teacher = edited.teacher.trim(),
+                name = edited.name.trim(),
+                startGongEnabled = edited.startGongEnabled,
+                endGongEnabled = edited.endGongEnabled,
+                gongSoundId = edited.gongSoundId
             ).onFailure {
                 // Repository failures during the save step are surfaced as the
                 // generic "Import failed" message — the exact reason (IO,
@@ -360,6 +367,22 @@ constructor(
 
     fun seekPreview(positionMs: Long) {
         audioService.seekMeditationPreview(positionMs)
+    }
+
+    // MARK: - Gong Preview (editor, shared-106)
+
+    /**
+     * Previews a gong sound in the editor at the timer's gong volume.
+     * Mirrors iOS: the per-meditation gong volume follows the timer settings.
+     */
+    fun previewGong(soundId: String) {
+        viewModelScope.launch {
+            audioService.playGongPreview(soundId, praxisRepository.load().gongVolume)
+        }
+    }
+
+    fun stopGongPreview() {
+        audioService.stopGongPreview()
     }
 
     // MARK: - Content Guide

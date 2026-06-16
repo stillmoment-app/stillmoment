@@ -36,7 +36,22 @@ data class GuidedMeditation(
      */
     val trimStartMs: Long? = null,
     /** Playback end offset in milliseconds (null = play to file end). */
-    val trimEndMs: Long? = null
+    val trimEndMs: Long? = null,
+    /**
+     * Whether a gong rings at the start of playback (shared-106).
+     * Defaults to off — entries from before this feature play without a gong.
+     */
+    val startGongEnabled: Boolean = false,
+    /**
+     * Whether a gong rings at the end of playback (shared-106).
+     * Defaults to off — entries from before this feature play without a gong.
+     */
+    val endGongEnabled: Boolean = false,
+    /**
+     * Per-meditation gong sound ID (references [GongSound.id]); defaults to the
+     * standard sound. The volume follows the timer's gong volume, not stored here.
+     */
+    val gongSoundId: String = GongSound.DEFAULT_SOUND_ID
 ) {
     /** Where playback effectively begins (file start unless trimmed) */
     val effectiveStartMs: Long
