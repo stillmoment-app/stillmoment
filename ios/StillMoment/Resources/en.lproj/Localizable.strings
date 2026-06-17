@@ -285,6 +285,8 @@
 "accessibility.library.preview.position" = "Preview position";
 "accessibility.sound.select.hint" = "Selects this sound and plays a preview";
 "accessibility.gong.preview" = "Preview %@";
+"accessibility.scape.preview.play" = "Play preview of %@";
+"accessibility.scape.preview.stop" = "Stop preview of %@";
 
 // MARK: - Library Search (ios-041)
 
@@ -328,6 +330,9 @@
 
 "praxis.editor.background.title" = "Background Sound";
 "praxis.editor.background.silence" = "Silence";
+"praxis.background.intro" = "Lay a gentle sound under your session — or choose silence for complete stillness.";
+"praxis.background.silence.helper" = "Silence means complete stillness — just your breath and the space around you.";
+"praxis.background.empty.hint" = "You can also import your own background sounds.";
 "praxis.editor.startGong.title" = "Start & End Gong";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
 "praxis.intervalGongs.section.interval" = "Interval";

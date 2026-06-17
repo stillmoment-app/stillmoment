@@ -2,16 +2,21 @@
 //  BackgroundSoundSelectionView.swift
 //  Still Moment
 //
-//  Presentation Layer - Background sound selection for Praxis editor
+//  Presentation Layer - Background sound selection for Praxis editor (redesigned, shared-121).
 //
 
 import SwiftUI
 
-/// Selection list for choosing a background sound with volume control.
+/// Selection screen for choosing a looping background sound with volume control.
 ///
-/// Shows "Silence" as first option, then all available background sounds.
-/// Tapping a sound selects it and plays a preview. Volume slider appears
-/// when a non-silent sound is selected.
+/// Card-based layout (shared-121, matching the gong picker): an intro text, a
+/// "KLANG" card listing the built-in scenes, a "MEINE KLÄNGE" card for imported
+/// files (or a dashed empty card) plus an import button, and a "LAUTSTÄRKE" card —
+/// except for "Silence", which hides the volume card and shows a helper text.
+///
+/// Background sounds loop, so the preview is a play/stop toggle: tapping a row
+/// selects + starts the loop preview; tapping the preview button toggles it
+/// without changing the selection. Only one sound plays at a time.
 struct BackgroundSoundSelectionView: View {
     // MARK: Lifecycle
 
@@ -26,23 +31,26 @@ struct BackgroundSoundSelectionView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                List {
-                    self.soundsSection
-                    if self.viewModel.backgroundSoundId != BackgroundSound.silentId {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    self.intro
+                    self.soundSection
+                    self.mySoundsSection
+                    if self.isSilentSelected {
+                        self.silenceHelper
+                    } else {
                         self.volumeSection
                     }
-                    self.mySoundsSection
                 }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
-
-                self.importButton
+                .padding(.horizontal, 18)
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
         }
         .screenTitleBar("praxis.editor.background.title")
         .onDisappear {
             self.viewModel.stopAllPreviews()
+            self.previewingSoundscapeId = nil
         }
         .sheet(isPresented: self.$showImportPicker) {
             DocumentPicker { url in
@@ -62,18 +70,7 @@ struct BackgroundSoundSelectionView: View {
             }
             Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
         } message: { file in
-            let count = self.viewModel.usageCount(for: file)
-            let warning: String = if count == 1 {
-                NSLocalizedString("custom.audio.delete.warning.single", comment: "")
-            } else if count > 1 {
-                String(
-                    format: NSLocalizedString("custom.audio.delete.warning.multiple", comment: ""),
-                    count
-                )
-            } else {
-                NSLocalizedString("custom.audio.delete.confirm.message", comment: "")
-            }
-            Text(warning)
+            Text(self.deleteWarning(for: file))
         }
         .alert(
             NSLocalizedString("custom.audio.rename.title", comment: ""),
@@ -98,6 +95,9 @@ struct BackgroundSoundSelectionView: View {
     @Environment(\.themeColors)
     private var theme
     @ObservedObject private var viewModel: PraxisSettingsViewModel
+
+    /// ID of the row whose loop preview is currently sounding (nil = nothing playing).
+    @State private var previewingSoundscapeId: String?
     @State private var showImportPicker = false
     @State private var fileToDelete: CustomAudioFile?
     @State private var showDeleteConfirmation = false
@@ -105,15 +105,174 @@ struct BackgroundSoundSelectionView: View {
     @State private var renameText: String = ""
     @State private var showRenameAlert = false
 
-    private var soundsSection: some View {
-        Section {
-            ForEach(self.viewModel.availableBackgroundSounds) { sound in
-                self.soundRow(for: sound)
-            }
+    private var isSilentSelected: Bool {
+        self.viewModel.backgroundSoundId == BackgroundSound.silentId
+    }
+
+    private func deleteWarning(for file: CustomAudioFile) -> String {
+        let count = self.viewModel.usageCount(for: file)
+        if count == 1 {
+            return NSLocalizedString("custom.audio.delete.warning.single", comment: "")
+        } else if count > 1 {
+            return String(
+                format: NSLocalizedString("custom.audio.delete.warning.multiple", comment: ""),
+                count
+            )
+        }
+        return NSLocalizedString("custom.audio.delete.confirm.message", comment: "")
+    }
+}
+
+// MARK: - Preview & selection actions
+
+private extension BackgroundSoundSelectionView {
+    /// Selects a sound and starts its loop preview (or stops everything for "Silence").
+    func select(soundId: String) {
+        self.viewModel.backgroundSoundId = soundId
+        if soundId == BackgroundSound.silentId {
+            self.stopPreview()
+        } else {
+            self.startPreview(soundId: soundId)
         }
     }
 
-    private var importButton: some View {
+    /// Toggles the loop preview for a sound without changing the selection.
+    func togglePreview(soundId: String) {
+        guard soundId != BackgroundSound.silentId else {
+            return
+        }
+        if self.previewingSoundscapeId == soundId {
+            self.stopPreview()
+        } else {
+            self.startPreview(soundId: soundId)
+        }
+    }
+
+    func startPreview(soundId: String) {
+        self.viewModel.playBackgroundPreview(
+            soundId: soundId,
+            volume: self.viewModel.backgroundSoundVolume
+        )
+        self.previewingSoundscapeId = soundId
+    }
+
+    func stopPreview() {
+        self.viewModel.stopAllPreviews()
+        self.previewingSoundscapeId = nil
+    }
+}
+
+// MARK: - Sections
+
+private extension BackgroundSoundSelectionView {
+    var intro: some View {
+        Text("praxis.background.intro")
+            .textStyle(.bodyItalic, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 6)
+            .padding(.bottom, 18)
+    }
+
+    var soundSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.sound")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            self.soundCard
+        }
+    }
+
+    var soundCard: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(self.viewModel.availableBackgroundSounds.enumerated()), id: \.element.id) { index, sound in
+                if index > 0 {
+                    Divider()
+                        .overlay(self.theme.divider)
+                }
+                ScapeSoundRow(
+                    soundId: sound.id,
+                    name: sound.name,
+                    description: sound.description,
+                    isSelected: self.viewModel.backgroundSoundId == sound.id,
+                    isSilent: sound.id == BackgroundSound.silentId,
+                    isPlaying: self.previewingSoundscapeId == sound.id,
+                    onSelect: { self.select(soundId: sound.id) },
+                    onPreview: { self.togglePreview(soundId: sound.id) }
+                )
+            }
+        }
+        .modifier(GongCardBackground())
+    }
+
+    var mySoundsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("custom.audio.section.mySounds")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            if self.viewModel.customSoundscapes.isEmpty {
+                self.emptyCard
+            } else {
+                self.customCard
+            }
+            self.importButton
+        }
+        .padding(.top, 18)
+    }
+
+    var emptyCard: some View {
+        Text("praxis.background.empty.hint")
+            .textStyle(.bodyItalic, color: \.textSecondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 22)
+                    .strokeBorder(
+                        self.theme.cardBorder,
+                        style: StrokeStyle(lineWidth: 1, dash: [5, 4])
+                    )
+            )
+    }
+
+    var customCard: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(self.viewModel.customSoundscapes.enumerated()), id: \.element.id) { index, file in
+                if index > 0 {
+                    Divider()
+                        .overlay(self.theme.divider)
+                }
+                self.customRow(for: file)
+            }
+        }
+        .modifier(GongCardBackground())
+    }
+
+    func customRow(for file: CustomAudioFile) -> some View {
+        let id = file.id.uuidString
+        return ScapeSoundRow(
+            soundId: id,
+            name: file.name,
+            description: file.formattedDuration,
+            isSelected: self.viewModel.backgroundSoundId == id,
+            isSilent: false,
+            isPlaying: self.previewingSoundscapeId == id,
+            isCustom: true,
+            onSelect: { self.select(soundId: id) },
+            onPreview: { self.togglePreview(soundId: id) },
+            onRename: {
+                self.fileToRename = file
+                self.renameText = file.name
+                self.showRenameAlert = true
+            },
+            onRemove: {
+                self.fileToDelete = file
+                self.showDeleteConfirmation = true
+            }
+        )
+    }
+
+    var importButton: some View {
         ImportAudioButton(
             accessibilityLabel: NSLocalizedString(
                 "custom.audio.accessibility.importButton.soundscape",
@@ -124,128 +283,31 @@ struct BackgroundSoundSelectionView: View {
         }
     }
 
-    private var mySoundsSection: some View {
-        Section {
-            if self.viewModel.customSoundscapes.isEmpty {
-                Text("custom.audio.empty.sounds", bundle: .main)
-                    .textStyle(.caption, color: \.textSecondary)
-                    .foregroundColor(self.theme.textSecondary)
-                    .cardRowBackground()
-            } else {
-                ForEach(self.viewModel.customSoundscapes) { file in
-                    self.customSoundRow(for: file)
-                }
-            }
-        } header: {
-            Text("custom.audio.section.mySounds", bundle: .main)
-                .textStyle(.section, color: \.textSecondary)
-                .textCase(nil)
-        }
-    }
-
-    private func customSoundRow(for file: CustomAudioFile) -> some View {
-        let isSelected = self.viewModel.backgroundSoundId == file.id.uuidString
-        return HStack {
-            HStack {
-                Image(systemName: isSelected ? "waveform.circle.fill" : "waveform.circle")
-                    .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
-                    .frame(width: 24)
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(file.name)
-                        .textStyle(.body, color: \.textPrimary)
-                    Text(file.formattedDuration)
-                        .textStyle(.caption, color: \.textSecondary)
-                        .foregroundColor(self.theme.textSecondary)
-                }
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                self.viewModel.backgroundSoundId = file.id.uuidString
-                self.viewModel.playBackgroundPreview(
-                    soundId: file.id.uuidString,
-                    volume: self.viewModel.backgroundSoundVolume
-                )
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
-            .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-            self.overflowMenu(for: file)
-        }
-        .cardRowBackground()
-        .accessibilityIdentifier("praxis.background.custom.\(file.id.uuidString)")
-    }
-
-    private func overflowMenu(for file: CustomAudioFile) -> some View {
-        Menu {
-            Button {
-                self.fileToRename = file
-                self.renameText = file.name
-                self.showRenameAlert = true
-            } label: {
-                Label("guided_meditations.edit", systemImage: "pencil")
-            }
-            Button(role: .destructive) {
-                self.fileToDelete = file
-                self.showDeleteConfirmation = true
-            } label: {
-                Label("custom.audio.delete.confirm.button", systemImage: "trash")
-            }
-        } label: {
-            Image(systemName: "ellipsis")
-                .foregroundColor(self.theme.interactive)
-                .frame(minWidth: 44, minHeight: 44)
-        }
-        .accessibilityLabel("accessibility.library.overflow")
-        .accessibilityHint("accessibility.library.overflow.hint")
-        .accessibilityIdentifier("praxis.background.overflow.\(file.id.uuidString)")
-    }
-
-    private func soundRow(for sound: BackgroundSound) -> some View {
-        let isSelected = self.viewModel.backgroundSoundId == sound.id
-        let baseIcon = sound.iconName.hasSuffix(".fill")
-            ? String(sound.iconName.dropLast(5))
-            : sound.iconName
-        let iconName = isSelected ? "\(baseIcon).fill" : baseIcon
-        return HStack {
-            Image(systemName: iconName)
-                .foregroundColor(isSelected ? self.theme.interactive : self.theme.textSecondary)
-                .frame(width: 24)
-                .accessibilityHidden(true)
-            Text(sound.name)
-                .textStyle(.body, color: \.textPrimary)
-            Spacer()
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            self.viewModel.backgroundSoundId = sound.id
-            self.viewModel.playBackgroundPreview(
-                soundId: sound.id,
-                volume: self.viewModel.backgroundSoundVolume
-            )
-        }
-        .cardRowBackground()
-        .accessibilityElement(children: .combine)
-        .accessibilityHint(NSLocalizedString("accessibility.sound.select.hint", comment: ""))
-        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-        .accessibilityIdentifier("praxis.background.\(sound.id)")
-    }
-
-    private var volumeSection: some View {
-        Section {
-            VolumeSliderRow(
+    var volumeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.volume")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            GongVolumeCard(
                 volume: self.$viewModel.backgroundSoundVolume,
-                accessibilityTitleKey: "settings.backgroundAudio.volume",
-                accessibilityIdentifier: "praxis.editor.slider.backgroundVolume",
-                accessibilityHintKey: "accessibility.backgroundVolume.hint"
-            ) {
-                self.viewModel.playBackgroundPreview(
-                    soundId: self.viewModel.backgroundSoundId,
-                    volume: self.viewModel.backgroundSoundVolume
-                )
+                onChangeCommitted: {},
+                accessibilityIdentifier: "praxis.editor.slider.backgroundVolume"
+            )
+            .onChange(of: self.viewModel.backgroundSoundVolume) { newValue in
+                // Live level for a running preview — no restart.
+                self.viewModel.setBackgroundPreviewVolume(newValue)
             }
         }
+        .padding(.top, 18)
+    }
+
+    var silenceHelper: some View {
+        Text("praxis.background.silence.helper")
+            .textStyle(.body, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.top, 18)
+            .padding(.bottom, 4)
     }
 }
 

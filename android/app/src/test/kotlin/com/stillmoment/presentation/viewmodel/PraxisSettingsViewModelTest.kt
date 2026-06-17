@@ -1,6 +1,8 @@
 package com.stillmoment.presentation.viewmodel
 
 import com.stillmoment.domain.models.BackgroundSound
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -473,6 +475,186 @@ class PraxisSettingsViewModelTest {
 
             assertTrue(fakeAudioService.gongPreviewStopped)
             assertTrue(fakeAudioService.backgroundPreviewStopped)
+        }
+    }
+
+    // MARK: - Soundscape Loop Preview (shared-121)
+
+    @Nested
+    inner class SoundscapeLoopPreview {
+        @Test
+        fun `selecting a real sound starts its loop preview and marks it previewing`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.setBackgroundSoundVolume(0.3f)
+
+            viewModel.selectBackgroundSound("forest")
+
+            assertEquals("forest", viewModel.uiState.value.backgroundSoundId)
+            assertEquals("forest", viewModel.uiState.value.previewingSoundscapeId)
+            assertEquals("forest", fakeAudioService.lastBackgroundPreviewSoundId)
+            assertEquals(0.3f, fakeAudioService.lastBackgroundPreviewVolume)
+        }
+
+        @Test
+        fun `selecting silence stops every preview and clears previewing id`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.selectBackgroundSound("forest")
+
+            viewModel.selectBackgroundSound(BackgroundSound.SILENT_ID)
+
+            assertEquals(BackgroundSound.SILENT_ID, viewModel.uiState.value.backgroundSoundId)
+            assertNull(viewModel.uiState.value.previewingSoundscapeId)
+            assertTrue(fakeAudioService.backgroundPreviewStopped)
+        }
+
+        @Test
+        fun `toggling a sound that is not playing starts it without changing selection`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.selectBackgroundSound("forest")
+
+            viewModel.toggleBackgroundPreview("cozy-rain")
+
+            assertEquals("forest", viewModel.uiState.value.backgroundSoundId)
+            assertEquals("cozy-rain", viewModel.uiState.value.previewingSoundscapeId)
+            assertEquals("cozy-rain", fakeAudioService.lastBackgroundPreviewSoundId)
+        }
+
+        @Test
+        fun `toggling the currently playing sound stops it`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.selectBackgroundSound("forest")
+
+            viewModel.toggleBackgroundPreview("forest")
+
+            assertNull(viewModel.uiState.value.previewingSoundscapeId)
+            assertTrue(fakeAudioService.backgroundPreviewStopped)
+        }
+
+        @Test
+        fun `toggling silence is a no-op`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.toggleBackgroundPreview(BackgroundSound.SILENT_ID)
+
+            assertNull(viewModel.uiState.value.previewingSoundscapeId)
+            assertNull(fakeAudioService.lastBackgroundPreviewSoundId)
+        }
+
+        @Test
+        fun `setBackgroundPreviewVolume updates the running preview live`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.setBackgroundPreviewVolume(0.7f)
+
+            assertEquals(0.7f, fakeAudioService.lastBackgroundPreviewLiveVolume)
+        }
+
+        @Test
+        fun `stopPreviews clears previewing id`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.selectBackgroundSound("forest")
+
+            viewModel.stopPreviews()
+
+            assertNull(viewModel.uiState.value.previewingSoundscapeId)
+        }
+    }
+
+    // MARK: - Custom Audio (shared-121)
+
+    @Nested
+    inner class CustomAudio {
+        @Test
+        fun `renaming a custom file updates its name`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Old Name",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "New Name")
+            advanceUntilIdle()
+
+            assertEquals(
+                "New Name",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `renaming trims surrounding whitespace`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Old Name",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "  Trimmed  ")
+            advanceUntilIdle()
+
+            assertEquals(
+                "Trimmed",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `renaming with a blank name is ignored`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Keep Me",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "   ")
+            advanceUntilIdle()
+
+            assertEquals(
+                "Keep Me",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `importing the same uri twice in a row imports only once`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            // android.net.Uri is an Android stub in JVM tests; a single mock
+            // instance reused for both calls compares equal to itself, which is
+            // exactly the duplicate-callback case the guard protects against.
+            val uri = org.mockito.kotlin.mock<android.net.Uri>()
+
+            viewModel.importCustomAudio(uri, CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+            viewModel.importCustomAudio(uri, CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+
+            assertEquals(1, viewModel.uiState.value.customSoundscapes.size)
         }
     }
 }

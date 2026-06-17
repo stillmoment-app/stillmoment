@@ -368,6 +368,55 @@ class AudioServiceTest {
         // Then - no exception thrown, test passes
     }
 
+    // shared-121: the soundscape preview loops until the user stops it (play/stop
+    // toggle) — no auto fade-out after a fixed duration.
+    @Test
+    fun `playBackgroundPreview loops the player`() {
+        // When
+        sut.playBackgroundPreview("forest", 0.15f)
+
+        // Then: player loops indefinitely
+        verify(mockMediaPlayer).isLooping = true
+    }
+
+    @Test
+    fun `playBackgroundPreview does not auto-stop after a fixed duration`() {
+        // Given: a preview is playing
+        whenever(mockMediaPlayer.isPlaying).thenReturn(true)
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockMediaPlayer)
+
+        // When: time passes well beyond any previous auto-fade-out window
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Then: the player keeps playing — it is not stopped or released
+        verify(mockMediaPlayer, never()).stop()
+        verify(mockMediaPlayer, never()).release()
+    }
+
+    @Test
+    fun `setBackgroundPreviewVolume updates the running preview volume live`() {
+        // Given: a preview is playing
+        sut.playBackgroundPreview("forest", 0.15f)
+        clearInvocations(mockMediaPlayer, mockMediaPlayerFactory)
+
+        // When
+        sut.setBackgroundPreviewVolume(0.6f)
+
+        // Then: volume is updated on the running player without a restart
+        verify(mockMediaPlayer).setVolume(0.6f, 0.6f)
+        verify(mockMediaPlayerFactory, never()).createFromResource(any())
+    }
+
+    @Test
+    fun `setBackgroundPreviewVolume is a no-op when no preview is playing`() {
+        // When - should not throw
+        sut.setBackgroundPreviewVolume(0.6f)
+
+        // Then - no player to address, no exception
+        verify(mockMediaPlayer, never()).setVolume(any(), any())
+    }
+
     // MARK: - Preview Audio Session Tests
 
     @Test

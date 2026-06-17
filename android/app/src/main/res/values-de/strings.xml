@@ -314,6 +314,12 @@
     <string name="praxis_interval_gongs_master_subtitle_on">Wiederkehrende Gongs während der Sitzung</string>
     <string name="praxis_interval_gongs_master_subtitle_off">Aus — keine Gongs während der Sitzung</string>
     <string name="praxis_interval_gongs_disabled_helper">Schalte Intervall-Gongs ein, um in regelmäßigen Abständen einen sanften Klang zu hören — eine ruhige Markierung der Zeit.</string>
+    <!-- Background sound screen (shared-121) -->
+    <string name="praxis_background_intro">Lege einen sanften Klang unter deine Sitzung — oder wähle Stille für vollkommene Ruhe.</string>
+    <string name="praxis_background_silence_helper">Stille bedeutet vollkommene Ruhe — nur deine Atmung und der Raum um dich.</string>
+    <string name="praxis_background_empty_hint">Du kannst auch eigene Hintergrundklänge importieren.</string>
+    <string name="accessibility_scape_preview_play">Vorschau von %1$s abspielen</string>
+    <string name="accessibility_scape_preview_stop">Vorschau von %1$s stoppen</string>
 
     <!-- Praxis Editor Common -->
     <string name="common_off">Aus</string>
@@ -326,17 +332,14 @@
     <!-- Custom Audio Import -->
     <string name="custom_audio_section_my_sounds">Meine Klänge</string>
     <string name="custom_audio_import_button">Audiodatei importieren</string>
-    <string name="custom_audio_empty_sounds">Noch keine eigenen Klänge importiert</string>
     <string name="custom_audio_delete_title">Audiodatei löschen</string>
     <string name="custom_audio_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
     <string name="custom_audio_delete_warning_praxis">Wird in der aktuellen Praxis verwendet</string>
     <string name="custom_audio_rename_title">Audiodatei umbenennen</string>
     <string name="custom_audio_rename_placeholder">Neuer Name</string>
     <string name="custom_audio_rename_message">Gib einen neuen Namen für diese Audiodatei ein.</string>
-    <string name="custom_audio_duration_unknown">Unbekannt</string>
     <string name="accessibility_custom_audio_overflow">Weitere Optionen für %1$s</string>
     <string name="accessibility_import_custom_audio">Audiodatei importieren</string>
-    <string name="accessibility_custom_audio_item">%1$s, Dauer %2$s</string>
 
     <!-- URL Download (Chrome share) -->
     <string name="download_loading">Meditation wird geladen\u2026</string>

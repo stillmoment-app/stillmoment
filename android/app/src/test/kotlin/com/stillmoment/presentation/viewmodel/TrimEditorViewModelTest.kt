@@ -345,6 +345,7 @@ private class RecordingAudioService : AudioServiceProtocol {
     override fun playIntervalGong(soundId: String, volume: Float) = Unit
     override fun stopGongPreview() = Unit
     override fun playBackgroundPreview(soundId: String, volume: Float) = Unit
+    override fun setBackgroundPreviewVolume(volume: Float) = Unit
     override fun stopBackgroundPreview() = Unit
 
     override fun playMeditationPreview(fileUri: String) {

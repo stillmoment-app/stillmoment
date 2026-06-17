@@ -151,4 +151,13 @@ final class PraxisSettingsViewModelTests: XCTestCase {
         XCTAssertTrue(self.mockAudioService.stopGongPreviewCalled)
         XCTAssertTrue(self.mockAudioService.stopBackgroundPreviewCalled)
     }
+
+    func testSetBackgroundPreviewVolume_forwardsToAudioService() {
+        // When — the slider changes while a preview is running (shared-121 live level)
+        self.sut.setBackgroundPreviewVolume(0.42)
+
+        // Then
+        XCTAssertTrue(self.mockAudioService.setBackgroundPreviewVolumeCalled)
+        XCTAssertEqual(self.mockAudioService.lastBackgroundPreviewVolume, 0.42)
+    }
 }

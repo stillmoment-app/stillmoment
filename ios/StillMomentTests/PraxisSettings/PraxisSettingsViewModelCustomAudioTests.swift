@@ -66,6 +66,41 @@ final class PraxisSettingsViewModelCustomAudioTests: XCTestCase {
         XCTAssertEqual(sut.backgroundSoundId, imported?.id.uuidString)
     }
 
+    func testImportCustomAudio_sameUrlTwiceInSuccession_importsOnlyOnce() {
+        // Given — the document picker can deliver its pick callback twice for a
+        // single user action (UIDocumentPickerViewController inside a SwiftUI
+        // .sheet). A doubled callback must not create two list entries.
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        let sut = self.createSUT()
+        let url = URL(fileURLWithPath: "/tmp/sound.mp3")
+
+        // When — the same source URL arrives twice back to back
+        sut.importCustomAudio(from: url)
+        sut.importCustomAudio(from: url)
+
+        // Then — only one file was imported
+        XCTAssertEqual(mockRepo.importedFiles.count, 1)
+        XCTAssertEqual(sut.customSoundscapes.count, 1)
+    }
+
+    func testImportCustomAudio_differentUrls_importsBoth() {
+        // Given — two genuinely different picks must both import.
+        guard let mockRepo = self.mockCustomAudioRepo else {
+            return XCTFail("mockCustomAudioRepo not initialized")
+        }
+        let sut = self.createSUT()
+
+        // When
+        sut.importCustomAudio(from: URL(fileURLWithPath: "/tmp/one.mp3"))
+        sut.importCustomAudio(from: URL(fileURLWithPath: "/tmp/two.mp3"))
+
+        // Then
+        XCTAssertEqual(mockRepo.importedFiles.count, 2)
+        XCTAssertEqual(sut.customSoundscapes.count, 2)
+    }
+
     func testImportCustomAudio_error_setsCustomAudioError() {
         // Given
         guard let mockRepo = self.mockCustomAudioRepo else {

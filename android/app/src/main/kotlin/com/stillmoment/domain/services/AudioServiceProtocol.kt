@@ -69,13 +69,24 @@ interface AudioServiceProtocol {
     fun stopGongPreview()
 
     /**
-     * Play a background sound preview. Plays for a short duration with fade-out.
+     * Play a looping background sound preview (shared-121).
+     * The preview loops indefinitely until [stopBackgroundPreview] is called —
+     * the soundscape picker uses a play/stop toggle, so there is no auto fade-out.
      * Automatically stops any previous preview (gong or background).
      *
      * @param soundId ID of the background sound to preview
      * @param volume Playback volume (0.0 to 1.0)
      */
     fun playBackgroundPreview(soundId: String, volume: Float)
+
+    /**
+     * Set the volume of the running background preview live, without restarting it
+     * (shared-121). Used while dragging the volume slider so the level changes
+     * immediately. No-op when no preview is playing.
+     *
+     * @param volume Playback volume (0.0 to 1.0)
+     */
+    fun setBackgroundPreviewVolume(volume: Float)
 
     /**
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.

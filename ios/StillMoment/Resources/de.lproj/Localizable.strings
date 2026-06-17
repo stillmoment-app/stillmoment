@@ -285,6 +285,8 @@
 "accessibility.library.preview.position" = "Vorhör-Position";
 "accessibility.sound.select.hint" = "Wählt diesen Sound aus und spielt eine Vorschau";
 "accessibility.gong.preview" = "%@ vorhören";
+"accessibility.scape.preview.play" = "Vorschau von %@ abspielen";
+"accessibility.scape.preview.stop" = "Vorschau von %@ stoppen";
 
 // MARK: - Library Search (ios-041)
 
@@ -328,6 +330,9 @@
 
 "praxis.editor.background.title" = "Hintergrundklang";
 "praxis.editor.background.silence" = "Stille";
+"praxis.background.intro" = "Lege einen sanften Klang unter deine Sitzung — oder wähle Stille für vollkommene Ruhe.";
+"praxis.background.silence.helper" = "Stille bedeutet vollkommene Ruhe — nur deine Atmung und der Raum um dich.";
+"praxis.background.empty.hint" = "Du kannst auch eigene Hintergrundklänge importieren.";
 "praxis.editor.startGong.title" = "Start & Ende";
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
 "praxis.intervalGongs.section.interval" = "Intervall";

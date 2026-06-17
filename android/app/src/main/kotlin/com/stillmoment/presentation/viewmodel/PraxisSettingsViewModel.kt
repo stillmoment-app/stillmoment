@@ -45,7 +45,13 @@ data class PraxisSettingsUiState(
     val customAudioError: String? = null,
     val builtInSounds: List<BackgroundSound> = emptyList(),
     /** Resolved background sound name (built-in or custom) */
-    val resolvedBackgroundSoundName: String? = null
+    val resolvedBackgroundSoundName: String? = null,
+    /**
+     * ID of the soundscape whose loop preview is currently sounding, or null when
+     * nothing is playing (shared-121). Single source of truth for the play/stop
+     * toggle and the breathing-glow / equalizer animation in the picker.
+     */
+    val previewingSoundscapeId: String? = null
 ) {
     /**
      * Applies a loaded Praxis and its resolved names to this state,
@@ -97,6 +103,13 @@ constructor(
 
     /** Stored Praxis ID, used when saving back. */
     private var praxisId: String = ""
+
+    /**
+     * URI of the most recent successful import — used to ignore a duplicate
+     * picker callback for the same pick (see [importCustomAudio]). Mirrors the
+     * iOS `lastImportedURL` guard.
+     */
+    private var lastImportedUri: Uri? = null
 
     init {
         viewModelScope.launch {
@@ -226,11 +239,58 @@ constructor(
     }
 
     /**
+     * Selects a background sound and starts its loop preview (shared-121).
+     * "Silence" stops every preview instead of starting one.
+     */
+    fun selectBackgroundSound(soundId: String) {
+        setBackgroundSoundId(soundId)
+        if (soundId == BackgroundSound.SILENT_ID) {
+            stopBackgroundPreviewAndClear()
+        } else {
+            startBackgroundPreview(soundId)
+        }
+    }
+
+    /**
+     * Toggles the loop preview for a soundscape without changing the selection
+     * (shared-121). "Silence" never plays. Only one soundscape plays at a time.
+     */
+    fun toggleBackgroundPreview(soundId: String) {
+        if (soundId == BackgroundSound.SILENT_ID) {
+            return
+        }
+        if (_uiState.value.previewingSoundscapeId == soundId) {
+            stopBackgroundPreviewAndClear()
+        } else {
+            startBackgroundPreview(soundId)
+        }
+    }
+
+    /**
+     * Sets the volume of the running background preview live (shared-121), without
+     * restarting it. Used while dragging the volume slider.
+     */
+    fun setBackgroundPreviewVolume(volume: Float) {
+        audioService.setBackgroundPreviewVolume(volume)
+    }
+
+    private fun startBackgroundPreview(soundId: String) {
+        audioService.playBackgroundPreview(soundId, _uiState.value.backgroundSoundVolume)
+        _uiState.update { it.copy(previewingSoundscapeId = soundId) }
+    }
+
+    private fun stopBackgroundPreviewAndClear() {
+        audioService.stopBackgroundPreview()
+        _uiState.update { it.copy(previewingSoundscapeId = null) }
+    }
+
+    /**
      * Stops all active audio previews (gong and background).
      */
     fun stopPreviews() {
         audioService.stopGongPreview()
         audioService.stopBackgroundPreview()
+        _uiState.update { it.copy(previewingSoundscapeId = null) }
     }
 
     // MARK: - Custom Audio
@@ -238,16 +298,44 @@ constructor(
     /**
      * Imports a custom audio file from the given URI.
      * Sets customAudioError on failure.
+     *
+     * A repeated call for the same source URI is ignored: the file picker can
+     * deliver its callback more than once for a single user pick (e.g. a
+     * recomposition re-running the result handler), which would otherwise
+     * persist the same file twice (shared-121 doubled-import guard, mirrors iOS
+     * `lastImportedURL`). One pick therefore yields exactly one entry.
      */
     fun importCustomAudio(uri: Uri, type: CustomAudioType) {
+        if (uri == lastImportedUri) {
+            return
+        }
         viewModelScope.launch {
             val result = customAudioRepository.importFile(uri, type)
             result.fold(
-                onSuccess = { loadCustomAudio() },
+                onSuccess = {
+                    lastImportedUri = uri
+                    loadCustomAudio()
+                },
                 onFailure = { error ->
                     _uiState.update { it.copy(customAudioError = error.message) }
                 }
             )
+        }
+    }
+
+    /**
+     * Renames a custom audio file. Trims surrounding whitespace; a blank name
+     * is ignored so a file can never lose its name. Mirrors iOS
+     * `renameCustomAudio`.
+     */
+    fun renameCustomAudio(id: String, newName: String) {
+        val trimmed = newName.trim()
+        if (trimmed.isEmpty()) {
+            return
+        }
+        viewModelScope.launch {
+            customAudioRepository.rename(id, trimmed)
+            loadCustomAudio()
         }
     }
 
@@ -258,6 +346,10 @@ constructor(
     fun deleteCustomAudio(id: String) {
         viewModelScope.launch {
             val current = _uiState.value
+            // Stop any running preview of the file being removed (shared-121).
+            if (current.previewingSoundscapeId == id) {
+                stopBackgroundPreviewAndClear()
+            }
             customAudioRepository.delete(id)
             loadCustomAudio()
 
@@ -266,16 +358,6 @@ constructor(
                 _uiState.update { it.copy(backgroundSoundId = Praxis.DEFAULT_BACKGROUND_SOUND_ID) }
                 save()
             }
-        }
-    }
-
-    /**
-     * Renames a custom audio file.
-     */
-    fun renameCustomAudio(id: String, newName: String) {
-        viewModelScope.launch {
-            customAudioRepository.rename(id, newName)
-            loadCustomAudio()
         }
     }
 

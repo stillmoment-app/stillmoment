@@ -16,6 +16,10 @@ struct GongVolumeCard: View {
     @Binding var volume: Float
     let onChangeCommitted: () -> Void
 
+    /// Accessibility identifier for the slider. Defaults to the gong volume anchor;
+    /// the soundscape screen passes its own so both can be addressed in UI tests.
+    var accessibilityIdentifier: String = "praxis.editor.slider.gongVolume"
+
     @Environment(\.themeColors)
     private var theme
 
@@ -50,7 +54,7 @@ struct GongVolumeCard: View {
         .accessibilityLabel(Text("settings.gongVolume.title"))
         .accessibilityValue(String(format: "%.0f%%", self.volume * 100))
         .accessibilityHint(Text("accessibility.gongVolume.hint"))
-        .accessibilityIdentifier("praxis.editor.slider.gongVolume")
+        .accessibilityIdentifier(self.accessibilityIdentifier)
     }
 }
 

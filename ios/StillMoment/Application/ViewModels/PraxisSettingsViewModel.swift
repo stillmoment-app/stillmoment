@@ -68,7 +68,6 @@ final class PraxisSettingsViewModel: ObservableObject {
     @Published var backgroundSoundVolume: Float
     @Published var customSoundscapes: [CustomAudioFile] = []
     @Published var customAudioError: String?
-    @Published var isImportingAudio = false
 
     // MARK: - Computed
 
@@ -130,6 +129,12 @@ final class PraxisSettingsViewModel: ObservableObject {
         }
     }
 
+    /// Sets the volume of the running background preview live (no restart).
+    /// Used while dragging the volume slider so the level changes immediately.
+    func setBackgroundPreviewVolume(_ volume: Float) {
+        self.audioService.setBackgroundPreviewVolume(volume)
+    }
+
     /// Stops all active audio previews
     func stopAllPreviews() {
         self.audioService.stopGongPreview()
@@ -145,9 +150,20 @@ final class PraxisSettingsViewModel: ObservableObject {
 
     /// Imports a custom audio file as a soundscape.
     /// On success the list is refreshed and the new file is selected.
+    ///
+    /// `UIDocumentPickerViewController` presented inside a SwiftUI `.sheet` can
+    /// deliver its pick callback twice for a single user action, which would
+    /// otherwise persist the same file twice (shared-121 doubled-import bug).
+    /// The `lastImportedURL` guard makes a repeated call for the same source URL
+    /// a no-op, so one pick yields exactly one entry.
     func importCustomAudio(from url: URL) {
+        guard url != self.lastImportedURL else {
+            Logger.viewModel.info("Ignored duplicate custom audio import callback")
+            return
+        }
         do {
             let imported = try self.customAudioRepository.importFile(from: url)
+            self.lastImportedURL = url
             self.loadCustomAudio()
             self.backgroundSoundId = imported.id.uuidString
             Logger.viewModel.info(
@@ -202,6 +218,9 @@ final class PraxisSettingsViewModel: ObservableObject {
     private let audioService: AudioServiceProtocol
     private let soundRepository: BackgroundSoundRepositoryProtocol
     private let customAudioRepository: CustomAudioRepositoryProtocol
+    /// Source URL of the most recent successful import — used to ignore a
+    /// duplicate picker callback for the same pick (see `importCustomAudio`).
+    private var lastImportedURL: URL?
     /// `var` (not `let`): the owning TimerViewModel rewires this after its own
     /// init has finished so it can pass `[weak self]` without violating Swift's
     /// "self captured before all members initialised" rule.

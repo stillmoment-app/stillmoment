@@ -38,11 +38,13 @@ fun GongVolumeCard(
     volume: Float,
     onVolumeChange: (Float) -> Unit,
     onVolumeChangeFinish: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sliderTestTag: String = "selectGong.slider.volume",
+    volumeContentDescriptionRes: Int = R.string.accessibility_gong_volume
 ) {
     val colors = LocalStillMomentColors.current
     val volumePercentage = (volume * 100).toInt()
-    val volumeDescription = stringResource(R.string.accessibility_gong_volume, volumePercentage)
+    val volumeDescription = stringResource(volumeContentDescriptionRes, volumePercentage)
 
     GongCard(modifier = modifier) {
         Row(
@@ -65,7 +67,7 @@ fun GongVolumeCard(
                 valueRange = 0f..1f,
                 modifier = Modifier
                     .weight(1f)
-                    .testTag("selectGong.slider.volume")
+                    .testTag(sliderTestTag)
                     .semantics { contentDescription = volumeDescription },
                 colors = SliderDefaults.colors(
                     thumbColor = colors.interactive,
