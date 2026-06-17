@@ -1,6 +1,6 @@
 # Ticket shared-121: Hintergrundklang-Screen an Klang-Auswahl-Vorlage angleichen
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Cross-Platform-UI-Redesign. Risiko liegt im bewussten Verhaltens-Delta zum Gong (Loop statt Einmal-Wiedergabe): Vorhör-Button als Play/Stop-Toggle mit atmendem Glow als Wiedergabe-Indikator. Wiederverwendung der vorhandenen Gong-Komponenten gegen Soundscape-spezifische Varianten abwägen (Planung).
 **Phase**: 4-Polish
@@ -24,8 +24,8 @@ Die Klang-Auswahl soll **überall in der App gleich aussehen**. Der Hintergrundk
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
