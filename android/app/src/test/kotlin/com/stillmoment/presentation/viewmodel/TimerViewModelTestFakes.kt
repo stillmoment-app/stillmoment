@@ -34,6 +34,7 @@ class FakeAudioService : AudioServiceProtocol {
     var gongPreviewStopped = false
     var lastBackgroundPreviewSoundId: String? = null
     var lastBackgroundPreviewVolume: Float? = null
+    var lastBackgroundPreviewLiveVolume: Float? = null
     var backgroundPreviewStopped = false
     var lastIntervalGongSoundId: String? = null
     var lastIntervalGongVolume: Float? = null
@@ -72,6 +73,10 @@ class FakeAudioService : AudioServiceProtocol {
     override fun playBackgroundPreview(soundId: String, volume: Float) {
         lastBackgroundPreviewSoundId = soundId
         lastBackgroundPreviewVolume = volume
+    }
+
+    override fun setBackgroundPreviewVolume(volume: Float) {
+        lastBackgroundPreviewLiveVolume = volume
     }
 
     override fun stopBackgroundPreview() {

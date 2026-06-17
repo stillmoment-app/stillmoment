@@ -78,7 +78,6 @@ constructor(
     private var previewPlayer: MediaPlayerProtocol? = null
     private var backgroundPreviewPlayer: MediaPlayerProtocol? = null
     private var meditationPreviewPlayer: MediaPlayerProtocol? = null
-    private var backgroundPreviewJob: Job? = null
     private var meditationPreviewFadeJob: Job? = null
     private var meditationPreviewPositionJob: Job? = null
     private val mainScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -109,12 +108,6 @@ constructor(
 
         /** Duration for fade in effect (10 seconds for smooth meditation experience) */
         private const val FADE_IN_DURATION_MS = 10000L
-
-        /** Duration for background preview before fade-out starts */
-        private const val BACKGROUND_PREVIEW_DURATION_MS = 3000L
-
-        /** Duration for fade-out effect */
-        private const val FADE_OUT_DURATION_MS = 500L
 
         /** Duration for meditation preview fade-out (~0.3s, consistent with iOS) */
         private const val MEDITATION_PREVIEW_FADE_OUT_DURATION_MS = 300L
@@ -299,7 +292,9 @@ constructor(
     // MARK: - Background Preview
 
     /**
-     * Play a background sound preview. Plays for 3 seconds with fade-out.
+     * Play a looping background sound preview (shared-121).
+     * Loops indefinitely until [stopBackgroundPreview] is called — the soundscape
+     * picker uses a play/stop toggle, so there is no auto fade-out.
      * Automatically stops any previous preview (gong or background).
      *
      * @param soundId ID of the background sound to preview ("silent" or "forest")
@@ -332,23 +327,12 @@ constructor(
 
             coordinator.requestAudioSession(AudioSource.PREVIEW)
             backgroundPreviewPlayer = player.apply {
+                isLooping = true
                 setVolume(volume, volume)
-                setOnCompletionListener {
-                    release()
-                    backgroundPreviewPlayer = null
-                    coordinator.releaseAudioSession(AudioSource.PREVIEW)
-                }
                 start()
             }
 
-            // Schedule fade-out after preview duration
-            backgroundPreviewJob?.cancel()
-            backgroundPreviewJob = mainScope.launch {
-                delay(BACKGROUND_PREVIEW_DURATION_MS)
-                fadeOutBackgroundPreview(volume)
-            }
-
-            logger.d(TAG, "Playing background preview: $soundId at volume $volume")
+            logger.d(TAG, "Playing looping background preview: $soundId at volume $volume")
         } catch (e: IllegalStateException) {
             logger.e(TAG, "Failed to play background preview - invalid state: ${e.message}")
         }
@@ -358,12 +342,23 @@ constructor(
      * Stop the current background preview. Idempotent - safe to call even if no preview is playing.
      */
     override fun stopBackgroundPreview() {
-        backgroundPreviewJob?.cancel()
-        backgroundPreviewJob = null
         if (safeRelease(backgroundPreviewPlayer, "background preview")) {
             coordinator.releaseAudioSession(AudioSource.PREVIEW)
         }
         backgroundPreviewPlayer = null
+    }
+
+    /**
+     * Set the volume of the running background preview live (shared-121), without
+     * restarting it. No-op when no preview is playing.
+     */
+    override fun setBackgroundPreviewVolume(volume: Float) {
+        val player = backgroundPreviewPlayer ?: return
+        try {
+            player.setVolume(volume, volume)
+        } catch (e: IllegalStateException) {
+            logger.d(TAG, "Failed to set background preview volume - invalid state: ${e.message}")
+        }
     }
 
     /**
@@ -388,14 +383,10 @@ constructor(
                     false
                 }
                 player.setOnPreparedListener {
+                    player.isLooping = true
                     player.setVolume(volume, volume)
                     player.start()
-                    backgroundPreviewJob?.cancel()
-                    backgroundPreviewJob = mainScope.launch {
-                        delay(BACKGROUND_PREVIEW_DURATION_MS)
-                        fadeOutBackgroundPreview(volume)
-                    }
-                    logger.d(TAG, "Playing custom background preview: $soundId at volume $volume")
+                    logger.d(TAG, "Playing looping custom background preview: $soundId at volume $volume")
                 }
                 player.setOnCompletionListener {
                     player.release()
@@ -408,19 +399,6 @@ constructor(
                 logger.e(TAG, "Failed to play custom background preview - invalid state: ${e.message}")
             }
         }
-    }
-
-    /**
-     * Fades out and stops the background preview player.
-     * Must be called from a coroutine context.
-     */
-    private suspend fun fadeOutBackgroundPreview(startVolume: Float) {
-        val player = backgroundPreviewPlayer ?: return
-        fadeOutPlayer(player, FADE_OUT_DURATION_MS, startVolume)
-        safeRelease(player, "background preview after fade")
-        backgroundPreviewPlayer = null
-        coordinator.releaseAudioSession(AudioSource.PREVIEW)
-        logger.d(TAG, "Background preview fade-out complete")
     }
 
     /**
@@ -767,8 +745,6 @@ constructor(
      * Used by the conflict handler to stop previews when another source takes over.
      */
     private fun cleanupPreviewPlayers() {
-        backgroundPreviewJob?.cancel()
-        backgroundPreviewJob = null
         meditationPreviewFadeJob?.cancel()
         meditationPreviewFadeJob = null
         // shared-098: also stop the position-polling loop + reset slider values
