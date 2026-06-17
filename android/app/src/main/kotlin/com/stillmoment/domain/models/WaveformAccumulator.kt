@@ -59,9 +59,14 @@ class WaveformAccumulator(
         return MeditationWaveform(peaks.map { it / globalMax })
     }
 
-    /** Maps a global frame index to its bucket, distributing frames evenly. */
+    /**
+     * Maps a global frame index to its bucket, distributing frames evenly.
+     *
+     * Uses 64-bit arithmetic: a long file has tens of millions of frames, so
+     * `frame * bucketCount` overflows a 32-bit Int (negative bucket index → crash).
+     */
     private fun bucketIndex(frame: Int): Int {
-        val rawIndex = frame * bucketCount / totalFrameCount
+        val rawIndex = (frame.toLong() * bucketCount / totalFrameCount).toInt()
         return minOf(rawIndex, bucketCount - 1)
     }
 }

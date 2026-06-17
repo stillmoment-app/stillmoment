@@ -93,5 +93,25 @@ class WaveformAccumulatorTest {
 
             assertEquals(1, waveform.samples.size)
         }
+
+        @Test
+        fun `long files do not overflow the bucket index`() {
+            // A 32-min file at 44.1 kHz has ~84.7M frames. With 2200 buckets,
+            // frame * bucketCount overflows a 32-bit Int once the frame index passes
+            // ~976k (≈22 s), yielding a negative bucket index and a crash. The bucket
+            // math must use 64-bit arithmetic. Append well past the overflow threshold.
+            val totalFrames = 84_672_000
+            val accumulator = WaveformAccumulator(
+                bucketCount = MeditationWaveform.SAMPLE_COUNT,
+                totalFrameCount = totalFrames
+            )
+
+            // 1.1M samples pushes the frame counter past the Int-overflow point.
+            accumulator.append(List(1_100_000) { 0.5f })
+            val waveform = accumulator.finalize()
+
+            assertEquals(MeditationWaveform.SAMPLE_COUNT, waveform.samples.size)
+            assertTrue(waveform.samples.all { it in 0.0f..1.0f })
+        }
     }
 }

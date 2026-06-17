@@ -149,8 +149,16 @@ private class MediaCodecAudioFrameSource(
         if (outputDone) {
             return null
         }
-        feedInput()
-        return drainOutput()
+        // MediaCodec operations can throw IllegalStateException / MediaCodec.CodecException
+        // (a subclass) on device-specific decoder hiccups. Wrap them so the contract holds:
+        // generation only throws WaveformGenerationException, and the editor falls back to a
+        // flat line instead of crashing the app.
+        return try {
+            feedInput()
+            drainOutput()
+        } catch (e: IllegalStateException) {
+            throw WaveformGenerationException.DecodingFailed("Decoder failed while reading PCM", e)
+        }
     }
 
     private fun feedInput() {
