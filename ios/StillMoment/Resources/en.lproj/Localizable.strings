@@ -393,6 +393,7 @@
 "praxis.editor.background.silence" = "Silence";
 "praxis.editor.startGong.title" = "Start & End Gong";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
+"praxis.intervalGongs.section.interval" = "Interval";
 "praxis.gong.section.sound" = "Sound";
 "praxis.gong.section.volume" = "Volume";
 "praxis.gong.vibration.helper" = "Instead of a sound your device gives a gentle pulse — silent, ideal for quiet spaces.";

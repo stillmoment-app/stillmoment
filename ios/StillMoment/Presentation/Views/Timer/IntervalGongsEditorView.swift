@@ -2,7 +2,7 @@
 //  IntervalGongsEditorView.swift
 //  Still Moment
 //
-//  Presentation Layer - Interval gongs editor for Praxis editor
+//  Presentation Layer - Interval gongs editor for Praxis editor (redesigned, shared-118).
 //
 
 import SwiftUI
@@ -10,8 +10,15 @@ import UIKit
 
 /// Editor for interval gong settings within the Praxis editor.
 ///
-/// Provides a toggle, stepper for minutes, mode picker, sound picker,
-/// and volume slider. Controls below the toggle only appear when enabled.
+/// Card-based layout aligned with `GongSelectionView` (shared-115/118): a top
+/// toggle card switches interval gongs on. When enabled, an eyebrow-labelled
+/// "INTERVALL" card carries the minutes stepper and the segmented mode picker, a
+/// "KLANG" card lists every interval sound as a `GongSoundRow` (preview button,
+/// name, character-carrying mini waveform, checkmark for the tinted selection),
+/// and a "LAUTSTÄRKE" card holds the manual volume slider — except for the
+/// vibration option, which hides the volume card and shows a helper text instead.
+///
+/// Tapping a sound row selects + previews; tapping the preview button only previews.
 struct IntervalGongsEditorView: View {
     // MARK: Lifecycle
 
@@ -26,13 +33,28 @@ struct IntervalGongsEditorView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            Form {
-                self.intervalGongsSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    self.enabledToggleCard
+                    if self.viewModel.intervalGongsEnabled {
+                        self.intervalSection
+                        self.soundSection
+                        if self.isVibrationSelected {
+                            self.vibrationHelper
+                        }
+                        if GongSelectionLogic.isVolumeCardVisible(soundId: self.viewModel.intervalSoundId) {
+                            self.volumeSection
+                        }
+                    }
+                }
+                .padding(.horizontal, 18)
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
-            .scrollContentBackground(.hidden)
         }
         .screenTitleBar("praxis.editor.intervalGongs.title")
         .onDisappear {
+            self.previewTask?.cancel()
             self.viewModel.stopAllPreviews()
         }
     }
@@ -42,6 +64,14 @@ struct IntervalGongsEditorView: View {
     @Environment(\.themeColors)
     private var theme
     @ObservedObject private var viewModel: PraxisSettingsViewModel
+
+    /// ID of the row whose preview is currently sounding (drives the ring).
+    @State private var previewingSoundId: String?
+    @State private var previewTask: Task<Void, Never>?
+
+    private var isVibrationSelected: Bool {
+        self.viewModel.intervalSoundId == GongSound.vibrationId
+    }
 
     private var supportsVibration: Bool {
         UIDevice.current.userInterfaceIdiom == .phone
@@ -53,25 +83,41 @@ struct IntervalGongsEditorView: View {
             : GongSound.allIntervalSounds.filter { $0.id != GongSound.vibrationId }
     }
 
-    private var intervalGongsSection: some View {
-        Section {
-            Toggle(isOn: self.$viewModel.intervalGongsEnabled) {
-                Text("settings.intervalGongs.title", bundle: .main)
-                    .textStyle(.body, color: \.textPrimary)
-            }
-            .themedToggle()
-            .cardRowBackground()
-            .accessibilityIdentifier("praxis.editor.toggle.intervalGongs")
+    // MARK: Enabled toggle
 
-            if self.viewModel.intervalGongsEnabled {
-                self.intervalStepperRow
-                self.intervalModePicker
-                self.intervalSoundPicker
-                if self.viewModel.intervalSoundId != GongSound.vibrationId {
-                    self.intervalVolumeSlider
-                }
-            }
+    private var enabledToggleCard: some View {
+        Toggle(isOn: self.$viewModel.intervalGongsEnabled) {
+            Text("settings.intervalGongs.title", bundle: .main)
+                .textStyle(.body, color: \.textPrimary)
         }
+        .themedToggle()
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+        .modifier(GongCardBackground())
+        .accessibilityIdentifier("praxis.editor.toggle.intervalGongs")
+    }
+
+    // MARK: Interval (stepper + mode)
+
+    private var intervalSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.intervalGongs.section.interval")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            self.intervalCard
+        }
+        .padding(.top, 18)
+    }
+
+    private var intervalCard: some View {
+        VStack(spacing: 0) {
+            self.intervalStepperRow
+            Divider()
+                .overlay(self.theme.divider)
+            self.intervalModeRow
+        }
+        .modifier(GongCardBackground())
     }
 
     private var intervalStepperRow: some View {
@@ -90,6 +136,8 @@ struct IntervalGongsEditorView: View {
         .onChange(of: self.viewModel.intervalMinutes) { _ in
             HapticFeedback.impact()
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
         .accessibilityIdentifier("praxis.editor.stepper.intervalMinutes")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalDuration", comment: ""))
         .accessibilityValue(String(
@@ -97,10 +145,9 @@ struct IntervalGongsEditorView: View {
             self.viewModel.intervalMinutes
         ))
         .accessibilityHint(NSLocalizedString("accessibility.intervalDuration.hint", comment: ""))
-        .cardRowBackground()
     }
 
-    private var intervalModePicker: some View {
+    private var intervalModeRow: some View {
         Picker(selection: self.$viewModel.intervalMode) {
             Text("settings.intervalMode.repeating", bundle: .main)
                 .tag(IntervalMode.repeating)
@@ -112,50 +159,90 @@ struct IntervalGongsEditorView: View {
             EmptyView()
         }
         .pickerStyle(.segmented)
+        .id(self.theme)
         .onChange(of: self.viewModel.intervalMode) { _ in
             HapticFeedback.selection()
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
         .accessibilityIdentifier("praxis.editor.picker.intervalMode")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalMode", comment: ""))
         .accessibilityHint(NSLocalizedString("accessibility.intervalMode.hint", comment: ""))
-        .cardRowBackground()
     }
 
-    private var intervalSoundPicker: some View {
-        Picker(selection: self.$viewModel.intervalSoundId) {
-            ForEach(self.availableIntervalSounds) { sound in
-                Text(sound.name)
-                    .tag(sound.id)
+    // MARK: Sound selection
+
+    private var soundSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.sound")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            self.soundCard
+        }
+        .padding(.top, 18)
+    }
+
+    private var soundCard: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(self.availableIntervalSounds.enumerated()), id: \.element.id) { index, sound in
+                if index > 0 {
+                    Divider()
+                        .overlay(self.theme.divider)
+                }
+                GongSoundRow(
+                    sound: sound,
+                    isSelected: self.viewModel.intervalSoundId == sound.id,
+                    isPreviewing: self.previewingSoundId == sound.id,
+                    onSelect: {
+                        self.viewModel.intervalSoundId = sound.id
+                        self.preview(soundId: sound.id)
+                    },
+                    onPreview: {
+                        self.preview(soundId: sound.id)
+                    },
+                    identifierPrefix: "praxis.intervalGong"
+                )
             }
-        } label: {
-            Text("settings.intervalGongs.sound", bundle: .main)
-                .textStyle(.body, color: \.textPrimary)
         }
-        .pickerStyle(.menu)
-        .onChange(of: self.viewModel.intervalSoundId) { newValue in
-            HapticFeedback.selection()
-            self.viewModel.playIntervalGongPreview(
-                soundId: newValue,
-                volume: self.viewModel.intervalGongVolume
-            )
-        }
-        .accessibilityIdentifier("praxis.editor.picker.intervalSound")
-        .accessibilityLabel(NSLocalizedString("accessibility.intervalSound", comment: ""))
-        .accessibilityHint(NSLocalizedString("accessibility.intervalSound.hint", comment: ""))
-        .cardRowBackground()
+        .modifier(GongCardBackground())
     }
 
-    private var intervalVolumeSlider: some View {
-        VolumeSliderRow(
-            volume: self.$viewModel.intervalGongVolume,
-            accessibilityTitleKey: "accessibility.intervalGongVolume.title",
-            accessibilityIdentifier: "praxis.editor.slider.intervalGongVolume",
-            accessibilityHintKey: "accessibility.intervalGongVolume.hint"
-        ) {
-            self.viewModel.playIntervalGongPreview(
-                soundId: self.viewModel.intervalSoundId,
-                volume: self.viewModel.intervalGongVolume
-            )
+    // MARK: Volume / vibration
+
+    private var vibrationHelper: some View {
+        Text("praxis.gong.vibration.helper")
+            .textStyle(.body, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+    }
+
+    private var volumeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.gong.section.volume")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            GongVolumeCard(volume: self.$viewModel.intervalGongVolume) {
+                self.preview(soundId: self.viewModel.intervalSoundId)
+            }
+        }
+        .padding(.top, 18)
+    }
+
+    /// Plays an interval-gong preview and drives the ring for ~1.5s.
+    private func preview(soundId: String) {
+        self.viewModel.playIntervalGongPreview(
+            soundId: soundId,
+            volume: self.viewModel.intervalGongVolume
+        )
+        self.previewingSoundId = soundId
+        self.previewTask?.cancel()
+        self.previewTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            guard !Task.isCancelled, self.previewingSoundId == soundId
+            else { return }
+            self.previewingSoundId = nil
         }
     }
 }

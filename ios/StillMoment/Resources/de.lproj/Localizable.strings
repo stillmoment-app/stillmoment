@@ -393,6 +393,7 @@
 "praxis.editor.background.silence" = "Stille";
 "praxis.editor.startGong.title" = "Start & Ende";
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
+"praxis.intervalGongs.section.interval" = "Intervall";
 "praxis.gong.section.sound" = "Klang";
 "praxis.gong.section.volume" = "Lautstärke";
 "praxis.gong.vibration.helper" = "Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.";
