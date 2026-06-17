@@ -1,7 +1,7 @@
 package com.stillmoment.domain.models
 
 import java.util.UUID
-import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,7 +15,8 @@ import kotlinx.serialization.Serializable
  * @property id Unique identifier (UUID as String)
  * @property durationMinutes Duration of meditation in minutes (1-60)
  * @property preparationTimeEnabled Whether preparation time before meditation is enabled
- * @property preparationTimeSeconds Duration of preparation in seconds (5, 10, 15, 20, 30, or 45)
+ * @property preparationTimeSeconds Duration of preparation in seconds, snapped to the
+ *   5-second grid from 5 to 60 (5, 10, 15, …, 60)
  * @property gongSoundId ID of the gong sound for start/end (references GongSound.id)
  * @property gongVolume Volume for start/end gong sounds (0.0 to 1.0)
  * @property intervalGongsEnabled Whether interval gongs are enabled during meditation
@@ -45,7 +46,16 @@ data class Praxis(
     companion object {
         const val DEFAULT_DURATION_MINUTES = 10
         const val DEFAULT_PREPARATION_TIME_ENABLED = true
-        const val DEFAULT_PREPARATION_TIME_SECONDS = 15
+        const val DEFAULT_PREPARATION_TIME_SECONDS = 10
+
+        /** Minimum preparation time in seconds. */
+        const val MIN_PREPARATION_SECONDS = 5
+
+        /** Maximum preparation time in seconds (1 minute). */
+        const val MAX_PREPARATION_SECONDS = 60
+
+        /** Grid step for preparation time in seconds. */
+        const val PREPARATION_STEP_SECONDS = 5
         const val DEFAULT_GONG_SOUND_ID = GongSound.DEFAULT_SOUND_ID
         const val DEFAULT_GONG_VOLUME = 1.0f
         const val DEFAULT_INTERVAL_MINUTES = 5
@@ -55,8 +65,9 @@ data class Praxis(
         const val DEFAULT_BACKGROUND_SOUND_ID = "silent"
         const val DEFAULT_BACKGROUND_SOUND_VOLUME = 0.15f
 
-        /** Valid preparation time options (in seconds) */
-        val VALID_PREPARATION_TIMES = listOf(5, 10, 15, 20, 30, 45)
+        /** Valid preparation time options (in seconds): 5-second grid from 5 to 60. */
+        val VALID_PREPARATION_TIMES =
+            (MIN_PREPARATION_SECONDS..MAX_PREPARATION_SECONDS step PREPARATION_STEP_SECONDS).toList()
 
         /** Default Praxis with factory defaults. */
         val Default = create()
@@ -72,11 +83,15 @@ data class Praxis(
         fun validateInterval(minutes: Int): Int = minutes.coerceIn(1, 60)
 
         /**
-         * Validates and clamps preparation time to nearest valid value.
+         * Validates the preparation time: clamps into [MIN_PREPARATION_SECONDS,
+         * MAX_PREPARATION_SECONDS] and snaps to the nearest 5-second step.
          */
         fun validatePreparationTime(seconds: Int): Int {
-            return VALID_PREPARATION_TIMES.minByOrNull { abs(it - seconds) }
-                ?: DEFAULT_PREPARATION_TIME_SECONDS
+            val clamped = seconds.coerceIn(MIN_PREPARATION_SECONDS, MAX_PREPARATION_SECONDS)
+            val stepsFromMin =
+                ((clamped - MIN_PREPARATION_SECONDS).toDouble() / PREPARATION_STEP_SECONDS).roundToInt()
+            return (MIN_PREPARATION_SECONDS + stepsFromMin * PREPARATION_STEP_SECONDS)
+                .coerceIn(MIN_PREPARATION_SECONDS, MAX_PREPARATION_SECONDS)
         }
 
         /**

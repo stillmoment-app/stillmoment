@@ -10,7 +10,7 @@
     <string name="settings_card_label_gong">Gong</string>
     <string name="settings_card_label_interval">Intervall</string>
     <string name="settings_card_label_background">Hintergrund</string>
-    <string name="settings_preparation_time_title">Vorbereitung</string>
+    <string name="settings_preparation_time_title">Vorbereitungszeit</string>
     <string name="accessibility_dial_label">Meditationsdauer</string>
     <string name="accessibility_dial_value">%d Minuten</string>
     <string name="accessibility_dial_hint">Ziehe am Ring, um die Dauer zu ändern.</string>
@@ -57,6 +57,14 @@
     <string name="settings_preparation_time">Vorbereitungszeit</string>
     <string name="settings_preparation_description">Zeit zum Ankommen vor der Meditation</string>
     <string name="settings_preparation_duration">Dauer</string>
+
+    <!-- Preparation Time Screen (shared-119) -->
+    <string name="preparation_master_subtitle_on">Eine kurze Stille vor dem Start</string>
+    <string name="preparation_master_subtitle_off">Aus — der Timer startet sofort</string>
+    <string name="preparation_unit_seconds">Sekunden</string>
+    <string name="preparation_slider_min_label">5 Sek.</string>
+    <string name="preparation_slider_max_label">1 Min.</string>
+    <string name="preparation_off_helper">Schalte die Vorbereitungszeit ein, um vor dem Start kurz innezuhalten und anzukommen.</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Stille</string>
@@ -254,7 +262,6 @@
     <string name="accessibility_interval_option">%d Minuten Intervall</string>
     <string name="accessibility_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
     <string name="accessibility_preparation_disabled">Vorbereitungszeit deaktiviert</string>
-    <string name="accessibility_preparation_option">%d Sekunden Vorbereitung</string>
     <string name="accessibility_gong_sound_hint">Wähle den Gong-Ton für Start und Ende der Meditation</string>
     <string name="accessibility_background_volume">Lautstärke: %d Prozent</string>
     <string name="accessibility_gong_volume">Gong-Lautstärke: %d Prozent</string>
