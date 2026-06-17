@@ -40,6 +40,29 @@ final class IntervalModeTests: XCTestCase {
         XCTAssertEqual(IntervalMode.beforeEnd.rawValue, "beforeEnd")
     }
 
+    // MARK: - Mode Help Localization Key Mapping (shared-120)
+
+    func testModeHelpKey_repeating() {
+        XCTAssertEqual(
+            IntervalMode.repeating.modeHelpKey,
+            "praxis.intervalGongs.mode.help.repeating"
+        )
+    }
+
+    func testModeHelpKey_afterStart() {
+        XCTAssertEqual(
+            IntervalMode.afterStart.modeHelpKey,
+            "praxis.intervalGongs.mode.help.afterStart"
+        )
+    }
+
+    func testModeHelpKey_beforeEnd() {
+        XCTAssertEqual(
+            IntervalMode.beforeEnd.modeHelpKey,
+            "praxis.intervalGongs.mode.help.beforeEnd"
+        )
+    }
+
     // MARK: - Repeating Mode Tests
 
     func testRepeatingMode_playsAtEachInterval() throws {

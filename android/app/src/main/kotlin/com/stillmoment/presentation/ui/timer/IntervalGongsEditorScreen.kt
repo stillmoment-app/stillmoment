@@ -14,8 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -41,6 +41,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -77,11 +78,14 @@ private const val PHONE_MAX_WIDTH_DP = 600
  * Screen zur Konfiguration der Intervall-Gongs (shared-118).
  *
  * Visuell an den Start-/End-Gong-Screen (`SelectGongScreen`, shared-115) angeglichen:
- * Karten-Layout mit Eyebrow-Labels. Eine oberste Karte traegt den Master-Toggle; ist
- * er aktiv, folgen darunter eine "INTERVALL"-Karte (Minuten-Stepper + Modus-Auswahl),
+ * Karten-Layout mit Eyebrow-Labels. Die oberste Master-Karte (shared-120) traegt ein
+ * fuehrendes „wiederkehrend"-Icon, Titel + zustandsabhaengigen Untertitel und den
+ * Schalter. Ist er aktiv, folgen eine "INTERVALL"-Karte (nur Minuten-Stepper), eine
+ * "MODUS"-Karte (Segmented-Auswahl + dynamischer, plural-korrekter Modus-Hinweis),
  * eine "KLANG"-Karte (`GongSoundCard` mit Vorhoer-Button, Mini-Wellenform und Haekchen)
  * und eine "LAUTSTAERKE"-Karte (`GongVolumeCard`) — ausser bei Vibration, die die
- * Lautstaerke-Karte ausblendet und stattdessen einen Helper-Text zeigt.
+ * Lautstaerke-Karte ausblendet und stattdessen einen Helper-Text zeigt. Ist der Schalter
+ * aus, erscheint nur die Master-Karte plus ein Aus-Hinweistext.
  *
  * Tippen auf eine Zeile waehlt aus + spielt vor; Tippen auf den Vorhoer-Button
  * spielt nur vor. Lautstaerke bleibt ein manueller Slider (kein Auto-Level — beim
@@ -186,7 +190,7 @@ private fun IntervalGongsContent(
     ) {
         item {
             GongCard {
-                IntervalToggleRow(
+                IntervalGongsMasterCard(
                     enabled = uiState.intervalGongsEnabled,
                     onToggle = callbacks.onToggle
                 )
@@ -194,7 +198,8 @@ private fun IntervalGongsContent(
         }
 
         if (uiState.intervalGongsEnabled) {
-            intervalConfigItems(uiState = uiState, callbacks = callbacks)
+            intervalSectionItems(uiState = uiState, callbacks = callbacks)
+            modeSectionItems(uiState = uiState, callbacks = callbacks)
             soundSelectionItems(
                 uiState = uiState,
                 sounds = sounds,
@@ -202,11 +207,13 @@ private fun IntervalGongsContent(
                 callbacks = callbacks
             )
             volumeItems(uiState = uiState, callbacks = callbacks)
+        } else {
+            item { IntervalGongsDisabledHelper() }
         }
     }
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.intervalConfigItems(
+private fun androidx.compose.foundation.lazy.LazyListScope.intervalSectionItems(
     uiState: PraxisSettingsUiState,
     callbacks: IntervalGongsCallbacks
 ) {
@@ -215,21 +222,33 @@ private fun androidx.compose.foundation.lazy.LazyListScope.intervalConfigItems(
         EyebrowLabel(textRes = R.string.praxis_gong_section_interval)
         Spacer(modifier = Modifier.height(10.dp))
         GongCard {
-            Column {
-                IntervalStepperRow(
-                    minutes = uiState.intervalMinutes,
-                    onMinutesChange = callbacks.onMinutesChange
-                )
-                HorizontalDivider(
-                    color = LocalStillMomentColors.current.divider,
-                    thickness = 0.5.dp
-                )
-                IntervalModeRow(
-                    selectedMode = uiState.intervalMode,
-                    onModeChange = callbacks.onModeChange
-                )
-            }
+            IntervalStepperRow(
+                minutes = uiState.intervalMinutes,
+                onMinutesChange = callbacks.onMinutesChange
+            )
         }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.modeSectionItems(
+    uiState: PraxisSettingsUiState,
+    callbacks: IntervalGongsCallbacks
+) {
+    item {
+        Spacer(modifier = Modifier.height(18.dp))
+        EyebrowLabel(textRes = R.string.praxis_gong_section_mode)
+        Spacer(modifier = Modifier.height(10.dp))
+        GongCard {
+            IntervalModeRow(
+                selectedMode = uiState.intervalMode,
+                onModeChange = callbacks.onModeChange
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        IntervalModeHelpText(
+            mode = uiState.intervalMode,
+            minutes = uiState.intervalMinutes
+        )
     }
 }
 
@@ -276,10 +295,18 @@ private fun androidx.compose.foundation.lazy.LazyListScope.volumeItems(
     }
 }
 
-// region Toggle Row
+// region Master Card
 
+/**
+ * Oberste Master-Karte (shared-120): fuehrendes „wiederkehrend"-Icon, Titel
+ * „Intervall-Gongs", ein zustandsabhaengiger Untertitel und rechts der Schalter.
+ *
+ * Die ganze Zeile wird fuer TalkBack zu einem Knoten zusammengefasst
+ * (`mergeDescendants`), waehrend der Schalter seine bestehende Toggle-Semantik
+ * (contentDescription/stateDescription) behaelt.
+ */
 @Composable
-private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+private fun IntervalGongsMasterCard(enabled: Boolean, onToggle: (Boolean) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val toggleDescription = stringResource(R.string.accessibility_interval_gongs_toggle)
     val haptic = LocalHapticFeedback.current
@@ -294,15 +321,19 @@ private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, mod
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp, vertical = 14.dp),
+            .padding(horizontal = 18.dp, vertical = 16.dp)
+            .semantics(mergeDescendants = true) {},
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.settings_interval_gongs),
-            style = TextStyle.body.toComposeTextStyle(),
-            color = colors.textPrimary,
-            modifier = Modifier.weight(1f)
+        Icon(
+            imageVector = Icons.Outlined.Repeat,
+            contentDescription = null,
+            tint = colors.interactive,
+            modifier = Modifier
+                .padding(end = 14.dp)
+                .size(20.dp)
         )
+        MasterCardTexts(enabled = enabled, modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.width(16.dp))
 
         Switch(
@@ -320,6 +351,69 @@ private fun IntervalToggleRow(enabled: Boolean, onToggle: (Boolean) -> Unit, mod
                 }
         )
     }
+}
+
+@Composable
+private fun MasterCardTexts(enabled: Boolean, modifier: Modifier = Modifier) {
+    val colors = LocalStillMomentColors.current
+    val subtitle =
+        if (enabled) {
+            stringResource(R.string.praxis_interval_gongs_master_subtitle_on)
+        } else {
+            stringResource(R.string.praxis_interval_gongs_master_subtitle_off)
+        }
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(R.string.settings_interval_gongs),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = colors.textPrimary
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = subtitle,
+            style = TextStyle.caption.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+// endregion
+
+// region Helper / Mode-Help Texts
+
+/**
+ * Aus-Hinweistext (shared-120): erscheint unter der Master-Karte, wenn die
+ * Intervall-Gongs ausgeschaltet sind — keine weiteren Sektionen.
+ */
+@Composable
+private fun IntervalGongsDisabledHelper(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.praxis_interval_gongs_disabled_helper),
+        style = TextStyle.body.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .padding(top = 14.dp)
+    )
+}
+
+/**
+ * Dynamischer, plural-korrekter Modus-Hinweistext (shared-120). Der Modus waehlt
+ * die `<plurals>`-Ressource, die Minutenzahl steuert die one/other-Form und wird
+ * im Plural-Fall als `%d` eingesetzt — keine manuelle Pluralbildung.
+ */
+@Composable
+private fun IntervalModeHelpText(mode: IntervalMode, minutes: Int, modifier: Modifier = Modifier) {
+    Text(
+        text = pluralStringResource(mode.modeHelp().pluralsRes, minutes, minutes),
+        style = TextStyle.body.toComposeTextStyle(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 6.dp)
+            .testTag("intervalEditor.text.modeHelp")
+    )
 }
 
 // endregion
