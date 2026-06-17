@@ -19,6 +19,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -85,6 +86,7 @@ fun SelectBackgroundSoundScreen(
     }
 
     var fileToDelete by remember { mutableStateOf<CustomAudioFile?>(null) }
+    var fileToRename by remember { mutableStateOf<CustomAudioFile?>(null) }
 
     DisposableEffect(Unit) {
         onDispose { viewModel.stopPreviews() }
@@ -113,6 +115,7 @@ fun SelectBackgroundSoundScreen(
                         viewModel.setBackgroundPreviewVolume(volume)
                     },
                     onDeleteCustomSound = { fileToDelete = it },
+                    onRenameCustomSound = { fileToRename = it },
                     onImportClick = { filePickerLauncher.launch(arrayOf("audio/*")) }
                 )
             )
@@ -121,6 +124,7 @@ fun SelectBackgroundSoundScreen(
 
     BackgroundSoundDialogs(
         fileToDelete = fileToDelete,
+        fileToRename = fileToRename,
         backgroundSoundId = uiState.backgroundSoundId,
         customAudioError = uiState.customAudioError,
         onDeleteConfirm = { file ->
@@ -128,6 +132,11 @@ fun SelectBackgroundSoundScreen(
             fileToDelete = null
         },
         onDeleteDismiss = { fileToDelete = null },
+        onRenameConfirm = { file, newName ->
+            viewModel.renameCustomAudio(file.id, newName)
+            fileToRename = null
+        },
+        onRenameDismiss = { fileToRename = null },
         onErrorDismiss = { viewModel.clearCustomAudioError() }
     )
 }
@@ -142,6 +151,7 @@ private data class BackgroundSelectionCallbacks(
     val onPreviewSound: (String) -> Unit,
     val onVolumeChange: (Float) -> Unit,
     val onDeleteCustomSound: (CustomAudioFile) -> Unit,
+    val onRenameCustomSound: (CustomAudioFile) -> Unit,
     val onImportClick: () -> Unit
 )
 
@@ -183,10 +193,7 @@ private fun BackgroundSoundContent(
                 customSoundscapes = customSoundscapes,
                 selectedSoundId = selectedSoundId,
                 previewingSoundId = previewingSoundId,
-                onSelectSound = callbacks.onSelectSound,
-                onPreviewSound = callbacks.onPreviewSound,
-                onDeleteClick = callbacks.onDeleteCustomSound,
-                onImportClick = callbacks.onImportClick
+                callbacks = callbacks
             )
         }
 
@@ -235,16 +242,12 @@ private fun SilenceHelper() {
     )
 }
 
-@Suppress("LongParameterList") // My-sounds section needs selection, preview, delete and import callbacks
 @Composable
 private fun MySoundsSection(
     customSoundscapes: ImmutableList<CustomAudioFile>,
     selectedSoundId: String,
     previewingSoundId: String?,
-    onSelectSound: (String) -> Unit,
-    onPreviewSound: (String) -> Unit,
-    onDeleteClick: (CustomAudioFile) -> Unit,
-    onImportClick: () -> Unit,
+    callbacks: BackgroundSelectionCallbacks,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -258,14 +261,12 @@ private fun MySoundsSection(
                 customSoundscapes = customSoundscapes,
                 selectedSoundId = selectedSoundId,
                 previewingSoundId = previewingSoundId,
-                onSelectSound = onSelectSound,
-                onPreviewSound = onPreviewSound,
-                onDeleteClick = onDeleteClick
+                callbacks = callbacks
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        ImportAudioButton(onImportClick = onImportClick)
+        ImportAudioButton(onImportClick = callbacks.onImportClick)
     }
 }
 
@@ -274,9 +275,7 @@ private fun MySoundsCard(
     customSoundscapes: ImmutableList<CustomAudioFile>,
     selectedSoundId: String,
     previewingSoundId: String?,
-    onSelectSound: (String) -> Unit,
-    onPreviewSound: (String) -> Unit,
-    onDeleteClick: (CustomAudioFile) -> Unit
+    callbacks: BackgroundSelectionCallbacks
 ) {
     val colors = LocalStillMomentColors.current
     GongCard {
@@ -288,13 +287,15 @@ private fun MySoundsCard(
                 ScapeSoundRow(
                     soundId = file.id,
                     name = file.name,
+                    description = file.formattedDuration,
                     isSelected = file.id == selectedSoundId,
                     isSilent = false,
                     isPlaying = previewingSoundId == file.id,
-                    onSelect = { onSelectSound(file.id) },
-                    onPreview = { onPreviewSound(file.id) },
-                    canRemove = true,
-                    onRemove = { onDeleteClick(file) }
+                    onSelect = { callbacks.onSelectSound(file.id) },
+                    onPreview = { callbacks.onPreviewSound(file.id) },
+                    isCustom = true,
+                    onRename = { callbacks.onRenameCustomSound(file) },
+                    onRemove = { callbacks.onDeleteCustomSound(file) }
                 )
             }
         }
@@ -351,13 +352,17 @@ private fun ImportAudioButton(onImportClick: () -> Unit, modifier: Modifier = Mo
     }
 }
 
+@Suppress("LongParameterList") // Dialog host needs delete, rename and error state and callbacks
 @Composable
 private fun BackgroundSoundDialogs(
     fileToDelete: CustomAudioFile?,
+    fileToRename: CustomAudioFile?,
     backgroundSoundId: String,
     customAudioError: String?,
     onDeleteConfirm: (CustomAudioFile) -> Unit,
     onDeleteDismiss: () -> Unit,
+    onRenameConfirm: (CustomAudioFile, String) -> Unit,
+    onRenameDismiss: () -> Unit,
     onErrorDismiss: () -> Unit
 ) {
     fileToDelete?.let { file ->
@@ -366,6 +371,14 @@ private fun BackgroundSoundDialogs(
             isUsedInPraxis = backgroundSoundId == file.id,
             onConfirm = { onDeleteConfirm(file) },
             onDismiss = onDeleteDismiss
+        )
+    }
+
+    fileToRename?.let { file ->
+        CustomAudioRenameDialog(
+            fileName = file.name,
+            onConfirm = { newName -> onRenameConfirm(file, newName) },
+            onDismiss = onRenameDismiss
         )
     }
 
@@ -410,6 +423,46 @@ internal fun CustomAudioDeleteDialog(
                     text = stringResource(R.string.common_delete),
                     color = MaterialTheme.colorScheme.error
                 )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.common_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+internal fun CustomAudioRenameDialog(fileName: String, onConfirm: (String) -> Unit, onDismiss: () -> Unit) {
+    var newName by remember { mutableStateOf(fileName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(R.string.custom_audio_rename_title))
+        },
+        text = {
+            Column {
+                Text(text = stringResource(R.string.custom_audio_rename_message))
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    placeholder = {
+                        Text(text = stringResource(R.string.custom_audio_rename_placeholder))
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(newName.trim()) },
+                enabled = newName.isNotBlank()
+            ) {
+                Text(text = stringResource(R.string.common_save))
             }
         },
         dismissButton = {

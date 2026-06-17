@@ -104,6 +104,13 @@ constructor(
     /** Stored Praxis ID, used when saving back. */
     private var praxisId: String = ""
 
+    /**
+     * URI of the most recent successful import — used to ignore a duplicate
+     * picker callback for the same pick (see [importCustomAudio]). Mirrors the
+     * iOS `lastImportedURL` guard.
+     */
+    private var lastImportedUri: Uri? = null
+
     init {
         viewModelScope.launch {
             val praxis = praxisRepository.load()
@@ -291,16 +298,44 @@ constructor(
     /**
      * Imports a custom audio file from the given URI.
      * Sets customAudioError on failure.
+     *
+     * A repeated call for the same source URI is ignored: the file picker can
+     * deliver its callback more than once for a single user pick (e.g. a
+     * recomposition re-running the result handler), which would otherwise
+     * persist the same file twice (shared-121 doubled-import guard, mirrors iOS
+     * `lastImportedURL`). One pick therefore yields exactly one entry.
      */
     fun importCustomAudio(uri: Uri, type: CustomAudioType) {
+        if (uri == lastImportedUri) {
+            return
+        }
         viewModelScope.launch {
             val result = customAudioRepository.importFile(uri, type)
             result.fold(
-                onSuccess = { loadCustomAudio() },
+                onSuccess = {
+                    lastImportedUri = uri
+                    loadCustomAudio()
+                },
                 onFailure = { error ->
                     _uiState.update { it.copy(customAudioError = error.message) }
                 }
             )
+        }
+    }
+
+    /**
+     * Renames a custom audio file. Trims surrounding whitespace; a blank name
+     * is ignored so a file can never lose its name. Mirrors iOS
+     * `renameCustomAudio`.
+     */
+    fun renameCustomAudio(id: String, newName: String) {
+        val trimmed = newName.trim()
+        if (trimmed.isEmpty()) {
+            return
+        }
+        viewModelScope.launch {
+            customAudioRepository.rename(id, trimmed)
+            loadCustomAudio()
         }
     }
 

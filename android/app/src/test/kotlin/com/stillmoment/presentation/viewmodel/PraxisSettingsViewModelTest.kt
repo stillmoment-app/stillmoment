@@ -1,6 +1,8 @@
 package com.stillmoment.presentation.viewmodel
 
 import com.stillmoment.domain.models.BackgroundSound
+import com.stillmoment.domain.models.CustomAudioFile
+import com.stillmoment.domain.models.CustomAudioType
 import com.stillmoment.domain.models.IntervalMode
 import com.stillmoment.domain.models.Praxis
 import com.stillmoment.domain.repositories.PraxisRepository
@@ -562,6 +564,97 @@ class PraxisSettingsViewModelTest {
             viewModel.stopPreviews()
 
             assertNull(viewModel.uiState.value.previewingSoundscapeId)
+        }
+    }
+
+    // MARK: - Custom Audio (shared-121)
+
+    @Nested
+    inner class CustomAudio {
+        @Test
+        fun `renaming a custom file updates its name`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Old Name",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "New Name")
+            advanceUntilIdle()
+
+            assertEquals(
+                "New Name",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `renaming trims surrounding whitespace`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Old Name",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "  Trimmed  ")
+            advanceUntilIdle()
+
+            assertEquals(
+                "Trimmed",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `renaming with a blank name is ignored`() = runTest {
+            fakeCustomAudioRepository.addFile(
+                CustomAudioFile(
+                    id = "file-1",
+                    name = "Keep Me",
+                    filename = "file-1.mp3",
+                    durationMs = 60_000L,
+                    type = CustomAudioType.SOUNDSCAPE
+                )
+            )
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+
+            viewModel.renameCustomAudio("file-1", "   ")
+            advanceUntilIdle()
+
+            assertEquals(
+                "Keep Me",
+                viewModel.uiState.value.customSoundscapes.first { it.id == "file-1" }.name
+            )
+        }
+
+        @Test
+        fun `importing the same uri twice in a row imports only once`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            // android.net.Uri is an Android stub in JVM tests; a single mock
+            // instance reused for both calls compares equal to itself, which is
+            // exactly the duplicate-callback case the guard protects against.
+            val uri = org.mockito.kotlin.mock<android.net.Uri>()
+
+            viewModel.importCustomAudio(uri, CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+            viewModel.importCustomAudio(uri, CustomAudioType.SOUNDSCAPE)
+            advanceUntilIdle()
+
+            assertEquals(1, viewModel.uiState.value.customSoundscapes.size)
         }
     }
 }

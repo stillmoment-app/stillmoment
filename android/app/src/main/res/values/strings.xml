@@ -320,7 +320,6 @@
     <string name="praxis_background_empty_hint">You can also import your own background sounds.</string>
     <string name="accessibility_scape_preview_play">Play preview of %1$s</string>
     <string name="accessibility_scape_preview_stop">Stop preview of %1$s</string>
-    <string name="accessibility_scape_remove">Remove %1$s</string>
 
     <!-- Praxis Editor Common -->
     <string name="common_off">Off</string>
@@ -336,6 +335,10 @@
     <string name="custom_audio_delete_title">Delete Audio File</string>
     <string name="custom_audio_delete_message">Are you sure you want to delete \"%1$s\"?</string>
     <string name="custom_audio_delete_warning_praxis">Used in the current practice</string>
+    <string name="custom_audio_rename_title">Rename Audio File</string>
+    <string name="custom_audio_rename_placeholder">New name</string>
+    <string name="custom_audio_rename_message">Enter a new name for this audio file.</string>
+    <string name="accessibility_custom_audio_overflow">More options for %1$s</string>
     <string name="accessibility_import_custom_audio">Import audio file</string>
 
     <!-- URL Download (Chrome share) -->
