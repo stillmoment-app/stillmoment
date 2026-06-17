@@ -42,6 +42,7 @@ final class MockPreviewAudioService: AudioServiceProtocol {
     func playGongPreview(soundId _: String, volume _: Float) throws {}
     func stopGongPreview() {}
     func playBackgroundPreview(soundId _: String, volume _: Float) throws {}
+    func setBackgroundPreviewVolume(_: Float) {}
     func stopBackgroundPreview() {}
     func playMeditationPreview(fileURL _: URL) throws {}
     func stopMeditationPreview() {}

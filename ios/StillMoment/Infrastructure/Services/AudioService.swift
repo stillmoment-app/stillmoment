@@ -22,7 +22,6 @@ final class AudioService: AudioServiceProtocol {
         soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
         customAudioRepository: CustomAudioRepositoryProtocol? = nil,
         soundscapeResolver: SoundscapeResolverProtocol? = nil,
-        backgroundPreviewDuration: TimeInterval = 3.0,
         fadeOutDuration: TimeInterval = 0.5
     ) {
         self.coordinator = coordinator
@@ -33,7 +32,6 @@ final class AudioService: AudioServiceProtocol {
             soundRepository: soundRepository,
             customAudioRepository: customRepo
         )
-        self.backgroundPreviewDuration = backgroundPreviewDuration
         self.fadeOutDuration = fadeOutDuration
         self.gongPlayerDelegate = GongPlayerDelegate { [gongCompletionSubject] in
             gongCompletionSubject.send()
@@ -188,21 +186,15 @@ final class AudioService: AudioServiceProtocol {
 
         do {
             self.backgroundPreviewPlayer = try AVAudioPlayer(contentsOf: soundURL)
+            // shared-121: the soundscape preview loops until the user stops it
+            // (play/stop toggle) — no auto fade-out after a fixed duration.
+            self.backgroundPreviewPlayer?.numberOfLoops = -1
             self.backgroundPreviewPlayer?.volume = volume
             self.backgroundPreviewPlayer?.prepareToPlay()
             self.backgroundPreviewPlayer?.play()
 
-            // Schedule fade-out after preview duration
-            // Note: Timer must be created on main thread for RunLoop.main
-            self.backgroundPreviewTimer = Timer.scheduledTimer(
-                withTimeInterval: self.backgroundPreviewDuration,
-                repeats: false
-            ) { [weak self] _ in
-                self?.fadeOutBackgroundPreview()
-            }
-
             Logger.audio.info(
-                "Background preview started",
+                "Background preview started (looping)",
                 metadata: ["file": soundURL.lastPathComponent, "volume": "\(volume)"]
             )
         } catch let error as AudioServiceError {
@@ -213,11 +205,14 @@ final class AudioService: AudioServiceProtocol {
         }
     }
 
-    func stopBackgroundPreview() {
-        // Cancel fade-out timer
-        self.backgroundPreviewTimer?.invalidate()
-        self.backgroundPreviewTimer = nil
+    func setBackgroundPreviewVolume(_ volume: Float) {
+        guard let player = self.backgroundPreviewPlayer else {
+            return
+        }
+        player.volume = volume
+    }
 
+    func stopBackgroundPreview() {
         guard self.backgroundPreviewPlayer != nil else {
             return
         }
@@ -282,7 +277,6 @@ final class AudioService: AudioServiceProtocol {
     private let soundRepository: BackgroundSoundRepositoryProtocol
     let customAudioRepository: CustomAudioRepositoryProtocol?
     let soundscapeResolver: SoundscapeResolverProtocol
-    private let backgroundPreviewDuration: TimeInterval
     let fadeOutDuration: TimeInterval
     private let gongCompletionSubject = PassthroughSubject<Void, Never>()
     let gongPlayerDelegate: GongPlayerDelegate
@@ -297,8 +291,17 @@ final class AudioService: AudioServiceProtocol {
     let meditationPreviewPositionSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewDurationSubject = CurrentValueSubject<TimeInterval, Never>(0)
     let meditationPreviewCompletionSubject = PassthroughSubject<Void, Never>()
-    private var backgroundPreviewTimer: Timer?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Whether a looping background preview is currently playing (shared-121).
+    var isBackgroundPreviewPlaying: Bool {
+        self.backgroundPreviewPlayer?.isPlaying ?? false
+    }
+
+    /// Volume of the running background preview, or 0 when none is active.
+    var backgroundPreviewVolume: Float {
+        self.backgroundPreviewPlayer?.volume ?? 0
+    }
 
     /// Target volume for background audio (stored for fade resume)
     private var targetVolume: Float = 0.15
@@ -449,21 +452,6 @@ private extension AudioService {
             throw AudioServiceError.playbackFailed
         }
     }
-
-    func fadeOutBackgroundPreview() {
-        guard let player = self.backgroundPreviewPlayer else {
-            return
-        }
-
-        Logger.audio.debug("Fading out background preview")
-        player.setVolume(0, fadeDuration: self.fadeOutDuration)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + self.fadeOutDuration) { [weak self] in
-            self?.cleanupPreviewPlayers()
-            self?.coordinator.releaseAudioSession(for: .preview)
-            Logger.audio.debug("Background preview fade-out complete")
-        }
-    }
 }
 
 // MARK: - Player Cleanup
@@ -474,8 +462,6 @@ private extension AudioService {
     func cleanupPreviewPlayers() {
         self.previewPlayer?.stop()
         self.previewPlayer = nil
-        self.backgroundPreviewTimer?.invalidate()
-        self.backgroundPreviewTimer = nil
         self.backgroundPreviewPlayer?.stop()
         self.backgroundPreviewPlayer = nil
         self.meditationPreviewPlayer?.stop()

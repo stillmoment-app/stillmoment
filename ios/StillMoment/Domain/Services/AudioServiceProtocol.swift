@@ -61,11 +61,20 @@ protocol AudioServiceProtocol {
     /// Stops any currently playing gong preview
     func stopGongPreview()
 
-    /// Plays a preview of a background sound (3 seconds with fade-out)
+    /// Plays a looping preview of a background sound.
+    ///
+    /// The preview loops indefinitely until `stopBackgroundPreview()` is called —
+    /// it does NOT auto-stop after a fixed duration. This matches the soundscape
+    /// screen's play/stop toggle (shared-121).
     /// - Parameters:
     ///   - soundId: ID of the background sound to preview (references BackgroundSound.id)
     ///   - volume: Playback volume (0.0 to 1.0)
     func playBackgroundPreview(soundId: String, volume: Float) throws
+
+    /// Sets the volume of the running background preview live (no restart).
+    /// No-op when no background preview is active.
+    /// - Parameter volume: Playback volume (0.0 to 1.0)
+    func setBackgroundPreviewVolume(_ volume: Float)
 
     /// Stops any currently playing background preview
     func stopBackgroundPreview()

@@ -130,6 +130,12 @@ final class PraxisSettingsViewModel: ObservableObject {
         }
     }
 
+    /// Sets the volume of the running background preview live (no restart).
+    /// Used while dragging the volume slider so the level changes immediately.
+    func setBackgroundPreviewVolume(_ volume: Float) {
+        self.audioService.setBackgroundPreviewVolume(volume)
+    }
+
     /// Stops all active audio previews
     func stopAllPreviews() {
         self.audioService.stopGongPreview()

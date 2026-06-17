@@ -17,7 +17,6 @@ final class AudioServiceTests: XCTestCase {
         super.setUp()
         self.sut = AudioService(
             coordinator: AudioSessionCoordinator.shared,
-            backgroundPreviewDuration: 0.05,
             fadeOutDuration: 0.05
         )
     }
@@ -613,21 +612,4 @@ final class AudioServiceTests: XCTestCase {
     }
 
     // MARK: - Background Preview Tests (existing)
-
-    func testBackgroundPreviewFadeOut_AfterDuration_StopsAutomatically() async throws {
-        // Given
-        try self.sut.configureAudioSession()
-        try self.sut.playBackgroundPreview(soundId: "forest", volume: 0.5)
-
-        // When - Wait for preview duration + fade out (0.05s + 0.05s + buffer)
-        let expectation = expectation(description: "Wait for fade out")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            expectation.fulfill()
-        }
-        await fulfillment(of: [expectation], timeout: 0.5)
-
-        // Then - Should have stopped automatically (no crash when calling stop again)
-        self.sut.stopBackgroundPreview()
-        self.sut.stop()
-    }
 }
