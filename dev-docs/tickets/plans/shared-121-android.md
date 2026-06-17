@@ -3,6 +3,8 @@
 Ticket: [shared-121](../shared/shared-121-hintergrundklang-screen-redesign.md)
 Erstellt: 2026-06-17
 
+> **Nachtrag 2026-06-17:** Die Mini-Wellenform (`ScapeWaveform`, SWAVE, Equalizer, flache Linie) wurde auf User-Wunsch **gestrichen** und ist NICHT umgesetzt. Wiedergabe-Indikator ist allein der Play/Stop-Vorhör-Button mit atmendem Glow. Eigene Dateien behalten Umbenennen + Entfernen via Kebab-Menü (⋮). Die folgenden Wellenform-Abschnitte sind historisch.
+
 > Android wird als **Port der iOS-Implementierung** umgesetzt (iOS zuerst). Verhalten, Layout, Hüllkurven und Animationszeiten identisch. Dieser Plan spiegelt [shared-121-ios.md](shared-121-ios.md) und nennt die Android-Entsprechungen.
 
 ## Annahmen
