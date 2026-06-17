@@ -1,6 +1,6 @@
 # Ticket shared-120: Intervall-Gong-Screen — Master-Karte, Modus-Hinweis & Off-Zustand
 
-**Status**: [ ] OFFEN
+**Status**: [x] DONE
 **Plan**: inline (siehe Abschnitt „Spezifikation")
 **Prioritaet**: NIEDRIG
 **Komplexitaet**: Reines Presentation-Polish auf einem bestehenden Screen. Risiko gering; einzige Substanz ist der dynamische, plural-korrekte Modus-Hinweistext (erstmals `Localizable.stringsdict` auf iOS bzw. `<plurals>` auf Android).
@@ -27,8 +27,8 @@ shared-118 hat den Screen optisch auf das Karten-Layout gehoben, aber nur die Kl
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | shared-118    |
-| Android   | [ ]    | shared-118    |
+| iOS       | [x]    | shared-118    |
+| Android   | [x]    | shared-118    |
 
 ---
 
