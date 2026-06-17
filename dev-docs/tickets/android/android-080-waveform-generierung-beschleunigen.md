@@ -43,6 +43,19 @@ Beim Oeffnen des Editors einer langen Meditation laedt die Waveform sehr lange (
 
 ---
 
+## Verifikation (so wurde der Spike gemessen)
+
+**Trigger:** Waveform wird beim Oeffnen des Editors/Players generiert (Cache-Miss). Cache liegt unter `files/waveforms/{id}.json` (run-as zugaenglich, Dev-Build `com.stillmoment.dev`). Vor jeder Messung Cache loeschen + App force-stop, dann Meditation oeffnen.
+
+**Speed:** Generierungsdauer per Log messen (Spike nutzte ein temporaeres `PERF-SAMPLING wall=...ms`-Log; im Produktionscode entfaellt das oder wird ein dezentes `Logger`-Statement).
+
+**Genauigkeit (objektiv, ohne Augenmass):** Die Cache-JSON enthaelt die 2200 normalisierten Werte.
+1. Einmal die EXAKTE Referenz erzeugen (kurzzeitig den bestehenden `WaveformGenerationService` aktiv lassen), JSON aus dem Cache ziehen.
+2. Dann mit Sampling erneut generieren (gleiche Datei/ID), JSON ziehen.
+3. Beide 2200-Wert-Arrays numerisch vergleichen: mittlere absolute Abweichung + Pearson-Korrelation. Spike-Referenzwerte fuer die finale Variante: corr ~0,6, mean abs diff ~0,11 — das ist die akzeptierte Messlatte fuer "plausible UI-Waveform".
+
+---
+
 ## Referenz
 
 - Android: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/MediaCodecAudioFrameReader.kt` (Decode-Loop)
