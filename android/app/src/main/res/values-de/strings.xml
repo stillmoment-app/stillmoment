@@ -340,6 +340,7 @@
     <string name="praxis_editor_start_gong_title">Start &amp; Ende</string>
     <string name="praxis_gong_section_sound">Klang</string>
     <string name="praxis_gong_section_volume">Lautstärke</string>
+    <string name="praxis_gong_section_interval">Intervall</string>
     <string name="praxis_gong_vibration_helper">Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.</string>
     <string name="praxis_editor_interval_gongs_row">Intervall-Gongs</string>
     <string name="praxis_editor_interval_gongs_title">Intervall-Gongs</string>
