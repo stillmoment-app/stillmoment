@@ -4,12 +4,12 @@
 //
 //  Presentation Layer — single row in the soundscape selection card (shared-121).
 //
-//  From left: a play/stop preview button, the sound name + description, a looping
-//  mini waveform; the selected row adds a checkmark and a tinted background. Custom
-//  (user-imported) rows show a "more" (ellipsis) button on the right that opens a
-//  menu with Rename and Remove (destructive); for a selected custom row the
-//  checkmark sits left of that button. Tapping the row selects + previews; tapping
-//  only the preview button toggles the loop preview without changing the selection.
+//  From left: a play/stop preview button, the sound name + description; the selected
+//  row adds a checkmark and a tinted background. Custom (user-imported) rows show a
+//  "more" (ellipsis) button on the right that opens a menu with Rename and Remove
+//  (destructive); for a selected custom row the checkmark sits left of that button.
+//  Tapping the row selects + previews; tapping only the preview button toggles the
+//  loop preview without changing the selection.
 //
 
 import SwiftUI
@@ -54,14 +54,13 @@ struct ScapeSoundRow: View {
         .background(self.isSelected ? self.theme.interactive.opacity(0.12) : Color.clear)
     }
 
-    // MARK: - Select area (name + description + waveform + check)
+    // MARK: - Select area (name + description + check)
 
     private var selectArea: some View {
         Button(action: self.onSelect) {
             HStack(spacing: 14) {
                 self.labels
                 Spacer(minLength: 12)
-                ScapeWaveform(soundId: self.soundId, isSelected: self.isSelected, isPlaying: self.isPlaying)
                 if self.isSelected {
                     Image(systemName: "checkmark")
                         .font(.system(size: 16, weight: .semibold))
@@ -80,7 +79,7 @@ struct ScapeSoundRow: View {
     }
 
     /// Name above an optional secondary description; both clip to one line so a
-    /// long name never overlaps the mini waveform.
+    /// long name never overflows the row.
     private var labels: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(self.name)
