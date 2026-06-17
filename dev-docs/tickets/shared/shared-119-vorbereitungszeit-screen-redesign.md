@@ -1,6 +1,6 @@
 # Ticket shared-119: Vorbereitungszeit-Screen an neue Timer-Vorlage angleichen
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: UI-Redesign mit Domain-Auswirkung — der Wertebereich der Vorbereitungszeit wandert von einer diskreten Preset-Liste auf einen gerasterten Slider-Bereich (Validierung + Default in beiden Domain-Modellen betroffen). Risiko liegt in der Cross-Platform-Konsistenz und der Migration des Default-Werts.
 **Phase**: 4-Polish
@@ -22,8 +22,8 @@ Der Screen ist der letzte Timer-Detail-Screen im alten Listen-Stil und wirkt neb
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
