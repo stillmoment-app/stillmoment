@@ -58,6 +58,7 @@ Beim Oeffnen des Editors einer langen Meditation laedt die Waveform sehr lange (
 
 ## Referenz
 
+- **Handoff (zuerst lesen):** `handoffs/claude_code_handoff_android_080_waveform_sampling/` — Umsetzungsplan + verifizierter, lauffaehiger Prototyp (`SamplingWaveformGenerationService.spike.kt`) mit den subtilen Stellen, die nur durch Messen korrekt wurden.
 - Android: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/MediaCodecAudioFrameReader.kt` (Decode-Loop)
 - Android: `android/app/src/main/kotlin/com/stillmoment/infrastructure/audio/WaveformGenerationService.kt` (treibt den Loop)
 - Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/WaveformAccumulator.kt` (Peak-Bucketing)
@@ -80,7 +81,7 @@ Beim Oeffnen des Editors einer langen Meditation laedt die Waveform sehr lange (
 - Async-MediaCodec (`setCallback`): bringt nichts, da `empty=1` (keine Poll-Wartezeit); der Kostenpunkt ist Submission-Overhead, nicht Warten.
 - Batch-Input (groesserer `KEY_MAX_INPUT_SIZE`): waere exakt, kaeme aber nur auf ~20s und hat ein multi-Access-Unit-Korrektheitsrisiko beim MP3-Decoder.
 
-**Validierte Loesung (Spike 2026-06-17, Prototyp auf Branch `feature/android-080-waveform-sampling`): kontinuierliche Dezimierung, KEIN Seek.**
+**Validierte Loesung (Spike 2026-06-17, lauffaehiger Prototyp + Umsetzungsplan im Handoff `handoffs/claude_code_handoff_android_080_waveform_sampling/`): kontinuierliche Dezimierung, KEIN Seek.**
 
 Die naheliegende Seek-pro-Bar-Variante wurde gebaut und verworfen: 2200 `seekTo()`+`flush()` kosten ~16s (Seek-Overhead ersetzt nur den Submission-Overhead) bei schlechter Genauigkeit. Stattdessen:
 
