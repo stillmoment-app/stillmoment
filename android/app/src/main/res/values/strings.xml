@@ -309,6 +309,11 @@
     <string name="praxis_gong_section_interval">Interval</string>
     <string name="praxis_gong_vibration_helper">Instead of a sound your device gives a gentle pulse — silent, ideal for quiet spaces.</string>
     <string name="praxis_editor_interval_gongs_title">Interval Gongs</string>
+    <!-- Interval Gongs editor: master card + mode section (shared-120) -->
+    <string name="praxis_gong_section_mode">Mode</string>
+    <string name="praxis_interval_gongs_master_subtitle_on">Recurring gongs throughout the session</string>
+    <string name="praxis_interval_gongs_master_subtitle_off">Off — no gongs during the session</string>
+    <string name="praxis_interval_gongs_disabled_helper">Turn on interval gongs to hear a gentle sound at regular intervals — a quiet marker of time.</string>
 
     <!-- Praxis Editor Common -->
     <string name="common_off">Off</string>
@@ -370,4 +375,18 @@
     <string name="accessibility_library_search_history_entry">Search again: %1$s</string>
     <!-- shared-102: header cancel button replaces the action pill while searching. -->
     <string name="accessibility_library_search_cancel">Cancel search</string>
+
+    <!-- Interval Gongs mode help (shared-120) — count selects one/other form -->
+    <plurals name="praxis_interval_gongs_mode_help_repeating">
+        <item quantity="one">A gong sounds every minute throughout the session.</item>
+        <item quantity="other">A gong sounds every %d minutes throughout the session.</item>
+    </plurals>
+    <plurals name="praxis_interval_gongs_mode_help_after_start">
+        <item quantity="one">A single gong, one minute after the session begins.</item>
+        <item quantity="other">A single gong, %d minutes after the session begins.</item>
+    </plurals>
+    <plurals name="praxis_interval_gongs_mode_help_before_end">
+        <item quantity="one">A single gong, one minute before the session ends.</item>
+        <item quantity="other">A single gong, %d minutes before the session ends.</item>
+    </plurals>
 </resources>
