@@ -145,6 +145,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-118](shared/shared-118-intervall-gong-editor-redesign.md) | Intervall-Gong-Editor an Klang-Auswahl-Vorlage angleichen | 4-Polish | [x] | [x] |
 | [shared-119](shared/shared-119-vorbereitungszeit-screen-redesign.md) | Vorbereitungszeit-Screen an neue Timer-Vorlage angleichen | 4-Polish | [x] | [x] |
 | [shared-120](shared/shared-120-intervall-gong-master-karte-modus-hinweis.md) | Intervall-Gong-Screen — Master-Karte, Modus-Hinweis & Off-Zustand (Handoff intervall-gongs) | 4-Polish | [x] | [x] |
+| [shared-121](shared/shared-121-hintergrundklang-screen-redesign.md) | Hintergrundklang-Screen an Klang-Auswahl-Vorlage angleichen (Handoff soundscape) | 4-Polish | [ ] | [ ] |
 
 ---
 
