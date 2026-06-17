@@ -13,14 +13,12 @@
     <string name="settings_preparation_time_title">Vorbereitungszeit</string>
     <string name="accessibility_dial_label">Meditationsdauer</string>
     <string name="accessibility_dial_value">%d Minuten</string>
-    <string name="accessibility_dial_hint">Ziehe am Ring, um die Dauer zu ändern.</string>
     <string name="accessibility_idle_settings_row">%1$s, %2$s, doppelt tippen zum Ändern</string>
 
     <!-- Common -->
     <string name="common_cancel">Abbrechen</string>
     <string name="common_ok">OK</string>
     <string name="common_save">Speichern</string>
-    <string name="common_close">Schließen</string>
     <string name="common_delete">Löschen</string>
     <string name="common_edit">Bearbeiten</string>
 
@@ -66,26 +64,12 @@
     <string name="preparation_slider_max_label">1 Min.</string>
     <string name="preparation_off_helper">Schalte die Vorbereitungszeit ein, um vor dem Start kurz innezuhalten und anzukommen.</string>
 
-    <!-- Background Sounds -->
-    <string name="sound_silent">Stille</string>
-    <string name="sound_silent_description">Meditiere in Stille.</string>
-    <string name="sound_forest">Waldatmosphäre</string>
-    <string name="sound_forest_description">Natürliche Waldgeräusche</string>
-    <string name="sound_cozy_rain">Regen</string>
-    <string name="sound_cozy_rain_description">Sanfter Regen zur Mitternacht.</string>
-
     <!-- Time -->
-    <string name="time_minutes">%d min</string>
-    <string name="time_minutes_plural">%d Minuten</string>
     <string name="time_seconds">%d Sekunden</string>
 
     <!-- Accessibility -->
-    <string name="accessibility_duration_picker">Meditationsdauer auswählen</string>
     <string name="accessibility_start_button">Meditation starten</string>
-    <string name="accessibility_settings_button">Einstellungen öffnen</string>
     <string name="accessibility_countdown_seconds">Noch %d Sekunden bis die Meditation beginnt</string>
-    <string name="accessibility_time_remaining">%1$d Minuten und %2$d Sekunden verbleibend</string>
-    <string name="accessibility_minute_picker">Dauer: %d Minuten</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Meditations-Timer</string>
@@ -94,7 +78,6 @@
     <string name="notification_text">Deine Meditationssitzung ist aktiv</string>
 
     <!-- Guided Meditations Library -->
-    <string name="guided_meditations_title">Geführte Meditationen</string>
     <string name="guided_meditations_empty_title">Dein persönlicher Meditationsraum</string>
     <string name="guided_meditations_empty_description">Importiere Meditationen von deinen Lieblingslehrern und erstelle so deine persönliche Bibliothek.</string>
     <string name="guided_meditations_empty_find_sources">Wo finde ich Meditationen?</string>
@@ -103,7 +86,6 @@
     <!-- Content Guide Sheet -->
     <string name="guided_meditations_guide_title">Wo finde ich Meditationen?</string>
     <string name="guided_meditations_guide_intro">Auf folgenden Seiten findest du qualitativ hochwertige Meditationen zum kostenlosen Download.</string>
-    <string name="guided_meditations_guide_close">Schließen</string>
     <string name="guided_meditations_guide_open_source">Quelle im Browser öffnen</string>
     <string name="guided_meditations_guide_info">Inhalts-Guide</string>
 
@@ -134,11 +116,8 @@
 
     <string name="guided_meditations_delete_title">Meditation löschen</string>
     <string name="guided_meditations_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
-    <string name="guided_meditations_edit_title">Meditation bearbeiten</string>
     <string name="guided_meditations_edit_teacher">Lehrer</string>
     <string name="guided_meditations_edit_name">Name</string>
-    <string name="guided_meditations_edit_file">Datei</string>
-    <string name="guided_meditations_edit_duration">Dauer</string>
 
     <!-- shared-103: Edit-sheet prefill UI -->
     <string name="guided_meditations_import_action">Importieren</string>
@@ -162,7 +141,6 @@
     <string name="accessibility_edit_sheet_end_gong_hint">Spielt einen Gong am Ende der Wiedergabe</string>
 
     <!-- shared-107/108/112: Wiedergabe-Bereich-Karte + Trim-Editor -->
-    <string name="playback_range_label">Wiedergabe-Bereich</string>
     <string name="playback_range_whole_file">Ganze Datei · %1$s</string>
     <string name="playback_range_choose">Bereich wählen</string>
     <string name="playback_range_range">%1$s – %2$s</string>
@@ -188,9 +166,6 @@
     <string name="trim_editor_edge_chip_start">Anfang %1$s</string>
     <string name="trim_editor_edge_chip_end">Ende %1$s</string>
     <string name="trim_editor_a11y_back">Zurück</string>
-    <string name="trim_editor_a11y_playhead">Abspielposition</string>
-    <string name="trim_editor_a11y_start_handle">Anfangspunkt</string>
-    <string name="trim_editor_a11y_end_handle">Endpunkt</string>
     <string name="trim_editor_a11y_nudge_back">Eine Sekunde früher</string>
     <string name="trim_editor_a11y_nudge_forward">Eine Sekunde später</string>
     <string name="trim_editor_a11y_play">Vorhören</string>
@@ -202,7 +177,6 @@
     <string name="trim_editor_a11y_edge_chip_end">Endpunkt bei %1$s anzeigen</string>
 
     <!-- Guided Meditations Settings -->
-    <string name="guided_meditations_settings_preparation_time">Vorbereitungszeit</string>
     <string name="guided_meditations_settings_preparation_description">Zeit zum Ankommen bevor das Audio startet</string>
     <string name="guided_meditations_settings_preparation_duration">Dauer</string>
 
@@ -234,8 +208,6 @@
     <string name="guided_meditations_player_mini_overview_a11y_label">Gesamtfortschritt</string>
 
     <!-- Player Accessibility -->
-    <string name="accessibility_player_progress">Wiedergabefortschritt: %d Prozent</string>
-    <string name="accessibility_seek_slider">Suchleiste</string>
     <string name="accessibility_play_button">Meditation abspielen</string>
     <string name="accessibility_pause_button_player">Meditation pausieren</string>
     <string name="accessibility_player_teacher">Lehrer</string>
@@ -259,7 +231,6 @@
     <string name="accessibility_interval_disabled">Intervall-Gongs deaktiviert</string>
     <string name="accessibility_sound_selected">%s ausgewählt</string>
     <string name="accessibility_gong_preview">%s vorhören</string>
-    <string name="accessibility_interval_option">%d Minuten Intervall</string>
     <string name="accessibility_preparation_enabled">Vorbereitungszeit aktiviert, %d Sekunden</string>
     <string name="accessibility_preparation_disabled">Vorbereitungszeit deaktiviert</string>
     <string name="accessibility_preparation_slider_value">%d Sekunden</string>
@@ -296,10 +267,6 @@
     <string name="error_already_imported">Diese Meditation ist bereits in deiner Bibliothek.</string>
     <string name="error_import_failed">Die Datei konnte nicht importiert werden. Bitte versuche es erneut.</string>
 
-    <!-- Settings Hint -->
-    <string name="settings_hint_text">Passe Klänge &amp; Gongs an</string>
-    <string name="accessibility_settings_hint">Hinweis: Tippe hier, um Klänge und Gongs anzupassen</string>
-
     <!-- Settings Tab -->
     <string name="tab_settings">Einstellungen</string>
     <string name="accessibility_tab_settings">Zu Einstellungen navigieren</string>
@@ -332,25 +299,15 @@
     <string name="praxis_description_duration">%d Min</string>
     <string name="praxis_description_silent">Stille</string>
     <string name="praxis_description_preparation">%ds Vorbereitung</string>
-    <string name="praxis_description_no_interval_gongs">Kein Intervallton</string>
     <string name="praxis_pill_preparation">%ds</string>
 
     <!-- Praxis Editor -->
-    <string name="praxis_editor_title">Konfiguration</string>
-    <string name="praxis_editor_duration_label">Dauer</string>
-    <string name="praxis_editor_section_preparation">Vorbereitung</string>
-    <string name="praxis_editor_section_audio">Audio &amp; Klänge</string>
-    <string name="praxis_editor_section_gongs">Gongs</string>
-    <string name="praxis_editor_background_row">Hintergrundklang</string>
     <string name="praxis_editor_background_title">Hintergrundklang</string>
-    <string name="praxis_editor_background_silence">Stille</string>
-    <string name="praxis_editor_start_gong_row">Start &amp; Ende</string>
     <string name="praxis_editor_start_gong_title">Start &amp; Ende</string>
     <string name="praxis_gong_section_sound">Klang</string>
     <string name="praxis_gong_section_volume">Lautstärke</string>
     <string name="praxis_gong_section_interval">Intervall</string>
     <string name="praxis_gong_vibration_helper">Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.</string>
-    <string name="praxis_editor_interval_gongs_row">Intervall-Gongs</string>
     <string name="praxis_editor_interval_gongs_title">Intervall-Gongs</string>
 
     <!-- Praxis Editor Common -->
@@ -358,10 +315,6 @@
     <string name="common_on">Ein</string>
 
     <!-- Praxis Editor Accessibility -->
-    <string name="accessibility_praxis_editor_name">Praxisname</string>
-    <string name="accessibility_praxis_editor_background">Hintergrundklang auswählen</string>
-    <string name="accessibility_praxis_editor_start_gong">Start- und Ende-Gong auswählen</string>
-    <string name="accessibility_praxis_editor_interval_gongs">Intervall-Gongs konfigurieren</string>
     <string name="accessibility_praxis_editor_preparation_toggle">Vorbereitungszeit Schalter</string>
     <string name="accessibility_praxis_editor_preparation_duration">Vorbereitungsdauer</string>
 
@@ -376,8 +329,6 @@
     <string name="custom_audio_rename_placeholder">Neuer Name</string>
     <string name="custom_audio_rename_message">Gib einen neuen Namen für diese Audiodatei ein.</string>
     <string name="custom_audio_duration_unknown">Unbekannt</string>
-    <string name="custom_audio_error_unsupported_format">Dieses Dateiformat wird nicht unterstützt. Nur MP3-, M4A- und WAV-Dateien können importiert werden.</string>
-    <string name="custom_audio_error_import_failed">Die Audiodatei konnte nicht importiert werden. Bitte versuche es erneut.</string>
     <string name="accessibility_custom_audio_overflow">Weitere Optionen für %1$s</string>
     <string name="accessibility_import_custom_audio">Audiodatei importieren</string>
     <string name="accessibility_custom_audio_item">%1$s, Dauer %2$s</string>

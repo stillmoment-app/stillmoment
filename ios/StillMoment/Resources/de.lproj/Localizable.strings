@@ -5,13 +5,10 @@
 
 // MARK: - Main Screen
 
-"duration.minutes" = "%d min";
 
 // MARK: - Buttons
 
 "button.start" = "Beginnen";
-"button.done" = "Fertig";
-"button.back" = "Zurück";
 
 // MARK: - Common UI Elements
 
@@ -33,31 +30,19 @@
 
 // MARK: - State Messages
 
-"state.ready" = "Bereit, wenn du es bist";
-"state.completed" = "Danke dir";
 
 // MARK: - Settings
 
-"settings.title" = "Einstellungen";
-"settings.backgroundAudio.title" = "Klangkulisse";
-"settings.backgroundAudio.sound" = "Klang";
 "settings.backgroundAudio.volume" = "Lautstärke";
 
 "settings.intervalGongs.title" = "Intervall-Gongs";
-"settings.intervalGongs.description" = "Ein Gong-Klang in regelmäßigen Abständen während der Meditation";
-"settings.intervalGongs.description.repeating" = "Alle %d Min., %@";
-"settings.intervalGongs.description.afterStart" = "%d Min. nach Start, %@";
-"settings.intervalGongs.description.beforeEnd" = "%d Min. vor Ende, %@";
 "settings.intervalGongs.interval" = "Intervall";
-"settings.intervalGongs.header" = "Intervallklänge";
-"settings.intervalGongs.sound" = "Klang";
 "settings.intervalGongs.stepper" = "%d Min.";
 
 "settings.intervalMode.repeating" = "Regelmäßig";
 "settings.intervalMode.afterStart" = "Nach Start";
 "settings.intervalMode.beforeEnd" = "Vor Ende";
 
-"settings.gong.title" = "Gong";
 
 // MARK: - Gong Sound Names
 "gong.temple-bell" = "Tempelglocke";
@@ -67,16 +52,8 @@
 "gong.soft-interval" = "Sanfter Intervallton";
 "gong.vibration" = "Vibration";
 
-"settings.preparationTime.header" = "Vorbereitungszeit";
 "settings.preparationTime.title" = "Vorbereitungszeit";
-"settings.preparationTime.description" = "Zeit zum Ankommen vor der Meditation";
 "settings.preparationTime.duration" = "Dauer";
-"settings.preparationTime.5s" = "5 Sekunden";
-"settings.preparationTime.10s" = "10 Sekunden";
-"settings.preparationTime.15s" = "15 Sekunden";
-"settings.preparationTime.20s" = "20 Sekunden";
-"settings.preparationTime.30s" = "30 Sekunden";
-"settings.preparationTime.45s" = "45 Sekunden";
 "settings.preparationTime.subtitle.on" = "Eine kurze Stille vor dem Start";
 "settings.preparationTime.subtitle.off" = "Aus — der Timer startet sofort";
 "settings.preparationTime.unit.seconds" = "Sekunden";
@@ -84,7 +61,6 @@
 "settings.preparationTime.end.max" = "1 Min.";
 "settings.preparationTime.helper" = "Schalte die Vorbereitungszeit ein, um vor dem Start kurz innezuhalten und anzukommen.";
 
-"settings.startGong.title" = "Gong-Ton";
 "settings.gongVolume.title" = "Lautstärke";
 
 // MARK: - App Settings Tab
@@ -115,44 +91,22 @@
 
 // MARK: - Accessibility
 
-"accessibility.settings" = "Einstellungen";
-"accessibility.settings.hint" = "Einstellungen öffnen, um Intervall-Gongs zu konfigurieren";
 
 // MARK: - Settings Hint (Onboarding)
 
-"settings.hint.text" = "Passe Klänge & Gongs an";
-"accessibility.settings.hint.tooltip" = "Hinweis: Tippe hier, um Klänge und Gongs anzupassen";
 "accessibility.startMeditation" = "Meditation starten";
 "accessibility.startMeditation.hint" = "Startet den Meditationstimer mit der gewählten Dauer";
-"accessibility.durationPicker" = "Meditationsdauer-Auswahl";
-"accessibility.durationPicker.hint" = "Wähle die Dauer für deine Meditationssitzung in Minuten";
-"accessibility.durationPicker.label" = "Minuten";
 "accessibility.preparation" = "Vorbereitung: %d Sekunden";
-"accessibility.remainingTime" = "Verbleibende Zeit: %@";
-"accessibility.timerState.idle" = "Der Timer ist bereit zu starten";
-"accessibility.timerState.preparation" = "Vorbereitung läuft. Mach dich bereit zu meditieren.";
-"accessibility.timerState.running" = "Timer läuft. Aktuell am meditieren.";
-"accessibility.timerState.completed" = "Meditationssitzung abgeschlossen";
-"accessibility.intervalGongs" = "Intervall-Gongs";
-"accessibility.intervalGongs.hint" = "Aktiviere oder deaktiviere Intervall-Gongs während der Meditation";
-"accessibility.startGongSound" = "Gong-Ton";
-"accessibility.startGongSound.hint" = "Wähle den Gong-Ton für Start und Ende der Meditation";
 "accessibility.intervalDuration" = "Intervalldauer";
 "accessibility.intervalDuration.hint" = "Intervalldauer in Minuten anpassen";
 "accessibility.intervalMode" = "Intervallmodus";
 "accessibility.intervalMode.hint" = "Wähle wann Intervall-Gongs gespielt werden";
-"accessibility.intervalSound" = "Intervall-Klang";
-"accessibility.intervalSound.hint" = "Wähle den Klang für Intervall-Gongs";
 "accessibility.preparationTime" = "Vorbereitungszeit";
 "accessibility.preparationTime.hint" = "Aktiviere oder deaktiviere die Vorbereitungszeit vor der Meditation";
 "accessibility.preparationTimeDuration" = "Vorbereitungsdauer";
 "accessibility.preparationTimeDuration.hint" = "Wähle die Dauer der Vorbereitungszeit in Sekunden";
-"accessibility.done" = "Fertig";
-"accessibility.done.hint" = "Einstellungen speichern und schließen";
 "accessibility.backgroundVolume.hint" = "Lautstärke der Hintergrundgeräusche anpassen";
 "accessibility.gongVolume.hint" = "Lautstärke der Gong-Klänge anpassen";
-"accessibility.intervalGongVolume.title" = "Intervall-Gong-Lautstärke";
-"accessibility.intervalGongVolume.hint" = "Lautstärke des Intervall-Gongs anpassen";
 "accessibility.editSheet.cancel.hint" = "Schließt das Formular ohne zu speichern";
 "accessibility.editSheet.save.hint" = "Speichert die Änderungen und schließt das Formular";
 "accessibility.clearButton.label" = "Feld leeren";
@@ -172,8 +126,6 @@
 
 // MARK: - Guided Meditations
 
-"guided_meditations.title" = "Geführte Meditationen";
-"guided_meditations.button" = "Geführte Meditationen";
 "guided_meditations.add" = "Meditation hinzufügen";
 "guided_meditations.import" = "Meditation importieren";
 "guided_meditations.edit" = "Bearbeiten";
@@ -222,14 +174,10 @@
 "guided_meditations.delete.message" = "Möchtest du \"%@\" wirklich löschen?";
 "guided_meditations.delete.confirm" = "Löschen";
 
-"guided_meditations.edit.title" = "Meditation bearbeiten";
 "guided_meditations.edit.teacher" = "Lehrer/Guide";
 "guided_meditations.edit.teacherPlaceholder" = "Wer leitet die Meditation an?";
 "guided_meditations.edit.name" = "Name";
 "guided_meditations.edit.namePlaceholder" = "Wie heißt diese Meditation?";
-"guided_meditations.edit.file" = "Datei";
-"guided_meditations.edit.duration" = "Dauer";
-"guided_meditations.edit.fileInfo" = "Datei-Informationen";
 
 // Editor-Abschnitts-Überschriften (shared-116)
 "guided_meditations.edit.section.info" = "Informationen";
@@ -294,14 +242,9 @@
 
 "guided_meditations.player.teacher" = "Lehrer";
 "guided_meditations.player.title" = "Meditationstitel";
-"guided_meditations.player.progress" = "Fortschritt";
-"guided_meditations.player.currentTime" = "Aktuelle Zeit";
 "guided_meditations.player.remainingTime" = "Verbleibende Zeit";
 "guided_meditations.player.play" = "Abspielen";
 "guided_meditations.player.pause" = "Pausieren";
-"guided_meditations.player.stop" = "Stoppen";
-"guided_meditations.player.skipForward" = "15 Sekunden vorspulen";
-"guided_meditations.player.skipBackward" = "15 Sekunden zurückspulen";
 
 // Waveform-Player „Tonkopf" (shared-109)
 "guided_meditations.player.remaining.format" = "NOCH %@";
@@ -317,29 +260,21 @@
 "guided_meditations.settings.preparationTime.duration" = "Dauer";
 
 // Vorbereitungszeit (legacy - wird im Countdown verwendet)
-"guided_meditations.preparation.off" = "Aus";
-"guided_meditations.preparation.seconds" = "%ds";
-"guided_meditations.player.preparationTime" = "Vorbereitungszeit";
 "guided_meditations.player.countdown" = "%d Sekunden bis die Meditation beginnt";
 "guided_meditations.player.preroll.label" = "Vorbereitung";
-"guided_meditations.player.remainingTime.format" = "NOCH %@ MIN";
 
 // Timer PreRoll-Header (Layout-Pendant zu Guided: Modus + Dauer)
 "timer.preroll.mode" = "Freie Meditation";
 "timer.preroll.duration.singular" = "%d Minute";
 "timer.preroll.duration.plural" = "%d Minuten";
-"guided_meditations.player.remainingTime.format.paused" = "PAUSIERT · NOCH %@ MIN";
 
 // MARK: - Player Completion
 
 "guided_meditations.player.completion.headline" = "Danke, dass du dir diese Zeit geschenkt hast.";
 "completion.button.done" = "Fertig";
 
-"accessibility.guidedMeditations.hint" = "Öffne die Bibliothek der geführten Meditationen";
 
 "accessibility.library.add.hint" = "Öffnet die Dateiauswahl zum Importieren einer geführten Meditation";
-"accessibility.library.row.hint" = "Öffnet den Meditations-Player";
-"accessibility.library.edit.hint" = "Öffnet das Bearbeitungsformular für die Meditationsdetails";
 "accessibility.library.import.hint" = "Öffnet die Dateiauswahl zum Importieren deiner ersten geführten Meditation";
 "accessibility.library.overflow" = "Weitere Optionen";
 "accessibility.library.overflow.hint" = "Öffnet Menü mit Bearbeiten- und Löschen-Optionen";
@@ -387,10 +322,6 @@
 
 // MARK: - Praxis
 
-"praxis.description.duration" = "%d Min";
-"praxis.description.silent" = "Stille";
-"praxis.description.preparation" = "%ds Vorbereitung";
-"praxis.description.noIntervalGongs" = "Kein Intervallton";
 "praxis.pill.preparation" = "%ds";
 
 // MARK: - Praxis Editor
@@ -404,7 +335,6 @@
 "praxis.gong.section.volume" = "Lautstärke";
 "praxis.gong.vibration.helper" = "Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.";
 "common.off" = "Aus";
-"common.on" = "Ein";
 
 // MARK: - Setting Cards (shared-083)
 "settings.card.label.preparation" = "Vorbereitung";
@@ -451,9 +381,6 @@
 "custom.audio.error.fileNotFound" = "Datei nicht gefunden.";
 
 "custom.audio.accessibility.importButton.soundscape" = "Eigenen Soundscape importieren";
-"custom.audio.accessibility.delete" = "%@ löschen";
-"custom.audio.accessibility.rename" = "Name bearbeiten";
-"custom.audio.accessibility.rename.hint" = "Öffnet Dialog zur Umbenennung";
 
 "custom.audio.rename.title" = "Name bearbeiten";
 "custom.audio.rename.placeholder" = "Name";
