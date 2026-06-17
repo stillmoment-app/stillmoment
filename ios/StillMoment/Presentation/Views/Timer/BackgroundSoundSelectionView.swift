@@ -72,6 +72,22 @@ struct BackgroundSoundSelectionView: View {
         } message: { file in
             Text(self.deleteWarning(for: file))
         }
+        .alert(
+            NSLocalizedString("custom.audio.rename.title", comment: ""),
+            isPresented: self.$showRenameAlert,
+            presenting: self.fileToRename
+        ) { file in
+            TextField(
+                NSLocalizedString("custom.audio.rename.placeholder", comment: ""),
+                text: self.$renameText
+            )
+            Button(NSLocalizedString("common.cancel", comment: ""), role: .cancel) {}
+            Button(NSLocalizedString("common.save", comment: "")) {
+                self.viewModel.renameCustomAudio(file, newName: self.renameText)
+            }
+        } message: { _ in
+            Text("custom.audio.rename.message", bundle: .main)
+        }
     }
 
     // MARK: Private
@@ -85,6 +101,9 @@ struct BackgroundSoundSelectionView: View {
     @State private var showImportPicker = false
     @State private var fileToDelete: CustomAudioFile?
     @State private var showDeleteConfirmation = false
+    @State private var fileToRename: CustomAudioFile?
+    @State private var renameText: String = ""
+    @State private var showRenameAlert = false
 
     private var isSilentSelected: Bool {
         self.viewModel.backgroundSoundId == BackgroundSound.silentId
@@ -173,6 +192,7 @@ private extension BackgroundSoundSelectionView {
                 ScapeSoundRow(
                     soundId: sound.id,
                     name: sound.name,
+                    description: sound.description,
                     isSelected: self.viewModel.backgroundSoundId == sound.id,
                     isSilent: sound.id == BackgroundSound.silentId,
                     isPlaying: self.previewingSoundscapeId == sound.id,
@@ -233,12 +253,18 @@ private extension BackgroundSoundSelectionView {
         return ScapeSoundRow(
             soundId: id,
             name: file.name,
+            description: file.formattedDuration,
             isSelected: self.viewModel.backgroundSoundId == id,
             isSilent: false,
             isPlaying: self.previewingSoundscapeId == id,
-            canRemove: true,
+            isCustom: true,
             onSelect: { self.select(soundId: id) },
             onPreview: { self.togglePreview(soundId: id) },
+            onRename: {
+                self.fileToRename = file
+                self.renameText = file.name
+                self.showRenameAlert = true
+            },
             onRemove: {
                 self.fileToDelete = file
                 self.showDeleteConfirmation = true

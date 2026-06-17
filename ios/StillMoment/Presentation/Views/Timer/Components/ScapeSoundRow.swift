@@ -4,11 +4,12 @@
 //
 //  Presentation Layer — single row in the soundscape selection card (shared-121).
 //
-//  From left: a play/stop preview button, the sound name, a looping mini waveform;
-//  the selected row adds a checkmark and a tinted background. Custom (user-imported)
-//  rows that are NOT selected show a trash button on the right that triggers a
-//  delete confirmation. Tapping the row selects + previews; tapping only the preview
-//  button toggles the loop preview without changing the selection.
+//  From left: a play/stop preview button, the sound name + description, a looping
+//  mini waveform; the selected row adds a checkmark and a tinted background. Custom
+//  (user-imported) rows show a "more" (ellipsis) button on the right that opens a
+//  menu with Rename and Remove (destructive); for a selected custom row the
+//  checkmark sits left of that button. Tapping the row selects + previews; tapping
+//  only the preview button toggles the loop preview without changing the selection.
 //
 
 import SwiftUI
@@ -17,15 +18,20 @@ import SwiftUI
 struct ScapeSoundRow: View {
     let soundId: String
     let name: String
+    /// Secondary line under the name (built-in: scene description; custom: duration).
+    var description: String?
     let isSelected: Bool
     /// True for the "Silence" row (mute glyph, flat line, plays nothing).
     let isSilent: Bool
     /// True while this row's loop preview is currently sounding.
     let isPlaying: Bool
-    /// Whether a trash/remove affordance is offered (only for custom, unselected rows).
-    var canRemove: Bool = false
+    /// Whether the row offers the rename/remove "more" menu (custom rows only).
+    var isCustom: Bool = false
     let onSelect: () -> Void
     let onPreview: () -> Void
+    /// Opens the rename dialog (custom rows only).
+    var onRename: (() -> Void)?
+    /// Triggers the delete confirmation (custom rows only).
     var onRemove: (() -> Void)?
 
     /// Prefix for the row's accessibility identifiers.
@@ -38,8 +44,8 @@ struct ScapeSoundRow: View {
         HStack(spacing: 14) {
             self.previewButton
             self.selectArea
-            if self.showsRemove {
-                self.removeButton
+            if self.showsMenu {
+                self.moreMenu
             }
         }
         .padding(.horizontal, 16)
@@ -48,13 +54,12 @@ struct ScapeSoundRow: View {
         .background(self.isSelected ? self.theme.interactive.opacity(0.12) : Color.clear)
     }
 
-    // MARK: - Select area (name + waveform + check)
+    // MARK: - Select area (name + description + waveform + check)
 
     private var selectArea: some View {
         Button(action: self.onSelect) {
             HStack(spacing: 14) {
-                Text(self.name)
-                    .textStyle(self.isSelected ? .bodyEmphasis : .body, color: \.textPrimary)
+                self.labels
                 Spacer(minLength: 12)
                 ScapeWaveform(soundId: self.soundId, isSelected: self.isSelected, isPlaying: self.isPlaying)
                 if self.isSelected {
@@ -68,10 +73,34 @@ struct ScapeSoundRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(self.name))
+        .accessibilityLabel(Text(self.accessibilityLabel))
         .accessibilityHint(Text("accessibility.sound.select.hint"))
         .accessibilityAddTraits(self.isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityIdentifier("\(self.identifierPrefix).\(self.soundId)")
+    }
+
+    /// Name above an optional secondary description; both clip to one line so a
+    /// long name never overlaps the mini waveform.
+    private var labels: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(self.name)
+                .textStyle(self.isSelected ? .bodyEmphasis : .body, color: \.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            if let description, !description.isEmpty {
+                Text(description)
+                    .textStyle(.caption, color: \.textSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+        }
+    }
+
+    private var accessibilityLabel: String {
+        guard let description, !description.isEmpty else {
+            return self.name
+        }
+        return "\(self.name), \(description)"
     }
 
     // MARK: - Preview button
@@ -101,32 +130,34 @@ struct ScapeSoundRow: View {
         .accessibilityIdentifier("\(self.identifierPrefix).preview.\(self.soundId)")
     }
 
-    // MARK: - Remove button (custom rows)
+    // MARK: - More menu (custom rows)
 
-    private var showsRemove: Bool {
-        self.canRemove && !self.isSelected && self.onRemove != nil
+    private var showsMenu: Bool {
+        self.isCustom && (self.onRename != nil || self.onRemove != nil)
     }
 
-    private var removeButton: some View {
-        Button {
-            self.onRemove?()
+    private var moreMenu: some View {
+        Menu {
+            Button {
+                self.onRename?()
+            } label: {
+                Label("guided_meditations.edit", systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                self.onRemove?()
+            } label: {
+                Label("custom.audio.delete.confirm.button", systemImage: "trash")
+            }
         } label: {
-            Image(systemName: "trash")
+            Image(systemName: "ellipsis")
                 .font(.system(size: 16, weight: .regular))
-                .foregroundColor(self.theme.textSecondary)
-                .frame(width: 28, height: 28)
+                .foregroundColor(self.theme.interactive)
+                .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(
-            Text(
-                String(
-                    format: NSLocalizedString("accessibility.scape.remove", comment: ""),
-                    self.name
-                )
-            )
-        )
-        .accessibilityIdentifier("\(self.identifierPrefix).remove.\(self.soundId)")
+        .accessibilityLabel("accessibility.library.overflow")
+        .accessibilityHint("accessibility.library.overflow.hint")
+        .accessibilityIdentifier("\(self.identifierPrefix).overflow.\(self.soundId)")
     }
 }
 
@@ -139,6 +170,7 @@ struct ScapeSoundRow: View {
             ScapeSoundRow(
                 soundId: BackgroundSound.silentId,
                 name: "Stille",
+                description: "Vollkommene Ruhe — kein Klang",
                 isSelected: false,
                 isSilent: true,
                 isPlaying: false,
@@ -148,6 +180,7 @@ struct ScapeSoundRow: View {
             ScapeSoundRow(
                 soundId: "forest",
                 name: "Waldatmosphäre",
+                description: "Sanftes Blätterrauschen, ferne Vögel",
                 isSelected: true,
                 isSilent: false,
                 isPlaying: true,
@@ -156,13 +189,15 @@ struct ScapeSoundRow: View {
             )
             ScapeSoundRow(
                 soundId: "cozy-rain",
-                name: "Regen",
-                isSelected: false,
+                name: "Ein wirklich sehr langer eigener Dateiname zum Testen",
+                description: "3:45",
+                isSelected: true,
                 isSilent: false,
                 isPlaying: false,
-                canRemove: true,
+                isCustom: true,
                 onSelect: {},
                 onPreview: {},
+                onRename: {},
                 onRemove: {}
             )
         }

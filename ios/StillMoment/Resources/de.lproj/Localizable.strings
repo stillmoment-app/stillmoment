@@ -287,7 +287,6 @@
 "accessibility.gong.preview" = "%@ vorhören";
 "accessibility.scape.preview.play" = "Vorschau von %@ abspielen";
 "accessibility.scape.preview.stop" = "Vorschau von %@ stoppen";
-"accessibility.scape.remove" = "%@ entfernen";
 
 // MARK: - Library Search (ios-041)
 
