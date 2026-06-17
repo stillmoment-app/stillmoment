@@ -142,6 +142,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-115](shared/shared-115-gong-auswahl-redesign.md) | Gong-Auswahl "Start & Ende" Redesign | 4-Polish | [x] | [x] |
 | [shared-116](shared/shared-116-meditation-editor-gong-klang-picker.md) | Meditation-Editor — Klang-Auswahl als Karten-Picker + Section-Überschriften | 4-Polish | [x] | [x] |
 | [shared-117](shared/shared-117-lautstaerke-normalisierung.md) | Lautstärke-Normalisierung gefuehrter Meditationen | 3-Feature | [ ] | [ ] |
+| [shared-118](shared/shared-118-intervall-gong-editor-redesign.md) | Intervall-Gong-Editor an Klang-Auswahl-Vorlage angleichen | 4-Polish | [x] | [x] |
 
 ---
 
