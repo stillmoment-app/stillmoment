@@ -286,8 +286,8 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(preparationRow.waitForExistence(timeout: 3.0), "Preparation row not found")
         preparationRow.tap()
 
-        let offOption = self.app.buttons["praxis.preparation.off"]
-        XCTAssertTrue(offOption.waitForExistence(timeout: 5.0), "Preparation selection did not appear")
+        let preparationToggle = self.app.descendants(matching: .any)["praxis.preparation.toggle"]
+        XCTAssertTrue(preparationToggle.waitForExistence(timeout: 5.0), "Preparation screen did not appear")
 
         Thread.sleep(forTimeInterval: 0.3)
 

@@ -136,27 +136,6 @@ final class PraxisSettingsViewModel: ObservableObject {
         self.audioService.stopBackgroundPreview()
     }
 
-    // MARK: - Preparation Time Selection (shared-083)
-
-    /// Selects a preparation time. `nil` means "Off". Live-save persists immediately.
-    func selectPreparationTime(seconds: Int?) {
-        if let seconds {
-            self.preparationTimeSeconds = seconds
-            self.preparationTimeEnabled = true
-        } else {
-            self.preparationTimeEnabled = false
-        }
-    }
-
-    /// Whether the given preparation-time option is currently selected.
-    /// `nil` represents the "Off" option.
-    func isPreparationTimeSelected(seconds: Int?) -> Bool {
-        if let seconds {
-            return self.preparationTimeEnabled && self.preparationTimeSeconds == seconds
-        }
-        return !self.preparationTimeEnabled
-    }
-
     // MARK: - Custom Audio
 
     /// Loads custom soundscapes from the repository

@@ -33,7 +33,7 @@ final class PraxisTests: XCTestCase {
     func testDefault_hasCorrectPreparationSettings() {
         let praxis = Praxis.default
         XCTAssertTrue(praxis.preparationTimeEnabled)
-        XCTAssertEqual(praxis.preparationTimeSeconds, 15)
+        XCTAssertEqual(praxis.preparationTimeSeconds, 10)
     }
 
     func testDefault_hasSilentBackground() {

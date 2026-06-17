@@ -2,8 +2,13 @@
 //  PreparationTimeSelectionTests.swift
 //  Still Moment
 //
-//  Tests for the preparation-time selection helpers used by
-//  PreparationTimeSelectionView (shared-083).
+//  Tests for the preparation-time editing behavior used by
+//  PreparationTimeSelectionView (shared-083, redesigned shared-119).
+//
+//  The redesigned screen binds the master switch directly to
+//  `preparationTimeEnabled` and the slider to `preparationTimeSeconds`.
+//  Turning the switch off only flips `enabled`; the chosen duration is
+//  retained so re-enabling restores it (no reset to default).
 //
 
 import XCTest
@@ -33,74 +38,40 @@ final class PreparationTimeSelectionTests: XCTestCase {
         super.tearDown()
     }
 
-    // MARK: - selectPreparationTime
+    // MARK: - Default
 
-    func testSelectOff_disablesPreparation() {
-        // Given
-        self.sut.preparationTimeEnabled = true
-        self.sut.preparationTimeSeconds = 15
-
-        // When
-        self.sut.selectPreparationTime(seconds: nil)
-
-        // Then
-        XCTAssertFalse(self.sut.preparationTimeEnabled)
+    func testDefault_isEnabledWithTenSeconds() {
+        // Given: a fresh view model from Praxis.default
+        // Then: preparation is on with the new default of 10 seconds
+        XCTAssertTrue(self.sut.preparationTimeEnabled)
+        XCTAssertEqual(self.sut.preparationTimeSeconds, 10)
     }
 
-    func testSelectSeconds_enablesAndPersistsValue() {
-        // Given: starts at default (enabled=true, seconds=10)
-        // When
-        self.sut.selectPreparationTime(seconds: 30)
+    // MARK: - Remembered duration (shared-119)
 
-        // Then
-        XCTAssertTrue(self.sut.preparationTimeEnabled)
+    func testTurningOff_keepsChosenSeconds() {
+        // Given: a chosen duration of 30 with the switch on
+        self.sut.preparationTimeSeconds = 30
+        self.sut.preparationTimeEnabled = true
+
+        // When: the user turns the switch off
+        self.sut.preparationTimeEnabled = false
+
+        // Then: the chosen duration is retained (no reset)
         XCTAssertEqual(self.sut.preparationTimeSeconds, 30)
     }
 
-    func testSelectSeconds_whenPreviouslyOff_re_enables() {
-        // Given
-        self.sut.preparationTimeEnabled = false
-
-        // When
-        self.sut.selectPreparationTime(seconds: 5)
-
-        // Then
-        XCTAssertTrue(self.sut.preparationTimeEnabled)
-        XCTAssertEqual(self.sut.preparationTimeSeconds, 5)
-    }
-
-    func testAllSupportedSecondsAreAccepted() {
-        // Each of the six supported values should round-trip correctly.
-        for seconds in [5, 10, 15, 20, 30, 45] {
-            self.sut.selectPreparationTime(seconds: seconds)
-            XCTAssertTrue(self.sut.preparationTimeEnabled)
-            XCTAssertEqual(self.sut.preparationTimeSeconds, seconds)
-        }
-    }
-
-    // MARK: - isPreparationTimeSelected
-
-    func testIsSelected_offOption_whenDisabled() {
-        self.sut.preparationTimeEnabled = false
-
-        XCTAssertTrue(self.sut.isPreparationTimeSelected(seconds: nil))
-        XCTAssertFalse(self.sut.isPreparationTimeSelected(seconds: 10))
-    }
-
-    func testIsSelected_secondsOption_matchesEnabledAndValue() {
+    func testTurningOffAndOnAgain_restoresChosenSeconds() {
+        // Given: a chosen duration of 35 with the switch on
+        self.sut.preparationTimeSeconds = 35
         self.sut.preparationTimeEnabled = true
-        self.sut.preparationTimeSeconds = 15
 
-        XCTAssertFalse(self.sut.isPreparationTimeSelected(seconds: nil))
-        XCTAssertTrue(self.sut.isPreparationTimeSelected(seconds: 15))
-        XCTAssertFalse(self.sut.isPreparationTimeSelected(seconds: 10))
-    }
-
-    func testIsSelected_secondsOption_returnsFalseWhenDisabled() {
-        // Even if seconds matches, a disabled toggle means "Off" is selected.
+        // When: the user turns the switch off and on again
         self.sut.preparationTimeEnabled = false
-        self.sut.preparationTimeSeconds = 15
+        self.sut.preparationTimeEnabled = true
 
-        XCTAssertFalse(self.sut.isPreparationTimeSelected(seconds: 15))
+        // Then: the previously chosen duration is restored, not reset to default
+        XCTAssertTrue(self.sut.preparationTimeEnabled)
+        XCTAssertEqual(self.sut.preparationTimeSeconds, 35)
     }
 }

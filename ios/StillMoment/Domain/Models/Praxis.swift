@@ -56,7 +56,7 @@ struct Praxis: Codable, Equatable, Identifiable {
         id: UUID = UUID(),
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
-        preparationTimeSeconds: Int = 15,
+        preparationTimeSeconds: Int = 10,
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = 1.0,
         intervalGongsEnabled: Bool = false,
@@ -115,10 +115,10 @@ struct Praxis: Codable, Equatable, Identifiable {
         min(max(minutes, 1), 60)
     }
 
-    static let validPreparationTimes = [5, 10, 15, 20, 30, 45]
+    static let validPreparationTimes = Array(stride(from: 5, through: 60, by: 5))
 
     static func validatePreparationTime(_ seconds: Int) -> Int {
-        self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 15
+        self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 10
     }
 
     static func validateVolume(_ volume: Float) -> Float {
@@ -134,7 +134,7 @@ extension Praxis {
         id: UUID(),
         durationMinutes: 10,
         preparationTimeEnabled: true,
-        preparationTimeSeconds: 15,
+        preparationTimeSeconds: 10,
         startGongSoundId: GongSound.defaultSoundId,
         gongVolume: 1.0,
         intervalGongsEnabled: false,

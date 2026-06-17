@@ -77,6 +77,12 @@
 "settings.preparationTime.20s" = "20 seconds";
 "settings.preparationTime.30s" = "30 seconds";
 "settings.preparationTime.45s" = "45 seconds";
+"settings.preparationTime.subtitle.on" = "A brief stillness before you start";
+"settings.preparationTime.subtitle.off" = "Off — the timer starts right away";
+"settings.preparationTime.unit.seconds" = "Seconds";
+"settings.preparationTime.end.min" = "5 sec";
+"settings.preparationTime.end.max" = "1 min";
+"settings.preparationTime.helper" = "Turn on the preparation time to pause for a moment and settle in before you start.";
 
 "settings.startGong.title" = "Gong Sound";
 "settings.gongVolume.title" = "Volume";

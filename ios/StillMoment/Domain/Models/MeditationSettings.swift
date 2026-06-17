@@ -32,7 +32,7 @@ struct MeditationSettings: Codable, Equatable {
         backgroundSoundVolume: Float = MeditationSettings.defaultBackgroundSoundVolume,
         durationMinutes: Int = 10,
         preparationTimeEnabled: Bool = true,
-        preparationTimeSeconds: Int = 15,
+        preparationTimeSeconds: Int = 10,
         startGongSoundId: String = GongSound.defaultSoundId,
         gongVolume: Float = MeditationSettings.defaultGongVolume
     ) {
@@ -98,7 +98,7 @@ struct MeditationSettings: Codable, Equatable {
     /// Whether preparation time is enabled before meditation starts
     var preparationTimeEnabled: Bool
 
-    /// Duration of preparation phase in seconds (5, 10, 15, 20, 30, 45)
+    /// Duration of preparation phase in seconds (5-second grid, 5...60)
     var preparationTimeSeconds: Int
 
     /// Gong sound ID for start/end gong (references GongSound.id)
@@ -119,13 +119,13 @@ struct MeditationSettings: Codable, Equatable {
         min(max(minutes, 1), 60)
     }
 
-    /// Valid preparation time options in seconds
-    static let validPreparationTimes = [5, 10, 15, 20, 30, 45]
+    /// Valid preparation time options in seconds (5-second grid, 5...60)
+    static let validPreparationTimes = Array(stride(from: 5, through: 60, by: 5))
 
-    /// Validates and clamps preparation time to valid values (5, 10, 15, 20, 30, 45 seconds)
+    /// Validates and clamps preparation time to the nearest valid value (5-second grid, 5...60)
     static func validatePreparationTime(_ seconds: Int) -> Int {
         // Find the closest valid value
-        self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 15
+        self.validPreparationTimes.min { abs($0 - seconds) < abs($1 - seconds) } ?? 10
     }
 
     /// Validates and clamps volume to valid range (0.0-1.0)
@@ -148,7 +148,7 @@ extension MeditationSettings {
         backgroundSoundVolume: defaultBackgroundSoundVolume,
         durationMinutes: 10,
         preparationTimeEnabled: true,
-        preparationTimeSeconds: 15,
+        preparationTimeSeconds: 10,
         startGongSoundId: GongSound.defaultSoundId,
         gongVolume: defaultGongVolume
     )

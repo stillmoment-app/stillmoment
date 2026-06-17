@@ -43,7 +43,7 @@ final class UserDefaultsTimerSettingsRepository {
             ),
             durationMinutes: self.loadInteger(MeditationSettings.Keys.durationMinutes, default: 10),
             preparationTimeEnabled: self.loadBool(MeditationSettings.Keys.preparationTimeEnabled, default: true),
-            preparationTimeSeconds: self.loadInteger(MeditationSettings.Keys.preparationTimeSeconds, default: 15),
+            preparationTimeSeconds: self.loadInteger(MeditationSettings.Keys.preparationTimeSeconds, default: 10),
             startGongSoundId: self.userDefaults.string(forKey: MeditationSettings.Keys.startGongSoundId) ?? GongSound
                 .defaultSoundId,
             gongVolume: self.loadFloat(
