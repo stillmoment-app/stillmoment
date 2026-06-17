@@ -60,6 +60,9 @@ android {
         }
         debug {
             isDebuggable = true
+            // Eigener Package-Name, damit Dev- und Store-Version parallel auf einem Gerät liegen
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
         }
     }
 
