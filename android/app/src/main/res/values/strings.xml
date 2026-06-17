@@ -262,6 +262,7 @@
     <string name="accessibility_interval_option">%d minutes interval</string>
     <string name="accessibility_preparation_enabled">Preparation time enabled, %d seconds</string>
     <string name="accessibility_preparation_disabled">Preparation time disabled</string>
+    <string name="accessibility_preparation_slider_value">%d seconds</string>
     <string name="accessibility_gong_sound_hint">Choose the gong sound for start and end of meditation</string>
     <string name="accessibility_background_volume">Volume: %d percent</string>
     <string name="accessibility_gong_volume">Gong volume: %d percent</string>

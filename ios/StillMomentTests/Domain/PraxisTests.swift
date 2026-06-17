@@ -102,6 +102,35 @@ final class PraxisTests: XCTestCase {
         XCTAssertEqual(praxis.preparationTimeSeconds, 5)
     }
 
+    // MARK: - Preparation Time Validation
+
+    func testValidPreparationTimes_containsExpectedValues() {
+        let expected = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+        XCTAssertEqual(Praxis.validPreparationTimes, expected)
+    }
+
+    func testValidatePreparationTime_validValues_returnsUnchanged() {
+        // Valid values (5-second grid, 5...60) should pass through unchanged
+        XCTAssertEqual(Praxis.validatePreparationTime(5), 5)
+        XCTAssertEqual(Praxis.validatePreparationTime(10), 10)
+        XCTAssertEqual(Praxis.validatePreparationTime(25), 25)
+        XCTAssertEqual(Praxis.validatePreparationTime(45), 45)
+        XCTAssertEqual(Praxis.validatePreparationTime(60), 60)
+    }
+
+    func testValidatePreparationTime_invalidValue_returnsClosest() {
+        // Values off the 5-second grid should snap to the closest grid value
+        XCTAssertEqual(Praxis.validatePreparationTime(23), 25) // Closer to 25 than 20
+    }
+
+    func testValidatePreparationTime_extremeValues_returnsClosestBoundary() {
+        // Very low values should return minimum (5)
+        XCTAssertEqual(Praxis.validatePreparationTime(0), 5)
+
+        // Very high values should return maximum (60)
+        XCTAssertEqual(Praxis.validatePreparationTime(100), 60)
+    }
+
     func testValidation_allVolumesClamped() {
         let praxis = Praxis(
             gongVolume: 2.0,

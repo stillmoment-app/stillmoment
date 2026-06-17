@@ -237,7 +237,7 @@ private fun PreparationValueHero(seconds: Int, modifier: Modifier = Modifier) {
 private fun PreparationSliderCard(seconds: Int, onSecondsChange: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val sliderDescription = stringResource(R.string.accessibility_praxis_editor_preparation_duration)
-    val sliderValueDescription = stringResource(R.string.accessibility_preparation_enabled, seconds)
+    val sliderValueDescription = stringResource(R.string.accessibility_preparation_slider_value, seconds)
 
     GongCard(modifier = modifier) {
         Column(
