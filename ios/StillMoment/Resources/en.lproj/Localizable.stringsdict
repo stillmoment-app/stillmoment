@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>praxis.intervalGongs.mode.help.repeating</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>A gong sounds every minute throughout the session.</string>
+			<key>other</key>
+			<string>A gong sounds every %d minutes throughout the session.</string>
+		</dict>
+	</dict>
+	<key>praxis.intervalGongs.mode.help.afterStart</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>A single gong, one minute after the session begins.</string>
+			<key>other</key>
+			<string>A single gong, %d minutes after the session begins.</string>
+		</dict>
+	</dict>
+	<key>praxis.intervalGongs.mode.help.beforeEnd</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@minutes@</string>
+		<key>minutes</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>A single gong, one minute before the session ends.</string>
+			<key>other</key>
+			<string>A single gong, %d minutes before the session ends.</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -331,6 +331,10 @@
 "praxis.editor.startGong.title" = "Start & End Gong";
 "praxis.editor.intervalGongs.title" = "Interval Gongs";
 "praxis.intervalGongs.section.interval" = "Interval";
+"praxis.intervalGongs.section.mode" = "Mode";
+"praxis.intervalGongs.master.subtitle.on" = "Recurring gongs throughout the session";
+"praxis.intervalGongs.master.subtitle.off" = "Off — no gongs during the session";
+"praxis.intervalGongs.disabled.helper" = "Turn on interval gongs to hear a gentle sound at regular intervals — a quiet marker of time.";
 "praxis.gong.section.sound" = "Sound";
 "praxis.gong.section.volume" = "Volume";
 "praxis.gong.vibration.helper" = "Instead of a sound your device gives a gentle pulse — silent, ideal for quiet spaces.";

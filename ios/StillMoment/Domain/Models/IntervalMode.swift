@@ -26,3 +26,19 @@ enum IntervalMode: String, Codable, Equatable, CaseIterable {
     /// Example: 20 min meditation, 5 min interval -> 1 gong at 15:00
     case beforeEnd
 }
+
+extension IntervalMode {
+    /// Localization key for the dynamic, plural-correct mode-help text shown
+    /// below the mode picker (shared-120). The interval minute count drives the
+    /// plural selection at the call site; this only resolves which key applies.
+    var modeHelpKey: String {
+        switch self {
+        case .repeating:
+            "praxis.intervalGongs.mode.help.repeating"
+        case .afterStart:
+            "praxis.intervalGongs.mode.help.afterStart"
+        case .beforeEnd:
+            "praxis.intervalGongs.mode.help.beforeEnd"
+        }
+    }
+}

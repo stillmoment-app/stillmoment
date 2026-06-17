@@ -331,6 +331,10 @@
 "praxis.editor.startGong.title" = "Start & Ende";
 "praxis.editor.intervalGongs.title" = "Intervall-Gongs";
 "praxis.intervalGongs.section.interval" = "Intervall";
+"praxis.intervalGongs.section.mode" = "Modus";
+"praxis.intervalGongs.master.subtitle.on" = "Wiederkehrende Gongs während der Sitzung";
+"praxis.intervalGongs.master.subtitle.off" = "Aus — keine Gongs während der Sitzung";
+"praxis.intervalGongs.disabled.helper" = "Schalte Intervall-Gongs ein, um in regelmäßigen Abständen einen sanften Klang zu hören — eine ruhige Markierung der Zeit.";
 "praxis.gong.section.sound" = "Klang";
 "praxis.gong.section.volume" = "Lautstärke";
 "praxis.gong.vibration.helper" = "Dein Gerät gibt statt eines Klangs einen sanften Impuls — lautlos, ideal für stille Räume.";

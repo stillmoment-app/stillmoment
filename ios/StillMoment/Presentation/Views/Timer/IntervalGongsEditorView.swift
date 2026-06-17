@@ -35,9 +35,10 @@ struct IntervalGongsEditorView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    self.enabledToggleCard
+                    self.headerCard
                     if self.viewModel.intervalGongsEnabled {
                         self.intervalSection
+                        self.modeSection
                         self.soundSection
                         if self.isVibrationSelected {
                             self.vibrationHelper
@@ -45,6 +46,8 @@ struct IntervalGongsEditorView: View {
                         if GongSelectionLogic.isVolumeCardVisible(soundId: self.viewModel.intervalSoundId) {
                             self.volumeSection
                         }
+                    } else {
+                        self.disabledHelper
                     }
                 }
                 .padding(.horizontal, 18)
@@ -83,41 +86,60 @@ struct IntervalGongsEditorView: View {
             : GongSound.allIntervalSounds.filter { $0.id != GongSound.vibrationId }
     }
 
-    // MARK: Enabled toggle
+    // MARK: Header card
 
-    private var enabledToggleCard: some View {
+    private var headerSubtitleKey: String {
+        self.viewModel.intervalGongsEnabled
+            ? "praxis.intervalGongs.master.subtitle.on"
+            : "praxis.intervalGongs.master.subtitle.off"
+    }
+
+    private var headerCard: some View {
         Toggle(isOn: self.$viewModel.intervalGongsEnabled) {
-            Text("settings.intervalGongs.title", bundle: .main)
-                .textStyle(.body, color: \.textPrimary)
+            HStack(spacing: 14) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.system(size: 20, weight: .regular))
+                    .foregroundColor(self.theme.interactive)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("settings.intervalGongs.title", bundle: .main)
+                        .textStyle(.body, color: \.textPrimary)
+                    Text(LocalizedStringKey(self.headerSubtitleKey), bundle: .main)
+                        .textStyle(.caption, color: \.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
         }
         .themedToggle()
         .padding(.horizontal, 18)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity)
         .modifier(GongCardBackground())
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("praxis.editor.toggle.intervalGongs")
     }
 
-    // MARK: Interval (stepper + mode)
+    // MARK: Disabled helper
+
+    private var disabledHelper: some View {
+        Text("praxis.intervalGongs.disabled.helper")
+            .textStyle(.body, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.top, 14)
+    }
+
+    // MARK: Interval (stepper)
 
     private var intervalSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("praxis.intervalGongs.section.interval")
                 .textStyle(.eyebrow, color: \.textSecondary)
                 .padding(.horizontal, 6)
-            self.intervalCard
+            self.intervalStepperRow
+                .modifier(GongCardBackground())
         }
         .padding(.top, 18)
-    }
-
-    private var intervalCard: some View {
-        VStack(spacing: 0) {
-            self.intervalStepperRow
-            Divider()
-                .overlay(self.theme.divider)
-            self.intervalModeRow
-        }
-        .modifier(GongCardBackground())
     }
 
     private var intervalStepperRow: some View {
@@ -147,6 +169,20 @@ struct IntervalGongsEditorView: View {
         .accessibilityHint(NSLocalizedString("accessibility.intervalDuration.hint", comment: ""))
     }
 
+    // MARK: Mode (segmented + dynamic help)
+
+    private var modeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("praxis.intervalGongs.section.mode")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+            self.intervalModeRow
+                .modifier(GongCardBackground())
+            self.modeHelpText
+        }
+        .padding(.top, 18)
+    }
+
     private var intervalModeRow: some View {
         Picker(selection: self.$viewModel.intervalMode) {
             Text("settings.intervalMode.repeating", bundle: .main)
@@ -168,6 +204,21 @@ struct IntervalGongsEditorView: View {
         .accessibilityIdentifier("praxis.editor.picker.intervalMode")
         .accessibilityLabel(NSLocalizedString("accessibility.intervalMode", comment: ""))
         .accessibilityHint(NSLocalizedString("accessibility.intervalMode.hint", comment: ""))
+    }
+
+    /// Dynamic, plural-correct help text under the mode picker. The interval
+    /// minute count selects the plural form (one/other) via the stringsdict.
+    private var modeHelpText: some View {
+        Text(String.localizedStringWithFormat(
+            NSLocalizedString(self.viewModel.intervalMode.modeHelpKey, comment: "Mode help text"),
+            self.viewModel.intervalMinutes
+        ))
+        .textStyle(.body, color: \.textSecondary)
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 6)
+        .padding(.top, 2)
+        .accessibilityIdentifier("praxis.editor.text.modeHelp")
     }
 
     // MARK: Sound selection
