@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -28,12 +26,12 @@ import com.stillmoment.R
 import com.stillmoment.domain.models.GongSound
 import com.stillmoment.presentation.ui.components.StillMomentTopAppBar
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
-import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
-import com.stillmoment.presentation.ui.theme.toComposeTextStyle
+import com.stillmoment.presentation.ui.timer.components.EyebrowLabel
 import com.stillmoment.presentation.ui.timer.components.GongSoundCard
 import com.stillmoment.presentation.ui.timer.components.GongVolumeCard
 import com.stillmoment.presentation.ui.timer.components.PREVIEW_RING_DURATION_MS
+import com.stillmoment.presentation.ui.timer.components.VibrationHelper
 import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -175,29 +173,6 @@ private fun SelectGongContent(
             }
         }
     }
-}
-
-@Composable
-private fun EyebrowLabel(textRes: Int, modifier: Modifier = Modifier) {
-    Text(
-        text = TextStyle.eyebrow.applyCase(stringResource(textRes)),
-        style = TextStyle.eyebrow.toComposeTextStyle(),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier.padding(horizontal = 6.dp)
-    )
-}
-
-@Composable
-private fun VibrationHelper(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(R.string.praxis_gong_vibration_helper),
-        style = TextStyle.body.toComposeTextStyle(),
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .padding(top = 12.dp, bottom = 4.dp)
-    )
 }
 
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
