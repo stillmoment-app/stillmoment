@@ -298,6 +298,19 @@ class PraxisSettingsViewModelTest {
 
             assertEquals(10, viewModel.uiState.value.preparationTimeSeconds)
         }
+
+        @Test
+        fun `disabling and re-enabling preparation keeps the chosen duration`() = runTest {
+            val viewModel = createViewModel()
+            advanceUntilIdle()
+            viewModel.setPreparationSeconds(35)
+
+            viewModel.setPreparationEnabled(false)
+            viewModel.setPreparationEnabled(true)
+
+            assertTrue(viewModel.uiState.value.preparationTimeEnabled)
+            assertEquals(35, viewModel.uiState.value.preparationTimeSeconds)
+        }
     }
 
     // MARK: - Resolved Audio Names

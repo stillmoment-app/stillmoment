@@ -31,9 +31,9 @@ struct MeditationTimer: Equatable {
     /// Initializes a new meditation timer
     /// - Parameters:
     ///   - durationMinutes: Duration in minutes (1-60)
-    ///   - preparationTimeSeconds: Duration of preparation phase in seconds (default: 15). Use 0 to skip.
+    ///   - preparationTimeSeconds: Duration of preparation phase in seconds (default: 10). Use 0 to skip.
     /// - Throws: `MeditationTimerError.invalidDuration` if duration is not between 1 and 60 minutes
-    init(durationMinutes: Int, preparationTimeSeconds: Int = 15) throws {
+    init(durationMinutes: Int, preparationTimeSeconds: Int = 10) throws {
         guard (1...60).contains(durationMinutes) else {
             throw MeditationTimerError.invalidDuration(durationMinutes)
         }
@@ -307,7 +307,7 @@ extension MeditationTimer {
         remainingSeconds: Int? = nil,
         state: TimerState = .idle,
         remainingPreparationSeconds: Int = 0,
-        preparationTimeSeconds: Int = 15
+        preparationTimeSeconds: Int = 10
     ) -> MeditationTimer {
         MeditationTimer(
             durationMinutes: durationMinutes,

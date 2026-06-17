@@ -322,7 +322,7 @@ final class TimerViewModelSettingsTests: XCTestCase {
     // MARK: - Preparation Time Settings
 
     func testPreparationTimeSettings_defaultValues() {
-        // Given: Fresh praxis repository (Praxis.default has preparationTimeEnabled=true, 15s)
+        // Given: Fresh praxis repository (Praxis.default has preparationTimeEnabled=true, 10s)
         let freshPraxisRepo = MockPraxisRepository()
 
         // When: Create new instance (simulates first launch)
@@ -332,9 +332,9 @@ final class TimerViewModelSettingsTests: XCTestCase {
             praxisRepository: freshPraxisRepo
         )
 
-        // Then: Should use defaults: enabled with 15 seconds
+        // Then: Should use defaults: enabled with 10 seconds
         XCTAssertTrue(newViewModel.settings.preparationTimeEnabled)
-        XCTAssertEqual(newViewModel.settings.preparationTimeSeconds, 15)
+        XCTAssertEqual(newViewModel.settings.preparationTimeSeconds, 10)
     }
 
     func testPreparationTimeSettings_persistence() {

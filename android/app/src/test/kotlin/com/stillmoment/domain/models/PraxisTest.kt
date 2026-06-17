@@ -16,7 +16,7 @@ class PraxisTest {
 
         assertEquals(10, praxis.durationMinutes)
         assertTrue(praxis.preparationTimeEnabled)
-        assertEquals(15, praxis.preparationTimeSeconds)
+        assertEquals(10, praxis.preparationTimeSeconds)
         assertEquals(GongSound.DEFAULT_SOUND_ID, praxis.gongSoundId)
         assertEquals(1.0f, praxis.gongVolume)
         assertFalse(praxis.intervalGongsEnabled)
@@ -156,20 +156,14 @@ class PraxisTest {
     @Nested
     inner class PreparationTimeValidation {
         @Test
-        fun `create snaps 7 to 5`() {
-            val praxis = Praxis.create(preparationTimeSeconds = 7)
-            assertEquals(5, praxis.preparationTimeSeconds)
-        }
-
-        @Test
         fun `create snaps 12 to 10`() {
             val praxis = Praxis.create(preparationTimeSeconds = 12)
             assertEquals(10, praxis.preparationTimeSeconds)
         }
 
         @Test
-        fun `create snaps 17 to 15`() {
-            val praxis = Praxis.create(preparationTimeSeconds = 17)
+        fun `create snaps 13 to 15`() {
+            val praxis = Praxis.create(preparationTimeSeconds = 13)
             assertEquals(15, praxis.preparationTimeSeconds)
         }
 
@@ -180,40 +174,52 @@ class PraxisTest {
         }
 
         @Test
-        fun `create snaps 35 to 30`() {
-            val praxis = Praxis.create(preparationTimeSeconds = 35)
-            assertEquals(30, praxis.preparationTimeSeconds)
+        fun `create snaps 33 to 35`() {
+            val praxis = Praxis.create(preparationTimeSeconds = 33)
+            assertEquals(35, praxis.preparationTimeSeconds)
         }
 
         @Test
-        fun `create snaps 40 to 45`() {
-            val praxis = Praxis.create(preparationTimeSeconds = 40)
-            assertEquals(45, praxis.preparationTimeSeconds)
+        fun `create clamps below minimum to 5`() {
+            assertEquals(5, Praxis.create(preparationTimeSeconds = 3).preparationTimeSeconds)
+            assertEquals(5, Praxis.create(preparationTimeSeconds = 0).preparationTimeSeconds)
+            assertEquals(5, Praxis.create(preparationTimeSeconds = -10).preparationTimeSeconds)
+        }
+
+        @Test
+        fun `create clamps above maximum to 60`() {
+            assertEquals(60, Praxis.create(preparationTimeSeconds = 80).preparationTimeSeconds)
+            assertEquals(60, Praxis.create(preparationTimeSeconds = 65).preparationTimeSeconds)
         }
 
         @Test
         fun `create passes through exact valid values`() {
-            assertEquals(5, Praxis.create(preparationTimeSeconds = 5).preparationTimeSeconds)
-            assertEquals(10, Praxis.create(preparationTimeSeconds = 10).preparationTimeSeconds)
-            assertEquals(15, Praxis.create(preparationTimeSeconds = 15).preparationTimeSeconds)
-            assertEquals(20, Praxis.create(preparationTimeSeconds = 20).preparationTimeSeconds)
-            assertEquals(30, Praxis.create(preparationTimeSeconds = 30).preparationTimeSeconds)
-            assertEquals(45, Praxis.create(preparationTimeSeconds = 45).preparationTimeSeconds)
+            for (seconds in 5..60 step 5) {
+                assertEquals(seconds, Praxis.create(preparationTimeSeconds = seconds).preparationTimeSeconds)
+            }
         }
 
         @Test
         fun `validatePreparationTime snaps to nearest value`() {
-            assertEquals(5, Praxis.validatePreparationTime(7))
             assertEquals(10, Praxis.validatePreparationTime(12))
-            assertEquals(15, Praxis.validatePreparationTime(17))
+            assertEquals(15, Praxis.validatePreparationTime(13))
             assertEquals(20, Praxis.validatePreparationTime(22))
-            assertEquals(30, Praxis.validatePreparationTime(35))
-            assertEquals(45, Praxis.validatePreparationTime(40))
+            assertEquals(35, Praxis.validatePreparationTime(33))
         }
 
         @Test
-        fun `VALID_PREPARATION_TIMES contains expected values`() {
-            assertEquals(listOf(5, 10, 15, 20, 30, 45), Praxis.VALID_PREPARATION_TIMES)
+        fun `validatePreparationTime clamps outside range`() {
+            assertEquals(5, Praxis.validatePreparationTime(3))
+            assertEquals(5, Praxis.validatePreparationTime(0))
+            assertEquals(60, Praxis.validatePreparationTime(80))
+        }
+
+        @Test
+        fun `VALID_PREPARATION_TIMES is the 5-second grid from 5 to 60`() {
+            assertEquals(
+                listOf(5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60),
+                Praxis.VALID_PREPARATION_TIMES
+            )
         }
     }
 

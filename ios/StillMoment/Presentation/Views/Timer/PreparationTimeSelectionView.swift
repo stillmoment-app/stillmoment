@@ -2,17 +2,22 @@
 //  PreparationTimeSelectionView.swift
 //  Still Moment
 //
-//  Presentation Layer - Preparation time selection (shared-083)
+//  Presentation Layer - Preparation time editor (redesigned, shared-119).
 //
-//  Pushed detail view that lists "Off" and the six supported seconds values.
-//  Tapping a row writes through PraxisSettingsViewModel; auto-save persists.
+//  Card-based layout aligned with `GongSelectionView` / `IntervalGongsEditorView`:
+//  a master card with hourglass icon, title, purpose subtitle and a switch. When
+//  enabled, an eyebrow-labelled "DAUER" section shows a large serif value hero
+//  (chosen seconds + unit) above a slider card gridded to 5-second steps
+//  (5...60s) with end labels. When disabled, a short helper text invites the user
+//  to switch it on. Turning the switch off keeps the chosen duration, so
+//  re-enabling restores it.
+//
+//  Selection is live — auto-save in PraxisSettingsViewModel persists every change.
 //
 
 import SwiftUI
 
-/// Detail view for picking the preparation time. The first row is "Off",
-/// followed by 5/10/15/20/30/45 second options. Selection is live — there
-/// is no explicit save step.
+/// Detail view for enabling and choosing the preparation time before a timer starts.
 struct PreparationTimeSelectionView: View {
     // MARK: Lifecycle
 
@@ -27,16 +32,19 @@ struct PreparationTimeSelectionView: View {
             self.theme.backgroundGradient
                 .ignoresSafeArea()
 
-            List {
-                Section {
-                    self.row(label: NSLocalizedString("common.off", comment: ""), seconds: nil)
-                    ForEach(Self.supportedSeconds, id: \.self) { seconds in
-                        self.row(label: self.label(for: seconds), seconds: seconds)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    self.headerCard
+                    if self.viewModel.preparationTimeEnabled {
+                        self.durationSection
+                    } else {
+                        self.disabledHelper
                     }
                 }
+                .padding(.horizontal, 18)
+                .padding(.top, 6)
+                .padding(.bottom, 28)
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
         }
         .screenTitleBar("settings.preparationTime.title")
     }
@@ -47,34 +55,135 @@ struct PreparationTimeSelectionView: View {
     private var theme
     @ObservedObject private var viewModel: PraxisSettingsViewModel
 
-    private static let supportedSeconds: [Int] = [5, 10, 15, 20, 30, 45]
+    /// Fixed container diameter feeding `DisplayNumeral` (≈ 0.32 × 225 ≈ 72pt),
+    /// matching the design's 72px serif value hero.
+    private static let heroContainerDiameter: CGFloat = 225
 
-    private func label(for seconds: Int) -> String {
-        NSLocalizedString("settings.preparationTime.\(seconds)s", comment: "")
+    // MARK: Header card (toggle)
+
+    private var headerCard: some View {
+        HStack(spacing: 14) {
+            self.headerIcon
+            VStack(alignment: .leading, spacing: 3) {
+                Text("settings.preparationTime.title", bundle: .main)
+                    .textStyle(.body, color: \.textPrimary)
+                Text(self.subtitleKey, bundle: .main)
+                    .textStyle(.caption, color: \.textSecondary)
+            }
+            Spacer(minLength: 12)
+            Toggle(isOn: self.$viewModel.preparationTimeEnabled) {
+                EmptyView()
+            }
+            .labelsHidden()
+            .themedToggle()
+            .fixedSize()
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+        .modifier(GongCardBackground())
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("praxis.preparation.toggle")
+        .accessibilityLabel(NSLocalizedString("accessibility.preparationTime", comment: ""))
+        .accessibilityHint(NSLocalizedString("accessibility.preparationTime.hint", comment: ""))
     }
 
-    private func row(label: String, seconds: Int?) -> some View {
-        let isSelected = self.viewModel.isPreparationTimeSelected(seconds: seconds)
-        return HStack {
-            Text(label)
-                .textStyle(.body, color: \.textPrimary)
-            Spacer()
-            if isSelected {
-                Image(systemName: "checkmark")
-                    .foregroundColor(self.theme.interactive)
-                    .accessibilityHidden(true)
+    private var headerIcon: some View {
+        ZStack {
+            Circle()
+                .fill(self.theme.cardBackground)
+                .overlay(Circle().strokeBorder(self.theme.cardBorder, lineWidth: 0.5))
+            Image(systemName: "hourglass")
+                .font(.system(size: 18, weight: .regular))
+                .foregroundColor(self.theme.interactive)
+        }
+        .frame(width: 40, height: 40)
+        .accessibilityHidden(true)
+    }
+
+    private var subtitleKey: LocalizedStringKey {
+        self.viewModel.preparationTimeEnabled
+            ? "settings.preparationTime.subtitle.on"
+            : "settings.preparationTime.subtitle.off"
+    }
+
+    // MARK: Duration section (enabled)
+
+    private var durationSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("settings.preparationTime.duration")
+                .textStyle(.eyebrow, color: \.textSecondary)
+                .padding(.horizontal, 6)
+                .padding(.top, 20)
+            self.valueHero
+            self.sliderCard
+        }
+    }
+
+    private var valueHero: some View {
+        VStack(spacing: 12) {
+            DisplayNumeral(
+                text: "\(self.viewModel.preparationTimeSeconds)",
+                containerDiameter: Self.heroContainerDiameter
+            )
+            .foregroundColor(self.theme.textPrimary)
+            Text("settings.preparationTime.unit.seconds", bundle: .main)
+                .textStyle(.eyebrow, color: \.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 12)
+        .padding(.bottom, 18)
+        .accessibilityHidden(true)
+    }
+
+    private var sliderCard: some View {
+        VStack(spacing: 12) {
+            ThemedSlider(
+                value: self.sliderBinding,
+                range: 5...60,
+                step: 5
+            )
+            HStack {
+                Text("settings.preparationTime.end.min", bundle: .main)
+                    .textStyle(.caption, color: \.textSecondary)
+                Spacer()
+                Text("settings.preparationTime.end.max", bundle: .main)
+                    .textStyle(.caption, color: \.textSecondary)
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            self.viewModel.selectPreparationTime(seconds: seconds)
-        }
-        .cardRowBackground()
+        .padding(.horizontal, 18)
+        .padding(.top, 16)
+        .padding(.bottom, 18)
+        .frame(maxWidth: .infinity)
+        .modifier(GongCardBackground())
         .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
-        .accessibilityIdentifier(
-            seconds.map { "praxis.preparation.\($0)s" } ?? "praxis.preparation.off"
+        .accessibilityIdentifier("praxis.preparation.slider")
+        .accessibilityLabel(NSLocalizedString("accessibility.preparationTimeDuration", comment: ""))
+        .accessibilityValue(String(
+            format: NSLocalizedString("accessibility.preparation", comment: ""),
+            self.viewModel.preparationTimeSeconds
+        ))
+        .accessibilityHint(NSLocalizedString("accessibility.preparationTimeDuration.hint", comment: ""))
+    }
+
+    /// Bridges the `Int` seconds field to the slider's `Double` value, snapping
+    /// to the 5-second grid on write.
+    private var sliderBinding: Binding<Double> {
+        Binding(
+            get: { Double(self.viewModel.preparationTimeSeconds) },
+            set: { self.viewModel.preparationTimeSeconds = Int($0.rounded()) }
         )
+    }
+
+    // MARK: Disabled helper
+
+    private var disabledHelper: some View {
+        Text("settings.preparationTime.helper")
+            .textStyle(.body, color: \.textSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
     }
 }
 

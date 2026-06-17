@@ -10,7 +10,7 @@
     <string name="settings_card_label_gong">Gong</string>
     <string name="settings_card_label_interval">Interval</string>
     <string name="settings_card_label_background">Background</string>
-    <string name="settings_preparation_time_title">Preparation</string>
+    <string name="settings_preparation_time_title">Preparation Time</string>
     <string name="accessibility_dial_label">Meditation duration</string>
     <string name="accessibility_dial_value">%d minutes</string>
     <string name="accessibility_dial_hint">Drag the ring to change the duration.</string>
@@ -57,6 +57,14 @@
     <string name="settings_preparation_time">Preparation Time</string>
     <string name="settings_preparation_description">Time to settle in before meditation</string>
     <string name="settings_preparation_duration">Duration</string>
+
+    <!-- Preparation Time Screen (shared-119) -->
+    <string name="preparation_master_subtitle_on">A brief stillness before you start</string>
+    <string name="preparation_master_subtitle_off">Off — the timer starts right away</string>
+    <string name="preparation_unit_seconds">Seconds</string>
+    <string name="preparation_slider_min_label">5 sec</string>
+    <string name="preparation_slider_max_label">1 min</string>
+    <string name="preparation_off_helper">Turn on the preparation time to pause for a moment and settle in before you start.</string>
 
     <!-- Background Sounds -->
     <string name="sound_silent">Silence</string>
@@ -254,7 +262,7 @@
     <string name="accessibility_interval_option">%d minutes interval</string>
     <string name="accessibility_preparation_enabled">Preparation time enabled, %d seconds</string>
     <string name="accessibility_preparation_disabled">Preparation time disabled</string>
-    <string name="accessibility_preparation_option">%d seconds preparation</string>
+    <string name="accessibility_preparation_slider_value">%d seconds</string>
     <string name="accessibility_gong_sound_hint">Choose the gong sound for start and end of meditation</string>
     <string name="accessibility_background_volume">Volume: %d percent</string>
     <string name="accessibility_gong_volume">Gong volume: %d percent</string>
