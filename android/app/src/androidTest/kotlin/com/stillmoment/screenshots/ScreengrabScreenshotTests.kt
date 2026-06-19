@@ -3,14 +3,23 @@ package com.stillmoment.screenshots
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
-import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeRight
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
 import com.stillmoment.MainActivity
 import com.stillmoment.data.local.GuidedMeditationDataStore
 import com.stillmoment.data.local.PraxisDataStore
@@ -20,6 +29,7 @@ import com.stillmoment.domain.models.Praxis
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import java.util.Locale
+import java.util.regex.Pattern
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -42,12 +52,17 @@ import tools.fastlane.screengrab.locale.LocaleTestRule
  *
  * Run with: cd android && make screenshots
  *
- * Generates 5 screenshots per locale (10 total):
- * - 01_TimerIdle: Timer idle state with duration picker
+ * Generates 9 screenshots per locale; the curate script (curate-store-screenshots.sh)
+ * reduces them to the 8 Play Store screens in marketing order.
+ * - 01_TimerIdle: Timer idle state with breath dial
  * - 02_TimerRunning: Active timer showing countdown
  * - 03_LibraryList: Guided meditations library (with 5 test meditations)
- * - 04_PlayerView: Audio player for meditation
- * - 05_SettingsView: Timer settings sheet
+ * - 04_PlayerView: Audio player for a meditation (auto-playing)
+ * - 05_GongSelection: Gong sound selection
+ * - 06_Soundscape: Background sound selection
+ * - 07_LibrarySearch: Library search with results
+ * - 08_ImportGuide: Content guide sheet (how to add own MP3s)
+ * - 09_TrimEditor: Playback range / trim editor
  *
  * Test fixtures (5 meditations) are automatically seeded before each test,
  * matching the iOS screenshots for consistency.
@@ -153,6 +168,13 @@ class ScreengrabScreenshotTests {
         hasContentDescription(en, substring = true, ignoreCase = true)
             .or(hasContentDescription(de, substring = true, ignoreCase = true))
 
+    /**
+     * Creates a text matcher that works for both EN and DE locales.
+     * Matches if either the English or German text is found (substring, case-insensitive).
+     */
+    private fun localizedText(en: String, de: String) = hasText(en, substring = true, ignoreCase = true)
+        .or(hasText(de, substring = true, ignoreCase = true))
+
     private fun navigateToTimerTab() {
         composeRule.onNode(
             localizedContentDescription("Navigate to timer", "Zum Timer navigieren"),
@@ -235,9 +257,10 @@ class ScreengrabScreenshotTests {
         val closeButtonMatcher = localizedContentDescription("Close and end", "Schließen und Meditation")
         waitForNode(closeButtonMatcher)
 
-        // Wait for timer to tick down to 0:5X (1 minute timer, ~3-5 seconds elapsed)
-        composeRule.waitUntil(timeoutMillis = 10000) {
-            composeRule.onAllNodes(hasText("0:5", substring = true)).fetchSemanticsNodes().isNotEmpty()
+        // Wait until ~11 s have elapsed (1 minute timer → 0:49 remaining) so the moon-phase
+        // shadow has visibly shrunk, rather than capturing at 0:59 right after start.
+        composeRule.waitUntil(timeoutMillis = 20000) {
+            composeRule.onAllNodes(hasText("0:49", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
 
         takeScreenshot("02_TimerRunning")
@@ -260,44 +283,73 @@ class ScreengrabScreenshotTests {
         waitForNodeDisplayed(hasText("Loving Kindness", substring = true, ignoreCase = true))
         waitForNodeDisplayed(hasText("Evening Wind Down", substring = true, ignoreCase = true))
 
+        // Compose reports the nodes as displayed before the system-level (UiAutomator) capture
+        // sees the painted frame, especially on a cold start. A short settle avoids capturing an
+        // empty/half-painted list.
+        Thread.sleep(LIBRARY_SETTLE_MS)
+
         takeScreenshot("03_LibraryList")
     }
 
     @Test
     fun screenshot04_playerView() {
         navigateToLibraryTab()
-
-        // Wait for library to fully render
         waitForLibraryLoaded()
 
-        // Tap the first play button to navigate to the player.
-        // Since shared-075, only the play button is clickable (not the entire Card).
-        // Library is grouped by teacher (alphabetically): Jon Salzberg comes first,
-        // so the first play button opens "Present Moment Awareness".
-        val playButtonMatcher = localizedContentDescription("Preview meditation", "Meditation vorschauen")
-        composeRule.onAllNodes(playButtonMatcher).onFirst().performClick()
-
-        // Wait for player screen to appear and be fully displayed
-        // First item in alphabetically sorted groups is Jon Salzberg's meditation
-        waitForNodeDisplayed(
-            hasContentDescription("Jon Salzberg", substring = true, ignoreCase = true),
-            timeoutMs = 10000
+        // Open the player via the first play button. The play button uses combinedClickable,
+        // which composeRule's click/touch injection does NOT reliably trigger — a real system
+        // tap (UiAutomator) does. Library is grouped by teacher (alphabetically): the first
+        // play button opens Jon Salzberg's "Present Moment Awareness" (matches iOS).
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val playButton = device.wait(
+            Until.findObject(By.desc(Pattern.compile("Preview meditation|Meditation vorschauen"))),
+            FIND_TIMEOUT_MS
         )
+        requireNotNull(playButton) { "Play button not found in library" }
+
+        // The UiAutomator tap fires the button's onClick → navController.navigate(player) on the
+        // main thread. But the NavHost observes the back stack via currentBackStackEntryFlow, whose
+        // collector is dispatched on Compose's frame clock — and under instrumentation that clock
+        // is the test clock, which only advances when the test pumps it. A raw system tap injects
+        // the input but does not pump the clock, so the navigation recompose never runs and the
+        // player never mounts. We also cannot pump via any composeRule semantics query / waitForIdle:
+        // the player auto-plays and PlayerWaveform's per-frame loop recomposes forever, so "idle"
+        // never arrives (ComposeNotIdleException).
+        //
+        // So we drive the frame clock manually for the whole player phase. auto-advance is left
+        // OFF: with it on, the test clock only advances during an active sync (waitForIdle), so a
+        // bare Thread.sleep would freeze the NavHost crossfade mid-transition. Instead we interleave
+        // clock advancement (drives the nav transition + the waveform's per-frame animation) with
+        // real-time sleeps (lets the off-clock work — sampled waveform generation on background
+        // threads and ExoPlayer playback progress — actually happen) before capturing.
+        composeRule.mainClock.autoAdvance = false
+        playButton.click()
+        repeat(PLAYER_SETTLE_STEPS) {
+            composeRule.mainClock.advanceTimeBy(PLAYER_CLOCK_STEP_MS)
+            Thread.sleep(PLAYER_REAL_STEP_MS)
+        }
+        composeRule.mainClock.advanceTimeBy(PLAYER_CLOCK_STEP_MS)
 
         takeScreenshot("04_PlayerView")
-
-        // Close player - navigate back. Since shared-087 the close button uses
-        // the "Back to library" accessibility label (analog iOS) instead of "Close".
-        composeRule.onNode(
-            localizedContentDescription("Back to library", "Zurück zur Bibliothek")
-        ).performClick()
     }
 
     @Test
-    fun screenshot05_settingsView() {
-        // Set up interesting praxis config so the flat settings list (shared-089)
-        // is in a visually rich state — preparation enabled, interval gongs on,
-        // a soundscape selected for the background row to read as active.
+    fun screenshot05_gongSelection() {
+        navigateToTimerTab()
+
+        // Open the Gong selection from the idle settings list.
+        composeRule.onNodeWithTag("timer.row.gong").performClick()
+        composeRule.waitForIdle()
+
+        // A gong sound name that is always present anchors "screen is shown".
+        waitForNodeDisplayed(localizedText("Temple Bell", "Tempelglocke"))
+
+        takeScreenshot("05_GongSelection")
+    }
+
+    @Test
+    fun screenshot06_soundscape() {
+        // Pre-select a soundscape so the background row reads as active.
         runBlocking {
             praxisDataStore.save(
                 Praxis.Default.copy(
@@ -312,23 +364,109 @@ class ScreengrabScreenshotTests {
 
         navigateToTimerTab()
 
-        // Tap the background row in the new flat idle settings list to navigate
-        // directly into the Background sub-screen (no PraxisEditor index in
-        // between since shared-089).
-        val backgroundRowMatcher = hasContentDescription(
-            "Background",
-            substring = true,
-            ignoreCase = true
-        ).or(hasContentDescription("Hintergrund", substring = true, ignoreCase = true))
-        waitForNode(backgroundRowMatcher)
-        composeRule.onAllNodes(backgroundRowMatcher).onFirst().performClick()
+        // Open the Background sound selection from the idle settings list.
+        composeRule.onNodeWithTag("timer.row.background").performClick()
         composeRule.waitForIdle()
 
-        // Background sub-screen should now show — wait for any sound name.
-        val forestMatcher = hasText("Forest", substring = true, ignoreCase = true)
-            .or(hasText("Wald", substring = true, ignoreCase = true))
-        waitForNodeDisplayed(forestMatcher)
+        // Anchor on the screen's unique intro text. The previous "Forest"/"Wald" matcher was
+        // ambiguous — the sound name and its attribution both contain it (2 nodes), which made
+        // assertIsDisplayed throw.
+        waitForNodeDisplayed(localizedText("under your session", "unter deine Sitzung"))
 
-        takeScreenshot("05_SettingsView")
+        takeScreenshot("06_Soundscape")
+    }
+
+    @Test
+    fun screenshot07_librarySearch() {
+        navigateToLibraryTab()
+        waitForLibraryLoaded()
+
+        // Focus the search field and type a query that matches several fixtures.
+        val searchField = localizedContentDescription("Search library", "Bibliothek durchsuchen")
+        composeRule.onNode(searchField).performClick()
+        composeRule.onNode(searchField).performTextInput("b")
+
+        // Fixture titles are English in both locales, so a title result is a stable anchor.
+        waitForNodeDisplayed(hasText("Body Scan", substring = true, ignoreCase = true))
+
+        // Dismiss the soft keyboard so neither it nor its floating IME toolbar (Gboard) covers
+        // the results in the screenshot.
+        Espresso.closeSoftKeyboard()
+        composeRule.waitForIdle()
+        Thread.sleep(KEYBOARD_DISMISS_MS)
+
+        takeScreenshot("07_LibrarySearch")
+    }
+
+    @Test
+    fun screenshot08_importGuide() {
+        navigateToLibraryTab()
+
+        // Open the content guide from the info pill in the library header.
+        composeRule.onNode(
+            localizedContentDescription("Content guide", "Inhalts-Guide")
+        ).performClick()
+        composeRule.waitForIdle()
+
+        // The guide sheet title confirms the sheet is presented.
+        waitForNodeDisplayed(
+            localizedText("Where to find meditations", "Wo finde ich Meditationen")
+        )
+
+        takeScreenshot("08_ImportGuide")
+    }
+
+    @Test
+    fun screenshot09_trimEditor() {
+        navigateToLibraryTab()
+        waitForLibraryLoaded()
+
+        // The edit sheet is reachable only by swiping a row left-to-right (StartToEnd).
+        // The full-width meditation Card carries a "<name>, duration <time>" content
+        // description, so it is a unique, full-width swipe target (the play button's
+        // description does not include the name).
+        composeRule.onNode(hasContentDescription("Body Scan", substring = true, ignoreCase = true))
+            .performTouchInput { swipeRight() }
+        composeRule.waitForIdle()
+
+        // Open the trim editor via the Playback Range card (scroll it into view first).
+        val playbackCard = localizedContentDescription(
+            "Opens the editor to set the playback range",
+            "Öffnet den Editor, um den Wiedergabe-Bereich festzulegen"
+        )
+        composeRule.onNode(playbackCard).performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        // The trim editor does not auto-play (no per-frame loop), so it settles to idle.
+        waitForNodeDisplayed(hasTestTag("trimEditor.screen"))
+
+        // The waveform loads asynchronously (sampled → fast). waitForIdle returns while it is
+        // still generating in the background, so give it a moment to render before capturing,
+        // otherwise the trim track is empty.
+        Thread.sleep(TRIM_WAVEFORM_MS)
+
+        takeScreenshot("09_TrimEditor")
+    }
+
+    private companion object {
+        // UiAutomator lookup timeout for finding the play button / player content.
+        const val FIND_TIMEOUT_MS = 5_000L
+
+        // The player auto-plays on open; it must load, generate its (sampled) waveform and start
+        // playing before capturing. We pump the frame clock in steps interleaved with real-time
+        // sleeps: PLAYER_SETTLE_STEPS × PLAYER_REAL_STEP_MS ≈ 12 s of real time for the off-clock
+        // work, and the same in simulated clock time to drive the transition + animation.
+        const val PLAYER_SETTLE_STEPS = 12
+        const val PLAYER_CLOCK_STEP_MS = 1_000L
+        const val PLAYER_REAL_STEP_MS = 1_000L
+
+        // The trim editor loads its (sampled) waveform asynchronously after the screen appears.
+        const val TRIM_WAVEFORM_MS = 12_000L
+
+        // Let the soft keyboard finish hiding before capturing the search results.
+        const val KEYBOARD_DISMISS_MS = 1_000L
+
+        // Let the library's painted frame catch up to the Compose semantics before capturing.
+        const val LIBRARY_SETTLE_MS = 2_000L
     }
 }

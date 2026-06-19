@@ -155,6 +155,7 @@ dependencies {
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.screengrab)
+    androidTestImplementation(libs.androidx.test.uiautomator)
     kspAndroidTest(libs.hilt.compiler)
 
     // Debug
