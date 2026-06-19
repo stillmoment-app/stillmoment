@@ -15,7 +15,12 @@ clear_previous_screenshots(true)
 output_directory("./fastlane/metadata/android")
 
 # App package name
-app_package_name("com.stillmoment")
+# Screenshots are generated from the DEBUG build, which carries
+# applicationIdSuffix ".dev" (see app/build.gradle.kts → buildTypes.debug).
+# Screengrab derives the instrumentation target as app_package_name + ".test"
+# → "com.stillmoment.dev.test", matching the built androidTest APK.
+# (The Play Store package stays "com.stillmoment" — that lives in Appfile.)
+app_package_name("com.stillmoment.dev")
 
 # Only run tests in the screenshots package
 use_tests_in_packages(["com.stillmoment.screenshots"])
