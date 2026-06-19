@@ -43,12 +43,12 @@ import com.stillmoment.infrastructure.audio.MediaCodecAudioFrameReader
 import com.stillmoment.infrastructure.audio.MediaPlayerFactory
 import com.stillmoment.infrastructure.audio.MeditationGongPlayer
 import com.stillmoment.infrastructure.audio.ProgressScheduler
+import com.stillmoment.infrastructure.audio.SamplingWaveformGenerationService
 import com.stillmoment.infrastructure.audio.SoundscapeResolver
 import com.stillmoment.infrastructure.audio.TimerForegroundServiceWrapper
 import com.stillmoment.infrastructure.audio.VibrationService
 import com.stillmoment.infrastructure.audio.VolumeAnimator
 import com.stillmoment.infrastructure.audio.WaveformCacheService
-import com.stillmoment.infrastructure.audio.WaveformGenerationService
 import com.stillmoment.infrastructure.audio.WaveformProvider
 import com.stillmoment.infrastructure.logging.AndroidLogger
 import com.stillmoment.infrastructure.network.UrlAudioDownloaderImpl
@@ -215,7 +215,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWaveformGenerationService(impl: WaveformGenerationService): WaveformGenerationServiceProtocol {
+    fun provideWaveformGenerationService(impl: SamplingWaveformGenerationService): WaveformGenerationServiceProtocol {
         return impl
     }
 
