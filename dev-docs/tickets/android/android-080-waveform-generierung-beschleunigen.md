@@ -1,6 +1,6 @@
 # Ticket android-080: Waveform-Generierung langer Meditationen beschleunigen
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
+**Status**: [x] DONE
 **Prioritaet**: HOCH
 **Komplexitaet**: Loesungsweg ist per Spike validiert (siehe Hinweise). Hauptarbeit: Prototyp produktionsreif machen (Tests, Edge-Case kurze Dateien, sauberes DI). Device-only Decode-Pfad, daher manuelle On-Device-Verifikation noetig.
 **Abhaengigkeiten**: Keine
