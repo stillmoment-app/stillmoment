@@ -170,6 +170,50 @@ class GuidedMeditationPlayerViewModelScrubTest {
 
             assertFalse(player.resumed)
         }
+
+        @Test
+        fun `dragging the wave left scrubs forward from the grab position`() = runTest(testDispatcher) {
+            load()
+            advanceUntilIdle()
+            startPlaying(positionMs = 100_000L)
+            advanceUntilIdle()
+
+            viewModel.beginScrub()
+            // 360px window over 60s → 6 px/s. Swiping left 60px moves the band forward 10s.
+            viewModel.scrubByTranslation(translationPx = -60f, widthPx = 360f, windowSec = 60.0)
+
+            assertEquals(110_000L, viewModel.uiState.value.dragPositionMs)
+        }
+
+        @Test
+        fun `dragging the wave right scrubs backward from the grab position`() = runTest(testDispatcher) {
+            load()
+            advanceUntilIdle()
+            startPlaying(positionMs = 100_000L)
+            advanceUntilIdle()
+
+            viewModel.beginScrub()
+            // Swiping right 60px (6 px/s) moves the band backward 10s.
+            viewModel.scrubByTranslation(translationPx = 60f, widthPx = 360f, windowSec = 60.0)
+
+            assertEquals(90_000L, viewModel.uiState.value.dragPositionMs)
+        }
+
+        @Test
+        fun `cumulative drag stays anchored at the grab position`() = runTest(testDispatcher) {
+            load()
+            advanceUntilIdle()
+            startPlaying(positionMs = 100_000L)
+            advanceUntilIdle()
+
+            viewModel.beginScrub()
+            // The translation is cumulative and always applied to the fixed grab anchor (100s),
+            // never to the already-moved position — so two updates land at 110s, not 115s.
+            viewModel.scrubByTranslation(translationPx = -30f, widthPx = 360f, windowSec = 60.0)
+            viewModel.scrubByTranslation(translationPx = -60f, widthPx = 360f, windowSec = 60.0)
+
+            assertEquals(110_000L, viewModel.uiState.value.dragPositionMs)
+        }
     }
 
     @Nested

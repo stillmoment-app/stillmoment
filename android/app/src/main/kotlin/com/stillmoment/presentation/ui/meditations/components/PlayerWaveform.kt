@@ -30,13 +30,14 @@ import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 
 /**
  * Scrub gesture callbacks for the waveform window (shared-109). Bundled so the composable's
- * parameter list stays small: grabbing pauses ([onStart]), each move scrubs to a range-relative
- * position ([onScrubTo]), releasing resumes ([onEnd]).
+ * parameter list stays small: grabbing pauses ([onStart]), each move reports the cumulative
+ * drag translation in pixels and the current canvas width ([onScrubBy]), releasing resumes
+ * ([onEnd]). The translation→position mapping lives in the view model, not the view.
  */
 @Immutable
 data class PlayerScrubCallbacks(
     val onStart: () -> Unit,
-    val onScrubTo: (Long) -> Unit,
+    val onScrubBy: (translationPx: Float, widthPx: Float) -> Unit,
     val onEnd: () -> Unit
 )
 
@@ -86,8 +87,6 @@ fun PlayerWaveform(
     val nowMs = rememberInterpolatedNow(spec.positionMs, spec.boundsMs, spec.isPlaying, spec.isDragging)
 
     var widthPx by remember { mutableFloatStateOf(0f) }
-    val currentPosition by rememberUpdatedState(spec.positionMs)
-    val currentBounds by rememberUpdatedState(spec.boundsMs)
     val currentScrub by rememberUpdatedState(scrub)
 
     Canvas(
@@ -95,19 +94,20 @@ fun PlayerWaveform(
             .fillMaxWidth()
             .height(WINDOW_HEIGHT)
             .pointerInput(Unit) {
+                // Track the cumulative drag distance and apply it to the fixed grab anchor in the
+                // view model — never to the moving position (that would race the band away).
+                var translationPx = 0f
                 detectHorizontalDragGestures(
-                    onDragStart = { currentScrub.onStart() },
+                    onDragStart = {
+                        translationPx = 0f
+                        currentScrub.onStart()
+                    },
                     onDragEnd = { currentScrub.onEnd() },
                     onDragCancel = { currentScrub.onEnd() }
-                ) { change, _ ->
+                ) { change, dragAmount ->
                     change.consume()
-                    val target = PlayheadWindowGeometry.msForX(
-                        x = change.position.x,
-                        nowMs = currentPosition,
-                        windowSec = WINDOW_SEC,
-                        width = widthPx
-                    )
-                    currentScrub.onScrubTo(target.coerceIn(currentBounds))
+                    translationPx += dragAmount
+                    currentScrub.onScrubBy(translationPx, widthPx)
                 }
             }
     ) {

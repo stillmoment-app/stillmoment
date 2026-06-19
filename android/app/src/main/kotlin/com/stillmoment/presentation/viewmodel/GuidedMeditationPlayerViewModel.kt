@@ -17,6 +17,7 @@ import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.MeditationGongPlayerProtocol
 import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.presentation.ui.meditations.components.PlayheadWindowGeometry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
@@ -220,6 +221,13 @@ constructor(
      * on release (shared-109).
      */
     private var dragWasPlaying = false
+
+    /**
+     * Range-relative position the band was centered on when the current drag began. The drag
+     * translation is always applied to this fixed anchor (never to the already-moved position),
+     * so the scrub follows the finger 1:1. Mirrors iOS `dragStartTime`.
+     */
+    private var dragStartMs = 0L
 
     /**
      * True while the start gong rings and during the following breath pause —
@@ -565,6 +573,7 @@ constructor(
         val current = _uiState.value
         val anchored = current.currentPosition.coerceIn(current.scrubBoundsMs)
         dragWasPlaying = current.isPlaying
+        dragStartMs = anchored
         _uiState.update { it.copy(isDragging = true, dragPositionMs = anchored) }
         if (current.isPlaying) {
             pause()
@@ -578,6 +587,27 @@ constructor(
      */
     fun scrubToMs(positionMs: Long) {
         _uiState.update { it.copy(dragPositionMs = positionMs.coerceIn(it.scrubBoundsMs)) }
+    }
+
+    /**
+     * Updates the live drag position from the cumulative drag translation in pixels, anchored at
+     * the position when the grab began ([dragStartMs]). Dragging the wave left moves the position
+     * forward, right moves it backward — the band scrolls under the fixed now-line. Mirrors iOS
+     * `WaveformWindowView`'s scrub gesture via [PlayheadWindowGeometry.draggedNow] (shared-109).
+     *
+     * @param translationPx Cumulative horizontal drag distance since the grab began.
+     * @param widthPx Current width of the waveform canvas.
+     * @param windowSec Visible window span in seconds.
+     */
+    fun scrubByTranslation(translationPx: Float, widthPx: Float, windowSec: Double) {
+        val target = PlayheadWindowGeometry.draggedNow(
+            startNowMs = dragStartMs,
+            translationPx = translationPx,
+            windowSec = windowSec,
+            width = widthPx,
+            bounds = _uiState.value.scrubBoundsMs
+        )
+        scrubToMs(target)
     }
 
     /**

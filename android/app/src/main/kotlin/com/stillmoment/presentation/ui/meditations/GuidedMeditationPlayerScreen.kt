@@ -62,6 +62,7 @@ import com.stillmoment.presentation.ui.meditations.components.PlayerRing
 import com.stillmoment.presentation.ui.meditations.components.PlayerScrubCallbacks
 import com.stillmoment.presentation.ui.meditations.components.PlayerTrackOverview
 import com.stillmoment.presentation.ui.meditations.components.PlayerWaveform
+import com.stillmoment.presentation.ui.meditations.components.WINDOW_SEC
 import com.stillmoment.presentation.ui.meditations.components.WaveformWindowSpec
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
@@ -131,7 +132,9 @@ fun GuidedMeditationPlayerScreen(
         modifier = modifier,
         scrub = PlayerScrubCallbacks(
             onStart = viewModel::beginScrub,
-            onScrubTo = viewModel::scrubToMs,
+            onScrubBy = { translationPx, widthPx ->
+                viewModel.scrubByTranslation(translationPx, widthPx, WINDOW_SEC)
+            },
             onEnd = viewModel::endScrub
         ),
         onSeekToFraction = viewModel::seekToFraction
@@ -146,7 +149,7 @@ internal fun GuidedMeditationPlayerScreenContent(
     onTogglePlayPause: () -> Unit,
     onClearError: () -> Unit,
     modifier: Modifier = Modifier,
-    scrub: PlayerScrubCallbacks = PlayerScrubCallbacks({}, {}, {}),
+    scrub: PlayerScrubCallbacks = PlayerScrubCallbacks({}, { _, _ -> }, {}),
     onSeekToFraction: (Float) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
