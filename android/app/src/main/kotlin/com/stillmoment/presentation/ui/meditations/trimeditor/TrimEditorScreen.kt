@@ -4,11 +4,12 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
@@ -111,6 +112,7 @@ private fun TrimEditorContent(
         modifier = modifier
             .fillMaxSize()
             .testTag("trimEditor.screen")
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 22.dp)
             .padding(top = 8.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
@@ -123,7 +125,8 @@ private fun TrimEditorContent(
             activePoint = state.activePoint,
             activeValueMs = state.activeValue,
             startMs = state.start,
-            endMs = state.end
+            endMs = state.end,
+            modifier = Modifier.fillMaxWidth()
         )
         TrimWaveformSection(uiState = uiState, callbacks = callbacks)
         TrimReadoutCards(
@@ -139,7 +142,6 @@ private fun TrimEditorContent(
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         ZoneHint(isZoomed = uiState.isZoomed)
-        Spacer(modifier = Modifier.weight(1f))
         WholeFileLink(onUseWholeFile = onUseWholeFile, modifier = Modifier.align(Alignment.CenterHorizontally))
     }
 }
@@ -191,7 +193,7 @@ private fun WholeFileLink(onUseWholeFile: () -> Unit, modifier: Modifier = Modif
         Text(
             text = stringResource(R.string.trim_editor_whole_file),
             style = TextStyle.caption.toComposeTextStyle(),
-            color = theme.textPrimary.copy(alpha = 0.6f)
+            color = theme.interactive
         )
     }
 }

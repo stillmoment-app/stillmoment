@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Icon
@@ -126,6 +127,10 @@ private fun TrimTrack(uiState: TrimEditorUiState, callbacks: TrimTrackCallbacks)
         modifier = Modifier
             .fillMaxWidth()
             .height(DEFAULT_HEIGHT)
+            // The start mark sits near the left screen edge; without this Android claims an
+            // edge-drag as the system back gesture and pops the editor mid-drag. 108dp is below
+            // the 200dp-per-edge exclusion cap, so the whole track is reserved for our gestures.
+            .systemGestureExclusion()
             .onSizeChanged { trackWidthPx = it.width.toFloat() }
             .pointerInput(Unit) {
                 trackDragLoop(

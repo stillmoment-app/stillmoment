@@ -135,7 +135,7 @@ struct TrimEditorSheet: View {
             self.viewModel.useWholeFile()
         } label: {
             Text("trim_editor.wholeFile")
-                .textStyle(.caption, color: \.textSecondary)
+                .textStyle(.caption, color: \.interactive)
         }
         .accessibilityIdentifier("trimEditor.wholeFile")
     }
