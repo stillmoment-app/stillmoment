@@ -51,6 +51,9 @@ platform :ios do
     # Post-process: copy and rename to docs/images/screenshots/
     sh("cd .. && ./scripts/process-screenshots.sh")
 
+    # Curate App Store set + display order (website keeps all 16 from step above)
+    sh("cd .. && ./scripts/curate-store-screenshots.sh")
+
     UI.success("Screenshots generated successfully!")
     UI.message("Output: ../docs/images/screenshots/")
   end

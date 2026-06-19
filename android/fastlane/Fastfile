@@ -34,6 +34,9 @@ platform :android do
       FileUtils.mv(dir, target)
     end
 
+    # Curate Play Store set + display order (max 8 phone screenshots)
+    sh("../scripts/curate-store-screenshots.sh")
+
     UI.success("Screenshots generated successfully!")
     UI.message("Output: fastlane/metadata/android/*/images/phoneScreenshots/")
   end
