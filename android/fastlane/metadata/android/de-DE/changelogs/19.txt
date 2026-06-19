@@ -1,0 +1,3 @@
+- Überarbeitetes Anwendungs-Design
+- Geführte Meditationen zuschneiden (Anfang und Ende festlegen)
+- Gong am Anfang und Ende von geführten Meditationen

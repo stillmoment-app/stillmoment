@@ -1,0 +1,3 @@
+- Refreshed app design
+- Trim guided meditations (set a start and end)
+- Gong at the start and end of guided meditations
