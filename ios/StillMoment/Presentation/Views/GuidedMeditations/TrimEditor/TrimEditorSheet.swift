@@ -143,6 +143,9 @@ struct TrimEditorSheet: View {
 
 // MARK: - Previews
 
+// MockPreviewAudioService and PreviewWaveformProvider are #if DEBUG-only, so these
+// previews must be gated too — otherwise the Release archive cannot find them.
+#if DEBUG
 #Preview("Trim Editor — Untrimmed") {
     TrimEditorSheet(
         meditation: GuidedMeditation(
@@ -187,3 +190,4 @@ struct TrimEditorSheet: View {
         waveformProvider: PreviewWaveformProvider(shouldFail: true)
     ) { _, _ in }
 }
+#endif
