@@ -82,7 +82,7 @@ constructor(
 
     /**
      * Flow for the selected appearance mode.
-     * Emits the saved mode or AppearanceMode.DEFAULT (SYSTEM) for new installations.
+     * Emits the saved mode or AppearanceMode.DEFAULT (DARK) for new installations.
      */
     val appearanceModeFlow: Flow<AppearanceMode> =
         context.appSettingsDataStore.data

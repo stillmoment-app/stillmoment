@@ -6,8 +6,29 @@ import org.junit.jupiter.api.Test
 class AppearanceModeTest {
 
     @Test
-    fun `default is SYSTEM`() {
-        assertEquals(AppearanceMode.SYSTEM, AppearanceMode.DEFAULT)
+    fun `default is DARK`() {
+        // shared-122: a fresh install presents the app dark, no matter how the device is set
+        assertEquals(AppearanceMode.DARK, AppearanceMode.DEFAULT)
+    }
+
+    @Test
+    fun `default resolves to dark independently of the device setting`() {
+        // isDark = true forces dark; it does not defer to the system like SYSTEM (null) would
+        assertEquals(true, AppearanceMode.DEFAULT.isDark)
+    }
+
+    @Test
+    fun `stored SYSTEM selection wins over the dark default`() {
+        // A user who explicitly picked "System" keeps it across app restarts -
+        // the default must never overwrite a stored choice
+        assertEquals(AppearanceMode.SYSTEM, AppearanceMode.fromString("SYSTEM"))
+        assertEquals(null, AppearanceMode.fromString("SYSTEM").isDark)
+    }
+
+    @Test
+    fun `stored LIGHT selection wins over the dark default`() {
+        assertEquals(AppearanceMode.LIGHT, AppearanceMode.fromString("LIGHT"))
+        assertEquals(false, AppearanceMode.fromString("LIGHT").isDark)
     }
 
     @Test
