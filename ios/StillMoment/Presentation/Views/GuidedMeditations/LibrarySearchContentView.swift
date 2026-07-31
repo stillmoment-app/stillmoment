@@ -56,7 +56,7 @@ struct LibrarySearchContentView<IdleContent: View>: View {
             )
         case .empty:
             SearchEmptyStateView(
-                query: self.viewModel.searchQuery,
+                query: self.viewModel.trimmedSearchQuery,
                 activeFilter: self.viewModel.isFilterActive ? self.viewModel.durationFilter : nil
             ) {
                 self.viewModel.resetSearchAndFilter()

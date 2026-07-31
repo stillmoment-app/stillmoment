@@ -127,13 +127,13 @@ final class LibraryDurationFilterViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.searchState, .empty)
     }
 
-    func testAvailableStepsFollowTheCurrentSearchText() {
-        // „mindful" trifft nur die 7:33-Meditation.
+    func testAvailableStepsFollowTheWholeLibraryNotTheCurrentSearch() {
+        // „mindful" trifft nur die 7:33-Meditation — aber sobald Text im Suchfeld
+        // steht, ist die Stufenzeile ohnehin dem Chip gewichen. Die Belegung bleibt
+        // die der Bibliothek.
         self.sut.searchQuery = "mindful"
 
-        let available = self.sut.availableDurationSteps
-
-        XCTAssertEqual(available, [.all, .from5To15])
+        XCTAssertEqual(self.sut.availableDurationSteps, Set(DurationFilter.allCases))
     }
 
     func testAvailableStepsIgnoreTheActiveFilterSoItStaysReversible() {
@@ -196,6 +196,37 @@ final class LibraryDurationFilterViewModelTests: XCTestCase {
         XCTAssertEqual(self.sut.durationFilter, .all)
         XCTAssertEqual(self.sut.searchQuery, "")
         XCTAssertEqual(self.sut.searchState, .idle)
+    }
+
+    // MARK: - Suchhistorie unter aktivem Filter
+
+    func testTermWhoseMatchesTheFilterRemovesDoesNotEnterTheHistory() {
+        // „mindful" trifft die 7:33-Meditation, der Filter raeumt sie weg —
+        // der User sieht „Nichts gefunden" und darf den Begriff nicht wiederfinden.
+        self.sut.selectDurationFilter(.over30)
+        self.sut.searchQuery = "mindful"
+
+        self.sut.submitSearch()
+
+        XCTAssertEqual(self.sut.searchState, .empty)
+        XCTAssertTrue(self.sut.searchHistory.isEmpty)
+    }
+
+    func testTermWithAVisibleMatchStillEntersTheHistory() {
+        self.sut.selectDurationFilter(.from5To15)
+        self.sut.searchQuery = "mindful"
+
+        self.sut.submitSearch()
+
+        XCTAssertEqual(self.sut.searchHistory, ["mindful"])
+    }
+
+    // MARK: - Nur Leerzeichen im Suchfeld
+
+    func testWhitespaceOnlyInputIsNoSearchTermForTheEmptyStateText() {
+        self.sut.searchQuery = "   "
+
+        XCTAssertEqual(self.sut.trimmedSearchQuery, "")
     }
 
     // MARK: - Kein Treffer durch den Filter allein

@@ -92,6 +92,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     static let searchHistoryLimit = 6
 
+    /// Der Suchbegriff ohne umgebende Leerzeichen — die Fassung, die tatsaechlich sucht
+    /// und die der „Kein Treffer"-Text zitiert.
+    var trimmedSearchQuery: String {
+        self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Aktuell sichtbare Trefferliste fuer die Eingabe.
     var searchResults: [GuidedMeditation] {
         LibrarySearchEngine.search(meditations: self.meditations, query: self.searchQuery)
@@ -138,13 +144,14 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.durationFilter.apply(to: self.searchScopedMeditations)
     }
 
-    /// Die Stufen, die aktuell mindestens eine Meditation enthalten.
+    /// Die Stufen, die mindestens eine Meditation der Bibliothek enthalten.
     ///
-    /// Bewusst gegen die nur **such**-gefilterte Menge berechnet, nicht gegen
-    /// `visibleMeditations` — sonst wuerde eine gesetzte Stufe alle anderen blass
-    /// schalten und der Filter waere eine Einbahnstrasse.
+    /// Bewusst gegen den Gesamtbestand berechnet, nicht gegen `visibleMeditations` —
+    /// sonst wuerde eine gesetzte Stufe alle anderen blass schalten und der Filter
+    /// waere eine Einbahnstrasse. Der Suchtext spielt keine Rolle: sobald welcher im
+    /// Feld steht, ist die Stufenzeile ohnehin dem Chip gewichen.
     var availableDurationSteps: Set<DurationFilter> {
-        DurationFilter.availableSteps(in: self.searchScopedMeditations)
+        DurationFilter.availableSteps(in: self.meditations)
     }
 
     /// Waehlt eine Stufe. Erneutes Tippen auf die aktive Stufe kehrt zu `Alle` zurueck.
@@ -432,8 +439,11 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     // MARK: - Suche (ios-041)
 
     /// Bestaetigung via Return-Taste — fuegt den Begriff der Historie hinzu, wenn Treffer existieren.
+    ///
+    /// Massgeblich ist die **sichtbare** Liste: raeumt der Dauer-Filter alle Treffer weg,
+    /// sieht der User „Nichts gefunden" und soll den Begriff nicht in der Historie wiederfinden.
     func submitSearch() {
-        guard !self.searchResults.isEmpty else {
+        guard !self.visibleMeditations.isEmpty else {
             return
         }
         self.commitCurrentQueryToHistory()
@@ -492,10 +502,10 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     /// Ob eine nicht-leere Eingabe im Suchfeld steht.
     private var hasQuery: Bool {
-        !self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !self.trimmedSearchQuery.isEmpty
     }
 
-    /// Die Menge, auf die **nur** der Suchtext wirkt — Basis fuer Filter und Stufen-Belegung.
+    /// Die Menge, auf die **nur** der Suchtext wirkt — Basis fuer den Dauer-Filter.
     ///
     /// Ohne Suchtext ist das die Bibliothek in der Reihenfolge der gruppierten Ansicht,
     /// damit die flache Liste dieselbe Ordnung zeigt wie die gruppierte darueber.
