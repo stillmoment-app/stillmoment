@@ -1,6 +1,6 @@
 # Ticket shared-081: Filter nach Dauer in der Meditationsliste
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Die Filterlogik selbst ist trivial, aber der Filter greift in die bestehenden vier Suchzustaende der Bibliothek ein (gruppiert / Historie / Treffer / kein Treffer). Der Kern des Tickets ist das Zusammenspiel von Filter und Suche, nicht das Filtern.
 **Phase**: 3-Feature
@@ -24,8 +24,8 @@ Der zweite, weniger offensichtliche Grund: Sobald Suche und Filter gleichzeitig 
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
