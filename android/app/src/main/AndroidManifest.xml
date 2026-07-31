@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.StillMoment"
-        tools:targetApi="35">
+        tools:targetApi="36">
 
         <activity
             android:name=".MainActivity"
@@ -27,6 +27,24 @@
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/Theme.StillMoment">
+
+            <!--
+              TEMPORAERER Opt-out (android-081): Ab targetSdk 36 ignoriert Android
+              android:screenOrientation (und resizableActivity/minAspectRatio/maxAspectRatio)
+              auf Displays ab 600dp kleinster Breite - Tablets, aufgefaltete Foldables.
+              Diese Property haelt das Hochformat oben dort weiter durch.
+
+              ACHTUNG BEIM NAECHSTEN PFLICHT-BUMP: Der Opt-out wirkt NUR bis targetSdk 36.
+              Ab targetSdk 37 entfernt das Framework die Opt-out-Moeglichkeit; die
+              Beschraenkungen werden dann auf >=600dp immer ignoriert. Vor dem Bump auf 37
+              braucht die App echte adaptive Layouts fuer Querformat - das ist Entwurfsarbeit,
+              kein Manifest-Eintrag. Siehe dev-docs/tickets/android/android-081-target-sdk-36-android-16.md
+              https://developer.android.com/about/versions/16/behavior-changes-16#adaptive-layouts
+            -->
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+                android:value="true" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
