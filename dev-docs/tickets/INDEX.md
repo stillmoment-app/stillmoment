@@ -285,6 +285,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [android-079](android/android-079-custom-audio-import-dauer-performance.md) | Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung) | 4-Polish | [ ] | - |
 | [android-080](android/android-080-waveform-generierung-beschleunigen.md) | Waveform-Generierung langer Meditationen beschleunigen (Sampling) | 4-Polish | [x] | - |
 | [android-081](android/android-081-target-sdk-36-android-16.md) | Target API Level 36 (Android 16) fuer Google Play — Frist 31.08.2026 | 2-Architektur | [x] | - |
+| [android-082](android/android-082-instrumented-tests-android-16.md) | Instrumented Tests auf Android 16 wieder gruen | 5-QA | [ ] | android-081 |
+| [android-083](android/android-083-composables-app-darstellung.md) | Fuenf Composables folgen dem Geraet statt der App-Darstellung | 4-Polish | [ ] | shared-122 |
 
 ---
 
