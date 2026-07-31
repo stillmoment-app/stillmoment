@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stillmoment.data.FileOpenException
 import com.stillmoment.data.FileOpenHandler
+import com.stillmoment.domain.models.DurationFilter
 import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
@@ -27,8 +28,10 @@ import com.stillmoment.domain.services.WaveformProviderProtocol
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -83,7 +86,10 @@ data class GuidedMeditationsListUiState(
     /** Whether the search field currently holds focus */
     val isSearchFocused: Boolean = false,
     /** Persisted search history (newest first, max 6 entries) */
-    val searchHistory: ImmutableList<String> = persistentListOf()
+    val searchHistory: ImmutableList<String> = persistentListOf(),
+    // MARK: - Dauer-Filter (shared-081)
+    /** Aktive Dauer-Stufe. [DurationFilter.ALL] bedeutet: kein Filter, die Liste bleibt gruppiert. */
+    val durationFilter: DurationFilter = DurationFilter.ALL
 ) {
     /** Total number of meditations across all groups */
     val totalCount: Int
@@ -104,16 +110,71 @@ data class GuidedMeditationsListUiState(
         get() = LibrarySearchEngine.search(allMeditations, searchQuery).toImmutableList()
 
     /**
+     * Der Suchbegriff ohne umgebende Leerzeichen — die Fassung, die tatsaechlich sucht
+     * und die der „Kein Treffer"-Text zitiert.
+     */
+    val trimmedSearchQuery: String
+        get() = searchQuery.trim()
+
+    /** Ob eine Stufe ausser [DurationFilter.ALL] gewaehlt ist. */
+    val isFilterActive: Boolean
+        get() = durationFilter != DurationFilter.ALL
+
+    /**
+     * Ob der Header die kompakte Chip-Variante zeigt statt der vollen Filterzeile.
+     *
+     * Ein vorhandener Suchtext genuegt — beim Scrollen in der Trefferliste blendet
+     * `SearchResultsList` die Tastatur aus, der Chip muss aber weiter erklaeren,
+     * warum eine Meditation fehlt.
+     */
+    val isSearchModeActive: Boolean
+        get() = isSearchFocused || trimmedSearchQuery.isNotEmpty()
+
+    /**
+     * Die Meditationen, die Suche **und** Filter gemeinsam erfuellen.
+     *
+     * Ohne Suchtext folgt die Reihenfolge der gruppierten Ansicht (Lehrer:in alphabetisch),
+     * mit Suchtext der Relevanz-Rangfolge der Suche.
+     */
+    val visibleMeditations: ImmutableList<GuidedMeditation>
+        get() = durationFilter.apply(searchScopedMeditations).toImmutableList()
+
+    /**
+     * Die Stufen, die mindestens eine Meditation der Bibliothek enthalten.
+     *
+     * Bewusst gegen den Gesamtbestand berechnet, nicht gegen [visibleMeditations] — sonst
+     * wuerde eine gesetzte Stufe alle anderen blass schalten und der Filter waere eine
+     * Einbahnstrasse. Der Suchtext spielt keine Rolle: sobald welcher im Feld steht, ist
+     * die Stufenzeile ohnehin dem Chip gewichen.
+     */
+    val availableDurationSteps: ImmutableSet<DurationFilter>
+        get() = DurationFilter.availableSteps(allMeditations).toImmutableSet()
+
+    /**
      * Derived view state for the library body switch.
      */
     val searchState: LibrarySearchState
         get() {
-            val trimmed = searchQuery.trim()
-            if (trimmed.isEmpty()) {
-                return if (isSearchFocused) LibrarySearchState.History else LibrarySearchState.Idle
+            if (trimmedSearchQuery.isEmpty()) {
+                if (isSearchFocused) {
+                    return LibrarySearchState.History
+                }
+                if (!isFilterActive) {
+                    return LibrarySearchState.Idle
+                }
+                return if (visibleMeditations.isEmpty()) LibrarySearchState.Empty else LibrarySearchState.Filtered
             }
-            return if (searchResults.isEmpty()) LibrarySearchState.Empty else LibrarySearchState.Results
+            return if (visibleMeditations.isEmpty()) LibrarySearchState.Empty else LibrarySearchState.Results
         }
+
+    /**
+     * Die Menge, auf die **nur** der Suchtext wirkt — Basis fuer den Dauer-Filter.
+     *
+     * Ohne Suchtext ist das die Bibliothek in der Reihenfolge der gruppierten Ansicht,
+     * damit die flache Liste dieselbe Ordnung zeigt wie die gruppierte darueber.
+     */
+    private val searchScopedMeditations: List<GuidedMeditation>
+        get() = if (trimmedSearchQuery.isEmpty()) groups.flatMap { it.meditations } else searchResults
 }
 
 /**
@@ -449,9 +510,15 @@ constructor(
         _uiState.update { it.copy(isSearchFocused = focused) }
     }
 
+    /**
+     * Bestaetigung via Return-Taste — fuegt den Begriff der Historie hinzu, wenn Treffer existieren.
+     *
+     * Massgeblich ist die **sichtbare** Liste: raeumt der Dauer-Filter alle Treffer weg,
+     * sieht der User „Nichts gefunden" und soll den Begriff nicht in der Historie wiederfinden.
+     */
     fun submitSearch() {
         val state = _uiState.value
-        if (state.searchResults.isEmpty()) {
+        if (state.visibleMeditations.isEmpty()) {
             return
         }
         commitCurrentQueryToHistory(state.searchQuery)
@@ -459,7 +526,7 @@ constructor(
 
     fun recordSearchCommittedByOpening() {
         val state = _uiState.value
-        if (state.searchResults.isNotEmpty()) {
+        if (state.visibleMeditations.isNotEmpty()) {
             commitCurrentQueryToHistory(state.searchQuery)
         }
         resetSearch()
@@ -477,6 +544,33 @@ constructor(
 
     fun resetSearch() {
         _uiState.update { it.copy(searchQuery = "", isSearchFocused = false) }
+    }
+
+    // MARK: - Dauer-Filter (shared-081)
+
+    /**
+     * Waehlt eine Stufe. Erneutes Tippen auf die aktive Stufe kehrt zu [DurationFilter.ALL]
+     * zurueck. Blasse (unbelegte) Stufen reagieren nicht.
+     */
+    fun selectDurationFilter(step: DurationFilter) {
+        _uiState.update { state ->
+            if (step !in state.availableDurationSteps) {
+                return@update state
+            }
+            state.copy(durationFilter = if (state.durationFilter == step) DurationFilter.ALL else step)
+        }
+    }
+
+    /** Entfernt den Dauer-Filter, laesst den Suchtext unberuehrt. */
+    fun resetDurationFilter() {
+        _uiState.update { it.copy(durationFilter = DurationFilter.ALL) }
+    }
+
+    /** Raeumt Suchtext und Filter gemeinsam ab — ein Tap im „Kein Treffer"-Zustand. */
+    fun resetSearchAndFilter() {
+        _uiState.update {
+            it.copy(searchQuery = "", isSearchFocused = false, durationFilter = DurationFilter.ALL)
+        }
     }
 
     private fun commitCurrentQueryToHistory(query: String) {

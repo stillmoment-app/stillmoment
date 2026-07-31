@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -27,17 +28,19 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.stillmoment.R
+import com.stillmoment.domain.models.DurationFilter
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
+import kotlinx.collections.immutable.ImmutableSet
 
 /**
- * Fix verankerter Library-Header (shared-102).
+ * Fix verankerter Library-Header (shared-102, Dauer-Filter shared-081).
  *
  * Sitzt als erstes Child in der `Column { Header; Body }`-Struktur ueber der
- * Library-LazyColumn — der Body scrollt, der Header nicht. Links die Such-Pille
- * mit `weight(1f)`, rechts ein [AnimatedContent]-Switch zwischen
- * [LibraryActionPill] (Idle) und einem "Abbrechen"-Button (Active).
+ * Library-LazyColumn — der Body scrollt, der Header nicht. Oben die Such-Pille
+ * mit `weight(1f)` und ein [AnimatedContent]-Switch zwischen [LibraryActionPill]
+ * (Idle) und einem "Abbrechen"-Button (Active), darunter der Filter-Bereich.
  *
  * Im aktiven Zustand expandiert die Such-Pille automatisch in den frei
  * gewordenen Raum — keine explizite Width-Animation noetig, das Layout-System
@@ -46,12 +49,85 @@ import com.stillmoment.presentation.ui.theme.toComposeTextStyle
  * Animation: Fade + leichter Scale (0.95), 200 ms — analog iOS-051
  * (`.opacity.combined(with: .scale(scale: 0.95))`).
  *
- * Reset bei "Abbrechen": ruft [onResetSearch] (entfernt Query + Focus-Flag) und
- * leert den Compose-Focus + Tastatur via [FocusManager].
+ * Reset bei "Abbrechen": ruft [onResetSearch] (entfernt Query + Focus-Flag, **nicht**
+ * den Dauer-Filter) und leert den Compose-Focus + Tastatur via [FocusManager].
  */
-@Suppress("LongParameterList") // Header verbindet Suche, Actions und Reset gezielt.
+// Header verbindet Suche, Actions, Reset und den Dauer-Filter gezielt an einer Stelle.
+@Suppress("LongParameterList")
 @Composable
 fun LibraryHeaderBar(
+    query: String,
+    isSearchFocused: Boolean,
+    isSearchModeActive: Boolean,
+    durationFilter: DurationFilter,
+    availableDurationSteps: ImmutableSet<DurationFilter>,
+    onQueryChange: (String) -> Unit,
+    onFocusChange: (Boolean) -> Unit,
+    onSubmit: () -> Unit,
+    onAdd: () -> Unit,
+    onInfo: () -> Unit,
+    onResetSearch: () -> Unit,
+    onSelectDurationFilter: (DurationFilter) -> Unit,
+    onRemoveDurationFilter: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // spacedBy greift nur zwischen tatsaechlich emittierten Kindern — im Suchmodus ohne
+    // Filter bleibt der Header deshalb so kompakt wie vor shared-081.
+    Column(
+        modifier = modifier.fillMaxWidth().padding(top = 12.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        LibrarySearchRow(
+            query = query,
+            isSearchFocused = isSearchFocused,
+            onQueryChange = onQueryChange,
+            onFocusChange = onFocusChange,
+            onSubmit = onSubmit,
+            onAdd = onAdd,
+            onInfo = onInfo,
+            onResetSearch = onResetSearch
+        )
+        LibraryFilterArea(
+            isSearchModeActive = isSearchModeActive,
+            durationFilter = durationFilter,
+            availableDurationSteps = availableDurationSteps,
+            onSelectDurationFilter = onSelectDurationFilter,
+            onRemoveDurationFilter = onRemoveDurationFilter
+        )
+    }
+}
+
+/**
+ * Der Filter-Bereich unter der Such-Pille (shared-081).
+ *
+ * Drei Zustaende: die volle Stufenzeile ausserhalb des Suchmodus, der einzelne Chip
+ * im Suchmodus bei gesetztem Filter — und nichts, wenn im Suchmodus kein Filter wirkt,
+ * damit die Trefferliste die volle Hoehe bekommt.
+ */
+@Composable
+private fun LibraryFilterArea(
+    isSearchModeActive: Boolean,
+    durationFilter: DurationFilter,
+    availableDurationSteps: ImmutableSet<DurationFilter>,
+    onSelectDurationFilter: (DurationFilter) -> Unit,
+    onRemoveDurationFilter: () -> Unit
+) {
+    when {
+        !isSearchModeActive -> LibraryDurationFilterRow(
+            selected = durationFilter,
+            availableSteps = availableDurationSteps,
+            onSelect = onSelectDurationFilter
+        )
+        durationFilter != DurationFilter.ALL -> LibraryActiveFilterChip(
+            filter = durationFilter,
+            onRemove = onRemoveDurationFilter
+        )
+    }
+}
+
+@Suppress("LongParameterList") // Spiegelt die Suchparameter des Headers eins zu eins.
+@Composable
+private fun LibrarySearchRow(
     query: String,
     isSearchFocused: Boolean,
     onQueryChange: (String) -> Unit,
@@ -59,17 +135,16 @@ fun LibraryHeaderBar(
     onSubmit: () -> Unit,
     onAdd: () -> Unit,
     onInfo: () -> Unit,
-    onResetSearch: () -> Unit,
-    modifier: Modifier = Modifier
+    onResetSearch: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
 
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 22.dp, end = 22.dp, top = 12.dp, bottom = 8.dp),
+            .padding(horizontal = 22.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {

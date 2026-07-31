@@ -226,6 +226,10 @@ fun StillMomentNavHost(
     )
     val pendingMeditationImportUri = remember { MutableStateFlow<Uri?>(null) }
     val stopMeditationSignal = remember { MutableStateFlow(false) }
+    // shared-081: Der Dauer-Filter faellt nur beim Tab-Wechsel, nicht beim Player-Ausflug.
+    // ON_PAUSE des Library-Eintrags feuert in beiden Faellen und taugt deshalb nicht —
+    // dieses Signal unterscheidet die beiden. Gleiches Muster wie stopMeditationSignal.
+    val libraryFilterResetSignal = remember { MutableStateFlow(false) }
     var isDownloading by remember { mutableStateOf(false) }
 
     FileOpenEffect(
@@ -272,9 +276,14 @@ fun StillMomentNavHost(
             onClearPendingImport = { pendingMeditationImportUri.value = null },
             stopMeditationSignal = stopMeditationSignal,
             onConsumeStopSignal = { stopMeditationSignal.value = false },
+            libraryFilterResetSignal = libraryFilterResetSignal,
+            onConsumeLibraryFilterReset = { libraryFilterResetSignal.value = false },
             onMeditationFinish = { overlayViewModel.setMarker() },
             onMeditationLoad = { overlayViewModel.clearMarker() },
             onTabSelect = { tabItem ->
+                if (tabItem.tab != AppTab.LIBRARY) {
+                    libraryFilterResetSignal.value = true
+                }
                 scope.launch { settingsDataStore.setSelectedTab(tabItem.tab) }
                 navController.navigate(tabItem.screen.route) {
                     popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -320,6 +329,8 @@ private fun NavHostScaffold(
     onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
+    libraryFilterResetSignal: StateFlow<Boolean>,
+    onConsumeLibraryFilterReset: () -> Unit,
     onMeditationFinish: () -> Unit,
     onMeditationLoad: () -> Unit,
     onTabSelect: (TabItem) -> Unit,
@@ -371,6 +382,8 @@ private fun NavHostScaffold(
                 onClearPendingImport,
                 stopMeditationSignal,
                 onConsumeStopSignal,
+                libraryFilterResetSignal,
+                onConsumeLibraryFilterReset,
                 onMeditationFinish,
                 onMeditationLoad
             )
@@ -388,6 +401,8 @@ private fun StillMomentNavContent(
     onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
+    libraryFilterResetSignal: StateFlow<Boolean>,
+    onConsumeLibraryFilterReset: () -> Unit,
     onMeditationFinish: () -> Unit,
     onMeditationLoad: () -> Unit
 ) {
@@ -410,6 +425,12 @@ private fun StillMomentNavContent(
             }
 
             ResetLibrarySearchOnPause(viewModel = listViewModel)
+
+            ResetLibraryFilterOnTabSwitch(
+                viewModel = listViewModel,
+                signal = libraryFilterResetSignal,
+                onConsume = onConsumeLibraryFilterReset
+            )
 
             GuidedMeditationsListScreen(
                 onMeditationClick = { meditation ->
@@ -463,6 +484,31 @@ private fun ResetLibrarySearchOnPause(viewModel: GuidedMeditationsListViewModel)
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+}
+
+/**
+ * shared-081: Setzt den Dauer-Filter zurueck, wenn der User die Bibliothek per Tab-Wechsel
+ * verlaesst — ein Ausflug in den Player laesst ihn dagegen bestehen.
+ *
+ * Das Signal ueberlebt die Disposition des Composables, deshalb ist die Reihenfolge
+ * unkritisch: Feuert der Effekt noch vor dem Verlassen, ist der Filter sofort weg; feuert
+ * er erst beim Zurueckkommen, ebenfalls. Beide Wege enden im geforderten Zustand.
+ */
+@Composable
+private fun ResetLibraryFilterOnTabSwitch(
+    viewModel: GuidedMeditationsListViewModel,
+    signal: StateFlow<Boolean>,
+    onConsume: () -> Unit
+) {
+    val shouldReset by signal.collectAsState()
+    val currentViewModel by rememberUpdatedState(viewModel)
+    val currentOnConsume by rememberUpdatedState(onConsume)
+    LaunchedEffect(shouldReset) {
+        if (shouldReset) {
+            currentViewModel.resetDurationFilter()
+            currentOnConsume()
+        }
     }
 }
 
