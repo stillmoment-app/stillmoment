@@ -1,6 +1,6 @@
 # Ticket android-081: Target API Level 36 (Android 16) fuer Google Play
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: KRITISCH
 **Komplexitaet**: Der Bump selbst ist klein, das Risiko liegt in den Verhaltensaenderungen von Android 16 — vor allem darin, dass der feste Portrait-Modus auf grossen Displays nicht mehr greift. Verifikation braucht einen echten API-36-Emulator, Unit-Tests fangen davon nichts.
 **Abhaengigkeiten**: Keine
@@ -55,6 +55,51 @@ Google hat uns dazu am 31. Juli 2026 in der Play Console benachrichtigt. Es blei
 7. Erwartung: Der Verwerfen-Schutz greift wie bisher
 8. Tablet-Emulator mit Android 16 starten, App oeffnen, Geraet drehen
 9. Erwartung: Die App bleibt im Hochformat
+
+---
+
+## Verifikation
+
+Durchgefuehrt am 31.07.2026 beim Abschluss. `android/CLAUDE.md` und der Kommentar in `AndroidManifest.xml` verweisen fuer Hintergrund und Verifikation auf diesen Abschnitt — er ist die Quelle fuer den naechsten Pflicht-Bump (Target 37).
+
+**Umgebung:** Emulator `Medium_Phone_API_36.1` (Android 16, `ro.build.version.sdk=36`), Debug-Build `com.stillmoment.dev`. On-Device bestaetigt: `targetSdk=36`.
+
+**Portrait-Only auf grossem Display — mit Kontrollexperiment.** Das ist der wichtigste Beleg des Tickets. Auf dem Telefon-AVD wurde per `wm size 1600x2560` + `wm density 320` ein Display mit 800dp kleinster Breite simuliert und das Geraet ins Querformat gedreht:
+
+| Property `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` | Activity-Config | Fenster |
+|---|---|---|
+| `true` | `sw600dp w600dp h800dp port` | Bounds 600×800dp zentriert, `letterboxReason=FIXED_ORIENTATION` |
+| `false` | `sw800dp w1280dp h800dp land` | Vollbild 2560×1600, keine Letterbox |
+
+Ohne den Gegenversuch waere das positive Ergebnis wertlos gewesen: Er unterscheidet „die Property wirkt" von „der Emulator erzwingt die neue Regel gar nicht". Die Display-Overrides wurden danach zurueckgesetzt.
+
+**Lock-Screen-Gongs (per logcat).** Display aus 17:20:20.166 · Start-Gong 17:20:22.538 (2,4 s **nach** dem Sperren) · Intervall-Gongs 17:21:22.672 und 17:22:22.824 — exakt 60 s Abstand. Screen durchgehend `Asleep`, `TimerForegroundService isForeground=true types=0x2`.
+
+**16-KB-Speicherseitengroesse: erfuellt, kein Handlungsbedarf.** Die Ticket-Annahme („kaeme ueber Media3 herein") war falsch — Media3/ExoPlayer liefert **keine** `.so`. Die tatsaechlichen Native-Libs im Release-AAB sind `libandroidx.graphics.path.so` und `libdatastore_shared_counter.so`; alle vier 64-Bit-Varianten (arm64-v8a, x86_64) haben jedes LOAD-Segment auf `align 2**14`.
+
+**Datei-Import auf Android 16 — alle vier Pfade verifiziert:**
+- Filesystem-Picker (SAF): end-to-end inkl. Import
+- „Oeffnen mit" (VIEW-Intent): `content://media/external/audio/media/47` ueber die System-ResolverActivity, Import-Sheet mit Metadaten und Dauer 15:42, Import vollstaendig durchgefuehrt und in der Bibliothek erschienen
+- „Teilen" einer Audiodatei (SEND + `EXTRA_STREAM`): Share-Sheet, Import-Sheet 12:17, Abbrechen persistiert korrekt nichts
+- „Teilen" eines Links (SEND + `EXTRA_TEXT`): ohne Link → Dialog „Kein Link gefunden"; mit Audio-URL → Download 103070 Bytes, Redirect korrekt gefolgt, Import-Sheet
+
+Einschraenkung: end-to-end nur mit `audio/mpeg` geprueft; `audio/mp4` und `audio/x-m4a` nur auf Manifest-/Resolver-Ebene.
+
+**Zurueck-Navigation mit vorhersagbaren Zurueck-Gesten (ab Target 36 default-on).** Meditations-Editor: Name geaendert, System-Zurueck-Geste → Dialog „Aenderungen verwerfen?" mit „Verwerfen" / „Weiter bearbeiten" erscheint wie bisher. Content-Guide ebenfalls geprueft. Im Code gibt es keinen `onBackPressed()`-Override; alle drei Stellen nutzen `androidx.activity.compose.BackHandler`. Der Trim-Editor wurde nicht direkt durchgetippt — er nutzt denselben `BackHandler`-Mechanismus wie der verifizierte Editor.
+
+**Unit-Tests / Lint / Release-Build:** `make -C android check` gruen (0 Lint-Errors), `make -C android test-unit-agent` 1276/1276 PASS, `bundleRelease` erfolgreich (signiertes AAB, 28 MB).
+
+**Instrumented Tests — Akzeptanzkriterium NICHT erfuellt.** Auf API 36 warf zunaechst *jeder* Test `NoSuchMethodException: android.hardware.input.InputManager.getInstance` in `Espresso.onIdle`. Ein Kontrolllauf mit targetSdk 35 auf demselben Emulator zeigte den identischen Fehler → Ursache war Emulator/Espresso, nicht der Bump. Espresso 3.7.0 behebt das („Use getSystemService instead of reflective InputManager.getInstance"): 19 von 36 Tests laufen jetzt. Die restlichen 17 scheitern an `assertIsDisplayed` plus einer `ComposeNotIdleException` (bekannte PlayerScreen-Endlos-Rekomposition). Laeufe mit targetSdk 35 und 36 (beide mit Espresso 3.7.0) ergaben **identische** Fehler-Mengen → die 17 Failures sind vorbestehend auf Android 16 und unabhaengig vom Target-SDK. Das Akzeptanzkriterium „Bestehende Instrumented Tests laufen auf einem Android-16-Emulator gruen" ist damit **offen** und braucht ein eigenes Ticket.
+
+---
+
+## Offene Punkte beim Abschluss
+
+- **`versionCode` steht weiter auf 19** und ist auf Google Play bereits verbraucht. Er muss vor dem echten Upload gebumpt werden. Deshalb konnte `supply validate_only` die Target-API-Pruefung nicht erreichen — es brach vorher mit „Version code 19 has already been used" ab. Das AK „Upload ohne Target-API-Warnung" ist damit **nicht** vollstaendig belegt; eine Target-SDK-Beanstandung gab es aber auch nicht. Der Play-Console-Upload bleibt Aufgabe des Users.
+- **17 vorbestehende Instrumented-Test-Failures auf Android 16** (siehe Verifikation) — eigenes Ticket noetig.
+- **Kein echtes Tablet/Foldable getestet**, nur ein simuliertes 800dp-Display auf einem Telefon-AVD. Das Signal ist stark (Letterboxing auf Framework-Ebene, per Gegenversuch bestaetigt), eine Bestaetigung auf einem echten Tablet-AVD bleibt wuenschenswert.
+- **CI ist mit `compileSdk 36` noch nie gelaufen** (Branch hat kein Upstream). Der Android-CI-Job pinnt keine SDK-Platform explizit.
+- **Der Opt-out `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` wirkt nur bis Target 36** — ab Target 37 entfaellt die Moeglichkeit, und der naechste Pflicht-Bump braucht echte adaptive Querformat-Layouts. Bewusst nicht Teil dieses Tickets; dokumentiert im Manifest-Kommentar, in `android/CLAUDE.md` und im CHANGELOG.
 
 ---
 
