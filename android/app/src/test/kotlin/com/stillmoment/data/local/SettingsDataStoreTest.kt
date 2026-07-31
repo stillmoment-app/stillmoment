@@ -171,8 +171,16 @@ class SettingsDataStoreTest {
     // MARK: - AppearanceMode Persistence
 
     @Test
-    fun `AppearanceMode DEFAULT is SYSTEM`() {
-        assertEquals(AppearanceMode.SYSTEM, AppearanceMode.DEFAULT)
+    fun `AppearanceMode DEFAULT is DARK`() {
+        assertEquals(AppearanceMode.DARK, AppearanceMode.DEFAULT)
+    }
+
+    @Test
+    fun `stored appearance selection wins over the DARK default`() {
+        // The flow maps a persisted name back to that mode - a saved "SYSTEM" must
+        // survive, otherwise the default would silently override the user's choice
+        assertEquals(AppearanceMode.SYSTEM, AppearanceMode.fromString("SYSTEM"))
+        assertEquals(AppearanceMode.LIGHT, AppearanceMode.fromString("LIGHT"))
     }
 
     @Test

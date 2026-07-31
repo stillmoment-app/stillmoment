@@ -11,14 +11,24 @@ import XCTest
 
 @MainActor
 final class ThemeManagerTests: XCTestCase {
+    /// Storage key behind `ThemeManager.appearanceMode`'s `@AppStorage`.
+    private static let appearanceStorageKey = "appearanceMode"
+
     // swiftlint:disable:next implicitly_unwrapped_optional
     private var sut: ThemeManager!
 
     override func setUp() {
         super.setUp()
+        // Clear the stored value so each test starts like a fresh install
+        // (and so no @AppStorage state leaks between tests)
+        UserDefaults.standard.removeObject(forKey: Self.appearanceStorageKey)
         self.sut = ThemeManager()
-        // Reset to default to avoid test pollution from @AppStorage
-        self.sut.appearanceMode = .default
+    }
+
+    override func tearDown() {
+        UserDefaults.standard.removeObject(forKey: Self.appearanceStorageKey)
+        self.sut = nil
+        super.tearDown()
     }
 
     func testResolvedColorsReturnsLightPaletteForLightMode() {
@@ -33,8 +43,41 @@ final class ThemeManagerTests: XCTestCase {
 
     // MARK: - Appearance Mode
 
-    func testDefaultAppearanceModeIsSystem() {
-        XCTAssertEqual(self.sut.appearanceMode, .system)
+    func testFreshInstallShowsDarkAppearance() {
+        // Given no stored selection (fresh install)
+        // Then the app is dark, regardless of the device's light/dark setting
+        XCTAssertEqual(self.sut.appearanceMode, .dark)
+        XCTAssertEqual(self.sut.preferredColorScheme, .dark)
+    }
+
+    func testStoredSystemSelectionWinsOverDarkDefault() {
+        // Given the user picked "System" in an earlier app run
+        UserDefaults.standard.set(
+            AppearanceMode.system.rawValue,
+            forKey: Self.appearanceStorageKey
+        )
+
+        // When the app starts again
+        let restored = ThemeManager()
+
+        // Then the stored choice survives - the dark default must not overwrite it
+        XCTAssertEqual(restored.appearanceMode, .system)
+        XCTAssertNil(restored.preferredColorScheme)
+    }
+
+    func testStoredLightSelectionWinsOverDarkDefault() {
+        // Given the user picked "Light" in an earlier app run
+        UserDefaults.standard.set(
+            AppearanceMode.light.rawValue,
+            forKey: Self.appearanceStorageKey
+        )
+
+        // When the app starts again
+        let restored = ThemeManager()
+
+        // Then the stored choice survives
+        XCTAssertEqual(restored.appearanceMode, .light)
+        XCTAssertEqual(restored.preferredColorScheme, .light)
     }
 
     func testSystemModeReturnsNilColorScheme() {

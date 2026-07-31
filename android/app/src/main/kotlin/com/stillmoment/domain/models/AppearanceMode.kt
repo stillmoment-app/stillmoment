@@ -12,8 +12,18 @@ enum class AppearanceMode(val isDark: Boolean?) {
     DARK(isDark = true);
 
     companion object {
-        /** Default appearance mode: follow system setting */
-        val DEFAULT = SYSTEM
+        /**
+         * Appearance for installs without a stored selection.
+         *
+         * Dark on purpose (shared-122): the dark presentation carries the calm the app is
+         * about and matches how the app is shown in the store. Users who never picked an
+         * appearance themselves - including existing users updating the app - move to dark;
+         * switching back is a single tap in the settings.
+         *
+         * This is the single source of truth: [fromString] falls back to it, and both
+         * `collectAsState` call sites use it as their initial value.
+         */
+        val DEFAULT = DARK
 
         /**
          * Parse a persisted string to AppearanceMode, returning DEFAULT for unknown values.

@@ -501,9 +501,9 @@ Darstellungsmodus-Auswahl. Ermoeglicht dem User, Light/Dark Mode unabhaengig vom
 
 | Wert | Beschreibung |
 |------|--------------|
-| `system` | Folgt dem Geraete-Setting (Default) |
+| `system` | Folgt dem Geraete-Setting |
 | `light` | Erzwingt Light Mode |
-| `dark` | Erzwingt Dark Mode |
+| `dark` | Erzwingt Dark Mode (Default seit shared-122) |
 
 **Persistence:** `@AppStorage("appearanceMode")` via `ThemeManager`
 
