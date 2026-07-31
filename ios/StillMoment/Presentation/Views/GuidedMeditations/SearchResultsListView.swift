@@ -13,6 +13,8 @@ import SwiftUI
 /// in beiden Texten. Swipe-Actions identisch zur normalen Liste.
 struct SearchResultsListView: View {
     let meditations: [GuidedMeditation]
+    /// Gesamtbestand der Bibliothek — zweite Zahl der Zaehlzeile (shared-081).
+    let totalCount: Int
     let query: String
     let previewingMeditationId: UUID?
     let previewCurrentTime: TimeInterval
@@ -56,10 +58,15 @@ struct SearchResultsListView: View {
         .scrollDismissesKeyboard(.immediately)
     }
 
+    /// „2 von 7 Meditationen" — die Plural-Form richtet sich nach dem Gesamtbestand.
     private var countHeader: some View {
-        Text(String(format: NSLocalizedString("library.search.results.count", comment: ""), self.meditations.count))
-            .textStyle(.micro, color: \.textSecondary)
-            .textCase(nil)
+        Text(String.localizedStringWithFormat(
+            NSLocalizedString("library.list.countOfTotal", comment: "Visible of total meditations"),
+            self.meditations.count,
+            self.totalCount
+        ))
+        .textStyle(.micro, color: \.textSecondary)
+        .textCase(nil)
     }
 
     private func row(for meditation: GuidedMeditation) -> some View {

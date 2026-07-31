@@ -26,18 +26,22 @@ struct LibraryHeaderView: View {
     @FocusState private var searchFocused: Bool
 
     var body: some View {
-        HStack(spacing: 10) {
-            self.searchPill
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                self.searchPill
 
-            if self.searchFocused {
-                self.cancelButton
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-            } else {
-                LibraryActionPill(onAdd: self.onAdd, onInfo: self.onInfo)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                if self.searchFocused {
+                    self.cancelButton
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                } else {
+                    LibraryActionPill(onAdd: self.onAdd, onInfo: self.onInfo)
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                }
             }
+            .padding(.horizontal, 22)
+
+            self.durationFilterArea
         }
-        .padding(.horizontal, 22)
         .padding(.top, 12)
         .padding(.bottom, 8)
         .animation(.easeInOut(duration: 0.2), value: self.searchFocused)
@@ -47,6 +51,28 @@ struct LibraryHeaderView: View {
         .onChange(of: self.viewModel.isSearching) { newValue in
             if !newValue, self.searchFocused {
                 self.searchFocused = false
+            }
+        }
+    }
+
+    /// Volle Stufenzeile im Ruhezustand, im Suchmodus nur noch der gesetzte Filter
+    /// als Chip. Ohne Filter bleibt der Suchmodus ganz frei — die Trefferliste
+    /// bekommt die volle Hoehe (shared-081).
+    @ViewBuilder private var durationFilterArea: some View {
+        if self.viewModel.isSearchModeActive {
+            if self.viewModel.isFilterActive {
+                LibraryActiveFilterChip(filter: self.viewModel.durationFilter) {
+                    self.viewModel.resetDurationFilter()
+                }
+                .padding(.horizontal, 22)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } else {
+            LibraryDurationFilterRow(
+                selected: self.viewModel.durationFilter,
+                availableSteps: self.viewModel.availableDurationSteps
+            ) { step in
+                self.viewModel.selectDurationFilter(step)
             }
         }
     }

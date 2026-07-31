@@ -99,11 +99,72 @@ final class GuidedMeditationsListViewModel: ObservableObject {
 
     /// Abgeleiteter Ansichtszustand der Suche.
     var searchState: LibrarySearchState {
-        let trimmed = self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty {
-            return self.isSearching ? .history : .idle
+        if !self.hasQuery {
+            if self.isSearching {
+                return .history
+            }
+            if !self.isFilterActive {
+                return .idle
+            }
+            return self.visibleMeditations.isEmpty ? .empty : .filtered
         }
-        return self.searchResults.isEmpty ? .empty : .results
+        return self.visibleMeditations.isEmpty ? .empty : .results
+    }
+
+    // MARK: - Dauer-Filter (shared-081)
+
+    /// Aktive Dauer-Stufe. `all` bedeutet: kein Filter, die Liste bleibt gruppiert.
+    @Published var durationFilter: DurationFilter = .all
+
+    /// Ob eine Stufe ausser `Alle` gewaehlt ist.
+    var isFilterActive: Bool {
+        self.durationFilter != .all
+    }
+
+    /// Ob der Header die kompakte Chip-Variante zeigt statt der vollen Filterzeile.
+    ///
+    /// Ein vorhandener Suchtext genuegt — die Trefferliste gibt beim Scrollen den
+    /// Fokus ab (`scrollDismissesKeyboard`), der Chip muss aber weiter erklaeren,
+    /// warum eine Meditation fehlt.
+    var isSearchModeActive: Bool {
+        self.isSearching || self.hasQuery
+    }
+
+    /// Die Meditationen, die Suche **und** Filter gemeinsam erfuellen.
+    ///
+    /// Ohne Suchtext folgt die Reihenfolge der gruppierten Ansicht (Lehrer:in
+    /// alphabetisch), mit Suchtext der Relevanz-Rangfolge der Suche.
+    var visibleMeditations: [GuidedMeditation] {
+        self.durationFilter.apply(to: self.searchScopedMeditations)
+    }
+
+    /// Die Stufen, die aktuell mindestens eine Meditation enthalten.
+    ///
+    /// Bewusst gegen die nur **such**-gefilterte Menge berechnet, nicht gegen
+    /// `visibleMeditations` — sonst wuerde eine gesetzte Stufe alle anderen blass
+    /// schalten und der Filter waere eine Einbahnstrasse.
+    var availableDurationSteps: Set<DurationFilter> {
+        DurationFilter.availableSteps(in: self.searchScopedMeditations)
+    }
+
+    /// Waehlt eine Stufe. Erneutes Tippen auf die aktive Stufe kehrt zu `Alle` zurueck.
+    /// Blasse (unbelegte) Stufen reagieren nicht.
+    func selectDurationFilter(_ step: DurationFilter) {
+        guard self.availableDurationSteps.contains(step) else {
+            return
+        }
+        self.durationFilter = self.durationFilter == step ? .all : step
+    }
+
+    /// Entfernt den Dauer-Filter, laesst den Suchtext unberuehrt.
+    func resetDurationFilter() {
+        self.durationFilter = .all
+    }
+
+    /// Raeumt Suchtext und Filter gemeinsam ab — ein Tap im „Kein Treffer"-Zustand.
+    func resetSearchAndFilter() {
+        self.resetSearch()
+        self.resetDurationFilter()
     }
 
     /// Returns unique teacher names sorted alphabetically for autocomplete
@@ -428,6 +489,22 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     // MARK: Private
 
     // MARK: - Dependencies
+
+    /// Ob eine nicht-leere Eingabe im Suchfeld steht.
+    private var hasQuery: Bool {
+        !self.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Die Menge, auf die **nur** der Suchtext wirkt — Basis fuer Filter und Stufen-Belegung.
+    ///
+    /// Ohne Suchtext ist das die Bibliothek in der Reihenfolge der gruppierten Ansicht,
+    /// damit die flache Liste dieselbe Ordnung zeigt wie die gruppierte darueber.
+    private var searchScopedMeditations: [GuidedMeditation] {
+        guard self.hasQuery else {
+            return self.meditationsByTeacher().flatMap(\.meditations)
+        }
+        return self.searchResults
+    }
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol

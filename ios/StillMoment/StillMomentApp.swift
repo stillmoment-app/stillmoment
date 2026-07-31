@@ -162,9 +162,12 @@ struct StillMomentApp: App {
             }
             // ios-041: Verlaesst der User den Library-Tab waehrend einer Suche,
             // wird die Eingabe zurueckgesetzt — die Historie bleibt erhalten.
+            // shared-081: Der Tab-Wechsel ist zugleich der einzige Punkt, an dem der
+            // Dauer-Filter fallt. Ein Ausflug in den Player laesst ihn bestehen, weil
+            // `GuidedMeditationsListView.onDisappear` ihn bewusst nicht anfasst.
             .onChange(of: self.selectedTab) { newTab in
                 if newTab != AppTab.library.rawValue {
-                    self.guidedListViewModel.resetSearch()
+                    self.guidedListViewModel.resetSearchAndFilter()
                 }
             }
             // Fallback: scenePhase at App level can miss transitions on some iOS versions
