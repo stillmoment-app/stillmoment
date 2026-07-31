@@ -82,9 +82,11 @@ Das Signal überlebt die Disposition des Composables, deshalb ist die Reihenfolg
 
 `ResetLibrarySearchOnPause` bleibt **unverändert** — die Suche soll ihr heutiges Verhalten behalten (Ticket-Hinweis: nur der Filter bekommt die neue Semantik).
 
-### 4. Stufen-Belegung gegen die *such*-gefilterte Menge, nicht gegen die gefilterte
+### 4. Stufen-Belegung gegen den Gesamtbestand, nicht gegen die gefilterte Menge
 
-`availableDurationSteps` wird aus der Menge berechnet, auf die nur der Suchtext wirkt. Sonst schaltete das Setzen einer Stufe alle anderen blass und der Filter wäre eine Einbahnstrasse.
+`availableDurationSteps` wird aus der ganzen Bibliothek berechnet. Sonst schaltete das Setzen einer Stufe alle anderen blass und der Filter wäre eine Einbahnstrasse.
+
+Der Suchtext spielt keine Rolle: die Stufenzeile ist nur sichtbar, solange weder Fokus noch Text im Suchfeld liegt. Eine such-abhängige Belegung wäre in keinem erreichbaren Zustand sichtbar. (iOS hatte das zunächst such-abhängig gelöst und im Review vereinfacht — Android folgt direkt der einfachen Variante.)
 
 ## Fachliche Szenarien
 

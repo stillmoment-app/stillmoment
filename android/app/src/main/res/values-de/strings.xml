@@ -365,9 +365,14 @@
     <!-- Library Search (shared-101) -->
     <!-- shared-102: kurzer Platzhalter, damit er in die 40 dp Pille neben Lupe + Clear-X passt. -->
     <string name="library_search_prompt">Suchen</string>
-    <plurals name="library_search_result_count">
-        <item quantity="one">%d Treffer</item>
-        <item quantity="other">%d Treffer</item>
+    <!--
+      shared-081: loest die fruehere Zeile „%d Treffer" ab — Suche und Dauer-Filter teilen
+      sich eine Zaehlzeile. Die quantity ist der GESAMTbestand, damit nie „2 von 1 Meditation"
+      entsteht.
+    -->
+    <plurals name="library_list_count_of_total">
+        <item quantity="one">%1$d von %2$d Meditation</item>
+        <item quantity="other">%1$d von %2$d Meditationen</item>
     </plurals>
     <string name="library_search_empty_title">Nichts gefunden</string>
     <string name="library_search_empty_message">Keine Treffer für „%1$s“</string>
@@ -378,6 +383,18 @@
     <string name="accessibility_library_search_history_entry">Erneut suchen: %1$s</string>
     <!-- shared-102: Header-Cancel-Button loest im aktiven Such-Zustand die Aktion-Pille ab. -->
     <string name="accessibility_library_search_cancel">Suche abbrechen</string>
+
+    <!-- Library Dauer-Filter (shared-081) -->
+    <string name="library_filter_all">Alle</string>
+    <string name="library_filter_up_to_5">bis 5 Min</string>
+    <string name="library_filter_5_to_15">5–15 Min</string>
+    <string name="library_filter_15_to_30">15–30 Min</string>
+    <string name="library_filter_over_30">über 30 Min</string>
+    <string name="library_filter_empty_message">Keine Meditation mit der Dauer „%1$s“.</string>
+    <string name="library_search_filter_empty_message">Keine Treffer für „%1$s“ mit der Dauer „%2$s“.</string>
+    <string name="library_filter_reset">Filter zurücksetzen</string>
+    <string name="accessibility_library_filter_unavailable">Nicht verfügbar</string>
+    <string name="accessibility_library_filter_chip_hint">Antippen entfernt den Filter</string>
 
     <!-- Interval Gongs mode help (shared-120) — count selects one/other form -->
     <plurals name="praxis_interval_gongs_mode_help_repeating">

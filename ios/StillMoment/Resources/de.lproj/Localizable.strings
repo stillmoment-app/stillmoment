@@ -291,7 +291,6 @@
 // MARK: - Library Search (ios-041)
 
 "library.search.prompt" = "Suchen";
-"library.search.results.count" = "%d Treffer";
 "library.search.empty.title" = "Nichts gefunden";
 "library.search.empty.message" = "Keine Treffer für „%@“";
 "library.search.history.title" = "Zuletzt gesucht";
@@ -301,6 +300,20 @@
 "accessibility.library.search.field" = "Bibliothek durchsuchen";
 "accessibility.library.search.clear" = "Eingabe löschen";
 "accessibility.library.search.cancel" = "Suche abbrechen";
+
+// MARK: - Library Dauer-Filter (shared-081)
+
+"library.filter.all" = "Alle";
+"library.filter.upTo5" = "bis 5 Min";
+"library.filter.5to15" = "5–15 Min";
+"library.filter.15to30" = "15–30 Min";
+"library.filter.over30" = "über 30 Min";
+"library.filter.empty.message" = "Keine Meditation mit der Dauer „%@“.";
+"library.searchFilter.empty.message" = "Keine Treffer für „%1$@“ mit der Dauer „%2$@“.";
+"library.filter.reset" = "Filter zurücksetzen";
+
+"accessibility.library.filter.unavailable" = "Nicht verfügbar";
+"accessibility.library.filter.chip.hint" = "Antippen entfernt den Filter";
 
 // MARK: - Autocomplete
 

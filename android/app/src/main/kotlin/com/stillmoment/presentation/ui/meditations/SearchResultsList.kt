@@ -43,9 +43,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
 /**
- * Flache Trefferliste fuer eine aktive Suche (shared-101).
+ * Flache Trefferliste fuer eine aktive Suche oder einen gesetzten Dauer-Filter
+ * (shared-101, shared-081).
  *
- * - Header: "N Treffer" (pluralisiert).
+ * - Header: "N von M Meditationen" (pluralisiert am Gesamtbestand [totalCount]).
  * - Pro Zeile: [MeditationListItem] mit Lehrer-Untertitel + Match-Highlight.
  * - Swipe links → Delete, Swipe rechts → Edit (identisch zur normalen Liste).
  * - Scrollt der Nutzer → Tastatur ausblenden (`LazyListState.isScrollInProgress`).
@@ -60,6 +61,7 @@ import kotlinx.coroutines.flow.filter
 fun SearchResultsList(
     query: String,
     results: ImmutableList<GuidedMeditation>,
+    totalCount: Int,
     previewingMeditationId: String?,
     previewCurrentTimeMs: Long,
     previewDurationMs: Long,
@@ -92,7 +94,7 @@ fun SearchResultsList(
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 80.dp)
     ) {
         item(key = "results-count") {
-            ResultsHeader(count = results.size)
+            ResultsHeader(count = results.size, totalCount = totalCount)
         }
         items(items = results, key = { meditation -> "result-${meditation.id}" }) { meditation ->
             SearchResultItem(
@@ -113,8 +115,10 @@ fun SearchResultsList(
 }
 
 @Composable
-private fun ResultsHeader(count: Int) {
-    val headerText = pluralStringResource(R.plurals.library_search_result_count, count, count)
+private fun ResultsHeader(count: Int, totalCount: Int) {
+    // shared-081: Die quantity ist der Gesamtbestand, nicht die Trefferzahl —
+    // „2 von 1 Meditation" gibt es nicht.
+    val headerText = pluralStringResource(R.plurals.library_list_count_of_total, totalCount, count, totalCount)
     Box(
         modifier = Modifier
             .fillMaxWidth()

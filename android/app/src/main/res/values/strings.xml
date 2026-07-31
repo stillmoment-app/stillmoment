@@ -365,9 +365,13 @@
     <!-- Library Search (shared-101) -->
     <!-- shared-102: short prompt fits inside the 40 dp pill next to magnifier + clear-X. -->
     <string name="library_search_prompt">Search</string>
-    <plurals name="library_search_result_count">
-        <item quantity="one">%d result</item>
-        <item quantity="other">%d results</item>
+    <!--
+      shared-081: replaces the former "%d results" line — search and duration filter share
+      one count line. The quantity is the library TOTAL, so "2 of 1 meditation" never occurs.
+    -->
+    <plurals name="library_list_count_of_total">
+        <item quantity="one">%1$d of %2$d meditation</item>
+        <item quantity="other">%1$d of %2$d meditations</item>
     </plurals>
     <string name="library_search_empty_title">No results</string>
     <string name="library_search_empty_message">No matches for “%1$s”</string>
@@ -378,6 +382,18 @@
     <string name="accessibility_library_search_history_entry">Search again: %1$s</string>
     <!-- shared-102: header cancel button replaces the action pill while searching. -->
     <string name="accessibility_library_search_cancel">Cancel search</string>
+
+    <!-- Library Duration Filter (shared-081) -->
+    <string name="library_filter_all">All</string>
+    <string name="library_filter_up_to_5">Up to 5 min</string>
+    <string name="library_filter_5_to_15">5–15 min</string>
+    <string name="library_filter_15_to_30">15–30 min</string>
+    <string name="library_filter_over_30">Over 30 min</string>
+    <string name="library_filter_empty_message">No meditation with duration “%1$s”.</string>
+    <string name="library_search_filter_empty_message">No matches for “%1$s” with duration “%2$s”.</string>
+    <string name="library_filter_reset">Reset filter</string>
+    <string name="accessibility_library_filter_unavailable">Unavailable</string>
+    <string name="accessibility_library_filter_chip_hint">Tap to remove the filter</string>
 
     <!-- Interval Gongs mode help (shared-120) — count selects one/other form -->
     <plurals name="praxis_interval_gongs_mode_help_repeating">

@@ -1,6 +1,6 @@
 # Ticket shared-081: Filter nach Dauer in der Meditationsliste
 
-**Status**: [ ] TODO
+**Status**: [x] DONE
 **Prioritaet**: MITTEL
 **Komplexitaet**: Mittel. Die Filterlogik selbst ist trivial, aber der Filter greift in die bestehenden vier Suchzustaende der Bibliothek ein (gruppiert / Historie / Treffer / kein Treffer). Der Kern des Tickets ist das Zusammenspiel von Filter und Suche, nicht das Filtern.
 **Phase**: 3-Feature
@@ -24,8 +24,8 @@ Der zweite, weniger offensichtliche Grund: Sobald Suche und Filter gleichzeitig 
 
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
+| iOS       | [x]    | -             |
+| Android   | [x]    | -             |
 
 ---
 
@@ -38,8 +38,7 @@ Der zweite, weniger offensichtliche Grund: Sobald Suche und Filter gleichzeitig 
 - [ ] `Alle` ist im Ausgangszustand aktiv
 - [ ] Einzelauswahl: nur eine Stufe gleichzeitig aktiv, die aktive Stufe ist visuell hervorgehoben
 - [ ] Erneutes Tippen auf die aktive Stufe kehrt zu `Alle` zurueck
-- [ ] Stufen ohne passende Meditation sind blass dargestellt und reagieren nicht auf Antippen. Sie bleiben sichtbar, damit die Zeile ihre Breite nie aendert
-- [ ] Ob eine Stufe leer ist, richtet sich nach dem aktuellen Suchtext: waehrend einer Suche zaehlen nur die Treffer dieser Suche
+- [ ] Stufen, in die keine Meditation der Bibliothek faellt, sind blass dargestellt und reagieren nicht auf Antippen. Sie bleiben sichtbar, damit die Zeile ihre Breite nie aendert
 - [ ] Bei leerer Bibliothek erscheint keine Filterzeile (der Empty State der Bibliothek bleibt unveraendert)
 - [ ] Die Filterzeile ist horizontal scrollbar, damit alle fuenf Stufen auch bei grossen Schriftgroessen erreichbar bleiben
 
@@ -82,7 +81,7 @@ Der zweite, weniger offensichtliche Grund: Sobald Suche und Filter gleichzeitig 
 ### Tests
 
 - [ ] Unit Tests iOS: Zuordnung Dauer → Stufe inklusive der Grenzwerte 4:59 / 5:00 / 14:59 / 15:00 / 29:59 / 30:00
-- [ ] Unit Tests iOS: Suche und Filter gemeinsam — Treffermenge, leere Treffermenge, Belegung der Stufen unter aktivem Suchtext
+- [ ] Unit Tests iOS: Suche und Filter gemeinsam — Treffermenge, leere Treffermenge, Belegung der Stufen
 - [ ] Unit Tests iOS: Filter bleibt nach „Abbrechen", Filter faellt beim Verlassen der Bibliothek
 - [ ] Unit Tests iOS: gruppierte Darstellung ohne Filter, flache Darstellung mit Filter
 - [ ] Unit Tests Android: identische Faelle

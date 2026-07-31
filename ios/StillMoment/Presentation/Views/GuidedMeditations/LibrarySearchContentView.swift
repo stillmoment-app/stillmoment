@@ -35,9 +35,11 @@ struct LibrarySearchContentView<IdleContent: View>: View {
                     self.viewModel.clearHistory()
                 }
             )
-        case .results:
+        case .filtered,
+             .results:
             SearchResultsListView(
-                meditations: self.viewModel.searchResults,
+                meditations: self.viewModel.visibleMeditations,
+                totalCount: self.viewModel.meditations.count,
                 query: self.viewModel.searchQuery,
                 previewingMeditationId: self.viewModel.previewingMeditationId,
                 previewCurrentTime: self.viewModel.previewCurrentTime,
@@ -53,7 +55,12 @@ struct LibrarySearchContentView<IdleContent: View>: View {
                 onDeleteMeditation: self.onDeleteMeditation
             )
         case .empty:
-            SearchEmptyStateView(query: self.viewModel.searchQuery)
+            SearchEmptyStateView(
+                query: self.viewModel.trimmedSearchQuery,
+                activeFilter: self.viewModel.isFilterActive ? self.viewModel.durationFilter : nil
+            ) {
+                self.viewModel.resetSearchAndFilter()
+            }
         }
     }
 }

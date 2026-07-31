@@ -62,9 +62,11 @@ Keine neuen Framework-APIs. Alles SwiftUI-Bordmittel, die im Projekt bereits im 
 **Trade-off:** Die Suche wird heute in `GuidedMeditationsListView.onDisappear` zurückgesetzt — das feuert auch beim Push in den Player. Für den Filter wäre genau das der im Ticket beschriebene Ärger.
 **Entscheidung:** Der Filter wird **nur** in `StillMomentApp.onChange(of: selectedTab)` zurückgesetzt, wo bereits `resetSearch()` steht. `onDisappear` bleibt unverändert. Damit überlebt der Filter den Player-Ausflug automatisch, ohne dass irgendwo zwischen Player-Navigation und Tab-Wechsel unterschieden werden muss.
 
-### 4. Stufen-Belegung gegen die *such*-gefilterte Menge, nicht gegen die gefilterte
+### 4. Stufen-Belegung gegen den Gesamtbestand, nicht gegen die gefilterte Menge
 
-**Entscheidung:** `availableDurationSteps` wird aus der Menge berechnet, auf die nur der Suchtext wirkt — nicht aus `visibleMeditations`. Sonst würde das Setzen einer Stufe alle anderen blass schalten und der Filter wäre eine Einbahnstrasse.
+**Entscheidung:** `availableDurationSteps` wird aus `meditations` berechnet — nicht aus `visibleMeditations`. Sonst würde das Setzen einer Stufe alle anderen blass schalten und der Filter wäre eine Einbahnstrasse.
+
+Der Suchtext spielt keine Rolle: die Stufenzeile ist nur sichtbar, solange weder Fokus noch Text im Suchfeld liegt (`isSearchModeActive == false`). Eine such-abhängige Belegung wäre in keinem erreichbaren Zustand sichtbar.
 
 ## Fachliche Szenarien
 
@@ -103,7 +105,7 @@ Keine neuen Framework-APIs. Alles SwiftUI-Bordmittel, die im Projekt bereits im 
 - Gegeben: Bibliothek ohne Meditation unter 5 Minuten
   Wenn: nichts
   Dann: `bis 5 Min` ist blass und reagiert nicht auf Antippen; der aktive Filter bleibt unverändert
-- Gegeben: Bibliothek mit Meditationen in allen Stufen, Suchtext trifft nur eine 7-Minuten-Meditation
+- Gegeben: Bibliothek, in der nur eine 7-Minuten-Meditation liegt
   Wenn: nichts
   Dann: nur `5–15 Min` ist verfügbar, die übrigen Stufen sind blass — aber alle fünf bleiben sichtbar
 - Gegeben: leere Bibliothek

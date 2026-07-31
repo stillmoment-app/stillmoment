@@ -1,6 +1,7 @@
 package com.stillmoment.presentation.ui.meditations
 
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -48,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.stillmoment.R
+import com.stillmoment.domain.models.DurationFilter
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.LibrarySearchState
@@ -64,6 +66,36 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 /**
+ * Oeffnet den System-Dateiwaehler fuer den Meditations-Import.
+ *
+ * Der Launcher muss im Activity-Kontext leben, nicht im Content-Composable — deshalb
+ * sitzt er hier und nicht in [GuidedMeditationsListScreenContent]. Die persistierbare
+ * SAF-Berechtigung wird ebenfalls hier genommen, weil sie denselben Kontext braucht.
+ *
+ * @return Callback, der den Dateiwaehler oeffnet.
+ */
+@Composable
+private fun rememberMeditationDocumentPicker(onSelectFile: (Uri) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val currentOnSelectFile by rememberUpdatedState(onSelectFile)
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            try {
+                context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } catch (@Suppress("SwallowedException") e: SecurityException) {
+                // Permission might not be grantable — continue with import anyway.
+                // SAF URIs sometimes don't support persistable permissions (e.g. from
+                // certain file managers). The URI remains valid for the current session.
+            }
+            currentOnSelectFile(it)
+        }
+    }
+    return { launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*")) }
+}
+
+/**
  * Guided Meditations Library Screen.
  * Displays imported meditations grouped by teacher.
  */
@@ -74,35 +106,13 @@ fun GuidedMeditationsListScreen(
     viewModel: GuidedMeditationsListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-
-    // Document picker launcher - must be in Activity context, not in Content composable
-    val launcher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            uri?.let {
-                // Take persistable permission in Activity context (required for SAF)
-                try {
-                    context.contentResolver.takePersistableUriPermission(
-                        it,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                } catch (@Suppress("SwallowedException") e: SecurityException) {
-                    // Permission might not be grantable — continue with import anyway.
-                    // SAF URIs sometimes don't support persistable permissions (e.g. from
-                    // certain file managers). The URI remains valid for the current session.
-                }
-                viewModel.importMeditation(it)
-            }
-        }
-
+    val openDocument = rememberMeditationDocumentPicker(onSelectFile = viewModel::importMeditation)
     val languageCode = currentLanguageCode()
 
     GuidedMeditationsListScreenContent(
         uiState = uiState,
         onMeditationClick = onMeditationClick,
-        onImportClick = { launcher.launch(arrayOf("audio/mpeg", "audio/mp3", "audio/*")) },
+        onImportClick = openDocument,
         onEditClick = viewModel::showEditSheet,
         onConfirmDelete = viewModel::confirmDelete,
         onExecuteDelete = viewModel::executeDelete,
@@ -138,6 +148,9 @@ fun GuidedMeditationsListScreen(
         onHistoryEntrySelect = viewModel::selectHistoryEntry,
         onClearHistory = viewModel::clearHistory,
         onResetSearch = viewModel::resetSearch,
+        onSelectDurationFilter = viewModel::selectDurationFilter,
+        onRemoveDurationFilter = viewModel::resetDurationFilter,
+        onResetSearchAndFilter = viewModel::resetSearchAndFilter,
         modifier = modifier
     )
 }
@@ -167,6 +180,9 @@ internal fun GuidedMeditationsListScreenContent(
     onHistoryEntrySelect: (String) -> Unit = {},
     onClearHistory: () -> Unit = {},
     onResetSearch: () -> Unit = {},
+    onSelectDurationFilter: (DurationFilter) -> Unit = {},
+    onRemoveDurationFilter: () -> Unit = {},
+    onResetSearchAndFilter: () -> Unit = {},
     onSeekPreview: (Long) -> Unit = {},
     onPreviewGong: (String) -> Unit = {},
     onStopGongPreview: () -> Unit = {}
@@ -205,6 +221,9 @@ internal fun GuidedMeditationsListScreenContent(
                     onHistoryEntrySelect = onHistoryEntrySelect,
                     onClearHistory = onClearHistory,
                     onResetSearch = onResetSearch,
+                    onSelectDurationFilter = onSelectDurationFilter,
+                    onRemoveDurationFilter = onRemoveDurationFilter,
+                    onResetSearchAndFilter = onResetSearchAndFilter,
                     onSeekPreview = onSeekPreview
                 )
             }
@@ -316,6 +335,9 @@ private fun LibraryBody(
     onHistoryEntrySelect: (String) -> Unit,
     onClearHistory: () -> Unit,
     onResetSearch: () -> Unit,
+    onSelectDurationFilter: (DurationFilter) -> Unit,
+    onRemoveDurationFilter: () -> Unit,
+    onResetSearchAndFilter: () -> Unit,
     onSeekPreview: (Long) -> Unit
 ) {
     when {
@@ -351,6 +373,9 @@ private fun LibraryBody(
                 onHistoryEntrySelect = onHistoryEntrySelect,
                 onClearHistory = onClearHistory,
                 onResetSearch = onResetSearch,
+                onSelectDurationFilter = onSelectDurationFilter,
+                onRemoveDurationFilter = onRemoveDurationFilter,
+                onResetSearchAndFilter = onResetSearchAndFilter,
                 onSeekPreview = onSeekPreview
             )
         }
@@ -374,6 +399,9 @@ private fun LibraryWithHeader(
     onHistoryEntrySelect: (String) -> Unit,
     onClearHistory: () -> Unit,
     onResetSearch: () -> Unit,
+    onSelectDurationFilter: (DurationFilter) -> Unit,
+    onRemoveDurationFilter: () -> Unit,
+    onResetSearchAndFilter: () -> Unit,
     onSeekPreview: (Long) -> Unit
 ) {
     // shared-102: Column { Header; Body } — der Header sitzt fix oben, der Body
@@ -382,12 +410,17 @@ private fun LibraryWithHeader(
         LibraryHeaderBar(
             query = uiState.searchQuery,
             isSearchFocused = uiState.isSearchFocused,
+            isSearchModeActive = uiState.isSearchModeActive,
+            durationFilter = uiState.durationFilter,
+            availableDurationSteps = uiState.availableDurationSteps,
             onQueryChange = onSearchQueryChange,
             onFocusChange = onSearchFocusChange,
             onSubmit = onSearchSubmit,
             onAdd = onImportClick,
             onInfo = onOpenGuide,
-            onResetSearch = onResetSearch
+            onResetSearch = onResetSearch,
+            onSelectDurationFilter = onSelectDurationFilter,
+            onRemoveDurationFilter = onRemoveDurationFilter
         )
         Box(modifier = Modifier.fillMaxSize()) {
             when (uiState.searchState) {
@@ -408,9 +441,12 @@ private fun LibraryWithHeader(
                     onEntryClick = onHistoryEntrySelect,
                     onClear = onClearHistory
                 )
-                LibrarySearchState.Results -> SearchResultsList(
+                // shared-081: Beide Zustaende rendern dieselbe flache Liste. Ohne Suchtext
+                // zeichnet MeditationListItem kein Highlight, der Zweig bleibt derselbe.
+                LibrarySearchState.Filtered, LibrarySearchState.Results -> SearchResultsList(
                     query = uiState.searchQuery,
-                    results = uiState.searchResults,
+                    results = uiState.visibleMeditations,
+                    totalCount = uiState.totalCount,
                     previewingMeditationId = uiState.previewingMeditationId,
                     previewCurrentTimeMs = uiState.previewCurrentTimeMs,
                     previewDurationMs = uiState.previewDurationMs,
@@ -421,7 +457,13 @@ private fun LibraryWithHeader(
                     onStopPreview = onStopPreview,
                     onSeekPreview = onSeekPreview
                 )
-                LibrarySearchState.Empty -> SearchEmptyState(query = uiState.searchQuery)
+                LibrarySearchState.Empty -> SearchEmptyState(
+                    query = uiState.trimmedSearchQuery,
+                    // Nur bei gesetztem Filter nennt der Text eine Dauer-Stufe und bietet
+                    // den Reset an — reine Such-Nulltreffer bleiben wie bisher.
+                    activeFilter = uiState.durationFilter.takeIf { uiState.isFilterActive },
+                    onReset = onResetSearchAndFilter
+                )
             }
         }
     }
