@@ -9,8 +9,9 @@ import XCTest
 @testable import StillMoment
 
 final class AppearanceModeTests: XCTestCase {
-    func testDefaultIsSystem() {
-        XCTAssertEqual(AppearanceMode.default, .system)
+    func testDefaultIsDark() {
+        // shared-122: a fresh install presents the app dark, no matter how the device is set
+        XCTAssertEqual(AppearanceMode.default, .dark)
     }
 
     func testAllCasesContainsAllModesInPickerOrder() {
