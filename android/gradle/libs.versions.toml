@@ -19,8 +19,8 @@ media3 = "1.5.1"
 junit = "4.13.2"
 junit5 = "5.11.3"
 mockitoKotlin = "5.4.0"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 ksp = "2.0.21-1.0.28"
 
 [libraries]
@@ -83,7 +83,11 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
-androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.6.2" }
+# Hinweis: espresso-core >= 3.7.0 (und passendes runner/ext-junit) ist Pflicht fuer
+# Android 16 (API 36) - aeltere Versionen rufen android.hardware.input.InputManager.getInstance()
+# reflektiv auf, das ab API 36 nicht mehr existiert (NoSuchMethodException in Espresso.onIdle).
+# Siehe android-081.
+androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.7.0" }
 screengrab = { group = "tools.fastlane", name = "screengrab", version = "2.1.1" }
 androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version = "2.3.0" }
 

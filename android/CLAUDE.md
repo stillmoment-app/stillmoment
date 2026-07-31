@@ -359,4 +359,30 @@ fun `create timer with zero duration throws exception`() {
 - JUnit 5 for tests (`useJUnitPlatform()`)
 - Detekt for static analysis
 - Media3 (ExoPlayer) for audio playback
-- `minSdk = 26`, `targetSdk = 35`, `jvmTarget = 17`
+- `minSdk = 26`, `compileSdk = 36`, `targetSdk = 36`, `jvmTarget = 17`
+
+### Portrait-Only auf grossen Displays — temporaerer Opt-out
+
+Die App ist bewusst Portrait-only (`android:screenOrientation="portrait"` auf `MainActivity`,
+Produktentscheidung shared-012). Ab `targetSdk = 36` ignoriert Android diese Beschraenkung
+auf Displays ab **600dp kleinster Breite** (Tablets, aufgefaltete Foldables) — zusammen mit
+`resizableActivity`, `minAspectRatio`, `maxAspectRatio` und `setRequestedOrientation()`.
+
+Gehalten wird das Hochformat dort ueber eine Manifest-Property auf der Activity:
+
+```xml
+<property
+    android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+    android:value="true" />
+```
+
+**Das ist gekaufte Zeit, keine Loesung.** Der Opt-out wirkt nur bis `targetSdk = 36`.
+Ab `targetSdk = 37` entfernt das Framework die Opt-out-Moeglichkeit; die Beschraenkungen
+werden dann auf >=600dp *immer* ignoriert. Wer den naechsten Pflicht-Bump auf 37 macht,
+braucht vorher echte adaptive Querformat-Layouts — das ist Entwurfsarbeit, kein
+Manifest-Eintrag. Auch mit gesetzter Property gilt bereits jetzt: Nutzer koennen das
+Seitenverhaeltnis in den Systemeinstellungen ueberschreiben, und im Desktop-Windowing
+wird die Orientierungsbeschraenkung trotz Opt-out ignoriert.
+
+Hintergrund und Verifikation: `dev-docs/tickets/android/android-081-target-sdk-36-android-16.md`,
+[Behavior changes: Apps targeting Android 16](https://developer.android.com/about/versions/16/behavior-changes-16)

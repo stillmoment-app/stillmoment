@@ -20,12 +20,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.stillmoment"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.stillmoment"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 19
         versionName = "2.4.0"
 
