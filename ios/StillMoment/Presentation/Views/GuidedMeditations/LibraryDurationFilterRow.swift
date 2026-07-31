@@ -50,7 +50,6 @@ private struct DurationFilterChip: View {
     var body: some View {
         if self.isAvailable {
             self.button
-                .accessibilityAddTraits(self.isSelected ? [.isSelected] : [])
         } else {
             self.button
                 .opacity(.opacitySecondary)
@@ -73,6 +72,7 @@ private struct DurationFilterChip: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("library.filter.step.\(self.step.rawValue)")
+        .accessibilityAddTraits(self.isSelected ? [.isSelected] : [])
     }
 
     private var textColor: KeyPath<ThemeColors, Color> {

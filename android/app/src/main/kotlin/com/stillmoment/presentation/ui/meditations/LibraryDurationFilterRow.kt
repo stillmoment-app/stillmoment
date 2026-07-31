@@ -121,4 +121,4 @@ private fun DurationFilterChip(step: DurationFilter, isSelected: Boolean, isAvai
 private val CHIP_SHAPE = RoundedCornerShape(percent = 50)
 private val CHIP_HEIGHT = 32.dp
 private val MIN_TAP_TARGET = 48.dp
-private const val UNAVAILABLE_ALPHA = 0.4f
+private const val UNAVAILABLE_ALPHA = 0.5f

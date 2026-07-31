@@ -450,8 +450,10 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     }
 
     /// Treffer-Tap — fuegt den Begriff der Historie hinzu und setzt die Suche zurueck.
+    ///
+    /// Wie `submitSearch()` massgeblich ist die **sichtbare** Liste, nicht die reinen Suchtreffer.
     func recordSearchCommittedByOpening() {
-        if !self.searchResults.isEmpty {
+        if !self.visibleMeditations.isEmpty {
             self.commitCurrentQueryToHistory()
         }
         self.resetSearch()
