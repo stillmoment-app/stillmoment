@@ -196,9 +196,9 @@ Der User kann in den Settings zwischen drei Darstellungsmodi waehlen:
 
 | Modus | Verhalten |
 |-------|-----------|
-| System (Default) | Folgt dem Geraete-Setting |
+| System | Folgt dem Geraete-Setting |
 | Hell | Erzwingt Light Mode |
-| Dunkel | Erzwingt Dark Mode |
+| Dunkel (Default) | Erzwingt Dark Mode |
 
 `ThemeManager` persistiert den gewaehlten `AppearanceMode` via `@AppStorage("appearanceMode")`. `ThemeRootView` setzt `.preferredColorScheme()` basierend auf dem Modus — `nil` fuer System (kein Override), `.light` oder `.dark` fuer erzwungenen Modus.
 
