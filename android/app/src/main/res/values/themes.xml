@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.StillMoment" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/warm_sand</item>
-        <item name="android:navigationBarColor">@color/warm_sand</item>
+        <!--
+            No statusBarColor/navigationBarColor here: the app draws edge-to-edge
+            (enableEdgeToEdge() in MainActivity) and Android 15 (API 35) deprecates/
+            ignores these attributes. System bar appearance is driven at runtime via
+            WindowCompat insets controller in Theme.kt.
+        -->
         <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

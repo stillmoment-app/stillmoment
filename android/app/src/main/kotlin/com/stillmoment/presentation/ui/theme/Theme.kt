@@ -19,7 +19,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -282,10 +281,10 @@ fun StillMomentTheme(darkTheme: Boolean = false, content: @Composable () -> Unit
             // Safe cast for Compose Preview compatibility
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
-            @Suppress("DEPRECATION")
-            window.statusBarColor = Color.Transparent.toArgb()
-            @Suppress("DEPRECATION")
-            window.navigationBarColor = Color.Transparent.toArgb()
+            // System bars are transparent via enableEdgeToEdge() in MainActivity.
+            // We only steer the bar-icon appearance (light/dark) here — the
+            // deprecated window.statusBarColor/navigationBarColor setters are gone
+            // (ignored on Android 15+).
             val isLightAppearance = !darkTheme
             WindowCompat.getInsetsController(window, view).apply {
                 isAppearanceLightStatusBars = isLightAppearance
