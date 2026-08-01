@@ -1,0 +1,5 @@
+- Filter nach Dauer in der Bibliothek: bis 5, 5–15, 15–30 oder über 30 Minuten
+- Filter und Suche lassen sich zusammen nutzen
+- Dunkle Darstellung ist jetzt der Standard
+
+Hinweis: Wenn du die Darstellung nie selbst gewählt hast, erscheint Still Moment nach dem Update dunkel — auch auf einem hell eingestellten Gerät. Unter Einstellungen → Darstellung kannst du das jederzeit ändern.
