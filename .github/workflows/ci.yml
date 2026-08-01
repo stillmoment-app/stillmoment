@@ -34,40 +34,56 @@ jobs:
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
 
-    - name: Cache Homebrew
+    # Die Tools werden als portable Binaries in der oben gepinnten Version
+    # installiert — bewusst NICHT ueber Homebrew. Die macOS-Runner-Images bringen
+    # swiftlint/swiftformat vorinstalliert mit; ein "brew install" lief deshalb nie,
+    # und jedes Runner-Image-Update brachte eine andere Version als die gepinnte.
+    # Die Folge war ein roter Job aus reinem Versions-Drift, ohne Codeaenderung.
+    - name: Cache Swift tooling
       uses: actions/cache@v4
       with:
-        path: |
-          ~/Library/Caches/Homebrew
-          /usr/local/Cellar/swiftlint
-          /usr/local/Cellar/swiftformat
-        key: ${{ runner.os }}-brew-${{ hashFiles('.github/workflows/ci.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-brew-
+        path: ~/.swift-tools
+        key: swift-tools-${{ runner.os }}-lint${{ env.SWIFTLINT_VERSION }}-format${{ env.SWIFTFORMAT_VERSION }}
 
-    - name: Install SwiftLint
+    - name: Install pinned SwiftLint & SwiftFormat
       run: |
-        if ! command -v swiftlint &> /dev/null; then
-          brew install swiftlint
+        set -euo pipefail
+        TOOLS="$HOME/.swift-tools"
+        mkdir -p "$TOOLS"
+
+        if [ ! -x "$TOOLS/swiftlint" ]; then
+          echo "Downloading SwiftLint $SWIFTLINT_VERSION..."
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/swiftlint.zip" \
+            "https://github.com/realm/SwiftLint/releases/download/$SWIFTLINT_VERSION/portable_swiftlint.zip"
+          unzip -q -o "$RUNNER_TEMP/swiftlint.zip" -d "$RUNNER_TEMP/swiftlint"
+          install -m 0755 "$RUNNER_TEMP/swiftlint/swiftlint" "$TOOLS/swiftlint"
         fi
-        INSTALLED=$(swiftlint version)
-        if [ "$INSTALLED" != "$SWIFTLINT_VERSION" ]; then
-          echo "::error::SwiftLint version mismatch: expected $SWIFTLINT_VERSION, got $INSTALLED. Update SWIFTLINT_VERSION in ci.yml and run 'brew upgrade swiftlint' locally."
+
+        if [ ! -x "$TOOLS/swiftformat" ]; then
+          echo "Downloading SwiftFormat $SWIFTFORMAT_VERSION..."
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/swiftformat.zip" \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/$SWIFTFORMAT_VERSION/swiftformat.zip"
+          unzip -q -o "$RUNNER_TEMP/swiftformat.zip" -d "$RUNNER_TEMP/swiftformat"
+          install -m 0755 "$RUNNER_TEMP/swiftformat/swiftformat" "$TOOLS/swiftformat"
+        fi
+
+        # Vor die Runner-Vorinstallation haengen. Wirkt erst im naechsten Step.
+        echo "$TOOLS" >> "$GITHUB_PATH"
+
+    - name: Verify pinned versions
+      run: |
+        set -euo pipefail
+        INSTALLED_LINT=$(swiftlint version)
+        INSTALLED_FORMAT=$(swiftformat --version)
+        if [ "$INSTALLED_LINT" != "$SWIFTLINT_VERSION" ]; then
+          echo "::error::SwiftLint $INSTALLED_LINT statt $SWIFTLINT_VERSION — es gewinnt eine andere Binary im PATH ($(command -v swiftlint))."
           exit 1
         fi
-        echo "SwiftLint $INSTALLED ✓"
-
-    - name: Install SwiftFormat
-      run: |
-        if ! command -v swiftformat &> /dev/null; then
-          brew install swiftformat
-        fi
-        INSTALLED=$(swiftformat --version)
-        if [ "$INSTALLED" != "$SWIFTFORMAT_VERSION" ]; then
-          echo "::error::SwiftFormat version mismatch: expected $SWIFTFORMAT_VERSION, got $INSTALLED. Update SWIFTFORMAT_VERSION in ci.yml and run 'brew upgrade swiftformat' locally."
+        if [ "$INSTALLED_FORMAT" != "$SWIFTFORMAT_VERSION" ]; then
+          echo "::error::SwiftFormat $INSTALLED_FORMAT statt $SWIFTFORMAT_VERSION — es gewinnt eine andere Binary im PATH ($(command -v swiftformat))."
           exit 1
         fi
-        echo "SwiftFormat $INSTALLED ✓"
+        echo "SwiftLint $INSTALLED_LINT ✓  SwiftFormat $INSTALLED_FORMAT ✓"
 
     - name: Run Code Quality Checks
       run: cd ios && make check
