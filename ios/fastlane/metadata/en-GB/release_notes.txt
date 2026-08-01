@@ -1,3 +1,5 @@
-- Refreshed app design
-- Trim guided meditations (set a start and end)
-- Gong at the start and end of guided meditations
+- Filter your library by length: up to 5, 5–15, 15–30 or over 30 minutes
+- Filter and search work together
+- Dark appearance is now the default
+
+Note: If you have never chosen an appearance yourself, Still Moment will look dark after this update — even on a device set to light. You can change this any time under Settings → Appearance.
