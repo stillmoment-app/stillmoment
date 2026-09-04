@@ -42,7 +42,9 @@ Last Updated: 2026-06-11
 
 ## Timer Domain
 
-Die Timer Domain ist der Kern der Applikation. Der Timer ist das Hauptfeature, Hintergrund-Sounds sind optionales Beiwerk.
+Die Timer Domain deckt die stille Meditation mit konfigurierbarem Timer ab. Innerhalb dieser Domain ist der Timer selbst das Hauptfeature, Hintergrund-Sounds sind optionales Beiwerk.
+
+Zur Einordnung im Produkt: Kernfeature der App ist die **Bibliothek** (eigene MP3s zu einer persoenlichen Sammlung aufbauen), der stille Timer ist die Ergaenzung — siehe "Feature priority" in `CLAUDE.md`. Das praegt Tab-Reihenfolge, Default-Tab und Priorisierung im Konfliktfall.
 
 ### TimerState
 
