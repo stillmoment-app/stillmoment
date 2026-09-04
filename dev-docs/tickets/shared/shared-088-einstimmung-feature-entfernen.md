@@ -1,6 +1,6 @@
 # Ticket shared-088: Einstimmung-Feature entfernen
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE
 **Plan (iOS)**: [Implementierungsplan](../plans/shared-088-ios.md)
 **Plan (Android)**: [Implementierungsplan](../plans/shared-088-android.md)
 **Prioritaet**: MITTEL
@@ -30,7 +30,7 @@ Das widerspricht der App-Philosophie "Einfachheit ueber Features". Die Entfernun
 
 | Plattform | Status         | Abhaengigkeit |
 |-----------|----------------|---------------|
-| iOS       | [~] IN PROGRESS| -             |
+| iOS       | [x] DONE       | -             |
 | Android   | [x] DONE       | -             |
 
 ---

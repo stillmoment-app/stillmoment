@@ -1,10 +1,31 @@
 # Ticket shared-092: Danke-Screen Redesign — Glow statt Herz
 
-**Status**: [~] IN PROGRESS
+**Status**: [x] DONE (iOS) — Android [-] WONTFIX, obsolet durch shared-097
 **Plan**: [Implementierungsplan iOS](../plans/shared-092-ios.md)
 **Prioritaet**: MITTEL
 **Komplexitaet**: Niedrig. Reines Visual-Redesign eines bestehenden Screens. Der Glow ist statisch (zwei konzentrische Kreise mit Radial-Gradient) — keine Animationen, kein Lifecycle-Pfad, kein Eingriff in geteilte Komponenten. Risiko liegt im Theme-Mapping und in der Lokalisierungs-Hygiene (alten Subtitle-Key sauber entfernen).
 **Phase**: 4-Polish
+
+---
+
+## WONTFIX (Android)
+
+Der iOS-Teil ist umgesetzt (CHANGELOG-Eintrag zu shared-092). Der Android-Teil wird
+uebersprungen, weil **shared-097** (Danke-Screen Refinement Kerzenschein 2.0) den Screen
+kurz darauf auf beiden Plattformen erneut umgebaut hat — und dabei genau die hier
+geforderten Aenderungen mitgebracht hat: Das Herz-Icon ist weg, an seiner Stelle sitzt ein
+statisches Symbol, die zweigeteilte Headline weicht einer einzelnen warmen Botschaft, der
+Button heisst "Fertig".
+
+Der Unterschied ist nur das Symbol selbst: shared-097 setzt ein Doppel-Lotus-Mandala statt
+des hier spezifizierten Glow-Kreises — mit der Begruendung, dass der Player nach shared-096
+nicht mehr atmet und der Abschluss-Screen sich vom Player abheben soll, statt sein
+Atem-Vokabular fortzufuehren. Auf iOS wurde der Glow deshalb bereits durch das Mandala
+ersetzt.
+
+Der Android-Teil dieses Tickets nachzuziehen wuerde also ein Design nachbauen, das auf
+iOS schon wieder abgeloest ist. Beide Plattformen zeigen heute `DankeLotusMandala` und sind
+konsistent.
 
 ---
 
@@ -30,7 +51,7 @@ Der heutige Danke-Screen wirkt transaktional: Herz-Icon, generische Floskel "Vie
 | Plattform | Status | Abhaengigkeit |
 |-----------|--------|---------------|
 | iOS       | [x]    | -             |
-| Android   | [ ]    | iOS-Implementierung als Referenz |
+| Android   | [-] WONTFIX | obsolet durch shared-097 |
 
 ---
 
