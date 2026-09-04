@@ -204,3 +204,21 @@ assert(canImportFile("meditation.mp4"))
 | Architecture Decisions | `dev-docs/architecture/decisions/` |
 
 **Skills:** `/create-ticket`, `/plan-ticket`, `/implement-ticket`, `/close-ticket`, `/review-code`, `/review-view`, `/release-notes`
+
+---
+
+## Agent skills
+
+Config for the installed engineering skills. Note the paths: this repo keeps them
+under `dev-docs/agents/`, **not** the `docs/agents/` some skills default to —
+`docs/` is the published website and holds no markdown.
+
+### Issue tracker
+
+Issues live as markdown under `dev-docs/tickets/` (INDEX.md + `shared/`, `ios/`,
+`android/`), not in GitHub Issues. See `dev-docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context. `dev-docs/reference/glossary.md` serves the `CONTEXT.md` role; ADRs
+live in `dev-docs/architecture/decisions/`. See `dev-docs/agents/domain.md`.
