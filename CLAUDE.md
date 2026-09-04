@@ -218,6 +218,11 @@ under `dev-docs/agents/`, **not** the `docs/agents/` some skills default to —
 Issues live as markdown under `dev-docs/tickets/` (INDEX.md + `shared/`, `ios/`,
 `android/`), not in GitHub Issues. See `dev-docs/agents/issue-tracker.md`.
 
+### Triage labels
+
+Default role names; `wontfix` maps to the existing `[-] WONTFIX` ticket status
+rather than a second vocabulary. See `dev-docs/agents/triage-labels.md`.
+
 ### Domain docs
 
 Single-context. `dev-docs/reference/glossary.md` serves the `CONTEXT.md` role; ADRs
