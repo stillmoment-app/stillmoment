@@ -4,6 +4,7 @@
 //
 
 import Combine
+import SwiftUI
 import XCTest
 @testable import StillMoment
 
@@ -147,27 +148,27 @@ final class PlayerViewModelCompletionTests: XCTestCase {
 final class CompletionOverlaySnapshotTests: XCTestCase {
     func testEvaluatesAsPresentWhenMarkerSet() {
         var snapshot = CompletionOverlaySnapshot()
-        snapshot.evaluate(completedAtRaw: 1_000_000)
+        snapshot.evaluate(isMarkerSet: true)
         XCTAssertEqual(snapshot.isPresent, true)
     }
 
     func testEvaluatesAsAbsentWhenNoMarker() {
         var snapshot = CompletionOverlaySnapshot()
-        snapshot.evaluate(completedAtRaw: 0)
+        snapshot.evaluate(isMarkerSet: false)
         XCTAssertEqual(snapshot.isPresent, false)
     }
 
     /// AK-6: Danke-Screen wird nicht doppelt angezeigt wenn Player aktiv ist.
     /// Der Snapshot wird beim Scene-Start ohne Marker ausgewertet (.absent).
-    /// Schreibt der Player spaeter in @SceneStorage, bleibt der Snapshot eingefroren.
+    /// Setzt der Player spaeter den Marker, bleibt der Snapshot eingefroren.
     func testSnapshotFrozenAfterFirstEvaluation() {
         // Given - app started without marker (player was already running)
         var snapshot = CompletionOverlaySnapshot()
-        snapshot.evaluate(completedAtRaw: 0)
+        snapshot.evaluate(isMarkerSet: false)
         XCTAssertEqual(snapshot.isPresent, false)
 
-        // When - player writes completion marker to @SceneStorage mid-session
-        snapshot.evaluate(completedAtRaw: 1_000_000)
+        // When - player sets the completion marker mid-session
+        snapshot.evaluate(isMarkerSet: true)
 
         // Then - overlay still not triggered
         XCTAssertEqual(snapshot.isPresent, false)
@@ -175,7 +176,7 @@ final class CompletionOverlaySnapshotTests: XCTestCase {
 
     func testDismissClearsPresence() {
         var snapshot = CompletionOverlaySnapshot()
-        snapshot.evaluate(completedAtRaw: 1_000_000)
+        snapshot.evaluate(isMarkerSet: true)
         XCTAssertEqual(snapshot.isPresent, true)
 
         snapshot.dismiss()
@@ -186,5 +187,69 @@ final class CompletionOverlaySnapshotTests: XCTestCase {
     func testInitialStateIsNil() {
         let snapshot = CompletionOverlaySnapshot()
         XCTAssertNil(snapshot.isPresent)
+    }
+}
+
+// MARK: - CompletionMarkerWriter Tests (shared-080 AK-2/AK-3)
+
+/// Stand-in for the two `@SceneStorage` values the writer talks to.
+/// A class, so the bindings below share one storage instead of copies.
+private final class MarkerStorage {
+    var completedAt: Double = 0
+    var meditationId: String = ""
+}
+
+private func makeWriter(_ storage: MarkerStorage) -> CompletionMarkerWriter {
+    CompletionMarkerWriter(
+        completedAt: Binding(get: { storage.completedAt }, set: { storage.completedAt = $0 }),
+        meditationId: Binding(get: { storage.meditationId }, set: { storage.meditationId = $0 })
+    )
+}
+
+private func makeEvent(completedAt: TimeInterval = 1_700_000_000) -> CompletionEvent {
+    CompletionEvent(meditationId: UUID(), completedAt: Date(timeIntervalSince1970: completedAt))
+}
+
+final class CompletionMarkerWriterTests: XCTestCase {
+    /// A meditation that played to its end is remembered, so the app can show
+    /// the completion screen even after the OS terminated it in between.
+    func testNaturalEndIsRemembered() {
+        let storage = MarkerStorage()
+        let writer = makeWriter(storage)
+        let event = makeEvent()
+
+        writer.record(event)
+
+        XCTAssertTrue(writer.isSet)
+        XCTAssertEqual(storage.completedAt, 1_700_000_000)
+        XCTAssertEqual(storage.meditationId, event.meditationId.uuidString)
+    }
+
+    /// AK-2: Once the user has tapped away the completion screen, the next app
+    /// launch must not show it again.
+    func testDismissingCompletionScreenLeavesNothingForTheNextLaunch() {
+        let storage = MarkerStorage()
+        let writer = makeWriter(storage)
+        writer.record(makeEvent())
+        var didLeave = false
+
+        writer.dismissCompletionScreen { didLeave = true }
+
+        XCTAssertFalse(writer.isSet)
+        XCTAssertEqual(storage.meditationId, "")
+        XCTAssertTrue(didLeave, "Dismissing must still navigate away from the completion screen")
+    }
+
+    /// AK-3: Starting a new meditation drops a leftover marker.
+    func testStartingANewSessionDropsALeftoverMarker() {
+        let storage = MarkerStorage()
+        let writer = makeWriter(storage)
+        writer.record(makeEvent())
+
+        writer.clear()
+
+        XCTAssertFalse(writer.isSet)
+        XCTAssertEqual(storage.completedAt, 0)
+        XCTAssertEqual(storage.meditationId, "")
     }
 }

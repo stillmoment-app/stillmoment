@@ -213,6 +213,13 @@ fun StillMomentNavHost(
     overlayViewModel: CompletionOverlayViewModel = hiltViewModel()
 ) {
     var showCompletionOverlay by remember { mutableStateOf(overlayViewModel.isMarkerSetInitially) }
+    val playerWiring = remember(overlayViewModel, navController) {
+        PlayerCompletionWiring(
+            setMarker = overlayViewModel::setMarker,
+            clearMarker = overlayViewModel::clearMarker,
+            leavePlayer = { navController.popBackStack() }
+        )
+    }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -239,6 +246,7 @@ fun StillMomentNavHost(
         snackbarHostState = snackbarHostState,
         onValidFile = { uri ->
             stopMeditationSignal.value = true
+            playerWiring.onSessionInterrupted()
             pendingMeditationImportUri.value = uri
         }
     )
@@ -250,6 +258,7 @@ fun StillMomentNavHost(
         onDownloadingChange = { isDownloading = it },
         onDownloadSuccess = { uri ->
             stopMeditationSignal.value = true
+            playerWiring.onSessionInterrupted()
             pendingMeditationImportUri.value = uri
         }
     )
@@ -278,8 +287,7 @@ fun StillMomentNavHost(
             onConsumeStopSignal = { stopMeditationSignal.value = false },
             libraryFilterResetSignal = libraryFilterResetSignal,
             onConsumeLibraryFilterReset = { libraryFilterResetSignal.value = false },
-            onMeditationFinish = { overlayViewModel.setMarker() },
-            onMeditationLoad = { overlayViewModel.clearMarker() },
+            playerWiring = playerWiring,
             onTabSelect = { tabItem ->
                 if (tabItem.tab != AppTab.LIBRARY) {
                     libraryFilterResetSignal.value = true
@@ -331,8 +339,7 @@ private fun NavHostScaffold(
     onConsumeStopSignal: () -> Unit,
     libraryFilterResetSignal: StateFlow<Boolean>,
     onConsumeLibraryFilterReset: () -> Unit,
-    onMeditationFinish: () -> Unit,
-    onMeditationLoad: () -> Unit,
+    playerWiring: PlayerCompletionWiring,
     onTabSelect: (TabItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -384,8 +391,7 @@ private fun NavHostScaffold(
                 onConsumeStopSignal,
                 libraryFilterResetSignal,
                 onConsumeLibraryFilterReset,
-                onMeditationFinish,
-                onMeditationLoad
+                playerWiring
             )
         }
     }
@@ -403,8 +409,7 @@ private fun StillMomentNavContent(
     onConsumeStopSignal: () -> Unit,
     libraryFilterResetSignal: StateFlow<Boolean>,
     onConsumeLibraryFilterReset: () -> Unit,
-    onMeditationFinish: () -> Unit,
-    onMeditationLoad: () -> Unit
+    playerWiring: PlayerCompletionWiring
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         timerNavGraph(
@@ -464,7 +469,7 @@ private fun StillMomentNavContent(
             }
         }
 
-        playerComposable(navController, onMeditationFinish, onMeditationLoad)
+        playerComposable(playerWiring)
     }
 }
 
@@ -642,11 +647,7 @@ private fun NavGraphBuilder.preparationTimeComposable(navController: NavHostCont
     }
 }
 
-private fun NavGraphBuilder.playerComposable(
-    navController: NavHostController,
-    onMeditationFinish: () -> Unit,
-    onMeditationLoad: () -> Unit
-) {
+private fun NavGraphBuilder.playerComposable(playerWiring: PlayerCompletionWiring) {
     composable(
         route = Screen.Player.route,
         arguments = listOf(navArgument("meditationJson") { type = NavType.StringType })
@@ -658,9 +659,9 @@ private fun NavGraphBuilder.playerComposable(
         meditation?.let {
             GuidedMeditationPlayerScreen(
                 meditation = it,
-                onBack = { navController.popBackStack() },
-                onMeditationFinish = onMeditationFinish,
-                onMeditationLoad = onMeditationLoad
+                onBack = playerWiring::onLeavePlayer,
+                onMeditationFinish = playerWiring::onMeditationFinish,
+                onMeditationLoad = playerWiring::onMeditationLoad
             )
         }
     }

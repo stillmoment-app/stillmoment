@@ -41,7 +41,7 @@ struct GuidedMeditationPlayerView: View {
 
             if self.viewModel.isCompleted {
                 MeditationCompletionView {
-                    self.dismiss()
+                    self.marker.dismissCompletionScreen { self.dismiss() }
                 }
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
@@ -87,8 +87,7 @@ struct GuidedMeditationPlayerView: View {
         }
         .onAppear {
             // Clear any stale completion marker so a new session starts fresh
-            self.completedAtRaw = 0
-            self.meditationIdRaw = ""
+            self.marker.clear()
             Task {
                 await self.viewModel.loadAudio()
                 // Auto-Start: kein initialer Play-Tap — Pre-Roll bzw. Audio
@@ -115,8 +114,7 @@ struct GuidedMeditationPlayerView: View {
             guard let event else {
                 return
             }
-            self.completedAtRaw = event.completedAt.timeIntervalSince1970
-            self.meditationIdRaw = event.meditationId.uuidString
+            self.marker.record(event)
         }
         .toolbar(self.isZenMode ? .hidden : .visible, for: .tabBar)
         .animation(.easeInOut(duration: 0.35), value: self.isZenMode)
@@ -124,6 +122,9 @@ struct GuidedMeditationPlayerView: View {
             guard shouldStop
             else { return }
             self.viewModel.stop()
+            // An incoming file interrupts the session and takes us to the
+            // import flow — the completion screen is done with (shared-080).
+            self.marker.clear()
             self.dismiss()
         }
     }
@@ -148,6 +149,16 @@ struct GuidedMeditationPlayerView: View {
     @State private var didKickOff = false
 
     private static let ringDiameter: CGFloat = 280
+
+    /// Every transition of the persisted completion marker runs through here —
+    /// including the dismissal of the in-place completion screen, which would
+    /// otherwise leave the marker behind (shared-080 AK-2).
+    private var marker: CompletionMarkerWriter {
+        CompletionMarkerWriter(
+            completedAt: self.$completedAtRaw,
+            meditationId: self.$meditationIdRaw
+        )
+    }
 
     private var isZenMode: Bool {
         self.viewModel.isZenMode

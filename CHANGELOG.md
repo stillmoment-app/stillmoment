@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (iOS + Android)
+- **Danke-Screen erscheint nicht mehr unerwartet beim App-Start** - Wer eine geführte Meditation zu Ende gehört, den Danke-Screen weggetippt und die App später wieder geöffnet hat, sah den Danke-Screen erneut — obwohl die letzte Sitzung längst abgeschlossen war. Ursache war der Merker, mit dem sich die App erinnert, dass eine Meditation natürlich geendet hat. Er existiert für den Standardfall „Meditation starten, Telefon weglegen": Beendet das Betriebssystem die App bei gesperrtem Bildschirm, erscheint der Danke-Screen beim nächsten Öffnen trotzdem. Gelöscht wurde dieser Merker bisher nur an zwei Stellen — beim Wegtippen des Danke-Screens direkt nach einem App-Start und beim Starten einer neuen Meditation —, nicht aber beim Wegtippen des Danke-Screens im Player selbst. Er blieb also liegen und holte den Screen später zurück. Jetzt löscht jeder Weg aus dem Player den Merker: Danke-Screen wegtippen, Schließen-Knopf, Start einer neuen Meditation und ein Datei-Import, der die Sitzung unterbricht (teilt man eine MP3 in die App, während der Danke-Screen offen steht, ist er damit erledigt). Der eigentliche Zweck bleibt unverändert erhalten. (Ticket: shared-080)
+
 ## [2.5.0] - 2026-08-01
 
 ### Added (iOS + Android)

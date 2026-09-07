@@ -10,16 +10,16 @@ import SwiftUI
 /// Snapshot of the completion overlay state, evaluated once per Scene lifecycle.
 ///
 /// Encapsulates the guard-pattern from `RootContainerView.onAppear`:
-/// once evaluated, later `@SceneStorage` changes (e.g. from an active player)
+/// once evaluated, later marker changes (e.g. from an active player)
 /// don't change the result — preventing double-display (shared-080, AK-6).
 struct CompletionOverlaySnapshot: Equatable {
     private(set) var isPresent: Bool?
 
-    mutating func evaluate(completedAtRaw: Double) {
+    mutating func evaluate(isMarkerSet: Bool) {
         guard self.isPresent == nil else {
             return
         }
-        self.isPresent = completedAtRaw > 0
+        self.isPresent = isMarkerSet
     }
 
     mutating func dismiss() {
@@ -44,7 +44,7 @@ struct RootContainerView<Content: View>: View {
     var body: some View {
         self.content
             .onAppear {
-                self.snapshot.evaluate(completedAtRaw: self.completedAtRaw)
+                self.snapshot.evaluate(isMarkerSet: self.marker.isSet)
             }
             .overlay {
                 if self.snapshot.isPresent == true {
@@ -52,9 +52,9 @@ struct RootContainerView<Content: View>: View {
                         self.theme.backgroundGradient
                             .ignoresSafeArea()
                         MeditationCompletionView {
-                            self.completedAtRaw = 0
-                            self.meditationIdRaw = ""
-                            self.snapshot.dismiss()
+                            self.marker.dismissCompletionScreen {
+                                self.snapshot.dismiss()
+                            }
                         }
                     }
                 }
@@ -72,4 +72,12 @@ struct RootContainerView<Content: View>: View {
     private var theme
 
     private let content: Content
+
+    /// Reads and clears the persisted marker — same writer the player uses.
+    private var marker: CompletionMarkerWriter {
+        CompletionMarkerWriter(
+            completedAt: self.$completedAtRaw,
+            meditationId: self.$meditationIdRaw
+        )
+    }
 }
