@@ -9,6 +9,9 @@ Dieses Dokument ist die **Quelle** fuer daraus abgeleitete Tickets. Es wird nich
 wenn ein Befund zum Ticket wird, steht die Ticket-ID hier daneben. Ein Befund ohne Ticket ist
 noch nicht eingeplant.
 
+**Visuelle Fassung mit Abhak-Liste:** <https://claude.ai/code/artifact/c0c4b1da-c8a1-4eed-9810-1bc700ca4adc>
+(dieselben Befunde als Diagramme, Fortschritt wird dort gespeichert).
+
 ---
 
 ## Status der Befunde
