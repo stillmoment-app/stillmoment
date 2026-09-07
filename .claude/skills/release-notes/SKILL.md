@@ -231,6 +231,21 @@ User kann:
 ## [1.8.0] - 2026-01-10
 ```
 
+**Pflicht-Verifikation nach dem Umzug:**
+
+```bash
+grep -n "^## \[" CHANGELOG.md | head -3
+```
+
+Erwartung: `[Unreleased]` steht direkt ueber der neuen Versions-Sektion, und unter
+`[Unreleased]` folgt kein `###`-Block mehr. Stehen zwischen `[Unreleased]` und der
+naechsten `## [`-Zeile noch Eintraege, ist der Umzug nicht passiert.
+
+**Dieser Schritt wird in der Praxis uebersehen.** Bei 2.5.0 (Commit 88df558) wurden
+nur die vier Fastlane-Changelogs geschrieben — die Eintraege blieben unter
+`[Unreleased]` und mussten fuenf Wochen spaeter nachgetragen werden. Die Release
+Notes sind erst fertig, wenn die Verifikation oben stimmt.
+
 ### Schritt 11: Zusammenfassung
 
 ```
@@ -242,9 +257,15 @@ Written:
   ✓ CHANGELOG.md ([Unreleased] → [1.9.0])
 
 Next steps:
-  cd ios && make release-prepare VERSION=1.9.0
-  cd android && make release-prepare VERSION=1.9.0
+  make -C ios release-prepare VERSION=1.9.0
+  make -C android release-prepare VERSION=1.9.0
 ```
+
+**Commit-Umfang:** Der Release-Notes-Commit enthaelt **fuenf** Dateien — die vier
+Fastlane-Changelogs *und* `CHANGELOG.md`. Ein Commit mit nur vier Dateien heisst,
+dass Schritt 10 fehlt. Die `release-prepare.sh`-Scripts holen das nicht nach: sie
+arbeiten ausschliesslich mit den versionierten Fastlane-Changelogs und fassen
+`CHANGELOG.md` nie an.
 
 ---
 
