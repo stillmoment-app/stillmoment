@@ -12,6 +12,10 @@ import SwiftUI
 /// Pro Zeile: Titel + Lehrer/Dauer-Untertitel + Play-Button. Match-Highlight
 /// in beiden Texten. Swipe-Actions identisch zur normalen Liste.
 struct SearchResultsListView: View {
+    /// Luft unter der letzten Zeile, damit sie ueber die Fade-Zone und die
+    /// schwebende Tabbar hinausgescrollt werden kann (Android: `bottom = 80.dp`).
+    private static let listBottomInset: CGFloat = 80
+
     let meditations: [GuidedMeditation]
     /// Gesamtbestand der Bibliothek — zweite Zahl der Zaehlzeile (shared-081).
     let totalCount: Int
@@ -56,6 +60,9 @@ struct SearchResultsListView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.immediately)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: Self.listBottomInset)
+        }
     }
 
     /// „2 von 7 Meditationen" — die Plural-Form richtet sich nach dem Gesamtbestand.
