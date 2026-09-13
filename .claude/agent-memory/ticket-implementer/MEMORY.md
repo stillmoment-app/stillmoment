@@ -25,6 +25,10 @@
 - **`fontWeightAdjustment` erst ab API 31.** Auf API 26-30 ist `Configuration.fontWeightAdjustment` immer `0` (oder die Property existiert nicht). Schwere Schrift wird daher dort nicht honoriert — wir dokumentieren das und bauen kein Backport.
 - **Compose `TextStyle` und unser Token-Enum kollidieren.** Namens-Kollision zwischen `androidx.compose.ui.text.TextStyle` und unserem `enum class TextStyle`. Loesung: `import com.stillmoment.presentation.ui.theme.TextStyle as TextToken` in Dateien, die beide brauchen (Modifier-Impl, Material-Bindings, Debug-Screen).
 
+## Layout-Bugs ohne Unit-Test
+
+- [iOS-Layout visuell verifizieren](feedback_ios_visual_verification.md) — Screenshots-Scheme seedet Fixtures, Simulator-Koordinaten sind Punkte (nicht Screenshot-Pixel), Vorher-Bild via gezieltem `git stash push -- <pfade>`.
+
 ## Cross-Platform-Migration (iOS Pendant existiert)
 
 - **iOS-Referenz-Code lesen bevor angefangen wird.** Bei shared-Tickets mit iOS-Pendant (z.B. shared-099 / ios-048): die iOS-Implementierung ist die fachliche Quelle der Wahrheit. Erst `ios/StillMoment/Presentation/Views/Shared/TextStyle.swift` etc. lesen, dann Android nachziehen. Saemtliche Annahmen (Tokens-Anzahl, Bold-Mapping, Sample-Texte fuer Debug) werden 1:1 uebernommen — keine Erfindungen.
