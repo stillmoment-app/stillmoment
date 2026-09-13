@@ -148,6 +148,8 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-121](shared/shared-121-hintergrundklang-screen-redesign.md) | Hintergrundklang-Screen an Klang-Auswahl-Vorlage angleichen (Handoff soundscape) | 4-Polish | [x] | [x] |
 | [shared-122](shared/shared-122-default-darstellung-dunkel.md) | Dunkle Darstellung als Standard | 1-Quick Fix | [x] | [x] |
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
+| [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
+| [shared-126](shared/shared-126-timer-start-als-play-knopf.md) | Timer-Start als runder Play-Knopf | 4-Polish | [ ] | [ ] |
 
 ---
 
