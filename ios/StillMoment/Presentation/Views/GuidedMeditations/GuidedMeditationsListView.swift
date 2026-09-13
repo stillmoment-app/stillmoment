@@ -278,6 +278,7 @@ struct GuidedMeditationsListView: View {
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
+        .bottomFadeContentInset()
     }
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {

@@ -56,6 +56,7 @@ struct SearchResultsListView: View {
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.immediately)
+        .bottomFadeContentInset()
     }
 
     /// „2 von 7 Meditationen" — die Plural-Form richtet sich nach dem Gesamtbestand.
