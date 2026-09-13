@@ -23,6 +23,11 @@
 import SwiftUI
 
 struct BottomFadeMask: ViewModifier {
+    /// Luft unter der letzten Zeile einer maskierten Liste — siehe
+    /// `bottomFadeContentInset()`. Gehoert hierher, weil der Wert zur Fade-Zone
+    /// passen muss: Beide Listen der Bibliothek liegen unter derselben Maske.
+    static let contentInset: CGFloat = 80
+
     func body(content: Content) -> some View {
         content.mask(
             VStack(spacing: 0) {
@@ -58,5 +63,19 @@ extension View {
     /// unabhaengig von der Hoehe des Containers.
     func bottomFadeMask() -> some View {
         modifier(BottomFadeMask())
+    }
+
+    /// Gegenstueck zur Fade-Zone: Luft unter der letzten Zeile.
+    ///
+    /// Auf die Liste selbst anwenden, nicht auf den maskierten Container — sonst
+    /// verschieben sich die Bounds, an denen die Maske haengt. Ohne diesen Abstand
+    /// endet die Liste an der Bildschirmkante: Die letzte Zeile bleibt im
+    /// Uebergang stecken und zusaetzlich hinter der schwebenden Tabbar, auch wenn
+    /// man ganz nach unten scrollt. Spiegelt `contentPadding(bottom = 80.dp)`
+    /// auf Android.
+    func bottomFadeContentInset() -> some View {
+        safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: BottomFadeMask.contentInset)
+        }
     }
 }

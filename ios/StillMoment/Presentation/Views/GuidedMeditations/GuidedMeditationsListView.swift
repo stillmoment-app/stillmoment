@@ -173,10 +173,6 @@ struct GuidedMeditationsListView: View {
 
     // MARK: Private
 
-    /// Luft unter der letzten Zeile, damit sie ueber die Fade-Zone und die
-    /// schwebende Tabbar hinausgescrollt werden kann (Android: `bottom = 80.dp`).
-    private static let listBottomInset: CGFloat = 80
-
     @Environment(\.themeColors)
     private var theme
     @EnvironmentObject private var fileOpenHandler: FileOpenHandler
@@ -282,9 +278,7 @@ struct GuidedMeditationsListView: View {
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            Color.clear.frame(height: Self.listBottomInset)
-        }
+        .bottomFadeContentInset()
     }
 
     private func meditationRow(for meditation: GuidedMeditation) -> some View {
