@@ -38,9 +38,9 @@ final class TrimEditorViewModel: ObservableObject {
 
     init(
         meditation: GuidedMeditation,
-        audioService: AudioServiceProtocol = AudioService(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
+        audioService: AudioServiceProtocol,
+        waveformProvider: WaveformProviderProtocol,
+        meditationService: GuidedMeditationServiceProtocol,
         previewDurations: TrimPreviewDurations = .standard
     ) {
         self.meditation = meditation

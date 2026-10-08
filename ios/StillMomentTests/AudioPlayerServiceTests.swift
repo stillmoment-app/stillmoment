@@ -31,7 +31,9 @@ final class AudioPlayerServiceTests: XCTestCase {
         self.mockNowPlayingProvider = MockNowPlayingInfoProvider()
         self.sut = AudioPlayerService(
             coordinator: self.mockCoordinator,
-            nowPlayingProvider: self.mockNowPlayingProvider
+            nowPlayingProvider: self.mockNowPlayingProvider,
+            soundRepository: BackgroundSoundRepository(),
+            gongPlayer: MeditationGongPlayer()
         )
         self.cancellables = Set<AnyCancellable>()
     }
@@ -57,7 +59,12 @@ final class AudioPlayerServiceTests: XCTestCase {
 
     func testInitializationWithDefaultCoordinator() {
         // When
-        let service = AudioPlayerService()
+        let service = AudioPlayerService(
+            coordinator: AudioSessionCoordinator.shared,
+            nowPlayingProvider: SystemNowPlayingInfoProvider(),
+            soundRepository: BackgroundSoundRepository(),
+            gongPlayer: MeditationGongPlayer()
+        )
 
         // Then
         XCTAssertNotNil(service)
@@ -700,7 +707,8 @@ final class AudioPlayerServiceTests: XCTestCase {
         let service = AudioPlayerService(
             coordinator: self.mockCoordinator,
             nowPlayingProvider: self.mockNowPlayingProvider,
-            soundRepository: mockRepository
+            soundRepository: mockRepository,
+            gongPlayer: MeditationGongPlayer()
         )
 
         // When/Then

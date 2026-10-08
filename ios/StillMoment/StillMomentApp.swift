@@ -26,10 +26,10 @@ struct StillMomentApp: App {
     /// Theme manager - owns theme state, injected as @EnvironmentObject
     @StateObject private var themeManager = ThemeManager()
 
-    /// Timer ViewModel — holds the shared AudioService instance
+    /// Timer ViewModel
     @StateObject private var timerViewModel: TimerViewModel
 
-    /// Guided meditations list ViewModel — shares the AudioService with timerViewModel
+    /// Guided meditations list ViewModel
     @StateObject private var guidedListViewModel: GuidedMeditationsListViewModel
 
     /// File open handler - manages "Open with" and Share Extension imports
@@ -54,6 +54,12 @@ struct StillMomentApp: App {
     private var scenePhase
 
     init() {
+        // Composition Root (ios-055): every service of the app is created here, exactly once,
+        // and handed down through initializers. Building the graph performs no persistence
+        // reads, so the launch-argument overrides and migrations below still run first.
+        let dependencies = AppDependencies.live()
+        self.dependencies = dependencies
+
         // Apply launch argument overrides before creating ViewModels
         // (UI tests use -DisablePreparation to configure preparation time behavior)
         if ProcessInfo.processInfo.arguments.contains("-DisablePreparation") {
@@ -63,7 +69,7 @@ struct StillMomentApp: App {
         // UI tests use -DurationMinutes <n> to override the session duration —
         // necessary for ios-047 so the moon-phase visualisation shows progress.
         if let minutes = Self.parseDurationMinutesArgument() {
-            DurationConfigurer.setDuration(minutes)
+            DurationConfigurer.setDuration(minutes, repository: dependencies.praxisRepository)
         }
 
         #if DEBUG
@@ -74,13 +80,13 @@ struct StillMomentApp: App {
         // Runs before any repository load so persisted state is already clean.
         AttunementCleanupMigration.runIfNeeded()
 
-        let sharedAudioService = AudioService()
-        _timerViewModel = StateObject(wrappedValue: TimerViewModel(audioService: sharedAudioService))
-        _guidedListViewModel = StateObject(
-            wrappedValue: GuidedMeditationsListViewModel(audioService: sharedAudioService)
-        )
+        _timerViewModel = StateObject(wrappedValue: Self.makeTimerViewModel(dependencies))
+        _guidedListViewModel = StateObject(wrappedValue: Self.makeGuidedListViewModel(dependencies))
 
-        let fileOpenHandler = FileOpenHandler()
+        let fileOpenHandler = FileOpenHandler(
+            meditationService: dependencies.meditationService,
+            metadataService: dependencies.metadataService
+        )
         let inboxDir = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
             .appendingPathComponent("ShareInbox")
@@ -89,7 +95,7 @@ struct StillMomentApp: App {
         _fileOpenHandler = StateObject(wrappedValue: fileOpenHandler)
         _inboxHandler = StateObject(wrappedValue: InboxHandler(
             fileOpenHandler: fileOpenHandler,
-            downloadService: AudioDownloadService(),
+            downloadService: dependencies.downloadService,
             inboxDirectoryURL: inboxDir
         ))
 
@@ -98,9 +104,9 @@ struct StillMomentApp: App {
         // a later launch without the flag re-seeds via seedIfNeeded.
         #if SCREENSHOTS_BUILD
         if ProcessInfo.processInfo.arguments.contains("-EmptyLibrary") {
-            try? GuidedMeditationService().saveMeditations([])
+            try? dependencies.meditationService.saveMeditations([])
         } else {
-            TestFixtureSeeder.seedIfNeeded(service: GuidedMeditationService())
+            TestFixtureSeeder.seedIfNeeded(service: dependencies.meditationService)
         }
         #endif
     }
@@ -116,7 +122,8 @@ struct StillMomentApp: App {
                         NavigationStack(path: self.$libraryPath) {
                             GuidedMeditationsListView(
                                 navigationPath: self.$libraryPath,
-                                viewModel: self.guidedListViewModel
+                                viewModel: self.guidedListViewModel,
+                                dependencies: self.dependencies
                             )
                         }
                         .tabItem {
@@ -138,7 +145,7 @@ struct StillMomentApp: App {
 
                         // App Settings Tab
                         NavigationStack {
-                            AppSettingsView()
+                            AppSettingsView(settingsRepository: self.dependencies.guidedSettingsRepository)
                         }
                         .tabItem {
                             Label("tab.settings", systemImage: "slider.horizontal.3")
@@ -222,6 +229,10 @@ struct StillMomentApp: App {
 
     // MARK: Private
 
+    /// All services of the app, held for the app's lifetime. The shared AudioService must
+    /// outlive every screen: its deinit stops the timer keep-alive (lock screen).
+    private let dependencies: AppDependencies
+
     /// Title-Key fuer den Download-Alert, abhaengig vom konkreten Fehler.
     private var downloadAlertTitleKey: String {
         switch self.inboxHandler.downloadError {
@@ -295,6 +306,28 @@ struct StillMomentApp: App {
                 break
             }
         }
+    }
+
+    private static func makeTimerViewModel(_ dependencies: AppDependencies) -> TimerViewModel {
+        TimerViewModel(
+            timerService: dependencies.timerService,
+            audioService: dependencies.audioService,
+            soundRepository: dependencies.backgroundSoundRepository,
+            praxisRepository: dependencies.praxisRepository,
+            customAudioRepository: dependencies.customAudioRepository,
+            soundscapeResolver: dependencies.soundscapeResolver
+        )
+    }
+
+    private static func makeGuidedListViewModel(_ dependencies: AppDependencies) -> GuidedMeditationsListViewModel {
+        GuidedMeditationsListViewModel(
+            meditationService: dependencies.meditationService,
+            metadataService: dependencies.metadataService,
+            audioService: dependencies.audioService,
+            meditationSourceRepository: dependencies.meditationSourceRepository,
+            searchHistoryStore: dependencies.searchHistoryStore,
+            waveformProvider: dependencies.waveformProvider
+        )
     }
 
     /// Parses `-DurationMinutes <n>` from launch arguments.

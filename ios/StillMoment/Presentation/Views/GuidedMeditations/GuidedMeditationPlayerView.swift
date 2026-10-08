@@ -19,12 +19,17 @@ struct GuidedMeditationPlayerView: View {
     init(
         meditation: GuidedMeditation,
         preparationTimeSeconds: Int? = nil,
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService()
+        dependencies: AppDependencies
     ) {
         _viewModel = StateObject(wrappedValue: GuidedMeditationPlayerViewModel(
             meditation: meditation,
             preparationTimeSeconds: preparationTimeSeconds,
-            meditationService: meditationService
+            playerService: dependencies.makeAudioPlayerService(),
+            meditationService: dependencies.meditationService,
+            waveformProvider: dependencies.waveformProvider,
+            clock: dependencies.clock,
+            gongPlayer: dependencies.makeGongPlayer(),
+            praxisRepository: dependencies.praxisRepository
         ))
     }
 
@@ -350,25 +355,25 @@ private let previewMeditationLongName = GuidedMeditation(
 
 @available(iOS 17.0, *)
 #Preview("Default") {
-    GuidedMeditationPlayerView(meditation: previewMeditation)
+    GuidedMeditationPlayerView(meditation: previewMeditation, dependencies: .live())
 }
 
 @available(iOS 17.0, *)
 #Preview("Long Name") {
-    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName, dependencies: .live())
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone SE (small)", traits: .fixedLayout(width: 375, height: 667)) {
-    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName, dependencies: .live())
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 (standard)", traits: .fixedLayout(width: 393, height: 852)) {
-    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName, dependencies: .live())
 }
 
 @available(iOS 17.0, *)
 #Preview("iPhone 15 Pro Max (large)", traits: .fixedLayout(width: 430, height: 932)) {
-    GuidedMeditationPlayerView(meditation: previewMeditationLongName)
+    GuidedMeditationPlayerView(meditation: previewMeditationLongName, dependencies: .live())
 }

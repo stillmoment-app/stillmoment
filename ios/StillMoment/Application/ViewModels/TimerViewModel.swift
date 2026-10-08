@@ -21,22 +21,19 @@ final class TimerViewModel: ObservableObject {
     // MARK: Lifecycle
 
     init(
-        timerService: TimerServiceProtocol = TimerService(),
-        audioService: AudioServiceProtocol = AudioService(),
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
-        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
-        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
-        soundscapeResolver: SoundscapeResolverProtocol? = nil
+        timerService: TimerServiceProtocol,
+        audioService: AudioServiceProtocol,
+        soundRepository: BackgroundSoundRepositoryProtocol,
+        praxisRepository: PraxisRepository,
+        customAudioRepository: CustomAudioRepositoryProtocol,
+        soundscapeResolver: SoundscapeResolverProtocol
     ) {
         self.timerService = timerService
         self.audioService = audioService
         self.soundRepository = soundRepository
         self.praxisRepository = praxisRepository
         self.customAudioRepository = customAudioRepository
-        self.soundscapeResolver = soundscapeResolver ?? SoundscapeResolver(
-            soundRepository: soundRepository,
-            customAudioRepository: customAudioRepository
-        )
+        self.soundscapeResolver = soundscapeResolver
 
         let praxis = praxisRepository.load()
         self.currentPraxis = praxis

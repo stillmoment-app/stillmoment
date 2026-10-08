@@ -15,7 +15,7 @@ import SwiftUI
 struct GuidedMeditationSettingsSection: View {
     // MARK: Lifecycle
 
-    init(settingsRepository: GuidedSettingsRepository = GuidedMeditationSettingsRepository()) {
+    init(settingsRepository: GuidedSettingsRepository) {
         self.settingsRepository = settingsRepository
         let settings = settingsRepository.load()
         _preparationTimeEnabled = State(initialValue: settings.preparationTimeSeconds != nil)
@@ -92,7 +92,7 @@ struct GuidedMeditationSettingsSection: View {
 #Preview("Preparation Disabled") {
     NavigationStack {
         Form {
-            GuidedMeditationSettingsSection()
+            GuidedMeditationSettingsSection(settingsRepository: AppDependencies.live().guidedSettingsRepository)
         }
         .scrollContentBackground(.hidden)
     }
@@ -104,7 +104,7 @@ struct GuidedMeditationSettingsSection: View {
         Form {
             GuidedMeditationSettingsSection(
                 settingsRepository: {
-                    let repo = GuidedMeditationSettingsRepository()
+                    let repo = AppDependencies.live().guidedSettingsRepository
                     repo.save(GuidedMeditationSettings(preparationTimeSeconds: 15))
                     return repo
                 }()

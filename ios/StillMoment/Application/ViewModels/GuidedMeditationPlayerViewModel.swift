@@ -51,12 +51,12 @@ final class GuidedMeditationPlayerViewModel: ObservableObject {
     init(
         meditation: GuidedMeditation,
         preparationTimeSeconds: Int? = nil,
-        playerService: AudioPlayerServiceProtocol = AudioPlayerService(),
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
-        clock: ClockProtocol = SystemClock(),
-        gongPlayer: MeditationGongPlayerProtocol = MeditationGongPlayer(),
-        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository()
+        playerService: AudioPlayerServiceProtocol,
+        meditationService: GuidedMeditationServiceProtocol,
+        waveformProvider: WaveformProviderProtocol,
+        clock: ClockProtocol,
+        gongPlayer: MeditationGongPlayerProtocol,
+        praxisRepository: PraxisRepository
     ) {
         self.meditation = meditation
         self.preparationTimeSeconds = preparationTimeSeconds

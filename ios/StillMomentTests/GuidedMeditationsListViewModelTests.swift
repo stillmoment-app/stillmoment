@@ -38,6 +38,7 @@ final class GuidedMeditationsListViewModelTests: XCTestCase {
             metadataService: self.mockMetadataService,
             audioService: self.mockAudioService,
             meditationSourceRepository: self.mockMeditationSourceRepository,
+            searchHistoryStore: MockSearchHistoryStore(),
             waveformProvider: self.mockWaveformProvider
         )
     }

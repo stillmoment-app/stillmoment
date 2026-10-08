@@ -12,6 +12,11 @@ import SwiftUI
 /// Theme/Appearance are handled by the reusable `GeneralSettingsSection`.
 /// Info rows navigate to sub-screens or open external links.
 struct AppSettingsView: View {
+    // MARK: Internal
+
+    /// Persists the guided-meditation settings (preparation time).
+    let settingsRepository: GuidedSettingsRepository
+
     @Environment(\.themeColors)
     private var theme
 
@@ -24,7 +29,7 @@ struct AppSettingsView: View {
 
             Form {
                 GeneralSettingsSection()
-                GuidedMeditationSettingsSection()
+                GuidedMeditationSettingsSection(settingsRepository: self.settingsRepository)
                 self.infoSection
                 #if DEBUG
                 self.debugSection
@@ -110,6 +115,6 @@ struct AppSettingsView: View {
 @available(iOS 17.0, *)
 #Preview {
     NavigationStack {
-        AppSettingsView()
+        AppSettingsView(settingsRepository: AppDependencies.live().guidedSettingsRepository)
     }
 }

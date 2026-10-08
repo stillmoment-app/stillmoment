@@ -246,7 +246,10 @@ extension GuidedMeditationPlayerViewModelTests {
             meditation: trimmed,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,
-            waveformProvider: self.mockWaveformProvider
+            waveformProvider: self.mockWaveformProvider,
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
     }
 }

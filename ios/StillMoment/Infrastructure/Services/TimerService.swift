@@ -13,7 +13,7 @@ import OSLog
 final class TimerService: TimerServiceProtocol {
     // MARK: Lifecycle
 
-    init(clock: ClockProtocol = SystemClock()) {
+    init(clock: ClockProtocol) {
         self.clock = clock
     }
 

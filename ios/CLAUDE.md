@@ -18,8 +18,8 @@ final class TimerViewModel: ObservableObject {
     @Published var settings: MeditationSettings = .default
 
     init(
-        timerService: TimerServiceProtocol = TimerService(),
-        audioService: AudioServiceProtocol = AudioService()
+        timerService: TimerServiceProtocol,
+        audioService: AudioServiceProtocol
     ) { ... }
 }
 ```
@@ -41,6 +41,33 @@ final class AudioService: AudioServiceProtocol { ... }
 ```
 
 Constructor injection everywhere — no service locators, no singletons (except `AudioSessionCoordinator.shared`).
+
+### Composition Root: services are created only at the app entry (ios-055)
+
+All services (Services, Repositories, Providers, Clock) are created in exactly one place:
+`AppDependencies.live()` (`StillMoment/AppDependencies.swift`), called once in `StillMomentApp.init`.
+Everything below receives its dependencies through initializers (Pure DI, no container library).
+
+- **No default argument that creates a service.** `waveformProvider: WaveformProviderProtocol = WaveformProvider()`
+  is forbidden — a forgotten hand-over silently creates a second instance, and stateful services break
+  (duplicate waveform decoding, overwritten audio conflict handler). Without the default, the build fails.
+  Default arguments for plain values (numbers, flags, configuration) are fine.
+- **No service creation inside ViewModels, Views or other services.** A new screen that needs a service
+  gets it handed down by its caller, across several views if necessary.
+- **Who gets what:** Only views that build a ViewModel receive the `AppDependencies` struct (e.g.
+  `GuidedMeditationsListView` → `GuidedMeditationPlayerView`). ViewModels and services never receive the
+  struct, only their individual dependencies.
+- **Lifetime:** Services with app-wide state (`AudioService`, `WaveformProvider`, `GuidedMeditationService`,
+  `TimerService`, repositories) exist once. Services whose state belongs to a single playback
+  (`AudioPlayerService`, the player's `MeditationGongPlayer`) are created per player through the
+  `makeAudioPlayerService` / `makeGongPlayer` factories — still only inside `AppDependencies`.
+- **Previews and tests** build their own doubles (`Preview…`, `Mock…`) or call `AppDependencies.live()`.
+  Tests use `AudioService.makeForTesting()` (`StillMomentTests/Helpers/`) for a real `AudioService`.
+- **Enforced by `make check`:** SwiftLint custom rule `service_created_outside_composition_root` flags any
+  constructor call of a `…Service/Repository/Provider/Clock/GongPlayer/Resolver/Handler/Store` type outside
+  `StillMomentApp.swift` / `AppDependencies.swift` (tests, UI tests, Screenshots target and `*+Previews.swift`
+  are exempt; `Preview…`/`Mock…`/`AV…` types are allowed). `scripts/lint-selftest.sh` proves against a
+  fixture that the rule still fires.
 
 ### Combine Bindings
 

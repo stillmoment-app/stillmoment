@@ -23,7 +23,10 @@ final class PraxisRepositoryTests: XCTestCase {
         self.testDefaults = UserDefaults(suiteName: Self.suiteName)
         self.testDefaults?.removePersistentDomain(forName: Self.suiteName)
         if let defaults = testDefaults {
-            self.sut = UserDefaultsPraxisRepository(userDefaults: defaults)
+            self.sut = UserDefaultsPraxisRepository(
+                userDefaults: defaults,
+                settingsRepository: UserDefaultsTimerSettingsRepository(userDefaults: defaults)
+            )
         }
     }
 
@@ -152,11 +155,17 @@ final class PraxisRepositoryTests: XCTestCase {
         guard let testDefaults else {
             return XCTFail("testDefaults not initialized")
         }
-        let repo1 = UserDefaultsPraxisRepository(userDefaults: testDefaults)
+        let repo1 = UserDefaultsPraxisRepository(
+            userDefaults: testDefaults,
+            settingsRepository: UserDefaultsTimerSettingsRepository(userDefaults: testDefaults)
+        )
         let praxis = Praxis(durationMinutes: 45)
         repo1.save(praxis)
 
-        let repo2 = UserDefaultsPraxisRepository(userDefaults: testDefaults)
+        let repo2 = UserDefaultsPraxisRepository(
+            userDefaults: testDefaults,
+            settingsRepository: UserDefaultsTimerSettingsRepository(userDefaults: testDefaults)
+        )
         let loaded = repo2.load()
 
         XCTAssertEqual(loaded.durationMinutes, 45)

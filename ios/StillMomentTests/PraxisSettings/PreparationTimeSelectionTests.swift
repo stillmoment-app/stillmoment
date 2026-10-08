@@ -28,7 +28,8 @@ final class PreparationTimeSelectionTests: XCTestCase {
             praxis: .default,
             repository: self.mockRepository,
             audioService: MockAudioService(),
-            soundRepository: MockBackgroundSoundRepository()
+            soundRepository: MockBackgroundSoundRepository(),
+            customAudioRepository: MockCustomAudioRepository()
         ) { _ in }
     }
 

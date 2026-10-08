@@ -19,10 +19,10 @@ final class PraxisSettingsViewModel: ObservableObject {
 
     init(
         praxis: Praxis,
-        repository: PraxisRepository = UserDefaultsPraxisRepository(),
-        audioService: AudioServiceProtocol = AudioService(),
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
-        customAudioRepository: CustomAudioRepositoryProtocol = CustomAudioRepository(),
+        repository: PraxisRepository,
+        audioService: AudioServiceProtocol,
+        soundRepository: BackgroundSoundRepositoryProtocol,
+        customAudioRepository: CustomAudioRepositoryProtocol,
         onSaved: @escaping (Praxis) -> Void
     ) {
         self.praxisId = praxis.id

@@ -18,10 +18,7 @@ final class AudioServiceBackgroundPreviewTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService(
-            coordinator: AudioSessionCoordinator.shared,
-            fadeOutDuration: 0.05
-        )
+        self.sut = AudioService.makeForTesting(fadeOutDuration: 0.05)
     }
 
     override func tearDown() {

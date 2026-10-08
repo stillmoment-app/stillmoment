@@ -66,7 +66,10 @@ final class PlayerPreparationTests: XCTestCase {
             preparationTimeSeconds: preparationTimeSeconds,
             playerService: self.mockPlayerService,
             meditationService: self.mockMeditationService,
-            clock: self.mockClock
+            waveformProvider: MockWaveformProvider(),
+            clock: self.mockClock,
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
     }
 

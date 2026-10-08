@@ -22,7 +22,11 @@ extension GuidedMeditationPlayerViewModelTests {
             meditation: GuidedMeditationTestHelpers.createTestMeditation(fileURL: self.tempFileURL),
             preparationTimeSeconds: 10,
             playerService: self.mockPlayerService,
-            meditationService: self.mockMeditationService
+            meditationService: self.mockMeditationService,
+            waveformProvider: MockWaveformProvider(),
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
         await viewModel.loadAudio()
 

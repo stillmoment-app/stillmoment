@@ -25,9 +25,9 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
 
     init(
         coordinator: AudioSessionCoordinatorProtocol,
-        nowPlayingProvider: NowPlayingInfoProvider = SystemNowPlayingInfoProvider(),
-        soundRepository: BackgroundSoundRepositoryProtocol = BackgroundSoundRepository(),
-        gongPlayer: MeditationGongPlayerProtocol = MeditationGongPlayer()
+        nowPlayingProvider: NowPlayingInfoProvider,
+        soundRepository: BackgroundSoundRepositoryProtocol,
+        gongPlayer: MeditationGongPlayerProtocol
     ) {
         self.coordinator = coordinator
         self.nowPlayingProvider = nowPlayingProvider
@@ -36,10 +36,6 @@ final class AudioPlayerService: NSObject, AudioPlayerServiceProtocol {
         super.init()
         self.setupNotifications()
         self.registerConflictHandler()
-    }
-
-    override convenience init() {
-        self.init(coordinator: AudioSessionCoordinator.shared)
     }
 
     // MARK: Internal

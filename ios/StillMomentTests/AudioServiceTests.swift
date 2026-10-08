@@ -15,10 +15,7 @@ final class AudioServiceTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService(
-            coordinator: AudioSessionCoordinator.shared,
-            fadeOutDuration: 0.05
-        )
+        self.sut = AudioService.makeForTesting(fadeOutDuration: 0.05)
     }
 
     override func tearDown() {
@@ -96,7 +93,7 @@ final class AudioServiceTests: XCTestCase {
 
         // Then - Should not crash (deinit calls stop())
         // Create new instance to continue testing
-        self.sut = AudioService()
+        self.sut = AudioService.makeForTesting()
     }
 
     func testAudioSessionOptionsForBackgroundPlayback() throws {
@@ -110,7 +107,7 @@ final class AudioServiceTests: XCTestCase {
 
     func testErrorHandlingForMissingFile() {
         // Given - Create a new AudioService instance
-        _ = AudioService()
+        _ = AudioService.makeForTesting()
 
         // When - Try to play with missing file (this would fail if Bundle.main.url returns nil)
         // The actual implementation throws AudioServiceError.soundFileNotFound
@@ -438,7 +435,7 @@ final class AudioServiceTests: XCTestCase {
         let testCoordinator = AudioSessionCoordinator.shared
 
         // When - Create service with custom coordinator
-        let service = AudioService(coordinator: testCoordinator)
+        let service = AudioService.makeForTesting(coordinator: testCoordinator)
 
         // Then - Should initialize successfully
         XCTAssertNotNil(service)

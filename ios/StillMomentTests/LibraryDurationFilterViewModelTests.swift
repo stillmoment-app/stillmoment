@@ -17,7 +17,11 @@ final class LibraryDurationFilterViewModelTests: XCTestCase {
         super.setUp()
         self.sut = GuidedMeditationsListViewModel(
             meditationService: MockGuidedMeditationService(),
-            searchHistoryStore: MockSearchHistoryStore()
+            metadataService: MockAudioMetadataService(),
+            audioService: MockAudioService(),
+            meditationSourceRepository: MockMeditationSourceRepository(),
+            searchHistoryStore: MockSearchHistoryStore(),
+            waveformProvider: MockWaveformProvider()
         )
         self.sut.meditations = self.makeLibrary()
     }

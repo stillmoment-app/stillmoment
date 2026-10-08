@@ -19,7 +19,7 @@ final class AudioServicePreviewSessionTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.mockCoordinator = MockAudioSessionCoordinator()
-        self.sut = AudioService(coordinator: self.mockCoordinator)
+        self.sut = AudioService.makeForTesting(coordinator: self.mockCoordinator)
     }
 
     override func tearDown() {

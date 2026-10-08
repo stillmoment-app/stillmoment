@@ -52,9 +52,10 @@ struct GuidedMeditationEditSheet: View {
         meditation: GuidedMeditation,
         mode: GuidedMeditationEditSheetMode = .edit,
         availableTeachers: [String] = [],
-        audioService: AudioServiceProtocol = AudioService(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider(),
-        praxisRepository: PraxisRepository = UserDefaultsPraxisRepository(),
+        audioService: AudioServiceProtocol,
+        waveformProvider: WaveformProviderProtocol,
+        meditationService: GuidedMeditationServiceProtocol,
+        praxisRepository: PraxisRepository,
         onSave: @escaping (GuidedMeditation) -> Void,
         onCancel: @escaping () -> Void
     ) {
@@ -63,6 +64,7 @@ struct GuidedMeditationEditSheet: View {
         self.availableTeachers = availableTeachers
         self.audioService = audioService
         self.waveformProvider = waveformProvider
+        self.meditationService = meditationService
         self.praxisRepository = praxisRepository
         self.onSave = onSave
         self.onCancel = onCancel
@@ -291,7 +293,8 @@ struct GuidedMeditationEditSheet: View {
             TrimEditorSheet(
                 meditation: self.meditationWithPendingTrim,
                 audioService: self.audioService,
-                waveformProvider: self.waveformProvider
+                waveformProvider: self.waveformProvider,
+                meditationService: self.meditationService
             ) { start, end in
                 // "Zurück" übernimmt die Auswahl in den Puffer (shared-112). Save/Discard
                 // entscheidet ausschliesslich der äussere Editor — eine geänderte Auswahl
@@ -355,6 +358,7 @@ struct GuidedMeditationEditSheet: View {
 
     private let audioService: AudioServiceProtocol
     private let waveformProvider: WaveformProviderProtocol
+    private let meditationService: GuidedMeditationServiceProtocol
     private let praxisRepository: PraxisRepository
 
     /// Plays a preview of the selected gong at the timer settings' gong volume.
@@ -445,12 +449,19 @@ private let previewMeditation = GuidedMeditation(
     name: "Body Scan Meditation"
 )
 
+// MockPreviewAudioService, PreviewWaveformProvider and PreviewMeditationService are
+// #if DEBUG-only, so these previews must be gated too (Release archive).
+#if DEBUG
 @available(iOS 17.0, *)
 #Preview("Edit") {
     GuidedMeditationEditSheet(
         meditation: previewMeditation,
         mode: .edit,
         availableTeachers: ["Jon Kabat-Zinn", "Jack Kornfield", "Tara Brach", "Joseph Goldstein"],
+        audioService: MockPreviewAudioService(),
+        waveformProvider: PreviewWaveformProvider(),
+        meditationService: PreviewMeditationService(),
+        praxisRepository: AppDependencies.live().praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )
@@ -462,6 +473,10 @@ private let previewMeditation = GuidedMeditation(
         meditation: previewMeditation,
         mode: .importMode,
         availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
+        audioService: MockPreviewAudioService(),
+        waveformProvider: PreviewWaveformProvider(),
+        meditationService: PreviewMeditationService(),
+        praxisRepository: AppDependencies.live().praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )
@@ -480,7 +495,12 @@ private let previewMeditation = GuidedMeditation(
         meditation: draft,
         mode: .importMode,
         availableTeachers: ["Jon Kabat-Zinn", "Tara Brach"],
+        audioService: MockPreviewAudioService(),
+        waveformProvider: PreviewWaveformProvider(),
+        meditationService: PreviewMeditationService(),
+        praxisRepository: AppDependencies.live().praxisRepository,
         onSave: { _ in },
         onCancel: {}
     )
 }
+#endif

@@ -30,7 +30,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         self.sut = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
     }
 
@@ -59,7 +62,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: ViewModel should have the praxis's settings
@@ -85,7 +91,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then
@@ -106,7 +115,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let viewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: selectedMinutes reflects stored duration
@@ -122,7 +134,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Duration should be restored
@@ -140,7 +155,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: self.mockPraxisRepository
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: self.mockPraxisRepository,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should still have default (10) from stored praxis, not the changed value
@@ -155,7 +173,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: freshPraxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: freshPraxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should use default of 10 minutes
@@ -173,7 +194,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should still use the invalid ID (AudioService will handle the error)
@@ -198,7 +222,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: freshPraxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: freshPraxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should use default "silent"
@@ -216,7 +243,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Volume should be restored
@@ -231,7 +261,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: freshPraxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: freshPraxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should use default (0.15)
@@ -275,7 +308,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Volume should be restored
@@ -290,7 +326,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: freshPraxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: freshPraxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should use default (1.0 = 100%)
@@ -329,7 +368,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: freshPraxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: freshPraxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Should use defaults: enabled with 10 seconds
@@ -346,7 +388,10 @@ final class TimerViewModelSettingsTests: XCTestCase {
         let newViewModel = TimerViewModel(
             timerService: self.mockTimerService,
             audioService: self.mockAudioService,
-            praxisRepository: praxisRepo
+            soundRepository: MockBackgroundSoundRepository(),
+            praxisRepository: praxisRepo,
+            customAudioRepository: MockCustomAudioRepository(),
+            soundscapeResolver: MockSoundscapeResolver()
         )
 
         // Then: Settings should be restored

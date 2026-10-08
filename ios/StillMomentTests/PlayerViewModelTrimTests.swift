@@ -116,7 +116,11 @@ final class PlayerViewModelTrimTests: XCTestCase {
         let sut = GuidedMeditationPlayerViewModel(
             meditation: meditation,
             playerService: mock,
-            meditationService: MockGuidedMeditationService()
+            meditationService: MockGuidedMeditationService(),
+            waveformProvider: MockWaveformProvider(),
+            clock: MockClock(),
+            gongPlayer: MockMeditationGongPlayer(),
+            praxisRepository: MockPraxisRepository()
         )
         return (sut, mock)
     }

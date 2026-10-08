@@ -16,7 +16,7 @@ final class AudioServiceKeepAliveTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        self.sut = AudioService()
+        self.sut = AudioService.makeForTesting()
     }
 
     override func tearDown() {
@@ -106,6 +106,28 @@ final class AudioServiceKeepAliveTests: XCTestCase {
 
         // Then — session deactivates cleanly
         self.sut.deactivateTimerSession()
+    }
+
+    // MARK: - Shared Instance (ios-055)
+
+    func testKeepAliveSurvivesPreviewStopsFromOtherScreensOnSharedInstance() throws {
+        // ios-055: Timer, Bibliothek, Edit-Sheet, Trim-Editor und Praxis-Einstellungen teilen
+        // sich EINE AudioService-Instanz. Wenn diese Bildschirme beim Verlassen ihre
+        // Vorschauen stoppen, darf das die laufende Timer-Session nicht beruehren —
+        // sonst geht die App auf dem Lock Screen schlafen und die Gongs bleiben stumm.
+
+        // Given — a running timer session keeps the app alive
+        try self.sut.activateTimerSession()
+        XCTAssertTrue(self.sut.isKeepAliveActive)
+
+        // When — other screens stop their previews on the same instance
+        self.sut.stopMeditationPreview() // Library row / Trim-Editor
+        self.sut.stopGongPreview() // Edit-Sheet onDisappear, Praxis settings
+        self.sut.stopBackgroundPreview() // Praxis settings
+
+        // Then — the timer session and its keep-alive are untouched
+        XCTAssertTrue(self.sut.timerSessionActive, "Preview stops must not end the timer session")
+        XCTAssertTrue(self.sut.isKeepAliveActive, "Preview stops must not stop keep-alive")
     }
 
     // MARK: - No Keep-Alive Activity After Deactivation

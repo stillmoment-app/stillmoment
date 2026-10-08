@@ -72,8 +72,8 @@ final class FileOpenHandler: ObservableObject {
     // MARK: Lifecycle
 
     init(
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        metadataService: AudioMetadataServiceProtocol = AudioMetadataService()
+        meditationService: GuidedMeditationServiceProtocol,
+        metadataService: AudioMetadataServiceProtocol
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService

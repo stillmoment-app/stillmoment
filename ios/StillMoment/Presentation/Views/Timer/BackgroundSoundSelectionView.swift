@@ -317,7 +317,7 @@ private extension BackgroundSoundSelectionView {
 @available(iOS 17.0, *)
 #Preview("Background Sound Selection") {
     NavigationStack {
-        BackgroundSoundSelectionView(viewModel: PraxisSettingsViewModel(praxis: .default) { _ in })
+        BackgroundSoundSelectionView(viewModel: .preview())
     }
 }
 #endif

@@ -17,9 +17,13 @@ import OSLog
 final class UserDefaultsPraxisRepository: PraxisRepository {
     // MARK: Lifecycle
 
-    init(userDefaults: UserDefaults = .standard) {
+    /// - Parameters:
+    ///   - userDefaults: Storage for the current Praxis.
+    ///   - settingsRepository: Reads the legacy `MeditationSettings` for the one-time
+    ///     migration. Must read from the same `userDefaults`.
+    init(userDefaults: UserDefaults = .standard, settingsRepository: UserDefaultsTimerSettingsRepository) {
         self.userDefaults = userDefaults
-        self.settingsRepository = UserDefaultsTimerSettingsRepository(userDefaults: userDefaults)
+        self.settingsRepository = settingsRepository
     }
 
     // MARK: Internal

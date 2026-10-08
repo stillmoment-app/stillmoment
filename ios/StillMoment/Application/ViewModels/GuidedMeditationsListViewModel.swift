@@ -23,12 +23,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     // MARK: - Initialization
 
     init(
-        meditationService: GuidedMeditationServiceProtocol = GuidedMeditationService(),
-        metadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
-        audioService: AudioServiceProtocol = AudioService(),
-        meditationSourceRepository: MeditationSourceRepositoryProtocol = MeditationSourceRepository(),
-        searchHistoryStore: SearchHistoryStore = UserDefaultsSearchHistoryStore(),
-        waveformProvider: WaveformProviderProtocol = WaveformProvider()
+        meditationService: GuidedMeditationServiceProtocol,
+        metadataService: AudioMetadataServiceProtocol,
+        audioService: AudioServiceProtocol,
+        meditationSourceRepository: MeditationSourceRepositoryProtocol,
+        searchHistoryStore: SearchHistoryStore,
+        waveformProvider: WaveformProviderProtocol
     ) {
         self.meditationService = meditationService
         self.metadataService = metadataService
