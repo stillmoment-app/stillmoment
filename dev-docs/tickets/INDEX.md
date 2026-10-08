@@ -150,6 +150,9 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-126](shared/shared-126-timer-start-als-play-knopf.md) | Timer-Start als runder Play-Knopf | 4-Polish | [ ] | [ ] |
+| [shared-127](shared/shared-127-datenschutz-netzwerkzugriffe-ehrlich.md) | Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren | 1-Quick Fix | [ ] | [ ] |
+| [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [ ] | [ ] |
+| [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
 
 ---
 
@@ -205,6 +208,7 @@ Unified Ticket-System fuer iOS und Android mit Cross-Platform Support.
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | ios-048 |
 | [ios-051](ios/ios-051-library-header-suchfeld-sichtbar.md) | Library-Header — Suchfeld immer sichtbar, Titel raus | 4-Polish | [x] | ios-041 |
 | [ios-052](ios/ios-052-library-bottom-fade.md) | Bibliothek — letzte Zeile verschwindet im unteren Verlauf | 4-Polish | [x] | shared-094 |
+| [ios-053](ios/ios-053-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | shared-128 |
 
 ---
 
