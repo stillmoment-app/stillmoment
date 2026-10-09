@@ -85,6 +85,21 @@
 			);
 			target = CA2BA7202F648EB500400927 /* StillMomentShareExtension */;
 		};
+		CA2BA7312F648EB500400927 /* Exceptions for "StillMoment" folder in "StillMomentShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Domain/Models/ShareOutcome.swift,
+				Presentation/Theme/ThemeColors.swift,
+				"Presentation/Theme/ThemeColors+Palettes.swift",
+				Presentation/Views/Shared/TextStyle.swift,
+				"Presentation/Views/Shared/View+TextStyle.swift",
+				"Resources/Fonts/Geist-Medium.ttf",
+				"Resources/Fonts/Geist-Regular.ttf",
+				"Resources/Fonts/Newsreader16pt-Light.ttf",
+				"Resources/Fonts/Newsreader16pt-Regular.ttf",
+			);
+			target = CA2BA7202F648EB500400927 /* StillMomentShareExtension */;
+		};
 		CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -115,6 +130,7 @@
 			exceptions = (
 				CABCE91F2EAE3C430059FC11 /* Exceptions for "StillMoment" folder in "StillMoment" target */,
 				SCREENSHOTS123456789ABCDEF /* Exceptions for "StillMoment" folder in "StillMoment-Screenshots" target */,
+				CA2BA7312F648EB500400927 /* Exceptions for "StillMoment" folder in "StillMomentShareExtension" target */,
 			);
 			path = StillMoment;
 			sourceTree = "<group>";

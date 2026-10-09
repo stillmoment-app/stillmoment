@@ -3,8 +3,24 @@
   StillMomentShareExtension
 */
 
+// Sender line (brand name, not translated)
+"share.sender" = "Still Moment";
+
+// Confirmation after sharing successfully
+"share.confirmation.title" = "Almost there";
+"share.confirmation.message" = "Open Still Moment to add the recording to your library.";
+
+// Unsupported file format
+"share.unsupportedFormat.title" = "This file format is not supported";
+"share.unsupportedFormat.message" = "Only MP3 and M4A files can be imported.";
+
+// Link that is not a web address
+"share.noLink.title" = "No link found";
+"share.noLink.message" = "We couldn’t find a link in the shared content.";
+
+// Unreadable or missing content
 "share.error.title" = "Import Failed";
 "share.error.message" = "The file could not be prepared for import.";
-"share.success.title" = "Saved to Still Moment";
-"share.success.message" = "Open Still Moment to continue the import.";
-"common.ok" = "OK";
+
+// Button that ends sharing
+"share.button.done" = "Done";

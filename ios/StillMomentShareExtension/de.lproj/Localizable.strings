@@ -3,8 +3,24 @@
   StillMomentShareExtension
 */
 
+// Absenderzeile (Markenname, nicht uebersetzt)
+"share.sender" = "Still Moment";
+
+// Bestaetigung nach erfolgreichem Teilen
+"share.confirmation.title" = "Fast geschafft";
+"share.confirmation.message" = "Öffne Still Moment, um die Aufnahme in deine Bibliothek zu übernehmen.";
+
+// Nicht unterstuetztes Dateiformat
+"share.unsupportedFormat.title" = "Dieses Dateiformat wird nicht unterstützt";
+"share.unsupportedFormat.message" = "Nur MP3- und M4A-Dateien können importiert werden.";
+
+// Link, der keine Webadresse ist
+"share.noLink.title" = "Kein Link gefunden";
+"share.noLink.message" = "In dem geteilten Inhalt war kein Link enthalten.";
+
+// Unlesbarer oder fehlender Inhalt
 "share.error.title" = "Import fehlgeschlagen";
 "share.error.message" = "Die Datei konnte nicht für den Import vorbereitet werden.";
-"share.success.title" = "In Still Moment gespeichert";
-"share.success.message" = "Öffne Still Moment, um den Import fortzusetzen.";
-"common.ok" = "OK";
+
+// Knopf, der das Teilen beendet
+"share.button.done" = "Fertig";
