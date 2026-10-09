@@ -20,6 +20,10 @@ final class ContentGuideViewModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.mockMeditationSourceRepository = MockMeditationSourceRepository()
+        self.mockMeditationSourceRepository.sourcesByLanguage = [
+            "de": [self.makeSource(id: "koeln")],
+            "en": [self.makeSource(id: "tara-brach")]
+        ]
         self.sut = GuidedMeditationsListViewModel(
             meditationService: MockGuidedMeditationService(),
             metadataService: MockAudioMetadataService(),
@@ -36,39 +40,43 @@ final class ContentGuideViewModelTests: XCTestCase {
         super.tearDown()
     }
 
-    func testOpenGuideSheetLoadsSourcesForRequestedLanguage() {
-        // Given
-        self.mockMeditationSourceRepository.catalog = [
-            "de": [self.makeSource(id: "koeln")],
-            "en": [self.makeSource(id: "tara-brach")]
-        ]
-
+    func testGermanUserSeesGermanSourcesFirstAndEnglishBelow() {
         // When
         self.sut.openGuideSheet(languageCode: "de")
 
         // Then
-        XCTAssertEqual(self.mockMeditationSourceRepository.lastRequestedLanguage, "de")
-        XCTAssertEqual(self.sut.guideSources.map(\.id), ["koeln"])
+        XCTAssertEqual(self.sut.guideSourceGroups.map(\.languageCode), ["de", "en"])
+        XCTAssertEqual(self.sut.guideSourceGroups.first?.sources.map(\.id), ["koeln"])
         XCTAssertTrue(self.sut.showingGuideSheet)
     }
 
-    func testOpenGuideSheetFallsBackToEnglishWhenLanguageMissing() {
-        // Given
-        self.mockMeditationSourceRepository.catalog = [
-            "en": [self.makeSource(id: "fallback")]
-        ]
-
+    func testUserWithLanguageWithoutSourcesSeesEnglishFirstAndGermanBelow() {
         // When
         self.sut.openGuideSheet(languageCode: "fr")
 
         // Then
-        XCTAssertEqual(self.sut.guideSources.map(\.id), ["fallback"])
+        XCTAssertEqual(self.sut.guideSourceGroups.map(\.languageCode), ["en", "de"])
         XCTAssertTrue(self.sut.showingGuideSheet)
+    }
+
+    func testOtherLanguageIsNamedInTheGermanUsersLanguage() {
+        // Given
+        self.sut.openGuideSheet(languageCode: "de")
+
+        // Then
+        XCTAssertEqual(self.sut.guideLanguageName(for: "en"), "Englisch")
+    }
+
+    func testOtherLanguageIsNamedInEnglishForUserWithLanguageWithoutSources() {
+        // Given — a French device shows the English list, so names are English, too.
+        self.sut.openGuideSheet(languageCode: "fr")
+
+        // Then
+        XCTAssertEqual(self.sut.guideLanguageName(for: "de"), "German")
     }
 
     func testCloseGuideSheetHidesSheet() {
         // Given
-        self.mockMeditationSourceRepository.catalog = ["en": [self.makeSource(id: "x")]]
         self.sut.openGuideSheet(languageCode: "en")
         XCTAssertTrue(self.sut.showingGuideSheet)
 
@@ -85,7 +93,7 @@ final class ContentGuideViewModelTests: XCTestCase {
         MeditationSource(
             id: id,
             name: id,
-            author: nil,
+            offer: nil,
             description: "desc",
             host: "h",
             // swiftlint:disable:next force_unwrapping

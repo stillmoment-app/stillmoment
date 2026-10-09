@@ -79,7 +79,8 @@ struct GuidedMeditationsListView: View {
             ThemeRootView {
                 NavigationStack {
                     ContentGuideSheet(
-                        sources: self.viewModel.guideSources,
+                        groups: self.viewModel.guideSourceGroups,
+                        languageName: self.viewModel.guideLanguageName(for:),
                         onDismiss: self.viewModel.closeGuideSheet
                     )
                 }

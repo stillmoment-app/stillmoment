@@ -67,7 +67,8 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     @Published var showingDocumentPicker = false
     @Published var showingEditSheet = false
     @Published var showingGuideSheet = false
-    @Published var guideSources: [MeditationSource] = []
+    /// Curated sources by language for the Content Guide; the first group is the user's own language.
+    @Published var guideSourceGroups: [MeditationSourceGroup] = []
     @Published var meditationToEdit: GuidedMeditation?
     @Published var previewingMeditationId: UUID?
 
@@ -412,12 +413,28 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         self.audioService.seekMeditationPreview(to: time)
     }
 
-    /// Loads curated meditation sources for the given language and shows the guide sheet.
+    /// Loads the curated meditation sources of all languages and shows the guide sheet.
     ///
-    /// - Parameter languageCode: Active language code (`"de"`, `"en"`, …). Falls back to English when unknown.
+    /// The user's own language comes first (English when it has no sources), then English,
+    /// then all other languages alphabetically by their name in the user's language.
+    ///
+    /// - Parameter languageCode: Active language code (`"de"`, `"en"`, …).
     func openGuideSheet(languageCode: String) {
-        self.guideSources = self.meditationSourceRepository.sources(for: languageCode)
+        let catalog = self.meditationSourceRepository.catalog()
+        let ownLanguageCode = catalog.resolvedLanguageCode(for: languageCode)
+        self.guideSourceGroups = catalog.groups(ownLanguageCode: languageCode) { code in
+            Self.languageName(for: code, in: ownLanguageCode)
+        }
         self.showingGuideSheet = true
+    }
+
+    /// Name of a source language as shown in the Content Guide, e.g. "Englisch" for a German user.
+    ///
+    /// Named in the language of the first (own) group, so a French device that shows the
+    /// English list reads "German", not "allemand".
+    func guideLanguageName(for languageCode: String) -> String {
+        let ownLanguageCode = self.guideSourceGroups.first?.languageCode ?? MeditationSourceCatalog.fallbackLanguageCode
+        return Self.languageName(for: languageCode, in: ownLanguageCode)
     }
 
     /// Hides the Content Guide sheet.
@@ -514,4 +531,12 @@ final class GuidedMeditationsListViewModel: ObservableObject {
     private let searchHistoryStore: SearchHistoryStore
     private let waveformProvider: WaveformProviderProtocol
     private var cancellables = Set<AnyCancellable>()
+
+    /// System name of a language in another language, first letter upper-cased
+    /// (`"en"` in `"de"` → "Englisch"). Falls back to the code if the system has no name.
+    private static func languageName(for languageCode: String, in displayLanguageCode: String) -> String {
+        let name = Locale(identifier: displayLanguageCode).localizedString(forLanguageCode: languageCode)
+            ?? languageCode
+        return name.prefix(1).uppercased() + name.dropFirst()
+    }
 }

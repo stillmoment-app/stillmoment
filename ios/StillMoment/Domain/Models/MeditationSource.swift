@@ -9,24 +9,25 @@ import Foundation
 
 /// A curated, free source for guided meditations shown in the Content Guide.
 ///
-/// Source content is loaded from `meditation_sources.json` per locale at runtime.
+/// Source content is loaded from `meditation_sources.json` per language at runtime.
 /// The Domain layer holds the resolved strings — no localization-key lookup in views.
 struct MeditationSource: Identifiable, Equatable {
     /// Stable identifier (e.g. `tara-brach`). Useful for tests and accessibility ids.
     let id: String
 
-    /// Display name (e.g. `Tara Brach`).
+    /// Who stands behind the source — usually the teacher (e.g. `Melissa Gein`).
     let name: String
 
-    /// Optional author/teacher attribution (e.g. `Gil Fronsdal`).
-    let author: String?
+    /// The offer's own name, if it has one (e.g. `Podcast „Einfach meditieren“`).
+    /// `nil` when the source is simply the teacher's own site.
+    let offer: String?
 
-    /// One-sentence description.
+    /// One-sentence description, in the source's language.
     let description: String
 
     /// Display string for the source's host (e.g. `tarabrach.com`).
     let host: String
 
-    /// HTTPS URL opened in the system browser.
+    /// HTTPS URL opened outside the app.
     let url: URL
 }

@@ -355,4 +355,35 @@ final class LibraryFlowUITests: XCTestCase {
             "Podcasts banner should be visible again after back"
         )
     }
+
+    // MARK: - Flow Test 6: Sources of other languages (shared-137)
+
+    /// Own-language sources are open; another language unfolds and folds again without
+    /// leaving the guide sheet. UI tests run in English, so German is the other language.
+    func testOtherLanguageRowUnfoldsAndFoldsItsSources() {
+        self.openContentGuideSheet()
+
+        let ownSource = self.app.descendants(matching: .any)["library.guideSheet.row.tara-brach"]
+        let otherSource = self.app.descendants(matching: .any)["library.guideSheet.row.koeln"]
+        let germanRow = self.app.buttons["library.guideSheet.language.de"]
+
+        XCTAssertTrue(ownSource.waitForExistence(timeout: 2.0), "English sources should be open")
+        XCTAssertTrue(germanRow.waitForExistence(timeout: 2.0), "German row should be shown")
+        XCTAssertFalse(otherSource.exists, "German sources should start collapsed")
+        XCTAssertEqual(germanRow.value as? String, "collapsed")
+
+        germanRow.tap()
+        XCTAssertTrue(otherSource.waitForExistence(timeout: 2.0), "German sources should unfold")
+        XCTAssertEqual(germanRow.value as? String, "expanded")
+
+        germanRow.tap()
+        XCTAssertTrue(
+            otherSource.waitForNonExistence(timeout: 2.0),
+            "German sources should fold again"
+        )
+        XCTAssertTrue(
+            self.app.buttons["library.guideSheet.close"].exists,
+            "Guide sheet should stay open"
+        )
+    }
 }

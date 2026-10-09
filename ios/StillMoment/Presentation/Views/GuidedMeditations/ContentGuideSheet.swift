@@ -2,27 +2,31 @@
 //  ContentGuideSheet.swift
 //  Still Moment
 //
-//  Presentation Layer - Curated, locale-specific list of free meditation sources.
+//  Presentation Layer - Curated list of free meditation sources, grouped by language.
 //
 
 import SwiftUI
 
-/// Sheet listing curated, free meditation sources for the current locale.
+/// Sheet listing curated, free meditation sources.
 ///
 /// Reachable from the empty-state secondary CTA and from the `info.circle`
 /// button in the library nav bar. Source content lives in
-/// `meditation_sources.json`; taps open the URL in the system browser.
+/// `meditation_sources.json`; taps open the URL outside the app.
+/// The sources of the user's own language (first group) are shown open; every
+/// other language follows as a collapsed row (shared-137).
 struct ContentGuideSheet: View {
     // MARK: Lifecycle
 
     init(
-        sources: [MeditationSource],
+        groups: [MeditationSourceGroup],
+        languageName: @escaping (String) -> String,
         onOpenURL: @escaping (URL) -> Void = { url in
             UIApplication.shared.open(url)
         },
         onDismiss: @escaping () -> Void
     ) {
-        self.sources = sources
+        self.groups = groups
+        self.languageName = languageName
         self.onOpenURL = onOpenURL
         self.onDismiss = onDismiss
     }
@@ -39,7 +43,7 @@ struct ContentGuideSheet: View {
                     self.titleRow
                     self.intro
                     self.importBanners
-                    self.sourceList
+                    self.sourceGroups
                 }
                 .padding(.horizontal, 22)
                 .padding(.bottom, 24)
@@ -53,7 +57,12 @@ struct ContentGuideSheet: View {
     @Environment(\.themeColors)
     private var theme
 
-    private let sources: [MeditationSource]
+    /// Language codes whose collapsed row the user has opened. Every opening of the
+    /// sheet starts collapsed; nothing is stored.
+    @State private var expandedLanguageCodes: Set<String> = []
+
+    private let groups: [MeditationSourceGroup]
+    private let languageName: (String) -> String
     private let onOpenURL: (URL) -> Void
     private let onDismiss: () -> Void
 
@@ -126,24 +135,32 @@ struct ContentGuideSheet: View {
         .padding(.bottom, 24)
     }
 
-    private var sourceList: some View {
+    private var sourceGroups: some View {
         VStack(spacing: 0) {
-            ForEach(Array(self.sources.enumerated()), id: \.element.id) { index, source in
-                SourceRow(
-                    source: source,
-                    showsTopDivider: index > 0
-                ) {
-                    self.handleTap(on: source)
-                }
+            if let ownGroup = self.groups.first {
+                MeditationSourceCard(sources: ownGroup.sources, onTap: self.handleTap)
+            }
+            ForEach(self.groups.dropFirst(), id: \.languageCode) { group in
+                OtherLanguageSourcesSection(
+                    group: group,
+                    languageName: self.languageName(group.languageCode),
+                    isExpanded: self.expansionBinding(for: group.languageCode),
+                    onTapSource: self.handleTap
+                )
             }
         }
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(self.theme.cardBackground.opacity(.opacitySecondary))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .strokeBorder(self.theme.cardBorder, lineWidth: 0.5)
+    }
+
+    private func expansionBinding(for languageCode: String) -> Binding<Bool> {
+        Binding(
+            get: { self.expandedLanguageCodes.contains(languageCode) },
+            set: { isExpanded in
+                if isExpanded {
+                    self.expandedLanguageCodes.insert(languageCode)
+                } else {
+                    self.expandedLanguageCodes.remove(languageCode)
+                }
+            }
         )
     }
 
@@ -223,108 +240,38 @@ private struct ImportBannerCard: View {
     }
 }
 
-// MARK: - Row
-
-private struct SourceRow: View {
-    // MARK: Internal
-
-    let source: MeditationSource
-    let showsTopDivider: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: self.onTap) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    self.titleLine
-                    Text(self.source.description)
-                        .textStyle(.caption, color: \.textSecondary)
-                        .multilineTextAlignment(.leading)
-                    Text(self.source.host)
-                        .textStyle(.micro, color: \.textSecondary)
-                        .opacity(.opacitySecondary)
-                }
-                Spacer(minLength: 12)
-                Image(systemName: "arrow.up.right.square")
-                    .font(.system(size: 18, weight: .regular))
-                    .foregroundColor(self.theme.interactive)
-                    .padding(.top, 2)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .overlay(alignment: .top) {
-            if self.showsTopDivider {
-                Rectangle()
-                    .fill(self.theme.cardBorder.opacity(.opacitySecondary))
-                    .frame(height: 0.5)
-                    .padding(.horizontal, 12)
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(self.accessibilityLabel)
-        .accessibilityHint("guided_meditations.guide.openSource")
-        .accessibilityAddTraits(.isLink)
-        .accessibilityIdentifier("library.guideSheet.row.\(self.source.id)")
-    }
-
-    // MARK: Private
-
-    @Environment(\.themeColors)
-    private var theme
-
-    private var accessibilityLabel: String {
-        var parts = [self.source.name]
-        if let author = source.author {
-            parts.append(author)
-        }
-        parts.append(self.source.description)
-        return parts.joined(separator: ", ")
-    }
-
-    @ViewBuilder private var titleLine: some View {
-        if let author = self.source.author {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
-                Text(self.source.name)
-                    .textStyle(.body, color: \.textPrimary)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text("·")
-                    .textStyle(.caption, color: \.textSecondary)
-                    .layoutPriority(1)
-                Text(author)
-                    .textStyle(.caption, color: \.textSecondary)
-                    .layoutPriority(1)
-            }
-        } else {
-            Text(self.source.name)
-                .textStyle(.body, color: \.textPrimary)
-        }
-    }
-}
-
 // MARK: - Previews
 
 #if DEBUG
-private let previewSources: [MeditationSource] = [
-    MeditationSource(
-        id: "tara-brach",
-        name: "Tara Brach",
-        author: nil,
-        description: "Guided meditations, RAIN practice. Direct MP3.",
-        host: "tarabrach.com",
-        url: URL(string: "https://www.tarabrach.com/guided-meditations/")!
-    ),
-    MeditationSource(
-        id: "audio-dharma",
-        name: "Audio Dharma",
-        author: "Gil Fronsdal",
-        description: "Vipassana tradition. Direct MP3.",
-        host: "audiodharma.org",
-        url: URL(string: "https://www.audiodharma.org/")!
-    )
+private let previewGroups: [MeditationSourceGroup] = [
+    MeditationSourceGroup(languageCode: "de", sources: [
+        MeditationSource(
+            id: "gein",
+            name: "Melissa Gein",
+            offer: "Podcast \u{201E}Einfach meditieren\u{201C}",
+            description: "Großes Archiv mit kurzen und langen Übungen.",
+            host: "podcasts.apple.com",
+            url: URL(string: "https://podcasts.apple.com/")!
+        ),
+        MeditationSource(
+            id: "braehler",
+            name: "Christine Brähler",
+            offer: nil,
+            description: "Selbstmitgefühl mit Tiefe: MSC, Herzmeditationen.",
+            host: "christinebraehler.com",
+            url: URL(string: "https://www.christinebraehler.com/")!
+        )
+    ]),
+    MeditationSourceGroup(languageCode: "en", sources: [
+        MeditationSource(
+            id: "tara-brach",
+            name: "Tara Brach",
+            offer: nil,
+            description: "Guided meditations, RAIN practice.",
+            host: "tarabrach.com",
+            url: URL(string: "https://www.tarabrach.com/guided-meditations/")!
+        )
+    ])
 ]
 
 @available(iOS 17.0, *)
@@ -334,7 +281,8 @@ private let previewSources: [MeditationSource] = [
             ThemeRootView {
                 NavigationStack {
                     ContentGuideSheet(
-                        sources: previewSources,
+                        groups: previewGroups,
+                        languageName: { _ in "Englisch" },
                         onOpenURL: { _ in },
                         onDismiss: {}
                     )
