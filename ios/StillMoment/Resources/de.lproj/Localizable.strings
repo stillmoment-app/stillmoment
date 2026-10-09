@@ -150,6 +150,9 @@
 "guided_meditations.guide.intro" = "Gute Meditationen gibt es frei verfügbar auf Webseiten und in Podcasts. Ein paar Empfehlungen findest du unten.";
 "guided_meditations.guide.close" = "Schließen";
 "guided_meditations.guide.openSource" = "Quelle im Browser öffnen";
+"guided_meditations.guide.otherLanguage.title" = "Auch auf %@";
+"guided_meditations.guide.otherLanguage.collapsed" = "eingeklappt";
+"guided_meditations.guide.otherLanguage.expanded" = "aufgeklappt";
 "guided_meditations.guide.info" = "Inhalts-Guide";
 
 // Content Guide - Import-Banner und Anleitungen (shared-039b)

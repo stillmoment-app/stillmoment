@@ -150,6 +150,9 @@
 "guided_meditations.guide.intro" = "Good meditations are freely available on websites and in podcasts. You'll find a few recommendations below.";
 "guided_meditations.guide.close" = "Close";
 "guided_meditations.guide.openSource" = "Open source in browser";
+"guided_meditations.guide.otherLanguage.title" = "Also in %@";
+"guided_meditations.guide.otherLanguage.collapsed" = "collapsed";
+"guided_meditations.guide.otherLanguage.expanded" = "expanded";
 "guided_meditations.guide.info" = "Content guide";
 
 // Content Guide - Import banners and how-to guides (shared-039b)

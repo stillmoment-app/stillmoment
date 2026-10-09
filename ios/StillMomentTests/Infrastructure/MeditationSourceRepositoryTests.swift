@@ -9,77 +9,42 @@ import XCTest
 @testable import StillMoment
 
 final class MeditationSourceRepositoryTests: XCTestCase {
-    private let validJSON = """
-        {
-          "de": [
-            {
-              "id": "mangold",
-              "name": "Achtsamkeit & Selbstmitgefühl",
-              "author": "Jörg Mangold",
-              "description": "MBSR, MSC, Körperscans.",
-              "host": "podcast",
-              "url": "https://example.de/mangold"
-            },
-            {
-              "id": "koeln",
-              "name": "Zentrum für Achtsamkeit Köln",
-              "author": null,
-              "description": "MBSR Body Scan, Sitzmeditation.",
-              "host": "achtsamkeit-koeln.de",
-              "url": "https://example.de/koeln"
-            }
-          ],
-          "en": [
-            {
-              "id": "tara-brach",
-              "name": "Tara Brach",
-              "author": null,
-              "description": "Guided meditations, RAIN practice.",
-              "host": "tarabrach.com",
-              "url": "https://example.com/tara"
-            }
-          ]
-        }
-        """
+    // MARK: Internal
+
+    // MARK: - Decoding
 
     func testDeCatalogHasExpectedEntries() throws {
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        XCTAssertEqual(catalog["de"]?.count, 2)
+        XCTAssertEqual(catalog.sourcesByLanguage["de"]?.count, 2)
     }
 
     func testEnCatalogHasExpectedEntries() throws {
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        XCTAssertEqual(catalog["en"]?.count, 1)
+        XCTAssertEqual(catalog.sourcesByLanguage["en"]?.count, 1)
     }
 
-    func testDeAndEnListsAreIndependent() throws {
+    func testEntryWithOfferPreservesIt() throws {
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        let deIds = Set((catalog["de"] ?? []).map(\.id))
-        let enIds = Set((catalog["en"] ?? []).map(\.id))
-        XCTAssertTrue(deIds.isDisjoint(with: enIds))
+        let mangold = catalog.sourcesByLanguage["de"]?.first { $0.id == "mangold" }
+        XCTAssertEqual(mangold?.name, "Jörg Mangold")
+        XCTAssertEqual(mangold?.offer, "Achtsamkeit & Selbstmitgefühl")
     }
 
-    func testEntryWithAuthorPreservesIt() throws {
+    func testNullOfferBecomesNilInDomain() throws {
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        let mangold = catalog["de"]?.first { $0.id == "mangold" }
-        XCTAssertEqual(mangold?.author, "Jörg Mangold")
+        let braehler = catalog.sourcesByLanguage["de"]?.first { $0.id == "braehler" }
+        XCTAssertNotNil(braehler)
+        XCTAssertNil(braehler?.offer)
     }
 
-    func testNullAuthorBecomesNilInDomain() throws {
-        let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        let koeln = catalog["de"]?.first { $0.id == "koeln" }
-        XCTAssertNotNil(koeln)
-        XCTAssertNil(koeln?.author)
-    }
-
-    func testEmptyAuthorBecomesNilInDomain() throws {
+    func testBlankOfferBecomesNilInDomain() throws {
         let json = """
             {
               "en": [
                 {
                   "id": "x",
                   "name": "X",
-                  "author": "   ",
+                  "offer": "   ",
                   "description": "d",
                   "host": "h",
                   "url": "https://example.com/"
@@ -88,7 +53,7 @@ final class MeditationSourceRepositoryTests: XCTestCase {
             }
             """
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(json.utf8))
-        XCTAssertNil(catalog["en"]?.first?.author)
+        XCTAssertNil(catalog.sourcesByLanguage["en"]?.first?.offer)
     }
 
     func testNonHttpUrlIsRejected() throws {
@@ -98,7 +63,7 @@ final class MeditationSourceRepositoryTests: XCTestCase {
                 {
                   "id": "bad",
                   "name": "Bad",
-                  "author": null,
+                  "offer": null,
                   "description": "d",
                   "host": "h",
                   "url": "javascript:alert(1)"
@@ -106,7 +71,7 @@ final class MeditationSourceRepositoryTests: XCTestCase {
                 {
                   "id": "good",
                   "name": "Good",
-                  "author": null,
+                  "offer": null,
                   "description": "d",
                   "host": "h",
                   "url": "https://example.com/"
@@ -115,49 +80,99 @@ final class MeditationSourceRepositoryTests: XCTestCase {
             }
             """
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(json.utf8))
-        XCTAssertEqual(catalog["en"]?.count, 1)
-        XCTAssertEqual(catalog["en"]?.first?.id, "good")
+        XCTAssertEqual(catalog.sourcesByLanguage["en"]?.map(\.id), ["good"])
     }
 
     func testParsedEntriesExposeAllFields() throws {
         let catalog = try MeditationSourceRepository.decodeCatalog(from: Data(self.validJSON.utf8))
-        let tara = try XCTUnwrap(catalog["en"]?.first)
+        let tara = try XCTUnwrap(catalog.sourcesByLanguage["en"]?.first)
         XCTAssertEqual(tara.name, "Tara Brach")
         XCTAssertEqual(tara.description, "Guided meditations, RAIN practice.")
         XCTAssertEqual(tara.host, "tarabrach.com")
         XCTAssertEqual(tara.url.absoluteString, "https://example.com/tara")
     }
 
-    func testRepositoryFallsBackToEnglishForUnknownLanguage() {
-        let repository = StubMeditationSourceRepository(
-            catalog: ["en": [self.makeSource(id: "fallback")]]
+    // MARK: - Shipped catalog (meditation_sources.json in the app bundle)
+
+    func testShippedCatalogOffersFourGermanAndFourEnglishSources() {
+        let catalog = MeditationSourceRepository(bundle: .main).catalog()
+
+        XCTAssertEqual(
+            catalog.sourcesByLanguage["de"]?.map(\.name),
+            ["Kirsten Tofahrn", "Christine Brähler", "Jörg Mangold", "Melissa Gein"]
         )
-        XCTAssertEqual(repository.sources(for: "fr").map(\.id), ["fallback"])
-    }
-
-    func testRepositoryReturnsEmptyWhenNoEntries() {
-        let repository = StubMeditationSourceRepository(catalog: [:])
-        XCTAssertTrue(repository.sources(for: "en").isEmpty)
-    }
-
-    // MARK: Helpers
-
-    private func makeSource(id: String) -> MeditationSource {
-        MeditationSource(
-            id: id,
-            name: id,
-            author: nil,
-            description: "desc",
-            host: "h",
-            url: URL(string: "https://example.com/")!
+        XCTAssertEqual(
+            catalog.sourcesByLanguage["en"]?.map(\.name),
+            ["Audio Dharma", "Tara Brach", "UCLA Mindful", "Free Mindfulness Project"]
         )
     }
-}
 
-private struct StubMeditationSourceRepository: MeditationSourceRepositoryProtocol {
-    let catalog: [String: [MeditationSource]]
+    func testShippedCatalogNamesTheOfferOnlyWhereItHasItsOwnName() {
+        let sources = self.shippedSources()
+        let offers = Dictionary(uniqueKeysWithValues: sources.map { ($0.name, $0.offer) })
 
-    func sources(for languageCode: String) -> [MeditationSource] {
-        self.catalog[languageCode] ?? self.catalog["en"] ?? []
+        XCTAssertEqual(offers["Kirsten Tofahrn"], "Zentrum für Achtsamkeit Köln")
+        XCTAssertEqual(offers["Christine Brähler"], .some(nil))
+        XCTAssertEqual(offers["Jörg Mangold"], "Achtsamkeit & Selbstmitgefühl")
+        XCTAssertEqual(offers["Melissa Gein"], "Podcast \u{201E}Einfach meditieren\u{201C}")
+        XCTAssertEqual(offers["Tara Brach"], .some(nil))
+        XCTAssertEqual(offers["Audio Dharma"], "Insight Meditation Center")
+        XCTAssertEqual(offers["UCLA Mindful"], "UCLA Health")
+        XCTAssertEqual(offers["Free Mindfulness Project"], .some(nil))
+    }
+
+    func testMelissaGeinLeadsToHerPodcastInApplePodcasts() throws {
+        let gein = try XCTUnwrap(self.shippedSources().first { $0.name == "Melissa Gein" })
+
+        XCTAssertEqual(
+            gein.url.absoluteString,
+            "https://podcasts.apple.com/de/podcast/einfach-meditieren-einfach-achtsam-leben/id1588419775"
+        )
+        XCTAssertEqual(gein.host, "podcasts.apple.com")
+    }
+
+    func testNoShippedDescriptionNamesThePersonWithVon() {
+        for source in self.shippedSources() {
+            XCTAssertFalse(source.description.contains("Von "), "\(source.id): \(source.description)")
+        }
+    }
+
+    // MARK: Private
+
+    private let validJSON = """
+        {
+          "de": [
+            {
+              "id": "mangold",
+              "name": "Jörg Mangold",
+              "offer": "Achtsamkeit & Selbstmitgefühl",
+              "description": "MBSR, MSC, Körperscans.",
+              "host": "example.de",
+              "url": "https://example.de/mangold"
+            },
+            {
+              "id": "braehler",
+              "name": "Christine Brähler",
+              "offer": null,
+              "description": "Selbstmitgefühl mit Tiefe.",
+              "host": "example.de",
+              "url": "https://example.de/braehler"
+            }
+          ],
+          "en": [
+            {
+              "id": "tara-brach",
+              "name": "Tara Brach",
+              "offer": null,
+              "description": "Guided meditations, RAIN practice.",
+              "host": "tarabrach.com",
+              "url": "https://example.com/tara"
+            }
+          ]
+        }
+        """
+
+    private func shippedSources() -> [MeditationSource] {
+        MeditationSourceRepository(bundle: .main).catalog().sourcesByLanguage.values.flatMap { $0 }
     }
 }
