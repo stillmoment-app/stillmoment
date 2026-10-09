@@ -255,6 +255,8 @@
     <string name="app_settings_info_header">Info &amp; Legal</string>
     <string name="app_settings_sound_attributions">Sound Attributions</string>
     <string name="accessibility_app_settings_sound_attributions">Open sound attributions</string>
+    <string name="app_settings_font_attributions">Font Attributions</string>
+    <string name="accessibility_app_settings_font_attributions">Open font attributions</string>
     <string name="app_settings_privacy">Privacy Policy</string>
     <string name="accessibility_app_settings_privacy">Open privacy policy</string>
     <string name="app_settings_rate_app">Rate the App</string>
@@ -283,6 +285,12 @@
     <string name="sound_soft_interval">Soft Interval</string>
     <string name="sound_forest_attribution">Forest Ambience</string>
     <string name="sound_cozy_rain_attribution">Cozy Midnight Rain</string>
+
+    <!-- Font Attributions Screen -->
+    <string name="font_attributions_title">Font Attributions</string>
+    <string name="font_attributions_fonts_header">Fonts</string>
+    <string name="font_attributions_license_header">License</string>
+    <string name="font_attributions_license_intro">Both fonts are licensed under the SIL Open Font License 1.1.</string>
 
     <!-- Praxis short description -->
     <string name="praxis_description_duration">%d min</string>
