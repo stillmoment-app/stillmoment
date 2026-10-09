@@ -89,6 +89,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Domain/Models/ShareOutcome.swift,
+				Domain/Models/URLReference.swift,
+				Infrastructure/Services/ShareInbox.swift,
 				Presentation/Theme/ThemeColors.swift,
 				"Presentation/Theme/ThemeColors+Palettes.swift",
 				Presentation/Views/Shared/TextStyle.swift,

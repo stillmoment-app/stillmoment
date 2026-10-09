@@ -187,64 +187,18 @@ final class ShareViewController: UIViewController {
         return inboxURL
     }
 
-    /// Copies an audio file to the inbox with a UUID prefix for uniqueness
-    ///
-    /// Uses atomic write: writes to a temporary file first, then renames.
-    /// This prevents the main app from reading a half-written file.
+    /// Copies an audio file into the inbox (see `ShareInbox.storeAudioFile`)
     private func copyFileToInbox(from sourceURL: URL) -> URL? {
         guard let inboxDir = self.inboxDirectoryURL()
         else { return nil }
-
-        let filename = sourceURL.lastPathComponent
-        let destinationURL = inboxDir.appendingPathComponent(filename)
-
-        // Atomic write: copy to temp file, then rename
-        let tempURL = inboxDir.appendingPathComponent(".\(UUID().uuidString).tmp")
-
-        do {
-            try FileManager.default.copyItem(at: sourceURL, to: tempURL)
-            try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-            // Reset modification date — original file may be older than the stale threshold
-            try? FileManager.default.setAttributes(
-                [.modificationDate: Date()],
-                ofItemAtPath: destinationURL.path
-            )
-            return destinationURL
-        } catch {
-            try? FileManager.default.removeItem(at: tempURL)
-            return nil
-        }
+        return try? ShareInbox.storeAudioFile(from: sourceURL, in: inboxDir)
     }
 
-    /// Writes a URL reference as JSON to the inbox
-    ///
-    /// Schema: { "url": "...", "filename": "...", "timestamp": "..." }
+    /// Writes a reference to the shared link into the inbox (see `ShareInbox.storeLink`)
     private func writeURLReferenceToInbox(url: URL) -> Bool {
         guard let inboxDir = self.inboxDirectoryURL()
         else { return false }
-
-        let originalFilename = url.lastPathComponent
-        let jsonFilename = "\(originalFilename).json"
-        let destinationURL = inboxDir.appendingPathComponent(jsonFilename)
-
-        let formatter = ISO8601DateFormatter()
-        let reference: [String: String] = [
-            "url": url.absoluteString,
-            "filename": originalFilename,
-            "timestamp": formatter.string(from: Date())
-        ]
-
-        do {
-            let data = try JSONSerialization.data(withJSONObject: reference, options: [.sortedKeys])
-
-            // Atomic write: write to temp file, then rename
-            let tempURL = inboxDir.appendingPathComponent(".\(UUID().uuidString).tmp")
-            try data.write(to: tempURL, options: .atomic)
-            try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-            return true
-        } catch {
-            return false
-        }
+        return (try? ShareInbox.storeLink(url, in: inboxDir)) != nil
     }
 
     // MARK: - Completion

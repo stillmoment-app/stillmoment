@@ -16,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.stillmoment.data.FileOpenHandler
-import com.stillmoment.data.LinkImportHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.UrlAudioValidator
@@ -40,9 +39,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var fileOpenHandler: FileOpenHandler
-
-    @Inject
-    lateinit var linkImportHandler: LinkImportHandler
 
     private val _pendingFileUri = MutableStateFlow<Uri?>(null)
     val pendingFileUri = _pendingFileUri.asStateFlow()
@@ -85,7 +81,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        handleIncomingIntent(intent)
+        // Only a fresh start carries a new share. After re-creation (dark mode,
+        // font size) `intent` is the one already handled — reading it again would
+        // import that entry a second time (shared-132).
+        if (savedInstanceState == null) {
+            handleIncomingIntent(intent)
+        }
 
         setContent {
             val appearanceMode by settingsDataStore.appearanceModeFlow
@@ -103,7 +104,6 @@ class MainActivity : ComponentActivity() {
                     StillMomentNavHost(
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
-                        linkImportHandler = linkImportHandler,
                         pendingFileUri = pendingFileUri,
                         onClearFileUri = ::consumePendingFileUri,
                         pendingDownloadUrl = pendingDownloadUrl,
@@ -118,6 +118,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // singleTask: every further share arrives here. Keep `intent` current so
+        // it never points at an older share.
+        setIntent(intent)
         handleIncomingIntent(intent)
     }
 

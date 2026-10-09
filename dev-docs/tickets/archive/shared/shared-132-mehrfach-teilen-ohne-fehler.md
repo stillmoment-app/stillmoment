@@ -2,14 +2,17 @@
 id: shared-132
 title: "Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: hoch
 depends_on: []
 ---
 
 # Ticket shared-132: Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt
+
+**Plan (iOS)**: `dev-docs/tickets/plans/shared-132-ios.md`
+**Plan (Android)**: `dev-docs/tickets/plans/shared-132-android.md`
 
 ## Was
 
@@ -43,7 +46,7 @@ Wer zweimal teilt, bekommt eine Fehlermeldung, obwohl der erste Import ganz norm
 
 1. iOS: Still Moment schließen (nicht im Vordergrund).
 2. In Safari `https://www.audiodharma.org/talks/25401/download` an Still Moment teilen, direkt danach ein zweites Mal.
-3. Erwartung: Beide Male „In Still Moment gespeichert“, kein „Import fehlgeschlagen“.
+3. Erwartung: Beide Male „Fast geschafft“, kein „Import fehlgeschlagen“.
 4. `https://www.audiodharma.org/talks/25402/download` teilen, dann Still Moment öffnen.
 5. Erwartung: Ein Bearbeiten-Blatt für 25402. Nach dem Speichern steht nur 25402 neu in der Bibliothek.
 6. Android: 25401 teilen und, während er noch lädt, erneut 25401 teilen. Erwartung: ein Import, kein Fehler. Dann während des Ladens 25402 teilen. Erwartung: Importiert wird 25402.
@@ -62,3 +65,14 @@ Wer zweimal teilt, bekommt eine Fehlermeldung, obwohl der erste Import ganz norm
 - Laut Recherche verhält sich Android schon so: Ein neuer Link ersetzt den laufenden Download, derselbe Link wird nicht doppelt geladen. Auf Android ist das Ticket also voraussichtlich nur zu prüfen, nicht umzubauen.
 - Auf iOS übernimmt die App schon heute nur den neuesten geteilten Eintrag. Fehlerhaft ist das Ablegen in der Teilen-Ansicht, wenn ein gleichnamiger Eintrag noch wartet.
 - Bei geteilten Adressen ist der Dateiname oft nichtssagend („download“): 25401 und 25402 sind verschiedene Meditationen.
+
+---
+
+## Ergebnis
+
+- **iOS:** Ursache war `moveItem` auf einen schon vorhandenen Inbox-Namen. Die Ablage liegt jetzt in `ShareInbox` (App- und Extension-Target) und ersetzt einen gleichnamigen wartenden Eintrag atomar (`rename(2)` bzw. `Data.write(.atomic)`). Das Datum einer geteilten Datei wird vor dem Ablegen gesetzt; scheitert das, meldet die Extension einen Fehler statt falschen Erfolg.
+- **Android:** Die Annahme „verhält sich schon so“ stimmte nur zum Teil. Chrome teilt mit `NEW_DOCUMENT | MULTIPLE_TASK`, ohne `launchMode="singleTask"` startete jedes Teilen eine eigene Activity mit eigenem Download (am Emulator belegt). Außerdem lief ein abgelöster Download im Hintergrund weiter, und „Abbrechen“ griff danach nicht. Neu: `SharedLinkImport` im `SharedLinkImportViewModel` (überlebt Neuerzeugung der Activity), `singleTask`, `setIntent` in `onNewIntent`.
+- **Nebenbefund, mit erledigt:** audiodharma.org liefert manche Vorträge (z. B. 25402) als `binary/octet-stream` aus; beide Plattformen lehnten das seit shared-131 ab. Der Typ steht jetzt auf beiden Akzeptanzlisten.
+- **Manuell getestet:** iOS-Simulator (Ticket-Schritte 1–5 in Original-Reihenfolge, „Schon da“, Abspielen von 25402) und Android-Emulator (Schritt 6, „Schon da“, „Abbrechen“, Kaltstart per Teilen, Zurück, Launcher, „Öffnen mit“ zweimal, Benachrichtigung, Dunkelmodus während des Ladens).
+- **Bekannte Einschränkung (Android, bewusst nicht behoben):** Teilt man vom Timer-Tab aus und wechselt während des Ladens den Dunkelmodus, wechselt die App danach nicht von selbst in die Bibliothek. Das Bearbeiten-Blatt geht nicht verloren, es erscheint beim Antippen des Meditationen-Tabs.
+- **Nicht umgesetzt (Folgetickets):** Teilen während eines laufenden Imports (iOS übernimmt erst beim nächsten Öffnen; Android: Datei während Link lädt), Aufräumen von `cacheDir/dl_*` auf Android, Link ohne Pfad auf iOS (stiller Fehlschlag), lange Dateinamen verdrängen die Dauer im Bearbeiten-Blatt.

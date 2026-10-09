@@ -21,9 +21,17 @@
         android:theme="@style/Theme.StillMoment"
         tools:targetApi="36">
 
+        <!--
+          singleTask (shared-132): Chrome teilt Links mit NEW_DOCUMENT | MULTIPLE_TASK.
+          Ohne singleTask startet jedes Teilen eine eigene MainActivity in einem eigenen
+          Task, jede laedt ihren Link selbst - doppelte Downloads, "zuletzt geteilt gewinnt"
+          greift nicht. Mit singleTask gewinnt das Manifest, jedes Teilen landet per
+          onNewIntent in der einen Instanz.
+        -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/Theme.StillMoment">

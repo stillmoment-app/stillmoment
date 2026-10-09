@@ -70,7 +70,9 @@ class UrlAudioDownloaderImpl @Inject constructor(
         // "audio/mpegurl" / "audio/x-mpegurl" that merely start with an accepted type are rejected.
         // "audio/mp3", "audio/x-mpeg", "audio/mpeg3" are non-standard but sent by real servers
         // (e.g. audiodharma's S3 backend at linodeobjects.com) instead of the official "audio/mpeg".
-        // "application/octet-stream" included as fallback: servers often don't set specific audio types
+        // "application/octet-stream" included as fallback: servers often don't set specific audio types.
+        // "binary/octet-stream" is the S3 default for objects stored without a type (e.g. audiodharma
+        // talk 25402, shared-132) — same meaning, accepted like on iOS.
         private val SUPPORTED_CONTENT_TYPES = setOf(
             "audio/mpeg",
             "audio/mp3",
@@ -79,7 +81,8 @@ class UrlAudioDownloaderImpl @Inject constructor(
             "audio/mp4",
             "audio/x-m4a",
             "audio/m4a",
-            "application/octet-stream"
+            "application/octet-stream",
+            "binary/octet-stream"
         )
 
         private val AUDIO_EXTENSIONS = setOf("mp3", "m4a")
@@ -211,7 +214,7 @@ class UrlAudioDownloaderImpl @Inject constructor(
 
     /**
      * Default filename based on Content-Type. `audio/mp4` and `audio/x-m4a` → m4a;
-     * everything else (audio/mpeg, application/octet-stream, missing) → mp3.
+     * everything else (audio/mpeg, application/ or binary/octet-stream, missing) → mp3.
      */
     private fun fallbackFilename(contentType: String?): String {
         val lowered = contentType.orEmpty()

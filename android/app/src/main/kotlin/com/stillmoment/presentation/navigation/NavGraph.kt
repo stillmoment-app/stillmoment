@@ -66,14 +66,12 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.stillmoment.R
 import com.stillmoment.data.FileOpenHandler
-import com.stillmoment.data.LinkImportHandler
 import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportPrefill
-import com.stillmoment.domain.models.LinkImportFailure
 import com.stillmoment.presentation.ui.common.DownloadProgressModal
 import com.stillmoment.presentation.ui.common.LinkImportErrorDialog
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
@@ -95,6 +93,7 @@ import com.stillmoment.presentation.viewmodel.CompletionOverlayViewModel
 import com.stillmoment.presentation.viewmodel.FontAttributionsViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
+import com.stillmoment.presentation.viewmodel.SharedLinkImportViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -207,7 +206,6 @@ fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
-    linkImportHandler: LinkImportHandler? = null,
     pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
     pendingDownloadUrl: StateFlow<String?> = MutableStateFlow(null),
@@ -215,7 +213,8 @@ fun StillMomentNavHost(
     invalidShareSignal: StateFlow<Boolean> = MutableStateFlow(false),
     onClearInvalidShareSignal: () -> Unit = {},
     navController: NavHostController = rememberNavController(),
-    overlayViewModel: CompletionOverlayViewModel = hiltViewModel()
+    overlayViewModel: CompletionOverlayViewModel = hiltViewModel(),
+    linkImportViewModel: SharedLinkImportViewModel = hiltViewModel()
 ) {
     var showCompletionOverlay by remember { mutableStateOf(overlayViewModel.isMarkerSetInitially) }
     val playerWiring = remember(overlayViewModel, navController) {
@@ -242,7 +241,18 @@ fun StillMomentNavHost(
     // ON_PAUSE des Library-Eintrags feuert in beiden Faellen und taugt deshalb nicht —
     // dieses Signal unterscheidet die beiden. Gleiches Muster wie stopMeditationSignal.
     val libraryFilterResetSignal = remember { MutableStateFlow(false) }
-    var isDownloading by remember { mutableStateOf(false) }
+    val sharedLinkImport = linkImportViewModel.linkImport
+    val isDownloading by sharedLinkImport.isLoading.collectAsState()
+
+    ImportedLinkEffect(
+        importedLink = linkImportViewModel.importedLink,
+        onConsume = linkImportViewModel::consumeImportedLink,
+        onImport = { imported ->
+            stopMeditationSignal.value = true
+            playerWiring.onSessionInterrupted()
+            pendingMeditationImportUri.value = imported
+        }
+    )
 
     FileOpenEffect(
         fileOpenHandler = fileOpenHandler,
@@ -257,15 +267,9 @@ fun StillMomentNavHost(
     )
 
     DownloadUrlEffect(
-        linkImportHandler = linkImportHandler,
+        sharedLinkImport = sharedLinkImport,
         pendingDownloadUrl = pendingDownloadUrl,
-        onClearDownloadUrl = onClearDownloadUrl,
-        onDownloadingChange = { isDownloading = it },
-        onImport = { imported ->
-            stopMeditationSignal.value = true
-            playerWiring.onSessionInterrupted()
-            pendingMeditationImportUri.value = imported
-        }
+        onClearDownloadUrl = onClearDownloadUrl
     )
 
     InvalidShareEffect(
@@ -313,7 +317,7 @@ fun StillMomentNavHost(
         ) {
             DownloadProgressModal(
                 onCancel = {
-                    linkImportHandler?.cancel()
+                    sharedLinkImport.cancel()
                 }
             )
         }
@@ -694,59 +698,53 @@ private fun NavGraphBuilder.playerComposable(playerWiring: PlayerCompletionWirin
  */
 private data class SharedImport(val uri: Uri, val suggestion: ImportPrefill?)
 
-/** A failed link import plus the shared address, so "Retry" can run the whole import again. */
-private data class FailedLinkImport(val sharedUrl: String, val failure: LinkImportFailure)
+/**
+ * Opens the edit sheet for a link that finished loading. The link waits in the
+ * ViewModel, so a screen re-created during the download still picks it up.
+ */
+@Composable
+private fun ImportedLinkEffect(
+    importedLink: StateFlow<LinkImportOutcome.Imported?>,
+    onConsume: () -> Unit,
+    onImport: (SharedImport) -> Unit
+) {
+    val imported by importedLink.collectAsState()
+    val currentOnConsume by rememberUpdatedState(onConsume)
+    val currentOnImport by rememberUpdatedState(onImport)
+    LaunchedEffect(imported) {
+        val link = imported ?: return@LaunchedEffect
+        currentOnImport(SharedImport(link.uri, link.suggestion))
+        currentOnConsume()
+    }
+}
 
 /**
- * Imports a shared link (ordinary audio link or Apple Podcasts episode) while the
- * loading window is shown. Cancelling in the loading window ends quietly.
+ * Hands every shared link (ordinary audio link or Apple Podcasts episode) to
+ * [SharedLinkImport] and shows its message. Which link wins and what loads is
+ * decided there.
  */
 @Composable
 private fun DownloadUrlEffect(
-    linkImportHandler: LinkImportHandler?,
+    sharedLinkImport: SharedLinkImport,
     pendingDownloadUrl: StateFlow<String?>,
-    onClearDownloadUrl: () -> Unit,
-    onDownloadingChange: (Boolean) -> Unit,
-    onImport: (SharedImport) -> Unit
+    onClearDownloadUrl: () -> Unit
 ) {
     val downloadUrl by pendingDownloadUrl.collectAsState()
-    var failed by remember { mutableStateOf<FailedLinkImport?>(null) }
-    val scope = rememberCoroutineScope()
     val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
-    val currentOnDownloadingChange by rememberUpdatedState(onDownloadingChange)
-    val currentOnImport by rememberUpdatedState(onImport)
 
-    val runImport: suspend (LinkImportHandler, String) -> Unit = { handler, url ->
-        currentOnDownloadingChange(true)
-        val outcome = handler.import(url)
-        currentOnDownloadingChange(false)
-        when (outcome) {
-            is LinkImportOutcome.Imported -> currentOnImport(SharedImport(outcome.uri, outcome.suggestion))
-            is LinkImportOutcome.Failed -> failed = FailedLinkImport(url, outcome.failure)
-            LinkImportOutcome.Cancelled -> Unit
-        }
-    }
-
-    LaunchedEffect(downloadUrl) {
+    LaunchedEffect(downloadUrl, sharedLinkImport) {
         val url = downloadUrl ?: return@LaunchedEffect
-        val handler = linkImportHandler ?: return@LaunchedEffect
-        failed = null
-        runImport(handler, url)
+        sharedLinkImport.share(url)
         currentOnClearDownloadUrl()
     }
 
+    val failed by sharedLinkImport.failure.collectAsState()
     val current = failed
     if (current != null) {
         LinkImportErrorDialog(
             failure = current.failure,
-            onRetry = {
-                failed = null
-                val handler = linkImportHandler
-                if (handler != null) {
-                    scope.launch { runImport(handler, current.sharedUrl) }
-                }
-            },
-            onDismiss = { failed = null }
+            onRetry = sharedLinkImport::retry,
+            onDismiss = sharedLinkImport::dismissFailure
         )
     }
 }

@@ -26,6 +26,12 @@ final class AudioContentTypeTests: XCTestCase {
         }
     }
 
+    func testRecordingServedAsBinaryOctetStreamIsAccepted() {
+        // S3-Standardtyp, wenn beim Hochladen kein Typ gesetzt wurde (audiodharma.org, shared-132)
+        XCTAssertTrue(AudioContentType.isAccepted("binary/octet-stream"))
+        XCTAssertTrue(AudioContentType.isAccepted("Binary/Octet-Stream; charset=UTF-8"))
+    }
+
     func testCaseAndParametersAfterSemicolonDoNotMatter() {
         for contentType in [
             "Audio/MPEG",

@@ -189,6 +189,32 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
+        fun `talk delivered as binary-octet-stream is loaded and saved as mp3`() = runTest {
+            // shared-132: audiodharma talk 25402 comes from S3 without a set type.
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("binary/octet-stream")
+            whenever(mockConnection.getHeaderField("Content-Disposition")).thenReturn(null)
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://www.audiodharma.org/talks/25402/download")
+
+            assertTrue(result.isSuccess) { "Expected success, got ${result.exceptionOrNull()}" }
+            val names = cacheDir.walkTopDown().filter { it.isFile }.map { it.name }.toList()
+            assertTrue("audio.mp3" in names) { "Expected audio.mp3, found: $names" }
+        }
+
+        @Test
+        fun `binary-octet-stream with mixed case and charset is loaded`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("Binary/Octet-Stream; charset=UTF-8")
+            whenever(mockConnection.inputStream).thenReturn(ByteArrayInputStream("data".toByteArray()))
+
+            val result = sut.download("https://www.audiodharma.org/talks/25402/download")
+
+            assertTrue(result.isSuccess) { "Expected success, got ${result.exceptionOrNull()}" }
+        }
+
+        @Test
         fun `accepts null content type`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn(null)
