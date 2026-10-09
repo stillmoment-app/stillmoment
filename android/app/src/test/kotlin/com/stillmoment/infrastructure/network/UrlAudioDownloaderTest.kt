@@ -302,6 +302,27 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
+        fun `empty announced type is rejected`() = runTest {
+            // shared-131: nur eine fehlende Kopfzeile gilt als "kein Typ gemeldet" — ein leerer Typ nicht
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("")
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
+        fun `announced type with only additions is rejected`() = runTest {
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn(";charset=x")
+
+            val result = sut.download("https://example.com/talk.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.NotAudio)
+        }
+
+        @Test
         fun `playlist audio-x-mpegurl is rejected`() = runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("audio/x-mpegurl")
