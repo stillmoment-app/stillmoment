@@ -3,9 +3,11 @@
 //  Still Moment
 //
 //  Share Extension - receives audio files/URLs from Share Sheet,
-//  copies them to the App Group inbox, then opens the main app.
+//  copies them to the App Group inbox and shows a calm confirmation
+//  (or a message) in the app's style (ios-059).
 //
 
+import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
@@ -19,29 +21,80 @@ import UniformTypeIdentifiers
 ///
 /// Flow:
 /// 1. Extract attachment from NSExtensionContext
-/// 2. Audio file → copy to inbox; URL → check scheme, write JSON reference
-/// 3. Open main app via `stillmoment://import` URL scheme
-/// 4. Complete extension request
+/// 2. `ShareOutcome.evaluate` decides: confirmation or which message (format check happens
+///    before anything is copied)
+/// 3. On confirmation: audio file → copy to inbox; URL → write JSON reference.
+///    Writing fails → "unreadable" message
+/// 4. Show `ShareConfirmationView`; "Done" completes the extension request.
+///    The main app picks up the inbox entry on next `scenePhase == .active`
+///    (iOS does not allow Share Extensions to open the containing app).
 final class ShareViewController: UIViewController {
     // MARK: - Constants
 
     private static let appGroupIdentifier = "group.com.stillmoment"
     private static let inboxDirectoryName = "ShareInbox"
-    private static let supportedExtensions: Set<String> = ["mp3", "m4a"]
-    private static let supportedURLSchemes: Set<String> = ["http", "https"]
-    private static let urlScheme = "stillmoment://import"
+
+    // MARK: - State
+
+    private lazy var hostingController = UIHostingController(rootView: self.makeRootView(outcome: nil))
+    private var hasStartedProcessing = false
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Transparent background — no UI in the extension
-        view.backgroundColor = .clear
+        // Always dark (ios-059) — also the sheet chrome provided by the system
+        overrideUserInterfaceStyle = .dark
+        view.backgroundColor = UIColor(ThemeColors.dark.backgroundPrimary)
+        self.embedHostingController()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        guard !self.hasStartedProcessing else {
+            return
+        }
+        self.hasStartedProcessing = true
         self.processSharedItems()
+    }
+
+    // MARK: - UI
+
+    private func embedHostingController() {
+        let hostingView = self.hostingController.view
+        guard let hostingView else {
+            return
+        }
+        addChild(self.hostingController)
+        hostingView.backgroundColor = .clear
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(hostingView)
+        NSLayoutConstraint.activate([
+            hostingView.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        self.hostingController.didMove(toParent: self)
+    }
+
+    private func makeRootView(outcome: ShareOutcome?) -> ShareConfirmationView {
+        ShareConfirmationView(outcome: outcome) { [weak self] in
+            self?.completeRequest()
+        }
+    }
+
+    /// Shows the confirmation or message. Must be called on the main thread.
+    private func show(_ outcome: ShareOutcome) {
+        self.hostingController.rootView = self.makeRootView(outcome: outcome)
+        // Move VoiceOver focus to the newly shown content
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
+    }
+
+    private func showOnMain(_ outcome: ShareOutcome) {
+        DispatchQueue.main.async { [weak self] in
+            self?.show(outcome)
+        }
     }
 
     // MARK: - Processing
@@ -52,7 +105,7 @@ final class ShareViewController: UIViewController {
               let attachments = item.attachments,
               let attachment = attachments.first
         else {
-            self.completeRequest()
+            self.show(ShareOutcome.evaluate(.nothing))
             return
         }
 
@@ -61,8 +114,7 @@ final class ShareViewController: UIViewController {
         } else if attachment.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             self.handleURLAttachment(attachment)
         } else {
-            // Not an audio file or URL — close silently
-            self.completeRequest()
+            self.show(ShareOutcome.evaluate(.nothing))
         }
     }
 
@@ -75,33 +127,22 @@ final class ShareViewController: UIViewController {
 
             guard let url, error == nil
             else {
-                DispatchQueue.main.async {
-                    self.showError()
-                }
+                self.showOnMain(ShareOutcome.evaluate(.nothing))
                 return
             }
 
-            // The URL is only valid during this callback — copy immediately
-            guard let inboxURL = self.copyFileToInbox(from: url) else {
-                DispatchQueue.main.async {
-                    self.showError()
-                }
-                return
-            }
-
-            // Verify it's a supported format
-            guard Self.supportedExtensions.contains(inboxURL.pathExtension.lowercased()) else {
-                try? FileManager.default.removeItem(at: inboxURL)
-                DispatchQueue.main.async {
-                    self.completeRequest()
-                }
-                return
-            }
-
-            DispatchQueue.main.async {
-                self.openMainAppAndComplete()
-            }
+            // The URL is only valid during this callback — check and copy immediately
+            self.showOnMain(self.acceptAudioFile(at: url))
         }
+    }
+
+    /// Checks the format first, so an unsupported file never lands in the inbox.
+    private func acceptAudioFile(at url: URL) -> ShareOutcome {
+        let outcome = ShareOutcome.evaluate(.audioFile(url))
+        guard outcome == .confirmation else {
+            return outcome
+        }
+        return self.copyFileToInbox(from: url) == nil ? .unreadable : .confirmation
     }
 
     // MARK: - URL Handling
@@ -113,35 +154,22 @@ final class ShareViewController: UIViewController {
 
             guard let url = data as? URL, error == nil
             else {
-                DispatchQueue.main.async {
-                    self.completeRequest()
-                }
+                self.showOnMain(ShareOutcome.evaluate(.nothing))
                 return
             }
 
-            // Nur HTTP/HTTPS akzeptieren — alles andere (mailto, file, custom schemes)
-            // kann der Downloader nicht behandeln. Die Audio-Pruefung selbst erfolgt
-            // beim eigentlichen Download in der Haupt-App anhand des Content-Types.
-            let scheme = url.scheme?.lowercased() ?? ""
-            guard Self.supportedURLSchemes.contains(scheme) else {
-                DispatchQueue.main.async {
-                    self.completeRequest()
-                }
-                return
-            }
-
-            // Write URL reference to inbox as JSON
-            guard self.writeURLReferenceToInbox(url: url) else {
-                DispatchQueue.main.async {
-                    self.showError()
-                }
-                return
-            }
-
-            DispatchQueue.main.async {
-                self.openMainAppAndComplete()
-            }
+            self.showOnMain(self.acceptLink(url))
         }
+    }
+
+    /// Only web addresses are accepted — whether audio lives there is decided later
+    /// in the main app (Content-Type on download).
+    private func acceptLink(_ url: URL) -> ShareOutcome {
+        let outcome = ShareOutcome.evaluate(.link(url))
+        guard outcome == .confirmation else {
+            return outcome
+        }
+        return self.writeURLReferenceToInbox(url: url) ? .confirmation : .unreadable
     }
 
     // MARK: - Inbox Operations
@@ -217,75 +245,6 @@ final class ShareViewController: UIViewController {
         } catch {
             return false
         }
-    }
-
-    // MARK: - App Opening
-
-    /// Shows a brief success message, then completes the extension request.
-    ///
-    /// iOS does not allow Share Extensions to open the containing app reliably.
-    /// The main app picks up the inbox entry on next `scenePhase == .active`.
-    private func openMainAppAndComplete() {
-        let title = NSLocalizedString(
-            "share.success.title",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "Saved to Still Moment",
-            comment: "Share extension success message"
-        )
-        let message = NSLocalizedString(
-            "share.success.message",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "Open Still Moment to continue the import.",
-            comment: "Share extension success instruction"
-        )
-        let okTitle = NSLocalizedString(
-            "common.ok",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "OK",
-            comment: "OK button"
-        )
-
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: okTitle, style: .default) { [weak self] _ in
-            self?.completeRequest()
-        })
-        self.present(alert, animated: true)
-    }
-
-    // MARK: - Error Handling
-
-    /// Shows a localized error alert, then completes
-    private func showError() {
-        let title = NSLocalizedString(
-            "share.error.title",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "Import Failed",
-            comment: "Share extension error alert title"
-        )
-        let message = NSLocalizedString(
-            "share.error.message",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "The file could not be prepared for import.",
-            comment: "Share extension error alert message"
-        )
-        let okTitle = NSLocalizedString(
-            "common.ok",
-            tableName: nil,
-            bundle: Bundle(for: ShareViewController.self),
-            value: "OK",
-            comment: "OK button"
-        )
-
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: okTitle, style: .default) { [weak self] _ in
-            self?.completeRequest()
-        })
-        self.present(alert, animated: true)
     }
 
     // MARK: - Completion

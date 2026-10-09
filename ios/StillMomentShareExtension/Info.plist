@@ -14,5 +14,12 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Newsreader16pt-Light.ttf</string>
+		<string>Newsreader16pt-Regular.ttf</string>
+		<string>Geist-Regular.ttf</string>
+		<string>Geist-Medium.ttf</string>
+	</array>
 </dict>
 </plist>

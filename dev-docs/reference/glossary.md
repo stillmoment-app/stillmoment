@@ -44,6 +44,7 @@ Last Updated: 2026-10-09
 | `PreparationCountdown` | Value Object | Bibliothek | Vorbereitungszeit vor dem Start der Wiedergabe |
 | `ResolvedSoundscape` | Value Object | Timer | Aufgelöster Soundscape, Herkunft egal |
 | `SearchHistory` | Domain Service | Bibliothek | Die Regeln des Suchverlaufs („Zuletzt gesucht") |
+| `ShareOutcome` | Enum | Bibliothek | Was nach dem Teilen an Still Moment erscheint (nur iOS) |
 | `Soundscape` | Konzept | Timer | Hintergrundklang während der stillen Meditation |
 | `SoundscapeResolver` | Protokoll | Timer | Löst Soundscape-Kennungen auf (eingebaut oder eigen) |
 | Start-/End-Gong | Konzept | Bibliothek | Ein Gong rahmt die Wiedergabe einer Meditation |
@@ -389,6 +390,36 @@ teilen (`podcastWithoutEpisode`), gerade nicht erreichbar (`notReachable`, als e
   `data/LinkImportHandler.kt`, Meldungen in `domain/models/LinkImportFailure.kt`
 
 **Siehe auch:** Link-Import, `dev-docs/concepts/podcast-import.md`
+
+---
+
+#### ShareOutcome
+
+**Typ:** Enum (nur iOS)
+**Muster:** Reine Zuordnung
+
+**Beschreibung:**
+Was die Share-Extension zeigt, nachdem etwas an Still Moment geteilt wurde. Die Zuordnung
+`ShareOutcome.evaluate(SharedContent)` entscheidet allein anhand des geteilten Inhalts
+(`audioFile`, `link`, `nothing`):
+
+| Wert | Wann | Meldung |
+|------|------|---------|
+| `confirmation` | MP3/M4A-Datei oder Webadresse (`http`/`https`) | "Fast geschafft" — die App übernimmt beim nächsten Öffnen |
+| `unsupportedFormat` | Audiodatei in einem anderen Format oder ohne Endung | nur MP3 und M4A |
+| `noLink` | Link, der keine Webadresse ist (`mailto:`, `tel:` …) | "Kein Link gefunden" |
+| `unreadable` | Nichts Verwertbares geteilt, Laden oder Ablegen in der Inbox fehlgeschlagen | "Import fehlgeschlagen" |
+
+Ob unter einer Webadresse wirklich Audio liegt, prüft erst die App beim Link-Import. Der Typ
+liegt im Domain-Ordner der App, damit er testbar ist, wird aber nur von der Share-Extension
+benutzt. Android braucht ihn nicht: Dort öffnet sich beim Teilen direkt die App.
+
+**Dateireferenzen:**
+- iOS: `ios/StillMoment/Domain/Models/ShareOutcome.swift` (Mitglied auch im Extension-Target),
+  Anzeige in `ios/StillMomentShareExtension/ShareConfirmationView.swift`
+- Android: nicht vorhanden (keine Share-Extension)
+
+**Siehe auch:** Link-Import
 
 ---
 
