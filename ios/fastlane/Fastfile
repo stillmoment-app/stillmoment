@@ -226,7 +226,7 @@ platform :ios do
       run_precheck_before_submit: false,
       submit_for_review: false,
       automatic_release: false,
-      phased_release: true,
+      phased_release: false,
       app_version: app_version
     )
 
