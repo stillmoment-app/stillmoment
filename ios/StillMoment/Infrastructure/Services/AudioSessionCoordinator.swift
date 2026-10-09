@@ -46,6 +46,8 @@ final class AudioSessionCoordinator: AudioSessionCoordinatorProtocol {
 
     // MARK: Internal
 
+    // The app's one sanctioned singleton (ios-055): read only in AppDependencies.live().
+    // swiftlint:disable:next service_created_outside_composition_root
     static let shared = AudioSessionCoordinator()
 
     var activeSource: CurrentValueSubject<AudioSource?, Never> {

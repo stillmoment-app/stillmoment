@@ -17,13 +17,12 @@ import OSLog
 final class UserDefaultsPraxisRepository: PraxisRepository {
     // MARK: Lifecycle
 
-    /// - Parameters:
-    ///   - userDefaults: Storage for the current Praxis.
-    ///   - settingsRepository: Reads the legacy `MeditationSettings` for the one-time
-    ///     migration. Must read from the same `userDefaults`.
-    init(userDefaults: UserDefaults = .standard, settingsRepository: UserDefaultsTimerSettingsRepository) {
+    init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
-        self.settingsRepository = settingsRepository
+        // Implementation detail, not a standalone service: the legacy reader for the one-time
+        // MeditationSettings migration must read from exactly these userDefaults (ios-055).
+        // swiftlint:disable:next service_created_outside_composition_root
+        self.settingsRepository = UserDefaultsTimerSettingsRepository(userDefaults: userDefaults)
     }
 
     // MARK: Internal

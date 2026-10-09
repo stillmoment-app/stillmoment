@@ -12,15 +12,7 @@ extension TimerViewModel {
     /// Creates a view model on the app's real services for SwiftUI previews,
     /// showing the given timer state.
     static func preview(state: TimerState = .idle) -> TimerViewModel {
-        let dependencies = AppDependencies.live()
-        let viewModel = TimerViewModel(
-            timerService: dependencies.timerService,
-            audioService: dependencies.audioService,
-            soundRepository: dependencies.backgroundSoundRepository,
-            praxisRepository: dependencies.praxisRepository,
-            customAudioRepository: dependencies.customAudioRepository,
-            soundscapeResolver: dependencies.soundscapeResolver
-        )
+        let viewModel = AppDependencies.live().makeTimerViewModel()
 
         switch state {
         case .idle:

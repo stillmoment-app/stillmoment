@@ -189,8 +189,8 @@ struct GuidedMeditationsListView: View {
                     meditation: meditation,
                     mode: isImport ? .importMode : .edit,
                     availableTeachers: self.viewModel.uniqueTeachers,
-                    audioService: self.viewModel.editorAudioService,
-                    waveformProvider: self.viewModel.editorWaveformProvider,
+                    audioService: self.dependencies.audioService,
+                    waveformProvider: self.dependencies.waveformProvider,
                     meditationService: self.dependencies.meditationService,
                     praxisRepository: self.dependencies.praxisRepository,
                     onSave: { updated in

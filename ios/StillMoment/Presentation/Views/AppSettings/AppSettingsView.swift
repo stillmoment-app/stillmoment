@@ -109,12 +109,3 @@ struct AppSettingsView: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
 }
-
-// MARK: - Preview
-
-@available(iOS 17.0, *)
-#Preview {
-    NavigationStack {
-        AppSettingsView(settingsRepository: AppDependencies.live().guidedSettingsRepository)
-    }
-}

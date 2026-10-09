@@ -140,17 +140,25 @@ file_header:
 reporter: "xcode"
 
 # ios-055: Dienste nur im App-Einstieg erzeugen (Composition Root, Pure DI).
-# Meldet jeden Konstruktor-Aufruf eines Dienst-Typs (Default-Argument oder Rumpf)
-# ausserhalb von StillMomentApp.swift/AppDependencies.swift. Tests, UI-Tests, der
-# Screenshots-Target und reine Preview-Dateien (*+Previews.swift) sind ausgenommen;
-# Preview-/Mock-Typen (PreviewX(), MockX()) und AVFoundation-Objekte sind erlaubt.
+# Meldet ausserhalb von StillMomentApp.swift/AppDependencies.swift:
+#  - Konstruktor-Aufrufe von Dienst-Typen (Default-Argument oder Rumpf), auch als `X.init(`
+#    und `: X = .init(`,
+#  - Aufrufe von `AppDependencies.live()` / `.live()` (der Graph wird genau einmal gebaut).
+# Tests, UI-Tests, der Screenshots-Target und reine Preview-Dateien (*+Previews.swift) sind
+# ausgenommen; Preview-/Mock-Typen (PreviewX(), MockX()) und AVFoundation-Objekte sind erlaubt.
+# Kommentare und Strings werden ignoriert.
 # Gegenbeweis: scripts/lint-selftest.sh (Teil von `make check`).
 custom_rules:
   service_created_outside_composition_root:
     name: "Service Created Outside Composition Root"
-    regex: '\b(?!Preview|Mock|AV)[A-Z][A-Za-z0-9]*(Service|Repository|Provider|Clock|GongPlayer|Resolver|Handler|Store)\('
-    match_kinds:
-      - identifier
+    regex: '\b(?!Preview|Mock|AV)[A-Z][A-Za-z0-9]*(Service|Repository|Provider|Clock|GongPlayer|Resolver|Handler|Store|Coordinator|Manager)(\.init)?\(|:\s*(?!Preview|Mock|AV)[A-Z][A-Za-z0-9]*(Service|Repository|Provider|Clock|GongPlayer|Resolver|Handler|Store|Coordinator|Manager)\s*=\s*\.init\(|\.live\('
+    excluded_match_kinds:
+      - comment
+      - comment.mark
+      - comment.url
+      - doccomment
+      - doccomment.field
+      - string
     excluded:
       - '(^|/)StillMomentApp\.swift$'
       - '(^|/)AppDependencies\.swift$'
@@ -158,5 +166,5 @@ custom_rules:
       - '(^|/)StillMomentUITests/'
       - '(^|/)StillMoment-Screenshots/'
       - '\+Previews\.swift$'
-    message: "Dienste nur in StillMomentApp/AppDependencies erzeugen und per Initializer durchreichen, keine Default-Argumente (ios-055)."
+    message: "Dienste nur in StillMomentApp/AppDependencies erzeugen und per Initializer durchreichen, keine Default-Argumente; AppDependencies.live() nur dort und in *+Previews.swift (ios-055)."
     severity: error

@@ -494,6 +494,7 @@ private extension TimerViewModel {
     }
 }
 
-// Audio Preview and SwiftUI Preview support: see TimerViewModel+Preview.swift
+// Sound previews: see TimerViewModel+SoundPreview.swift; SwiftUI previews:
+// Presentation/Views/Timer/TimerViewModel+Previews.swift
 // Configuration description labels: see TimerViewModel+ConfigurationDescription.swift
 // (access level widened for cross-file extension use)

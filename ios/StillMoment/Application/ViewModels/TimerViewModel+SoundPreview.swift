@@ -1,8 +1,8 @@
 //
-//  TimerViewModel+Preview.swift
+//  TimerViewModel+SoundPreview.swift
 //  Still Moment
 //
-//  Application Layer - Audio Preview & SwiftUI Preview Support
+//  Application Layer - Sound previews for the timer settings (gong, background)
 //
 
 import OSLog

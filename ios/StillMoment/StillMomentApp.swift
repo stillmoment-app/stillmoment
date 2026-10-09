@@ -80,13 +80,23 @@ struct StillMomentApp: App {
         // Runs before any repository load so persisted state is already clean.
         AttunementCleanupMigration.runIfNeeded()
 
-        _timerViewModel = StateObject(wrappedValue: Self.makeTimerViewModel(dependencies))
-        _guidedListViewModel = StateObject(wrappedValue: Self.makeGuidedListViewModel(dependencies))
+        // Seed test fixtures for screenshot automation (Screenshots target only).
+        // Runs before the ViewModels are built, so nothing can hold a library state from
+        // before seeding/clearing (the shared meditation service is the list's service).
+        // -EmptyLibrary clears the library instead (for the empty-state screenshot);
+        // a later launch without the flag re-seeds via seedIfNeeded.
+        #if SCREENSHOTS_BUILD
+        if ProcessInfo.processInfo.arguments.contains("-EmptyLibrary") {
+            try? dependencies.meditationService.saveMeditations([])
+        } else {
+            TestFixtureSeeder.seedIfNeeded(service: dependencies.meditationService)
+        }
+        #endif
 
-        let fileOpenHandler = FileOpenHandler(
-            meditationService: dependencies.meditationService,
-            metadataService: dependencies.metadataService
-        )
+        _timerViewModel = StateObject(wrappedValue: dependencies.makeTimerViewModel())
+        _guidedListViewModel = StateObject(wrappedValue: dependencies.makeGuidedListViewModel())
+
+        let fileOpenHandler = dependencies.makeFileOpenHandler()
         let inboxDir = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: "group.com.stillmoment")?
             .appendingPathComponent("ShareInbox")
@@ -98,17 +108,6 @@ struct StillMomentApp: App {
             downloadService: dependencies.downloadService,
             inboxDirectoryURL: inboxDir
         ))
-
-        // Seed test fixtures for screenshot automation (Screenshots target only).
-        // -EmptyLibrary clears the library instead (for the empty-state screenshot);
-        // a later launch without the flag re-seeds via seedIfNeeded.
-        #if SCREENSHOTS_BUILD
-        if ProcessInfo.processInfo.arguments.contains("-EmptyLibrary") {
-            try? dependencies.meditationService.saveMeditations([])
-        } else {
-            TestFixtureSeeder.seedIfNeeded(service: dependencies.meditationService)
-        }
-        #endif
     }
 
     // MARK: Internal
@@ -306,28 +305,6 @@ struct StillMomentApp: App {
                 break
             }
         }
-    }
-
-    private static func makeTimerViewModel(_ dependencies: AppDependencies) -> TimerViewModel {
-        TimerViewModel(
-            timerService: dependencies.timerService,
-            audioService: dependencies.audioService,
-            soundRepository: dependencies.backgroundSoundRepository,
-            praxisRepository: dependencies.praxisRepository,
-            customAudioRepository: dependencies.customAudioRepository,
-            soundscapeResolver: dependencies.soundscapeResolver
-        )
-    }
-
-    private static func makeGuidedListViewModel(_ dependencies: AppDependencies) -> GuidedMeditationsListViewModel {
-        GuidedMeditationsListViewModel(
-            meditationService: dependencies.meditationService,
-            metadataService: dependencies.metadataService,
-            audioService: dependencies.audioService,
-            meditationSourceRepository: dependencies.meditationSourceRepository,
-            searchHistoryStore: dependencies.searchHistoryStore,
-            waveformProvider: dependencies.waveformProvider
-        )
     }
 
     /// Parses `-DurationMinutes <n>` from launch arguments.

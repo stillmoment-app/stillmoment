@@ -180,17 +180,6 @@ final class GuidedMeditationsListViewModel: ObservableObject {
         return teachers.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
     }
 
-    /// Shared audio service for the trim editor, so editor preview and library preview use
-    /// the same instance (shared-107). Read-only — the editor receives it via constructor injection.
-    var editorAudioService: AudioServiceProtocol {
-        self.audioService
-    }
-
-    /// Shared waveform provider for the trim editor and the edit-sheet mini waveform (shared-107).
-    var editorWaveformProvider: WaveformProviderProtocol {
-        self.waveformProvider
-    }
-
     // MARK: - Public Methods
 
     /// Loads meditations from persistent storage

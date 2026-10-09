@@ -54,20 +54,27 @@ Everything below receives its dependencies through initializers (Pure DI, no con
   Default arguments for plain values (numbers, flags, configuration) are fine.
 - **No service creation inside ViewModels, Views or other services.** A new screen that needs a service
   gets it handed down by its caller, across several views if necessary.
-- **Who gets what:** Only views that build a ViewModel receive the `AppDependencies` struct (e.g.
-  `GuidedMeditationsListView` → `GuidedMeditationPlayerView`). ViewModels and services never receive the
-  struct, only their individual dependencies.
+- **Who gets what:** Only views that build a ViewModel, or pass the struct on to such a view, receive the
+  `AppDependencies` struct (e.g. `GuidedMeditationsListView` → `GuidedMeditationPlayerView`). ViewModels and
+  services never receive the struct, only their individual dependencies.
+- **Wiring:** Which instance goes into which ViewModel lives in the `make…` functions on `AppDependencies`
+  (`makeTimerViewModel()`, `makeGuidedListViewModel()`, `makeFileOpenHandler()`, `makePlayerViewModel(…)`);
+  the app and views call them. `AppDependenciesTests` proves the shared instances with `MockedAppDependencies`.
 - **Lifetime:** Services with app-wide state (`AudioService`, `WaveformProvider`, `GuidedMeditationService`,
   `TimerService`, repositories) exist once. Services whose state belongs to a single playback
   (`AudioPlayerService`, the player's `MeditationGongPlayer`) are created per player through the
   `makeAudioPlayerService` / `makeGongPlayer` factories — still only inside `AppDependencies`.
-- **Previews and tests** build their own doubles (`Preview…`, `Mock…`) or call `AppDependencies.live()`.
-  Tests use `AudioService.makeForTesting()` (`StillMomentTests/Helpers/`) for a real `AudioService`.
-- **Enforced by `make check`:** SwiftLint custom rule `service_created_outside_composition_root` flags any
-  constructor call of a `…Service/Repository/Provider/Clock/GongPlayer/Resolver/Handler/Store` type outside
-  `StillMomentApp.swift` / `AppDependencies.swift` (tests, UI tests, Screenshots target and `*+Previews.swift`
-  are exempt; `Preview…`/`Mock…`/`AV…` types are allowed). `scripts/lint-selftest.sh` proves against a
-  fixture that the rule still fires.
+- **Previews and tests** build their own doubles (`Preview…`, `Mock…`). `AppDependencies.live()` is allowed
+  only in `StillMomentApp`, tests and preview files `X+Previews.swift` (under `#if DEBUG`) — previews that
+  need it live there, not in the view file. Tests use `AudioService.makeForTesting()` and
+  `MockedAppDependencies` (`StillMomentTests/Helpers/`).
+- **Enforced by `make check`:** SwiftLint custom rule `service_created_outside_composition_root` flags
+  `X(`, `X.init(` and `: X = .init(` for any `…Service/Repository/Provider/Clock/GongPlayer/Resolver/Handler/
+  Store/Coordinator/Manager` type, plus `.live(`, outside `StillMomentApp.swift` / `AppDependencies.swift`
+  (tests, UI tests, Screenshots target and `*+Previews.swift` are exempt; `Preview…`/`Mock…`/`AV…` types are
+  allowed; comments and strings are ignored). The only justified `swiftlint:disable` exceptions are
+  `AudioSessionCoordinator.shared` and the internal legacy reader in `UserDefaultsPraxisRepository`.
+  `scripts/lint-selftest.sh` proves against a fixture that the rule still fires (exit 3 if SwiftLint itself fails).
 
 ### Combine Bindings
 

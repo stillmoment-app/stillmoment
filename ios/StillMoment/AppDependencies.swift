@@ -61,6 +61,7 @@ struct AppDependencies {
             customAudioRepository: customAudioRepository
         )
         let meditationService = GuidedMeditationService()
+        let makeGongPlayer: () -> MeditationGongPlayerProtocol = { MeditationGongPlayer() }
 
         return AppDependencies(
             audioService: AudioService(
@@ -70,9 +71,7 @@ struct AppDependencies {
             ),
             timerService: TimerService(clock: clock),
             clock: clock,
-            praxisRepository: UserDefaultsPraxisRepository(
-                settingsRepository: UserDefaultsTimerSettingsRepository()
-            ),
+            praxisRepository: UserDefaultsPraxisRepository(),
             backgroundSoundRepository: backgroundSoundRepository,
             customAudioRepository: customAudioRepository,
             soundscapeResolver: soundscapeResolver,
@@ -87,10 +86,11 @@ struct AppDependencies {
                 meditationService: meditationService
             ),
             downloadService: AudioDownloadService(),
-            makeGongPlayer: { MeditationGongPlayer() },
+            makeGongPlayer: makeGongPlayer,
             makeAudioPlayerService: Self.audioPlayerServiceFactory(
                 coordinator: coordinator,
-                soundRepository: backgroundSoundRepository
+                soundRepository: backgroundSoundRepository,
+                makeGongPlayer: makeGongPlayer
             )
         )
     }
@@ -99,15 +99,69 @@ struct AppDependencies {
 
     private static func audioPlayerServiceFactory(
         coordinator: AudioSessionCoordinatorProtocol,
-        soundRepository: BackgroundSoundRepositoryProtocol
+        soundRepository: BackgroundSoundRepositoryProtocol,
+        makeGongPlayer: @escaping () -> MeditationGongPlayerProtocol
     ) -> () -> AudioPlayerServiceProtocol {
         {
             AudioPlayerService(
                 coordinator: coordinator,
                 nowPlayingProvider: SystemNowPlayingInfoProvider(),
                 soundRepository: soundRepository,
-                gongPlayer: MeditationGongPlayer()
+                gongPlayer: makeGongPlayer()
             )
         }
+    }
+}
+
+// MARK: - Wiring
+
+/// How the app hands the shared services to its screens. `StillMomentApp` and the views
+/// call these instead of picking fields themselves, so the wiring is one place and testable.
+@MainActor
+extension AppDependencies {
+    func makeTimerViewModel() -> TimerViewModel {
+        TimerViewModel(
+            timerService: self.timerService,
+            audioService: self.audioService,
+            soundRepository: self.backgroundSoundRepository,
+            praxisRepository: self.praxisRepository,
+            customAudioRepository: self.customAudioRepository,
+            soundscapeResolver: self.soundscapeResolver
+        )
+    }
+
+    func makeGuidedListViewModel() -> GuidedMeditationsListViewModel {
+        GuidedMeditationsListViewModel(
+            meditationService: self.meditationService,
+            metadataService: self.metadataService,
+            audioService: self.audioService,
+            meditationSourceRepository: self.meditationSourceRepository,
+            searchHistoryStore: self.searchHistoryStore,
+            waveformProvider: self.waveformProvider
+        )
+    }
+
+    func makeFileOpenHandler() -> FileOpenHandler {
+        FileOpenHandler(
+            meditationService: self.meditationService,
+            metadataService: self.metadataService
+        )
+    }
+
+    /// A player gets fresh per-playback services and the shared library, waveforms and settings.
+    func makePlayerViewModel(
+        meditation: GuidedMeditation,
+        preparationTimeSeconds: Int?
+    ) -> GuidedMeditationPlayerViewModel {
+        GuidedMeditationPlayerViewModel(
+            meditation: meditation,
+            preparationTimeSeconds: preparationTimeSeconds,
+            playerService: self.makeAudioPlayerService(),
+            meditationService: self.meditationService,
+            waveformProvider: self.waveformProvider,
+            clock: self.clock,
+            gongPlayer: self.makeGongPlayer(),
+            praxisRepository: self.praxisRepository
+        )
     }
 }
