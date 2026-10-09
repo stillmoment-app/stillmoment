@@ -27,15 +27,6 @@ struct PodcastEpisode: Equatable {
     /// Teacher suggestion: the podcast's author, otherwise the podcast's name.
     /// Empty values count as missing.
     var teacherSuggestion: String? {
-        Self.nonEmpty(self.podcastAuthor) ?? Self.nonEmpty(self.podcastName)
-    }
-
-    // MARK: Private
-
-    private static func nonEmpty(_ value: String?) -> String? {
-        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
-            return nil
-        }
-        return trimmed
+        self.podcastAuthor?.nonBlankTrimmed ?? self.podcastName?.nonBlankTrimmed
     }
 }

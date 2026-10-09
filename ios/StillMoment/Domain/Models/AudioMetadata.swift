@@ -53,19 +53,10 @@ struct AudioMetadata: Equatable {
     /// Missing or empty suggestions keep the file's values; duration and album stay unchanged.
     func preferring(title preferredTitle: String?, artist preferredArtist: String?) -> AudioMetadata {
         AudioMetadata(
-            artist: Self.nonEmpty(preferredArtist) ?? self.artist,
-            title: Self.nonEmpty(preferredTitle) ?? self.title,
+            artist: preferredArtist?.nonBlankTrimmed ?? self.artist,
+            title: preferredTitle?.nonBlankTrimmed ?? self.title,
             duration: self.duration,
             album: self.album
         )
-    }
-
-    // MARK: Private
-
-    private static func nonEmpty(_ value: String?) -> String? {
-        guard let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return nil
-        }
-        return value
     }
 }
