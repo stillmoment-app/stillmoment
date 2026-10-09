@@ -2,8 +2,8 @@
 id: shared-135
 title: "Eigener Abschnitt Rückmeldung in den Einstellungen"
 status:
-  ios: in-progress
-  android: in-progress
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 depends_on: [shared-134]
