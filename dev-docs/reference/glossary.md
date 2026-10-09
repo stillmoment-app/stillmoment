@@ -1104,12 +1104,13 @@ AppearanceMode (Domäne) → ThemeManager (Präsentation) → ThemeRootView → 
 **Muster:** Feste Adressen nach außen
 
 **Beschreibung:**
-Die zwei Wege, auf denen jemand der App etwas zurückgeben kann, beide im Info-Bereich der
-Einstellungen:
+Die zwei Wege, auf denen jemand der App etwas zurückgeben kann, beide im eigenen Abschnitt
+„Rückmeldung" (EN „Feedback") der Einstellungen, zwischen „Geführte Meditationen" und
+„Info & Rechtliches" (shared-135):
 
-- **App bewerten** öffnet die Store-Seite von Still Moment direkt beim Bewerten
+- **App bewerten** (Untertitel „Damit andere Still Moment finden") öffnet die Store-Seite von Still Moment direkt beim Bewerten
   (iOS: App Store, Android: Google Play, ohne Play-Store-App die Webseite).
-- **Schreib uns** öffnet eine neue Mail an `hello@stillmoment.app`, Betreff „Still Moment",
+- **Schreib uns** (Untertitel „Ideen, Wünsche oder einfach ein Gruß") öffnet eine neue Mail an `hello@stillmoment.app`, Betreff „Still Moment",
   im Text App-Version und Betriebssystem — sichtbar und vor dem Senden löschbar. Gibt es
   kein Mail-Programm, zeigt die App die Adresse zum Kopieren.
 
