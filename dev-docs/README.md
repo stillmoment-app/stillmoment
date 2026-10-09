@@ -51,7 +51,7 @@ Alles rund um App-Releases.
 | Dokument | Inhalt |
 |----------|--------|
 | [release/RELEASE_GUIDE.md](release/RELEASE_GUIDE.md) | Release-Prozess Schritt fuer Schritt |
-| [release/RELEASE_NOTES.md](release/RELEASE_NOTES.md) | User-facing Release Notes |
+| Skill `/release-notes` (`.claude/skills/release-notes/SKILL.md`) | User-facing Release Notes schreiben |
 | [release/TEST_PLAN_IOS.md](release/TEST_PLAN_IOS.md) | Manuelle Tests vor iOS-Release |
 | [release/TEST_PLAN_ANDROID.md](release/TEST_PLAN_ANDROID.md) | Manuelle Tests vor Android-Release |
 
