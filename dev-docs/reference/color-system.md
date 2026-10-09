@@ -12,15 +12,15 @@ Dokumentation des visuellen Design Systems fuer Still Moment (iOS). Farben und T
 .foregroundColor(Color.textPrimary)
 .font(.system(size: 16))
 
-// RICHTIG - Environment-basierte Theme-Farben + Typography Roles
+// RICHTIG - Environment-basierte Theme-Farben + Typografie-Tokens
 @Environment(\.themeColors)
 private var theme
 
 Text("welcome.title", bundle: .main)
-    .themeFont(.screenTitle)                    // setzt Font UND Farbe
+    .textStyle(.screenTitle, color: \.textPrimary)   // Token + Theme-Farbe
 
 Text(error)
-    .themeFont(.caption, color: \.error)        // Farb-Override
+    .textStyle(.caption, color: \.error)
 
 Image(systemName: "play.circle")
     .foregroundColor(self.theme.interactive)     // Icons: nur Farbe
@@ -29,17 +29,17 @@ Image(systemName: "play.circle")
 ## Architektur
 
 ```
-ColorTheme (Domain)          - Enum: .candlelight, .forest, .moon
+AppearanceMode (Domain)      - Enum: .system, .light, .dark
     |
 ThemeManager (Presentation)  - ObservableObject, @AppStorage-Persistierung
     |
-ThemeRootView (Presentation) - Liest colorScheme + Theme, injiziert ThemeColors
+ThemeRootView (Presentation) - Liest colorScheme, injiziert ThemeColors, setzt preferredColorScheme
     |
 ThemeColors (Presentation)   - Struct mit allen aufgeloesten Farbwerten
     |
 @Environment(\.themeColors)  - Views lesen Farben reaktiv
     |
-.themeFont(.role)            - ViewModifier: setzt Font + Farbe atomar
+.textStyle(.token, color:)   - ViewModifier: Font + Tracking + Casing, Farbe optional
 ```
 
 **Warum Environment statt statische Properties?**
@@ -49,16 +49,17 @@ Statische `Color`-Properties (`Color.textPrimary`) nehmen nicht an SwiftUIs Obse
 
 | Datei | Inhalt |
 |-------|--------|
-| `Domain/Models/ColorTheme.swift` | Theme-Enum (candlelight, forest, moon) |
+| `Domain/Models/AppearanceMode.swift` | Darstellungsmodus-Enum (system, light, dark) |
 | `Presentation/Theme/ThemeColors.swift` | ThemeColors struct + EnvironmentKey + resolve() |
-| `Presentation/Theme/ThemeColors+Palettes.swift` | 6 Paletten mit konkreten RGB-Werten (3 light + 3 dark) |
+| `Presentation/Theme/ThemeColors+Palettes.swift` | Die eine Palette mit konkreten RGB-Werten (`light` + `dark`) |
 | `Presentation/Theme/ThemeManager.swift` | ObservableObject mit @AppStorage |
 | `Presentation/Theme/ThemeRootView.swift` | Root-View: resolve + inject + TabBar + Tint |
-| `Presentation/Theme/ColorTheme+Localization.swift` | Lokalisierte Theme-Namen |
-| `Presentation/Views/Shared/Font+Theme.swift` | Typography System: TypographyRole + ThemeTypographyModifier |
+| `Presentation/Views/Shared/TextStyle.swift` | Typografie: die zehn Tokens (`TextStyle`-Enum) |
+| `Presentation/Views/Shared/View+TextStyle.swift` | Modifier `.textStyle(_:monospacedDigits:color:)` |
+| `Presentation/Views/Shared/Font+Icon.swift` | SF-Symbol-Groesse `Font.settingsIcon` (nicht Teil der Typografie) |
 | `Presentation/Views/Shared/ButtonStyles.swift` | Button Styles mit ViewModifier-Bridge |
 | `Presentation/Views/Shared/ToggleStyles.swift` | Toggle Style mit ViewModifier-Bridge (WCAG controlTrack) |
-| `Presentation/Views/Shared/GeneralSettingsSection.swift` | Theme-Picker UI |
+| `Presentation/Views/Shared/GeneralSettingsSection.swift` | Darstellungs-Picker UI (System/Hell/Dunkel) |
 | `Presentation/Views/Shared/CardRowBackground.swift` | Card-Hintergrund mit Shadow/Border je nach Color Scheme |
 | `Presentation/Views/Shared/Double+Opacity.swift` | Opacity Design Tokens |
 | `Presentation/Theme/AppearanceMode+Localization.swift` | Lokalisierte Modus-Namen (System/Hell/Dunkel) |
@@ -87,7 +88,7 @@ Definiert in `ThemeColors.swift`, Werte in `ThemeColors+Palettes.swift`:
 
 ### Computed Tokens (abgeleitet)
 
-Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrimary` / `backgroundPrimary`. Wirken automatisch in allen Themes × Light/Dark.
+Computed properties auf `ThemeColors`, abgeleitet aus `interactive` / `textPrimary` / `backgroundPrimary`. Wirken automatisch in Light und Dark.
 
 | Token | Ableitung | Verwendung |
 |-------|-----------|------------|
@@ -110,83 +111,31 @@ self.theme.backgroundGradient  // LinearGradient: backgroundPrimary -> backgroun
 
 ---
 
-## Typography System
+## Typografie
 
-Definiert in `Font+Theme.swift`. Jede `TypographyRole` kapselt Font-Groesse, Weight, Design und Default-Farbe.
+Die Tokens, Schriften, Groessen und das Bold-Text-Mapping stehen in der Design-Referenz: [`design-system/still-moment-design.md`](design-system/still-moment-design.md#typografie). Hier nur das, was man fuer den Code braucht.
 
-### Aufruf
+- **Zehn Tokens** (Typografie 2.1): `display`, `title`, `screenTitle`, `section`, `body`, `bodyEmphasis`, `bodyItalic`, `caption`, `micro`, `eyebrow`. Kein elfter.
+- **iOS:** `TextStyle` in `TextStyle.swift`, angewendet ueber `.textStyle(_:monospacedDigits:color:)` aus `View+TextStyle.swift`. Der Modifier setzt Font (Dynamic Type ueber `relativeTo:`), Tracking und Casing. Die Farbe setzt er nur, wenn `color:` uebergeben wird. Fuer Timer- und Dial-Ziffern (`display`, container-relativ) gibt es `DisplayNumeral.swift`.
+- **Android:** `TextStyle` in `presentation/ui/theme/TextStyle.kt`, angewendet ueber `TextStyle.xxx.toComposeTextStyle()` aus `TextStyleModifier.kt` (Import oft als `TextToken`, weil der Name mit Compose kollidiert). `Typography.kt` bindet die Material-Slots an die Tokens, `DisplayNumeral.kt` ist das Gegenstueck fuer die Ziffern.
+- **Hierarchie ueber Farbe, nicht ueber Tokens:** Sekundaerer Text ist derselbe Token mit `color: \.textSecondary`.
+- **Bold Text** wird im Token selbst behandelt (iOS `effectiveFontName(legibility:)`, Android `effectiveWeight`). Views muessen nichts tun.
 
 ```swift
-.themeFont(.screenTitle)                           // Standard: Font + Default-Farbe
-.themeFont(.timerCountdown, size: isCompact ? 80 : nil)  // Responsive Groesse
-.themeFont(.caption, color: \.error)               // Farb-Override
+.textStyle(.body, color: \.textPrimary)
+.textStyle(.eyebrow, monospacedDigits: true, color: \.textSecondary)  // tabellarische Ziffern
 ```
-
-**Wichtig:** `.themeFont()` setzt immer BEIDES — `.font()` UND `.foregroundColor()`. Nie zusaetzlich `.foregroundColor()` auf denselben Text setzen.
-
-### Typography Roles (26 Rollen)
-
-| Gruppe | Rolle | FontSpec | Default-Farbe |
-|--------|-------|----------|---------------|
-| Timer | `timerCountdown` | fixed 100pt ultraLight | textPrimary |
-| Timer | `timerRunning` | fixed 60pt thin | textPrimary |
-| Headings | `screenTitle` | fixed 28pt light | textPrimary |
-| Headings | `inlineNavigationTitle` | dynamic .headline | textPrimary |
-| Headings | `sectionTitle` | fixed 20pt light | textPrimary |
-| Body | `bodyPrimary` | fixed 16pt regular | textPrimary |
-| Body | `bodySecondary` | fixed 15pt light | textSecondary |
-| Body | `caption` | dynamic .caption regular | textSecondary |
-| Settings | `settingsLabel` | fixed 17pt regular | textPrimary |
-| Settings | `settingsDescription` | fixed 13pt regular | textSecondary |
-| Player | `playerTitle` | fixed 28pt semibold | textPrimary |
-| Player | `playerTeacher` | fixed 20pt medium | interactive |
-| Player | `playerTimestamp` | dynamic .caption regular | textSecondary |
-| Player | `playerCountdown` | fixed 32pt light | textPrimary |
-| List | `listTitle` | dynamic .headline | textPrimary |
-| List | `listSubtitle` | dynamic .subheadline regular | textSecondary |
-| List | `listBody` | dynamic .body regular | textSecondary |
-| List | `listSectionTitle` | dynamic .title2 medium | textPrimary |
-| List | `listActionLabel` | dynamic .body medium | textPrimary |
-| Edit | `editLabel` | dynamic .subheadline medium | textPrimary |
-| Edit | `editCaption` | dynamic .caption regular | textSecondary |
-| Dialog | `dialogTitle` | fixed 18pt light | textPrimary |
-| Dialog | `dialogBody` | fixed 12pt regular | textSecondary |
-| Card | `cardLabel` | fixed 11pt regular | textSecondary |
-| Dial | `dialValue` | fixed 62pt light, tracking -1.5 | textPrimary |
-| Dial | `dialUnit` | fixed 10pt regular | textSecondary |
-
-Alle Rollen verwenden `.rounded` Design. Unit Tests (`TypographyTests`) pruefen das exhaustiv. Tracking-Spalte: nur Dial-Rollen weichen vom Default 0 ab.
-
-### FontSpec-Typen
-
-- **`.fixed(size:weight:design:)`** — Explizite Groesse. Fuer Timer, Headings, Settings, Player. Unterstuetzt `size:`-Override fuer responsive Layouts.
-- **`.dynamic(style:weight:design:)`** — Dynamic Type. Skaliert mit der Benutzer-Textgroessen-Einstellung. Fuer Listen, Captions, Navigation Titles. Kein `size:`-Override (Assert schlaegt fehl).
-
-### Dark Mode Halation-Kompensation
-
-Helle Schrift auf dunklem Hintergrund wirkt duenner. Der Modifier kompensiert automatisch:
-
-| Light Mode Weight | Dark Mode Weight |
-|-------------------|------------------|
-| ultraLight | thin |
-| thin | light |
-| light | regular |
-| regular | medium |
-| medium+ | unveraendert |
-
-Views muessen nichts tun — die Kompensation ist in `ThemeTypographyModifier` gekapselt.
 
 ---
 
-## Themes
+## Palette
 
-3 Themes, jedes mit Light + Dark Variante. Light/Dark folgt automatisch dem System-Setting.
+Eine einzige Palette („Kerzenschein 2.0", shared-094) in einer hellen und einer dunklen Fassung. Eine Themen-Auswahl gibt es seit shared-093 nicht mehr. Welche Fassung gilt, bestimmt der Appearance Mode (siehe unten); `ThemeColors.resolve(colorScheme:)` liefert die passende.
 
-| Theme | Light | Dark | Typ |
-|-------|-------|------|-----|
-| Candlelight (Default) | `candlelightLight` | `candlelightDark` | Warm/Sand |
-| Forest | `forestLight` | `forestDark` | Warm-neutral Natur |
-| Moon | `moonLight` | `moonDark` | Silber/Indigo Nacht |
+| Fassung | Wert | Charakter |
+|---------|------|-----------|
+| Hell | `ThemeColors.light` | Sunrise Confident — Creme/Pfirsich/Apricot, warme Tinte |
+| Dunkel | `ThemeColors.dark` | Lifted Warm — Karten heben sich warm vom Verlauf ab, warmer Rand |
 
 ---
 
@@ -260,7 +209,7 @@ Button("Start") { }.warmPrimaryButton()
 Button("Cancel") { }.warmSecondaryButton()
 ```
 
-Button-Font (18pt medium rounded) ist direkt im ButtonStyle definiert — nicht Teil des Typography-Systems. Das ist akzeptabel, weil `medium` keine Dark-Mode-Kompensation benoetigt (Kompensation greift nur bei Weights <= regular).
+Der Button-Text nutzt Typografie-Tokens (`.bodyEmphasis` bzw. `.body`) direkt im ButtonStyle.
 
 ---
 
@@ -306,13 +255,14 @@ var body: some View {
 1. [ ] `@Environment(\.themeColors) private var theme`
 2. [ ] `self.theme.backgroundGradient` als Hintergrund
 3. [ ] `.scrollContentBackground(.hidden)` bei Forms/Lists
-4. [ ] `.themeFont(.role)` fuer allen Text — nie direktes `.font()`
-5. [ ] Label-Closure-Syntax fuer Picker/Toggle/DatePicker (String-Parameter ignorieren `.themeFont()`)
-6. [ ] Icons: `.foregroundColor(self.theme.xxx)` + `.font(.system(size:))` (kein `.themeFont()`)
-7. [ ] Section Headers: nur `.foregroundColor(self.theme.textSecondary)` (System-Font beibehalten)
-8. [ ] Toolbar-Buttons: Cancel=theme.textSecondary, Confirm=theme.interactive
-9. [ ] Keine statischen `Color.xxx` Referenzen
-10. [ ] Keine direkten `.font(.system(...))` auf Text-Elemente
+4. [ ] `.textStyle(.token, color:)` fuer allen Text — nie direktes `.font()`
+5. [ ] Label-Closure-Syntax fuer Picker/Toggle/DatePicker (String-Parameter ignorieren `.textStyle()`)
+6. [ ] Icons: `.foregroundColor(self.theme.xxx)` + `.font(.system(size:))` bzw. `Font.settingsIcon` (kein `.textStyle()`)
+7. [ ] Section Headers: ebenfalls ueber einen Token, z.B. `.textStyle(.section, color: \.textSecondary)` oder `.eyebrow`
+8. [ ] Screen-Titel: `.screenTitleBar(_:)` statt `.navigationTitle()`
+9. [ ] Toolbar-Buttons: Cancel=theme.textSecondary, Confirm=theme.interactive
+10. [ ] Keine statischen `Color.xxx` Referenzen
+11. [ ] Keine direkten `.font(.system(...))` auf Text-Elemente
 
 ---
 
@@ -321,10 +271,9 @@ var body: some View {
 - **iOS 16.0-16.3**: Sheets erben Custom-Environment moeglicherweise nicht. Ggf. explizit `.environment(\.themeColors)` auf Sheets setzen.
 - **TabBar**: `.toolbarBackground()` statt `UITabBar.appearance()` — letzteres ist nicht reaktiv.
 - **`@AppStorage` in ThemeManager**: `@AppStorage` triggert `objectWillChange` bei `ObservableObject` — funktioniert, ist aber kein offiziell dokumentiertes Verhalten.
-- **`.navigationTitle()` ist eine UIKit-Bridge**: Nutzt NICHT `@Environment(\.themeColors)`, folgt `UITraitCollection`. Fix: `.toolbar(.principal) { Text("...").themeFont(.inlineNavigationTitle) }` statt `.navigationTitle()`.
-- **Picker `.menu`-Style**: Options im Menu-Dropdown werden von UIKit gerendert und koennen nicht mit `.themeFont()` gestylt werden.
-- **Button-Font**: 18pt medium rounded ist direkt in `ButtonStyles.swift` definiert, nicht im Typography-System. Akzeptabel weil keine Dark-Mode-Kompensation noetig.
+- **`.navigationTitle()` ist eine UIKit-Bridge**: Nutzt NICHT `@Environment(\.themeColors)`, folgt `UITraitCollection`. Fix: `.screenTitleBar(_:)` (`View+ScreenTitleBar.swift`, setzt `.toolbar(.principal)` mit `.textStyle(.screenTitle, color: \.textPrimary)`) statt `.navigationTitle()`.
+- **Picker `.menu`-Style**: Options im Menu-Dropdown werden von UIKit gerendert und koennen nicht mit `.textStyle()` gestylt werden.
 
 ---
 
-**Last Updated**: 2026-02-08
+**Last Updated**: 2026-10-09

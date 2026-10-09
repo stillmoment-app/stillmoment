@@ -108,7 +108,7 @@ Begründung in drei Sätzen:
 | Nur Laufzeit-Argument (Firefox, WordPress) | Ja | Kein Schutz. |
 | Schalter zielt auf separaten Test-Speicher statt auf echte Daten | Selbst wenn er wirkt, bleiben echte Daten unberührt | Gute **zweite** Schutzschicht, ergänzt `#if DEBUG`. |
 
-Prüfbarkeit (Einschätzung): Ein Release-Build lässt sich nicht per Unit-Test prüfen, weil Tests in Debug laufen. Machbar ist eine statische Prüfung in `make check` (wie `lint-selftest.sh` für ios-055), die sicherstellt, dass die Auswertung des Arguments nur innerhalb eines `#if DEBUG`-Blocks vorkommt, oder ein Blick in das Archiv mit `make release-dry`.
+Prüfbarkeit (Einschätzung): Ein Release-Build lässt sich nicht per Unit-Test prüfen, weil Tests in Debug laufen. Machbar ist eine statische Prüfung in `make check` (wie `lint-selftest.sh` für ios-055), die sicherstellt, dass die Auswertung des Arguments nur innerhalb eines `#if DEBUG`-Blocks vorkommt, oder ein Blick in das Release-Kompilat aus `make build-release` (kompiliert die Release-Konfiguration ohne Signierung nach `build/DerivedData-Release`). `make release-dry` taugt dafür nicht, es prüft nur Metadaten und Screenshots und baut nichts.
 
 ---
 
