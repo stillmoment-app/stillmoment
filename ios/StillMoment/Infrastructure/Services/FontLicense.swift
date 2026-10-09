@@ -2,7 +2,7 @@
 //  FontLicense.swift
 //  Still Moment
 //
-//  Presentation Layer - Reads the SIL Open Font License shipped with the bundled fonts
+//  Infrastructure Layer - Reads the SIL Open Font License shipped with the bundled fonts
 //
 
 import Foundation
