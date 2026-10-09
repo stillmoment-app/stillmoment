@@ -25,7 +25,7 @@ Beide Plattformen liefern seit ios-048 und shared-099 die Schriften Newsreader u
 
 <!-- Gelten fuer BEIDE Plattformen. Beobachtbar, konkret, pruefbar. Tests, Lokalisierung und Doku regelt die Definition of Done (README). -->
 
-- [ ] Unter „Info & Rechtliches“ erscheint der Eintrag „Schrift-Nachweise“ (EN „Font Credits“), direkt nach „Klang-Nachweise“
+- [ ] Unter „Info & Rechtliches“ erscheint der Eintrag „Schrift-Nachweise“ (EN „Font Attributions“, passend zu „Sound Attributions“), direkt nach „Klang-Nachweise“
 - [ ] Ein Tipp auf den Eintrag öffnet eine eigene Seite, die beide Schriften mit ihrer Quelle nennt: Newsreader (Production Type) und Geist (Vercel), jeweils unter der SIL Open Font License 1.1
 - [ ] Auf derselben Seite steht der vollständige OFL-1.1-Lizenztext, wie er der App beiliegt: von den Copyright-Zeilen am Anfang bis zum Ende des Haftungsausschlusses, ohne abgeschnittene Zeilen, scrollbar
 - [ ] Überschriften und Erläuterungen sind auf Deutsch und Englisch übersetzt; der Lizenztext selbst bleibt im englischen Original
