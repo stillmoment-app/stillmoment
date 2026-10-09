@@ -2,8 +2,8 @@
 id: shared-137
 title: "Quellenliste: Lehrer:innen vorne, alle Sprachen sichtbar"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: mittel
 depends_on: []
@@ -25,8 +25,8 @@ Die Quellenliste in "Wo finde ich Meditationen?" zeigt künftig jede Quelle in d
 
 ## Akzeptanzkriterien
 
-- [ ] Jede Quelle zeigt untereinander: Name, Angebot (nur wenn es einen eigenen Namen hat), Beschreibung, Adresse
-- [ ] Name und Angebot je Quelle:
+- [x] Jede Quelle zeigt untereinander: Name, Angebot (nur wenn es einen eigenen Namen hat), Beschreibung, Adresse
+- [x] Name und Angebot je Quelle:
 
   | Name | Angebot |
   |------|---------|
@@ -39,14 +39,14 @@ Die Quellenliste in "Wo finde ich Meditationen?" zeigt künftig jede Quelle in d
   | UCLA Mindful | UCLA Health |
   | Free Mindfulness Project | — |
 
-- [ ] Keine Beschreibung enthält mehr ein "Von …"; Beschreibungen stehen in der Sprache der Quelle
-- [ ] Die Quellen der eigenen Sprache stehen aufgeklappt oben. Eigene Sprache ist die Sprache der App: Deutsch bei deutscher Einstellung, sonst Englisch
-- [ ] Jede andere Sprache erscheint darunter als eingeklappte Zeile mit Sprachname und Anzahl, z.B. "Auch auf Englisch · 4 weitere Quellen" bzw. "Also in German · 4 more sources". Antippen klappt die Quellen dieser Sprache auf und wieder zu
-- [ ] Reihenfolge der Sprachen: eigene Sprache, dann Englisch, dann übrige alphabetisch nach angezeigtem Sprachnamen. Innerhalb einer Sprache bleibt die bisherige Reihenfolge der Quellen
-- [ ] Melissa Gein verlinkt auf https://podcasts.apple.com/de/podcast/einfach-meditieren-einfach-achtsam-leben/id1588419775 und zeigt als Adresse "podcasts.apple.com"
-- [ ] Antippen einer Quelle öffnet sie weiterhin außerhalb der App, auch in aufgeklappten anderen Sprachen. Antippen der eingeklappten Zeile klappt nur auf und verlässt "Wo finde ich Meditationen?" nicht
-- [ ] Screenreader lesen jede Quelle in derselben Reihenfolge vor, wie sie angezeigt wird; die eingeklappte Zeile wird als Button mit Zustand (eingeklappt/aufgeklappt) vorgelesen
-- [ ] Die Marketing-Screenshots von "Wo finde ich Meditationen?" sind neu aufgenommen, falls die Quellenliste darin zu sehen ist
+- [x] Keine Beschreibung enthält mehr ein "Von …"; Beschreibungen stehen in der Sprache der Quelle
+- [x] Die Quellen der eigenen Sprache stehen aufgeklappt oben. Eigene Sprache ist die Sprache der App: Deutsch bei deutscher Einstellung, sonst Englisch
+- [x] Jede andere Sprache erscheint darunter als eingeklappte Zeile mit Sprachname und Anzahl, z.B. "Auch auf Englisch · 4 weitere Quellen" bzw. "Also in German · 4 more sources". Antippen klappt die Quellen dieser Sprache auf und wieder zu
+- [x] Reihenfolge der Sprachen: eigene Sprache, dann Englisch, dann übrige alphabetisch nach angezeigtem Sprachnamen. Innerhalb einer Sprache bleibt die bisherige Reihenfolge der Quellen
+- [x] Melissa Gein verlinkt auf https://podcasts.apple.com/de/podcast/einfach-meditieren-einfach-achtsam-leben/id1588419775 und zeigt als Adresse "podcasts.apple.com"
+- [x] Antippen einer Quelle öffnet sie weiterhin außerhalb der App, auch in aufgeklappten anderen Sprachen. Antippen der eingeklappten Zeile klappt nur auf und verlässt "Wo finde ich Meditationen?" nicht
+- [x] Screenreader lesen jede Quelle in derselben Reihenfolge vor, wie sie angezeigt wird; die eingeklappte Zeile wird als Button mit Zustand (eingeklappt/aufgeklappt) vorgelesen
+- [x] Die Marketing-Screenshots von "Wo finde ich Meditationen?" sind neu aufgenommen, falls die Quellenliste darin zu sehen ist
 
 ---
 

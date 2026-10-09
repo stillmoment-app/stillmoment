@@ -19,7 +19,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
-| [shared-137](shared/shared-137-quellenliste-sprachen-lehrerinnen.md) | Quellenliste: Lehrer:innen vorne, alle Sprachen sichtbar | 4-Polish | [ ] | [ ] |
 
 ### iOS
 
@@ -29,7 +28,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | UI-Tests unabhängig vom Zustand des Simulators | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-057](ios/ios-057-unit-tests-ohne-reste-im-app-ordner.md) | Unit-Tests hinterlassen keine Daten im echten App-Ordner | 5-QA | [ ] | - |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
-| [ios-060](ios/ios-060-import-blatt-oeffnet-nicht-ausserhalb-bibliothek.md) | Import: Bearbeiten-Blatt öffnet nicht, wenn die App in einem anderen Tab steht | 1-Quick Fix | [~] | - |
 
 ### Android
 
@@ -175,6 +173,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-134](archive/shared/shared-134-app-bewerten-und-schreib-uns.md) | App bewerten und Schreib uns in den Einstellungen | 3-Feature | [x] | [x] |
 | [shared-135](archive/shared/shared-135-eigener-abschnitt-rueckmeldung.md) | Eigener Abschnitt Rückmeldung in den Einstellungen | 4-Polish | [x] | [x] |
 | [shared-136](archive/shared/shared-136-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) in den Einstellungen | 5-QA | [x] | [x] |
+| [shared-137](archive/shared/shared-137-quellenliste-sprachen-lehrerinnen.md) | Quellenliste: Lehrer:innen vorne, alle Sprachen sichtbar | 4-Polish | [x] | [x] |
 
 ### iOS
 
@@ -229,6 +228,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-054](archive/ios/ios-054-waveform-generierung-nur-einmal.md) | Waveform einer Meditation nur einmal gleichzeitig berechnen | 2-Architektur | [x] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) | Dienste nur im App-Einstieg erzeugen (Composition Root) | 2-Architektur | [x] | - |
 | [ios-059](archive/ios/ios-059-share-extension-im-app-stil.md) | Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert | 4-Polish | [x] | - |
+| [ios-060](archive/ios/ios-060-import-blatt-oeffnet-nicht-ausserhalb-bibliothek.md) | Import: Bearbeiten-Blatt öffnet nicht, wenn die App in einem anderen Tab steht | 1-Quick Fix | [x] | - |
 
 ### Android
 

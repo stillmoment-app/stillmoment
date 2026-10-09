@@ -42,6 +42,7 @@ Last Updated: 2026-10-09
 | `Praxis` | Value Object | Timer | Die eine gespeicherte Timer-Konfiguration |
 | `PraxisRepository` | Protokoll | Timer | Laden und Speichern der Praxis |
 | `PreparationCountdown` | Value Object | Bibliothek | Vorbereitungszeit vor dem Start der Wiedergabe |
+| Quellenliste (`MeditationSourceCatalog`) | Value Object | Bibliothek | Empfohlene Quellen je Sprache in „Wo finde ich Meditationen?" |
 | `ResolvedSoundscape` | Value Object | Timer | Aufgelöster Soundscape, Herkunft egal |
 | `SearchHistory` | Domain Service | Bibliothek | Die Regeln des Suchverlaufs („Zuletzt gesucht") |
 | `ShareOutcome` | Enum | Bibliothek | Was nach dem Teilen an Still Moment erscheint (nur iOS) |
@@ -229,6 +230,35 @@ lassen den Verlauf unverändert. Die Liste wird auf eine feste Länge gekappt.
   Persistenz in `domain/repositories/SearchHistoryRepository.kt`
 
 **Siehe auch:** Cross-Platform-Namensabweichungen (kanonisch: `SearchHistoryRepository`)
+
+---
+
+#### Quellenliste (`MeditationSourceCatalog`)
+
+**Typ:** Value Object (`MeditationSourceCatalog`, `MeditationSourceGroup`, `MeditationSource`)
+**Muster:** Kuratierter Katalog, mitgeliefert
+
+**Beschreibung:**
+Die empfohlenen kostenlosen Quellen in „Wo finde ich Meditationen?". Sie stehen in
+`meditation_sources.json`, je Sprache eine Liste; die Datei ist auf beiden Plattformen
+byte-gleich. Eine **Quelle** zeigt untereinander: Name (meist die Lehrerin oder der Lehrer),
+**Angebot** (`offer`, nur wenn es einen eigenen Namen hat), Beschreibung in der Sprache der
+Quelle, Adresse.
+
+**Fachlich Erklärungsbedürftiges:**
+
+| Regel | Bedeutung |
+|-------|-----------|
+| Eigene Sprache | Die Sprache der App, wenn es dafür Quellen gibt, sonst Englisch. Ihre Quellen stehen aufgeklappt oben. |
+| Sprachgruppen | Jede weitere Sprache ist eine eingeklappte Zeile („Auch auf Englisch · 4 weitere Quellen"). Reihenfolge: eigene Sprache, Englisch, übrige alphabetisch nach angezeigtem Sprachnamen. Innerhalb einer Sprache gilt die Reihenfolge der Datei. |
+| Sprachname | Vom System, in der eigenen Sprache (französisches Gerät → „Also in German"). |
+| Auf-/Zugeklappt | Flüchtig: bleibt beim Öffnen einer Anleitung erhalten, jedes neue Öffnen beginnt eingeklappt. |
+
+**Dateireferenzen:**
+- iOS: `ios/StillMoment/Domain/Models/MeditationSourceCatalog.swift`,
+  `Domain/Models/MeditationSource.swift`, Daten in `Resources/MeditationSources/meditation_sources.json`
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/MeditationSourceCatalog.kt`,
+  `domain/models/MeditationSource.kt`, Daten in `app/src/main/assets/meditation_sources.json`
 
 ---
 
