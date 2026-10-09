@@ -52,7 +52,7 @@ Baue deine eigene Meditations-Bibliothek. Importiere Audio-Dateien, organisiere 
 ### Description (English - 4000 characters max)
 
 ```
-Still Moment combines a beautiful meditation timer with your personal guided meditation library. Import your own audio files, organize them by teacher, and enjoy your practice - all in one elegant, offline app.
+Still Moment combines a beautiful meditation timer with your personal guided meditation library. Import your own audio files, organize them by teacher, and enjoy your practice - all in one elegant app that works offline.
 
 KEY FEATURES
 
@@ -98,7 +98,7 @@ Full VoiceOver support ensures Still Moment is accessible to everyone. Every ele
 No ads, no social features, no analytics, no distractions. Just you and your meditation.
 
 🔐 Privacy Focused
-Still Moment works completely offline. Your meditation data never leaves your device. No accounts, no tracking, no data collection.
+Meditating with Still Moment works without the internet. The app only goes online when you import a recording from a link. Your meditation data never leaves your device. No accounts, no tracking, no data collection.
 
 WHY STILL MOMENT?
 
@@ -136,7 +136,7 @@ HAUPTFUNKTIONEN
 • Importiere eigene Audio-Dateien (MP3, M4A, WAV)
 • Organisiere nach Lehrer oder Tradition
 • Alle gekauften Meditationen an einem Ort
-• Funktioniert ohne Internet - alles bleibt auf deinem Gerät
+• Meditieren ohne Internet - alles bleibt auf deinem Gerät
 • Perfekt für Kurs-Meditationen, Dharma-Talks oder eigene Aufnahmen
 
 ⏱️ Flexibler Timer
@@ -158,7 +158,7 @@ Volle VoiceOver-Unterstützung stellt sicher, dass Still Moment für jeden zugä
 Keine Werbung, keine sozialen Features, keine Analyse, keine Ablenkungen. Nur du und deine Meditation.
 
 🔐 Datenschutz-fokussiert
-Still Moment funktioniert komplett offline. Deine Meditationsdaten verlassen niemals dein Gerät. Keine Konten, kein Tracking, keine Datensammlung.
+Meditieren mit Still Moment funktioniert ohne Internet. Online geht die App nur, wenn du eine Aufnahme über einen Link importierst. Deine Meditationsdaten verlassen niemals dein Gerät. Keine Konten, kein Tracking, keine Datensammlung.
 
 WARUM STILL MOMENT?
 
@@ -241,10 +241,10 @@ BACKGROUND MODE:
 The app uses background audio mode to keep the timer running when the device is locked. This is essential for meditation sessions where users lock their screens.
 
 NOTIFICATIONS:
-Local notifications are used to alert users when their meditation session completes. No data is sent to external servers.
+Local notifications are used to alert users when their meditation session completes. They are scheduled on the device; nothing is sent to any server.
 
 PRIVACY:
-Still Moment operates entirely offline. No data collection, no analytics, no tracking. All data stays on the device.
+Still Moment needs no internet connection for meditating (timer and playback of the library). The only network access happens when the user explicitly imports a recording from a link: the app then downloads the audio file directly from the publishing server (for shared Apple Podcasts episodes it first queries Apple to locate the episode). No device or user identifiers are sent, there is no developer-operated server, no data collection, no analytics, no tracking. All data stays on the device.
 
 Please test VoiceOver support - all interactive elements have appropriate accessibility labels.
 
@@ -356,7 +356,7 @@ EXISTING FEATURES
 • Full VoiceOver accessibility
 
 🔐 100% Private
-• Works completely offline
+• Meditate without internet
 • No accounts, no tracking, no ads
 • All data stays on your device
 

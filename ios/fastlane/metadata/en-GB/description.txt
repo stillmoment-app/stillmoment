@@ -1,7 +1,7 @@
 Still Moment is your personal meditation app: import your own recordings, shape the timer to your liking — no subscription, no ads, no tracking.
 
 YOUR PERSONAL MEDITATION LIBRARY
-Your favourite meditations, always at hand. Offline and tracking-free.
+Your favourite meditations, always at hand — even without internet, and tracking-free.
 • Import your own recordings — from your files or shared directly from the browser
 • Quick search — by title or teacher
 • Preview before you start — jump to any point in a recording
@@ -19,7 +19,7 @@ Still Moment is intentionally simple. No points system, no statistics, no notifi
 YOUR MEDITATION, YOUR DATA, YOUR DEVICE
 Still Moment collects absolutely zero data. Everything stays on your device, where it belongs.
 • No tracking, no analytics, no ads
-• 100% offline — no internet required
+• Meditate without internet — everything stays on your device
 • No account, no sign-up, no subscription
 
 Download Still Moment and gift yourself the pause you deserve.
