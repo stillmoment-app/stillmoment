@@ -72,9 +72,15 @@
 "app.settings.soundAttributions.forest.name" = "Forest Ambience";
 "app.settings.soundAttributions.cozyRain.name" = "Cozy Midnight Rain";
 "app.settings.soundAttributions.source" = "Pixabay";
+"app.settings.fontAttributions.title" = "Font Attributions";
+"app.settings.fontAttributions.page.title" = "Font Attributions";
+"app.settings.fontAttributions.fonts.header" = "Fonts";
+"app.settings.fontAttributions.license.header" = "License";
+"app.settings.fontAttributions.license.intro" = "Both fonts are licensed under the SIL Open Font License 1.1.";
 "app.settings.privacy.title" = "Privacy Policy";
 "app.settings.version.label" = "Version";
 "accessibility.appSettings.soundAttributions.hint" = "Opens sound attribution details";
+"accessibility.appSettings.fontAttributions.hint" = "Opens font attribution details";
 "accessibility.appSettings.privacy.hint" = "Opens privacy policy in browser";
 "app.settings.rateApp.title" = "Rate the App";
 "app.settings.writeToUs.title" = "Write to Us";

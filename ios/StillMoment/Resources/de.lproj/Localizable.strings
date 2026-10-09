@@ -72,9 +72,15 @@
 "app.settings.soundAttributions.forest.name" = "Waldatmosphäre";
 "app.settings.soundAttributions.cozyRain.name" = "Regen";
 "app.settings.soundAttributions.source" = "Pixabay";
+"app.settings.fontAttributions.title" = "Schrift-Nachweise";
+"app.settings.fontAttributions.page.title" = "Schrift-Nachweise";
+"app.settings.fontAttributions.fonts.header" = "Schriften";
+"app.settings.fontAttributions.license.header" = "Lizenz";
+"app.settings.fontAttributions.license.intro" = "Beide Schriften stehen unter der SIL Open Font License 1.1.";
 "app.settings.privacy.title" = "Datenschutz";
 "app.settings.version.label" = "Version";
 "accessibility.appSettings.soundAttributions.hint" = "Öffnet Klang-Nachweise";
+"accessibility.appSettings.fontAttributions.hint" = "Öffnet Schrift-Nachweise";
 "accessibility.appSettings.privacy.hint" = "Öffnet Datenschutzerklärung im Browser";
 "app.settings.rateApp.title" = "App bewerten";
 "app.settings.writeToUs.title" = "Schreib uns";
