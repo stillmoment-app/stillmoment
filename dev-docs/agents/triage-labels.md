@@ -9,25 +9,25 @@ to the vocabulary actually used in this repo's tracker (`dev-docs/tickets/`).
 | `needs-info`               | `needs-info`         | Waiting on the reporter for more information |
 | `ready-for-agent`          | `ready-for-agent`    | Fully specified, ready for an AFK agent  |
 | `ready-for-human`          | `ready-for-human`    | Requires human implementation            |
-| `wontfix`                  | `[-] WONTFIX`        | Will not be actioned — see below         |
+| `wontfix`                  | `status: wontfix`    | Will not be actioned — see below         |
 
 ## How this coexists with the ticket status
 
-Triage roles and the ticket's `**Status**:` line are **two different axes** and must
-not be conflated:
+Triage roles and the ticket's frontmatter `status` are **two different axes** and
+must not be conflated:
 
-- **Status** answers "how far along is the work?" — `[ ]` TODO, `[~]` IN PROGRESS,
-  `[x]` DONE, `[-]` WONTFIX. Every ticket has one, in the ticket file *and* in
-  `INDEX.md`. This is the repo's own long-standing convention.
+- **Status** answers "how far along is the work?" — `todo`, `in-progress`, `done`,
+  `wontfix` (shared tickets per platform, plus `n/a`). It lives only in the
+  ticket's YAML frontmatter; `INDEX.md` is generated from it.
 - **Triage role** answers "is this ticket ready to be worked, and by whom?" It is
-  recorded as a `Triage:` line directly under the `**Status**:` line, and only on
+  recorded as a `Triage:` line directly under the ticket's title line, and only on
   tickets that are actually being triaged. Most tickets never need one: a ticket
   created via `/create-ticket` is specified up front and goes straight to TODO.
 
 `wontfix` is the one place the two axes meet. Do **not** add a `Triage: wontfix`
-line — the repo already expresses this as `**Status**: [-] WONTFIX` plus a
-`## WONTFIX` section giving the reason, and the INDEX row annotated with it. Use
-the existing convention so there is one answer, not two.
+line — the repo already expresses this as `status: wontfix` plus a
+`## WONTFIX` section giving the reason. Use the existing convention so there is
+one answer, not two.
 
 ## GitHub labels
 

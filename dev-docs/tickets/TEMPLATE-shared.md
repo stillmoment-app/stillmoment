@@ -1,9 +1,17 @@
+---
+id: shared-{NNN}
+title: {Titel}
+status:
+  ios: todo                 # todo | in-progress | done | wontfix | n/a
+  android: todo             # n/a = Plattform nicht betroffen
+phase: 3-Feature            # 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
+priority: mittel            # optional: kritisch | hoch | mittel | niedrig
+depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
+---
+
 # Ticket shared-{NNN}: {Titel}
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
-**Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
 **Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
-**Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
 ---
 
@@ -14,15 +22,6 @@
 ## Warum
 
 {1-2 Saetze: Warum ist das wichtig? Welches Problem loest es?}
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 
@@ -73,7 +72,7 @@
 
 ## Hinweise
 
-{Optional: Plattform-spezifische Fallstricke, API-Unterschiede}
+{Optional: Plattform-spezifische Fallstricke, API-Unterschiede; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
 
 ---
 

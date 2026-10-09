@@ -2,7 +2,7 @@
 
 ## Ticket-Referenzen
 
-- **Ticket-Dateinamen nie raten.** Ticket-ID und Dateiname stimmen nicht immer ueberein (z.B. `shared-013-timer-focus-mode.md` statt erwartetem `shared-013-timer-state-machine.md`). Immer per `Glob("dev-docs/tickets/**/*shared-013*")` suchen statt Dateinamen zu konstruieren.
+- **Ticket-Dateinamen nie raten.** Ticket-ID und Dateiname stimmen nicht immer ueberein (z.B. `shared-013-timer-focus-mode.md` statt erwartetem `shared-013-timer-state-machine.md`). Immer per `Glob("dev-docs/tickets/**/shared-013-*.md")` suchen (deckt aktiv + `archive/` ab, Treffer unter `plans/` ignorieren) statt Dateinamen zu konstruieren.
 
 ## Android/Kotlin Tests
 

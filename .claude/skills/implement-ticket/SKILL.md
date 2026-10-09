@@ -22,10 +22,11 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
 
 ### Schritt 2: Ticket verstehen und Vor-Checks
 
-1. **Ticket-Datei per Glob suchen** — nie den Dateinamen raten:
+1. **Ticket-Datei per Glob suchen** (aktiv + Archiv) — nie Dateinamen oder Ordner raten:
    ```
-   Glob('dev-docs/tickets/**/*<ticket-id>*')
+   Glob('dev-docs/tickets/**/<ticket-id>-*.md')
    ```
+   Treffer unter `plans/` ignorieren.
 2. **Ticket lesen**, Akzeptanzkriterien extrahieren.
 3. **Plattform-CLAUDE.md lesen** (`ios/CLAUDE.md` oder `android/CLAUDE.md`).
 4. **Bei `shared-<id>`-Tickets:** User fragen, welche Plattform zuerst umgesetzt wird. Danach Schritte 3–5 fuer Plattform A, anschliessend fuer Plattform B. Cross-Platform-Konsistenz vor Abschluss verifizieren.

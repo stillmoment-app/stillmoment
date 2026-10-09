@@ -64,8 +64,9 @@ Feature-Konzepte und Ticket-System.
 
 | Verzeichnis | Inhalt |
 |-------------|--------|
-| [tickets/](tickets/) | Aktive und abgeschlossene Tickets |
-| [tickets/INDEX.md](tickets/INDEX.md) | Ticket-Uebersicht nach Status |
+| [tickets/](tickets/) | Aktive Tickets, abgeschlossene in `tickets/archive/` |
+| [tickets/INDEX.md](tickets/INDEX.md) | Ticket-Uebersicht nach Status (generiert via `make tickets-index`) |
+| [tickets/README.md](tickets/README.md) | Ticket-Konventionen, Frontmatter, Workflow |
 | [concepts/](concepts/) | Groessere Feature-Konzepte vor Umsetzung |
 
 ---

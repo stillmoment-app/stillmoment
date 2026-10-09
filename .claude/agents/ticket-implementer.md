@@ -15,7 +15,7 @@ Folge dem `/implement-ticket` Skill fuer den Entwicklungsprozess.
 ## Regeln
 
 - **NICHT pushen** — nur lokale Commits
-- **NICHT INDEX.md aendern** — ausser beim Schliessen eines Tickets
+- **INDEX.md nie von Hand aendern** — er wird per `make tickets-index` aus dem Ticket-Frontmatter erzeugt
 - **Keine Force-Unwraps / non-null assertions** — proper error handling
 - **Keine hardcoded Strings** — alles lokalisieren (DE + EN)
 - **Semantische Farben** — nie direkte Farbwerte (`.textPrimary` statt `.warmBlack`)

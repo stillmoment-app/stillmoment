@@ -21,10 +21,11 @@ Tiefenanalyse vor der Implementierung: Code verstehen, APIs recherchieren, Ansat
 
 ### Schritt 1: Ticket finden und verstehen
 
-1. Ticket-Datei per Glob suchen — nie den Dateinamen raten:
+1. Ticket-Datei per Glob suchen (aktiv + Archiv) — nie Dateinamen oder Ordner raten:
    ```
-   Glob('dev-docs/tickets/**/*<ticket-id>*')
+   Glob('dev-docs/tickets/**/<ticket-id>-*.md')
    ```
+   Treffer unter `plans/` ignorieren. Status, Phase und Abhaengigkeiten stehen im Frontmatter.
 2. Ticket lesen, Akzeptanzkriterien extrahieren
 3. **Bei `shared-<id>`-Tickets:** User fragen, fuer welche Plattform der Plan geschrieben werden soll (iOS, Android, oder beide nacheinander). Code-Analyse und API-Recherche unterscheiden sich pro Plattform — jede Plattform bekommt einen eigenen Plan.
 4. Plattform-CLAUDE.md lesen (`ios/CLAUDE.md` oder `android/CLAUDE.md`)
@@ -115,7 +116,7 @@ Verzeichnis existiert seit dem ersten Plan-Ticket; nicht vorhanden? Mit `mkdir -
 ```markdown
 # Implementierungsplan: <ticket-id>
 
-Ticket: [<ticket-id>](../platform/<ticket-dateiname>.md)
+Ticket: <ticket-id>
 Erstellt: <datum>
 
 ## Annahmen
@@ -183,13 +184,13 @@ Optionale Sektionen (nur ergaenzen, wenn fuer dieses Ticket relevant): **Vorbere
 
 ### Schritt 7: Ticket aktualisieren
 
-Plan-Verweis im Ticket ergaenzen (unter der Status-Zeile, Status nicht aendern):
+Plan-Verweis im Ticket ergaenzen (unter der Titelzeile, Frontmatter-Status nicht aendern):
 
 ```
-**Plan**: [Implementierungsplan](../plans/<ticket-id>.md)
+**Plan**: `dev-docs/tickets/plans/<ticket-id>.md`
 ```
 
-Den Status-Uebergang zu `[~] IN PROGRESS` macht `/implement-ticket` beim Branch-Erstellen. Plan-Ticket aendert ihn nicht — der User koennte den Plan tagelang reviewen oder verwerfen.
+Den Status-Uebergang zu `in-progress` macht `/implement-ticket` beim Branch-Erstellen. Plan-Ticket aendert ihn nicht — der User koennte den Plan tagelang reviewen oder verwerfen.
 
 ### Schritt 8: User-Review
 
