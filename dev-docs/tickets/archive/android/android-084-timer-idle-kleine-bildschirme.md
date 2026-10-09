@@ -1,7 +1,7 @@
 ---
 id: android-084
 title: "Timer-Startbildschirm auf kleinen Bildschirmen abgeschnitten"
-status: in-progress
+status: done
 phase: 4-Polish
 priority: hoch
 depends_on: []
