@@ -214,8 +214,8 @@ private fun ColumnScope.FlexibleGap(minHeight: Dp) {
  *
  * - **regular** (Tablets): grosser Atemkreis, normale Liste.
  * - **compact** (typische Telefone, z.B. Pixel 8): 180-dp-Atemkreis, kompakte Liste.
- * - **medium** (z.B. 360×740 dp): 160-dp-Atemkreis, Headline ohne Abstand fuer
- *   die (leere) Kopfleiste.
+ * - **medium** (z.B. 360×740 dp): 160-dp-Atemkreis, Headline 24 dp unter dem
+ *   oberen Rand statt unter der (leeren) Kopfleiste.
  * - **small** (z.B. 360×640 dp): 120-dp-Atemkreis, minimale Abstaende.
  *
  * Android hat weniger Hoehe als iOS (Material-3-Tab-Leiste 80 dp statt 49 pt,
@@ -372,7 +372,7 @@ private val REGULAR_HEIGHT_THRESHOLD = 840.dp
  */
 private val COMPACT_HEIGHT_THRESHOLD = 640.dp
 
-/** Unter dieser Container-Hoehe greift die small-Stufe (Bedarf medium ca. 552 dp). */
+/** Unter dieser Container-Hoehe greift die small-Stufe (Bedarf medium ca. 554 dp). */
 private val MEDIUM_HEIGHT_THRESHOLD = 560.dp
 
 /** Durchmesser des runden Start-Knopfs (shared-126), identisch zu iOS. */
