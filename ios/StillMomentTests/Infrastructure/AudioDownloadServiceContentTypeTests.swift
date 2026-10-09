@@ -22,6 +22,8 @@ final class AudioDownloadServiceContentTypeTests: XCTestCase {
     override func tearDown() {
         MockURLProtocol.requestHandler = nil
         MockURLProtocol.bodyDelayNanoseconds = 0
+        MockURLProtocol.redirects = [:]
+        MockURLProtocol.onResponseDelivered = nil
         self.sut = nil
         super.tearDown()
     }
@@ -166,6 +168,51 @@ final class AudioDownloadServiceContentTypeTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: localURL.path))
     }
 
+    // MARK: - Weiterleitung (audiodharma: /talks/<id>/download → 302 → Datei beim Speicheranbieter)
+
+    func testRedirectedMp3IsLoadedCompletely() async throws {
+        // Given — die Weiterleitung selbst meldet text/html, das Ziel audio/mp3
+        let sut = try XCTUnwrap(self.sut)
+        let sharedURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25407/download"))
+        let fileURL = try XCTUnwrap(URL(string: "https://speicher.example/talk-25407.mp3"))
+        let content = Data((0..<100_000).map { UInt8($0 % 251) })
+        MockURLProtocol.redirects = [sharedURL: fileURL]
+        MockURLProtocol.bodyDelayNanoseconds = Self.shortDelay
+        MockURLProtocol.requestHandler = { request in
+            XCTAssertEqual(request.url, fileURL)
+            return try Self.answer(request, contentType: "audio/mp3", body: content)
+        }
+
+        // When
+        let localURL = try await sut.download(from: sharedURL, filename: "download")
+        defer { try? FileManager.default.removeItem(at: localURL.deletingLastPathComponent()) }
+
+        // Then
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+        XCTAssertEqual(try Data(contentsOf: localURL), content)
+    }
+
+    func testRedirectedOtherAudioFormatIsRejectedWithoutWaitingForTheFile() async throws {
+        // Given — Weiterleitung auf eine Ogg-Datei, deren Inhalt erst nach 5 s kommt
+        let sut = try XCTUnwrap(self.sut)
+        let sharedURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/1/download"))
+        let fileURL = try XCTUnwrap(URL(string: "https://speicher.example/talk-1.ogg"))
+        MockURLProtocol.redirects = [sharedURL: fileURL]
+        MockURLProtocol.bodyDelayNanoseconds = Self.slowBody
+        MockURLProtocol.requestHandler = { request in
+            XCTAssertEqual(request.url, fileURL)
+            return try Self.answer(request, contentType: "audio/ogg", body: Data(count: 50000))
+        }
+        let start = Date()
+
+        // When
+        let error = await Self.downloadError(sut, from: sharedURL)
+
+        // Then
+        XCTAssertEqual(error, .unsupportedContentType)
+        XCTAssertLessThan(Date().timeIntervalSince(start), 2, "Abgelehnt, bevor die Datei geladen ist")
+    }
+
     // MARK: - Abbrechen
 
     func testCancellingAnAcceptedRunningDownloadIsStillACancel() async throws {
@@ -176,11 +223,13 @@ final class AudioDownloadServiceContentTypeTests: XCTestCase {
         MockURLProtocol.requestHandler = { request in
             try Self.answer(request, contentType: "audio/mpeg", body: Data(count: 50000))
         }
+        let responseArrived = self.expectation(description: "Antwort beim Client")
+        MockURLProtocol.onResponseDelivered = { responseArrived.fulfill() }
         let start = Date()
         let download = Task { await Self.downloadError(sut, from: remoteURL) }
 
-        // When
-        try await Task.sleep(nanoseconds: 300_000_000)
+        // When — erst abbrechen, wenn die passenden Kopfzeilen angekommen sind
+        await self.fulfillment(of: [responseArrived], timeout: 5)
         sut.cancelDownload()
 
         // Then
