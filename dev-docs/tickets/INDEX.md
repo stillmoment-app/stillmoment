@@ -21,7 +21,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
 | [shared-132](shared/shared-132-mehrfach-teilen-ohne-fehler.md) | Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt | 4-Polish | [ ] | [ ] |
 | [shared-133](shared/shared-133-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [ ] |
-| [shared-136](shared/shared-136-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) in den Einstellungen | 5-QA | [ ] | [ ] |
 
 ### iOS
 
@@ -172,6 +171,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-131](archive/shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [x] | [x] |
 | [shared-134](archive/shared/shared-134-app-bewerten-und-schreib-uns.md) | App bewerten und Schreib uns in den Einstellungen | 3-Feature | [x] | [x] |
 | [shared-135](archive/shared/shared-135-eigener-abschnitt-rueckmeldung.md) | Eigener Abschnitt Rückmeldung in den Einstellungen | 4-Polish | [x] | [x] |
+| [shared-136](archive/shared/shared-136-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) in den Einstellungen | 5-QA | [x] | [x] |
 
 ### iOS
 

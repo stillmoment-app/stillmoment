@@ -2,8 +2,8 @@
 id: shared-136
 title: "Schrift-Nachweise (OFL) in den Einstellungen"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 5-QA
 priority: mittel
 depends_on: []
