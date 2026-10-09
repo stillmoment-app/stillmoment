@@ -13,9 +13,21 @@ final class MockAudioDownloadService: AudioDownloadServiceProtocol {
     var errorToThrow: AudioDownloadError?
     var downloadCancelCalled = false
     var downloadedFileURL: URL?
+    /// Laeuft, waehrend der Download "unterwegs" ist — z.B. um dort Abbrechen zu tippen.
+    /// Wurde dabei abgebrochen, wirft der Download wie der echte Dienst `.downloadCancelled`.
+    var whileDownloading: (@MainActor () -> Void)?
+    /// Alle angefragten Adressen in Reihenfolge
+    private(set) var requestedURLs: [URL] = []
 
     func download(from url: URL, filename: String) async throws -> URL {
         self.downloadedURL = url
+        self.requestedURLs.append(url)
+        if let whileDownloading {
+            await whileDownloading()
+            if self.downloadCancelCalled {
+                throw AudioDownloadError.downloadCancelled
+            }
+        }
         if let errorToThrow {
             throw errorToThrow
         }

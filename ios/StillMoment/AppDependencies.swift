@@ -39,6 +39,8 @@ struct AppDependencies {
     let guidedSettingsRepository: GuidedSettingsRepository
     let waveformProvider: WaveformProviderProtocol
     let downloadService: AudioDownloadServiceProtocol
+    /// Resolves a shared Apple Podcasts episode to its audio file (shared-128)
+    let episodeResolver: PodcastEpisodeResolverProtocol
 
     // MARK: Per-player services
 
@@ -80,12 +82,9 @@ struct AppDependencies {
             meditationSourceRepository: MeditationSourceRepository(),
             searchHistoryStore: UserDefaultsSearchHistoryStore(),
             guidedSettingsRepository: GuidedMeditationSettingsRepository(),
-            waveformProvider: WaveformProvider(
-                generationService: WaveformGenerationService(),
-                cacheService: WaveformCacheService(),
-                meditationService: meditationService
-            ),
+            waveformProvider: Self.makeWaveformProvider(meditationService: meditationService),
             downloadService: AudioDownloadService(),
+            episodeResolver: ApplePodcastsEpisodeResolver(),
             makeGongPlayer: makeGongPlayer,
             makeAudioPlayerService: Self.audioPlayerServiceFactory(
                 coordinator: coordinator,
@@ -96,6 +95,15 @@ struct AppDependencies {
     }
 
     // MARK: Private
+
+    @MainActor
+    private static func makeWaveformProvider(meditationService: GuidedMeditationServiceProtocol) -> WaveformProvider {
+        WaveformProvider(
+            generationService: WaveformGenerationService(),
+            cacheService: WaveformCacheService(),
+            meditationService: meditationService
+        )
+    }
 
     private static func audioPlayerServiceFactory(
         coordinator: AudioSessionCoordinatorProtocol,

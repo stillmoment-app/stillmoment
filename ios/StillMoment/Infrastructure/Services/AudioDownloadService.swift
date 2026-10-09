@@ -25,8 +25,14 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
 
     // MARK: Internal
 
+    /// Loads the file directly into a file on disk (not into memory), so long podcast
+    /// episodes (> 2 h, > 150 MB) can be imported (shared-128).
     func download(from url: URL, filename: String) async throws -> URL {
-        let (data, httpResponse) = try await self.fetch(url: url)
+        let (sessionFileURL, httpResponse) = try await self.fetch(url: url)
+        // URLSession's async download does not delete its file — every path below
+        // either moves it away or removes it.
+        defer { try? FileManager.default.removeItem(at: sessionFileURL) }
+
         let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type")
         try Self.validateContentType(contentType)
 
@@ -40,18 +46,19 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
         // (sichtbar in Import-Sheet / Library) und mehrfache Downloads nicht kollidieren.
         let downloadDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("dl_\(UUID().uuidString)")
-        let tempURL = downloadDir.appendingPathComponent(resolvedName)
+        let targetURL = downloadDir.appendingPathComponent(resolvedName)
 
         do {
             try FileManager.default.createDirectory(at: downloadDir, withIntermediateDirectories: true)
-            try data.write(to: tempURL)
+            try FileManager.default.moveItem(at: sessionFileURL, to: targetURL)
         } catch {
-            Logger.infrastructure.error("Failed to write downloaded file: \(error.localizedDescription)")
+            Logger.infrastructure.error("Failed to store downloaded file: \(error.localizedDescription)")
+            try? FileManager.default.removeItem(at: downloadDir)
             throw AudioDownloadError.downloadFailed
         }
 
         Logger.infrastructure.info("Downloaded audio file: \(resolvedName)")
-        return tempURL
+        return targetURL
     }
 
     /// Note: Cancels all tasks on the session. Safe as long as this service
@@ -67,27 +74,32 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
 
     private static let supportedExtensions: Set<String> = ["mp3", "m4a"]
 
-    /// Fetches the response and maps URLSession errors to AudioDownloadError cases.
-    private func fetch(url: URL) async throws -> (Data, HTTPURLResponse) {
-        let request = URLRequest(url: url)
-        let data: Data
+    /// Downloads into URLSession's temporary file and maps URLSession errors to AudioDownloadError cases.
+    ///
+    /// On any error after the download the temporary file is removed here; on success the
+    /// caller owns it. No cookies are sent or stored (no identifiers, shared-128).
+    private func fetch(url: URL) async throws -> (URL, HTTPURLResponse) {
+        var request = URLRequest(url: url)
+        request.httpShouldHandleCookies = false
+        let fileURL: URL
         let response: URLResponse
         do {
-            (data, response) = try await self.session.data(for: request)
+            (fileURL, response) = try await self.session.download(for: request)
         } catch let error as URLError where error.code == .cancelled {
             throw AudioDownloadError.downloadCancelled
         } catch {
             throw AudioDownloadError.networkError
         }
-        try Task.checkCancellation()
 
-        guard let httpResponse = response as? HTTPURLResponse else {
+        guard !Task.isCancelled,
+              let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode)
+        else {
+            try? FileManager.default.removeItem(at: fileURL)
+            try Task.checkCancellation()
             throw AudioDownloadError.invalidResponse
         }
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw AudioDownloadError.invalidResponse
-        }
-        return (data, httpResponse)
+        return (fileURL, httpResponse)
     }
 
     /// Validates that the Content-Type (if present) is an audio type or generic octet-stream.

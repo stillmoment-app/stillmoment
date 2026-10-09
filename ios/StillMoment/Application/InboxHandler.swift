@@ -27,43 +27,6 @@ enum InboxResult: Equatable {
     case error(InboxError)
 }
 
-// MARK: - InboxError
-
-/// Errors that can occur during inbox processing
-enum InboxError: Error, Equatable, LocalizedError {
-    /// The download of a shared URL failed (network, server, write error — retry sinnvoll)
-    case downloadFailed
-    /// Der geteilte Link liefert keine Audio-Datei (z. B. text/html). Retry hilft nicht.
-    case notAnAudioUrl
-    /// The app group container is not available
-    case containerNotAvailable
-
-    // MARK: Internal
-
-    var errorDescription: String? {
-        switch self {
-        case .downloadFailed:
-            NSLocalizedString(
-                "inbox_error_download_failed",
-                value: "The download failed. Please try again.",
-                comment: "Error when downloading a shared audio file fails"
-            )
-        case .notAnAudioUrl:
-            NSLocalizedString(
-                "share.download.error.not_audio.message",
-                value: "We couldn't find a recording at this link.",
-                comment: "Error when a shared URL does not point to an audio file"
-            )
-        case .containerNotAvailable:
-            NSLocalizedString(
-                "inbox_error_container_not_available",
-                value: "Unable to access shared data.",
-                comment: "Error when the app group container is not available"
-            )
-        }
-    }
-}
-
 // MARK: - URLReference
 
 /// JSON format written by the Share Extension for shared URLs
@@ -95,11 +58,13 @@ final class InboxHandler: ObservableObject {
     init(
         fileOpenHandler: FileOpenHandler,
         downloadService: AudioDownloadServiceProtocol,
+        episodeResolver: PodcastEpisodeResolverProtocol,
         fileManager: FileManager = .default,
         inboxDirectoryURL: URL
     ) {
         self.fileOpenHandler = fileOpenHandler
         self.downloadService = downloadService
+        self.episodeResolver = episodeResolver
         self.fileManager = fileManager
         self.inboxDirectoryURL = inboxDirectoryURL
     }
@@ -164,14 +129,48 @@ final class InboxHandler: ObservableObject {
         return result
     }
 
-    /// Cancels any in-progress download
+    /// Processes the last shared link again after a retryable error ("Retry" in the alert).
+    ///
+    /// The inbox entry is already cleaned up after the first attempt, so the link is
+    /// remembered here. Returns `.empty` if there is nothing to retry.
+    func retry() async -> InboxResult {
+        guard !self.isProcessing, let link = self.retryableSharedLink else {
+            return .empty
+        }
+        self.isProcessing = true
+        defer { self.isProcessing = false }
+        return await self.processSharedLink(link)
+    }
+
+    /// Cancels the running episode lookup and download (loading window "Cancel").
+    /// No message and no entry result from a cancelled share.
     func cancelDownload() {
+        self.cancelRequested = true
+        self.episodeResolver.cancel()
         self.downloadService.cancelDownload()
     }
 
     // MARK: Private
 
+    /// A link shared via the Share Extension
+    private struct SharedLink {
+        let url: URL
+        let filename: String
+    }
+
+    /// What differs between link import and podcast import once the audio address is known
+    private struct DownloadPlan {
+        let url: URL
+        let filename: String
+        let mapError: (AudioDownloadError) -> InboxError?
+        let rejectedFileError: InboxError
+        var preferredTitle: String?
+        var preferredArtist: String?
+    }
+
     private var isProcessing = false
+    private var cancelRequested = false
+    private var retryableSharedLink: SharedLink?
 
     private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
     private static let supportedExtensions: Set<String> = ["mp3", "m4a", "json"]
@@ -179,6 +178,7 @@ final class InboxHandler: ObservableObject {
 
     private let fileOpenHandler: FileOpenHandler
     private let downloadService: AudioDownloadServiceProtocol
+    private let episodeResolver: PodcastEpisodeResolverProtocol
     private let fileManager: FileManager
     private let inboxDirectoryURL: URL
 
@@ -243,13 +243,17 @@ final class InboxHandler: ObservableObject {
     /// Defense-in-Depth: Der AudioDownloadService akzeptiert ggf. neue
     /// Content-Types, die FileOpenHandler.canHandle (noch) nicht kennt.
     /// Ohne diesen Check waere die Ablehnung fuer den User unsichtbar.
-    private func importDownloadedFile(at url: URL) async -> InboxResult {
+    private func importDownloadedFile(at url: URL, plan: DownloadPlan) async -> InboxResult {
         guard case .success = self.fileOpenHandler.validateFileForImport(url: url) else {
             Logger.infrastructure.error("Downloaded file rejected by importer: \(url.lastPathComponent)")
-            self.downloadError = .notAnAudioUrl
-            return .error(.notAnAudioUrl)
+            return self.fail(plan.rejectedFileError)
         }
-        switch await self.fileOpenHandler.importFile(from: url) {
+        let result = await self.fileOpenHandler.importFile(
+            from: url,
+            preferredTitle: plan.preferredTitle,
+            preferredArtist: plan.preferredArtist
+        )
+        switch result {
         case .success:
             return .downloadCompleted(url)
         case let .failure(error):
@@ -276,38 +280,118 @@ final class InboxHandler: ObservableObject {
     private func processURLReference(at url: URL) async -> InboxResult {
         guard let data = try? Data(contentsOf: url),
               let urlRef = try? JSONDecoder().decode(URLReference.self, from: data),
-              let downloadURL = URL(string: urlRef.url)
+              let sharedURL = URL(string: urlRef.url)
         else {
             Logger.infrastructure.error("Failed to parse URL reference: \(url.lastPathComponent)")
-            self.downloadError = .downloadFailed
-            return .error(.downloadFailed)
+            return self.fail(.downloadFailed)
+        }
+        return await self.processSharedLink(SharedLink(url: sharedURL, filename: urlRef.filename))
+    }
+
+    /// Processes a shared link: an Apple Podcasts episode is resolved to its audio file first
+    /// (shared-128), every other link is downloaded directly (link import).
+    /// Remembers the link when the error can be retried.
+    private func processSharedLink(_ link: SharedLink) async -> InboxResult {
+        self.cancelRequested = false
+        self.retryableSharedLink = nil
+
+        let result: InboxResult
+        switch ApplePodcastsLink.parse(link.url) {
+        case .podcast:
+            // Decided without network — no loading window.
+            Logger.infrastructure.info("Shared link is a whole podcast, not a single episode")
+            result = self.fail(.podcastWithoutEpisode)
+        case let .episode(country, podcastId, episodeId):
+            result = await self.processPodcastEpisode(country: country, podcastId: podcastId, episodeId: episodeId)
+        case nil:
+            result = await self.downloadAndImport(DownloadPlan(
+                url: link.url,
+                filename: link.filename,
+                mapError: InboxError.forLinkImport,
+                rejectedFileError: .notAnAudioUrl
+            ))
         }
 
+        if case let .error(error) = result, error.isRetryable {
+            self.retryableSharedLink = link
+        }
+        return result
+    }
+
+    /// Looks up the episode in the podcast directory, then loads its audio file directly
+    /// from the podcast's provider. Title and teacher suggestions win over the file's tags.
+    private func processPodcastEpisode(country: String, podcastId: Int64, episodeId: Int64) async -> InboxResult {
         self.isDownloading = true
         defer { self.isDownloading = false }
 
+        let episode: PodcastEpisode
         do {
-            let downloadedURL = try await self.downloadService.download(
-                from: downloadURL,
-                filename: urlRef.filename
+            episode = try await self.episodeResolver.resolveEpisode(
+                country: country,
+                podcastId: podcastId,
+                episodeId: episodeId
             )
-            Logger.infrastructure.info("Download completed: \(urlRef.filename)")
-            return await self.importDownloadedFile(at: downloadedURL)
-        } catch is CancellationError {
-            Logger.infrastructure.info("Download cancelled for \(urlRef.url)")
-            return .empty
-        } catch let error as AudioDownloadError where error == .downloadCancelled {
-            Logger.infrastructure.info("Download cancelled for \(urlRef.url)")
-            return .empty
-        } catch let error as AudioDownloadError where error == .unsupportedContentType {
-            Logger.infrastructure.info("URL did not point to audio: \(urlRef.url)")
-            self.downloadError = .notAnAudioUrl
-            return .error(.notAnAudioUrl)
         } catch {
-            Logger.infrastructure.error("Download failed for \(urlRef.url)")
-            self.downloadError = .downloadFailed
-            return .error(.downloadFailed)
+            let resolveError = (error as? PodcastEpisodeResolveError)
+                ?? (error is CancellationError ? .cancelled : .unavailable)
+            Logger.infrastructure.info("Podcast episode not resolved: \(String(describing: resolveError))")
+            return self.failUnlessCancelled(InboxError.forPodcastImport(resolveError))
         }
+
+        guard !self.cancelRequested else {
+            Logger.infrastructure.info("Podcast import cancelled after lookup")
+            return .empty
+        }
+
+        return await self.downloadAndImport(DownloadPlan(
+            url: episode.audioURL,
+            filename: episode.audioURL.lastPathComponent,
+            mapError: InboxError.forPodcastImport,
+            rejectedFileError: .episodeUnavailable,
+            preferredTitle: episode.title,
+            preferredArtist: episode.teacherSuggestion
+        ))
+    }
+
+    /// Downloads the audio file (loading window visible) and hands it to the importer.
+    private func downloadAndImport(_ plan: DownloadPlan) async -> InboxResult {
+        self.isDownloading = true
+        defer { self.isDownloading = false }
+
+        let downloadedURL: URL
+        do {
+            downloadedURL = try await self.downloadService.download(from: plan.url, filename: plan.filename)
+        } catch is CancellationError {
+            Logger.infrastructure.info("Download cancelled for \(plan.url.absoluteString)")
+            return .empty
+        } catch {
+            let downloadError = (error as? AudioDownloadError) ?? .downloadFailed
+            Logger.infrastructure.info("Download ended without file: \(String(describing: downloadError))")
+            return self.failUnlessCancelled(plan.mapError(downloadError))
+        }
+
+        guard !self.cancelRequested else {
+            Logger.infrastructure.info("Import cancelled after download")
+            try? self.fileManager.removeItem(at: downloadedURL)
+            return .empty
+        }
+
+        Logger.infrastructure.info("Download completed: \(downloadedURL.lastPathComponent)")
+        return await self.importDownloadedFile(at: downloadedURL, plan: plan)
+    }
+
+    /// Publishes the error for the alert and returns it as result.
+    private func fail(_ error: InboxError) -> InboxResult {
+        self.downloadError = error
+        return .error(error)
+    }
+
+    /// `nil` means the user cancelled — no message, no entry.
+    private func failUnlessCancelled(_ error: InboxError?) -> InboxResult {
+        guard let error else {
+            return .empty
+        }
+        return self.fail(error)
     }
 
     /// Returns the modification date of a file
