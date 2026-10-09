@@ -24,9 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +46,7 @@ import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import com.stillmoment.presentation.util.languageDisplayName
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 
 /** Card border and divider: onSurface at 8 % (unchanged from the former source card). */
 private const val CARD_BORDER_ALPHA = 0.08f
@@ -69,12 +67,15 @@ private const val CHEVRON_EXPANDED_DEGREES = 180f
  *
  * The first group is the user's own language and stands expanded. Every further
  * language follows as a collapsed row ("Also in German · 4 more sources") that
- * expands its sources in place. The expanded state is transient: each time the
- * sheet opens, all other languages start collapsed.
+ * expands its sources in place. The expanded languages are owned by the caller
+ * ([expandedLanguageCodes] + [onToggleLanguage]) so they survive a detour into a
+ * how-to guide; each time the sheet opens, all other languages start collapsed.
  */
 @Composable
 internal fun GuideSourceList(
     groups: ImmutableList<MeditationSourceGroup>,
+    expandedLanguageCodes: ImmutableSet<String>,
+    onToggleLanguage: (String) -> Unit,
     onSourceClick: (MeditationSource) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,6 +86,8 @@ internal fun GuideSourceList(
             OtherLanguageSection(
                 group = group,
                 ownLanguageCode = ownGroup.languageCode,
+                expanded = group.languageCode in expandedLanguageCodes,
+                onToggle = { onToggleLanguage(group.languageCode) },
                 onSourceClick = onSourceClick
             )
         }
@@ -95,15 +98,16 @@ internal fun GuideSourceList(
 private fun OtherLanguageSection(
     group: MeditationSourceGroup,
     ownLanguageCode: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
     onSourceClick: (MeditationSource) -> Unit
 ) {
-    var expanded by remember(group.languageCode) { mutableStateOf(false) }
     Column(modifier = Modifier.padding(top = 14.dp)) {
         LanguageRow(
             group = group,
             ownLanguageCode = ownLanguageCode,
             expanded = expanded,
-            onToggle = { expanded = !expanded }
+            onToggle = onToggle
         )
         AnimatedVisibility(visible = expanded) {
             SourceCard(
@@ -151,7 +155,6 @@ private fun LanguageRow(
             .border(0.5.dp, cardBorderColor(), shape)
             .clickable(role = Role.Button, onClick = onToggle)
             .clearAndSetSemantics {
-                role = Role.Button
                 contentDescription = "$title, $count"
                 stateDescription = state
             }

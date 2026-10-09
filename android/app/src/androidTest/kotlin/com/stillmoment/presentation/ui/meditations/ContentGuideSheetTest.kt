@@ -277,4 +277,18 @@ class ContentGuideSheetTest {
                 "Christine Brähler, Selbstmitgefühl mit Tiefe., christinebraehler.com. Open source in browser"
             )
     }
+
+    @Test
+    fun sourceList_expandedLanguage_staysExpanded_afterReturningFromAGuide() {
+        renderSheet()
+        languageRow("de").performScrollTo().performClick()
+        sourceRow("koeln").assertCountEquals(1)
+
+        openGuide("How to import from Apple Podcasts")
+        composeRule.onNodeWithContentDescription("Back", ignoreCase = true).performClick()
+        composeRule.waitForIdle()
+
+        sourceRow("koeln").assertCountEquals(1)
+        languageRow("de").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "expanded"))
+    }
 }

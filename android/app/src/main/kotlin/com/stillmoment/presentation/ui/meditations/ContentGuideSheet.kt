@@ -61,7 +61,10 @@ import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.TextStyle
 import com.stillmoment.presentation.ui.theme.toComposeTextStyle
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableSet
 
 private const val GUIDE_ANIMATION_DURATION_MS = 250
 private const val GUIDE_SLIDE_FRACTION = 8
@@ -119,6 +122,11 @@ internal fun ContentGuideSheetContent(
 ) {
     var activeGuide by remember { mutableStateOf<HowToImportGuideKind?>(null) }
 
+    // Held above AnimatedContent so expanded languages survive opening a how-to guide
+    // and coming back (same as iOS). The sheet itself leaves the composition when
+    // closed, so every new opening starts collapsed again.
+    var expandedLanguageCodes by remember { mutableStateOf<ImmutableSet<String>>(persistentSetOf()) }
+
     BackHandler(enabled = activeGuide != null) {
         activeGuide = null
     }
@@ -147,6 +155,14 @@ internal fun ContentGuideSheetContent(
         if (guide == null) {
             GuideListContent(
                 sourceGroups = sourceGroups,
+                expandedLanguageCodes = expandedLanguageCodes,
+                onToggleLanguage = { code ->
+                    expandedLanguageCodes = if (code in expandedLanguageCodes) {
+                        (expandedLanguageCodes - code).toImmutableSet()
+                    } else {
+                        (expandedLanguageCodes + code).toImmutableSet()
+                    }
+                },
                 onSourceClick = onSourceClick,
                 onBannerClick = { activeGuide = it }
             )
@@ -162,6 +178,8 @@ internal fun ContentGuideSheetContent(
 @Composable
 private fun GuideListContent(
     sourceGroups: ImmutableList<MeditationSourceGroup>,
+    expandedLanguageCodes: ImmutableSet<String>,
+    onToggleLanguage: (String) -> Unit,
     onSourceClick: (MeditationSource) -> Unit,
     onBannerClick: (HowToImportGuideKind) -> Unit
 ) {
@@ -193,7 +211,12 @@ private fun GuideListContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        GuideSourceList(groups = sourceGroups, onSourceClick = onSourceClick)
+        GuideSourceList(
+            groups = sourceGroups,
+            expandedLanguageCodes = expandedLanguageCodes,
+            onToggleLanguage = onToggleLanguage,
+            onSourceClick = onSourceClick
+        )
     }
 }
 
