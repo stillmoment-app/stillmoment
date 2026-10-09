@@ -308,3 +308,4 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [android-078](archive/android/android-078-edit-stale-lambda.md) | Edit-Sheet zeigt alte Metadaten (stale lambda) | 1-Quick Fix | [x] | - |
 | [android-080](archive/android/android-080-waveform-generierung-beschleunigen.md) | Waveform-Generierung langer Meditationen beschleunigen (Sampling) | 4-Polish | [x] | - |
 | [android-081](archive/android/android-081-target-sdk-36-android-16.md) | Target API Level 36 (Android 16) fuer Google Play — Frist 31.08.2026 | 2-Architektur | [x] | - |
+| [android-085](archive/android/android-085-vorbereitungszeit-titel-einstellungen.md) | Vorbereitungszeit in den Einstellungen mit Titel und Untertitel wie auf iOS | 4-Polish | [x] | - |

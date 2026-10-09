@@ -163,7 +163,8 @@
     <string name="trim_editor_a11y_edge_chip_end">Show end point at %1$s</string>
 
     <!-- Guided Meditations Settings -->
-    <string name="guided_meditations_settings_preparation_description">Time to settle in before the audio starts</string>
+    <string name="guided_meditations_settings_preparation_title">Preparation Time</string>
+    <string name="guided_meditations_settings_preparation_description">Time to settle before the meditation starts</string>
     <string name="guided_meditations_settings_preparation_duration">Duration</string>
 
     <!-- Guided Meditations Accessibility -->
