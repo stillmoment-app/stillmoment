@@ -46,8 +46,8 @@ struct StillMomentApp: App {
     /// Navigation path for library tab (enables programmatic navigation)
     @State private var libraryPath = NavigationPath()
 
-    /// Error message from file open handling
-    @State private var fileOpenErrorMessage: String?
+    /// Error from file open handling (title and message come from the error)
+    @State private var fileOpenError: FileOpenError?
 
     /// Scene phase for inbox polling
     @Environment(\.scenePhase)
@@ -199,17 +199,17 @@ struct StillMomentApp: App {
                 )
             }
             .alert(
-                NSLocalizedString("common.error", comment: ""),
+                NSLocalizedString(self.fileOpenError?.alertTitleKey ?? "common.error", comment: ""),
                 isPresented: Binding(
-                    get: { self.fileOpenErrorMessage != nil },
-                    set: { if !$0 { self.fileOpenErrorMessage = nil } }
+                    get: { self.fileOpenError != nil },
+                    set: { if !$0 { self.fileOpenError = nil } }
                 )
             ) {
                 Button(NSLocalizedString("common.ok", comment: "")) {
-                    self.fileOpenErrorMessage = nil
+                    self.fileOpenError = nil
                 }
             } message: {
-                if let errorMessage = fileOpenErrorMessage {
+                if let errorMessage = fileOpenError?.localizedDescription {
                     Text(errorMessage)
                 }
             }
@@ -278,7 +278,7 @@ struct StillMomentApp: App {
     ///
     /// Download- und Netzwerk-Fehler werden vom InboxHandler ueber `downloadError`
     /// publiziert (eigener Alert). Import-Fehler (Duplikat, Metadata, Persist)
-    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenErrorMessage`
+    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenError`
     /// gemeldet — denselben Alert nutzt auch der "Open with"-Pfad.
     private func checkInbox() {
         Task {
@@ -302,7 +302,7 @@ struct StillMomentApp: App {
             self.selectedTab = AppTab.library.rawValue
         case let .audioImportFailed(error):
             self.selectedTab = AppTab.library.rawValue
-            self.fileOpenErrorMessage = error.localizedDescription
+            self.fileOpenError = error
         case .empty,
              .downloadStarted,
              .error:
@@ -364,7 +364,7 @@ struct StillMomentApp: App {
             case .success:
                 self.selectedTab = AppTab.library.rawValue
             case let .failure(error):
-                self.fileOpenErrorMessage = error.localizedDescription
+                self.fileOpenError = error
             }
         }
     }

@@ -21,6 +21,17 @@ enum FileOpenError: Error, Equatable, LocalizedError {
 
     // MARK: Internal
 
+    /// Alert title: a duplicate is no error — the recording is already there.
+    var alertTitleKey: String {
+        switch self {
+        case .alreadyImported:
+            "error.alreadyImported.title"
+        case .unsupportedFormat,
+             .importFailed:
+            "common.error"
+        }
+    }
+
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:

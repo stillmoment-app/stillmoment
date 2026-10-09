@@ -328,6 +328,7 @@
 "error.updateFailed" = "Failed to update meditation";
 "error.unsupportedFormat" = "This file format is not supported";
 "error.fileOpenImportFailed" = "The file could not be imported";
+"error.alreadyImported.title" = "Already there";
 "error.alreadyImported" = "This recording is already in your library";
 "error.alreadyImported.withInfo" = "This recording is already in your library · %1$@ – %2$@";
 

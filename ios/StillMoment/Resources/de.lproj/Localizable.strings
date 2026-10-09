@@ -328,6 +328,7 @@
 "error.updateFailed" = "Meditation konnte nicht aktualisiert werden";
 "error.unsupportedFormat" = "Dieses Dateiformat wird nicht unterstützt";
 "error.fileOpenImportFailed" = "Die Datei konnte nicht importiert werden";
+"error.alreadyImported.title" = "Schon da";
 "error.alreadyImported" = "Diese Aufnahme ist schon in deiner Bibliothek";
 "error.alreadyImported.withInfo" = "Diese Aufnahme ist schon in deiner Bibliothek · %1$@ – %2$@";
 
