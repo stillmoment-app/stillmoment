@@ -76,6 +76,29 @@ final class ApplePodcastsLinkTests: XCTestCase {
         XCTAssertEqual(ApplePodcastsLink.parse(text), .podcast(country: "de", podcastId: 1_528_936_478))
     }
 
+    // MARK: - Ohne Laender-Segment
+
+    func testEpisodeLinkWithoutCountryIsRecognized() throws {
+        let url = try XCTUnwrap(URL(string: "https://podcasts.apple.com/podcast/achtsam/id1528936478?i=1000792422344"))
+
+        XCTAssertEqual(
+            ApplePodcastsLink.parse(url),
+            .episode(country: nil, podcastId: 1_528_936_478, episodeId: 1_000_792_422_344)
+        )
+    }
+
+    func testWholePodcastLinkWithoutCountryIsRecognized() throws {
+        let url = try XCTUnwrap(URL(string: "https://podcasts.apple.com/podcast/achtsam/id1528936478"))
+
+        XCTAssertEqual(ApplePodcastsLink.parse(url), .podcast(country: nil, podcastId: 1_528_936_478))
+    }
+
+    func testTwoLetterSegmentNotFollowedByPodcastIsNotACountry() throws {
+        let url = try XCTUnwrap(URL(string: "https://podcasts.apple.com/de/browse/id1528936478?i=1000792422344"))
+
+        XCTAssertNil(ApplePodcastsLink.parse(url))
+    }
+
     // MARK: - Kein Apple-Podcasts-Link
 
     func testForeignHostIsNotAnApplePodcastsLink() throws {

@@ -45,7 +45,7 @@ struct ApplePodcastsLookupResponse: Decodable {
         let podcast = response.results.first { $0.kind == "podcast" }
         return PodcastEpisode(
             audioURL: audioURL,
-            title: entry.trackName,
+            title: Self.trimmed(entry.trackName),
             podcastAuthor: podcast?.artistName,
             podcastName: Self.nonEmpty(podcast?.collectionName) ?? entry.collectionName
         )
@@ -65,6 +65,14 @@ struct ApplePodcastsLookupResponse: Decodable {
         }
         components.scheme = "https"
         return components.url
+    }
+
+    /// Removes whitespace at the edges only — nothing else is cut (e.g. "(20:34 Min.)" stays).
+    private static func trimmed(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
     }
 
     private static func nonEmpty(_ value: String?) -> String? {

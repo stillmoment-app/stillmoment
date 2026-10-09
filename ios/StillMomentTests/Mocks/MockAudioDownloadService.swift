@@ -16,6 +16,8 @@ final class MockAudioDownloadService: AudioDownloadServiceProtocol {
     /// Laeuft, waehrend der Download "unterwegs" ist — z.B. um dort Abbrechen zu tippen.
     /// Wurde dabei abgebrochen, wirft der Download wie der echte Dienst `.downloadCancelled`.
     var whileDownloading: (@MainActor () -> Void)?
+    /// Laeuft, nachdem der Download fertig ist (die Datei liegt schon da).
+    var afterDownloaded: (@MainActor () -> Void)?
     /// Alle angefragten Adressen in Reihenfolge
     private(set) var requestedURLs: [URL] = []
 
@@ -24,22 +26,23 @@ final class MockAudioDownloadService: AudioDownloadServiceProtocol {
         self.requestedURLs.append(url)
         if let whileDownloading {
             await whileDownloading()
-            if self.downloadCancelCalled {
-                throw AudioDownloadError.downloadCancelled
-            }
         }
+        // Ein konfigurierter Fehler kommt auch nach Abbrechen noch an (z.B. Netzfehler im selben Moment).
         if let errorToThrow {
             throw errorToThrow
+        }
+        if self.whileDownloading != nil, self.downloadCancelCalled {
+            throw AudioDownloadError.downloadCancelled
         }
         if self.downloadShouldFail {
             throw AudioDownloadError.downloadFailed
         }
-        guard let downloadedFileURL else {
-            // Return a default temp path if none configured
-            let tempDir = FileManager.default.temporaryDirectory
-            return tempDir.appendingPathComponent(filename)
+        // Return a default temp path if none configured
+        let result = self.downloadedFileURL ?? FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        if let afterDownloaded {
+            await afterDownloaded()
         }
-        return downloadedFileURL
+        return result
     }
 
     func cancelDownload() {

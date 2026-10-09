@@ -49,6 +49,13 @@ final class ApplePodcastsEpisodeResolverTests: XCTestCase {
         ])
     }
 
+    func testLookupWithoutCountryOmitsCountryParameter() throws {
+        let request = try XCTUnwrap(ApplePodcastsEpisodeResolver.lookupRequest(country: nil, podcastId: 1_528_936_478))
+
+        let components = try XCTUnwrap(URLComponents(url: XCTUnwrap(request.url), resolvingAgainstBaseURL: false))
+        XCTAssertEqual(components.queryItems?.map(\.name), ["id", "entity", "limit"])
+    }
+
     func testLookupRequestCarriesNoExtraHeadersOrIdentifiers() throws {
         let request = try XCTUnwrap(
             ApplePodcastsEpisodeResolver.lookupRequest(country: "de", podcastId: 1_528_936_478)

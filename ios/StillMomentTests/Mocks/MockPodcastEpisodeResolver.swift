@@ -8,7 +8,7 @@ import Foundation
 
 final class MockPodcastEpisodeResolver: PodcastEpisodeResolverProtocol {
     struct Request: Equatable {
-        let country: String
+        let country: String?
         let podcastId: Int64
         let episodeId: Int64
     }
@@ -26,16 +26,17 @@ final class MockPodcastEpisodeResolver: PodcastEpisodeResolverProtocol {
     private(set) var requests: [Request] = []
     private(set) var cancelCalled = false
 
-    func resolveEpisode(country: String, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode {
+    func resolveEpisode(country: String?, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode {
         self.requests.append(Request(country: country, podcastId: podcastId, episodeId: episodeId))
         if let whileResolving {
             await whileResolving()
         }
-        if self.cancelCalled {
-            throw PodcastEpisodeResolveError.cancelled
-        }
+        // Ein konfigurierter Fehler kommt auch nach Abbrechen noch an (z.B. Ratenlimit im selben Moment).
         if let errorToThrow {
             throw errorToThrow
+        }
+        if self.cancelCalled {
+            throw PodcastEpisodeResolveError.cancelled
         }
         let episode = try self.episodeToReturn ?? Self.defaultEpisode()
         if let afterResolved {

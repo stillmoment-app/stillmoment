@@ -23,17 +23,21 @@ final class ApplePodcastsEpisodeResolver: PodcastEpisodeResolverProtocol {
     // MARK: Internal
 
     /// Builds the lookup request: newest episodes (max. 200) of a podcast in the shared store country.
-    static func lookupRequest(country: String, podcastId: Int64) -> URLRequest? {
+    /// Links without a store country omit the `country` parameter (Apple then uses its default store).
+    static func lookupRequest(country: String?, podcastId: Int64) -> URLRequest? {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "itunes.apple.com"
         components.path = "/lookup"
-        components.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "id", value: String(podcastId)),
             URLQueryItem(name: "entity", value: "podcastEpisode"),
-            URLQueryItem(name: "limit", value: String(Self.episodeLimit)),
-            URLQueryItem(name: "country", value: country)
+            URLQueryItem(name: "limit", value: String(Self.episodeLimit))
         ]
+        if let country {
+            queryItems.append(URLQueryItem(name: "country", value: country))
+        }
+        components.queryItems = queryItems
         guard let url = components.url else {
             return nil
         }
@@ -42,7 +46,7 @@ final class ApplePodcastsEpisodeResolver: PodcastEpisodeResolverProtocol {
         return request
     }
 
-    func resolveEpisode(country: String, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode {
+    func resolveEpisode(country: String?, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode {
         guard let request = Self.lookupRequest(country: country, podcastId: podcastId) else {
             throw PodcastEpisodeResolveError.unavailable
         }

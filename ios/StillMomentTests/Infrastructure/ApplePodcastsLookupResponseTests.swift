@@ -24,6 +24,18 @@ final class ApplePodcastsLookupResponseTests: XCTestCase {
         XCTAssertEqual(episode.teacherSuggestion, "Deutschlandfunk Nova")
     }
 
+    func testEpisodeTitleIsTrimmedOnlyAtTheEdges() throws {
+        let entry = Self.episodeEntry().replacingOccurrences(
+            of: #""trackName": "Body Scan (20:34 Min.)""#,
+            with: #""trackName": "  Body Scan  (20:34 Min.)\n ""#
+        )
+        let data = Self.response(entries: [Self.podcastEntry, entry])
+
+        let episode = try ApplePodcastsLookupResponse.episode(withId: Self.episodeId, from: data)
+
+        XCTAssertEqual(episode.title, "Body Scan  (20:34 Min.)")
+    }
+
     func testPodcastEntryIsFoundRegardlessOfOrder() throws {
         let data = Self.response(entries: [Self.episodeEntry(id: 1), Self.episodeEntry(), Self.podcastEntry])
 

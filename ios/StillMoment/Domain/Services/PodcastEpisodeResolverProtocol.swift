@@ -12,7 +12,7 @@ protocol PodcastEpisodeResolverProtocol {
     /// Resolves an episode of a podcast.
     ///
     /// - Throws: `PodcastEpisodeResolveError`
-    func resolveEpisode(country: String, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode
+    func resolveEpisode(country: String?, podcastId: Int64, episodeId: Int64) async throws -> PodcastEpisode
 
     /// Cancels a running lookup
     func cancel()

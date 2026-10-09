@@ -175,6 +175,7 @@ final class InboxHandler: ObservableObject {
     private static let supportedAudioExtensions: Set<String> = ["mp3", "m4a"]
     private static let supportedExtensions: Set<String> = ["mp3", "m4a", "json"]
     private static let staleThreshold: TimeInterval = 24 * 3600
+    private static let downloadFolderPrefix = "dl_"
 
     private let fileOpenHandler: FileOpenHandler
     private let downloadService: AudioDownloadServiceProtocol
@@ -246,6 +247,7 @@ final class InboxHandler: ObservableObject {
     private func importDownloadedFile(at url: URL, plan: DownloadPlan) async -> InboxResult {
         guard case .success = self.fileOpenHandler.validateFileForImport(url: url) else {
             Logger.infrastructure.error("Downloaded file rejected by importer: \(url.lastPathComponent)")
+            self.discardDownload(at: url)
             return self.fail(plan.rejectedFileError)
         }
         let result = await self.fileOpenHandler.importFile(
@@ -257,8 +259,17 @@ final class InboxHandler: ObservableObject {
         case .success:
             return .downloadCompleted(url)
         case let .failure(error):
+            self.discardDownload(at: url)
             return .audioImportFailed(error)
         }
+    }
+
+    /// Removes a download that will not be imported, including its per-download folder
+    /// `tmp/dl_<UUID>/` (created by AudioDownloadService). Other folders are never removed.
+    private func discardDownload(at url: URL) {
+        let folder = url.deletingLastPathComponent()
+        let target = folder.lastPathComponent.hasPrefix(Self.downloadFolderPrefix) ? folder : url
+        try? self.fileManager.removeItem(at: target)
     }
 
     /// Processes an audio file entry — imports directly as a meditation.
@@ -320,7 +331,7 @@ final class InboxHandler: ObservableObject {
 
     /// Looks up the episode in the podcast directory, then loads its audio file directly
     /// from the podcast's provider. Title and teacher suggestions win over the file's tags.
-    private func processPodcastEpisode(country: String, podcastId: Int64, episodeId: Int64) async -> InboxResult {
+    private func processPodcastEpisode(country: String?, podcastId: Int64, episodeId: Int64) async -> InboxResult {
         self.isDownloading = true
         defer { self.isDownloading = false }
 
@@ -372,7 +383,7 @@ final class InboxHandler: ObservableObject {
 
         guard !self.cancelRequested else {
             Logger.infrastructure.info("Import cancelled after download")
-            try? self.fileManager.removeItem(at: downloadedURL)
+            self.discardDownload(at: downloadedURL)
             return .empty
         }
 
@@ -381,7 +392,12 @@ final class InboxHandler: ObservableObject {
     }
 
     /// Publishes the error for the alert and returns it as result.
+    /// After the user cancelled, no message appears anymore — every error becomes `.empty`.
     private func fail(_ error: InboxError) -> InboxResult {
+        guard !self.cancelRequested else {
+            Logger.infrastructure.info("Error after cancel suppressed: \(String(describing: error))")
+            return .empty
+        }
         self.downloadError = error
         return .error(error)
     }

@@ -9,13 +9,13 @@ import Foundation
 
 /// A link shared from Apple Podcasts.
 ///
-/// Form: `https://podcasts.apple.com/<land>/podcast/<kurzname>/id<Podcast-ID>?i=<Folgen-ID>`.
+/// Form: `https://podcasts.apple.com/[<land>/]podcast/<kurzname>/id<Podcast-ID>?i=<Folgen-ID>`.
 /// The link names the podcast, not the episode — the episode is resolved separately.
 enum ApplePodcastsLink: Equatable {
     /// A single episode (`?i=<Folgen-ID>` present)
-    case episode(country: String, podcastId: Int64, episodeId: Int64)
+    case episode(country: String?, podcastId: Int64, episodeId: Int64)
     /// A whole podcast without a single episode
-    case podcast(country: String, podcastId: Int64)
+    case podcast(country: String?, podcastId: Int64)
 
     // MARK: Internal
 
@@ -31,10 +31,14 @@ enum ApplePodcastsLink: Equatable {
             return nil
         }
 
-        let segments = url.pathComponents.filter { $0 != "/" }
-        guard segments.count >= 3,
-              let country = Self.country(from: segments[0]),
-              segments[1].lowercased() == "podcast",
+        let allSegments = url.pathComponents.filter { $0 != "/" }
+        // The store country is optional: `/de/podcast/…` and `/podcast/…` both occur.
+        let country = allSegments.count >= 2 && allSegments[1].lowercased() == "podcast"
+            ? Self.country(from: allSegments[0])
+            : nil
+        let segments = country == nil ? allSegments : Array(allSegments.dropFirst())
+        guard segments.count >= 2,
+              segments[0].lowercased() == "podcast",
               let lastSegment = segments.last,
               let podcastId = Self.numericId(lastSegment.lowercased(), prefix: "id")
         else {
