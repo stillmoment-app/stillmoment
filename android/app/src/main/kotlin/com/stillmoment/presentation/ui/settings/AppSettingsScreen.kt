@@ -24,6 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -153,6 +157,7 @@ private fun DebugSection(onDebugTypographyClick: () -> Unit, modifier: Modifier 
 private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val context = LocalContext.current
+    var showNoMailAppDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.padding(bottom = 16.dp)) {
         Text(
@@ -172,11 +177,7 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
             Column {
                 SoundAttributionsRow(onClick = onSoundAttributionsClick)
 
-                HorizontalDivider(
-                    color = colors.cardBorder,
-                    thickness = 0.5.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                InfoRowDivider()
 
                 PrivacyPolicyRow(
                     onClick = {
@@ -185,14 +186,22 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
                     }
                 )
 
-                HorizontalDivider(
-                    color = colors.cardBorder,
-                    thickness = 0.5.dp,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                InfoRowDivider()
+
+                RateAppRow()
+
+                InfoRowDivider()
+
+                WriteToUsRow(onNoMailApp = { showNoMailAppDialog = true })
+
+                InfoRowDivider()
 
                 VersionRow()
             }
+        }
+
+        if (showNoMailAppDialog) {
+            NoMailAppDialog(onDismiss = { showNoMailAppDialog = false })
         }
     }
 }
@@ -200,6 +209,15 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
 // endregion
 
 // region Info Rows
+
+@Composable
+private fun InfoRowDivider(modifier: Modifier = Modifier) {
+    HorizontalDivider(
+        color = LocalStillMomentColors.current.cardBorder,
+        thickness = 0.5.dp,
+        modifier = modifier.padding(horizontal = 16.dp)
+    )
+}
 
 @Composable
 private fun SoundAttributionsRow(onClick: () -> Unit, modifier: Modifier = Modifier) {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// App settings tab: Appearance (theme, appearance mode) and Info & Legal.
 ///
@@ -19,6 +20,11 @@ struct AppSettingsView: View {
 
     @Environment(\.themeColors)
     private var theme
+
+    @Environment(\.openURL)
+    private var openURL
+
+    @State private var showsNoMailAppAlert = false
 
     private let privacyURL = URL(string: "https://stillmoment-app.github.io/stillmoment/privacy.html")
 
@@ -37,6 +43,20 @@ struct AppSettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .screenTitleBar("tab.settings")
+        }
+        .alert(
+            NSLocalizedString("app.settings.writeToUs.noMailApp.title", comment: ""),
+            isPresented: self.$showsNoMailAppAlert
+        ) {
+            Button(NSLocalizedString("app.settings.writeToUs.noMailApp.copy", comment: "")) {
+                UIPasteboard.general.string = FeedbackLinks.contactAddress
+            }
+            Button(NSLocalizedString("common.ok", comment: ""), role: .cancel) {}
+        } message: {
+            Text(String(
+                format: NSLocalizedString("app.settings.writeToUs.noMailApp.message", comment: ""),
+                FeedbackLinks.contactAddress
+            ))
         }
     }
 
@@ -68,6 +88,9 @@ struct AppSettingsView: View {
                 .cardRowBackground()
             }
 
+            self.rateAppRow
+            self.writeToUsRow
+
             HStack {
                 Text("app.settings.version.label", bundle: .main)
                     .textStyle(.body, color: \.textPrimary)
@@ -80,6 +103,57 @@ struct AppSettingsView: View {
             Text("app.settings.info.header", bundle: .main)
                 .textStyle(.section, color: \.textSecondary)
                 .textCase(nil)
+        }
+    }
+
+    // MARK: - Feedback Rows
+
+    @ViewBuilder private var rateAppRow: some View {
+        if let url = FeedbackLinks.rateAppURL {
+            Link(destination: url) {
+                Text("app.settings.rateApp.title", bundle: .main)
+                    .textStyle(.body, color: \.textPrimary)
+            }
+            .accessibilityIdentifier("app.settings.row.rateApp")
+            .accessibilityHint(
+                NSLocalizedString("accessibility.appSettings.rateApp.hint", comment: "")
+            )
+            .cardRowBackground()
+        }
+    }
+
+    private var writeToUsRow: some View {
+        Button(action: self.openWriteToUsMail) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text("app.settings.writeToUs.title", bundle: .main)
+                    .textStyle(.body, color: \.textPrimary)
+                Text("app.settings.writeToUs.subtitle", bundle: .main)
+                    .textStyle(.caption, color: \.textSecondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier("app.settings.row.writeToUs")
+        .accessibilityHint(
+            NSLocalizedString("accessibility.appSettings.writeToUs.hint", comment: "")
+        )
+        .cardRowBackground()
+    }
+
+    /// Opens a prepared mail; if no mail app can take it, shows the address to copy instead.
+    private func openWriteToUsMail() {
+        guard let url = FeedbackLinks.writeToUsURL(
+            appVersion: self.appVersion,
+            build: self.buildNumber,
+            osVersion: UIDevice.current.systemVersion
+        ) else {
+            self.showsNoMailAppAlert = true
+            return
+        }
+        self.openURL(url) { accepted in
+            if !accepted {
+                self.showsNoMailAppAlert = true
+            }
         }
     }
 
@@ -107,5 +181,9 @@ struct AppSettingsView: View {
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    }
+
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
     }
 }

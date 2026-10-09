@@ -75,6 +75,14 @@
 "app.settings.version.label" = "Version";
 "accessibility.appSettings.soundAttributions.hint" = "Opens sound attribution details";
 "accessibility.appSettings.privacy.hint" = "Opens privacy policy in browser";
+"app.settings.rateApp.title" = "Rate the App";
+"app.settings.writeToUs.title" = "Write to Us";
+"app.settings.writeToUs.subtitle" = "Say hello, say thanks, share feedback";
+"app.settings.writeToUs.noMailApp.title" = "No Mail App Found";
+"app.settings.writeToUs.noMailApp.message" = "You can reach us at %@";
+"app.settings.writeToUs.noMailApp.copy" = "Copy Address";
+"accessibility.appSettings.rateApp.hint" = "Opens the App Store";
+"accessibility.appSettings.writeToUs.hint" = "Opens your mail app";
 
 // MARK: - Appearance Settings
 

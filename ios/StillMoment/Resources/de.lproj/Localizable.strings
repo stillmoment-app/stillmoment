@@ -75,6 +75,14 @@
 "app.settings.version.label" = "Version";
 "accessibility.appSettings.soundAttributions.hint" = "Öffnet Klang-Nachweise";
 "accessibility.appSettings.privacy.hint" = "Öffnet Datenschutzerklärung im Browser";
+"app.settings.rateApp.title" = "App bewerten";
+"app.settings.writeToUs.title" = "Schreib uns";
+"app.settings.writeToUs.subtitle" = "Hallo sagen, danke sagen, Feedback geben";
+"app.settings.writeToUs.noMailApp.title" = "Kein Mail-Programm gefunden";
+"app.settings.writeToUs.noMailApp.message" = "Du erreichst uns unter %@";
+"app.settings.writeToUs.noMailApp.copy" = "Adresse kopieren";
+"accessibility.appSettings.rateApp.hint" = "Öffnet den App Store";
+"accessibility.appSettings.writeToUs.hint" = "Öffnet dein Mail-Programm";
 
 // MARK: - Appearance Settings
 
