@@ -96,6 +96,21 @@ class ApplePodcastsLookupResponseTest {
         }
 
         @Test
+        fun `empty podcast name falls back to the name at the episode`() {
+            // Same as iOS: an empty name at the podcast entry counts as missing
+            val podcastWithEmptyName = """
+                {"wrapperType":"track","kind":"podcast","trackId":1528936478,"collectionName":" "}
+            """.trimIndent()
+
+            val episode = ApplePodcastsLookupResponse.parse(
+                response(podcastWithEmptyName, episodeEntry()),
+                episodeId
+            ).getOrNull()
+
+            assertEquals("Achtsam - Deutschlandfunk Nova", episode?.teacherSuggestion)
+        }
+
+        @Test
         fun `http audio address is accepted`() {
             val result = ApplePodcastsLookupResponse.parse(
                 response(podcastEntry, episodeEntry(episodeUrl = "\"http://anbieter.example/folge.mp3\"")),
@@ -119,6 +134,16 @@ class ApplePodcastsLookupResponseTest {
             assertUnavailable(
                 ApplePodcastsLookupResponse.parse(
                     response(podcastEntry, episodeEntry(contentType = "\"video\"")),
+                    episodeId
+                )
+            )
+        }
+
+        @Test
+        fun `video episode cannot be imported regardless of spelling`() {
+            assertUnavailable(
+                ApplePodcastsLookupResponse.parse(
+                    response(podcastEntry, episodeEntry(contentType = "\"Video\"")),
                     episodeId
                 )
             )

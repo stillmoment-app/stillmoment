@@ -43,7 +43,8 @@ internal object ApplePodcastsLookupResponse {
                 audioUrl = audioUrl,
                 title = episode.string("trackName"),
                 podcastAuthor = podcast?.string("artistName"),
-                podcastName = podcast?.string("collectionName") ?: episode.string("collectionName")
+                podcastName = podcast?.string("collectionName")?.takeIf { it.isNotBlank() }
+                    ?: episode.string("collectionName")
             )
         )
     }
@@ -62,7 +63,7 @@ internal object ApplePodcastsLookupResponse {
 
     /** Audio address of an audio episode; `null` for video or a missing/non-web address. */
     private fun JsonObject.audioUrl(): String? {
-        if (string("episodeContentType") == CONTENT_TYPE_VIDEO) {
+        if (string("episodeContentType").equals(CONTENT_TYPE_VIDEO, ignoreCase = true)) {
             return null
         }
         return string("episodeUrl")?.takeIf { url -> WEB_ADDRESS_PREFIXES.any { url.startsWith(it) } }
