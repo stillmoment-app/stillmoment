@@ -423,7 +423,8 @@ App auf: Sie importiert nur den neuesten. Android verhält sich gleich (shared-1
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/ShareOutcome.swift` (Mitglied auch im Extension-Target),
   Anzeige in `ios/StillMomentShareExtension/ShareConfirmationView.swift`, Ablage in der Inbox in
-  `ios/StillMoment/Infrastructure/Services/ShareInbox.swift` (Mitglied auch im Extension-Target)
+  `ios/StillMoment/Infrastructure/Services/ShareInbox.swift` (Mitglied auch im Extension-Target),
+  Format eines geteilten Links in `ios/StillMoment/Domain/Models/URLReference.swift`
 - Android: nicht vorhanden (keine Share-Extension)
 
 **Siehe auch:** Link-Import

@@ -8,18 +8,6 @@
 
 import Foundation
 
-// MARK: - URLReference
-
-/// JSON format of a shared link in the inbox.
-/// Written by the Share Extension via `ShareInbox.storeLink`, read by `InboxHandler`.
-struct URLReference: Codable {
-    let url: String
-    let filename: String
-    let timestamp: String
-}
-
-// MARK: - ShareInbox
-
 /// Writes shared audio files and links into the inbox directory (App Group `ShareInbox/`).
 ///
 /// Every entry is written to a hidden temporary file first and then moved into place,
@@ -55,7 +43,7 @@ enum ShareInbox {
         return destinationURL
     }
 
-    /// Writes a reference to a shared link (`URLReference` as JSON) into the inbox.
+    /// Writes a reference to a shared link (`URLReference` from Domain, as JSON) into the inbox.
     ///
     /// The entry is named after the link's last path component plus `.json`.
     ///
