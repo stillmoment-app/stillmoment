@@ -2,13 +2,9 @@
 # By default, the flags in this file are appended to flags specified
 # in $ANDROID_HOME/tools/proguard/proguard-android.txt
 
-# Keep Hilt classes
--keep class dagger.hilt.** { *; }
--keep class javax.inject.** { *; }
--keep class * extends dagger.hilt.android.HiltAndroidApp { *; }
-
-# Keep Compose classes
--keep class androidx.compose.** { *; }
+# Hilt, Compose and kotlinx.serialization ship their own consumer R8 rules.
+# Do not add blanket -keep rules for them: they disable shrinking, optimization
+# and obfuscation for most of the DEX code (Play Console "DEX code optimization").
 
 # Keep data classes for serialization
 -keepclassmembers class com.stillmoment.domain.models.** {
