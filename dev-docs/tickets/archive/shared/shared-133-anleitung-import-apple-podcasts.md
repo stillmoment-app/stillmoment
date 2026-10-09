@@ -2,8 +2,8 @@
 id: shared-133
 title: "Anleitung \"So importierst du aus Apple Podcasts\""
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: mittel
 depends_on: [shared-128]
