@@ -22,6 +22,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-131](shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [ ] | [ ] |
 | [shared-132](shared/shared-132-mehrfach-teilen-ohne-fehler.md) | Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt | 4-Polish | [ ] | [ ] |
 | [shared-133](shared/shared-133-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [ ] |
+| [shared-134](shared/shared-134-app-bewerten-und-schreib-uns.md) | App bewerten und Schreib uns in den Einstellungen | 3-Feature | [ ] | [ ] |
 
 ### iOS
 
