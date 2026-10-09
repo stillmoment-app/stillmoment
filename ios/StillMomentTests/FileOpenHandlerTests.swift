@@ -190,4 +190,19 @@ final class FileOpenHandlerTests: XCTestCase {
         }
         XCTAssertEqual(error, .unsupportedFormat)
     }
+
+    // MARK: - Alert Title
+
+    func testAlreadyImported_isNoError_titleSaysItIsAlreadyThere() {
+        // Ein Duplikat ist kein Fehler — die Aufnahme ist ja schon da (shared-128)
+        XCTAssertEqual(
+            FileOpenError.alreadyImported(name: nil, teacher: nil).alertTitleKey,
+            "error.alreadyImported.title"
+        )
+    }
+
+    func testRealImportProblems_keepErrorTitle() {
+        XCTAssertEqual(FileOpenError.unsupportedFormat.alertTitleKey, "common.error")
+        XCTAssertEqual(FileOpenError.importFailed.alertTitleKey, "common.error")
+    }
 }

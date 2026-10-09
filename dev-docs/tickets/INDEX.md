@@ -18,8 +18,8 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-117](shared/shared-117-lautstaerke-normalisierung.md) | Lautstärke-Normalisierung gefuehrter Meditationen | 3-Feature | [ ] | [ ] |
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
-| [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [~] | [~] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
+| [shared-131](shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [ ] | [ ] |
 
 ### iOS
 
@@ -27,10 +27,11 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 |----|--------|-------|--------|---------------|
 | [ios-049](ios/ios-049-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) im Einstellungen-Bereich | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
-| [ios-053](ios/ios-053-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) |
+| [ios-053](ios/ios-053-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [shared-128](archive/shared/shared-128-podcast-folge-aus-apple-podcasts.md) |
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | UI-Tests unabhängig vom Zustand des Simulators | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-057](ios/ios-057-unit-tests-ohne-reste-im-app-ordner.md) | Unit-Tests hinterlassen keine Daten im echten App-Ordner | 5-QA | [ ] | - |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
+| [ios-059](ios/ios-059-share-extension-im-app-stil.md) | Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert | 4-Polish | [ ] | - |
 
 ### Android
 
@@ -168,6 +169,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-122](archive/shared/shared-122-default-darstellung-dunkel.md) | Dunkle Darstellung als Standard | 1-Quick Fix | [x] | [x] |
 | [shared-126](archive/shared/shared-126-timer-start-als-play-knopf.md) | Timer-Start als runder Play-Knopf | 4-Polish | [x] | [x] |
 | [shared-127](archive/shared/shared-127-datenschutz-netzwerkzugriffe-ehrlich.md) | Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren | 1-Quick Fix | [x] | [x] |
+| [shared-128](archive/shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [x] | [x] |
 | [shared-130](archive/shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [x] | [x] |
 
 ### iOS

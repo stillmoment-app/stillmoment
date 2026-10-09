@@ -46,8 +46,8 @@ struct StillMomentApp: App {
     /// Navigation path for library tab (enables programmatic navigation)
     @State private var libraryPath = NavigationPath()
 
-    /// Error message from file open handling
-    @State private var fileOpenErrorMessage: String?
+    /// Error from file open handling (title and message come from the error)
+    @State private var fileOpenError: FileOpenError?
 
     /// Scene phase for inbox polling
     @Environment(\.scenePhase)
@@ -106,6 +106,7 @@ struct StillMomentApp: App {
         _inboxHandler = StateObject(wrappedValue: InboxHandler(
             fileOpenHandler: fileOpenHandler,
             downloadService: dependencies.downloadService,
+            episodeResolver: dependencies.episodeResolver,
             inboxDirectoryURL: inboxDir
         ))
     }
@@ -198,17 +199,17 @@ struct StillMomentApp: App {
                 )
             }
             .alert(
-                NSLocalizedString("common.error", comment: ""),
+                NSLocalizedString(self.fileOpenError?.alertTitleKey ?? "common.error", comment: ""),
                 isPresented: Binding(
-                    get: { self.fileOpenErrorMessage != nil },
-                    set: { if !$0 { self.fileOpenErrorMessage = nil } }
+                    get: { self.fileOpenError != nil },
+                    set: { if !$0 { self.fileOpenError = nil } }
                 )
             ) {
                 Button(NSLocalizedString("common.ok", comment: "")) {
-                    self.fileOpenErrorMessage = nil
+                    self.fileOpenError = nil
                 }
             } message: {
-                if let errorMessage = fileOpenErrorMessage {
+                if let errorMessage = fileOpenError?.localizedDescription {
                     Text(errorMessage)
                 }
             }
@@ -232,38 +233,28 @@ struct StillMomentApp: App {
     /// outlive every screen: its deinit stops the timer keep-alive (lock screen).
     private let dependencies: AppDependencies
 
-    /// Title-Key fuer den Download-Alert, abhaengig vom konkreten Fehler.
+    /// Titel fuer den Download-Alert, abhaengig vom konkreten Fehler (siehe `InboxError.alertTitleKey`).
     private var downloadAlertTitleKey: String {
-        switch self.inboxHandler.downloadError {
-        case .notAnAudioUrl:
-            NSLocalizedString("share.download.error.not_audio.title", comment: "")
-        default:
-            NSLocalizedString("share.download.error.title", comment: "")
-        }
+        NSLocalizedString(self.inboxHandler.downloadError?.alertTitleKey ?? "share.download.error.title", comment: "")
     }
 
     /// Message-Key fuer den Download-Alert, abhaengig vom konkreten Fehler.
     private var downloadAlertMessageKey: String {
-        switch self.inboxHandler.downloadError {
-        case .notAnAudioUrl:
-            "share.download.error.not_audio.message"
-        default:
-            "share.download.error.message"
-        }
+        self.inboxHandler.downloadError?.alertMessageKey ?? "share.download.error.message"
     }
 
-    /// Buttons fuer den Download-Alert: Retry nur bei wiederholbaren Fehlern.
+    /// Buttons fuer den Download-Alert: Retry nur, wenn ein erneuter Versuch etwas aendern kann.
     @ViewBuilder private var downloadAlertButtons: some View {
-        if self.inboxHandler.downloadError == .notAnAudioUrl {
-            Button(NSLocalizedString("common.close", comment: ""), role: .cancel) {
+        if self.inboxHandler.downloadError?.isRetryable == true {
+            Button(NSLocalizedString("share.download.error.retry", comment: "")) {
+                self.inboxHandler.downloadError = nil
+                self.retryShare()
+            }
+            Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
                 self.inboxHandler.downloadError = nil
             }
         } else {
-            Button(NSLocalizedString("share.download.error.retry", comment: "")) {
-                self.inboxHandler.downloadError = nil
-                self.checkInbox()
-            }
-            Button(NSLocalizedString("share.download.error.cancel", comment: ""), role: .cancel) {
+            Button(NSLocalizedString("common.close", comment: ""), role: .cancel) {
                 self.inboxHandler.downloadError = nil
             }
         }
@@ -287,23 +278,35 @@ struct StillMomentApp: App {
     ///
     /// Download- und Netzwerk-Fehler werden vom InboxHandler ueber `downloadError`
     /// publiziert (eigener Alert). Import-Fehler (Duplikat, Metadata, Persist)
-    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenErrorMessage`
+    /// landen hier als `.audioImportFailed` und werden ueber `fileOpenError`
     /// gemeldet — denselben Alert nutzt auch der "Open with"-Pfad.
     private func checkInbox() {
         Task {
-            let result = await self.inboxHandler.processInbox()
-            switch result {
-            case .audioFile,
-                 .downloadCompleted:
-                self.selectedTab = AppTab.library.rawValue
-            case let .audioImportFailed(error):
-                self.selectedTab = AppTab.library.rawValue
-                self.fileOpenErrorMessage = error.localizedDescription
-            case .empty,
-                 .downloadStarted,
-                 .error:
-                break
-            }
+            await self.handleInboxResult(self.inboxHandler.processInbox())
+        }
+    }
+
+    /// "Erneut versuchen" im Download-Alert: verarbeitet den zuletzt geteilten Link erneut
+    /// (der Inbox-Eintrag ist nach dem ersten Versuch schon aufgeraeumt).
+    private func retryShare() {
+        Task {
+            await self.handleInboxResult(self.inboxHandler.retry())
+        }
+    }
+
+    /// Wechselt nach einem erfolgreichen Import in die Bibliothek (Bearbeiten-Dialog oeffnet dort).
+    private func handleInboxResult(_ result: InboxResult) {
+        switch result {
+        case .audioFile,
+             .downloadCompleted:
+            self.selectedTab = AppTab.library.rawValue
+        case let .audioImportFailed(error):
+            self.selectedTab = AppTab.library.rawValue
+            self.fileOpenError = error
+        case .empty,
+             .downloadStarted,
+             .error:
+            break
         }
     }
 
@@ -361,7 +364,7 @@ struct StillMomentApp: App {
             case .success:
                 self.selectedTab = AppTab.library.rawValue
             case let .failure(error):
-                self.fileOpenErrorMessage = error.localizedDescription
+                self.fileOpenError = error
             }
         }
     }

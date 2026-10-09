@@ -147,4 +147,37 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
         // Then — abgelehnte Datei darf keine laufende Meditation stoppen
         XCTAssertFalse(self.sut.shouldStopMeditation)
     }
+
+    // MARK: - Vorschlaege aus dem Podcast-Verzeichnis (shared-128)
+
+    func testImportFile_preferredValuesWinOverFileTags() async {
+        // Given — Datei hat nichtssagende ID3-Tags, das Podcast-Verzeichnis kennt Titel und Autor
+        self.mockMetadataService.fixedMetadata = AudioMetadata(artist: "DLF", title: "ep_123", duration: 1234)
+        let url = URL(fileURLWithPath: "/tmp/folge.mp3")
+
+        // When
+        _ = await self.sut.importFile(
+            from: url,
+            preferredTitle: "Body Scan (20:34 Min.)",
+            preferredArtist: "Deutschlandfunk Nova"
+        )
+
+        // Then
+        XCTAssertEqual(self.sut.pendingImportSignal?.metadata.title, "Body Scan (20:34 Min.)")
+        XCTAssertEqual(self.sut.pendingImportSignal?.metadata.artist, "Deutschlandfunk Nova")
+        XCTAssertEqual(self.sut.pendingImportSignal?.metadata.duration, 1234)
+    }
+
+    func testImportFile_withoutPreferredValuesUsesFileTags() async {
+        // Given — normaler Link-Import ohne Vorschlaege
+        self.mockMetadataService.fixedMetadata = AudioMetadata(artist: "Tara Brach", title: "RAIN", duration: 600)
+        let url = URL(fileURLWithPath: "/tmp/rain.mp3")
+
+        // When
+        _ = await self.sut.importFile(from: url, preferredTitle: nil, preferredArtist: nil)
+
+        // Then
+        XCTAssertEqual(self.sut.pendingImportSignal?.metadata.title, "RAIN")
+        XCTAssertEqual(self.sut.pendingImportSignal?.metadata.artist, "Tara Brach")
+    }
 }

@@ -328,6 +328,7 @@
 "error.updateFailed" = "Meditation konnte nicht aktualisiert werden";
 "error.unsupportedFormat" = "Dieses Dateiformat wird nicht unterstützt";
 "error.fileOpenImportFailed" = "Die Datei konnte nicht importiert werden";
+"error.alreadyImported.title" = "Schon da";
 "error.alreadyImported" = "Diese Aufnahme ist schon in deiner Bibliothek";
 "error.alreadyImported.withInfo" = "Diese Aufnahme ist schon in deiner Bibliothek · %1$@ – %2$@";
 
@@ -419,6 +420,12 @@
 "share.download.error.cancel" = "Abbrechen";
 "share.download.error.not_audio.title" = "Keine Aufnahme gefunden";
 "share.download.error.not_audio.message" = "Wir konnten unter diesem Link keine Aufnahme finden.";
+"share.download.error.not_reachable.title" = "Gerade nicht erreichbar";
+"share.download.error.not_reachable.message" = "Bitte prüfe deine Internetverbindung und versuche es später erneut.";
+"share.download.error.podcast_without_episode.title" = "Bitte eine einzelne Folge teilen";
+"share.download.error.podcast_without_episode.message" = "Dieser Link führt zu einem ganzen Podcast. Teile in deiner Podcast-App eine einzelne Folge mit Still Moment.";
+"share.download.error.episode_unavailable.title" = "Leider nicht möglich";
+"share.download.error.episode_unavailable.message" = "Diese Folge kann leider nicht übernommen werden.";
 
 // MARK: - Audio Download Errors
 

@@ -331,6 +331,12 @@
     <string name="download_error_no_link_title">Kein Link gefunden</string>
     <string name="download_error_no_link_message">In dem geteilten Inhalt war kein Link enthalten.</string>
     <string name="download_error_close">Schließen</string>
+    <string name="download_error_whole_podcast_title">Bitte eine einzelne Folge teilen</string>
+    <string name="download_error_whole_podcast_message">Dieser Link führt zu einem ganzen Podcast. Teile in deiner Podcast-App eine einzelne Folge mit Still Moment.</string>
+    <string name="download_error_not_reachable_title">Gerade nicht erreichbar</string>
+    <string name="download_error_not_reachable_message">Bitte prüfe deine Internetverbindung und versuche es später erneut.</string>
+    <string name="download_error_episode_unavailable_title">Leider nicht möglich</string>
+    <string name="download_error_episode_unavailable_message">Diese Folge kann leider nicht übernommen werden.</string>
 
     <!-- Timer Running Phase (shared-095) -->
     <string name="timer_running_remaining">VERBLEIBEND</string>

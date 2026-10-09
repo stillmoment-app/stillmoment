@@ -326,4 +326,41 @@ class ImportPrefillTest {
             assertEquals("body scan", result.name)
         }
     }
+
+    // MARK: - shared-128: Vorschlag aus dem Podcast-Lookup hat Vorrang
+
+    @Nested
+    inner class Preferring {
+
+        private val fromFile = ImportPrefill(teacher = "DLF", name = "dlf_nova_123")
+
+        @Test
+        fun `podcast suggestion wins over the file's own values`() {
+            val suggestion = ImportPrefill(teacher = "Deutschlandfunk Nova", name = "MBCT")
+
+            assertEquals(suggestion, fromFile.preferring(suggestion))
+        }
+
+        @Test
+        fun `missing suggestion field falls back to the file's value`() {
+            val suggestion = ImportPrefill(teacher = "Deutschlandfunk Nova", name = null)
+
+            assertEquals(
+                ImportPrefill(teacher = "Deutschlandfunk Nova", name = "dlf_nova_123"),
+                fromFile.preferring(suggestion)
+            )
+        }
+
+        @Test
+        fun `blank suggestion field falls back to the file's value`() {
+            val suggestion = ImportPrefill(teacher = " ", name = "MBCT")
+
+            assertEquals(ImportPrefill(teacher = "DLF", name = "MBCT"), fromFile.preferring(suggestion))
+        }
+
+        @Test
+        fun `without suggestion the file's values stay`() {
+            assertEquals(fromFile, fromFile.preferring(null))
+        }
+    }
 }

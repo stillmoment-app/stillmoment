@@ -328,6 +328,7 @@
 "error.updateFailed" = "Failed to update meditation";
 "error.unsupportedFormat" = "This file format is not supported";
 "error.fileOpenImportFailed" = "The file could not be imported";
+"error.alreadyImported.title" = "Already there";
 "error.alreadyImported" = "This recording is already in your library";
 "error.alreadyImported.withInfo" = "This recording is already in your library · %1$@ – %2$@";
 
@@ -419,6 +420,12 @@
 "share.download.error.cancel" = "Cancel";
 "share.download.error.not_audio.title" = "No recording found";
 "share.download.error.not_audio.message" = "We couldn't find a recording at this link.";
+"share.download.error.not_reachable.title" = "Not reachable right now";
+"share.download.error.not_reachable.message" = "Please check your internet connection and try again later.";
+"share.download.error.podcast_without_episode.title" = "Please share a single episode";
+"share.download.error.podcast_without_episode.message" = "This link leads to a whole podcast. In your podcast app, share a single episode with Still Moment.";
+"share.download.error.episode_unavailable.title" = "Not possible";
+"share.download.error.episode_unavailable.message" = "Unfortunately, this episode can't be imported.";
 
 // MARK: - Audio Download Errors
 

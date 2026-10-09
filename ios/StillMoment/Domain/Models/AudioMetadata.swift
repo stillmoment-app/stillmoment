@@ -46,4 +46,17 @@ struct AudioMetadata: Equatable {
 
     /// Album name (optional, for potential future use)
     let album: String?
+
+    /// Returns metadata where non-empty suggestions replace title and artist from the file.
+    ///
+    /// Used when a better source than the file's tags is known (shared-128: podcast directory).
+    /// Missing or empty suggestions keep the file's values; duration and album stay unchanged.
+    func preferring(title preferredTitle: String?, artist preferredArtist: String?) -> AudioMetadata {
+        AudioMetadata(
+            artist: preferredArtist?.nonBlankTrimmed ?? self.artist,
+            title: preferredTitle?.nonBlankTrimmed ?? self.title,
+            duration: self.duration,
+            album: self.album
+        )
+    }
 }

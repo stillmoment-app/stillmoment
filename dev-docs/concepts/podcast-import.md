@@ -37,7 +37,7 @@ Eine importierte Folge ist danach eine ganz normale Meditation — offline abspi
 | Ticket | Inhalt |
 |--------|--------|
 | shared-127 | Datenschutzerklaerung, Store-Texte, Website, README: ehrlich zu Netzwerkzugriffen (inkl. Apple-Abruf) |
-| shared-128 | Podcast-Import ueber den Lookup-Dienst (neueste Folgen), iOS + Android; Geraetetest Teilen-Menue als erstes Kriterium |
+| shared-128 | Podcast-Import ueber den Lookup-Dienst (neueste Folgen), iOS + Android — umgesetzt 2026-10 |
 | shared-129 | Rueckfallweg fuer aeltere Folgen (og:title + Feed) |
 | ios-053 | Anleitung "So importierst du aus Apple Podcasts" |
 
@@ -100,6 +100,15 @@ Bei normalen RSS-Podcasts laedt das Geraet direkt vom Anbieter; Hoster zaehlen d
 - Podcast Index: Lookup nur per Podcast-ID, nicht per Folgen-ID.
 - Listen Notes: empfiehlt Titelsuche, warnt vor unzuverlaessiger Zuordnung.
 - Kein Dienst bildet Apple-Folgen-IDs auf Feed-GUIDs ab.
+
+## Umsetzungsentscheidungen (shared-128, 2026-10-09)
+
+- Aufloesung in der App, nicht in der iOS-Share-Extension (dort leben Ladefenster, Abbrechen und Meldungen; gleicher Aufbau wie Android).
+- Lookup schickt das Land aus dem Link mit (`&country=<land>`); Links ohne Laender-Segment (`podcasts.apple.com/podcast/...`) werden ohne `country` abgefragt.
+- `http://`-Audioadressen werden auf `https://` umgestellt (iOS ATS und Android blockieren unverschluesselte Verbindungen).
+- Apple-Ratenlimit (HTTP 403/429) → "Gerade nicht erreichbar" mit "Erneut versuchen", nicht "kann nicht uebernommen werden".
+- Diese Meldung ersetzt im Link-Import "Download fehlgeschlagen" fuer reine Netzfehler; "Erneut versuchen" nur, wo ein neuer Versuch etwas aendern kann.
+- iOS laedt per `URLSession.download(for:)` direkt in eine Datei (vorher komplett in den Arbeitsspeicher).
 
 ## Verworfene Ansaetze (Fassung 2026-01)
 

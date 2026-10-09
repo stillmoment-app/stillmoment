@@ -21,6 +21,17 @@ enum FileOpenError: Error, Equatable, LocalizedError {
 
     // MARK: Internal
 
+    /// Alert title: a duplicate is no error — the recording is already there.
+    var alertTitleKey: String {
+        switch self {
+        case .alreadyImported:
+            "error.alreadyImported.title"
+        case .unsupportedFormat,
+             .importFailed:
+            "common.error"
+        }
+    }
+
     var errorDescription: String? {
         switch self {
         case .unsupportedFormat:
@@ -126,7 +137,16 @@ final class FileOpenHandler: ObservableObject {
     /// The Security-Scoped Resource stays open across the Edit-Sheet lifecycle —
     /// the ViewModel takes ownership via `didStartAccessing` and releases it on
     /// Save or Cancel.
-    func importFile(from url: URL) async -> Result<IncomingFileImport, FileOpenError> {
+    ///
+    /// - Parameters:
+    ///   - preferredTitle: Title suggestion that wins over the file's tags when non-empty
+    ///     (shared-128: episode title from the podcast directory)
+    ///   - preferredArtist: Teacher suggestion that wins over the file's tags when non-empty
+    func importFile(
+        from url: URL,
+        preferredTitle: String? = nil,
+        preferredArtist: String? = nil
+    ) async -> Result<IncomingFileImport, FileOpenError> {
         guard self.canHandle(url: url) else {
             Logger.guidedMeditation.warning(
                 "Rejected file with unsupported format",
@@ -151,8 +171,26 @@ final class FileOpenHandler: ObservableObject {
             ))
         }
 
+        return await self.publishPendingImport(
+            for: url,
+            didStartAccessing: didStartAccessing,
+            preferredTitle: preferredTitle,
+            preferredArtist: preferredArtist
+        )
+    }
+
+    // MARK: Private
+
+    /// Reads the file's metadata, applies the preferred suggestions and publishes the pending import.
+    private func publishPendingImport(
+        for url: URL,
+        didStartAccessing: Bool,
+        preferredTitle: String?,
+        preferredArtist: String?
+    ) async -> Result<IncomingFileImport, FileOpenError> {
         do {
             let metadata = try await self.metadataService.extractMetadata(from: url)
+                .preferring(title: preferredTitle, artist: preferredArtist)
             let signal = IncomingFileImport(
                 url: url,
                 metadata: metadata,
@@ -172,8 +210,6 @@ final class FileOpenHandler: ObservableObject {
             return .failure(.importFailed)
         }
     }
-
-    // MARK: Private
 
     private let meditationService: GuidedMeditationServiceProtocol
     private let metadataService: AudioMetadataServiceProtocol
