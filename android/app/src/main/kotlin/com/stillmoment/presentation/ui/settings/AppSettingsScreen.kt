@@ -24,10 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,7 +48,7 @@ private const val PRIVACY_URL = "https://stillmoment-app.github.io/stillmoment/p
 
 /**
  * App-wide settings screen displayed as a tab root.
- * Contains Appearance section (appearance mode) and Info & Legal section.
+ * Sections from top to bottom: Appearance, Guided Meditations, Feedback, Info & Legal.
  */
 @Composable
 fun AppSettingsScreen(
@@ -91,6 +87,8 @@ fun AppSettingsScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                FeedbackSection()
 
                 InfoLegalSection(
                     onSoundAttributionsClick = onSoundAttributionsClick
@@ -157,7 +155,6 @@ private fun DebugSection(onDebugTypographyClick: () -> Unit, modifier: Modifier 
 private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = LocalStillMomentColors.current
     val context = LocalContext.current
-    var showNoMailAppDialog by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.padding(bottom = 16.dp)) {
         Text(
@@ -188,20 +185,8 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
 
                 InfoRowDivider()
 
-                RateAppRow()
-
-                InfoRowDivider()
-
-                WriteToUsRow(onNoMailApp = { showNoMailAppDialog = true })
-
-                InfoRowDivider()
-
                 VersionRow()
             }
-        }
-
-        if (showNoMailAppDialog) {
-            NoMailAppDialog(onDismiss = { showNoMailAppDialog = false })
         }
     }
 }
@@ -211,7 +196,7 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
 // region Info Rows
 
 @Composable
-private fun InfoRowDivider(modifier: Modifier = Modifier) {
+internal fun InfoRowDivider(modifier: Modifier = Modifier) {
     HorizontalDivider(
         color = LocalStillMomentColors.current.cardBorder,
         thickness = 0.5.dp,
