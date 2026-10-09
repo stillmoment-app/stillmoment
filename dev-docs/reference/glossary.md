@@ -418,7 +418,9 @@ Mehrfaches Teilen ist nie ein Fehler: Der zuletzt geteilte Eintrag gewinnt. Die 
 einen Eintrag unter dem Namen der Datei bzw. dem letzten Teil der Adresse in der Inbox ab und
 ersetzt dabei einen gleichnamigen, der noch wartet (derselbe Link oder dieselbe Datei doppelt,
 oder `…/25401/download` und danach `…/25402/download`). Verschieden benannte Einträge räumt die
-App auf: Sie importiert nur den neuesten. Android verhält sich gleich (shared-132).
+App auf: Sie importiert nur den neuesten. Android folgt derselben Regel ohne Inbox: Ein neu
+geteilter Link löst einen noch ladenden ab, derselbe Link wird nicht zweimal geladen
+(`SharedLinkImport`, shared-132).
 
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/ShareOutcome.swift` (Mitglied auch im Extension-Target),
