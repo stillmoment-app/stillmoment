@@ -9,6 +9,7 @@
 - [Mockito thenThrow scheitert bei suspend-Mocks](feedback_mockito_suspend_thenthrow.md) — bei `suspend`-Funktionen mit Checked Exception `thenAnswer { throw ... }` statt `thenThrow(...)`.
 - [Android im Worktree: local.properties fehlt](feedback_worktree_android_local_properties.md) — aus Main-Checkout kopieren; Basis gegen Feature-Branch pruefen; kleine Screens per `wm size/density`.
 - [Emulator mit Parallel-Agenten geteilt](feedback_shared_emulator_parallel_agents.md) — dev-App kann unter dir neu installiert werden; lastUpdateTime prüfen, nicht gegeninstallieren.
+- [runTest: backgroundScope braucht runCurrent](feedback_runtest_backgroundscope_runcurrent.md) — `advanceUntilIdle()` fuehrt backgroundScope-Arbeit nicht aus.
 - [adb pm enable im Worktree blockiert](feedback_worktree_guard_adb_pm_enable.md) — Apps am Emulator nicht per `pm disable-user` abschalten; Wieder-Einschalten verweigert der Guard.
 
 ## Feature-Entfernungen (Refactoring)
@@ -31,13 +32,14 @@
 ## Layout-Bugs ohne Unit-Test
 
 - [iOS-Layout visuell verifizieren](feedback_ios_visual_verification.md) — Screenshots-Scheme seedet Fixtures, Simulator-Koordinaten sind Punkte (nicht Screenshot-Pixel), Vorher-Bild via gezieltem `git stash push -- <pfade>`.
+- [Eigener Simulator bei Parallel-Agenten](feedback_dedicated_simulator_parallel_agents.md) — `simctl create` Wegwerf-Sim statt gebooteten fremden; danach löschen.
 - [Simulator-Verifikation einrichten](feedback_simulator_verification_setup.md) — App mit `-AppleLanguages "(de)"` starten (DE-only-Features); Hell/Dunkel kommt aus den App-Einstellungen; Lade-/Fehlerbild per gepatchtem Bundle.
 - [Fester Kopf über ScrollView](feedback_fixed_header_scrollview.md) — `VStack { kopf; ScrollView }` statt `.safeAreaInset`; nur `List` clippt am Kopf.
 
 ## iOS Build, Lint, Tests
 
 - [BUILD_FAILED ohne error: = Runner-Bootstrap-Crash](feedback_ios_test_runner_bootstrap_crash.md) — Simulator-Flake bei parallelen Sims; einmal neu laufen lassen.
-- [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen.
+- [BUILD_FAILED diagnostizieren](feedback_build_failed_diagnose.md) — Ausgabe von `make test-*-agent` beim ersten Lauf in eine Datei umleiten und dort nach `error:` greppen, nicht wiederholen. Android: `FAIL` mit alten Zahlen = Compile-Fehler.
 - [SwiftLint trailing_closure bei Closure als letztem Parameter](feedback_trailing_closure_last_param.md) — benannte Konstante oder Methodenreferenz statt Closure-Literal.
 - [View in Type+Topic.swift aufteilen](feedback_view_extension_file_split.md) — verschachtelter `ViewModifier` mit Bindings, statt `private` zu lockern.
 - [Echte Server-Antworten als Fixtures](feedback_real_world_fixtures_hooks.md) — Fixture-Ordner von Whitespace-Hooks ausnehmen; `// pragma: allowlist secret` in derselben Zeile.
