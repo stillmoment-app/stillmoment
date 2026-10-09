@@ -2,8 +2,8 @@
 id: shared-134
 title: "App bewerten und Schreib uns in den Einstellungen"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 3-Feature
 priority: mittel
 depends_on: []
