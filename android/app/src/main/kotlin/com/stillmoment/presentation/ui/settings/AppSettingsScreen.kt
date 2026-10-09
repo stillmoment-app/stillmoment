@@ -57,6 +57,7 @@ fun AppSettingsScreen(
     guidedSettings: GuidedMeditationSettings,
     onGuidedSettingsChange: (GuidedMeditationSettings) -> Unit,
     onSoundAttributionsClick: () -> Unit,
+    onFontAttributionsClick: () -> Unit,
     modifier: Modifier = Modifier,
     onDebugTypographyClick: () -> Unit = {},
 ) {
@@ -91,7 +92,8 @@ fun AppSettingsScreen(
                 FeedbackSection()
 
                 InfoLegalSection(
-                    onSoundAttributionsClick = onSoundAttributionsClick
+                    onSoundAttributionsClick = onSoundAttributionsClick,
+                    onFontAttributionsClick = onFontAttributionsClick
                 )
 
                 if (BuildConfig.DEBUG) {
@@ -152,7 +154,11 @@ private fun DebugSection(onDebugTypographyClick: () -> Unit, modifier: Modifier 
 // region Info & Legal Section
 
 @Composable
-private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun InfoLegalSection(
+    onSoundAttributionsClick: () -> Unit,
+    onFontAttributionsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colors = LocalStillMomentColors.current
     val context = LocalContext.current
 
@@ -173,6 +179,10 @@ private fun InfoLegalSection(onSoundAttributionsClick: () -> Unit, modifier: Mod
         ) {
             Column {
                 SoundAttributionsRow(onClick = onSoundAttributionsClick)
+
+                InfoRowDivider()
+
+                FontAttributionsRow(onClick = onFontAttributionsClick)
 
                 InfoRowDivider()
 
@@ -218,6 +228,32 @@ private fun SoundAttributionsRow(onClick: () -> Unit, modifier: Modifier = Modif
     ) {
         Text(
             text = stringResource(R.string.app_settings_sound_attributions),
+            style = TextStyle.body.toComposeTextStyle(),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun FontAttributionsRow(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.accessibility_app_settings_font_attributions)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = description }
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.app_settings_font_attributions),
             style = TextStyle.body.toComposeTextStyle(),
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
@@ -291,7 +327,8 @@ private fun AppSettingsScreenPreview() {
             onAppearanceModeChange = {},
             guidedSettings = GuidedMeditationSettings.Default,
             onGuidedSettingsChange = {},
-            onSoundAttributionsClick = {}
+            onSoundAttributionsClick = {},
+            onFontAttributionsClick = {}
         )
     }
 }

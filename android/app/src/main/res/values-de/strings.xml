@@ -255,6 +255,8 @@
     <string name="app_settings_info_header">Info &amp; Rechtliches</string>
     <string name="app_settings_sound_attributions">Klang-Nachweise</string>
     <string name="accessibility_app_settings_sound_attributions">Klang-Nachweise öffnen</string>
+    <string name="app_settings_font_attributions">Schrift-Nachweise</string>
+    <string name="accessibility_app_settings_font_attributions">Schrift-Nachweise öffnen</string>
     <string name="app_settings_privacy">Datenschutz</string>
     <string name="accessibility_app_settings_privacy">Datenschutzerklärung öffnen</string>
     <string name="app_settings_rate_app">App bewerten</string>
@@ -283,6 +285,12 @@
     <string name="sound_soft_interval">Sanftes Intervall</string>
     <string name="sound_forest_attribution">Waldatmosphäre</string>
     <string name="sound_cozy_rain_attribution">Gemütlicher Mitternachtsregen</string>
+
+    <!-- Font Attributions Screen -->
+    <string name="font_attributions_title">Schrift-Nachweise</string>
+    <string name="font_attributions_fonts_header">Schriften</string>
+    <string name="font_attributions_license_header">Lizenz</string>
+    <string name="font_attributions_license_intro">Beide Schriften stehen unter der SIL Open Font License 1.1.</string>
 
     <!-- Praxis short description -->
     <string name="praxis_description_duration">%d Min</string>

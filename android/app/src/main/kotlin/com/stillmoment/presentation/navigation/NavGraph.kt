@@ -81,6 +81,7 @@ import com.stillmoment.presentation.ui.common.NoLinkErrorDialog
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
+import com.stillmoment.presentation.ui.settings.FontAttributionsScreen
 import com.stillmoment.presentation.ui.settings.SoundAttributionsScreen
 import com.stillmoment.presentation.ui.theme.LocalStillMomentColors
 import com.stillmoment.presentation.ui.timer.IntervalGongsEditorScreen
@@ -91,6 +92,7 @@ import com.stillmoment.presentation.ui.timer.TimerFocusScreen
 import com.stillmoment.presentation.ui.timer.TimerScreen
 import com.stillmoment.presentation.viewmodel.AppSettingsViewModel
 import com.stillmoment.presentation.viewmodel.CompletionOverlayViewModel
+import com.stillmoment.presentation.viewmodel.FontAttributionsViewModel
 import com.stillmoment.presentation.viewmodel.GuidedMeditationsListViewModel
 import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
@@ -122,6 +124,8 @@ sealed class Screen(val route: String) {
     data object Settings : Screen("settingsHome")
 
     data object SoundAttributions : Screen("soundAttributions")
+
+    data object FontAttributions : Screen("fontAttributions")
 
     /** Debug-only Typography Reference Screen (shared-099). */
     data object DebugTypography : Screen("debugTypography")
@@ -355,6 +359,7 @@ private fun NavHostScaffold(
     val showBottomBar = currentDestination?.route?.let { route ->
         !screenManagesOwnInsets &&
             route != Screen.SoundAttributions.route &&
+            route != Screen.FontAttributions.route &&
             route != Screen.SelectBackground.route &&
             route != Screen.SelectGong.route &&
             route != Screen.IntervalGongs.route &&
@@ -447,30 +452,44 @@ private fun StillMomentNavContent(
             )
         }
 
-        navigation(startDestination = Screen.Settings.route, route = Screen.SettingsGraph.route) {
-            composable(Screen.Settings.route) {
-                val appSettingsViewModel: AppSettingsViewModel = hiltViewModel()
-                val appSettingsUiState by appSettingsViewModel.uiState.collectAsState()
-                AppSettingsScreen(
-                    selectedAppearanceMode = settingsState.selectedAppearanceMode,
-                    onAppearanceModeChange = settingsState.onAppearanceModeChange,
-                    guidedSettings = appSettingsUiState.guidedSettings,
-                    onGuidedSettingsChange = appSettingsViewModel::updateGuidedSettings,
-                    onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) },
-                    onDebugTypographyClick = { navController.navigate(Screen.DebugTypography.route) }
-                )
-            }
-            composable(Screen.SoundAttributions.route) {
-                SoundAttributionsScreen(onBack = { navController.popBackStack() })
-            }
-            if (com.stillmoment.BuildConfig.DEBUG) {
-                composable(Screen.DebugTypography.route) {
-                    com.stillmoment.presentation.ui.debug.DebugTypographyReferenceScreen()
-                }
-            }
-        }
+        settingsNavGraph(navController = navController, settingsState = settingsState)
 
         playerComposable(playerWiring)
+    }
+}
+
+/** Settings tab: app settings and the pages reached from "Info & Legal". */
+private fun NavGraphBuilder.settingsNavGraph(navController: NavHostController, settingsState: SettingsSheetState) {
+    navigation(startDestination = Screen.Settings.route, route = Screen.SettingsGraph.route) {
+        composable(Screen.Settings.route) {
+            val appSettingsViewModel: AppSettingsViewModel = hiltViewModel()
+            val appSettingsUiState by appSettingsViewModel.uiState.collectAsState()
+            AppSettingsScreen(
+                selectedAppearanceMode = settingsState.selectedAppearanceMode,
+                onAppearanceModeChange = settingsState.onAppearanceModeChange,
+                guidedSettings = appSettingsUiState.guidedSettings,
+                onGuidedSettingsChange = appSettingsViewModel::updateGuidedSettings,
+                onSoundAttributionsClick = { navController.navigate(Screen.SoundAttributions.route) },
+                onFontAttributionsClick = { navController.navigate(Screen.FontAttributions.route) },
+                onDebugTypographyClick = { navController.navigate(Screen.DebugTypography.route) }
+            )
+        }
+        composable(Screen.SoundAttributions.route) {
+            SoundAttributionsScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Screen.FontAttributions.route) {
+            val fontAttributionsViewModel: FontAttributionsViewModel = hiltViewModel()
+            val licenseText by fontAttributionsViewModel.licenseText.collectAsState()
+            FontAttributionsScreen(
+                licenseText = licenseText,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        if (com.stillmoment.BuildConfig.DEBUG) {
+            composable(Screen.DebugTypography.route) {
+                com.stillmoment.presentation.ui.debug.DebugTypographyReferenceScreen()
+            }
+        }
     }
 }
 
