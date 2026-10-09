@@ -9,35 +9,22 @@ depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
 
 # Ticket {platform}-{NNN}: {Titel}
 
-**Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
-
----
-
 ## Was
 
-{1-2 Saetze: Was soll gemacht werden?}
+{Was aendert sich fuer den Nutzer? Bei Bugs: **Beobachtet** / **Erwartet** / **Umstaende**}
 
 ## Warum
 
-{1-2 Saetze: Warum ist das wichtig? Welches Problem loest es?}
+{Welches Problem loest es, fuer wen, warum jetzt?}
 
 ---
 
 ## Akzeptanzkriterien
 
-<!-- Gute Kriterien: Beobachtbar, testbar, user-zentriert -->
+<!-- Beobachtbar, konkret, pruefbar. Tests, Lokalisierung und Doku regelt die Definition of Done (README). -->
 
-### Feature
-- [ ] {Beobachtbares Verhalten 1}
-- [ ] {Beobachtbares Verhalten 2}
-- [ ] Lokalisiert (DE + EN) falls UI
-
-### Tests
-- [ ] Unit Tests fuer {Hauptlogik}
-
-### Dokumentation
-- [ ] CHANGELOG.md (bei user-sichtbaren Aenderungen)
-- [ ] GLOSSARY.md (bei neuen Domain-Begriffen)
+- [ ] {Beobachtbares Ergebnis 1}
+- [ ] {Beobachtbares Ergebnis 2}
 
 ---
 
@@ -49,31 +36,20 @@ depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
 
 ---
 
-## Referenz
+## Nicht Teil dieses Tickets
 
-{Optional: Verweis auf existierenden Code als Orientierung}
-
-- iOS: `ios/StillMoment/{path}/`
-- Android: `android/app/src/main/kotlin/com/stillmoment/{path}/`
-- Doku: {Link falls relevant}
+{Optional: Was naheliegt, aber bewusst nicht dazugehoert}
 
 ---
 
 ## Hinweise
 
-{Optional: Nur fuer nicht-offensichtliche Entscheidungen, bekannte Fallstricke, oder spezifische API-Namen die recherchiert wurden; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
+{Optional: Rahmenbedingungen und getroffene Entscheidungen mit Begruendung; Verweise auf Konzeptdokumente; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
 
 ---
 
 <!--
-WAS NICHT INS TICKET GEHOERT:
-- Kein Code (Claude Code schreibt den selbst)
-- Keine Dateilisten (Claude Code findet die Dateien)
-- Keine Architektur-Diagramme (steht in CLAUDE.md)
-- Keine Test-Befehle (steht in CLAUDE.md)
-
-Claude Code hat Zugriff auf:
-- CLAUDE.md (Architektur, Commands, Patterns)
-- Bestehenden Code als Referenz
-- iOS-Implementierung fuer Android-Ports
+Das Ticket beschreibt das Problem, der Umsetzer waehlt die Loesung.
+Fachbegriffe aus dev-docs/reference/glossary.md.
+Dateien, Code und Vorgehen findet /plan-ticket kurz vor der Umsetzung.
 -->

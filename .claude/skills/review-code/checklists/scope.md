@@ -96,7 +96,7 @@ UserDefaults.standard.set(duration, forKey: "lastDuration")
 
 ## Pruef-Heuristik fuer Reviewer
 
-1. Akzeptanzkriterien des Tickets lesen
+1. Akzeptanzkriterien und `## Nicht Teil dieses Tickets` lesen — Aenderungen an dort ausgeschlossenen Themen sind immer ein Scope-Finding
 2. `git diff --stat` → Welche Dateien wurden geaendert?
 3. Pro Datei: Welche Kriterien rechtfertigen die Aenderung?
 4. Unklare Aenderungen? → Scope-Finding-Kandidat

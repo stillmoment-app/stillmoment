@@ -2,14 +2,22 @@
 
 Pruefregeln und Beispiele fuer gute Akzeptanzkriterien.
 
+Akzeptanzkriterien sind der Fahrplan fuer `/implement-ticket`: Jedes Kriterium wird einzeln per TDD umgesetzt und von `/review-code` einzeln geprueft. Ein gutes Kriterium laesst sich direkt in einen Test oder einen manuellen Pruefschritt uebersetzen.
+
 ## Eigenschaften guter Kriterien
 
 | Eigenschaft | Beispiel |
 |-------------|----------|
 | **Beobachtbar** | "Settings zeigt neue Section 'Vorbereitungszeit'" |
-| **Messbar** | "Picker zeigt Optionen: 5s, 10s, 15s, 20s, 30s" |
-| **Testbar** | "Bei Toggle 'Aus' startet Timer sofort" |
+| **Konkret** | "Picker zeigt Optionen: 5s, 10s, 15s, 20s, 30s" |
+| **Pruefbar** | "Bei Toggle 'Aus' startet Timer sofort" |
 | **User-zentriert** | "Einstellung bleibt nach App-Neustart erhalten" |
+
+**Konkrete Beispiele** machen ein Kriterium zum Test: Eingabe → erwartetes Ergebnis, Grenzwerte, Formate. Sie gehoeren ins Kriterium, nicht in die Hinweise.
+
+**Erhalt-Kriterien** sichern bestehendes Verhalten, das die Aenderung gefaehrden koennte und das ein Nutzer bemerken wuerde: "Start-, Intervall- und End-Gong spielen weiterhin bei gesperrtem Bildschirm." Was man nur im Code oder Netzwerk-Mitschnitt sieht (keine Cookies, keine Restdateien), sichern die bestehenden Tests — das regelt die Definition of Done.
+
+**Fachliche Testfaelle** sind willkommen, wenn sie Faelle benennen statt Taetigkeiten: "Eindeutiger Treffer, kein Treffer, mehrere gleiche Titel" — nicht "Unit Tests schreiben". Dass getestet wird, regelt die Definition of Done in `dev-docs/tickets/README.md`.
 
 ## Schlechte vs. gute Kriterien
 
@@ -19,6 +27,8 @@ Pruefregeln und Beispiele fuer gute Akzeptanzkriterien.
 | "Verwendet DataStore" | "Einstellung wird persistent gespeichert" |
 | "Performance verbessert" | "Liste laedt in unter 500ms" |
 | "Wie erwartet" | "Sound pausiert wenn andere Audio spielt" |
+| "Unit Tests iOS" | streichen (Definition of Done) — oder fachliche Faelle nennen |
+| "CHANGELOG.md" | streichen (Definition of Done) |
 
 ---
 
@@ -32,9 +42,8 @@ Pruefregeln und Beispiele fuer gute Akzeptanzkriterien.
 - `Kriterium 1`, `Kriterium 2`, etc.
 - `{...}` Template-Platzhalter
 
-### 3. Test-Kriterien vorhanden
-- Mindestens ein Test-Kriterium bei Feature-Tickets
-- **Ausnahme:** Reine UI-Anpassungen (Phase 4-Polish)
+### 3. Jedes Kriterium ist pruefbar
+- Fuer jedes Kriterium laesst sich ein Test oder ein manueller Pruefschritt angeben, dessen Ergebnis bestanden/nicht bestanden ist
 
 ---
 
@@ -43,11 +52,11 @@ Pruefregeln und Beispiele fuer gute Akzeptanzkriterien.
 ### 4. Vage Formulierungen
 Warne bei: `funktioniert richtig`, `wie erwartet`, `ist schnell`, `sieht gut aus`
 
-### 5. Implementierungs-Details
-Warne bei: `Verwendet X`, `Refactored zu`, `Ruft API auf`
+### 5. Taetigkeit statt Ergebnis
+Warne bei: `Verwendet X`, `Refactored zu`, `Ruft API auf`, `Tests schreiben`, `Doku aktualisieren`
 
-### 6. CHANGELOG fehlt
-Warne bei Feature-Tickets mit user-sichtbaren Aenderungen
+### 6. Erhalt-Kriterium fehlt
+Warne, wenn Recherche oder Gespraech bestehendes Verhalten als gefaehrdet benannt haben, aber kein Kriterium es sichert
 
 ---
 
@@ -78,16 +87,14 @@ mehr Zeit zum Ankommen.
 
 ## Akzeptanzkriterien
 
-### Feature
 - [ ] Settings zeigt neue Section "Vorbereitungszeit"
-- [ ] Toggle: An/Aus
+- [ ] Toggle: An/Aus, Standard: An mit 15s
 - [ ] Bei "An": Picker mit 5s, 10s, 15s, 20s, 30s, 45s
 - [ ] Bei "Aus": Timer startet direkt
-- [ ] Lokalisiert (DE + EN)
+- [ ] Einstellung bleibt nach App-Neustart erhalten
+- [ ] Start-Gong spielt weiterhin zu Beginn der Meditation, mit und ohne Vorbereitungszeit
 
-### Tests
-- [ ] Unit Tests fuer Persistence und Default-Werte
+## Nicht Teil dieses Tickets
 
-### Dokumentation
-- [ ] GLOSSARY.md (bei neuen Begriffen)
+- Eigene Klaenge waehrend der Vorbereitungszeit
 ```
