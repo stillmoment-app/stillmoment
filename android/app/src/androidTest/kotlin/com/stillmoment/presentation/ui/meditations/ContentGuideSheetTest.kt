@@ -270,11 +270,11 @@ class ContentGuideSheetTest {
         composeRule.onNodeWithTag("library.guideSheet.row.koeln")
             .assertContentDescriptionEquals(
                 "Kirsten Tofahrn, Zentrum für Achtsamkeit Köln, Mini-Übungen für den Einstieg., " +
-                    "zentrum-fuer-achtsamkeit.koeln. Open source in browser"
+                    "zentrum-fuer-achtsamkeit.koeln. Opens outside the app"
             )
         composeRule.onNodeWithTag("library.guideSheet.row.braehler")
             .assertContentDescriptionEquals(
-                "Christine Brähler, Selbstmitgefühl mit Tiefe., christinebraehler.com. Open source in browser"
+                "Christine Brähler, Selbstmitgefühl mit Tiefe., christinebraehler.com. Opens outside the app"
             )
     }
 

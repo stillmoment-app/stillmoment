@@ -72,7 +72,7 @@
     <!-- Content Guide Sheet -->
     <string name="guided_meditations_guide_title">Where to find meditations?</string>
     <string name="guided_meditations_guide_intro">Good meditations are freely available on websites and in podcasts. You\'ll find a few recommendations below.</string>
-    <string name="guided_meditations_guide_open_source">Open source in browser</string>
+    <string name="guided_meditations_guide_open_source">Opens outside the app</string>
     <string name="guided_meditations_guide_info">Content guide</string>
     <!-- shared-137: Other languages in the source list -->
     <string name="guided_meditations_guide_other_language_title">Also in %1$s</string>
