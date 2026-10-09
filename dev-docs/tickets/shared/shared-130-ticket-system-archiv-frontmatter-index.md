@@ -2,8 +2,8 @@
 id: shared-130
 title: Ticket-System mit Archiv, Frontmatter und generiertem Index
 status:
-  ios: todo
-  android: todo
+  ios: in-progress
+  android: in-progress
 phase: 2-Architektur
 priority: mittel
 ---
@@ -45,29 +45,29 @@ Jedes Ticket bekommt einen maschinenlesbaren Kopf (YAML-Frontmatter) mit mindest
 ## Akzeptanzkriterien
 
 ### Struktur & Migration
-- [ ] Unter `dev-docs/tickets/` liegen in `shared/`, `ios/`, `android/` nur noch aktive Tickets; alle DONE- und WONTFIX-Tickets liegen im Archiv
-- [ ] Jedes bestehende Ticket hat Frontmatter mit ID, Titel, Status, Phase, Prioritaet, Abhaengigkeiten; shared-Tickets mit Status pro Plattform
-- [ ] Der migrierte Status jedes Tickets stimmt mit dem bisherigen `INDEX.md`-Eintrag ueberein; Widersprueche zwischen alter Datei und altem Index sind vor der Migration aufgeloest und im PR aufgelistet
-- [ ] Keine Ticket-Datei enthaelt mehr eine `**Status**:`-Zeile oder Plattform-Status-Tabelle
-- [ ] Die Git-Historie verschobener Tickets bleibt verfolgbar (`git log --follow` zeigt die Commits vor dem Umzug)
-- [ ] Die Templates erzeugen Tickets im neuen Format
+- [x] Unter `dev-docs/tickets/` liegen in `shared/`, `ios/`, `android/` nur noch aktive Tickets; alle DONE- und WONTFIX-Tickets liegen im Archiv
+- [x] Jedes bestehende Ticket hat Frontmatter mit ID, Titel, Status, Phase, Prioritaet, Abhaengigkeiten; shared-Tickets mit Status pro Plattform
+- [x] Der migrierte Status jedes Tickets stimmt mit dem bisherigen `INDEX.md`-Eintrag ueberein; Widersprueche zwischen alter Datei und altem Index sind vor der Migration aufgeloest und im PR aufgelistet
+- [x] Keine Ticket-Datei enthaelt mehr eine `**Status**:`-Zeile oder Plattform-Status-Tabelle
+- [x] Die Git-Historie verschobener Tickets bleibt verfolgbar (`git log --follow` zeigt die Commits vor dem Umzug)
+- [x] Die Templates erzeugen Tickets im neuen Format
 
 ### Generierter Index
-- [ ] Ein Make-Befehl erzeugt `INDEX.md` vollstaendig aus den Ticket-Dateien
-- [ ] Im erzeugten Index stehen aktive Tickets vor archivierten; die aktiven passen ohne Scrollen durch die erledigten
-- [ ] Alle Links im erzeugten Index fuehren zu existierenden Dateien
-- [ ] Ein Ticket mit fehlendem oder ungueltigem Frontmatter laesst den Befehl mit verstaendlicher Meldung (Dateiname + Problem) fehlschlagen
-- [ ] Zweimaliges Ausfuehren ohne Ticket-Aenderung erzeugt keinen Diff
+- [x] Ein Make-Befehl erzeugt `INDEX.md` vollstaendig aus den Ticket-Dateien
+- [x] Im erzeugten Index stehen aktive Tickets vor archivierten; die aktiven passen ohne Scrollen durch die erledigten
+- [x] Alle Links im erzeugten Index fuehren zu existierenden Dateien
+- [x] Ein Ticket mit fehlendem oder ungueltigem Frontmatter laesst den Befehl mit verstaendlicher Meldung (Dateiname + Problem) fehlschlagen
+- [x] Zweimaliges Ausfuehren ohne Ticket-Aenderung erzeugt keinen Diff
 
 ### Skills & Doku
-- [ ] `/create-ticket` legt Tickets im neuen Format an und aktualisiert den Index ueber den Generator
-- [ ] `/close-ticket` setzt den Status im Frontmatter, verschiebt abgeschlossene Tickets ins Archiv und erzeugt den Index neu
-- [ ] `/plan-ticket`, `/implement-ticket` und alle weiteren Skills, die Tickets lesen, finden Tickets sowohl im aktiven Bereich als auch im Archiv
-- [ ] `dev-docs/agents/issue-tracker.md` beschreibt das neue Format, das Archiv und den Generator
-- [ ] Keine Datei im Repo verweist mehr auf einen Ticket-Pfad, der nach dem Umzug nicht existiert
+- [x] `/create-ticket` legt Tickets im neuen Format an und aktualisiert den Index ueber den Generator
+- [x] `/close-ticket` setzt den Status im Frontmatter, verschiebt abgeschlossene Tickets ins Archiv und erzeugt den Index neu
+- [x] `/plan-ticket`, `/implement-ticket` und alle weiteren Skills, die Tickets lesen, finden Tickets sowohl im aktiven Bereich als auch im Archiv
+- [x] `dev-docs/agents/issue-tracker.md` beschreibt das neue Format, das Archiv und den Generator
+- [x] Keine Datei im Repo verweist mehr auf einen Ticket-Pfad, der nach dem Umzug nicht existiert
 
 ### Tests
-- [ ] Automatisierte Tests fuer den Index-Generator: gueltiges Ticket, fehlendes Frontmatter, shared-Ticket mit gemischtem Plattform-Status, Sortierung aktiv vor archiviert
+- [x] Automatisierte Tests fuer den Index-Generator: gueltiges Ticket, fehlendes Frontmatter, shared-Ticket mit gemischtem Plattform-Status, Sortierung aktiv vor archiviert
 
 ---
 

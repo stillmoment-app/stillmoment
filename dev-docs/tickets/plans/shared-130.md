@@ -99,3 +99,27 @@ Status-Mapping bei Migration: `[ ] TODO`→todo, `[~] IN PROGRESS`→in-progress
 3. **Migration**: Dry-Run → Konflikte klaeren → Migration → Index generieren.
 4. **Pfad-Referenzen**: alle Verweise auf verschobene Ticket-Dateien im Repo nachziehen.
 5. **Review & manueller Test** gemaess Ticket.
+
+## Migrationsentscheidungen (Statuskonflikte Datei vs. alter INDEX.md)
+
+Entschieden anhand der Git-Historie (Commit-Hashes = Evidenz):
+
+| Ticket | Datei | alter INDEX | Entscheidung | Evidenz |
+|--------|-------|-------------|--------------|---------|
+| android-057 | todo | done | done | feat(android) 0819355b |
+| ios-029 | todo | done | done | feat(ios) 27b7be81 |
+| shared-016 | todo | done/done | done/done | feat 78069990 (iOS), 6b03b5c1 (Android) |
+| shared-035 | Tabelle todo | done/done | done/done | Close-Commit 6bc4a4e6 |
+| shared-038 | SPLIT, Tabelle todo | SPLIT | done/done | aufgeteilt in shared-043..046 |
+| shared-051 | SPLIT, Tabelle todo | SPLIT | done/done | aufgeteilt in shared-061..066 |
+| shared-063 | WONTFIX, Tabelle done/todo | —/— | wontfix/wontfix | ersetzt durch shared-068 |
+| shared-083 | iOS done, Android offen | done/WONTFIX | done/wontfix | Android uebersprungen wegen shared-089 |
+| shared-086 | iOS done, Android todo | done/„in shared-089“ | done/done | shared-089 Android done |
+| shared-109 | iOS done, Android offen | done/done | done/done | feat(android) 8ae0668d |
+| shared-111 | WONTFIX | —/— | wontfix/wontfix | kein Praxis-Editor vorhanden |
+
+Ungueltige Phasen: android-070 `3-Refactor` → `2-Architektur`, android-072 `2-Features` → `3-Feature`,
+shared-079 `3-Implementation` → `3-Feature`, shared-039 Datei `4-Polish` vs. INDEX `3-Feature` → `3-Feature`.
+
+Zusaetzlich interpretiert: `via <ticket>`-Zellen (shared-099..104 iOS) → done; `[x] SPLIT` → done.
+Begruendungen, die nur im alten INDEX standen, sind unter `## Hinweise` der Tickets ergaenzt (shared-083, shared-086).

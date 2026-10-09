@@ -28,7 +28,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-127](shared/shared-127-datenschutz-netzwerkzugriffe-ehrlich.md) | Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren | 1-Quick Fix | [ ] | [ ] |
 | [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [ ] | [ ] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
-| [shared-130](shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [ ] | [ ] |
+| [shared-130](shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [~] | [~] |
 
 ### iOS
 
