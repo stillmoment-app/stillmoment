@@ -8,8 +8,8 @@
 import Foundation
 @testable import StillMoment
 
-/// The doubles behind `AppDependencies.mocked()`, so tests can observe which
-/// screen talks to which shared service.
+/// An `AppDependencies` graph built from test doubles. The shared services are exposed
+/// so tests can observe which screen talks to which shared service.
 @MainActor
 struct MockedAppDependencies {
     let audioService = MockAudioService()

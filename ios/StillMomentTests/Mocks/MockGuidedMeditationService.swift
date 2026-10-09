@@ -22,6 +22,9 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     /// File existence simulation (when false, fileURL returns nil even with valid localFilePath)
     var mockFileExists = true
 
+    /// Meditations whose audio file was requested via `fileURL(for:)`, in call order
+    private(set) var fileURLRequests: [UUID] = []
+
     func loadMeditations() throws -> [GuidedMeditation] {
         if self.loadShouldThrow {
             throw GuidedMeditationError.persistenceFailed(reason: "Mock error")
@@ -75,6 +78,7 @@ final class MockGuidedMeditationService: GuidedMeditationServiceProtocol {
     }
 
     func fileURL(for meditation: GuidedMeditation) -> URL? {
+        self.fileURLRequests.append(meditation.id)
         guard let localFilePath = meditation.localFilePath else {
             return nil
         }

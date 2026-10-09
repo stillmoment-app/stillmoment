@@ -79,21 +79,20 @@ final class AppDependenciesTests: XCTestCase {
     }
 
     func testLibraryAndPlayerReadTheSameLibrary() async {
-        // Given — the library holds one meditation whose audio file is missing
+        // Given — the library holds one meditation
         let mocked = MockedAppDependencies()
         mocked.meditationService.meditations = [Self.meditation]
-        mocked.meditationService.mockFileExists = false
         let dependencies = mocked.dependencies
         let library = dependencies.makeGuidedListViewModel()
         let player = dependencies.makePlayerViewModel(meditation: Self.meditation, preparationTimeSeconds: nil)
 
-        // When
+        // When — the library loads and the player opens the meditation
         await library.loadMeditations()
         await player.loadAudio()
 
-        // Then — the library lists it and the player reports the missing file from the same service
+        // Then — the library lists it, and the player resolved its audio file through the same service
         XCTAssertEqual(library.meditations.map(\.id), [Self.meditation.id])
-        XCTAssertNotNil(player.errorMessage)
+        XCTAssertEqual(mocked.meditationService.fileURLRequests, [Self.meditation.id])
     }
 
     func testFileImportRecognizesMeditationsAlreadyInTheLibrary() async throws {

@@ -57,9 +57,14 @@ Everything below receives its dependencies through initializers (Pure DI, no con
 - **Who gets what:** Only views that build a ViewModel, or pass the struct on to such a view, receive the
   `AppDependencies` struct (e.g. `GuidedMeditationsListView` → `GuidedMeditationPlayerView`). ViewModels and
   services never receive the struct, only their individual dependencies.
-- **Wiring:** Which instance goes into which ViewModel lives in the `make…` functions on `AppDependencies`
+- **Wiring:** The ViewModels with shared services are built by the `make…` functions on `AppDependencies`
   (`makeTimerViewModel()`, `makeGuidedListViewModel()`, `makeFileOpenHandler()`, `makePlayerViewModel(…)`);
-  the app and views call them. `AppDependenciesTests` proves the shared instances with `MockedAppDependencies`.
+  `AppDependenciesTests` proves the shared instances with `MockedAppDependencies`. Some call sites still pick
+  fields directly: `GuidedMeditationsListView` hands `audioService`, `waveformProvider`, `meditationService` and
+  `praxisRepository` to the Edit-Sheet and reads `guidedSettingsRepository`; `StillMomentApp` passes
+  `downloadService` to the `InboxHandler`, `guidedSettingsRepository` to `AppSettingsView`, `praxisRepository`
+  to `DurationConfigurer` and `meditationService` to the screenshot seeding. Those paths are not covered by
+  `AppDependenciesTests`.
 - **Lifetime:** Services with app-wide state (`AudioService`, `WaveformProvider`, `GuidedMeditationService`,
   `TimerService`, repositories) exist once. Services whose state belongs to a single playback
   (`AudioPlayerService`, the player's `MeditationGongPlayer`) are created per player through the
