@@ -21,12 +21,12 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
 | [shared-132](shared/shared-132-mehrfach-teilen-ohne-fehler.md) | Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt | 4-Polish | [ ] | [ ] |
 | [shared-133](shared/shared-133-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [ ] |
+| [shared-136](shared/shared-136-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) in den Einstellungen | 5-QA | [ ] | [ ] |
 
 ### iOS
 
 | Nr | Ticket | Phase | Status | Abhaengigkeit |
 |----|--------|-------|--------|---------------|
-| [ios-049](ios/ios-049-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) im Einstellungen-Bereich | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | UI-Tests unabhängig vom Zustand des Simulators | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-057](ios/ios-057-unit-tests-ohne-reste-im-app-ordner.md) | Unit-Tests hinterlassen keine Daten im echten App-Ordner | 5-QA | [ ] | - |
