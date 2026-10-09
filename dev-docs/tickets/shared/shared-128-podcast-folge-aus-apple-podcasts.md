@@ -11,7 +11,7 @@ depends_on: [shared-127]
 
 # Ticket shared-128: Podcast-Folge aus Apple Podcasts importieren
 
-**Komplexitaet**: Der Import-Weg (Teilen → Ladefenster → Bearbeiten-Dialog) existiert schon; neu ist das Aufloesen eines Apple-Podcasts-Links zur Audiodatei. Risiken: Apples Lookup-Dienst ist undokumentiert begrenzt (max. 200 neueste Folgen, teils weniger), und ob Still Moment im Teilen-Menue von Apple Podcasts erscheint, ist nur auf einem echten Geraet pruefbar.
+**Komplexitaet**: Der Import-Weg (Teilen → Ladefenster → Bearbeiten-Dialog) existiert schon; neu ist das Aufloesen eines Apple-Podcasts-Links zur Audiodatei. Risiken: Apples Lookup-Dienst ist undokumentiert begrenzt (max. 200 neueste Folgen, teils weniger), und ob Still Moment im Teilen-Menue von Apple Podcasts erscheint, ist nur auf einem echten Geraet pruefbar. Der bestehende Link-Import wird an zwei Stellen mit angepasst: neue Verbindungsfehler-Meldung und Download in Datei auf iOS.
 
 ---
 
@@ -41,22 +41,25 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 - [ ] Links aus allen Laender-Varianten von Apple Podcasts (z.B. `/de/`, `/us/`) funktionieren
 - [ ] Netzwerkzugriffe nur nach einer Teilen-/Import-Aktion des Nutzers, ohne Geraete- oder Nutzerkennungen
 - [ ] Ladefenster unveraendert (keine neuen Texte, keine Fortschrittsanzeige)
+- [ ] Eine Folge von ueber 2 Stunden laesst sich importieren. iOS laedt die Audiodatei dafuer direkt in eine Datei statt in den Arbeitsspeicher (wie Android); gilt auch fuer den bestehenden Link-Import
 
 ### Fehlerfaelle — genau drei Meldungen
-- [ ] Link auf einen ganzen Podcast (ohne einzelne Folge): Hinweis, eine einzelne Folge zu teilen
-- [ ] Keine Internetverbindung oder Zeitueberschreitung: Hinweis, es spaeter erneut zu versuchen (bestehende Meldung des Link-Imports, falls passend)
-- [ ] Alles andere — Folge nicht gefunden (auch aeltere Folgen bis shared-129), Bezahl-/Abo-Folge, Video-Folge, Datei beim Anbieter nicht mehr vorhanden, unerwartete Antwort: "Diese Folge kann leider nicht uebernommen werden"
+- [ ] Link auf einen ganzen Podcast (ohne einzelne Folge): Hinweis, eine einzelne Folge zu teilen. Nur Knopf "Schliessen"
+- [ ] Keine Internetverbindung, Zeitueberschreitung oder Apple ist gerade ueberlastet (Ratenlimit, HTTP 403/429 vom Lookup-Dienst): neue Meldung "spaeter erneut versuchen" mit "Erneut versuchen" und "Abbrechen". Wortlaut neutral, da nicht immer die Verbindung schuld ist (z.B. "Gerade nicht erreichbar")
+- [ ] Der bestehende Link-Import zeigt bei Verbindungsfehlern dieselbe neue Meldung (ersetzt dort "Download fehlgeschlagen" fuer Netzfehler); Texte auf iOS und Android identisch
+- [ ] Alles andere — Folge nicht gefunden (auch aeltere Folgen bis shared-129), Bezahl-/Abo-Folge, Video-Folge, Datei beim Anbieter nicht mehr vorhanden, unerwartete Antwort: "Diese Folge kann leider nicht uebernommen werden". Nur Knopf "Schliessen"
+- [ ] "Erneut versuchen" wird nur angeboten, wenn ein erneuter Versuch etwas aendern kann
 - [ ] Nie stilles Scheitern, keine technischen Begriffe in den Meldungen
 - [ ] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS: Erkennen von Folgen- vs. Podcast-Links (inkl. Laender-Varianten), Finden der Folge in der Lookup-Antwort, Vorschlaege fuer Titel/Lehrer:in inkl. fehlendem Autor, Zuordnung jedes Fehlerfalls zu einer der drei Meldungen
+- [ ] Unit Tests iOS: Erkennen von Folgen- vs. Podcast-Links (inkl. Laender-Varianten), Finden der Folge in der Lookup-Antwort, Vorschlaege fuer Titel/Lehrer:in inkl. fehlendem Autor, Zuordnung jedes Fehlerfalls zu einer der drei Meldungen (inkl. Ratenlimit 403/429), Download in Datei inkl. Abbrechen
 - [ ] Unit Tests Android: dieselben Faelle
 
 ### Dokumentation
 - [ ] CHANGELOG.md
-- [ ] GLOSSARY.md: Begriff fuer den Podcast-Import (Abgrenzung zum Link-Import)
+- [ ] `dev-docs/reference/glossary.md`: Begriff fuer den Podcast-Import (Abgrenzung zum Link-Import)
 - [ ] `dev-docs/concepts/podcast-import.md`: Ergebnis der Vorab-Pruefung nachtragen
 
 ---
@@ -70,6 +73,8 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 5. Einen ganzen Podcast teilen → Hinweis "einzelne Folge teilen"
 6. Im Flugmodus eine Folge teilen → Hinweis "spaeter erneut versuchen"
 7. Eine sehr alte Folge eines grossen Podcasts teilen (z.B. Tara Brach von 2019) → "Diese Folge kann leider nicht uebernommen werden" (bis shared-129 umgesetzt ist)
+8. Eine Folge von ueber 2 Stunden teilen (iOS, moeglichst aelteres Geraet) → Import klappt
+9. Bestehender Link-Import: direkten MP3-Link im Flugmodus teilen → dieselbe "spaeter erneut versuchen"-Meldung wie beim Podcast-Import
 
 ---
 
@@ -88,7 +93,8 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 - Grenze: hoechstens die 200 neuesten Folgen, bei manchen Podcasts weniger. Aeltere Folgen loest shared-129.
 - Beispiel Deutschlandfunk Nova: Autor ist der Sender, nicht die Sprecherinnen. Das ist erwartet — der Bearbeiten-Dialog ist zum Korrigieren da.
 - Folgentitel enthalten oft Beiwerk wie "(20:34 Min.)". Nichts automatisch abschneiden.
-- Podcast-Folgen sind oft lang (60 Min. ≈ 50–60 MB). Pruefen, ob der bestehende Download auf iOS (laedt bisher die ganze Datei in den Arbeitsspeicher) dafuer taugt.
+- Podcast-Folgen sind oft lang (60 Min. ≈ 55 MB, 3 h ≈ 170 MB). iOS laedt bisher per `session.data(for:)` die ganze Datei in den Arbeitsspeicher, Android schreibt per `copyTo` direkt in eine Datei. Entscheidung: iOS auf `session.download(for:)` umstellen (temporaere Datei noch im Callback verschieben). Abbrechen muss weiter ueber `cancelDownload()` greifen.
+- Aufteilung iOS: Die Share-Extension bleibt unveraendert (nimmt `http/https`-Links an, schreibt sie in die Inbox). Erkennen des Apple-Podcasts-Links, Lookup und Fehlerzuordnung liegen in der App (vor dem Download im `InboxHandler`) — dort leben Ladefenster, Abbrechen und Meldungen; so ist der Aufbau wie auf Android. Titel/Lehrer:in aus dem Lookup muessen Vorrang vor den ID3-Tags der geladenen Datei bekommen.
 - Keine vorgezogene Abstraktion fuer weitere Podcast-Apps — die kommen, wenn sie gebraucht werden.
 - Entscheidungen und Recherche: `dev-docs/concepts/podcast-import.md`
 
