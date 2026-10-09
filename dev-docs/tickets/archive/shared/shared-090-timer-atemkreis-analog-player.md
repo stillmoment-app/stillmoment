@@ -148,7 +148,7 @@ Erwartung: Timer und Player wirken visuell und mechanisch wie zwei Geschwister. 
 - iOS Player als Vorlage: `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationPlayerView.swift`
 - iOS Atemkreis-Komponente: `ios/StillMoment/Presentation/Views/GuidedMeditations/BreathingCircleView.swift` (heute im GuidedMeditations-Ordner — wird im Zuge dieses Tickets ggf. in einen neutralen Ort verschoben, da Timer und Player sie teilen)
 - Android Timer heute: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/...`
-- Vorgaenger-Ticket: `dev-docs/tickets/shared/shared-087-player-atemkreis-redesign.md`
+- Vorgaenger-Ticket: `dev-docs/tickets/archive/shared/shared-087-player-atemkreis-redesign.md`
 - Theme-System: `dev-docs/reference/color-system.md`
 - Typografie-Rollen: `Font+Theme.swift` — bestehende Player-Rollen werden wiederverwendet
 

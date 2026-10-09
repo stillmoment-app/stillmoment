@@ -223,7 +223,7 @@ verifiziert).
 | Datei | Aktion | Beschreibung |
 |-------|--------|-------------|
 | `CHANGELOG.md` | Eintrag | Neuer `### Changed (Android)`-Block unter `[Unreleased]`. Wortlaut analog zu den iOS-Block-Texten aus `ios-048` — sechs Sub-Bullets (Typografie-Migration, Player-Editorial-Voice, Halation-Entfernung, Buttons + Stepper auf Geist, Bold-Text-Setting, Debug-Reference-Screen). Siehe Abschnitt "CHANGELOG-Eintrag" unten. |
-| `dev-docs/tickets/shared/shared-099-typografie-newsreader-geist-android.md` | Eintrag | `[Plan]: ../plans/shared-099-android.md` ergaenzen. Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan. |
+| `dev-docs/tickets/archive/shared/shared-099-typografie-newsreader-geist-android.md` | Eintrag | `[Plan]: ../plans/shared-099-android.md` ergaenzen. Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan. |
 | `android/CLAUDE.md` | Pruefen | Aktuell kein `TypographyRole`-Verweis (Grep bestaetigt). Falls bei Implementierung doch eine Stelle auftaucht: nachziehen. |
 | `MEMORY.md` | Eintrag | Neuer Sub-Abschnitt "Typografie 2.1 — TextStyle.kt (Android)" unter "Typography System" — referenziert dass Android dasselbe 10-Token-System mit denselben Sample-Texten nutzt. |
 

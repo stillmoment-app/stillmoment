@@ -69,7 +69,7 @@ Bei Warnungen: Zeige Hinweis und schlage bessere Formulierung vor.
 
 3. Fuelle das Frontmatter aus (Schema: `dev-docs/tickets/README.md`), Kommentare aus dem Template entfernen:
    - `id`: `{platform}-{NNN}`, identisch mit dem Dateinamen-Prefix
-   - `title`: Einzeiler, erscheint so im Index
+   - `title`: Einzeiler, erscheint so im Index. Enthaelt er `:` oder beginnt er mit einem Anfuehrungszeichen, in `"..."` setzen (sonst ungueltiges YAML)
    - `status`: Plattform-Ticket `todo`; Shared-Ticket `ios: todo` / `android: todo` (nicht betroffene Plattform: `n/a`)
    - `phase`, `priority` aus Ableitung/Abfrage
    - `depends_on`: Ticket-IDs oder `[]`; Freitext-Abhaengigkeiten nach `## Hinweise`

@@ -60,7 +60,7 @@ Bewusst getroffene Entscheidungen, die in den Plan eingeflossen sind. Spiegeln d
 |-------|--------|-------------|
 | `CHANGELOG.md` | Eintrag | Neuer `### Removed (Android)`-Block unter `[Unreleased]` (oder im offenen Release-Block) — Theme-Auswahl entfaellt, analog zum iOS-Wortlaut |
 | `android/CLAUDE.md` | Pruefen | Aktuell kein Theme-Verweis (Grep bestaetigt) — keine Aenderung erwartet |
-| `dev-docs/tickets/shared/shared-093-theme-system-vereinfachen.md` | Eintrag | `[Plan (Android)]: ../plans/shared-093-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan |
+| `dev-docs/tickets/archive/shared/shared-093-theme-system-vereinfachen.md` | Eintrag | `[Plan (Android)]: ../plans/shared-093-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan |
 
 ---
 

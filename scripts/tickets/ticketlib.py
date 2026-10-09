@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -233,32 +232,3 @@ def load_tickets(root: Path) -> tuple[list[Ticket], list[Error]]:
             tickets.append(ticket)
     errors += cross_check(tickets)
     return tickets, sorted(errors)
-
-
-def dump_frontmatter(data: dict) -> str:
-    """Deterministisches Frontmatter in fester Feldreihenfolge (inkl. '---'-Zeilen)."""
-    lines = ["---"]
-    for key in FIELD_ORDER:
-        if key not in data or data[key] is None:
-            continue
-        value = data[key]
-        if key == "depends_on":
-            if value:
-                lines.append(f"depends_on: [{', '.join(value)}]")
-        elif key == "status" and isinstance(value, dict):
-            lines.append("status:")
-            lines += [f"  {platform}: {value[platform]}" for platform in PLATFORMS]
-        else:
-            lines.append(f"{key}: {_scalar(value)}")
-    lines.append("---")
-    return "\n".join(lines) + "\n"
-
-
-def _scalar(value: str) -> str:
-    """Plain, wenn YAML den Wert unveraendert zuruecklesen wuerde, sonst doppelt gequotet."""
-    try:
-        if yaml.safe_load(f"k: {value}") == {"k": value}:
-            return value
-    except yaml.YAMLError:
-        pass
-    return json.dumps(value, ensure_ascii=False)

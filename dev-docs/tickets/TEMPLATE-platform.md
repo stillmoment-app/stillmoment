@@ -1,6 +1,6 @@
 ---
 id: {platform}-{NNN}
-title: {Titel}
+title: {Titel}              # mit ":" oder fuehrendem Anfuehrungszeichen: in "..." setzen
 status: todo                # todo | in-progress | done | wontfix
 phase: 3-Feature            # 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 priority: mittel            # optional: kritisch | hoch | mittel | niedrig

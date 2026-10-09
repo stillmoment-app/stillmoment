@@ -119,8 +119,8 @@ Der heutige Atemkreis in der Hauptphase taktet visuell einen Atemrhythmus, den d
 - Handoff mit Designdetails (Maße, Farben, Verläufe, Animationsverhalten): `handoffs/claude_code_handoff_running_timer/`
 - iOS Timer heute: `ios/StillMoment/Presentation/Views/Timer/TimerView.swift`
 - Heute genutzte Atemkreis-Komponente (bleibt fuer Pre-Roll und Player): geteilte Komponente aus shared-087
-- Vorgaenger-Ticket: `dev-docs/tickets/shared/shared-090-timer-atemkreis-analog-player.md`
-- Verwandt: `dev-docs/tickets/shared/shared-092-danke-screen-redesign.md` (gleiche Stossrichtung "Stille statt Atemtaktung")
+- Vorgaenger-Ticket: `dev-docs/tickets/archive/shared/shared-090-timer-atemkreis-analog-player.md`
+- Verwandt: `dev-docs/tickets/archive/shared/shared-092-danke-screen-redesign.md` (gleiche Stossrichtung "Stille statt Atemtaktung")
 - Typografie-Rollen: `Font+Theme.swift` — fuer den 64-px-Restzeit-Block wird ggf. eine neue oder bestehende Display-Rolle genutzt
 
 ---

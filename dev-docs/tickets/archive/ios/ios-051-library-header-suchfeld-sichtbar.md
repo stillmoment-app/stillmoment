@@ -126,7 +126,7 @@ Die heutige Toolbar zeigt den Title "Bibliothek" — bei groesseren Dynamic-Type
 - Library-View: `ios/StillMoment/Presentation/Views/GuidedMeditations/GuidedMeditationsListView.swift` (Toolbar + `.searchable()`)
 - Such-Bridge: `ios/StillMoment/Presentation/Views/GuidedMeditations/LibrarySearchContentView.swift` (liest heute `@Environment(\.isSearching)` — muss umverdrahtet werden)
 - ViewModel: `ios/StillMoment/Application/ViewModels/GuidedMeditationsListViewModel.swift` (`searchQuery`, `isSearching`, `searchState`)
-- Vorgaenger: `dev-docs/tickets/ios/ios-041-library-search.md`
+- Vorgaenger: `dev-docs/tickets/archive/ios/ios-041-library-search.md`
 
 ---
 

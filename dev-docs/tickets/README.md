@@ -106,7 +106,7 @@ Die Ticket-Skills decken den ganzen Ablauf ab:
 
 ```bash
 # 1. Ticket finden und lesen (aktiv oder Archiv)
-ls dev-docs/tickets/**/ios-001-*.md
+find dev-docs/tickets -name 'ios-001-*.md' -not -path '*/plans/*'
 
 # 2. Claude Code beauftragen
 "Setze Ticket ios-001 um gemaess der Spezifikation"
