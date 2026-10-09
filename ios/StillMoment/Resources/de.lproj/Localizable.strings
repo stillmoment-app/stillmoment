@@ -62,6 +62,7 @@
 // MARK: - App Settings Tab
 
 "app.settings.guidedMeditations.header" = "Geführte Meditationen";
+"app.settings.feedback.header" = "Rückmeldung";
 "app.settings.info.header" = "Info & Rechtliches";
 "app.settings.soundAttributions.title" = "Klang-Nachweise";
 "app.settings.soundAttributions.page.title" = "Klang-Nachweise";
@@ -77,7 +78,8 @@
 "accessibility.appSettings.privacy.hint" = "Öffnet Datenschutzerklärung im Browser";
 "app.settings.rateApp.title" = "App bewerten";
 "app.settings.writeToUs.title" = "Schreib uns";
-"app.settings.writeToUs.subtitle" = "Hallo sagen, danke sagen, Feedback geben";
+"app.settings.rateApp.subtitle" = "Damit andere Still Moment finden";
+"app.settings.writeToUs.subtitle" = "Ideen, Wünsche oder einfach ein Gruß";
 "app.settings.writeToUs.noMailApp.title" = "Kein Mail-Programm gefunden";
 "app.settings.writeToUs.noMailApp.message" = "Du erreichst uns unter %@";
 "app.settings.writeToUs.noMailApp.copy" = "Adresse kopieren";
