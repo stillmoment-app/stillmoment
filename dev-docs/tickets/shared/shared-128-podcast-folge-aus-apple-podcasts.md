@@ -72,7 +72,7 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 
 1. iOS: In Apple Podcasts eine aktuelle Folge eines Meditations-Podcasts oeffnen (z.B. "Achtsam", Deutschlandfunk Nova) → Teilen → Still Moment
 2. Erwartung: Ladefenster, dann Bearbeiten-Dialog mit Folgentitel und Autor; nach Speichern spielt die Folge im Flugmodus ab
-3. Android: Denselben Folgenlink per Messenger an sich selbst schicken → Link teilen → Still Moment
+3. Android: Nur den Folgenlink (ohne weiteren Text) per Messenger an sich selbst schicken → Link teilen → Still Moment
 4. Erwartung: identisches Verhalten
 5. Einen ganzen Podcast teilen → Hinweis "einzelne Folge teilen"
 6. Im Flugmodus eine Folge teilen → Hinweis "spaeter erneut versuchen"
