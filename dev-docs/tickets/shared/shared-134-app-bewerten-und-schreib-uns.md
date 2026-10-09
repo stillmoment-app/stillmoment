@@ -11,6 +11,9 @@ depends_on: []
 
 # Ticket shared-134: App bewerten und Schreib uns in den Einstellungen
 
+**Plan iOS**: `dev-docs/tickets/plans/shared-134-ios.md`
+**Plan Android**: `dev-docs/tickets/plans/shared-134-android.md`
+
 ## Was
 
 Im Info-Bereich der Einstellungen gibt es zwei neue Einträge:
