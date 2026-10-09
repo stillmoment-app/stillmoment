@@ -163,6 +163,51 @@ class UrlAudioValidatorTest {
                 UrlAudioValidator.classifyShareText(url)
             )
         }
+
+        @Test
+        fun `link inside messenger text is found`() {
+            // shared-128: Messenger teilen "Text + Link" statt nur den Link
+            val link = "https://podcasts.apple.com/de/podcast/achtsam-deutschlandfunk-nova/id1528936478?i=1000792422344"
+            assertEquals(
+                UrlAudioValidator.ShareTextResult.AudioUrl(link),
+                UrlAudioValidator.classifyShareText("Hoer mal $link")
+            )
+        }
+
+        @Test
+        fun `link followed by more text is found`() {
+            val link = "https://example.com/meditation.mp3"
+            assertEquals(
+                UrlAudioValidator.ShareTextResult.AudioUrl(link),
+                UrlAudioValidator.classifyShareText("Schau mal:\n$link\nViel Spass")
+            )
+        }
+
+        @Test
+        fun `trailing punctuation is not part of the link`() {
+            val link = "https://example.com/meditation.mp3"
+            assertEquals(
+                UrlAudioValidator.ShareTextResult.AudioUrl(link),
+                UrlAudioValidator.classifyShareText("Hoer dir das an ($link).")
+            )
+        }
+
+        @Test
+        fun `first of several links is used`() {
+            val first = "https://example.com/one.mp3"
+            assertEquals(
+                UrlAudioValidator.ShareTextResult.AudioUrl(first),
+                UrlAudioValidator.classifyShareText("$first und https://example.com/two.mp3")
+            )
+        }
+
+        @Test
+        fun `text mentioning a scheme without host returns NotALink`() {
+            assertEquals(
+                UrlAudioValidator.ShareTextResult.NotALink,
+                UrlAudioValidator.classifyShareText("Nur Text mit https:// ohne Adresse")
+            )
+        }
     }
 
     @Nested

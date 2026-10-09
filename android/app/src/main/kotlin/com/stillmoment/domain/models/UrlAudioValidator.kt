@@ -40,8 +40,24 @@ object UrlAudioValidator {
      */
     fun classifyShareText(text: String?): ShareTextResult {
         if (text.isNullOrBlank()) return ShareTextResult.NotALink
-        return if (isAudioUrl(text)) ShareTextResult.AudioUrl(text) else ShareTextResult.NotALink
+        val link = extractFirstLink(text)
+        return if (link != null) ShareTextResult.AudioUrl(link) else ShareTextResult.NotALink
     }
+
+    /**
+     * Finds the first HTTP/HTTPS link in a shared text (shared-128).
+     *
+     * Messengers and browsers often share "some text + link" instead of the bare
+     * link. The link runs until the next whitespace; trailing punctuation such as
+     * `.`, `)` or `»` belongs to the surrounding sentence and is stripped.
+     */
+    private fun extractFirstLink(text: String): String? {
+        val candidate = LINK_REGEX.find(text)?.value?.trimEnd { it in TRAILING_PUNCTUATION } ?: return null
+        return candidate.takeIf { it.substringAfter("://").isNotEmpty() }
+    }
+
+    private val LINK_REGEX = Regex("""https?://\S+""")
+    private val TRAILING_PUNCTUATION = setOf('.', ',', ';', ':', '!', '?', ')', '»', '"', '\'')
 
     /**
      * Extracts the filename from a URL path.

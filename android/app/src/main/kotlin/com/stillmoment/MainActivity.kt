@@ -16,10 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.stillmoment.data.FileOpenHandler
+import com.stillmoment.data.LinkImportHandler
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.UrlAudioValidator
-import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
 import com.stillmoment.presentation.navigation.StillMomentNavHost
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import com.stillmoment.presentation.ui.theme.WarmGradientBackground
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
     lateinit var fileOpenHandler: FileOpenHandler
 
     @Inject
-    lateinit var urlAudioDownloader: UrlAudioDownloaderProtocol
+    lateinit var linkImportHandler: LinkImportHandler
 
     private val _pendingFileUri = MutableStateFlow<Uri?>(null)
     val pendingFileUri = _pendingFileUri.asStateFlow()
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     StillMomentNavHost(
                         settingsDataStore = settingsDataStore,
                         fileOpenHandler = fileOpenHandler,
-                        urlAudioDownloader = urlAudioDownloader,
+                        linkImportHandler = linkImportHandler,
                         pendingFileUri = pendingFileUri,
                         onClearFileUri = ::consumePendingFileUri,
                         pendingDownloadUrl = pendingDownloadUrl,

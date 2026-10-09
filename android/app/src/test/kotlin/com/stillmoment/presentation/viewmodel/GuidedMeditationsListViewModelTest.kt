@@ -343,6 +343,67 @@ class GuidedMeditationsListViewModelTest {
         }
     }
 
+    // MARK: - shared-128: Podcast-Import-Vorschlag
+
+    @Nested
+    inner class PodcastImportSuggestion {
+        private suspend fun stubDownloadedEpisode(artist: String?, title: String?) {
+            val pending = PendingImport(
+                uri = "file:///cache/dl_1/dlf_nova_123.mp3",
+                fileName = "dlf_nova_123.mp3",
+                metadata = AudioMetadata(duration = 1_234_000L, artist = artist, title = title),
+                prefill = ImportPrefill(teacher = artist, name = title)
+            )
+            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
+                .thenReturn(Result.success(pending))
+        }
+
+        @Test
+        fun `episode title and podcast author beat the file's own tags`() = runTest {
+            stubDownloadedEpisode(artist = "DLF", title = "dlf_nova_123")
+
+            viewModel.importMeditation(
+                mock<Uri>(),
+                suggestion = ImportPrefill(
+                    teacher = "Deutschlandfunk Nova",
+                    name = "MBCT - Achtsame Therapie gegen Depressionen"
+                )
+            )
+            advanceUntilIdle()
+
+            val draft = viewModel.uiState.value.selectedMeditation
+            assertEquals("MBCT - Achtsame Therapie gegen Depressionen", draft?.name)
+            assertEquals("Deutschlandfunk Nova", draft?.teacher)
+        }
+
+        @Test
+        fun `missing episode title falls back to the file's title`() = runTest {
+            stubDownloadedEpisode(artist = "DLF", title = "Body Scan")
+
+            viewModel.importMeditation(
+                mock<Uri>(),
+                suggestion = ImportPrefill(teacher = "Deutschlandfunk Nova", name = null)
+            )
+            advanceUntilIdle()
+
+            val draft = viewModel.uiState.value.selectedMeditation
+            assertEquals("Body Scan", draft?.name)
+            assertEquals("Deutschlandfunk Nova", draft?.teacher)
+        }
+
+        @Test
+        fun `ordinary file import keeps the file's own suggestions`() = runTest {
+            stubDownloadedEpisode(artist = "Tara Brach", title = "Body Scan")
+
+            viewModel.importMeditation(mock<Uri>())
+            advanceUntilIdle()
+
+            val draft = viewModel.uiState.value.selectedMeditation
+            assertEquals("Body Scan", draft?.name)
+            assertEquals("Tara Brach", draft?.teacher)
+        }
+    }
+
     // MARK: - Delete
 
     @Nested

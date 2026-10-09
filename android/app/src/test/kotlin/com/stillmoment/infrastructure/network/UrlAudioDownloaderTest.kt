@@ -99,6 +99,21 @@ class UrlAudioDownloaderTest {
         }
 
         @Test
+        fun `long episode is streamed completely into the cache file`() = kotlinx.coroutines.test.runTest {
+            // shared-128: Folgen ueber 2 h (~170 MB) — die Datei wird gestreamt, nicht im Speicher gepuffert
+            val size = 64L * 1024 * 1024
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.inputStream).thenReturn(GeneratedStream(size))
+
+            val result = sut.download("https://podcast-mp3.dradio.de/lange-folge.mp3")
+
+            assertTrue(result.isSuccess)
+            val downloaded = cacheDir.walkTopDown().filter { it.isFile }.toList()
+            assertEquals(listOf(size), downloaded.map { it.length() })
+        }
+
+        @Test
         fun `downloads m4a with audio-slash-mp4 content type`() = kotlinx.coroutines.test.runTest {
             whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
             whenever(mockConnection.contentType).thenReturn("audio/mp4")
@@ -258,6 +273,28 @@ class UrlAudioDownloaderTest {
                 "Expected Network error, got ${result.exceptionOrNull()?.javaClass}"
             }
         }
+
+        @Test
+        fun `connection lost mid-download leaves no partial file behind`() = kotlinx.coroutines.test.runTest {
+            // shared-128: lange Podcast-Folgen — eine halbe Datei darf nicht im Cache liegen bleiben
+            val breakingStream = object : InputStream() {
+                private var sent = 0
+
+                override fun read(): Int {
+                    if (sent >= 1024) throw IOException("Connection reset")
+                    sent++
+                    return 0
+                }
+            }
+            whenever(mockConnection.responseCode).thenReturn(HttpURLConnection.HTTP_OK)
+            whenever(mockConnection.contentType).thenReturn("audio/mpeg")
+            whenever(mockConnection.inputStream).thenReturn(breakingStream)
+
+            val result = sut.download("https://example.com/long-episode.mp3")
+
+            assertTrue(result.exceptionOrNull() is UrlAudioDownloadError.Network)
+            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
+        }
     }
 
     @Nested
@@ -414,6 +451,8 @@ class UrlAudioDownloaderTest {
                 exception is CancellationException,
                 "Expected CancellationException but got ${exception?.javaClass?.simpleName}"
             )
+            // shared-128: abgebrochener Download hinterlaesst weder Datei noch Verzeichnis
+            assertEquals(emptyList<File>(), cacheDir.listFiles()?.toList())
         }
 
         @OptIn(ExperimentalCoroutinesApi::class)
@@ -458,6 +497,24 @@ class UrlAudioDownloaderTest {
             val secondResult = sutFresh.download("https://example.com/fast.mp3")
             assertTrue(secondResult.isSuccess) { "Second download should succeed after cancel" }
             assertEquals(freshUri, secondResult.getOrNull())
+        }
+    }
+
+    /** Produces [size] bytes on demand without holding them in memory. */
+    private class GeneratedStream(private val size: Long) : InputStream() {
+        private var position = 0L
+
+        override fun read(): Int {
+            if (position >= size) return -1
+            position++
+            return 0
+        }
+
+        override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+            if (position >= size) return -1
+            val count = minOf(length.toLong(), size - position).toInt()
+            position += count
+            return count
         }
     }
 }

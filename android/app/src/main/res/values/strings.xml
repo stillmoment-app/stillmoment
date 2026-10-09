@@ -331,6 +331,12 @@
     <string name="download_error_no_link_title">No link found</string>
     <string name="download_error_no_link_message">We couldn’t find a link in the shared content.</string>
     <string name="download_error_close">Close</string>
+    <string name="download_error_whole_podcast_title">Please share a single episode</string>
+    <string name="download_error_whole_podcast_message">This link leads to a whole podcast. In your podcast app, share a single episode with Still Moment.</string>
+    <string name="download_error_not_reachable_title">Not reachable right now</string>
+    <string name="download_error_not_reachable_message">Please check your internet connection and try again later.</string>
+    <string name="download_error_episode_unavailable_title">Not possible</string>
+    <string name="download_error_episode_unavailable_message">Unfortunately, this episode can’t be imported.</string>
 
     <!-- Timer Running Phase (shared-095) -->
     <string name="timer_running_remaining">REMAINING</string>

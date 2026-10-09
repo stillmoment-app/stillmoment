@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,7 +34,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,14 +66,18 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.stillmoment.R
 import com.stillmoment.data.FileOpenHandler
+import com.stillmoment.data.LinkImportHandler
+import com.stillmoment.data.LinkImportOutcome
 import com.stillmoment.data.local.SettingsDataStore
 import com.stillmoment.domain.models.AppTab
 import com.stillmoment.domain.models.AppearanceMode
 import com.stillmoment.domain.models.GuidedMeditation
-import com.stillmoment.domain.models.UrlAudioDownloadError
-import com.stillmoment.domain.services.UrlAudioDownloaderProtocol
+import com.stillmoment.domain.models.ImportPrefill
+import com.stillmoment.domain.models.LinkImportFailure
 import com.stillmoment.presentation.ui.common.DownloadProgressModal
+import com.stillmoment.presentation.ui.common.LinkImportErrorDialog
 import com.stillmoment.presentation.ui.common.MeditationCompletionContent
+import com.stillmoment.presentation.ui.common.NoLinkErrorDialog
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationPlayerScreen
 import com.stillmoment.presentation.ui.meditations.GuidedMeditationsListScreen
 import com.stillmoment.presentation.ui.settings.AppSettingsScreen
@@ -94,7 +96,6 @@ import com.stillmoment.presentation.viewmodel.PraxisSettingsViewModel
 import com.stillmoment.presentation.viewmodel.TimerViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -202,7 +203,7 @@ fun StillMomentNavHost(
     settingsDataStore: SettingsDataStore,
     modifier: Modifier = Modifier,
     fileOpenHandler: FileOpenHandler? = null,
-    urlAudioDownloader: UrlAudioDownloaderProtocol? = null,
+    linkImportHandler: LinkImportHandler? = null,
     pendingFileUri: StateFlow<Uri?> = MutableStateFlow(null),
     onClearFileUri: () -> Unit = {},
     pendingDownloadUrl: StateFlow<String?> = MutableStateFlow(null),
@@ -231,7 +232,7 @@ fun StillMomentNavHost(
         selectedAppearanceMode = selectedAppearanceMode,
         onAppearanceModeChange = { scope.launch { settingsDataStore.setAppearanceMode(it) } }
     )
-    val pendingMeditationImportUri = remember { MutableStateFlow<Uri?>(null) }
+    val pendingMeditationImportUri = remember { MutableStateFlow<SharedImport?>(null) }
     val stopMeditationSignal = remember { MutableStateFlow(false) }
     // shared-081: Der Dauer-Filter faellt nur beim Tab-Wechsel, nicht beim Player-Ausflug.
     // ON_PAUSE des Library-Eintrags feuert in beiden Faellen und taugt deshalb nicht —
@@ -247,19 +248,19 @@ fun StillMomentNavHost(
         onValidFile = { uri ->
             stopMeditationSignal.value = true
             playerWiring.onSessionInterrupted()
-            pendingMeditationImportUri.value = uri
+            pendingMeditationImportUri.value = SharedImport(uri = uri, suggestion = null)
         }
     )
 
     DownloadUrlEffect(
-        urlAudioDownloader = urlAudioDownloader,
+        linkImportHandler = linkImportHandler,
         pendingDownloadUrl = pendingDownloadUrl,
         onClearDownloadUrl = onClearDownloadUrl,
         onDownloadingChange = { isDownloading = it },
-        onDownloadSuccess = { uri ->
+        onImport = { imported ->
             stopMeditationSignal.value = true
             playerWiring.onSessionInterrupted()
-            pendingMeditationImportUri.value = uri
+            pendingMeditationImportUri.value = imported
         }
     )
 
@@ -308,7 +309,7 @@ fun StillMomentNavHost(
         ) {
             DownloadProgressModal(
                 onCancel = {
-                    urlAudioDownloader?.cancel()
+                    linkImportHandler?.cancel()
                 }
             )
         }
@@ -333,7 +334,7 @@ private fun NavHostScaffold(
     snackbarHostState: SnackbarHostState,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingMeditationImportUri: StateFlow<Uri?>,
+    pendingMeditationImportUri: StateFlow<SharedImport?>,
     onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
@@ -403,7 +404,7 @@ private fun StillMomentNavContent(
     navController: NavHostController,
     startDestination: String,
     settingsState: SettingsSheetState,
-    pendingMeditationImportUri: StateFlow<Uri?>,
+    pendingMeditationImportUri: StateFlow<SharedImport?>,
     onClearPendingImport: () -> Unit,
     stopMeditationSignal: StateFlow<Boolean>,
     onConsumeStopSignal: () -> Unit,
@@ -419,14 +420,14 @@ private fun StillMomentNavContent(
         )
 
         composable(Screen.Library.route) {
-            val importedUri by pendingMeditationImportUri.collectAsState()
+            val sharedImport by pendingMeditationImportUri.collectAsState()
             val listViewModel: GuidedMeditationsListViewModel = hiltViewModel()
             val currentOnClear by rememberUpdatedState(onClearPendingImport)
 
-            LaunchedEffect(importedUri) {
-                val uri = importedUri ?: return@LaunchedEffect
+            LaunchedEffect(sharedImport) {
+                val pending = sharedImport ?: return@LaunchedEffect
                 currentOnClear()
-                listViewModel.importMeditation(uri)
+                listViewModel.importMeditation(pending.uri, pending.suggestion)
             }
 
             ResetLibrarySearchOnPause(viewModel = listViewModel)
@@ -667,73 +668,68 @@ private fun NavGraphBuilder.playerComposable(playerWiring: PlayerCompletionWirin
     }
 }
 
-private data class DownloadFailure(val url: String, val notAudio: Boolean)
+/**
+ * A local audio file ready for the import edit sheet. [suggestion] comes from the
+ * podcast import (episode title / podcast author, shared-128) and beats the
+ * file's own ID3 values; `null` for file shares and ordinary links.
+ */
+private data class SharedImport(val uri: Uri, val suggestion: ImportPrefill?)
 
+/** A failed link import plus the shared address, so "Retry" can run the whole import again. */
+private data class FailedLinkImport(val sharedUrl: String, val failure: LinkImportFailure)
+
+/**
+ * Imports a shared link (ordinary audio link or Apple Podcasts episode) while the
+ * loading window is shown. Cancelling in the loading window ends quietly.
+ */
 @Composable
 private fun DownloadUrlEffect(
-    urlAudioDownloader: UrlAudioDownloaderProtocol?,
+    linkImportHandler: LinkImportHandler?,
     pendingDownloadUrl: StateFlow<String?>,
     onClearDownloadUrl: () -> Unit,
     onDownloadingChange: (Boolean) -> Unit,
-    onDownloadSuccess: (Uri) -> Unit
+    onImport: (SharedImport) -> Unit
 ) {
     val downloadUrl by pendingDownloadUrl.collectAsState()
-    var failure by remember { mutableStateOf<DownloadFailure?>(null) }
+    var failed by remember { mutableStateOf<FailedLinkImport?>(null) }
     val scope = rememberCoroutineScope()
     val currentOnClearDownloadUrl by rememberUpdatedState(onClearDownloadUrl)
     val currentOnDownloadingChange by rememberUpdatedState(onDownloadingChange)
-    val currentOnDownloadSuccess by rememberUpdatedState(onDownloadSuccess)
+    val currentOnImport by rememberUpdatedState(onImport)
+
+    val runImport: suspend (LinkImportHandler, String) -> Unit = { handler, url ->
+        currentOnDownloadingChange(true)
+        val outcome = handler.import(url)
+        currentOnDownloadingChange(false)
+        when (outcome) {
+            is LinkImportOutcome.Imported -> currentOnImport(SharedImport(outcome.uri, outcome.suggestion))
+            is LinkImportOutcome.Failed -> failed = FailedLinkImport(url, outcome.failure)
+            LinkImportOutcome.Cancelled -> Unit
+        }
+    }
 
     LaunchedEffect(downloadUrl) {
         val url = downloadUrl ?: return@LaunchedEffect
-        val downloader = urlAudioDownloader ?: return@LaunchedEffect
-        currentOnDownloadingChange(true)
-        failure = null
-        val result = downloader.download(url)
-        currentOnDownloadingChange(false)
-        result.fold(
-            onSuccess = { uri -> currentOnDownloadSuccess(uri) },
-            onFailure = { error ->
-                if (error !is CancellationException) {
-                    failure = DownloadFailure(url = url, notAudio = error is UrlAudioDownloadError.NotAudio)
-                }
-            }
-        )
+        val handler = linkImportHandler ?: return@LaunchedEffect
+        failed = null
+        runImport(handler, url)
         currentOnClearDownloadUrl()
     }
 
-    val current = failure
+    val current = failed
     if (current != null) {
-        if (current.notAudio) {
-            NotAudioErrorDialog(onDismiss = { failure = null })
-        } else {
-            RetryableErrorDialog(
-                failedUrl = current.url,
-                urlAudioDownloader = urlAudioDownloader,
-                scope = scope,
-                onRetryStart = { currentOnDownloadingChange(true) },
-                onRetryEnd = { currentOnDownloadingChange(false) },
-                onSuccess = currentOnDownloadSuccess,
-                onFailure = { url, notAudio -> failure = DownloadFailure(url, notAudio) },
-                onDismiss = { failure = null }
-            )
-        }
+        LinkImportErrorDialog(
+            failure = current.failure,
+            onRetry = {
+                failed = null
+                val handler = linkImportHandler
+                if (handler != null) {
+                    scope.launch { runImport(handler, current.sharedUrl) }
+                }
+            },
+            onDismiss = { failed = null }
+        )
     }
-}
-
-@Composable
-private fun NotAudioErrorDialog(onDismiss: () -> Unit) {
-    val title = stringResource(R.string.download_error_not_audio_title)
-    val message = stringResource(R.string.download_error_not_audio_message)
-    val closeText = stringResource(R.string.download_error_close)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(closeText) }
-        }
-    )
 }
 
 @Composable
@@ -743,67 +739,6 @@ private fun InvalidShareEffect(invalidShareSignal: StateFlow<Boolean>, onClearSi
     if (signal) {
         NoLinkErrorDialog(onDismiss = { currentOnClear() })
     }
-}
-
-@Composable
-private fun NoLinkErrorDialog(onDismiss: () -> Unit) {
-    val title = stringResource(R.string.download_error_no_link_title)
-    val message = stringResource(R.string.download_error_no_link_message)
-    val closeText = stringResource(R.string.download_error_close)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(closeText) }
-        }
-    )
-}
-
-@Suppress("LongParameterList") // Retry dialog coordinates download state across multiple callbacks
-@Composable
-private fun RetryableErrorDialog(
-    failedUrl: String,
-    urlAudioDownloader: UrlAudioDownloaderProtocol?,
-    scope: kotlinx.coroutines.CoroutineScope,
-    onRetryStart: () -> Unit,
-    onRetryEnd: () -> Unit,
-    onSuccess: (Uri) -> Unit,
-    onFailure: (String, Boolean) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val errorTitle = stringResource(R.string.download_error_title)
-    val errorMessage = stringResource(R.string.download_error_message)
-    val retryText = stringResource(R.string.download_error_retry)
-    val cancelText = stringResource(R.string.download_error_cancel)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(errorTitle) },
-        text = { Text(errorMessage) },
-        confirmButton = {
-            TextButton(onClick = {
-                onDismiss()
-                if (urlAudioDownloader != null) {
-                    onRetryStart()
-                    scope.launch {
-                        val result = urlAudioDownloader.download(failedUrl)
-                        onRetryEnd()
-                        result.fold(
-                            onSuccess = onSuccess,
-                            onFailure = { error ->
-                                if (error !is CancellationException) {
-                                    onFailure(failedUrl, error is UrlAudioDownloadError.NotAudio)
-                                }
-                            }
-                        )
-                    }
-                }
-            }) { Text(retryText) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(cancelText) }
-        }
-    )
 }
 
 /**
@@ -852,7 +787,7 @@ private fun FileOpenEffect(
  */
 @Composable
 private fun MeditationImportNavigationEffect(
-    pendingImportUri: StateFlow<Uri?>,
+    pendingImportUri: StateFlow<SharedImport?>,
     navController: NavHostController,
     settingsDataStore: SettingsDataStore,
     scope: kotlinx.coroutines.CoroutineScope
