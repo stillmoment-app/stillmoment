@@ -74,6 +74,14 @@
     <string name="guided_meditations_guide_intro">Good meditations are freely available on websites and in podcasts. You\'ll find a few recommendations below.</string>
     <string name="guided_meditations_guide_open_source">Open source in browser</string>
     <string name="guided_meditations_guide_info">Content guide</string>
+    <!-- shared-137: Other languages in the source list -->
+    <string name="guided_meditations_guide_other_language_title">Also in %1$s</string>
+    <plurals name="guided_meditations_guide_other_language_count">
+        <item quantity="one">%1$d more source</item>
+        <item quantity="other">%1$d more sources</item>
+    </plurals>
+    <string name="guided_meditations_guide_other_language_collapsed">collapsed</string>
+    <string name="guided_meditations_guide_other_language_expanded">expanded</string>
 
     <!-- shared-104: Import how-to banners + step-by-step guides -->
     <string name="guided_meditations_guide_banner_browser_title">How to import from the browser</string>

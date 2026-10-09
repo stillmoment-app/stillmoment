@@ -11,7 +11,7 @@ import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.GuidedMeditationGroup
 import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.LibrarySearchState
-import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationSourceGroup
 import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.models.groupByTeacher
@@ -25,6 +25,7 @@ import com.stillmoment.domain.services.LoggerProtocol
 import com.stillmoment.domain.services.SearchHistory
 import com.stillmoment.domain.services.WaveformGenerationException
 import com.stillmoment.domain.services.WaveformProviderProtocol
+import com.stillmoment.presentation.util.languageDisplayName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -78,8 +79,11 @@ data class GuidedMeditationsListUiState(
     val previewDurationMs: Long = 0L,
     /** Whether the Content Guide sheet is shown */
     val showGuideSheet: Boolean = false,
-    /** Curated sources for the current locale (Content Guide) */
-    val guideSources: ImmutableList<MeditationSource> = persistentListOf(),
+    /**
+     * Curated sources grouped by language (Content Guide, shared-137).
+     * The first group is the user's own language, the others are shown collapsed.
+     */
+    val guideSourceGroups: ImmutableList<MeditationSourceGroup> = persistentListOf(),
     // MARK: - Library search (shared-101)
     /** Current search query (raw user input, not trimmed) */
     val searchQuery: String = "",
@@ -493,9 +497,18 @@ constructor(
 
     // MARK: - Content Guide
 
+    /**
+     * Opens "Where to find meditations?" with the sources grouped by language:
+     * own language first, then English, then the rest by name (shared-137).
+     * Language names are written in the resolved own language.
+     */
     fun openGuideSheet(languageCode: String) {
-        val sources = meditationSourceRepository.sources(languageCode).toImmutableList()
-        _uiState.update { it.copy(guideSources = sources, showGuideSheet = true) }
+        val catalog = meditationSourceRepository.catalog()
+        val ownLanguage = catalog.resolvedOwnLanguage(languageCode)
+        val groups = catalog
+            .groups(ownLanguageCode = languageCode) { code -> languageDisplayName(code, inLanguageCode = ownLanguage) }
+            .toImmutableList()
+        _uiState.update { it.copy(guideSourceGroups = groups, showGuideSheet = true) }
     }
 
     fun closeGuideSheet() {

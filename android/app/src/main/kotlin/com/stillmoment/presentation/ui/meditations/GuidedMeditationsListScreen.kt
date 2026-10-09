@@ -253,7 +253,7 @@ internal fun GuidedMeditationsListScreenContent(
         // Content Guide Sheet
         if (uiState.showGuideSheet) {
             ContentGuideSheet(
-                sources = uiState.guideSources,
+                sourceGroups = uiState.guideSourceGroups,
                 onDismiss = onCloseGuide
             )
         }

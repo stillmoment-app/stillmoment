@@ -1,24 +1,33 @@
 package com.stillmoment.presentation.ui.meditations
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationSourceGroup
 import com.stillmoment.presentation.ui.theme.StillMomentTheme
 import kotlinx.collections.immutable.persistentListOf
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Compose-UI tests for the import how-to banners inside ContentGuideSheet
- * (shared-104, shared-133).
+ * Compose-UI tests for ContentGuideSheet: the import how-to banners
+ * (shared-104, shared-133) and the source list by language (shared-137).
  *
  * Tests render [ContentGuideSheetContent] directly (no `ModalBottomSheet` wrapper)
  * so the animation switch between list and detail is deterministic — the sheet's
@@ -33,22 +42,59 @@ class ContentGuideSheetTest {
     @get:Rule
     val composeRule = createComposeRule()
 
-    private val sources =
+    private fun source(id: String, name: String, offer: String? = null, description: String, host: String) =
+        MeditationSource(
+            id = id,
+            name = name,
+            offer = offer,
+            description = description,
+            host = host,
+            url = "https://$host/"
+        )
+
+    /** English UI: own language English expanded, German collapsed below. */
+    private val sourceGroups =
         persistentListOf(
-            MeditationSource(
-                id = "tara-brach",
-                name = "Tara Brach",
-                author = null,
-                description = "Guided meditations, RAIN practice. Direct MP3.",
-                host = "tarabrach.com",
-                url = "https://www.tarabrach.com/guided-meditations/"
+            MeditationSourceGroup(
+                languageCode = "en",
+                sources = listOf(
+                    source(
+                        id = "tara-brach",
+                        name = "Tara Brach",
+                        description = "Guided meditations, RAIN practice.",
+                        host = "tarabrach.com"
+                    )
+                )
+            ),
+            MeditationSourceGroup(
+                languageCode = "de",
+                sources = listOf(
+                    source(
+                        id = "koeln",
+                        name = "Kirsten Tofahrn",
+                        offer = "Zentrum für Achtsamkeit Köln",
+                        description = "Mini-Übungen für den Einstieg.",
+                        host = "zentrum-fuer-achtsamkeit.koeln"
+                    ),
+                    source(
+                        id = "braehler",
+                        name = "Christine Brähler",
+                        description = "Selbstmitgefühl mit Tiefe.",
+                        host = "christinebraehler.com"
+                    )
+                )
             )
         )
+
+    private val openedSources = mutableListOf<String>()
 
     private fun renderSheet() {
         composeRule.setContent {
             StillMomentTheme {
-                ContentGuideSheetContent(sources = sources, onSourceClick = {})
+                ContentGuideSheetContent(
+                    sourceGroups = sourceGroups,
+                    onSourceClick = { openedSources += it.id }
+                )
             }
         }
     }
@@ -166,5 +212,69 @@ class ContentGuideSheetTest {
         assertShown("How to import from the browser")
         assertShown("How to import from your files")
         assertShown("Tara Brach")
+    }
+
+    // MARK: - Source list by language (shared-137)
+
+    private fun languageRow(code: String) = composeRule.onNodeWithTag("library.guideSheet.language.$code")
+
+    private fun sourceRow(id: String) = composeRule.onAllNodesWithTag("library.guideSheet.row.$id")
+
+    @Test
+    fun sourceList_showsOwnLanguage_andOtherLanguageCollapsed() {
+        renderSheet()
+
+        sourceRow("tara-brach").assertCountEquals(1)
+        sourceRow("koeln").assertCountEquals(0)
+        languageRow("de")
+            .assertContentDescriptionEquals("Also in German, 2 more sources")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "collapsed"))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+    }
+
+    @Test
+    fun sourceList_tapOnLanguageRow_expandsAndCollapsesWithoutOpeningASource() {
+        renderSheet()
+
+        languageRow("de").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        sourceRow("koeln").assertCountEquals(1)
+        sourceRow("braehler").assertCountEquals(1)
+        languageRow("de").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "expanded"))
+
+        languageRow("de").performScrollTo().performClick()
+        composeRule.waitForIdle()
+
+        sourceRow("koeln").assertCountEquals(0)
+        // The sheet stays on the list, nothing was opened.
+        assertShown("Where to find meditations?")
+        assertEquals(emptyList<String>(), openedSources)
+    }
+
+    @Test
+    fun sourceList_sourceInExpandedOtherLanguage_opensIt() {
+        renderSheet()
+
+        languageRow("de").performScrollTo().performClick()
+        composeRule.onNodeWithTag("library.guideSheet.row.koeln").performScrollTo().performClick()
+
+        assertEquals(listOf("koeln"), openedSources)
+    }
+
+    @Test
+    fun sourceRow_readsNameOfferDescriptionAndAddressInDisplayOrder() {
+        renderSheet()
+        languageRow("de").performScrollTo().performClick()
+
+        composeRule.onNodeWithTag("library.guideSheet.row.koeln")
+            .assertContentDescriptionEquals(
+                "Kirsten Tofahrn, Zentrum für Achtsamkeit Köln, Mini-Übungen für den Einstieg., " +
+                    "zentrum-fuer-achtsamkeit.koeln. Open source in browser"
+            )
+        composeRule.onNodeWithTag("library.guideSheet.row.braehler")
+            .assertContentDescriptionEquals(
+                "Christine Brähler, Selbstmitgefühl mit Tiefe., christinebraehler.com. Open source in browser"
+            )
     }
 }

@@ -8,6 +8,7 @@ import com.stillmoment.domain.models.FileOpenError
 import com.stillmoment.domain.models.GuidedMeditation
 import com.stillmoment.domain.models.ImportPrefill
 import com.stillmoment.domain.models.MeditationSource
+import com.stillmoment.domain.models.MeditationSourceCatalog
 import com.stillmoment.domain.models.MeditationWaveform
 import com.stillmoment.domain.models.PendingImport
 import com.stillmoment.domain.models.Praxis
@@ -766,7 +767,7 @@ class GuidedMeditationsListViewModelTest {
     @Nested
     inner class ContentGuideSheetFlow {
         @Test
-        fun `openGuideSheet loads sources for given language and shows sheet`() = runTest {
+        fun `German user sees German sources first and English below`() = runTest {
             fakeSourceRepository.catalog = mapOf(
                 "de" to listOf(makeTestSource("mangold")),
                 "en" to listOf(makeTestSource("tara-brach"))
@@ -777,7 +778,44 @@ class GuidedMeditationsListViewModelTest {
 
             val state = viewModel.uiState.value
             assertTrue(state.showGuideSheet)
-            assertEquals(listOf("mangold"), state.guideSources.map { it.id })
+            assertEquals(listOf("de", "en"), state.guideSourceGroups.map { it.languageCode })
+            assertEquals(listOf("mangold"), state.guideSourceGroups[0].sources.map { it.id })
+            assertEquals(listOf("tara-brach"), state.guideSourceGroups[1].sources.map { it.id })
+        }
+
+        @Test
+        fun `French user sees English sources first and German below`() = runTest {
+            fakeSourceRepository.catalog = mapOf(
+                "de" to listOf(makeTestSource("mangold")),
+                "en" to listOf(makeTestSource("tara-brach"))
+            )
+
+            viewModel.openGuideSheet("fr")
+            advanceUntilIdle()
+
+            assertEquals(
+                listOf("en", "de"),
+                viewModel.uiState.value.guideSourceGroups.map { it.languageCode }
+            )
+        }
+
+        @Test
+        fun `further languages are sorted by their name in the own language`() = runTest {
+            // English names: Dutch < French < Spanish; codes alone would sort es < fr < nl.
+            fakeSourceRepository.catalog = mapOf(
+                "es" to listOf(makeTestSource("es-1")),
+                "fr" to listOf(makeTestSource("fr-1")),
+                "nl" to listOf(makeTestSource("nl-1")),
+                "en" to listOf(makeTestSource("tara-brach"))
+            )
+
+            viewModel.openGuideSheet("en")
+            advanceUntilIdle()
+
+            assertEquals(
+                listOf("en", "nl", "fr", "es"),
+                viewModel.uiState.value.guideSourceGroups.map { it.languageCode }
+            )
         }
 
         @Test
@@ -832,7 +870,7 @@ class GuidedMeditationsListViewModelTest {
     private fun makeTestSource(id: String) = MeditationSource(
         id = id,
         name = id,
-        author = null,
+        offer = null,
         description = "desc",
         host = "h",
         url = "https://example.com/$id"
@@ -863,9 +901,7 @@ class FakeSearchHistoryRepository : SearchHistoryRepository {
 class FakeMeditationSourceRepository : MeditationSourceRepository {
     var catalog: Map<String, List<MeditationSource>> = emptyMap()
 
-    override fun sources(languageCode: String): List<MeditationSource> {
-        return catalog[languageCode] ?: catalog["en"].orEmpty()
-    }
+    override fun catalog(): MeditationSourceCatalog = MeditationSourceCatalog(catalog)
 }
 
 class FakeGuidedMeditationRepository : GuidedMeditationRepository {
