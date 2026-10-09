@@ -71,6 +71,17 @@ extension ButtonStyles {
         }
     }
 
+    /// Press feedback only — for buttons that bring their own visual, like the
+    /// round Timer start button (`PlayButtonCircle`, shared-126). Same scale
+    /// and timing as `WarmPrimary`.
+    struct PressScale: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+                .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+        }
+    }
+
     /// Secondary button style with soft sand background
     struct WarmSecondary: ButtonStyle {
         let colors: ThemeColors
