@@ -56,7 +56,9 @@ https://podcasts.apple.com/de/podcast/achtsam-deutschlandfunk-nova/id1528936478?
                                       └── Podcast-Kurzname ──────┘   └ Podcast-ID ┘  └─ Folgen-ID ─┘
 ```
 
-Der Kurzname im geteilten Link ist der **Podcast**, nicht die Folge (echter geteilter Link verifiziert). Was Apple Podcasts zusaetzlich zum Link uebergibt und ob Still Moment im Teilen-Menue erscheint, ist noch per Geraetetest zu klaeren (shared-128).
+Der Kurzname im geteilten Link ist der **Podcast**, nicht die Folge (echter geteilter Link verifiziert).
+
+**Geraetetest (2026-10-09, shared-128):** Still Moment erscheint im Teilen-Menue einer Folge in Apple Podcasts (bestehende Share-Extension, Aktivierung ueber `public.url`). Ob Apple Podcasts zusaetzlich zum Link Text (z.B. den Folgentitel) uebergibt, ist nicht geprueft — relevant erst fuer shared-129.
 
 ### Apples Lookup-Dienst
 

@@ -2,14 +2,18 @@
 id: shared-128
 title: Podcast-Folge aus Apple Podcasts importieren
 status:
-  ios: todo
-  android: todo
+  ios: in-progress
+  android: in-progress
 phase: 3-Feature
 priority: mittel
 depends_on: [shared-127]
 ---
 
 # Ticket shared-128: Podcast-Folge aus Apple Podcasts importieren
+
+**Plan iOS**: `dev-docs/tickets/plans/shared-128-ios.md`
+
+**Plan Android**: `dev-docs/tickets/plans/shared-128-android.md`
 
 **Komplexitaet**: Der Import-Weg (Teilen → Ladefenster → Bearbeiten-Dialog) existiert schon; neu ist das Aufloesen eines Apple-Podcasts-Links zur Audiodatei. Risiken: Apples Lookup-Dienst ist undokumentiert begrenzt (max. 200 neueste Folgen, teils weniger), und ob Still Moment im Teilen-Menue von Apple Podcasts erscheint, ist nur auf einem echten Geraet pruefbar. Der bestehende Link-Import wird an zwei Stellen mit angepasst: neue Verbindungsfehler-Meldung und Download in Datei auf iOS.
 
@@ -30,7 +34,7 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 <!-- Kriterien gelten fuer BEIDE Plattformen, sofern nicht anders markiert -->
 
 ### Vorab-Pruefung (iOS, echtes Geraet)
-- [ ] Verifiziert und im Ticket festgehalten: Still Moment erscheint im Teilen-Menue einer Folge in Apple Podcasts, und was dabei uebergeben wird. Falls nicht: Ticket stoppen und Vorgehen neu klaeren
+- [x] Verifiziert und im Ticket festgehalten: Still Moment erscheint im Teilen-Menue einer Folge in Apple Podcasts, und was dabei uebergeben wird. Falls nicht: Ticket stoppen und Vorgehen neu klaeren — **Ergebnis 2026-10-09: erscheint** (bestehende Share-Extension; ob zusaetzlich Text uebergeben wird, ist nicht geprueft — erst fuer shared-129 relevant)
 
 ### Feature (beide Plattformen)
 - [ ] Ein geteilter Apple-Podcasts-Folgenlink einer der neuesten Folgen fuehrt zum bekannten Ladefenster und danach zum Bearbeiten-Dialog
