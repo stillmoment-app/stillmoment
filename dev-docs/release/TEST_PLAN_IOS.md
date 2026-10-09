@@ -1,116 +1,161 @@
-# iOS Release Test-Plan
+# iOS Release-Testplan
 
-**Typ**: Manueller Test-Plan (vor jedem Release durchfuehren)
-**Dauer**: ~30-45 Minuten
-**Voraussetzung**: Echtes iOS-Geraet (kein Simulator)
-
----
-
-## Hinweis
-
-Dieser Test-Plan enthaelt nur Punkte, die **nicht automatisiert** verifiziert werden koennen.
-Automatisierte Tests decken bereits ab:
-- Timer State-Uebergaenge und UI-Zustaende (Unit + UI Tests)
-- Settings Sheet Anzeige und Toggle-Interaktion
-- Timer Countdown und Zeitformat
-- Tab Navigation (Timer ↔ Library)
-- Library Empty State UI
-- Timer State-Erhaltung bei Tab-Wechsel
-- Audio Coordination Logik
-- ViewModel und Domain-Logik
+**Typ**: Manueller Testplan, vor jedem Release durchführen
+**Dauer**: ca. 30 Minuten
+**Gegenstück**: `TEST_PLAN_ANDROID.md` — gleiche Struktur, gleiche Nummerierung, gleiche Begriffe
 
 ---
 
-## 1. Audio-Wiedergabe
+## Voraussetzungen
 
-### 1.1 Timer Audio
-- [ ] Start Gong wird hoerbar gespielt (nach Countdown)
-- [ ] Completion Gong wird hoerbar gespielt
-- [ ] Background Audio (Silent) ist leise hoerbar
-- [ ] Background Audio (Forest) spielt Waldgeraeusche
-- [ ] Interval Gongs werden zum richtigen Zeitpunkt gespielt
-- [ ] Fade-In bei Background Audio Start (2 Sekunden)
+- Echtes iPhone (kein Simulator), Stummschalter aus, Lautstärke mittel
+- **Aktuelle App-Store-Version ist installiert** (für den Upgrade-Test in Abschnitt 0); die neue Version liegt als TestFlight-Build bereit
+- Zwei Test-MP3s in der Dateien-App, je 2–5 Minuten lang, mit Interpret und Titel in den Tags
+- Eine weitere MP3/M4A als eigener Hintergrundklang
+- Test-Link für den Link-Import: Download-Link eines Vortrags auf audiodharma.org (z. B. `https://www.audiodharma.org/talks/25407/download`) oder ein MP3-Link von tarabrach.com
+- Eine einzelne Folge in der App „Podcasts" (z. B. aus dem Podcast von Tara Brach)
+- Kopfhörer mit Taste (kabelgebunden oder AirPods)
+- Zweites Telefon für den Anruf-Test
 
-### 1.2 Guided Meditation Audio
-- [ ] MP3-Wiedergabe funktioniert
-- [ ] Lautstaerke ist angemessen
-- [ ] Seek Slider aendert Position hoerbar
+## Was dieser Plan nicht prüft
 
----
+Automatisierte Tests decken bereits ab: Zustandsautomat des Timers, Intervall- und Vorbereitungslogik,
+Such- und Filterregeln, Import-Vorschläge, Regeln des Wiedergabe-Bereichs, Audio-Koordination als Logik
+(Unit-Tests) sowie Navigation und die Abläufe in Timer und Bibliothek (UI-Tests im Simulator).
 
-## 2. Background & Lock Screen
-
-### 2.1 Timer
-- [ ] Background Audio laeuft bei gesperrtem Bildschirm weiter
-- [ ] Completion Gong spielt bei gesperrtem Bildschirm
-- [ ] Interval Gongs spielen bei gesperrtem Bildschirm
-- [ ] Uebergang Start-Gong → stille Meditation (inkl. Hintergrund-Sound) funktioniert bei gesperrtem Bildschirm
-
-### 2.2 Guided Meditation
-- [ ] Audio laeuft bei gesperrtem Bildschirm weiter
-- [ ] Now Playing Info auf Lock Screen sichtbar
-- [ ] Play/Pause Controls auf Lock Screen funktionieren
-- [ ] Skip Forward/Backward auf Lock Screen funktionieren
-- [ ] Control Center zeigt Now Playing Info
+Dieser Plan prüft nur, was dort nicht geht: hörbares Audio auf echtem Gerät, Sperrbildschirm und
+Hintergrund, Systeminteraktionen, Barrierefreiheit, Darstellung und den Upgrade-Pfad.
+Begriffe nach `dev-docs/reference/glossary.md`.
 
 ---
 
-## 3. System-Interaktionen
+## 0. Vorbereitung und Upgrade-Pfad (~5 Min)
 
-### 3.1 Document Picker
-- [ ] Import-Button oeffnet System Document Picker
-- [ ] MP3-Datei kann ausgewaehlt werden
-- [ ] Metadaten werden nach Import angezeigt
-- [ ] Security-Scoped Bookmark funktioniert (Playback nach App-Neustart)
+Dieser Abschnitt kommt zuerst, weil er in der **Store-Version** beginnen muss. Die hier gesetzten
+Werte nutzen die Abschnitte 1 und 2.
 
-### 3.2 Unterbrechungen
-- [ ] Eingehender Anruf pausiert Audio
-- [ ] Nach Anruf-Ende: Audio kann fortgesetzt werden
-- [ ] Siri-Aktivierung pausiert Audio
-- [ ] App-Minimieren: Timer Audio laeuft weiter
-- [ ] App-Kill: Sauberer Neustart ohne Crash
+### 0.1 In der Store-Version einrichten
+- [ ] Erste Test-MP3 importieren; im Bearbeiten-Blatt „Wiedergabebereich" auf ca. 0:30 bis 1:30 setzen, „Gong am Anfang" und „Gong am Ende" einschalten, speichern
+- [ ] Timer-Praxis: Dauer 2 Min, Vorbereitung 10 s, Gong „Klarer Anschlag", Intervall-Gongs an (alle 1 Min), Hintergrundklang „Waldatmosphäre"
+- [ ] Unter Hintergrundklang einen eigenen Klang importieren (er erscheint unter „Meine Klänge")
+- [ ] Einstellungen: Darstellung „Hell", Vorbereitungszeit für geführte Meditationen an (10 s)
 
-### 3.3 Kopfhoerer
-- [ ] Play/Pause ueber Kopfhoerer-Taste (kabelgebunden)
-- [ ] Play/Pause ueber AirPods
-
----
-
-## 4. Lokalisierung
-
-### 4.1 Deutsch (Geraetesprache: Deutsch)
-- [ ] Alle UI-Texte auf Deutsch
-- [ ] Affirmationen auf Deutsch
-- [ ] Empty State Text auf Deutsch
-- [ ] Tab-Labels auf Deutsch
-
-### 4.2 Englisch (Geraetesprache: Englisch)
-- [ ] Alle UI-Texte auf Englisch
-- [ ] Affirmationen auf Englisch
-- [ ] Empty State Text auf Englisch
-- [ ] Tab-Labels auf Englisch
+### 0.2 Neue Version darüber installieren
+Neue Version über TestFlight installieren — die App vorher **nicht** löschen.
+- [ ] App startet ohne Absturz
+- [ ] Bibliothek: Meditation vorhanden, Lehrer und Titel unverändert, Dauer zeigt den Wiedergabe-Bereich (ca. 1:00)
+- [ ] Bearbeiten-Blatt: Wiedergabe-Bereich und beide Gong-Schalter erhalten
+- [ ] Timer: alle Praxis-Werte aus 0.1 erhalten
+- [ ] Eigener Hintergrundklang steht weiter unter „Meine Klänge" und spielt
+- [ ] Einstellungen: Darstellung „Hell" und Vorbereitungszeit 10 s erhalten
 
 ---
 
-## 5. Accessibility (VoiceOver)
+## 1. Kern-Use-Case: Timer bei gesperrtem Bildschirm (~5 Min)
 
-- [ ] Timer Screen: Alle Elemente werden vorgelesen
-- [ ] Duration Picker: Wert wird angekuendigt
-- [ ] Timer Display: Verbleibende Zeit wird vorgelesen
-- [ ] Library Screen: Liste navigierbar
-- [ ] Player Screen: Controls bedienbar
-- [ ] Seek Slider: Per Geste steuerbar
-- [ ] Settings Sheet: Toggle und Picker bedienbar
+Praxis aus 0.1. Start drücken, **sofort** Bildschirm sperren, Telefon weglegen.
+
+### 1.1 Gongs und Hintergrundklang
+- [ ] Nach 10 s Vorbereitung ist der Start-Gong hörbar
+- [ ] Danach setzt der Hintergrundklang ein und läuft bei gesperrtem Bildschirm weiter
+- [ ] Nach 1 Minute ist der Intervall-Gong hörbar
+- [ ] Nach 2 Minuten ist der End-Gong hörbar und klingt vollständig aus; der Hintergrundklang verstummt
+- [ ] Nach dem Entsperren erscheint der Abschluss-Bildschirm; „Fertig" führt zurück zum Timer
+
+### 1.2 Vibration statt Gong
+- [ ] „Start & Ende" auf „Vibration", Dauer 1 Min, starten und sperren: Vibration am Anfang und am Ende auch bei gesperrtem Bildschirm spürbar
+
+Danach „Start & Ende" wieder auf einen Klang stellen.
 
 ---
 
-## 6. Performance
+## 2. Kern-Use-Case: Geführte Meditation bei gesperrtem Bildschirm (~4 Min)
 
-- [ ] App-Start in <2 Sekunden (Cold Start)
-- [ ] Keine Haenger waehrend Tests
-- [ ] Keine Crashes waehrend Tests
-- [ ] Nach 10 Min Nutzung: Kein spuerbarer Lag
-- [ ] Batterieverbrauch akzeptabel bei Background Audio
+Meditation aus 0.1 antippen, abspielen, **sofort** Bildschirm sperren.
+
+### 2.1 Ablauf
+- [ ] Die Vorbereitungszeit (10 s) läuft gesperrt ab, danach Start-Gong, danach setzt das Audio bei ca. 0:30 ein (nicht am Dateianfang)
+- [ ] Die Wiedergabe endet bei ca. 1:30, der End-Gong ist hörbar und klingt vollständig aus
+- [ ] Nach dem Entsperren erscheint der Abschluss-Bildschirm
+
+### 2.2 Steuerung auf dem Sperrbildschirm (zweiter Durchlauf)
+- [ ] Sperrbildschirm zeigt Titel und Lehrer
+- [ ] Pause und Wiedergabe funktionieren
+- [ ] (nur iOS) 15 s vor und zurück springen funktioniert
+- [ ] Ziehen am Fortschrittsbalken springt hörbar an die gewählte Stelle innerhalb des Wiedergabe-Bereichs
+- [ ] (nur iOS) Kontrollzentrum zeigt dieselbe Wiedergabe und lässt sich bedienen
+
+---
+
+## 3. Unterbrechungen und Kopfhörer (~3 Min)
+
+- [ ] Geführte Meditation läuft, Anruf kommt: Audio pausiert; nach dem Auflegen lässt sich die Wiedergabe fortsetzen
+- [ ] Timer läuft gesperrt, Anruf annehmen und beenden: der End-Gong ist zum Ende trotzdem hörbar
+- [ ] Musik-App spielt, dann Meditation starten: die Musik verstummt, die Meditation ist allein zu hören
+- [ ] Mit Kopfhörern: Audio kommt über die Kopfhörer; Kopfhörer-Taste pausiert und setzt die geführte Meditation fort
+- [ ] App im App-Umschalter beenden und neu starten: kein Absturz, Bibliothek vollständig
+
+---
+
+## 4. Import und Systeminteraktionen (~6 Min)
+
+### 4.1 Dateien
+- [ ] „+" in der Bibliothek öffnet die Dateiauswahl; zweite Test-MP3 auswählen: Bearbeiten-Blatt ist mit Lehrer und Titel aus den Tags vorbelegt; nach dem Speichern steht sie in der Liste und spielt
+- [ ] (nur iOS) Dateien-App: MP3 teilen → Still Moment: „Fast geschafft" erscheint, „Fertig" schließt; beim Öffnen von Still Moment erscheint das Bearbeiten-Blatt
+
+### 4.2 Link und Podcast
+- [ ] Safari: Test-Link teilen → Still Moment → „Fertig"; Still Moment öffnen: Ladeanzeige, danach Bearbeiten-Blatt; nach dem Speichern spielbar
+- [ ] App „Podcasts": eine einzelne Folge teilen → Still Moment; in der App ist der Titel der Folge vorbelegt; nach dem Speichern spielbar
+- [ ] Flugmodus an, Test-Link teilen und Still Moment öffnen: Meldung „Gerade nicht erreichbar" mit „Erneut versuchen"; Flugmodus aus, „Erneut versuchen" lädt die Datei
+
+### 4.3 Wege nach außen
+- [ ] „Wo finde ich Meditationen?" (Info-Knopf in der Bibliothek): Antippen einer Quelle öffnet den Browser
+- [ ] Einstellungen → „App bewerten" öffnet die App-Store-Seite von Still Moment
+- [ ] Einstellungen → „Schreib uns" öffnet eine neue Mail an `hello@stillmoment.app` mit App-Version im Text
+- [ ] Einstellungen → „Datenschutz" öffnet die Datenschutzerklärung
+
+---
+
+## 5. Hörbare Auswahl, Vorhören, Zuschnitt (~3 Min)
+
+- [ ] Bibliothek: Meditation lange drücken: Vorhören ist hörbar, ein Fortschrittsregler erscheint; Antippen stoppt
+- [ ] Timer → „Start & Ende": Antippen eines Klangs spielt ihn hörbar vor; Lautstärke-Regler ändert die Lautstärke hörbar
+- [ ] Timer → „Hintergrundklang": eingebauter und eigener Klang sind beim Vorhören hörbar
+- [ ] Bearbeiten-Blatt → „Wiedergabebereich": Wellenform erscheint; Vorhören spielt hörbar; die Griffe lassen sich mit dem Finger genau setzen
+- [ ] Player: Ziehen in der Wellenform springt hörbar an die neue Stelle
+
+---
+
+## 6. Darstellung Hell und Dunkel (~3 Min)
+
+Einstellungen → Erscheinungsbild → Darstellung.
+
+- [ ] „Hell": Timer, Bibliothek, Player, Bearbeiten-Blatt, Zuschnitt-Editor und Einstellungen sind gut lesbar; keine fremd gefärbten (rein schwarzen oder weißen) Flächen oder Titel
+- [ ] „Dunkel": dieselben Bildschirme ebenso
+- [ ] „System": Wechsel von Hell auf Dunkel im Kontrollzentrum wirkt sofort, ohne Neustart
+- [ ] (nur iOS) Nach einem Wechsel zeigen Schieberegler und Auswahlfelder sofort die neuen Farben, nicht die alten
+
+---
+
+## 7. Barrierefreiheit (~4 Min)
+
+### 7.1 VoiceOver
+- [ ] Timer: Dauer lässt sich per Wischen auf/ab einstellen, der Wert wird angesagt; Start-Knopf ist benannt
+- [ ] Bibliothek: Einträge werden mit Titel, Lehrer und Dauer angesagt; Suche und Dauer-Filter sind bedienbar
+- [ ] Player: Wiedergabe, Pause und Position sind bedienbar, die Restzeit wird angesagt
+- [ ] Import aus 4.1 lässt sich bis zum Speichern mit VoiceOver abschließen
+
+### 7.2 Große Schrift und fetter Text
+Einstellungen → Bedienungshilfen → Anzeige & Textgröße.
+- [ ] „Größerer Text" auf Maximum: Timer, Bibliothek, Player und Einstellungen ohne abgeschnittenen Text; Start-Knopf erreichbar
+- [ ] „Fetter Text" an: Texte in der App werden sichtbar kräftiger
+
+---
+
+## 8. Sprache (~1 Min)
+
+- [ ] Gerätesprache Englisch: Timer, Bibliothek, Einstellungen und die Teilen-Bestätigung sind englisch, nirgends rohe Schlüssel (z. B. `library.filter.all`)
+- [ ] Zurück auf Deutsch: Einzahl und Mehrzahl stimmen — Hinweis unter Intervall-Gongs lautet bei 1 Min „… jede Minute …", bei 2 Min „… alle 2 Minuten …"
 
 ---
 
