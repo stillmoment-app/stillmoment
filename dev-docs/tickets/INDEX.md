@@ -22,6 +22,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-138](shared/shared-138-teilen-waehrend-laufendem-import.md) | Teilen während eines laufenden Imports: der zuletzt geteilte Eintrag gewinnt, nichts geht still verloren | 4-Polish | [ ] | [ ] |
 | [shared-139](shared/shared-139-dauer-im-bearbeiten-blatt-sichtbar.md) | Bearbeiten-Blatt: Dauer bleibt neben langem Dateinamen sichtbar | 4-Polish | [ ] | [ ] |
 | [shared-140](shared/shared-140-einzahl-bei-einer-minute.md) | Einzahl bei einer Minute im Atemkreis und in Ansagen | 4-Polish | [ ] | [ ] |
+| [shared-141](shared/shared-141-timer-dial-singular-minute.md) | Timer-Zifferblatt zeigt „1 Minuten“ statt „1 Minute“ | 4-Polish | [ ] | [ ] |
 
 ### iOS
 
