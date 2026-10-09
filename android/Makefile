@@ -120,13 +120,13 @@ release-production: ## Upload to Production with confirmation prompt (VERSION=x.
 	fi
 	@bundle exec fastlane release_production
 
-metadata: ## Update only metadata (descriptions, changelogs) without new build
+metadata: ## Update only metadata (descriptions, changelogs) without new build (VERSION_CODE=n optional, default: versionCode in build.gradle.kts)
 	@echo "Updating Play Store metadata..."
 	@if [ ! -d "vendor/bundle" ]; then \
 		echo "Run 'make screenshot-setup' first to install dependencies"; \
 		exit 1; \
 	fi
-	@bundle exec fastlane metadata
+	@bundle exec fastlane metadata $(if $(VERSION_CODE),version_code:$(VERSION_CODE))
 
 screenshots-upload: ## Upload screenshots to Play Store without new build
 	@echo "Uploading screenshots to Play Store..."

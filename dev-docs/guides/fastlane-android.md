@@ -88,6 +88,11 @@ make metadata            # Beschreibungen + Changelogs, ohne Build
 make screenshots-upload  # Nur Screenshots, ohne Build
 ```
 
+`make metadata` aktualisiert den Changelog des Releases mit dem `versionCode` aus
+`app/build.gradle.kts` (also dem zuletzt vorbereiteten Release); anderes Release über
+`make metadata VERSION_CODE=19`. Ohne `versionCode` bricht supply ab („no version code given“).
+Existiert im Track kein Release mit diesem `versionCode`, meldet supply das ebenfalls.
+
 ## Verzeichnisstruktur
 
 ```
