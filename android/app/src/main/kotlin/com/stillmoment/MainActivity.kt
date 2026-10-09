@@ -85,7 +85,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        handleIncomingIntent(intent)
+        // Only a fresh start carries a new share. After re-creation (dark mode,
+        // font size) `intent` is the one already handled — reading it again would
+        // import that entry a second time (shared-132).
+        if (savedInstanceState == null) {
+            handleIncomingIntent(intent)
+        }
 
         setContent {
             val appearanceMode by settingsDataStore.appearanceModeFlow
@@ -118,6 +123,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        // singleTask: every further share arrives here. Keep `intent` current so
+        // it never points at an older share.
+        setIntent(intent)
         handleIncomingIntent(intent)
     }
 
