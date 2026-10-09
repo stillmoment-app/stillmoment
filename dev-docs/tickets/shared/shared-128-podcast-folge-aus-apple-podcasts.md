@@ -37,34 +37,34 @@ Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deut
 - [x] Verifiziert und im Ticket festgehalten: Still Moment erscheint im Teilen-Menue einer Folge in Apple Podcasts, und was dabei uebergeben wird. Falls nicht: Ticket stoppen und Vorgehen neu klaeren — **Ergebnis 2026-10-09: erscheint** (bestehende Share-Extension; ob zusaetzlich Text uebergeben wird, ist nicht geprueft — erst fuer shared-129 relevant)
 
 ### Feature (beide Plattformen)
-- [ ] Ein geteilter Apple-Podcasts-Folgenlink einer der neuesten Folgen fuehrt zum bekannten Ladefenster und danach zum Bearbeiten-Dialog
-- [ ] Bearbeiten-Dialog schlaegt als Titel den Folgentitel vor, als Lehrer:in den Autor des Podcasts; fehlt der Autor, den Namen des Podcasts
+- [x] Ein geteilter Apple-Podcasts-Folgenlink einer der neuesten Folgen fuehrt zum bekannten Ladefenster und danach zum Bearbeiten-Dialog
+- [x] Bearbeiten-Dialog schlaegt als Titel den Folgentitel vor, als Lehrer:in den Autor des Podcasts; fehlt der Autor, den Namen des Podcasts
 - [ ] Nach dem Speichern ist die Folge eine ganz normale Meditation und spielt ohne Internet ab
-- [ ] Die Audiodatei wird direkt beim Anbieter des Podcasts geladen
-- [ ] Abbrechen im Ladefenster bricht auch die Suche nach der Folge ab; es entsteht kein Eintrag
-- [ ] Links aus allen Laender-Varianten von Apple Podcasts (z.B. `/de/`, `/us/`) funktionieren
-- [ ] Netzwerkzugriffe nur nach einer Teilen-/Import-Aktion des Nutzers, ohne Geraete- oder Nutzerkennungen
-- [ ] Ladefenster unveraendert (keine neuen Texte, keine Fortschrittsanzeige)
+- [x] Die Audiodatei wird direkt beim Anbieter des Podcasts geladen
+- [x] Abbrechen im Ladefenster bricht auch die Suche nach der Folge ab; es entsteht kein Eintrag
+- [x] Links aus allen Laender-Varianten von Apple Podcasts (z.B. `/de/`, `/us/`) funktionieren
+- [x] Netzwerkzugriffe nur nach einer Teilen-/Import-Aktion des Nutzers, ohne Geraete- oder Nutzerkennungen
+- [x] Ladefenster unveraendert (keine neuen Texte, keine Fortschrittsanzeige)
 - [ ] Eine Folge von ueber 2 Stunden laesst sich importieren. iOS laedt die Audiodatei dafuer direkt in eine Datei statt in den Arbeitsspeicher (wie Android); gilt auch fuer den bestehenden Link-Import
 
 ### Fehlerfaelle — genau drei Meldungen
-- [ ] Link auf einen ganzen Podcast (ohne einzelne Folge): Hinweis, eine einzelne Folge zu teilen. Nur Knopf "Schliessen"
-- [ ] Keine Internetverbindung, Zeitueberschreitung oder Apple ist gerade ueberlastet (Ratenlimit, HTTP 403/429 vom Lookup-Dienst): neue Meldung "spaeter erneut versuchen" mit "Erneut versuchen" und "Abbrechen". Wortlaut neutral, da nicht immer die Verbindung schuld ist (z.B. "Gerade nicht erreichbar")
-- [ ] Der bestehende Link-Import zeigt bei Verbindungsfehlern dieselbe neue Meldung (ersetzt dort "Download fehlgeschlagen" fuer Netzfehler); Texte auf iOS und Android identisch
-- [ ] Alles andere — Folge nicht gefunden (auch aeltere Folgen bis shared-129), Bezahl-/Abo-Folge, Video-Folge, Datei beim Anbieter nicht mehr vorhanden, unerwartete Antwort: "Diese Folge kann leider nicht uebernommen werden". Nur Knopf "Schliessen"
-- [ ] "Erneut versuchen" wird nur angeboten, wenn ein erneuter Versuch etwas aendern kann
-- [ ] Nie stilles Scheitern, keine technischen Begriffe in den Meldungen
-- [ ] Lokalisiert (DE + EN)
+- [x] Link auf einen ganzen Podcast (ohne einzelne Folge): Hinweis, eine einzelne Folge zu teilen. Nur Knopf "Schliessen"
+- [x] Keine Internetverbindung, Zeitueberschreitung oder Apple ist gerade ueberlastet (Ratenlimit, HTTP 403/429 vom Lookup-Dienst): neue Meldung "spaeter erneut versuchen" mit "Erneut versuchen" und "Abbrechen". Wortlaut neutral, da nicht immer die Verbindung schuld ist (z.B. "Gerade nicht erreichbar")
+- [x] Der bestehende Link-Import zeigt bei Verbindungsfehlern dieselbe neue Meldung (ersetzt dort "Download fehlgeschlagen" fuer Netzfehler); Texte auf iOS und Android identisch
+- [x] Alles andere — Folge nicht gefunden (auch aeltere Folgen bis shared-129), Bezahl-/Abo-Folge, Video-Folge, Datei beim Anbieter nicht mehr vorhanden, unerwartete Antwort: "Diese Folge kann leider nicht uebernommen werden". Nur Knopf "Schliessen"
+- [x] "Erneut versuchen" wird nur angeboten, wenn ein erneuter Versuch etwas aendern kann
+- [x] Nie stilles Scheitern, keine technischen Begriffe in den Meldungen
+- [x] Lokalisiert (DE + EN)
 - [ ] Visuell konsistent zwischen iOS und Android
 
 ### Tests
-- [ ] Unit Tests iOS: Erkennen von Folgen- vs. Podcast-Links (inkl. Laender-Varianten), Finden der Folge in der Lookup-Antwort, Vorschlaege fuer Titel/Lehrer:in inkl. fehlendem Autor, Zuordnung jedes Fehlerfalls zu einer der drei Meldungen (inkl. Ratenlimit 403/429), Download in Datei inkl. Abbrechen
-- [ ] Unit Tests Android: dieselben Faelle
+- [x] Unit Tests iOS: Erkennen von Folgen- vs. Podcast-Links (inkl. Laender-Varianten), Finden der Folge in der Lookup-Antwort, Vorschlaege fuer Titel/Lehrer:in inkl. fehlendem Autor, Zuordnung jedes Fehlerfalls zu einer der drei Meldungen (inkl. Ratenlimit 403/429), Download in Datei inkl. Abbrechen
+- [x] Unit Tests Android: dieselben Faelle
 
 ### Dokumentation
-- [ ] CHANGELOG.md
-- [ ] `dev-docs/reference/glossary.md`: Begriff fuer den Podcast-Import (Abgrenzung zum Link-Import)
-- [ ] `dev-docs/concepts/podcast-import.md`: Ergebnis der Vorab-Pruefung nachtragen
+- [x] CHANGELOG.md
+- [x] `dev-docs/reference/glossary.md`: Begriff fuer den Podcast-Import (Abgrenzung zum Link-Import)
+- [x] `dev-docs/concepts/podcast-import.md`: Ergebnis der Vorab-Pruefung nachtragen
 
 ---
 

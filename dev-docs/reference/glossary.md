@@ -36,6 +36,7 @@ Last Updated: 2026-09-13
 | `MeditationPhase` | Enum | App-weit | Visuelle Phase: Vorbereitung oder laufende Meditation |
 | `MeditationSettings` | Value Object | Timer | Abgeleitete Sicht auf die Praxis für Reducer und Timer |
 | `MeditationTimer` | Value Object | Timer | Das zentrale Timer-Modell |
+| Podcast-Import (`PodcastEpisodeResolver`) | Protokoll | Bibliothek | Eine geteilte Apple-Podcasts-Folge zur Audiodatei auflösen |
 | `PendingImport` | Value Object | Bibliothek | Import zwischen Dateiwahl und Speichern |
 | `Praxis` | Value Object | Timer | Die eine gespeicherte Timer-Konfiguration |
 | `PraxisRepository` | Protokoll | Timer | Laden und Speichern der Praxis |
@@ -350,6 +351,43 @@ endet und kein zufällig paralleler.
   `domain/models/UrlAudioValidator.kt`
 
 **Siehe auch:** Cross-Platform-Namensabweichungen (kanonisch: `AudioDownloadService`)
+
+---
+
+#### Podcast-Import
+
+**Typ:** Protokoll (`PodcastEpisodeResolver`)
+**Muster:** Auflösen vor dem Holen
+
+**Beschreibung:**
+Sonderfall des Link-Imports: Ein geteilter Apple-Podcasts-Folgenlink
+(`podcasts.apple.com/[<land>/]podcast/<name>/id<Podcast-ID>?i=<Folgen-ID>`) zeigt auf eine
+Webseite, nicht auf die Audiodatei. Vor dem Download wird er über Apples Lookup-Dienst zur
+Audiodatei beim Anbieter aufgelöst; danach läuft der normale Link-Import. Folgentitel und
+Autor (sonst Podcast-Name) werden als Vorschlag für Titel und Lehrer:in übernommen und haben
+Vorrang vor den ID3-Tags der Datei. Die Herkunft wird nicht gespeichert — die Folge ist danach
+eine ganz normale Meditation.
+
+Abgrenzung: **Link-Import** holt eine Datei von einer Adresse, die direkt auf Audio zeigt.
+**Podcast-Import** löst zuerst eine Podcast-Folge zu einer solchen Adresse auf. Ein Link auf
+einen ganzen Podcast (ohne Folgen-ID) wird nicht aufgelöst, sondern mit einem Hinweis
+beantwortet.
+
+Fehler werden nach Handlungsmöglichkeit genau drei Meldungen zugeordnet: einzelne Folge
+teilen (`podcastWithoutEpisode`), gerade nicht erreichbar (`notReachable`, als einzige mit
+„Erneut versuchen") und leider nicht möglich (`episodeUnavailable`).
+
+**Dateireferenzen:**
+- iOS: `ios/StillMoment/Domain/Models/ApplePodcastsLink.swift`,
+  `Domain/Models/PodcastEpisode.swift`, `Domain/Services/PodcastEpisodeResolverProtocol.swift`,
+  `Infrastructure/Services/ApplePodcastsEpisodeResolver.swift`, Ablauf in
+  `Application/InboxHandler.swift`, Meldungen in `Application/InboxError.swift`
+- Android: `android/app/src/main/kotlin/com/stillmoment/domain/models/ApplePodcastsLink.kt`,
+  `domain/models/PodcastEpisode.kt`, `domain/services/PodcastEpisodeResolverProtocol.kt`,
+  `infrastructure/network/ApplePodcastsEpisodeResolver.kt`, Ablauf in
+  `data/LinkImportHandler.kt`, Meldungen in `domain/models/LinkImportFailure.kt`
+
+**Siehe auch:** Link-Import, `dev-docs/concepts/podcast-import.md`
 
 ---
 
@@ -1060,6 +1098,7 @@ sie nach.
 | Suchverlauf | `SearchHistoryRepository` | iOS: `SearchHistoryStore` | `Repository` ist projektweit gesetzt (`PraxisRepository` auf beiden Plattformen) |
 | Persistenz der Bibliothek | `GuidedMeditationRepository` | iOS: `GuidedMeditationServiceProtocol` | Kernaufgabe ist das Halten der Bibliothek; die zusätzliche Dateikopie und Bookmark-Migration auf iOS ändern daran nichts |
 | Audio-Download | `AudioDownloadService` | Android: `UrlAudioDownloader` | Das `Url`-Präfix ist redundant — Downloads kommen immer von einer Adresse |
+| Meldungen beim Link-/Podcast-Import | `LinkImportFailure` | iOS: `InboxError` | Der iOS-Typ deckt zusätzlich Fehler der Inbox der Share-Extension ab, die es auf Android nicht gibt; für die Import-Meldungen ist das Konzept dasselbe |
 | Timer-Zustandshaltung | `TimerService` | Android: `TimerRepository` | Der Android-Typ hat `start`/`tick`/`reset` und keinerlei Persistenz. Das ist kein Repository, sondern eine echte Abweichung im Entwurf, nicht nur im Namen. |
 
 **Keine Abweichung, sondern Plattform-Konvention:** Das Suffix `Protocol` auf iOS
