@@ -112,12 +112,9 @@ private fun PreparationTimeToggleRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(
-                R.string.guided_meditations_settings_preparation_description
-            ),
-            style = TextStyle.caption.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        SettingsRowLabel(
+            title = stringResource(R.string.guided_meditations_settings_preparation_title),
+            subtitle = stringResource(R.string.guided_meditations_settings_preparation_description),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(16.dp))

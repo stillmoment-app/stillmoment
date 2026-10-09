@@ -99,7 +99,7 @@ internal fun RateAppRow(modifier: Modifier = Modifier) {
             .clickable(onClickLabel = actionLabel) { context.openStoreListing() }
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        FeedbackRowLabel(
+        SettingsRowLabel(
             title = stringResource(R.string.app_settings_rate_app),
             subtitle = stringResource(R.string.app_settings_rate_app_subtitle),
             modifier = Modifier.weight(1f)
@@ -125,7 +125,7 @@ internal fun WriteToUsRow(onNoMailApp: () -> Unit, modifier: Modifier = Modifier
             }
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        FeedbackRowLabel(
+        SettingsRowLabel(
             title = stringResource(R.string.app_settings_write_to_us),
             subtitle = stringResource(R.string.app_settings_write_to_us_subtitle),
             modifier = Modifier.weight(1f)
@@ -163,23 +163,6 @@ internal fun NoMailAppDialog(onDismiss: () -> Unit) {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_ok)) }
         }
     )
-}
-
-/** Title with subtitle below, typography like the preparation time row in "Guided Meditations". */
-@Composable
-private fun FeedbackRowLabel(title: String, subtitle: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = title,
-            style = TextStyle.body.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Text(
-            text = subtitle,
-            style = TextStyle.caption.toComposeTextStyle(),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
 }
 
 @Composable
