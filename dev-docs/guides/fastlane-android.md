@@ -111,8 +111,11 @@ android/fastlane/
 
 Release Notes liegen je Sprache in `changelogs/<versionCode>.txt` (max. 500 Zeichen) und werden
 von `/release-notes` geschrieben. `release-prepare` erwartet die Datei für den *nächsten*
-`versionCode` (aktueller + 1, den `bump-version.sh` setzt). `default.txt` ist ein Überbleibsel
-und wird vom Release-Prozess nicht genutzt.
+`versionCode` (aktueller + 1, den `bump-version.sh` setzt).
+
+Bewusst **kein** `default.txt`: supply nimmt es als Fallback, wenn für den versionCode keine
+eigene Datei existiert. Im Release-Prozess erzwingt der Preflight die passende Datei, der Fallback
+würde also nur greifen, wenn sie fehlt — und dann veralteten Text veröffentlichen statt aufzufallen.
 
 ## CI/CD Integration
 
