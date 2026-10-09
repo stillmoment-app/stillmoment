@@ -214,9 +214,12 @@ private fun ColumnScope.FlexibleGap(minHeight: Dp) {
  *
  * - **regular** (Tablets): grosser Atemkreis, normale Liste.
  * - **compact** (typische Telefone, z.B. Pixel 8): 180-dp-Atemkreis, kompakte Liste.
- * - **small** (z.B. 360×640 / 360×740 dp): kleinerer Atemkreis, die leere
- *   Kopfleiste und Mindestabstaende schrumpfen. Android hat hier weniger Hoehe
- *   als iOS (Material-3-Tab-Leiste 80 dp statt 49 pt, dazu die Systemnavigation).
+ * - **medium** (z.B. 360×740 dp): 160-dp-Atemkreis, Headline ohne Abstand fuer
+ *   die (leere) Kopfleiste.
+ * - **small** (z.B. 360×640 dp): 120-dp-Atemkreis, minimale Abstaende.
+ *
+ * Android hat weniger Hoehe als iOS (Material-3-Tab-Leiste 80 dp statt 49 pt,
+ * dazu die Systemnavigation), daher mehr Stufen als die zwei auf iOS.
  *
  * Die Einstellungsliste bleibt ab compact in der kompakten Variante und wird
  * nie weiter gestaucht.
@@ -241,14 +244,22 @@ private data class IdleLayoutMetrics(
                 headlineTop = TopAppBarHeight + 16.dp,
                 minGap = 24.dp
             )
-            else -> IdleLayoutMetrics(
-                // Am Emulator ermittelt: 140 dp lief bei 360×640 dp knapp
-                // ueber (Atemkreis wurde gestaucht), 130 dp passt mit rund
-                // 11 dp Reserve.
-                dialDiameter = 130.dp,
+            // Bedarf ca. 554 dp; Schwelle mit Reserve, damit 360×740 auch mit
+            // 3-Tasten-Navigation (ca. 572 dp) hier landet.
+            height >= MEDIUM_HEIGHT_THRESHOLD -> IdleLayoutMetrics(
+                dialDiameter = 160.dp,
                 isCompactList = true,
-                headlineTop = 8.dp,
-                minGap = 8.dp
+                headlineTop = 24.dp,
+                minGap = 16.dp
+            )
+            // Nur fuer wirklich knappe Hoehen (360×640-Klasse). Bedarf ca.
+            // 474 dp — am Emulator gemessen passt das auch mit dem Hoehen-
+            // verlust der 3-Tasten-Navigation (Container ca. 478 dp).
+            else -> IdleLayoutMetrics(
+                dialDiameter = 120.dp,
+                isCompactList = true,
+                headlineTop = 4.dp,
+                minGap = 4.dp
             )
         }
     }
@@ -357,9 +368,12 @@ private val REGULAR_HEIGHT_THRESHOLD = 840.dp
 
 /**
  * Unter dieser Container-Hoehe passt der 180-dp-Atemkreis samt Kopfleiste und
- * Mindestabstaenden nicht mehr (Bedarf ca. 620 dp) — dann greift die small-Stufe.
+ * Mindestabstaenden nicht mehr (Bedarf ca. 620 dp) — dann greift die medium-Stufe.
  */
 private val COMPACT_HEIGHT_THRESHOLD = 640.dp
+
+/** Unter dieser Container-Hoehe greift die small-Stufe (Bedarf medium ca. 552 dp). */
+private val MEDIUM_HEIGHT_THRESHOLD = 560.dp
 
 /** Durchmesser des runden Start-Knopfs (shared-126), identisch zu iOS. */
 private val START_BUTTON_DIAMETER = 68.dp
