@@ -57,7 +57,7 @@ class TimerScreenTest {
     @Test
     fun timerScreen_showsStartButton_whenIdle() {
         renderTimerScreen(uiState = TimerUiState())
-        composeRule.onNodeWithText("Start", ignoreCase = true).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Start meditation").assertIsDisplayed()
     }
 
     // MARK: - Settings Sheet Tests
