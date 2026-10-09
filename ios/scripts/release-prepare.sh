@@ -3,10 +3,10 @@
 # Usage: VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1] ./release-prepare.sh
 # Or via Makefile: make release-prepare VERSION=1.9.1 SKIP_SCREENSHOTS=1
 
-set -e
+set -euo pipefail
 
 # Parse environment variables (set by Makefile)
-VERSION="${VERSION:-$1}"
+VERSION="${VERSION:-${1:-}}"
 DRY_RUN="${DRY_RUN:-}"
 SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -106,9 +106,9 @@ print_step "Validating parameters..."
 # Validate VERSION parameter
 if [ -z "$VERSION" ]; then
     print_error "VERSION parameter required"
-    echo "Usage: $0 <VERSION> [DRY_RUN]"
-    echo "Example: $0 1.9.0"
-    echo "Example: $0 1.9.0 1  # Dry run"
+    echo "Usage: make release-prepare VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1]"
+    echo "Example: make release-prepare VERSION=1.9.0"
+    echo "Example: make release-prepare VERSION=1.9.0 DRY_RUN=1"
     exit 1
 fi
 

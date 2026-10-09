@@ -1,15 +1,17 @@
 #!/bin/bash
 # release-prepare.sh - Prepares Android release
-# Usage: ./release-prepare.sh <VERSION> [DRY_RUN]
-# Example: ./release-prepare.sh 1.9.0
-# Example: ./release-prepare.sh 1.9.0 1  # Dry run
+# Usage: VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1] ./release-prepare.sh
+# Or via Makefile: make release-prepare VERSION=1.9.1 SKIP_SCREENSHOTS=1
 
-set -e
+set -euo pipefail
 
-VERSION="$1"
-DRY_RUN="$2"
+# Parse environment variables (set by Makefile)
+VERSION="${VERSION:-${1:-}}"
+DRY_RUN="${DRY_RUN:-}"
+SKIP_SCREENSHOTS="${SKIP_SCREENSHOTS:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+LOG_FILE="$PROJECT_DIR/release-prepare.log"
 GRADLE_FILE="$PROJECT_DIR/app/build.gradle.kts"
 
 # Colors for output
@@ -43,6 +45,59 @@ run_cmd() {
     fi
 }
 
+# Run command with progress indicator, output to logfile
+# Usage: run_logged "Description" command args...
+run_logged() {
+    local description="$1"
+    shift
+
+    if [ -n "$DRY_RUN" ]; then
+        echo -e "${YELLOW}[DRY RUN] Would execute: $*${NC}"
+        return 0
+    fi
+
+    # Print description without newline
+    printf "${BLUE}==> %s...${NC} " "$description"
+
+    # Run command, capture output to logfile
+    echo "" >> "$LOG_FILE"
+    echo "========== $description ==========" >> "$LOG_FILE"
+    echo "Command: $*" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
+
+    if "$@" >> "$LOG_FILE" 2>&1; then
+        echo -e "${GREEN}✓${NC}"
+        return 0
+    else
+        local exit_code=$?
+        echo -e "${RED}✗${NC}"
+        echo ""
+        print_error "$description failed (exit code $exit_code)"
+        echo ""
+        echo "Last 20 lines of log:"
+        echo "─────────────────────────────────────────"
+        tail -20 "$LOG_FILE"
+        echo "─────────────────────────────────────────"
+        echo ""
+        echo "Full log: $LOG_FILE"
+        return $exit_code
+    fi
+}
+
+# ============================================================================
+# SETUP LOGGING
+# ============================================================================
+
+# Initialize log file
+echo "Release Prepare Log - $(date)" > "$LOG_FILE"
+echo "Version: $VERSION" >> "$LOG_FILE"
+echo "" >> "$LOG_FILE"
+
+echo ""
+echo "Output: $LOG_FILE"
+echo "Tip: tail -f $LOG_FILE  (in another terminal for live output)"
+echo ""
+
 # ============================================================================
 # VALIDATION
 # ============================================================================
@@ -52,9 +107,9 @@ print_step "Validating parameters..."
 # Validate VERSION parameter
 if [ -z "$VERSION" ]; then
     print_error "VERSION parameter required"
-    echo "Usage: $0 <VERSION> [DRY_RUN]"
-    echo "Example: $0 1.9.0"
-    echo "Example: $0 1.9.0 1  # Dry run"
+    echo "Usage: make release-prepare VERSION=x.y.z [DRY_RUN=1] [SKIP_SCREENSHOTS=1]"
+    echo "Example: make release-prepare VERSION=1.9.0"
+    echo "Example: make release-prepare VERSION=1.9.0 DRY_RUN=1"
     exit 1
 fi
 
@@ -116,46 +171,44 @@ print_success "Tag '$TAG_NAME' is available"
 
 print_step "Checking release notes..."
 
-# Read current versionCode
+# Play Store changelogs are named after the versionCode bump-version.sh will set
 CURRENT_VERSION_CODE=$(grep -E '^\s*versionCode\s*=' "$GRADLE_FILE" | head -1 | sed 's/.*= *//' | tr -d ' ')
 NEXT_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
 
-CHANGELOG_DE="$PROJECT_DIR/fastlane/metadata/android/de-DE/changelogs/${NEXT_VERSION_CODE}.txt"
-CHANGELOG_EN="$PROJECT_DIR/fastlane/metadata/android/en-US/changelogs/${NEXT_VERSION_CODE}.txt"
-
 MISSING_NOTES=0
 
-if [ ! -f "$CHANGELOG_DE" ]; then
-    print_warning "Missing: de-DE/changelogs/${NEXT_VERSION_CODE}.txt"
-    MISSING_NOTES=1
-fi
-
-if [ ! -f "$CHANGELOG_EN" ]; then
-    print_warning "Missing: en-US/changelogs/${NEXT_VERSION_CODE}.txt"
-    MISSING_NOTES=1
-fi
+for locale in de-DE en-US; do
+    CHANGELOG="$PROJECT_DIR/fastlane/metadata/android/$locale/changelogs/$NEXT_VERSION_CODE.txt"
+    if [ ! -f "$CHANGELOG" ]; then
+        print_warning "Missing: $locale/changelogs/$NEXT_VERSION_CODE.txt"
+        MISSING_NOTES=1
+    elif [ ! -s "$CHANGELOG" ]; then
+        print_warning "Empty: $locale/changelogs/$NEXT_VERSION_CODE.txt"
+        MISSING_NOTES=1
+    fi
+done
 
 if [ "$MISSING_NOTES" -eq 1 ]; then
-    print_error "Release notes missing for versionCode $NEXT_VERSION_CODE"
+    print_error "Release notes missing or empty for versionCode $NEXT_VERSION_CODE"
     echo ""
     echo "Run '/release-notes android' to generate release notes first"
     exit 1
 fi
 
-print_success "Release notes found for versionCode $NEXT_VERSION_CODE"
+print_success "Release notes found for versionCode $NEXT_VERSION_CODE (de-DE, en-US)"
 
 # ============================================================================
 # RUN CHECKS
 # ============================================================================
 
-print_step "Running code quality checks..."
-run_cmd make -C "$PROJECT_DIR" check
+run_logged "Running code quality checks" make -C "$PROJECT_DIR" check
+run_logged "Running tests" make -C "$PROJECT_DIR" test
 
-print_step "Running tests..."
-run_cmd make -C "$PROJECT_DIR" test
-
-print_step "Generating screenshots..."
-run_cmd make -C "$PROJECT_DIR" screenshots
+if [ -n "$SKIP_SCREENSHOTS" ]; then
+    print_warning "Skipping screenshots (SKIP_SCREENSHOTS=1)"
+else
+    run_logged "Generating screenshots" make -C "$PROJECT_DIR" screenshots
+fi
 
 # ============================================================================
 # BUMP VERSION
@@ -196,6 +249,8 @@ echo ""
 print_success "============================================"
 print_success "Release v$VERSION prepared successfully!"
 print_success "============================================"
+echo ""
+echo "Log: $LOG_FILE"
 echo ""
 echo "Next steps:"
 echo "  1. Review changes: git log -1 && git show $TAG_NAME"

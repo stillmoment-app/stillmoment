@@ -129,5 +129,5 @@ screenshots-upload: ## Upload screenshots to Play Store without new build
 	fi
 	@bundle exec fastlane screenshots_upload
 
-release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional)
-	@./scripts/release-prepare.sh $(VERSION) $(DRY_RUN)
+release-prepare: ## Prepare release (VERSION=x.y.z required, DRY_RUN=1 optional, SKIP_SCREENSHOTS=1 optional)
+	@VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS) ./scripts/release-prepare.sh
