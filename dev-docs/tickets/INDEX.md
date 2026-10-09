@@ -19,7 +19,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-123](shared/shared-123-backup-geraetewechsel-bibliothek.md) | Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren | 3-Feature | [ ] | [ ] |
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
-| [shared-131](shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [ ] | [ ] |
 | [shared-132](shared/shared-132-mehrfach-teilen-ohne-fehler.md) | Mehrfaches Teilen an Still Moment: kein Fehler, der zuletzt geteilte Eintrag gewinnt | 4-Polish | [ ] | [ ] |
 | [shared-133](shared/shared-133-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [ ] |
 
@@ -171,6 +170,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-127](archive/shared/shared-127-datenschutz-netzwerkzugriffe-ehrlich.md) | Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren | 1-Quick Fix | [x] | [x] |
 | [shared-128](archive/shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [x] | [x] |
 | [shared-130](archive/shared/shared-130-ticket-system-archiv-frontmatter-index.md) | Ticket-System mit Archiv, Frontmatter und generiertem Index | 2-Architektur | [x] | [x] |
+| [shared-131](archive/shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [x] | [x] |
 
 ### iOS
 

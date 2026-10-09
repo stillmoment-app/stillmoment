@@ -2,8 +2,8 @@
 id: shared-131
 title: "Gleiche Audio-Dateitypen beim Link- und Podcast-Import"
 status:
-  ios: todo
-  android: todo
+  ios: done
+  android: done
 phase: 4-Polish
 priority: niedrig
 depends_on: [shared-128]
