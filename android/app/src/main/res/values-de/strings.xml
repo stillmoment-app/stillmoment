@@ -71,7 +71,7 @@
 
     <!-- Content Guide Sheet -->
     <string name="guided_meditations_guide_title">Wo finde ich Meditationen?</string>
-    <string name="guided_meditations_guide_intro">Auf folgenden Seiten findest du qualitativ hochwertige Meditationen zum kostenlosen Download.</string>
+    <string name="guided_meditations_guide_intro">Gute Meditationen gibt es frei verfügbar auf Webseiten und in Podcasts. Ein paar Empfehlungen findest du unten.</string>
     <string name="guided_meditations_guide_open_source">Quelle im Browser öffnen</string>
     <string name="guided_meditations_guide_info">Inhalts-Guide</string>
 
@@ -80,6 +80,8 @@
     <string name="guided_meditations_guide_banner_browser_subtitle">Link lange tippen → Teilen → Still Moment.</string>
     <string name="guided_meditations_guide_banner_files_title">So importierst du aus deinen Dateien</string>
     <string name="guided_meditations_guide_banner_files_subtitle">„+“ tippen → Aufnahme wählen.</string>
+    <string name="guided_meditations_guide_banner_podcasts_title">So importierst du aus Apple Podcasts</string>
+    <string name="guided_meditations_guide_banner_podcasts_subtitle">Folge → Teilen → Still Moment.</string>
     <string name="guided_meditations_guide_howto_eyebrow">Anleitung</string>
     <string name="guided_meditations_guide_howto_step_count">Schritt %1$d von 3</string>
     <string name="guided_meditations_guide_howto_back">Zurück</string>
@@ -88,9 +90,9 @@
     <string name="guided_meditations_guide_howto_browser_step1_title">Im Browser teilen</string>
     <string name="guided_meditations_guide_howto_browser_step1_body">Tippe lange auf den Link zur Aufnahme, bis sich ein Menü öffnet. Wähle „Teilen…“.</string>
     <string name="guided_meditations_guide_howto_browser_step2_title">Still Moment auswählen</string>
-    <string name="guided_meditations_guide_howto_browser_step2_body">Wähle Still Moment aus den vorgeschlagenen Apps. Eine kurze Bestätigung erscheint — tippe auf „OK“.</string>
+    <string name="guided_meditations_guide_howto_browser_step2_body">Wähle Still Moment aus den vorgeschlagenen Apps.</string>
     <string name="guided_meditations_guide_howto_browser_step3_title">In der App fertigstellen</string>
-    <string name="guided_meditations_guide_howto_browser_step3_body">Öffne Still Moment. Der Import beginnt automatisch — gib Titel, Lehrer:in und Typ an.</string>
+    <string name="guided_meditations_guide_howto_browser_step3_body">Still Moment öffnet sich und der Import beginnt — passe die Angaben an, wenn du möchtest.</string>
     <string name="guided_meditations_guide_howto_files_title">So importierst du aus deinen Dateien</string>
     <string name="guided_meditations_guide_howto_files_intro">Wenn die Aufnahme schon auf deinem Gerät liegt, kannst du sie direkt aus der Bibliothek hinzufügen.</string>
     <string name="guided_meditations_guide_howto_files_step1_title">„+“ in der Bibliothek tippen</string>
@@ -98,7 +100,16 @@
     <string name="guided_meditations_guide_howto_files_step2_title">Aufnahme wählen</string>
     <string name="guided_meditations_guide_howto_files_step2_body">Suche die Aufnahme, z.B. im Downloads-Ordner, und tippe sie an.</string>
     <string name="guided_meditations_guide_howto_files_step3_title">Fertigstellen</string>
-    <string name="guided_meditations_guide_howto_files_step3_body">Der Import beginnt automatisch — gib Titel, Lehrer:in und Typ an.</string>
+    <string name="guided_meditations_guide_howto_files_step3_body">Der Import beginnt automatisch — passe die Angaben an, wenn du möchtest.</string>
+    <string name="guided_meditations_guide_howto_podcasts_title">So importierst du aus Apple Podcasts</string>
+    <string name="guided_meditations_guide_howto_podcasts_intro">Viele Lehrer:innen veröffentlichen ihre Meditationen als Podcast. So übernimmst du eine Folge in deine Bibliothek.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step1_title">Folge suchen</string>
+    <string name="guided_meditations_guide_howto_podcasts_step1_body">Öffne podcasts.apple.com im Browser und suche die Folge, die du hören möchtest.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step2_title">Folge teilen</string>
+    <string name="guided_meditations_guide_howto_podcasts_step2_body">Öffne die Folge und tippe auf das Teilen-Symbol. Wähle Still Moment.</string>
+    <string name="guided_meditations_guide_howto_podcasts_step3_title">In der App fertigstellen</string>
+    <string name="guided_meditations_guide_howto_podcasts_step3_body">Still Moment öffnet sich und lädt die Folge — passe die Angaben an, wenn du möchtest.</string>
+    <string name="guided_meditations_guide_howto_podcasts_note">Du kannst nur einzelne Folgen übernehmen, keine ganzen Podcasts.</string>
 
     <string name="guided_meditations_delete_title">Meditation löschen</string>
     <string name="guided_meditations_delete_message">Möchtest du \"%1$s\" wirklich löschen?</string>
