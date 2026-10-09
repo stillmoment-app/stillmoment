@@ -180,4 +180,57 @@ final class FileOpenHandlerImportFlowTests: XCTestCase {
         XCTAssertEqual(self.sut.pendingImportSignal?.metadata.title, "RAIN")
         XCTAssertEqual(self.sut.pendingImportSignal?.metadata.artist, "Tara Brach")
     }
+
+    // MARK: - Uebernahme des ausstehenden Imports (ios-060)
+
+    func testPendingImportCanBeTakenOverAfterImport() async {
+        // Given — Import kommt an, waehrend die Bibliothek noch nicht aufgebaut ist
+        self.mockMetadataService.fixedMetadata = AudioMetadata(artist: "Tara Brach", title: "RAIN", duration: 600)
+        _ = await self.sut.importFile(from: URL(fileURLWithPath: "/tmp/rain.mp3"))
+
+        // When — die Bibliothek erscheint und uebernimmt den Import
+        let taken = self.sut.takePendingImport()
+
+        // Then — sie bekommt die Datei mit den Vorschlaegen
+        XCTAssertEqual(taken?.url.lastPathComponent, "rain.mp3")
+        XCTAssertEqual(taken?.metadata.title, "RAIN")
+        XCTAssertEqual(taken?.metadata.artist, "Tara Brach")
+    }
+
+    func testPendingImportIsTakenOverOnlyOnce() async {
+        // Given
+        _ = await self.sut.importFile(from: URL(fileURLWithPath: "/tmp/meditation.mp3"))
+        let first = self.sut.takePendingImport()
+
+        // When — die Bibliothek erscheint erneut
+        let second = self.sut.takePendingImport()
+
+        // Then — das Bearbeiten-Blatt oeffnet sich nicht ein zweites Mal
+        XCTAssertNotNil(first)
+        XCTAssertNil(second)
+        XCTAssertNil(self.sut.pendingImportSignal)
+    }
+
+    func testNoPendingImportWithoutImport() {
+        XCTAssertNil(self.sut.takePendingImport())
+    }
+
+    func testNoPendingImportAfterDuplicate() async {
+        // Given — die Datei liegt schon in der Bibliothek
+        self.mockMeditationService.meditations = [
+            GuidedMeditation(
+                localFilePath: "existing.mp3",
+                fileName: "meditation.mp3",
+                duration: 600,
+                teacher: "Teacher",
+                name: "Existing"
+            )
+        ]
+
+        // When
+        _ = await self.sut.importFile(from: URL(fileURLWithPath: "/tmp/meditation.mp3"))
+
+        // Then
+        XCTAssertNil(self.sut.takePendingImport())
+    }
 }

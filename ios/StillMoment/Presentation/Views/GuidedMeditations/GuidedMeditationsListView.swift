@@ -147,19 +147,16 @@ struct GuidedMeditationsListView: View {
         }
         .task {
             await self.viewModel.loadMeditations()
-        }
-        .onChange(of: self.fileOpenHandler.pendingImportSignal) { newSignal in
-            guard let signal = newSignal else {
+            // ios-060: Ein Import, der vor dem ersten Aufbau der Bibliothek ankam, hat
+            // `onChange` nie ausgeloest. Erst nach dem Laden uebernehmen, damit der
+            // Lehrer-Vorschlag die bekannten Lehrer kennt.
+            guard !Task.isCancelled else {
                 return
             }
-            // Pending-Import-Flow: ViewModel berechnet Prefill, oeffnet Edit-Sheet.
-            self.viewModel.beginImport(
-                url: signal.url,
-                metadata: signal.metadata,
-                didStartAccessing: signal.didStartAccessing
-            )
-            // Consume the event
-            self.fileOpenHandler.pendingImportSignal = nil
+            self.takeOverPendingImport()
+        }
+        .onChange(of: self.fileOpenHandler.pendingImportSignal) { _ in
+            self.takeOverPendingImport()
         }
     }
 
@@ -177,6 +174,19 @@ struct GuidedMeditationsListView: View {
 
     private var currentLanguageCode: String {
         Locale.current.language.languageCode?.identifier ?? "en"
+    }
+
+    /// Pending-Import-Flow: ViewModel berechnet Prefill, oeffnet Edit-Sheet — genau einmal,
+    /// weil `takePendingImport()` das Signal dabei loescht.
+    private func takeOverPendingImport() {
+        guard let signal = self.fileOpenHandler.takePendingImport() else {
+            return
+        }
+        self.viewModel.beginImport(
+            url: signal.url,
+            metadata: signal.metadata,
+            didStartAccessing: signal.didStartAccessing
+        )
     }
 
     // MARK: - Subviews

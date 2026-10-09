@@ -96,13 +96,25 @@ final class FileOpenHandler: ObservableObject {
     @Published private(set) var isProcessing = false
 
     /// Signal fuer einen ausstehenden Import — wird von der Library beobachtet,
-    /// um das Edit-Sheet mit einem Prefill-Draft zu oeffnen. Nach dem Konsum
-    /// vom Beobachter auf `nil` zurueckzusetzen.
+    /// um das Edit-Sheet mit einem Prefill-Draft zu oeffnen. Wird ueber
+    /// `takePendingImport()` konsumiert (liefert und loescht es).
     @Published var pendingImportSignal: IncomingFileImport?
 
     /// Signals that a running timer/player should be stopped because an import
     /// is about to take over the foreground (Edit-Sheet).
     @Published var shouldStopMeditation = false
+
+    /// Hands over the pending import and clears it, so the Edit-Sheet opens exactly once.
+    ///
+    /// The Library calls this both when the signal changes and when it appears —
+    /// a signal published before the Library view exists is otherwise never seen (ios-060).
+    func takePendingImport() -> IncomingFileImport? {
+        guard let signal = self.pendingImportSignal else {
+            return nil
+        }
+        self.pendingImportSignal = nil
+        return signal
+    }
 
     /// Supported audio file extensions for import
     static let supportedExtensions: Set<String> = ["mp3", "m4a"]
