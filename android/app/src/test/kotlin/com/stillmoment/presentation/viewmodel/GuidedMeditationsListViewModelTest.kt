@@ -343,6 +343,43 @@ class GuidedMeditationsListViewModelTest {
         }
     }
 
+    // MARK: - shared-132: Dieselbe Datei zweimal geteilt
+
+    @Nested
+    inner class SameFileSharedTwice {
+        @Test
+        fun `the same file handed over twice leads to one edit sheet and one entry without a message`() = runTest {
+            fakeRepository.emitMeditations(emptyList())
+            advanceUntilIdle()
+            val pending = PendingImport(
+                uri = "content://downloads/body-scan.mp3",
+                fileName = "body-scan.mp3",
+                metadata = AudioMetadata(duration = 600_000L, artist = "Tara Brach", title = "Body Scan"),
+                prefill = ImportPrefill(teacher = "Tara Brach", name = "Body Scan")
+            )
+            whenever(mockFileOpenHandler.validateAndPrepareImport(any()))
+                .thenReturn(Result.success(pending))
+            val sharedFile = mock<Uri>()
+
+            viewModel.importMeditation(sharedFile)
+            advanceUntilIdle()
+            viewModel.importMeditation(sharedFile)
+            advanceUntilIdle()
+            val sheet = viewModel.uiState.value
+            assertTrue(sheet.showEditSheet)
+            assertNull(sheet.error)
+
+            val draft = sheet.selectedMeditation
+            checkNotNull(draft) { "Edit sheet shows the shared file" }
+            viewModel.saveImportedMeditation(draft)
+            advanceUntilIdle()
+
+            assertEquals(1, fakeRepository.addedMeditations.size)
+            assertNull(viewModel.uiState.value.error)
+            assertFalse(viewModel.uiState.value.showEditSheet)
+        }
+    }
+
     // MARK: - shared-128: Podcast-Import-Vorschlag
 
     @Nested
