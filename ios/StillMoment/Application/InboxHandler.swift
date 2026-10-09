@@ -27,15 +27,6 @@ enum InboxResult: Equatable {
     case error(InboxError)
 }
 
-// MARK: - URLReference
-
-/// JSON format written by the Share Extension for shared URLs
-struct URLReference: Codable {
-    let url: String
-    let filename: String
-    let timestamp: String
-}
-
 // MARK: - InboxHandler
 
 /// Processes entries placed in the Share Extension inbox directory

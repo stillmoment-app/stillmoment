@@ -1,0 +1,119 @@
+//
+//  ShareInboxTests.swift
+//  Still Moment
+//
+//  shared-132: Die Share-Extension legt geteilte Links und Audiodateien in der Inbox ab.
+//  Mehrfaches Teilen darf nie scheitern; der zuletzt geteilte Eintrag ersetzt einen
+//  gleichnamigen, der noch wartet.
+//
+
+import XCTest
+@testable import StillMoment
+
+final class ShareInboxTests: XCTestCase {
+    // MARK: Internal
+
+    static let talk25401 = "https://www.audiodharma.org/talks/25401/download"
+    static let talk25402 = "https://www.audiodharma.org/talks/25402/download"
+
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var inboxDirectory: URL!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    var sourceDirectory: URL!
+
+    override func setUp() {
+        super.setUp()
+        let base = FileManager.default.temporaryDirectory.appendingPathComponent("ShareInboxTests-\(UUID().uuidString)")
+        self.inboxDirectory = base.appendingPathComponent("ShareInbox")
+        self.sourceDirectory = base.appendingPathComponent("Source")
+        try? FileManager.default.createDirectory(at: self.inboxDirectory, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: self.sourceDirectory, withIntermediateDirectories: true)
+    }
+
+    override func tearDown() {
+        try? FileManager.default.removeItem(at: self.inboxDirectory.deletingLastPathComponent())
+        self.inboxDirectory = nil
+        self.sourceDirectory = nil
+        super.tearDown()
+    }
+
+    // MARK: - Einzelnes Teilen (Erhalt)
+
+    func testSharedLinkIsStoredSoTheAppCanReadAddressAndFilename() throws {
+        // Given
+        let link = try XCTUnwrap(URL(string: Self.talk25401))
+
+        // When
+        let entry = try ShareInbox.storeLink(link, in: self.inboxDirectory)
+
+        // Then — die App liest den Eintrag mit demselben Schema
+        let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
+        XCTAssertEqual(reference.url, Self.talk25401)
+        XCTAssertEqual(reference.filename, "download")
+        XCTAssertEqual(try self.visibleEntries(), [entry.lastPathComponent])
+    }
+
+    func testSharedAudioFileIsStoredUnderItsOwnName() throws {
+        // Given
+        let source = try self.makeSourceFile(named: "Vortrag.mp3", byte: 0xAA)
+
+        // When
+        let entry = try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+
+        // Then
+        XCTAssertEqual(entry.lastPathComponent, "Vortrag.mp3")
+        XCTAssertEqual(try Data(contentsOf: entry), try Data(contentsOf: source))
+        XCTAssertEqual(try self.visibleEntries(), ["Vortrag.mp3"])
+    }
+
+    func testOldAudioFileCountsAsFreshlyShared() throws {
+        // Given — die geteilte Datei ist laengst aelter als 24 Stunden
+        let source = try self.makeSourceFile(named: "Vortrag.mp3", byte: 0xAA)
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-30 * 24 * 3600)],
+            ofItemAtPath: source.path
+        )
+
+        // When
+        let entry = try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+
+        // Then — die App raeumt den Eintrag nicht als veraltet weg
+        let modified = try XCTUnwrap(self.modificationDate(of: entry))
+        XCTAssertEqual(modified.timeIntervalSinceNow, 0, accuracy: 60)
+    }
+
+    func testUnreadableAudioFileFailsWithoutLeavingAnything() throws {
+        // Given — die Quelle ist nicht (mehr) da
+        let missing = self.sourceDirectory.appendingPathComponent("Weg.mp3")
+
+        // When / Then
+        XCTAssertThrowsError(try ShareInbox.storeAudioFile(from: missing, in: self.inboxDirectory))
+        XCTAssertEqual(try self.allEntriesIncludingHidden(), [])
+    }
+
+    // MARK: Helpers
+
+    func makeSourceFile(named name: String, byte: UInt8) throws -> URL {
+        let url = self.sourceDirectory.appendingPathComponent(name)
+        try Data(repeating: byte, count: 64).write(to: url)
+        return url
+    }
+
+    func visibleEntries() throws -> [String] {
+        try FileManager.default.contentsOfDirectory(
+            at: self.inboxDirectory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        )
+        .map(\.lastPathComponent)
+        .sorted()
+    }
+
+    func allEntriesIncludingHidden() throws -> [String] {
+        try FileManager.default.contentsOfDirectory(atPath: self.inboxDirectory.path).sorted()
+    }
+
+    func modificationDate(of url: URL) throws -> Date? {
+        try FileManager.default.attributesOfItem(atPath: url.path)[.modificationDate] as? Date
+    }
+}
