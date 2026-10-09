@@ -38,7 +38,7 @@
               Ab targetSdk 37 entfernt das Framework die Opt-out-Moeglichkeit; die
               Beschraenkungen werden dann auf >=600dp immer ignoriert. Vor dem Bump auf 37
               braucht die App echte adaptive Layouts fuer Querformat - das ist Entwurfsarbeit,
-              kein Manifest-Eintrag. Siehe dev-docs/tickets/android/android-081-target-sdk-36-android-16.md
+              kein Manifest-Eintrag. Siehe dev-docs/tickets/archive/android/android-081-target-sdk-36-android-16.md
               https://developer.android.com/about/versions/16/behavior-changes-16#adaptive-layouts
             -->
             <property

@@ -1,9 +1,17 @@
+---
+id: shared-085
+title: Store + Website spiegeln Meditationen-zuerst-IA
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: niedrig
+depends_on: [shared-084]
+---
+
 # Ticket shared-085: Store + Website spiegeln Meditationen-zuerst-IA
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Komplexitaet**: Niedrig — Reihenfolge-Anpassungen in Screenshot-Generator, Captions, Website-FAQ. Keine Code-Aenderungen an der App selbst.
-**Phase**: 4-Polish
 
 ---
 
@@ -16,15 +24,6 @@ App-Store-Screenshots und Website fuehren mit dem Meditationen-Tab statt mit dem
 ## Warum
 
 Nach shared-084 ist der Meditationen-Tab der erste Tab. Marketing- und Support-Material soll dieselbe Prioritaet zeigen, damit Store-Listing, Website und App ein konsistentes Bild der Produktvision vermitteln (Library = Kernfeature, Timer = Add-on). App-Store-Description und Website-Hero sortieren bereits korrekt — Screenshots und FAQ noch nicht.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-084    |
-| Android   | [ ]    | shared-084    |
 
 ---
 

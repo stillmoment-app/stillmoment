@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-113 (iOS)
 
-Ticket: [shared-113](../shared/shared-113-toten-praxis-editor-code-entfernen.md)
+Ticket: [shared-113](../archive/shared/shared-113-toten-praxis-editor-code-entfernen.md)
 Erstellt: 2026-06-14
 
 iOS ist **nur von Teil 2** betroffen (Rename `PraxisEditorViewModel` → `PraxisSettingsViewModel`). Teil 1 (toter Screen) ist Android-only — auf iOS existiert kein Praxis-Editor-Screen, nur das ViewModel, das die Inline-Timer-Einstellungen backt.

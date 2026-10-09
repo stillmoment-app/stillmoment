@@ -1,10 +1,10 @@
 # Implementierungsplan: shared-104 (Android)
 
-Ticket: [shared-104 — Import-Anleitungen im Content Guide (Android-Sync)](../shared/shared-104-import-anleitungen-android.md)
+Ticket: [shared-104 — Import-Anleitungen im Content Guide (Android-Sync)](../archive/shared/shared-104-import-anleitungen-android.md)
 Erstellt: 2026-05-21
 Branch (Vorschlag): `feature/shared-104-android`
 
-iOS-Pendant: [shared-039b](../shared/shared-039b-import-anleitungen.md) — DONE.
+iOS-Pendant: [shared-039b](../archive/shared/shared-039b-import-anleitungen.md) — DONE.
 iOS-Referenzdateien:
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/ContentGuideSheet.swift` (Banner-Sektion + `ImportBannerCard`)
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/HowToImportBrowserView.swift`

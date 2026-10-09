@@ -1,13 +1,13 @@
 # Implementierungsplan: shared-103 (Android)
 
-Ticket: [shared-103 — Share-Import-Verbesserungen (Android-Sync)](../shared/shared-103-share-import-verbesserungen-android.md)
+Ticket: [shared-103 — Share-Import-Verbesserungen (Android-Sync)](../archive/shared/shared-103-share-import-verbesserungen-android.md)
 Erstellt: 2026-05-21
 Branch: `feature/shared-103-android`
 
 iOS-Pendants (alle DONE):
-- [ios-042](../ios/ios-042-share-import-immer-meditation.md) — Share-Import immer als Meditation
-- [ios-043](../ios/ios-043-import-prefill-service.md) — Prefill-Service (Sanitize + Kaskaden)
-- [ios-044](../ios/ios-044-import-prefill-edit-sheet-ui.md) — Edit-Sheet Prefill-UI
+- [ios-042](../archive/ios/ios-042-share-import-immer-meditation.md) — Share-Import immer als Meditation
+- [ios-043](../archive/ios/ios-043-import-prefill-service.md) — Prefill-Service (Sanitize + Kaskaden)
+- [ios-044](../archive/ios/ios-044-import-prefill-edit-sheet-ui.md) — Edit-Sheet Prefill-UI
 
 iOS-Plaene zur Referenz:
 - [ios-043.md](ios-043.md)

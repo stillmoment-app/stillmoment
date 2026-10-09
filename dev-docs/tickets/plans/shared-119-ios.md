@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-119 (iOS)
 
-Ticket: [shared-119](../shared/shared-119-vorbereitungszeit-screen-redesign.md)
+Ticket: [shared-119](../archive/shared/shared-119-vorbereitungszeit-screen-redesign.md)
 Erstellt: 2026-06-17
 
 ## Annahmen

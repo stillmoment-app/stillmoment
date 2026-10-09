@@ -1,9 +1,16 @@
+---
+id: shared-028
+title: CI Release Pipeline
+status:
+  ios: todo
+  android: todo
+phase: 2-Architektur
+priority: niedrig
+---
+
 # Ticket shared-028: CI Release Pipeline
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Aufwand**: ~4h
-**Phase**: 2-Architektur
 
 ---
 

@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-096 (iOS)
 
-Ticket: [shared-096](../shared/shared-096-player-kerzenschein-refinement.md)
+Ticket: [shared-096](../archive/shared/shared-096-player-kerzenschein-refinement.md)
 Erstellt: 2026-05-16
 
 ---

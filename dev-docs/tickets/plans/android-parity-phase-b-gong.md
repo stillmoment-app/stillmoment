@@ -1,6 +1,6 @@
 # Implementierungsplan: Android-Parität Phase B — Gong pro Meditation
 
-Tickets: [shared-106](../shared/shared-106-start-end-gong-pro-meditation.md) + [shared-116](../shared/shared-116-meditation-editor-gong-klang-picker.md) (kollabiert)
+Tickets: [shared-106](../archive/shared/shared-106-start-end-gong-pro-meditation.md) + [shared-116](../archive/shared/shared-116-meditation-editor-gong-klang-picker.md) (kollabiert)
 Erstellt: 2026-06-16
 Kontext: Zweites von vier Paketen der Android-Parität (siehe [Phase A](android-parity-phase-a-trim-foundation.md)). iOS hat den Gong-Picker in shared-106 zunächst als schlichte Liste gebaut und in shared-116 zum Karten-Picker umgestaltet. Android baut direkt den Endzustand (Karten-Picker), weil die Karten-Komponenten aus shared-115 (`GongCard`, `GongPreviewButton`, `GongWaveform`, `GongSoundRow`) bereits existieren.
 

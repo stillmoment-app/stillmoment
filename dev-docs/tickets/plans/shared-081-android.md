@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-081 (Android)
 
-Ticket: [shared-081](../shared/shared-081-library-filter-nach-dauer.md)
+Ticket: [shared-081](../archive/shared/shared-081-library-filter-nach-dauer.md)
 Erstellt: 2026-07-31
 
 > Der iOS-Plan liegt daneben: [shared-081-ios.md](shared-081-ios.md). Die fachlichen Szenarien sind identisch — dieser Plan wiederholt sie nicht, sondern beschreibt die Android-spezifische Umsetzung und die eine Stelle, an der Android echte Zusatzarbeit hat (Filter-Reset am Tab-Wechsel).

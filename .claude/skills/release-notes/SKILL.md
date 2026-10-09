@@ -343,7 +343,7 @@ Options:
 
 ## Referenzen
 
-- Ticket: `dev-docs/tickets/shared/shared-030-release-notes-skill.md`
+- Ticket: `dev-docs/tickets/archive/shared/shared-030-release-notes-skill.md`
 - Konzept: `dev-docs/concepts/release-prepare-workflow.md`
 - CHANGELOG: `CHANGELOG.md`
 - iOS Metadata: `ios/fastlane/metadata/`

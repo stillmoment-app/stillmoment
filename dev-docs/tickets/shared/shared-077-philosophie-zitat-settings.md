@@ -1,9 +1,16 @@
+---
+id: shared-077
+title: Philosophie-Zitat in den Einstellungen
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: niedrig
+---
+
 # Ticket shared-077: Philosophie-Zitat in den Einstellungen
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Aufwand**: iOS ~1h | Android ~1h
-**Phase**: 4-Polish
 
 ---
 
@@ -14,15 +21,6 @@ Das App-Philosophie-Zitat ("Meditiere nicht, um dich zu verbessern oder zu erlö
 ## Warum
 
 Das Zitat beschreibt den Geist der App besser als jede Featureliste. Es gehört nicht ins Onboarding (wird weggeklickt) und nicht in leere Zustände (dort braucht der User Orientierung). Wer bis ans Ende der Einstellungen scrollt, bekommt einen Moment des Erkennens: "Ah, darum geht es hier."
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

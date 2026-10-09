@@ -1,10 +1,15 @@
+---
+id: ios-057
+title: Unit-Tests hinterlassen keine Daten im echten App-Ordner
+status: todo
+phase: 5-QA
+priority: niedrig
+---
+
 # Ticket ios-057: Unit-Tests hinterlassen keine Daten im echten App-Ordner
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Komplexitaet**: Die Ursache ist noch nicht bestätigt. Der Aufwand liegt im Finden aller Tests, die über einen echten Dienst in den Datenbestand der App schreiben (Dateien und gespeicherte Einstellungen). Risiko: Ein Test, der heute zufällig auf solche Reste angewiesen ist, wird nach der Bereinigung rot.
 **Abhaengigkeiten**: Keine
-**Phase**: 5-QA
 
 ---
 

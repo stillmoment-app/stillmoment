@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-096 (Android)
 
-Ticket: [shared-096](../shared/shared-096-player-kerzenschein-refinement.md)
+Ticket: [shared-096](../archive/shared/shared-096-player-kerzenschein-refinement.md)
 iOS-Plan: [shared-096-ios.md](shared-096-ios.md)
 iOS-Referenz-Implementierung:
 - `ios/StillMoment/Presentation/Views/GuidedMeditations/PlayerRingView.swift`

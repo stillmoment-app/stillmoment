@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-098 (Android)
 
-Ticket: [shared-098](../shared/shared-098-library-preview-scrub-slider.md)
+Ticket: [shared-098](../archive/shared/shared-098-library-preview-scrub-slider.md)
 iOS-Pendant: bereits umgesetzt (Plan: [shared-098-ios.md](shared-098-ios.md))
 Erstellt: 2026-05-21
 Branch: `feature/shared-098-android`

@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-094 (Android)
 
-Ticket: [shared-094](../shared/shared-094-theme-refinement-kerzenschein.md)
+Ticket: [shared-094](../archive/shared/shared-094-theme-refinement-kerzenschein.md)
 iOS-Plan: [shared-094-ios.md](shared-094-ios.md)
 iOS-Referenz-Implementierung: `ios/StillMoment/Presentation/Theme/ThemeColors+Palettes.swift`
 Erstellt: 2026-05-21

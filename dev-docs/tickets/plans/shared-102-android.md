@@ -1,7 +1,7 @@
 # Implementierungsplan: shared-102 (Android)
 
-Ticket: [shared-102](../shared/shared-102-library-header-search-android.md)
-iOS-Pendant: [ios-051](../ios/ios-051-library-header-suchfeld-sichtbar.md) — bereits umgesetzt
+Ticket: [shared-102](../archive/shared/shared-102-library-header-search-android.md)
+iOS-Pendant: [ios-051](../archive/ios/ios-051-library-header-suchfeld-sichtbar.md) — bereits umgesetzt
 iOS-Plan-Vorbild: [ios-051 Plan](ios-051.md)
 Erstellt: 2026-05-21
 Branch: `feature/shared-102-android`
@@ -464,7 +464,7 @@ Keine manuellen Schritte noetig:
 
 ## Referenzen
 
-- iOS-Pendant: [ios-051](../ios/ios-051-library-header-suchfeld-sichtbar.md) — DONE
+- iOS-Pendant: [ios-051](../archive/ios/ios-051-library-header-suchfeld-sichtbar.md) — DONE
 - iOS-Plan: [ios-051 Plan](ios-051.md)
 - iOS-Implementation:
   - `ios/StillMoment/Presentation/Views/GuidedMeditations/LibraryHeaderView.swift`

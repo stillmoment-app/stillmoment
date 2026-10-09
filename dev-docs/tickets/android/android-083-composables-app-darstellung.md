@@ -1,10 +1,16 @@
+---
+id: android-083
+title: Fuenf Composables folgen dem Geraet statt der App-Darstellung
+status: todo
+phase: 4-Polish
+priority: niedrig
+depends_on: [shared-122]
+---
+
 # Ticket android-083: Fuenf Composables folgen dem Geraet statt der App-Darstellung
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Komplexitaet**: Klein und ueberschaubar — fuenf Stellen, ein einheitlicher Mechanismus. Die einzige Falle ist, dabei versehentlich auch die eine Stelle mitzuaendern, die das Geraete-Flag zu Recht liest (siehe Hinweise).
 **Abhaengigkeiten**: shared-122 (abgeschlossen — hat die Abweichung vom Randfall zum Normalfall gemacht)
-**Phase**: 4-Polish
 
 ---
 

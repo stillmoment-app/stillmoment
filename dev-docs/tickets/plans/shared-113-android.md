@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-113 (Android)
 
-Ticket: [shared-113](../shared/shared-113-toten-praxis-editor-code-entfernen.md)
+Ticket: [shared-113](../archive/shared/shared-113-toten-praxis-editor-code-entfernen.md)
 Erstellt: 2026-06-14
 
 Android ist von **beiden Teilen** betroffen: Teil 1 (toten `PraxisEditorScreen` + NavGraph-Reste entfernen) und Teil 2 (Rename `PraxisEditorViewModel` → `PraxisSettingsViewModel`).

@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-109 (iOS)
 
-Ticket: [shared-109](../shared/shared-109-waveform-player-tonkopf.md)
+Ticket: [shared-109](../archive/shared/shared-109-waveform-player-tonkopf.md)
 Erstellt: 2026-06-12
 Plattform: iOS (Android folgt mit dieser Implementierung als Referenz)
 

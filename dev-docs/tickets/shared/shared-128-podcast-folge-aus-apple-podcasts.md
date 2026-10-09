@@ -1,9 +1,17 @@
+---
+id: shared-128
+title: Podcast-Folge aus Apple Podcasts importieren
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: mittel
+depends_on: [shared-127]
+---
+
 # Ticket shared-128: Podcast-Folge aus Apple Podcasts importieren
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Der Import-Weg (Teilen → Ladefenster → Bearbeiten-Dialog) existiert schon; neu ist das Aufloesen eines Apple-Podcasts-Links zur Audiodatei. Risiken: Apples Lookup-Dienst ist undokumentiert begrenzt (max. 200 neueste Folgen, teils weniger), und ob Still Moment im Teilen-Menue von Apple Podcasts erscheint, ist nur auf einem echten Geraet pruefbar.
-**Phase**: 3-Feature
 
 ---
 
@@ -14,15 +22,6 @@ Wer in Apple Podcasts eine einzelne Folge teilt und Still Moment waehlt, bekommt
 ## Warum
 
 Es gibt viele gute Meditationen in Podcasts (z.B. Tara Brach, "Achtsam" von Deutschlandfunk Nova). Podcasts werden damit zu einer neuen Quelle fuer die Bibliothek: Entdeckt wird in der Podcast-App, uebernommen per Teilen. Heute scheitert ein geteilter Apple-Podcasts-Link mit "Keine Aufnahme gefunden", weil der Link auf eine Webseite zeigt und nicht auf die Audiodatei.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-127    |
-| Android   | [ ]    | shared-127    |
 
 ---
 

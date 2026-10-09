@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-092 (iOS)
 
-Ticket: [shared-092-danke-screen-redesign](../shared/shared-092-danke-screen-redesign.md)
+Ticket: [shared-092-danke-screen-redesign](../archive/shared/shared-092-danke-screen-redesign.md)
 Erstellt: 2026-05-15
 
 ---

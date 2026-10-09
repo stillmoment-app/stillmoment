@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-116 (iOS)
 
-Ticket: [shared-116](../shared/shared-116-meditation-editor-gong-klang-picker.md)
+Ticket: [shared-116](../archive/shared/shared-116-meditation-editor-gong-klang-picker.md)
 Erstellt: 2026-06-15
 Plattform: iOS
 

@@ -600,10 +600,16 @@ def format_report(plan: Plan, dry_run: bool) -> str:
 
 
 def apply_plan(root: Path, plan: Plan) -> None:
+    # Ein `git mv` pro Zielordner statt pro Datei: weniger Kollisionen mit fremden
+    # git-Prozessen (index.lock), die eine halbfertige Migration hinterlassen.
+    moves_by_dir: dict[str, list[str]] = {}
     for item in plan.items:
         if item.source != item.target:
-            (root / item.target).parent.mkdir(parents=True, exist_ok=True)
-            subprocess.run(["git", "mv", item.source, item.target], cwd=root, check=True)
+            moves_by_dir.setdefault(str(Path(item.target).parent), []).append(item.source)
+    for target_dir, sources in sorted(moves_by_dir.items()):
+        (root / target_dir).mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "mv", *sources, target_dir], cwd=root, check=True)
+    for item in plan.items:
         (root / item.target).write_text(item.content, encoding="utf-8")
     for rel, text in plan.link_updates.items():
         (root / rel).write_text(text, encoding="utf-8")

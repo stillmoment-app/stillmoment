@@ -1,9 +1,17 @@
+---
+id: shared-058
+title: Entscheidungspunkt Aggregate
+status:
+  ios: todo
+  android: todo
+phase: 2-Architektur
+priority: niedrig
+depends_on: [shared-057]
+---
+
 # Ticket shared-058: Entscheidungspunkt Aggregate
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Aufwand**: ~1h (Review, kein Code)
-**Phase**: 2-Architektur
 **Blocked by**: shared-057
 
 ---
@@ -17,15 +25,6 @@ Review-Ticket nach Abschluss des inkrementellen Refactorings. Bestandsaufnahme: 
 Das inkrementelle Refactoring (shared-054 bis shared-057) loest die identifizierten Kernprobleme. Die Frage ob der verbleibende Reducer ins MeditationTimer-Modell absorbiert werden soll (→ MeditationSession Aggregate) ist eine Architekturentscheidung die erst nach den Refactoring-Schritten sinnvoll getroffen werden kann.
 
 **Bezug:** `dev-docs/architecture/meditation-session-aggregate.md`, `dev-docs/architecture/timer-incremental-refactoring.md` (Abschnitt 7)
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-057    |
-| Android   | [ ]    | shared-057    |
 
 ---
 

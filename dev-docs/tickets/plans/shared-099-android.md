@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-099 (Android)
 
-Ticket: [shared-099](../shared/shared-099-typografie-newsreader-geist-android.md)
+Ticket: [shared-099](../archive/shared/shared-099-typografie-newsreader-geist-android.md)
 iOS-Referenz: [ios-048.md](ios-048.md) (Phase 2 / Typografie 2.1 ist die Quelle der Wahrheit) +
 iOS-Code in `ios/StillMoment/Presentation/Views/Shared/TextStyle.swift`,
 `View+TextStyle.swift`, `DisplayNumeral.swift`, `Font+Icon.swift`.

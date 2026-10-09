@@ -1,7 +1,7 @@
 # Implementierungsplan: shared-101 (Android)
 
-Ticket: [shared-101](../shared/shared-101-library-search-android.md)
-iOS-Pendant: [ios-041](../ios/ios-041-library-search.md) — bereits umgesetzt
+Ticket: [shared-101](../archive/shared/shared-101-library-search-android.md)
+iOS-Pendant: [ios-041](../archive/ios/ios-041-library-search.md) — bereits umgesetzt
 iOS-Plan-Vorbild: [ios-041 Plan](ios-041.md)
 Erstellt: 2026-05-21
 Branch: `feature/shared-101-android`
@@ -422,7 +422,7 @@ Keine manuellen Schritte noetig:
 
 ## Referenzen
 
-- iOS-Pendant: [ios-041](../ios/ios-041-library-search.md) — DONE
+- iOS-Pendant: [ios-041](../archive/ios/ios-041-library-search.md) — DONE
 - iOS-Plan: [ios-041 Plan](ios-041.md)
 - iOS-Implementation:
   - `ios/StillMoment/Domain/Services/LibrarySearchEngine.swift` (1:1 Port)

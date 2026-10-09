@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-080 (iOS)
 
-Ticket: [shared-080](../shared/shared-080-completion-screen-survive-termination.md)
+Ticket: [shared-080](../archive/shared/shared-080-completion-screen-survive-termination.md)
 Erstellt: 2026-04-26
 
 ## Ziel

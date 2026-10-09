@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-086 (iOS)
 
-Ticket: [shared-086](../shared/shared-086-atemkreis-picker-timer-konfig.md)
+Ticket: [shared-086](../archive/shared/shared-086-atemkreis-picker-timer-konfig.md)
 Erstellt: 2026-05-03
 Plattform: iOS (Android folgt sequenziell)
 

@@ -1,9 +1,16 @@
+---
+id: shared-060
+title: Domain-Layer Bounded Contexts
+status:
+  ios: todo
+  android: todo
+phase: 2-Architektur
+priority: mittel
+---
+
 # Ticket shared-060: Domain-Layer nach Bounded Contexts strukturieren
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Aufwand**: iOS ~4h | Android ~4h
-**Phase**: 2-Architektur
 
 ---
 
@@ -14,15 +21,6 @@ Die Domain-Layer beider Plattformen sollen nach fachlichen Bounded Contexts stat
 ## Warum
 
 Domain/Models/ enthaelt 17 (iOS) bzw. 19 (Android) Dateien ohne erkennbare fachliche Zuordnung. Um herauszufinden welche Dateien zu einem Feature gehoeren, muessen mehrere Dateien geoeffnet und gelesen werden. Bei einer Struktur nach Bounded Contexts ist die Zuordnung sofort am Dateipfad erkennbar - die Verzeichnisstruktur dokumentiert sich selbst und veraltet nicht.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

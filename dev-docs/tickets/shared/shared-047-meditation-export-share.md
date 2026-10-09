@@ -1,9 +1,16 @@
+---
+id: shared-047
+title: Meditation exportieren / teilen
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: mittel
+---
+
 # Ticket shared-047: Meditation exportieren / teilen
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Aufwand**: iOS ~0.5d | Android ~0.5d
-**Phase**: 3-Feature
 
 ---
 
@@ -14,15 +21,6 @@ Nutzer koennen eine importierte Meditation aus der App heraus teilen oder export
 ## Warum
 
 Die Audiodateien gehoeren dem Nutzer. Export/Teilen ermoeglicht Backups, Weitergabe an andere Geraete und staerkt das Vertrauen, dass kein Lock-in besteht. Ausserdem ermoeglicht es den Round-Trip-Test fuer den Import-Flow (shared-045): Meditation exportieren, in Dateien-App oeffnen, "Oeffnen mit" zurueck in Still Moment.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

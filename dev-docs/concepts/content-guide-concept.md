@@ -408,4 +408,4 @@ oder entdecke kostenlose Quellen im Internet.
 ## Verwandte Dokumente
 
 - [BYOM-Strategie](byom-strategy.md) — Quellen-Liste, Positionierung
-- [Ticket shared-039](../tickets/shared/shared-039-empty-state-content-guide.md) — Akzeptanzkriterien
+- [Ticket shared-039](../tickets/archive/shared/shared-039-empty-state-content-guide.md) — Akzeptanzkriterien

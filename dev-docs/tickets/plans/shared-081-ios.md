@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-081 (iOS)
 
-Ticket: [shared-081](../shared/shared-081-library-filter-nach-dauer.md)
+Ticket: [shared-081](../archive/shared/shared-081-library-filter-nach-dauer.md)
 Erstellt: 2026-07-31
 
 ## Annahmen

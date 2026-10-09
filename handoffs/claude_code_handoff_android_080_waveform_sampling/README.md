@@ -1,6 +1,6 @@
 # Handoff: android-080 — Android-Waveform-Generierung beschleunigen (Sampling)
 
-**Auftrag:** Ticket `dev-docs/tickets/android/android-080-waveform-generierung-beschleunigen.md` sauber (produktionsreif, mit Tests) umsetzen. Dieser Handoff enthält den verifizierten Spike-Stand, damit nichts aus der Explorationsphase verloren geht.
+**Auftrag:** Ticket `dev-docs/tickets/archive/android/android-080-waveform-generierung-beschleunigen.md` sauber (produktionsreif, mit Tests) umsetzen. Dieser Handoff enthält den verifizierten Spike-Stand, damit nichts aus der Explorationsphase verloren geht.
 
 Lies **zuerst das Ticket** — es hat WAS/WARUM, Akzeptanzkriterien, die gemessene Ursache, die verworfenen Sackgassen und die Verifikations-Methodik. Dieser Handoff ergänzt es um den **funktionierenden Prototyp-Code** und den Umsetzungsplan.
 

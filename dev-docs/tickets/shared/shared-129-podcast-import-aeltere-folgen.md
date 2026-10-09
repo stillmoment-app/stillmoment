@@ -1,9 +1,17 @@
+---
+id: shared-129
+title: Podcast-Import auch fuer aeltere Folgen
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: mittel
+depends_on: [shared-128]
+---
+
 # Ticket shared-129: Podcast-Import auch fuer aeltere Folgen
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Die Folge muss ueber ihren Titel im Feed des Anbieters gefunden werden, weil Apples Folgen-ID dort nicht vorkommt. Risiken: falsche Zuordnung bei gleichen Titeln (muss zur Fehlermeldung statt zum falschen Import fuehren), grosse Feeds (mehrere MB), und die Titelquelle haengt an Apples Webseite.
-**Phase**: 3-Feature
 
 ---
 
@@ -14,15 +22,6 @@ Eine geteilte Apple-Podcasts-Folge soll sich auch dann importieren lassen, wenn 
 ## Warum
 
 Apples Lookup-Dienst liefert hoechstens die 200 neuesten Folgen eines Podcasts. Beim Tara-Brach-Podcast (ueber 1.600 Folgen) reicht das nur bis etwa Oktober 2024. Gerade bei Meditationen sind aeltere Folgen oft die wertvollsten — zeitlose Inhalte, die man ueber Jahre wieder hoert. Ohne diesen Weg scheitert ein grosser Teil der geteilten Folgen.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-128    |
-| Android   | [ ]    | shared-128    |
 
 ---
 

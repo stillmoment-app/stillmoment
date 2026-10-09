@@ -1,9 +1,16 @@
+---
+id: shared-125
+title: Timer-Zeitauswahl als Wert und Bahn
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: mittel
+---
+
 # Ticket shared-125: Timer-Zeitauswahl als Wert und Bahn
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Ueberschaubar im Umfang, aber es ersetzt das zentrale Bedienelement des Timer-Startbildschirms. Die Risiken liegen weniger im neuen Regler als im Umgang mit gespeicherten Dauern, die auf keiner Raststufe liegen, und in der Barrierefreiheit, die der Atemkreis heute mitbringt.
-**Phase**: 4-Polish
 
 ---
 
@@ -19,15 +26,6 @@ gut elf Punkten, waehrend die Fingerkuppe viermal so breit ist und beim Ziehen g
 verdeckt, die man treffen will. Wer zwanzig Minuten einstellen moechte, landet bei achtzehn und
 muss nachbessern. Die Vorbereitungszeit beantwortet dieselbe Frage bereits mit einer gerasteten
 Bahn; danach waehlt man Dauern in der App an beiden Stellen gleich.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

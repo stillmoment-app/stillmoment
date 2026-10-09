@@ -384,5 +384,5 @@ Manifest-Eintrag. Auch mit gesetzter Property gilt bereits jetzt: Nutzer koennen
 Seitenverhaeltnis in den Systemeinstellungen ueberschreiben, und im Desktop-Windowing
 wird die Orientierungsbeschraenkung trotz Opt-out ignoriert.
 
-Hintergrund und Verifikation: `dev-docs/tickets/android/android-081-target-sdk-36-android-16.md`,
+Hintergrund und Verifikation: `dev-docs/tickets/archive/android/android-081-target-sdk-36-android-16.md`,
 [Behavior changes: Apps targeting Android 16](https://developer.android.com/about/versions/16/behavior-changes-16)

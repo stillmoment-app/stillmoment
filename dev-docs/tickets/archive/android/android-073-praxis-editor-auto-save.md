@@ -1,0 +1,54 @@
+---
+id: android-073
+title: PraxisEditor Auto-Save beim Zurücknavigieren
+status: done
+phase: 4-Polish
+priority: mittel
+---
+
+# Ticket android-073: PraxisEditor Auto-Save beim Zurücknavigieren
+
+**Aufwand**: Klein
+**Abhaengigkeiten**: Keine
+
+---
+
+## Was
+
+Der PraxisEditor soll Änderungen automatisch beim Zurücknavigieren speichern, statt explizite "Abbrechen"- und "Fertig"-Buttons im TopAppBar zu verwenden.
+
+## Warum
+
+iOS speichert die Konfiguration implizit beim Verlassen des Screens (Settings-Style). Android hingegen erfordert aktuell einen expliziten "Fertig"-Tap. Dieses unterschiedliche Mental Model verwirrt User, die beide Plattformen nutzen. Der einheitliche Ansatz – Zurück = Speichern – ist konsistenter und reduziert die kognitive Last.
+
+---
+
+## Akzeptanzkriterien
+
+### Feature
+- [x] Der TopAppBar des PraxisEditors zeigt einen Zurück-Pfeil statt "Abbrechen"/"Fertig"-Buttons
+- [x] Beim Zurücknavigieren (System-Back oder Zurück-Pfeil) werden Änderungen automatisch gespeichert
+- [x] Das Verhalten entspricht dem iOS-PraxisEditor (Zurück = Speichern)
+
+### Tests
+- [x] Unit Tests prüfen, dass Save beim Verlassen des Screens ausgelöst wird
+
+### Dokumentation
+- [x] CHANGELOG.md
+
+---
+
+## Manueller Test
+
+1. PraxisEditor öffnen, eine Einstellung ändern (z.B. Gong-Sound)
+2. System-Back-Button drücken (ohne explizites "Fertig")
+3. Erwartung: Änderung ist gespeichert und beim erneuten Öffnen sichtbar
+
+---
+
+## Referenz
+
+- iOS: `ios/StillMoment/Presentation/Views/Timer/PraxisEditorView.swift` (auto-save via `onChange(of: navigateToEditor)`)
+- Android: `android/app/src/main/kotlin/com/stillmoment/presentation/ui/timer/PraxisEditorScreen.kt`
+
+---

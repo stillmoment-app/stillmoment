@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-091 (iOS)
 
-Ticket: [shared-091](../shared/shared-091-url-share-ohne-extension.md)
+Ticket: [shared-091](../archive/shared/shared-091-url-share-ohne-extension.md)
 Erstellt: 2026-05-05
 
 ## Kurzfassung

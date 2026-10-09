@@ -1,9 +1,9 @@
 # Implementierungsplan: shared-089 (Android) inkl. Reststücke shared-086
 
-Ticket: [shared-089-timer-idle-listen-layout](../shared/shared-089-timer-idle-listen-layout.md)
-Vorgaenger: [shared-086-atemkreis-picker-timer-konfig](../shared/shared-086-atemkreis-picker-timer-konfig.md)
+Ticket: [shared-089-timer-idle-listen-layout](../archive/shared/shared-089-timer-idle-listen-layout.md)
+Vorgaenger: [shared-086-atemkreis-picker-timer-konfig](../archive/shared/shared-086-atemkreis-picker-timer-konfig.md)
 Erstellt: 2026-05-05
-Referenzen: [iOS-Plan shared-086](shared-086-ios.md), [iOS-Implementation shared-089 (DONE)](../../tickets/shared/shared-089-timer-idle-listen-layout.md)
+Referenzen: [iOS-Plan shared-086](shared-086-ios.md), [iOS-Implementation shared-089 (DONE)](../archive/shared/shared-089-timer-idle-listen-layout.md)
 
 ---
 

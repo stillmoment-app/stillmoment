@@ -1,9 +1,16 @@
+---
+id: shared-126
+title: Timer-Start als runder Play-Knopf
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: niedrig
+---
+
 # Ticket shared-126: Timer-Start als runder Play-Knopf
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Komplexitaet**: Kleine Aenderung mit zwei Stolpersteinen: die Beschriftung faellt nur sichtbar weg, nicht fuer die Sprachausgabe, und bestehende automatisierte Tests tippen den Knopf heute ueber seinen Text an.
-**Phase**: 4-Polish
 
 ---
 
@@ -17,15 +24,6 @@ der nur noch das Play-Zeichen zeigt.
 Der Bildschirm wird ruhiger, und das Play-Zeichen erklaert sich ohne Worte. Ausserdem startet
 man eine Meditation damit ueberall in der App auf dieselbe Weise — in der Bibliothek loest
 bereits ein runder Play-Knopf die Wiedergabe aus.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

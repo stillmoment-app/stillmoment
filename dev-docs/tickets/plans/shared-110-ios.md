@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-110 (iOS)
 
-Ticket: [shared-110](../shared/shared-110-editor-screen-discard-schutz.md)
+Ticket: [shared-110](../archive/shared/shared-110-editor-screen-discard-schutz.md)
 Erstellt: 2026-06-14
 
 ## Ziel

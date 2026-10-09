@@ -1,9 +1,16 @@
+---
+id: shared-130
+title: Ticket-System mit Archiv, Frontmatter und generiertem Index
+status:
+  ios: todo
+  android: todo
+phase: 2-Architektur
+priority: mittel
+---
+
 # Ticket shared-130: Ticket-System mit Archiv, Frontmatter und generiertem Index
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Keine App-Aenderung, aber breite Streuung: alle bestehenden Tickets werden migriert, und die Ticket-Skills haengen am heutigen Format. Risiko liegt in vergessenen Pfad-Referenzen und darin, dass Skills nach der Umstellung Tickets nicht mehr finden.
-**Phase**: 2-Architektur
 
 ---
 
@@ -32,17 +39,6 @@ Jedes Ticket bekommt einen maschinenlesbaren Kopf (YAML-Frontmatter) mit mindest
 ### Index wird erzeugt
 
 `INDEX.md` entsteht per Make-Target aus dem Frontmatter aller Tickets. Aktive Tickets stehen oben, archivierte darunter (oder in einer eigenen Datei). Handaenderungen am Index sind nicht mehr vorgesehen.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
-
-Plattformunabhaengig (Repo-Tooling) — beide Spalten werden gemeinsam geschlossen.
 
 ---
 
@@ -91,3 +87,4 @@ Plattformunabhaengig (Repo-Tooling) — beide Spalten werden gemeinsam geschloss
 - `dev-docs/tickets/plans/` bleibt unveraendert; Plaene verweisen per Ticket-ID, nicht per Pfad.
 - Etwa ein Dutzend Dateien ausserhalb von `dev-docs/tickets/` (Docs, Skills, Plaene) enthalten heute feste Ticket-Pfade.
 - Geprueft und verworfen: fertige Tools wie Backlog.md oder Beads — sie wuerden den Umbau aller Ticket-Skills erzwingen (Beads zudem Alpha und kein lesbares Markdown).
+- Plattformunabhaengig (Repo-Tooling) — beide Spalten werden gemeinsam geschlossen.

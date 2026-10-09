@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-095 (Android)
 
-Ticket: [shared-095](../shared/shared-095-running-timer-mondphase.md)
+Ticket: [shared-095](../archive/shared/shared-095-running-timer-mondphase.md)
 iOS-Plan: [shared-095-ios.md](shared-095-ios.md)
 iOS-Referenz-Implementierung:
 - `ios/StillMoment/Presentation/Views/Timer/Components/MoonPhaseView.swift`

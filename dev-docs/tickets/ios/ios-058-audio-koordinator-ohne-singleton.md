@@ -1,10 +1,16 @@
+---
+id: ios-058
+title: Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen
+status: todo
+phase: 5-QA
+priority: niedrig
+depends_on: [ios-055]
+---
+
 # Ticket ios-058: Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen
 
-**Status**: [ ] TODO
-**Prioritaet**: NIEDRIG
 **Komplexitaet**: Wenig Code, aber er betrifft die Audio-Session und damit den Kern-Use-Case (Gongs und Keep-Alive bei gesperrtem Bildschirm). Risiko: Tests, die heute unbemerkt vom gemeinsamen Zustand des Koordinators abhängen, werden rot, wenn jeder Test seinen eigenen bekommt.
 **Abhaengigkeiten**: ios-055
-**Phase**: 5-QA
 
 ---
 

@@ -1,10 +1,16 @@
+---
+id: ios-054
+title: Waveform einer Meditation nur einmal gleichzeitig berechnen
+status: todo
+phase: 2-Architektur
+priority: mittel
+depends_on: [ios-055]
+---
+
 # Ticket ios-054: Waveform einer Meditation nur einmal gleichzeitig berechnen
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Fehlt die Waveform noch im Cache, verdrahten mehrere Bildschirme (Bibliothek, Editor, Trim-Editor, Player) heute jeweils eine eigene Generierungs-Instanz über Default-Argumente. Das Risiko liegt darin, wirklich alle Wege zu erwischen: Der Compiler meldet eine vergessene Weitergabe nicht, weil der Default still einspringt.
 **Abhaengigkeiten**: ios-055 (behebt die Ursache; dieses Ticket weist den Waveform-Fall nach)
-**Phase**: 2-Architektur
 
 ---
 

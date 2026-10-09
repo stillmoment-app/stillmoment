@@ -1,7 +1,7 @@
 # Implementierungsplan: shared-100 (Android)
 
-Ticket: [shared-100](../shared/shared-100-idle-ring-duenn-android.md)
-iOS-Pendant: [ios-045](../ios/ios-045-idle-ring-thin.md) — bereits umgesetzt
+Ticket: [shared-100](../archive/shared/shared-100-idle-ring-duenn-android.md)
+iOS-Pendant: [ios-045](../archive/ios/ios-045-idle-ring-thin.md) — bereits umgesetzt
 iOS-Plan-Vorbild: [ios-045 Plan](ios-045.md)
 Erstellt: 2026-05-21
 Branch: `feature/shared-100-android`

@@ -1,6 +1,6 @@
 # Implementierungsplan: Android-Parität Phase D — Wellenform-Player „Tonkopf"
 
-Ticket: [shared-109](../shared/shared-109-waveform-player-tonkopf.md)
+Ticket: [shared-109](../archive/shared/shared-109-waveform-player-tonkopf.md)
 Erstellt: 2026-06-16
 Kontext: Viertes und letztes Paket der Android-Parität. Hängt an [Phase C](android-parity-phase-c-waveform-editor.md) (nutzt dieselbe Wellenform-Infrastruktur) und an [Phase A](android-parity-phase-a-trim-foundation.md) (Trim-Bereich). Bringt den Guided-Player auf den iOS-Endstand.
 
