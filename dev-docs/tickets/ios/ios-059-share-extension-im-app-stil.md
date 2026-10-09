@@ -9,7 +9,7 @@ depends_on: []
 
 # Ticket ios-059: Teilen-Bestaetigung im Still-Moment-Stil statt System-Alert
 
-**Komplexitaet**: Die Bestaetigung selbst ist schlicht. Der Aufwand steckt darin, Theme-Farben, Schriften und Texte der App auch in der Share-Extension verfuegbar zu machen (eigenes Target) und das vom Nutzer gewaehlte Theme dorthin durchzureichen. Risiko: das knappe Speicherlimit von Extensions — keine aufwendigen Animationen oder grossen Bilder.
+**Komplexitaet**: Die Bestaetigung selbst ist schlicht. Der Aufwand steckt darin, Farben (dunkle Palette), Schriften, App-Icon und Texte der App auch in der Share-Extension verfuegbar zu machen (eigenes Target). Die Darstellungs-Einstellung wird bewusst nicht durchgereicht (siehe Hinweise). Risiko: das knappe Speicherlimit von Extensions — keine aufwendigen Animationen oder grossen Bilder.
 
 ---
 
@@ -26,8 +26,10 @@ Der Moment des Teilens ist oft die erste Beruehrung mit der Bibliothek, dem Kern
 ## Akzeptanzkriterien
 
 ### Feature
-- [ ] Nach erfolgreichem Teilen erscheint eine Bestaetigung in Farben und Schriften der App, im vom Nutzer gewaehlten Theme und passend zu Hell/Dunkel
-- [ ] Die Bestaetigung sagt in einem Satz, was als Naechstes passiert (Still Moment oeffnen, um die Aufnahme in die Bibliothek zu uebernehmen)
+- [ ] Nach erfolgreichem Teilen erscheint eine Bestaetigung in Farben und Schriften der App, immer in der dunklen Darstellung (unabhaengig von System und Einstellung in der App)
+- [ ] Die Bestaetigung ist eine Karte in der Mitte ueber der abgedunkelten fremden App, mit Absenderzeile (App-Icon + "Still Moment") ueber Titel, Text und Knopf
+- [ ] Titel der Bestaetigung: "Fast geschafft" / "Almost there" (ersetzt "In Still Moment gespeichert" — die Aufnahme ist erst nach dem Oeffnen der App in der Bibliothek, und "Still Moment" steht schon in der Absenderzeile)
+- [ ] Die Bestaetigung sagt in einem Satz, was als Naechstes passiert: "Oeffne Still Moment, um die Aufnahme in deine Bibliothek zu uebernehmen."
 - [ ] Die Bestaetigung hat genau einen Knopf ("Fertig"), der das Teilen beendet
 - [ ] Nicht unterstuetztes Dateiformat: kurze Meldung, dass nur MP3 und M4A uebernommen werden koennen
 - [ ] Link, der keine Webadresse ist: kurze Meldung, dass kein passender Link gefunden wurde
@@ -47,9 +49,9 @@ Der Moment des Teilens ist oft die erste Beruehrung mit der Bibliothek, dem Kern
 
 ## Manueller Test
 
-1. Gewaehltes Theme in Still Moment notieren, Geraet auf Dunkel stellen
+1. Geraet auf Hell stellen, in Still Moment Darstellung "Hell" waehlen
 2. In der Dateien-App eine MP3 teilen → Still Moment
-3. Erwartung: Bestaetigung im gewaehlten Theme (dunkel), ein Knopf "Fertig"; nach dem Oeffnen der App laeuft der Import wie bisher
+3. Erwartung: Bestaetigung trotzdem dunkel, Absenderzeile mit App-Icon, ein Knopf "Fertig"; nach dem Oeffnen der App laeuft der Import wie bisher
 4. In Safari eine Webseite teilen → Still Moment
 5. Erwartung: Bestaetigung wie oben (die Pruefung, ob dort Audio liegt, passiert weiterhin in der App)
 6. Eine `.wav`-Datei teilen → Still Moment
@@ -64,13 +66,15 @@ Der Moment des Teilens ist oft die erste Beruehrung mit der Bibliothek, dem Kern
 
 - iOS: `ios/StillMomentShareExtension/`
 - Theme/Typografie: `dev-docs/reference/color-system.md`
+- Vorbild in der App: `ios/StillMoment/Presentation/Views/Shared/DownloadOverlayView.swift` (Karte, Masse, Knopf-Stil)
+- Entwurf: Claude-Design-Projekt "Still Moment", `prototypen/teilen-bestaetigung/Teilen-Bestaetigung.html` — Runde 3 (Variante 2c) ist die gewaehlte
 
 ---
 
 ## Hinweise
 
 - Still Moment direkt aus der Extension zu oeffnen ist von Apple fuer Share-Extensions nicht vorgesehen. Keine Umwege ueber die Responder-Chain o.ae. — fragil und ein Risiko im App-Review. Der Hinweis "Still Moment oeffnen" bleibt deshalb noetig.
-- Das gewaehlte Theme liegt heute nur in den Einstellungen der App, auf die die Extension keinen Zugriff hat. Es muss fuer die Extension lesbar abgelegt werden (App Group). Ohne gespeicherte Wahl gilt das Standard-Theme.
+- Immer dunkel ist eine bewusste Vereinfachung: Dunkel ist die Voreinstellung der App (shared-122) und so erscheint sie auch im Store. Die Darstellungs-Einstellung muesste sonst fuer die Extension lesbar abgelegt werden (App Group + Migration) — der Aufwand lohnt sich fuer diesen kurzen Moment nicht.
+- Fehler bewusst ohne Warnfarbe: gleicher Aufbau wie die Bestaetigung, nur der Text unterscheidet sich.
 - Ob ein Link auf einen ganzen Podcast statt eine Folge zeigt usw. (shared-128), entscheidet weiterhin die App — die Extension prueft nur, ob es eine Webadresse ist.
 - Android ist nicht betroffen: Dort gibt es keine Extension, die App oeffnet sich beim Teilen direkt.
-- Visueller Entwurf kann vorab im Claude-Design-Projekt entstehen.
