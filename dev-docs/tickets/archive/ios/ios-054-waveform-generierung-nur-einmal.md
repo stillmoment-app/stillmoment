@@ -1,7 +1,7 @@
 ---
 id: ios-054
 title: Waveform einer Meditation nur einmal gleichzeitig berechnen
-status: todo
+status: done
 phase: 2-Architektur
 priority: mittel
 depends_on: [ios-055]
@@ -35,7 +35,23 @@ Die App verspricht schon heute, dass gleichzeitige Anfragen für dieselbe Medita
 - [ ] Test, der belegt, dass Bibliothek, Editor, Trim-Editor und Player dieselbe Waveform-Quelle nutzen (zwei gleichzeitige Anfragen von verschiedenen Bildschirmen → eine Generierung)
 
 ### Dokumentation
-- [ ] Status-Tabelle in `dev-docs/architecture/architecture-review-2026-09.md` (Befund 1) aktualisieren
+- [x] Status-Tabelle in `dev-docs/architecture/architecture-review-2026-09.md` (Befund 1) aktualisieren
+
+---
+
+## Abschluss (2026-10-09)
+
+Ohne eigene Umsetzung erledigt: ios-055 hat die Ursache vollstaendig beseitigt. Per Code-Analyse geprueft, nicht am Geraet:
+
+- `WaveformProvider` wird im App-Code nur in `AppDependencies.live()` erzeugt; `StillMomentApp` ruft `live()` genau einmal auf.
+- Bibliothek, Editor, Trim-Editor und Player verlangen `waveformProvider` als Pflichtparameter ohne Default. Eine vergessene Weitergabe bricht den Build, zusaetzlich greift die Lint-Regel `service_created_outside_composition_root`.
+- Wege zur Instanz: Bibliothek und Player ueber `makeGuidedListViewModel()` / `makePlayerViewModel()`, Editor ueber `GuidedMeditationsListView` (`self.dependencies.waveformProvider`), Trim-Editor vom Editor durchgereicht.
+- `precompute(for:)` laeuft ueber `waveform(for:)` und damit ueber die `inFlight`-Dedup — der Player wartet auf die laufende Vorberechnung.
+
+Nachweis-Stand:
+- `AppDependenciesTests.testLibraryAndPlayerShareTheWaveformProvider` (aus ios-055) belegt Bibliothek + Player; `WaveformProviderTests.testConcurrentRequestsForSameMeditationGenerateOnce` belegt die Dedup.
+- **Bewusste Restluecke:** Editor und Trim-Editor holen den Provider per direktem Feldzugriff in der View, den `AppDependenciesTests` nicht prueft. Akzeptiert, weil kein Default existiert, auf den ein vergessener Weg ausweichen koennte. Falls doch gewuenscht: `make…`-Funktion fuer das Edit-Sheet auf `AppDependencies` ergaenzen.
+- Der manuelle Log-Test (Import → sofort Player) wurde nicht durchgefuehrt.
 
 ---
 

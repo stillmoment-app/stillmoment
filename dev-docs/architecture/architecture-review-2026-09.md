@@ -18,7 +18,7 @@ noch nicht eingeplant.
 
 | # | Befund | Staerke | Ticket |
 |---|--------|---------|--------|
-| 1 | Dependency-Identitaet hat keinen Ort | Strong | ios-055 (Ursache) umgesetzt: `AppDependencies` als Composition Root + Lint-Regel `service_created_outside_composition_root`; ios-054 (Waveform-Nachweis) offen |
+| 1 | Dependency-Identitaet hat keinen Ort | Strong | ios-055 (Ursache) umgesetzt: `AppDependencies` als Composition Root + Lint-Regel `service_created_outside_composition_root`; ios-054 (Waveform-Nachweis) damit erledigt — Bibliothek + Player per Test belegt, Editor/Trim-Editor nur per Pflichtparameter abgesichert |
 | 2 | Theme-Modul gibt den Zustand nicht weiter (Android) | Strong | verwandt: android-083 |
 | 3 | Import ist eine Zustandsmaschine ueber sieben Module | Strong | blockiert shared-043/044 |
 | 4 | `AudioServiceProtocol`: 21 Member, drei disjunkte Rollen | Strong | — |

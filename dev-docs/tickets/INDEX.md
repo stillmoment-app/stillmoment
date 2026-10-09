@@ -28,7 +28,6 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-049](ios/ios-049-schrift-nachweise-ofl.md) | Schrift-Nachweise (OFL) im Einstellungen-Bereich | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-050](ios/ios-050-typografie-2-1-a11y-layout.md) | Typografie 2.1 — Layout-Anpassungen fuer DT AX2+ | 5-QA | [ ] | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) |
 | [ios-053](ios/ios-053-anleitung-import-apple-podcasts.md) | Anleitung "So importierst du aus Apple Podcasts" | 4-Polish | [ ] | [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) |
-| [ios-054](ios/ios-054-waveform-generierung-nur-einmal.md) | Waveform einer Meditation nur einmal gleichzeitig berechnen | 2-Architektur | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-056](ios/ios-056-ui-tests-unabhaengig-vom-simulator.md) | UI-Tests unabhängig vom Zustand des Simulators | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-057](ios/ios-057-unit-tests-ohne-reste-im-app-ordner.md) | Unit-Tests hinterlassen keine Daten im echten App-Ordner | 5-QA | [ ] | - |
 | [ios-058](ios/ios-058-audio-koordinator-ohne-singleton.md) | Audio-Koordinator wie alle anderen Dienste im App-Einstieg erzeugen | 5-QA | [ ] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
@@ -221,6 +220,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [ios-048](archive/ios/ios-048-typografie-newsreader-geist.md) | Typografie Newsreader + Geist nachziehen | 4-Polish | [x] | - |
 | [ios-051](archive/ios/ios-051-library-header-suchfeld-sichtbar.md) | Library-Header — Suchfeld immer sichtbar, Titel raus | 4-Polish | [x] | [ios-041](archive/ios/ios-041-library-search.md) |
 | [ios-052](archive/ios/ios-052-library-bottom-fade.md) | Bibliothek — letzte Zeile verschwindet im unteren Verlauf | 4-Polish | [x] | [shared-094](archive/shared/shared-094-theme-refinement-kerzenschein.md) |
+| [ios-054](archive/ios/ios-054-waveform-generierung-nur-einmal.md) | Waveform einer Meditation nur einmal gleichzeitig berechnen | 2-Architektur | [x] | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) |
 | [ios-055](archive/ios/ios-055-dienste-nur-im-app-einstieg-erzeugen.md) | Dienste nur im App-Einstieg erzeugen (Composition Root) | 2-Architektur | [x] | - |
 
 ### Android
