@@ -20,6 +20,7 @@ Status: `[ ]` offen · `[~]` in Arbeit · `[x]` erledigt · `[-]` wontfix · `-`
 | [shared-125](shared/shared-125-timer-zeitauswahl-wert-und-bahn.md) | Timer-Zeitauswahl als Wert und Bahn | 4-Polish | [ ] | [ ] |
 | [shared-128](shared/shared-128-podcast-folge-aus-apple-podcasts.md) | Podcast-Folge aus Apple Podcasts importieren | 3-Feature | [~] | [~] |
 | [shared-129](shared/shared-129-podcast-import-aeltere-folgen.md) | Podcast-Import auch fuer aeltere Folgen | 3-Feature | [ ] | [ ] |
+| [shared-131](shared/shared-131-gleiche-audio-dateitypen-beim-link-import.md) | Gleiche Audio-Dateitypen beim Link- und Podcast-Import | 4-Polish | [ ] | [ ] |
 
 ### iOS
 
