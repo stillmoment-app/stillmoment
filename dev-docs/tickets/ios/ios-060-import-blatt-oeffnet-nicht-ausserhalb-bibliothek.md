@@ -1,7 +1,7 @@
 ---
 id: ios-060
 title: "Import: Bearbeiten-Blatt öffnet nicht, wenn die App in einem anderen Tab steht"
-status: todo
+status: in-progress
 phase: 1-Quick Fix
 priority: hoch
 depends_on: []
