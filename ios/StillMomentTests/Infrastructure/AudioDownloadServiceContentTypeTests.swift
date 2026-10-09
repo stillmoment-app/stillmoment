@@ -133,6 +133,23 @@ final class AudioDownloadServiceContentTypeTests: XCTestCase {
         }
     }
 
+    func testTalkServedAsBinaryOctetStreamIsLoadedAsMp3() async throws {
+        // Given — audiodharma.org liefert manche Vortraege mit dem S3-Standardtyp
+        // "binary/octet-stream" aus (shared-132, z. B. talks/25402/download)
+        let sut = try XCTUnwrap(self.sut)
+        let remoteURL = try XCTUnwrap(URL(string: "https://www.audiodharma.org/talks/25402/download"))
+        MockURLProtocol.requestHandler = { request in
+            try Self.answer(request, contentType: "binary/octet-stream", body: Data("audio".utf8))
+        }
+
+        // When
+        let localURL = try await sut.download(from: remoteURL, filename: "download")
+        defer { try? FileManager.default.removeItem(at: localURL.deletingLastPathComponent()) }
+
+        // Then
+        XCTAssertEqual(localURL.pathExtension, "mp3")
+    }
+
     func testSlowAcceptedFileIsLoadedCompletely() async throws {
         // Given — Typ passt, Inhalt kommt verzoegert (lange Folge)
         let sut = try XCTUnwrap(self.sut)

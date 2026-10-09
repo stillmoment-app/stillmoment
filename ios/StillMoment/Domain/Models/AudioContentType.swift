@@ -34,7 +34,8 @@ enum AudioContentType {
 
     /// "audio/mp3", "audio/x-mpeg", "audio/mpeg3" are non-standard but sent by real servers
     /// (e.g. audiodharma's S3 backend). "application/octet-stream" covers servers that don't
-    /// name a specific audio type.
+    /// name a specific audio type. "binary/octet-stream" is S3's default when no type was set
+    /// on upload (some audiodharma talks, shared-132).
     private static let acceptedTypes: Set<String> = [
         "audio/mpeg",
         "audio/mp3",
@@ -43,6 +44,7 @@ enum AudioContentType {
         "audio/mp4",
         "audio/x-m4a",
         "audio/m4a",
-        "application/octet-stream"
+        "application/octet-stream",
+        "binary/octet-stream"
     ]
 }

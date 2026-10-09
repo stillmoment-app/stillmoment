@@ -414,9 +414,17 @@ Ob unter einer Webadresse wirklich Audio liegt, prüft erst die App beim Link-Im
 liegt im Domain-Ordner der App, damit er testbar ist, wird aber nur von der Share-Extension
 benutzt. Android braucht ihn nicht: Dort öffnet sich beim Teilen direkt die App.
 
+Mehrfaches Teilen ist nie ein Fehler: Der zuletzt geteilte Eintrag gewinnt. Die Extension legt
+einen Eintrag unter dem Namen der Datei bzw. dem letzten Teil der Adresse in der Inbox ab und
+ersetzt dabei einen gleichnamigen, der noch wartet (derselbe Link oder dieselbe Datei doppelt,
+oder `…/25401/download` und danach `…/25402/download`). Verschieden benannte Einträge räumt die
+App auf: Sie importiert nur den neuesten. Android verhält sich gleich (shared-132).
+
 **Dateireferenzen:**
 - iOS: `ios/StillMoment/Domain/Models/ShareOutcome.swift` (Mitglied auch im Extension-Target),
-  Anzeige in `ios/StillMomentShareExtension/ShareConfirmationView.swift`
+  Anzeige in `ios/StillMomentShareExtension/ShareConfirmationView.swift`, Ablage in der Inbox in
+  `ios/StillMoment/Infrastructure/Services/ShareInbox.swift` (Mitglied auch im Extension-Target),
+  Format eines geteilten Links in `ios/StillMoment/Domain/Models/URLReference.swift`
 - Android: nicht vorhanden (keine Share-Extension)
 
 **Siehe auch:** Link-Import

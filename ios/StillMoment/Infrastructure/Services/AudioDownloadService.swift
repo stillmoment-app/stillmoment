@@ -140,7 +140,7 @@ final class AudioDownloadService: AudioDownloadServiceProtocol {
     }
 
     /// Default-Filename basierend auf Content-Type. `audio/mp4` und `audio/x-m4a` → m4a,
-    /// alles andere (audio/mpeg, application/octet-stream, fehlend) → mp3.
+    /// alles andere (audio/mpeg, application/octet-stream, binary/octet-stream, fehlend) → mp3.
     private static func fallbackFilename(for contentType: String?) -> String {
         let lowered = contentType?.lowercased() ?? ""
         if lowered.hasPrefix("audio/mp4") || lowered.hasPrefix("audio/x-m4a") || lowered.hasPrefix("audio/m4a") {
