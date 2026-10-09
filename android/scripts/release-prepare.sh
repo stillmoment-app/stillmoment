@@ -78,15 +78,17 @@ print_step "Checking working directory..."
 
 cd "$PROJECT_DIR"
 
-# Get list of changed files (excluding release notes)
-CHANGED_FILES=$(git status --porcelain | grep -v "fastlane/metadata" | grep -v "^??" || true)
+# Any change counts, untracked files included — except below android/fastlane/metadata/,
+# where /release-notes writes the new changelog files.
+# (git status --porcelain prints paths relative to the repository root.)
+CHANGED_FILES=$(git status --porcelain --untracked-files=all | grep -v -E "^.. android/fastlane/metadata/" || true)
 
 if [ -n "$CHANGED_FILES" ]; then
-    print_error "Working directory has uncommitted changes (excluding release notes)"
+    print_error "Working directory has uncommitted or untracked files (outside android/fastlane/metadata/)"
     echo "Changed files:"
     echo "$CHANGED_FILES"
     echo ""
-    echo "Please commit or stash changes before preparing release"
+    echo "Please commit, stash or remove them before preparing release"
     exit 1
 fi
 
@@ -167,11 +169,24 @@ run_cmd "$SCRIPT_DIR/bump-version.sh" "$VERSION"
 # ============================================================================
 
 print_step "Creating git commit..."
-run_cmd git add -A
+# Stage only what this script changes: version (bump-version.sh) and changelogs
+# (fastlane/metadata). Store screenshots in .../images/phoneScreenshots/ are gitignored.
+run_cmd git add -- app/build.gradle.kts fastlane/metadata
 run_cmd git commit -m "chore(android): Prepare release v$VERSION"
 
 print_step "Creating git tag..."
 run_cmd git tag -a "$TAG_NAME" -m "Android release v$VERSION"
+
+if [ -z "$DRY_RUN" ]; then
+    LEFTOVER_FILES=$(git status --porcelain --untracked-files=all)
+    if [ -n "$LEFTOVER_FILES" ]; then
+        echo ""
+        print_warning "WARNING: These changes are NOT part of the release commit:"
+        echo "$LEFTOVER_FILES"
+        echo ""
+        print_warning "Check them before pushing (e.g. formatting changes from 'make check')."
+    fi
+fi
 
 # ============================================================================
 # SUCCESS

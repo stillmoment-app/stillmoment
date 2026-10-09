@@ -132,15 +132,17 @@ print_step "Checking working directory..."
 
 cd "$PROJECT_DIR"
 
-# Get list of changed files (excluding release notes)
-CHANGED_FILES=$(git status --porcelain | grep -v "fastlane/metadata" | grep -v "^??" || true)
+# Any change counts, untracked files included — except below ios/fastlane/metadata/,
+# where /release-notes writes the new changelog files.
+# (git status --porcelain prints paths relative to the repository root.)
+CHANGED_FILES=$(git status --porcelain --untracked-files=all | grep -v -E "^.. ios/fastlane/metadata/" || true)
 
 if [ -n "$CHANGED_FILES" ]; then
-    print_error "Working directory has uncommitted changes (excluding release notes)"
+    print_error "Working directory has uncommitted or untracked files (outside ios/fastlane/metadata/)"
     echo "Changed files:"
     echo "$CHANGED_FILES"
     echo ""
-    echo "Please commit or stash changes before preparing release"
+    echo "Please commit, stash or remove them before preparing release"
     exit 1
 fi
 
@@ -243,11 +245,25 @@ run_cmd "$SCRIPT_DIR/bump-version.sh" "$VERSION"
 # ============================================================================
 
 print_step "Creating git commit..."
-run_cmd git add -A
+# Stage only what this script changes: version (bump-version.sh), release notes +
+# changelogs (fastlane/metadata), website screenshots (process-screenshots.sh).
+# Store screenshots in ios/fastlane/screenshots/ are gitignored.
+run_cmd git add -- StillMoment.xcodeproj/project.pbxproj fastlane/metadata ../docs/images/screenshots
 run_cmd git commit -m "chore(ios): Prepare release v$VERSION"
 
 print_step "Creating git tag..."
 run_cmd git tag -a "$TAG_NAME" -m "iOS release v$VERSION"
+
+if [ -z "$DRY_RUN" ]; then
+    LEFTOVER_FILES=$(git status --porcelain --untracked-files=all)
+    if [ -n "$LEFTOVER_FILES" ]; then
+        echo ""
+        print_warning "WARNING: These changes are NOT part of the release commit:"
+        echo "$LEFTOVER_FILES"
+        echo ""
+        print_warning "Check them before pushing (e.g. formatting changes from 'make check')."
+    fi
+fi
 
 # ============================================================================
 # SUCCESS
