@@ -9,6 +9,8 @@ depends_on: []
 
 # Ticket ios-060: Import: Bearbeiten-Blatt öffnet nicht, wenn die App in einem anderen Tab steht
 
+**Plan**: `dev-docs/tickets/plans/ios-060.md`
+
 ## Was
 
 **Beobachtet:** Der User teilt eine Folge aus Apple Podcasts an Still Moment. Die App lädt die Datei und wechselt in die Bibliothek, aber das Bearbeiten-Blatt mit Titel und Lehrer erscheint nicht. Der Import ist damit verloren. Teilt der User dieselbe Folge noch einmal, öffnet sich das Blatt.
