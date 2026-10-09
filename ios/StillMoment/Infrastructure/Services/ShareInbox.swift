@@ -98,7 +98,14 @@ enum ShareInbox {
     }
 
     /// Moves the completely written temporary file to its final name.
+    ///
+    /// A waiting entry with the same name is replaced (shared-132): the same link or file
+    /// shared twice, or two links with the same ending (`…/25401/download`, `…/25402/download`).
+    /// The last shared entry wins. `moveItem` alone would fail on the existing name.
+    /// The waiting entry is only removed once the new one is completely written, so a
+    /// failed share never destroys it. "Does not exist" is the normal case and ignored.
     private static func moveIntoPlace(_ tempURL: URL, at destinationURL: URL, fileManager: FileManager) throws {
+        try? fileManager.removeItem(at: destinationURL)
         try fileManager.moveItem(at: tempURL, to: destinationURL)
     }
 }

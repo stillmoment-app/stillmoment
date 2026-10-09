@@ -91,6 +91,81 @@ final class ShareInboxTests: XCTestCase {
         XCTAssertEqual(try self.allEntriesIncludingHidden(), [])
     }
 
+    // MARK: - Mehrfach geteilt
+
+    func testSameLinkSharedTwiceSucceedsAndLeavesOneEntry() throws {
+        // Given
+        let link = try XCTUnwrap(URL(string: Self.talk25401))
+        try ShareInbox.storeLink(link, in: self.inboxDirectory)
+
+        // When — versehentlich doppelt geteilt
+        XCTAssertNoThrow(try ShareInbox.storeLink(link, in: self.inboxDirectory))
+
+        // Then
+        XCTAssertEqual(try self.visibleEntries(), ["download.json"])
+        XCTAssertEqual(try self.allEntriesIncludingHidden(), ["download.json"], "Keine Temp-Datei bleibt liegen")
+    }
+
+    func testLaterLinkWithSameEndingReplacesTheWaitingOne() throws {
+        // Given
+        let first = try XCTUnwrap(URL(string: Self.talk25401))
+        let second = try XCTUnwrap(URL(string: Self.talk25402))
+        try ShareInbox.storeLink(first, in: self.inboxDirectory)
+
+        // When
+        let entry = try ShareInbox.storeLink(second, in: self.inboxDirectory)
+
+        // Then — es wartet nur noch 25402
+        XCTAssertEqual(try self.visibleEntries(), ["download.json"])
+        let reference = try JSONDecoder().decode(URLReference.self, from: Data(contentsOf: entry))
+        XCTAssertEqual(reference.url, Self.talk25402)
+    }
+
+    func testSameAudioFileSharedTwiceSucceedsAndLeavesOneEntry() throws {
+        // Given
+        let source = try self.makeSourceFile(named: "Vortrag.mp3", byte: 0xAA)
+        try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+
+        // When
+        XCTAssertNoThrow(try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory))
+
+        // Then
+        XCTAssertEqual(try self.visibleEntries(), ["Vortrag.mp3"])
+        XCTAssertEqual(try self.allEntriesIncludingHidden(), ["Vortrag.mp3"], "Keine Temp-Datei bleibt liegen")
+    }
+
+    func testResharedFileWaitingForMoreThan24HoursCountsAsFresh() throws {
+        // Given — ein gleichnamiger Eintrag wartet seit 25 Stunden
+        let source = try self.makeSourceFile(named: "Vortrag.mp3", byte: 0xAA)
+        let waiting = try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date().addingTimeInterval(-25 * 3600)],
+            ofItemAtPath: waiting.path
+        )
+
+        // When
+        let entry = try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+
+        // Then — die App importiert ihn, statt ihn als veraltet wegzuraeumen
+        let modified = try XCTUnwrap(self.modificationDate(of: entry))
+        XCTAssertEqual(modified.timeIntervalSinceNow, 0, accuracy: 60)
+    }
+
+    func testFailedReshareKeepsTheWaitingEntry() throws {
+        // Given — Vortrag.mp3 wartet schon
+        let source = try self.makeSourceFile(named: "Vortrag.mp3", byte: 0xAA)
+        try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory)
+        try FileManager.default.removeItem(at: source)
+
+        // When — die erneut geteilte Datei laesst sich nicht lesen
+        XCTAssertThrowsError(try ShareInbox.storeAudioFile(from: source, in: self.inboxDirectory))
+
+        // Then — der wartende Eintrag ist unversehrt
+        let waiting = self.inboxDirectory.appendingPathComponent("Vortrag.mp3")
+        XCTAssertEqual(try Data(contentsOf: waiting), Data(repeating: 0xAA, count: 64))
+        XCTAssertEqual(try self.allEntriesIncludingHidden(), ["Vortrag.mp3"])
+    }
+
     // MARK: Helpers
 
     func makeSourceFile(named name: String, byte: UInt8) throws -> URL {
