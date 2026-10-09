@@ -108,13 +108,14 @@ make test               # Full suite (with coverage on iOS)
 - LSP for symbol questions: bei "wo ist X definiert?", "wer ruft Y auf?", Refactorings, Typ-Unsicherheit → `LSP` Tool nutzen (`goToDefinition`, `findReferences`, `hover`, `documentSymbol`). Spart Reads, vermeidet Grep-Verwechslungen bei gleichnamigen Symbolen in unterschiedlichen Scopes.
 - LSP-Grenzen: Externe Libs (Android Framework, Compose-internals, KSP-generierte Hilt-Klassen, SwiftUI-Modifier-Ketten an Bridge-Punkten) sind nicht zuverlässig indiziert. Bei `No hover information available` oder `No definition found` → auf Read/Grep ausweichen, kein Workaround nötig.
 
-**Release** (from `ios/` directory):
+**Release** (from repo root, iOS + Android; single platform: `make -C ios|android …`):
 ```bash
-make release-dry            # Validate without upload
-make release VERSION=x.y.z  # Store upload
-make testflight             # TestFlight upload
+/release-notes                                   # then commit notes + CHANGELOG.md in ONE commit
+make release-prepare VERSION=x.y.z [DRY_RUN=1]   # checks, tests, release build, screenshots, bump, commit, tag
+git push origin main --tags
+make release VERSION=x.y.z                       # release guard + store upload
 ```
-Full guide: `dev-docs/release/RELEASE_GUIDE.md`
+Full guide (manual test plans, submitting, recovery): `dev-docs/release/RELEASE_GUIDE.md`
 
 ---
 

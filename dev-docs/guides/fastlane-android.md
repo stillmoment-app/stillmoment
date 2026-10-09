@@ -40,6 +40,13 @@ Automatisierte Screenshots und Play Store Uploads mit Fastlane.
    - **App-Berechtigungen**: "Releases verwalten" aktivieren
 5. **Einladung senden**
 
+### 4. Upload-Keystore
+
+`android/keystore.properties` (gitignored) mit `storeFile`, `storePassword`, `keyAlias`,
+`keyPassword`. `storeFile` ist relativ zu `android/app/`. Ohne die Datei signiert
+`bundleRelease` mit dem Debug-Key — `release-prepare` bricht deshalb ab, wenn sie oder die
+Keystore-Datei fehlt.
+
 ## Installation
 
 ```bash
@@ -55,23 +62,30 @@ make screenshot-setup    # Ruby + Fastlane installieren
 make screenshots         # Alle Screenshots (DE + EN)
 ```
 
-### Release zu Closed Testing
+### Release in den Play Store
+
+Ablauf (release-prepare, Testplan, Guard): `dev-docs/release/RELEASE_GUIDE.md`.
 
 ```bash
-make release-dry         # Validierung ohne Upload
-make release             # Upload zu Closed Testing
+make release-dry                          # bundleRelease + Validierung gegen die Play API, kein Upload
+make release VERSION=1.9.0                # Guard, bundleRelease, Upload in den Production-Track
+make release-production VERSION=1.9.0     # wie release, mit Bestätigungsfrage
 ```
 
-### Nur Metadata aktualisieren
+`VERSION` ist Pflicht: `scripts/release/release-guard.sh` prüft vorher Tag, `versionName`,
+sauberen Arbeitsbaum und Screenshots.
+
+`make release` lädt App-Bundle, Metadaten, Changelogs und Screenshots in den **Production**-Track.
+`supply` wird ohne `release_status` aufgerufen; fastlane-Default ist `completed`: Das Release geht
+direkt in Googles Prüfung und nach Freigabe an alle Nutzer — keine gestaffelte Auslieferung.
+Ausnahme: In der Play Console ist „Verwaltete Veröffentlichung“ aktiv, dann wartet die Freigabe auf
+einen Klick. Deshalb gehört der Testplan **vor** den Upload.
+
+### Nur Metadata / Screenshots aktualisieren
 
 ```bash
-make metadata            # Beschreibungen + Changelogs
-```
-
-### Production Release
-
-```bash
-make release-production  # Mit Bestätigung
+make metadata            # Beschreibungen + Changelogs, ohne Build
+make screenshots-upload  # Nur Screenshots, ohne Build
 ```
 
 ## Verzeichnisstruktur
@@ -88,30 +102,33 @@ android/fastlane/
         │   ├── short_description.txt
         │   ├── full_description.txt
         │   └── changelogs/
-        │       └── default.txt
+        │       └── 21.txt       # je versionCode
         └── en-US/
             └── ... (analog)
 ```
 
 ## Changelogs
 
-Für versionsspezifische Changelogs:
-
-```
-changelogs/
-├── default.txt          # Fallback für alle Versionen
-├── 10.txt               # Für versionCode 10
-└── 11.txt               # Für versionCode 11
-```
+Release Notes liegen je Sprache in `changelogs/<versionCode>.txt` (max. 500 Zeichen) und werden
+von `/release-notes` geschrieben. `release-prepare` erwartet die Datei für den *nächsten*
+`versionCode` (aktueller + 1, den `bump-version.sh` setzt). `default.txt` ist ein Überbleibsel
+und wird vom Release-Prozess nicht genutzt.
 
 ## CI/CD Integration
 
-Für GitHub Actions, Service Account JSON als Secret:
+`SUPPLY_JSON_KEY` ist im Appfile der **Pfad** zur JSON-Datei, nicht ihr Inhalt. In GitHub Actions
+also das Secret erst in eine Datei schreiben:
 
 ```yaml
 env:
-  SUPPLY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+  SUPPLY_JSON_KEY: /tmp/stillmoment-play-console.json
+
+steps:
+  - name: Setup Play Console key
+    run: echo '${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}' > /tmp/stillmoment-play-console.json
 ```
+
+(Releases laufen derzeit nur lokal; CI baut nur ohne Upload.)
 
 ## Troubleshooting
 

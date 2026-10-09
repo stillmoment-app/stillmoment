@@ -36,7 +36,9 @@ export APP_STORE_CONNECT_ISSUER_ID='deine-issuer-id-hier'
 cd ios && ./scripts/create-api-key-json.sh
 ```
 
-**Tipp**: Umgebungsvariablen in `~/.zshrc` oder `~/.bashrc` dauerhaft setzen.
+Die Umgebungsvariablen braucht nur dieses Script. Fastlane (`api_key` im Fastfile) und
+`release-prepare` lesen ausschliesslich die JSON-Datei: `APP_STORE_CONNECT_API_KEY_PATH`, sonst
+`~/.fastlane/stillmoment-appstore.json`.
 
 ## Installation
 
@@ -67,17 +69,24 @@ Setze `HEADLESS=false` um den Simulator waehrend der Tests zu beobachten.
 
 ### Release zu App Store Connect
 
-```bash
-make release-dry                  # Validierung ohne Upload
-make release VERSION=1.9.0        # Build + Upload zu App Store Connect
-make release VERSION=1.9.0 SKIP_BUILD=1  # Nur Metadata + Screenshots
-```
-
-### TestFlight Upload
+Ablauf (release-prepare, Guard, Testplan, Einreichen): `dev-docs/release/RELEASE_GUIDE.md`.
 
 ```bash
-make testflight          # Build + Upload zu TestFlight
+make release-dry                         # API-Key, Metadaten-Dateien, Screenshots vorhanden? Kein Upload
+make release VERSION=1.9.0               # Guard, Build, Upload nach TestFlight + Metadaten/Screenshots
+make release VERSION=1.9.0 SKIP_BUILD=1  # Guard, nur Metadaten + Screenshots
+make testflight                          # Nur Build nach TestFlight (ohne Guard, ohne Versions-Bump)
 ```
+
+`make release` (Lane `release`):
+
+- reicht **nicht** zur Pruefung ein (`submit_for_review: false`) — das passiert manuell in
+  App Store Connect, nach dem Testplan mit dem TestFlight-Build
+- `automatic_release: true` — nach Apples Freigabe geht die Version sofort live
+- `phased_release: false` — keine 7-taegige gestaffelte Veroeffentlichung, alle Nutzer auf einmal
+
+`make testflight` ist fuer den Release nicht noetig, weil `make release` den Build ebenfalls nach
+TestFlight laedt.
 
 ## Verzeichnisstruktur
 
@@ -109,30 +118,8 @@ ios/fastlane/
 
 ## Release Notes / Changelogs
 
-Release Notes werden aus `metadata/<locale>/release_notes.txt` gelesen.
-
-Fuer versionsspezifische Changelogs kann auch `changelogs/<version>.txt` verwendet werden:
-
-```
-changelogs/
-├── 1.8.0.txt
-└── 1.9.0.txt
-```
-
-## Binary Upload
-
-**Wichtig**: Fastlane deliver laedt standardmaessig nur Metadata und Screenshots hoch.
-
-Fuer den Binary-Upload gibt es zwei Optionen:
-
-1. **TestFlight** (empfohlen):
-   ```bash
-   make testflight
-   ```
-
-2. **Manuell via Xcode/Transporter**:
-   - In Xcode: Product → Archive → Distribute App
-   - Oder: Transporter App verwenden
+`/release-notes` schreibt `metadata/<locale>/changelogs/<version>.txt`. `make release-prepare`
+kopiert diese Datei nach `metadata/<locale>/release_notes.txt` — die liest `deliver` beim Upload.
 
 ## CI/CD Integration
 
@@ -148,19 +135,8 @@ steps:
       echo '${{ secrets.APP_STORE_CONNECT_API_KEY_JSON }}' > /tmp/stillmoment-appstore.json
 ```
 
-Oder mit separaten Secrets:
-
-```yaml
-env:
-  APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-  APP_STORE_CONNECT_API_KEY_PATH: /tmp/stillmoment-appstore.p8
-
-steps:
-  - name: Setup API Key
-    run: |
-      echo '${{ secrets.APP_STORE_CONNECT_P8_KEY }}' > /tmp/stillmoment-appstore.p8
-```
+Eine `.p8`-Datei direkt in `APP_STORE_CONNECT_API_KEY_PATH` funktioniert nicht — das Fastfile
+parst die Datei als JSON. (Releases laufen derzeit nur lokal; CI baut nur ohne Upload.)
 
 ## Screenshot-Performance optimieren
 
@@ -226,15 +202,11 @@ XCTAssertTrue(element.waitForExistence(timeout: 2.0))
 
 ## Troubleshooting
 
-### "App Store Connect API key not configured"
+### "App Store Connect API key not found"
 
-Option A (.p8 Datei):
-- Datei vorhanden? `ls ~/.fastlane/stillmoment-appstore.p8`
-- Umgebungsvariablen gesetzt? `echo $APP_STORE_CONNECT_KEY_ID`
-
-Option B (JSON):
-- Datei vorhanden? `ls ~/.fastlane/stillmoment-appstore.json`
-- JSON valide? `cat ~/.fastlane/stillmoment-appstore.json | jq .`
+- JSON vorhanden? `ls ~/.fastlane/stillmoment-appstore.json` (bzw. Pfad aus `APP_STORE_CONNECT_API_KEY_PATH`)
+- JSON valide? `jq . ~/.fastlane/stillmoment-appstore.json`
+- Fehlt sie: mit `./scripts/create-api-key-json.sh` aus der `.p8` erzeugen (siehe oben)
 
 ### "Invalid API Key"
 
@@ -244,8 +216,8 @@ Option B (JSON):
 
 ### "No App Store Connect API Key provided"
 
-- Fastfile api_key() Funktion pruefen
-- Entweder .p8 + Umgebungsvariablen ODER JSON-Datei konfigurieren
+- Fastfile `api_key()` pruefen — jede Upload-Lane muss sie zuerst aufrufen
+- Konfiguriert wird nur ueber die JSON-Datei (siehe oben)
 
 ### "App not found"
 

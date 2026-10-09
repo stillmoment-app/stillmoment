@@ -241,10 +241,10 @@ Erwartung: `[Unreleased]` steht direkt ueber der neuen Versions-Sektion, und unt
 `[Unreleased]` folgt kein `###`-Block mehr. Stehen zwischen `[Unreleased]` und der
 naechsten `## [`-Zeile noch Eintraege, ist der Umzug nicht passiert.
 
-**Dieser Schritt wird in der Praxis uebersehen.** Bei 2.5.0 (Commit 88df558) wurden
-nur die vier Fastlane-Changelogs geschrieben — die Eintraege blieben unter
-`[Unreleased]` und mussten fuenf Wochen spaeter nachgetragen werden. Die Release
-Notes sind erst fertig, wenn die Verifikation oben stimmt.
+**Dieser Schritt wurde schon uebersehen** (2.5.0, Commit 88df558: Eintraege blieben
+unter `[Unreleased]`). Inzwischen erzwingt der Preflight von `release-prepare`
+(`scripts/release/preflight.py`) die Sektion `## [VERSION]` und ein leeres
+`[Unreleased]` — fehlt der Umzug, bricht prepare ab.
 
 ### Schritt 11: Zusammenfassung
 
@@ -257,15 +257,18 @@ Written:
   ✓ CHANGELOG.md ([Unreleased] → [1.9.0])
 
 Next steps:
-  make -C ios release-prepare VERSION=1.9.0
-  make -C android release-prepare VERSION=1.9.0
+  1. Commit all five files in ONE commit
+  2. make release-prepare VERSION=1.9.0 DRY_RUN=1   (repo root, iOS + Android)
+  3. make release-prepare VERSION=1.9.0
+  → dev-docs/release/RELEASE_GUIDE.md
 ```
 
-**Commit-Umfang:** Der Release-Notes-Commit enthaelt **fuenf** Dateien — die vier
-Fastlane-Changelogs *und* `CHANGELOG.md`. Ein Commit mit nur vier Dateien heisst,
-dass Schritt 10 fehlt. Die `release-prepare.sh`-Scripts holen das nicht nach: sie
-arbeiten ausschliesslich mit den versionierten Fastlane-Changelogs und fassen
-`CHANGELOG.md` nie an.
+**Commit-Umfang:** Alle **fuenf** Dateien — die vier Fastlane-Changelogs *und*
+`CHANGELOG.md` — muessen in **einem** Commit liegen, bevor `release-prepare` laeuft.
+Prepare verlangt einen sauberen Arbeitsbaum (Ausnahme nur `<plattform>/fastlane/metadata/`
+der eigenen Plattform); ein offenes `CHANGELOG.md` oder offene Release Notes der anderen
+Plattform blockieren. `CHANGELOG.md` fasst prepare selbst nie an.
+Beim Hotfix fuer eine Plattform sind es entsprechend drei Dateien.
 
 ---
 
@@ -323,6 +326,8 @@ Confirm? (Android stays at 1.8.0)
 ```
 
 Schreibt nur iOS-Dateien. CHANGELOG erhaelt iOS-spezifische Sektion.
+Achtung: Der Preflight verlangt auch beim Hotfix ein **leeres** `[Unreleased]` — uebrige
+Eintraege (z.B. fuer Android) muessen mit in die neue Sektion oder vorher geklaert werden.
 
 ### Nur technische Aenderungen
 
@@ -344,7 +349,8 @@ Options:
 ## Referenzen
 
 - Ticket: `dev-docs/tickets/archive/shared/shared-030-release-notes-skill.md`
-- Konzept: `dev-docs/concepts/release-prepare-workflow.md`
+- Release-Ablauf: `dev-docs/release/RELEASE_GUIDE.md`
+- Preflight: `scripts/release/preflight.py`
 - CHANGELOG: `CHANGELOG.md`
 - iOS Metadata: `ios/fastlane/metadata/`
 - Android Metadata: `android/fastlane/metadata/android/`
