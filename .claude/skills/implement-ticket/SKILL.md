@@ -27,7 +27,7 @@ Strukturierter Entwicklungsprozess zur Umsetzung eines Tickets.
    Glob('dev-docs/tickets/**/<ticket-id>-*.md')
    ```
    Treffer unter `plans/` ignorieren.
-2. **Ticket lesen**, Akzeptanzkriterien extrahieren.
+2. **Ticket lesen**, Akzeptanzkriterien und `## Nicht Teil dieses Tickets` extrahieren. Dazu die **Definition of Done** aus `dev-docs/tickets/README.md` lesen — sie gilt zusaetzlich, ohne im Ticket zu stehen.
 3. **Plattform-CLAUDE.md lesen** (`ios/CLAUDE.md` oder `android/CLAUDE.md`).
 4. **Bei `shared-<id>`-Tickets:** User fragen, welche Plattform zuerst umgesetzt wird. Danach Schritte 3–5 fuer Plattform A, anschliessend fuer Plattform B. Cross-Platform-Konsistenz vor Abschluss verifizieren.
 5. **Plan pruefen** (exakter Pfad, nicht Substring):
@@ -106,5 +106,7 @@ Vor jedem Commit im Plattform-Verzeichnis ausfuehren:
   - `feat(ios): #ios-032 Add meditation history view`
 
 ### Schritt 6: Abschluss
+
+Definition of Done (`dev-docs/tickets/README.md`) Punkt fuer Punkt abhaken. Fertig, wenn jeder Punkt erfuellt oder fuer dieses Ticket begruendet nicht zutreffend ist.
 
 > Implementierung abgeschlossen auf Branch `feature/<ticket-id>`. Naechste Schritte: `/review-code`, `/close-ticket <ticket-id>`.

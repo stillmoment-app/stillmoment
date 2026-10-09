@@ -47,7 +47,10 @@ across active **and** archived tickets. Filename: `<id>-<slug>.md`.
 - **Ticket body**: `## Was` (what) and `## Warum` (why) up front, then
   `## Akzeptanzkriterien` as checkboxes, then `## Manueller Test`. Acceptance
   criteria are the implementation roadmap — `/implement-ticket` walks them
-  one at a time under TDD. Free-text dependencies go under `## Hinweise`.
+  one at a time under TDD. Optional `## Nicht Teil dieses Tickets` (scope
+  boundary) and `## Hinweise` (constraints, decisions, free-text dependencies).
+  Tickets describe the problem, not the solution — no file paths or code; the
+  Definition of Done in `dev-docs/tickets/README.md` applies to every ticket.
 - Documentation is written in German with ASCII transliteration (`ae`/`oe`/`ue`),
   matching the surrounding files.
 

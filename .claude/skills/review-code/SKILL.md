@@ -100,7 +100,7 @@ Bewerten nach Checklisten - aber nur wenn es etwas zu sagen gibt:
 
 **Review-Annahmen explizit machen** (Karpathy "Think Before Coding"): Bevor ein nicht-mechanisches Finding rausgeht, prüfen: "Welche Annahme treffe ich hier? Koennte es absichtlich so sein?" Beispiel: `strong self` in einem Task der die View-Lifetime ueberdauert ist kein Leak. **Wenn unklar: nicht raten - Verify-Subagent (`Explore`) starten** ("Wer ruft diese Methode auf? Wie ist der Lifecycle?") oder im Report als Frage formulieren statt als Bug.
 
-Bei Ticket-Reviews zusaetzlich: jedes Akzeptanzkriterium einzeln pruefen, Scope-Drift gezielt suchen.
+Bei Ticket-Reviews zusaetzlich: jedes Akzeptanzkriterium einzeln pruefen, die Definition of Done aus `dev-docs/tickets/README.md` pruefen, Scope-Drift gezielt suchen — `## Nicht Teil dieses Tickets` ist die ausdrueckliche Grenze.
 
 **Wichtig:** Nicht jede Kategorie muss Findings haben. Guter Code ist gut.
 

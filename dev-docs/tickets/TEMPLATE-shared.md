@@ -11,37 +11,22 @@ depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
 
 # Ticket shared-{NNN}: {Titel}
 
-**Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
-
----
-
 ## Was
 
-{1-2 Saetze: Was soll gemacht werden?}
+{Was aendert sich fuer den Nutzer? Bei Bugs: **Beobachtet** / **Erwartet** / **Umstaende**}
 
 ## Warum
 
-{1-2 Saetze: Warum ist das wichtig? Welches Problem loest es?}
+{Welches Problem loest es, fuer wen, warum jetzt?}
 
 ---
 
 ## Akzeptanzkriterien
 
-<!-- Kriterien gelten fuer BEIDE Plattformen -->
+<!-- Gelten fuer BEIDE Plattformen. Beobachtbar, konkret, pruefbar. Tests, Lokalisierung und Doku regelt die Definition of Done (README). -->
 
-### Feature (beide Plattformen)
-- [ ] {Beobachtbares Verhalten 1}
-- [ ] {Beobachtbares Verhalten 2}
-- [ ] Lokalisiert (DE + EN) falls UI
-- [ ] Visuell konsistent zwischen iOS und Android
-
-### Tests
-- [ ] Unit Tests iOS
-- [ ] Unit Tests Android
-
-### Dokumentation
-- [ ] CHANGELOG.md (bei user-sichtbaren Aenderungen)
-- [ ] GLOSSARY.md (bei neuen Domain-Begriffen)
+- [ ] {Beobachtbares Ergebnis 1}
+- [ ] {Beobachtbares Ergebnis 2}
 
 ---
 
@@ -63,27 +48,20 @@ depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
 
 ---
 
-## Referenz
+## Nicht Teil dieses Tickets
 
-- iOS: `ios/StillMoment/{path}/`
-- Android: `android/app/src/main/kotlin/com/stillmoment/{path}/`
+{Optional: Was naheliegt, aber bewusst nicht dazugehoert}
 
 ---
 
 ## Hinweise
 
-{Optional: Plattform-spezifische Fallstricke, API-Unterschiede; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
+{Optional: Rahmenbedingungen und getroffene Entscheidungen mit Begruendung, auch plattform-spezifische; Verweise auf Konzeptdokumente; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
 
 ---
 
 <!--
-WAS NICHT INS TICKET GEHOERT:
-- Kein Code (Claude Code schreibt den selbst)
-- Keine separaten iOS/Android Subtasks mit Code
-- Keine Dateilisten (Claude Code findet die Dateien)
-
-Claude Code arbeitet shared-Tickets so ab:
-1. Liest Ticket fuer Kontext
-2. Implementiert iOS (oder Android) komplett
-3. Portiert auf andere Plattform mit Referenz
+Das Ticket beschreibt das Problem, der Umsetzer waehlt die Loesung.
+Fachbegriffe aus dev-docs/reference/glossary.md.
+Dateien, Code und Vorgehen findet /plan-ticket kurz vor der Umsetzung, pro Plattform.
 -->

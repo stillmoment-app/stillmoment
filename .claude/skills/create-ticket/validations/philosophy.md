@@ -1,122 +1,53 @@
 # Ticket-Philosophie Validierung
 
-Checkliste zur Pruefung ob ein Ticket der Philosophie "WAS und WARUM, nicht WIE" entspricht.
+Prueft, ob ein Ticket das Problem beschreibt und die Loesung dem Umsetzer laesst.
 
-## Red Flags
+## Die vier Fragen
 
-### 1. Code im Ticket
+Stelle sie fuer **jede Zeile** des fertigen Entwurfs, in allen Abschnitten:
 
-**Warnung wenn:**
-- Code-Bloecke (```) vorhanden
-- Swift/Kotlin-Syntax erkennbar
-- Pseudo-Code Beschreibungen
+| # | Frage | Wenn ja |
+|---|-------|---------|
+| 1 | **Entscheidet das der Umsetzer?** (Datei, Methode, Pattern, Schicht, Ablauf im Code) | Streichen. Steckt eine fachliche Anforderung dahinter, diese stattdessen nennen. |
+| 2 | **Stammt der Begriff aus dem Code statt aus dem Glossar?** | Durch den Begriff aus `dev-docs/reference/glossary.md` ersetzen. Gibt es keinen, ist der Begriff neu: im Ticket fachlich erklaeren. |
+| 3 | **Braucht man Code, um die Zeile zu pruefen?** | So umformulieren, dass man sie an der App, an einem Test-Ergebnis oder an Daten pruefen kann. |
+| 4 | **Steht das schon an anderer Stelle im Ticket?** | Streichen. |
 
-**Besser:**
-> "Timer-Sound soll bei App-Wechsel weiterlaufen"
+Warum Glossar-Begriffe: Ohne Pfade ist der Fachbegriff die Bruecke vom Ticket zum Code. iOS, Android und Glossar verwenden dieselben Namen — ein Agent, der den Glossar-Begriff liest, findet die passenden Stellen auf beiden Plattformen; ein selbst gewaehltes Synonym fuehrt ins Leere.
 
-statt:
-> "In AudioService.swift die Methode playBackgroundAudio() aufrufen wenn UIApplication.willResignActiveNotification"
+## Was im Ticket bleibt
 
----
+| Bleibt | Beispiel |
+|--------|----------|
+| **Konkrete Daten an der Grenze zur Aussenwelt** — Beispielwerte, Grenzwerte, Formate, URLs, Fehlermeldungen | "Angenommen werden `audio/mpeg`, `audio/mp4`, …"; "Meldung: \"Folge nicht verfuegbar\"" |
+| **Getroffene Entscheidungen mit Begruendung** | "Nur die Link-Vorschau der Seite nutzen, nicht den internen Datenblock — undokumentiert, und die Nutzungsbedingungen verbieten Scraping." |
+| **Rahmenbedingungen, die der Umsetzer nicht herleiten kann** | "Apples Lookup-Dienst liefert hoechstens die 200 neuesten Folgen." |
+| **Verweise auf Tickets und Konzeptdokumente** | "Vorschlaege wie in shared-128"; "Recherche: `dev-docs/concepts/podcast-import.md`" |
+| **Fachliche Vorbilder** | "Gleiches Ladefenster wie beim Link-Import" |
 
-### 2. Dateinamen/Pfade
+Faustregel fuer `## Hinweise`: Eine Zeile sagt, **was gilt** oder **was nicht in Frage kommt, und warum**. Wie man vorgeht, findet `/plan-ticket`.
 
-**Warnung wenn:**
-- Konkrete Dateinamen genannt
-- Pfade wie `ios/StillMoment/...`
-- Zeilennummern referenziert
+## Vorher / Nachher
 
-**Besser:**
-> "Background-Audio Komponente soll..."
+| Vorher | Nachher | Frage |
+|--------|---------|-------|
+| "In AudioService.swift eine Methode stopWithFade() einbauen, die ueber 2 Sekunden ausblendet" | "Die Soundscape blendet beim Stoppen sanft aus (ca. 2 Sekunden)" | 1, 2 |
+| "MPRemoteCommandCenter.togglePlayPauseCommand registrieren" | "Die Play/Pause-Taste am Kopfhoerer startet und pausiert die Meditation" | 1, 2 |
+| "AudioSessionCoordinatorProtocol im Domain-Layer hinzufuegen" | "Startet eine Meditation, stoppt eine laufende Vorschau" | 1, 3 |
+| "Zuordnung ueber den exakten Titel (`<item><title>`)" | "Importiert wird nur, wenn genau eine Folge im Feed exakt den gesuchten Titel traegt" | 1 |
+| "Die Lint-Ausnahme entfaellt" | "Der Audio-Koordinator ist nicht mehr global erreichbar" — oder streichen, wenn das ein Mittel und kein Ziel ist | 1, 3 |
+| "Referenz: `ios/StillMoment/Infrastructure/Services/AudioDownloadService.swift`" | streichen — `/plan-ticket` findet die Dateien | 1 |
 
-statt:
-> "In ios/StillMoment/Infrastructure/Services/AudioService.swift Zeile 142..."
+## Beispiel-Rueckmeldung an den User
 
----
-
-### 3. Implementierungs-Verben (nur in der Beschreibung)
-
-**Warnung wenn in der Beschreibung (nicht im Titel!):**
-- "Implementiere..."
-- "Aendere..."
-- "Refactore..."
-- "Extrahiere..."
-
-Im Titel sind Verben wie "Fuege X hinzu" normal und kein Red Flag.
-
-**Besser:**
-> "Timer soll X koennen"
-
-statt:
-> "Implementiere eine neue Methode die X macht"
-
----
-
-### 4. Architektur-Details
-
-**Warnung wenn:**
-- Pattern-Namen (Singleton, Factory, etc.)
-- Layer-Referenzen (Domain, Infrastructure)
-- Interface/Protocol-Definitionen
-
-**Besser:**
-> "Audio-Wiedergabe soll bei Konflikt automatisch pausieren"
-
-statt:
-> "Fuege AudioSessionCoordinatorProtocol im Domain-Layer hinzu und implementiere das Singleton-Pattern"
-
----
-
-### 5. API-Aufrufe
-
-**Warnung wenn:**
-- Konkrete API-Methoden genannt
-- Framework-spezifische Aufrufe
-- System-Notifications
-
-**Besser:**
-> "App soll auf Kopfhoerer-Taste reagieren"
-
-statt:
-> "Registriere MPRemoteCommandCenter.shared().togglePlayPauseCommand"
-
----
-
-## Erlaubt im Ticket
-
-| Erlaubt | Beispiel |
-|---------|----------|
-| Referenz auf existierenden Code | "Wie beim Timer-Feature" |
-| Nicht-offensichtliche Hinweise | "iOS erfordert Audio-Session fuer Lockscreen" |
-| Bekannte Fallstricke | "Achtung: Safari behandelt Audio anders" |
-| Recherchierte API-Namen | "AVAudioSession Kategorie beachten" |
-
----
-
-## Validierungs-Logik
+Nur zeigen, wenn eine Streichung Inhalt betrifft, den der User ausdruecklich genannt hat:
 
 ```
-FUER jede Red-Flag-Kategorie:
-  WENN Beschreibung Muster enthaelt:
-    ZEIGE Warnung
-    SCHLAGE bessere Formulierung vor
-    FRAGE: "Soll ich das Ticket trotzdem so erstellen?"
-```
-
-## Beispiel-Warnungen
-
-**Eingabe:**
-> "Implementiere in AudioService.swift eine Methode stopWithFade() die den Sound ueber 2 Sekunden ausblendet"
-
-**Warnung:**
-```
-Die Beschreibung enthaelt Implementierungs-Details:
-- Dateiname: AudioService.swift
-- Implementierungs-Verb: "Implementiere"
-- Methoden-Name: stopWithFade()
+Im Entwurf standen Umsetzungsdetails aus deiner Beschreibung:
+- Methode stopWithFade() in AudioService.swift
 
 Vorschlag:
-"Ambient-Sound soll beim Stoppen sanft ausblenden (ca. 2 Sekunden)"
+"Die Soundscape blendet beim Stoppen sanft aus (ca. 2 Sekunden)"
 
-Soll ich das Ticket mit dem Vorschlag erstellen?
+Soll ich das Ticket so erstellen?
 ```

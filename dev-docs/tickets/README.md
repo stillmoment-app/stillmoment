@@ -145,9 +145,17 @@ feat(shared): #shared-001 Ambient Sound Fade (Android)
 
 ---
 
-## Dokumentations-Regel
+## Definition of Done
 
-Jedes Ticket muss bei Abschluss folgende Dokumentation aktualisieren:
+Gilt fuer jedes Ticket, ohne dass es im Ticket steht. Die Akzeptanzkriterien beschreiben nur das fachliche Ergebnis.
+`/implement-ticket` arbeitet diese Liste vor dem Abschluss ab, `/review-code` prueft sie.
+
+- Jedes Akzeptanzkriterium ist durch einen fachlichen Test belegt (pro betroffener Plattform) oder, wo nicht testbar, manuell verifiziert
+- `make check` und `make test-unit` sind gruen
+- UI-Texte sind lokalisiert (DE + EN), interaktive Elemente haben Accessibility-Labels
+- Shared-Tickets: Verhalten und Darstellung sind auf iOS und Android gleich (Ausnahmen nur laut `## UX-Konsistenz`)
+- Neue oder umbenannte Fachbegriffe stehen im Glossar (`dev-docs/reference/glossary.md`)
+- Dokumentation nach Ticket-Typ:
 
 | Ticket-Typ | CHANGELOG.md | CLAUDE.md | README.md |
 |------------|--------------|-----------|-----------|
@@ -167,22 +175,24 @@ Jedes Ticket muss bei Abschluss folgende Dokumentation aktualisieren:
 
 ## Ticket-Philosophie
 
-**Tickets beschreiben das WAS und WARUM, nicht das WIE.**
+**Das Ticket beschreibt das Problem, der Umsetzer waehlt die Loesung.**
 
-| Gehoert ins Ticket | Gehoert NICHT ins Ticket |
-|--------------------|--------------------------|
-| Was soll gemacht werden? | Code-Implementierung |
-| Warum ist es wichtig? | Dateilisten (neu/aendern) |
-| Akzeptanzkriterien | Architektur-Diagramme |
-| Manueller Testfall | Test-Befehle |
-| Referenz auf existierenden Code | Zeilennummern |
-| Nicht-offensichtliche Hinweise | Offensichtliche Patterns |
+| Gehoert ins Ticket | Findet `/plan-ticket` |
+|--------------------|-----------------------|
+| Was aendert sich fuer den Nutzer? | Betroffene Dateien und Code-Stellen |
+| Warum, fuer wen, warum jetzt? | Vorgehen, Patterns, Schichten |
+| Akzeptanzkriterien mit konkreten Beispielen | Technische Risiken und Refactorings |
+| Manueller Testfall | Test-Befehle (stehen in CLAUDE.md) |
+| Abgrenzung: was nicht dazugehoert | |
+| Rahmenbedingungen und Entscheidungen mit Begruendung | |
 
 **Warum?**
-- Claude Code hat Zugriff auf CLAUDE.md (Architektur, Commands, Patterns)
-- Claude Code kann bestehenden Code als Referenz lesen
-- Claude Code kann selbst bessere Loesungen finden
-- Weniger Pflege-Aufwand fuer Tickets
+- Tickets liegen oft Wochen; Pfade und Code-Details veralten, das Problem nicht
+- `/plan-ticket` sucht Dateien und Vorbilder kurz vor der Umsetzung, also aktuell
+- Fachbegriffe aus dem Glossar fuehren den Umsetzer zum Code auf beiden Plattformen
+- Der Umsetzer kann eine bessere Loesung finden, als beim Schreiben absehbar war
+
+Pruefregeln: `.claude/skills/create-ticket/validations/philosophy.md`
 
 ---
 
