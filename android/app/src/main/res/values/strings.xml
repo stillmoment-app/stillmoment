@@ -255,6 +255,15 @@
     <string name="accessibility_app_settings_sound_attributions">Open sound attributions</string>
     <string name="app_settings_privacy">Privacy Policy</string>
     <string name="accessibility_app_settings_privacy">Open privacy policy</string>
+    <string name="app_settings_rate_app">Rate the App</string>
+    <string name="accessibility_app_settings_rate_app_action">open Google Play</string>
+    <string name="app_settings_write_to_us">Write to Us</string>
+    <string name="app_settings_write_to_us_subtitle">Say hello, say thanks, share feedback</string>
+    <string name="accessibility_app_settings_write_to_us_action">open your mail app</string>
+    <string name="app_settings_no_mail_app_title">No Mail App Found</string>
+    <string name="app_settings_no_mail_app_message">You can reach us at %1$s</string>
+    <string name="app_settings_copy_address">Copy Address</string>
+    <string name="app_settings_address_copied">Address copied</string>
     <string name="app_settings_version_label">Version</string>
     <string name="app_settings_guided_meditations_header">Guided Meditations</string>
 
