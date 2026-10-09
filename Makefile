@@ -1,4 +1,4 @@
-.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all tickets-index tickets-check test-tickets test-release-tooling
+.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all release-prepare release tickets-index tickets-check test-tickets test-release-tooling
 
 help: ## Show this help message
 	@echo "Still Moment - Project Commands"
@@ -6,8 +6,8 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Platform-specific commands:"
-	@echo "  cd ios && make help"
-	@echo "  cd android && ./gradlew tasks"
+	@echo "  make -C ios help"
+	@echo "  make -C android help"
 
 website-setup: ## Setup Ruby/Jekyll environment for website (one-time)
 	@echo "💎 Setting up Ruby/Jekyll environment..."
@@ -37,17 +37,31 @@ website: ## Serve website locally (Jekyll)
 
 screenshots-ios: ## Generate iOS screenshots (Fastlane Snapshot)
 	@echo "📱 Generating iOS screenshots..."
-	@cd ios && make screenshots
+	@$(MAKE) -C ios screenshots
 
-screenshots-android: ## Generate Android screenshots (Paparazzi)
+screenshots-android: ## Generate Android screenshots (Fastlane Screengrab)
 	@echo "🤖 Generating Android screenshots..."
-	@cd android && ./gradlew screenshots
+	@$(MAKE) -C android screenshots
 
 screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots (iOS + Android)
 	@echo ""
 	@echo "✅ All screenshots generated!"
-	@echo "   iOS:     docs/images/screenshots/"
-	@echo "   Android: android/screenshots/"
+	@echo "   iOS:     docs/images/screenshots/ + ios/fastlane/screenshots/"
+	@echo "   Android: android/fastlane/metadata/android/*/images/phoneScreenshots/"
+
+# =============================================================================
+# Release (dev-docs/release/RELEASE_GUIDE.md)
+# =============================================================================
+
+release-prepare: ## Prepare iOS + Android release (VERSION=x.y.z, DRY_RUN=1, SKIP_SCREENSHOTS=1 optional)
+	@$(MAKE) -C ios release-prepare VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS)
+	@$(MAKE) -C android release-prepare VERSION=$(VERSION) DRY_RUN=$(DRY_RUN) SKIP_SCREENSHOTS=$(SKIP_SCREENSHOTS)
+
+release: ## Upload iOS + Android to the stores (VERSION=x.y.z; both guards run before any upload)
+	@VERSION=$(VERSION) ./scripts/release/release-guard.sh ios
+	@VERSION=$(VERSION) ./scripts/release/release-guard.sh android
+	@$(MAKE) -C ios release VERSION=$(VERSION)
+	@$(MAKE) -C android release VERSION=$(VERSION)
 
 # =============================================================================
 # Tickets (dev-docs/tickets/)
