@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-090 (Android)
 
-Ticket: [shared-090-timer-atemkreis-analog-player](../shared/shared-090-timer-atemkreis-analog-player.md)
+Ticket: [shared-090-timer-atemkreis-analog-player](../archive/shared/shared-090-timer-atemkreis-analog-player.md)
 Erstellt: 2026-05-05
 Scope: nur Android. iOS ist abgeschlossen ([Plan iOS](shared-090-ios.md), Commit `4e6a3d6`). shared-087 Android (geteilter Atemkreis) ist DONE — die Komponente steht bereit.
 

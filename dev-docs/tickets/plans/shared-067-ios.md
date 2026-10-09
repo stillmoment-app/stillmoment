@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-067 (iOS)
 
-Ticket: [shared-067](../shared/shared-067-rename-introduction-attunement.md)
+Ticket: [shared-067](../archive/shared/shared-067-rename-introduction-attunement.md)
 Erstellt: 2026-03-22
 
 ## Uebersicht

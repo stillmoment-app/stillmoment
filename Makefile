@@ -1,4 +1,4 @@
-.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all
+.PHONY: help website website-setup screenshots-ios screenshots-android screenshots-all tickets-index tickets-check test-tickets
 
 help: ## Show this help message
 	@echo "Still Moment - Project Commands"
@@ -48,3 +48,17 @@ screenshots-all: screenshots-ios screenshots-android ## Generate all screenshots
 	@echo "✅ All screenshots generated!"
 	@echo "   iOS:     docs/images/screenshots/"
 	@echo "   Android: android/screenshots/"
+
+# =============================================================================
+# Tickets (dev-docs/tickets/)
+# =============================================================================
+
+tickets-index: ## Validate tickets and regenerate dev-docs/tickets/INDEX.md
+	@uv run --quiet scripts/tickets/index.py
+
+tickets-check: ## Validate tickets, fail if INDEX.md is outdated (no write)
+	@uv run --quiet scripts/tickets/index.py --check
+
+test-tickets: ## Run tests for the ticket tooling (pytest)
+	@PYTHONDONTWRITEBYTECODE=1 uv run --quiet --no-project --with pytest --with pyyaml \
+		pytest -p no:cacheprovider -q scripts/tickets/tests

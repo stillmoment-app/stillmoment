@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-095 (iOS)
 
-Ticket: [shared-095](../shared/shared-095-running-timer-mondphase.md)
+Ticket: [shared-095](../archive/shared/shared-095-running-timer-mondphase.md)
 Erstellt: 2026-05-16
 Scope: nur iOS (Android folgt spaeter)
 

@@ -41,7 +41,7 @@ Automatisch bei:
 3. Keine Ticket-ID gefunden → User nach Scope fragen (Dateien, Feature, Modul)
 
 **Mit Ticket-Referenz:**
-1. Ticket-Datei per Glob suchen (Dateiname kann von ID abweichen): `dev-docs/tickets/**/*{ticket-id}*.md`
+1. Ticket-Datei per Glob suchen (aktiv + Archiv, Dateiname kann von ID abweichen): `dev-docs/tickets/**/{ticket-id}-*.md` — Treffer unter `plans/` ignorieren
 2. Akzeptanzkriterien extrahieren
 3. Diff bestimmen: `git -C <repo> diff main...HEAD --stat`
 
@@ -196,7 +196,7 @@ Bei diskutierten Findings: **Optionen statt Empfehlung praesentieren** wenn mehr
 ## Referenzen
 
 - `CLAUDE.md` - Projekt-Standards (inkl. Forbidden Patterns)
-- `dev-docs/tickets/INDEX.md` - Ticket-System
+- `dev-docs/tickets/README.md` - Ticket-System
 - `checklists/mechanische-findings.md` - Auto-Fix-Patterns
 - `checklists/scope.md` - Surgical Changes + Overengineering
 - `checklists/cross-platform.md` - iOS/Android-Konsistenz

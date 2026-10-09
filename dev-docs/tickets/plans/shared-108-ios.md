@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-108 (iOS)
 
-Ticket: [shared-108](../shared/shared-108-waveform-zoom-trim-editor.md)
+Ticket: [shared-108](../archive/shared/shared-108-waveform-zoom-trim-editor.md)
 Erstellt: 2026-06-12
 
 Massgebliche Design-Referenz: `handoffs/design_handoff_trim_zoom/README.md`, Abschnitt

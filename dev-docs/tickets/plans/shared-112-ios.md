@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-112 (iOS)
 
-Ticket: [shared-112](../shared/shared-112-trim-zurueck-dirtied-editor.md)
+Ticket: [shared-112](../archive/shared/shared-112-trim-zurueck-dirtied-editor.md)
 Erstellt: 2026-06-14
 
 ## Annahmen

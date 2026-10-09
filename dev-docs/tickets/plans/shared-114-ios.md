@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-114 (iOS)
 
-Ticket: [shared-114](../shared/shared-114-topbar-navigation-boilerplate.md)
+Ticket: [shared-114](../archive/shared/shared-114-topbar-navigation-boilerplate.md)
 Erstellt: 2026-06-14
 
 ## Ziel

@@ -1,6 +1,6 @@
 # Implementierungsplan: Android-Parität Phase C — Wellenform-Infrastruktur + Trim-Editor
 
-Tickets: [shared-107](../shared/shared-107-waveform-trim-editor.md) + [shared-108](../shared/shared-108-waveform-zoom-trim-editor.md) + [shared-112](../shared/shared-112-trim-zurueck-dirtied-editor.md) (kollabiert)
+Tickets: [shared-107](../archive/shared/shared-107-waveform-trim-editor.md) + [shared-108](../archive/shared/shared-108-waveform-zoom-trim-editor.md) + [shared-112](../archive/shared/shared-112-trim-zurueck-dirtied-editor.md) (kollabiert)
 Erstellt: 2026-06-16
 Kontext: Drittes von vier Paketen der Android-Parität. **Das schwere Paket** — und das einzige echte Neuland, weil Android die Audio-Dekodierung zur Wellenform selbst machen muss. Hängt an [Phase A](android-parity-phase-a-trim-foundation.md) (Trim-Modell + getrimmtes Playback). iOS hat den Editor in shared-107 gebaut, in shared-108 um Zoom erweitert und in shared-112 die Save-Semantik geändert — Android baut direkt den Endzustand (Zoom + finale Save-Semantik von Anfang an).
 

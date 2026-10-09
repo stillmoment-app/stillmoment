@@ -1,10 +1,16 @@
+---
+id: ios-053
+title: Anleitung "So importierst du aus Apple Podcasts"
+status: todo
+phase: 4-Polish
+priority: mittel
+depends_on: [shared-128]
+---
+
 # Ticket ios-053: Anleitung "So importierst du aus Apple Podcasts"
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Gering. Zwei Anleitungen mit Banner existieren bereits als Vorlage; neu sind Texte und ein dritter Eintrag.
 **Abhaengigkeiten**: shared-128
-**Phase**: 4-Polish
 
 ---
 

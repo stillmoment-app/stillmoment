@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-083
 
-Ticket: [shared-083](../shared/shared-083-setting-karten-timer-konfig.md)
+Ticket: [shared-083](../archive/shared/shared-083-setting-karten-timer-konfig.md)
 Erstellt: 2026-05-03
 Plattform-Reihenfolge: **iOS zuerst**, dann Android (Referenz-Implementierung).
 

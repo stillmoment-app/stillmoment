@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-084 (iOS)
 
-Ticket: [shared-084](../shared/shared-084-meditationen-tab-zuerst.md)
+Ticket: [shared-084](../archive/shared/shared-084-meditationen-tab-zuerst.md)
 Erstellt: 2026-05-04
 
 ## Ziel

@@ -1,10 +1,15 @@
+---
+id: android-079
+title: Custom-Audio-Import langer Dateien beschleunigen (Dauer-Erkennung)
+status: todo
+phase: 4-Polish
+priority: mittel
+---
+
 # Ticket android-079: Custom-Audio-Import langer Dateien beschleunigen
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
-**Prioritaet**: MITTEL
 **Komplexitaet**: Performance/UX. Risiko liegt im reaktiven Nachtragen der Dauer (Liste muss sich aktualisieren, ohne die Auswahl/Wiedergabe zu stören). Vorbestehend, betrifft jeden Custom-Audio-Import (Soundscape und gefuehrte Meditationen), nicht nur den Hintergrundklang-Screen.
 **Abhaengigkeiten**: Keine
-**Phase**: 4-Polish
 
 ---
 

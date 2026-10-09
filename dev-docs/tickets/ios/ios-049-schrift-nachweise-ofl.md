@@ -1,10 +1,16 @@
+---
+id: ios-049
+title: Schrift-Nachweise (OFL) im Einstellungen-Bereich
+status: todo
+phase: 5-QA
+priority: mittel
+depends_on: [ios-048]
+---
+
 # Ticket ios-049: Schrift-Nachweise (OFL-Lizenz) im Einstellungen-Bereich
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Compliance-Aufgabe ohne neue Domain-Logik. Risiko liegt in Bundle-Zugriff (`OFL.txt` aus dem Bundle lesen, nicht hartkodierter String) und einer barrierefreien Darstellung des Lizenztextes.
 **Abhaengigkeiten**: ios-048
-**Phase**: 5-QA
 
 ---
 

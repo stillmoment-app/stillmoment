@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-087 (iOS)
 
-Ticket: [shared-087-player-atemkreis-redesign](../shared/shared-087-player-atemkreis-redesign.md)
+Ticket: [shared-087-player-atemkreis-redesign](../archive/shared/shared-087-player-atemkreis-redesign.md)
 Erstellt: 2026-05-03
 
 ---

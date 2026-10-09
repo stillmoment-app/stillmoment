@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-121 (Android)
 
-Ticket: [shared-121](../shared/shared-121-hintergrundklang-screen-redesign.md)
+Ticket: [shared-121](../archive/shared/shared-121-hintergrundklang-screen-redesign.md)
 Erstellt: 2026-06-17
 
 > **Nachtrag 2026-06-17:** Die Mini-Wellenform (`ScapeWaveform`, SWAVE, Equalizer, flache Linie) wurde auf User-Wunsch **gestrichen** und ist NICHT umgesetzt. Wiedergabe-Indikator ist allein der Play/Stop-Vorhör-Button mit atmendem Glow. Eigene Dateien behalten Umbenennen + Entfernen via Kebab-Menü (⋮). Die folgenden Wellenform-Abschnitte sind historisch.

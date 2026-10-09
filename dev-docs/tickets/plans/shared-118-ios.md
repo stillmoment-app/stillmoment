@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-118 (iOS)
 
-Ticket: [shared-118](../shared/shared-118-intervall-gong-editor-redesign.md)
+Ticket: [shared-118](../archive/shared/shared-118-intervall-gong-editor-redesign.md)
 Erstellt: 2026-06-17
 
 ## Annahmen

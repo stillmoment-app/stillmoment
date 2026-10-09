@@ -1,9 +1,17 @@
+---
+id: shared-044
+title: Batch Import (Mehrfachauswahl)
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: hoch
+depends_on: [shared-043]
+---
+
 # Ticket shared-044: Batch Import
 
-**Status**: [ ] TODO
-**Prioritaet**: HOCH
 **Aufwand**: iOS ~1d | Android ~1d
-**Phase**: 3-Feature
 
 ---
 
@@ -16,15 +24,6 @@ Mehrere Audio-Dateien gleichzeitig importieren. Der Document Picker erlaubt Mehr
 Bei 10 Retreat-Aufnahmen bedeutet der aktuelle Import 10 einzelne Zyklen (Picker oeffnen, Datei waehlen, Sheet bestaetigen). Das macht den USP "Bring Your Own Meditation" praktisch schwach. Batch Import reduziert das auf einen einzigen Vorgang.
 
 Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-043    |
-| Android   | [ ]    | shared-043    |
 
 ---
 

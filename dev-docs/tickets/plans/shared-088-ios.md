@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-088 (iOS)
 
-Ticket: [shared-088](../shared/shared-088-einstimmung-feature-entfernen.md)
+Ticket: [shared-088](../archive/shared/shared-088-einstimmung-feature-entfernen.md)
 Erstellt: 2026-05-04
 Plattform: iOS
 

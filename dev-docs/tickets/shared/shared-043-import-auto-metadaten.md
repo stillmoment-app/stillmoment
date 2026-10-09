@@ -1,9 +1,16 @@
+---
+id: shared-043
+title: Import Auto-Metadaten (kein Edit Sheet)
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: hoch
+---
+
 # Ticket shared-043: Import Auto-Metadaten (kein Edit Sheet)
 
-**Status**: [ ] TODO
-**Prioritaet**: HOCH
 **Aufwand**: iOS ~1d | Android ~1d
-**Phase**: 3-Feature
 
 ---
 
@@ -16,15 +23,6 @@ Beim Import einer Audio-Datei werden Metadaten automatisch aus ID3-Tags uebernom
 Aktuell muss bei jedem Import ein Edit Sheet bestaetigt werden, selbst wenn alle Metadaten korrekt aus ID3 erkannt wurden. Bei Dateien mit guten Tags ist das unnoetige Reibung. Diese Aenderung ist ausserdem Voraussetzung fuer Batch Import (shared-044) und Share Sheet Import (shared-045).
 
 Kontext: [BYOM-Strategie](../../concepts/byom-strategy.md)
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

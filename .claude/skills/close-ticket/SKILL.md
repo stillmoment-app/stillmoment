@@ -1,6 +1,6 @@
 ---
 name: close-ticket
-description: Schliesst Tickets vollstaendig ab — committet offene Aenderungen, prueft CHANGELOG, setzt Ticket+INDEX auf DONE, merged Branch nach main (--no-ff) und loescht ihn lokal. Aktiviere bei "Schliesse Ticket...", "Close ticket...", oder /close-ticket.
+description: Schliesst Tickets vollstaendig ab — committet offene Aenderungen, prueft CHANGELOG, setzt den Status im Frontmatter, verschiebt abgeschlossene Tickets ins Archiv, erzeugt den Index neu, merged Branch nach main (--no-ff) und loescht ihn lokal. Aktiviere bei "Schliesse Ticket...", "Close ticket...", oder /close-ticket.
 ---
 
 # Close Ticket
@@ -12,7 +12,7 @@ Ein Ticket wird mit diesem Skill vollstaendig abgeschlossen — Code, Doku, Stat
 **Ein Ticket ist erst DONE wenn alles drumherum stimmt:**
 - Alle Aenderungen committed
 - CHANGELOG-Eintrag vorhanden
-- Ticket-Datei + INDEX.md auf `[x] DONE`
+- Status im Frontmatter auf `done`, abgeschlossenes Ticket in `archive/<bereich>/`, INDEX.md per `make tickets-index` neu erzeugt
 - Branch nach main gemerged und lokal geloescht
 
 **Was dieser Skill NICHT tut:**
@@ -56,15 +56,15 @@ Falls die Trigger-ID und die Branch-ID auseinanderlaufen: STOP, fragen welche st
 
 ### Schritt 2: Ticket finden und lesen
 
-Ticket-Dateinamen haben Suffixe — nie raten, immer per Glob suchen:
-- `dev-docs/tickets/{platform}/{ticket-id}*.md`
+Ticket-Dateinamen haben Suffixe und der Ordner haengt vom Status ab — nie raten, immer per Glob suchen (aktiv + Archiv):
+- `dev-docs/tickets/**/{ticket-id}-*.md` — Treffer unter `plans/` ignorieren
 
 Lese die Datei und extrahiere:
-- Aktueller Status (`[ ]`, `[~]`, `[x]`)
+- Aktueller Status aus dem Frontmatter (`status:`; shared: `status.ios` / `status.android`)
 - Titel (fuer Commit-Messages und CHANGELOG)
 - Ticket-Typ (Feature / Bug Fix / Refactoring / ...)
 
-**Wenn Status bereits `[x]` DONE:**
+**Wenn Status bereits `done` (shared: fuer die zu schliessende Plattform):**
 > "Ticket {id} ist bereits abgeschlossen. Pruefe nur noch Git-Zustand und Merge?"
 > Bei "ja" weiter ab Schritt 4. Bei "nein" Ende.
 
@@ -112,9 +112,13 @@ Suche nach einer Zeile mit `(Ticket: {ticket-id})`.
 
 ### Schritt 6: Status auf DONE setzen
 
-1. **Ticket-Datei:** `**Status**: [~] IN PROGRESS` (oder `[ ] TODO`) → `**Status**: [x] DONE`
-2. **INDEX.md** in `dev-docs/tickets/INDEX.md`: Zeile mit Ticket-ID finden, `[~]` oder `[ ]` → `[x]`
-3. Commit: `docs(<ticket-id>): Ticket abschliessen`
+1. **Frontmatter:** `status: todo|in-progress` → `status: done` (shared: nur `status.ios` bzw. `status.android`, siehe Sonderfall Shared-Tickets)
+2. **Archivieren, falls jetzt abgeschlossen:** Plattform-Ticket mit `done|wontfix`; Shared-Ticket, wenn alle Plattformwerte in `done|wontfix|n/a` liegen und mindestens einer nicht `n/a` ist.
+   `git mv dev-docs/tickets/<bereich>/<datei>.md dev-docs/tickets/archive/<bereich>/<datei>.md`
+   Danach in der verschobenen Datei jeden relativen Link, der mit `../` beginnt, um ein weiteres `../` ergaenzen (die Datei liegt jetzt eine Ebene tiefer, z.B. `../plans/x.md` → `../../plans/x.md`).
+   Noch nicht abgeschlossen (shared mit offener Plattform) → Datei bleibt liegen.
+3. **Index neu erzeugen:** `make tickets-index` im Repo-Root. INDEX.md nie von Hand editieren. Fertig, wenn Exit 0; bei Fehler das gemeldete Problem beheben und erneut ausfuehren.
+4. Commit (Ticket-Datei inkl. Verschiebung + INDEX.md): `docs(<ticket-id>): Ticket abschliessen`
 
 ### Schritt 7: Merge in main und Branch loeschen
 
@@ -128,9 +132,9 @@ Suche nach einer Zeile mit `(Ticket: {ticket-id})`.
 ```
 Ticket geschlossen: {ticket-id}
 
-Status: [x] DONE
-Datei: dev-docs/tickets/{platform}/{filename}.md
-INDEX.md: Aktualisiert
+Status: done
+Datei: dev-docs/tickets/{archive/}{bereich}/{filename}.md
+INDEX.md: neu erzeugt
 CHANGELOG: {Eintrag vorhanden / neu erstellt}
 
 Git:
@@ -150,7 +154,7 @@ Noch zu tun (manuell):
 Falls User sagt "als WONTFIX schliessen":
 1. Frage nach Begruendung
 2. Fuege Begruendung als Notiz ins Ticket ein
-3. Status → `[x] WONTFIX` (statt `[x] DONE`)
+3. Status → `wontfix` (statt `done`), dann Schritt 6 ab Punkt 2 (archivieren, Index erzeugen)
 4. Kein Merge — Branch je nach User-Wunsch verwerfen oder behalten
 
 ### Shared-Tickets
@@ -160,8 +164,8 @@ Bei `shared-*`-Tickets:
    - Nur iOS
    - Nur Android
    - Beide
-2. Aktualisiere nur die entsprechende Plattform-Spalte in INDEX.md
-3. Wenn nur eine Plattform DONE → Ticket bleibt offen (kein Merge zu main fuer die andere Plattform), oder Branch ist plattform-spezifisch (`feature/shared-082-ios`) → dann normal mergen, INDEX-Eintrag bleibt teilweise offen
+2. Setze nur die entsprechenden Werte unter `status:` (`ios` / `android`); den anderen Wert unveraendert lassen
+3. Wenn die andere Plattform noch `todo`/`in-progress` ist → Ticket bleibt aktiv (kein `git mv`), Index zeigt es teilweise offen. Ist der Branch plattform-spezifisch (`feature/shared-082-ios`) → normal mergen; sonst kein Merge zu main fuer die andere Plattform
 
 ### Bereits committet, aber CHANGELOG fehlt
 
@@ -169,6 +173,6 @@ Normaler Pfad — Schritt 5 fuegt CHANGELOG nachtraeglich hinzu (eigener `docs:`
 
 ## Referenzen
 
-- `dev-docs/tickets/INDEX.md` — Ticket-Uebersicht
+- `dev-docs/tickets/README.md` — Frontmatter-Schema, Archiv-Regel, `make tickets-index`
 - `CHANGELOG.md` — `[Unreleased]`-Sektion ist Pflicht-Quelle fuer Release Notes
 - `dev-docs/release/RELEASE_GUIDE.md` — was nach dem Close mit `[Unreleased]` passiert

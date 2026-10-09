@@ -1,9 +1,16 @@
+---
+id: shared-127
+title: Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren
+status:
+  ios: todo
+  android: todo
+phase: 1-Quick Fix
+priority: hoch
+---
+
 # Ticket shared-127: Datenschutzerklaerung und Offline-Versprechen ehrlich formulieren
 
-**Status**: [ ] TODO
-**Prioritaet**: HOCH
 **Komplexitaet**: Rein textlich, kein App-Code. Das Risiko liegt in der Formulierung: Die Aussage muss ehrlich sein, ohne das tatsaechlich starke Datenschutz-Versprechen zu verwaessern. Mehrere Stellen (Website, Store-Texte, README) in zwei Sprachen muessen konsistent bleiben.
-**Phase**: 1-Quick Fix
 
 ---
 
@@ -14,17 +21,6 @@ Alle oeffentlichen Aussagen zu Datenschutz und Offline-Betrieb sollen beschreibe
 ## Warum
 
 Die Datenschutzerklaerung sagt heute "Sendet keine Daten an externe Server" und "operates entirely offline", Store-Texte und README werben mit "100% offline — kein Internet erforderlich". Seit dem Link-Import (shared-046, shared-091) stimmt das nicht mehr: Die App laedt Dateien vom Server des Anbieters. Mit dem Podcast-Import kommt ein Abruf bei Apple hinzu. Privacy ist ein Grundwert der App — gerade deshalb muss die Beschreibung genau stimmen. Das eigentliche Versprechen bleibt unveraendert: kein Tracking, keine eigenen Server, keine Kennungen, nichts ohne Nutzeraktion.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
-
-Betrifft keinen App-Code. Die Spalten stehen fuer die Store-Texte der jeweiligen Plattform; Website und README gelten fuer beide.
 
 ---
 
@@ -62,6 +58,7 @@ Betrifft keinen App-Code. Die Spalten stehen fuer die Store-Texte der jeweiligen
 - Die App-Store-Datenschutzangabe ("Keine Daten erfasst") bleibt korrekt: Apple definiert "erfassen" als Uebertragung an den Entwickler oder Dritte zur Speicherung/Auswertung. Trotzdem beim Release pruefen.
 - Bewusst vor dem Podcast-Import umsetzen: Die Korrektur ist wegen des Link-Imports ohnehin faellig und soll nicht auf das Feature warten. Den Apple-Abruf direkt mit aufnehmen, damit die Texte nicht zweimal angefasst werden.
 - Hintergrund und Entscheidungen: `dev-docs/concepts/podcast-import.md`
+- Betrifft keinen App-Code. Die Spalten stehen fuer die Store-Texte der jeweiligen Plattform; Website und README gelten fuer beide.
 
 ---
 

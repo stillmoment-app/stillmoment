@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-094 (Android)
 
-Ticket: [shared-094](../shared/shared-094-theme-refinement-kerzenschein.md)
+Ticket: [shared-094](../archive/shared/shared-094-theme-refinement-kerzenschein.md)
 iOS-Plan: [shared-094-ios.md](shared-094-ios.md)
 iOS-Referenz-Implementierung: `ios/StillMoment/Presentation/Theme/ThemeColors+Palettes.swift`
 Erstellt: 2026-05-21
@@ -584,7 +584,7 @@ Ticket-Hinweise).
 |-------|--------|-------------|
 | `CHANGELOG.md` | Eintrag | Neuer `### Changed (Android)`-Block unter `[Unreleased]` mit Wortlaut analog zum bestehenden iOS-Block fuer shared-094. Plattform-Kennzeichnung `(Android)` und derselbe Inhalt — die Refinement-Story ist identisch. |
 | `android/CLAUDE.md` | Pruefen | Kein expliziter Theme-Wert-Verweis erwartet — schnell-Grep nach `cardBorder`, `cardShadow`, `accentBackground` vor Commit. |
-| `dev-docs/tickets/shared/shared-094-theme-refinement-kerzenschein.md` | Eintrag | `[Plan (Android)]: ../plans/shared-094-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen **erst beim Close**, nicht im Plan. |
+| `dev-docs/tickets/archive/shared/shared-094-theme-refinement-kerzenschein.md` | Eintrag | `[Plan (Android)]: ../plans/shared-094-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen **erst beim Close**, nicht im Plan. |
 | `MEMORY.md` | Eintrag (optional) | Falls eine Lerning-Notiz zur Compose-`DstIn`-BlendMode + `Offscreen`-Composition fuer Alpha-Masken sinnvoll erscheint — bei Implementation entscheiden. |
 
 ---

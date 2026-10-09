@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-097 (iOS)
 
-Ticket: [shared-097](../shared/shared-097-danke-screen-kerzenschein.md)
+Ticket: [shared-097](../archive/shared/shared-097-danke-screen-kerzenschein.md)
 Erstellt: 2026-05-16
 
 ---

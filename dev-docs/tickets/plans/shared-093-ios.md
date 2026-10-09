@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-093 (iOS)
 
-Ticket: [shared-093](../shared/shared-093-theme-system-vereinfachen.md)
+Ticket: [shared-093](../archive/shared/shared-093-theme-system-vereinfachen.md)
 Erstellt: 2026-05-16
 
 ---

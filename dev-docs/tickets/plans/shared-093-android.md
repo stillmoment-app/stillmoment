@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-093 (Android)
 
-Ticket: [shared-093](../shared/shared-093-theme-system-vereinfachen.md)
+Ticket: [shared-093](../archive/shared/shared-093-theme-system-vereinfachen.md)
 iOS-Referenz: [shared-093-ios.md](shared-093-ios.md)
 Erstellt: 2026-05-21
 
@@ -17,7 +17,7 @@ Bewusst getroffene Entscheidungen, die in den Plan eingeflossen sind. Spiegeln d
 - **`resolveColorScheme(theme:darkTheme:)` und `resolveStillMomentColors(theme:darkTheme:)` werden zu `resolveColorScheme(darkTheme:)` / `resolveStillMomentColors(darkTheme:)`.** Der `when (theme)`-Switch entfaellt; direkte `if (darkTheme)` reichen.
 - **Screengrab/Fastlane-Tooling:** Wird nicht angefasst — eine Inspektion zeigt keine `THEME`-Variable in `android/Makefile` oder in `fastlane/`. Falls bei Implementierung doch eine auftaucht: gleiche Logik wie iOS (entfernen).
 - **`TypographyTest.ThemeColorRoleResolution`** ruft `resolveColorScheme(ColorTheme.CANDLELIGHT, ...)` — wird auf die neue Single-Arg-Signatur umgestellt, Tests bleiben fachlich gleich (Color-Role-Resolution, nicht Theme-Iteration).
-- **Folge-Ticket** fuer Refinement der einzig verbleibenden Palette: [shared-094 Android](../shared/shared-094-theme-refinement-kerzenschein.md) — Hex-Werte bleiben in diesem Ticket **unveraendert**.
+- **Folge-Ticket** fuer Refinement der einzig verbleibenden Palette: [shared-094 Android](../archive/shared/shared-094-theme-refinement-kerzenschein.md) — Hex-Werte bleiben in diesem Ticket **unveraendert**.
 
 ---
 
@@ -60,7 +60,7 @@ Bewusst getroffene Entscheidungen, die in den Plan eingeflossen sind. Spiegeln d
 |-------|--------|-------------|
 | `CHANGELOG.md` | Eintrag | Neuer `### Removed (Android)`-Block unter `[Unreleased]` (oder im offenen Release-Block) — Theme-Auswahl entfaellt, analog zum iOS-Wortlaut |
 | `android/CLAUDE.md` | Pruefen | Aktuell kein Theme-Verweis (Grep bestaetigt) — keine Aenderung erwartet |
-| `dev-docs/tickets/shared/shared-093-theme-system-vereinfachen.md` | Eintrag | `[Plan (Android)]: ../plans/shared-093-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan |
+| `dev-docs/tickets/archive/shared/shared-093-theme-system-vereinfachen.md` | Eintrag | `[Plan (Android)]: ../plans/shared-093-android.md` ergaenzen; Plattform-Status auf Android `[x]` setzen erst beim Close, nicht im Plan |
 
 ---
 
@@ -232,7 +232,7 @@ Layer-weise von innen nach aussen, weil Compiler-Fehler beim Loeschen von `Color
 
 ## Folge-Ticket
 
-Refinement der einzig verbleibenden Palette (Kerzenschein 2.0): **[shared-094 Theme-Refinement Kerzenschein 2.0 (Android)](../shared/shared-094-theme-refinement-kerzenschein.md)** — Hex-Werte und Tokens werden dort angepasst, nicht in diesem Ticket. Aenderungen hier sollen daher rein strukturell sein (Konstanten umbenannt, aber gleiche Werte).
+Refinement der einzig verbleibenden Palette (Kerzenschein 2.0): **[shared-094 Theme-Refinement Kerzenschein 2.0 (Android)](../archive/shared/shared-094-theme-refinement-kerzenschein.md)** — Hex-Werte und Tokens werden dort angepasst, nicht in diesem Ticket. Aenderungen hier sollen daher rein strukturell sein (Konstanten umbenannt, aber gleiche Werte).
 
 ---
 

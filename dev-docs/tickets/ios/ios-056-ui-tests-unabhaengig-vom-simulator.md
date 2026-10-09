@@ -1,10 +1,16 @@
+---
+id: ios-056
+title: UI-Tests unabhängig vom Zustand des Simulators
+status: todo
+phase: 5-QA
+priority: mittel
+depends_on: [ios-055]
+---
+
 # Ticket ios-056: UI-Tests unabhängig vom Zustand des Simulators
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Überschaubar. Das Risiko liegt darin, dass ein Test-Schalter für den Ausgangszustand versehentlich in den Store-Build gelangt oder bestehende UI-Tests, die mit Beispiel-Meditationen arbeiten, ihren Zustand verlieren. Beide Fälle müssen bewusst geprüft werden.
 **Abhaengigkeiten**: ios-055
-**Phase**: 5-QA
 
 ---
 

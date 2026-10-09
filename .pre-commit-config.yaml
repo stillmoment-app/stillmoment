@@ -61,3 +61,13 @@ repos:
         files: ^ios/StillMoment/.*\.swift$
         pass_filenames: false
         additional_dependencies: ['xcodeproj']
+
+  # Tickets: Frontmatter gueltig und generierter INDEX.md aktuell
+  - repo: local
+    hooks:
+      - id: tickets-check
+        name: Tickets pruefen (make tickets-check)
+        entry: make tickets-check
+        language: system
+        files: ^dev-docs/tickets/
+        pass_filenames: false

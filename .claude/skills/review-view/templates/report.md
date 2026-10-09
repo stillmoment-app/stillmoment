@@ -98,7 +98,7 @@
 |--------|-----------|-------|--------------|
 | {platform}-{NNN} | {iOS/Android/Shared} | {Phase} | {Kurzbeschreibung} |
 
-**INDEX.md aktualisiert**: {Ja/Nein}
+**INDEX.md neu erzeugt (`make tickets-index`)**: {Ja/Nein}
 
 ---
 

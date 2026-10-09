@@ -87,15 +87,7 @@ Erstelle strukturierten Report nach `templates/report.md`:
 
 Für kritische Findings (Score-Abzug >= 5 Punkte):
 
-1. Ticket-Datei erstellen in `dev-docs/tickets/{platform}/`
-2. Format: `{platform}-{NNN}-{view}-{issue}.md`
-3. Template: `dev-docs/tickets/TEMPLATE-platform.md`
-4. INDEX.md aktualisieren
-
-**Nächste Ticket-Nummern:**
-- iOS: ios-016
-- Android: android-028
-- Shared: shared-006
+Pro Finding den Workflow von `/create-ticket` befolgen (`.claude/skills/create-ticket/SKILL.md`): naechste Nummer per Glob ueber aktive + archivierte Tickets, Frontmatter aus `dev-docs/tickets/TEMPLATE-platform.md`, Slug `{view}-{issue}`. Nach dem letzten Ticket einmal `make tickets-index` im Repo-Root — INDEX.md nie von Hand editieren.
 
 **Phase-Zuordnung:**
 | Finding-Typ | Phase |
@@ -113,7 +105,7 @@ Für kritische Findings (Score-Abzug >= 5 Punkte):
 
 ### Ticket-System
 - `dev-docs/tickets/TEMPLATE-platform.md` - Ticket-Vorlage
-- `dev-docs/tickets/INDEX.md` - Ticket-Übersicht
+- `dev-docs/tickets/README.md` - Frontmatter-Schema, Konventionen
 
 ### Verzeichnis-Struktur
 | Plattform | Views | ViewModels | Tests |

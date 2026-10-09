@@ -1,10 +1,16 @@
+---
+id: ios-050
+title: Typografie 2.1 — Layout-Anpassungen fuer DT AX2+
+status: todo
+phase: 5-QA
+priority: mittel
+depends_on: [ios-048]
+---
+
 # Ticket ios-050: Typografie 2.1 — Layout-Anpassungen fuer Dynamic Type AX2+
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Reine Presentation-Layer-Arbeit ohne neue Domain-Logik. Risiko liegt im konsistenten Verhalten ueber alle Hauptscreens hinweg und im sauberen Umgang mit `@Environment(\.dynamicTypeSize)` (Layout-Switch HStack→VStack ab AX-Stufen). Keine neuen Tokens; das Typografie-System (TextStyle.swift) bleibt unveraendert.
 **Abhaengigkeiten**: ios-048 (Typografie 2.1 abgeschlossen)
-**Phase**: 5-QA
 
 ---
 

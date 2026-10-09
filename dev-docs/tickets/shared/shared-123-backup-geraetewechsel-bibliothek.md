@@ -1,9 +1,16 @@
+---
+id: shared-123
+title: Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: hoch
+---
+
 # Ticket shared-123: Bibliothek beim Geraetewechsel — Backup-Verhalten klaeren
 
-**Status**: [ ] TODO
-**Prioritaet**: HOCH
 **Komplexitaet**: Der Backup-Ausschluss regenerierbarer Daten ist klein. Das Risiko liegt im zweiten Teil: Der Fehlerfall entsteht erst bei einer echten Wiederherstellung auf einem zweiten Geraet und laesst sich nicht im Simulator nachstellen. Verifikation braucht zwei physische Geraete oder einen echten Backup-Restore-Durchlauf pro Plattform.
-**Phase**: 3-Feature
 
 ---
 
@@ -16,15 +23,6 @@ Beim Wechsel auf ein neues Geraet soll nachvollziehbar sein, was mit der eigenen
 Die Bibliothek ist das Kernfeature — eine ueber Monate aufgebaute Sammlung ist das Wertvollste, was ein Nutzer in dieser App hat. Aktuell ist ungeklaert, was beim Geraetewechsel davon ankommt, und das Verhalten unterscheidet sich zwischen den Plattformen.
 
 Der wahrscheinliche Fehlerfall ist besonders unschoen: Die Verwaltungsdaten der Bibliothek sind klein und werden mitgesichert, die Audiodateien selbst sind gross und bleiben je nach Uebertragungsweg zurueck. Das Ergebnis ist eine Bibliothek, die vollstaendig aussieht, in der aber kein Antippen zu einer Meditation fuehrt. Wer sein neues Handy einrichtet und das erlebt, haelt seine Sammlung fuer verloren — ohne zu erfahren, ob und wie sie zurueckzuholen ist.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | -             |
 
 ---
 

@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-097 (Android)
 
-Ticket: [shared-097](../shared/shared-097-danke-screen-kerzenschein.md)
+Ticket: [shared-097](../archive/shared/shared-097-danke-screen-kerzenschein.md)
 iOS-Plan: [shared-097-ios.md](shared-097-ios.md)
 iOS-Referenz-Implementierung:
 - `ios/StillMoment/Presentation/Views/Shared/DankeLotusMandala.swift`

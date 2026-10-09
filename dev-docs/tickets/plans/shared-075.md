@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-075 (iOS Rework)
 
-Ticket: [shared-075](../shared/shared-075-library-long-press-preview.md)
+Ticket: [shared-075](../archive/shared/shared-075-library-long-press-preview.md)
 Erstellt: 2026-03-13
 Aktualisiert: 2026-03-14 (UI-Konzept-Aenderung)
 

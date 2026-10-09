@@ -1,10 +1,16 @@
+---
+id: android-082
+title: Instrumented Tests auf Android 16 wieder gruen
+status: todo
+phase: 5-QA
+priority: hoch
+depends_on: [android-081]
+---
+
 # Ticket android-082: Instrumented Tests auf Android 16 wieder gruen
 
-**Status**: [ ] TODO
-**Prioritaet**: HOCH
 **Komplexitaet**: Die Arbeit steckt in der Diagnose, nicht im Fix. 17 rote Tests koennen eine Ursache oder acht sein — das ist vorab nicht bekannt. Mindestens ein Fall (Endlos-Rekomposition im Player) ist bekannt schwierig und braucht manuelle Kontrolle der Compose-Frame-Clock. Jeder Durchlauf braucht einen laufenden Android-16-Emulator; kein Unit-Test fangt davon etwas.
 **Abhaengigkeiten**: android-081 (abgeschlossen — hat die Failures sichtbar gemacht und den vorgelagerten Blocker behoben)
-**Phase**: 5-QA
 
 ---
 

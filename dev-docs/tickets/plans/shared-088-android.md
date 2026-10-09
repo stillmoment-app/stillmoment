@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-088 (Android)
 
-Ticket: [shared-088](../shared/shared-088-einstimmung-feature-entfernen.md)
+Ticket: [shared-088](../archive/shared/shared-088-einstimmung-feature-entfernen.md)
 Erstellt: 2026-05-05
 Plattform: Android
 Voraussetzung: iOS-Plan ([shared-088-ios.md](shared-088-ios.md)) als Referenz fuer die fachlichen Entscheidungen.

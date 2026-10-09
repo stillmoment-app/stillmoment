@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-098 (iOS)
 
-Ticket: [shared-098](../shared/shared-098-library-preview-scrub-slider.md)
+Ticket: [shared-098](../archive/shared/shared-098-library-preview-scrub-slider.md)
 Erstellt: 2026-05-17
 
 ---

@@ -1,9 +1,16 @@
+---
+id: shared-078
+title: App Store + Website – Emotionaler Ton
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: mittel
+---
+
 # Ticket shared-078: App Store + Website – Emotionaler Ton
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Aufwand**: ~3h (kein Code, nur Texte)
-**Phase**: 4-Polish
 **Abhaengigkeit**: shared-040 (App Store Narrativ + Screenshots) – kann unabhaengig umgesetzt werden
 
 ---
@@ -30,16 +37,6 @@ Aktuell kommunizieren Store und Website *was* die App kann — aber nicht *warum
 | Description nach "Mehr" | Features → Privacy | Informiert + baut Vertrauen auf |
 
 **Struktur alt:** USP → Feature-Bulletpoints → Privacy → emotionaler Abschluss
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS (App Store) | [ ] | - |
-| Android (Play Store) | [ ] | - |
-| Website (index.html) | [ ] | - |
 
 ---
 
@@ -173,3 +170,4 @@ EN:
 - Android Play Store indexiert die Full Description — deshalb keyword-reiche Sektion am Ende noetig
 - Still Moment hat Apples "No Data Collected"-Badge (PrivacyInfo.xcprivacy: leere Arrays). Keine andere Meditations-App hat das — aber nicht als Hauptargument verwenden
 - shared-040 deckt Screenshots + Metadaten-Struktur ab; dieses Ticket fokussiert nur auf Texte und Ton
+- Plattform-Status Website (index.html): [ ]

@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-094 (iOS)
 
-Ticket: [shared-094](../shared/shared-094-theme-refinement-kerzenschein.md)
+Ticket: [shared-094](../archive/shared/shared-094-theme-refinement-kerzenschein.md)
 Erstellt: 2026-05-16
 
 ---

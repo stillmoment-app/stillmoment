@@ -1,10 +1,17 @@
+---
+id: shared-040
+title: App Store Narrativ und Screenshots
+status:
+  ios: todo
+  android: todo
+phase: 4-Polish
+priority: hoch
+---
+
 # Ticket shared-040: App Store Screenshots und Visuals
 
-**Status**: [~] IN PROGRESS
 **Plan**: [Implementierungsplan](../plans/shared-040.md)
-**Prioritaet**: HOCH
 **Aufwand**: iOS ~2d | Android ~2d
-**Phase**: 4-Polish
 **Abhaengigkeit**: shared-078 (Texte und Ton), shared-079 (Pipeline Hardening)
 
 ---
@@ -20,15 +27,6 @@ Der App Store ist der erste Kontaktpunkt. Die meisten User lesen keinen Text —
 **Wettbewerbskontext:** Die grossen Apps (Calm, Headspace) haben professionelle Botschaften-Screenshots. Nischen-Apps haben oft nur UI-Screenshots. Die Bilder sind die Chance, mit kleinem Budget professionell zu wirken.
 
 **Abgrenzung zu shared-078:** Dieses Ticket kuemmert sich um Visuals, Keywords und Store-Metadaten. Texte (Subtitle, Description, Promotional Text) werden in shared-078 definiert.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | shared-078 (Texte) |
-| Android   | [ ]    | shared-078 (Texte) |
 
 ---
 
@@ -157,3 +155,5 @@ Die Headlines erzaehlen beim Durchswipen eine Geschichte: USP → Sympathie → 
 - Die Reihenfolge der Bilder ist bewusst gewaehlt: USP → Sympathie → Feature → Vertrauen → Emotion. Nicht aendern ohne guten Grund.
 - "Kostenlos" bewusst nicht als Screenshot-Headline — zieht die falsche Zielgruppe an. "Kein Abo" kommuniziert dasselbe, aber positiver.
 - Store-Beschreibung sollte NICHT "kostenlos" als erstes Wort verwenden — fuehre mit dem USP, erwaehne "kostenlos" weiter unten.
+- Abhaengigkeit iOS (aus Plattform-Status): shared-078 (Texte)
+- Abhaengigkeit Android (aus Plattform-Status): shared-078 (Texte)

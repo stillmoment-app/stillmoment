@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-090 (iOS)
 
-Ticket: [shared-090-timer-atemkreis-analog-player](../shared/shared-090-timer-atemkreis-analog-player.md)
+Ticket: [shared-090-timer-atemkreis-analog-player](../archive/shared/shared-090-timer-atemkreis-analog-player.md)
 Erstellt: 2026-05-04
 Scope: nur iOS (Android wird spaeter, sobald shared-087 Android steht)
 

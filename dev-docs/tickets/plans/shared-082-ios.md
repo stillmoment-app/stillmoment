@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-082 (iOS)
 
-Ticket: [shared-082](../shared/shared-082-download-konstellations-animation.md)
+Ticket: [shared-082](../archive/shared/shared-082-download-konstellations-animation.md)
 Plattform: **iOS**
 Erstellt: 2026-05-03
 

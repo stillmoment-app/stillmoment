@@ -1,6 +1,6 @@
 # Implementierungsplan: Android-Parität Phase A — Trim-Fundament
 
-Tickets: [shared-105](../shared/shared-105-trim-punkte-gefuehrte-meditationen.md) (Datenmodell + Playback-Teil)
+Tickets: [shared-105](../archive/shared/shared-105-trim-punkte-gefuehrte-meditationen.md) (Datenmodell + Playback-Teil)
 Erstellt: 2026-06-16
 Kontext: Erstes von vier Paketen, um Android auf den iOS-Stand der Trim-/Gong-/Wellenform-Feature-Familie zu bringen (Phasen A–D). Die Pakete sind bewusst gegenüber den iOS-Tickets **kollabiert**: iOS hat sich iterativ zum Ziel gearbeitet (mm:ss-Textfelder in shared-105 → durch Wellenform-Karte in shared-107 ersetzt → Save-Semantik in shared-112 geändert). Der iOS-**Code** ist der Endzustand; Android baut direkt diesen, ohne die verworfenen Zwischenschritte.
 

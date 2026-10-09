@@ -1,6 +1,6 @@
 # Implementierungsplan: shared-076 (Android)
 
-Ticket: [shared-076](../shared/shared-076-gong-vibration.md)
+Ticket: [shared-076](../archive/shared/shared-076-gong-vibration.md)
 Erstellt: 2026-03-18
 
 ## Betroffene Codestellen

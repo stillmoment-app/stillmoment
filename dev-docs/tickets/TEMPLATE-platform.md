@@ -1,10 +1,15 @@
+---
+id: {platform}-{NNN}
+title: "{Titel}"            # immer in "..." (sonst brechen ":" und "#" das YAML)
+status: todo                # todo | in-progress | done | wontfix
+phase: 3-Feature            # 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
+priority: mittel            # optional: kritisch | hoch | mittel | niedrig
+depends_on: []              # optional: Ticket-IDs, z.B. [ios-012, shared-040]
+---
+
 # Ticket {platform}-{NNN}: {Titel}
 
-**Status**: [ ] TODO | [~] IN PROGRESS | [x] DONE
-**Prioritaet**: KRITISCH | HOCH | MITTEL | NIEDRIG
 **Komplexitaet**: {Freitext: Art der Komplexitaet und wo die Risiken liegen}
-**Abhaengigkeiten**: Keine | {platform}-{NNN}
-**Phase**: 1-Quick Fix | 2-Architektur | 3-Feature | 4-Polish | 5-QA
 
 ---
 
@@ -56,7 +61,7 @@
 
 ## Hinweise
 
-{Optional: Nur fuer nicht-offensichtliche Entscheidungen, bekannte Fallstricke, oder spezifische API-Namen die recherchiert wurden}
+{Optional: Nur fuer nicht-offensichtliche Entscheidungen, bekannte Fallstricke, oder spezifische API-Namen die recherchiert wurden; Abhaengigkeiten, die keine Ticket-ID sind (Ticket-IDs gehoeren nach `depends_on`)}
 
 ---
 

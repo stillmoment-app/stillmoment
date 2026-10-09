@@ -1,9 +1,16 @@
+---
+id: shared-117
+title: Lautstärke-Normalisierung gefuehrter Meditationen
+status:
+  ios: todo
+  android: todo
+phase: 3-Feature
+priority: mittel
+---
+
 # Ticket shared-117: Lautstärke-Normalisierung gefuehrter Meditationen
 
-**Status**: [ ] TODO
-**Prioritaet**: MITTEL
 **Komplexitaet**: Audio-Analyse (wahrgenommene Lautstaerke korrekt messen) + plattform-spezifische Gain-Anwendung beim Playback. Risiko liegt in der Mess-Methodik (Stille/Leise-Phasen duerfen nicht verzerren) und im clipping-sicheren Anheben leiser Aufnahmen.
-**Phase**: 3-Feature
 
 ---
 
@@ -14,15 +21,6 @@ Importierte gefuehrte Meditationen sollen automatisch auf eine einheitliche, ang
 ## Warum
 
 Die persoenliche Sammlung besteht aus MP3s unterschiedlichster Quellen mit stark schwankenden Pegeln. Der User muss heute bei jedem Wechsel der Aufnahme die Geraete-Lautstaerke nachregeln — das stoert die Stille und widerspricht dem "Handy weglegen"-Use-Case. Eine gleichmaessige Lautstaerke laesst die Sammlung wie aus einem Guss wirken.
-
----
-
-## Plattform-Status
-
-| Plattform | Status | Abhaengigkeit |
-|-----------|--------|---------------|
-| iOS       | [ ]    | -             |
-| Android   | [ ]    | Waveform-Infrastruktur (iOS-Vorsprung) |
 
 ---
 
@@ -82,3 +80,4 @@ Das ist kein Workaround, sondern der Normalfall des Standards. Verfuegbare Bibli
 **Scope-Abgrenzung:** Die visuelle Waveform-Normalisierung (alle Buckets auf gleiche Hoehe skaliert) ist ein eigenstaendiger Concern und bleibt unveraendert. Dieses Ticket betrifft nur die hoerbare Lautstaerke.
 
 **Kein UI-Schalter im ersten Wurf** (Less is more): Normalisierung laeuft automatisch. Ein Opt-out-Toggle ist bewusst nicht Teil dieses Tickets — nur ergaenzen, wenn sich im Test ein echter Bedarf zeigt.
+- Abhaengigkeit Android (aus Plattform-Status): Waveform-Infrastruktur (iOS-Vorsprung)
